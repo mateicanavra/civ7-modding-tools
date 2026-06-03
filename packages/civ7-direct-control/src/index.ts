@@ -17,6 +17,10 @@ import {
   assessCiv7SignedIntSeed,
 } from "./policy/setup.js";
 import {
+  diplomacyResponsePostcondition,
+  waitForCiv7DiplomacyResponseAfter,
+} from "./play/operations/diplomacy-postconditions.js";
+import {
   encodeCiv7TunerRequest,
   parseCiv7TunerFrame,
   type Civ7TunerFrame,
@@ -3731,7 +3735,13 @@ export async function requestCiv7DiplomacyResponse(
     command: buildDiplomacyResponseCloseoutCommand({ ...input, playerId }),
   });
   const payload = jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(command, "Civ7 diplomacy response closeout");
-  const after = await waitForCiv7DiplomacyResponseAfter(input, options, before, beforeValidation);
+  const after = await waitForCiv7DiplomacyResponseAfter(
+    input,
+    options,
+    before,
+    beforeValidation,
+    getCiv7PlayNotificationView,
+  );
   const afterValidation = await canStartCiv7PlayerOperation(operationInput, options);
   const postcondition = diplomacyResponsePostcondition(input, payload.sent === true, before, after, beforeValidation, afterValidation);
   return {
@@ -7349,95 +7359,6 @@ async function waitForCiv7ProductionChoiceAfter(
     lastSnapshot = payload.afterProductionPostcondition;
   }
   return { validation: lastValidation, snapshot: lastSnapshot };
-}
-
-async function waitForCiv7DiplomacyResponseAfter(
-  input: Civ7DiplomacyResponseInput,
-  options: Civ7DirectControlOptions,
-  before: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-): Promise<Civ7PlayNotificationViewResult> {
-  const waitTimeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
-  const pollIntervalMs = 250;
-  const startedAt = Date.now();
-  let last = await getCiv7PlayNotificationView(options);
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    const candidate = diplomacyResponsePostcondition(input, true, before, last, beforeValidation, beforeValidation);
-    if (candidate.classification !== "no-state-change") return last;
-    await sleep(pollIntervalMs);
-    last = await getCiv7PlayNotificationView(options);
-  }
-  return last;
-}
-
-function diplomacyResponsePostcondition(
-  input: Civ7DiplomacyResponseInput,
-  sent: boolean,
-  before: Civ7PlayNotificationViewResult,
-  after: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-  afterValidation: Civ7OperationValidationResult,
-): Civ7DiplomacyResponsePostcondition {
-  const classification = classifyDiplomacyResponsePostcondition(input, sent, before, after, beforeValidation, afterValidation);
-  return {
-    classification,
-    reason: diplomacyResponsePostconditionReason(classification),
-  };
-}
-
-function classifyDiplomacyResponsePostcondition(
-  input: Civ7DiplomacyResponseInput,
-  sent: boolean,
-  before: Civ7PlayNotificationViewResult,
-  after: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-  afterValidation: Civ7OperationValidationResult,
-): Civ7DiplomacyResponsePostconditionClassification {
-  if (!sent) return "not-sent";
-  if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
-  const beforeMatch = findDiplomacyResponseNotification(before, input);
-  const afterMatch = findDiplomacyResponseNotification(after, input);
-  if (beforeMatch && !afterMatch) return "diplomacy-blocker-cleared";
-  const beforeBlocking = probeValue(before.blockingNotificationId);
-  const afterBlocking = probeValue(after.blockingNotificationId);
-  if (!sameComponentId(beforeBlocking, afterBlocking)) return "blocking-notification-changed";
-  if (beforeValidation.valid !== afterValidation.valid || stableJson(beforeValidation.result) !== stableJson(afterValidation.result)) {
-    return "validation-changed";
-  }
-  return "no-state-change";
-}
-
-function diplomacyResponsePostconditionReason(classification: Civ7DiplomacyResponsePostconditionClassification): string {
-  switch (classification) {
-    case "not-sent":
-      return "The diplomacy response did not validate, so no operation was sent.";
-    case "turn-unblocked":
-      return "The response and UI closeout left the turn unblocked.";
-    case "diplomacy-blocker-cleared":
-      return "The matching diplomatic-response notification is no longer present as a blocking decision.";
-    case "blocking-notification-changed":
-      return "The end-turn blocking notification changed after the response closeout.";
-    case "validation-changed":
-      return "The response validator changed after the send, but the notification/turn state did not clearly clear.";
-    case "no-state-change":
-      return "The response was sent, but notification, turn-blocking, and validator state did not change; use stale-blocker diagnostics instead of repeating blindly.";
-  }
-}
-
-function findDiplomacyResponseNotification(
-  view: Civ7PlayNotificationViewResult,
-  input: Civ7DiplomacyResponseInput,
-): Civ7PlayNotificationSummary | undefined {
-  return view.notifications.find((notification) => {
-    const typeName = String(notification.typeName ?? "").toUpperCase();
-    if (typeName !== "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED") return false;
-    return notificationActionId(notification) === input.actionId;
-  });
-}
-
-function notificationActionId(notification: Civ7PlayNotificationSummary): number | undefined {
-  if (!isRecord(notification.target)) return undefined;
-  return typeof notification.target.id === "number" ? notification.target.id : undefined;
 }
 
 function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {

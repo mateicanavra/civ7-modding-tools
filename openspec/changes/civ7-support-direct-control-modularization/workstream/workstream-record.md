@@ -360,6 +360,17 @@ All future agent waves must be framed before delegation:
   `src/play/operations/narrative-postconditions.ts`. The embedded
   `sendNarrativeChoice` source owner and the public wrapper stay in `index.ts`;
   this is local package/source relocation proof only, not runtime proof.
+- Direct-control diplomacy response verification helper slice: completed as the
+  matching diplomacy closeout-helper relocation. It expands
+  `test/diplomacy-response.test.ts` to cover `turn-unblocked`,
+  `no-state-change`, `diplomacy-blocker-cleared`,
+  `blocking-notification-changed`, `validation-changed`, and the reachable
+  post-closeout `not-sent` path where `payload.sent === false` after successful
+  wrapper pre-validation, then moves the wrapper-level wait/postcondition
+  helper group into `src/play/operations/diplomacy-postconditions.ts`. The
+  embedded `sendDiplomacyResponseCloseout` source owner and the public wrapper
+  stay in `index.ts`; this is local package/source relocation proof only, not
+  runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

@@ -145,7 +145,7 @@ runtime/direct-control claims.
         wrapper-level request composition in the facade.
   - [x] 4.6.7 Extract narrative choice verification helper owner while keeping
         the embedded source and public wrapper in the facade.
-  - [ ] 4.6.8 Extract diplomacy response verification helper owner while
+  - [x] 4.6.8 Extract diplomacy response verification helper owner while
         keeping the embedded source and public wrapper in the facade.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while

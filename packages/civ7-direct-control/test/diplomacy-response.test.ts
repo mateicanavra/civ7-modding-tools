@@ -29,6 +29,14 @@ type UiCloseoutCall = {
   args: unknown[];
 };
 
+type DiplomacyResponseMode =
+  | "turn-unblocked"
+  | "stale"
+  | "diplomacy-blocker-cleared"
+  | "blocking-notification-changed"
+  | "validation-changed"
+  | "not-sent";
+
 type FakeTunerServer = {
   received: string[];
   operationCalls: OperationCall[];
@@ -152,18 +160,203 @@ describe("diplomacy response requests", () => {
       await server.close();
     }
   });
+
+  test("does not verify diplomacy responses when the same blocker remains live after send", async () => {
+    const actionId = 8821;
+    const responseType = -1713616684;
+    const notificationId = { owner: 0, id: 44, type: 20 };
+    const server = await startDiplomacyResponseTunerServer({
+      actionId,
+      responseType,
+      notificationId,
+      mode: "stale",
+    });
+
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7DiplomacyResponse(
+        { playerId: 0, actionId, responseType, notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test diplomacy stale blocker" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(false);
+      expect(request.postcondition).toMatchObject({
+        classification: "no-state-change",
+      });
+      expect(request.postcondition.reason).toContain("notification, turn-blocking, and validator state did not change");
+      expect(request.after.notifications).toEqual([
+        expect.objectContaining({
+          id: notificationId,
+          typeName: "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED",
+        }),
+      ]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("classifies diplomacy blocker cleared when the matching blocker disappears but turn stays blocked", async () => {
+    const actionId = 8821;
+    const responseType = -1713616684;
+    const notificationId = { owner: 0, id: 44, type: 20 };
+    const server = await startDiplomacyResponseTunerServer({
+      actionId,
+      responseType,
+      notificationId,
+      mode: "diplomacy-blocker-cleared",
+    });
+
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7DiplomacyResponse(
+        { playerId: 0, actionId, responseType, notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test diplomacy blocker cleared" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        classification: "diplomacy-blocker-cleared",
+        reason: "The matching diplomatic-response notification is no longer present as a blocking decision.",
+      });
+      expect(request.after.canEndTurn).toEqual({ ok: true, value: false });
+      expect(request.after.blockingNotificationId).toEqual({ ok: true, value: { owner: 0, id: 77, type: 20 } });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("classifies blocking notification changed when the blocker remains but under a replacement notification id", async () => {
+    const actionId = 8821;
+    const responseType = -1713616684;
+    const notificationId = { owner: 0, id: 44, type: 20 };
+    const server = await startDiplomacyResponseTunerServer({
+      actionId,
+      responseType,
+      notificationId,
+      mode: "blocking-notification-changed",
+    });
+
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7DiplomacyResponse(
+        { playerId: 0, actionId, responseType, notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test diplomacy blocker identity change" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        classification: "blocking-notification-changed",
+        reason: "The end-turn blocking notification changed after the response closeout.",
+      });
+      expect(request.after.notifications).toEqual([
+        expect.objectContaining({
+          id: { owner: 0, id: 45, type: 20 },
+          target: { id: actionId },
+          typeName: "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED",
+        }),
+      ]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("classifies validation changed when the blocker stays live but the post-closeout validator drifts", async () => {
+    const actionId = 8821;
+    const responseType = -1713616684;
+    const notificationId = { owner: 0, id: 44, type: 20 };
+    const server = await startDiplomacyResponseTunerServer({
+      actionId,
+      responseType,
+      notificationId,
+      mode: "validation-changed",
+    });
+
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7DiplomacyResponse(
+        { playerId: 0, actionId, responseType, notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test diplomacy validation drift" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        classification: "validation-changed",
+        reason: "The response validator changed after the send, but the notification/turn state did not clearly clear.",
+      });
+      expect(request.after.canEndTurn).toEqual({ ok: true, value: false });
+      expect(request.after.notifications).toEqual([
+        expect.objectContaining({
+          id: notificationId,
+          typeName: "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED",
+        }),
+      ]);
+      expect(request.afterValidation).toMatchObject({
+        valid: false,
+        result: { Success: false, FailureReasons: ["test post-closeout validator drift"] },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not verify diplomacy responses when closeout reaches sendRequest failure after pre-validation", async () => {
+    const actionId = 8821;
+    const responseType = -1713616684;
+    const notificationId = { owner: 0, id: 44, type: 20 };
+    const server = await startDiplomacyResponseTunerServer({
+      actionId,
+      responseType,
+      notificationId,
+      mode: "not-sent",
+    });
+
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7DiplomacyResponse(
+        { playerId: 0, actionId, responseType, notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test diplomacy closeout send failure" }
+      );
+
+      expect(request.sent).toBe(false);
+      expect(request.verified).toBe(false);
+      expect(request.payload).toMatchObject({
+        sent: false,
+        sendResult: {
+          ok: false,
+          error: "Game.PlayerOperations.sendRequest: test send failure",
+        },
+      });
+      expect(request.postcondition).toMatchObject({
+        classification: "not-sent",
+        reason: "The diplomatic response was not sent, so no postcondition can be verified.",
+      });
+    } finally {
+      await server.close();
+    }
+  });
 });
 
 async function startDiplomacyResponseTunerServer(input: {
   actionId: number;
   responseType: number;
   notificationId: ComponentId;
+  mode?: DiplomacyResponseMode;
 }): Promise<FakeTunerServer> {
   const received: string[] = [];
   const operationCalls: OperationCall[] = [];
   const notificationCalls: NotificationCall[] = [];
   const uiCloseoutCalls: UiCloseoutCall[] = [];
   let notificationReadCount = 0;
+  let closeoutObserved = false;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on("data", (chunk) => {
@@ -180,11 +373,14 @@ async function startDiplomacyResponseTunerServer(input: {
         const response = handleCommand(frame.message, {
           input,
           notificationReadCount,
+          closeoutObserved,
+          mode: input.mode ?? "turn-unblocked",
           operationCalls,
           notificationCalls,
           uiCloseoutCalls,
         });
         if (response.kind === "notification-view") notificationReadCount += 1;
+        if (response.kind === "closeout") closeoutObserved = true;
         socket.write(encodeResponse(frame.listenerId, [response.output]));
       }
     });
@@ -208,6 +404,8 @@ function handleCommand(
   state: {
     input: { actionId: number; responseType: number; notificationId: ComponentId };
     notificationReadCount: number;
+    closeoutObserved: boolean;
+    mode: DiplomacyResponseMode;
     operationCalls: OperationCall[];
     notificationCalls: NotificationCall[];
     uiCloseoutCalls: UiCloseoutCall[];
@@ -217,7 +415,7 @@ function handleCommand(
   if (command.script.includes("return JSON.stringify(readPlayNotifications(")) {
     return {
       kind: "notification-view",
-      output: JSON.stringify(notificationViewPayload(state.input, state.notificationReadCount > 0)),
+      output: JSON.stringify(notificationViewPayload(state.input, state.notificationReadCount > 0, state.mode)),
     };
   }
   if (command.script.includes("return JSON.stringify(validateOperation(")) {
@@ -240,7 +438,7 @@ function handleCommand(
     });
     return {
       kind: "validation",
-      output: JSON.stringify(operationValidationPayload(validation.input)),
+      output: JSON.stringify(operationValidationPayload(validation.input, state.mode, state.closeoutObserved)),
     };
   }
   if (command.script.includes("return JSON.stringify(sendDiplomacyResponseCloseout(")) {
@@ -282,7 +480,7 @@ function handleCommand(
     );
     return {
       kind: "closeout",
-      output: JSON.stringify(diplomacyCloseoutPayload(closeout)),
+      output: JSON.stringify(diplomacyCloseoutPayload(closeout, state.mode)),
     };
   }
   return {
@@ -372,7 +570,18 @@ function operationValidationPayload(input: {
   playerId: number;
   operationType: string;
   args: Record<string, number>;
-}) {
+}, mode: DiplomacyResponseMode, closeoutObserved: boolean) {
+  if (mode === "validation-changed" && closeoutObserved) {
+    return {
+      family: "player-operation",
+      operationType: input.operationType,
+      enumValue: input.operationType,
+      target: { playerId: input.playerId },
+      args: input.args,
+      valid: false,
+      result: { Success: false, FailureReasons: ["test post-closeout validator drift"] },
+    };
+  }
   return {
     family: "player-operation",
     operationType: input.operationType,
@@ -388,7 +597,7 @@ function diplomacyCloseoutPayload(input: {
   actionId: number;
   responseType: number;
   notificationId: ComponentId;
-}) {
+}, mode: DiplomacyResponseMode) {
   return {
     localPlayerId: 0,
     playerId: 0,
@@ -409,8 +618,10 @@ function diplomacyCloseoutPayload(input: {
       },
     },
     canStart: { ok: true, value: { Success: true } },
-    sent: true,
-    sendResult: { ok: true, value: true },
+    sent: mode !== "not-sent",
+    sendResult: mode === "not-sent"
+      ? { ok: false, error: "Game.PlayerOperations.sendRequest: test send failure" }
+      : { ok: true, value: true },
     uiCloseout: {
       requested: true,
       acknowledgeStarted: { ok: true, value: true },
@@ -430,7 +641,8 @@ function diplomacyCloseoutPayload(input: {
 
 function notificationViewPayload(
   input: { actionId: number; notificationId: ComponentId },
-  afterSend: boolean
+  afterSend: boolean,
+  mode: DiplomacyResponseMode,
 ) {
   const notification = {
     id: input.notificationId,
@@ -461,15 +673,57 @@ function notificationViewPayload(
       responseOptions: [{ responseType: -1713616684, enabled: true }],
     },
   };
-  const notifications = afterSend ? [] : [notification];
+  const afterNotification = mode === "blocking-notification-changed"
+    ? {
+        ...notification,
+        id: { owner: 0, id: 45, type: 20 },
+      }
+    : notification;
+  const otherBlockingNotification = {
+    id: { owner: 0, id: 77, type: 20 },
+    type: "NOTIFICATION_CHOOSE_TECH",
+    typeName: "NOTIFICATION_CHOOSE_TECH",
+    groupType: null,
+    player: null,
+    summary: "LOC_NOTIFICATION_CHOOSE_TECH",
+    message: "LOC_NOTIFICATION_CHOOSE_TECH",
+    target: { id: 999 },
+    location: null,
+    canUserDismiss: false,
+    expired: false,
+    dismissed: false,
+    isEndTurnBlocking: true,
+    decision: {
+      category: "technology-choice",
+      operationFamily: "player-operation",
+      operationType: "SET_TECH_TREE_NODE",
+      argsShape: "{ ProgressionTreeNodeType }",
+      cli: "game play choose-technology",
+      requiredInputs: [],
+      commonActions: [],
+      notes: [],
+    },
+    details: {
+      node: 12,
+    },
+  };
+  const notifications = !afterSend
+    ? [notification]
+    : mode === "stale" || mode === "validation-changed" || mode === "not-sent"
+      ? [notification]
+      : mode === "diplomacy-blocker-cleared"
+        ? [otherBlockingNotification]
+        : mode === "blocking-notification-changed"
+          ? [afterNotification]
+          : [];
   return {
     localPlayerId: 0,
     turn: { ok: true, value: 43 },
     turnDate: { ok: true, value: "test-turn" },
     hasSentTurnComplete: { ok: true, value: false },
-    canEndTurn: { ok: true, value: afterSend },
-    blocker: { ok: true, value: afterSend ? null : "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED" },
-    blockingNotificationId: { ok: true, value: afterSend ? null : input.notificationId },
+    canEndTurn: { ok: true, value: afterSend && mode === "turn-unblocked" },
+    blocker: { ok: true, value: notifications[0]?.typeName ?? null },
+    blockingNotificationId: { ok: true, value: notifications[0]?.id ?? null },
     selectedUnitId: { ok: true, value: null },
     selectedCityId: { ok: true, value: null },
     firstReadyUnitId: { ok: true, value: null },
