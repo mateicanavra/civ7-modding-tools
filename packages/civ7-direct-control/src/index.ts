@@ -96,6 +96,7 @@ import {
   ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
   getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
   getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
+  waitForCiv7SetupPhase as waitForCiv7SetupPhaseFromModule,
   type Civ7PlayerSetupParameterSnapshot,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsInput,
@@ -1382,7 +1383,11 @@ function setupRunDependencies() {
     prepareSetup: prepareCiv7SinglePlayerSetup,
     startPreparedGame: startPreparedCiv7SinglePlayerGame,
     validateIdentifier,
-    waitForSetupPhase: waitForCiv7SetupPhase,
+    waitForSetupPhase: async (
+      phase: Civ7SetupPhase,
+      options: Civ7DirectControlOptions,
+      wait: { waitTimeoutMs: number; pollIntervalMs: number },
+    ) => await waitForCiv7SetupPhaseFromModule(phase, options, wait, setupReadDependencies()),
   } as const;
 }
 
@@ -2584,30 +2589,6 @@ function summarizeCiv7CfgStrings(strings: ReadonlyArray<string>): Civ7SavedGameC
   if (gameSeed !== undefined) summary.gameSeed = gameSeed;
   return summary;
 }
-async function waitForCiv7SetupPhase(
-  phase: Civ7SetupPhase,
-  options: Civ7DirectControlOptions,
-  wait: { waitTimeoutMs: number; pollIntervalMs: number },
-): Promise<Civ7SetupSnapshotResult> {
-  const startedAt = Date.now();
-  let last: Civ7SetupSnapshotResult | undefined;
-  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
-    try {
-      const snapshot = await getCiv7SetupSnapshot(options);
-      last = snapshot;
-      if (snapshot.snapshot.phase === phase) return snapshot;
-    } catch {
-      // Keep polling during shell transitions; callers get timeout details below.
-    }
-    await sleep(wait.pollIntervalMs);
-  }
-  throw new Civ7DirectControlError(
-    "setup-phase-invalid",
-    `Timed out waiting for Civ7 setup phase ${phase}`,
-    { details: last },
-  );
-}
-
 async function waitForCiv7SetupRevisionAfter(
   before: Civ7SetupSnapshotResult,
   options: Civ7DirectControlOptions,

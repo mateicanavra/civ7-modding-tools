@@ -434,7 +434,7 @@ export function validateMapScript(value: string): string {
   return value;
 }
 
-async function waitForCiv7SetupPhase(
+export async function waitForCiv7SetupPhase(
   phase: Civ7SetupPhase,
   options: Civ7DirectControlOptions,
   wait: { waitTimeoutMs: number; pollIntervalMs: number },

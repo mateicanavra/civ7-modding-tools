@@ -1447,6 +1447,16 @@ All future agent waves must be framed before delegation:
   schemas, semantic CLI projection, AI ingestion, hotseat runtime proof, or
   Effect/oRPC procedure-core work. This is local package/source relocation
   proof only, not runtime/live-game proof.
+- Direct-control setup phase wait slice: completed as a narrow setup-read
+  helper relocation. It moves the shared `waitForCiv7SetupPhase` polling helper
+  into `src/setup/reads.ts` so setup map-row refresh and setup-run
+  exit-to-shell orchestration use the same owner while `index.ts` continues to
+  inject the helper into `src/setup/run.ts`. This preserves shell-phase
+  polling, timeout details, `setup-phase-invalid` classification, and existing
+  setup/lifecycle package proof. This does not define telemetry/correlation
+  contracts, public procedure schemas, semantic CLI projection, AI ingestion,
+  hotseat runtime proof, or Effect/oRPC procedure-core work. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

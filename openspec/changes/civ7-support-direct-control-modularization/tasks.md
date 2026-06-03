@@ -835,6 +835,13 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.14.7 Extract setup-phase wait helper ownership into setup reads while
+        keeping setup-run composition injected from `index.ts`, preserving
+        shell-phase polling, timeout details, `setup-phase-invalid`
+        classification, and existing setup/lifecycle package proof, and leaving
+        runtime proof, hotseat runtime proof, AI ingestion, semantic CLI
+        projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

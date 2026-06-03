@@ -190,6 +190,16 @@ runtime proof, CLI semantic projection, Effect/oRPC procedure-core work, or Task
 2.9.4 matrix-row acceptance. Setup prepare/start/run lifecycle input/result
 types remain pending separate owner slices.
 
+Setup phase wait update: `src/setup/reads.ts` now owns the shared
+`waitForCiv7SetupPhase` polling helper used by setup map-row refresh and
+setup-run exit-to-shell orchestration. The public facade still injects the
+helper into `src/setup/run.ts` and keeps setup-run composition stable. This
+preserves shell-phase polling, timeout details, and `setup-phase-invalid`
+classification as local package/source relocation proof only; runtime/live-game
+proof, AI ingestion, semantic CLI projection, telemetry, hotseat runtime proof,
+Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+pending.
+
 Setup lifecycle type update: `src/setup/prepare.ts` now owns single-player
 setup input, setup option value, and prepared-setup result types;
 `src/setup/start.ts` owns prepared-start input and single-player start result
