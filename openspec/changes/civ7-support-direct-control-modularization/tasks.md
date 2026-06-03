@@ -74,15 +74,28 @@
   - Accepted from direct local reads of the completed peer report:
     `019e8cbf-5805-7393-82e8-c83353aeac40` for synthesis mapping both target
     threads onto this support OpenSpec.
-- [x] 2.9 Define the hotseat/autoplay and AI-intelligence compatibility matrix:
+- [ ] 2.9 Define and accept the hotseat/autoplay and AI-intelligence
+      compatibility matrix:
       semantic game state, decisions, blockers, action results, next-step
       affordances, debug/internal service outputs, operation/proof telemetry,
       and future procedure-core schema needs.
-  - Accepted as an execution gate in `design.md`: hotseat handoff state,
-    semantic CLI player-agent view, strategy/intelligence machine ingestion,
-    debug/internal service output, operation/proof telemetry, and Effect/oRPC
-    procedure cores must stay separate while composing over the same
-    direct-control atom substrate.
+  - [x] 2.9.1 Record the matrix schema and execution gate in `design.md`.
+        Hotseat handoff state, semantic CLI player-agent view,
+        strategy/intelligence machine ingestion, debug/internal service output,
+        operation/proof telemetry, and Effect/oRPC procedure cores must stay
+        separate while composing over the same direct-control atom substrate.
+  - [x] 2.9.2 Record proof labels and stop conditions for the AI-on-hotseat
+        compatibility gate.
+  - [x] 2.9.3 Read and disposition report-only peer reviews
+        `019e8d01-441f-79d1-afd7-fe40a3c179e6`,
+        `019e8d01-4382-7da3-bb81-2f322ed739e2`, and
+        `019e8d01-3fc8-74d2-9658-451d3b0e38f8`.
+  - [ ] 2.9.4 Accept the matrix rows. Acceptance requires every row to include
+        `foundationThread`, `modelThread`, `dependencyDirection`, `surface`,
+        `primaryConsumer`, `sourceOwner`, `proofOwner`, `playerScope`,
+        `consumerClass`, `evidenceClass`, `procedureCandidate`,
+        `normalCliProjection`, `debugServiceProjection`, `proofLabel`,
+        `acceptanceStatus`, `blockingDependents`, and `stopCondition`.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.
@@ -91,17 +104,17 @@
     `normalCliProjection` / `debugServiceProjection` before command hierarchy,
     telemetry, AI-ingestion, runtime-status, or procedure-core work depends on
     them.
-  - This closes only the matrix/gate definition. It does not close hotseat
-    runtime proof, AI data-ingestion design, telemetry source work, CLI
+  - Matrix schema/gate definition does not close matrix-row acceptance,
+    hotseat runtime proof, AI data-ingestion design, telemetry source work, CLI
     semantic-surface implementation, or Effect/oRPC procedure-core
     implementation.
 - [ ] 2.10 Keep intelligence-layer code, transport-first oRPC, and live-game
       proof claims out of the compatibility planning branch until source/proof
       owners are assigned.
-  - The report-disposition blocker is closed by 2.8 and the matrix/gate
-    definition is closed by 2.9; source/proof owners for hotseat runtime, AI
-    data ingestion, telemetry, CLI semantic output, and Effect/oRPC procedures
-    are still unassigned.
+  - The report-disposition blocker is closed by 2.8 and gate mechanics are
+    recorded under 2.9; matrix-row acceptance and source/proof owners for
+    hotseat runtime, AI data ingestion, telemetry, CLI semantic output, and
+    Effect/oRPC procedures are still unassigned.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
@@ -291,6 +304,10 @@ runtime/direct-control claims.
 
 ## 5. CLI Semantic Surface Lane
 
+Rows 5.1-5.7 are blocked on Task 2.9.4 matrix-row acceptance and must not start
+until their source owner, proof owner, proof label, normal CLI projection,
+debug/internal service projection, and AI-ingestion boundary are recorded.
+
 - [ ] 5.1 Define normal play-command response envelopes from the perspective of
       a player agent.
 - [ ] 5.2 Move or reserve transport/session/proof internals for explicit debug
@@ -313,6 +330,11 @@ runtime/direct-control claims.
       `validation_post`, `outcome_delta`, and stale/unknown classification.
 
 ## 6. Effect/Bun And Effect/oRPC Composition Lane
+
+Rows 6.1-6.9 are blocked on Task 2.9.4 matrix-row acceptance and must not start
+until their procedure candidates, schema owners, proof owners, debug/internal
+service projections, telemetry contract boundaries, and external direct-control
+authority are recorded.
 
 - [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
 - [ ] 6.2 Add TypeBox schema artifacts where procedure surfaces need them.

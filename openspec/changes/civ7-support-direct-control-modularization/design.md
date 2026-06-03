@@ -267,6 +267,12 @@ telemetry, AI ingestion, or Effect/oRPC procedure cores depend on them.
 
 Compatibility matrix execution gate:
 
+- Matrix rows are not accepted until each row has all required fields:
+  `foundationThread`, `modelThread`, `dependencyDirection`, `surface`,
+  `primaryConsumer`, `sourceOwner`, `proofOwner`, `playerScope`,
+  `consumerClass`, `evidenceClass`, `procedureCandidate`,
+  `normalCliProjection`, `debugServiceProjection`, `proofLabel`,
+  `acceptanceStatus`, `blockingDependents`, and `stopCondition`.
 - Before any slice touches command hierarchy, semantic envelopes, telemetry,
   schema/type ownership, runtime-status projection, debug/internal service
   output, AI data artifacts, Effect/Bun resource or stream handling, or oRPC
@@ -288,6 +294,55 @@ Compatibility matrix execution gate:
   typed schemas, context, approval policy, correlation, errors, telemetry hooks,
   and resource/concurrency primitives where appropriate. They must not start as
   transport-first raw command tunneling.
+- The hotseat/autoplay foundation is the dependency base for the AI-intelligence
+  model. Product control assumes one Civ7 client, human and agent civs as
+  hotseat human slots, mutation only when `GameContext.localPlayerID` is an
+  agent-owned current slot, mutation refusal on human turns, intentional human
+  waiting during agent turns, and clean UI restoration. Autoplay/Automation is
+  support/debug infrastructure because it is global/input-suppressing; it is
+  not the primary external-agent executor.
+- Direct-control remains the only live action authority. Raw `game exec`,
+  companion-owned `sendRequest`, raw SQL, and runtime catalog reflection are
+  debug/probe surfaces, not product APIs.
+- Corpus/model ingestion is prospective and source-labeled. Existing saves,
+  logs, and debug databases may enrich and score records, but they do not
+  replace direct-control traces and must not be treated as complete action
+  diaries.
+
+Allowed proof labels:
+
+- `target-thread-evidence-ai-model`
+- `target-thread-evidence-hotseat-foundation`
+- `compatibility-matrix-accepted`
+- `planning-evidence-only`
+- `pending-hotseat-runtime-proof`
+- `pending-ai-ingestion-contract`
+- `pending-cli-semantic-envelope`
+- `pending-telemetry-contract`
+- `pending-procedure-core-schema`
+- `local-package-source-relocation-only`
+
+Compatibility stop conditions:
+
+- Stop if compatibility work is not handed through AI-intelligence model thread
+  `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` with hotseat/autoplay foundation
+  thread `019e86b7-b08b-72f3-8341-6c78a1285c93` recorded as the dependency
+  base.
+- Stop if dependent CLI semantic, telemetry, AI-ingestion, runtime-status,
+  schema/type, debug/internal service, Effect/Bun, or oRPC procedure-core
+  implementation starts before Task 2.9 matrix-row acceptance.
+- Stop if a row says "support both" without separating normal CLI,
+  debug/internal service output, AI ingestion, telemetry, and procedure-core
+  consumers.
+- Stop if target-thread evidence, peer reports, repo docs, local tests,
+  logs/database artifacts, official resources, live runtime proof, or in-game
+  observations are collapsed into one proof claim.
+- Stop if Autoplay becomes the primary external-agent product path.
+- Stop if direct-control can act on non-agent human turns.
+- Stop if AI consumers depend on CLI presentation strings, raw JavaScript
+  command strings, vague `verified: true`, raw SQL, runtime reflection, or a
+  companion/App UI mutation surface instead of explicit outcome evidence over
+  direct-control atoms.
 
 Proof classes must stay separate: target-thread evidence, repo docs, local
 tests, logs/database artifacts, official resources, live runtime proof, and

@@ -90,6 +90,9 @@ titles, and parent reports to close the loop.
 | `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b`                                                | AI-intelligence model implications          | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; now cross-checked against direct target-thread evidence.                                                                              | Confirms two authority sides: live external play through `@civ7/direct-control` and static native-AI profile shaping through generated profiles. Requires turn/player context, decision HUD, tactical lenses, action records, proof telemetry, corpus records, enriched evidence from `GameInfo`, debug DB copies, scoring/logs, Mods.sqlite/profile context, and bounded AI/log CSVs where available. |
 | `019e8cbf-0138-75d1-9edc-0bda7d413dff`                                                | Hotseat/autoplay base requirements          | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; hotseat runtime claims remain unproved until live gates pass.                                                                        | Confirms one-client hotseat as preferred player-agent base if activation proof passes; direct-control may act only when `GameContext.localPlayerID` is agent-owned. Native `Autoplay` is support infrastructure for smoke tests, native-AI measurement, observer/wait loops, and disposable benchmarks, not the primary external-agent executor. |
 | `019e8cbf-5805-7393-82e8-c83353aeac40`                                                | AI/hotseat synthesis review                 | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; no intelligence-layer, transport, or runtime-proof implementation authorized.                                                        | Recommends making `@civ7/direct-control` the stable live-control substrate for hotseat player-agent turns and AI intelligence ingestion; adds matrix fields `playerScope`, `consumerClass`, `evidenceClass`, `procedureCandidate`, `normalCliProjection`, and `debugServiceProjection`, plus action audit vocabulary and proof-label requirements. |
+| `019e8d01-441f-79d1-afd7-fe40a3c179e6`                                                | Compatibility matrix gap audit              | report-only peer review        | completed; read directly in hard-gate repair                                         | yes                                         | Accepted as P1 planning repair input; matrix was not hard enough without row-level acceptance fields, proof labels, blocking dependents, and stop conditions.              | Requires explicit matrix row fields: foundation/model thread ids, dependency direction, owners, projections, proof label, acceptance status, blocking dependents, and stop condition. |
+| `019e8d01-4382-7da3-bb81-2f322ed739e2`                                                | Hotseat foundation constraint review        | report-only peer review        | completed; read directly in hard-gate repair                                         | yes                                         | Accepted as P1 planning repair input; hotseat remains the lower one-client foundation and not an implemented runtime claim.                                                | Preserves one-client hotseat, agent-slot local-player mutation gating, human-turn refusal, human-visible waiting/restoration, Autoplay as support/debug only, and approval/proof boundaries. |
+| `019e8d01-3fc8-74d2-9658-451d3b0e38f8`                                                | AI-consumer compatibility review            | report-only peer review        | completed; read directly in hard-gate repair                                         | yes                                         | Accepted as P1/P2 planning repair input; AI-intelligence is aligned above hotseat but implementation owners/schemas/tests remain open.                                     | Requires semantic CLI envelopes, separate debug/internal outputs, explicit telemetry evidence, prospective source-labeled corpus/model ingestion, direct-control-only live action authority, and procedure cores over stable atoms rather than raw command tunnels. |
 
 ## Parallelization Rule
 
@@ -159,18 +162,30 @@ closes only the report-disposition blocker. It does not close hotseat runtime
 proof, AI data-ingestion design, CLI semantic-surface implementation, telemetry
 source work, or Effect/oRPC procedure-core work.
 
-Compatibility matrix execution gate: Task 2.9 is closed as a planning gate, not
-as implementation. Before any dependent slice touches command hierarchy,
-semantic envelopes, telemetry, schema/type ownership, runtime-status projection,
-debug/internal service outputs, AI data artifacts, Effect/Bun resource or stream
-handling, or oRPC procedure cores, the touched atom or envelope must classify
-`playerScope`, `consumerClass`, `evidenceClass`, `procedureCandidate`,
-`normalCliProjection`, and `debugServiceProjection` against both support targets:
-live hotseat player-agent control and AI-intelligence strategy ingestion. Normal
-CLI play output remains semantic player-agent state/action affordances; AI
-ingestion consumes stable machine-readable state/action/proof records; raw
-transport/session/proof details remain debug/internal service projection unless
-an explicit debug-owned surface says otherwise.
+Compatibility matrix execution gate: Lane G is a live hard gate, not merely
+planning evidence. Task 2.9 remains open until matrix rows are accepted with the
+required fields: `foundationThread`, `modelThread`, `dependencyDirection`,
+`surface`, `primaryConsumer`, `sourceOwner`, `proofOwner`, `playerScope`,
+`consumerClass`, `evidenceClass`, `procedureCandidate`, `normalCliProjection`,
+`debugServiceProjection`, `proofLabel`, `acceptanceStatus`,
+`blockingDependents`, and `stopCondition`. Before acceptance, dependent command
+hierarchy, semantic envelope, telemetry, schema/type ownership, runtime-status
+projection, debug/internal service output, AI data artifact, Effect/Bun, and
+oRPC procedure-core implementation remain blocked. Normal CLI play output
+remains semantic player-agent state/action affordances; AI ingestion consumes
+stable machine-readable state/action/proof records; raw transport/session/proof
+details remain debug/internal service projection unless an explicit debug-owned
+surface says otherwise.
+
+Gate-state row: Lane G / AI-on-hotseat compatibility matrix is `acceptanceStatus:
+pending-row-acceptance`; `proofLabel: planning-evidence-only`;
+`blockingDependents: 5.1-5.7, 6.1-6.9, semantic telemetry, AI ingestion,
+runtime-status projection, debug/internal service output, schema/type ownership
+used by procedure cores`; `stopCondition: stop if any blocked dependent starts
+before accepted matrix rows, if rows collapse normal CLI/debug/AI/telemetry/
+procedure consumers, if evidence classes collapse, if Autoplay becomes the
+primary external-agent executor, or if direct-control can act on non-agent human
+turns`.
 
 The action/proof vocabulary for future machine-ingestion and procedure-core
 surfaces is: strategy intent, candidate action, operation family, target, args,
