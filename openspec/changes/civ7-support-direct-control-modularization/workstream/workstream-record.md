@@ -301,6 +301,11 @@ All future agent waves must be framed before delegation:
   operation router source into `src/play/operations/router.ts`. Wrapper-level
   postconditions and specialized closeout sources stay in `index.ts`; this is
   source relocation proof only, not runtime proof.
+- Direct-control technology/culture closeout source slice: completed as the
+  progression chooser closeout source relocation. It moves only the embedded
+  technology and culture chooser closeout sources into
+  `src/play/progression/{technology,culture}.ts`. Public wrapper ownership stays
+  in `index.ts`; this is source relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.

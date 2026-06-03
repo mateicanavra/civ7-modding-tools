@@ -129,6 +129,8 @@ runtime/direct-control claims.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in
         the facade.
+  - [x] 4.6.2 Extract technology and culture chooser closeout embedded source
+        owners while keeping public wrappers in the facade.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
