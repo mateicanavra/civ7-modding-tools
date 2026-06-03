@@ -376,6 +376,7 @@ export {
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
 export { resolveCiv7DirectControlConfig } from "./session/config.js";
+export { createCiv7ControlRequestId } from "./session/request-id.js";
 export { selectCiv7TunerState } from "./session/state.js";
 export {
   DEFAULT_CIV7_SCRIPTING_LOG,
@@ -820,10 +821,6 @@ type PendingCiv7TunerRequest = {
 };
 
 let nextListenerId = Math.trunc(Date.now() % 1_000_000);
-
-export function createCiv7ControlRequestId(prefix = "civ7-control"): string {
-  return `${prefix}-${Date.now().toString(36)}-${process.pid.toString(36)}`;
-}
 
 export async function discoverCiv7DirectControlEndpoint(
   options: Civ7DirectControlOptions = {},

@@ -1302,6 +1302,19 @@ All future agent waves must be framed before delegation:
   Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
   pending. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Direct-control request-id helper slice: completed as a narrow session helper
+  relocation. It moves `createCiv7ControlRequestId` into
+  `src/session/request-id.ts` while keeping the public facade export in
+  `index.ts`. This preserves the existing prefix/date/pid format and existing
+  CLI restart consumer behavior. It does not define telemetry/correlation
+  contracts, procedure schemas, endpoint discovery, socket/session lifecycle,
+  command execution, reconnect behavior, health polling, or runtime-status
+  projection. Endpoint discovery, session socket/reconnect source ownership,
+  telemetry/correlation contracts, public procedure schemas, operation/proof
+  telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+  Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+  pending. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

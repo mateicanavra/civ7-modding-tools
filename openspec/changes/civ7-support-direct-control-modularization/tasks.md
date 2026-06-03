@@ -567,6 +567,13 @@ runtime/direct-control claims.
         command execution, lifecycle/reconnect, procedure schemas, telemetry,
         semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.5 Extract direct-control request-id helper owner behind the
+        existing package facade, preserving the existing prefix/date/pid format
+        while leaving endpoint discovery, socket/session lifecycle, command
+        execution, lifecycle/reconnect, telemetry/correlation contracts,
+        procedure schemas, semantic CLI, AI ingestion, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
