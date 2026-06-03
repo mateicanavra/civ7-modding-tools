@@ -93,6 +93,19 @@ Graphite; no lane may restack, submit, or mutate unrelated stacks. `package.json
 play-script wiring and `packages/cli/test/commands/game.play.test.ts` are
 single-owner files for each active slice.
 
+## DRA Correction Channel
+
+Direct thread communication is the primary channel for supervisor/watcher
+corrections to the active DRA thread. If direct thread access is unavailable,
+that is not a silent failure condition: keep trying the direct thread path. If a
+material correction still cannot be delivered after repeated attempts, write a
+visible fallback `NOTE-TO-DRA.md` in the DRA/workstream tree that includes the
+missed correction payloads, not just a note that communication failed. When
+direct thread access returns, read and disposition the fallback note, send any
+still-relevant correction directly, then remove or mark the note resolved
+according to repo hygiene. Do not send unresolved DRA correction payloads only
+back to user chat when the intended recipient is the DRA thread.
+
 ## Service And CLI Surface Rule
 
 `@civ7/direct-control` is the internal control service for CLI, Studio, and
@@ -236,6 +249,10 @@ All future agent waves must be framed before delegation:
   It moves only the settlement recommendation embedded source into
   `src/play/tactical/settlement.ts`. Wrapper/builder ownership stays in
   `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control traditions view source slice: in progress as the next
+  progression read source relocation. It moves only the traditions embedded
+  source into `src/play/progression/traditions.ts`. Wrapper/builder ownership
+  stays in `index.ts`; this is source relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
