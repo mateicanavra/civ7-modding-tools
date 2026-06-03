@@ -205,6 +205,17 @@ All future agent waves must be framed before delegation:
   test-only package ownership extraction with two parallel net-new agents,
   DRA-owned broad-suite removal, official-resource/doc checks for native path
   fit, local package proof, and no runtime/source behavior claim.
+- Direct-control unit-target action source/wrapper slice: completed as the
+  next mutation-facing operation relocation. It moves only
+  `getCiv7UnitTargetAction` / `requestCiv7UnitTargetAction` orchestration, the
+  `readUnitTargetAction` embedded source, command builder, and bounded
+  post-send stabilizer into `src/play/operations/unit-target-action.ts` while
+  keeping public facade exports in `index.ts`. It preserves approval-first
+  send behavior, read/send split, parser label, official target-selection
+  order, bounded no-repeat-after-unverified polling, and re-read HUD/ready-unit
+  guidance. `test/unit-target-action.test.ts` and the focused CLI unit-target
+  suite remain proof owners. This is local package/source relocation proof
+  only, not runtime proof.
 - Direct-control diplomacy/narrative test slice: completed as additive
   test-only package coverage with two parallel net-new agents, DRA-owned
   integration, official-resource/doc checks for native path fit, local package

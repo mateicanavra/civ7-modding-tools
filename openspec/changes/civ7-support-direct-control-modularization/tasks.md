@@ -165,6 +165,8 @@ runtime/direct-control claims.
   - [ ] 4.6.11 Extract narrative choice embedded source/build command owner
         after naming the stable operation source module and preserving current
         panel closeout, validation, and postcondition coverage.
+  - [x] 4.6.12 Extract unit-target action source and wrapper owner while
+        keeping the public facade export surface in `index.ts`.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
