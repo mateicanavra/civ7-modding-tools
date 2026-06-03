@@ -55,7 +55,7 @@ import { readyUnitViewSource } from "./play/ready/unit.js";
 import { battlefieldScanSource } from "./play/tactical/battlefield.js";
 import { destinationAnalysisSource } from "./play/tactical/destination.js";
 import { getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule } from "./play/tactical/settlement.js";
-import { targetCandidatesSource } from "./play/tactical/target-candidates.js";
+import { getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule } from "./play/tactical/target-candidates.js";
 
 export {
   assertCiv7ComponentId,
@@ -3826,17 +3826,13 @@ export async function getCiv7TargetCandidates(
   input: Civ7TargetCandidatesInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TargetCandidatesResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildTargetCandidatesCommand({
-      ...input,
-      maxCandidates: boundedInteger(input.maxCandidates ?? 8, 1, 64, "maxCandidates"),
-      maxPlayers: boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
-      unitRadius: boundedInteger(input.unitRadius ?? 4, 0, 16, "unitRadius"),
-    }),
+  return await getCiv7TargetCandidatesFromModule(input, options, {
+    validatePlayerId,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseTargetCandidates: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, "Civ7 target candidates");
 }
 
 export async function getCiv7TraditionsView(
@@ -5552,13 +5548,6 @@ function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperatio
   return `(() => {
     ${readyCityViewSource()}
     return JSON.stringify(readReadyCityView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildTargetCandidatesCommand(input: Civ7TargetCandidatesInput & { maxCandidates: number; maxPlayers: number; unitRadius: number }): string {
-  return `(() => {
-    ${targetCandidatesSource()}
-    return JSON.stringify(readTargetCandidates(${jsLiteral(input)}));
   })()`;
 }
 

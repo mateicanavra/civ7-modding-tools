@@ -174,6 +174,8 @@ runtime/direct-control claims.
         facade export surface in `index.ts`.
   - [x] 4.7.8 Extract settlement recommendation wrapper owner while keeping the
         public facade export surface in `index.ts`.
+  - [x] 4.7.9 Extract target-candidates wrapper owner while keeping the public
+        facade export surface in `index.ts`.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
