@@ -8,6 +8,8 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
 
 export type Civ7PlayDecisionHint = Readonly<{
   category: string;
@@ -117,7 +119,7 @@ type PlayNotificationViewDependencies = Readonly<{
 
 export async function getCiv7PlayNotificationView(
   options: PlayNotificationViewOptions = {},
-  dependencies: PlayNotificationViewDependencies,
+  dependencies: PlayNotificationViewDependencies = defaultPlayNotificationViewDependencies,
 ): Promise<Civ7PlayNotificationViewResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
@@ -1782,3 +1784,9 @@ export function playNotificationViewSource(): string {
       };
     };`;
 }
+
+const defaultPlayNotificationViewDependencies: PlayNotificationViewDependencies = {
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parsePlayNotificationView: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
+};

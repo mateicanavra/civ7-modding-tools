@@ -875,6 +875,15 @@ All future agent waves must be framed before delegation:
   play-notification-view test and focused CLI notification HUD suite remain the
   proof owners. This is local package/source relocation proof only, not runtime
   proof.
+- Notification-view facade dependency cleanup: `src/play/notifications/view.ts`
+  now imports existing non-facade App UI execution and parser owners directly
+  for `getCiv7PlayNotificationView`. The public facade in `src/index.ts`
+  remains stable but no longer assembles that dependency object. This is local
+  package/source relocation proof only: it does not change `maxNotifications`
+  defaulting, parse label, read-only materialization behavior, normal CLI
+  projection, runtime/live-game proof, Task 2.9.4 matrix-row acceptance,
+  telemetry, AI ingestion, hotseat runtime proof, schema/procedure-core work,
+  or Effect/oRPC implementation.
 - Direct-control operation router source slice: completed as the generic
   operation validation/send source relocation. It moves only the embedded
   operation router source into `src/play/operations/router.ts`. Wrapper-level

@@ -202,6 +202,14 @@ runtime/direct-control claims.
         while keeping the public wrapper in the facade.
   - [x] 4.3.2 Extract notification view wrapper owner while keeping the public
         facade export surface in `index.ts`.
+  - [x] 4.3.3 Prune notification view facade dependency injection by letting
+        the notification view owner import existing non-facade App UI execution
+        and parser owners directly, while keeping public facade exports stable,
+        preserving `maxNotifications` defaulting, parse label, read-only
+        materialization behavior, debug/internal raw projection boundaries, and
+        leaving telemetry, AI ingestion, CLI semantic projection, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.4 Extract notification dismissal/verification atom.
   - [x] 4.4.1 Extract notification dismissal embedded source owner while
         keeping wrapper-level polling and verification helpers in the facade.

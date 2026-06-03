@@ -1359,11 +1359,7 @@ export async function getCiv7TurnCompletionStatus(
 export async function getCiv7PlayNotificationView(
   options: Civ7DirectControlOptions & { maxNotifications?: number } = {},
 ): Promise<Civ7PlayNotificationViewResult> {
-  return await getCiv7PlayNotificationViewFromModule(options, {
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parsePlayNotificationView: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
-  });
+  return await getCiv7PlayNotificationViewFromModule(options);
 }
 
 export async function getCiv7NotificationDismissal(
