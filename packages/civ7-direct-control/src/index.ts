@@ -33,7 +33,7 @@ import {
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
-import { playNotificationViewSource } from "./play/notifications/view.js";
+import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
   narrativeChoicePostcondition,
   waitForCiv7NarrativeChoiceAfter,
@@ -3442,11 +3442,11 @@ export async function getCiv7TurnCompletionStatus(
 export async function getCiv7PlayNotificationView(
   options: Civ7DirectControlOptions & { maxNotifications?: number } = {},
 ): Promise<Civ7PlayNotificationViewResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildPlayNotificationViewCommand({ maxNotifications: options.maxNotifications }),
+  return await getCiv7PlayNotificationViewFromModule(options, {
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parsePlayNotificationView: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, "Civ7 play notification view");
 }
 
 export async function getCiv7NotificationDismissal(
@@ -5443,14 +5443,6 @@ function buildTurnCompletionStatusCommand(): string {
         return out;
       }),
     });
-  })()`;
-}
-
-function buildPlayNotificationViewCommand(options: { maxNotifications?: number } = {}): string {
-  const maxNotifications = options.maxNotifications ?? 25;
-  return `(() => {
-    ${playNotificationViewSource()}
-    return JSON.stringify(readPlayNotifications(${jsLiteral({ maxNotifications })}));
   })()`;
 }
 

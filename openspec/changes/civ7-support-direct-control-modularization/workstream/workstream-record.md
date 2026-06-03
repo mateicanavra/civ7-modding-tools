@@ -297,6 +297,14 @@ All future agent waves must be framed before delegation:
   `readPlayNotifications` source into `src/play/notifications/view.ts`.
   Wrapper/build-command ownership stays in `index.ts`; this is source
   relocation proof only, not runtime proof.
+- Direct-control notification view wrapper slice: completed as the notification
+  materialization wrapper relocation. It moves only `getCiv7PlayNotificationView`
+  orchestration plus its command builder into `src/play/notifications/view.ts`
+  while keeping the public facade export in `index.ts`, preserving the existing
+  `maxNotifications` default and HUD materialization source owner. The package
+  play-notification-view test and focused CLI notification HUD suite remain the
+  proof owners. This is local package/source relocation proof only, not runtime
+  proof.
 - Direct-control operation router source slice: completed as the generic
   operation validation/send source relocation. It moves only the embedded
   operation router source into `src/play/operations/router.ts`. Wrapper-level
