@@ -23,10 +23,16 @@ workstream and parallel lanes.
 - `packages/cli/AGENTS.md`
 - `packages/civ7-direct-control/AGENTS.md`
 - `docs/projects/civ7-direct-control/workstream/support-dra-takeover-reference.md`
-- `docs/projects/civ7-direct-control/workstream/play-agent/hotseat-phase-packet.md`
+- `docs/projects/civ7-direct-control/workstream/control-surface-expansion/phase-record.md`
+- `docs/projects/civ7-direct-control/workstream/control-surface-expansion/implementation-closure.md`
+- `openspec/changes/direct-control-state-role-model/proposal.md`
+- `openspec/changes/direct-control-read-surface/proposal.md`
+- `openspec/changes/direct-control-action-surface/proposal.md`
+- `openspec/changes/direct-control-capability-catalog/proposal.md`
 - `.agents/skills/civ7-systematic-workstream/SKILL.md`
 - `.agents/skills/civ7-open-spec-workstream/SKILL.md`
 - `.agents/skills/civ7-architecture-authority/SKILL.md`
+- `.agents/skills/civ7-product-authority/SKILL.md`
 - `.agents/skills/civ7-operational-debugging/SKILL.md`
 
 ## What Changes

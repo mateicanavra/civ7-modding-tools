@@ -3,23 +3,23 @@
 - [x] 1.1 Import `civ7-systematic-workstream` into the support stack.
 - [x] 1.2 Apply systematic skill review fixes from
   `codex/systematic-skill-review-fixes`.
-- [ ] 1.3 Validate this OpenSpec change in strict mode.
-- [ ] 1.4 Fill `workstream/workstream-record.md` from current branch, stack,
+- [x] 1.3 Validate this OpenSpec change in strict mode.
+- [x] 1.4 Fill `workstream/workstream-record.md` from current branch, stack,
   stashes, and proof state.
 - [ ] 1.5 Fill `workstream/cli-play-corpus.md` with every play command/test
   owner row.
 - [ ] 1.6 Fill `workstream/direct-control-atom-corpus.md` with every direct
   control atom candidate.
-- [ ] 1.7 Record reviewer/agent findings in
+- [x] 1.7 Record reviewer/agent findings in
   `workstream/review-disposition-ledger.md`.
 
 ## 2. Parallel Planning Gates
 
-- [ ] 2.1 Collect CLI topology inventory from a peer agent.
-- [ ] 2.2 Collect direct-control atom inventory from a peer agent.
-- [ ] 2.3 Collect OpenSpec/parallelization review from a peer agent.
-- [ ] 2.4 Reconcile peer findings into corpus ledgers and task sequence.
-- [ ] 2.5 Define shared fixture strategy before further notification/priorities
+- [x] 2.1 Collect CLI topology inventory from a peer agent.
+- [x] 2.2 Collect direct-control atom inventory from a peer agent.
+- [x] 2.3 Collect OpenSpec/parallelization review from a peer agent.
+- [x] 2.4 Reconcile peer findings into corpus ledgers and task sequence.
+- [x] 2.5 Define shared fixture strategy before further notification/priorities
   extraction.
 - [ ] 2.6 Assign one owner at a time for `package.json` play-script wiring and
   `packages/cli/test/commands/game.play.test.ts`.
@@ -28,7 +28,17 @@
   write-set policy, `/goal` prefix for long-running work, and
   `/compact` before reused-thread topic switches.
 
+Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
+name the exact write set, fixture owner, validation commands,
+duplicate/removal boundary, and proof class. For `package.json` and
+`packages/cli/test/commands/game.play.test.ts`, the workstream owner must record
+the active single writer before delegation.
+
 ## 3. CLI Play Test Ownership Lane
+
+Rows 3.1-3.11 are baseline evidence from already-landed test-only Graphite
+slices. They do not prove this OpenSpec change is complete and do not authorize
+runtime/direct-control claims.
 
 - [x] 3.1 Extract tactical-read play tests.
 - [x] 3.2 Extract watch play tests.
