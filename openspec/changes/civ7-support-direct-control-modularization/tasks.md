@@ -2,16 +2,16 @@
 
 - [x] 1.1 Import `civ7-systematic-workstream` into the support stack.
 - [x] 1.2 Apply systematic skill review fixes from
-  `codex/systematic-skill-review-fixes`.
+      `codex/systematic-skill-review-fixes`.
 - [x] 1.3 Validate this OpenSpec change in strict mode.
 - [x] 1.4 Fill `workstream/workstream-record.md` from current branch, stack,
-  stashes, and proof state.
+      stashes, and proof state.
 - [ ] 1.5 Fill `workstream/cli-play-corpus.md` with every play command/test
-  owner row.
+      owner row.
 - [x] 1.6 Fill `workstream/direct-control-atom-corpus.md` with every direct
-  control atom candidate.
+      control atom candidate.
 - [x] 1.7 Record reviewer/agent findings in
-  `workstream/review-disposition-ledger.md`.
+      `workstream/review-disposition-ledger.md`.
 
 ## 2. Parallel Planning Gates
 
@@ -20,9 +20,9 @@
 - [x] 2.3 Collect OpenSpec/parallelization review from a peer agent.
 - [x] 2.4 Reconcile peer findings into corpus ledgers and task sequence.
 - [x] 2.5 Define shared fixture strategy before further notification/priorities
-  extraction.
+      extraction.
 - [x] 2.6 Assign one owner at a time for `package.json` play-script wiring and
-  `packages/cli/test/commands/game.play.test.ts`.
+      `packages/cli/test/commands/game.play.test.ts`.
   - Exact dismiss-notification slice owner: support workstream owner/DRA.
   - Notification HUD slice owner for `package.json` and
     `packages/cli/test/commands/game.play.test.ts`: support workstream
@@ -35,9 +35,9 @@
     Future slices must record their own single writer before touching either
     file.
 - [x] 2.7 Apply the agent framing protocol to any new or reused delegation:
-  framing-design context, required skills, objective, reasoning level,
-  write-set policy, `/goal` prefix for long-running work, and
-  `/compact` before reused-thread topic switches.
+      framing-design context, required skills, objective, reasoning level,
+      write-set policy, `/goal` prefix for long-running work, and
+      `/compact` before reused-thread topic switches.
   - HUD implementation lane used a fresh `/goal` thread with explicit context,
     skills, objective, hard core, exterior, falsifier, write set, and return
     shape.
@@ -84,7 +84,7 @@ runtime/direct-control claims.
 - [x] 3.13 Extract notification HUD materialization play tests.
 - [x] 3.14 Extract priorities play tests.
 - [x] 3.15 Remove residual monolith fixture ownership after the last consumer
-  moves.
+      moves.
 
 ## 4. Direct-Control Atom Lane
 
@@ -97,10 +97,12 @@ runtime/direct-control claims.
   - [x] 4.2.5 Add notification view/dismissal package test coverage.
   - [x] 4.2.6 Add operation/postcondition package test coverage.
     - [x] 4.2.6a Add unit-operation and production-choice package test
-      coverage.
+          coverage.
     - [x] 4.2.6b Add unit-target action package test coverage.
     - [x] 4.2.6c Add technology/culture chooser closeout package test
-      coverage.
+          coverage.
+    - [x] 4.2.6d Add diplomacy-response and narrative-choice package test
+          coverage.
   - [ ] 4.2.7 Relocate remaining restack-retained broad-suite log rewrite
     marker coverage into the proof/log support atom before source extraction.
     The edge cases remain in `direct-control.test.ts` only as a restack-speed
@@ -110,12 +112,12 @@ runtime/direct-control claims.
 - [ ] 4.5 Extract ready unit/city view atoms.
 - [ ] 4.6 Extract operation validation/send/postcondition atoms.
 - [ ] 4.7 Extract tactical/progression/destination/battlefield/target read
-  atoms.
+      atoms.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
-  oRPC implementation; current support branch has no tracked
-  `.agents/skills/civ7-orpc-control-architecture` or
-  `packages/civ7-control-orpc` source.
+      oRPC implementation; current support branch has no tracked
+      `.agents/skills/civ7-orpc-control-architecture` or
+      `packages/civ7-control-orpc` source.
 
 ## 5. Effect/oRPC Composition Lane
 
@@ -127,11 +129,11 @@ runtime/direct-control claims.
 ## 6. Verification And Closure
 
 - [ ] 6.1 For every test-only slice, run `git diff --check`, focused suite,
-  adjacent monolith filter, `bun run check:cli`, `bun run test:cli:play`, and
-  ownership scan.
+      adjacent monolith filter, `bun run check:cli`, `bun run test:cli:play`, and
+      ownership scan.
 - [ ] 6.2 For every direct-control source slice, run direct-control
-  tests/check/build plus focused CLI consumers.
+      tests/check/build plus focused CLI consumers.
 - [ ] 6.3 For every runtime-changing slice, attach real-game proof or explicit
-  `pending-runtime-proof`.
+      `pending-runtime-proof`.
 - [ ] 6.4 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
 - [ ] 6.5 Run final downstream realignment and closure checklist.
