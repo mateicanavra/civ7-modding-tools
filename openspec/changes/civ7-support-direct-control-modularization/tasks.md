@@ -253,6 +253,13 @@ runtime/direct-control claims.
         diplomacy package/CLI proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.15 Extract narrative choice source owner while keeping the public
+        facade export surface in `index.ts`, preserving App UI narrative
+        choice source text, CHOOSE_NARRATIVE_STORY_DIRECTION send behavior,
+        narrative popup/panel closeout calls, focused narrative package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
