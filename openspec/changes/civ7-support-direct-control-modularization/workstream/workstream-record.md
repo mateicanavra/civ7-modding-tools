@@ -453,6 +453,16 @@ All future agent waves must be framed before delegation:
   hotseat runtime proof, CLI semantic projection, and Effect/oRPC
   procedure-core work stay pending. A returned `FreshLogMarkerProof` remains
   local/log evidence and is not live runtime proof by itself.
+- Direct-control capability catalog source slice: completed as a narrow catalog
+  relocation. It moves static catalog construction, runtime inspection catalog
+  construction, official-resource capability scanning, sorting/deduplication,
+  and private catalog helpers into `src/catalog/capabilities.ts` while keeping
+  public facade exports and TypeBox schemas in `index.ts`. Runtime root
+  inspection is injected from the facade to avoid executable back-imports.
+  Operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI semantic
+  projection, schema/type/procedure-core ownership, and Task 2.9.4 matrix-row
+  acceptance stay pending. This is local package/source relocation proof only,
+  not runtime proof or AI/hotseat product-path support.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

@@ -309,6 +309,12 @@ runtime/direct-control claims.
         `waitForFreshLogMarkers` behavior, and leaving capability catalog,
         operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
         semantic projection, and Effect/oRPC procedure-core work pending.
+  - [x] 4.12.5 Extract capability catalog source owner while keeping public
+        facade exports in `index.ts`, injecting runtime root inspection from the
+        facade, preserving static/runtime/official-resource catalog behavior,
+        and leaving TypeBox schema ownership, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection, and
+        Effect/oRPC procedure-core work pending.
 
 ## 5. CLI Semantic Surface Lane
 
