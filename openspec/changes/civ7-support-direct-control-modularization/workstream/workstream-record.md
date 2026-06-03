@@ -636,6 +636,16 @@ All future agent waves must be framed before delegation:
   projection, Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row
   acceptance. This is local package/type relocation proof only, not runtime
   proof, AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control map validation helper slice: completed as a narrow map helper
+  ownership relocation. It moves only map location/bounds validation into
+  `src/play/map/validation.ts` while preserving the existing `x`/`y` range,
+  map-grid hard-cap range, and command-failed messages through the generic
+  bounded integer helper. Focused package proof covers map location and bounds
+  rejection. This does not change map read source strings, runtime behavior,
+  procedure schemas, telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row
+  acceptance. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control summary read types slice: completed as a narrow public type
   ownership relocation. It moves only player, unit, and city summary
   input/result types into `src/play/summaries.ts` while keeping facade type

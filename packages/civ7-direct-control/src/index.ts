@@ -274,6 +274,7 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./play/map/constants.js";
+import { validateMapBounds, validateMapLocation } from "./play/map/validation.js";
 import type {
   Civ7FullMapGridIdentityCheck,
   Civ7FullMapGridInput,
@@ -1146,7 +1147,7 @@ export async function getCiv7FullMapGrid(
   const mapWidth = requiredProbeNumber(summary.map.width, "GameplayMap.getGridWidth");
   const mapHeight = requiredProbeNumber(summary.map.height, "GameplayMap.getGridHeight");
   const bounds = input.bounds ?? { x: 0, y: 0, width: mapWidth, height: mapHeight };
-  validateMapBounds(bounds, "bounds");
+  validateMapBounds(bounds);
   const maxPlotsPerRead = boundedInteger(
     input.maxPlotsPerRead ?? HARD_CIV7_MAP_GRID_MAX_PLOTS,
     1,
@@ -2378,7 +2379,7 @@ export function planCiv7MapGridReadBounds(
   bounds: Civ7MapBounds,
   maxPlotsPerRead = HARD_CIV7_MAP_GRID_MAX_PLOTS,
 ): Civ7MapBounds[] {
-  validateMapBounds(bounds, "bounds");
+  validateMapBounds(bounds);
   const maxPlots = boundedInteger(maxPlotsPerRead, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "maxPlotsPerRead");
   const chunks: Civ7MapBounds[] = [];
   const chunkWidth = Math.min(bounds.width, maxPlots);
@@ -2393,17 +2394,6 @@ export function planCiv7MapGridReadBounds(
   }
 
   return chunks;
-}
-
-function validateMapBounds(bounds: Civ7MapBounds, dimensionLabel = "bounds"): void {
-  validateMapLocation(bounds);
-  boundedInteger(bounds.width, 1, 1_000_000, `${dimensionLabel}.width`);
-  boundedInteger(bounds.height, 1, 1_000_000, `${dimensionLabel}.height`);
-}
-
-function validateMapLocation(location: Civ7MapLocation): void {
-  boundedInteger(location.x, 0, 1_000_000, "x");
-  boundedInteger(location.y, 0, 1_000_000, "y");
 }
 
 function requiredProbeNumber(probe: Civ7RuntimeProbe<number>, label: string): number {

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import { validateMapBounds, validateMapLocation } from "../src/play/map/validation";
 import { boundedInteger, validateIdentifier, validatePlayerId } from "../src/validation";
 
 describe("direct-control validation primitives", () => {
@@ -31,5 +32,23 @@ describe("direct-control validation primitives", () => {
     expect(validatePlayerId(1024)).toBe(1024);
     expect(() => validatePlayerId(-1)).toThrow("playerId must be an integer between 0 and 1024");
     expect(() => validatePlayerId(1025)).toThrow("playerId must be an integer between 0 and 1024");
+  });
+
+  test("validates map locations and bounds with existing map-specific ranges", () => {
+    expect(() => validateMapLocation({ x: 0, y: 1_000_000 })).not.toThrow();
+    expect(() => validateMapLocation({ x: -1, y: 0 })).toThrow(
+      "x must be an integer between 0 and 1000000",
+    );
+    expect(() => validateMapLocation({ x: 0, y: 1_000_001 })).toThrow(
+      "y must be an integer between 0 and 1000000",
+    );
+
+    expect(() => validateMapBounds({ x: 0, y: 0, width: 1, height: 10_000 })).not.toThrow();
+    expect(() => validateMapBounds({ x: 0, y: 0, width: 0, height: 1 })).toThrow(
+      "bounds.width must be an integer between 1 and 10000",
+    );
+    expect(() => validateMapBounds({ x: 0, y: 0, width: 1, height: 10_001 })).toThrow(
+      "bounds.height must be an integer between 1 and 10000",
+    );
   });
 });

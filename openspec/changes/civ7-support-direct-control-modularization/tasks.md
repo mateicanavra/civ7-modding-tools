@@ -722,6 +722,12 @@ runtime/direct-control claims.
         lifecycle orchestration, AI ingestion, static profile shaping, semantic
         CLI, telemetry, hotseat runtime proof, and Effect/oRPC procedure-core
         work pending.
+  - [x] 4.11.7 Extract map validation helper owner while preserving map
+        location `x`/`y` bounds, map-grid `bounds.width`/`bounds.height` hard
+        caps, and existing command-failed messages, and leaving map read source
+        strings, public procedure schemas, telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
