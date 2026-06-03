@@ -120,6 +120,8 @@ import {
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
+  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
+  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
   getCiv7UnitTargetAction as getCiv7UnitTargetActionFromModule,
   requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
 } from "./play/operations/unit-target-action.js";
@@ -227,6 +229,10 @@ export {
   DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
   DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
 } from "./play/autoplay.js";
+export {
+  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
+  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
+} from "./play/operations/unit-target-action.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
@@ -237,8 +243,6 @@ export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 256;
-export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
-export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;
 export const DEFAULT_CIV7_SCRIPTING_LOG = join(
   homedir(),
   "Library",

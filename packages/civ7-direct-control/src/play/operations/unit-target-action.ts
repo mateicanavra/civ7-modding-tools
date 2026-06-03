@@ -10,6 +10,9 @@ import type {
   Civ7UnitTargetActionResult,
 } from "../../index";
 
+export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
+export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;
+
 type UnitTargetActionDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   executeTunerCommand: (
