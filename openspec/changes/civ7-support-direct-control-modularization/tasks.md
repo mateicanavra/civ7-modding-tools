@@ -370,6 +370,17 @@ runtime/direct-control claims.
         leaving runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.22 Prune production-choice facade dependency injection by letting
+        `src/play/operations/production-choice.ts` import existing non-facade
+        approval, component-id assertion, city-operation validation, App UI
+        execution, payload parser, and serializer owners directly, while keeping
+        public facade exports stable, preserving approval-first BUILD request
+        orchestration, cityId and production-args validation, validator-first
+        behavior, read-only status payload for invalid pre-validation, bounded
+        post-send polling, production postcondition classification, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

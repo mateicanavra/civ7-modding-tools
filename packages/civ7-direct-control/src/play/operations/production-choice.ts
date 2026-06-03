@@ -1,9 +1,17 @@
+import { assertApproved } from "../../action-approval.js";
+import { assertCiv7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import {
   productionPostconditionFor,
   type Civ7ProductionPostconditionSnapshot,
 } from "./production-postconditions.js";
-import type { Civ7OperationRequestResult } from "./validate-request.js";
+import {
+  canStartCiv7CityOperation,
+  type Civ7OperationRequestResult,
+} from "./validate-request.js";
 import type {
   Civ7ActionApproval,
   Civ7OperationInput,
@@ -68,7 +76,7 @@ export async function requestCiv7ProductionChoice(
   input: Civ7ProductionChoiceInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: ProductionChoiceDependencies,
+  dependencies: ProductionChoiceDependencies = defaultProductionChoiceDependencies,
 ): Promise<Civ7ProductionChoiceResult> {
   dependencies.assertApproved(approval, "choosing city production");
   dependencies.assertComponentId(input.cityId, "cityId");
@@ -131,6 +139,15 @@ export async function requestCiv7ProductionChoice(
     },
   };
 }
+
+const defaultProductionChoiceDependencies: ProductionChoiceDependencies = {
+  assertApproved,
+  assertComponentId: assertCiv7ComponentId,
+  canStartCityOperation: canStartCiv7CityOperation,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  jsonPayloadFromCommandResult,
+  jsLiteral,
+};
 
 export function buildProductionChoiceRequestCommand(
   input: Civ7ProductionChoiceInput,

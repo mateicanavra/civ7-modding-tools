@@ -997,6 +997,19 @@ All future agent waves must be framed before delegation:
   2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
   projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Production-choice facade dependency cleanup:
+  `src/play/operations/production-choice.ts` now imports existing non-facade
+  approval, component-id assertion, city-operation validation, App UI execution,
+  payload parser, and serializer owners directly. The public facade in
+  `src/index.ts` remains stable but no longer assembles the production-choice
+  dependency object. This preserves approval-first BUILD request orchestration,
+  cityId and production-args validation, validator-first behavior, read-only
+  status payload for invalid pre-validation, bounded post-send polling,
+  production postcondition classification, and package/CLI proof. This is local
+  package/source relocation proof only: it does not claim runtime/live-game
+  proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, schema/procedure-core work, or
+  Effect/oRPC implementation.
 - Direct-control session acquire/release helper slice: completed as a narrow
   session resource-helper relocation. It moves the repeated facade-local
   `new Civ7DirectControlSession(options)` plus `finally` close pattern into

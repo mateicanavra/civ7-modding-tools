@@ -1333,14 +1333,7 @@ export async function requestCiv7ProductionChoice(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7ProductionChoiceResult> {
-  return await requestCiv7ProductionChoiceFromModule(input, options, approval, {
-    assertApproved,
-    assertComponentId: assertCiv7ComponentId,
-    canStartCityOperation: canStartCiv7CityOperation,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await requestCiv7ProductionChoiceFromModule(input, options, approval);
 }
 export async function canStartCiv7CityCommand(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
