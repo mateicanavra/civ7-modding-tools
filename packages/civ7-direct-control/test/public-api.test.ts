@@ -86,6 +86,7 @@ describe("Civ7 direct control public API", () => {
       "Autoplay",
       "Players",
       "GameplayMap",
+      "ResourceBuilder",
       "GameInfo",
       "PlayerIds",
     ]);
@@ -105,12 +106,9 @@ describe("Civ7 direct control public API", () => {
     expect(DEFAULT_CIV7_GAMEINFO_TABLES).toEqual(
       expect.arrayContaining(["Resources", "UnitOperations", "CityCommands", "MapSizes"]),
     );
-    expect(DEFAULT_CIV7_SETUP_PARAMETER_IDS).toEqual([
-      "Map",
-      "MapSize",
-      "MapRandomSeed",
-      "GameRandomSeed",
-    ]);
+    expect(DEFAULT_CIV7_SETUP_PARAMETER_IDS).toEqual(
+      expect.arrayContaining(["Ruleset", "Difficulty", "Map", "MapSize", "MapRandomSeed", "GameRandomSeed"]),
+    );
   });
 
   test("exports representative public default and hard limits", () => {

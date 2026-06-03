@@ -118,6 +118,8 @@ runtime/direct-control claims.
 - [ ] 4.6 Extract operation validation/send/postcondition atoms.
 - [ ] 4.7 Extract settlement/tactical/progression read atoms.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
+  - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
+        modules behind the existing package facade.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or

@@ -5,10 +5,26 @@ import { Socket, createConnection } from "node:net";
 import { Type, type Static } from "typebox";
 import { Value } from "typebox/value";
 import {
+  assertCiv7ComponentId,
+  Civ7ComponentIdSchema,
+  type Civ7ComponentId,
+  isCiv7ComponentId,
+} from "./civ7-component-id.js";
+import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
+import {
   CIV7_SIGNED_INT_SEED_MAX,
   CIV7_SIGNED_INT_SEED_MIN,
   assessCiv7SignedIntSeed,
 } from "./policy/setup.js";
+
+export {
+  assertCiv7ComponentId,
+  Civ7ComponentIdSchema,
+  isCiv7ComponentId,
+} from "./civ7-component-id.js";
+export type { Civ7ComponentId } from "./civ7-component-id.js";
+export { Civ7DirectControlError } from "./direct-control-error.js";
+export type { Civ7DirectControlErrorCode } from "./direct-control-error.js";
 
 export const DEFAULT_CIV7_TUNER_HOST = "127.0.0.1";
 export const DEFAULT_CIV7_TUNER_PORT = 4318;
@@ -342,30 +358,6 @@ export type Civ7TunerHealthResult = Readonly<{
   ready: boolean;
   snapshot: Civ7TunerHealthSnapshot;
 }>;
-
-export const Civ7ComponentIdSchema = Type.Object(
-  {
-    owner: Type.Number(),
-    id: Type.Number(),
-    type: Type.Optional(Type.Number()),
-  },
-  { additionalProperties: false },
-);
-
-export type Civ7ComponentId = Static<typeof Civ7ComponentIdSchema>;
-
-export function isCiv7ComponentId(value: unknown): value is Civ7ComponentId {
-  return Value.Check(Civ7ComponentIdSchema, value);
-}
-
-export function assertCiv7ComponentId(value: unknown, label = "ComponentID"): Civ7ComponentId {
-  if (isCiv7ComponentId(value)) return value;
-  throw new Civ7DirectControlError(
-    "command-failed",
-    `${label} must be a Civ7 ComponentID object with numeric owner, id, and optional type`,
-    { details: { value } },
-  );
-}
 
 export type Civ7MapLocation = Readonly<{
   x: number;
@@ -2035,41 +2027,6 @@ export type Civ7DirectControlHealth =
       states?: ReadonlyArray<Civ7TunerState>;
       error: Civ7DirectControlError;
     }>;
-
-export type Civ7DirectControlErrorCode =
-  | "invalid-port"
-  | "connection-timeout"
-  | "connection-failed"
-  | "response-timeout"
-  | "socket-closed"
-  | "state-not-found"
-  | "no-hosts"
-  | "all-hosts-unavailable"
-  | "command-failed"
-  | "log-timeout"
-  | "setup-api-unavailable"
-  | "setup-phase-invalid"
-  | "setup-map-row-missing"
-  | "setup-parameter-invalid"
-  | "setup-apply-timeout"
-  | "setup-readback-mismatch"
-  | "setup-start-timeout"
-  | "setup-seed-mismatch"
-  | "setup-map-size-mismatch"
-  | "setup-config-load-failed"
-  | "setup-config-proof-missing";
-
-export class Civ7DirectControlError extends Error {
-  readonly code: Civ7DirectControlErrorCode;
-  readonly details?: unknown;
-
-  constructor(code: Civ7DirectControlErrorCode, message: string, options?: { cause?: unknown; details?: unknown }) {
-    super(message, options?.cause !== undefined ? { cause: options.cause } : undefined);
-    this.name = "Civ7DirectControlError";
-    this.code = code;
-    this.details = options?.details;
-  }
-}
 
 type Civ7TunerFrame = Readonly<{
   listenerId: number;

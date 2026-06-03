@@ -212,6 +212,16 @@ All future agent waves must be framed before delegation:
   begin, wait-for-Tuner readiness, and restart-output rejection coverage; the
   broad `direct-control.test.ts` file has been removed. This is local
   fake-tuner package proof only, not runtime proof.
+- Direct-control ComponentID primitive slice: in progress as the first
+  source-owner extraction after package-test ownership completed. It moves
+  ComponentID schema/guard/assertion plus the direct-control error class/type
+  into focused owner modules behind the existing package facade. This is
+  type/source ownership proof only, not runtime proof. Disposition for protected
+  stash `preserve user direct-control modularization note before dismiss queue
+  slice`: compatible and preserved. The note requires tests first, then
+  principled modularization/export of constants/types; this slice follows the
+  completed package-test coverage and creates named primitive/error owners
+  rather than a broad facade or dumping ground.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
