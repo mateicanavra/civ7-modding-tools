@@ -1542,6 +1542,15 @@ All future agent waves must be framed before delegation:
   runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
   acceptance remain pending. This is local source hygiene proof only, not
   runtime/live-game proof.
+- Direct-control stale facade re-export import cleanup slice: completed as a
+  narrow import/source ownership cleanup after public primitive, session,
+  proof/log, catalog schema, and runtime-constant values were already exposed
+  through direct `export ... from` declarations. The public facade no longer
+  imports those values only to re-export them, and public facade exports remain
+  stable. Procedure schemas, operation/proof telemetry, AI ingestion, semantic
+  CLI projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local source hygiene
+  proof only, not runtime/live-game proof.
 - Direct-control generic validation primitive slice: completed as a narrow
   primitive/helper ownership relocation. It moves only bounded integer, simple
   identifier, and player-id validation helpers into `src/validation.ts` while
