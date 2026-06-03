@@ -212,7 +212,12 @@ import {
   type Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
 import { requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule } from "./play/operations/narrative-request.js";
-import { requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule } from "./play/operations/production-choice.js";
+import {
+  requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule,
+  type Civ7ProductionChoiceCommandPayload,
+  type Civ7ProductionChoiceInput,
+  type Civ7ProductionChoiceResult,
+} from "./play/operations/production-choice.js";
 import {
   canStartCiv7CityCommand as canStartCiv7CityCommandFromModule,
   canStartCiv7CityOperation as canStartCiv7CityOperationFromModule,
@@ -602,6 +607,11 @@ export type {
   Civ7ProductionPostconditionClassification,
   Civ7ProductionPostconditionSnapshot,
 } from "./play/operations/production-postconditions.js";
+export type {
+  Civ7ProductionChoiceCommandPayload,
+  Civ7ProductionChoiceInput,
+  Civ7ProductionChoiceResult,
+} from "./play/operations/production-choice.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
@@ -871,31 +881,6 @@ export type Civ7NarrativeChoiceResult = Readonly<{
   sent: boolean;
   verified: boolean;
   postcondition: Civ7NarrativeChoicePostcondition;
-}>;
-
-export type Civ7ProductionChoiceInput = Readonly<{
-  cityId: Civ7ComponentId;
-  args: Readonly<Record<string, number>>;
-}>;
-
-export type Civ7ProductionChoiceCommandPayload = Readonly<{
-  cityId: Civ7ComponentId;
-  args: unknown;
-  beforeValidation: unknown;
-  afterValidation: unknown;
-  sent: boolean;
-  sendResult?: Civ7RuntimeProbe<unknown>;
-  beforeProductionPostcondition: Civ7ProductionPostconditionSnapshot;
-  afterProductionPostcondition: Civ7ProductionPostconditionSnapshot;
-  ui?: Readonly<{
-    cityActivation?: Civ7RuntimeProbe<unknown>;
-    interfaceClose?: Civ7RuntimeProbe<unknown>;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ProductionChoiceResult = Civ7OperationRequestResult & Readonly<{
-  payload?: Civ7ProductionChoiceCommandPayload;
 }>;
 
 export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions & Readonly<{
