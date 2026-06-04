@@ -2728,3 +2728,15 @@ All future agent waves must be framed before delegation:
   remaining atom-local source helper, or unblock telemetry, AI ingestion, CLI
   semantic projection, hotseat runtime proof, schema migration, debug hierarchy
   implementation, or Effect/oRPC procedure-core work.
+- Production-choice command-source helper normalization:
+  `src/play/operations/production-choice.ts` now imports the shared runtime
+  probe helper owner instead of carrying an atom-local copy in the embedded
+  production-choice source. The generated command text remains equivalent, and
+  the production-choice owner still preserves approval-first BUILD request
+  behavior, production argument validation, bounded post-send polling, and
+  production postcondition classification shape. This is local package/source
+  relocation cleanup only and does not claim runtime/live-game proof, accept
+  Task 2.9.4, normalize every remaining atom-local source helper, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+  schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.

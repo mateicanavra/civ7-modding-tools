@@ -1452,6 +1452,15 @@ runtime/direct-control claims.
         telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.12.31 Normalize the production-choice command-source helper wiring by
+        reusing the shared runtime probe helper owner from
+        `src/play/operations/production-choice.ts`, preserving generated
+        command text, approval-first BUILD request behavior, production
+        argument validation, bounded post-send polling, production postcondition
+        classification shape, and leaving broader atom-local source helper
+        normalization, telemetry, AI ingestion, CLI semantic projection, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

@@ -2,6 +2,7 @@ import { assertApproved } from "../../action-approval.js";
 import { assertCiv7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import {
@@ -49,16 +50,6 @@ export type Civ7ProductionChoiceCommandPayload = Readonly<{
 export type Civ7ProductionChoiceResult = Civ7OperationRequestResult & Readonly<{
   payload?: Civ7ProductionChoiceCommandPayload;
 }>;
-
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
-}
 
 type ProductionChoiceDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;
