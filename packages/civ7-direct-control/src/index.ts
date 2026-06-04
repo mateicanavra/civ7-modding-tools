@@ -199,7 +199,6 @@ import type {
 import {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
-  requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
   type Civ7UnitTargetActionInput,
   type Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
@@ -634,7 +633,10 @@ export type {
   Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
-export { getCiv7UnitTargetAction } from "./play/operations/unit-target-action.js";
+export {
+  getCiv7UnitTargetAction,
+  requestCiv7UnitTargetAction,
+} from "./play/operations/unit-target-action.js";
 export type {
   Civ7ActionApproval,
 } from "./action-approval.js";
@@ -1106,14 +1108,6 @@ export async function runCiv7SinglePlayerFromSetup(
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
   return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
-}
-
-export async function requestCiv7UnitTargetAction(
-  input: Civ7UnitTargetActionInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7UnitTargetActionResult> {
-  return await requestCiv7UnitTargetActionFromModule(input, options, approval);
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {

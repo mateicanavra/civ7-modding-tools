@@ -493,6 +493,15 @@ runtime/direct-control claims.
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
         semantic CLI projection, Effect/oRPC procedure-core work, and Task
         2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.26a Prune the unit-target action request facade call-through
+        wrapper by re-exporting `requestCiv7UnitTargetAction` directly from
+        `src/play/operations/unit-target-action.ts`, preserving public package
+        imports, read-vs-send split, approval-first behavior, parser label,
+        default verification timing, bounded no-repeat-after-unverified
+        polling/wording, unit-target postcondition classification, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
   - [x] 4.6.27 Prune generic operation validation facade call-through wrappers
         by re-exporting `canStartCiv7UnitOperation`,
         `canStartCiv7UnitCommand`, `canStartCiv7CityOperation`,
