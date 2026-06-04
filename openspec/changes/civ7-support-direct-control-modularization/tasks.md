@@ -184,10 +184,13 @@
         `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
         with proof in
         `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
-        but
+        and the telemetry proof-label guard seed is now recorded in
+        `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with
+        proof in
+        `packages/civ7-direct-control/test/operation-telemetry.test.ts`, but
         the row remains pending until a final schema/test owner, broader
         adapter slices from operation atoms, projection separation tests, and
-        proof-label guards are assigned and passing.
+        final proof-label gates are assigned and passing.
         The strategy/intelligence ingestion row now has a draft acceptance
         intake using current target-thread/peer-report planning evidence and
         direct-control read/proof atom owners as candidate input evidence, but
@@ -1879,6 +1882,17 @@ runtime/direct-control claims.
       persistence, implement AI ingestion, change CLI/debug projections, add
       Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
       or create broad adapters for every operation family.
+- [x] 4.17 Seed operation telemetry proof-label guards in
+      `src/proof/operation-telemetry.ts` with focused proof in
+      `test/operation-telemetry.test.ts`, rejecting `live-runtime-proof` and
+      `in-game-observation` evidence labels unless the record boundary is
+      explicitly `live-runtime-proof`. This preserves `pending-runtime-proof`
+      as a pending evidence class without allowing local tests, planning
+      evidence, docs, peer reports, logs, or target-thread evidence to be
+      mislabeled as live proof. It does not collect runtime evidence, choose
+      schema technology, add persistence, implement AI ingestion, change
+      CLI/debug projections, add Effect/oRPC middleware, claim runtime/live-game
+      proof, accept Task 2.9.4, or create broad telemetry middleware.
 
 ## 5. CLI Semantic Surface Lane
 

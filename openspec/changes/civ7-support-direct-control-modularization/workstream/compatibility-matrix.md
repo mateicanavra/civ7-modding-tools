@@ -584,8 +584,8 @@ Intake rejection conditions:
 - `acceptanceStatus`: `pending-telemetry-contract`; source/proof owner seed plus
   unit-target and production-choice operation-result adapter seeds exist, but
   telemetry schema owner, broader operation-atom adapters,
-  normal/debug/AI/procedure projection separation tests, and runtime proof
-  boundary tests are not assigned
+  normal/debug/AI/procedure projection separation tests, and final runtime
+  proof boundary gates are not assigned
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
   middleware, action audit vocabulary, semantic CLI proof summaries
 - `stopCondition`: stop if telemetry trains or acts on vague `verified: true`,
@@ -609,8 +609,10 @@ Intake rejection conditions:
   `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with focused
   proof in `packages/civ7-direct-control/test/operation-telemetry.test.ts`,
   including no-repeat-guarded summaries for sent-unverified, stale/unknown, and
-  pending-runtime-proof records. Operation-result adapter owner seeds now
-  include `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
+  pending-runtime-proof records plus a proof-label guard rejecting
+  `live-runtime-proof` and `in-game-observation` evidence labels under non-live
+  boundaries. Operation-result adapter owner seeds now include
+  `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
   with focused proof in
   `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`, adapting
   one unit-target action result shape into separated telemetry slots, and
@@ -661,8 +663,11 @@ Intake rejection conditions:
   slots while using `productionPostcondition` as the classification owner;
   missing postcondition, validator-blocked no-send, no-state-change,
   blocker-still-live, `validation-changed`, and pending-runtime-proof paths
-  remain no-repeat guarded. Missing proof before acceptance: broader adapter
-  fixtures for stale/unknown/outcome evidence,
+  remain no-repeat guarded. Proof-label guard coverage now rejects local,
+  planning, pending, and other non-live telemetry records that try to carry
+  `live-runtime-proof` or `in-game-observation` labels, while allowing those
+  labels only under an explicit `live-runtime-proof` boundary. Missing proof
+  before acceptance: broader adapter fixtures for stale/unknown/outcome evidence,
   normal/debug/AI/procedure projection separation tests, and runtime-proof
   labeling tests that prevent local tests or docs from becoming live proof.
 - `projectionPlan`: normal CLI may receive only summarized state-machine
@@ -674,11 +679,13 @@ Intake rejection conditions:
 - `stopConditionCoverage`: partial owner-seed coverage now proves the structural
   telemetry constructor does not carry a legacy `verified` boolean as the
   postcondition contract and keeps raw telemetry slots out of the normal
-  summary boundary. Required coverage before acceptance must still fail if
-  telemetry collapses approval, validation, send, postcondition, post-read, and
-  outcome evidence into `verified: true`; if AI ingestion or procedure cores
-  consume raw CLI/debug strings; or if local tests, target threads, peer
-  reports, logs, or docs are labeled as live runtime proof.
+  summary boundary. It also rejects live-runtime and in-game proof labels under
+  non-live proof boundaries. Required coverage before acceptance must still
+  fail if telemetry collapses approval, validation, send, postcondition,
+  post-read, and outcome evidence into `verified: true`; if AI ingestion or
+  procedure cores consume raw CLI/debug strings; or if future producers or
+  projections relabel local tests, target threads, peer reports, logs, or docs
+  as live runtime proof.
 - `downstreamUnblock`: none yet. Acceptance would unblock only explicitly named
   telemetry contract, action-audit vocabulary, and later procedure middleware
   slices after schema/proof owners and separation tests are recorded; it would

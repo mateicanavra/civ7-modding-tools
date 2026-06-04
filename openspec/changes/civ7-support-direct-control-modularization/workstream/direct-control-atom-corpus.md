@@ -479,11 +479,14 @@ telemetry record vocabulary, structural constructor, postcondition sanitizer,
 and normal-summary boundary. `test/operation-telemetry.test.ts` proves local
 record construction, separation of approval/validation/send/post-read/outcome/
 blocker evidence, removal of legacy `verified` booleans from the postcondition
-contract, and omission of raw telemetry/debug slots from the normal summary.
-This is local package/source proof only. It does not export a public schema,
-attach telemetry adapters to operation atoms, implement persistence, prove
-runtime/live-game behavior, accept Task 2.9.4, or unblock AI ingestion,
-semantic CLI output, debug hierarchy, or Effect/oRPC procedure cores.
+contract, omission of raw telemetry/debug slots from the normal summary, and
+proof-label guards that reject `live-runtime-proof` and `in-game-observation`
+labels under non-live proof boundaries while preserving `pending-runtime-proof`
+as pending evidence. This is local package/source proof only. It does not
+export a public schema, attach broad telemetry adapters to operation atoms,
+implement persistence, prove runtime/live-game behavior, accept Task 2.9.4, or
+unblock AI ingestion, semantic CLI output, debug hierarchy, or Effect/oRPC
+procedure cores.
 
 Unit-target telemetry adapter seed update:
 `src/proof/unit-target-telemetry.ts` now owns the first operation-result adapter

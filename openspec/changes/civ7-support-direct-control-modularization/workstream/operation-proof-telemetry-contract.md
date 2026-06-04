@@ -101,6 +101,10 @@ not include raw telemetry/debug slots. The summary keeps status and
 no-repeat-after-unverified guidance aligned: sent records without confirmed
 postcondition proof, including missing postconditions, unverified confidence,
 stale/unknown outcomes, and pending runtime proof, remain no-repeat guarded.
+The owner also seeds proof-label guards: non-live boundaries reject
+`live-runtime-proof` and `in-game-observation` evidence labels, while
+`pending-runtime-proof` remains a pending proof class instead of a live proof
+claim.
 
 `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` is the first
 operation-atom adapter owner seed. Its focused proof owner is
@@ -143,7 +147,8 @@ it does not accept the row. Acceptance still needs:
 - projection separation tests proving normal CLI, debug/internal service,
   AI-ingestion, and procedure-core outputs remain distinct;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or
-  resources from being labeled as live runtime proof;
+  resources from being labeled as live runtime proof across all future
+  producers and projections;
 - fixtures proving no consumer trains or acts on vague `verified: true`.
 
 ## Stop Conditions

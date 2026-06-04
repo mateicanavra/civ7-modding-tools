@@ -154,6 +154,17 @@ telemetry row's operation-atom adapter gap for one additional operation shape;
 it does not choose schema technology, add persistence, implement AI ingestion,
 change CLI/debug projections, add Effect/oRPC middleware, accept Task 2.9.4, or
 claim runtime/live-game proof.
+Operation telemetry proof-label guard proof now strengthens
+`packages/civ7-direct-control/src/proof/operation-telemetry.ts` so non-live
+proof boundaries reject `live-runtime-proof` and `in-game-observation` evidence
+labels. Focused proof in
+`packages/civ7-direct-control/test/operation-telemetry.test.ts` verifies that
+local/planning/pending records cannot label themselves as live runtime or
+in-game proof, while explicit `pending-runtime-proof` remains pending rather
+than live. This reduces only the telemetry row's proof-label guard gap; it does
+not collect runtime evidence, choose schema technology, add persistence,
+implement AI ingestion, change CLI/debug projections, add Effect/oRPC
+middleware, accept Task 2.9.4, or claim runtime/live-game proof.
 
 ## Current State
 
@@ -2966,6 +2977,17 @@ All future agent waves must be framed before delegation:
   persistence, implement AI ingestion, change CLI/debug projections, add
   Effect/oRPC middleware, claim runtime/live-game proof, or unblock broader
   operation adapters.
+- Operation telemetry proof-label guard seed:
+  `packages/civ7-direct-control/src/proof/operation-telemetry.ts` now rejects
+  `live-runtime-proof` and `in-game-observation` evidence labels unless the
+  record boundary is explicitly `live-runtime-proof`. Focused proof in
+  `packages/civ7-direct-control/test/operation-telemetry.test.ts` covers local,
+  planning, and pending-runtime-proof records trying to carry live labels, and
+  confirms pending runtime proof remains distinct from live runtime proof. This
+  is local package/source proof only; it does not accept Task 2.9.4, collect or
+  claim runtime/live-game proof, choose schema technology, add telemetry
+  persistence, implement AI ingestion, change CLI/debug projections, add
+  Effect/oRPC middleware, or unblock future telemetry producers/projections.
 - Direct-control implementation guard audit:
   the current support slice was rechecked after the facade/source
   modularization stack and remains free of new intelligence-layer code,

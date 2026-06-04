@@ -36,6 +36,11 @@ export const CIV7_OPERATION_PROOF_TELEMETRY_RAW_DEBUG_SLOTS = [
   "runtimeObservationLinks",
 ] as const;
 
+const CIV7_OPERATION_LIVE_PROOF_CLASSES = new Set<Civ7OperationProofClass>([
+  "live-runtime-proof",
+  "in-game-observation",
+]);
+
 export type Civ7OperationProofTelemetrySlot = typeof CIV7_OPERATION_PROOF_TELEMETRY_SLOTS[number];
 
 export type Civ7OperationProofClass =
@@ -168,6 +173,7 @@ export type Civ7OperationProofTelemetrySummary = Readonly<{
 export function createCiv7OperationProofTelemetryRecord(
   input: Civ7OperationProofTelemetryRecordInput
 ): Civ7OperationProofTelemetryRecord {
+  validateEvidencePolicy(input);
   return {
     recordVersion: CIV7_OPERATION_PROOF_TELEMETRY_RECORD_VERSION,
     correlationId: input.correlationId,
@@ -244,4 +250,50 @@ function normalizePostcondition(
 
 function uniqueProofClasses(values: readonly Civ7OperationProofClass[]): readonly Civ7OperationProofClass[] {
   return Array.from(new Set(values));
+}
+
+function validateEvidencePolicy(input: Civ7OperationProofTelemetryRecordInput): void {
+  const policy = input.evidencePolicy;
+  if (policy.proofBoundary === "live-runtime-proof") {
+    return;
+  }
+  const liveLabels = collectLiveProofLabels(input);
+  if (liveLabels.length === 0) return;
+  throw new Error(
+    `Civ7 operation telemetry proof boundary ${policy.proofBoundary} cannot label evidence as live runtime proof: ${uniqueProofClasses(liveLabels).join(", ")}`
+  );
+}
+
+function collectLiveProofLabels(
+  input: Civ7OperationProofTelemetryRecordInput
+): Civ7OperationProofClass[] {
+  const labels: Civ7OperationProofClass[] = [];
+  collectProofClass(labels, input.strategyIntent?.evidenceClass);
+  collectProofClass(labels, input.target?.evidenceClass);
+  collectProofClass(labels, input.args?.evidenceClass);
+  collectProofClass(labels, input.validation_pre?.evidenceClass);
+  collectProofClass(labels, input.send_receipt.receipt?.evidenceClass);
+  collectProofClass(labels, input.post_read?.evidenceClass);
+  collectProofClass(labels, input.validation_post?.evidenceClass);
+  collectProofClass(labels, input.outcome_delta?.evidenceClass);
+  collectProofClass(labels, input.blocker_delta?.evidenceClass);
+  for (const proofClass of input.evidencePolicy.allowedProofClasses) {
+    collectProofClass(labels, proofClass);
+  }
+  for (const proofClass of input.evidencePolicy.pendingProofClasses ?? []) {
+    collectProofClass(labels, proofClass);
+  }
+  for (const link of input.runtimeObservationLinks) {
+    collectProofClass(labels, link.evidenceClass);
+  }
+  return labels;
+}
+
+function collectProofClass(
+  labels: Civ7OperationProofClass[],
+  proofClass: Civ7OperationProofClass | undefined,
+): void {
+  if (proofClass && CIV7_OPERATION_LIVE_PROOF_CLASSES.has(proofClass)) {
+    labels.push(proofClass);
+  }
 }

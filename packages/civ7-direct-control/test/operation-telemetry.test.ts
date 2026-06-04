@@ -172,6 +172,100 @@ describe("Civ7 operation proof telemetry owner", () => {
       noRepeatAfterUnverified: true,
     });
   });
+
+  test("rejects live proof labels under local and planning proof boundaries", () => {
+    expect(() => createCiv7OperationProofTelemetryRecord(baseTelemetryInput({
+      evidencePolicy: {
+        proofBoundary: "local-test-proof",
+        allowedProofClasses: ["local-package-test", "live-runtime-proof"],
+        pendingProofClasses: ["pending-runtime-proof"],
+        nonProofClaims: ["runtime/live-game proof"],
+      },
+    }))).toThrow(/local-test-proof.*live-runtime-proof/);
+
+    expect(() => createCiv7OperationProofTelemetryRecord(baseTelemetryInput({
+      evidencePolicy: {
+        proofBoundary: "planning-evidence-only",
+        allowedProofClasses: ["repo-doc"],
+        pendingProofClasses: ["pending-runtime-proof"],
+        nonProofClaims: ["runtime/live-game proof"],
+      },
+      runtimeObservationLinks: [
+        {
+          label: "thread note is not live proof",
+          evidenceClass: "in-game-observation",
+          ref: "thread://local-planning-note",
+        },
+      ],
+    }))).toThrow(/planning-evidence-only.*in-game-observation/);
+  });
+
+  test("keeps pending runtime proof distinct from live runtime proof labels", () => {
+    const pendingRuntimeProof = createCiv7OperationProofTelemetryRecord(baseTelemetryInput({
+      evidencePolicy: {
+        proofBoundary: "pending-runtime-proof",
+        allowedProofClasses: ["local-package-test"],
+        pendingProofClasses: ["pending-runtime-proof"],
+        nonProofClaims: ["runtime/live-game proof"],
+      },
+      postcondition: {
+        classification: "pending-runtime-proof",
+        reason: "Local proof cannot close this runtime postcondition.",
+        outcome: "unknown",
+        noRepeatAfterUnverified: true,
+        confidence: "pending-runtime-proof",
+      },
+    }));
+
+    expect(summarizeCiv7OperationProofTelemetry(pendingRuntimeProof)).toMatchObject({
+      status: "pending-runtime-proof",
+      proofBoundary: "pending-runtime-proof",
+      evidenceClasses: ["local-package-test", "pending-runtime-proof"],
+    });
+
+    expect(() => createCiv7OperationProofTelemetryRecord(baseTelemetryInput({
+      evidencePolicy: {
+        proofBoundary: "pending-runtime-proof",
+        allowedProofClasses: ["local-package-test"],
+        pendingProofClasses: ["pending-runtime-proof"],
+        nonProofClaims: ["runtime/live-game proof"],
+      },
+      validation_post: {
+        evidenceClass: "live-runtime-proof",
+        source: "operation-telemetry.test.ts",
+        freshness: "runtime-observation",
+        value: { valid: true },
+      },
+    }))).toThrow(/pending-runtime-proof.*live-runtime-proof/);
+  });
+
+  test("allows live proof labels only under a live runtime proof boundary", () => {
+    const record = createCiv7OperationProofTelemetryRecord(baseTelemetryInput({
+      evidencePolicy: {
+        proofBoundary: "live-runtime-proof",
+        allowedProofClasses: ["live-runtime-proof"],
+        pendingProofClasses: [],
+      },
+      validation_post: {
+        evidenceClass: "live-runtime-proof",
+        source: "bounded-live-proof",
+        freshness: "runtime-observation",
+        value: { valid: true },
+      },
+      runtimeObservationLinks: [
+        {
+          label: "bounded runtime proof",
+          evidenceClass: "live-runtime-proof",
+          ref: "runtime://bounded-proof",
+        },
+      ],
+    }));
+
+    expect(summarizeCiv7OperationProofTelemetry(record)).toMatchObject({
+      proofBoundary: "live-runtime-proof",
+      evidenceClasses: ["live-runtime-proof"],
+    });
+  });
 });
 
 function baseTelemetryInput(
