@@ -713,8 +713,9 @@ Intake rejection conditions:
   mutation gate metadata, and no-raw-command-tunnel guards over generic raw
   fields plus repo-local command serialization and session execute owners, and
   a local guard refusing `live-runtime-proof` claims before a runtime-proof
-  owner exists; final procedure-core/schema/context/middleware, error, and
-  correlation owners remain pending
+  owner exists; descriptor context-policy metadata now exists for current
+  schema/descriptor seeds; final procedure-core/schema/runtime-context,
+  middleware, error, and correlation owners remain pending
 - `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
   owner-seed proof for descriptor construction, generic raw tunnel rejection,
   `runtime/command-serialization` / `jsLiteral` rejection,
@@ -809,9 +810,9 @@ Intake rejection conditions:
   descriptor resolver now validates descriptor field lists against resolved
   schema root properties.
   Missing before acceptance: final procedure-core schema owner, proof owner,
-  context/middleware/error/correlation owner, broader concrete procedure
-  owners, and explicit owner boundaries for the in-game controller router,
-  external direct-control bridge, and future AI services.
+  runtime-context/middleware/error/correlation owner, broader concrete
+  procedure owners, and explicit owner boundaries for the in-game controller
+  router, external direct-control bridge, and future AI services.
 - `writeSet`: current write set is the playable-status runtime-support schema
   owner, supporting App UI snapshot and Tuner health schema owners, adjacent
   playable-status procedure descriptor artifact, focused runtime-status
@@ -842,7 +843,11 @@ Intake rejection conditions:
   records `inputSchema` and `outputSchema` references with direct-control owner
   guards, simple export-name guards, and raw command-source/session-execute
   rejection for schema references, plus local schema-reference resolution
-  against explicit caller-provided schema artifacts. The current source
+  against explicit caller-provided schema artifacts. The descriptor artifact now
+  also records context requirements for the direct-control facade, endpoint
+  defaults, state selection, logger, evidence sink, and live-session policy on
+  current descriptor seeds, and rejects host/port/state fields from procedure
+  input when those concerns are context-owned. The current source
   artifact also adds TypeBox input/output schemas for the existing
   `getCiv7ReadyUnitView` read atom, including bounded
   `radius`/`maxOperations` input and root-level output shape separation from
@@ -911,6 +916,13 @@ Intake rejection conditions:
   when procedure telemetry is enabled. This does not implement final procedure
   middleware correlation generation, propagation, or external transport
   formatting.
+- `contextOwner`: current descriptor-owner shape now records local context
+  requirements for direct-control facade access, endpoint defaults, state
+  selection, logger, evidence sink, and playable-status live-session policy,
+  with local proof that host/port/state procedure input fields are rejected
+  when endpoint/state selection is context-owned. This is not final runtime
+  context construction, dependency injection, resource/layer setup, middleware,
+  or external transport context formatting.
 - `proofPlan`: current proof is planning evidence, local atom test evidence,
   and focused descriptor-owner tests proving read atom descriptors, raw
   command tunnel rejection for generic raw fields and repo-local
@@ -918,6 +930,7 @@ Intake rejection conditions:
   rejection through TypeBox runtime validation, descriptor typed-error
   details, descriptor correlation policy with normal CLI omission by default,
   local `live-runtime-proof` claim rejection before runtime-proof ownership,
+  descriptor context requirements with endpoint/state input rejection,
   ready-unit, ready-city, and unit move-preview read-atom input/output schemas
   over stable direct-control atoms, shared map-location schema proof aligned to
   the atom validator boundary, ready-unit, ready-city, and unit move-preview
@@ -950,8 +963,9 @@ Intake rejection conditions:
   mutation descriptors without approval, validator-first, postcondition, and
   no-repeat-after-unverified gate metadata, with typed descriptor errors for
   those local owner checks, rejects local `live-runtime-proof` descriptor
-  claims, and rejects descriptor policies that make correlation visible in
-  normal output. Required coverage before acceptance must still fail if
+  claims, rejects descriptor policies that make correlation visible in
+  normal output, and rejects host/port/state input fields when endpoint/state
+  selection is context-owned by the descriptor. Required coverage before acceptance must still fail if
   transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command
   strings become router architecture, if the App UI bridge is treated as the

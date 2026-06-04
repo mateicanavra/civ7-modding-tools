@@ -17,6 +17,7 @@ import {
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
   Civ7PlayableStatusResultSchema,
+  Civ7ProcedureContextRequirementSchema,
   Civ7ProcedureSchemaReferenceSchema,
   Civ7ReadyCityViewProcedureDescriptor,
   Civ7ReadyCityViewProcedureSchemaArtifacts,
@@ -284,6 +285,8 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports procedure schema reference schema from the public facade", () => {
+    expect(Value.Check(Civ7ProcedureContextRequirementSchema, "direct-control-facade")).toBe(true);
+    expect(Value.Check(Civ7ProcedureContextRequirementSchema, "raw-socket")).toBe(false);
     expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
       owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
       exportName: "Civ7ReadyUnitViewInputSchema",
@@ -317,6 +320,7 @@ describe("Civ7 direct control public API", () => {
       procedureKey: "unit.ready.view",
       atomFunction: "getCiv7ReadyUnitView",
       proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
     });
     expect(Civ7ReadyUnitViewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.inputSchema)
@@ -331,6 +335,7 @@ describe("Civ7 direct control public API", () => {
       procedureKey: "city.ready.view",
       atomFunction: "getCiv7ReadyCityView",
       proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
     });
     expect(Civ7ReadyCityViewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.inputSchema)
@@ -345,6 +350,7 @@ describe("Civ7 direct control public API", () => {
       procedureKey: "unit.move.preview",
       atomFunction: "getCiv7UnitMovePreview",
       proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
     });
     expect(Civ7UnitMovePreviewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.inputSchema)
@@ -359,6 +365,12 @@ describe("Civ7 direct control public API", () => {
       procedureKey: "runtime.playable.status",
       atomFunction: "getCiv7PlayableStatus",
       proofBoundary: "local-package-test",
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+        "live-session-policy",
+      ]),
     });
     expect(Civ7PlayableStatusProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.inputSchema)

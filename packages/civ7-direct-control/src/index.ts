@@ -60,6 +60,7 @@ import {
 export {
   Civ7ProcedureConsumerClassSchema,
   Civ7ProcedureCorrelationPolicySchema,
+  Civ7ProcedureContextRequirementSchema,
   Civ7ProcedureCoreDescriptorSchema,
   Civ7ProcedureFamilySchema,
   Civ7ProcedurePlayerScopeSchema,
@@ -77,6 +78,7 @@ export {
 export type {
   Civ7ProcedureConsumerClass,
   Civ7ProcedureCorrelationPolicy,
+  Civ7ProcedureContextRequirement,
   Civ7ProcedureCoreDescriptor,
   Civ7ProcedureCoreDescriptorErrorReason,
   Civ7ProcedureCoreSummary,

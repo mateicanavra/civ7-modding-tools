@@ -52,6 +52,13 @@ export const Civ7UnitMovePreviewProcedureDescriptor = createCiv7ProcedureCoreDes
     debugService: "included-in-diagnostics",
     telemetry: "omitted",
   },
+  context: [
+    "direct-control-facade",
+    "endpoint-defaults",
+    "state-selection",
+    "logger",
+    "evidence-sink",
+  ],
 });
 
 export const Civ7UnitMovePreviewProcedureSchemaArtifacts = {

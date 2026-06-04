@@ -93,6 +93,18 @@ export const Civ7ProcedureCorrelationPolicySchema = Type.Object({
 }, { additionalProperties: false });
 export type Civ7ProcedureCorrelationPolicy = Static<typeof Civ7ProcedureCorrelationPolicySchema>;
 
+export const Civ7ProcedureContextRequirementSchema = Type.Union([
+  Type.Literal("direct-control-facade"),
+  Type.Literal("endpoint-defaults"),
+  Type.Literal("state-selection"),
+  Type.Literal("approval-policy"),
+  Type.Literal("logger"),
+  Type.Literal("clock"),
+  Type.Literal("evidence-sink"),
+  Type.Literal("live-session-policy"),
+]);
+export type Civ7ProcedureContextRequirement = Static<typeof Civ7ProcedureContextRequirementSchema>;
+
 export const Civ7ProcedureSchemaReferenceSchema = Type.Object({
   owner: Type.String(),
   exportName: Type.String(),
@@ -120,6 +132,7 @@ export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   proofBoundary: Civ7ProcedureProofBoundarySchema,
   projection: Civ7ProcedureProjectionSchema,
   correlation: Civ7ProcedureCorrelationPolicySchema,
+  context: Type.Array(Civ7ProcedureContextRequirementSchema),
   approvalGate: Type.Optional(Type.Boolean()),
   validatorFirst: Type.Optional(Type.Boolean()),
   postconditionRequired: Type.Optional(Type.Boolean()),
@@ -143,6 +156,7 @@ export type Civ7ProcedureCoreSummary = Readonly<{
   telemetryProjection: Civ7ProcedureProjection["telemetry"];
   procedureCoreProjection: Civ7ProcedureProjection["procedureCore"];
   correlation: Civ7ProcedureCorrelationPolicy;
+  context: ReadonlyArray<Civ7ProcedureContextRequirement>;
   mutationGates: Readonly<{
     approvalGate: boolean;
     validatorFirst: boolean;
@@ -160,6 +174,7 @@ export type Civ7ProcedureCoreDescriptorErrorReason =
   | "schema-export-invalid"
   | "schema-reference-unresolved"
   | "schema-field-unresolved"
+  | "context-owned-input-field"
   | "missing-procedure-core-consumer"
   | "live-runtime-proof-unsupported"
   | "raw-command-tunnel"
@@ -217,6 +232,7 @@ export function createCiv7ProcedureCoreDescriptor(
   const valid = assertCiv7ProcedureCoreDescriptor(descriptor);
   validateProcedureIdentity(valid);
   validateProofBoundary(valid);
+  validateContextOwnership(valid);
   validateNoRawCommandTunnel(valid);
   validateMutationGates(valid);
   return valid;
@@ -242,6 +258,7 @@ export function summarizeCiv7ProcedureCoreDescriptor(
     telemetryProjection: valid.projection.telemetry,
     procedureCoreProjection: valid.projection.procedureCore,
     correlation: valid.correlation,
+    context: valid.context,
     mutationGates: {
       approvalGate: valid.approvalGate === true,
       validatorFirst: valid.validatorFirst === true,
@@ -327,6 +344,29 @@ function validateProofBoundary(descriptor: Civ7ProcedureCoreDescriptor): void {
     `Civ7 procedure ${descriptor.procedureKey} cannot claim live runtime proof from the local descriptor owner`,
     "live-runtime-proof-unsupported",
     { procedureKey: descriptor.procedureKey, proofBoundary: descriptor.proofBoundary },
+  );
+}
+
+function validateContextOwnership(descriptor: Civ7ProcedureCoreDescriptor): void {
+  const context = new Set(descriptor.context);
+  const contextOwnedInputFields = [
+    context.has("endpoint-defaults") ? ["host", "hosts", "port"] : [],
+    context.has("state-selection") ? ["session", "state", "stateName", "stateSelection", "tunerState"] : [],
+  ].flat();
+  const invalid = descriptor.inputFields.filter((field) => {
+    const normalized = normalizeFieldKey(field);
+    return !hasRawTunnelKey(field)
+      && contextOwnedInputFields.some((reserved) => normalizeFieldKey(reserved) === normalized);
+  });
+  if (invalid.length === 0) return;
+  throw procedureDescriptorError(
+    `Civ7 procedure ${descriptor.procedureKey} keeps context-owned fields out of procedure input: ${invalid.join(", ")}`,
+    "context-owned-input-field",
+    {
+      procedureKey: descriptor.procedureKey,
+      fields: invalid,
+      context: descriptor.context,
+    },
   );
 }
 

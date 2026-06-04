@@ -44,6 +44,14 @@ export const Civ7PlayableStatusProcedureDescriptor = createCiv7ProcedureCoreDesc
     debugService: "included-in-diagnostics",
     telemetry: "omitted",
   },
+  context: [
+    "direct-control-facade",
+    "endpoint-defaults",
+    "state-selection",
+    "logger",
+    "evidence-sink",
+    "live-session-policy",
+  ],
 });
 
 export const Civ7PlayableStatusProcedureSchemaArtifacts = {

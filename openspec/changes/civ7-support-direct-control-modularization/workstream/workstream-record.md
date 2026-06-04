@@ -3274,3 +3274,20 @@ All future agent waves must be framed before delegation:
   contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
   adapters, in-game controller router source, runtime/live-game proof, Task
   2.9.4 acceptance, or Tasks 6.1-6.9.
+- Procedure-core context-policy descriptor seed:
+  `packages/civ7-direct-control/src/procedure-core.ts` now records typed
+  context requirements on descriptors, including direct-control facade access,
+  endpoint defaults, Tuner/App UI state selection, logger, evidence sink, and
+  playable-status live-session policy. The current ready-unit, ready-city,
+  unit move-preview, and playable-status descriptors carry those context
+  requirements, and focused proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` rejects
+  host/port/state procedure input fields when endpoint/state selection is
+  context-owned while leaving raw command/session vocabulary under the existing
+  no-raw-command-tunnel guard. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the exported
+  context requirement schema and descriptor metadata. This is local descriptor
+  metadata/proof only; it does not implement runtime context construction,
+  middleware, router/procedure behavior, Effect/oRPC source,
+  `packages/civ7-control-orpc`, transport adapters, in-game controller source,
+  runtime/live-game proof, Task 2.9.4 acceptance, or Tasks 6.1-6.9.

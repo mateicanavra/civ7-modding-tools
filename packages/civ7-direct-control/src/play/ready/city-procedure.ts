@@ -50,6 +50,13 @@ export const Civ7ReadyCityViewProcedureDescriptor = createCiv7ProcedureCoreDescr
     debugService: "included-in-diagnostics",
     telemetry: "omitted",
   },
+  context: [
+    "direct-control-facade",
+    "endpoint-defaults",
+    "state-selection",
+    "logger",
+    "evidence-sink",
+  ],
 });
 
 export const Civ7ReadyCityViewProcedureSchemaArtifacts = {

@@ -20,7 +20,11 @@ procedure telemetry is enabled. The descriptor now binds procedures to explicit
 direct-control schema references through `inputSchema` and `outputSchema`
 owner/export slots, with local guards that keep schema owners in
 `@civ7/direct-control`, require simple exported schema identifiers, and reject
-raw command-source/session schema references. The first concrete descriptor
+raw command-source/session schema references. The descriptor now also records
+context requirements for direct-control facade access, endpoint defaults,
+state selection, logger, evidence sink, and live-session policy where relevant,
+and rejects host/port/state procedure input fields when those responsibilities
+are declared context-owned. The first concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
 which owns the `unit.ready.view` descriptor adjacent to the ready-unit atom and
 schema exports. Focused proof in
@@ -38,7 +42,10 @@ caller-provided TypeBox schema artifacts, rejecting descriptor field lists that
 name fields missing from the resolved schema root properties, proving
 correlation stays omitted from normal CLI by default, and proving telemetry
 correlation is tied to the Effect/oRPC middleware hook rather than a separate
-transport surface. The second adjacent read-atom descriptor artifact is
+transport surface, and proving endpoint/state context ownership keeps
+host/port/state selectors out of procedure input while raw command/session
+fields remain blocked by the no-raw-command-tunnel guard. The second adjacent
+read-atom descriptor artifact is
 `packages/civ7-direct-control/src/play/ready/city-procedure.ts`, which owns the
 `city.ready.view` descriptor adjacent to the ready-city atom and schema
 exports. The third adjacent read-atom descriptor artifact is
@@ -250,17 +257,19 @@ relationship/team/war/suzerain evidence.
 This contract plus the descriptor owner seed reduce the `contractArtifact`,
 source-owner, descriptor runtime-validation, descriptor typed-error,
 descriptor correlation-policy, descriptor live-runtime-proof guard, and
-no-raw-tunnel proof gaps for the current TypeBox descriptor shape, generic raw
-fields, repo-local command-source/session-execute owners, and adjacent
-ready-unit, ready-city, unit move-preview, and playable-status descriptor
-artifacts with schema-root field-list validation in the Effect/oRPC Procedure
-Cores row, but they do not accept the row. Acceptance still needs:
+descriptor context-policy, and no-raw-tunnel proof gaps for the current TypeBox
+descriptor shape, generic raw fields, repo-local command-source/session-execute
+owners, context-owned endpoint/state input fields, and adjacent ready-unit,
+ready-city, unit move-preview, and playable-status descriptor artifacts with
+schema-root field-list validation in the Effect/oRPC Procedure Cores row, but
+they do not accept the row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the ready-unit, ready-city, unit move-preview, and playable-status
   schema seeds;
-- final context/middleware/error/correlation owners;
+- final middleware/error/correlation owners and runtime context construction
+  beyond descriptor context-policy metadata;
 - final schema reference registration in the runtime router/procedure owner;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;

@@ -229,7 +229,12 @@
         repo-local command serialization and session execute owners; adjacent
         ready-unit, ready-city, unit move-preview, and playable-status
         schema/descriptor seeds reduce only local stable-atom input/output
-        proof gaps, and do not accept the row.
+        proof gaps. The descriptor context-policy seed now records direct
+        control facade, endpoint default, state-selection, logger, evidence
+        sink, and live-session policy requirements on current descriptors, and
+        rejects endpoint/state fields from procedure input when those concerns
+        are context-owned; this reduces only the descriptor-context gap and
+        does not accept the row.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
@@ -2025,7 +2030,7 @@ runtime/direct-control claims.
       contracts, implement Effect/oRPC source, add `packages/civ7-control-orpc`,
       add transport adapters, implement the in-game controller router, claim
       runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
-- [x] 4.26 Add playable-status runtime-support TypeBox schemas and an adjacent
+  - [x] 4.26 Add playable-status runtime-support TypeBox schemas and an adjacent
       procedure descriptor artifact in
       `src/runtime/{app-ui-snapshot,tuner-health,playable-status}.ts` and
       `src/runtime/playable-status-procedure.ts`, with focused proof in
@@ -2046,6 +2051,21 @@ runtime/direct-control claims.
       `packages/civ7-control-orpc`, add transport adapters, implement the
       in-game controller router, claim runtime/live-game proof, accept Task
       2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.27 Add procedure-core context-policy metadata to the direct-control
+        descriptor owner and current adjacent descriptors, with focused proof in
+        `test/procedure-core.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This records context requirements for the
+        direct-control facade, endpoint defaults, Tuner/App UI state selection,
+        logger, evidence sink, and playable-status live-session policy, and
+        rejects host/port/state procedure input fields when endpoint/state
+        selection is declared context-owned while leaving raw command/session
+        fields under the existing no-raw-command-tunnel guard. This is local
+        descriptor metadata/proof only; it does not implement middleware,
+        generate correlation IDs at runtime, add router/procedure behavior,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, add transport adapters, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 

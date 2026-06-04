@@ -50,6 +50,13 @@ const readyUnitDescriptor: Civ7ProcedureCoreDescriptor = {
     debugService: "included-in-diagnostics",
     telemetry: "omitted",
   },
+  context: [
+    "direct-control-facade",
+    "endpoint-defaults",
+    "state-selection",
+    "logger",
+    "evidence-sink",
+  ],
 };
 
 function captureDescriptorError(fn: () => unknown): Civ7DirectControlError {
@@ -95,6 +102,13 @@ describe("Civ7 procedure-core descriptor owner", () => {
         debugService: "included-in-diagnostics",
         telemetry: "omitted",
       },
+      context: [
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+        "logger",
+        "evidence-sink",
+      ],
       mutationGates: {
         approvalGate: false,
         validatorFirst: false,
@@ -126,6 +140,11 @@ describe("Civ7 procedure-core descriptor owner", () => {
       },
     })).toThrow(/does not match the Civ7 procedure-core descriptor schema/);
 
+    expect(() => assertCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      context: ["direct-control-facade", "raw-socket"],
+    })).toThrow(/does not match the Civ7 procedure-core descriptor schema/);
+
     expect(() => createCiv7ProcedureCoreDescriptor({
       ...readyUnitDescriptor,
       inputFields: "rawCommand",
@@ -139,6 +158,42 @@ describe("Civ7 procedure-core descriptor owner", () => {
     } as unknown as Civ7ProcedureCoreDescriptor)).toThrow(
       /does not match the Civ7 procedure-core descriptor schema/,
     );
+  });
+
+  test("keeps endpoint and session selection in context instead of procedure input", () => {
+    expect(createCiv7ProcedureCoreDescriptor(readyUnitDescriptor).context).toEqual([
+      "direct-control-facade",
+      "endpoint-defaults",
+      "state-selection",
+      "logger",
+      "evidence-sink",
+    ]);
+
+    const endpointInputError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      inputFields: ["unitId", "host", "port"],
+    }));
+    expect(endpointInputError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "context-owned-input-field",
+        procedureKey: "unit.ready.view",
+        fields: ["host", "port"],
+      },
+    });
+
+    const stateInputError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      inputFields: ["unitId", "state"],
+    }));
+    expect(stateInputError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "context-owned-input-field",
+        procedureKey: "unit.ready.view",
+        fields: ["state"],
+      },
+    });
   });
 
   test("reports descriptor failures with typed direct-control error details", () => {
@@ -324,6 +379,19 @@ describe("Civ7 procedure-core descriptor owner", () => {
       ...readyUnitDescriptor,
       inputFields: ["rawCommand", "stateName"],
     })).toThrow(/raw command tunnel fields: rawCommand, stateName/);
+
+    const sessionFieldError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      inputFields: ["session"],
+    }));
+    expect(sessionFieldError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "raw-command-tunnel",
+        procedureKey: "unit.ready.view",
+        fields: ["session"],
+      },
+    });
 
     expect(() => createCiv7ProcedureCoreDescriptor({
       ...readyUnitDescriptor,
