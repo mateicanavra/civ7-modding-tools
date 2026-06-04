@@ -8,6 +8,7 @@ import GameStatus from '../../src/commands/game/status';
 import GameCatalog from '../../src/commands/game/catalog';
 import GameMap from '../../src/commands/game/map';
 import GameGameInfo from '../../src/commands/game/gameinfo';
+import GameVisibility from '../../src/commands/game/visibility';
 import GameAiLoadedLevers from '../../src/commands/game/ai/loaded-levers';
 import GameOperation from '../../src/commands/game/operation';
 
@@ -476,6 +477,75 @@ describe('game direct-control commands', () => {
     }
   });
 
+  test('prints visibility summary as debug projection', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameVisibility.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GameVisibility.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--bounds',
+        '0,0,2,1',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('GameplayMap.getRevealedState'))).toBe(true);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          host: string;
+          port: number;
+          state: { id: string; name: string };
+          playerId: number;
+          numPlotsRevealed: { ok: true; value: number };
+          numPlotsVisible: { ok: true; value: number };
+          counts: Record<string, number>;
+          grid?: {
+            bounds: { x: number; y: number; width: number; height: number };
+            plotCount: number;
+            omitted: number;
+            states: Array<{
+              x: number;
+              y: number;
+              state: { ok: true; value: number };
+              visible: { ok: true; value: boolean };
+            }>;
+          };
+        };
+      };
+      expect(payload.ok).toBe(true);
+      expect(payload.result).toMatchObject({
+        host: '127.0.0.1',
+        port,
+        state: { id: '1', name: 'Tuner' },
+        playerId: 0,
+        numPlotsRevealed: { ok: true, value: 10 },
+        numPlotsVisible: { ok: true, value: 8 },
+        counts: { '1': 2 },
+        grid: {
+          bounds: { x: 0, y: 0, width: 2, height: 1 },
+          plotCount: 2,
+          omitted: 0,
+          states: [
+            { x: 0, y: 0, state: { ok: true, value: 1 }, visible: { ok: true, value: true } },
+            { x: 1, y: 0, state: { ok: true, value: 1 }, visible: { ok: true, value: false } },
+          ],
+        },
+      });
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('reads bounded map and GameInfo surfaces', async () => {
     const server = await startTunerServer();
     try {
@@ -659,6 +729,36 @@ async function startTunerServer() {
                   resource: { ok: true, value: -1 },
                   revealedState: { ok: true, value: 1 },
                   visible: { ok: true, value: true },
+                },
+              }),
+            ])
+          );
+        } else if (frame.message.includes('GameplayMap.getRevealedState')) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                playerId: 0,
+                numPlotsRevealed: { ok: true, value: 10 },
+                numPlotsVisible: { ok: true, value: 8 },
+                counts: { '1': 2 },
+                grid: {
+                  bounds: { x: 0, y: 0, width: 2, height: 1 },
+                  plotCount: 2,
+                  omitted: 0,
+                  states: [
+                    {
+                      x: 0,
+                      y: 0,
+                      state: { ok: true, value: 1 },
+                      visible: { ok: true, value: true },
+                    },
+                    {
+                      x: 1,
+                      y: 0,
+                      state: { ok: true, value: 1 },
+                      visible: { ok: true, value: false },
+                    },
+                  ],
                 },
               }),
             ])
