@@ -2284,3 +2284,15 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, or unblock AI ingestion, semantic CLI output,
   debug hierarchy implementation, schema migration, Effect/Bun, or Effect/oRPC
   procedure-core work.
+- Strategy/intelligence ingestion compatibility-row intake:
+  `workstream/compatibility-matrix.md` now records a draft acceptance intake
+  for the strategy/intelligence ingestion row. The intake uses the
+  target-thread and peer-report dispositions plus current direct-control
+  read/proof atom owners as planning evidence, then records the missing
+  ingestion contract owner, schema/test owner, source/freshness/evidence
+  fixtures, and projection separation proof needed before acceptance. The row
+  remains `pending-ai-ingestion-contract`; this update does not implement AI
+  ingestion, generate corpus/model/profile artifacts, accept Task 2.9.4, claim
+  runtime/live-game proof, or unblock telemetry persistence, semantic CLI
+  output, debug hierarchy implementation, schema migration, Effect/Bun, or
+  Effect/oRPC procedure-core work.

@@ -239,6 +239,63 @@ Intake rejection conditions:
   unlabeled saves/logs/debug DB rows, or vague `verified: true` instead of
   explicit outcome evidence
 
+#### Acceptance Intake: Strategy/Intelligence Ingestion
+
+- `ownerAssignment`: current planning evidence is the direct target-thread and
+  peer-report disposition recorded in `tasks.md` 2.8, the compatibility ledger
+  entries in `workstream/workstream-record.md`, and the direct-control atom
+  owners for semantic state and proof inputs: map/GameInfo/summary reads under
+  `packages/civ7-direct-control/src/play/map`, `src/play/summaries.ts`,
+  runtime/status/debug atoms under `src/runtime`, operation/proof atoms under
+  `src/play/operations`, notification atoms under `src/play/notifications`,
+  and capability/proof helpers under `src/catalog` and `src/proof`. Missing
+  before acceptance: a named AI-ingestion contract owner, schema/test owner,
+  fixture owner, and reviewer/gate owner.
+- `writeSet`: this intake authorizes only compatibility-matrix/task/record
+  planning updates. A later implementation slice may touch a precisely named
+  AI-ingestion contract owner, source-labeled fixtures, contract tests, and
+  narrow adapters from existing read/proof owners after source and proof
+  ownership are assigned. No broad corpus/model bucket, CLI presentation
+  rewrite, debug-service raw dump, telemetry persistence, profile generator,
+  transport adapter, or procedure-core implementation is authorized.
+- `contractArtifact`: existing artifacts are planning records, direct-control
+  read/proof result shapes, GameInfo/map/summary read owners, operation
+  postcondition shapes, capability catalog schemas, and proof/log helper
+  outputs. Missing contract artifact before acceptance: a stable machine
+  ingestion schema for `StrategyPlan`, `ActionCandidate`, `ProfileRecipe`,
+  `LoadedRowProof`, `RunMetric`, `PromotionDecision`, or their agreed
+  equivalents, with source/freshness/evidence labels and explicit separation
+  between live external play records and static native-AI profile shaping.
+- `proofPlan`: existing proof is planning evidence plus local package/CLI tests
+  for direct-control atoms that may later feed ingestion. Missing proof before
+  acceptance: AI-ingestion contract fixture tests, encode/decode or validation
+  tests, source/freshness label assertions, evidence-class snapshots,
+  stale/unknown/outcome fixtures, and tests proving ingestion does not consume
+  normal CLI presentation strings, raw command strings, raw SQL, runtime
+  reflection, unlabeled saves/logs/debug DB rows, or vague `verified: true`.
+- `projectionPlan`: normal CLI projection is omitted and must not feed
+  ingestion; debug/internal service output may enrich records only through
+  explicit source/freshness/evidence labels; operation/proof telemetry must be
+  consumed only after its contract row is accepted; procedure-core contracts
+  remain pending until schema/procedure ownership is accepted.
+- `stopConditionCoverage`: missing before acceptance. Required coverage must
+  fail if AI consumers train on CLI strings, raw JavaScript commands, raw SQL,
+  runtime reflection, companion/App UI mutation surfaces, unlabeled artifacts,
+  or `verified: true` without explicit approval, validation, send, post-read,
+  outcome, and stale/unknown evidence.
+- `downstreamUnblock`: none yet. Acceptance would unblock only explicitly named
+  AI-ingestion contract, corpus-record fixture, strategy-data, and static
+  profile-planning slices after schema/proof owners and separation tests are
+  recorded; it would not unblock telemetry persistence, semantic CLI output,
+  hotseat runtime proof, debug hierarchy implementation, transport adapters,
+  or procedure-core implementation by itself.
+- `nonProofClaims`: this intake does not claim AI-ingestion implementation,
+  corpus/model artifact generation, static profile generation, telemetry
+  contract acceptance, runtime/live-game proof, semantic CLI implementation,
+  debug hierarchy implementation, schema migration, Effect/Bun implementation,
+  Effect/oRPC procedure-core work, product-path support, or Task 2.9.4 row
+  acceptance.
+
 ### Debug/Internal Service Output
 
 - `foundationThread`: `019e86b7-b08b-72f3-8341-6c78a1285c93`

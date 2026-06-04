@@ -125,6 +125,13 @@
         `pending-telemetry-contract` until a telemetry contract owner, schema,
         record-construction tests, projection separation tests, and proof-label
         guards are assigned and passing.
+        The strategy/intelligence ingestion row now has a draft acceptance
+        intake using current target-thread/peer-report planning evidence and
+        direct-control read/proof atom owners as candidate input evidence, but
+        its `acceptanceStatus` remains `pending-ai-ingestion-contract` until an
+        ingestion contract owner, schema/test owner, source/freshness/evidence
+        fixtures, and normal/debug/telemetry/procedure separation tests are
+        assigned and passing.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
