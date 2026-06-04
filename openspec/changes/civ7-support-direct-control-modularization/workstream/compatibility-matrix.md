@@ -357,6 +357,66 @@ Intake rejection conditions:
   collapses approval/validation/send/postcondition/outcome evidence, or claims
   live proof from local tests, target-thread evidence, peer reports, or docs
 
+#### Acceptance Intake: Operation/Proof Telemetry
+
+- `ownerAssignment`: current source evidence is distributed across
+  `packages/civ7-direct-control/src/action-approval.ts`,
+  `src/play/operations/{validate-request,router,unit-postconditions,population-postconditions,production-postconditions,production-choice,unit-target-action,diplomacy-request,diplomacy-postconditions,narrative-request,narrative-postconditions}.ts`,
+  `src/play/notifications/{dismissal-request,verification}.ts`,
+  `src/play/turn-completion.ts`, `src/setup/*`, and their public facade
+  call-throughs. Current proof owners are focused package suites such as
+  `unit-operation.test.ts`, `population-placement.test.ts`,
+  `production-choice.test.ts`, `unit-target-action.test.ts`,
+  `diplomacy-response.test.ts`, `narrative-choice.test.ts`,
+  `notification-dismissal.test.ts`, `autoplay-and-turn.test.ts`, and
+  setup/lifecycle tests, plus focused CLI command suites where they consume
+  postcondition results. Missing before acceptance: a named telemetry contract
+  source owner, schema/test owner, and reviewer/gate owner.
+- `writeSet`: this intake authorizes only compatibility-matrix/task/record
+  planning updates. A later implementation slice may touch a precisely named
+  telemetry contract owner, focused package/CLI tests, and narrow adapters from
+  existing operation/proof owners after source and proof ownership are
+  assigned. No broad `common`, `utils`, debug/service, CLI presentation,
+  AI-ingestion, persistence, transport, or procedure-core bucket is authorized.
+- `contractArtifact`: existing artifacts are package result/postcondition
+  shapes, approval primitives, validation/send wrappers, closeout
+  classifications, notification verification summaries, and proof/log helper
+  outputs. Missing contract artifact before acceptance: a stable telemetry
+  record/schema that names strategy intent, candidate action, operation family,
+  target, args, approval, validation result, send receipt, post-read,
+  postcondition classification, outcome delta, blocker delta, evidence policy,
+  correlation id, source/freshness label, and stale/unknown classification.
+- `proofPlan`: existing local proof covers approval-first behavior,
+  validator-first no-send paths, focused send/read split, postcondition
+  classification, no-repeat-after-unverified guidance, notification identity
+  verification, and setup/turn lifecycle readback in package and focused CLI
+  tests. Missing proof before acceptance: contract tests for telemetry
+  record construction, fixture snapshots for stale/unknown/outcome evidence,
+  normal/debug/AI/procedure projection separation tests, and runtime-proof
+  labeling tests that prevent local tests or docs from becoming live proof.
+- `projectionPlan`: normal CLI may receive only summarized state-machine
+  status and explicit stale/unknown/postcondition classifications through the
+  semantic CLI row; debug/internal service output may expose raw proof detail
+  under the debug row; AI ingestion must consume only source-labeled machine
+  contracts from the AI-ingestion row; procedure cores may attach middleware
+  hooks only after typed schema/procedure ownership is accepted.
+- `stopConditionCoverage`: missing before acceptance. Required coverage must
+  fail if telemetry collapses approval, validation, send, postcondition,
+  post-read, and outcome evidence into `verified: true`; if AI ingestion or
+  procedure cores consume raw CLI/debug strings; or if local tests, target
+  threads, peer reports, logs, or docs are labeled as live runtime proof.
+- `downstreamUnblock`: none yet. Acceptance would unblock only explicitly named
+  telemetry contract, action-audit vocabulary, and later procedure middleware
+  slices after schema/proof owners and separation tests are recorded; it would
+  not unblock telemetry persistence, AI ingestion, normal CLI semantic output,
+  hotseat runtime proof, debug hierarchy implementation, transport adapters,
+  or procedure-core implementation by itself.
+- `nonProofClaims`: this intake does not claim runtime/live-game proof,
+  telemetry schema implementation, telemetry persistence, AI ingestion,
+  semantic CLI implementation, debug hierarchy implementation, schema
+  migration, Effect/Bun implementation, Effect/oRPC procedure-core work,
+  product-path support, or Task 2.9.4 row acceptance.
+
 ### Effect/oRPC Procedure Cores
 
 - `foundationThread`: `019e86b7-b08b-72f3-8341-6c78a1285c93`

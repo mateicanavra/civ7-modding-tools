@@ -2272,3 +2272,15 @@ All future agent waves must be framed before delegation:
   output, accept Task 2.9.4, claim runtime/live-game proof, or unblock AI
   ingestion, telemetry, schema migration, debug hierarchy implementation,
   Effect/Bun, or Effect/oRPC procedure-core work.
+- Operation/proof telemetry compatibility-row intake:
+  `workstream/compatibility-matrix.md` now records a draft acceptance intake
+  for the operation/proof telemetry row. The intake names current operation,
+  approval, postcondition, notification verification, setup/turn lifecycle, and
+  focused CLI proof owners as evidence sources, then records the missing
+  telemetry contract owner, schema/test owner, record-construction fixtures,
+  projection separation tests, and proof-label guards needed before
+  acceptance. The row remains `pending-telemetry-contract`; this update does
+  not implement telemetry schemas or persistence, accept Task 2.9.4, claim
+  runtime/live-game proof, or unblock AI ingestion, semantic CLI output,
+  debug hierarchy implementation, schema migration, Effect/Bun, or Effect/oRPC
+  procedure-core work.

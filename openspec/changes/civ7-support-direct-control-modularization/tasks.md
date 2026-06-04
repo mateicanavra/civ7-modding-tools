@@ -118,6 +118,13 @@
         `pending-cli-semantic-envelope` until a semantic envelope owner,
         contract, and normal/debug/AI separation tests are assigned and
         passing.
+        The operation/proof telemetry row now has a draft acceptance intake
+        with current operation, approval, postcondition, notification
+        verification, setup/turn lifecycle, and focused CLI proof owners
+        identified, but its `acceptanceStatus` remains
+        `pending-telemetry-contract` until a telemetry contract owner, schema,
+        record-construction tests, projection separation tests, and proof-label
+        guards are assigned and passing.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
