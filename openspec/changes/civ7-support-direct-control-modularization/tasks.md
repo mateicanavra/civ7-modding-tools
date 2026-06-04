@@ -299,6 +299,13 @@ runtime/direct-control claims.
         and leaving ready-domain regrouping, telemetry, AI ingestion, CLI
         semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
         work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.5.8 Prune trivial ready-read facade call-through wrappers by
+        re-exporting the read-owner functions directly from `index.ts`,
+        preserving public package imports for ready-unit view, ready-city view,
+        and unit-move-preview while leaving ready-domain regrouping, telemetry,
+        AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.6 Extract operation validation/send/postcondition atoms.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in

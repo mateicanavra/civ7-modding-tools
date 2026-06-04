@@ -289,7 +289,7 @@ import {
   type Civ7TechnologyChoiceCloseoutResult,
 } from "./play/progression/technology.js";
 import {
-  getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule,
+  getCiv7ReadyCityView,
   type Civ7ReadyCityOperationCandidate,
   type Civ7ReadyCityPopulationPlacement,
   type Civ7ReadyCityProductionCandidate,
@@ -298,12 +298,12 @@ import {
   type Civ7ReadyCityViewResult,
 } from "./play/ready/city.js";
 import {
-  getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule,
+  getCiv7UnitMovePreview,
   type Civ7UnitMovePreviewInput,
   type Civ7UnitMovePreviewResult,
 } from "./play/ready/move-preview.js";
 import {
-  getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule,
+  getCiv7ReadyUnitView,
   type Civ7ReadyUnitNearbyPlot,
   type Civ7ReadyUnitOperationCandidate,
   type Civ7ReadyUnitPromotionReadiness,
@@ -581,10 +581,12 @@ export type {
   Civ7ReadyUnitViewInput,
   Civ7ReadyUnitViewResult,
 } from "./play/ready/unit.js";
+export { getCiv7ReadyUnitView };
 export type {
   Civ7UnitMovePreviewInput,
   Civ7UnitMovePreviewResult,
 } from "./play/ready/move-preview.js";
+export { getCiv7UnitMovePreview };
 export type {
   Civ7ReadyCityOperationCandidate,
   Civ7ReadyCityPopulationPlacement,
@@ -593,6 +595,7 @@ export type {
   Civ7ReadyCityViewInput,
   Civ7ReadyCityViewResult,
 } from "./play/ready/city.js";
+export { getCiv7ReadyCityView };
 export type {
   Civ7PlayDecisionAction,
   Civ7PlayDecisionHint,
@@ -1312,27 +1315,6 @@ export async function getCiv7UnitTargetAction(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitTargetActionResult> {
   return await getCiv7UnitTargetActionFromModule(input, options);
-}
-
-export async function getCiv7ReadyUnitView(
-  input: Civ7ReadyUnitViewInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7ReadyUnitViewResult> {
-  return await getCiv7ReadyUnitViewFromModule(input, options);
-}
-
-export async function getCiv7UnitMovePreview(
-  input: Civ7UnitMovePreviewInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7UnitMovePreviewResult> {
-  return await getCiv7UnitMovePreviewFromModule(input, options);
-}
-
-export async function getCiv7ReadyCityView(
-  input: Civ7ReadyCityViewInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7ReadyCityViewResult> {
-  return await getCiv7ReadyCityViewFromModule(input, options);
 }
 
 export async function requestCiv7UnitTargetAction(
