@@ -2244,3 +2244,12 @@ All future agent waves must be framed before delegation:
   2.10 guardrails, CLI semantic lane 5.x, Effect/Bun/oRPC lane 6.x, runtime
   proof, hotseat runtime proof, telemetry, AI ingestion, schema migration, and
   procedure-core work remain pending by design.
+- Command parser/serializer dependency-record alignment: the atom corpus now
+  matches the current dependency-pruning stack by recording that shared
+  command-result parser and command-source serializer consumers import the
+  existing owner modules directly instead of receiving those helpers from
+  `index.ts`. Atom-local source serializers remain local where not yet
+  normalized. This is a docs/OpenSpec record alignment only; it does not change
+  source behavior, claim runtime/live-game proof, accept Task 2.9.4, or unblock
+  CLI semantic, telemetry, AI ingestion, schema migration, Effect/Bun, or
+  Effect/oRPC procedure-core work.

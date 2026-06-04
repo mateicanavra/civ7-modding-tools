@@ -969,6 +969,15 @@ runtime/direct-control claims.
         composition, telemetry/correlation contracts, procedure schemas,
         semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.22 Align command-result parser and command-source serializer
+        dependency records after facade dependency pruning. The atom corpus now
+        records that shared parser/serializer consumers import the existing
+        owner modules directly instead of receiving those helpers from
+        `index.ts`, while preserving the local package/source proof boundary
+        and leaving atom-local source serializers, procedure schemas,
+        telemetry/correlation contracts, semantic CLI, AI ingestion, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
