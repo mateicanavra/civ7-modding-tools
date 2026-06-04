@@ -44,7 +44,7 @@ Caller/runtime adapters
 | approval | direct-control approval types and mutation descriptors | oRPC middleware over mutation procedures |
 | validator-first | operation validators and request wrappers | oRPC middleware/procedure guard before send |
 | postcondition/no-repeat | postcondition classifiers and operation telemetry | oRPC middleware plus direct-control proof record |
-| relationship authority | `CIV7_RELATIONSHIP_LABEL_EVIDENCE_POLICY` | read projection policy and optional middleware guard |
+| relationship authority | current tactical `relationshipLabelPolicy` schemas plus the OpenSpec neutral-relationship invariant | read projection policy and optional middleware guard |
 | command serialization | `runtime/command-serialization` and command-source builders | direct-control-only dependency, never procedure output/input |
 | semantic/debug projection | CLI normal-output and proof/debug contracts | output projection policy per consumer class |
 | proof boundary | local/live/pending-runtime-proof labels | procedure result/evidence metadata without proof inflation |

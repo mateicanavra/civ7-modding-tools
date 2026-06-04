@@ -10,15 +10,15 @@
 
 ## 2. Atom/Policy Separation
 
-- [ ] 2.1 Inventory current direct-control atoms by router family, risk,
+- [x] 2.1 Inventory current direct-control atoms by router family, risk,
   schema owner, validator owner, postcondition owner, and proof boundary.
-- [ ] 2.2 Extract a policy map for approval, validator-first, no-repeat,
+- [x] 2.2 Extract a policy map for approval, validator-first, no-repeat,
   relationship authority, projection, proof labels, telemetry, and command
   serialization.
-- [ ] 2.3 Extract a dependency map for direct-control facade, endpoint
+- [x] 2.3 Extract a dependency map for direct-control facade, endpoint
   defaults, state selection, logger, evidence sink, clock, approval, risk
   policy, and optional controller facade.
-- [ ] 2.4 Identify repository/read-port style owners where data-layer access
+- [x] 2.4 Identify repository/read-port style owners where data-layer access
   exists, without constructing runtime providers in direct-control atoms.
 
 ## 3. Contract And Context Slice

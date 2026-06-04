@@ -186,7 +186,7 @@ Unacceptable direct-control prework:
 | approval | direct-control approval policy | two mutation procedures need the same approval check |
 | validator-first | direct-control operation validators | send-capable procedures share pre-send validation semantics |
 | postcondition/proof | direct-control postcondition classifiers and telemetry | mutations share before/after evidence and no-repeat behavior |
-| relationship authority | `CIV7_RELATIONSHIP_LABEL_EVIDENCE_POLICY` | read procedures need neutral label enforcement/projection |
+| relationship authority | current tactical `relationshipLabelPolicy` schemas plus the OpenSpec neutral-relationship invariant | read procedures need neutral label enforcement/projection |
 | error projection | direct-control error codes plus oRPC typed errors | multiple procedures need safe, non-raw failure projection |
 | telemetry hook | operation/proof telemetry contract | procedure-level proof/debug consumers are accepted |
 
