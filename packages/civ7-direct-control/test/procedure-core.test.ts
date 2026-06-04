@@ -29,8 +29,8 @@ const readyUnitDescriptor: Civ7ProcedureCoreDescriptor = {
     owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
     exportName: "Civ7ReadyUnitViewResultSchema",
   },
-  inputFields: ["requestedUnitId", "playerId"],
-  outputFields: ["readyUnit", "operationCandidates", "promotionReadiness"],
+  inputFields: ["unitId", "radius", "maxOperations"],
+  outputFields: ["unitId", "unit", "legalOperations", "promotionReadiness", "nearby"],
   playerScope: "local-player-scoped",
   consumerClasses: [
     "normal-cli-player-agent-view",
@@ -260,6 +260,23 @@ describe("Civ7 procedure-core descriptor owner", () => {
       procedureKey: "unit.ready.view",
       inputSchema: Civ7ReadyUnitViewInputSchema,
       outputSchema: Civ7ReadyUnitViewResultSchema,
+    });
+
+    const staleOutputField = captureDescriptorError(() => resolveCiv7ProcedureCoreSchemas({
+      ...readyUnitDescriptor,
+      outputFields: ["unitId", "operationCandidates"],
+    }, {
+      [civ7ProcedureSchemaReferenceKey(readyUnitDescriptor.inputSchema)]: Civ7ReadyUnitViewInputSchema,
+      [civ7ProcedureSchemaReferenceKey(readyUnitDescriptor.outputSchema)]: Civ7ReadyUnitViewResultSchema,
+    }));
+    expect(staleOutputField).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "schema-field-unresolved",
+        procedureKey: "unit.ready.view",
+        role: "outputFields",
+        missingFields: ["operationCandidates"],
+      },
     });
 
     const unresolvedOutput = captureDescriptorError(() => resolveCiv7ProcedureCoreSchemas(readyUnitDescriptor, {

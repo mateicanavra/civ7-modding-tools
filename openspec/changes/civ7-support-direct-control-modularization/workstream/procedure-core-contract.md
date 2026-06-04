@@ -34,13 +34,14 @@ snapshots schema-mismatch, raw-command-tunnel, and mutation-gates-missing error
 details while rejecting `live-runtime-proof` claims from the local descriptor
 owner, proving ready-unit descriptor schema references point to the
 ready-unit schema exports, resolving those references against explicit
-caller-provided TypeBox schema artifacts, proving correlation stays omitted
-from normal CLI by default, and proving telemetry correlation is tied to the
-Effect/oRPC middleware hook rather than a separate transport surface. This is
-local package proof only; it does not collect runtime evidence, add Effect/oRPC
-dependencies, create `packages/civ7-control-orpc`, implement router/procedure
-behavior, choose a broader schema migration, claim runtime proof, or accept the
-matrix row.
+caller-provided TypeBox schema artifacts, rejecting descriptor field lists that
+name fields missing from the resolved schema root properties, proving
+correlation stays omitted from normal CLI by default, and proving telemetry
+correlation is tied to the Effect/oRPC middleware hook rather than a separate
+transport surface. This is local package proof only; it does not collect
+runtime evidence, add Effect/oRPC dependencies, create
+`packages/civ7-control-orpc`, implement router/procedure behavior, choose a
+broader schema migration, claim runtime proof, or accept the matrix row.
 
 First concrete read-atom schema seed:
 `packages/civ7-direct-control/src/play/ready/unit.ts` now owns TypeBox schemas
@@ -60,7 +61,10 @@ records root input/output field names from the actual TypeBox schemas,
 including `legalOperations` for the ready-unit operation candidates. Focused
 proof in `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`
 checks the descriptor's input/output field lists against resolved schema root
-properties so stale fixture names do not become procedure contract fields.
+properties so stale fixture names do not become procedure contract fields. The
+generic resolver guard in `packages/civ7-direct-control/src/procedure-core.ts`
+now owns that field-list check for any descriptor resolved against explicit
+schema artifacts.
 
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
@@ -170,8 +174,9 @@ source-owner, descriptor runtime-validation, descriptor typed-error,
 descriptor correlation-policy, descriptor live-runtime-proof guard, and
 no-raw-tunnel proof gaps for the current TypeBox descriptor shape, generic raw
 fields, repo-local command-source/session-execute owners, and one adjacent
-ready-unit descriptor artifact in the Effect/oRPC Procedure Cores row, but they
-do not accept the row. Acceptance still needs:
+ready-unit descriptor artifact with schema-root field-list validation in the
+Effect/oRPC Procedure Cores row, but they do not accept the row. Acceptance
+still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms

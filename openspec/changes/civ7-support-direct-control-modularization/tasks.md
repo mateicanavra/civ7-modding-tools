@@ -1972,6 +1972,18 @@ runtime/direct-control claims.
       `packages/civ7-control-orpc`, add transport adapters, implement the
       in-game controller router, claim runtime/live-game proof, accept Task
       2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.23 Guard resolved procedure descriptor field lists in
+      `src/procedure-core.ts` with focused proof in
+      `test/procedure-core.test.ts`. Schema resolution now rejects
+      `inputFields` or `outputFields` that do not exist on the resolved TypeBox
+      schema root properties, proving the stale `operationCandidates` fixture
+      field cannot be promoted when the ready-unit descriptor output schema
+      exposes `legalOperations`. This is local descriptor resolver proof only;
+      it does not implement runtime router/procedure registration, choose
+      Effect Schema, migrate broader contracts, implement Effect/oRPC source,
+      add `packages/civ7-control-orpc`, add transport adapters, implement the
+      in-game controller router, claim runtime/live-game proof, accept Task
+      2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2020,10 +2032,12 @@ authority are recorded.
     artifacts in local descriptor-owner proof.
     Task 4.22 adds the first adjacent ready-unit descriptor artifact and proves
     its field lists match the resolved ready-unit schema root fields.
+    Task 4.23 moves that field-list guard into the generic descriptor resolver.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond that first read-atom schema seed and descriptor
-    schema-reference binding/resolution plus adjacent descriptor artifact.
+    schema-reference binding/resolution plus adjacent descriptor artifact and
+    resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

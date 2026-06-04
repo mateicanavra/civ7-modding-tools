@@ -159,6 +159,7 @@ export type Civ7ProcedureCoreDescriptorErrorReason =
   | "schema-owner-outside-direct-control"
   | "schema-export-invalid"
   | "schema-reference-unresolved"
+  | "schema-field-unresolved"
   | "missing-procedure-core-consumer"
   | "live-runtime-proof-unsupported"
   | "raw-command-tunnel"
@@ -259,10 +260,14 @@ export function resolveCiv7ProcedureCoreSchemas(
   schemas: Civ7ProcedureSchemaArtifactMap,
 ): Civ7ProcedureSchemaResolution {
   const valid = createCiv7ProcedureCoreDescriptor(descriptor);
+  const inputSchema = resolveProcedureSchemaReference(valid, "inputSchema", schemas);
+  const outputSchema = resolveProcedureSchemaReference(valid, "outputSchema", schemas);
+  validateSchemaFieldList(valid, "inputFields", inputSchema);
+  validateSchemaFieldList(valid, "outputFields", outputSchema);
   return {
     procedureKey: valid.procedureKey,
-    inputSchema: resolveProcedureSchemaReference(valid, "inputSchema", schemas),
-    outputSchema: resolveProcedureSchemaReference(valid, "outputSchema", schemas),
+    inputSchema,
+    outputSchema,
   };
 }
 
@@ -383,6 +388,31 @@ function resolveProcedureSchemaReference(
       exportName: reference.exportName,
     },
   );
+}
+
+function validateSchemaFieldList(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  role: "inputFields" | "outputFields",
+  schema: TSchema,
+): void {
+  const schemaFields = new Set(schemaRootFields(schema));
+  const missing = descriptor[role].filter((field) => !schemaFields.has(field));
+  if (missing.length === 0) return;
+  throw procedureDescriptorError(
+    `Civ7 procedure ${role} contains fields not present on the resolved schema: ${missing.join(", ")}`,
+    "schema-field-unresolved",
+    {
+      procedureKey: descriptor.procedureKey,
+      role,
+      missingFields: missing,
+      schemaFields: [...schemaFields],
+    },
+  );
+}
+
+function schemaRootFields(schema: TSchema): string[] {
+  const objectSchema = schema as TSchema & { properties?: Record<string, unknown> };
+  return Object.keys(objectSchema.properties ?? {});
 }
 
 function procedureDescriptorError(

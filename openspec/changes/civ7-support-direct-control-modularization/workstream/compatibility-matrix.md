@@ -777,18 +777,18 @@ Intake rejection conditions:
   references against explicit schema artifacts. The first concrete adjacent
   descriptor artifact is now
   `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`, with proof
-  in `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`.
+  in `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`. The
+  descriptor resolver now validates descriptor field lists against resolved
+  schema root properties.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   context/middleware/error/correlation owner, broader concrete procedure
   owners, and explicit owner boundaries for the in-game controller router,
   external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the ready-unit procedure descriptor
-  artifact adjacent to the ready-unit atom, direct-control public facade export,
-  focused ready-unit procedure proof, public facade proof, and docs/OpenSpec
-  records. Future implementation write sets must name the exact procedure-core
-  module or package, typed schema artifact, middleware/context/error/correlation
-  tests, and narrow adapters to stable direct-control atom owners. No transport
-  adapter,
+- `writeSet`: current write set is the direct-control procedure descriptor
+  resolver owner, focused procedure descriptor proof, and docs/OpenSpec records.
+  Future implementation write sets must name the exact procedure-core module or
+  package, typed schema artifact, middleware/context/error/correlation tests,
+  and narrow adapters to stable direct-control atom owners. No transport adapter,
   `packages/civ7-control-orpc` behavior, in-game controller router source,
   CLI shell rewrite, AI ingestion, telemetry persistence, raw JS command
   tunnel, broad `common`/`utils`/`types` bucket, or hand-maintained App UI
@@ -831,9 +831,10 @@ Intake rejection conditions:
   referenced schema artifacts. Current focused proof also checks the concrete
   ready-unit descriptor's input/output field lists against resolved TypeBox
   schema root properties, including `legalOperations` instead of the stale
-  `operationCandidates` fixture name. This is not a TypeBox versus Effect
-  Schema migration decision and does not prove broader concrete procedure
-  input/output schemas or runtime router schema registration.
+  `operationCandidates` fixture name, through the generic descriptor resolver
+  guard. This is not a TypeBox versus Effect Schema migration decision and does
+  not prove broader concrete procedure input/output schemas or runtime router
+  schema registration.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, and
@@ -855,7 +856,7 @@ Intake rejection conditions:
   one ready-unit read-atom input/output schema over a stable direct-control
   atom, ready-unit descriptor schema-reference binding and local schema
   artifact resolution, one adjacent ready-unit procedure descriptor artifact
-  with schema-root field-list proof,
+  with generic resolver schema-root field-list proof,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface. Missing before acceptance: oRPC schema/procedure
