@@ -451,9 +451,10 @@ Intake rejection conditions:
   `runtime-and-catalog.test.ts` and `session.test.ts`. Focused compact
   `game play priorities`, compact `game play ready-city`, compact
   `game play unit-move-preview`, and full/read-only
-  `game play ready-unit --json` proof now assert through the shared
+  `game play ready-unit --json` proof plus passive `game watch --jsonl` proof
+  now assert through the shared
   `packages/cli/test/commands/game/play/normal-output-boundary.ts` helper that
-  four normal play projections omit raw
+  five normal player-agent projections omit raw
   transport/session/probe/correlation command internals. Focused `game health
   --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
   `game status --json`, `game catalog --static --json`,

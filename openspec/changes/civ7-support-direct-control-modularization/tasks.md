@@ -119,9 +119,10 @@
         assign source/proof owners or accept the row. Focused compact
         `game play priorities`, compact `game play ready-city`, compact
         `game play unit-move-preview`, and full/read-only
-        `game play ready-unit --json` coverage, now sharing the
-        `game/play/normal-output-boundary.ts` test helper, prove four normal
-        play projections omit raw
+        `game play ready-unit --json` coverage plus passive
+        `game watch --jsonl` coverage, now sharing the
+        `game/play/normal-output-boundary.ts` test helper, prove five normal
+        player-agent projections omit raw
         transport/session/probe/correlation command internals, but broader
         debug-command boundary, AI-ingestion, telemetry, and
         procedure-diagnostic separation proof remains pending before row
