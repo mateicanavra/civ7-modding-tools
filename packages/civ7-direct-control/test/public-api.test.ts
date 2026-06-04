@@ -54,6 +54,10 @@ import {
   Civ7ReadyCityViewProcedureSchemaArtifacts,
   Civ7ReadyCityViewInputSchema,
   Civ7ReadyCityViewResultSchema,
+  Civ7CitySummaryInputSchema,
+  Civ7CitySummaryProcedureDescriptor,
+  Civ7CitySummaryProcedureSchemaArtifacts,
+  Civ7CitySummaryResultSchema,
   Civ7ReadyUnitViewProcedureDescriptor,
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
   Civ7ReadyUnitViewInputSchema,
@@ -114,6 +118,7 @@ import {
   assertCiv7ComponentId,
   callCiv7AppUiSnapshotProcedure,
   callCiv7BattlefieldScanProcedure,
+  callCiv7CitySummaryProcedure,
   callCiv7DestinationAnalysisProcedure,
   callCiv7PlayableStatusProcedure,
   callCiv7PlayNotificationViewProcedure,
@@ -308,6 +313,28 @@ describe("Civ7 direct control public API", () => {
         "port",
         "state",
         "units",
+        "omitted",
+      ]),
+    });
+  });
+
+  test("exports city summary procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7CitySummaryInputSchema, {
+      playerId: 0,
+      cityIds: [{ owner: -1, id: -1, type: 1 }],
+      maxItems: 128,
+    })).toBe(true);
+    expect(Value.Check(Civ7CitySummaryInputSchema, { playerId: 1025 })).toBe(false);
+    expect(Value.Check(Civ7CitySummaryInputSchema, { maxItems: 1_001 })).toBe(false);
+    expect(Value.Check(Civ7CitySummaryInputSchema, { rawCommand: "Cities.get(id)" })).toBe(false);
+    expect(Civ7CitySummaryResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "cities",
         "omitted",
       ]),
     });
@@ -994,6 +1021,23 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7UnitSummaryProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.outputSchema)
     ]).toBe(Civ7UnitSummaryResultSchema);
+  });
+
+  test("exports the city summary procedure descriptor artifact from the public facade", () => {
+    expect(Civ7CitySummaryProcedureDescriptor).toMatchObject({
+      procedureKey: "city.summary.read",
+      atomFunction: "getCiv7CitySummary",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7CitySummaryProcedure).toBe("function");
+    expect(Civ7CitySummaryProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7CitySummaryProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7CitySummaryInputSchema);
+    expect(Civ7CitySummaryProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7CitySummaryProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7CitySummaryResultSchema);
   });
 
   test("exports the App UI snapshot procedure descriptor artifact from the public facade", () => {

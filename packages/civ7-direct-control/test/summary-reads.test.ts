@@ -4,6 +4,8 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
 import {
+  Civ7CitySummaryInputSchema,
+  Civ7CitySummaryResultSchema,
   Civ7UnitSummaryInputSchema,
   Civ7UnitSummaryResultSchema,
   getCiv7CitySummary,
@@ -45,6 +47,37 @@ describe("player, unit, and city summary reads", () => {
       units: [{
         ...summary.units[0],
         location: { ok: true, value: { x: 1.5, y: 11 } },
+      }],
+    })).toBe(false);
+  });
+
+  test("exports city-summary schemas with bounded player and city input", () => {
+    expect(Value.Check(Civ7CitySummaryInputSchema, {
+      playerIds: [0],
+      cityIds: [{ owner: -1, id: -1, type: 1 }],
+      playerId: 0,
+      maxItems: 128,
+      includeHidden: false,
+    })).toBe(true);
+    expect(Value.Check(Civ7CitySummaryInputSchema, { playerId: 1025 })).toBe(false);
+    expect(Value.Check(Civ7CitySummaryInputSchema, { maxItems: 1_001 })).toBe(false);
+    expect(Value.Check(Civ7CitySummaryInputSchema, {
+      cityIds: [{ owner: -1, id: -1, type: 1, command: "Cities.get" }],
+    })).toBe(false);
+    expect(Value.Check(Civ7CitySummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7CitySummaryInputSchema, { rawCommand: "Cities.get(id)" })).toBe(false);
+
+    const summary = citySummaryResult();
+    expect(Value.Check(Civ7CitySummaryResultSchema, summary)).toBe(true);
+    expect(Value.Check(Civ7CitySummaryResultSchema, {
+      ...summary,
+      command: "Cities.get(id)",
+    })).toBe(false);
+    expect(Value.Check(Civ7CitySummaryResultSchema, {
+      ...summary,
+      cities: [{
+        ...summary.cities[0],
+        location: { ok: true, value: { x: 22.5, y: 31 } },
       }],
     })).toBe(false);
   });
@@ -234,6 +267,15 @@ function citySummaryPayload() {
       },
     ],
     omitted: 0,
+  };
+}
+
+function citySummaryResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...citySummaryPayload(),
   };
 }
 

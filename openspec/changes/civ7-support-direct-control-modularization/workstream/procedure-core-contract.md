@@ -81,6 +81,9 @@ turn-completion status atom and schema exports. The adjacent unit-summary
 descriptor artifact is
 `packages/civ7-direct-control/src/play/unit-summary-procedure.ts`, which owns
 the `unit.summary.read` descriptor adjacent to the unit summary atom and schema
+exports. The adjacent city-summary descriptor artifact is
+`packages/civ7-direct-control/src/play/city-summary-procedure.ts`, which owns
+the `city.summary.read` descriptor adjacent to the city summary atom and schema
 exports. The adjacent notification read
 descriptor artifact is
 `packages/civ7-direct-control/src/play/notifications/view-procedure.ts`, which
@@ -570,10 +573,27 @@ procedure-core call primitive. Focused proof uses fake atom dependencies to
 prove direct-control option forwarding, input validation before dependency
 execution, output validation after the atom returns, separated output/
 diagnostics, unit summary read command text, and absence of send-operation
-command text. This is local no-network read-atom proof only; it does not add
-player-summary or city-summary procedure atoms, change CLI output, add a broad
-summary catalog, add a router, add Effect/oRPC dependencies, choose Effect
-Schema, claim runtime proof, or accept the matrix row.
+command text. This is local no-network read-atom proof only; it does not add a
+player-summary procedure atom, change CLI output, add a broad summary catalog,
+add a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
+
+The adjacent city-summary procedure artifact reuses the city summary schema
+exports and records `city.summary.read` beside `getCiv7CitySummary`. Focused
+proof in `packages/civ7-direct-control/test/city-summary-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including bounded player, city-id, and max-items input, city
+runtime-probe output, map-location output, and raw/context input separation,
+without registering a router or transport adapter. The same artifact exports a
+concrete call wrapper over `getCiv7CitySummary`, composed through the local
+procedure-core call primitive. Focused proof uses fake atom dependencies to
+prove direct-control option forwarding, input validation before dependency
+execution, output validation after the atom returns, separated output/
+diagnostics, city summary read command text, and absence of send-operation
+command text. This is local no-network read-atom proof only; it does not add a
+player-summary procedure atom, change CLI output, add a broad summary catalog,
+add a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
 
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
@@ -719,7 +739,7 @@ health, notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
 progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
 visibility-summary, turn-completion status, and unit-summary descriptor
-artifacts with
+artifacts, and city-summary descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
@@ -728,7 +748,7 @@ notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
 progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
 visibility-summary, turn-completion status, and unit-summary procedure call
-wrappers, but
+wrappers, and city-summary procedure call wrappers, but
 they do not accept the row.
 Acceptance still needs:
 
@@ -740,7 +760,8 @@ Acceptance still needs:
   notification-view, settlement-recommendations, target-candidates,
   battlefield-scan, destination-analysis, traditions-view, and
   progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
-  visibility-summary, turn-completion status, and unit-summary call wrappers;
+  visibility-summary, turn-completion status, unit-summary, and city-summary
+  call wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

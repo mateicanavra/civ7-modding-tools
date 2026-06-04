@@ -621,6 +621,7 @@ export type {
 } from "./play/map/visibility-procedure.js";
 export type {
   Civ7CitySummary,
+  Civ7CitySummaryDependencies,
   Civ7CitySummaryInput,
   Civ7CitySummaryResult,
   Civ7PlayerSummary,
@@ -632,6 +633,9 @@ export type {
   Civ7UnitSummaryResult,
 } from "./play/summaries.js";
 export {
+  Civ7CitySummaryInputSchema,
+  Civ7CitySummaryResultSchema,
+  Civ7CitySummarySchema,
   Civ7UnitSummaryInputSchema,
   Civ7UnitSummaryResultSchema,
   Civ7UnitSummarySchema,
@@ -641,6 +645,12 @@ export {
   getCiv7PlayerSummary,
   getCiv7UnitSummary,
 };
+export {
+  callCiv7CitySummaryProcedure,
+  Civ7CitySummaryProcedureDescriptor,
+  Civ7CitySummaryProcedureSchemaArtifacts,
+} from "./play/city-summary-procedure";
+export type { Civ7CitySummaryProcedureCallOptions } from "./play/city-summary-procedure";
 export {
   callCiv7UnitSummaryProcedure,
   Civ7UnitSummaryProcedureDescriptor,

@@ -111,6 +111,24 @@ export type Civ7CitySummaryInput = Readonly<{
   includeHidden?: boolean;
 }>;
 
+export const Civ7CitySummaryInputSchema = Type.Object({
+  playerIds: Type.Optional(Type.Array(Type.Integer({ minimum: 0, maximum: 1024 }))),
+  cityIds: Type.Optional(Type.Array(Civ7ComponentIdSchema)),
+  playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+  maxItems: Type.Optional(Type.Integer({ minimum: 1, maximum: 1_000 })),
+  includeHidden: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
+
+export const Civ7CitySummarySchema = Type.Object({
+  id: Civ7ComponentIdSchema,
+  owner: Civ7RuntimeProbeSchema(Type.Number()),
+  name: Civ7RuntimeProbeSchema(Type.String()),
+  location: Civ7RuntimeProbeSchema(Civ7MapLocationSchema),
+  population: Civ7RuntimeProbeSchema(Type.Number()),
+  growth: Civ7RuntimeProbeSchema(Type.Unknown()),
+  production: Civ7RuntimeProbeSchema(Type.Unknown()),
+}, { additionalProperties: false });
+
 export type Civ7CitySummary = Readonly<{
   id: Civ7ComponentId;
   owner: Civ7RuntimeProbe<number>;
@@ -120,6 +138,14 @@ export type Civ7CitySummary = Readonly<{
   growth: Civ7RuntimeProbe<unknown>;
   production: Civ7RuntimeProbe<unknown>;
 }>;
+
+export const Civ7CitySummaryResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  cities: Type.Array(Civ7CitySummarySchema),
+  omitted: Type.Integer({ minimum: 0 }),
+}, { additionalProperties: false });
 
 export type Civ7CitySummaryResult = Readonly<{
   host: string;
@@ -146,6 +172,16 @@ export type Civ7UnitSummaryDependencies = Pick<
   | "executeTunerCommand"
   | "jsLiteral"
   | "parseUnitSummary"
+  | "probeHelperSource"
+  | "validatePlayerId"
+>;
+
+export type Civ7CitySummaryDependencies = Pick<
+  SummaryReadDependencies,
+  | "boundedInteger"
+  | "executeTunerCommand"
+  | "jsLiteral"
+  | "parseCitySummary"
   | "probeHelperSource"
   | "validatePlayerId"
 >;
@@ -192,7 +228,7 @@ export async function getCiv7UnitSummary(
 export async function getCiv7CitySummary(
   input: Civ7CitySummaryInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SummaryReadDependencies = defaultSummaryReadDependencies,
+  dependencies: Civ7CitySummaryDependencies = defaultSummaryReadDependencies,
 ): Promise<Civ7CitySummaryResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeTunerCommand({
@@ -281,7 +317,7 @@ function buildUnitSummaryCommand(
 
 function buildCitySummaryCommand(
   input: Civ7CitySummaryInput & { maxItems: number },
-  dependencies: SummaryReadDependencies,
+  dependencies: Civ7CitySummaryDependencies,
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}
