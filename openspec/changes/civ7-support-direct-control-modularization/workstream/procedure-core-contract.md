@@ -341,12 +341,12 @@ descriptor correlation-policy, descriptor live-runtime-proof guard, and
 descriptor context-policy, and no-raw-tunnel proof gaps for the current TypeBox
 descriptor shape, generic raw fields, repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
-ready-city, unit move-preview, playable-status, and App UI snapshot descriptor
-artifacts with
+ready-city, unit move-preview, playable-status, App UI snapshot, and Tuner
+health descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
-unit move-preview, playable-status, and App UI snapshot procedure call
+unit move-preview, playable-status, App UI snapshot, and Tuner health procedure call
 wrappers, but they do not accept the row.
 Acceptance still needs:
 

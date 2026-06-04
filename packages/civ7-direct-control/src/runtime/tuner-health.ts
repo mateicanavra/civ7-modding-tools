@@ -17,6 +17,8 @@ const civ7TunerStateSchema = Type.Object({
   name: Type.String(),
 }, { additionalProperties: false });
 
+export const Civ7TunerHealthInputSchema = Type.Object({}, { additionalProperties: false });
+
 export const Civ7TunerHealthSnapshotSchema = Type.Object({
   evalOk: Type.Number(),
   ready: Type.Boolean(),
@@ -71,10 +73,11 @@ export type Civ7TunerHealthResult = Readonly<{
   snapshot: Civ7TunerHealthSnapshot;
 }>;
 
+export type Civ7TunerHealthInput = Readonly<Static<typeof Civ7TunerHealthInputSchema>>;
 export type Civ7TunerHealthSnapshotContract = Readonly<Static<typeof Civ7TunerHealthSnapshotSchema>>;
 export type Civ7TunerHealthResultContract = Readonly<Static<typeof Civ7TunerHealthResultSchema>>;
 
-type TunerHealthSessionDependencies = Readonly<{
+export type TunerHealthSessionDependencies = Readonly<{
   executeSessionCommandWithReconnect: (
     session: Civ7DirectControlSession,
     options: Readonly<{
@@ -86,7 +89,7 @@ type TunerHealthSessionDependencies = Readonly<{
   ) => Promise<Civ7CommandResult>;
 }>;
 
-type TunerHealthDependencies = TunerHealthSessionDependencies & Readonly<{
+export type TunerHealthDependencies = TunerHealthSessionDependencies & Readonly<{
   withSession: <T>(
     options: Civ7DirectControlOptions,
     run: (session: Civ7DirectControlSession) => Promise<T>,

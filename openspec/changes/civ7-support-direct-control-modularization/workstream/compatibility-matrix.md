@@ -737,6 +737,9 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/app-ui-snapshot-procedure.test.ts` now
   also proves the adjacent concrete App UI snapshot procedure call wrapper with
   a fake App UI command dependency.
+  `packages/civ7-direct-control/test/tuner-health-procedure.test.ts` now also
+  proves the adjacent concrete Tuner health procedure call wrapper with fake
+  session/reconnect dependencies.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -825,6 +828,10 @@ Intake rejection conditions:
   `packages/civ7-direct-control/src/runtime/app-ui-snapshot-procedure.ts`,
   with proof in
   `packages/civ7-direct-control/test/app-ui-snapshot-procedure.test.ts`. The
+  third adjacent runtime-support descriptor artifact is now
+  `packages/civ7-direct-control/src/runtime/tuner-health-procedure.ts`, with
+  proof in `packages/civ7-direct-control/test/tuner-health-procedure.test.ts`.
+  The
   descriptor resolver now validates descriptor field lists against resolved
   schema root properties. The procedure-core owner now also validates local
   procedure input/output payloads against explicitly resolved TypeBox schema
@@ -835,21 +842,20 @@ Intake rejection conditions:
   injected handler, with focused proof for input-before-handler validation,
   output-after-handler validation, separated output/diagnostics, generated and
   caller-provided correlation IDs, and handler failure normalization. The
-  concrete ready-unit, ready-city, unit move-preview, playable-status, and
-  App UI snapshot procedure call wrappers now compose that primitive with
+  concrete ready-unit, ready-city, unit move-preview, playable-status, App UI
+  snapshot, and Tuner health procedure call wrappers now compose that primitive with
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
   `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`, and
-  `getCiv7AppUiSnapshot` through fake direct-control dependencies in focused
-  proof.
+  `getCiv7AppUiSnapshot`, and `checkCiv7TunerHealth` through fake
+  direct-control dependencies in focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   runtime-context/middleware/error/correlation owner, broader concrete
   procedure owners, and explicit owner boundaries for the in-game controller
   router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the adjacent App UI snapshot procedure call
-  wrapper, focused no-network proof over a fake App UI command dependency,
-  empty App UI snapshot input schema, public facade exports/proof, App UI
-  snapshot dependency type export for local proof injection, and docs/OpenSpec
-  records.
+- `writeSet`: current write set is the adjacent Tuner health procedure call
+  wrapper, focused no-network proof over fake session/reconnect dependencies,
+  empty Tuner health input schema, public facade exports/proof, Tuner health
+  dependency type exports for local proof injection, and docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,

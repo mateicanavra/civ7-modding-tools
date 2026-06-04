@@ -33,6 +33,10 @@ import {
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
   Civ7ReadyUnitViewInputSchema,
   Civ7ReadyUnitViewResultSchema,
+  Civ7TunerHealthInputSchema,
+  Civ7TunerHealthProcedureDescriptor,
+  Civ7TunerHealthProcedureSchemaArtifacts,
+  Civ7TunerHealthResultSchema,
   Civ7UnitMovePreviewProcedureDescriptor,
   Civ7UnitMovePreviewProcedureSchemaArtifacts,
   Civ7UnitMovePreviewInputSchema,
@@ -66,6 +70,7 @@ import {
   callCiv7ProcedureCore,
   callCiv7ReadyCityViewProcedure,
   callCiv7ReadyUnitViewProcedure,
+  callCiv7TunerHealthProcedure,
   callCiv7UnitMovePreviewProcedure,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
@@ -231,6 +236,27 @@ describe("Civ7 direct control public API", () => {
         "readiness",
         "appUi",
         "errors",
+      ]),
+    });
+  });
+
+  test("exports Tuner health procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7TunerHealthInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7TunerHealthInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TunerHealthInputSchema, { port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7TunerHealthInputSchema, { state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7TunerHealthInputSchema, { session: { state: "Tuner" } })).toBe(false);
+    expect(Value.Check(Civ7TunerHealthInputSchema, { command: "Game.turn" })).toBe(false);
+    expect(Value.Check(Civ7TunerHealthInputSchema, { rawCommand: "Game.turn" })).toBe(false);
+    expect(Civ7TunerHealthResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "ready",
+        "snapshot",
       ]),
     });
   });
@@ -441,5 +467,26 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7AppUiSnapshotProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7AppUiSnapshotProcedureDescriptor.outputSchema)
     ]).toBe(Civ7AppUiSnapshotResultSchema);
+  });
+
+  test("exports the Tuner health procedure descriptor artifact from the public facade", () => {
+    expect(Civ7TunerHealthProcedureDescriptor).toMatchObject({
+      procedureKey: "runtime.tuner.health",
+      atomFunction: "checkCiv7TunerHealth",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+        "live-session-policy",
+      ]),
+    });
+    expect(typeof callCiv7TunerHealthProcedure).toBe("function");
+    expect(Civ7TunerHealthProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7TunerHealthInputSchema);
+    expect(Civ7TunerHealthProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7TunerHealthProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7TunerHealthResultSchema);
   });
 });

@@ -212,6 +212,21 @@ the Effect/oRPC Procedure Cores row's concrete runtime-support wrapper gap; it
 does not execute live App UI reads, add a router/registry/transport, implement
 Effect/oRPC source, add `packages/civ7-control-orpc`, accept Task 2.9.4, start
 Tasks 6.1-6.9, or claim runtime/live-game proof.
+Tuner health concrete procedure call proof now names
+`packages/civ7-direct-control/src/runtime/tuner-health-procedure.ts` as the
+adjacent `runtime.tuner.health` call wrapper owner over
+`checkCiv7TunerHealth`, with focused proof in
+`packages/civ7-direct-control/test/tuner-health-procedure.test.ts` and public
+facade proof in `packages/civ7-direct-control/test/public-api.test.ts`. The
+wrapper composes the local procedure-core call primitive with fake
+session/reconnect dependencies, adds an empty procedure input schema, validates
+empty input before runtime dependencies run, forwards direct-control options,
+validates raw Tuner diagnostic output through descriptor schema artifacts, and
+keeps procedure diagnostics separate from Tuner health output. This reduces
+only the Effect/oRPC Procedure Cores row's concrete runtime-support wrapper
+gap; it does not execute live Tuner reads, add a router/registry/transport,
+implement Effect/oRPC source, add `packages/civ7-control-orpc`, accept Task
+2.9.4, start Tasks 6.1-6.9, or claim runtime/live-game proof.
 
 ## Current State
 
@@ -3304,13 +3319,30 @@ All future agent waves must be framed before delegation:
   contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
   adapters, in-game controller router source, runtime/live-game proof, Task
   2.9.4 acceptance, or Tasks 6.1-6.9.
+- Tuner health runtime-support procedure descriptor/call seed:
+  `packages/civ7-direct-control/src/runtime/tuner-health.ts` now owns the
+  closed empty `Civ7TunerHealthInputSchema` beside its existing result schema,
+  while `packages/civ7-direct-control/src/runtime/tuner-health-procedure.ts`
+  records the adjacent `runtime.tuner.health` descriptor, schema artifact map,
+  and concrete procedure call wrapper over `checkCiv7TunerHealth`. Focused
+  proof in `packages/civ7-direct-control/test/tuner-health-procedure.test.ts`
+  validates empty context-owned input that rejects host/port/state/session/raw
+  command fields, raw Tuner diagnostic output validation, direct-control option
+  forwarding through fake session/reconnect dependencies, and input rejection
+  before fake runtime dependencies run. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the wrapper,
+  schema artifacts, and input/result schema exports. This is local no-network
+  proof only; it does not implement runtime router/procedure registration,
+  choose Effect Schema, migrate broader contracts, add Effect/oRPC source,
+  `packages/civ7-control-orpc`, transport adapters, in-game controller router
+  source, runtime/live-game proof, Task 2.9.4 acceptance, or Tasks 6.1-6.9.
 - Procedure-core context-policy descriptor seed:
   `packages/civ7-direct-control/src/procedure-core.ts` now records typed
   context requirements on descriptors, including direct-control facade access,
   endpoint defaults, Tuner/App UI state selection, logger, evidence sink, and
-  playable-status live-session policy. The current ready-unit, ready-city,
-  unit move-preview, and playable-status descriptors carry those context
-  requirements, and focused proof in
+  live-session policy. The current ready-unit, ready-city, unit move-preview,
+  playable-status, App UI snapshot, and Tuner health descriptors carry those
+  context requirements, and focused proof in
   `packages/civ7-direct-control/test/procedure-core.test.ts` rejects
   host/port/state procedure input fields when endpoint/state selection is
   context-owned while leaving raw command/session vocabulary under the existing

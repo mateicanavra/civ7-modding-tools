@@ -2173,6 +2173,23 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         6.1-6.9.
+  - [x] 4.35 Add the adjacent Tuner health procedure call wrapper in
+        `src/runtime/tuner-health-procedure.ts`, with focused proof in
+        `test/tuner-health-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This adds an empty procedure input schema
+        beside the existing `checkCiv7TunerHealth` runtime-support atom, keeps
+        endpoint/session/state selection in procedure context rather than
+        input, validates procedure input before fake session dependencies run,
+        validates raw Tuner diagnostic output through descriptor schema
+        artifacts, forwards direct-control options to the atom, and keeps
+        procedure diagnostics separate from Tuner health output. This is local
+        no-network proof over fake session/reconnect dependencies only; it
+        does not execute live direct-control atoms, construct final runtime
+        context, add middleware, add a router/registry/transport adapter,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 

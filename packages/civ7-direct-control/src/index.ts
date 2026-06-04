@@ -443,15 +443,25 @@ export type {
 } from "./runtime/root-inspection.js";
 export { inspectCiv7Root } from "./runtime/root-inspection.js";
 export type {
+  Civ7TunerHealthInput,
   Civ7TunerHealthResult,
   Civ7TunerHealthSnapshot,
+  TunerHealthDependencies,
+  TunerHealthSessionDependencies,
 } from "./runtime/tuner-health.js";
 export {
   checkCiv7TunerHealth,
+  Civ7TunerHealthInputSchema,
   Civ7TunerHealthResultSchema,
   Civ7TunerHealthSnapshotSchema,
   waitForCiv7TunerReady,
 } from "./runtime/tuner-health.js";
+export {
+  callCiv7TunerHealthProcedure,
+  Civ7TunerHealthProcedureDescriptor,
+  Civ7TunerHealthProcedureSchemaArtifacts,
+} from "./runtime/tuner-health-procedure.js";
+export type { Civ7TunerHealthProcedureCallOptions } from "./runtime/tuner-health-procedure.js";
 export type {
   Civ7PlayableStatusInput,
   Civ7PlayableStatusResult,
