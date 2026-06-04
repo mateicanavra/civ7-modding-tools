@@ -108,6 +108,33 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
     expect(fake.calls).toEqual([]);
   });
 
+  test("rejects empty approval reasons before the direct-control mutation port runs", async () => {
+    const fake = fakeContext(
+      notificationDismissalResult("notification-disappeared"),
+      {
+        approval: {
+          approved: true,
+          reason: "   ",
+        },
+      },
+    );
+
+    await expect(
+      call(Civ7ControlOrpcRouter.notifications.dismiss.request, {
+        notificationId,
+      }, { context: fake.context }),
+    ).rejects.toMatchObject({
+      code: "MUTATION_APPROVAL_REQUIRED",
+      status: 403,
+      data: {
+        procedureKey: "notifications.dismiss.request",
+        source: "context.approval",
+        risk: "mutation",
+      },
+    });
+    expect(fake.calls).toEqual([]);
+  });
+
   test("keeps stale notification postconditions no-repeat guarded", async () => {
     const fake = fakeContext(
       notificationDismissalResult("engine-front-still-live", {

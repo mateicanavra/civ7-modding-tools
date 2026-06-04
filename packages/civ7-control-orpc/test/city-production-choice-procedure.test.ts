@@ -105,6 +105,31 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     expect(fake.calls).toEqual([]);
   });
 
+  test("rejects empty approval reasons before the direct-control mutation port runs", async () => {
+    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
+      approval: {
+        approved: true,
+        reason: "   ",
+      },
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context }),
+    ).rejects.toMatchObject({
+      code: "MUTATION_APPROVAL_REQUIRED",
+      status: 403,
+      data: {
+        procedureKey: "city.production.choice.request",
+        source: "context.approval",
+        risk: "mutation",
+      },
+    });
+    expect(fake.calls).toEqual([]);
+  });
+
   test("keeps unconfirmed production postconditions no-repeat guarded", async () => {
     const fake = fakeContext(
       productionChoiceResult("production-state-changed-blocker-still-live", {

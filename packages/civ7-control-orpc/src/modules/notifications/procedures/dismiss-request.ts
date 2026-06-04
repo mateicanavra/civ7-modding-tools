@@ -1,29 +1,16 @@
 import {
   notificationDismissalProofPostcondition,
-  type Civ7ActionApproval,
 } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../dependencies/direct-control";
+import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7NotificationDismissalResult } from "../contract";
 
 const notificationsDismissRequestWithApproval =
   civ7ControlOrpcImplementer.notifications.dismiss.request.use(
-    ({ context, errors, next }) => {
-      const approval = mutationApprovalFromContext(context.approval);
-      if (approval == null) {
-        throw errors.MUTATION_APPROVAL_REQUIRED({
-          data: {
-            procedureKey: "notifications.dismiss.request",
-            source: "context.approval",
-            risk: "mutation",
-          },
-        });
-      }
-
-      return next({ context: { approval } });
-    },
+    civ7MutationApprovalMiddleware,
   );
 
 export const notificationsDismissRequestProcedure =
@@ -51,14 +38,6 @@ export const notificationsDismissRequestProcedure =
         }),
     });
   });
-
-function mutationApprovalFromContext(
-  approval: Civ7ActionApproval | undefined,
-): Civ7ActionApproval | null {
-  if (approval?.approved !== true) return null;
-  if (!approval.reason.trim()) return null;
-  return approval;
-}
 
 function notificationDismissalResult(
   result: Civ7ControlOrpcNotificationDismissalResult,

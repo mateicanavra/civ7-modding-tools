@@ -48,8 +48,9 @@ owner.
 
 - no direct-control-local procedure-core, middleware runner, correlation bus,
   error bus, router registry, or context composer;
-- no shared approval/validator/postcondition middleware promotion beyond the
-  repeated leaf-scoped native middleware proof;
+- no shared validator/postcondition middleware promotion beyond the repeated
+  leaf-scoped native middleware proof; shared approval promotion is recorded in
+  the later approval-middleware slice;
 - no CLI, Studio, HTTP/RPCLink, OpenAPI, global bridge, or in-game UIScript
   adapter work;
 - no runtime/live-game proof claim from local package tests;
@@ -80,8 +81,7 @@ validator-blocked not-sent projection. These are local package proofs only.
 ## Residual Risk
 
 Approval is now repeated across two mutation procedure leaves, making shared
-native approval middleware the next policy-layering candidate. This slice keeps
-that promotion pending to avoid mixing procedure introduction with a cross-leaf
-middleware refactor. Shared validator-first and postcondition/proof middleware
-also remain pending until a clean common shape is proven without custom wrapper
-plumbing.
+native approval middleware the next policy-layering candidate. The later
+approval-middleware slice owns that cross-leaf promotion. Shared validator-first
+and postcondition/proof middleware also remain pending until a clean common
+shape is proven without custom wrapper plumbing.

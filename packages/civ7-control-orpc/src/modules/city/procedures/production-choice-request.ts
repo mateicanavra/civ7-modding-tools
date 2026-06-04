@@ -1,30 +1,17 @@
 import {
   productionChoicePostconditionConfirmed,
   productionChoicePostconditionOutcome,
-  type Civ7ActionApproval,
 } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcProductionChoiceResult } from "../../../dependencies/direct-control";
+import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7CityProductionChoiceResult } from "../contract";
 
 const cityProductionChoiceRequestWithApproval =
   civ7ControlOrpcImplementer.city.production.choice.request.use(
-    ({ context, errors, next }) => {
-      const approval = mutationApprovalFromContext(context.approval);
-      if (approval == null) {
-        throw errors.MUTATION_APPROVAL_REQUIRED({
-          data: {
-            procedureKey: "city.production.choice.request",
-            source: "context.approval",
-            risk: "mutation",
-          },
-        });
-      }
-
-      return next({ context: { approval } });
-    },
+    civ7MutationApprovalMiddleware,
   );
 
 export const cityProductionChoiceRequestProcedure =
@@ -51,14 +38,6 @@ export const cityProductionChoiceRequestProcedure =
         }),
     });
   });
-
-function mutationApprovalFromContext(
-  approval: Civ7ActionApproval | undefined,
-): Civ7ActionApproval | null {
-  if (approval?.approved !== true) return null;
-  if (!approval.reason.trim()) return null;
-  return approval;
-}
 
 function cityProductionChoiceResult(
   input: Readonly<{

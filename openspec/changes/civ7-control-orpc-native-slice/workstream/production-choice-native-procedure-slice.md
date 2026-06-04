@@ -47,8 +47,9 @@ validator, command-serialization, postcondition, and proof-policy owner.
 
 - no direct-control-local procedure-core, middleware runner, correlation bus,
   error bus, router registry, or context composer;
-- no shared approval/validator/postcondition middleware promotion beyond the
-  leaf-scoped native middleware proof;
+- no shared validator/postcondition middleware promotion beyond the leaf-scoped
+  native middleware proof; shared approval promotion is recorded in the later
+  approval-middleware slice;
 - no CLI, Studio, HTTP/RPCLink, OpenAPI, global bridge, or in-game UIScript
   adapter work;
 - no runtime/live-game proof claim from local package tests;
@@ -70,8 +71,9 @@ blocked not-sent projection. These are local package proofs only.
 
 ## Residual Risk
 
-The middleware is intentionally leaf-scoped until a second mutation procedure
-needs the same approval policy. Shared validator-first and postcondition/proof
+This slice initially kept approval leaf-scoped until a second mutation procedure
+needed the same policy. The later approval-middleware slice owns the shared
+native approval promotion. Shared validator-first and postcondition/proof
 middleware remain pending; this slice proves the native oRPC/effect-orpc hook
 point and the first semantic mutation projection without claiming runtime/live
 closure.

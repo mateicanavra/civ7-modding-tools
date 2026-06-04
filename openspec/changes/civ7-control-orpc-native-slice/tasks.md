@@ -112,6 +112,9 @@ adding more read-only facade shells.
 - [ ] 6.1 Promote shared middleware only after modularized behavior shows a
   repeated policy and the implementation uses native oRPC/effect-orpc
   primitives.
+  - [x] 6.1.1 Promote the repeated mutation approval gate into shared native
+    effect-oRPC builder middleware after the production-choice and notification
+    dismissal leaves proved the same context-owned approval policy.
 - [ ] 6.2 Add approval middleware before mutation procedures.
   - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
     `city.production.choice.request`; keep shared approval middleware pending
@@ -119,6 +122,9 @@ adding more read-only facade shells.
   - [x] 6.2.2 Repeat leaf-scoped native effect-oRPC approval middleware for
     `notifications.dismiss.request`; shared approval middleware promotion is
     now the next native policy-layering candidate, not accepted in this slice.
+  - [x] 6.2.3 Reuse shared native approval middleware across
+    `city.production.choice.request` and `notifications.dismiss.request` while
+    keeping validator-first and postcondition/proof middleware pending.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
   - [x] 6.3.1 Compose `city.production.choice.request` through the
