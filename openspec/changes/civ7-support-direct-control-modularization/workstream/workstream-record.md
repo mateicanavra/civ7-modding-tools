@@ -2753,3 +2753,15 @@ All future agent waves must be framed before delegation:
   atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
   projection, hotseat runtime proof, schema migration, debug hierarchy
   implementation, or Effect/oRPC procedure-core work.
+- Unit-target action command-source helper normalization:
+  `src/play/operations/unit-target-action.ts` now imports the shared runtime
+  serializer and probe helper owners instead of carrying atom-local copies in
+  the embedded unit-target action source. The generated command text remains
+  equivalent, and the unit-target owner still preserves the read-vs-send split,
+  approval-first request behavior, bounded post-send polling,
+  no-repeat-after-unverified wording, and unit-target postcondition
+  classification. This is local package/source relocation cleanup only and does
+  not claim runtime/live-game proof, accept Task 2.9.4, normalize every
+  remaining atom-local source helper, or unblock telemetry, AI ingestion, CLI
+  semantic projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.

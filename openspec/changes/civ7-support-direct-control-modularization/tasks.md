@@ -1471,6 +1471,15 @@ runtime/direct-control claims.
         broader atom-local source helper normalization, telemetry, AI ingestion,
         CLI semantic projection, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.33 Normalize the unit-target action command-source helper wiring by
+        reusing the shared runtime serializer and probe helper owners from
+        `src/play/operations/unit-target-action.ts`, preserving generated
+        command text, read-vs-send split, approval-first request behavior,
+        bounded post-send polling, no-repeat-after-unverified wording, unit
+        target postcondition classification, and leaving broader atom-local
+        source helper normalization, telemetry, AI ingestion, CLI semantic
+        projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
