@@ -1562,6 +1562,16 @@ runtime/direct-control claims.
         runtime proof, AI ingestion, semantic CLI projection, telemetry,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.14.15 Prune trivial restart/begin lifecycle facade call-through
+        wrappers by re-exporting `beginCiv7Game`, `restartCiv7Game`, and
+        `restartCiv7GameAndBegin` directly from `src/setup/restart.ts`,
+        preserving public package imports, App UI restart/begin command
+        routing, restart-output rejection, GameStarted polling, one-attempt
+        begin send, optional Tuner readiness wait, restart lifecycle package
+        proof, no-replay package proof, and leaving runtime/live-game proof,
+        hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

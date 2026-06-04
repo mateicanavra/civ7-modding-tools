@@ -129,12 +129,6 @@ import {
   type Civ7SinglePlayerRunResult,
 } from "./setup/run.js";
 import {
-  beginCiv7Game as beginCiv7GameFromModule,
-  restartCiv7Game as restartCiv7GameFromModule,
-  restartCiv7GameAndBegin as restartCiv7GameAndBeginFromModule,
-  type Civ7RestartAndBeginResult,
-} from "./setup/restart.js";
-import {
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   CIV7_RESTART_COMMAND,
@@ -448,6 +442,11 @@ export type {
   Civ7SinglePlayerRunResult,
 } from "./setup/run.js";
 export type { Civ7RestartAndBeginResult } from "./setup/restart.js";
+export {
+  beginCiv7Game,
+  restartCiv7Game,
+  restartCiv7GameAndBegin,
+} from "./setup/restart.js";
 export { DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR } from "./setup/prepare.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
@@ -824,24 +823,6 @@ export type Civ7ResourceBuilderDiagnosticsResult = Readonly<{
   resources: ReadonlyArray<Civ7ResourceBuilderDiagnosticsResource>;
   cells: ReadonlyArray<Civ7ResourceBuilderDiagnosticsCell>;
 }>;
-
-export async function beginCiv7Game(options: Civ7DirectControlOptions = {}): Promise<Civ7CommandResult> {
-  return await beginCiv7GameFromModule(options);
-}
-
-export async function restartCiv7Game(options: Civ7DirectControlOptions & {
-  state?: Civ7TunerStateSelection;
-} = {}): Promise<Civ7CommandResult> {
-  return await restartCiv7GameFromModule(options);
-}
-
-export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions & {
-  waitForTuner?: boolean;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-} = {}): Promise<Civ7RestartAndBeginResult> {
-  return await restartCiv7GameAndBeginFromModule(options);
-}
 
 export async function getCiv7ResourcePlacementFeasibility(
   input: Civ7ResourcePlacementFeasibilityInput,

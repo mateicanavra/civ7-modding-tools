@@ -2121,6 +2121,17 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
   AI ingestion, semantic CLI projection, hotseat runtime proof,
   schema/procedure-core work, or Effect/oRPC implementation.
+- Restart/begin lifecycle call-through cleanup: `index.ts` now re-exports
+  `beginCiv7Game`, `restartCiv7Game`, and `restartCiv7GameAndBegin` directly
+  from `src/setup/restart.ts` after owner-local dependency defaults are in
+  place. This removes the trivial async lifecycle facade wrappers while
+  preserving public package import names, App UI restart/begin command routing,
+  restart-output rejection, GameStarted polling, one-attempt begin send,
+  optional Tuner readiness wait, restart lifecycle package proof, and no-replay
+  package proof. This is local package/source relocation cleanup proof only: it
+  does not claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or
+  unblock telemetry, AI ingestion, semantic CLI projection, hotseat runtime
+  proof, schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
