@@ -968,6 +968,12 @@ runtime/direct-control claims.
         behavior, runtime proof, telemetry, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.8.53 Prune stale facade type re-export imports for autoplay status
+        and turn-completion status results now exported through direct
+        `export type ... from` declarations, while preserving public facade
+        exports and leaving autoplay/turn-completion behavior, runtime proof,
+        telemetry, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
       implementation. The support branch cites the
       `civ7-orpc-control-architecture` skill from
