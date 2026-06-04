@@ -35,7 +35,8 @@ executing atoms, registering a router, or owning transport behavior. The
 procedure-core owner also has a no-network call primitive over injected
 handlers that validates input before handler execution, validates output after
 handler execution, returns procedure output separately from debug/telemetry
-diagnostics, resolves correlation IDs according to descriptor policy, and
+diagnostics, records descriptor-owned schema technology plus projection policy
+in diagnostics, resolves correlation IDs according to descriptor policy, and
 normalizes handler failures with typed direct-control error details. The first
 concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
@@ -696,7 +697,9 @@ Local no-network procedure-core calls now live in
 ready-unit handler through the procedure-core owner, proves validated input
 reaches the handler, invalid input prevents handler execution, invalid output
 fails after handler execution, caller-provided correlation ID policy is enforced,
-and handler failures are normalized with procedure and correlation details.
+descriptor-owned `schemaTechnology` and projection policy are recorded in
+diagnostics rather than returned procedure output, and handler failures are
+normalized with procedure and correlation details.
 Public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
 verifies the call result/diagnostic schemas and call helper are exported. This
 is local injected-handler proof only; it does not execute live direct-control

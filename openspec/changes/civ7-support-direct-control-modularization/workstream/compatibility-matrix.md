@@ -1111,13 +1111,12 @@ Intake rejection conditions:
   contracts, runtime-context/middleware/error/correlation owner, broader
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control notification-dismissal
-  request/result schema owner, notification dismissal summary/postcondition
-  schema owner, adjacent `notifications.dismiss.request` mutation descriptor/
-  call metadata declaring current TypeBox schema technology, approval/validator/
-  postcondition/no-repeat gate metadata, caller-correlation policy, root
-  command/raw-command output rejection, focused descriptor/atom/public facade
-  proof, and docs/OpenSpec records.
+- `writeSet`: current write set is the direct-control procedure-core
+  diagnostics owner in `packages/civ7-direct-control/src/procedure-core.ts`,
+  focused procedure-core proof, public facade diagnostics schema proof, and
+  docs/OpenSpec records. It records descriptor-owned schema technology and
+  projection policy in local call diagnostics while keeping returned procedure
+  output separate from diagnostics.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -1464,7 +1463,8 @@ Intake rejection conditions:
   validation against resolved TypeBox schema artifacts for ready-unit and unit
   move-preview descriptors, local injected-handler procedure-call proof for
   input-before-handler/output-after-handler sequencing, separated
-  output/diagnostics, correlation-id policy, and handler failure normalization,
+  output/diagnostics, descriptor-owned schema technology and projection-policy
+  diagnostics, correlation-id policy, and handler failure normalization,
   adjacent ready-unit, ready-city, unit move-preview, playable-status,
   App UI snapshot, Tuner health, notification-view, settlement-recommendations,
   target-candidates, battlefield-scan, destination-analysis, traditions-view,
@@ -1504,7 +1504,9 @@ Intake rejection conditions:
   It also fails local calls before handler execution on invalid input, fails
   after handler execution on invalid output, requires caller-provided
   correlation IDs where descriptor policy says so, and wraps injected-handler
-  failures with procedure/correlation details. The adjacent ready-unit,
+  failures with procedure/correlation details while validating that schema
+  technology and projection policy are diagnostic metadata rather than returned
+  procedure output. The adjacent ready-unit,
   ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
   health, notification-view, settlement-recommendations, target-candidates,
   battlefield-scan, destination-analysis, traditions-view, progress-dashboard,

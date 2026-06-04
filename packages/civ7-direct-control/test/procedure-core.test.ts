@@ -604,9 +604,19 @@ describe("Civ7 procedure-core descriptor owner", () => {
       correlationId: "corr-unit-ready-view",
       proofBoundary: "local-package-test",
       playerScope: "local-player-scoped",
+      schemaTechnology: "typebox",
+      projection: {
+        normalCli: "semantic-projection",
+        debugService: "omitted",
+        aiIngestion: "blocked-until-ingestion-contract",
+        telemetry: "blocked-until-procedure-middleware",
+        procedureCore: "typed-procedure-core",
+      },
       debugServiceCorrelation: true,
       telemetryCorrelation: false,
     });
+    expect(result.output).not.toHaveProperty("projection");
+    expect(result.output).not.toHaveProperty("schemaTechnology");
     expect(result.diagnostics.context).toEqual([
       "direct-control-facade",
       "endpoint-defaults",

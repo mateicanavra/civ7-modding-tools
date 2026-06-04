@@ -3939,6 +3939,7 @@ All future agent waves must be framed before delegation:
   through procedure output, add a broad operation catalog, add a router/
   registry/transport adapter, choose Effect Schema, claim runtime/live-game
   proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+
 - Notification-dismissal request procedure atom seed:
   `packages/civ7-direct-control/src/play/notifications/dismissal-request.ts`
   now owns TypeBox input/request/result schemas for the existing approval-gated
@@ -3971,3 +3972,18 @@ All future agent waves must be framed before delegation:
   procedure output, add a broad notification or operation catalog, add a router/
   registry/transport adapter, choose Effect Schema, claim runtime/live-game
   proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+
+- Procedure-core diagnostics projection metadata:
+  `packages/civ7-direct-control/src/procedure-core.ts` now includes
+  descriptor-owned `schemaTechnology` and projection policy in local
+  procedure-call diagnostics. Focused proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` validates the
+  expanded diagnostics shape and proves that schema/projection metadata remains
+  separate from returned procedure output. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` validates the exported
+  diagnostics and call-result schemas. This reduces only the local
+  procedure-core diagnostics/projection proof gap; it does not change CLI
+  output, expose diagnostics as normal player-agent output, add
+  router/registry/transport behavior, choose Effect Schema, add Effect/oRPC
+  source, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+  5.1-5.7 or 6.1-6.9.
