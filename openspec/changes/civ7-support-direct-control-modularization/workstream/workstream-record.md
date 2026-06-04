@@ -2880,6 +2880,15 @@ All future agent waves must be framed before delegation:
   does not accept Task 2.9.4, claim runtime/live-game proof, create telemetry
   or AI-ingestion contracts, or unblock normal CLI semantic envelopes,
   hotseat runtime, schema migration, or Effect/oRPC procedure-core work.
+- App UI snapshot debug proof increment:
+  focused `game inspect --app-ui-snapshot --json` coverage now proves the
+  debug-owned inspect command emits the package-owned raw App UI snapshot shape,
+  including host/port/state, network, UI, game, player, and map probes. This
+  remains partial local CLI/package proof for the Debug/Internal Service Output
+  row only; it does not accept Task 2.9.4, claim runtime/live-game proof,
+  create telemetry or AI-ingestion contracts, or unblock normal CLI semantic
+  envelopes, hotseat runtime, schema migration, or Effect/oRPC procedure-core
+  work.
 - Operation/proof telemetry contract planning:
   `workstream/operation-proof-telemetry-contract.md` now records the planned
   action/proof telemetry record slots, projection boundaries, proof-class

@@ -200,6 +200,10 @@ describe('game direct-control commands', () => {
 
   test('prints the package-owned App UI snapshot', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameInspect.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameInspect.run([
@@ -212,7 +216,74 @@ describe('game direct-control commands', () => {
       ]);
 
       expect(server.received).toEqual(['LSQ:', expect.stringContaining('CMD:65535:(() =>')]);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        snapshot: {
+          host: string;
+          port: number;
+          state: { id: string; name: string };
+          snapshot: {
+            network: {
+              isInSession: { ok: true; value: boolean };
+              hostPlayerId: { ok: true; value: number };
+            };
+            game: {
+              turn: number;
+              turnDate: { ok: true; value: string };
+            };
+            ui: {
+              inGame: { ok: true; value: boolean };
+              loadingStateName: string;
+              canNotifyUIReady: string;
+            };
+            gameContext: { localPlayerID: number; localObserverID: number };
+            players: {
+              aliveIds: { ok: true; value: number[] };
+              aliveHumanIds: { ok: true; value: number[] };
+            };
+            map: {
+              width: { ok: true; value: number };
+              height: { ok: true; value: number };
+              plotCount: { ok: true; value: number };
+            };
+          };
+        };
+      };
+      expect(payload).toMatchObject({
+        ok: true,
+        snapshot: {
+          host: '127.0.0.1',
+          port,
+          state: { id: '65535', name: 'App UI' },
+        },
+      });
+      expect(payload.snapshot.snapshot).toMatchObject({
+        network: {
+          isInSession: { ok: true, value: true },
+          hostPlayerId: { ok: true, value: 0 },
+        },
+        game: {
+          turn: 1,
+          turnDate: { ok: true, value: '4000 BCE' },
+        },
+        ui: {
+          inGame: { ok: true, value: true },
+          loadingStateName: 'WaitingForUIReady',
+          canNotifyUIReady: 'function',
+        },
+        gameContext: { localPlayerID: 0, localObserverID: 0 },
+        players: {
+          aliveIds: { ok: true, value: [0] },
+          aliveHumanIds: { ok: true, value: [0] },
+        },
+        map: {
+          width: { ok: true, value: 84 },
+          height: { ok: true, value: 54 },
+          plotCount: { ok: true, value: 4536 },
+        },
+      });
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
