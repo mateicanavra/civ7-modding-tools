@@ -81,8 +81,13 @@ and schema exports. The adjacent settlement-recommendations descriptor artifact
 is `packages/civ7-direct-control/src/play/tactical/settlement-procedure.ts`,
 which owns the `strategy.settlement.recommendations` descriptor adjacent to the
 read-only settlement recommendation atom and schema exports while staying under
-the existing `strategy` procedure family. This is local package proof only; it
-does not collect runtime evidence, add Effect/oRPC dependencies, create
+the existing `strategy` procedure family. The adjacent target-candidates
+descriptor artifact is
+`packages/civ7-direct-control/src/play/tactical/target-candidates-procedure.ts`,
+which owns the `strategy.target.candidates` descriptor adjacent to the
+read-only target-candidates atom and schema exports while preserving the
+neutral relationship evidence model. This is local package proof only; it does
+not collect runtime evidence, add Effect/oRPC dependencies, create
 `packages/civ7-control-orpc`, implement router/procedure behavior, choose a
 broader schema migration, claim runtime proof, or accept the matrix row.
 
@@ -181,6 +186,26 @@ verifies the schemas are exported for future procedure-core consumers. This is
 a read-only settlement recommendation schema seed; it does not change normal
 CLI output, reinterpret recommendations as actions, add city-founding/send
 behavior, claim runtime proof, or accept the matrix row.
+
+`packages/civ7-direct-control/src/play/tactical/target-candidates.ts` now owns
+TypeBox schemas for `getCiv7TargetCandidates` input, target-candidate
+approach, target-candidate rows, relationship-label policy, and output. The
+input schema preserves the existing bounded `playerId`, `origins`,
+`maxCandidates`, `maxPlayers`, and `unitRadius` contracts. The output schema
+keeps `relationshipLabelPolicy` constrained to `not-classified` / `none` /
+`relationship-unproven`; endpoint/session/state selection and raw command
+fields remain procedure context/debug concerns. Focused proof in
+`packages/civ7-direct-control/test/tactical-reads.test.ts` validates the
+existing fake target-candidates result against the output schema, rejects
+out-of-bound inputs and invalid map locations, rejects context/raw-command
+input and root-level raw command output fields, and rejects stronger
+relationship-proof output. Public facade proof in
+`packages/civ7-direct-control/test/public-api.test.ts` verifies the schemas
+are exported for future procedure-core consumers. This is a read-only
+target-candidates schema seed; it does not change normal CLI output,
+reinterpret candidates as action plans, infer hostile/enemy/non-friendly/
+opponent/threat/war/ally/suzerain labels, add attack/move/send behavior, claim
+runtime proof, or accept the matrix row.
 
 The adjacent ready-unit descriptor artifact reuses those schema exports and
 records root input/output field names from the actual TypeBox schemas,
@@ -285,6 +310,25 @@ This is local no-network read-atom proof only; it does not change CLI output,
 reinterpret recommendations as actions, add city-founding/send behavior, add
 a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
 proof, or accept the matrix row.
+
+The adjacent target-candidates procedure artifact reuses the target-candidates
+schema exports and records `strategy.target.candidates` beside
+`getCiv7TargetCandidates`. Focused proof in
+`packages/civ7-direct-control/test/target-candidates-procedure.test.ts` checks
+the descriptor's input/output field lists against resolved schema root
+properties, including origins, neutral relationship label policy, candidates,
+and notes, without registering a router or transport adapter. The same artifact
+exports a concrete call wrapper over `getCiv7TargetCandidates`, composed
+through the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, input validation before
+atom dependencies run, output validation after the atom returns, separated
+output/diagnostics, no-send read-only command text, and preservation of
+relationship-unproven semantics. This is local no-network read-atom proof only;
+it does not change CLI output, reinterpret candidates as action plans, infer
+hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain labels, add
+attack/move/send behavior, add a broad tactical catalog, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
 
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
@@ -426,13 +470,14 @@ gaps for the current TypeBox descriptor shape, generic raw fields,
 repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
-health, notification-view, and settlement-recommendations descriptor artifacts with
+health, notification-view, settlement-recommendations, and target-candidates
+descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
 unit move-preview, playable-status, App UI snapshot, Tuner health, and
-notification-view and settlement-recommendations procedure call wrappers, but
-they do not accept the row.
+notification-view, settlement-recommendations, and target-candidates procedure
+call wrappers, but they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
@@ -440,7 +485,8 @@ Acceptance still needs:
   procedure contracts;
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the current ready-read, move-preview, runtime-support, and
-  notification-view and settlement-recommendations call wrappers;
+  notification-view, settlement-recommendations, and target-candidates call
+  wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

@@ -1,8 +1,11 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
 import {
+  Civ7TargetCandidatesInputSchema,
+  Civ7TargetCandidatesResultSchema,
   getCiv7BattlefieldScan,
   getCiv7DestinationAnalysis,
   getCiv7TargetCandidates,
@@ -15,6 +18,36 @@ type FakeTacticalReadTunerServer = {
 };
 
 describe("tactical read wrappers", () => {
+  test("exports TypeBox schemas for the neutral target-candidates read atom", () => {
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, {
+      origins: [{ x: 18, y: 20 }],
+      maxCandidates: 4,
+      maxPlayers: 12,
+      unitRadius: 3,
+    })).toBe(true);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { maxCandidates: 65 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { maxPlayers: 129 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { unitRadius: 17 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { rawCommand: "readTargetCandidates()" })).toBe(false);
+
+    const result = targetCandidatesResult();
+    expect(Value.Check(Civ7TargetCandidatesResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7TargetCandidatesResultSchema, {
+      ...result,
+      relationshipLabelPolicy: {
+        ...result.relationshipLabelPolicy,
+        relationshipProof: "owner-mismatch",
+      },
+    })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesResultSchema, {
+      ...result,
+      rawCommand: "readTargetCandidates()",
+    })).toBe(false);
+  });
+
   test("reads target candidates as owner/proximity planning evidence", async () => {
     const server = await startTacticalReadTunerServer();
     try {
@@ -394,6 +427,15 @@ function targetCandidatesReadView() {
       "Read-only target shortlist. It ranks other-owner contacts and sends no operations.",
       "Owner mismatch is contact evidence only. Use relationship-unproven language unless official proof exists.",
     ],
+  };
+}
+
+function targetCandidatesResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...targetCandidatesReadView(),
   };
 }
 

@@ -42,6 +42,10 @@ import {
   Civ7SettlementRecommendationResultSchema,
   Civ7SettlementRecommendationsProcedureDescriptor,
   Civ7SettlementRecommendationsProcedureSchemaArtifacts,
+  Civ7TargetCandidatesInputSchema,
+  Civ7TargetCandidatesProcedureDescriptor,
+  Civ7TargetCandidatesProcedureSchemaArtifacts,
+  Civ7TargetCandidatesResultSchema,
   Civ7TunerHealthInputSchema,
   Civ7TunerHealthProcedureDescriptor,
   Civ7TunerHealthProcedureSchemaArtifacts,
@@ -81,6 +85,7 @@ import {
   callCiv7ReadyCityViewProcedure,
   callCiv7ReadyUnitViewProcedure,
   callCiv7SettlementRecommendationsProcedure,
+  callCiv7TargetCandidatesProcedure,
   callCiv7TunerHealthProcedure,
   callCiv7UnitMovePreviewProcedure,
   civ7ProcedureSchemaReferenceKey,
@@ -381,6 +386,39 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
+  test("exports target-candidates procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, {
+      origins: [{ x: 18, y: 20 }],
+      maxCandidates: 4,
+      maxPlayers: 12,
+      unitRadius: 3,
+    })).toBe(true);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { maxCandidates: 65 })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TargetCandidatesInputSchema, { rawCommand: "readTargetCandidates()" })).toBe(false);
+    expect(Civ7TargetCandidatesResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "state",
+        "localPlayerId",
+        "playerId",
+        "origins",
+        "unitRadius",
+        "hiddenInfoPolicy",
+        "relationshipLabelPolicy",
+        "candidates",
+        "notes",
+      ]),
+    });
+    expect(Civ7TargetCandidatesResultSchema.properties.relationshipLabelPolicy.properties).toMatchObject({
+      relationshipSource: { const: "not-classified" },
+      relationshipProof: { const: "none" },
+      unprovenLabel: { const: "relationship-unproven" },
+    });
+  });
+
   test("exports procedure schema reference schema from the public facade", () => {
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "direct-control-facade")).toBe(true);
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "raw-socket")).toBe(false);
@@ -527,6 +565,24 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7SettlementRecommendationsProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7SettlementRecommendationsProcedureDescriptor.outputSchema)
     ]).toBe(Civ7SettlementRecommendationResultSchema);
+  });
+
+  test("exports the target-candidates procedure descriptor artifact from the public facade", () => {
+    expect(Civ7TargetCandidatesProcedureDescriptor).toMatchObject({
+      procedureKey: "strategy.target.candidates",
+      family: "strategy",
+      atomFunction: "getCiv7TargetCandidates",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7TargetCandidatesProcedure).toBe("function");
+    expect(Civ7TargetCandidatesProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7TargetCandidatesProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7TargetCandidatesInputSchema);
+    expect(Civ7TargetCandidatesProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7TargetCandidatesProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7TargetCandidatesResultSchema);
   });
 
   test("exports the playable-status procedure descriptor artifact from the public facade", () => {

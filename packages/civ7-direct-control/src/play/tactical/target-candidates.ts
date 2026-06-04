@@ -1,8 +1,11 @@
+import { Type } from "typebox";
+
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { probeHelperSource } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { boundedInteger, validatePlayerId } from "../../validation.js";
+import { Civ7MapLocationSchema } from "../map/types.js";
 
 import type {
   Civ7CommandResult,
@@ -11,6 +14,19 @@ import type {
 } from "../../session/types.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7TargetCandidatesInputSchema = Type.Object({
+  playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+  origins: Type.Optional(Type.Array(Civ7MapLocationSchema)),
+  maxCandidates: Type.Optional(Type.Integer({ minimum: 1, maximum: 64 })),
+  maxPlayers: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
+  unitRadius: Type.Optional(Type.Integer({ minimum: 0, maximum: 16 })),
+}, { additionalProperties: false });
+
 export type Civ7TargetCandidatesInput = Readonly<{
   playerId?: number;
   origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
@@ -18,6 +34,43 @@ export type Civ7TargetCandidatesInput = Readonly<{
   maxPlayers?: number;
   unitRadius?: number;
 }>;
+
+export const Civ7TargetCandidatesRelationshipLabelPolicySchema = Type.Object({
+  relationshipSource: Type.Literal("not-classified"),
+  relationshipProof: Type.Literal("none"),
+  unprovenLabel: Type.Literal("relationship-unproven"),
+  guidance: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7TargetCandidateApproachSchema = Type.Object({
+  nearestOrigin: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+  targetLocation: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+  directGridDistance: Type.Union([Type.Number(), Type.Null()]),
+  routeHint: Type.String(),
+  routeKind: Type.String(),
+  originWater: Type.Union([Civ7RuntimeProbeSchema(Type.Unknown()), Type.Null()]),
+  targetWater: Type.Union([Civ7RuntimeProbeSchema(Type.Unknown()), Type.Null()]),
+  waterSampleCount: Type.Number(),
+  landSampleCount: Type.Number(),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
+
+export const Civ7TargetCandidateSchema = Type.Object({
+  owner: Type.Number(),
+  leaderName: Civ7RuntimeProbeSchema(Type.Unknown()),
+  civilizationName: Civ7RuntimeProbeSchema(Type.Unknown()),
+  isHuman: Civ7RuntimeProbeSchema(Type.Unknown()),
+  cityCount: Type.Number(),
+  unitCount: Type.Number(),
+  cities: Type.Unknown(),
+  nearestCity: Type.Unknown(),
+  nearestDistance: Type.Union([Type.Number(), Type.Null()]),
+  nearbyUnits: Type.Unknown(),
+  nearbyUnitCount: Type.Number(),
+  apparentStrength: Type.Number(),
+  approach: Civ7TargetCandidateApproachSchema,
+  reasons: Type.Array(Type.String()),
+}, { additionalProperties: false });
 
 export type Civ7TargetCandidate = Readonly<{
   owner: number;
@@ -47,6 +100,20 @@ export type Civ7TargetCandidate = Readonly<{
   reasons: ReadonlyArray<string>;
 }>;
 
+export const Civ7TargetCandidatesResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  localPlayerId: Type.Number(),
+  playerId: Type.Number(),
+  origins: Type.Array(Civ7MapLocationSchema),
+  unitRadius: Type.Number(),
+  hiddenInfoPolicy: Type.String(),
+  relationshipLabelPolicy: Civ7TargetCandidatesRelationshipLabelPolicySchema,
+  candidates: Type.Array(Civ7TargetCandidateSchema),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
+
 export type Civ7TargetCandidatesResult = Readonly<{
   host: string;
   port: number;
@@ -61,7 +128,7 @@ export type Civ7TargetCandidatesResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
-type TargetCandidatesDependencies = Readonly<{
+export type TargetCandidatesDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (

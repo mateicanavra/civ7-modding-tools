@@ -3547,3 +3547,29 @@ All future agent waves must be framed before delegation:
   actions, add city-founding/send behavior, add a router/registry/transport
   adapter, choose Effect Schema, claim runtime/live-game proof, accept Task
   2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+- Target-candidates procedure atom seed:
+  `packages/civ7-direct-control/src/play/tactical/target-candidates.ts` now
+  owns TypeBox input/output schemas for the existing read-only
+  target-candidates atom, and
+  `packages/civ7-direct-control/src/play/tactical/target-candidates-procedure.ts`
+  records the adjacent `strategy.target.candidates` descriptor/schema artifact
+  map and concrete call wrapper over `getCiv7TargetCandidates` while
+  preserving the existing `strategy` procedure family and neutral
+  relationship evidence model. Focused proof in
+  `packages/civ7-direct-control/test/tactical-reads.test.ts` validates the fake
+  target-candidates result against the schema, rejects invalid bounds/map
+  locations plus endpoint/session/state/raw-command procedure input, and
+  rejects stronger relationship-proof output; proof in
+  `packages/civ7-direct-control/test/target-candidates-procedure.test.ts`
+  covers descriptor schema resolution, no-network fake-dependency calls,
+  direct-control option forwarding, input-before-dependency rejection, output
+  validation, separated diagnostics, no-send command text, and preservation of
+  relationship-unproven semantics. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema,
+  descriptor, artifact map, and call-wrapper exports. This is local read-atom
+  proof only; it does not change CLI output, reinterpret candidates as action
+  plans, infer hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain
+  labels, add attack/move/send behavior, add a broad tactical catalog, add a
+  router/registry/transport adapter, choose Effect Schema, claim
+  runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
+  6.1-6.9.

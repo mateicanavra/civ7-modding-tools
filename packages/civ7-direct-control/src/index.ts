@@ -799,8 +799,24 @@ export type {
   Civ7TargetCandidate,
   Civ7TargetCandidatesInput,
   Civ7TargetCandidatesResult,
+  TargetCandidatesDependencies,
 } from "./play/tactical/target-candidates.js";
-export { getCiv7TargetCandidates };
+export {
+  Civ7TargetCandidateApproachSchema,
+  Civ7TargetCandidateSchema,
+  Civ7TargetCandidatesInputSchema,
+  Civ7TargetCandidatesRelationshipLabelPolicySchema,
+  Civ7TargetCandidatesResultSchema,
+  getCiv7TargetCandidates,
+} from "./play/tactical/target-candidates.js";
+export {
+  callCiv7TargetCandidatesProcedure,
+  Civ7TargetCandidatesProcedureDescriptor,
+  Civ7TargetCandidatesProcedureSchemaArtifacts,
+} from "./play/tactical/target-candidates-procedure.js";
+export type {
+  Civ7TargetCandidatesProcedureCallOptions,
+} from "./play/tactical/target-candidates-procedure.js";
 export {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,

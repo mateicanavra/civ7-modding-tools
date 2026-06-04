@@ -2323,6 +2323,30 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         5.1-5.7 or 6.1-6.9.
+  - [x] 4.38 Add the adjacent target-candidates procedure atom in
+        `src/play/tactical/target-candidates-procedure.ts`, with TypeBox
+        input/output schemas beside the existing read-only target-candidates
+        atom in `src/play/tactical/target-candidates.ts`, focused proof in
+        `test/target-candidates-procedure.test.ts`, adjacent atom schema proof
+        in `test/tactical-reads.test.ts`, and public facade proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7TargetCandidates` atom under the
+        existing `strategy` procedure family, validates bounded `playerId`,
+        `origins`, `maxCandidates`, `maxPlayers`, and `unitRadius` input
+        before atom dependencies run, keeps endpoint/session/state/raw-command
+        selection out of procedure input, validates the neutral
+        `relationshipLabelPolicy` contract as `not-classified` / `none` /
+        `relationship-unproven`, forwards direct-control options to the atom,
+        and keeps procedure diagnostics separate from target-candidates output.
+        This is local no-network proof over fake atom dependencies only; it
+        does not change CLI output, reinterpret target candidates as action
+        plans, infer hostile/enemy/non-friendly/opponent/threat/war/ally/
+        suzerain labels, add attack/move/send behavior, execute live
+        direct-control atoms, add a broad tactical catalog, add a
+        router/registry/transport adapter, choose Effect Schema, add
+        Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2395,12 +2419,17 @@ authority are recorded.
     atom, including bounded `count` input, map-location input, origin/
     suggestion output schema proof, and local no-network proof over fake atom
     dependencies.
+    Task 4.38 adds an adjacent read-atom schema/descriptor/call artifact for
+    `strategy.target.candidates` over the target-candidates atom, including
+    bounded target-candidate input, neutral relationship-label-policy output
+    proof, and local no-network proof over fake atom dependencies.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
     runtime-support, notification-view, and settlement-recommendations schema
-    seeds, descriptor schema-reference binding/resolution, adjacent
-    descriptor/call artifacts, and resolver field-list guard.
+    and target-candidates seeds, descriptor schema-reference binding/
+    resolution, adjacent descriptor/call artifacts, and resolver field-list
+    guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test
