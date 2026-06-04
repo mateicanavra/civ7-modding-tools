@@ -183,7 +183,6 @@ import {
   type Civ7GameInfoRowsResult,
 } from "./play/map/gameinfo.js";
 import {
-  getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule,
   revealCiv7MapForPlayer as revealCiv7MapForPlayerFromModule,
   type Civ7RevealMapResult,
   type Civ7VisibilitySummaryInput,
@@ -497,6 +496,7 @@ export type {
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
 } from "./play/map/visibility.js";
+export { getCiv7VisibilitySummary } from "./play/map/visibility.js";
 export type {
   Civ7CitySummary,
   Civ7CitySummaryInput,
@@ -1018,13 +1018,6 @@ export async function getCiv7FullMapGrid(
     chunks,
     plots,
   };
-}
-
-export async function getCiv7VisibilitySummary(
-  input: Civ7VisibilitySummaryInput,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7VisibilitySummaryResult> {
-  return await getCiv7VisibilitySummaryFromModule(input, options);
 }
 
 export async function getCiv7SetupSnapshot(

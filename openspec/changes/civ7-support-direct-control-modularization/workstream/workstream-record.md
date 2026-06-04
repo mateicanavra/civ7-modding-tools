@@ -2186,6 +2186,16 @@ All future agent waves must be framed before delegation:
   reveal classification, runtime/live-game proof, Task 2.9.4 matrix-row
   acceptance, telemetry, AI ingestion, CLI semantic projection, hotseat runtime
   proof, schema/procedure-core work, or Effect/oRPC implementation.
+- Visibility summary call-through cleanup: `index.ts` now re-exports
+  `getCiv7VisibilitySummary` directly from `src/play/map/visibility.ts` after
+  the owner-local dependency defaults are in place. This removes the trivial
+  async read wrapper while preserving the public package import name,
+  visibility read validation/bounds behavior, and the separate reveal-map
+  mutation wrapper boundary. This is local package/source relocation cleanup
+  proof only: it does not change reveal-map mutation behavior, claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control source verification checkpoint: current stack top
   `83aebdb45` on `codex/disposition-schema-evaluation-report` passed
   `bun run --cwd packages/civ7-direct-control check`,

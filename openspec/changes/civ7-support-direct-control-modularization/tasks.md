@@ -1119,6 +1119,13 @@ runtime/direct-control claims.
         schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.11.13 Prune the visibility summary read facade call-through wrapper
+        by re-exporting `getCiv7VisibilitySummary` directly from
+        `src/play/map/visibility.ts`, preserving public package imports,
+        visibility read validation/bounds behavior, the separate reveal-map
+        mutation wrapper boundary, public procedure schemas, telemetry, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
