@@ -453,12 +453,14 @@ Intake rejection conditions:
   that two normal play projections omit raw
   transport/session/probe/correlation command internals. Focused `game health
   --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
-  `game status --json`, and `game catalog --static --json` proof now assert
-  that debug-owned commands emit raw readiness, composed playable-status, App UI
-  snapshot, runtime inspection, and capability catalog provenance fields
-  including host/port/state, state discovery, selected state, network/UI/player/
-  map probes, Tuner health globals, catalog owner/provenance/confidence,
-  own/prototype/enumerable keys, and method owner/length/signature diagnostics.
+  `game status --json`, `game catalog --static --json`, and
+  `game exec --dry-run --json` proof now assert that debug-owned commands emit
+  raw readiness, composed playable-status, App UI snapshot, runtime inspection,
+  capability catalog provenance fields, and explicit exec dry-run request
+  routing fields including host/port/state, raw command text, state discovery,
+  selected state, network/UI/player/map probes, Tuner health globals, catalog
+  owner/provenance/confidence, own/prototype/enumerable keys, and method
+  owner/length/signature diagnostics.
   Missing proof before acceptance: broader tests proving the raw field classes in
   `workstream/debug-service-projection-contract.md` are reachable only through
   debug-owned commands, flags, or future debug procedures and are not emitted

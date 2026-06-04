@@ -123,12 +123,14 @@
         debug-command boundary, AI-ingestion, telemetry, and
         procedure-diagnostic separation proof remains pending before row
         acceptance. Focused `game health --json`, `game inspect --json`,
-        `game inspect --app-ui-snapshot --json`, `game status --json`, and
-        `game catalog --static --json` coverage now also proves debug-owned
-        commands emit raw readiness, composed playable-status, App UI snapshot,
-        runtime inspection, and capability catalog provenance fields including
-        host/port/state, state discovery, selected state, network/UI/player/map
-        probes, Tuner health globals, catalog owner/provenance/confidence,
+        `game inspect --app-ui-snapshot --json`, `game status --json`,
+        `game catalog --static --json`, and `game exec --dry-run --json`
+        coverage now also proves debug-owned commands emit raw readiness,
+        composed playable-status, App UI snapshot,
+        runtime inspection, capability catalog provenance fields, and exec
+        dry-run request routing fields including host/port/state, raw command
+        text, state discovery, selected state, network/UI/player/map probes,
+        Tuner health globals, catalog owner/provenance/confidence,
         own/prototype/enumerable keys, and method owner/length/signature
         diagnostics, but the row remains pending.
         The semantic CLI player-agent view row now has a draft acceptance

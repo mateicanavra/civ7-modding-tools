@@ -24,6 +24,49 @@ describe('game direct-control commands', () => {
     }
   });
 
+  test('prints exec dry-run request routing as debug projection', async () => {
+    const writes: string[] = [];
+    const log = vi.spyOn(GameExec.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      await GameExec.run([
+        'Network.restartGame()',
+        '--host',
+        '127.0.0.1',
+        '--port',
+        '4318',
+        '--state',
+        'App UI',
+        '--dry-run',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        dryRun: true;
+        request: {
+          command: string;
+          hosts: string[];
+          port: number;
+          state: string;
+        };
+      };
+      expect(payload).toEqual({
+        ok: true,
+        dryRun: true,
+        request: {
+          command: 'Network.restartGame()',
+          hosts: ['127.0.0.1'],
+          port: 4318,
+          state: 'App UI',
+        },
+      });
+    } finally {
+      log.mockRestore();
+    }
+  });
+
   test('reports direct-control health and available states', async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
