@@ -196,7 +196,25 @@ const PLACEMENT_PUBLIC_KEYS = [
   "discoveries",
   "floodplains",
   "resources",
+  "starts",
 ] as const;
+
+const DEFAULT_STARTS_CONFIG = {
+  expansionRadiusTiles: 4,
+  fertilityWeight: 1.2,
+  freshwaterWeight: 0.9,
+  islandClusterRadiusTiles: 5,
+  largeLandmassWeight: 1,
+  maxIslandStartCoastDistance: 1,
+  minContiguousLandTiles: 24,
+  minExpansionLandTiles: 14,
+  minIslandClusterLandTiles: 18,
+  minStartSpacingTiles: 9,
+  overrides: { startSectors: [] },
+  resourceSupportRadiusTiles: 4,
+  resourceSupportWeight: 1,
+  roughnessPenaltyWeight: 0.6,
+};
 
 const PLACEMENT_INTERNAL_STAGE_KEYS = [
   "derive-placement-inputs",
@@ -843,15 +861,15 @@ describe("Shipped map configs", () => {
       minSpacingTiles: 2,
       maxPlacementsPerResourceShare: 0.3,
     });
-    expect(compiled.placement["derive-placement-inputs"].starts).toEqual({
+    expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
+    expect(compiled.placement["assign-starts"].starts).toEqual({
       strategy: "default",
-      config: { overrides: { startSectors: [] } },
+      config: DEFAULT_STARTS_CONFIG,
     });
     expect(compiled.placement["plot-landmass-regions"]).toEqual({});
     expect(compiled.placement["place-natural-wonders"]).toEqual({});
     expect(compiled.placement["prepare-placement-surface"]).toEqual({});
     expect(compiled.placement["place-resources"]).toEqual({});
-    expect(compiled.placement["assign-starts"]).toEqual({});
     expect(compiled.placement["place-discoveries"]).toEqual({});
     expect(compiled.placement["assign-advanced-starts"]).toEqual({});
     expect(compiled.placement.placement).toEqual({});
@@ -970,7 +988,7 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("keeps Placement configs compiled-equivalent to the legacy shipped configs", () => {
+  it("keeps non-start Placement configs legacy-equivalent while assigning start planning to assign-starts", () => {
     const env = {
       seed: 123,
       dimensions: { width: 80, height: 60 },
@@ -981,7 +999,16 @@ describe("Shipped map configs", () => {
     for (const [fileName, raw] of shippedMapConfigs) {
       const id = fileName.replace(/\.config\.json$/, "");
       const compiled = standardRecipe.compileConfig(env, raw.config) as any;
-      expect({ placement: stable(compiled.placement) }).toEqual(expected[id]);
+      const observedPlacement = stable(compiled.placement) as any;
+      const expectedPlacement = stable(expected[id]) as any;
+      delete observedPlacement["assign-starts"].starts;
+      delete expectedPlacement.placement["derive-placement-inputs"].starts;
+      expect({ placement: observedPlacement }).toEqual(expectedPlacement);
+      expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
+      expect(compiled.placement["assign-starts"].starts).toEqual({
+        strategy: "default",
+        config: DEFAULT_STARTS_CONFIG,
+      });
     }
   });
 
@@ -1126,7 +1153,7 @@ describe("Shipped map configs", () => {
     expect(errorPaths).toEqual(
       expect.arrayContaining([
         "/maps/placement-owner-leakage/placement/resources/candidateResourceTypes",
-        "/maps/placement-owner-leakage/placement/starts",
+        "/maps/placement-owner-leakage/placement/starts/overrides",
       ])
     );
   });

@@ -52,3 +52,40 @@ export function forEachHexNeighborOddQ(
   }
 }
 
+export function getHexRadiusIndicesOddQ(
+  centerIndex: number,
+  width: number,
+  height: number,
+  radius: number
+): number[] {
+  const size = Math.max(0, (width | 0) * (height | 0));
+  const start = centerIndex | 0;
+  const maxDistance = Math.max(0, radius | 0);
+  if (start < 0 || start >= size || width <= 0 || height <= 0) return [];
+  if (maxDistance === 0) return [start];
+
+  const visited = new Uint8Array(size);
+  const distances = new Int16Array(size);
+  const queue: number[] = [start];
+  const out: number[] = [start];
+  visited[start] = 1;
+
+  let head = 0;
+  while (head < queue.length) {
+    const idx = queue[head++]!;
+    const distance = distances[idx] ?? 0;
+    if (distance >= maxDistance) continue;
+
+    const y = (idx / width) | 0;
+    const x = idx - y * width;
+    for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
+      if (visited[neighbor] === 1) continue;
+      visited[neighbor] = 1;
+      distances[neighbor] = distance + 1;
+      queue.push(neighbor);
+      out.push(neighbor);
+    }
+  }
+
+  return out;
+}

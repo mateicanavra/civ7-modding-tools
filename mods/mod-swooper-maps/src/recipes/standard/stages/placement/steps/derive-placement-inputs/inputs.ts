@@ -10,12 +10,12 @@ import DerivePlacementInputsContract from "./contract.js";
 type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsContract.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof DerivePlacementInputsContract.ops>>;
 type PlanFloodplainsOutput = Static<typeof placement.ops.planFloodplains["output"]>;
-type PlanStartsOutput = Static<typeof placement.ops.planStarts["output"]>;
+type PlanStartsBase = Static<typeof placement.ops.planStarts["input"]["properties"]["baseStarts"]>;
 type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
 
 export type PlacementPlanBundle = {
   artifact: DeepReadonly<PlacementInputsV1>;
-  starts: DeepReadonly<PlanStartsOutput>;
+  starts: DeepReadonly<PlanStartsBase>;
   wonders: DeepReadonly<PlanWondersOutput>;
   floodplains: DeepReadonly<PlanFloodplainsOutput>;
 };
@@ -89,7 +89,6 @@ export function buildPlacementInputs(
     startSectorCols: runtime.startSectorCols,
     startSectors: runtime.startSectors,
   };
-  const startsPlan = ops.starts({ baseStarts }, config.starts);
   const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
   const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
   const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
@@ -145,7 +144,7 @@ export function buildPlacementInputs(
 
   return {
     mapInfo: runtime.mapInfo,
-    starts: startsPlan,
+    starts: baseStarts,
     wonders: wondersPlan,
     naturalWonderPlan,
     discoveryPlan,
