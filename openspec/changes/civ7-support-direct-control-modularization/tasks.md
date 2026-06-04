@@ -290,6 +290,14 @@ runtime/direct-control claims.
         package/CLI notification dismissal proof, and leaving runtime/live-game
         proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.4.7 Prune the notification dismissal request facade call-through
+        wrapper by re-exporting `requestCiv7NotificationDismissal` directly
+        from `src/play/notifications/dismissal-request.ts`, preserving public
+        package imports, approval-first dismissal behavior, guarded send
+        serialization, final identity-based verification, focused package/CLI
+        notification dismissal proof, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.

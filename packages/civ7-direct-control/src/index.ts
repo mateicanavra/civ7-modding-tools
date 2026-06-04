@@ -150,11 +150,10 @@ import type {
   Civ7TurnCompletionActionResult,
   Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
-import {
-  requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
-  type Civ7NotificationDismissInput,
-  type Civ7NotificationDismissalResult,
-  type Civ7NotificationDismissalSummary,
+import type {
+  Civ7NotificationDismissInput,
+  Civ7NotificationDismissalResult,
+  Civ7NotificationDismissalSummary,
 } from "./play/notifications/dismissal-request.js";
 import type {
   Civ7PlayDecisionAction,
@@ -611,7 +610,10 @@ export type {
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissalSummary,
 } from "./play/notifications/dismissal-request.js";
-export { getCiv7NotificationDismissal } from "./play/notifications/dismissal-request.js";
+export {
+  getCiv7NotificationDismissal,
+  requestCiv7NotificationDismissal,
+} from "./play/notifications/dismissal-request.js";
 export type {
   Civ7BattlefieldScanInput,
   Civ7BattlefieldScanResult,
@@ -1117,14 +1119,6 @@ export async function revealCiv7MapForPlayer(
   approval: Civ7ActionApproval,
 ): Promise<Civ7RevealMapResult> {
   return await revealCiv7MapForPlayerFromModule(input, options, approval);
-}
-
-export async function requestCiv7NotificationDismissal(
-  input: Civ7NotificationDismissInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7NotificationDismissalResult> {
-  return await requestCiv7NotificationDismissalFromModule(input, options, approval);
 }
 
 export async function requestCiv7UnitOperation(
