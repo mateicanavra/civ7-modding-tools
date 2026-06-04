@@ -66,6 +66,9 @@ adding more read-only facade shells.
 - [ ] 5.2 Modularize real direct-control behavior first, including
   write-capable operation flows, validators, postcondition classifiers,
   no-repeat/proof owners, and projection boundaries.
+  - [x] 5.2.1 Extract production-choice request/proof classification policy
+    into a direct-control-owned helper while preserving legacy request
+    `verified` behavior and stricter no-repeat proof semantics.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
 - [ ] 5.4 Identify service-owned behavior, runtime ports, policy owners,
