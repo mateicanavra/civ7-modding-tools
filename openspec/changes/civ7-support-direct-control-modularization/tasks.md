@@ -253,6 +253,12 @@ runtime/direct-control claims.
         leaving telemetry, AI ingestion, CLI semantic projection, hotseat
         runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.3.4 Prune the trivial notification-view facade call-through wrapper
+        by re-exporting the read-owner function directly from `index.ts`,
+        preserving public package imports for `getCiv7PlayNotificationView`
+        while leaving notification dismissal, telemetry, AI ingestion, CLI
+        semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.4 Extract notification dismissal/verification atom.
   - [x] 4.4.1 Extract notification dismissal embedded source owner while
         keeping wrapper-level polling and verification helpers in the facade.

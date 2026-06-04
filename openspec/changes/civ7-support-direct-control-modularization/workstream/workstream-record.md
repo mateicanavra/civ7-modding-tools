@@ -2363,3 +2363,12 @@ All future agent waves must be framed before delegation:
   claim runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
   ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
   debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Notification-view facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `getCiv7PlayNotificationView` directly from the notification view owner
+  instead of keeping a trivial async call-through wrapper. Notification
+  dismissal remains outside this cleanup. This is local read-only
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.

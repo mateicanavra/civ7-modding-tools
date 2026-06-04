@@ -208,7 +208,6 @@ import {
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
 } from "./play/operations/diplomacy-request.js";
-import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
@@ -604,6 +603,7 @@ export type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
 } from "./play/notifications/view.js";
+export { getCiv7PlayNotificationView } from "./play/notifications/view.js";
 export type {
   Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
@@ -1159,12 +1159,6 @@ export async function getCiv7TurnCompletionStatus(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TurnCompletionStatusResult> {
   return await getCiv7TurnCompletionStatusFromModule(options);
-}
-
-export async function getCiv7PlayNotificationView(
-  options: Civ7DirectControlOptions & { maxNotifications?: number } = {},
-): Promise<Civ7PlayNotificationViewResult> {
-  return await getCiv7PlayNotificationViewFromModule(options);
 }
 
 export async function getCiv7NotificationDismissal(
