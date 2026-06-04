@@ -2740,3 +2740,16 @@ All future agent waves must be framed before delegation:
   telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
   schema migration, debug hierarchy implementation, or Effect/oRPC
   procedure-core work.
+- Diplomacy/narrative command-source helper normalization:
+  `src/play/operations/diplomacy-request.ts` and
+  `src/play/operations/narrative-request.ts` now import the shared runtime probe
+  helper owner instead of carrying atom-local copies in their embedded
+  closeout/request sources. The generated command text remains equivalent, and
+  the request owners still preserve approval-first request behavior,
+  validation/no-send paths, UI closeout calls, diplomacy/narrative
+  postcondition classification, and no-repeat-after-unverified boundaries. This
+  is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, normalize every remaining
+  atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
