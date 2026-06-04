@@ -6,6 +6,7 @@ export {
   liveCiv7ControlOrpcDirectControlFacade,
   type Civ7ControlOrpcCitySummaryResult,
   type Civ7ControlOrpcMapSummaryResult,
+  type Civ7ControlOrpcNotificationDismissalResult,
   type Civ7ControlOrpcPlayerSummaryResult,
   type Civ7ControlOrpcPlayNotificationViewResult,
   type Civ7ControlOrpcPlayableStatusResult,
@@ -27,6 +28,8 @@ export {
   Civ7MapSummaryUnavailableErrorDataSchema,
   Civ7MutationApprovalRequiredError,
   Civ7MutationApprovalRequiredErrorDataSchema,
+  Civ7NotificationDismissalUnavailableError,
+  Civ7NotificationDismissalUnavailableErrorDataSchema,
   Civ7PlayerSummaryUnavailableError,
   Civ7PlayerSummaryUnavailableErrorDataSchema,
   Civ7ProductionChoiceUnavailableError,
@@ -47,6 +50,7 @@ export {
   type Civ7DirectControlUnavailableErrorData,
   type Civ7MapSummaryUnavailableErrorData,
   type Civ7MutationApprovalRequiredErrorData,
+  type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7PlayerSummaryUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7NotificationViewUnavailableErrorData,
@@ -132,15 +136,27 @@ export { playerRouter } from "./modules/player/router";
 export { playerSummaryReadProcedure } from "./modules/player/procedures/summary-read";
 export {
   Civ7NotificationsContract,
+  Civ7NotificationDismissalContract,
+  Civ7NotificationDismissInputStandardSchema,
+  Civ7NotificationDismissalNextStepSchema,
+  Civ7NotificationDismissalPostconditionSummarySchema,
+  Civ7NotificationDismissalProofOutcomeSchema,
+  Civ7NotificationDismissalRequestStatusSchema,
+  Civ7NotificationDismissalResultSchema,
+  Civ7NotificationDismissalResultStandardSchema,
+  Civ7NotificationDismissalValidationSummarySchema,
   Civ7NotificationsViewContract,
   Civ7NotificationsViewInputStandardSchema,
   Civ7NotificationsViewResultStandardSchema,
 } from "./modules/notifications/contract";
 export type {
+  Civ7NotificationDismissalContract as Civ7NotificationDismissalContractType,
+  Civ7NotificationDismissalResult,
   Civ7NotificationsContract as Civ7NotificationsContractType,
   Civ7NotificationsViewContract as Civ7NotificationsViewContractType,
 } from "./modules/notifications/contract";
 export { notificationsRouter } from "./modules/notifications/router";
+export { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
 export { notificationsViewProcedure } from "./modules/notifications/procedures/view";
 export {
   Civ7RuntimeContract,

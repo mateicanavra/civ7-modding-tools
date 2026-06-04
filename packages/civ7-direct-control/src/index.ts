@@ -912,6 +912,10 @@ export {
   Civ7NotificationDismissalSummarySchema,
 } from "./play/notifications/postconditions.js";
 export {
+  notificationDismissalProofOutcome,
+  notificationDismissalProofPostcondition,
+} from "./proof/notification-dismissal-proof-policy";
+export {
   callCiv7NotificationDismissRequestProcedure,
   Civ7NotificationDismissRequestProcedureDescriptor,
   Civ7NotificationDismissRequestProcedureSchemaArtifacts,

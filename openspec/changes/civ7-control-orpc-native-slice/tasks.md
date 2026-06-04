@@ -102,6 +102,10 @@ adding more read-only facade shells.
     write-capable procedure leaf, with oRPC context approval and semantic
     production proof projection over the direct-control production-choice
     runtime port.
+  - [x] 5.5.4 Seed `notifications.dismiss.request` as the second native
+    write-capable procedure leaf, with oRPC context approval and semantic
+    notification dismissal proof projection over the direct-control
+    notification dismissal runtime port.
 
 ## 6. Native Policy Layering
 
@@ -112,11 +116,18 @@ adding more read-only facade shells.
   - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
     `city.production.choice.request`; keep shared approval middleware pending
     until another mutation procedure reuses the same policy.
+  - [x] 6.2.2 Repeat leaf-scoped native effect-oRPC approval middleware for
+    `notifications.dismiss.request`; shared approval middleware promotion is
+    now the next native policy-layering candidate, not accepted in this slice.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
   - [x] 6.3.1 Compose `city.production.choice.request` through the
     direct-control validator-first production-choice port and project
     source-owned postcondition/no-repeat proof semantics into normal output;
+    keep shared validator/postcondition middleware pending.
+  - [x] 6.3.2 Compose `notifications.dismiss.request` through the
+    direct-control approval/validation/postcondition dismissal port and project
+    source-owned notification proof/no-repeat semantics into normal output;
     keep shared validator/postcondition middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.

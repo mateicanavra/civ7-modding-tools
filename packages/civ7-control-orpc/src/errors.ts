@@ -154,6 +154,27 @@ export class Civ7NotificationViewUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("notifications.dismiss.request"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7NotificationDismissalUnavailableErrorData = Static<
+  typeof Civ7NotificationDismissalUnavailableErrorDataSchema
+>;
+
+export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
+  "Civ7NotificationDismissalUnavailableError",
+  {
+    code: "NOTIFICATION_DISMISSAL_UNAVAILABLE",
+    message: "Direct-control notification dismissal request failed.",
+    schema: toStandardSchema(Civ7NotificationDismissalUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -245,6 +266,7 @@ export const civ7ControlOrpcErrorMap = {
   DIRECT_CONTROL_UNAVAILABLE: Civ7DirectControlUnavailableError,
   MAP_SUMMARY_UNAVAILABLE: Civ7MapSummaryUnavailableError,
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
+  NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   PLAYER_SUMMARY_UNAVAILABLE: Civ7PlayerSummaryUnavailableError,
   NOTIFICATION_VIEW_UNAVAILABLE: Civ7NotificationViewUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,

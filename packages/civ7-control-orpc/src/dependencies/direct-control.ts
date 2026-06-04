@@ -8,6 +8,7 @@ import {
   getCiv7ReadyUnitView,
   getCiv7TurnCompletionStatus,
   getCiv7UnitSummary,
+  requestCiv7NotificationDismissal,
   requestCiv7ProductionChoice,
   type Civ7ActionApproval,
   type Civ7DirectControlOptions,
@@ -23,6 +24,8 @@ import {
   Civ7UnitSummaryResultSchema,
   type Civ7CitySummaryInput,
   type Civ7MapSummaryOptions,
+  type Civ7NotificationDismissInput,
+  type Civ7NotificationDismissalResult,
   type Civ7PlayerSummaryInput,
   type Civ7ProductionChoiceInput,
   type Civ7ReadyCityViewInput,
@@ -38,6 +41,8 @@ export type Civ7ControlOrpcCitySummaryResult = Static<
 export type Civ7ControlOrpcMapSummaryResult = Static<
   typeof Civ7MapSummaryResultSchema
 >;
+export type Civ7ControlOrpcNotificationDismissalResult =
+  Civ7NotificationDismissalResult;
 export type Civ7ControlOrpcPlayerSummaryResult = Static<
   typeof Civ7PlayerSummaryResultSchema
 >;
@@ -80,6 +85,11 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     options: Civ7DirectControlOptions | undefined,
     approval: Civ7ActionApproval,
   ): Promise<Civ7ControlOrpcProductionChoiceResult>;
+  requestCiv7NotificationDismissal(
+    input: Civ7NotificationDismissInput,
+    options: Civ7DirectControlOptions | undefined,
+    approval: Civ7ActionApproval,
+  ): Promise<Civ7ControlOrpcNotificationDismissalResult>;
   getCiv7PlayableStatus(
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcPlayableStatusResult>;
@@ -117,6 +127,10 @@ export const liveCiv7ControlOrpcDirectControlFacade = {
   requestCiv7ProductionChoice: async (input, options, approval) =>
     requestCiv7ProductionChoice(input, options, approval) as Promise<
       Civ7ControlOrpcProductionChoiceResult
+    >,
+  requestCiv7NotificationDismissal: async (input, options, approval) =>
+    requestCiv7NotificationDismissal(input, options, approval) as Promise<
+      Civ7ControlOrpcNotificationDismissalResult
     >,
   getCiv7PlayableStatus: async (options) =>
     getCiv7PlayableStatus(options) as Promise<
