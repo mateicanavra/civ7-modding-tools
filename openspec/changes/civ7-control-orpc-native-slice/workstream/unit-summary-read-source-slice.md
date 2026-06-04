@@ -3,6 +3,9 @@
 Status: implemented local source slice.
 Date: 2026-06-04.
 
+Historical note: this is transitional proof of native in-process oRPC
+mechanics, not a template for future facade-only read wrappers.
+
 ## Scope
 
 This slice adds the next read-only native procedure module:

@@ -45,16 +45,18 @@ procedure modules before adding transport edges.
   clients.
 - Classify direct-control prework as atom/policy/dependency/repository/proof
   separation only, not framework wiring.
-- Name the first staged implementation gates: contracts and service context,
-  read-only procedure modules, mutation middleware candidates after two or more
-  atoms share a guard, then edge adapters last.
+- Rebaseline the staged implementation gates: modularize real behavior and
+  write-capable flows first, reorganize the semantic capability hierarchy for
+  Sieve/future consumers, layer policies/dependencies/read ports, compose
+  native oRPC/effect-orpc routers after ownership is real, then add edge
+  adapters last.
 - Preserve the controller architecture: the in-game controller is an
   in-process Effect/oRPC router loaded by Civ7 `scope="game"` `UIScripts`;
   `globalThis.Civ7IntelligenceBridge.invoke(...)` is serialized ingress only.
 
 ## Requires
 
-- Stable direct-control atoms with adjacent schema/proof owners.
+- Stable direct-control runtime ports and adjacent schema/proof owners.
 - Direct-control proof vocabulary for approval, validator-first sends,
   postconditions, no-repeat-after-unverified, relationship authority, and
   runtime proof labels.
@@ -63,18 +65,23 @@ procedure modules before adding transport edges.
 
 ## Enables Parallel Work
 
-- `packages/civ7-control-orpc` contract/router implementation over read-only
-  atoms.
-- Context dependency construction for CLI, tests, Studio server, and in-game
-  controller callers.
-- Middleware implementation using oRPC/effect-orpc primitives after policy
-  candidates are proven and shared.
+- Modularizing real write-capable behavior and adjacent proof/policy owners
+  so native service procedures can own behavior instead of wrapping facade
+  leaves.
+- Reorganizing the semantic capability hierarchy expected by Sieve and future
+  player-agent consumers.
+- Layering policies, dependencies, repositories/read ports, and middleware
+  candidates only where that clarifies native oRPC/effect-orpc composition.
+- Composing service-owned contracts, routers, context, middleware, and
+  handlers in `packages/civ7-control-orpc` over low-level direct-control
+  runtime ports.
 - Controller bridge and later RPC/OpenAPI edge adapters.
 
 ## Affected Owners
 
 - Future `packages/civ7-control-orpc/**`
-- `packages/civ7-direct-control/**` only for atom/policy/schema/proof owners
+- `packages/civ7-direct-control/**` only for runtime-port, policy, schema,
+  and proof owners
 - `packages/cli/**` only when a caller is deliberately routed through the
   shared procedure client
 - Future in-game controller UIScript bridge and Studio server RPC edges
@@ -104,10 +111,11 @@ procedure modules before adding transport edges.
 
 ## Consumer Impact
 
-CLI, Studio, in-game controller, and future AI callers get one typed
-procedure/router substrate over direct-control atoms. The normal player-agent
-surface stays semantic; raw proof/debug/session details remain behind
-intentional debug/internal/telemetry projections.
+CLI, Studio, in-game controller, and future AI callers get one native
+service-owned procedure/router surface once behavior, policies, dependencies,
+and proof owners have been layered into the oRPC/effect-orpc shape. The normal
+player-agent surface stays semantic; raw proof/debug/session details remain
+behind intentional debug/internal/telemetry projections.
 
 ## Verification Gates
 

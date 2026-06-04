@@ -6,6 +6,24 @@ Control procedure implementation SHALL use oRPC/effect-orpc primitives for
 procedure builders, routers, context propagation, middleware sequencing, typed
 errors, and server-side callers.
 
+#### Scenario: Procedure behavior is added
+- **WHEN** a new Civ7 control procedure is implemented
+- **THEN** the procedure owns the offered service behavior and composition in
+  the native oRPC service package
+- **AND** it does not merely pass validated input into a same-shaped
+  direct-control facade method as a facade-only shell
+- **AND** direct-control dependencies are limited to runtime ports, validators,
+  postcondition classifiers, command serialization, proof facts, and other
+  low-level authority that must remain runtime-owned
+
+#### Scenario: Transitional facade-only procedure remains
+- **WHEN** a current facade-only read leaf is retained while the native service
+  shape is being corrected
+- **THEN** it is treated as transitional proof debt, not the target pattern
+- **AND** workstream authority prevents adding additional facade-only leaves
+- **AND** follow-up work either moves service behavior into the native
+  procedure or deletes/burns down the transitional shell
+
 #### Scenario: Shared procedure core is implemented
 - **WHEN** a Civ7 control procedure package adds contract, router, context,
   middleware, or typed error behavior
@@ -59,10 +77,10 @@ normal procedure input.
 Control-oRPC implementation SHALL prove the shared router in process before
 adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 
-#### Scenario: First procedure module is added
-- **WHEN** a read-only procedure module is implemented
-- **THEN** focused tests call it in process with fake context and fake
-  direct-control facade dependencies
+#### Scenario: Service-owned procedure module is added
+- **WHEN** a service-owned procedure module is implemented
+- **THEN** focused tests call it in process with fake context and fake runtime
+  port dependencies
 - **AND** transport adapters remain absent unless a prior shared-router proof
   exists
 
@@ -100,6 +118,21 @@ boundaries.
 Control-oRPC prework SHALL separate domain policies, context dependencies,
 repository/read-port style data owners, middleware candidates, and procedure
 modules before broad implementation.
+
+#### Scenario: Workstream drifts into repeated read-only wrappers
+- **WHEN** implementation momentum is mostly adding read-only facade shells
+  while write-capable behavior and proof/policy owners remain unmodularized
+- **THEN** the workstream is invalid until it is rebaselined
+- **AND** the next implementation path starts with modularizing real behavior,
+  including write-capable flows and proof boundaries
+- **AND** semantic capability hierarchy and policy layers are defined before
+  adding more procedure leaves
+
+#### Scenario: Native router composition resumes
+- **WHEN** native oRPC/effect-orpc router work resumes after rebaseline
+- **THEN** it composes already-layered service behavior into procedures
+- **AND** service logic lives in the native procedure/service layer rather than
+  in an unexamined pure TypeScript core wrapped by oRPC
 
 #### Scenario: Capability is prepared for procedure composition
 - **WHEN** a direct-control atom is selected for future procedure exposure

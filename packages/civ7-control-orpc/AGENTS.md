@@ -3,8 +3,8 @@
 Scope: `packages/civ7-control-orpc/**`
 
 - Owns native oRPC/Effect procedure contracts, routers, typed context,
-  typed errors, middleware, and in-process server-side clients over
-  `@civ7/direct-control` atoms.
+  typed errors, middleware, in-process server-side clients, and service
+  behavior/composition over low-level `@civ7/direct-control` runtime ports.
 - Keep Civ7 runtime access in `@civ7/direct-control`; do not implement raw
   tuner socket framing, state discovery, command serialization, or caller-local
   direct-control scripts here.
@@ -13,6 +13,10 @@ Scope: `packages/civ7-control-orpc/**`
   provider construction belongs to caller/runtime adapters.
 - Add transports only at explicit edge-adapter slices. This package's core
   router should remain callable in process.
+- Do not add procedure handlers that only delegate input to a direct-control
+  facade method. Direct-control is the runtime port; new control-oRPC
+  procedures should own the offered service behavior/composition and use
+  direct-control only for low-level runtime access.
 
 Validate with:
 

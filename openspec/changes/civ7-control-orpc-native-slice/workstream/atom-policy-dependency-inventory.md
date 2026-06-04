@@ -10,10 +10,10 @@ the separation map needed before `packages/civ7-control-orpc` source exists.
 It does not implement contracts, routers, context construction, middleware,
 transport, telemetry persistence, runtime proof, or Task 2.9.4 acceptance.
 
-Use this file as implementation input for the next native oRPC slice:
-direct-control owns atoms and proof facts; the future oRPC package owns
-procedure contracts, router modules, context, middleware, typed errors, and
-server-side clients.
+Use this file as implementation input for native oRPC slices: direct-control
+owns runtime ports and proof facts; the oRPC package owns procedure contracts,
+router modules, service behavior/composition, context, middleware, typed
+errors, and server-side clients.
 
 ## Current Descriptor Coverage
 
@@ -135,7 +135,7 @@ instead of constructing them inside procedure modules:
 
 | Dependency | Why it exists | Current evidence |
 |---|---|---|
-| `directControl` facade | Stable access to direct-control atoms without raw command/session leakage | Adjacent `callCiv7*Procedure` wrappers call atom functions through injected options/dependencies |
+| `directControl` facade | Stable access to runtime ports without raw command/session leakage | Transitional read leaves currently call atom functions through context; future procedures should not add facade-only shells |
 | `endpointDefaults` | Host/port/timeout defaults for direct-control session calls | All current descriptors record `endpoint-defaults`; source receives `Civ7DirectControlOptions` |
 | `stateSelection` | App UI/Tuner state routing | All current descriptors record `state-selection`; `executeCiv7AppUiCommand` and `executeCiv7TunerCommand` own state selection |
 | `approval` / `riskPolicy` | Mutation authority and live-session policy | Mutation descriptors record `approval-policy` and `live-session-policy`; atoms require `Civ7ActionApproval` |
@@ -162,7 +162,7 @@ procedure atoms. The current "ports" are runtime read facades over Civ7 state:
 For native oRPC, treat these as facade dependencies or narrow read ports, not
 as repositories that construct providers. If later AI-ingestion or persistence
 needs durable storage, that must be a separate owner with schema/tests and
-provider assembly outside direct-control atoms.
+provider assembly outside direct-control runtime capability code.
 
 ## Middleware Candidate Map
 
@@ -200,8 +200,8 @@ context-composer, event bus, or router registry.
 
 ## Next Native Source Slice
 
-The next source slice should be one read-only procedure module in tracked
-`packages/civ7-control-orpc`, using official oRPC/effect-orpc context and
-server-side call/client proof. Good first candidates remain
-`runtime.playable.status` or `notifications.view` because they exercise
-context and projection boundaries without mutation proof complexity.
+Do not add another facade-only read wrapper. The next source slice should
+either retire one transitional shell by moving service behavior into a native
+oRPC procedure module, or promote a repeated policy through actual
+oRPC/effect-orpc primitives with reviewable ownership evidence that no custom
+wiring or duplicated service shell was added.

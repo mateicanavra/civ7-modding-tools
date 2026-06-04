@@ -20,22 +20,65 @@ router registries, or transport handling.
 
 The product surface is a Civ7 control procedure layer for player support,
 Studio, in-game controller, and future AI callers. It composes stable
-direct-control atoms; it does not replace direct-control runtime authority.
+service-owned capabilities over direct-control runtime ports; it does not
+replace direct-control runtime authority.
 
 ```text
-Direct-control atoms
+Direct-control runtime ports
   Own Civ7 runtime access, validators, command-source serialization,
   approval types, postconditions, proof labels, relationship evidence policy,
   and semantic/debug projection facts.
 
 Control-oRPC package
-  Owns contracts, procedures, routers, context dependencies, middleware,
-  typed errors, server-side client, and later edge adapters.
+  Owns the offered service procedures: contracts, product procedure logic,
+  routers, context dependencies, middleware, typed errors, server-side client,
+  and later edge adapters.
 
 Caller/runtime adapters
   Own concrete context construction for CLI, tests, Studio server, and
   in-game UIScript bridge.
 ```
+
+## Service-Ownership Correction
+
+The initial native read leaves are transitional proof of oRPC mechanics. They
+should not be copied as the continuing implementation strategy. A procedure
+whose handler only calls `context.directControl.getCiv7*` with the same input
+is a facade-only shell; it duplicates validation and typing without moving
+service ownership into oRPC.
+
+Next implementation work should treat direct-control as a runtime port and
+proof authority, not the place where the offered service behavior keeps
+growing. Control-oRPC procedures should own the service behavior/composition
+they expose, using direct-control only for low-level runtime access,
+validators, postcondition classifiers, command serialization, proof facts, and
+relationship authority that must stay runtime-owned.
+
+The OpenSpec workstream now freezes additional facade-only shells. The existing
+shells remain only as named transitional debt to be retired, moved, or
+rewritten in later slices. Do not add punitive tests for this transient debt;
+if broad enforcement is needed, use the repo lint/guardrail system.
+
+## Rebaselined Workstream Order
+
+The read-only module lane is stopped. It was useful proof, but it is not the
+continuing strategy.
+
+The next workstream order is:
+
+1. Modularize real code first, including write-capable operation flows and
+   their validators, postcondition classifiers, no-repeat/proof owners, and
+   projection boundaries.
+2. Reorganize the hierarchy semantically for Sieve and future player-agent/API
+   consumers, so capability families are meaningful instead of an artifact of
+   current file names.
+3. Layer policies, dependencies, repositories/read ports, and middleware
+   candidates from the modularized owners.
+4. Compose those layers into native oRPC/effect-orpc routers where the service
+   logic lives.
+
+If the OpenSpec records make the next agent choose another marginal read-only
+wrapper instead, the records are stale and must be repaired before code.
 
 ## Policy Map
 
@@ -58,7 +101,7 @@ handlers run:
 
 ```text
 directControl
-  Typed facade over direct-control atoms.
+  Typed facade over direct-control runtime ports and proof/policy owners.
 
 controller
   Optional in-game controller facade for scope="game" router execution.
@@ -117,10 +160,12 @@ Rejected candidate classes:
 - a direct-control-local event bus;
 - a public correlation/error framework separate from oRPC context/errors.
 
-## First Implementation Slices
+## Corrected Implementation Slices
 
-The first source slice should create tracked `packages/civ7-control-orpc`
-source and tests without transport edges. Candidate package shape:
+The first source slices already created tracked `packages/civ7-control-orpc`
+source and proved in-process router mechanics without transport edges. That is
+now transitional proof, not the next implementation strategy. The corrected
+package shape still points toward:
 
 ```text
 src/contract.ts
@@ -134,16 +179,16 @@ src/middleware/*.ts
 src/modules/runtime/*
 src/modules/notifications/*
 test/server-side-client.test.ts
-test/procedure-readonly.test.ts
+test/in-process-router.test.ts
 ```
 
-Start with one read-only module, preferably `runtime.playable.status` or
-`notifications.view`, because these exercise context dependencies and safe
-projection without mutation proof complexity.
-
-Mutation modules should wait until approval, validator-first, and
-postcondition/no-repeat middleware are implemented with oRPC/effect-orpc and
-proved through local fake-context tests.
+The next source slice should not start another read-only module. It should
+modularize write-capable behavior and proof/policy owners, define the semantic
+hierarchy expected by Sieve/future consumers, or layer a repeated policy through
+native oRPC/effect-orpc primitives. Mutation modules should wait until
+approval, validator-first, and postcondition/no-repeat boundaries are explicit
+and can be composed through native oRPC/effect-orpc rather than custom wrapper
+plumbing.
 
 ## Older Artifact Classification
 
