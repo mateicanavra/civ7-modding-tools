@@ -8,7 +8,7 @@ import {
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
   applyCiv7CoastClassificationPolicy,
-} from "../../../projection-policies/coastClassification.js";
+} from "@civ7/map-policy";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

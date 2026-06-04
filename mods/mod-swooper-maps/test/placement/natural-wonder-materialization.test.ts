@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
-import { CIV7_BROWSER_TABLES_V0, createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import {
   COAST_TERRAIN,
   FLAT_TERRAIN,
@@ -56,10 +57,13 @@ describe("natural wonder materialization", () => {
     expect(adapter.getFeatureType(2, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(stats).toEqual({
       plannedCount: 1,
+      targetCount: 1,
       placedCount: 1,
       terrainAdjustedCount: 3,
       skippedOutOfBoundsCount: 0,
       rejectedCount: 0,
+      shortfallCount: 0,
+      rejectionExamples: [],
     });
   });
 
@@ -85,5 +89,61 @@ describe("natural wonder materialization", () => {
     expect(adapter.getFeatureType(3, 3)).toBe(featureTypes.FEATURE_KILIMANJARO);
     expect(adapter.getFeatureType(3, 4)).toBe(featureTypes.FEATURE_KILIMANJARO);
     expect(mountainStats.terrainAdjustedCount).toBe(3);
+  });
+
+  it("records natural wonder target shortfalls without aborting generation", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 6,
+      defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
+      defaultTerrainType: HILL_TERRAIN,
+    });
+    const plan = {
+      ...oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
+      wondersCount: 2,
+      targetCount: 2,
+    };
+
+    const stats = stampNaturalWondersFromPlan({
+      adapter,
+      width: 4,
+      height: 6,
+      wonders: plan,
+      requestedCount: 2,
+    });
+
+    expect(stats.targetCount).toBe(2);
+    expect(stats.plannedCount).toBe(1);
+    expect(stats.placedCount).toBe(1);
+    expect(stats.shortfallCount).toBe(1);
+    expect(stats.rejectedCount).toBe(0);
+  });
+
+  it("records adapter-rejected natural wonders as policy evidence", () => {
+    const adapter = createMockAdapter({
+      width: 5,
+      height: 8,
+      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+    adapter.stampNaturalWonder = () => false;
+
+    const stats = stampNaturalWondersFromPlan({
+      adapter,
+      width: 5,
+      height: 8,
+      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, 5, 8),
+      requestedCount: 1,
+    });
+
+    expect(stats).toMatchObject({
+      plannedCount: 1,
+      targetCount: 1,
+      placedCount: 0,
+      skippedOutOfBoundsCount: 0,
+      rejectedCount: 1,
+      shortfallCount: 0,
+    });
+    expect(stats.rejectionExamples[0]).toContain("adapter-rejected");
   });
 });

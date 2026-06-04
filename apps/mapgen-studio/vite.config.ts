@@ -733,9 +733,10 @@ export default defineConfig(({ command }) => ({
                 const logProof = await waitForFreshLogMarkers({
                   logPath: scriptingLogPath,
                   snapshot: scriptingSnapshot,
-                  markers: ["[mapgen-proof]", requestId, configHash, envelopeHash],
+                  markers: ["[mapgen-complete]", requestId, configHash, envelopeHash],
                   timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-                  rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
+                  rejectPattern:
+                    /\[mapgen-failure\]|Map generation failed|\[recipe:[^\]]+\].*fail|StepExecutionError|\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
                 });
 
                 runInGameOperations.complete(requestId, {

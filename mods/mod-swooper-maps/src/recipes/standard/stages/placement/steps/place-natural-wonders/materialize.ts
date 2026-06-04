@@ -1,4 +1,4 @@
-import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
@@ -16,10 +16,13 @@ type StampNaturalWondersFromPlanArgs = {
 
 export type NaturalWonderStampingStats = {
   plannedCount: number;
+  targetCount: number;
   placedCount: number;
   terrainAdjustedCount: number;
   skippedOutOfBoundsCount: number;
   rejectedCount: number;
+  shortfallCount: number;
+  rejectionExamples: string[];
 };
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as
@@ -62,8 +65,9 @@ function ensureFeatureValidTerrain(
  *
  * Natural wonders are not a final-placement side effect anymore: the planner
  * publishes deterministic intent, this step applies it once, and downstream
- * steps consume the published evidence. The all-or-nothing checks prevent
- * maintenance or final summary code from becoming hidden recovery paths.
+ * steps consume the published evidence. Malformed planner data remains fatal,
+ * while target shortfalls and Civ adapter rejections are policy evidence rather
+ * than map-killing invariants.
  */
 export function stampNaturalWondersFromPlan({
   adapter,
@@ -85,20 +89,12 @@ export function stampNaturalWondersFromPlan({
       `[Placement] Natural wonder plan metadata mismatch (plannedCount=${declaredPlannedCount}, placements=${plannedCount}).`
     );
   }
-  if (plannedCount < targetCount) {
-    throw new Error(
-      `[Placement] Natural wonder plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
-    );
-  }
   const requested = Math.max(
     0,
     Number.isFinite(requestedCount) ? (requestedCount as number) | 0 : targetCount
   );
-  if (requested !== plannedCount) {
-    throw new Error(
-      `[Placement] Natural wonder planner could not meet requested count (requested ${requested}, planned ${plannedCount}).`
-    );
-  }
+  const effectiveTargetCount = Math.max(targetCount, requested);
+  const shortfallCount = Math.max(0, effectiveTargetCount - plannedCount);
 
   let placedCount = 0;
   let terrainAdjustedCount = 0;
@@ -197,20 +193,15 @@ export function stampNaturalWondersFromPlan({
     } else placedCount += 1;
   }
 
-  if (placedCount !== plannedCount || skippedOutOfBoundsCount > 0 || rejectedCount > 0) {
-    const details =
-      rejectionDetails.length > 0 ? ` rejections=${rejectionDetails.slice(0, 8).join(";")}` : "";
-    throw new Error(
-      `[Placement] Failed to stamp all natural wonders (placed ${placedCount}/${plannedCount}, target=${targetCount}, outOfBounds=${skippedOutOfBoundsCount}, rejected=${rejectedCount}).${details}`
-    );
-  }
-
   return {
     plannedCount,
+    targetCount: effectiveTargetCount,
     placedCount,
     terrainAdjustedCount,
     skippedOutOfBoundsCount,
     rejectedCount,
+    shortfallCount,
+    rejectionExamples: rejectionDetails.slice(0, 8),
   };
 }
 
@@ -218,20 +209,34 @@ export function normalizeNaturalWonderStampingStats(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): NaturalWonderStampingStats {
   const plannedCount = Math.max(0, stats.plannedCount | 0);
+  const targetCount = Math.max(
+    plannedCount,
+    "targetCount" in stats
+      ? ((stats as { targetCount?: number }).targetCount ?? 0) | 0
+      : plannedCount
+  );
   const placedCount = Math.max(0, stats.placedCount | 0);
   const terrainAdjustedCount = Math.max(0, stats.terrainAdjustedCount | 0);
   const skippedOutOfBoundsCount = Math.max(0, stats.skippedOutOfBoundsCount | 0);
   const rejectedCount = Math.max(0, stats.rejectedCount | 0);
-  if (placedCount !== plannedCount || skippedOutOfBoundsCount > 0 || rejectedCount > 0) {
-    throw new Error(
-      `[Placement] Natural wonder placement artifact is not fully satisfied (placed ${placedCount}/${plannedCount}, outOfBounds=${skippedOutOfBoundsCount}, rejected=${rejectedCount}).`
-    );
-  }
+  const shortfallCount = Math.max(
+    0,
+    "shortfallCount" in stats
+      ? ((stats as { shortfallCount?: number }).shortfallCount ?? 0) | 0
+      : targetCount - plannedCount
+  );
+  const rawRejectionExamples = (stats as { rejectionExamples?: unknown }).rejectionExamples;
+  const rejectionExamples = Array.isArray(rawRejectionExamples)
+    ? rawRejectionExamples.map(String).slice(0, 8)
+    : [];
   return {
     plannedCount,
+    targetCount,
     placedCount,
     terrainAdjustedCount,
     skippedOutOfBoundsCount,
     rejectedCount,
+    shortfallCount,
+    rejectionExamples,
   };
 }

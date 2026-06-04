@@ -885,6 +885,7 @@ export type Civ7DirectControlErrorCode =
   | "all-hosts-unavailable"
   | "command-failed"
   | "log-timeout"
+  | "log-rejected"
   | "setup-api-unavailable"
   | "setup-phase-invalid"
   | "setup-map-row-missing"
@@ -2274,7 +2275,6 @@ export async function waitForFreshLogMarkers(options: {
   const pollIntervalMs = options.pollIntervalMs ?? 1_000;
   const startedAt = Date.now();
   const startOffset = options.snapshot.size;
-  let lastError: string | undefined;
 
   while (Date.now() - startedAt <= timeoutMs) {
     const current = await snapshotFile(options.logPath);
@@ -2283,7 +2283,11 @@ export async function waitForFreshLogMarkers(options: {
       const newText = current.size >= startOffset ? fullText.slice(startOffset) : fullText;
       const proof = matchOrderedMarkers(newText, options.markers);
       const rejected = options.rejectPattern?.exec(newText);
-      if (rejected) lastError = `Log contains ${rejected[0]}`;
+      if (rejected) {
+        throw new Civ7DirectControlError("log-rejected", `Log contains ${rejected[0]}`, {
+          details: { markers: options.markers, startOffset, rejected: rejected[0] },
+        });
+      }
       if (proof.ok && !rejected) {
         return {
           logPath: options.logPath,
@@ -2298,7 +2302,7 @@ export async function waitForFreshLogMarkers(options: {
 
   throw new Civ7DirectControlError(
     "log-timeout",
-    lastError ?? `Timed out waiting for fresh log markers in ${options.logPath}`,
+    `Timed out waiting for fresh log markers in ${options.logPath}`,
     { details: { markers: options.markers, startOffset } },
   );
 }

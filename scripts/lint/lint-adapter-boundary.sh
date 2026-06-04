@@ -1,7 +1,9 @@
 #!/bin/bash
 #
 # Adapter Boundary Lint
-# Ensures /base-standard/... imports only appear in @civ7/adapter package
+# Ensures /base-standard/... imports only appear in @civ7/adapter package.
+# Civ policy packages may carry official-source/provenance strings that include
+# base-standard paths; those strings are data, not runtime imports.
 #
 # CIV-15: Initial implementation
 # Allowlist will be reduced as subsequent issues fix violations.
@@ -29,21 +31,15 @@ ALLOWLIST=(
   "packages/mapgen-core/test/setup.ts"
 )
 
-# Config/build files that may reference /base-standard/ in comments or patterns
-# These are not actual imports, just configuration
-CONFIG_IGNORE=(
-  "tsup.config.ts"
-  "tsconfig.json"
-  "package.json"
-)
+IMPORT_PATTERN="(from[[:space:]]+['\"]\\/base-standard\\/|import[[:space:]]+(type[[:space:]]+)?['\"]\\/base-standard\\/|import[[:space:]]*\\([[:space:]]*['\"]\\/base-standard\\/)"
 
-# Find all /base-standard/ imports in packages/, excluding:
+# Find all direct /base-standard/ imports in packages/, excluding:
 # - civ7-adapter (the only allowed location)
 # - node_modules
 # - .d.ts files (type declarations)
 # - dist folders (build output)
-# - config files (may reference in comments/patterns)
-violations=$(rg "/base-standard/" packages/ \
+# - config files (may reference runtime externals in build patterns)
+violations=$(rg "$IMPORT_PATTERN" packages/ \
   --glob "!**/civ7-adapter/**" \
   --glob "!**/*.d.ts" \
   --glob "!**/node_modules/**" \
@@ -98,7 +94,7 @@ if [ "$has_unapproved" = true ]; then
   for f in "${unapproved_files[@]}"; do
     echo "  - $f"
     # Show the actual violations in the file
-    rg "/base-standard/" "$f" -n --color=never | sed 's/^/      /'
+    rg "$IMPORT_PATTERN" "$f" -n --color=never | sed 's/^/      /'
   done
   echo ""
   echo "These files import /base-standard/... but are not in the adapter package."

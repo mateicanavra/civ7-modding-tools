@@ -781,6 +781,50 @@ describe("Civ7 direct control", () => {
 
     expect(proof.matched).toEqual(["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"]);
   });
+
+  test("rejects map generation failure markers before completion proof", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
+    const logPath = join(dir, "Scripting.log");
+    await writeFile(logPath, "old\n");
+    const snapshot = await snapshotFile(logPath);
+    await writeFile(
+      logPath,
+      'old\n[SWOOPER_MOD] [mapgen-proof] {"seed":42}\n[SWOOPER_MOD] [mapgen-failure] {"seed":42,"error":"boom"}\n'
+    );
+
+    await expect(
+      waitForFreshLogMarkers({
+        logPath,
+        snapshot,
+        markers: ["[mapgen-complete]", '"seed":42'],
+        timeoutMs: 100,
+        pollIntervalMs: 10,
+        rejectPattern: /\[mapgen-failure\]|Map generation failed|StepExecutionError/i,
+      })
+    ).rejects.toMatchObject({ code: "log-rejected" });
+  });
+
+  test("accepts bounded map generation completion markers", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
+    const logPath = join(dir, "Scripting.log");
+    await writeFile(logPath, "old\n");
+    const snapshot = await snapshotFile(logPath);
+    await writeFile(
+      logPath,
+      'old\n[SWOOPER_MOD] [mapgen-proof] {"seed":42}\n[SWOOPER_MOD] [mapgen-complete] {"seed":42}\n'
+    );
+
+    const proof = await waitForFreshLogMarkers({
+      logPath,
+      snapshot,
+      markers: ["[mapgen-complete]", '"seed":42'],
+      timeoutMs: 100,
+      pollIntervalMs: 10,
+      rejectPattern: /\[mapgen-failure\]|Map generation failed|StepExecutionError/i,
+    });
+
+    expect(proof.matched).toEqual(["[mapgen-complete]", '"seed":42']);
+  });
 });
 
 async function startTunerServer(options: {

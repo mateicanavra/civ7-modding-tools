@@ -1,5 +1,5 @@
-import { CIV7_BROWSER_TABLES_V0 } from "@civ7/adapter";
-import { computeHexDistanceToMask } from "@swooper/mapgen-core/lib/grid";
+import { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
+import { computeHexDistanceToMask } from "./policy-grid.js";
 
 export const WATER_CLASS_LAND = 0;
 export const WATER_CLASS_COAST = 1;
@@ -23,15 +23,15 @@ const policySources: readonly string[] = CIV7_POLICY_TABLE.source.includes(MAP_G
  * Static Civ7 terrain-classification policy evidence.
  *
  * The constants are generated from official resources, but the projection is
- * ours: MapGen stamps the final water class so Civ7 does not need to repair
- * near-coast ocean tiles during validation/elevation.
+ * caller-owned: MapGen stamps the final water class so Civ7 does not need to
+ * repair near-coast ocean tiles during validation/elevation.
  */
 export const CIV7_COAST_CLASSIFICATION_POLICY_V0 = {
   version: 0,
   coastBufferTiles: CIV7_POLICY_TABLE.mapGlobals?.oceanWaterColumns ?? DEFAULT_CIV7_OCEAN_WATER_COLUMNS,
   source: policySources,
   rationale:
-    "Civ7 normalizes shallow/near-coast ocean into coast terrain. MapGen owns that policy by projecting a deterministic odd-q coast band before engine maintenance runs.",
+    "Civ7 normalizes shallow/near-coast ocean into coast terrain. MapGen should project a deterministic odd-q coast band before engine maintenance runs.",
 } as const;
 
 export type CoastClassificationPolicyResult = Readonly<{

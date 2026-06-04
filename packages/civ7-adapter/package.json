@@ -24,6 +24,7 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
+    "@civ7/map-policy": "workspace:*",
     "@civ7/types": "workspace:*"
   },
   "devDependencies": {

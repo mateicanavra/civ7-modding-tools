@@ -25,11 +25,14 @@ import type {
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
-import { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
-import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
-import { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
-import { getNaturalWonderFootprintIndices } from "./natural-wonder-footprints.js";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  DISCOVERY_CATALOG,
+  NATURAL_WONDER_CATALOG,
+  NO_RESOURCE,
+  PLACEABLE_RESOURCE_TYPE_IDS,
+  getNaturalWonderFootprintIndices,
+} from "@civ7/map-policy";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript

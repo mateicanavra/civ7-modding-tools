@@ -29,16 +29,14 @@ import type {
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import {
+  CIV7_BROWSER_TABLES_V0,
+  NATURAL_WONDER_CATALOG,
   NO_RESOURCE as ADAPTER_NO_RESOURCE,
   PLACEABLE_RESOURCE_TYPE_IDS,
-} from "./resource-constants.js";
-import { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
-import { DEFAULT_CIV7_MAP_LATITUDE_BOUNDS, type Civ7LatitudeBounds } from "./map-size-info.js";
-import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
-import {
   getNaturalWonderFootprintIndices,
   hasUnsupportedNaturalWonderPolicyTags,
-} from "./natural-wonder-footprints.js";
+} from "@civ7/map-policy";
+import { DEFAULT_CIV7_MAP_LATITUDE_BOUNDS, type Civ7LatitudeBounds } from "./map-size-info.js";
 
 type ResourceValidPlacementRow = readonly [
   biomeType: number,

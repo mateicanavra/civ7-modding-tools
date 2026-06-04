@@ -1,6 +1,11 @@
-import { NATURAL_WONDER_CATALOG } from "../../packages/civ7-adapter/src/manual-catalogs/natural-wonders.ts";
-import { DISCOVERY_CATALOG } from "../../packages/civ7-adapter/src/manual-catalogs/discoveries.ts";
-import { CIV7_BROWSER_TABLES_V0 } from "../../packages/civ7-adapter/src/civ7-tables.gen.ts";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  DISCOVERY_CATALOG,
+  getNaturalWonderFootprintOffsets,
+  hasUnsupportedNaturalWonderPolicyTags,
+  NATURAL_WONDER_CATALOG,
+  resolveNaturalWonderPlacementDirection,
+} from "../../packages/civ7-map-policy/src/index.ts";
 
 const expectedNaturalWonders = [
   "FEATURE_BARRIER_REEF",
@@ -16,14 +21,37 @@ const expectedNaturalWonders = [
   "FEATURE_TORRES_DEL_PAINE",
   "FEATURE_ULURU",
 ];
-
 const featureTable = CIV7_BROWSER_TABLES_V0.featureTypes;
+const featurePolicies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
+  string,
+  {
+    placementClass?: string;
+    naturalWonderDirection?: number;
+    naturalWonderTiles?: number;
+    naturalWonderPlaceFirst?: boolean;
+  } | undefined
+>;
+const featureTags = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as Record<
+  string,
+  readonly string[] | undefined
+>;
 const missingFeatures = expectedNaturalWonders.filter((name) => typeof featureTable[name] !== "number");
 if (missingFeatures.length > 0) {
   throw new Error(`Missing natural wonder definitions in generated tables: ${missingFeatures.join(", ")}`);
 }
 
-const expectedIds = expectedNaturalWonders.map((name) => featureTable[name]);
+function isSupportedNaturalWonder(name: string): boolean {
+  const featureType = featureTable[name]!;
+  const policy = featurePolicies[String(featureType)];
+  if (!policy || !policy.naturalWonderTiles) return false;
+  if (policy.naturalWonderPlaceFirst === true && policy.naturalWonderTiles > 1) return false;
+  if (hasUnsupportedNaturalWonderPolicyTags(featureTags[String(featureType)])) return false;
+  return getNaturalWonderFootprintOffsets(policy, resolveNaturalWonderPlacementDirection(policy)) !== null;
+}
+
+const expectedIds = expectedNaturalWonders
+  .filter((name) => isSupportedNaturalWonder(name))
+  .map((name) => featureTable[name]);
 const actualIds = NATURAL_WONDER_CATALOG.map((entry) => entry.featureType);
 if (expectedIds.length !== actualIds.length) {
   throw new Error(`Natural wonder catalog length mismatch (expected ${expectedIds.length}, got ${actualIds.length}).`);

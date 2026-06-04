@@ -103,7 +103,13 @@ export default defineConfig({
   // Civ7 loads each generated map file as a self-contained game script. SDK/core/adapter
   // authoring packages must be bundled into that script; only engine virtual modules may
   // remain as imports for the game loader to resolve.
-  noExternal: ["@swooper/mapgen-core", "@civ7/adapter", "@mateicanavra/civ7-sdk", "typebox"],
+  noExternal: [
+    "@swooper/mapgen-core",
+    "@civ7/adapter",
+    "@civ7/map-policy",
+    "@mateicanavra/civ7-sdk",
+    "typebox",
+  ],
 
   esbuildOptions(options) {
     // Shim TypeBox format registry so no Unicode-property regexes reach the game engine (built-in format validation disabled).

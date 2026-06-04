@@ -148,7 +148,7 @@ describe("map-elevation/build-elevation", () => {
     expect(adapter.buildElevationCalls).toBe(0);
   });
 
-  it("fails when buildElevation creates new water outside the projected policy surface", () => {
+  it("records post-buildElevation water drift without aborting generation", () => {
     const width = 4;
     const height = 3;
     const seed = 1234;
@@ -182,12 +182,13 @@ describe("map-elevation/build-elevation", () => {
 
     setBuildElevationArtifacts(context, width, height, landMask);
 
-    expect(() => buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation))).toThrow(
-      /map-elevation\/build-elevation:post.*expected land/
-    );
+    buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation));
 
     expect(adapter.buildElevationCalls).toBe(1);
-    expect(context.artifacts.has("artifact:map.elevationEngineTerrainSnapshot")).toBe(false);
+    const snapshot = context.artifacts.get("artifact:map.elevationEngineTerrainSnapshot") as {
+      landMask: Uint8Array;
+    };
+    expect(snapshot.landMask[0]).toBe(0);
   });
 
   it("preprojects low polar-edge mountain saddle compliance water before buildElevation", () => {

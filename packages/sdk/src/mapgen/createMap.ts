@@ -193,13 +193,42 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
         latitudeBounds: { topLatitude, bottomLatitude },
       })}`
     );
+    const generationStartedAt = Date.now();
     try {
       def.recipe.run(context, env, def.config, {
         log: (message) => {
           console.log(prefix, message);
         },
       });
+      console.log(
+        `${prefix} [mapgen-complete] ${JSON.stringify({
+          mapId: def.id,
+          sourceConfigId: def.sourceConfigId ?? def.id,
+          requestId: def.requestId ?? null,
+          configHash: def.configHash ?? null,
+          envelopeHash: def.envelopeHash ?? null,
+          seed,
+          mapSize: captured.mapSizeId,
+          dimensions: { width, height },
+          latitudeBounds: { topLatitude, bottomLatitude },
+          durationMs: Date.now() - generationStartedAt,
+        })}`
+      );
     } catch (err) {
+      console.error(
+        `${prefix} [mapgen-failure] ${JSON.stringify({
+          mapId: def.id,
+          sourceConfigId: def.sourceConfigId ?? def.id,
+          requestId: def.requestId ?? null,
+          configHash: def.configHash ?? null,
+          envelopeHash: def.envelopeHash ?? null,
+          seed,
+          mapSize: captured.mapSizeId,
+          dimensions: { width, height },
+          durationMs: Date.now() - generationStartedAt,
+          error: err instanceof Error ? err.message : String(err),
+        })}`
+      );
       console.error(prefix, "Map generation failed:", err);
       throw err;
     }

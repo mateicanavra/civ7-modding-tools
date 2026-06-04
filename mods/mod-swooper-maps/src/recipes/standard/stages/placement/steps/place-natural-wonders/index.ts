@@ -26,6 +26,23 @@ export default createStep(PlaceNaturalWondersStepContract, {
       requestedCount: wonders.wondersCount,
     });
 
+    if (
+      stamping.shortfallCount > 0 ||
+      stamping.skippedOutOfBoundsCount > 0 ||
+      stamping.rejectedCount > 0
+    ) {
+      context.trace.event(() => ({
+        type: "placement.naturalWonders.reconciledPartial",
+        plannedCount: stamping.plannedCount,
+        targetCount: stamping.targetCount,
+        placedCount: stamping.placedCount,
+        shortfallCount: stamping.shortfallCount,
+        skippedOutOfBoundsCount: stamping.skippedOutOfBoundsCount,
+        rejectedCount: stamping.rejectedCount,
+        rejectionExamples: stamping.rejectionExamples,
+      }));
+    }
+
     deps.artifacts.naturalWonderPlacement.publish(context, stamping);
   },
 });

@@ -3,12 +3,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  CIV7_BROWSER_TABLES_V0,
   DEFAULT_CIV7_MAP_LATITUDE_BOUNDS,
   createMockAdapter,
   getCiv7MapInfoByDimensions,
   getCiv7MapSizeTypeByDimensions,
 } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";

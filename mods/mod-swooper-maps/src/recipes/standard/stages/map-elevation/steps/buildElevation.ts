@@ -9,13 +9,12 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import BuildElevationStepContract from "./buildElevation.contract.js";
 import {
   assertNoWaterDrift,
-  formatWaterDriftError,
   summarizeWaterDrift,
 } from "../../../projection-policies/noWaterDrift.js";
 import {
   CIV7_BUILD_ELEVATION_BOUNDARY_POLICY_V0,
   applyCiv7BuildElevationBoundaryPolicy,
-} from "../../../projection-policies/elevationBoundaryClassification.js";
+} from "@civ7/map-policy";
 import { mapElevationArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
@@ -106,10 +105,9 @@ export default createStep(BuildElevationStepContract, {
      * lifecycle: coasts/continents/mountains/volcanoes, accepted lakes, elevation, rivers.
      * The expected land/water surface remains MapGen-owned: Morphology land plus
      * accepted Hydrology lake projection plus static Civ7 build-elevation boundary
-     * policies. The adjacent engine snapshot is diagnostic evidence only; it must
-     * not redefine terrain truth. If the engine surface differs before or after
-     * buildElevation, this step fails instead of letting downstream stages inherit
-     * hidden terrain drift.
+     * policies. A pre-build mismatch is a MapGen authoring bug and remains fatal.
+     * Post-build drift is Civ materialization evidence: record it for policy
+     * extraction and runtime proof, but do not make ordinary maps unloadable.
      */
     assertNoWaterDrift(context, expectedLandMask, "map-elevation/build-elevation:pre");
     context.adapter.recalculateAreas();
@@ -125,7 +123,6 @@ export default createStep(BuildElevationStepContract, {
         expectedWaterButLand: postElevationDrift.expectedWaterButLand,
         examples: postElevationDrift.examples,
       }));
-      throw new Error(formatWaterDriftError("map-elevation/build-elevation:post", postElevationDrift));
     }
 
     const physics = context.buffers.heightfield;

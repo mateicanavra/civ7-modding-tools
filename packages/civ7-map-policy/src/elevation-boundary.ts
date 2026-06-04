@@ -1,5 +1,5 @@
-import { CIV7_BROWSER_TABLES_V0 } from "@civ7/adapter";
-import { forEachHexNeighborOddQ, wrapX } from "@swooper/mapgen-core/lib/grid";
+import { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
+import { forEachHexNeighborOddQ, wrapX } from "./policy-grid.js";
 
 type Civ7TablePolicyView = typeof CIV7_BROWSER_TABLES_V0 & {
   readonly mapGlobals?: {
@@ -20,9 +20,9 @@ const policySources = Array.from(
  * Static Civ7 build-elevation boundary policy evidence.
  *
  * Civ7's native TerrainBuilder.buildElevation can normalize low polar-edge
- * saddle tiles inside mountain provinces into coast water. MapGen owns that
- * input policy by stamping those compliance tiles before buildElevation so the
- * native materializer receives a surface it can preserve.
+ * saddle tiles inside mountain provinces into coast water. Callers project
+ * compliance tiles before buildElevation so native materialization receives a
+ * surface it can preserve.
  */
 export const CIV7_BUILD_ELEVATION_BOUNDARY_POLICY_V0 = {
   version: 0,
@@ -30,7 +30,7 @@ export const CIV7_BUILD_ELEVATION_BOUNDARY_POLICY_V0 = {
   saddleElevationCeiling: 0,
   source: policySources,
   rationale:
-    "Civ7 standard map scripts keep a polar water buffer and call TerrainBuilder.buildElevation after terrain/lake stamping. Live readback shows native buildElevation promotes low edge-row mountain saddles to coast; MapGen preprojects that compliance tile instead of accepting post-build drift.",
+    "Civ7 standard map scripts keep a polar water buffer and call TerrainBuilder.buildElevation after terrain/lake stamping. Live readback shows native buildElevation promotes low edge-row mountain saddles to coast; callers can preproject that compliance tile instead of accepting post-build drift.",
 } as const;
 
 export type BuildElevationBoundaryPolicyResult = Readonly<{

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { DISCOVERY_CATALOG } from "../src/manual-catalogs/discoveries.js";
+import { DISCOVERY_CATALOG } from "@civ7/map-policy";
 import { createMockAdapter } from "../src/mock-adapter.js";
 
 describe("manual discovery catalog", () => {

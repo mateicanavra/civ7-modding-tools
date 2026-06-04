@@ -10,5 +10,5 @@ export default defineConfig({
   // These are resolved at runtime by the Civ7 game engine
   external: [/^\/base-standard\/.*/],
   // Bundle our workspace dependencies
-  noExternal: ["@civ7/types"],
+  noExternal: ["@civ7/types", "@civ7/map-policy"],
 });

@@ -3,8 +3,8 @@ import type { DiscoveryCatalogEntry } from "../types.js";
 /**
  * Canonical unsigned discovery hashes (`u32`) for engine-facing placement.
  *
- * These values are adapter-owned constants mirrored from base-standard discovery
- * symbols and normalized into unsigned domain to avoid signed coercion drift.
+ * These values are mirrored from base-standard discovery symbols and normalized
+ * into unsigned domain to avoid signed coercion drift.
  */
 const BASIC_HASH = 210036031;
 const INVESTIGATION_HASH = 2398750021;

@@ -27,8 +27,8 @@ export default createStep(PreparePlacementSurfaceStepContract, {
       trace.event(() => payload);
     };
 
-    // Natural wonder evidence is required before maintenance runs so this step
-    // cannot become a hidden second chance to stamp product intent.
+    // Natural wonder reconciliation is required before maintenance runs so this
+    // step cannot become a hidden retry path for product intent.
     normalizeNaturalWonderStampingStats(naturalWonderPlacement);
     logTerrainStats(trace, adapter, width, height, "Initial");
 

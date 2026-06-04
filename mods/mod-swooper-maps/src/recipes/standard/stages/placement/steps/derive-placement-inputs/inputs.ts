@@ -4,7 +4,7 @@ import {
   CIV7_BROWSER_TABLES_V0,
   getNaturalWonderFootprintOffsets,
   type DiscoveryCatalogEntry,
-} from "@civ7/adapter";
+} from "@civ7/map-policy";
 import {
   OFFICIAL_RESOURCE_CORPUS,
   type OfficialAgeType,

@@ -29,25 +29,29 @@ try {
   if (!files.length) fail(`no JS files found under ${distRoot} (did you run \`bun run build\`?)`);
 
   const forbidden = [
-    { label: "/base-standard/ imports", needle: "/base-standard/" },
-    { label: "Civ7 engine globals", needle: "GameplayMap" },
-    { label: "Node builtins (node:fs)", needle: "node:fs" },
-    { label: "Node builtins (node:path)", needle: "node:path" },
-    { label: "Node builtins (node:process)", needle: "node:process" },
+    {
+      label: "/base-standard/ module specifiers",
+      pattern: /(?:from|import)\s*\(?\s*["']\/base-standard\/|["']\/base-standard\//,
+    },
+    { label: "Civ7 engine globals", pattern: /GameplayMap/ },
+    { label: "Node builtins (node:fs)", pattern: /node:fs/ },
+    { label: "Node builtins (node:path)", pattern: /node:path/ },
+    { label: "Node builtins (node:process)", pattern: /node:process/ },
   ];
 
   const hits = [];
   for (const file of files) {
     const text = readFileSync(file, "utf8");
-    for (const { label, needle } of forbidden) {
-      if (text.includes(needle)) {
-        hits.push({ file, label, needle });
+    for (const { label, pattern } of forbidden) {
+      const match = pattern.exec(text);
+      if (match) {
+        hits.push({ file, label, match: match[0] });
       }
     }
   }
 
   if (hits.length) {
-    const lines = hits.map((h) => `- ${h.label}: ${h.needle} in ${h.file}`);
+    const lines = hits.map((h) => `- ${h.label}: ${h.match} in ${h.file}`);
     fail(`worker bundle contains forbidden references:\n${lines.join("\n")}`);
   }
 } catch (e) {
@@ -55,4 +59,3 @@ try {
 }
 
 console.log("[mapgen-studio] worker bundle check passed");
-

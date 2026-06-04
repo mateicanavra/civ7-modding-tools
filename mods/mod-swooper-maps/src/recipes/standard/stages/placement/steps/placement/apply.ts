@@ -81,6 +81,14 @@ export function applyPlacementPlan({
   emit({ type: "placement.start", message: `[SWOOPER_MOD] Map size: ${width}x${height}` });
 
   const wonderStamping = normalizeNaturalWonderStampingStats(naturalWonderPlacement);
+  const wonderIssueCount =
+    wonderStamping.shortfallCount +
+    wonderStamping.skippedOutOfBoundsCount +
+    wonderStamping.rejectedCount;
+  const wondersError =
+    wonderIssueCount > 0
+      ? `partial-natural-wonders target=${wonderStamping.targetCount} planned=${wonderStamping.plannedCount} placed=${wonderStamping.placedCount} shortfall=${wonderStamping.shortfallCount} outOfBounds=${wonderStamping.skippedOutOfBoundsCount} rejected=${wonderStamping.rejectedCount}`
+      : undefined;
   const slotByTile = landmassRegionSlotByTile.slotByTile;
   const slotCounts = surfacePreparation.slotCounts;
   const resourcesPlaced = resourcePlacement.summary.placedCount;
@@ -181,6 +189,7 @@ export function applyPlacementPlan({
     waterDriftCount,
     wondersPlanned: wonderStamping.plannedCount,
     wondersPlaced: wonderStamping.placedCount,
+    ...(wondersError ? { wondersError } : {}),
     discoveriesPlanned,
     discoveriesPlaced,
   });
@@ -188,8 +197,11 @@ export function applyPlacementPlan({
   emit({
     type: "placement.parity",
     slotCounts,
+    wondersTarget: wonderStamping.targetCount,
     wondersPlanned: wonderStamping.plannedCount,
     wondersPlaced: wonderStamping.placedCount,
+    wondersShortfall: wonderStamping.shortfallCount,
+    wondersRejected: wonderStamping.rejectedCount,
     resourcesAttempted: true,
     resourcesPlaced,
     discoveriesPlanned,

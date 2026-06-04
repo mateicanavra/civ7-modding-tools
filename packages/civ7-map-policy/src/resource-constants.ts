@@ -1,6 +1,4 @@
 /**
- * Adapter-owned resource constants used by deterministic placement flows.
- *
  * Source of truth for placement catalog ordering:
  * - .civ7/outputs/resources/Base/modules/base-standard/data/resources.xml
  * - .civ7/outputs/resources/Base/modules/base-standard/data/resources-v2.xml

@@ -36,6 +36,7 @@
       "dependencies": {
         "@civ7/adapter": "workspace:*",
         "@civ7/direct-control": "workspace:*",
+        "@civ7/map-policy": "workspace:*",
         "@deck.gl/core": "^9.0.43",
         "@deck.gl/layers": "^9.0.43",
         "@deck.gl/react": "^9.0.43",
@@ -97,6 +98,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@civ7/adapter": "workspace:*",
+        "@civ7/map-policy": "workspace:*",
         "@mateicanavra/civ7-sdk": "workspace:*",
         "@swooper/mapgen-core": "workspace:*",
         "@swooper/mapgen-viz": "workspace:*",
@@ -114,6 +116,7 @@
       "name": "@civ7/adapter",
       "version": "0.1.0",
       "dependencies": {
+        "@civ7/map-policy": "workspace:*",
         "@civ7/types": "workspace:*",
       },
       "devDependencies": {
@@ -133,6 +136,15 @@
         "tsup": "^8.5.1",
         "typescript": "^5.9.3",
         "vitest": "^4.0.18",
+      },
+    },
+    "packages/civ7-map-policy": {
+      "name": "@civ7/map-policy",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@civ7/types": "workspace:*",
+        "tsup": "^8.5.1",
+        "typescript": "^5.9.3",
       },
     },
     "packages/civ7-types": {
@@ -433,6 +445,8 @@
     "@civ7/direct-control": ["@civ7/direct-control@workspace:packages/civ7-direct-control"],
 
     "@civ7/docs": ["@civ7/docs@workspace:apps/docs"],
+
+    "@civ7/map-policy": ["@civ7/map-policy@workspace:packages/civ7-map-policy"],
 
     "@civ7/playground": ["@civ7/playground@workspace:apps/playground"],
 

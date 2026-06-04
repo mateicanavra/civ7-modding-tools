@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { CIV7_BROWSER_TABLES_V0 } from "../src/civ7-tables.gen.js";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createMockAdapter } from "../src/mock-adapter.js";
 
 /**

@@ -3,11 +3,14 @@
 import {
   checkCiv7DirectControlHealth,
   createCiv7ControlRequestId,
+  DEFAULT_CIV7_SCRIPTING_LOG,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   runCiv7SinglePlayerFromSetup,
+  snapshotFile,
   type Civ7DirectControlOptions,
   type Civ7SetupOptionValue,
+  waitForFreshLogMarkers,
 } from "../../packages/civ7-direct-control/src/index.ts";
 
 type LiveProofArgs = {
@@ -241,6 +244,7 @@ async function main(): Promise<number> {
     }
 
     report.mutationAttempted = true;
+    const scriptingSnapshot = await snapshotFile(DEFAULT_CIV7_SCRIPTING_LOG);
     const run = await runCiv7SinglePlayerFromSetup(
       {
         mapScript: args.mapScript,
@@ -261,6 +265,15 @@ async function main(): Promise<number> {
         disposableSession: true,
       },
     );
+    const logProof = await waitForFreshLogMarkers({
+      logPath: DEFAULT_CIV7_SCRIPTING_LOG,
+      snapshot: scriptingSnapshot,
+      markers: ["[mapgen-complete]", `"seed":${args.seed}`],
+      timeoutMs: args.waitTimeoutMs,
+      pollIntervalMs: args.pollIntervalMs,
+      rejectPattern:
+        /\[mapgen-failure\]|Map generation failed|\[recipe:[^\]]+\].*fail|StepExecutionError|\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
+    });
     stages.push({
       name: "setup-start",
       ok: run.verified,
@@ -268,6 +281,13 @@ async function main(): Promise<number> {
       startVerified: run.start.verified,
       mapSummary: run.start.mapSummary,
       observations: run.start.observations.length,
+    });
+    stages.push({
+      name: "mapgen-log-completion",
+      ok: true,
+      logPath: logProof.logPath,
+      observedAt: logProof.observedAt,
+      matched: logProof.matched,
     });
     report.ok = run.verified;
     report.finishedAt = new Date().toISOString();
