@@ -74,7 +74,11 @@ owns the `runtime.app.ui.snapshot` descriptor adjacent to the App UI snapshot
 atom and schema exports. The third adjacent runtime-support descriptor artifact
 is `packages/civ7-direct-control/src/runtime/tuner-health-procedure.ts`, which
 owns the `runtime.tuner.health` descriptor adjacent to the Tuner health atom and
-schema exports. The adjacent notification read descriptor artifact is
+schema exports. The adjacent turn-completion status descriptor artifact is
+`packages/civ7-direct-control/src/play/turn-completion-procedure.ts`, which
+owns the `runtime.turn.completion.status` descriptor adjacent to the
+turn-completion status atom and schema exports. The adjacent notification read
+descriptor artifact is
 `packages/civ7-direct-control/src/play/notifications/view-procedure.ts`, which
 owns the `notifications.view` descriptor adjacent to the notification read atom
 and schema exports. The adjacent settlement-recommendations descriptor artifact
@@ -530,6 +534,26 @@ only; it does not wrap `revealCiv7MapForPlayer`, change CLI output, add a broad
 map catalog, add a router, add Effect/oRPC dependencies, choose Effect Schema,
 claim runtime proof, or accept the matrix row.
 
+The adjacent turn-completion status procedure artifact reuses the
+turn-completion status schema exports and records
+`runtime.turn.completion.status` beside `getCiv7TurnCompletionStatus`.
+Focused proof in
+`packages/civ7-direct-control/test/turn-completion-status-procedure.test.ts`
+checks the descriptor's empty input and output field lists against resolved
+schema root properties, including turn, turn date, sent-turn-complete status,
+end-turn availability, blocker, first ready unit, and raw/context input
+separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over `getCiv7TurnCompletionStatus`,
+composed through the local procedure-core call primitive. Focused proof uses
+fake atom dependencies to prove direct-control option forwarding, input
+validation before dependency execution, output validation after the atom
+returns, separated output/diagnostics, turn-completion status read command
+text, and absence of send/unready command text. This is local no-network
+read-atom proof only; it does not change turn-completion send/unready mutation
+behavior, autoplay behavior, CLI output, add a router, add Effect/oRPC
+dependencies, choose Effect Schema, claim runtime proof, or accept the matrix
+row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit
@@ -673,7 +697,7 @@ ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
 health, notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
 progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
-visibility-summary descriptor artifacts with
+visibility-summary, and turn-completion status descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
@@ -681,7 +705,8 @@ unit move-preview, playable-status, App UI snapshot, Tuner health, and
 notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
 progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
-visibility-summary procedure call wrappers, but they do not accept the row.
+visibility-summary, and turn-completion status procedure call wrappers, but
+they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
@@ -692,7 +717,7 @@ Acceptance still needs:
   notification-view, settlement-recommendations, target-candidates,
   battlefield-scan, destination-analysis, traditions-view, and
   progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
-  visibility-summary call wrappers;
+  visibility-summary, and turn-completion status call wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

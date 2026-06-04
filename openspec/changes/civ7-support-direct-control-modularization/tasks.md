@@ -2558,6 +2558,28 @@ runtime/direct-control claims.
         Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
         in-game controller router, claim runtime/live-game proof, accept Task
         2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+  - [x] 4.48 Add the adjacent turn-completion status procedure atom in
+        `src/play/turn-completion-procedure.ts`, with TypeBox input/output
+        schemas beside the existing read-only turn-completion status atom in
+        `src/play/turn-completion.ts`, focused proof in
+        `test/turn-completion-status-procedure.test.ts`, adjacent atom schema
+        proof in `test/autoplay-and-turn.test.ts`, and public facade schema
+        proof in `test/public-api.test.ts`. This composes the local
+        procedure-core call primitive with the existing
+        `getCiv7TurnCompletionStatus` atom under the existing `runtime`
+        procedure family, validates empty context-owned input, status output
+        fields (`turn`, `turnDate`, `hasSentTurnComplete`, `canEndTurn`,
+        `blocker`, and `firstReadyUnitId`), endpoint/session/state/raw-command
+        input exclusion, direct-control option forwarding, output/diagnostics
+        separation, fake-dependency no-network calls, and absence of
+        `sendTurnComplete` / `sendUnreadyTurn` command text. This is local
+        no-network read-atom proof only; it does not change turn-completion
+        send/unready mutation behavior, autoplay behavior, CLI output, execute
+        live direct-control atoms, add a router/registry/transport adapter,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2683,13 +2705,18 @@ authority are recorded.
     invariant, context/raw-command input rejection, revealed/visible runtime-
     probe output proof, no-reveal command-text proof, and local no-network proof
     over fake atom dependencies.
+    Task 4.48 adds an adjacent read-atom schema/descriptor/call artifact for
+    `runtime.turn.completion.status` over the turn-completion status atom,
+    including empty context-owned input proof, turn-completion status output
+    proof, context/raw-command input rejection, no send/unready command-text
+    proof, and local no-network proof over fake atom dependencies.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
     runtime-support, notification-view, settlement-recommendations,
     target-candidates, battlefield-scan, destination-analysis, and
     traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
-    GameInfo-rows, and visibility-summary schema seeds,
+    GameInfo-rows, visibility-summary, and turn-completion status schema seeds,
     descriptor schema-reference binding/resolution, adjacent descriptor/call
     artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting

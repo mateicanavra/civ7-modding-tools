@@ -731,13 +731,23 @@ export {
 } from "./play/autoplay.js";
 export type {
   Civ7TurnCompletionActionResult,
+  Civ7TurnCompletionStatusDependencies,
+  Civ7TurnCompletionStatusInput,
   Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
 export {
+  Civ7TurnCompletionStatusInputSchema,
+  Civ7TurnCompletionStatusResultSchema,
   getCiv7TurnCompletionStatus,
   sendCiv7TurnComplete,
   sendCiv7TurnUnready,
 } from "./play/turn-completion.js";
+export {
+  callCiv7TurnCompletionStatusProcedure,
+  Civ7TurnCompletionStatusProcedureDescriptor,
+  Civ7TurnCompletionStatusProcedureSchemaArtifacts,
+} from "./play/turn-completion-procedure.js";
+export type { Civ7TurnCompletionStatusProcedureCallOptions } from "./play/turn-completion-procedure.js";
 export type {
   Civ7ReadyUnitNearbyPlot,
   Civ7ReadyUnitOperationCandidate,

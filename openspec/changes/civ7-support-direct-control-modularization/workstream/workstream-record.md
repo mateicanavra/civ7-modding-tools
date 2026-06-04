@@ -3791,3 +3791,26 @@ All future agent waves must be framed before delegation:
   wrap reveal-map mutation, add a broad map catalog, add a router/registry/
   transport adapter, choose Effect Schema, claim runtime/live-game proof,
   accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+- Turn-completion status procedure atom seed:
+  `packages/civ7-direct-control/src/play/turn-completion.ts` now owns TypeBox
+  input/output schemas for the existing read-only turn-completion status atom,
+  and `packages/civ7-direct-control/src/play/turn-completion-procedure.ts`
+  records the adjacent `runtime.turn.completion.status` descriptor/schema
+  artifact map and concrete call wrapper over `getCiv7TurnCompletionStatus`
+  while leaving `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, and autoplay
+  behavior outside this read-only procedure slice. Focused proof in
+  `packages/civ7-direct-control/test/autoplay-and-turn.test.ts` validates a
+  fake turn-completion status result against the schema and rejects
+  endpoint/session/state/raw-command procedure input; proof in
+  `packages/civ7-direct-control/test/turn-completion-status-procedure.test.ts`
+  covers descriptor schema resolution through public exports, no-network
+  fake-dependency calls, direct-control option forwarding,
+  input-before-dependency rejection, output validation, separated diagnostics,
+  turn-completion status read command text, no send/unready command text, and
+  descriptor/artifact/call-wrapper exports through `src/index.ts`. Public
+  facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
+  covers the schema exports. This is local read-atom proof only; it does not
+  change turn-completion mutation behavior, autoplay behavior, CLI output, add
+  a broad runtime catalog, add a router/registry/transport adapter, choose
+  Effect Schema, claim runtime/live-game proof, accept Task 2.9.4, or start
+  Tasks 5.1-5.7 or 6.1-6.9.

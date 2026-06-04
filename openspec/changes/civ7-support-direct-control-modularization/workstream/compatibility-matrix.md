@@ -760,7 +760,8 @@ Intake rejection conditions:
   App UI snapshot, Tuner health, notification-view,
   settlement-recommendations, target-candidates, battlefield-scan,
   destination-analysis, traditions-view, progress-dashboard, map-summary, and
-  plot-snapshot, map-grid, GameInfo-rows, and visibility-summary
+  plot-snapshot, map-grid, GameInfo-rows, visibility-summary, and
+  turn-completion status
   procedure call wrappers exist adjacent to their direct-control atoms; final
   procedure-core/schema/runtime-context, middleware, error, and correlation
   owners remain pending
@@ -813,6 +814,9 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/visibility-summary-procedure.test.ts` now
   also proves the adjacent concrete visibility-summary procedure call wrapper
   with fake atom dependencies.
+  `packages/civ7-direct-control/test/turn-completion-status-procedure.test.ts`
+  now also proves the adjacent concrete turn-completion status procedure call
+  wrapper with fake atom dependencies.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -988,6 +992,13 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/visibility-summary-procedure.test.ts`
   plus adjacent atom schema proof in
   `packages/civ7-direct-control/test/map-and-visibility.test.ts`.
+  The adjacent turn-completion status descriptor artifact is now
+  `packages/civ7-direct-control/src/play/turn-completion-procedure.ts`, with
+  TypeBox schema ownership in
+  `packages/civ7-direct-control/src/play/turn-completion.ts` and proof in
+  `packages/civ7-direct-control/test/turn-completion-status-procedure.test.ts`
+  plus adjacent atom schema proof in
+  `packages/civ7-direct-control/test/autoplay-and-turn.test.ts`.
   The descriptor owner also records `schemaTechnology`, requires current
   adjacent descriptors to declare `typebox`, and rejects unaccepted
   `effect-schema` or `zod-adapter` claims before procedure promotion. The
@@ -1005,7 +1016,7 @@ Intake rejection conditions:
   snapshot, Tuner health, notification-view, settlement-recommendations,
   target-candidates, battlefield-scan, destination-analysis, and
   traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
-  GameInfo-rows, and visibility-summary
+  GameInfo-rows, visibility-summary, and turn-completion status
   procedure call wrappers now
   compose that primitive with
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
@@ -1016,8 +1027,9 @@ Intake rejection conditions:
   `getCiv7BattlefieldScan`, `getCiv7DestinationAnalysis`, and
   `getCiv7TraditionsView`, `getCiv7ProgressDashboard`,
   `getCiv7MapSummary`, `getCiv7PlotSnapshot`, `getCiv7MapGrid`, and
-  `getCiv7GameInfoRows`, and `getCiv7VisibilitySummary` through fake
-  direct-control dependencies in focused proof.
+  `getCiv7GameInfoRows`, `getCiv7VisibilitySummary`, and
+  `getCiv7TurnCompletionStatus` through fake direct-control dependencies in
+  focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   accepted TypeBox versus Effect Schema disposition for final procedure
   contracts, runtime-context/middleware/error/correlation owner, broader
@@ -1194,7 +1206,12 @@ Intake rejection conditions:
   from procedure input, fake visibility summary output validation,
   revealed/visible runtime-probe output validation, raw root-field rejection,
   and descriptor field-list resolution against the visibility summary
-  input/result schemas. Current procedure-core payload validation
+  input/result schemas. Current turn-completion status schema/procedure proof
+  checks empty context-owned input, endpoint/session/state/raw-command
+  exclusion from procedure input, fake status output validation, raw root-field
+  rejection, descriptor field-list resolution against the turn-completion
+  status input/result schemas, no-network fake-dependency calls, and absence
+  of send/unready command text. Current procedure-core payload validation
   proof validates ready-unit input/output payloads and unit move-preview
   validator-equivalent map-location inputs against resolved descriptor schema
   artifacts, including raw root-field rejection. Current procedure-call proof
@@ -1286,9 +1303,9 @@ Intake rejection conditions:
   adjacent ready-unit, ready-city, unit move-preview, playable-status,
   App UI snapshot, Tuner health, notification-view, settlement-recommendations,
   target-candidates, battlefield-scan, destination-analysis, traditions-view,
-  progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
-  visibility-summary procedure call proof over stable direct-control atoms with
-  fake dependencies,
+  progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows,
+  visibility-summary, and turn-completion status procedure call proof over
+  stable direct-control atoms with fake dependencies,
   mutation approval/validator/postcondition/no-repeat gate requirements,
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface, and schema-technology proof that current descriptors
@@ -1324,9 +1341,9 @@ Intake rejection conditions:
   ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
   health, notification-view, settlement-recommendations, target-candidates,
   battlefield-scan, destination-analysis, traditions-view, progress-dashboard,
-  map-summary, plot-snapshot, map-grid, GameInfo-rows, and visibility-summary
-  wrappers fail before their atom dependencies run when procedure input is
-  invalid.
+  map-summary, plot-snapshot, map-grid, GameInfo-rows, visibility-summary, and
+  turn-completion status wrappers fail before their atom dependencies run when
+  procedure input is invalid.
   Current descriptors also fail before promotion if they claim unaccepted
   `effect-schema` or `zod-adapter` ownership instead of the current TypeBox
   descriptor contract.

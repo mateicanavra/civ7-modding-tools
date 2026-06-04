@@ -390,6 +390,19 @@ Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance. Tactical,
 operation, ready, public procedure schema, and telemetry type ownership remain
 pending separate owner slices.
 
+Turn-completion status procedure update: `src/play/turn-completion.ts` now also
+owns the TypeBox input/output schemas for `getCiv7TurnCompletionStatus`, and
+`src/play/turn-completion-procedure.ts` owns the adjacent read-only
+`runtime.turn.completion.status` descriptor/call wrapper. Focused proof lives in
+`test/turn-completion-status-procedure.test.ts`, adjacent schema/status coverage
+lives in `test/autoplay-and-turn.test.ts`, and facade proof lives in
+`test/public-api.test.ts`. This remains local no-network proof for the
+read-only status atom; it does not claim runtime/live-game proof, wrap
+send/unready mutations, alter approval gates, alter stale notification fallback
+classification, or unblock AI ingestion, telemetry, semantic CLI projection,
+hotseat runtime proof, Effect/oRPC procedure-core work, or Task 2.9.4
+matrix-row acceptance.
+
 Notification type update: `src/play/notifications/view.ts` now owns play
 decision hint/input/action, notification summary, decision queue item, and
 notification view result types, and `src/play/notifications/dismissal-request.ts`

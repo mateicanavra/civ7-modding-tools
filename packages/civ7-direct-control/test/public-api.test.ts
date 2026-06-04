@@ -74,6 +74,10 @@ import {
   Civ7TunerHealthProcedureDescriptor,
   Civ7TunerHealthProcedureSchemaArtifacts,
   Civ7TunerHealthResultSchema,
+  Civ7TurnCompletionStatusInputSchema,
+  Civ7TurnCompletionStatusProcedureDescriptor,
+  Civ7TurnCompletionStatusProcedureSchemaArtifacts,
+  Civ7TurnCompletionStatusResultSchema,
   Civ7VisibilitySummaryInputSchema,
   Civ7VisibilitySummaryResultSchema,
   Civ7UnitMovePreviewProcedureDescriptor,
@@ -117,6 +121,7 @@ import {
   callCiv7TargetCandidatesProcedure,
   callCiv7TraditionsViewProcedure,
   callCiv7TunerHealthProcedure,
+  callCiv7TurnCompletionStatusProcedure,
   callCiv7UnitMovePreviewProcedure,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
@@ -442,6 +447,29 @@ describe("Civ7 direct control public API", () => {
         "readiness",
         "appUi",
         "errors",
+      ]),
+    });
+  });
+
+  test("exports turn-completion status procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { rawCommand: "GameContext.sendTurnComplete()" })).toBe(false);
+    expect(Civ7TurnCompletionStatusResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "localPlayerId",
+        "turn",
+        "hasSentTurnComplete",
+        "canEndTurn",
+        "blocker",
+        "firstReadyUnitId",
       ]),
     });
   });
@@ -905,6 +933,23 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7PlayableStatusProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.outputSchema)
     ]).toBe(Civ7PlayableStatusResultSchema);
+  });
+
+  test("exports the turn-completion status procedure descriptor artifact from the public facade", () => {
+    expect(Civ7TurnCompletionStatusProcedureDescriptor).toMatchObject({
+      procedureKey: "runtime.turn.completion.status",
+      atomFunction: "getCiv7TurnCompletionStatus",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7TurnCompletionStatusProcedure).toBe("function");
+    expect(Civ7TurnCompletionStatusProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7TurnCompletionStatusProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7TurnCompletionStatusInputSchema);
+    expect(Civ7TurnCompletionStatusProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7TurnCompletionStatusProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7TurnCompletionStatusResultSchema);
   });
 
   test("exports the App UI snapshot procedure descriptor artifact from the public facade", () => {
