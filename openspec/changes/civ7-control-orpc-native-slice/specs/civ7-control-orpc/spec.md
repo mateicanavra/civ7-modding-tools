@@ -22,6 +22,16 @@ errors, and server-side callers.
 - **AND** it does not introduce a custom middleware, context-composition,
   event, router, or transport framework
 
+#### Scenario: Facade failures use native tagged error projection
+- **WHEN** a native procedure leaf catches a direct-control facade failure
+- **THEN** it constructs the public failure through the effect-orpc tagged
+  error constructor supplied by the procedure error map
+- **AND** public failures use bounded procedure/source data
+- **AND** raw facade cause, session, command, and command-source details remain
+  excluded from serialized public errors
+- **AND** shared middleware remains pending until the native oRPC/effect-orpc
+  error path is proven without custom wrapper plumbing
+
 ### Requirement: Procedure Inputs Exclude Runtime Context Controls
 
 Control procedure contracts SHALL keep endpoint, session, state-selection, and

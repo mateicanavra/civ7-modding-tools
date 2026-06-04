@@ -1,11 +1,11 @@
 import { Effect } from "effect";
 
-import { Civ7ReadyUnitViewUnavailableError } from "../../../errors";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 
 export const unitReadyViewProcedure =
   civ7ControlOrpcImplementer.unit.ready.view.effect(function* ({
     context,
+    errors,
     input,
   }) {
     return yield* Effect.tryPromise({
@@ -15,7 +15,7 @@ export const unitReadyViewProcedure =
           context.endpointDefaults,
         ),
       catch: () =>
-        new Civ7ReadyUnitViewUnavailableError({
+        errors.READY_UNIT_VIEW_UNAVAILABLE({
           data: {
             procedureKey: "unit.ready.view",
             source: "direct-control-facade",

@@ -49,6 +49,13 @@
   mutation sends.
 - [ ] 5.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
+  - [x] 5.4.1 Use native effect-orpc tagged error constructors for
+    `runtime.playable.status`, `notifications.view`, and `unit.ready.view`
+    facade failures.
+  - [ ] 5.4.2 Promote shared safe-error middleware only after the native
+    oRPC/effect-orpc error path is proven without custom wrapper plumbing.
+  - [ ] 5.4.3 Add correlation through accepted oRPC/effect-orpc context/error
+    primitives.
 
 ## 6. Edge Adapters
 
