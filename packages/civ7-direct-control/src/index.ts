@@ -150,7 +150,6 @@ import {
   type Civ7AutoplayStatusResult,
 } from "./play/autoplay.js";
 import {
-  getCiv7TurnCompletionStatus as getCiv7TurnCompletionStatusFromModule,
   sendCiv7TurnComplete as sendCiv7TurnCompleteFromModule,
   sendCiv7TurnUnready as sendCiv7TurnUnreadyFromModule,
   type Civ7TurnCompletionActionResult,
@@ -578,6 +577,7 @@ export type {
   Civ7TurnCompletionActionResult,
   Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
+export { getCiv7TurnCompletionStatus } from "./play/turn-completion.js";
 export type {
   Civ7ReadyUnitNearbyPlot,
   Civ7ReadyUnitOperationCandidate,
@@ -1132,12 +1132,6 @@ export async function revealCiv7MapForPlayer(
   approval: Civ7ActionApproval,
 ): Promise<Civ7RevealMapResult> {
   return await revealCiv7MapForPlayerFromModule(input, options, approval);
-}
-
-export async function getCiv7TurnCompletionStatus(
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7TurnCompletionStatusResult> {
-  return await getCiv7TurnCompletionStatusFromModule(options);
 }
 
 export async function getCiv7NotificationDismissal(

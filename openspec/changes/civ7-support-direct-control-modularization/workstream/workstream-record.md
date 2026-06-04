@@ -1000,6 +1000,16 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
   AI ingestion, semantic CLI projection, schema/procedure-core work, or
   Effect/oRPC implementation.
+- Turn-completion status call-through cleanup: `index.ts` now re-exports
+  `getCiv7TurnCompletionStatus` directly from `src/play/turn-completion.ts`
+  after owner-local dependency defaults are in place. This removes the trivial
+  status read wrapper while preserving the public package import name, status
+  result shape, and the separate send-turn-complete/send-unready mutation
+  wrapper boundary. This is local package/source relocation cleanup proof only:
+  it does not change turn-completion mutation behavior, claim hotseat runtime
+  proof, claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or
+  unblock telemetry, AI ingestion, semantic CLI projection,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
