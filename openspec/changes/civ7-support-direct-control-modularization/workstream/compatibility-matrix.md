@@ -761,8 +761,9 @@ Intake rejection conditions:
   settlement-recommendations, target-candidates, battlefield-scan,
   destination-analysis, traditions-view, progress-dashboard, map-summary, and
   plot-snapshot, map-grid, GameInfo-rows, visibility-summary,
-  turn-completion status, unit-summary, city-summary, and player-summary
-  procedure call wrappers exist adjacent to their direct-control atoms; final
+  turn-completion status, unit-summary, city-summary, player-summary, and
+  unit-target action request procedure call wrappers exist adjacent to their
+  direct-control atoms; final
   procedure-core/schema/runtime-context, middleware, error, and correlation
   owners remain pending
 - `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
@@ -826,6 +827,9 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/player-summary-procedure.test.ts` now also
   proves the adjacent concrete player-summary procedure call wrapper with fake
   atom dependencies.
+  `packages/civ7-direct-control/test/unit-target-action-procedure.test.ts` now
+  also proves the adjacent concrete unit-target action request procedure call
+  wrapper with fake request dependencies and mutation gate metadata.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -1031,6 +1035,14 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/summary-reads.test.ts`; this also records
   the narrow `player` procedure family for the existing player read atom
   without adding a broad player procedure catalog.
+  The adjacent unit-target action request descriptor artifact is now
+  `packages/civ7-direct-control/src/play/operations/unit-target-action-procedure.ts`,
+  with TypeBox schema ownership in
+  `packages/civ7-direct-control/src/play/operations/unit-target-action.ts` and
+  proof in
+  `packages/civ7-direct-control/test/unit-target-action-procedure.test.ts`;
+  this records the first mutation procedure wrapper over an existing
+  approval-first direct-control atom without claiming live runtime proof.
   The descriptor owner also records `schemaTechnology`, requires current
   adjacent descriptors to declare `typebox`, and rejects unaccepted
   `effect-schema` or `zod-adapter` claims before procedure promotion. The
@@ -1049,31 +1061,33 @@ Intake rejection conditions:
   target-candidates, battlefield-scan, destination-analysis, and
   traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
   GameInfo-rows, visibility-summary, turn-completion status, unit-summary,
-  city-summary, and player-summary
+  city-summary, player-summary, and unit-target action request
   procedure call wrappers now
   compose that primitive with
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
   `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`,
   `getCiv7AppUiSnapshot`, `checkCiv7TunerHealth`,
-  `getCiv7PlayNotificationView`, and
+  `getCiv7PlayNotificationView`,
   `getCiv7SettlementRecommendations`, `getCiv7TargetCandidates`,
   `getCiv7BattlefieldScan`, `getCiv7DestinationAnalysis`, and
   `getCiv7TraditionsView`, `getCiv7ProgressDashboard`,
   `getCiv7MapSummary`, `getCiv7PlotSnapshot`, `getCiv7MapGrid`, and
   `getCiv7GameInfoRows`, `getCiv7VisibilitySummary`, and
   `getCiv7TurnCompletionStatus`, `getCiv7UnitSummary`,
-  `getCiv7CitySummary`, and `getCiv7PlayerSummary` through fake
-  direct-control dependencies in focused proof.
+  `getCiv7CitySummary`, `getCiv7PlayerSummary`, and
+  `requestCiv7UnitTargetAction` through fake direct-control dependencies in
+  focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   accepted TypeBox versus Effect Schema disposition for final procedure
   contracts, runtime-context/middleware/error/correlation owner, broader
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control player summary atom
-  schema/dependency owner, adjacent `player.summary.read` descriptor/call
-  metadata declaring current TypeBox schema technology, the narrow `player`
-  procedure-family guard, focused descriptor/atom/public facade proof, and
-  docs/OpenSpec records.
+- `writeSet`: current write set is the direct-control unit-target action
+  request schema owner, adjacent `unit.target.action.request` mutation
+  descriptor/call metadata declaring current TypeBox schema technology,
+  approval/validator/postcondition/no-repeat gate metadata, caller-correlation
+  policy, focused descriptor/atom/public facade proof, and docs/OpenSpec
+  records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -1317,9 +1331,10 @@ Intake rejection conditions:
   `strategy.settlement.recommendations`, `strategy.target.candidates`,
   `strategy.battlefield.scan`, `strategy.destination.analysis`,
   `strategy.traditions.view`, `strategy.progress.dashboard`,
-  `map.summary.read`, `map.plot.snapshot`, `map.grid.read`, and
-  `runtime.gameinfo.rows`, `map.visibility.read`, `unit.summary.read`, and
-  `city.summary.read`, where the adjacent procedure wrappers compose
+  `map.summary.read`, `map.plot.snapshot`, `map.grid.read`,
+  `runtime.gameinfo.rows`, `map.visibility.read`, `unit.summary.read`,
+  `city.summary.read`, and `unit.target.action.request`, where the adjacent
+  procedure wrappers compose
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
   `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`,
   `getCiv7AppUiSnapshot`, `checkCiv7TunerHealth`,
@@ -1328,9 +1343,10 @@ Intake rejection conditions:
   `getCiv7DestinationAnalysis`, `getCiv7TraditionsView`,
   `getCiv7ProgressDashboard`, `getCiv7MapSummary`,
   `getCiv7PlotSnapshot`, `getCiv7MapGrid`, `getCiv7GameInfoRows`,
-  `getCiv7VisibilitySummary`, `getCiv7UnitSummary`, `getCiv7CitySummary`, and
-  `getCiv7PlayerSummary` with the procedure-core call primitive through fake
-  dependencies. They prove input rejection before atom dependencies run,
+  `getCiv7VisibilitySummary`, `getCiv7UnitSummary`, `getCiv7CitySummary`,
+  `getCiv7PlayerSummary`, and `requestCiv7UnitTargetAction` with the
+  procedure-core call primitive through fake dependencies. They prove input
+  rejection before atom dependencies run,
   direct-control option forwarding into the atoms, atom output validation,
   separated diagnostics, neutral
   move-preview relationship-policy preservation, and playable-status
@@ -1345,7 +1361,10 @@ Intake rejection conditions:
   command-text proof, and city-summary bounded player/city/max-items input,
   runtime-probe output, map-location output, and no-send command-text proof,
   and player-summary bounded player/max-items input, runtime-probe output, and
-  no-send command-text proof.
+  no-send command-text proof, and unit-target action request bounded target
+  input, approval reason, mutation gate metadata, caller correlation, telemetry
+  middleware projection, fake request approval forwarding, and no handler
+  execution without valid input/correlation.
   Broader concrete procedures, runtime router registration, and oRPC handler
   registration remain pending.
 - `errorOwner`: current descriptor-owner failures now use
@@ -1438,8 +1457,8 @@ Intake rejection conditions:
   health, notification-view, settlement-recommendations, target-candidates,
   battlefield-scan, destination-analysis, traditions-view, progress-dashboard,
   map-summary, plot-snapshot, map-grid, GameInfo-rows, visibility-summary,
-  turn-completion status, unit-summary, city-summary, and player-summary
-  wrappers fail before
+  turn-completion status, unit-summary, city-summary, player-summary, and
+  unit-target action request wrappers fail before
   their atom dependencies run when procedure input is invalid.
   Current descriptors also fail before promotion if they claim unaccepted
   `effect-schema` or `zod-adapter` ownership instead of the current TypeBox

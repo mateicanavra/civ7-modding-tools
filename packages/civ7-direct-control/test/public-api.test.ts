@@ -91,6 +91,10 @@ import {
   Civ7UnitSummaryProcedureDescriptor,
   Civ7UnitSummaryProcedureSchemaArtifacts,
   Civ7UnitSummaryResultSchema,
+  Civ7UnitTargetActionRequestInputSchema,
+  Civ7UnitTargetActionRequestProcedureDescriptor,
+  Civ7UnitTargetActionRequestProcedureSchemaArtifacts,
+  Civ7UnitTargetActionResultSchema,
   Civ7VisibilitySummaryInputSchema,
   Civ7VisibilitySummaryResultSchema,
   Civ7UnitMovePreviewProcedureDescriptor,
@@ -138,6 +142,7 @@ import {
   callCiv7TunerHealthProcedure,
   callCiv7TurnCompletionStatusProcedure,
   callCiv7UnitSummaryProcedure,
+  callCiv7UnitTargetActionRequestProcedure,
   callCiv7UnitMovePreviewProcedure,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
@@ -1052,6 +1057,48 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7UnitSummaryProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.outputSchema)
     ]).toBe(Civ7UnitSummaryResultSchema);
+  });
+
+  test("exports the unit-target action request procedure descriptor artifact from the public facade", () => {
+    expect(Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+      unitId: { owner: 0, id: 65536, type: 26 },
+      x: 23,
+      y: 33,
+      approvalReason: "test approved unit-target request",
+    })).toBe(true);
+    expect(Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+      unitId: { owner: 0, id: 65536 },
+      x: 23,
+      y: 1_000_001,
+      approvalReason: "test approved unit-target request",
+    })).toBe(false);
+    expect(Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+      unitId: { owner: 0, id: 65536 },
+      x: 23,
+      y: 33,
+      rawCommand: "Game.UnitOperations.sendRequest(...)",
+      approvalReason: "test approved unit-target request",
+    })).toBe(false);
+    expect(Civ7UnitTargetActionRequestProcedureDescriptor).toMatchObject({
+      procedureKey: "unit.target.action.request",
+      family: "unit",
+      risk: "mutation",
+      atomFunction: "requestCiv7UnitTargetAction",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      approvalGate: true,
+      validatorFirst: true,
+      postconditionRequired: true,
+      noRepeatAfterUnverified: true,
+      context: expect.arrayContaining(["direct-control-facade", "approval-policy", "live-session-policy"]),
+    });
+    expect(typeof callCiv7UnitTargetActionRequestProcedure).toBe("function");
+    expect(Civ7UnitTargetActionRequestProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7UnitTargetActionRequestProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7UnitTargetActionRequestInputSchema);
+    expect(Civ7UnitTargetActionRequestProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7UnitTargetActionRequestProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7UnitTargetActionResultSchema);
   });
 
   test("exports the player summary procedure descriptor artifact from the public facade", () => {

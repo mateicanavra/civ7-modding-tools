@@ -1,6 +1,9 @@
+import { Type, type Static } from "typebox";
+
 import { assertApproved } from "../../action-approval.js";
+import { Civ7ComponentIdSchema, type Civ7ComponentId } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { probeHelperSource } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
 
@@ -11,18 +14,53 @@ import type {
   Civ7TunerState,
 } from "../../session/types.js";
 import { stableJson } from "./stable-json.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type { Civ7MapLocation } from "../map/types.js";
+import { Civ7MapLocationSchema } from "../map/types.js";
 
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;
+
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+const Civ7UnitTargetActionFamilySchema = Type.Union([
+  Type.Literal("unit-operation"),
+  Type.Literal("unit-command"),
+]);
+
+export const Civ7UnitTargetActionInputSchema = Type.Object({
+  unitId: Civ7ComponentIdSchema,
+  x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+}, { additionalProperties: false });
 
 export type Civ7UnitTargetActionInput = Readonly<{
   unitId: Civ7ComponentId;
   x: number;
   y: number;
 }>;
+
+export const Civ7UnitTargetActionRequestInputSchema = Type.Object({
+  unitId: Civ7ComponentIdSchema,
+  x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  approvalReason: Type.String({ minLength: 1 }),
+  disposableSession: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
+export type Civ7UnitTargetActionRequestInput = Readonly<Static<typeof Civ7UnitTargetActionRequestInputSchema>>;
+
+export const Civ7UnitTargetActionCandidateSchema = Type.Object({
+  family: Civ7UnitTargetActionFamilySchema,
+  operationType: Type.String(),
+  args: Type.Unknown(),
+  valid: Type.Boolean(),
+  result: Type.Unknown(),
+  targetInReturnedPlots: Type.Union([Type.Boolean(), Type.Null()]),
+  rejectedReason: Type.Optional(Type.String()),
+}, { additionalProperties: false });
 
 export type Civ7UnitTargetActionCandidate = Readonly<{
   family: "unit-operation" | "unit-command";
@@ -33,6 +71,57 @@ export type Civ7UnitTargetActionCandidate = Readonly<{
   targetInReturnedPlots: boolean | null;
   rejectedReason?: string;
 }>;
+
+export const Civ7UnitTargetActionVerificationSchema = Type.Object({
+  status: Type.Union([
+    Type.Literal("verified"),
+    Type.Literal("no-state-change"),
+    Type.Literal("not-sent"),
+  ]),
+  classification: Type.Union([
+    Type.Literal("target-reached"),
+    Type.Literal("path-shortfall"),
+    Type.Literal("unit-state-changed"),
+    Type.Literal("target-state-changed"),
+    Type.Literal("no-state-change"),
+    Type.Literal("not-sent"),
+  ]),
+  unitChanged: Type.Boolean(),
+  targetUnitsChanged: Type.Boolean(),
+  destinationReached: Type.Union([Type.Boolean(), Type.Null()]),
+  requestedLocation: Civ7MapLocationSchema,
+  landedLocation: Type.Optional(Type.Union([Civ7MapLocationSchema, Type.Null()])),
+  source: Type.Optional(Type.Union([
+    Type.Literal("immediate"),
+    Type.Literal("bounded-poll"),
+  ])),
+  attempts: Type.Optional(Type.Integer({ minimum: 0 })),
+  observedAfterMs: Type.Optional(Type.Number({ minimum: 0 })),
+  reason: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7UnitTargetActionResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  unitId: Civ7ComponentIdSchema,
+  target: Type.Object({
+    x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    index: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false }),
+  beforeUnit: Civ7RuntimeProbeSchema(Type.Unknown()),
+  beforeTargetUnits: Civ7RuntimeProbeSchema(Type.Unknown()),
+  candidates: Type.Array(Civ7UnitTargetActionCandidateSchema),
+  selected: Type.Union([Civ7UnitTargetActionCandidateSchema, Type.Null()]),
+  sent: Type.Boolean(),
+  sendResult: Type.Optional(Type.Unknown()),
+  afterUnit: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
+  afterTargetUnits: Type.Optional(Civ7RuntimeProbeSchema(Type.Unknown())),
+  verified: Type.Optional(Type.Boolean()),
+  verification: Type.Optional(Civ7UnitTargetActionVerificationSchema),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
 
 export type Civ7UnitTargetActionResult = Readonly<{
   host: string;

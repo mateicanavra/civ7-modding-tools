@@ -3882,3 +3882,28 @@ All future agent waves must be framed before delegation:
   CLI output, add a broad player or summary catalog, add a router/registry/
   transport adapter, choose Effect Schema, claim runtime/live-game proof,
   accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+- Unit-target action request procedure atom seed:
+  `packages/civ7-direct-control/src/play/operations/unit-target-action.ts` now
+  owns TypeBox input/output schemas for the existing approved unit-target action
+  mutation atom, and
+  `packages/civ7-direct-control/src/play/operations/unit-target-action-procedure.ts`
+  records the adjacent `unit.target.action.request` descriptor/schema artifact
+  map and concrete call wrapper over `requestCiv7UnitTargetAction`. Focused
+  proof in
+  `packages/civ7-direct-control/test/unit-target-action-procedure.test.ts`
+  covers descriptor schema resolution through public exports, bounded
+  component-id/target input, explicit approval reason, mutation gate metadata,
+  caller-provided correlation, telemetry middleware projection, no-network fake
+  request calls, approval object construction, direct-control option
+  forwarding, input-before-dependency rejection, output validation, separated
+  diagnostics, and no handler execution without caller correlation. Existing
+  proof in `packages/civ7-direct-control/test/unit-target-action.test.ts`
+  continues to cover approval-first behavior and no-repeat-after-unverified
+  post-send polling semantics for the atom. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema and
+  descriptor exports. This is local no-network mutation-procedure proof only;
+  it does not execute live direct-control atoms, change CLI output, weaken
+  approval/validator/postcondition/no-repeat behavior, add a broad operation
+  catalog, add a router/registry/transport adapter, choose Effect Schema, claim
+  runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
+  6.1-6.9.

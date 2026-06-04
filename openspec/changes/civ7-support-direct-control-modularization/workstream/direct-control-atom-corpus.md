@@ -566,6 +566,21 @@ public schema, add telemetry persistence, infer runtime/live-game proof, accept
 Task 2.9.4, or unblock broader operation adapters, AI ingestion, semantic CLI
 output, debug hierarchy, or Effect/oRPC procedure cores.
 
+Unit-target action request procedure seed update:
+`src/play/operations/unit-target-action.ts` now also owns TypeBox schemas for
+the approved unit-target action request procedure input and result shape, and
+`src/play/operations/unit-target-action-procedure.ts` owns the adjacent
+`unit.target.action.request` descriptor/schema artifact map and concrete call
+wrapper over `requestCiv7UnitTargetAction`. Focused proof in
+`test/unit-target-action-procedure.test.ts` validates bounded target input,
+explicit approval reason, mutation gate metadata, caller correlation, fake
+request approval forwarding, output validation, context/raw-command input
+rejection, and no handler execution before valid input/correlation. This is
+local no-network mutation-procedure proof only; it does not execute live
+direct-control atoms, change CLI output, weaken no-repeat-after-unverified
+semantics, add a router/transport adapter, choose Effect Schema, claim runtime
+proof, accept Task 2.9.4, or start Tasks 5.x/6.x.
+
 Production-choice telemetry adapter seed update:
 `src/proof/production-choice-telemetry.ts` now owns the second operation-result
 adapter from the production-choice atom into the operation/proof telemetry

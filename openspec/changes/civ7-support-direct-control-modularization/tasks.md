@@ -2644,6 +2644,31 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         5.1-5.7 or 6.1-6.9.
+  - [x] 4.52 Add the adjacent unit-target action request procedure atom in
+        `src/play/operations/unit-target-action-procedure.ts`, with TypeBox
+        input/output schemas beside the existing approved unit-target action
+        atom in `src/play/operations/unit-target-action.ts`, focused proof in
+        `test/unit-target-action-procedure.test.ts`, existing mutation/no-repeat
+        package proof in `test/unit-target-action.test.ts`, mutation-gate proof
+        in `test/procedure-core.test.ts`, and public facade schema proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with `requestCiv7UnitTargetAction` as
+        `unit.target.action.request`, validating component-id input,
+        validator-equivalent bounded target coordinates, explicit
+        `approvalReason`, optional disposable-session intent,
+        approval/validator/postcondition/no-repeat gate metadata,
+        caller-provided correlation, endpoint/session/state/raw-command input
+        exclusion, direct-control option forwarding, output/diagnostics
+        separation, fake-dependency no-network calls, approval object
+        construction before the existing atom send path, and no handler
+        execution without caller correlation or with invalid input. This is
+        local no-network mutation-procedure proof only; it does not execute
+        live direct-control atoms, change CLI output, weaken approval/
+        validator/postcondition/no-repeat behavior, add a router/registry/
+        transport adapter, choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2793,6 +2818,13 @@ authority are recorded.
     unit/city id output proof, context/raw-command input rejection, no
     send-operation command-text proof, and local no-network proof over fake atom
     dependencies.
+    Task 4.52 adds the first adjacent mutation schema/descriptor/call artifact
+    for `unit.target.action.request` over the approved unit-target action atom,
+    including component-id input proof, validator-equivalent bounded target
+    coordinate proof, approval reason proof, mutation gate metadata, caller
+    correlation proof, context/raw-command input rejection, output proof over
+    the existing unit-target postcondition shape, and local no-network proof
+    over a fake request dependency.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
@@ -2800,9 +2832,10 @@ authority are recorded.
     target-candidates, battlefield-scan, destination-analysis, and
     traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
     GameInfo-rows, visibility-summary, turn-completion status, and
-    unit-summary, city-summary, and player-summary schema seeds, descriptor
-    schema-reference binding/resolution, adjacent descriptor/call
-    artifacts, and resolver field-list guard.
+    unit-summary, city-summary, player-summary, and unit-target action request
+    schema seeds, descriptor schema-reference binding/resolution, adjacent
+    descriptor/call artifacts, mutation gate metadata, and resolver field-list
+    guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

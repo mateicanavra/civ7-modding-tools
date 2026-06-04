@@ -988,18 +988,32 @@ export type {
   Civ7TargetCandidatesProcedureCallOptions,
 } from "./play/tactical/target-candidates-procedure.js";
 export {
+  Civ7UnitTargetActionCandidateSchema,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
+  Civ7UnitTargetActionInputSchema,
+  Civ7UnitTargetActionRequestInputSchema,
+  Civ7UnitTargetActionResultSchema,
+  Civ7UnitTargetActionVerificationSchema,
 } from "./play/operations/unit-target-action.js";
 export type {
   Civ7UnitTargetActionCandidate,
   Civ7UnitTargetActionInput,
+  Civ7UnitTargetActionRequestInput,
   Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
 export {
   getCiv7UnitTargetAction,
   requestCiv7UnitTargetAction,
 } from "./play/operations/unit-target-action.js";
+export {
+  callCiv7UnitTargetActionRequestProcedure,
+  Civ7UnitTargetActionRequestProcedureDescriptor,
+  Civ7UnitTargetActionRequestProcedureSchemaArtifacts,
+} from "./play/operations/unit-target-action-procedure.js";
+export type {
+  Civ7UnitTargetActionRequestProcedureCallOptions,
+} from "./play/operations/unit-target-action-procedure.js";
 export type {
   Civ7ActionApproval,
 } from "./action-approval.js";
