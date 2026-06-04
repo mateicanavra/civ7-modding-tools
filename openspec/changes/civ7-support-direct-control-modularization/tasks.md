@@ -551,6 +551,13 @@ runtime/direct-control claims.
         package/CLI proof, and leaving runtime/live-game proof, telemetry, AI
         ingestion, semantic CLI projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.32 Extract the shared operation stable JSON comparison helper into
+        `src/play/operations/stable-json.ts`, preserving the existing
+        array-aware key flattening, validation-drift comparison, probe
+        comparison, unit-target post-send comparison, postcondition
+        classification semantics, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

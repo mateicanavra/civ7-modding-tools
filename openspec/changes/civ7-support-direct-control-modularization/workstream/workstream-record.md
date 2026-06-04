@@ -2776,3 +2776,14 @@ All future agent waves must be framed before delegation:
   normalize every remaining atom-local source helper, or unblock telemetry, AI
   ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
   debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Operation stable JSON comparison helper extraction:
+  `src/play/operations/stable-json.ts` now owns the shared stable JSON
+  comparison helper used by unit, population, production, diplomacy, narrative,
+  and unit-target postcondition logic. The helper preserves the existing
+  array-aware key flattening behavior, validation-drift comparison, probe
+  comparison, and unit-target post-send comparison semantics. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, change classifier ordering, alter
+  no-repeat-after-unverified behavior, or unblock telemetry, AI ingestion, CLI
+  semantic projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.

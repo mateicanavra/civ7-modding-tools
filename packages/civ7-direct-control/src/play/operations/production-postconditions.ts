@@ -3,6 +3,7 @@ import type {
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
+import { stableJson } from "./stable-json.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
@@ -118,24 +119,4 @@ function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: C
 
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
   return probe.ok ? probe.value : undefined;
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
-  if (Array.isArray(value)) {
-    for (const item of value) flattenKeys(item, keys);
-  } else if (isRecord(value)) {
-    for (const [key, child] of Object.entries(value)) {
-      keys[key] = true;
-      flattenKeys(child, keys);
-    }
-  }
-  return keys;
 }

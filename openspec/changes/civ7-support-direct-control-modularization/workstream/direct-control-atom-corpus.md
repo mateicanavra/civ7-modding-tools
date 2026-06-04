@@ -83,6 +83,15 @@ relocation plus facade dependency injection and read/request call-through
 pruning; broader telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
 procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
 
+Operation helper update: `src/play/operations/stable-json.ts` now owns the
+shared stable JSON comparison helper (`stableJson`, `isRecord`, and private
+array-aware `flattenKeys`) used by unit/population/production/diplomacy/
+narrative postcondition classifiers and unit-target post-send stabilization.
+This is local source ownership cleanup only; classifier ordering, validation
+drift semantics, no-repeat-after-unverified behavior, runtime/live-game proof,
+telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
+work, and Task 2.9.4 matrix-row acceptance remain pending.
+
 Map row update: `src/play/map/reads.ts` now owns `getCiv7MapSummary`,
 `getCiv7PlotSnapshot`, and `getCiv7MapGrid` orchestration plus their map
 summary, plot snapshot, and bounded grid command/source helpers while public
