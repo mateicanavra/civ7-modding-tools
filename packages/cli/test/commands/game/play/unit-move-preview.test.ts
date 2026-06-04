@@ -108,6 +108,7 @@ describe('game play unit-move-preview command', () => {
       expect(payload.warnings.join(' ')).toContain('does not classify other-owner relationships');
       expect(payload.omitted.some((item) => item.path === 'view.reachableMovement')).toBe(true);
       expect(payload.view).toBeUndefined();
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
     } finally {
       log.mockRestore();
@@ -115,6 +116,24 @@ describe('game play unit-move-preview command', () => {
     }
   });
 });
+
+function expectNormalPlayPayloadToOmitDebugInternals(payload: unknown): void {
+  const text = JSON.stringify(payload);
+  for (const marker of [
+    'CMD:',
+    'LSQ:',
+    'GameContext.',
+    'sendRequest',
+    'selectedState',
+    'socket',
+    'requestId',
+    'correlationId',
+    'closeoutTrace',
+    'rawProbe',
+  ]) {
+    expect(text).not.toContain(marker);
+  }
+}
 
 async function startUnitMovePreviewTunerServer(): Promise<FakeTunerServer> {
   return startFakeTunerServer({

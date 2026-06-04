@@ -117,8 +117,9 @@
         assigned and passing. The planning contract is now recorded in
         `workstream/debug-service-projection-contract.md`, but it does not
         assign source/proof owners or accept the row. Focused compact
-        `game play priorities` and compact `game play ready-city` coverage now
-        prove two normal play projections omit raw
+        `game play priorities`, compact `game play ready-city`, and compact
+        `game play unit-move-preview` coverage now prove three normal play
+        projections omit raw
         transport/session/probe/correlation command internals, but broader
         debug-command boundary, AI-ingestion, telemetry, and
         procedure-diagnostic separation proof remains pending before row

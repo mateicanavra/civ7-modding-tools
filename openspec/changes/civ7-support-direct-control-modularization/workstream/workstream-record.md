@@ -2926,6 +2926,16 @@ All future agent waves must be framed before delegation:
   telemetry or AI-ingestion contracts, promote raw command strings to product
   authority, or unblock normal CLI semantic envelopes, hotseat runtime, schema
   migration, or Effect/oRPC procedure-core work.
+- Unit-move compact normal-output boundary proof increment:
+  focused `game play unit-move-preview --compact --json` coverage now proves a
+  third normal player-agent projection omits raw transport/session/probe,
+  correlation, closeout, and command-internal markers while preserving the
+  compact official movement-preview fields and neutral relationship policy.
+  This remains partial local CLI proof for the Debug/Internal Service Output
+  row only; it does not accept Task 2.9.4, claim runtime/live-game proof,
+  create telemetry or AI-ingestion contracts, promote raw debug fields to
+  product output, or unblock normal CLI semantic envelopes, hotseat runtime,
+  schema migration, or Effect/oRPC procedure-core work.
 - Operation/proof telemetry contract planning:
   `workstream/operation-proof-telemetry-contract.md` now records the planned
   action/proof telemetry record slots, projection boundaries, proof-class
