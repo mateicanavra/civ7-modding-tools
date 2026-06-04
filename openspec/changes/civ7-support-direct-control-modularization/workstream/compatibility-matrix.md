@@ -449,10 +449,11 @@ Intake rejection conditions:
   App UI snapshot, playable status, map/GameInfo reads, AI loaded-lever reads,
   and operation validation through the package boundary; package proof includes
   `runtime-and-catalog.test.ts` and `session.test.ts`. Focused compact
-  `game play priorities`, compact `game play ready-city`, and compact
-  `game play unit-move-preview` proof now assert through the shared
+  `game play priorities`, compact `game play ready-city`, compact
+  `game play unit-move-preview`, and full/read-only
+  `game play ready-unit --json` proof now assert through the shared
   `packages/cli/test/commands/game/play/normal-output-boundary.ts` helper that
-  three normal play projections omit raw
+  four normal play projections omit raw
   transport/session/probe/correlation command internals. Focused `game health
   --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
   `game status --json`, `game catalog --static --json`,

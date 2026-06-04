@@ -51,7 +51,11 @@ transport/session/probe/correlation command internals while preserving the
 existing compact player-agent priority summary. Follow-up compact
 `game play ready-city` proof now asserts that another normal play projection
 omits those same raw internals while preserving the player-agent city decision
-summary. Follow-up focused `game health --json` and `game inspect --json`
+summary. Follow-up compact `game play unit-move-preview` proof and
+full/read-only `game play ready-unit --json` proof now exercise the same shared
+normal-output boundary over movement and ready-unit projections. Follow-up
+focused `game health --json` and
+`game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
 inspection fields including host/port/state, state discovery, selected state,
 own/prototype/enumerable keys, and method owner/length/signature diagnostics.
