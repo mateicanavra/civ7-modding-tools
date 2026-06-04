@@ -54,7 +54,12 @@ workstream and parallel lanes.
   authority citation is the `civ7-orpc-control-architecture` skill from
   `codex/civ7-orpc-control-architecture-skill`, which frames oRPC as typed
   procedure/router/context/middleware composition over repo-owned
-  direct-control atoms.
+  direct-control atoms. The native implementation boundary is now recorded in
+  `openspec/changes/civ7-control-orpc-native-slice/`: direct-control prework
+  may separate atom policies, dependencies, schemas, proof vocabulary, and
+  middleware candidates, but it must not manually implement the router,
+  context, middleware, typed-error, correlation, or transport mechanics that
+  oRPC/effect-orpc already owns.
 - Add a dedicated Effect/Bun integration planning phase before source rewrites
   depend on it: new/refactored control logic should prefer Effect resource,
   stream, concurrency, error, and layer affordances plus Bun-native APIs over
@@ -127,7 +132,8 @@ lane, not proof that the full change is complete:
 - `packages/cli/test/commands/fixtures/**`
 - `packages/civ7-direct-control/src/**`
 - `packages/civ7-direct-control/test/**`
-- `packages/civ7-control-orpc/**` only after direct-control atoms exist
+- `packages/civ7-control-orpc/**` only through the staged native oRPC slice
+  after direct-control atoms and policy/dependency boundaries exist
 - `openspec/changes/civ7-support-direct-control-modularization/**`
 - `docs/projects/civ7-direct-control/workstream/**` when downstream packets are
   realigned
@@ -137,7 +143,11 @@ lane, not proof that the full change is complete:
 - Caller-local raw JavaScript strings for package-owned runtime reads/actions.
 - CLI or Studio socket/session ownership that belongs in `@civ7/direct-control`.
 - Broad barrels, `shared` buckets, or fixture catalogs without named owners.
-- Effect/oRPC transport surfaces that bypass direct-control procedure cores.
+- Effect/oRPC transport surfaces that bypass stable direct-control atoms and
+  the native control-oRPC package boundary.
+- Direct-control-local middleware/context/error/correlation plumbing that
+  recreates oRPC/effect-orpc instead of recording policy/dependency boundaries
+  for it.
 - CLI play surfaces that expose internal direct-control transport/proof JSON
   instead of a semantic player-agent envelope.
 - Node APIs in new/refactored control code when Effect or Bun provides the
@@ -164,8 +174,9 @@ lane, not proof that the full change is complete:
 Reviewers get smaller, owner-aligned Graphite layers. Future support agents get
 stable direct-control atoms and focused tests instead of relying on a monolith
 or ad hoc live-play fixes. CLI play callers get smaller semantic envelopes
-instead of transport-heavy JSON. Effect/oRPC work gets a composable server-side
-core rather than raw command tunneling.
+instead of transport-heavy JSON. Effect/oRPC work gets a native composable
+server-side router/procedure layer rather than raw command tunneling or a
+direct-control-local framework.
 
 ## Verification Gates
 

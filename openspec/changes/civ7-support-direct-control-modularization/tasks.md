@@ -240,7 +240,11 @@
         sink, and live-session policy requirements on current descriptors, and
         rejects endpoint/state fields from procedure input when those concerns
         are context-owned; this reduces only the descriptor-context gap and
-        does not accept the row.
+        does not accept the row. The native implementation staging and
+        no-parallel-framework boundary are now split into
+        `openspec/changes/civ7-control-orpc-native-slice/`; direct-control
+        descriptor work may name middleware/context/error/correlation policy
+        needs, but oRPC/effect-orpc must own their actual composition.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
@@ -1098,10 +1102,12 @@ runtime/direct-control claims.
       authority: oRPC is typed procedure/router/context/middleware composition
       over repo-owned direct-control atoms, not raw command tunneling or a
       transport-first rewrite. This closes only the authority-citation blocker;
-      tracked `packages/civ7-control-orpc` source, procedure-core schemas,
-      telemetry hooks, CLI semantic envelopes, AI ingestion, hotseat runtime
-      proof, Effect/Bun implementation, and Task 2.9.4 matrix-row acceptance
-      remain pending.
+      `openspec/changes/civ7-control-orpc-native-slice/` now records the
+      staged native package/file-shape and separation model, but tracked
+      `packages/civ7-control-orpc` source, procedure-core schemas, telemetry
+      hooks, CLI semantic envelopes, AI ingestion, hotseat runtime proof,
+      Effect/Bun implementation, and Task 2.9.4 matrix-row acceptance remain
+      pending.
 - [x] 4.10 Classify direct-control service outputs by consumer before command
       hierarchy rewrites: internal service machinery, debug-only diagnostics,
       or semantic player-agent output.

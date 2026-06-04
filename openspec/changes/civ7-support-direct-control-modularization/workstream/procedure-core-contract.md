@@ -6,6 +6,14 @@ transport adapter, in-game controller router implementation, App UI bridge
 implementation, telemetry persistence layer, AI-ingestion contract, runtime
 proof, or Task 2.9.4 row acceptance.
 
+Native oRPC composition is now owned by
+`openspec/changes/civ7-control-orpc-native-slice/`. The direct-control
+procedure-core seed is boundary evidence only: it can record atom metadata,
+schema ownership, policy requirements, proof vocabulary, and middleware
+candidates, but it must not keep growing into direct-control-local router,
+context, middleware, typed-error, correlation, or transport mechanics that
+oRPC/effect-orpc already provides.
+
 Current owner seed: `packages/civ7-direct-control/src/procedure-core.ts`
 records a direct-control-local descriptor owner for procedure keys, stable atom
 owners, projection policy, proof boundary, player scope, consumer class, and
@@ -47,7 +55,8 @@ procedure-core failures through the safe error summary for JSON round-trip
 proof. It also exports a local handler context schema over the injected
 procedure context, keeping endpoint and raw-command details out of the context
 envelope while preserving descriptor, procedure key, correlation, proof
-boundary, player scope, and context requirements for future middleware work.
+boundary, player scope, and context requirements as future oRPC context and
+middleware inputs, not as a direct-control-owned middleware implementation.
 The first
 concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
