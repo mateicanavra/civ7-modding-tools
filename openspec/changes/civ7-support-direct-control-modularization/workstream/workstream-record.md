@@ -2850,3 +2850,13 @@ All future agent waves must be framed before delegation:
   AI-ingestion contract, assign source/proof owners, or unblock normal CLI
   semantic envelopes, hotseat runtime, schema migration, or Effect/oRPC
   procedure-core implementation.
+- Operation/proof telemetry contract planning:
+  `workstream/operation-proof-telemetry-contract.md` now records the planned
+  action/proof telemetry record slots, projection boundaries, proof-class
+  separation, acceptance gaps, and stop conditions for the Operation/Proof
+  Telemetry matrix row. This reduces the row's contract-artifact gap only; it
+  does not implement telemetry schemas or persistence, accept Task 2.9.4, claim
+  runtime/live-game proof, create AI-ingestion or procedure-core contracts,
+  assign source/proof owners, or unblock normal CLI semantic envelopes,
+  debug/internal service implementation, hotseat runtime, schema migration, or
+  Effect/oRPC procedure-core implementation.

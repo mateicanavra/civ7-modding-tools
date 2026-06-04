@@ -125,7 +125,9 @@
         with current operation, approval, postcondition, notification
         verification, setup/turn lifecycle, and focused CLI proof owners
         identified, but its `acceptanceStatus` remains
-        `pending-telemetry-contract` until a telemetry contract owner, schema,
+        `pending-telemetry-contract`. The planning contract is now recorded in
+        `workstream/operation-proof-telemetry-contract.md`, but the row remains
+        pending until a telemetry source owner, schema/test owner,
         record-construction tests, projection separation tests, and proof-label
         guards are assigned and passing.
         The strategy/intelligence ingestion row now has a draft acceptance

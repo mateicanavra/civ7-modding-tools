@@ -504,18 +504,22 @@ Intake rejection conditions:
   AI-ingestion, persistence, transport, or procedure-core bucket is authorized.
 - `contractArtifact`: existing artifacts are package result/postcondition
   shapes, approval primitives, validation/send wrappers, closeout
-  classifications, notification verification summaries, and proof/log helper
-  outputs. Missing contract artifact before acceptance: a stable telemetry
-  record/schema that names strategy intent, candidate action, operation family,
+  classifications, notification verification summaries, proof/log helper
+  outputs, and `workstream/operation-proof-telemetry-contract.md`, which names
+  future record slots for strategy intent, candidate action, operation family,
   target, args, approval, validation result, send receipt, post-read,
   postcondition classification, outcome delta, blocker delta, evidence policy,
-  correlation id, source/freshness label, and stale/unknown classification.
+  correlation id, source/freshness label, stale/unknown classification, proof
+  classes, projection boundaries, acceptance gaps, and stop conditions. Missing
+  before acceptance: a named source/proof owner, schema/test owner, and
+  implementation tests over that record contract.
 - `proofPlan`: existing local proof covers approval-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
   verification, and setup/turn lifecycle readback in package and focused CLI
-  tests. Missing proof before acceptance: contract tests for telemetry
-  record construction, fixture snapshots for stale/unknown/outcome evidence,
+  tests. Missing proof before acceptance: contract tests for telemetry record
+  construction against `workstream/operation-proof-telemetry-contract.md`,
+  fixture snapshots for stale/unknown/outcome evidence,
   normal/debug/AI/procedure projection separation tests, and runtime-proof
   labeling tests that prevent local tests or docs from becoming live proof.
 - `projectionPlan`: normal CLI may receive only summarized state-machine
