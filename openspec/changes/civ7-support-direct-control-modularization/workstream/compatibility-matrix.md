@@ -410,19 +410,22 @@ Intake rejection conditions:
   transport, telemetry, or AI-ingestion bucket is authorized.
 - `contractArtifact`: existing contract artifacts are package result shapes for
   runtime inspection, bounded root inspection, App UI snapshot, Tuner health,
-  playable status, capability catalog, direct-control health, and reveal-map
-  debug/disposable visibility. Missing contract artifact before acceptance:
-  a documented debug/internal service projection contract that names which raw
-  fields are debug-only and which summaries, if any, may feed normal CLI or
-  AI-ingestion surfaces.
+  playable status, capability catalog, direct-control health, reveal-map
+  debug/disposable visibility, and
+  `workstream/debug-service-projection-contract.md`, which names debug-only raw
+  field classes, allowed normal summary classes, AI-ingestion boundaries,
+  procedure-core boundaries, acceptance gaps, and stop conditions. Missing
+  before acceptance: a named source/proof owner and implementation tests over
+  that projection boundary.
 - `proofPlan`: existing local proof includes
   `game.control.test.ts` coverage for health diagnostics, runtime inspection,
   App UI snapshot, playable status, map/GameInfo reads, AI loaded-lever reads,
   and operation validation through the package boundary; package proof includes
   `runtime-and-catalog.test.ts` and `session.test.ts`. Missing proof before
-  acceptance: tests proving raw transport/session/probe/closeout/correlation
-  details are reachable only through debug-owned commands or flags and are not
-  emitted by normal play output or accepted AI-ingestion contracts.
+  acceptance: tests proving the raw field classes in
+  `workstream/debug-service-projection-contract.md` are reachable only through
+  debug-owned commands, flags, or future debug procedures and are not emitted
+  by normal play output or accepted AI-ingestion contracts.
 - `projectionPlan`: normal CLI projection remains omitted/debug-only for raw
   runtime/service fields; debug/internal service projection may include raw
   transport/session state, probe output, route selection, closeout traces,

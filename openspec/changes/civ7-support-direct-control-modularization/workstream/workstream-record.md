@@ -2840,3 +2840,13 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, create an AI-ingestion or telemetry contract, assign
   a schema/test owner, or unblock debug/internal service, hotseat runtime,
   schema migration, or Effect/oRPC procedure-core implementation.
+- Debug/internal service projection contract planning:
+  `workstream/debug-service-projection-contract.md` now records the planned raw
+  diagnostic field classes, normal-summary boundary, AI-ingestion boundary,
+  procedure-core boundary, acceptance gaps, and stop conditions for the
+  Debug/Internal Service Output matrix row. This reduces the row's
+  contract-artifact gap only; it does not implement debug hierarchy output,
+  accept Task 2.9.4, claim runtime/live-game proof, create a telemetry or
+  AI-ingestion contract, assign source/proof owners, or unblock normal CLI
+  semantic envelopes, hotseat runtime, schema migration, or Effect/oRPC
+  procedure-core implementation.

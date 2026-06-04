@@ -109,8 +109,10 @@
         The debug/internal service output row now has a draft acceptance intake
         with concrete current package/CLI owners and missing proof called out,
         but its `acceptanceStatus` remains `pending-debug-service-boundary`
-        until normal/debug/AI separation tests and a debug projection contract
-        are assigned and passing.
+        until normal/debug/AI separation tests and a debug projection owner are
+        assigned and passing. The planning contract is now recorded in
+        `workstream/debug-service-projection-contract.md`, but it does not
+        assign source/proof owners or accept the row.
         The semantic CLI player-agent view row now has a draft acceptance
         intake with current `game play` command/test owners from
         `workstream/cli-play-corpus.md` and missing envelope/schema/proof
