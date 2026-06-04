@@ -617,16 +617,20 @@ Intake rejection conditions:
   method table is accepted by this intake.
 - `contractArtifact`: current artifacts are planning records, current TypeBox
   public contracts, direct-control atom types/results, the compatibility
-  matrix, and the schema-evaluation disposition. Missing before acceptance:
-  typed procedure contracts with context, approval policy, correlation IDs,
-  typed errors, telemetry hooks, resource/schedule/stream semantics where
-  appropriate, and explicit TypeBox / Effect Schema / Zod adapter ownership.
+  matrix, the schema-evaluation disposition, and
+  `workstream/procedure-core-contract.md`, which names future procedure atom
+  slots for procedure keys, schemas, context, middleware, typed errors,
+  correlation, projection policy, proof boundaries, router families, schema
+  ownership, middleware boundaries, acceptance gaps, and stop conditions.
+  Missing before acceptance: named source/schema/proof owners,
+  context/middleware/error/correlation owners, explicit controller/external/AI
+  service boundaries, and implementation tests over that procedure contract.
 - `proofPlan`: current proof is planning evidence and local atom test evidence
-  only. Missing before acceptance: oRPC schema/procedure validation test,
-  error-shape snapshot, encode/decode round trip, Bun runtime check, CLI
-  semantic projection test, AI-ingestion contract fixture test,
-  middleware approval/correlation/error tests, and no-raw-command-tunnel tests
-  over stable direct-control atoms.
+  only. Missing before acceptance: oRPC schema/procedure validation test
+  against `workstream/procedure-core-contract.md`, error-shape snapshot,
+  encode/decode round trip, Bun runtime check, CLI semantic projection test,
+  AI-ingestion contract fixture test, middleware approval/correlation/error
+  tests, and no-raw-command-tunnel tests over stable direct-control atoms.
 - `projectionPlan`: normal CLI remains omitted here and belongs to the
   semantic CLI row; the oclif shell remains separate. Debug/internal service
   diagnostics belong to the debug row. AI ingestion consumes typed contracts

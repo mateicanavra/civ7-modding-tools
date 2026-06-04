@@ -157,7 +157,9 @@
         until procedure-core source/schema/proof owners, context/middleware,
         error, and correlation owners, schema/procedure validation tests,
         encode/decode and typed-error tests, projection-separation tests, and
-        no-raw-command-tunnel tests are assigned and passing.
+        no-raw-command-tunnel tests are assigned and passing. The planning
+        contract is now recorded in `workstream/procedure-core-contract.md`,
+        but it does not assign owners or accept the row.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;

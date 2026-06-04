@@ -2882,3 +2882,14 @@ All future agent waves must be framed before delegation:
   semantic envelopes, telemetry, AI ingestion, debug/internal service
   implementation, schema migration, or Effect/oRPC procedure-core
   implementation.
+- Effect/oRPC procedure-core contract planning:
+  `workstream/procedure-core-contract.md` now records the planned procedure
+  atom slots, router families, schema ownership boundary, middleware boundary,
+  projection policy, proof boundaries, acceptance gaps, and stop conditions for
+  the Effect/oRPC Procedure Cores matrix row. This reduces the row's
+  contract-artifact gap only; it does not implement Effect/oRPC source,
+  migrate schemas, add transport adapters, implement the in-game controller
+  router, accept Task 2.9.4, claim runtime/live-game proof, assign source/proof
+  owners, or unblock normal CLI semantic envelopes, telemetry, AI ingestion,
+  debug/internal service implementation, hotseat runtime, schema migration, or
+  Effect/oRPC procedure-core implementation.
