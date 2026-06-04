@@ -63,8 +63,11 @@ owns the `unit.move.preview` descriptor adjacent to the unit move-preview atom
 and schema exports. The first adjacent runtime-support descriptor artifact is
 `packages/civ7-direct-control/src/runtime/playable-status-procedure.ts`, which
 owns the `runtime.playable.status` descriptor adjacent to the composed
-playable-status atom and schema exports. This is local package proof only; it
-does not collect
+playable-status atom and schema exports. The second adjacent runtime-support
+descriptor artifact is
+`packages/civ7-direct-control/src/runtime/app-ui-snapshot-procedure.ts`, which
+owns the `runtime.app.ui.snapshot` descriptor adjacent to the App UI snapshot
+atom and schema exports. This is local package proof only; it does not collect
 runtime evidence, add Effect/oRPC dependencies, create
 `packages/civ7-control-orpc`, implement router/procedure behavior, choose a
 broader schema migration, claim runtime proof, or accept the matrix row.
@@ -125,6 +128,15 @@ shell and unavailable/error shapes including failed probes, omitted optional
 Public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
 verifies the schemas are exported for future procedure-core consumers.
 
+`packages/civ7-direct-control/src/runtime/app-ui-snapshot.ts` now also owns an
+empty TypeBox input schema for `getCiv7AppUiSnapshot`. Endpoint/session/state
+selection remains a procedure context concern, not host/port/state/raw-command
+input. Focused proof in
+`packages/civ7-direct-control/test/app-ui-snapshot-procedure.test.ts` validates
+the empty input and the existing App UI snapshot result schema through the
+adjacent descriptor artifact, rejects endpoint/session/raw-command input
+fields, and rejects root-level raw command output fields.
+
 The adjacent ready-unit descriptor artifact reuses those schema exports and
 records root input/output field names from the actual TypeBox schemas,
 including `legalOperations` for the ready-unit operation candidates. Focused
@@ -179,6 +191,21 @@ validation after the atom returns, separated output/diagnostics, and preserved
 local no-network runtime-support proof only; it does not execute live health
 checks, add a router, add Effect/oRPC dependencies, choose Effect Schema, claim
 runtime proof, or accept the matrix row.
+
+The adjacent App UI snapshot procedure artifact reuses the App UI snapshot
+schema exports and records `runtime.app.ui.snapshot` beside
+`getCiv7AppUiSnapshot`. Focused proof in
+`packages/civ7-direct-control/test/app-ui-snapshot-procedure.test.ts` checks
+the descriptor's empty input schema rejects endpoint/session/raw-command fields
+and its output field list resolves against the App UI snapshot result schema.
+The same artifact exports a concrete call wrapper composed through the local
+procedure-core call primitive. Focused proof uses a fake App UI command
+dependency to prove direct-control option forwarding, input validation before
+runtime dependencies run, output validation after the atom returns, and
+separated output/diagnostics. This is local no-network runtime-support proof
+only; it does not execute live App UI reads, add a router, add Effect/oRPC
+dependencies, choose Effect Schema, claim runtime proof, or accept the matrix
+row.
 
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
@@ -314,17 +341,19 @@ descriptor correlation-policy, descriptor live-runtime-proof guard, and
 descriptor context-policy, and no-raw-tunnel proof gaps for the current TypeBox
 descriptor shape, generic raw fields, repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
-ready-city, unit move-preview, and playable-status descriptor artifacts with
+ready-city, unit move-preview, playable-status, and App UI snapshot descriptor
+artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
-Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city, and
-unit move-preview procedure call wrappers, but they do not accept the row.
+Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
+unit move-preview, playable-status, and App UI snapshot procedure call
+wrappers, but they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms
-  beyond the current ready-read and move-preview call wrappers and the
-  playable-status schema seed;
+  beyond the current ready-read, move-preview, and runtime-support call
+  wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

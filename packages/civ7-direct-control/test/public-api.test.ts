@@ -9,6 +9,10 @@ import {
   CIV7_TUNER_APP_UI_STATE_NAME,
   CIV7_TUNER_STATE_NAME,
   CIV7_UI_LOADING_STATES,
+  Civ7AppUiSnapshotInputSchema,
+  Civ7AppUiSnapshotProcedureDescriptor,
+  Civ7AppUiSnapshotProcedureSchemaArtifacts,
+  Civ7AppUiSnapshotResultSchema,
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
@@ -57,6 +61,7 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
   assertCiv7ComponentId,
+  callCiv7AppUiSnapshotProcedure,
   callCiv7PlayableStatusProcedure,
   callCiv7ProcedureCore,
   callCiv7ReadyCityViewProcedure,
@@ -415,5 +420,26 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7PlayableStatusProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.outputSchema)
     ]).toBe(Civ7PlayableStatusResultSchema);
+  });
+
+  test("exports the App UI snapshot procedure descriptor artifact from the public facade", () => {
+    expect(Civ7AppUiSnapshotProcedureDescriptor).toMatchObject({
+      procedureKey: "runtime.app.ui.snapshot",
+      atomFunction: "getCiv7AppUiSnapshot",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining([
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+        "live-session-policy",
+      ]),
+    });
+    expect(typeof callCiv7AppUiSnapshotProcedure).toBe("function");
+    expect(Civ7AppUiSnapshotProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7AppUiSnapshotProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7AppUiSnapshotInputSchema);
+    expect(Civ7AppUiSnapshotProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7AppUiSnapshotProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7AppUiSnapshotResultSchema);
   });
 });

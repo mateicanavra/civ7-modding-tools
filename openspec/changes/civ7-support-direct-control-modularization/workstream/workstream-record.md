@@ -197,6 +197,21 @@ the Effect/oRPC Procedure Cores row's concrete runtime-support wrapper gap; it
 does not execute live health/Tuner reads, add a router/registry/transport,
 implement Effect/oRPC source, add `packages/civ7-control-orpc`, accept Task
 2.9.4, start Tasks 6.1-6.9, or claim runtime/live-game proof.
+App UI snapshot concrete procedure call proof now names
+`packages/civ7-direct-control/src/runtime/app-ui-snapshot-procedure.ts` as the
+adjacent `runtime.app.ui.snapshot` call wrapper owner over
+`getCiv7AppUiSnapshot`, with focused proof in
+`packages/civ7-direct-control/test/app-ui-snapshot-procedure.test.ts` and
+public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+The wrapper composes the local procedure-core call primitive with a fake App UI
+command dependency, adds an empty procedure input schema, validates empty input
+before runtime dependencies run, forwards direct-control options, validates raw
+App UI diagnostic output through descriptor schema artifacts, and keeps
+procedure diagnostics separate from App UI snapshot output. This reduces only
+the Effect/oRPC Procedure Cores row's concrete runtime-support wrapper gap; it
+does not execute live App UI reads, add a router/registry/transport, implement
+Effect/oRPC source, add `packages/civ7-control-orpc`, accept Task 2.9.4, start
+Tasks 6.1-6.9, or claim runtime/live-game proof.
 
 ## Current State
 

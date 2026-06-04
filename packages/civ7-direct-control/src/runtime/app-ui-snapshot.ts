@@ -14,6 +14,9 @@ const civ7TunerStateSchema = Type.Object({
   name: Type.String(),
 }, { additionalProperties: false });
 
+export const Civ7AppUiSnapshotInputSchema = Type.Object({}, { additionalProperties: false });
+export type Civ7AppUiSnapshotInput = Static<typeof Civ7AppUiSnapshotInputSchema>;
+
 export const Civ7AppUiSnapshotSchema = Type.Object({
   network: Type.Object({
     isInSession: Civ7RuntimeProbeSchema(Type.Boolean()),
@@ -141,7 +144,7 @@ export type Civ7AppUiSnapshotResult = Readonly<{
 export type Civ7AppUiSnapshotContract = Readonly<Static<typeof Civ7AppUiSnapshotSchema>>;
 export type Civ7AppUiSnapshotResultContract = Readonly<Static<typeof Civ7AppUiSnapshotResultSchema>>;
 
-type AppUiSnapshotDependencies = Readonly<{
+export type AppUiSnapshotDependencies = Readonly<{
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,
   ) => Promise<Civ7CommandResult>;

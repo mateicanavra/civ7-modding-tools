@@ -2156,6 +2156,23 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         6.1-6.9.
+  - [x] 4.34 Add the adjacent App UI snapshot procedure call wrapper in
+        `src/runtime/app-ui-snapshot-procedure.ts`, with focused proof in
+        `test/app-ui-snapshot-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This adds an empty procedure input schema
+        beside the existing `getCiv7AppUiSnapshot` runtime-support atom,
+        keeps endpoint/session/state selection in procedure context rather than
+        input, validates procedure input before fake command dependencies run,
+        validates raw App UI diagnostic output through descriptor schema
+        artifacts, forwards direct-control options to the atom, and keeps
+        procedure diagnostics separate from App UI snapshot output. This is
+        local no-network proof over a fake App UI command dependency only; it
+        does not execute live direct-control atoms, construct final runtime
+        context, add middleware, add a router/registry/transport adapter,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2214,11 +2231,16 @@ authority are recorded.
     `runtime.playable.status` over the composed App UI/Tuner playable-status
     atom, including non-ready shell/unavailable/error shape proof and an empty
     procedure input schema that leaves endpoint/session selection in context.
+    Task 4.34 adds an adjacent runtime-support schema/descriptor/call artifact
+    for `runtime.app.ui.snapshot` over the App UI snapshot atom, including an
+    empty procedure input schema that leaves endpoint/session/state selection
+    in context and local no-network proof over a fake App UI command
+    dependency.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview, and
-    playable-status schema seeds, descriptor schema-reference binding/resolution,
-    adjacent descriptor artifacts, and resolver field-list guard.
+    runtime-support schema seeds, descriptor schema-reference binding/resolution,
+    adjacent descriptor/call artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

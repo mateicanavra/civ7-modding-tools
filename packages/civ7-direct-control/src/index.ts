@@ -413,14 +413,23 @@ export {
   DEFAULT_CIV7_TUNER_API_ROOTS,
 } from "./runtime/inspection-constants.js";
 export type {
+  AppUiSnapshotDependencies,
   Civ7AppUiSnapshot,
+  Civ7AppUiSnapshotInput,
   Civ7AppUiSnapshotResult,
 } from "./runtime/app-ui-snapshot.js";
 export {
+  Civ7AppUiSnapshotInputSchema,
   Civ7AppUiSnapshotResultSchema,
   Civ7AppUiSnapshotSchema,
   getCiv7AppUiSnapshot,
 } from "./runtime/app-ui-snapshot.js";
+export {
+  callCiv7AppUiSnapshotProcedure,
+  Civ7AppUiSnapshotProcedureDescriptor,
+  Civ7AppUiSnapshotProcedureSchemaArtifacts,
+} from "./runtime/app-ui-snapshot-procedure.js";
+export type { Civ7AppUiSnapshotProcedureCallOptions } from "./runtime/app-ui-snapshot-procedure.js";
 export type {
   Civ7RuntimeApiInspection,
   Civ7RuntimeApiMethod,
