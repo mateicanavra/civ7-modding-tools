@@ -136,7 +136,9 @@
         its `acceptanceStatus` remains `pending-ai-ingestion-contract` until an
         ingestion contract owner, schema/test owner, source/freshness/evidence
         fixtures, and normal/debug/telemetry/procedure separation tests are
-        assigned and passing.
+        assigned and passing. The planning contract is now recorded in
+        `workstream/strategy-intelligence-ingestion-contract.md`, but it does
+        not assign owners or accept the row.
         The hotseat handoff row now has a draft acceptance intake using the
         hotseat/autoplay target-thread and peer-report planning evidence plus
         current runtime/session/setup/autoplay/turn-completion atom owners as

@@ -2860,3 +2860,15 @@ All future agent waves must be framed before delegation:
   assign source/proof owners, or unblock normal CLI semantic envelopes,
   debug/internal service implementation, hotseat runtime, schema migration, or
   Effect/oRPC procedure-core implementation.
+- Strategy/intelligence ingestion contract planning:
+  `workstream/strategy-intelligence-ingestion-contract.md` now records the
+  planned AI-ingestion record families, required source/freshness/evidence
+  labels, normal/debug/telemetry/procedure projection boundaries, live external
+  play versus static native-AI profile lane separation, acceptance gaps, and
+  stop conditions for the Strategy/Intelligence Ingestion matrix row. This
+  reduces the row's contract-artifact gap only; it does not implement
+  AI-ingestion schemas, generate corpus/model/profile artifacts, accept Task
+  2.9.4, claim runtime/live-game proof, create telemetry or procedure-core
+  contracts, assign source/proof owners, or unblock normal CLI semantic
+  envelopes, debug/internal service implementation, hotseat runtime, schema
+  migration, or Effect/oRPC procedure-core implementation.

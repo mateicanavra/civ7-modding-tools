@@ -324,19 +324,23 @@ Intake rejection conditions:
   transport adapter, or procedure-core implementation is authorized.
 - `contractArtifact`: existing artifacts are planning records, direct-control
   read/proof result shapes, GameInfo/map/summary read owners, operation
-  postcondition shapes, capability catalog schemas, and proof/log helper
-  outputs. Missing contract artifact before acceptance: a stable machine
-  ingestion schema for `StrategyPlan`, `ActionCandidate`, `ProfileRecipe`,
-  `LoadedRowProof`, `RunMetric`, `PromotionDecision`, or their agreed
-  equivalents, with source/freshness/evidence labels and explicit separation
-  between live external play records and static native-AI profile shaping.
+  postcondition shapes, capability catalog schemas, proof/log helper outputs,
+  and `workstream/strategy-intelligence-ingestion-contract.md`, which names
+  future record families such as `StrategyPlan`, `ActionCandidate`,
+  `ActionOutcome`, `LoadedRowProof`, `RunMetric`, `PromotionDecision`, and
+  `ProfileRecipe`, with source/freshness/evidence labels and explicit
+  separation between live external play records and static native-AI profile
+  shaping. Missing before acceptance: a named source/proof owner, schema/test
+  owner, fixture owner, and implementation tests over that ingestion contract.
 - `proofPlan`: existing proof is planning evidence plus local package/CLI tests
   for direct-control atoms that may later feed ingestion. Missing proof before
-  acceptance: AI-ingestion contract fixture tests, encode/decode or validation
-  tests, source/freshness label assertions, evidence-class snapshots,
-  stale/unknown/outcome fixtures, and tests proving ingestion does not consume
-  normal CLI presentation strings, raw command strings, raw SQL, runtime
-  reflection, unlabeled saves/logs/debug DB rows, or vague `verified: true`.
+  acceptance: AI-ingestion contract fixture tests against
+  `workstream/strategy-intelligence-ingestion-contract.md`, encode/decode or
+  validation tests, source/freshness label assertions, evidence-class
+  snapshots, stale/unknown/outcome fixtures, and tests proving ingestion does
+  not consume normal CLI presentation strings, raw command strings, raw SQL,
+  runtime reflection, unlabeled saves/logs/debug DB rows, or vague
+  `verified: true`.
 - `projectionPlan`: normal CLI projection is omitted and must not feed
   ingestion; debug/internal service output may enrich records only through
   explicit source/freshness/evidence labels; operation/proof telemetry must be
