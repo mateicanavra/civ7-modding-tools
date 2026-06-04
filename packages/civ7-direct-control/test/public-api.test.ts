@@ -49,6 +49,10 @@ import {
   Civ7ProgressDashboardProcedureDescriptor,
   Civ7ProgressDashboardProcedureSchemaArtifacts,
   Civ7ProgressDashboardResultSchema,
+  Civ7ProductionChoiceRequestInputSchema,
+  Civ7ProductionChoiceRequestProcedureDescriptor,
+  Civ7ProductionChoiceRequestProcedureSchemaArtifacts,
+  Civ7ProductionChoiceResultSchema,
   Civ7ProcedureCoreCallDiagnosticsSchema,
   Civ7ProcedureCoreCallResultSchema,
   Civ7ProcedureContextRequirementSchema,
@@ -132,6 +136,7 @@ import {
   callCiv7PlayableStatusProcedure,
   callCiv7PlayerSummaryProcedure,
   callCiv7PlayNotificationViewProcedure,
+  callCiv7ProductionChoiceRequestProcedure,
   callCiv7ProcedureCore,
   callCiv7ProgressDashboardProcedure,
   callCiv7ReadyCityViewProcedure,
@@ -1099,6 +1104,75 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7UnitTargetActionRequestProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7UnitTargetActionRequestProcedureDescriptor.outputSchema)
     ]).toBe(Civ7UnitTargetActionResultSchema);
+  });
+
+  test("exports the production-choice request procedure descriptor artifact from the public facade", () => {
+    expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+      cityId: { owner: 0, id: 65536, type: 1 },
+      args: { ConstructibleType: 713967338, X: 22, Y: 31 },
+      approvalReason: "test approved production choice",
+    })).toBe(true);
+    expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+      cityId: { owner: 0, id: 65536, type: 1 },
+      args: { UnitType: 102, ConstructibleType: 713967338 },
+      approvalReason: "test approved production choice",
+    })).toBe(false);
+    expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+      cityId: { owner: 0, id: 65536, type: 1 },
+      args: { ConstructibleType: 713967338 },
+      rawCommand: "Game.CityOperations.sendRequest(...)",
+      approvalReason: "test approved production choice",
+    })).toBe(false);
+    expect(Civ7ProductionChoiceRequestProcedureDescriptor).toMatchObject({
+      procedureKey: "city.production.choice.request",
+      family: "city",
+      risk: "mutation",
+      atomFunction: "requestCiv7ProductionChoice",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      approvalGate: true,
+      validatorFirst: true,
+      postconditionRequired: true,
+      noRepeatAfterUnverified: true,
+      context: expect.arrayContaining(["direct-control-facade", "approval-policy", "live-session-policy"]),
+    });
+    expect(Civ7ProductionChoiceRequestProcedureDescriptor.outputFields).not.toContain("command");
+    expect(Value.Check(Civ7ProductionChoiceResultSchema, {
+      before: {
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "65535", name: "App UI" },
+        family: "city-operation",
+        operationType: "BUILD",
+        enumValue: "BUILD",
+        target: { cityId: { owner: 0, id: 65536, type: 1 } },
+        args: { ConstructibleType: 713967338 },
+        valid: true,
+        result: { Success: true },
+      },
+      after: {
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "65535", name: "App UI" },
+        family: "city-operation",
+        operationType: "BUILD",
+        enumValue: "BUILD",
+        target: { cityId: { owner: 0, id: 65536, type: 1 } },
+        args: { ConstructibleType: 713967338 },
+        valid: true,
+        result: { Success: true },
+      },
+      sent: true,
+      verified: true,
+      command: { output: ["{}"] },
+    })).toBe(false);
+    expect(typeof callCiv7ProductionChoiceRequestProcedure).toBe("function");
+    expect(Civ7ProductionChoiceRequestProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7ProductionChoiceRequestProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7ProductionChoiceRequestInputSchema);
+    expect(Civ7ProductionChoiceRequestProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7ProductionChoiceRequestProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7ProductionChoiceResultSchema);
   });
 
   test("exports the player summary procedure descriptor artifact from the public facade", () => {

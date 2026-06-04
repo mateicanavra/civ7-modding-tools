@@ -2669,6 +2669,29 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         5.1-5.7 or 6.1-6.9.
+  - [x] 4.53 Add the adjacent production-choice request procedure atom in
+        `src/play/operations/production-choice-procedure.ts`, with TypeBox
+        request/result schemas beside the existing approved production-choice
+        atom in `src/play/operations/production-choice.ts` and postcondition
+        schemas in `src/play/operations/production-postconditions.ts`.
+        Focused proof in `test/production-choice-procedure.test.ts` covers
+        descriptor schema resolution, validator-equivalent city/production args
+        input, explicit `approvalReason`, mutation gate metadata,
+        caller-provided correlation, endpoint/session/state/raw-command input
+        exclusion, no-network fake request calls, approval object construction,
+        direct-control option forwarding, no handler execution without caller
+        correlation or with invalid input, and a procedure-safe result
+        projection that omits the atom's raw `command` field. Existing proof in
+        `test/production-choice.test.ts` and
+        `test/production-choice-telemetry.test.ts` continues to cover the
+        official App UI production path, sticky blocker/no-repeat semantics,
+        and telemetry guarding. This is local no-network mutation-procedure
+        proof only; it does not execute live direct-control atoms, change CLI
+        output, weaken approval/validator/postcondition/no-repeat behavior,
+        add a router/registry/transport adapter, choose Effect Schema, add
+        Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2825,6 +2848,13 @@ authority are recorded.
     correlation proof, context/raw-command input rejection, output proof over
     the existing unit-target postcondition shape, and local no-network proof
     over a fake request dependency.
+    Task 4.53 adds the second adjacent mutation schema/descriptor/call
+    artifact for `city.production.choice.request` over the approved
+    production-choice atom, including city/production args input proof,
+    approval reason proof, mutation gate metadata, caller correlation proof,
+    context/raw-command input rejection, procedure-safe output projection that
+    omits raw command text, production postcondition output proof, and local
+    no-network proof over a fake request dependency.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
@@ -2832,10 +2862,10 @@ authority are recorded.
     target-candidates, battlefield-scan, destination-analysis, and
     traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
     GameInfo-rows, visibility-summary, turn-completion status, and
-    unit-summary, city-summary, player-summary, and unit-target action request
-    schema seeds, descriptor schema-reference binding/resolution, adjacent
-    descriptor/call artifacts, mutation gate metadata, and resolver field-list
-    guard.
+    unit-summary, city-summary, player-summary, unit-target action request, and
+    production-choice request schema seeds, descriptor schema-reference
+    binding/resolution, adjacent descriptor/call artifacts, mutation gate
+    metadata, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

@@ -1053,12 +1053,32 @@ export type {
   Civ7ProductionPostconditionClassification,
   Civ7ProductionPostconditionSnapshot,
 } from "./play/operations/production-postconditions.js";
+export {
+  Civ7ProductionPostconditionClassificationSchema,
+  Civ7ProductionPostconditionSchema,
+  Civ7ProductionPostconditionSnapshotSchema,
+} from "./play/operations/production-postconditions.js";
 export type {
   Civ7ProductionChoiceCommandPayload,
   Civ7ProductionChoiceInput,
+  Civ7ProductionChoiceRequestInput,
   Civ7ProductionChoiceResult,
 } from "./play/operations/production-choice.js";
-export { requestCiv7ProductionChoice } from "./play/operations/production-choice.js";
+export {
+  Civ7ProductionChoiceCommandPayloadSchema,
+  Civ7ProductionChoiceInputSchema,
+  Civ7ProductionChoiceRequestInputSchema,
+  Civ7ProductionChoiceResultSchema,
+  requestCiv7ProductionChoice,
+} from "./play/operations/production-choice.js";
+export {
+  callCiv7ProductionChoiceRequestProcedure,
+  Civ7ProductionChoiceRequestProcedureDescriptor,
+  Civ7ProductionChoiceRequestProcedureSchemaArtifacts,
+} from "./play/operations/production-choice-procedure.js";
+export type {
+  Civ7ProductionChoiceRequestProcedureCallOptions,
+} from "./play/operations/production-choice-procedure.js";
 export type {
   Civ7DiplomacyResponseCommandPayload,
   Civ7DiplomacyResponseInput,

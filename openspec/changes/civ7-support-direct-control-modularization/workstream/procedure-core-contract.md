@@ -91,8 +91,13 @@ schema exports, and is the first narrow `player` procedure-family owner. The
 adjacent unit-target action request descriptor artifact is
 `packages/civ7-direct-control/src/play/operations/unit-target-action-procedure.ts`,
 which owns the `unit.target.action.request` mutation descriptor adjacent to the
-approved unit-target action atom and schema exports. The
-adjacent notification read
+approved unit-target action atom and schema exports. The adjacent
+production-choice request descriptor artifact is
+`packages/civ7-direct-control/src/play/operations/production-choice-procedure.ts`,
+which owns the `city.production.choice.request` mutation descriptor adjacent to
+the approved production-choice atom, schema exports, and production
+postcondition schema exports while projecting procedure output without the
+atom's raw command-bearing result field. The adjacent notification read
 descriptor artifact is
 `packages/civ7-direct-control/src/play/notifications/view-procedure.ts`, which
 owns the `notifications.view` descriptor adjacent to the notification read atom
@@ -789,7 +794,8 @@ health, notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
 progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
 visibility-summary, turn-completion status, unit-summary, city-summary,
-player-summary, and unit-target action request descriptor artifacts with
+player-summary, unit-target action request, and production-choice request
+descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
@@ -798,8 +804,8 @@ notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
 progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
 visibility-summary, turn-completion status, unit-summary, city-summary,
-player-summary, and unit-target action request procedure call wrappers, but
-they do not accept the row.
+player-summary, unit-target action request, and production-choice request
+procedure call wrappers, but they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
@@ -811,7 +817,8 @@ Acceptance still needs:
   battlefield-scan, destination-analysis, traditions-view, and
   progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
   visibility-summary, turn-completion status, unit-summary, city-summary,
-  player-summary, and unit-target action request call wrappers;
+  player-summary, unit-target action request, and production-choice request
+  call wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

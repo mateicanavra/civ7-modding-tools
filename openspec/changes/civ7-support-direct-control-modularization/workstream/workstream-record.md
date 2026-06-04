@@ -3907,3 +3907,35 @@ All future agent waves must be framed before delegation:
   catalog, add a router/registry/transport adapter, choose Effect Schema, claim
   runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
   6.1-6.9.
+- Production-choice request procedure atom seed:
+  `packages/civ7-direct-control/src/play/operations/production-choice.ts` now
+  owns TypeBox request/result schemas for the existing approved production-
+  choice mutation atom, and
+  `packages/civ7-direct-control/src/play/operations/production-postconditions.ts`
+  owns TypeBox schemas for production postcondition classifications,
+  snapshots, and results.
+  `packages/civ7-direct-control/src/play/operations/production-choice-procedure.ts`
+  records the adjacent `city.production.choice.request` descriptor/schema
+  artifact map and concrete call wrapper over `requestCiv7ProductionChoice`.
+  Focused proof in
+  `packages/civ7-direct-control/test/production-choice-procedure.test.ts`
+  covers descriptor schema resolution through public exports, validator-
+  equivalent city/production args input, explicit approval reason, mutation
+  gate metadata, caller-provided correlation, telemetry middleware projection,
+  no-network fake request calls, approval object construction,
+  direct-control option forwarding, input-before-dependency rejection, output
+  validation, separated diagnostics, no handler execution without caller
+  correlation, and procedure-safe output projection that omits the atom's raw
+  command-bearing result field. Existing proof in
+  `packages/civ7-direct-control/test/production-choice.test.ts` continues to
+  cover the official App UI production path and sticky production blocker
+  semantics, while `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`
+  continues to cover no-repeat guarding for missing/unverified/pending/blocker-
+  live paths. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema and
+  descriptor exports. This is local no-network mutation-procedure proof only;
+  it does not execute live direct-control atoms, change CLI output, weaken
+  approval/validator/postcondition/no-repeat behavior, expose raw command text
+  through procedure output, add a broad operation catalog, add a router/
+  registry/transport adapter, choose Effect Schema, claim runtime/live-game
+  proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.

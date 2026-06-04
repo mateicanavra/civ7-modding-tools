@@ -581,6 +581,26 @@ direct-control atoms, change CLI output, weaken no-repeat-after-unverified
 semantics, add a router/transport adapter, choose Effect Schema, claim runtime
 proof, accept Task 2.9.4, or start Tasks 5.x/6.x.
 
+Production-choice request procedure seed update:
+`src/play/operations/production-choice.ts` now also owns TypeBox schemas for
+the approved production-choice request input and procedure-safe result shape,
+`src/play/operations/production-postconditions.ts` owns production
+postcondition schemas, and `src/play/operations/production-choice-procedure.ts`
+owns the adjacent `city.production.choice.request` descriptor/schema artifact
+map and concrete call wrapper over `requestCiv7ProductionChoice`. Focused
+proof in `test/production-choice-procedure.test.ts` validates
+validator-equivalent city/production args input, explicit approval reason,
+mutation gate metadata, caller correlation, fake request approval forwarding,
+context/raw-command input rejection, no handler execution before valid
+input/correlation, and a procedure-safe result projection that omits the
+atom's raw `command` field. Existing `test/production-choice.test.ts` and
+`test/production-choice-telemetry.test.ts` remain the local atom/postcondition
+and no-repeat evidence. This is local no-network mutation-procedure proof only;
+it does not execute live direct-control atoms, change CLI output, weaken
+approval/validator/postcondition/no-repeat semantics, add a router/transport
+adapter, choose Effect Schema, claim runtime proof, accept Task 2.9.4, or start
+Tasks 5.x/6.x.
+
 Production-choice telemetry adapter seed update:
 `src/proof/production-choice-telemetry.ts` now owns the second operation-result
 adapter from the production-choice atom into the operation/proof telemetry

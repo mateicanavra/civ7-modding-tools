@@ -1,3 +1,7 @@
+import { Type, type Static } from "typebox";
+
+import { Civ7ComponentIdSchema } from "../../civ7-component-id";
+import { Civ7RuntimeProbeSchema } from "../../runtime/probe";
 import type {
   Civ7OperationFamily,
   Civ7OperationInput,
@@ -16,6 +20,15 @@ export type Civ7ProductionPostconditionClassification =
   | "validation-changed"
   | "no-state-change";
 
+export const Civ7ProductionPostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("production-choice-cleared"),
+  Type.Literal("production-state-changed"),
+  Type.Literal("production-state-changed-blocker-still-live"),
+  Type.Literal("validation-changed"),
+  Type.Literal("no-state-change"),
+]);
+
 export type Civ7ProductionPostconditionSnapshot = Readonly<{
   cityId: Civ7ComponentId | null;
   city: Civ7RuntimeProbe<unknown>;
@@ -25,6 +38,16 @@ export type Civ7ProductionPostconditionSnapshot = Readonly<{
   canEndTurn: Civ7RuntimeProbe<unknown>;
   blockingProductionNotification: Civ7RuntimeProbe<unknown>;
 }>;
+
+export const Civ7ProductionPostconditionSnapshotSchema = Type.Object({
+  cityId: Type.Union([Civ7ComponentIdSchema, Type.Null()]),
+  city: Civ7RuntimeProbeSchema(Type.Unknown()),
+  buildQueue: Civ7RuntimeProbeSchema(Type.Unknown()),
+  selectedCityId: Civ7RuntimeProbeSchema(Type.Union([Civ7ComponentIdSchema, Type.Null()])),
+  blocker: Civ7RuntimeProbeSchema(Type.Unknown()),
+  canEndTurn: Civ7RuntimeProbeSchema(Type.Unknown()),
+  blockingProductionNotification: Civ7RuntimeProbeSchema(Type.Unknown()),
+}, { additionalProperties: false });
 
 export type Civ7ProductionPostcondition = Readonly<{
   family: "city-operation";
@@ -36,6 +59,18 @@ export type Civ7ProductionPostcondition = Readonly<{
   blockerStillLive: boolean;
   reason: string;
 }>;
+
+export const Civ7ProductionPostconditionSchema = Type.Object({
+  family: Type.Literal("city-operation"),
+  operationType: Type.Literal("BUILD"),
+  classification: Civ7ProductionPostconditionClassificationSchema,
+  before: Type.Optional(Civ7ProductionPostconditionSnapshotSchema),
+  after: Type.Optional(Civ7ProductionPostconditionSnapshotSchema),
+  productionStateChanged: Type.Boolean(),
+  blockerStillLive: Type.Boolean(),
+  reason: Type.String(),
+}, { additionalProperties: false });
+export type Civ7ProductionPostconditionSchemaType = Static<typeof Civ7ProductionPostconditionSchema>;
 
 export function productionPostconditionFor(
   family: Civ7OperationFamily,
