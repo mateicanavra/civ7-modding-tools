@@ -17,6 +17,14 @@ const readyUnitDescriptor: Civ7ProcedureCoreDescriptor = {
   risk: "read",
   atomOwner: "packages/civ7-direct-control/src/play/ready/unit.ts",
   atomFunction: "getCiv7ReadyUnitView",
+  inputSchema: {
+    owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+    exportName: "Civ7ReadyUnitViewInputSchema",
+  },
+  outputSchema: {
+    owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+    exportName: "Civ7ReadyUnitViewResultSchema",
+  },
   inputFields: ["requestedUnitId", "playerId"],
   outputFields: ["readyUnit", "operationCandidates", "promotionReadiness"],
   playerScope: "local-player-scoped",
@@ -64,6 +72,14 @@ describe("Civ7 procedure-core descriptor owner", () => {
       risk: "read",
       atomOwner: "packages/civ7-direct-control/src/play/ready/unit.ts",
       atomFunction: "getCiv7ReadyUnitView",
+      inputSchema: {
+        owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+        exportName: "Civ7ReadyUnitViewInputSchema",
+      },
+      outputSchema: {
+        owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+        exportName: "Civ7ReadyUnitViewResultSchema",
+      },
       normalCliProjection: "semantic-projection",
       debugServiceProjection: "omitted",
       aiIngestionProjection: "blocked-until-ingestion-contract",
@@ -174,6 +190,60 @@ describe("Civ7 procedure-core descriptor owner", () => {
         ],
       },
     });
+  });
+
+  test("binds procedure descriptors to direct-control schema owners", () => {
+    const descriptor = createCiv7ProcedureCoreDescriptor(readyUnitDescriptor);
+    expect(summarizeCiv7ProcedureCoreDescriptor(descriptor)).toMatchObject({
+      inputSchema: {
+        owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+        exportName: "Civ7ReadyUnitViewInputSchema",
+      },
+      outputSchema: {
+        owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+        exportName: "Civ7ReadyUnitViewResultSchema",
+      },
+    });
+
+    const outsideOwner = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      inputSchema: {
+        owner: "packages/cli/src/commands/game/play/ready-unit.ts",
+        exportName: "Civ7ReadyUnitViewInputSchema",
+      },
+    }));
+    expect(outsideOwner).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "schema-owner-outside-direct-control",
+        procedureKey: "unit.ready.view",
+        role: "inputSchema",
+      },
+    });
+
+    const invalidExport = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      inputSchema: {
+        owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+        exportName: "Civ7ReadyUnitViewInputSchema()",
+      },
+    }));
+    expect(invalidExport).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "schema-export-invalid",
+        procedureKey: "unit.ready.view",
+        role: "inputSchema",
+      },
+    });
+
+    expect(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      outputSchema: {
+        owner: "packages/civ7-direct-control/src/runtime/command-serialization.ts",
+        exportName: "jsLiteral",
+      },
+    })).toThrow(/raw command tunnel fields: .*command-serialization.*jsLiteral/);
   });
 
   test("keeps live runtime proof claims out of local procedure descriptors", () => {

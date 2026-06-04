@@ -93,12 +93,20 @@ export const Civ7ProcedureCorrelationPolicySchema = Type.Object({
 }, { additionalProperties: false });
 export type Civ7ProcedureCorrelationPolicy = Static<typeof Civ7ProcedureCorrelationPolicySchema>;
 
+export const Civ7ProcedureSchemaReferenceSchema = Type.Object({
+  owner: Type.String(),
+  exportName: Type.String(),
+}, { additionalProperties: false });
+export type Civ7ProcedureSchemaReference = Static<typeof Civ7ProcedureSchemaReferenceSchema>;
+
 export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   procedureKey: Type.String(),
   family: Civ7ProcedureFamilySchema,
   risk: Civ7ProcedureRiskSchema,
   atomOwner: Type.String(),
   atomFunction: Type.String(),
+  inputSchema: Civ7ProcedureSchemaReferenceSchema,
+  outputSchema: Civ7ProcedureSchemaReferenceSchema,
   inputFields: Type.Array(Type.String()),
   outputFields: Type.Array(Type.String()),
   playerScope: Civ7ProcedurePlayerScopeSchema,
@@ -119,6 +127,8 @@ export type Civ7ProcedureCoreSummary = Readonly<{
   risk: Civ7ProcedureRisk;
   atomOwner: string;
   atomFunction: string;
+  inputSchema: Civ7ProcedureSchemaReference;
+  outputSchema: Civ7ProcedureSchemaReference;
   playerScope: Civ7ProcedurePlayerScope;
   proofBoundary: Civ7ProcedureProofBoundary;
   normalCliProjection: Civ7ProcedureProjection["normalCli"];
@@ -140,6 +150,8 @@ export type Civ7ProcedureCoreDescriptorErrorReason =
   | "invalid-procedure-key"
   | "family-mismatch"
   | "atom-owner-outside-direct-control"
+  | "schema-owner-outside-direct-control"
+  | "schema-export-invalid"
   | "missing-procedure-core-consumer"
   | "live-runtime-proof-unsupported"
   | "raw-command-tunnel"
@@ -212,6 +224,8 @@ export function summarizeCiv7ProcedureCoreDescriptor(
     risk: valid.risk,
     atomOwner: valid.atomOwner,
     atomFunction: valid.atomFunction,
+    inputSchema: valid.inputSchema,
+    outputSchema: valid.outputSchema,
     playerScope: valid.playerScope,
     proofBoundary: valid.proofBoundary,
     normalCliProjection: valid.projection.normalCli,
@@ -251,6 +265,25 @@ function validateProcedureIdentity(descriptor: Civ7ProcedureCoreDescriptor): voi
       { procedureKey: descriptor.procedureKey, atomOwner: descriptor.atomOwner },
     );
   }
+  for (const [role, schema] of [
+    ["inputSchema", descriptor.inputSchema],
+    ["outputSchema", descriptor.outputSchema],
+  ] as const) {
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(schema.exportName)) {
+      throw procedureDescriptorError(
+        `Civ7 procedure ${role} export must be a simple schema identifier: ${schema.exportName}`,
+        "schema-export-invalid",
+        { procedureKey: descriptor.procedureKey, role, exportName: schema.exportName },
+      );
+    }
+    if (!schema.owner.startsWith("packages/civ7-direct-control/src/")) {
+      throw procedureDescriptorError(
+        `Civ7 procedure ${role} owner must stay in @civ7/direct-control: ${schema.owner}`,
+        "schema-owner-outside-direct-control",
+        { procedureKey: descriptor.procedureKey, role, owner: schema.owner },
+      );
+    }
+  }
   if (!descriptor.consumerClasses.includes("effect-orpc-procedure-core")) {
     throw procedureDescriptorError(
       `Civ7 procedure ${descriptor.procedureKey} must include the procedure-core consumer class`,
@@ -274,6 +307,10 @@ function validateNoRawCommandTunnel(descriptor: Civ7ProcedureCoreDescriptor): vo
     descriptor.procedureKey,
     descriptor.atomOwner,
     descriptor.atomFunction,
+    descriptor.inputSchema.owner,
+    descriptor.inputSchema.exportName,
+    descriptor.outputSchema.owner,
+    descriptor.outputSchema.exportName,
     ...descriptor.inputFields,
     ...descriptor.outputFields,
   ];

@@ -1932,6 +1932,20 @@ runtime/direct-control claims.
       implement Effect/oRPC source, add `packages/civ7-control-orpc`, add
       transport adapters, implement the in-game controller router, claim
       runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.20 Bind procedure descriptors to schema references in
+      `src/procedure-core.ts` with focused proof in
+      `test/procedure-core.test.ts` and public facade proof in
+      `test/public-api.test.ts`. The descriptor owner now records
+      `inputSchema` and `outputSchema` owner/export slots, binds the
+      `unit.ready.view` descriptor to the ready-unit TypeBox schema exports,
+      rejects schema owners outside `@civ7/direct-control`, rejects
+      expression-like schema export names, and rejects schema references to raw
+      command-source/session owners. This is descriptor/schema-reference proof
+      only; it does not resolve runtime router registration, choose Effect
+      Schema, migrate broader contracts, implement Effect/oRPC source, add
+      `packages/civ7-control-orpc`, add transport adapters, implement the
+      in-game controller router, claim runtime/live-game proof, accept Task
+      2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -1974,9 +1988,12 @@ authority are recorded.
     local rejection of `live-runtime-proof` claims over example stable atoms.
     Task 4.19 adds one concrete ready-unit read-atom TypeBox input/output
     schema seed for future procedure-core composition.
+    Task 4.20 binds the ready-unit descriptor to those schema exports through
+    guarded descriptor schema references.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
-    inputs/outputs beyond that first read-atom schema seed.
+    inputs/outputs beyond that first read-atom schema seed and descriptor
+    schema-reference binding.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

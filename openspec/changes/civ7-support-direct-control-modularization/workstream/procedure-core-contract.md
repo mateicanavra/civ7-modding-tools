@@ -16,7 +16,11 @@ failures as `Civ7DirectControlError` instances with the
 descriptor also records a correlation policy: request IDs are generated per
 call or caller-provided-and-validated, normal CLI omits them by default,
 debug/proof diagnostics may include them, and telemetry attaches them only when
-procedure telemetry is enabled. Focused proof in
+procedure telemetry is enabled. The descriptor now binds procedures to explicit
+direct-control schema references through `inputSchema` and `outputSchema`
+owner/export slots, with local guards that keep schema owners in
+`@civ7/direct-control`, require simple exported schema identifiers, and reject
+raw command-source/session schema references. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` rejects generic raw
 command tunnel descriptors, rejects repo-local raw command-source/session
 execution descriptors such as `runtime/command-serialization` / `jsLiteral`
@@ -25,12 +29,14 @@ carry approval, validator-first, postcondition, and no-repeat-after-unverified
 gates, rejects malformed descriptor shapes before procedure promotion, and
 snapshots schema-mismatch, raw-command-tunnel, and mutation-gates-missing error
 details while rejecting `live-runtime-proof` claims from the local descriptor
-owner, proving correlation stays omitted from normal CLI by default, and
-proving telemetry correlation is tied to the Effect/oRPC middleware hook rather
-than a separate transport surface. This is local package proof only; it does
-not collect runtime evidence, add Effect/oRPC dependencies, create
-`packages/civ7-control-orpc`, implement router/procedure behavior, choose a
-broader schema migration, claim runtime proof, or accept the matrix row.
+owner, proving ready-unit descriptor schema references point to the
+ready-unit schema exports, proving correlation stays omitted from normal CLI by
+default, and proving telemetry correlation is tied to the Effect/oRPC
+middleware hook rather than a separate transport surface. This is local package
+proof only; it does not collect runtime evidence, add Effect/oRPC dependencies,
+create `packages/civ7-control-orpc`, implement router/procedure behavior,
+choose a broader schema migration, claim runtime proof, or accept the matrix
+row.
 
 First concrete read-atom schema seed:
 `packages/civ7-direct-control/src/play/ready/unit.ts` now owns TypeBox schemas
@@ -159,6 +165,8 @@ Procedure Cores row, but they do not accept the row. Acceptance still needs:
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the ready-unit read schema seed;
 - final context/middleware/error/correlation owners;
+- final schema reference resolution against runtime router/procedure
+  registration;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;
 - oRPC schema/procedure validation tests;

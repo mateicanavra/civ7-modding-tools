@@ -12,6 +12,7 @@ import {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
+  Civ7ProcedureSchemaReferenceSchema,
   Civ7ReadyUnitViewInputSchema,
   Civ7ReadyUnitViewResultSchema,
   DEFAULT_CIV7_APP_UI_API_ROOTS,
@@ -190,5 +191,17 @@ describe("Civ7 direct control public API", () => {
         "promotionReadiness",
       ]),
     });
+  });
+
+  test("exports procedure schema reference schema from the public facade", () => {
+    expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
+      owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+      exportName: "Civ7ReadyUnitViewInputSchema",
+    })).toBe(true);
+    expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
+      owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+      exportName: "Civ7ReadyUnitViewInputSchema",
+      rawCommand: "readReadyUnitView()",
+    })).toBe(false);
   });
 });
