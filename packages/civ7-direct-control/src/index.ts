@@ -156,7 +156,6 @@ import {
   type Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
 import {
-  getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
   requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
   type Civ7NotificationDismissInput,
   type Civ7NotificationDismissalResult,
@@ -614,6 +613,7 @@ export type {
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissalSummary,
 } from "./play/notifications/dismissal-request.js";
+export { getCiv7NotificationDismissal } from "./play/notifications/dismissal-request.js";
 export type {
   Civ7BattlefieldScanInput,
   Civ7BattlefieldScanResult,
@@ -1132,13 +1132,6 @@ export async function revealCiv7MapForPlayer(
   approval: Civ7ActionApproval,
 ): Promise<Civ7RevealMapResult> {
   return await revealCiv7MapForPlayerFromModule(input, options, approval);
-}
-
-export async function getCiv7NotificationDismissal(
-  input: Civ7NotificationDismissInput,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7NotificationDismissalResult> {
-  return await getCiv7NotificationDismissalFromModule(input, options);
 }
 
 export async function requestCiv7NotificationDismissal(

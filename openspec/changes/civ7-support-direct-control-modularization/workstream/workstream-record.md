@@ -1232,6 +1232,16 @@ All future agent waves must be framed before delegation:
   Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Notification dismissal read call-through cleanup: `index.ts` now re-exports
+  `getCiv7NotificationDismissal` directly from
+  `src/play/notifications/dismissal-request.ts` after owner-local dependency
+  defaults are in place. This removes the trivial read planner wrapper while
+  preserving the public package import name, guarded read shape, and separate
+  approved `requestCiv7NotificationDismissal` mutation wrapper boundary. This
+  is local package/source relocation cleanup proof only: it does not change
+  dismissal mutation behavior, claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control narrative choice verification helper slice: completed as the
   next specialized closeout-helper relocation. It first expands
   `test/narrative-choice.test.ts` to cover same-blocker `no-state-change` and
