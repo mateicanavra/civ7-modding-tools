@@ -46,6 +46,22 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
     } catch (err) {
       expect(err).toMatchObject({ code: "command-failed" });
     }
+
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+    for (const value of [1n, circular]) {
+      try {
+        jsLiteral(value);
+      } catch (err) {
+        expect(err).toMatchObject({
+          code: "command-failed",
+          message: "Cannot serialize Civ7 command input",
+        });
+        expect((err as Error).cause).toBeInstanceOf(TypeError);
+        continue;
+      }
+      throw new Error("Expected command-failed for unserializable command-source input");
+    }
   });
 
   test("routes commands through App UI and Tuner state selections", async () => {

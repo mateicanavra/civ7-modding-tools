@@ -1415,12 +1415,14 @@ All future agent waves must be framed before delegation:
   helper relocation. It moves the existing `jsLiteral` serializer into
   `src/runtime/command-serialization.ts` while preserving `JSON.stringify`
   output shape and `command-failed` rejection for unserializable command input.
-  Focused runtime package proof now covers successful serialization and
-  undefined rejection. This records current embedded command-builder plumbing
-  only; it does not create a raw command tunnel or define telemetry, AI
-  ingestion, semantic CLI projection, hotseat runtime proof, Effect/oRPC
-  procedure-core schemas, or Task 2.9.4 matrix-row acceptance. This is local
-  package/source relocation proof only, not runtime/live-game proof.
+  Focused runtime package proof now covers successful serialization,
+  `undefined` rejection, and thrown `JSON.stringify` failures from `BigInt` or
+  circular inputs while preserving the thrown cause. This records current
+  embedded command-builder plumbing only; it does not create a raw command
+  tunnel or define telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, Effect/oRPC procedure-core schemas, or Task 2.9.4 matrix-row
+  acceptance. This is local package/source/error-boundary proof only, not
+  runtime/live-game proof.
 - Direct-control production-choice source slice: completed as the next
   operation action source relocation. It moves only the embedded production
   choice source into `src/play/operations/production-choice.ts`. The public

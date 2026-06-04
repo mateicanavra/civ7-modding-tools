@@ -1457,6 +1457,16 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.12.12.1 Harden the command-source serializer error boundary so
+        `src/runtime/command-serialization.ts` preserves `JSON.stringify`
+        output shape while wrapping thrown serialization failures such as
+        `BigInt` and circular object inputs in `Civ7DirectControlError` with
+        `command-failed` classification. Focused runtime package proof covers
+        successful serialization, `undefined` rejection, thrown serializer
+        failures, and retained cause evidence. This is command-builder
+        plumbing proof only; it does not create a raw command tunnel, change
+        embedded source behavior, claim runtime/live-game proof, or accept
+        Task 2.9.4 / 5.x / 6.x rows.
   - [x] 4.12.13 Prune the static capability catalog facade call-through by
         letting the catalog owner use the existing GameInfo table default while
         keeping public facade exports stable, preserving static catalog entries,
