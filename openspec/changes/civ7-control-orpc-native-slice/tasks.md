@@ -36,7 +36,7 @@
 
 - [x] 4.1 Implement the first read-only module over `runtime.playable.status`.
 - [x] 4.2 Implement one notification read module over `notifications.view`.
-- [ ] 4.3 Implement one unit read module over `unit.ready.view` or
+- [x] 4.3 Implement one unit read module over `unit.ready.view` or
   `unit.move.preview`.
 - [x] 4.4 Prove server-side client calls over the same router graph.
 

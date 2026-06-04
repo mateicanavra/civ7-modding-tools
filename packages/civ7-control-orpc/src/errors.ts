@@ -49,9 +49,31 @@ export class Civ7NotificationViewUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7ReadyUnitViewUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("unit.ready.view"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ReadyUnitViewUnavailableErrorData = Static<
+  typeof Civ7ReadyUnitViewUnavailableErrorDataSchema
+>;
+
+export class Civ7ReadyUnitViewUnavailableError extends ORPCTaggedError(
+  "Civ7ReadyUnitViewUnavailableError",
+  {
+    code: "READY_UNIT_VIEW_UNAVAILABLE",
+    message: "Direct-control ready-unit view failed.",
+    schema: toStandardSchema(Civ7ReadyUnitViewUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const civ7ControlOrpcErrorMap = {
   DIRECT_CONTROL_UNAVAILABLE: Civ7DirectControlUnavailableError,
   NOTIFICATION_VIEW_UNAVAILABLE: Civ7NotificationViewUnavailableError,
+  READY_UNIT_VIEW_UNAVAILABLE: Civ7ReadyUnitViewUnavailableError,
 } satisfies EffectErrorMap;
 
 export type Civ7ControlOrpcEffectErrorMap = typeof civ7ControlOrpcErrorMap;

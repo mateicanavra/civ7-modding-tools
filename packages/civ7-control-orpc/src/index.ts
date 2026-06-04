@@ -6,6 +6,7 @@ export {
   liveCiv7ControlOrpcDirectControlFacade,
   type Civ7ControlOrpcPlayNotificationViewResult,
   type Civ7ControlOrpcPlayableStatusResult,
+  type Civ7ControlOrpcReadyUnitViewResult,
   type Civ7ControlOrpcDirectControlFacade,
 } from "./dependencies/direct-control";
 export {
@@ -13,11 +14,14 @@ export {
   Civ7DirectControlUnavailableErrorDataSchema,
   Civ7NotificationViewUnavailableError,
   Civ7NotificationViewUnavailableErrorDataSchema,
+  Civ7ReadyUnitViewUnavailableError,
+  Civ7ReadyUnitViewUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcEffectErrorMap,
   type Civ7DirectControlUnavailableErrorData,
   type Civ7NotificationViewUnavailableErrorData,
+  type Civ7ReadyUnitViewUnavailableErrorData,
 } from "./errors";
 export type { Civ7ControlOrpcProcedureMeta } from "./metadata";
 export {
@@ -50,4 +54,16 @@ export type {
 } from "./modules/runtime/contract";
 export { runtimeRouter } from "./modules/runtime/router";
 export { runtimePlayableStatusProcedure } from "./modules/runtime/procedures/playable-status";
+export {
+  Civ7UnitContract,
+  Civ7UnitReadyViewContract,
+  Civ7UnitReadyViewInputStandardSchema,
+  Civ7UnitReadyViewResultStandardSchema,
+} from "./modules/unit/contract";
+export type {
+  Civ7UnitContract as Civ7UnitContractType,
+  Civ7UnitReadyViewContract as Civ7UnitReadyViewContractType,
+} from "./modules/unit/contract";
+export { unitRouter } from "./modules/unit/router";
+export { unitReadyViewProcedure } from "./modules/unit/procedures/ready-view";
 export { toStandardSchema } from "./typebox-standard-schema";
