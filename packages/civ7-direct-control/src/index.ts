@@ -714,13 +714,39 @@ export {
 export type { Civ7ReadyCityViewProcedureCallOptions } from "./play/ready/city-procedure.js";
 export type {
   Civ7PlayDecisionAction,
+  Civ7PlayDecisionActionContract,
   Civ7PlayDecisionHint,
+  Civ7PlayDecisionHintContract,
   Civ7PlayDecisionInput,
+  Civ7PlayDecisionInputContract,
   Civ7PlayDecisionQueueItem,
+  Civ7PlayDecisionQueueItemContract,
   Civ7PlayNotificationSummary,
+  Civ7PlayNotificationSummaryContract,
+  Civ7PlayNotificationViewInput,
+  Civ7PlayNotificationViewResultContract,
   Civ7PlayNotificationViewResult,
+  PlayNotificationViewDependencies,
+  PlayNotificationViewOptions,
 } from "./play/notifications/view.js";
-export { getCiv7PlayNotificationView } from "./play/notifications/view.js";
+export {
+  Civ7PlayDecisionActionSchema,
+  Civ7PlayDecisionHintSchema,
+  Civ7PlayDecisionInputSchema,
+  Civ7PlayDecisionQueueItemSchema,
+  Civ7PlayNotificationSummarySchema,
+  Civ7PlayNotificationViewInputSchema,
+  Civ7PlayNotificationViewResultSchema,
+  getCiv7PlayNotificationView,
+} from "./play/notifications/view.js";
+export {
+  callCiv7PlayNotificationViewProcedure,
+  Civ7PlayNotificationViewProcedureDescriptor,
+  Civ7PlayNotificationViewProcedureSchemaArtifacts,
+} from "./play/notifications/view-procedure.js";
+export type {
+  Civ7PlayNotificationViewProcedureCallOptions,
+} from "./play/notifications/view-procedure.js";
 export type {
   Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,

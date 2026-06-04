@@ -1,8 +1,13 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
-import { getCiv7PlayNotificationView } from "../src/index";
+import {
+  Civ7PlayNotificationViewInputSchema,
+  Civ7PlayNotificationViewResultSchema,
+  getCiv7PlayNotificationView,
+} from "../src/index";
 
 type FakeTunerServer = {
   received: string[];
@@ -11,6 +16,17 @@ type FakeTunerServer = {
 };
 
 describe("getCiv7PlayNotificationView", () => {
+  test("keeps procedure input bounded and context-owned", () => {
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 25 })).toBe(true);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 0 })).toBe(false);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 101 })).toBe(false);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { state: { name: "App UI" } })).toBe(false);
+    expect(Value.Check(Civ7PlayNotificationViewInputSchema, { rawCommand: "readPlayNotifications()" })).toBe(false);
+  });
+
   test("materializes play notifications with decision hints", async () => {
     const server = await startPlayNotificationTunerServer();
     try {
@@ -50,6 +66,11 @@ describe("getCiv7PlayNotificationView", () => {
           },
         },
       });
+      expect(Value.Check(Civ7PlayNotificationViewResultSchema, view)).toBe(true);
+      expect(Value.Check(Civ7PlayNotificationViewResultSchema, {
+        ...view,
+        rawCommand: "readPlayNotifications()",
+      })).toBe(false);
       expect(view.decisions.some((decision) => decision.category === "town-focus")).toBe(true);
       expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(true);
       const notificationRead = server.received.find((message) => message.includes("readPlayNotifications")) ?? "";
@@ -99,6 +120,7 @@ function playNotificationView() {
     type: -123,
     typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
     groupType: null,
+    player: 0,
     summary: "Choose Town Project",
     message: "Choose a town focus project",
     target: { owner: 0, id: 131073, type: 1 },
@@ -118,7 +140,9 @@ function playNotificationView() {
       ],
       commonActions: [
         {
+          label: "Set town focus",
           cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
+          when: "after choosing a live town focus option",
         },
       ],
       confidence: "live-proof" as const,
@@ -154,9 +178,13 @@ function playNotificationView() {
         message: "Choose a town focus project",
         target: { owner: 0, id: 131073, type: 1 },
         location: null,
+        player: 0,
         category: "town-focus",
         operationFamily: "city-command",
         operationType: "CHANGE_GROWTH_MODE",
+        requiredInputs: notification.decision.requiredInputs,
+        commonActions: notification.decision.commonActions,
+        notes: notification.decision.notes,
       },
       decisionQueue: [],
     },
