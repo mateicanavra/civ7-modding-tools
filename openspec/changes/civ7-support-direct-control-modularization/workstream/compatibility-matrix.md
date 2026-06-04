@@ -713,16 +713,18 @@ Intake rejection conditions:
   mutation gate metadata, and no-raw-command-tunnel guards over generic raw
   fields plus repo-local command serialization and session execute owners, and
   a local guard refusing `live-runtime-proof` claims before a runtime-proof
-  owner exists; descriptor context-policy metadata now exists for current
-  schema/descriptor seeds; final procedure-core/schema/runtime-context,
-  middleware, error, and correlation owners remain pending
+  owner exists; descriptor context-policy metadata, payload validation, and a
+  local injected-handler call primitive now exist for current schema/descriptor
+  seeds; final procedure-core/schema/runtime-context, middleware, error, and
+  correlation owners remain pending
 - `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
   owner-seed proof for descriptor construction, generic raw tunnel rejection,
   `runtime/command-serialization` / `jsLiteral` rejection,
   `session/execute` / `executeCiv7Command` rejection, mutation gate
-  requirements, local `live-runtime-proof` rejection, and
-  telemetry-as-Effect/oRPC-middleware projection; final row proof/gate owner
-  remains pending
+  requirements, local `live-runtime-proof` rejection, payload validation,
+  injected-handler call sequencing, correlation-id policy, handler failure
+  normalization, and telemetry-as-Effect/oRPC-middleware projection; final row
+  proof/gate owner remains pending
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -740,8 +742,8 @@ Intake rejection conditions:
 - `proofLabel`: `pending-procedure-core-schema`
 - `acceptanceStatus`: `pending-procedure-core-schema`; descriptor source/proof
   owner seed exists, but final schema owner, proof owner, concrete procedure
-  contracts, middleware boundary, context/error/correlation owners, and
-  integration tests are not assigned
+  contracts, middleware boundary, final runtime context/error/correlation
+  owners, and integration tests are not assigned
 - `blockingDependents`: tasks 6.1-6.9, in-game controller router modules,
   transport adapters, procedure middleware, Effect/Bun resource/concurrency
   implementation, oRPC package behavior
@@ -813,14 +815,18 @@ Intake rejection conditions:
   artifacts, with proof in
   `packages/civ7-direct-control/test/procedure-core.test.ts` and public facade
   export proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+  The procedure-core owner now also has a no-network call primitive over an
+  injected handler, with focused proof for input-before-handler validation,
+  output-after-handler validation, separated output/diagnostics, generated and
+  caller-provided correlation IDs, and handler failure normalization.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   runtime-context/middleware/error/correlation owner, broader concrete
   procedure owners, and explicit owner boundaries for the in-game controller
   router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control procedure-core payload
-  validation helper, focused procedure-core payload proof over current
-  descriptor schema artifacts, public facade exports/proof, and docs/OpenSpec
-  records.
+- `writeSet`: current write set is the direct-control procedure-core
+  injected-handler call primitive, focused procedure-core call/correlation/error
+  proof over current descriptor schema artifacts, public facade exports/proof,
+  and docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -880,7 +886,13 @@ Intake rejection conditions:
   artifact now also validates input/output payloads against resolved TypeBox
   schema artifacts, returning typed direct-control errors with local
   input/output schema-invalid reasons when payloads do not match, without
-  executing atoms or registering a router.
+  executing atoms or registering a router. The current procedure-core source
+  artifact now also adds a no-network call primitive that validates input before
+  an injected handler, validates output after the handler, returns procedure
+  output separately from debug/telemetry diagnostics, resolves correlation IDs
+  according to descriptor policy, and normalizes handler failures with typed
+  direct-control error details, without executing live atoms or registering a
+  router.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
@@ -912,21 +924,27 @@ Intake rejection conditions:
   and raw command/session selection. Current procedure-core payload validation
   proof validates ready-unit input/output payloads and unit move-preview
   validator-equivalent map-location inputs against resolved descriptor schema
-  artifacts, including raw root-field rejection. This is not a TypeBox versus
-  Effect Schema migration decision and does not prove broader concrete
-  procedure input/output schemas or runtime router schema registration.
+  artifacts, including raw root-field rejection. Current procedure-call proof
+  runs the same resolved schema artifacts around an injected handler, proving
+  input-before-handler and output-after-handler sequencing. This is not a
+  TypeBox versus Effect Schema migration decision and does not prove broader
+  concrete procedure input/output schemas or runtime router schema registration.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, missing
-  mutation gates, and local input/output schema-invalid payload validation.
-  This is not final router/procedure middleware error shaping and does not
-  prove external transport error formats.
+  mutation gates, local input/output schema-invalid payload validation, and
+  local correlation-id policy failures. The injected-handler call primitive
+  wraps handler failures with `procedure-call-failed` and structured
+  procedure/correlation/source-error details. This is not final router/procedure
+  middleware error shaping and does not prove external transport error formats.
 - `correlationOwner`: current descriptor-owner shape now records correlation
   policy: generated-per-call or caller-provided-and-validated IDs, normal CLI
   omitted by default, debug diagnostics included, and telemetry attached only
-  when procedure telemetry is enabled. This does not implement final procedure
-  middleware correlation generation, propagation, or external transport
-  formatting.
+  when procedure telemetry is enabled. The local injected-handler call primitive
+  now generates or validates correlation IDs according to that policy and keeps
+  correlation in diagnostics rather than the returned procedure output. This
+  does not implement final procedure middleware correlation propagation or
+  external transport formatting.
 - `contextOwner`: current descriptor-owner shape now records local context
   requirements for direct-control facade access, endpoint defaults, state
   selection, logger, evidence sink, and playable-status live-session policy,
@@ -953,11 +971,13 @@ Intake rejection conditions:
   playable-status procedure descriptor artifact with generic resolver
   schema-root field-list proof, local procedure-core input/output payload
   validation against resolved TypeBox schema artifacts for ready-unit and unit
-  move-preview descriptors,
+  move-preview descriptors, local injected-handler procedure-call proof for
+  input-before-handler/output-after-handler sequencing, separated
+  output/diagnostics, correlation-id policy, and handler failure normalization,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface. Missing before acceptance: final oRPC schema/procedure
-  validation tests beyond this local TypeBox payload helper, final
+  validation tests beyond this local TypeBox payload/call helper, final
   router/procedure error-shape snapshot, encode/decode round trip, Bun runtime
   check, CLI semantic projection test, AI-ingestion contract
   fixture test,
@@ -980,6 +1000,10 @@ Intake rejection conditions:
   normal output, rejects host/port/state input fields when endpoint/state
   selection is context-owned by the descriptor, and rejects invalid local
   procedure input/output payloads against resolved descriptor schema artifacts.
+  It also fails local calls before handler execution on invalid input, fails
+  after handler execution on invalid output, requires caller-provided
+  correlation IDs where descriptor policy says so, and wraps injected-handler
+  failures with procedure/correlation details.
   Required coverage before acceptance must still fail if
   transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command

@@ -2082,6 +2082,20 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, add transport adapters, implement the
         in-game controller router, claim runtime/live-game proof, accept Task
         2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.29 Add a no-network procedure-core call primitive in
+        `src/procedure-core.ts` with focused proof in
+        `test/procedure-core.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This validates input before an injected
+        handler, validates output after the handler, attaches debug/telemetry
+        diagnostics separately from the returned output, generates or validates
+        correlation IDs according to descriptor policy, and normalizes handler
+        failures with typed direct-control error details. This is local
+        injected-handler procedure-core proof only; it does not execute live
+        direct-control atoms, implement runtime router/procedure registration,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, add transport adapters, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 

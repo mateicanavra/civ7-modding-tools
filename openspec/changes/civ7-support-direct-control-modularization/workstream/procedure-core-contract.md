@@ -27,7 +27,12 @@ and rejects host/port/state procedure input fields when those responsibilities
 are declared context-owned. The procedure-core owner also validates local input
 and output payloads against explicitly resolved TypeBox schema artifacts and
 reports schema mismatches through structured direct-control errors without
-executing atoms, registering a router, or owning transport behavior. The first
+executing atoms, registering a router, or owning transport behavior. The
+procedure-core owner also has a no-network call primitive over injected
+handlers that validates input before handler execution, validates output after
+handler execution, returns procedure output separately from debug/telemetry
+diagnostics, resolves correlation IDs according to descriptor policy, and
+normalizes handler failures with typed direct-control error details. The first
 concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
 which owns the `unit.ready.view` descriptor adjacent to the ready-unit atom and
@@ -167,6 +172,19 @@ exported. This is schema-payload proof only; it does not execute direct-control
 atoms, add a router, add Effect/oRPC dependencies, choose Effect Schema, claim
 runtime proof, or accept the matrix row.
 
+Local no-network procedure-core calls now live in
+`packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` calls an injected
+ready-unit handler through the procedure-core owner, proves validated input
+reaches the handler, invalid input prevents handler execution, invalid output
+fails after handler execution, caller-provided correlation ID policy is enforced,
+and handler failures are normalized with procedure and correlation details.
+Public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
+verifies the call result/diagnostic schemas and call helper are exported. This
+is local injected-handler proof only; it does not execute live direct-control
+atoms, add a router, add Effect/oRPC dependencies, choose Effect Schema, claim
+runtime proof, or accept the matrix row.
+
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
 correlation IDs, approval gates, and telemetry hooks. It must serve the
@@ -278,20 +296,22 @@ descriptor shape, generic raw fields, repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, and playable-status descriptor artifacts with
 schema-root field-list validation plus local payload validation against
-resolved schema artifacts in the Effect/oRPC Procedure Cores row, but they do
-not accept the row. Acceptance still needs:
+resolved schema artifacts plus a local injected-handler call primitive in the
+Effect/oRPC Procedure Cores row, but they do not accept the row. Acceptance
+still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the ready-unit, ready-city, unit move-preview, and playable-status
   schema seeds;
 - final middleware/error/correlation owners and runtime context construction
-  beyond descriptor context-policy metadata;
+  beyond descriptor context-policy metadata and the local injected-handler call
+  helper;
 - final schema reference registration in the runtime router/procedure owner;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;
 - final oRPC schema/procedure validation tests beyond the local TypeBox
-  payload helper;
+  payload/call helper;
 - final router/procedure error-shape snapshots;
 - encode/decode round-trip tests;
 - Bun runtime checks;

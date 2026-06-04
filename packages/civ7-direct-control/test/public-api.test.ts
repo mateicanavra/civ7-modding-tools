@@ -17,6 +17,8 @@ import {
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
   Civ7PlayableStatusResultSchema,
+  Civ7ProcedureCoreCallDiagnosticsSchema,
+  Civ7ProcedureCoreCallResultSchema,
   Civ7ProcedureContextRequirementSchema,
   Civ7ProcedureSchemaReferenceSchema,
   Civ7ReadyCityViewProcedureDescriptor,
@@ -55,6 +57,7 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
   assertCiv7ComponentId,
+  callCiv7ProcedureCore,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
   resolveCiv7ProcedureCoreSchemas,
@@ -289,6 +292,27 @@ describe("Civ7 direct control public API", () => {
   test("exports procedure schema reference schema from the public facade", () => {
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "direct-control-facade")).toBe(true);
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "raw-socket")).toBe(false);
+    expect(Value.Check(Civ7ProcedureCoreCallDiagnosticsSchema, {
+      procedureKey: "unit.ready.view",
+      correlationId: "corr-1",
+      proofBoundary: "local-package-test",
+      playerScope: "local-player-scoped",
+      context: ["direct-control-facade"],
+      debugServiceCorrelation: true,
+      telemetryCorrelation: false,
+    })).toBe(true);
+    expect(Value.Check(Civ7ProcedureCoreCallResultSchema, {
+      output: { ok: true },
+      diagnostics: {
+        procedureKey: "unit.ready.view",
+        correlationId: "corr-1",
+        proofBoundary: "local-package-test",
+        playerScope: "local-player-scoped",
+        context: ["direct-control-facade"],
+        debugServiceCorrelation: true,
+        telemetryCorrelation: false,
+      },
+    })).toBe(true);
     expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
       owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
       exportName: "Civ7ReadyUnitViewInputSchema",
@@ -316,6 +340,7 @@ describe("Civ7 direct control public API", () => {
     expect(typeof resolveCiv7ProcedureCoreSchemas).toBe("function");
     expect(typeof validateCiv7ProcedureCoreInput).toBe("function");
     expect(typeof validateCiv7ProcedureCoreOutput).toBe("function");
+    expect(typeof callCiv7ProcedureCore).toBe("function");
     expect(civ7ProcedureSchemaReferenceKey(outputSchema)).toContain("Civ7ReadyUnitViewResultSchema");
   });
 

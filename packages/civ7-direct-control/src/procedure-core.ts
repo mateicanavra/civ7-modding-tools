@@ -2,6 +2,7 @@ import { Type, type Static, type TSchema } from "typebox";
 import { Value } from "typebox/value";
 
 import { Civ7DirectControlError } from "./direct-control-error";
+import { createCiv7ControlRequestId } from "./session/request-id";
 
 export const Civ7ProcedureFamilySchema = Type.Union([
   Type.Literal("health"),
@@ -117,6 +118,45 @@ export type Civ7ProcedureSchemaResolution = Readonly<{
   outputSchema: TSchema;
 }>;
 
+export const Civ7ProcedureCoreCallDiagnosticsSchema = Type.Object({
+  procedureKey: Type.String(),
+  correlationId: Type.String(),
+  proofBoundary: Civ7ProcedureProofBoundarySchema,
+  playerScope: Civ7ProcedurePlayerScopeSchema,
+  context: Type.Array(Civ7ProcedureContextRequirementSchema),
+  debugServiceCorrelation: Type.Boolean(),
+  telemetryCorrelation: Type.Boolean(),
+}, { additionalProperties: false });
+export type Civ7ProcedureCoreCallDiagnostics = Static<typeof Civ7ProcedureCoreCallDiagnosticsSchema>;
+
+export const Civ7ProcedureCoreCallResultSchema = Type.Object({
+  output: Type.Unknown(),
+  diagnostics: Civ7ProcedureCoreCallDiagnosticsSchema,
+}, { additionalProperties: false });
+export type Civ7ProcedureCoreCallResult<TOutput = unknown> = Readonly<{
+  output: TOutput;
+  diagnostics: Civ7ProcedureCoreCallDiagnostics;
+}>;
+
+export type Civ7ProcedureCoreCallContext = Readonly<{
+  descriptor: Civ7ProcedureCoreDescriptor;
+  procedureKey: string;
+  correlationId: string;
+  proofBoundary: Civ7ProcedureProofBoundary;
+  playerScope: Civ7ProcedurePlayerScope;
+  context: ReadonlyArray<Civ7ProcedureContextRequirement>;
+}>;
+
+export type Civ7ProcedureCoreHandler<TInput = unknown, TOutput = unknown> = (
+  input: TInput,
+  context: Civ7ProcedureCoreCallContext,
+) => TOutput | Promise<TOutput>;
+
+export type Civ7ProcedureCoreCallOptions = Readonly<{
+  correlationId?: string;
+  createCorrelationId?: (procedureKey: string) => string;
+}>;
+
 export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   procedureKey: Type.String(),
   family: Civ7ProcedureFamilySchema,
@@ -180,7 +220,10 @@ export type Civ7ProcedureCoreDescriptorErrorReason =
   | "raw-command-tunnel"
   | "mutation-gates-missing"
   | "input-schema-invalid"
-  | "output-schema-invalid";
+  | "output-schema-invalid"
+  | "correlation-id-missing"
+  | "correlation-id-invalid"
+  | "handler-failed";
 
 export function isCiv7ProcedureCoreDescriptor(value: unknown): value is Civ7ProcedureCoreDescriptor {
   return Value.Check(Civ7ProcedureCoreDescriptorSchema, value);
@@ -304,6 +347,37 @@ export function validateCiv7ProcedureCoreOutput(
   value: unknown,
 ): unknown {
   return validateProcedureCorePayload(descriptor, schemas, "output", value);
+}
+
+export async function callCiv7ProcedureCore<TInput = unknown, TOutput = unknown>(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  schemas: Civ7ProcedureSchemaArtifactMap,
+  input: unknown,
+  handler: Civ7ProcedureCoreHandler<TInput, TOutput>,
+  options: Civ7ProcedureCoreCallOptions = {},
+): Promise<Civ7ProcedureCoreCallResult<TOutput>> {
+  const valid = createCiv7ProcedureCoreDescriptor(descriptor);
+  const correlationId = resolveProcedureCorrelationId(valid, options);
+  const diagnostics = procedureCallDiagnostics(valid, correlationId);
+  const validInput = validateCiv7ProcedureCoreInput(valid, schemas, input) as TInput;
+  const context: Civ7ProcedureCoreCallContext = {
+    descriptor: valid,
+    procedureKey: valid.procedureKey,
+    correlationId,
+    proofBoundary: valid.proofBoundary,
+    playerScope: valid.playerScope,
+    context: valid.context,
+  };
+
+  let output: TOutput;
+  try {
+    output = await handler(validInput, context);
+  } catch (err) {
+    throw procedureCallError(valid, correlationId, err);
+  }
+
+  validateCiv7ProcedureCoreOutput(valid, schemas, output);
+  return { output, diagnostics };
 }
 
 function validateProcedureCorePayload(
@@ -504,6 +578,78 @@ function procedureDescriptorError(
   return new Civ7DirectControlError("procedure-descriptor-invalid", message, {
     details: { reason, ...details },
   });
+}
+
+function procedureCallDiagnostics(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  correlationId: string,
+): Civ7ProcedureCoreCallDiagnostics {
+  return {
+    procedureKey: descriptor.procedureKey,
+    correlationId,
+    proofBoundary: descriptor.proofBoundary,
+    playerScope: descriptor.playerScope,
+    context: descriptor.context,
+    debugServiceCorrelation: descriptor.correlation.debugService === "included-in-diagnostics",
+    telemetryCorrelation: descriptor.correlation.telemetry === "attached-when-procedure-telemetry-enabled",
+  };
+}
+
+function resolveProcedureCorrelationId(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  options: Civ7ProcedureCoreCallOptions,
+): string {
+  if (descriptor.correlation.idSource === "caller-provided-and-validated") {
+    if (options.correlationId === undefined) {
+      throw procedureDescriptorError(
+        `Civ7 procedure ${descriptor.procedureKey} requires a caller-provided correlation id`,
+        "correlation-id-missing",
+        { procedureKey: descriptor.procedureKey },
+      );
+    }
+    validateProcedureCorrelationId(descriptor, options.correlationId);
+    return options.correlationId;
+  }
+
+  const createCorrelationId = options.createCorrelationId
+    ?? ((procedureKey: string) => createCiv7ControlRequestId(`civ7-procedure-${procedureKey.replace(/[^a-z0-9]+/g, "-")}`));
+  const correlationId = options.correlationId ?? createCorrelationId(descriptor.procedureKey);
+  validateProcedureCorrelationId(descriptor, correlationId);
+  return correlationId;
+}
+
+function validateProcedureCorrelationId(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  correlationId: string,
+): void {
+  if (/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(correlationId)) return;
+  throw procedureDescriptorError(
+    `Civ7 procedure ${descriptor.procedureKey} correlation id is invalid`,
+    "correlation-id-invalid",
+    { procedureKey: descriptor.procedureKey, correlationId },
+  );
+}
+
+function procedureCallError(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  correlationId: string,
+  err: unknown,
+): Civ7DirectControlError {
+  const directControlError = err instanceof Civ7DirectControlError ? err : undefined;
+  return new Civ7DirectControlError(
+    "procedure-call-failed",
+    `Civ7 procedure ${descriptor.procedureKey} handler failed`,
+    {
+      cause: err,
+      details: {
+        reason: "handler-failed",
+        procedureKey: descriptor.procedureKey,
+        correlationId,
+        errorCode: directControlError?.code,
+        message: err instanceof Error ? err.message : String(err),
+      },
+    },
+  );
 }
 
 function procedurePayloadErrorDetails(error: unknown): Record<string, unknown> {

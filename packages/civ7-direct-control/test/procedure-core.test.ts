@@ -3,6 +3,8 @@ import { Value } from "typebox/value";
 
 import {
   Civ7ProcedureCoreDescriptorSchema,
+  Civ7ProcedureCoreCallDiagnosticsSchema,
+  Civ7ProcedureCoreCallResultSchema,
   Civ7DirectControlError,
   Civ7ReadyUnitViewInputSchema,
   Civ7ReadyUnitViewProcedureDescriptor,
@@ -11,6 +13,7 @@ import {
   Civ7UnitMovePreviewProcedureDescriptor,
   Civ7UnitMovePreviewProcedureSchemaArtifacts,
   assertCiv7ProcedureCoreDescriptor,
+  callCiv7ProcedureCore,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ProcedureCoreDescriptor,
   isCiv7ProcedureCoreDescriptor,
@@ -73,6 +76,16 @@ function captureDescriptorError(fn: () => unknown): Civ7DirectControlError {
     return err as Civ7DirectControlError;
   }
   throw new Error("Expected descriptor error");
+}
+
+async function captureProcedureError(fn: () => Promise<unknown>): Promise<Civ7DirectControlError> {
+  try {
+    await fn();
+  } catch (err) {
+    expect(err).toBeInstanceOf(Civ7DirectControlError);
+    return err as Civ7DirectControlError;
+  }
+  throw new Error("Expected procedure error");
 }
 
 const readyUnitOutput = {
@@ -477,6 +490,169 @@ describe("Civ7 procedure-core descriptor owner", () => {
         procedureKey: "unit.ready.view",
         role: "output",
         schemaReference: Civ7ReadyUnitViewProcedureDescriptor.outputSchema,
+      },
+    });
+  });
+
+  test("calls a no-network procedure handler with validated input and debug diagnostics", async () => {
+    const observed: Array<{ input: unknown; correlationId: string; context: readonly string[] }> = [];
+    const result = await callCiv7ProcedureCore(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      { radius: 2 },
+      (input, context) => {
+        observed.push({
+          input,
+          correlationId: context.correlationId,
+          context: context.context,
+        });
+        return readyUnitOutput;
+      },
+      { createCorrelationId: (procedureKey) => `corr-${procedureKey.replace(/\./g, "-")}` },
+    );
+
+    expect(result.output).toBe(readyUnitOutput);
+    expect(result.diagnostics).toMatchObject({
+      procedureKey: "unit.ready.view",
+      correlationId: "corr-unit-ready-view",
+      proofBoundary: "local-package-test",
+      playerScope: "local-player-scoped",
+      debugServiceCorrelation: true,
+      telemetryCorrelation: false,
+    });
+    expect(result.diagnostics.context).toEqual([
+      "direct-control-facade",
+      "endpoint-defaults",
+      "state-selection",
+      "logger",
+      "evidence-sink",
+    ]);
+    expect(observed).toEqual([{
+      input: { radius: 2 },
+      correlationId: "corr-unit-ready-view",
+      context: [
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+        "logger",
+        "evidence-sink",
+      ],
+    }]);
+    expect(Value.Check(Civ7ProcedureCoreCallDiagnosticsSchema, result.diagnostics)).toBe(true);
+    expect(Value.Check(Civ7ProcedureCoreCallResultSchema, result)).toBe(true);
+  });
+
+  test("validates input before handler execution and output after handler execution", async () => {
+    let inputHandlerCalls = 0;
+    const inputError = await captureProcedureError(() => callCiv7ProcedureCore(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      { radius: 6 },
+      () => {
+        inputHandlerCalls += 1;
+        return readyUnitOutput;
+      },
+      { correlationId: "corr-input-invalid" },
+    ));
+    expect(inputHandlerCalls).toBe(0);
+    expect(inputError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "input-schema-invalid",
+        procedureKey: "unit.ready.view",
+        role: "input",
+      },
+    });
+
+    let outputHandlerCalls = 0;
+    const outputError = await captureProcedureError(() => callCiv7ProcedureCore(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      {},
+      () => {
+        outputHandlerCalls += 1;
+        return { ...readyUnitOutput, rawCommand: "readReadyUnitView()" };
+      },
+      { correlationId: "corr-output-invalid" },
+    ));
+    expect(outputHandlerCalls).toBe(1);
+    expect(outputError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "output-schema-invalid",
+        procedureKey: "unit.ready.view",
+        role: "output",
+      },
+    });
+  });
+
+  test("requires and validates caller-provided correlation ids when descriptor policy says so", async () => {
+    const callerCorrelationDescriptor: Civ7ProcedureCoreDescriptor = {
+      ...Civ7ReadyUnitViewProcedureDescriptor,
+      correlation: {
+        ...Civ7ReadyUnitViewProcedureDescriptor.correlation,
+        idSource: "caller-provided-and-validated",
+      },
+    };
+
+    const missing = await captureProcedureError(() => callCiv7ProcedureCore(
+      callerCorrelationDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      {},
+      () => readyUnitOutput,
+    ));
+    expect(missing).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "correlation-id-missing",
+        procedureKey: "unit.ready.view",
+      },
+    });
+
+    const invalid = await captureProcedureError(() => callCiv7ProcedureCore(
+      callerCorrelationDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      {},
+      () => readyUnitOutput,
+      { correlationId: "raw command: Game.turn" },
+    ));
+    expect(invalid).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "correlation-id-invalid",
+        procedureKey: "unit.ready.view",
+      },
+    });
+
+    const result = await callCiv7ProcedureCore(
+      callerCorrelationDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      {},
+      () => readyUnitOutput,
+      { correlationId: "caller:corr-1" },
+    );
+    expect(result.diagnostics.correlationId).toBe("caller:corr-1");
+  });
+
+  test("normalizes handler failures with procedure correlation details", async () => {
+    const error = await captureProcedureError(() => callCiv7ProcedureCore(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      {},
+      () => {
+        throw new Civ7DirectControlError("command-failed", "fake atom failed");
+      },
+      { correlationId: "corr-handler-failed" },
+    ));
+
+    expect(error).toMatchObject({
+      code: "procedure-call-failed",
+      details: {
+        reason: "handler-failed",
+        procedureKey: "unit.ready.view",
+        correlationId: "corr-handler-failed",
+        errorCode: "command-failed",
+        message: "fake atom failed",
       },
     });
   });

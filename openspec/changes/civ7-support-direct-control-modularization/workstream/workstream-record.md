@@ -3305,3 +3305,21 @@ All future agent waves must be framed before delegation:
   contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
   adapters, in-game controller source, runtime/live-game proof, Task 2.9.4
   acceptance, or Tasks 6.1-6.9.
+- Procedure-core injected-handler call seed:
+  `packages/civ7-direct-control/src/procedure-core.ts` now has a no-network
+  procedure-core call primitive over injected handlers. It validates input
+  before handler execution, validates output after handler execution, returns
+  procedure output separately from debug/telemetry diagnostics, resolves
+  correlation IDs according to descriptor policy, and wraps handler failures
+  with typed procedure/correlation details. Focused proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` covers successful
+  ready-unit calls, invalid-input no-call behavior, invalid-output
+  post-handler rejection, caller-provided correlation ID requirements, and
+  handler failure normalization. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the call
+  result/diagnostic schemas and call helper export. This is local
+  injected-handler proof only; it does not execute live direct-control atoms,
+  add router/procedure registration, choose Effect Schema, migrate broader
+  contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
+  adapters, in-game controller source, runtime/live-game proof, Task 2.9.4
+  acceptance, or Tasks 6.1-6.9.

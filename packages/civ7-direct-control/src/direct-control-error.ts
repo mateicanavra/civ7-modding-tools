@@ -20,7 +20,8 @@ export type Civ7DirectControlErrorCode =
   | "setup-map-size-mismatch"
   | "setup-config-load-failed"
   | "setup-config-proof-missing"
-  | "procedure-descriptor-invalid";
+  | "procedure-descriptor-invalid"
+  | "procedure-call-failed";
 
 export class Civ7DirectControlError extends Error {
   readonly code: Civ7DirectControlErrorCode;
