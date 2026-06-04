@@ -5,6 +5,7 @@ import GameExec from '../../src/commands/game/exec';
 import GameHealth from '../../src/commands/game/health';
 import GameInspect from '../../src/commands/game/inspect';
 import GameStatus from '../../src/commands/game/status';
+import GameCatalog from '../../src/commands/game/catalog';
 import GameMap from '../../src/commands/game/map';
 import GameGameInfo from '../../src/commands/game/gameinfo';
 import GameAiLoadedLevers from '../../src/commands/game/ai/loaded-levers';
@@ -373,6 +374,62 @@ describe('game direct-control commands', () => {
     } finally {
       log.mockRestore();
       await server.close();
+    }
+  });
+
+  test('prints the static capability catalog debug projection', async () => {
+    const writes: string[] = [];
+    const log = vi.spyOn(GameCatalog.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      await GameCatalog.run(['--static', '--json']);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        catalog: {
+          source: string;
+          version: string;
+          entries: Array<{
+            id: string;
+            kind: string;
+            role: string;
+            owner: string;
+            risk: string;
+            provenance: string[];
+            confidence: string;
+            wrapper?: string;
+          }>;
+        };
+      };
+      expect(payload.ok).toBe(true);
+      expect(payload.catalog).toMatchObject({
+        source: 'static',
+        version: 'direct-control-v1',
+      });
+      expect(payload.catalog.entries).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          id: 'wrapper.playable-status',
+          kind: 'read-wrapper',
+          role: 'shared',
+          owner: '@civ7/direct-control',
+          risk: 'read',
+          provenance: ['getCiv7AppUiSnapshot', 'checkCiv7TunerHealth'],
+          confidence: 'runtime',
+          wrapper: 'getCiv7PlayableStatus',
+        }),
+        expect.objectContaining({
+          id: 'gameinfo.Resources',
+          kind: 'gameinfo-table',
+          role: 'tuner',
+          owner: '@civ7/direct-control',
+          risk: 'read',
+          provenance: ['DEFAULT_CIV7_GAMEINFO_TABLES', 'capability-inventory'],
+          confidence: 'source',
+        }),
+      ]));
+    } finally {
+      log.mockRestore();
     }
   });
 

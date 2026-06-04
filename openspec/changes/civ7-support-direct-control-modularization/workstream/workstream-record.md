@@ -2889,6 +2889,15 @@ All future agent waves must be framed before delegation:
   create telemetry or AI-ingestion contracts, or unblock normal CLI semantic
   envelopes, hotseat runtime, schema migration, or Effect/oRPC procedure-core
   work.
+- Capability catalog debug proof increment:
+  focused `game catalog --static --json` coverage now proves the debug-owned
+  catalog command emits raw package capability provenance fields, including
+  owner, risk, provenance, confidence, wrapper, and GameInfo table source
+  evidence. This remains partial local CLI/package proof for the Debug/Internal
+  Service Output row only; it does not accept Task 2.9.4, claim
+  runtime/live-game proof, create telemetry or AI-ingestion contracts, or
+  unblock normal CLI semantic envelopes, hotseat runtime, schema migration, or
+  Effect/oRPC procedure-core work.
 - Operation/proof telemetry contract planning:
   `workstream/operation-proof-telemetry-contract.md` now records the planned
   action/proof telemetry record slots, projection boundaries, proof-class
