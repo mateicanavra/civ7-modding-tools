@@ -1572,6 +1572,14 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.14.16 Prune the setup map-row visibility refresh facade call-through
+        wrapper by re-exporting `ensureCiv7SetupMapRowVisible` directly from
+        `src/setup/reads.ts`, preserving public package imports, approval-first
+        refresh behavior, setup map-row materialization, exit-to-shell refresh
+        semantics, setup read/source behavior, setup lifecycle behavior, and
+        leaving runtime/live-game proof, hotseat runtime proof, AI ingestion,
+        semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

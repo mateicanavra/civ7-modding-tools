@@ -90,7 +90,6 @@ import type {
 } from "./runtime/playable-status.js";
 import {
   defaultSetupReadDependencies,
-  ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   type Civ7PlayerSetupParameterSnapshot,
@@ -417,6 +416,7 @@ export type {
   Civ7SetupSnapshot,
   Civ7SetupSnapshotResult,
 } from "./setup/reads.js";
+export { ensureCiv7SetupMapRowVisible } from "./setup/reads.js";
 export {
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
@@ -1057,14 +1057,6 @@ export async function loadCiv7SavedGameConfiguration(
     command,
     loaded: command.output.some((line) => line.includes('"ok":true')),
   };
-}
-
-export async function ensureCiv7SetupMapRowVisible(
-  input: Civ7SetupMapRowVisibilityInput,
-  options: Civ7DirectControlOptions = {},
-  approval?: Civ7ActionApproval,
-): Promise<Civ7SetupMapRowVisibilityResult> {
-  return await ensureCiv7SetupMapRowVisibleFromModule(input, options, approval);
 }
 
 export async function prepareCiv7SinglePlayerSetup(
