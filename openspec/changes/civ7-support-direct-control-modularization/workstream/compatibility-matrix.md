@@ -450,8 +450,9 @@ Intake rejection conditions:
   and operation validation through the package boundary; package proof includes
   `runtime-and-catalog.test.ts` and `session.test.ts`. Focused compact
   `game play priorities`, compact `game play ready-city`, and compact
-  `game play unit-move-preview` proof now assert that three normal play
-  projections omit raw
+  `game play unit-move-preview` proof now assert through the shared
+  `packages/cli/test/commands/game/play/normal-output-boundary.ts` helper that
+  three normal play projections omit raw
   transport/session/probe/correlation command internals. Focused `game health
   --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
   `game status --json`, `game catalog --static --json`,

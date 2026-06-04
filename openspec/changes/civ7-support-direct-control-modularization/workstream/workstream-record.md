@@ -2936,6 +2936,15 @@ All future agent waves must be framed before delegation:
   create telemetry or AI-ingestion contracts, promote raw debug fields to
   product output, or unblock normal CLI semantic envelopes, hotseat runtime,
   schema migration, or Effect/oRPC procedure-core work.
+- Normal-output boundary test-helper ownership:
+  `packages/cli/test/commands/game/play/normal-output-boundary.ts` now owns the
+  shared compact play projection marker-omission assertion used by priorities,
+  ready-city, and unit-move-preview proof. This removes duplicated marker lists
+  from focused tests and gives later normal/debug separation proof a named test
+  helper, but it remains local CLI test-helper ownership only: it does not
+  accept Task 2.9.4, assign a production source owner, claim runtime/live-game
+  proof, implement semantic envelopes, create telemetry or AI-ingestion
+  contracts, or unblock Effect/oRPC procedure-core work.
 - Operation/proof telemetry contract planning:
   `workstream/operation-proof-telemetry-contract.md` now records the planned
   action/proof telemetry record slots, projection boundaries, proof-class

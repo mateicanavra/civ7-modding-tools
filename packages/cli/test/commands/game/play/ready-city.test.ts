@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayReadyCity from '../../../../src/commands/game/play/ready-city';
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
 describe('game play ready-city command', () => {
   test('reads ready-city decision view without sending operations', async () => {
@@ -299,22 +300,4 @@ function readyCityView() {
     },
     notes: ['Read-only ready-city view. This view intentionally does not choose production.'],
   };
-}
-
-function expectNormalPlayPayloadToOmitDebugInternals(payload: unknown): void {
-  const text = JSON.stringify(payload);
-  for (const marker of [
-    'CMD:',
-    'LSQ:',
-    'GameContext.',
-    'sendRequest',
-    'selectedState',
-    'socket',
-    'requestId',
-    'correlationId',
-    'closeoutTrace',
-    'rawProbe',
-  ]) {
-    expect(text).not.toContain(marker);
-  }
 }

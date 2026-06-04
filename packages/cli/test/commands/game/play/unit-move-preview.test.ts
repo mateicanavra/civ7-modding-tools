@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayUnitMovePreview from '../../../../src/commands/game/play/unit-move-preview';
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
 describe('game play unit-move-preview command', () => {
   test('reads official unit move preview with neutral relationship policy', async () => {
@@ -116,24 +117,6 @@ describe('game play unit-move-preview command', () => {
     }
   });
 });
-
-function expectNormalPlayPayloadToOmitDebugInternals(payload: unknown): void {
-  const text = JSON.stringify(payload);
-  for (const marker of [
-    'CMD:',
-    'LSQ:',
-    'GameContext.',
-    'sendRequest',
-    'selectedState',
-    'socket',
-    'requestId',
-    'correlationId',
-    'closeoutTrace',
-    'rawProbe',
-  ]) {
-    expect(text).not.toContain(marker);
-  }
-}
 
 async function startUnitMovePreviewTunerServer(): Promise<FakeTunerServer> {
   return startFakeTunerServer({

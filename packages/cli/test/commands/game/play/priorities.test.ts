@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayPriorities from '../../../../src/commands/game/play/priorities';
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
 type PriorityHudMode =
   | 'ready-unit'
@@ -386,24 +387,6 @@ async function runPriorities(
     log.mockRestore();
   }
   return { payload: JSON.parse(writes.join('')), server };
-}
-
-function expectNormalPlayPayloadToOmitDebugInternals(payload: unknown): void {
-  const serialized = JSON.stringify(payload);
-  for (const forbidden of [
-    'CMD:',
-    'LSQ:',
-    'GameContext.',
-    'sendRequest',
-    'selectedState',
-    'socket',
-    'requestId',
-    'correlationId',
-    'closeoutTrace',
-    'rawProbe',
-  ]) {
-    expect(serialized).not.toContain(forbidden);
-  }
 }
 
 async function startPrioritiesTunerServer(mode: PriorityHudMode): Promise<FakeTunerServer> {
