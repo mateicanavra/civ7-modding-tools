@@ -6,6 +6,8 @@ import { Value } from "typebox/value";
 import {
   Civ7BattlefieldScanInputSchema,
   Civ7BattlefieldScanResultSchema,
+  Civ7DestinationAnalysisInputSchema,
+  Civ7DestinationAnalysisResultSchema,
   Civ7TargetCandidatesInputSchema,
   Civ7TargetCandidatesResultSchema,
   getCiv7BattlefieldScan,
@@ -90,6 +92,65 @@ describe("tactical read wrappers", () => {
     expect(Value.Check(Civ7TargetCandidatesResultSchema, {
       ...result,
       rawCommand: "readTargetCandidates()",
+    })).toBe(false);
+  });
+
+  test("exports TypeBox schemas for the neutral destination analysis read atom", () => {
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, {
+      playerId: 0,
+      origin: { x: 20, y: 14 },
+      destination: { x: 13, y: 17 },
+      corridorRadius: 2,
+      destinationRadius: 4,
+      maxPlayers: 12,
+      maxUnits: 16,
+      maxCities: 8,
+    })).toBe(true);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, {
+      origin: { x: 20, y: 14 },
+    })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 1.5, y: 0 } })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, corridorRadius: 9 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, destinationRadius: 17 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, maxPlayers: 129 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, maxUnits: 257 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, maxCities: 129 })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, { destination: { x: 0, y: 0 }, host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisInputSchema, {
+      destination: { x: 0, y: 0 },
+      rawCommand: "readDestinationAnalysis()",
+    })).toBe(false);
+
+    const result = destinationAnalysisResult();
+    expect(Value.Check(Civ7DestinationAnalysisResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7DestinationAnalysisResultSchema, {
+      ...result,
+      destinationPressure: {
+        ...result.destinationPressure,
+        units: [
+          {
+            ...result.destinationPressure.units[0],
+            relationshipProof: "owner-mismatch",
+          },
+        ],
+      },
+    })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisResultSchema, {
+      ...result,
+      destinationPressure: {
+        ...result.destinationPressure,
+        units: [
+          {
+            ...result.destinationPressure.units[0],
+            relationshipLabel: "enemy",
+          },
+        ],
+      },
+    })).toBe(false);
+    expect(Value.Check(Civ7DestinationAnalysisResultSchema, {
+      ...result,
+      rawCommand: "readDestinationAnalysis()",
     })).toBe(false);
   });
 
@@ -693,6 +754,15 @@ function destinationAnalysisReadView() {
       "The corridor is a straight-line grid approximation, not Civ7 engine pathfinding.",
       "Relationship labels are not classified here. Treat owner and proximity pressure as relationship-unproven until official proof exists.",
     ],
+  };
+}
+
+function destinationAnalysisResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...destinationAnalysisReadView(),
   };
 }
 

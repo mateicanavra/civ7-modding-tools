@@ -915,6 +915,13 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/battlefield-scan-procedure.test.ts` plus
   adjacent atom schema proof in
   `packages/civ7-direct-control/test/tactical-reads.test.ts`.
+  The adjacent destination-analysis descriptor artifact is now
+  `packages/civ7-direct-control/src/play/tactical/destination-procedure.ts`,
+  with TypeBox schema ownership in
+  `packages/civ7-direct-control/src/play/tactical/destination.ts` and proof in
+  `packages/civ7-direct-control/test/destination-analysis-procedure.test.ts`
+  plus adjacent atom schema proof in
+  `packages/civ7-direct-control/test/tactical-reads.test.ts`.
   The descriptor owner also records `schemaTechnology`, requires current
   adjacent descriptors to declare `typebox`, and rejects unaccepted
   `effect-schema` or `zod-adapter` claims before procedure promotion. The
@@ -930,22 +937,23 @@ Intake rejection conditions:
   caller-provided correlation IDs, and handler failure normalization. The
   concrete ready-unit, ready-city, unit move-preview, playable-status, App UI
   snapshot, Tuner health, notification-view, settlement-recommendations,
-  target-candidates, and battlefield-scan procedure call wrappers now
+  target-candidates, battlefield-scan, and destination-analysis procedure call
+  wrappers now
   compose that primitive with
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
   `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`,
   `getCiv7AppUiSnapshot`, `checkCiv7TunerHealth`,
   `getCiv7PlayNotificationView`, and
-  `getCiv7SettlementRecommendations`, `getCiv7TargetCandidates`, and
-  `getCiv7BattlefieldScan` through fake direct-control dependencies in focused
-  proof.
+  `getCiv7SettlementRecommendations`, `getCiv7TargetCandidates`,
+  `getCiv7BattlefieldScan`, and `getCiv7DestinationAnalysis` through fake
+  direct-control dependencies in focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   accepted TypeBox versus Effect Schema disposition for final procedure
   contracts, runtime-context/middleware/error/correlation owner, broader
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control battlefield scan atom
-  schema owner, adjacent `strategy.battlefield.scan` descriptor/call metadata
+- `writeSet`: current write set is the direct-control destination analysis
+  atom schema owner, adjacent `strategy.destination.analysis` descriptor/call metadata
   declaring current TypeBox schema technology, focused descriptor/atom/public
   facade proof, and docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or

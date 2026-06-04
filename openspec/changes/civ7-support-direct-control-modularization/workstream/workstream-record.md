@@ -3599,3 +3599,30 @@ All future agent waves must be framed before delegation:
   a broad tactical catalog, add a router/registry/transport adapter, choose
   Effect Schema, claim runtime/live-game proof, accept Task 2.9.4, or start
   Tasks 5.1-5.7 or 6.1-6.9.
+- Destination-analysis procedure atom seed:
+  `packages/civ7-direct-control/src/play/tactical/destination.ts` now owns
+  TypeBox input/output schemas for the existing read-only destination analysis
+  atom, and
+  `packages/civ7-direct-control/src/play/tactical/destination-procedure.ts`
+  records the adjacent `strategy.destination.analysis` descriptor/schema
+  artifact map and concrete call wrapper over `getCiv7DestinationAnalysis`
+  while preserving the existing `strategy` procedure family and neutral
+  relationship evidence model. Focused proof in
+  `packages/civ7-direct-control/test/tactical-reads.test.ts` validates the
+  fake destination analysis result against the schema, rejects missing
+  destination, invalid bounds/map locations plus endpoint/session/state/raw-
+  command procedure input, and rejects stronger row-level relationship
+  proof/label output; proof in
+  `packages/civ7-direct-control/test/destination-analysis-procedure.test.ts`
+  covers descriptor schema resolution, no-network fake-dependency calls,
+  direct-control option forwarding, input-before-dependency rejection, output
+  validation, separated diagnostics, no-send command text, and preservation of
+  relationship-unproven semantics. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema,
+  descriptor, artifact map, and call-wrapper exports. This is local read-atom
+  proof only; it does not change CLI output, reinterpret destination analysis
+  as pathfinding/route authority, movement/attack/send planning, or validator
+  output, infer hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain
+  labels, add a broad tactical catalog, add a router/registry/transport
+  adapter, choose Effect Schema, claim runtime/live-game proof, accept Task
+  2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.

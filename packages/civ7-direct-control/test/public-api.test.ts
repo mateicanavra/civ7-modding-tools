@@ -21,6 +21,10 @@ import {
   Civ7BattlefieldScanProcedureDescriptor,
   Civ7BattlefieldScanProcedureSchemaArtifacts,
   Civ7BattlefieldScanResultSchema,
+  Civ7DestinationAnalysisInputSchema,
+  Civ7DestinationAnalysisProcedureDescriptor,
+  Civ7DestinationAnalysisProcedureSchemaArtifacts,
+  Civ7DestinationAnalysisResultSchema,
   Civ7PlayNotificationViewInputSchema,
   Civ7PlayNotificationViewProcedureDescriptor,
   Civ7PlayNotificationViewProcedureSchemaArtifacts,
@@ -84,6 +88,7 @@ import {
   assertCiv7ComponentId,
   callCiv7AppUiSnapshotProcedure,
   callCiv7BattlefieldScanProcedure,
+  callCiv7DestinationAnalysisProcedure,
   callCiv7PlayableStatusProcedure,
   callCiv7PlayNotificationViewProcedure,
   callCiv7ProcedureCore,
@@ -644,6 +649,24 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7BattlefieldScanProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7BattlefieldScanProcedureDescriptor.outputSchema)
     ]).toBe(Civ7BattlefieldScanResultSchema);
+  });
+
+  test("exports the destination-analysis procedure descriptor artifact from the public facade", () => {
+    expect(Civ7DestinationAnalysisProcedureDescriptor).toMatchObject({
+      procedureKey: "strategy.destination.analysis",
+      family: "strategy",
+      atomFunction: "getCiv7DestinationAnalysis",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7DestinationAnalysisProcedure).toBe("function");
+    expect(Civ7DestinationAnalysisProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7DestinationAnalysisProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7DestinationAnalysisInputSchema);
+    expect(Civ7DestinationAnalysisProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7DestinationAnalysisProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7DestinationAnalysisResultSchema);
   });
 
   test("exports the playable-status procedure descriptor artifact from the public facade", () => {

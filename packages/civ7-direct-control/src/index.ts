@@ -784,10 +784,30 @@ export type {
   Civ7BattlefieldScanProcedureCallOptions,
 } from "./play/tactical/battlefield-procedure.js";
 export type {
+  DestinationAnalysisDependencies,
   Civ7DestinationAnalysisInput,
   Civ7DestinationAnalysisResult,
 } from "./play/tactical/destination.js";
-export { getCiv7DestinationAnalysis } from "./play/tactical/destination.js";
+export {
+  Civ7DestinationAnalysisCitySchema,
+  Civ7DestinationAnalysisCorridorSchema,
+  Civ7DestinationAnalysisCorridorUnitSchema,
+  Civ7DestinationAnalysisDestinationUnitSchema,
+  Civ7DestinationAnalysisInputSchema,
+  Civ7DestinationAnalysisPointOfInterestSchema,
+  Civ7DestinationAnalysisPressureSchema,
+  Civ7DestinationAnalysisRelationshipLabelPolicySchema,
+  Civ7DestinationAnalysisResultSchema,
+  getCiv7DestinationAnalysis,
+} from "./play/tactical/destination.js";
+export {
+  callCiv7DestinationAnalysisProcedure,
+  Civ7DestinationAnalysisProcedureDescriptor,
+  Civ7DestinationAnalysisProcedureSchemaArtifacts,
+} from "./play/tactical/destination-procedure.js";
+export type {
+  Civ7DestinationAnalysisProcedureCallOptions,
+} from "./play/tactical/destination-procedure.js";
 export type {
   Civ7SettlementRecommendation,
   Civ7SettlementRecommendationFactor,

@@ -377,6 +377,27 @@ attack/move/send behavior, add a broad tactical catalog, add a router, add
 Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
 the matrix row.
 
+The adjacent destination-analysis procedure artifact reuses the destination
+analysis schema exports and records `strategy.destination.analysis` beside
+`getCiv7DestinationAnalysis`. Focused proof in
+`packages/civ7-direct-control/test/destination-analysis-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including required destination input, origin, bounded radii/caps,
+neutral relationship label policy, corridor, destination pressure, points of
+interest, and notes, without registering a router or transport adapter. The
+same artifact exports a concrete call wrapper over
+`getCiv7DestinationAnalysis`, composed through the local procedure-core call
+primitive. Focused proof uses fake atom dependencies to prove direct-control
+option forwarding, input validation before atom dependencies run, output
+validation after the atom returns, separated output/diagnostics, no-send
+read-only command text, and preservation of relationship-unproven semantics.
+This is local no-network read-atom proof only; it does not change CLI output,
+reinterpret destination analysis as pathfinding/route authority, movement/
+attack/send planning, or validator output, infer hostile/enemy/non-friendly/
+opponent/threat/war/ally/suzerain labels, add a broad tactical catalog, add a
+router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit
