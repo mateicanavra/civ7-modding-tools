@@ -773,7 +773,8 @@ Intake rejection conditions:
   facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
   The descriptor owner now binds procedure descriptors to schema references
   with `inputSchema` and `outputSchema` owner/export slots, and current proof
-  binds `unit.ready.view` to the ready-unit schema exports.
+  binds `unit.ready.view` to the ready-unit schema exports and resolves those
+  references against explicit schema artifacts.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   context/middleware/error/correlation owner, broader concrete procedure
   owners, and explicit owner boundaries for the in-game controller router,
@@ -805,10 +806,12 @@ Intake rejection conditions:
   `live-runtime-proof` claim rejection. The descriptor artifact now also
   records `inputSchema` and `outputSchema` references with direct-control owner
   guards, simple export-name guards, and raw command-source/session-execute
-  rejection for schema references. The current source artifact also adds
-  TypeBox input/output schemas for the existing `getCiv7ReadyUnitView` read
-  atom, including bounded `radius`/`maxOperations` input and root-level output
-  shape separation from raw command fields.
+  rejection for schema references, plus local schema-reference resolution
+  against explicit caller-provided schema artifacts. The current source
+  artifact also adds TypeBox input/output schemas for the existing
+  `getCiv7ReadyUnitView` read atom, including bounded
+  `radius`/`maxOperations` input and root-level output shape separation from
+  raw command fields.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
@@ -818,9 +821,10 @@ Intake rejection conditions:
   rejected at the result root. Current descriptor schema references bind the
   `unit.ready.view` procedure descriptor to those ready-unit schema exports and
   reject schema owners outside `@civ7/direct-control`, expression-like export
-  names, and raw command-source/session schema references. This is not a TypeBox
-  versus Effect Schema migration decision and does not prove broader concrete
-  procedure input/output schemas.
+  names, raw command-source/session schema references, and unresolved
+  referenced schema artifacts. This is not a TypeBox versus Effect Schema
+  migration decision and does not prove broader concrete procedure input/output
+  schemas or runtime router schema registration.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, and
@@ -840,7 +844,8 @@ Intake rejection conditions:
   details, descriptor correlation policy with normal CLI omission by default,
   local `live-runtime-proof` claim rejection before runtime-proof ownership,
   one ready-unit read-atom input/output schema over a stable direct-control
-  atom, ready-unit descriptor schema-reference binding,
+  atom, ready-unit descriptor schema-reference binding and local schema
+  artifact resolution,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface. Missing before acceptance: oRPC schema/procedure

@@ -4,9 +4,13 @@ import { Value } from "typebox/value";
 import {
   Civ7ProcedureCoreDescriptorSchema,
   Civ7DirectControlError,
+  Civ7ReadyUnitViewInputSchema,
+  Civ7ReadyUnitViewResultSchema,
   assertCiv7ProcedureCoreDescriptor,
+  civ7ProcedureSchemaReferenceKey,
   createCiv7ProcedureCoreDescriptor,
   isCiv7ProcedureCoreDescriptor,
+  resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreDescriptor,
 } from "../src/index";
@@ -244,6 +248,33 @@ describe("Civ7 procedure-core descriptor owner", () => {
         exportName: "jsLiteral",
       },
     })).toThrow(/raw command tunnel fields: .*command-serialization.*jsLiteral/);
+  });
+
+  test("resolves descriptor schema references against explicit schema artifacts", () => {
+    const resolved = resolveCiv7ProcedureCoreSchemas(readyUnitDescriptor, {
+      [civ7ProcedureSchemaReferenceKey(readyUnitDescriptor.inputSchema)]: Civ7ReadyUnitViewInputSchema,
+      [civ7ProcedureSchemaReferenceKey(readyUnitDescriptor.outputSchema)]: Civ7ReadyUnitViewResultSchema,
+    });
+
+    expect(resolved).toMatchObject({
+      procedureKey: "unit.ready.view",
+      inputSchema: Civ7ReadyUnitViewInputSchema,
+      outputSchema: Civ7ReadyUnitViewResultSchema,
+    });
+
+    const unresolvedOutput = captureDescriptorError(() => resolveCiv7ProcedureCoreSchemas(readyUnitDescriptor, {
+      [civ7ProcedureSchemaReferenceKey(readyUnitDescriptor.inputSchema)]: Civ7ReadyUnitViewInputSchema,
+    }));
+    expect(unresolvedOutput).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "schema-reference-unresolved",
+        procedureKey: "unit.ready.view",
+        role: "outputSchema",
+        owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+        exportName: "Civ7ReadyUnitViewResultSchema",
+      },
+    });
   });
 
   test("keeps live runtime proof claims out of local procedure descriptors", () => {

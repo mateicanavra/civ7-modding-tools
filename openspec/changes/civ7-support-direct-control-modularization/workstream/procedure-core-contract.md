@@ -30,13 +30,14 @@ gates, rejects malformed descriptor shapes before procedure promotion, and
 snapshots schema-mismatch, raw-command-tunnel, and mutation-gates-missing error
 details while rejecting `live-runtime-proof` claims from the local descriptor
 owner, proving ready-unit descriptor schema references point to the
-ready-unit schema exports, proving correlation stays omitted from normal CLI by
-default, and proving telemetry correlation is tied to the Effect/oRPC
-middleware hook rather than a separate transport surface. This is local package
-proof only; it does not collect runtime evidence, add Effect/oRPC dependencies,
-create `packages/civ7-control-orpc`, implement router/procedure behavior,
-choose a broader schema migration, claim runtime proof, or accept the matrix
-row.
+ready-unit schema exports, resolving those references against explicit
+caller-provided TypeBox schema artifacts, proving correlation stays omitted
+from normal CLI by default, and proving telemetry correlation is tied to the
+Effect/oRPC middleware hook rather than a separate transport surface. This is
+local package proof only; it does not collect runtime evidence, add Effect/oRPC
+dependencies, create `packages/civ7-control-orpc`, implement router/procedure
+behavior, choose a broader schema migration, claim runtime proof, or accept the
+matrix row.
 
 First concrete read-atom schema seed:
 `packages/civ7-direct-control/src/play/ready/unit.ts` now owns TypeBox schemas
@@ -165,8 +166,7 @@ Procedure Cores row, but they do not accept the row. Acceptance still needs:
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the ready-unit read schema seed;
 - final context/middleware/error/correlation owners;
-- final schema reference resolution against runtime router/procedure
-  registration;
+- final schema reference registration in the runtime router/procedure owner;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;
 - oRPC schema/procedure validation tests;

@@ -68,8 +68,10 @@ export {
   Civ7ProcedureRiskSchema,
   Civ7ProcedureSchemaReferenceSchema,
   assertCiv7ProcedureCoreDescriptor,
+  civ7ProcedureSchemaReferenceKey,
   createCiv7ProcedureCoreDescriptor,
   isCiv7ProcedureCoreDescriptor,
+  resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "./procedure-core.js";
 export type {
@@ -83,7 +85,9 @@ export type {
   Civ7ProcedureProjection,
   Civ7ProcedureProofBoundary,
   Civ7ProcedureRisk,
+  Civ7ProcedureSchemaArtifactMap,
   Civ7ProcedureSchemaReference,
+  Civ7ProcedureSchemaResolution,
 } from "./procedure-core.js";
 import type {
   Civ7AppUiSnapshot,

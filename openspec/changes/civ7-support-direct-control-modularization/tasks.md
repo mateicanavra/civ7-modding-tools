@@ -1946,6 +1946,18 @@ runtime/direct-control claims.
       `packages/civ7-control-orpc`, add transport adapters, implement the
       in-game controller router, claim runtime/live-game proof, accept Task
       2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.21 Resolve procedure descriptor schema references against explicit
+      schema artifacts in `src/procedure-core.ts` with focused proof in
+      `test/procedure-core.test.ts` and public facade proof in
+      `test/public-api.test.ts`. The descriptor owner now resolves
+      `unit.ready.view` input/output schema references to the actual ready-unit
+      TypeBox schema artifacts and rejects unresolved referenced artifacts with
+      typed descriptor-error details. This is local schema-reference resolution
+      proof only; it does not implement runtime router/procedure registration,
+      choose Effect Schema, migrate broader contracts, implement Effect/oRPC
+      source, add `packages/civ7-control-orpc`, add transport adapters,
+      implement the in-game controller router, claim runtime/live-game proof,
+      accept Task 2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -1990,10 +2002,12 @@ authority are recorded.
     schema seed for future procedure-core composition.
     Task 4.20 binds the ready-unit descriptor to those schema exports through
     guarded descriptor schema references.
+    Task 4.21 resolves those references against explicit TypeBox schema
+    artifacts in local descriptor-owner proof.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond that first read-atom schema seed and descriptor
-    schema-reference binding.
+    schema-reference binding/resolution.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

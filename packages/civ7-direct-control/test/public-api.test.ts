@@ -39,7 +39,9 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
   assertCiv7ComponentId,
+  civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
+  resolveCiv7ProcedureCoreSchemas,
 } from "../src/index";
 
 describe("Civ7 direct control public API", () => {
@@ -203,5 +205,22 @@ describe("Civ7 direct control public API", () => {
       exportName: "Civ7ReadyUnitViewInputSchema",
       rawCommand: "readReadyUnitView()",
     })).toBe(false);
+  });
+
+  test("exports procedure schema reference resolution helpers from the public facade", () => {
+    const inputSchema = {
+      owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+      exportName: "Civ7ReadyUnitViewInputSchema",
+    };
+    const outputSchema = {
+      owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
+      exportName: "Civ7ReadyUnitViewResultSchema",
+    };
+
+    expect(civ7ProcedureSchemaReferenceKey(inputSchema)).toBe(
+      "packages/civ7-direct-control/src/play/ready/unit.ts#Civ7ReadyUnitViewInputSchema",
+    );
+    expect(typeof resolveCiv7ProcedureCoreSchemas).toBe("function");
+    expect(civ7ProcedureSchemaReferenceKey(outputSchema)).toContain("Civ7ReadyUnitViewResultSchema");
   });
 });

@@ -1,4 +1,4 @@
-import { Type, type Static } from "typebox";
+import { Type, type Static, type TSchema } from "typebox";
 import { Value } from "typebox/value";
 
 import { Civ7DirectControlError } from "./direct-control-error";
@@ -98,6 +98,12 @@ export const Civ7ProcedureSchemaReferenceSchema = Type.Object({
   exportName: Type.String(),
 }, { additionalProperties: false });
 export type Civ7ProcedureSchemaReference = Static<typeof Civ7ProcedureSchemaReferenceSchema>;
+export type Civ7ProcedureSchemaArtifactMap = Readonly<Record<string, TSchema | undefined>>;
+export type Civ7ProcedureSchemaResolution = Readonly<{
+  procedureKey: string;
+  inputSchema: TSchema;
+  outputSchema: TSchema;
+}>;
 
 export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   procedureKey: Type.String(),
@@ -152,6 +158,7 @@ export type Civ7ProcedureCoreDescriptorErrorReason =
   | "atom-owner-outside-direct-control"
   | "schema-owner-outside-direct-control"
   | "schema-export-invalid"
+  | "schema-reference-unresolved"
   | "missing-procedure-core-consumer"
   | "live-runtime-proof-unsupported"
   | "raw-command-tunnel"
@@ -240,6 +247,22 @@ export function summarizeCiv7ProcedureCoreDescriptor(
       postconditionRequired: valid.postconditionRequired === true,
       noRepeatAfterUnverified: valid.noRepeatAfterUnverified === true,
     },
+  };
+}
+
+export function civ7ProcedureSchemaReferenceKey(reference: Civ7ProcedureSchemaReference): string {
+  return `${reference.owner}#${reference.exportName}`;
+}
+
+export function resolveCiv7ProcedureCoreSchemas(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  schemas: Civ7ProcedureSchemaArtifactMap,
+): Civ7ProcedureSchemaResolution {
+  const valid = createCiv7ProcedureCoreDescriptor(descriptor);
+  return {
+    procedureKey: valid.procedureKey,
+    inputSchema: resolveProcedureSchemaReference(valid, "inputSchema", schemas),
+    outputSchema: resolveProcedureSchemaReference(valid, "outputSchema", schemas),
   };
 }
 
@@ -339,6 +362,27 @@ function validateMutationGates(descriptor: Civ7ProcedureCoreDescriptor): void {
       { procedureKey: descriptor.procedureKey, missingGates: missing },
     );
   }
+}
+
+function resolveProcedureSchemaReference(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  role: "inputSchema" | "outputSchema",
+  schemas: Civ7ProcedureSchemaArtifactMap,
+): TSchema {
+  const reference = descriptor[role];
+  const key = civ7ProcedureSchemaReferenceKey(reference);
+  const schema = schemas[key];
+  if (schema !== undefined) return schema;
+  throw procedureDescriptorError(
+    `Civ7 procedure ${role} reference is unresolved: ${key}`,
+    "schema-reference-unresolved",
+    {
+      procedureKey: descriptor.procedureKey,
+      role,
+      owner: reference.owner,
+      exportName: reference.exportName,
+    },
+  );
 }
 
 function procedureDescriptorError(
