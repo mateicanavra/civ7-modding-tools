@@ -792,10 +792,16 @@ Intake rejection conditions:
   schema and guard owner for procedure keys, stable atom owners, projection
   policy, proof boundary, player scope, consumer class, and mutation gate
   metadata, including command-source/session-execute owner rejection.
+- `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
+  the direct-control descriptor owner before semantic guards, with local proof
+  for malformed projection, consumer-class, array-field, and extra-property
+  cases. This is not a TypeBox versus Effect Schema migration decision and does
+  not prove concrete procedure input/output schemas.
 - `proofPlan`: current proof is planning evidence, local atom test evidence,
   and focused descriptor-owner tests proving one read atom descriptor, raw
   command tunnel rejection for generic raw fields and repo-local
-  `command-serialization`/`session/execute` owners, mutation
+  `command-serialization`/`session/execute` owners, malformed descriptor-shape
+  rejection through TypeBox runtime validation, mutation
   approval/validator/postcondition/no-repeat gate requirements, and telemetry
   projection as an Effect/oRPC middleware hook rather than a separate transport
   surface. Missing before acceptance: oRPC schema/procedure validation test
@@ -813,9 +819,9 @@ Intake rejection conditions:
 - `stopConditionCoverage`: partial owner-seed coverage now fails generic raw
   command tunnel descriptors and descriptors over the repo-local command
   serializer/session execution owners before they can become procedure cores,
-  and fails mutation descriptors without approval, validator-first,
-  postcondition, and no-repeat-after-unverified gate metadata. Required
-  coverage before acceptance
+  fails malformed descriptor shapes before semantic promotion, and fails
+  mutation descriptors without approval, validator-first, postcondition, and
+  no-repeat-after-unverified gate metadata. Required coverage before acceptance
   must still fail if transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command
   strings become router architecture, if the App UI bridge is treated as the

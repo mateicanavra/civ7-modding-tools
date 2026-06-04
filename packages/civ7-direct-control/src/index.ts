@@ -65,7 +65,9 @@ export {
   Civ7ProcedureProjectionSchema,
   Civ7ProcedureProofBoundarySchema,
   Civ7ProcedureRiskSchema,
+  assertCiv7ProcedureCoreDescriptor,
   createCiv7ProcedureCoreDescriptor,
+  isCiv7ProcedureCoreDescriptor,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "./procedure-core.js";
 export type {

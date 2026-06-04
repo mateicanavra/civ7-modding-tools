@@ -9,17 +9,19 @@ proof, or Task 2.9.4 row acceptance.
 Current owner seed: `packages/civ7-direct-control/src/procedure-core.ts`
 records a direct-control-local descriptor owner for procedure keys, stable atom
 owners, projection policy, proof boundary, player scope, consumer class, and
-mutation gate metadata. Focused proof in
+mutation gate metadata. The descriptor factory now performs TypeBox runtime
+shape validation before semantic procedure guards. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` rejects generic raw
 command tunnel descriptors, rejects repo-local raw command-source/session
 execution descriptors such as `runtime/command-serialization` / `jsLiteral`
 and `session/execute` / `executeCiv7Command`, requires mutation descriptors to
 carry approval, validator-first, postcondition, and no-repeat-after-unverified
-gates, and keeps telemetry as an Effect/oRPC middleware hook rather than a
-separate transport surface. This is local package proof only; it does not add
+gates, rejects malformed descriptor shapes before procedure promotion, and
+keeps telemetry as an Effect/oRPC middleware hook rather than a separate
+transport surface. This is local package proof only; it does not add
 Effect/oRPC dependencies, create `packages/civ7-control-orpc`, implement
-router/procedure behavior, migrate schemas, claim runtime proof, or accept the
-matrix row.
+router/procedure behavior, choose a broader schema migration, claim runtime
+proof, or accept the matrix row.
 
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
@@ -125,11 +127,12 @@ relationship/team/war/suzerain evidence.
 ## Acceptance Gaps
 
 This contract plus the descriptor owner seed reduce the `contractArtifact`,
-source-owner, and no-raw-tunnel proof gaps for generic raw fields and repo-local
+source-owner, descriptor runtime-validation, and no-raw-tunnel proof gaps for
+the current TypeBox descriptor shape, generic raw fields, and repo-local
 command-source/session-execute owners in the Effect/oRPC Procedure Cores row,
 but they do not accept the row. Acceptance still needs:
 
-- a schema owner and proof owner;
+- final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms;
 - context/middleware/error/correlation owners;
 - explicit boundaries for in-game controller router, external direct-control

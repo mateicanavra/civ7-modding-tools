@@ -3,7 +3,9 @@ import { Value } from "typebox/value";
 
 import {
   Civ7ProcedureCoreDescriptorSchema,
+  assertCiv7ProcedureCoreDescriptor,
   createCiv7ProcedureCoreDescriptor,
+  isCiv7ProcedureCoreDescriptor,
   summarizeCiv7ProcedureCoreDescriptor,
   type Civ7ProcedureCoreDescriptor,
 } from "../src/index";
@@ -37,6 +39,8 @@ describe("Civ7 procedure-core descriptor owner", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(descriptor);
 
     expect(Value.Check(Civ7ProcedureCoreDescriptorSchema, descriptor)).toBe(true);
+    expect(isCiv7ProcedureCoreDescriptor(descriptor)).toBe(true);
+    expect(assertCiv7ProcedureCoreDescriptor(descriptor)).toEqual(descriptor);
     expect(summary).toMatchObject({
       procedureKey: "unit.ready.view",
       family: "unit",
@@ -55,6 +59,35 @@ describe("Civ7 procedure-core descriptor owner", () => {
         noRepeatAfterUnverified: false,
       },
     });
+  });
+
+  test("runtime-validates descriptor shape before semantic procedure guards", () => {
+    expect(isCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      projection: {
+        ...readyUnitDescriptor.projection,
+        procedureCore: "raw-command-tunnel",
+      },
+    })).toBe(false);
+
+    expect(() => assertCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      consumerClasses: ["effect-orpc-procedure-core", "raw-cli-output"],
+    })).toThrow(/does not match the Civ7 procedure-core descriptor schema/);
+
+    expect(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      inputFields: "rawCommand",
+    } as unknown as Civ7ProcedureCoreDescriptor)).toThrow(
+      /does not match the Civ7 procedure-core descriptor schema/,
+    );
+
+    expect(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      debugRawCommand: "Game.GetLocalPlayer()",
+    } as unknown as Civ7ProcedureCoreDescriptor)).toThrow(
+      /does not match the Civ7 procedure-core descriptor schema/,
+    );
   });
 
   test("rejects raw command tunnel descriptors before they can become oRPC procedures", () => {

@@ -82,16 +82,18 @@ proof.
 Procedure-core owner seed: `src/procedure-core.ts` now owns the
 direct-control-local procedure descriptor vocabulary and TypeBox descriptor
 schema for stable atom owners, projection policy, proof boundary, player scope,
-consumer class, mutation gate metadata, and no-raw-command-tunnel checks.
-`test/procedure-core.test.ts` proves one read atom descriptor, generic raw
-tunnel rejection, repo-local `runtime/command-serialization` / `jsLiteral` and
-`session/execute` / `executeCiv7Command` rejection, mutation
+consumer class, mutation gate metadata, runtime descriptor validation, and
+no-raw-command-tunnel checks. `test/procedure-core.test.ts` proves one read atom
+descriptor, malformed descriptor rejection before procedure promotion, generic
+raw tunnel rejection, repo-local `runtime/command-serialization` / `jsLiteral`
+and `session/execute` / `executeCiv7Command` rejection, mutation
 approval/validator/postcondition/no-repeat gate requirements, and telemetry
 projection as an Effect/oRPC middleware hook rather than a separate transport
 surface. This is local package proof only; it does not implement Effect/oRPC
-source, create `packages/civ7-control-orpc`, migrate schemas, add transport
-adapters, implement the in-game controller router, claim runtime/live-game
-proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
+source, create `packages/civ7-control-orpc`, choose broader TypeBox versus
+Effect Schema migration, add transport adapters, implement the in-game
+controller router, claim runtime/live-game proof, accept Task 2.9.4, or start
+Tasks 6.1-6.9.
 
 Operation row update: `src/play/operations/unit-target-action.ts` now owns
 `getCiv7UnitTargetAction` / `requestCiv7UnitTargetAction` orchestration, the

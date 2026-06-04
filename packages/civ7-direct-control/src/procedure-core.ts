@@ -1,4 +1,5 @@
 import { Type, type Static } from "typebox";
+import { Value } from "typebox/value";
 
 export const Civ7ProcedureFamilySchema = Type.Union([
   Type.Literal("health"),
@@ -116,6 +117,18 @@ export type Civ7ProcedureCoreSummary = Readonly<{
   }>;
 }>;
 
+export function isCiv7ProcedureCoreDescriptor(value: unknown): value is Civ7ProcedureCoreDescriptor {
+  return Value.Check(Civ7ProcedureCoreDescriptorSchema, value);
+}
+
+export function assertCiv7ProcedureCoreDescriptor(
+  value: unknown,
+  label = "Civ7 procedure descriptor",
+): Civ7ProcedureCoreDescriptor {
+  if (isCiv7ProcedureCoreDescriptor(value)) return value;
+  throw new Error(`${label} does not match the Civ7 procedure-core descriptor schema`);
+}
+
 const FORBIDDEN_RAW_TUNNEL_KEYS = new Set([
   "command",
   "commandserialization",
@@ -149,10 +162,11 @@ const FORBIDDEN_RAW_TUNNEL_OWNER_PARTS = [
 export function createCiv7ProcedureCoreDescriptor(
   descriptor: Civ7ProcedureCoreDescriptor,
 ): Civ7ProcedureCoreDescriptor {
-  validateProcedureIdentity(descriptor);
-  validateNoRawCommandTunnel(descriptor);
-  validateMutationGates(descriptor);
-  return descriptor;
+  const valid = assertCiv7ProcedureCoreDescriptor(descriptor);
+  validateProcedureIdentity(valid);
+  validateNoRawCommandTunnel(valid);
+  validateMutationGates(valid);
+  return valid;
 }
 
 export function summarizeCiv7ProcedureCoreDescriptor(

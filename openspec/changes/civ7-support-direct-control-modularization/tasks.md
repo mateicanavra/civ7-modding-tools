@@ -223,9 +223,10 @@
         first direct-control procedure descriptor owner seed is now recorded in
         `packages/civ7-direct-control/src/procedure-core.ts` with proof in
         `packages/civ7-direct-control/test/procedure-core.test.ts`, but this
-        reduces only the source/proof/no-raw-tunnel gap for generic raw fields
-        plus repo-local command serialization and session execute owners, and
-        does not accept the row.
+        reduces only the source/proof/descriptor-runtime-validation/
+        no-raw-tunnel gap for the current TypeBox descriptor shape, generic raw
+        fields, and repo-local command serialization and session execute
+        owners, and does not accept the row.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
@@ -236,9 +237,9 @@
       outcome evidence fixtures; Effect/oRPC procedure cores still need
       procedure/schema/proof ownership, TypeBox/Effect Schema/Zod adapter
       ownership for a concrete schema slice, and procedure-core tests over
-      stable atoms. The TypeBox versus Effect Schema report disposition is
-      already recorded as bounded-hybrid planning evidence; it is not enough to
-      accept the row without owners and tests.
+      stable atoms. The TypeBox runtime descriptor-validation seed and TypeBox
+      versus Effect Schema report disposition are bounded planning/source
+      evidence; they are not enough to accept the row without owners and tests.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.
