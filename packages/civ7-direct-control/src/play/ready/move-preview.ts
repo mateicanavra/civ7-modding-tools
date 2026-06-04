@@ -1,5 +1,8 @@
+import { Type, type Static } from "typebox";
+
+import { Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { probeHelperSource } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { validateMapLocation } from "../map/validation.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
@@ -8,44 +11,53 @@ import { boundedInteger } from "../../validation.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7TunerState,
 } from "../../session/types.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
-import type { Civ7MapLocation } from "../map/types.js";
+import { Civ7MapLocationSchema, type Civ7MapLocation } from "../map/types.js";
 
-export type Civ7UnitMovePreviewInput = Readonly<{
-  unitId?: Civ7ComponentId;
-  destination?: Civ7MapLocation;
-  maxPlots?: number;
-  maxPathPlots?: number;
-}>;
+const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
+const nullableMapLocationSchema = Type.Union([Civ7MapLocationSchema, Type.Null()]);
 
-export type Civ7UnitMovePreviewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  requestedUnitId: Civ7ComponentId | null;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  unitId: Civ7ComponentId | null;
-  unit: Civ7RuntimeProbe<unknown>;
-  reachableMovement: Civ7RuntimeProbe<unknown>;
-  reachableZonesOfControl: Civ7RuntimeProbe<unknown>;
-  reachableTargets: Civ7RuntimeProbe<unknown>;
-  queuedDestination: Civ7RuntimeProbe<Civ7MapLocation | null>;
-  queuedPath: Civ7RuntimeProbe<unknown>;
-  requestedDestination: Civ7MapLocation | null;
-  requestedPath: Civ7RuntimeProbe<unknown>;
-  relationshipPolicy: Readonly<{
-    relationshipSource: "not-classified";
-    relationshipProof: "none";
-    unprovenLabel: "relationship-unproven";
-    guidance: string;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
+export const Civ7UnitMovePreviewInputSchema = Type.Object({
+  unitId: Type.Optional(Civ7ComponentIdSchema),
+  destination: Type.Optional(Civ7MapLocationSchema),
+  maxPlots: Type.Optional(Type.Integer({ minimum: 1, maximum: 512 })),
+  maxPathPlots: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
+}, { additionalProperties: false });
+export type Civ7UnitMovePreviewInput = Readonly<Static<typeof Civ7UnitMovePreviewInputSchema>>;
+
+export const Civ7UnitMovePreviewRelationshipPolicySchema = Type.Object({
+  relationshipSource: Type.Literal("not-classified"),
+  relationshipProof: Type.Literal("none"),
+  unprovenLabel: Type.Literal("relationship-unproven"),
+  guidance: Type.String(),
+}, { additionalProperties: false });
+export type Civ7UnitMovePreviewRelationshipPolicy = Readonly<Static<typeof Civ7UnitMovePreviewRelationshipPolicySchema>>;
+
+export const Civ7UnitMovePreviewResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: Type.Object({
+    id: Type.String(),
+    name: Type.String(),
+  }, { additionalProperties: false }),
+  localPlayerId: Type.Number(),
+  requestedUnitId: nullableComponentIdSchema,
+  selectedUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+  firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+  unitId: nullableComponentIdSchema,
+  unit: Civ7RuntimeProbeSchema(Type.Unknown()),
+  reachableMovement: Civ7RuntimeProbeSchema(Type.Unknown()),
+  reachableZonesOfControl: Civ7RuntimeProbeSchema(Type.Unknown()),
+  reachableTargets: Civ7RuntimeProbeSchema(Type.Unknown()),
+  queuedDestination: Civ7RuntimeProbeSchema(nullableMapLocationSchema),
+  queuedPath: Civ7RuntimeProbeSchema(Type.Unknown()),
+  requestedDestination: nullableMapLocationSchema,
+  requestedPath: Civ7RuntimeProbeSchema(Type.Unknown()),
+  relationshipPolicy: Civ7UnitMovePreviewRelationshipPolicySchema,
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
+export type Civ7UnitMovePreviewResult = Readonly<Static<typeof Civ7UnitMovePreviewResultSchema>>;
 
 type UnitMovePreviewDependencies = Readonly<{
   validateMapLocation: (location: Civ7MapLocation) => void;

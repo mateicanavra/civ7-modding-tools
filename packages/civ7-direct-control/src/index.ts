@@ -262,6 +262,7 @@ import type {
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
 } from "./play/map/types.js";
+export { Civ7MapLocationSchema } from "./play/map/types.js";
 import {
   getCiv7ProgressDashboard,
   getCiv7TraditionsView,
@@ -614,9 +615,19 @@ export {
 } from "./play/ready/unit-procedure.js";
 export type {
   Civ7UnitMovePreviewInput,
+  Civ7UnitMovePreviewRelationshipPolicy,
   Civ7UnitMovePreviewResult,
 } from "./play/ready/move-preview.js";
-export { getCiv7UnitMovePreview };
+export {
+  Civ7UnitMovePreviewInputSchema,
+  Civ7UnitMovePreviewRelationshipPolicySchema,
+  Civ7UnitMovePreviewResultSchema,
+  getCiv7UnitMovePreview,
+} from "./play/ready/move-preview.js";
+export {
+  Civ7UnitMovePreviewProcedureDescriptor,
+  Civ7UnitMovePreviewProcedureSchemaArtifacts,
+} from "./play/ready/move-preview-procedure.js";
 export type {
   Civ7ReadyCityOperationCandidate,
   Civ7ReadyCityPopulationPlacement,

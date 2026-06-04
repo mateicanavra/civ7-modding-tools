@@ -12,6 +12,7 @@ import {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
+  Civ7MapLocationSchema,
   Civ7ProcedureSchemaReferenceSchema,
   Civ7ReadyCityViewProcedureDescriptor,
   Civ7ReadyCityViewProcedureSchemaArtifacts,
@@ -21,6 +22,10 @@ import {
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
   Civ7ReadyUnitViewInputSchema,
   Civ7ReadyUnitViewResultSchema,
+  Civ7UnitMovePreviewProcedureDescriptor,
+  Civ7UnitMovePreviewProcedureSchemaArtifacts,
+  Civ7UnitMovePreviewInputSchema,
+  Civ7UnitMovePreviewResultSchema,
   DEFAULT_CIV7_APP_UI_API_ROOTS,
   DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
   DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
@@ -70,6 +75,14 @@ describe("Civ7 direct control public API", () => {
     expect(() => assertCiv7ComponentId({ owner: 0, type: 1 }, "--city-id")).toThrow(
       /--city-id must be a Civ7 ComponentID/,
     );
+  });
+
+  test("exports the map location schema with validator-equivalent bounds", () => {
+    expect(Value.Check(Civ7MapLocationSchema, { x: 25, y: 35 })).toBe(true);
+    expect(Value.Check(Civ7MapLocationSchema, { x: 1.5, y: 0 })).toBe(false);
+    expect(Value.Check(Civ7MapLocationSchema, { x: -1, y: 0 })).toBe(false);
+    expect(Value.Check(Civ7MapLocationSchema, { x: 0, y: 1_000_001 })).toBe(false);
+    expect(Value.Check(Civ7MapLocationSchema, { x: 25, y: 35, rawCommand: "MOVE_TO" })).toBe(false);
   });
 
   test("exports default tuner endpoint and state/command constants", () => {
@@ -221,6 +234,29 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
+  test("exports unit move-preview procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7UnitMovePreviewInputSchema, {
+      unitId: { owner: 0, id: 65536, type: 26 },
+      destination: { x: 25, y: 35 },
+      maxPlots: 12,
+      maxPathPlots: 8,
+    })).toBe(true);
+    expect(Value.Check(Civ7UnitMovePreviewInputSchema, { destination: { x: 1.5, y: 0 } })).toBe(false);
+    expect(Value.Check(Civ7UnitMovePreviewInputSchema, { maxPathPlots: 257 })).toBe(false);
+    expect(Civ7UnitMovePreviewResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "state",
+        "localPlayerId",
+        "unitId",
+        "reachableMovement",
+        "requestedDestination",
+        "relationshipPolicy",
+      ]),
+    });
+  });
+
   test("exports procedure schema reference schema from the public facade", () => {
     expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
       owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
@@ -276,5 +312,19 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7ReadyCityViewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.outputSchema)
     ]).toBe(Civ7ReadyCityViewResultSchema);
+  });
+
+  test("exports the unit move-preview procedure descriptor artifact from the public facade", () => {
+    expect(Civ7UnitMovePreviewProcedureDescriptor).toMatchObject({
+      procedureKey: "unit.move.preview",
+      atomFunction: "getCiv7UnitMovePreview",
+      proofBoundary: "local-package-test",
+    });
+    expect(Civ7UnitMovePreviewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7UnitMovePreviewInputSchema);
+    expect(Civ7UnitMovePreviewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7UnitMovePreviewResultSchema);
   });
 });

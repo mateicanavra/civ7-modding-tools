@@ -3234,3 +3234,23 @@ All future agent waves must be framed before delegation:
   Schema, migrate broader contracts, add Effect/oRPC source,
   `packages/civ7-control-orpc`, transport adapters, in-game controller router
   source, runtime/live-game proof, Task 2.9.4 acceptance, or Tasks 6.1-6.9.
+- Unit move-preview read-atom procedure descriptor seed:
+  `packages/civ7-direct-control/src/play/ready/move-preview.ts` now owns
+  TypeBox schemas for `getCiv7UnitMovePreview` input/output and neutral
+  relationship-policy output, while
+  `packages/civ7-direct-control/src/play/ready/move-preview-procedure.ts`
+  records the adjacent `unit.move.preview` descriptor and schema artifact map.
+  `packages/civ7-direct-control/src/play/map/types.ts` now exports
+  `Civ7MapLocationSchema` with the same bounded integer `0..1_000_000`
+  `x`/`y` contract as `validateMapLocation`. Focused proof in
+  `packages/civ7-direct-control/test/unit-move-preview.test.ts` and
+  `packages/civ7-direct-control/test/unit-move-preview-procedure.test.ts`
+  validates bounded input, validator-equivalent map-location rejection,
+  result-root shape, neutral relationship policy, root raw-command rejection,
+  descriptor field-list/schema-reference resolution, and public facade exports.
+  This is the third local read-atom schema/descriptor artifact after ready-unit
+  and ready-city; it does not implement runtime router/procedure registration,
+  choose Effect Schema, migrate broader contracts, add Effect/oRPC source,
+  `packages/civ7-control-orpc`, transport adapters, in-game controller router
+  source, movement send authority, runtime/live-game proof, Task 2.9.4
+  acceptance, or Tasks 6.1-6.9.
