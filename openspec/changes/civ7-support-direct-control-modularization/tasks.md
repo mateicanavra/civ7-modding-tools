@@ -1911,13 +1911,17 @@ runtime/direct-control claims.
       `jsLiteral` and `session/execute` / `executeCiv7Command` before they can
       become oRPC procedures, requires mutation descriptors to carry approval,
       validator-first, postcondition, and no-repeat-after-unverified gates, and
-      keeps telemetry as an Effect/oRPC middleware hook rather than a separate
-      transport surface.
+      rejects local `live-runtime-proof` claims before runtime-proof ownership
+      exists.
+      This task also records descriptor runtime validation, typed descriptor
+      errors, and correlation policy owner seeds, while keeping telemetry as an
+      Effect/oRPC middleware hook rather than a separate transport surface.
       This reduces the Effect/oRPC Procedure Cores row's source/proof owner
-      and no-raw-tunnel proof gap only; it does not implement Effect/oRPC
-      source, add `packages/civ7-control-orpc`, add transport adapters, migrate
-      schemas, implement the in-game controller router, claim runtime/live-game
-      proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
+      and no-raw-tunnel/proof-label guard gaps only; it does not collect
+      runtime evidence, implement Effect/oRPC source, add
+      `packages/civ7-control-orpc`, add transport adapters, migrate schemas,
+      implement the in-game controller router, claim runtime/live-game proof,
+      accept Task 2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -1956,10 +1960,11 @@ authority are recorded.
 - [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
   - The descriptor owner seed in Task 4.18 provides local package proof for
     procedure keys, projection policy, mutation gate metadata, generic raw
-    tunnel rejection, and command-source/session-execute owner rejection over
-    example stable atoms. Task 6.1 remains blocked until Task 2.9.4 row
-    acceptance names final procedure/schema/proof owners and tests over
-    concrete procedure inputs/outputs.
+    tunnel rejection, command-source/session-execute owner rejection, and
+    local rejection of `live-runtime-proof` claims over example stable atoms.
+    Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
+    procedure/schema/proof owners and tests over concrete procedure
+    inputs/outputs.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

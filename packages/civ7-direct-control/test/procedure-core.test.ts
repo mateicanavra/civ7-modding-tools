@@ -176,6 +176,31 @@ describe("Civ7 procedure-core descriptor owner", () => {
     });
   });
 
+  test("keeps live runtime proof claims out of local procedure descriptors", () => {
+    expect(createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      proofBoundary: "pending-runtime-proof",
+    }).proofBoundary).toBe("pending-runtime-proof");
+
+    const liveProofError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      proofBoundary: "live-runtime-proof",
+      consumerClasses: [
+        ...readyUnitDescriptor.consumerClasses,
+        "runtime-proof-support",
+      ],
+    }));
+
+    expect(liveProofError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "live-runtime-proof-unsupported",
+        procedureKey: "unit.ready.view",
+        proofBoundary: "live-runtime-proof",
+      },
+    });
+  });
+
   test("rejects raw command tunnel descriptors before they can become oRPC procedures", () => {
     expect(() => createCiv7ProcedureCoreDescriptor({
       ...readyUnitDescriptor,

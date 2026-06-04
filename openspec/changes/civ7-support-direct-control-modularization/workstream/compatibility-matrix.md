@@ -711,15 +711,17 @@ Intake rejection conditions:
   seed for direct-control procedure descriptors, TypeBox descriptor schema,
   projection policy slots, proof boundary slots, player scope, consumer class,
   mutation gate metadata, and no-raw-command-tunnel guards over generic raw
-  fields plus repo-local command serialization and session execute owners;
-  final procedure-core/schema/context/middleware/error/correlation owners
-  remain pending
+  fields plus repo-local command serialization and session execute owners, and
+  a local guard refusing `live-runtime-proof` claims before a runtime-proof
+  owner exists; final procedure-core/schema/context/middleware, error, and
+  correlation owners remain pending
 - `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
   owner-seed proof for descriptor construction, generic raw tunnel rejection,
   `runtime/command-serialization` / `jsLiteral` rejection,
   `session/execute` / `executeCiv7Command` rejection, mutation gate
-  requirements, and telemetry-as-Effect/oRPC-middleware projection; final row
-  proof/gate owner remains pending
+  requirements, local `live-runtime-proof` rejection, and
+  telemetry-as-Effect/oRPC-middleware projection; final row proof/gate owner
+  remains pending
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -791,7 +793,8 @@ Intake rejection conditions:
   contracts. The current source artifact adds a TypeBox-backed descriptor
   schema and guard owner for procedure keys, stable atom owners, projection
   policy, proof boundary, player scope, consumer class, and mutation gate
-  metadata, including command-source/session-execute owner rejection.
+  metadata, including command-source/session-execute owner rejection and local
+  `live-runtime-proof` claim rejection.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
@@ -814,10 +817,10 @@ Intake rejection conditions:
   `command-serialization`/`session/execute` owners, malformed descriptor-shape
   rejection through TypeBox runtime validation, descriptor typed-error
   details, descriptor correlation policy with normal CLI omission by default,
-  mutation
-  approval/validator/postcondition/no-repeat gate requirements, and telemetry
-  projection as an Effect/oRPC middleware hook rather than a separate transport
-  surface. Missing before acceptance: oRPC schema/procedure validation test
+  local `live-runtime-proof` claim rejection before runtime-proof ownership,
+  mutation approval/validator/postcondition/no-repeat gate requirements, and
+  telemetry projection as an Effect/oRPC middleware hook rather than a separate
+  transport surface. Missing before acceptance: oRPC schema/procedure validation test
   against concrete procedures, final router/procedure error-shape snapshot,
   encode/decode round trip, Bun runtime check, CLI semantic projection test,
   AI-ingestion contract
@@ -836,9 +839,10 @@ Intake rejection conditions:
   fails malformed descriptor shapes before semantic promotion, and fails
   mutation descriptors without approval, validator-first, postcondition, and
   no-repeat-after-unverified gate metadata, with typed descriptor errors for
-  those local owner checks, and rejects descriptor policies that make
-  correlation visible in normal output. Required coverage before acceptance
-  must still fail if transport adapters or `packages/civ7-control-orpc`
+  those local owner checks, rejects local `live-runtime-proof` descriptor
+  claims, and rejects descriptor policies that make correlation visible in
+  normal output. Required coverage before acceptance must still fail if
+  transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command
   strings become router architecture, if the App UI bridge is treated as the
   product API, if Zod becomes an accidental durable schema authority, or if

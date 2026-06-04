@@ -24,12 +24,13 @@ and `session/execute` / `executeCiv7Command`, requires mutation descriptors to
 carry approval, validator-first, postcondition, and no-repeat-after-unverified
 gates, rejects malformed descriptor shapes before procedure promotion, and
 snapshots schema-mismatch, raw-command-tunnel, and mutation-gates-missing error
-details while proving correlation stays omitted from normal CLI by default and
-telemetry correlation is tied to the Effect/oRPC middleware hook rather than a
-separate transport surface. This is local package proof only; it does not add
-Effect/oRPC dependencies, create `packages/civ7-control-orpc`, implement
-router/procedure behavior, choose a broader schema migration, claim runtime
-proof, or accept the matrix row.
+details while rejecting `live-runtime-proof` claims from the local descriptor
+owner, proving correlation stays omitted from normal CLI by default, and
+proving telemetry correlation is tied to the Effect/oRPC middleware hook rather
+than a separate transport surface. This is local package proof only; it does
+not collect runtime evidence, add Effect/oRPC dependencies, create
+`packages/civ7-control-orpc`, implement router/procedure behavior, choose a
+broader schema migration, claim runtime proof, or accept the matrix row.
 
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
@@ -136,10 +137,10 @@ relationship/team/war/suzerain evidence.
 
 This contract plus the descriptor owner seed reduce the `contractArtifact`,
 source-owner, descriptor runtime-validation, descriptor typed-error,
-descriptor correlation-policy, and no-raw-tunnel proof gaps for the current
-TypeBox descriptor shape, generic raw fields, and repo-local
-command-source/session-execute owners in the Effect/oRPC Procedure Cores row,
-but they do not accept the row. Acceptance still needs:
+descriptor correlation-policy, descriptor live-runtime-proof guard, and
+no-raw-tunnel proof gaps for the current TypeBox descriptor shape, generic raw
+fields, and repo-local command-source/session-execute owners in the Effect/oRPC
+Procedure Cores row, but they do not accept the row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms;
@@ -154,8 +155,7 @@ but they do not accept the row. Acceptance still needs:
 - AI-ingestion contract fixture tests;
 - final middleware approval/correlation/error tests;
 - no-raw-command-tunnel tests over stable direct-control atoms;
-- proof-label guards preventing oRPC/local tests from being described as
-  live-game proof.
+- final proof-label guards in the procedure/router/runtime-proof owner.
 
 ## Stop Conditions
 

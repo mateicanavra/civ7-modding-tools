@@ -141,6 +141,7 @@ export type Civ7ProcedureCoreDescriptorErrorReason =
   | "family-mismatch"
   | "atom-owner-outside-direct-control"
   | "missing-procedure-core-consumer"
+  | "live-runtime-proof-unsupported"
   | "raw-command-tunnel"
   | "mutation-gates-missing";
 
@@ -195,6 +196,7 @@ export function createCiv7ProcedureCoreDescriptor(
 ): Civ7ProcedureCoreDescriptor {
   const valid = assertCiv7ProcedureCoreDescriptor(descriptor);
   validateProcedureIdentity(valid);
+  validateProofBoundary(valid);
   validateNoRawCommandTunnel(valid);
   validateMutationGates(valid);
   return valid;
@@ -256,6 +258,15 @@ function validateProcedureIdentity(descriptor: Civ7ProcedureCoreDescriptor): voi
       { procedureKey: descriptor.procedureKey, consumerClasses: descriptor.consumerClasses },
     );
   }
+}
+
+function validateProofBoundary(descriptor: Civ7ProcedureCoreDescriptor): void {
+  if (descriptor.proofBoundary !== "live-runtime-proof") return;
+  throw procedureDescriptorError(
+    `Civ7 procedure ${descriptor.procedureKey} cannot claim live runtime proof from the local descriptor owner`,
+    "live-runtime-proof-unsupported",
+    { procedureKey: descriptor.procedureKey, proofBoundary: descriptor.proofBoundary },
+  );
 }
 
 function validateNoRawCommandTunnel(descriptor: Civ7ProcedureCoreDescriptor): void {
