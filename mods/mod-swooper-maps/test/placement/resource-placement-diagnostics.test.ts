@@ -86,6 +86,36 @@ describe("resource placement diagnostics", () => {
     });
   });
 
+  it("rejects non-initial-map resource ids before engine materialization", () => {
+    const width = 4;
+    const height = 3;
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(1932),
+    });
+
+    expect(() =>
+      placeResourcesWithTypedOutcomes({
+        adapter,
+        width,
+        height,
+        resources: {
+          width,
+          height,
+          candidateResourceTypes: [4, 36, 38, 40],
+          targetCount: 1,
+          plannedCount: 1,
+          placements: [
+            { plotIndex: 0, preferredResourceType: 38, preferredTypeOffset: 0, priority: 0.9 },
+          ],
+        },
+      })
+    ).toThrow(/RESOURCE_COAL:deferred-future-age.*RESOURCE_OIL:deferred-future-age.*RESOURCE_RUBBER:deferred-future-age/);
+  });
+
   it("formats compact runtime telemetry for scripting logs", () => {
     const telemetry = buildResourcePlacementRuntimeTelemetry(
       {

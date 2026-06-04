@@ -4,6 +4,7 @@ import type { DiscoveryCatalogEntry } from "@civ7/adapter";
 import placement from "@mapgen/domain/placement";
 import type { PlacementInputsV1 } from "../../placement-inputs.js";
 import { getStandardRuntime } from "../../../../runtime.js";
+import { filterInitialMapResourceTypeIds } from "../../../../../../domain/resources/initial-map-authoring-policy.js";
 
 import DerivePlacementInputsContract from "./contract.js";
 
@@ -19,18 +20,6 @@ export type PlacementPlanBundle = {
   wonders: DeepReadonly<PlanWondersOutput>;
   floodplains: DeepReadonly<PlanFloodplainsOutput>;
 };
-
-function sanitizeResourceCandidates(values: number[], noResourceSentinel: number): number[] {
-  const unique = new Set<number>();
-  for (const raw of values) {
-    if (!Number.isFinite(raw)) continue;
-    const value = raw | 0;
-    if (value < 0) continue;
-    if (value === (noResourceSentinel | 0)) continue;
-    unique.add(value);
-  }
-  return Array.from(unique).sort((a, b) => a - b);
-}
 
 function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): DiscoveryCatalogEntry[] {
   const unique = new Set<string>();
@@ -93,7 +82,7 @@ export function buildPlacementInputs(
   const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
   const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
   const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
-  const candidateResourceTypes = sanitizeResourceCandidates(
+  const candidateResourceTypes = filterInitialMapResourceTypeIds(
     context.adapter.getPlaceableResourceTypes(),
     noResourceSentinel
   );

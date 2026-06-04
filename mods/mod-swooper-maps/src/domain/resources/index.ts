@@ -8,3 +8,4 @@ export default domain;
 
 export * from "./corpus/index.js";
 export * from "./earthlike-expectations/index.js";
+export * from "./initial-map-authoring-policy.js";

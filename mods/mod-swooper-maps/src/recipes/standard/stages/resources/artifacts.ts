@@ -215,6 +215,22 @@ const ExpectationCorpusRefSchema = Type.Object(
   { additionalProperties: false }
 );
 
+const InitialMapAuthoringStatusSchema = Type.Union([
+  Type.Literal("eligible"),
+  Type.Literal("deferred-future-age"),
+  Type.Literal("blocked-official"),
+  Type.Literal("not-placeable"),
+]);
+
+const InitialMapAuthoringSchema = Type.Object(
+  {
+    authoringAge: Type.Literal("AGE_ANTIQUITY"),
+    status: InitialMapAuthoringStatusSchema,
+    rationale: Type.String(),
+  },
+  { additionalProperties: false }
+);
+
 const BlockedExpectedCountRangeSchema = Type.Object(
   {
     baseline: Type.Literal("standard-earthlike-map"),
@@ -262,6 +278,7 @@ const BaseExpectationFieldsSchema = {
   resourceType: Type.String({ pattern: "^RESOURCE_" }),
   groupId: ExpectationGroupIdSchema,
   corpusRef: ExpectationCorpusRefSchema,
+  initialMapAuthoring: InitialMapAuthoringSchema,
   eligibleAges: Type.Array(Type.String({ pattern: "^AGE_" })),
   officialConstraintSummary: PlacementConstraintsSchema,
   earthlikePredicate: Type.String(),

@@ -4,6 +4,7 @@ import type {
   OfficialResourceType,
   ResourceRuntimeIdStatus,
 } from "../corpus/types.js";
+import type { InitialMapResourceAuthoringStatus } from "../initial-map-authoring-policy.js";
 
 export type ResourceExpectationGroupId =
   | "aquatic-coastal-navigable-river"
@@ -41,11 +42,18 @@ export type ResourceExpectationEvidence = {
   readonly range: ResourceExpectationEvidenceStrength;
 };
 
+export type ResourceInitialMapAuthoringPolicyRef = {
+  readonly authoringAge: "AGE_ANTIQUITY";
+  readonly status: InitialMapResourceAuthoringStatus;
+  readonly rationale: string;
+};
+
 export type EarthlikeResourceExpectation = {
   readonly resourceType: OfficialResourceType;
   readonly groupId: ResourceExpectationGroupId;
   readonly corpusRef: ResourceExpectationCorpusRef;
   readonly status: ResourceExpectationStatus;
+  readonly initialMapAuthoring: ResourceInitialMapAuthoringPolicyRef;
   readonly eligibleAges: readonly OfficialAgeType[];
   readonly officialConstraintSummary: OfficialPlacementConstraintSummary;
   readonly earthlikePredicate: string;

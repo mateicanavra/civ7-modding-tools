@@ -6,6 +6,8 @@ import { Value } from "typebox/value";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,
+  DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
+  INITIAL_MAP_RESOURCE_TYPES,
   OFFICIAL_RESOURCE_BY_TYPE,
   OFFICIAL_RESOURCE_TYPE_ORDER,
 } from "../../src/domain/resources/index.js";
@@ -56,6 +58,8 @@ describe("resource earthlike expectations artifact", () => {
         staticResourceRowSlot: corpus.staticResourceRowSlot,
         runtimeIdStatus: "unverified",
       });
+      expect(row.initialMapAuthoring.authoringAge).toBe("AGE_ANTIQUITY");
+      expect(row.initialMapAuthoring.rationale.length).toBeGreaterThan(0);
       expect(row.eligibleAges).toEqual(corpus.validAges);
       expect(row.officialConstraintSummary).toEqual(corpus.officialPlacementConstraints);
       expect(row.evidenceStrength.legality).toBe("official");
@@ -65,6 +69,47 @@ describe("resource earthlike expectations artifact", () => {
       expect(Object.hasOwn(row, "runtimeId")).toBe(false);
       expect(Object.hasOwn(row, "resourceId")).toBe(false);
       expect(Object.hasOwn(row, "numericId")).toBe(false);
+    }
+  });
+
+  it("marks initial-map resource authoring eligibility separately from future resource evidence", () => {
+    const eligible = EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
+      (entry) => entry.initialMapAuthoring.status === "eligible"
+    ).map((entry) => entry.resourceType);
+    const deferred = EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
+      (entry) => entry.initialMapAuthoring.status === "deferred-future-age"
+    ).map((entry) => entry.resourceType);
+
+    expect(eligible).toEqual(INITIAL_MAP_RESOURCE_TYPES);
+    expect(deferred).toEqual(DEFERRED_INITIAL_MAP_RESOURCE_TYPES);
+    expect(deferred).toEqual([
+      "RESOURCE_COCOA",
+      "RESOURCE_FURS",
+      "RESOURCE_SPICES",
+      "RESOURCE_SUGAR",
+      "RESOURCE_TEA",
+      "RESOURCE_TRUFFLES",
+      "RESOURCE_NITER",
+      "RESOURCE_WHALES",
+      "RESOURCE_COFFEE",
+      "RESOURCE_TOBACCO",
+      "RESOURCE_CITRUS",
+      "RESOURCE_COAL",
+      "RESOURCE_OIL",
+      "RESOURCE_QUININE",
+      "RESOURCE_RUBBER",
+      "RESOURCE_PITCH",
+    ]);
+
+    for (const resourceType of ["RESOURCE_COAL", "RESOURCE_OIL", "RESOURCE_RUBBER"] as const) {
+      const row = EARTHLIKE_RESOURCE_EXPECTATIONS.find(
+        (entry) => entry.resourceType === resourceType
+      );
+      expect(row?.status).toBe("expected");
+      expect(row?.initialMapAuthoring).toMatchObject({
+        authoringAge: "AGE_ANTIQUITY",
+        status: "deferred-future-age",
+      });
     }
   });
 

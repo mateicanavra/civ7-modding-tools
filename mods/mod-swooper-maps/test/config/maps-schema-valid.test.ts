@@ -216,6 +216,14 @@ const DEFAULT_STARTS_CONFIG = {
   roughnessPenaltyWeight: 0.6,
 };
 
+function expectedStartsConfig(raw: CanonicalMapConfigEnvelope) {
+  return {
+    ...DEFAULT_STARTS_CONFIG,
+    ...((raw.config as any).placement?.starts ?? {}),
+    overrides: { startSectors: [] },
+  };
+}
+
 const PLACEMENT_INTERNAL_STAGE_KEYS = [
   "derive-placement-inputs",
   "plot-landmass-regions",
@@ -856,7 +864,6 @@ describe("Shipped map configs", () => {
     });
     expect(compiled.placement["derive-placement-inputs"].resources.strategy).toBe("default");
     expect(compiled.placement["derive-placement-inputs"].resources.config).toEqual({
-      candidateResourceTypes: Array.from({ length: 55 }, (_, index) => index),
       densityPer100Tiles: 9,
       minSpacingTiles: 2,
       maxPlacementsPerResourceShare: 0.3,
@@ -864,7 +871,7 @@ describe("Shipped map configs", () => {
     expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
     expect(compiled.placement["assign-starts"].starts).toEqual({
       strategy: "default",
-      config: DEFAULT_STARTS_CONFIG,
+      config: expectedStartsConfig(swooperEarthlikeConfig),
     });
     expect(compiled.placement["plot-landmass-regions"]).toEqual({});
     expect(compiled.placement["place-natural-wonders"]).toEqual({});
@@ -1007,7 +1014,7 @@ describe("Shipped map configs", () => {
       expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
       expect(compiled.placement["assign-starts"].starts).toEqual({
         strategy: "default",
-        config: DEFAULT_STARTS_CONFIG,
+        config: expectedStartsConfig(raw),
       });
     }
   });

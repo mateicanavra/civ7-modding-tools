@@ -121,7 +121,7 @@ export const PlacementResourcesSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Resource placement controls for density, spacing, and type variety. Resource type candidates come from the Civ7 adapter catalog, not authored config.",
+      "Resource placement controls for density, spacing, and type variety. Resource type candidates come from the Civ7 adapter catalog filtered by the resource-domain initial-map authoring policy, not authored config.",
   }
 );
 

@@ -8,6 +8,7 @@ import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 import placement from "@mapgen/domain/placement";
+import { getInitialMapResourcePolicyForStaticSlot } from "../../../../../../domain/resources/initial-map-authoring-policy.js";
 
 type PlanResourcesOutput = Static<(typeof placement.ops.planResources)["output"]>;
 type ResourcePlacementOutcomes = Static<
@@ -137,6 +138,40 @@ function chooseLeastUsedLegalResource(args: {
     }
   }
   return bestType;
+}
+
+function describeResourceType(resourceType: number): string {
+  const policy = getInitialMapResourcePolicyForStaticSlot(resourceType);
+  return policy
+    ? `${resourceType}:${policy.resourceType}:${policy.status}`
+    : `${resourceType}:unknown`;
+}
+
+function assertInitialMapEligibleResourceTypes(args: {
+  candidateResourceTypes: readonly number[];
+  placements: readonly { preferredResourceType: number }[];
+}): void {
+  const invalidCandidates = args.candidateResourceTypes.filter(
+    (resourceType) =>
+      getInitialMapResourcePolicyForStaticSlot(resourceType)?.status !== "eligible"
+  );
+  const invalidPreferred = args.placements
+    .map((placement) => Math.trunc(placement.preferredResourceType))
+    .filter(
+      (resourceType) =>
+        getInitialMapResourcePolicyForStaticSlot(resourceType)?.status !== "eligible"
+    );
+  const invalid = Array.from(new Set([...invalidCandidates, ...invalidPreferred])).sort(
+    (a, b) => a - b
+  );
+
+  if (invalid.length > 0) {
+    throw new Error(
+      `[Placement] Resource plan includes non-initial-map resource ids: ${invalid
+        .map(describeResourceType)
+        .join(", ")}.`
+    );
+  }
 }
 
 function assignResourceIntents(args: {
@@ -575,6 +610,10 @@ export function placeResourcesWithTypedOutcomes({
       `[Placement] Resource plan has no candidate types for diagnostics (planned=${plannedCount}).`
     );
   }
+  assertInitialMapEligibleResourceTypes({
+    candidateResourceTypes,
+    placements: resources.placements,
+  });
 
   const assignmentResult = assignResourceIntents({
     adapter,
