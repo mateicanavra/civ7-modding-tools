@@ -1,4 +1,5 @@
-import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
 
 import type { Civ7OperationFamily } from "../operations/types.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
@@ -134,24 +135,6 @@ function buildPlayNotificationViewCommand(options: { maxNotifications?: number }
     ${playNotificationViewSource()}
     return JSON.stringify(readPlayNotifications(${jsLiteral({ maxNotifications })}));
   })()`;
-}
-
-function jsLiteral(value: unknown): string {
-  const json = JSON.stringify(value);
-  if (json === undefined) {
-    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
-  }
-  return json;
-}
-
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
 }
 
 export function playNotificationViewSource(): string {

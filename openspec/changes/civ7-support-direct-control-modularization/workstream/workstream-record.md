@@ -2670,3 +2670,15 @@ All future agent waves must be framed before delegation:
   every remaining atom-local source helper, or unblock telemetry, AI ingestion,
   CLI semantic projection, hotseat runtime proof, schema migration, debug
   hierarchy implementation, or Effect/oRPC procedure-core work.
+- Notification view command-source helper normalization:
+  `src/play/notifications/view.ts` now imports the shared command-source
+  serializer and runtime probe helper owners instead of carrying atom-local
+  copies. Notification dismissal/verification stays outside this read-only
+  HUD/materialization helper slice. The generated command text remains
+  equivalent, and the notification view wrapper still owns default
+  `maxNotifications`, parse label, decision-hint materialization, and
+  read-only/no-send behavior. This is local package/source relocation cleanup
+  only and does not claim runtime/live-game proof, accept Task 2.9.4, normalize
+  every remaining atom-local source helper, or unblock telemetry, AI ingestion,
+  CLI semantic projection, hotseat runtime proof, schema migration, debug
+  hierarchy implementation, or Effect/oRPC procedure-core work.

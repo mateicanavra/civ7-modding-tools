@@ -1408,6 +1408,15 @@ runtime/direct-control claims.
         normalization, telemetry, AI ingestion, CLI semantic projection, hotseat
         runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.12.26 Normalize the notification view command-source helper wiring by
+        reusing the shared command-source serializer and runtime probe helper
+        owners from the read-only notification HUD/materialization owner,
+        preserving generated command text, default `maxNotifications` behavior,
+        parse label, decision-hint materialization, read-only/no-send behavior,
+        and leaving notification dismissal/verification, scenario expansion,
+        broader atom-local source helper normalization, telemetry, AI ingestion,
+        CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
