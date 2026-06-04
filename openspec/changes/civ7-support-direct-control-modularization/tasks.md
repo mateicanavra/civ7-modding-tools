@@ -165,10 +165,13 @@
         verification, setup/turn lifecycle, and focused CLI proof owners
         identified, but its `acceptanceStatus` remains
         `pending-telemetry-contract`. The planning contract is now recorded in
-        `workstream/operation-proof-telemetry-contract.md`, but the row remains
-        pending until a telemetry source owner, schema/test owner,
-        record-construction tests, projection separation tests, and proof-label
-        guards are assigned and passing.
+        `workstream/operation-proof-telemetry-contract.md`. The telemetry
+        source/proof owner seed is now recorded in
+        `packages/civ7-direct-control/src/proof/operation-telemetry.ts` and
+        `packages/civ7-direct-control/test/operation-telemetry.test.ts`, but
+        the row remains pending until a final schema/test owner, adapter
+        slices from operation atoms, projection separation tests, and
+        proof-label guards are assigned and passing.
         The strategy/intelligence ingestion row now has a draft acceptance
         intake using current target-thread/peer-report planning evidence and
         direct-control read/proof atom owners as candidate input evidence, but

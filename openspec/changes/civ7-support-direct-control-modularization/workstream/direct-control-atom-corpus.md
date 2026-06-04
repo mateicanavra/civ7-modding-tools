@@ -473,6 +473,18 @@ public and procedure schemas, operation/proof telemetry, hotseat runtime proof, 
 ingestion, CLI semantic projection, and Effect/oRPC procedure-core work remain
 pending.
 
+Proof telemetry owner seed update:
+`src/proof/operation-telemetry.ts` now owns the internal operation/proof
+telemetry record vocabulary, structural constructor, postcondition sanitizer,
+and normal-summary boundary. `test/operation-telemetry.test.ts` proves local
+record construction, separation of approval/validation/send/post-read/outcome/
+blocker evidence, removal of legacy `verified` booleans from the postcondition
+contract, and omission of raw telemetry/debug slots from the normal summary.
+This is local package/source proof only. It does not export a public schema,
+attach telemetry adapters to operation atoms, implement persistence, prove
+runtime/live-game behavior, accept Task 2.9.4, or unblock AI ingestion,
+semantic CLI output, debug hierarchy, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

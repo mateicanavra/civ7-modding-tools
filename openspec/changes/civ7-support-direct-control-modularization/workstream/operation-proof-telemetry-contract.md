@@ -85,15 +85,40 @@ No single record field may collapse those into a generic proof claim. Local
 tests can prove construction and projection separation; they do not prove live
 runtime behavior.
 
+## Current Owner Seed
+
+`packages/civ7-direct-control/src/proof/operation-telemetry.ts` is the current
+internal source owner seed for operation/proof telemetry record slot names, the
+TypeScript structural constructor, postcondition sanitization, and normal
+summary boundary. Its focused proof owner is
+`packages/civ7-direct-control/test/operation-telemetry.test.ts`.
+
+The owner seed keeps approval, validation, send receipt, post-read,
+postcondition, outcome delta, blocker delta, evidence policy, and runtime
+observation links as separate fields. It deliberately strips legacy `verified`
+booleans from the postcondition contract and exposes a normal summary that does
+not include raw telemetry/debug slots. The summary keeps status and
+no-repeat-after-unverified guidance aligned: sent records without confirmed
+postcondition proof, including missing postconditions, unverified confidence,
+stale/unknown outcomes, and pending runtime proof, remain no-repeat guarded.
+
+This is a TypeScript structural owner seed only. It does not choose TypeBox or
+Effect Schema, attach telemetry adapters to operation atoms, implement
+telemetry persistence, implement AI-ingestion, add procedure middleware, prove
+runtime/live-game behavior, or accept the matrix row.
+
 ## Acceptance Gaps
 
 This contract reduces the `contractArtifact` gap for the Operation/Proof
-Telemetry row, but it does not accept the row. Acceptance still needs:
+Telemetry row, and the owner seed reduces the source/proof ownership gap, but
+it does not accept the row. Acceptance still needs:
 
-- a named telemetry source owner;
 - a schema/test owner and concrete schema choice;
-- record-construction tests for approval, validation, send receipt, post-read,
-  postcondition, outcome delta, blocker delta, stale, and unknown cases;
+- broader record-construction tests for approval, validation, send receipt,
+  post-read, postcondition, outcome delta, blocker delta, stale, and unknown
+  cases;
+- operation-atom adapters that produce records from existing direct-control
+  approval, validation, send, post-read, and postcondition owners;
 - projection separation tests proving normal CLI, debug/internal service,
   AI-ingestion, and procedure-core outputs remain distinct;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or

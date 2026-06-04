@@ -28,7 +28,7 @@ from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
 | Semantic CLI player-agent view | Full envelope implementation owner, final schema/test owner, debug-separation reviewer/gate owner beyond the recorded CLI owner seed | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
 | Strategy/intelligence ingestion | AI-ingestion contract owner, schema owner, proof owner, source/freshness label owner | Machine-contract fixtures proving source labels, freshness/evidence labels, action/proof vocabulary, and no dependency on CLI strings/raw probes | AI corpus artifacts, strategy/playbook records, static profile recipes, model-training telemetry feeds |
 | Debug/internal service output | Debug/service hierarchy owner, proof owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
-| Operation/proof telemetry | Telemetry contract owner, schema owner, proof owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
+| Operation/proof telemetry | Final schema owner, operation-atom adapter owner, projection gate owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
 | Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, approval gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
 
 Contract-artifact status:
@@ -533,8 +533,12 @@ Intake rejection conditions:
 - `surface`: operation/proof telemetry
 - `primaryConsumer`: support proof, AI-intelligence ingestion, and future
   procedure middleware
-- `sourceOwner`: pending telemetry contract owner
-- `proofOwner`: pending telemetry contract proof owner
+- `sourceOwner`: `packages/civ7-direct-control/src/proof/operation-telemetry.ts`
+  owner seed for record slot vocabulary, structural constructor, and normal
+  summary boundary; operation-specific adapters remain under their existing
+  operation/proof atom owners
+- `proofOwner`: `packages/civ7-direct-control/test/operation-telemetry.test.ts`
+  owner-seed proof; final row proof/gate owner remains pending
 - `playerScope`: operation-local, player-scoped, and agent-slot-scoped for
   mutation-facing records; observer/debug scoped for diagnostics
 - `consumerClass`: proof telemetry; AI-intelligence ingestion; debug/internal
@@ -551,8 +555,10 @@ Intake rejection conditions:
   `validation_pre`, `send_receipt`, `validation_post`, `outcome_delta`, blocker
   deltas, runtime observation links, and stale/unknown classification
 - `proofLabel`: `pending-telemetry-contract`
-- `acceptanceStatus`: `pending-telemetry-contract`; telemetry schema, source
-  owner, proof owner, and local/runtime proof boundary tests not assigned
+- `acceptanceStatus`: `pending-telemetry-contract`; source/proof owner seed
+  exists, but telemetry schema owner, operation-atom adapters,
+  normal/debug/AI/procedure projection separation tests, and runtime proof
+  boundary tests are not assigned
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
   middleware, action audit vocabulary, semantic CLI proof summaries
 - `stopCondition`: stop if telemetry trains or acts on vague `verified: true`,
@@ -572,8 +578,13 @@ Intake rejection conditions:
   `diplomacy-response.test.ts`, `narrative-choice.test.ts`,
   `notification-dismissal.test.ts`, `autoplay-and-turn.test.ts`, and
   setup/lifecycle tests, plus focused CLI command suites where they consume
-  postcondition results. Missing before acceptance: a named telemetry contract
-  source owner, schema/test owner, and reviewer/gate owner.
+  postcondition results. The shared telemetry source/proof owner seed is now
+  `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with focused
+  proof in `packages/civ7-direct-control/test/operation-telemetry.test.ts`,
+  including no-repeat-guarded summaries for sent-unverified, stale/unknown, and
+  pending-runtime-proof records.
+  Missing before acceptance: a final schema/test owner, operation-atom adapter
+  owners, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
   planning updates. A later implementation slice may touch a precisely named
   telemetry contract owner, focused package/CLI tests, and narrow adapters from
@@ -588,16 +599,21 @@ Intake rejection conditions:
   target, args, approval, validation result, send receipt, post-read,
   postcondition classification, outcome delta, blocker delta, evidence policy,
   correlation id, source/freshness label, stale/unknown classification, proof
-  classes, projection boundaries, acceptance gaps, and stop conditions. Missing
-  before acceptance: a named source/proof owner, schema/test owner, and
-  implementation tests over that record contract.
+  classes, projection boundaries, acceptance gaps, and stop conditions. The
+  current source artifact adds the internal record slot vocabulary,
+  constructor, postcondition sanitizer, and normal summary boundary. Missing
+  before acceptance: a schema/test owner, operation-atom adapters, and
+  projection-separation implementation tests over that record contract.
 - `proofPlan`: existing local proof covers approval-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
   verification, and setup/turn lifecycle readback in package and focused CLI
-  tests. Missing proof before acceptance: contract tests for telemetry record
-  construction against `workstream/operation-proof-telemetry-contract.md`,
-  fixture snapshots for stale/unknown/outcome evidence,
+  tests. Owner-seed proof now covers telemetry record construction against
+  `workstream/operation-proof-telemetry-contract.md`, keeps approval,
+  validation, send, post-read, outcome, and blocker evidence as separate slots,
+  strips legacy `verified` booleans from the postcondition contract, and keeps
+  raw telemetry slots out of the normal summary boundary. Missing proof before
+  acceptance: adapter fixtures for stale/unknown/outcome evidence,
   normal/debug/AI/procedure projection separation tests, and runtime-proof
   labeling tests that prevent local tests or docs from becoming live proof.
 - `projectionPlan`: normal CLI may receive only summarized state-machine
@@ -606,11 +622,14 @@ Intake rejection conditions:
   under the debug row; AI ingestion must consume only source-labeled machine
   contracts from the AI-ingestion row; procedure cores may attach middleware
   hooks only after typed schema/procedure ownership is accepted.
-- `stopConditionCoverage`: missing before acceptance. Required coverage must
-  fail if telemetry collapses approval, validation, send, postcondition,
-  post-read, and outcome evidence into `verified: true`; if AI ingestion or
-  procedure cores consume raw CLI/debug strings; or if local tests, target
-  threads, peer reports, logs, or docs are labeled as live runtime proof.
+- `stopConditionCoverage`: partial owner-seed coverage now proves the structural
+  telemetry constructor does not carry a legacy `verified` boolean as the
+  postcondition contract and keeps raw telemetry slots out of the normal
+  summary boundary. Required coverage before acceptance must still fail if
+  telemetry collapses approval, validation, send, postcondition, post-read, and
+  outcome evidence into `verified: true`; if AI ingestion or procedure cores
+  consume raw CLI/debug strings; or if local tests, target threads, peer
+  reports, logs, or docs are labeled as live runtime proof.
 - `downstreamUnblock`: none yet. Acceptance would unblock only explicitly named
   telemetry contract, action-audit vocabulary, and later procedure middleware
   slices after schema/proof owners and separation tests are recorded; it would

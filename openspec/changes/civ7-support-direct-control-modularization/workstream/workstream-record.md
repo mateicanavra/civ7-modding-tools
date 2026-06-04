@@ -91,6 +91,20 @@ This reduces the semantic CLI row's first-integration gap only; it does not
 implement envelope coverage across every normal play command, choose final
 schema technology, accept Task 2.9.4, prove AI-ingestion separation, or claim
 runtime/live-game proof.
+Operation/proof telemetry owner-seed proof now names
+`packages/civ7-direct-control/src/proof/operation-telemetry.ts` as the internal
+source owner for future telemetry record slots and normal-summary projection
+boundary, with focused proof in
+`packages/civ7-direct-control/test/operation-telemetry.test.ts`. The proof
+keeps approval, validation, send receipt, post-read, outcome, and blocker
+evidence separate, strips legacy `verified` booleans from the postcondition
+contract, keeps sent-unverified, stale/unknown, and pending-runtime-proof
+summaries no-repeat guarded, and keeps raw telemetry/debug slots out of the
+normal summary. This
+reduces the operation/proof telemetry row's source/proof owner gap only; it
+does not choose schema technology, attach operation adapters, implement
+telemetry persistence, prove projection separation across CLI/debug/AI/
+procedure surfaces, accept Task 2.9.4, or claim runtime/live-game proof.
 Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
