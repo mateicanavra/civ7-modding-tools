@@ -2325,3 +2325,14 @@ All future agent waves must be framed before delegation:
   or unblock semantic CLI implementation, debug hierarchy implementation,
   telemetry, AI ingestion, hotseat runtime proof, schema migration, or
   product-path support.
+- Runtime status/inspection facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports the runtime owner
+  functions directly for runtime API inspection, App UI snapshot, Tuner
+  health/readiness, playable status, and bounded root inspection instead of
+  keeping trivial async call-through wrappers. The runtime owner modules and
+  public package import names stay stable; lifecycle/setup composition remains
+  in the setup owners. This is local package/source relocation cleanup only and
+  does not claim runtime/live-game proof, accept Task 2.9.4, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+  schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.

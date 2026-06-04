@@ -57,16 +57,14 @@ import {
   type Civ7CapabilityCatalogEntry,
   type Civ7CapabilityCatalogOptions,
 } from "./catalog/capabilities.js";
-import {
-  getCiv7AppUiSnapshot as getCiv7AppUiSnapshotFromModule,
-  type Civ7AppUiSnapshot,
-  type Civ7AppUiSnapshotResult,
+import type {
+  Civ7AppUiSnapshot,
+  Civ7AppUiSnapshotResult,
 } from "./runtime/app-ui-snapshot.js";
-import {
-  inspectCiv7RuntimeApi as inspectCiv7RuntimeApiFromModule,
-  type Civ7RuntimeApiInspection,
-  type Civ7RuntimeApiMethod,
-  type Civ7RuntimeApiRoot,
+import type {
+  Civ7RuntimeApiInspection,
+  Civ7RuntimeApiMethod,
+  Civ7RuntimeApiRoot,
 } from "./runtime/inspection.js";
 import {
   DEFAULT_CIV7_APP_UI_API_ROOTS,
@@ -79,20 +77,16 @@ import {
   probeValue,
   type Civ7RuntimeProbe,
 } from "./runtime/probe.js";
-import {
-  inspectCiv7Root as inspectCiv7RootFromModule,
-  type Civ7RootInspectionInput,
-  type Civ7RootInspectionResult,
+import type {
+  Civ7RootInspectionInput,
+  Civ7RootInspectionResult,
 } from "./runtime/root-inspection.js";
-import {
-  checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
-  waitForCiv7TunerReady as waitForCiv7TunerReadyFromModule,
-  type Civ7TunerHealthResult,
-  type Civ7TunerHealthSnapshot,
+import type {
+  Civ7TunerHealthResult,
+  Civ7TunerHealthSnapshot,
 } from "./runtime/tuner-health.js";
-import {
-  getCiv7PlayableStatus as getCiv7PlayableStatusFromModule,
-  type Civ7PlayableStatusResult,
+import type {
+  Civ7PlayableStatusResult,
 } from "./runtime/playable-status.js";
 import {
   defaultSetupReadDependencies,
@@ -418,21 +412,29 @@ export type {
   Civ7AppUiSnapshot,
   Civ7AppUiSnapshotResult,
 } from "./runtime/app-ui-snapshot.js";
+export { getCiv7AppUiSnapshot } from "./runtime/app-ui-snapshot.js";
 export type {
   Civ7RuntimeApiInspection,
   Civ7RuntimeApiMethod,
   Civ7RuntimeApiRoot,
 } from "./runtime/inspection.js";
+export { inspectCiv7RuntimeApi } from "./runtime/inspection.js";
 export type { Civ7RuntimeProbe } from "./runtime/probe.js";
 export type {
   Civ7RootInspectionInput,
   Civ7RootInspectionResult,
 } from "./runtime/root-inspection.js";
+export { inspectCiv7Root } from "./runtime/root-inspection.js";
 export type {
   Civ7TunerHealthResult,
   Civ7TunerHealthSnapshot,
 } from "./runtime/tuner-health.js";
+export {
+  checkCiv7TunerHealth,
+  waitForCiv7TunerReady,
+} from "./runtime/tuner-health.js";
 export type { Civ7PlayableStatusResult } from "./runtime/playable-status.js";
+export { getCiv7PlayableStatus } from "./runtime/playable-status.js";
 export {
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
@@ -791,27 +793,8 @@ export type Civ7ResourceBuilderDiagnosticsResult = Readonly<{
   cells: ReadonlyArray<Civ7ResourceBuilderDiagnosticsCell>;
 }>;
 
-export async function inspectCiv7RuntimeApi(options: Civ7DirectControlOptions & {
-  state?: Civ7TunerStateSelection;
-  roots?: ReadonlyArray<string>;
-} = {}): Promise<Civ7RuntimeApiInspection> {
-  return await inspectCiv7RuntimeApiFromModule(options);
-}
-
-export async function getCiv7AppUiSnapshot(
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7AppUiSnapshotResult> {
-  return await getCiv7AppUiSnapshotFromModule(options);
-}
-
 export async function beginCiv7Game(options: Civ7DirectControlOptions = {}): Promise<Civ7CommandResult> {
   return await beginCiv7GameFromModule(options);
-}
-
-export async function checkCiv7TunerHealth(
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7TunerHealthResult> {
-  return await checkCiv7TunerHealthFromModule(options);
 }
 
 export async function restartCiv7Game(options: Civ7DirectControlOptions & {
@@ -826,19 +809,6 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
   pollIntervalMs?: number;
 } = {}): Promise<Civ7RestartAndBeginResult> {
   return await restartCiv7GameAndBeginFromModule(options);
-}
-
-export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & {
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-} = {}): Promise<Civ7TunerHealthResult & { ready: true }> {
-  return await waitForCiv7TunerReadyFromModule(options);
-}
-
-export async function getCiv7PlayableStatus(
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7PlayableStatusResult> {
-  return await getCiv7PlayableStatusFromModule(options);
 }
 
 export async function getCiv7MapSummary(
@@ -1174,13 +1144,6 @@ export async function runCiv7SinglePlayerFromSetup(
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
   return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
-}
-
-export async function inspectCiv7Root(
-  input: Civ7RootInspectionInput,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7RootInspectionResult> {
-  return await inspectCiv7RootFromModule(input, options);
 }
 
 export async function getCiv7AutoplayStatus(

@@ -1233,6 +1233,14 @@ runtime/direct-control claims.
         projection, and leaving telemetry, AI ingestion, CLI semantic
         projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.20 Prune trivial runtime status/inspection facade call-through
+        wrappers by re-exporting the runtime owner functions directly from
+        `index.ts`, preserving public package imports for runtime API
+        inspection, App UI snapshot, Tuner health/readiness, playable status,
+        and bounded root inspection while leaving lifecycle/setup composition,
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
