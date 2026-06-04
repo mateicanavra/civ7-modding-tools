@@ -2262,3 +2262,13 @@ All future agent waves must be framed before delegation:
   claim runtime/live-game proof, or unblock normal CLI semantic envelopes,
   telemetry, AI ingestion, schema migration, Effect/Bun, or Effect/oRPC
   procedure-core work.
+- Semantic CLI compatibility-row intake: `workstream/compatibility-matrix.md`
+  now records a draft acceptance intake for the semantic CLI player-agent view
+  row. The intake uses `workstream/cli-play-corpus.md` as current
+  command/test-owner evidence, then records the missing semantic envelope
+  owner, contract artifact, schema/test owner, and normal/debug/AI separation
+  proof needed before acceptance. The row remains
+  `pending-cli-semantic-envelope`; this update does not implement CLI semantic
+  output, accept Task 2.9.4, claim runtime/live-game proof, or unblock AI
+  ingestion, telemetry, schema migration, debug hierarchy implementation,
+  Effect/Bun, or Effect/oRPC procedure-core work.

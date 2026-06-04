@@ -156,6 +156,57 @@ Intake rejection conditions:
   command, proof JSON, route selection, correlation internals, or debug probes
   instead of player-agent state and actions
 
+#### Acceptance Intake: Semantic CLI Player-Agent View
+
+- `ownerAssignment`: current source owners are the 45 `game play` command
+  modules under `packages/cli/src/commands/game/play/**/*.ts`, with command
+  ownership inventoried in `workstream/cli-play-corpus.md`. Current proof
+  owners are the 28 canonical play suites covered by root `test:cli:play`,
+  including the focused notification, priorities, ready, tactical, progression,
+  production, operation, and mutation-facing command suites listed in that
+  corpus. Missing before acceptance: a named CLI semantic envelope source
+  owner, schema/test owner, and reviewer/gate owner for normal/debug/AI
+  projection separation.
+- `writeSet`: this intake authorizes only compatibility-matrix/task/record
+  planning updates. A later implementation slice may touch the listed play
+  command modules, focused play tests, and a precisely named semantic-envelope
+  owner after the row has a concrete owner. No broad `common`, `utils`,
+  `types`, debug/service, telemetry, AI-ingestion, transport, or procedure-core
+  bucket is authorized.
+- `contractArtifact`: existing artifacts are command-specific play outputs and
+  the CLI play corpus inventory. Missing contract artifact before acceptance:
+  a semantic player-agent envelope contract that defines game state, blockers,
+  decisions, action results, safe/unsafe next steps, and postcondition
+  classifications while explicitly excluding raw service/debug fields from
+  normal play output.
+- `proofPlan`: existing local proof is canonical `test:cli:play` plus the
+  focused command owner tests recorded in `workstream/cli-play-corpus.md`.
+  Missing proof before acceptance: tests that normal play output carries the
+  semantic envelope, tests that raw session/transport/closeout/command/proof
+  JSON and correlation/probe internals are omitted from normal play output, and
+  tests or fixtures proving AI ingestion does not consume CLI presentation
+  strings.
+- `projectionPlan`: normal CLI projection should be semantic player-agent
+  state and action guidance only; debug/internal service projection remains
+  omitted from normal output or routed through debug-owned commands/flags; AI
+  ingestion remains out-of-scope until a separate machine contract accepts
+  source/freshness/evidence labels; telemetry and procedure-core projections
+  remain pending separate rows.
+- `stopConditionCoverage`: missing before acceptance. Required coverage must
+  fail if normal CLI output includes raw session state, transport details,
+  closeout traces, command strings, proof JSON, route selection, correlation
+  internals, debug probes, or if AI consumers depend on CLI presentation text.
+- `downstreamUnblock`: none yet. Acceptance would unblock only the named CLI
+  semantic-surface tasks 5.1-5.7 after the envelope contract, owner assignment,
+  and separation tests are recorded; it would not unblock AI ingestion,
+  telemetry, hotseat runtime proof, debug hierarchy, schema migration,
+  transport adapters, or procedure-core implementation.
+- `nonProofClaims`: this intake does not claim runtime/live-game proof, CLI
+  semantic implementation, AI ingestion implementation, telemetry contract
+  acceptance, debug hierarchy implementation, schema migration, Effect/Bun
+  implementation, Effect/oRPC procedure-core work, product-path support, or
+  Task 2.9.4 row acceptance.
+
 ### Strategy/Intelligence Ingestion
 
 - `foundationThread`: `019e86b7-b08b-72f3-8341-6c78a1285c93`

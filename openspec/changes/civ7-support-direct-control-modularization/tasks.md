@@ -111,6 +111,13 @@
         but its `acceptanceStatus` remains `pending-debug-service-boundary`
         until normal/debug/AI separation tests and a debug projection contract
         are assigned and passing.
+        The semantic CLI player-agent view row now has a draft acceptance
+        intake with current `game play` command/test owners from
+        `workstream/cli-play-corpus.md` and missing envelope/schema/proof
+        called out, but its `acceptanceStatus` remains
+        `pending-cli-semantic-envelope` until a semantic envelope owner,
+        contract, and normal/debug/AI separation tests are assigned and
+        passing.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
