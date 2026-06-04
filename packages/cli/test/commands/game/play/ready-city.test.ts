@@ -105,6 +105,7 @@ describe('game play ready-city command', () => {
       expect(payload.omitted.some((item) => item.path === 'view.productionCandidates[].result')).toBe(true);
       expect(payload.omitted.some((item) => item.path === 'view.populationPlacement.allPlacementInfo')).toBe(true);
       expect(payload.view).toBeUndefined();
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
     } finally {
       log.mockRestore();
@@ -298,4 +299,22 @@ function readyCityView() {
     },
     notes: ['Read-only ready-city view. This view intentionally does not choose production.'],
   };
+}
+
+function expectNormalPlayPayloadToOmitDebugInternals(payload: unknown): void {
+  const text = JSON.stringify(payload);
+  for (const marker of [
+    'CMD:',
+    'LSQ:',
+    'GameContext.',
+    'sendRequest',
+    'selectedState',
+    'socket',
+    'requestId',
+    'correlationId',
+    'closeoutTrace',
+    'rawProbe',
+  ]) {
+    expect(text).not.toContain(marker);
+  }
 }

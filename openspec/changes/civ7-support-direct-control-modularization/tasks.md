@@ -117,9 +117,10 @@
         assigned and passing. The planning contract is now recorded in
         `workstream/debug-service-projection-contract.md`, but it does not
         assign source/proof owners or accept the row. Focused compact
-        `game play priorities` coverage now proves one normal play projection
-        omits raw transport/session/probe/correlation command internals, but
-        broader debug-command boundary, AI-ingestion, telemetry, and
+        `game play priorities` and compact `game play ready-city` coverage now
+        prove two normal play projections omit raw
+        transport/session/probe/correlation command internals, but broader
+        debug-command boundary, AI-ingestion, telemetry, and
         procedure-diagnostic separation proof remains pending before row
         acceptance. Focused `game inspect --json` coverage now also proves one
         debug-owned command emits raw runtime inspection fields including
