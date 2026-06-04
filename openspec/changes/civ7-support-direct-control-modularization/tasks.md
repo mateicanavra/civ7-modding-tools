@@ -2139,6 +2139,23 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         6.1-6.9.
+  - [x] 4.33 Add the adjacent playable-status procedure call wrapper in
+        `src/runtime/playable-status-procedure.ts`, with focused proof in
+        `test/playable-status-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7PlayableStatus` runtime-support
+        atom, keeps endpoint/session selection in procedure context rather than
+        input, validates procedure input before runtime dependencies run,
+        validates ready and unavailable outputs through the descriptor schema
+        artifacts, forwards direct-control options to the atom, and keeps
+        procedure diagnostics separate from playable-status output. This is
+        local no-network proof over fake App UI/Tuner dependencies only; it
+        does not execute live direct-control atoms, construct final runtime
+        context, add middleware, add a router/registry/transport adapter,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 

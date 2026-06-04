@@ -169,6 +169,17 @@ and its output field list resolves against the composed playable-status schema
 root properties, including non-ready unavailable output without a `tuner`
 property, without registering a router or transport adapter.
 
+The same adjacent playable-status procedure artifact now exports a concrete
+`runtime.playable.status` call wrapper over `getCiv7PlayableStatus`, composed
+through the local procedure-core call primitive. Focused proof uses fake App
+UI/Tuner dependencies to prove direct-control option forwarding, input
+validation before runtime dependencies run, ready and unavailable output
+validation after the atom returns, separated output/diagnostics, and preserved
+`errors` evidence plus omitted optional `tuner` for non-ready status. This is
+local no-network runtime-support proof only; it does not execute live health
+checks, add a router, add Effect/oRPC dependencies, choose Effect Schema, claim
+runtime proof, or accept the matrix row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit

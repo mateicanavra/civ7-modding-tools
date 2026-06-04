@@ -55,7 +55,7 @@ export type Civ7PlayableStatusResult = Readonly<{
 }>;
 export type Civ7PlayableStatusResultContract = Readonly<Static<typeof Civ7PlayableStatusResultSchema>>;
 
-type PlayableStatusDependencies = Readonly<{
+export type PlayableStatusDependencies = Readonly<{
   checkTunerHealth: (options?: Civ7DirectControlOptions) => Promise<Civ7TunerHealthResult>;
   errorMessage: (err: unknown) => string;
   getAppUiSnapshot: (options?: Civ7DirectControlOptions) => Promise<Civ7AppUiSnapshotResult>;

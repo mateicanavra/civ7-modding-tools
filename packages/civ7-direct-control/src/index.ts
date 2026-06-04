@@ -446,6 +446,7 @@ export {
 export type {
   Civ7PlayableStatusInput,
   Civ7PlayableStatusResult,
+  PlayableStatusDependencies,
 } from "./runtime/playable-status.js";
 export {
   Civ7PlayableReadinessSchema,
@@ -454,9 +455,11 @@ export {
   getCiv7PlayableStatus,
 } from "./runtime/playable-status.js";
 export {
+  callCiv7PlayableStatusProcedure,
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
 } from "./runtime/playable-status-procedure.js";
+export type { Civ7PlayableStatusProcedureCallOptions } from "./runtime/playable-status-procedure.js";
 export {
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,

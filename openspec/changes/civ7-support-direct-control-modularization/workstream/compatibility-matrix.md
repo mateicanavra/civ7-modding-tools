@@ -715,9 +715,10 @@ Intake rejection conditions:
   a local guard refusing `live-runtime-proof` claims before a runtime-proof
   owner exists; descriptor context-policy metadata, payload validation, and a
   local injected-handler call primitive now exist for current schema/descriptor
-  seeds; concrete ready-unit, ready-city, and unit move-preview procedure call
-  wrappers exist adjacent to their read atoms; final procedure-core/schema/
-  runtime-context, middleware, error, and correlation owners remain pending
+  seeds; concrete ready-unit, ready-city, unit move-preview, and
+  playable-status procedure call wrappers exist adjacent to their direct-control
+  atoms; final procedure-core/schema/runtime-context, middleware, error, and
+  correlation owners remain pending
 - `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
   owner-seed proof for descriptor construction, generic raw tunnel rejection,
   `runtime/command-serialization` / `jsLiteral` rejection,
@@ -730,7 +731,9 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/ready-city-procedure.test.ts`, and
   `packages/civ7-direct-control/test/unit-move-preview-procedure.test.ts` now
   also prove adjacent concrete read procedure call wrappers with fake atom
-  dependencies.
+  dependencies. `packages/civ7-direct-control/test/playable-status-procedure.test.ts`
+  now also proves the adjacent concrete runtime-support procedure call wrapper
+  with fake App UI/Tuner dependencies.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -825,17 +828,19 @@ Intake rejection conditions:
   injected handler, with focused proof for input-before-handler validation,
   output-after-handler validation, separated output/diagnostics, generated and
   caller-provided correlation IDs, and handler failure normalization. The
-  concrete ready-unit, ready-city, and unit move-preview procedure call wrappers
-  now compose that primitive with `getCiv7ReadyUnitView`,
-  `getCiv7ReadyCityView`, and `getCiv7UnitMovePreview` through fake
+  concrete ready-unit, ready-city, unit move-preview, and playable-status
+  procedure call wrappers now compose that primitive with
+  `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
+  `getCiv7UnitMovePreview`, and `getCiv7PlayableStatus` through fake
   direct-control dependencies in focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   runtime-context/middleware/error/correlation owner, broader concrete
   procedure owners, and explicit owner boundaries for the in-game controller
   router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the adjacent unit move-preview procedure
-  call wrapper, focused no-network proof over fake move-preview atom
-  dependencies, public facade exports/proof, and docs/OpenSpec records.
+- `writeSet`: current write set is the adjacent playable-status procedure
+  call wrapper, focused no-network proof over fake App UI/Tuner dependencies,
+  public facade exports/proof, playable-status dependency type export for local
+  proof injection, and docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -905,7 +910,11 @@ Intake rejection conditions:
   artifacts now also export concrete `unit.ready.view`, `city.ready.view`, and
   `unit.move.preview` call wrappers that use the local call primitive to
   validate input, invoke the stable read atoms, validate output, and return
-  diagnostics separately from the atom output.
+  diagnostics separately from the atom output. The adjacent playable-status
+  procedure artifact now also exports a concrete `runtime.playable.status` call
+  wrapper that uses the same primitive to validate empty input, invoke the
+  stable runtime-support atom, validate ready and unavailable output shapes, and
+  return diagnostics separately from the atom output.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
@@ -943,14 +952,16 @@ Intake rejection conditions:
   TypeBox versus Effect Schema migration decision and does not prove broader
   concrete procedure input/output schemas or runtime router schema registration.
 - `concreteProcedureOwner`: current concrete procedure proof exists for
-  `unit.ready.view`, `city.ready.view`, and `unit.move.preview`, where the
-  adjacent read procedure wrappers compose `getCiv7ReadyUnitView`,
-  `getCiv7ReadyCityView`, and `getCiv7UnitMovePreview` with the procedure-core
-  call primitive through fake dependencies. They prove input rejection before
-  atom dependencies run, direct-control option forwarding into the atoms, atom
-  output validation, separated diagnostics, and neutral move-preview
-  relationship-policy preservation. Broader concrete procedures, runtime router
-  registration, and oRPC handler registration remain pending.
+  `unit.ready.view`, `city.ready.view`, `unit.move.preview`, and
+  `runtime.playable.status`, where the adjacent procedure wrappers compose
+  `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
+  `getCiv7UnitMovePreview`, and `getCiv7PlayableStatus` with the
+  procedure-core call primitive through fake dependencies. They prove input
+  rejection before atom dependencies run, direct-control option forwarding into
+  the atoms, atom output validation, separated diagnostics, neutral
+  move-preview relationship-policy preservation, and playable-status
+  readiness/error/tuner-absence output validation. Broader concrete procedures,
+  runtime router registration, and oRPC handler registration remain pending.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, missing
@@ -996,8 +1007,8 @@ Intake rejection conditions:
   move-preview descriptors, local injected-handler procedure-call proof for
   input-before-handler/output-after-handler sequencing, separated
   output/diagnostics, correlation-id policy, and handler failure normalization,
-  adjacent ready-unit, ready-city, and unit move-preview procedure call proof
-  over stable read atoms with fake direct-control dependencies,
+  adjacent ready-unit, ready-city, unit move-preview, and playable-status
+  procedure call proof over stable direct-control atoms with fake dependencies,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface. Missing before acceptance: final oRPC schema/procedure
@@ -1028,8 +1039,8 @@ Intake rejection conditions:
   after handler execution on invalid output, requires caller-provided
   correlation IDs where descriptor policy says so, and wraps injected-handler
   failures with procedure/correlation details. The adjacent ready-unit,
-  ready-city, and unit move-preview wrappers fail before their atom dependencies
-  run when procedure input is invalid.
+  ready-city, unit move-preview, and playable-status wrappers fail before their
+  atom dependencies run when procedure input is invalid.
   Required coverage before acceptance must still fail if
   transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command

@@ -57,6 +57,7 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
   assertCiv7ComponentId,
+  callCiv7PlayableStatusProcedure,
   callCiv7ProcedureCore,
   callCiv7ReadyCityViewProcedure,
   callCiv7ReadyUnitViewProcedure,
@@ -407,6 +408,7 @@ describe("Civ7 direct control public API", () => {
         "live-session-policy",
       ]),
     });
+    expect(typeof callCiv7PlayableStatusProcedure).toBe("function");
     expect(Civ7PlayableStatusProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.inputSchema)
     ]).toBe(Civ7PlayableStatusInputSchema);

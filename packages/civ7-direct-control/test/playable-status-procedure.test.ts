@@ -4,9 +4,11 @@ import { Value } from "typebox/value";
 import {
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
+  callCiv7PlayableStatusProcedure,
   getCiv7PlayableStatus,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
+  type PlayableStatusDependencies,
 } from "../src/index";
 
 describe("Civ7 playable-status procedure descriptor", () => {
@@ -48,6 +50,97 @@ describe("Civ7 playable-status procedure descriptor", () => {
       ...playableStatusResult(),
       command: "Game.turn",
     })).toBe(false);
+  });
+
+  test("calls the playable-status atom through the procedure core without touching the live tuner", async () => {
+    const calls: Array<{ kind: "app-ui" | "tuner"; host?: string; port?: number }> = [];
+    const dependencies: PlayableStatusDependencies = {
+      getAppUiSnapshot: async (options) => {
+        calls.push({ kind: "app-ui", host: options?.host, port: options?.port });
+        return playableStatusResult().appUi;
+      },
+      checkTunerHealth: async (options) => {
+        calls.push({ kind: "tuner", host: options?.host, port: options?.port });
+        return playableStatusResult().tuner;
+      },
+      errorMessage: (err) => err instanceof Error ? err.message : String(err),
+    };
+
+    const result = await callCiv7PlayableStatusProcedure({}, {
+      directControl: {
+        host: "127.0.0.1",
+        port: 4318,
+      },
+      procedure: {
+        correlationId: "playable-status-procedure-test",
+      },
+      dependencies,
+    });
+
+    expect(result.output).toEqual(playableStatusResult());
+    expect(result.diagnostics).toMatchObject({
+      procedureKey: "runtime.playable.status",
+      correlationId: "playable-status-procedure-test",
+      proofBoundary: "local-package-test",
+      playerScope: "debug-observer-only",
+      debugServiceCorrelation: true,
+      telemetryCorrelation: false,
+    });
+    expect(calls).toEqual([
+      { kind: "app-ui", host: "127.0.0.1", port: 4318 },
+      { kind: "tuner", host: "127.0.0.1", port: 4318 },
+    ]);
+  });
+
+  test("keeps tuner-health failures as validated procedure output", async () => {
+    const dependencies: PlayableStatusDependencies = {
+      getAppUiSnapshot: async () => unavailablePlayableStatusResult().appUi,
+      checkTunerHealth: async () => {
+        throw new Error("Tuner socket unavailable");
+      },
+      errorMessage: (err) => err instanceof Error ? err.message : String(err),
+    };
+
+    const result = await callCiv7PlayableStatusProcedure({}, {
+      procedure: { correlationId: "playable-status-unavailable" },
+      dependencies,
+    });
+
+    expect(result.output).toEqual(unavailablePlayableStatusResult());
+    expect(result.output.tuner).toBeUndefined();
+    expect(result.output.errors).toEqual(["Tuner socket unavailable"]);
+    expect(result.diagnostics).toMatchObject({
+      procedureKey: "runtime.playable.status",
+      correlationId: "playable-status-unavailable",
+    });
+  });
+
+  test("rejects context-owned procedure input before playable-status dependencies run", async () => {
+    let touchedRuntime = false;
+    const dependencies: PlayableStatusDependencies = {
+      getAppUiSnapshot: async () => {
+        touchedRuntime = true;
+        throw new Error("getAppUiSnapshot should not run after procedure input rejection");
+      },
+      checkTunerHealth: async () => {
+        touchedRuntime = true;
+        throw new Error("checkTunerHealth should not run after procedure input rejection");
+      },
+      errorMessage: (err) => String(err),
+    };
+
+    await expect(callCiv7PlayableStatusProcedure({ host: "127.0.0.1" } as never, {
+      procedure: { correlationId: "playable-status-invalid-input" },
+      dependencies,
+    })).rejects.toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "input-schema-invalid",
+        procedureKey: "runtime.playable.status",
+        role: "input",
+      },
+    });
+    expect(touchedRuntime).toBe(false);
   });
 });
 

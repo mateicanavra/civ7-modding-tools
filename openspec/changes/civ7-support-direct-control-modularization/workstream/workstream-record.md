@@ -182,6 +182,21 @@ source/proof/no-raw-tunnel gap for generic raw fields plus
 `executeCiv7Command`; it does not implement Effect/oRPC source, add
 `packages/civ7-control-orpc`, add transport adapters, migrate schemas, accept
 Task 2.9.4, start Tasks 6.1-6.9, or claim runtime/live-game proof.
+Playable-status concrete procedure call proof now names
+`packages/civ7-direct-control/src/runtime/playable-status-procedure.ts` as the
+adjacent `runtime.playable.status` call wrapper owner over
+`getCiv7PlayableStatus`, with focused proof in
+`packages/civ7-direct-control/test/playable-status-procedure.test.ts` and
+public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+The wrapper composes the local procedure-core call primitive with fake App
+UI/Tuner dependencies, validates empty procedure input before runtime
+dependencies run, forwards direct-control options, validates ready and
+unavailable outputs through the descriptor schema artifacts, and keeps
+procedure diagnostics separate from playable-status output. This reduces only
+the Effect/oRPC Procedure Cores row's concrete runtime-support wrapper gap; it
+does not execute live health/Tuner reads, add a router/registry/transport,
+implement Effect/oRPC source, add `packages/civ7-control-orpc`, accept Task
+2.9.4, start Tasks 6.1-6.9, or claim runtime/live-game proof.
 
 ## Current State
 
