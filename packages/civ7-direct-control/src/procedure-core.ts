@@ -79,6 +79,20 @@ export const Civ7ProcedureProjectionSchema = Type.Object({
 }, { additionalProperties: false });
 export type Civ7ProcedureProjection = Static<typeof Civ7ProcedureProjectionSchema>;
 
+export const Civ7ProcedureCorrelationPolicySchema = Type.Object({
+  idSource: Type.Union([
+    Type.Literal("generated-per-call"),
+    Type.Literal("caller-provided-and-validated"),
+  ]),
+  normalCli: Type.Literal("omitted-by-default"),
+  debugService: Type.Literal("included-in-diagnostics"),
+  telemetry: Type.Union([
+    Type.Literal("attached-when-procedure-telemetry-enabled"),
+    Type.Literal("omitted"),
+  ]),
+}, { additionalProperties: false });
+export type Civ7ProcedureCorrelationPolicy = Static<typeof Civ7ProcedureCorrelationPolicySchema>;
+
 export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   procedureKey: Type.String(),
   family: Civ7ProcedureFamilySchema,
@@ -91,6 +105,7 @@ export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   consumerClasses: Type.Array(Civ7ProcedureConsumerClassSchema),
   proofBoundary: Civ7ProcedureProofBoundarySchema,
   projection: Civ7ProcedureProjectionSchema,
+  correlation: Civ7ProcedureCorrelationPolicySchema,
   approvalGate: Type.Optional(Type.Boolean()),
   validatorFirst: Type.Optional(Type.Boolean()),
   postconditionRequired: Type.Optional(Type.Boolean()),
@@ -111,6 +126,7 @@ export type Civ7ProcedureCoreSummary = Readonly<{
   aiIngestionProjection: Civ7ProcedureProjection["aiIngestion"];
   telemetryProjection: Civ7ProcedureProjection["telemetry"];
   procedureCoreProjection: Civ7ProcedureProjection["procedureCore"];
+  correlation: Civ7ProcedureCorrelationPolicy;
   mutationGates: Readonly<{
     approvalGate: boolean;
     validatorFirst: boolean;
@@ -201,6 +217,7 @@ export function summarizeCiv7ProcedureCoreDescriptor(
     aiIngestionProjection: valid.projection.aiIngestion,
     telemetryProjection: valid.projection.telemetry,
     procedureCoreProjection: valid.projection.procedureCore,
+    correlation: valid.correlation,
     mutationGates: {
       approvalGate: valid.approvalGate === true,
       validatorFirst: valid.validatorFirst === true,

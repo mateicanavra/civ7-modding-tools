@@ -32,6 +32,12 @@ const readyUnitDescriptor: Civ7ProcedureCoreDescriptor = {
     telemetry: "blocked-until-procedure-middleware",
     procedureCore: "typed-procedure-core",
   },
+  correlation: {
+    idSource: "generated-per-call",
+    normalCli: "omitted-by-default",
+    debugService: "included-in-diagnostics",
+    telemetry: "omitted",
+  },
 };
 
 function captureDescriptorError(fn: () => unknown): Civ7DirectControlError {
@@ -63,6 +69,12 @@ describe("Civ7 procedure-core descriptor owner", () => {
       aiIngestionProjection: "blocked-until-ingestion-contract",
       telemetryProjection: "blocked-until-procedure-middleware",
       procedureCoreProjection: "typed-procedure-core",
+      correlation: {
+        idSource: "generated-per-call",
+        normalCli: "omitted-by-default",
+        debugService: "included-in-diagnostics",
+        telemetry: "omitted",
+      },
       mutationGates: {
         approvalGate: false,
         validatorFirst: false,
@@ -84,6 +96,14 @@ describe("Civ7 procedure-core descriptor owner", () => {
     expect(() => assertCiv7ProcedureCoreDescriptor({
       ...readyUnitDescriptor,
       consumerClasses: ["effect-orpc-procedure-core", "raw-cli-output"],
+    })).toThrow(/does not match the Civ7 procedure-core descriptor schema/);
+
+    expect(() => assertCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      correlation: {
+        ...readyUnitDescriptor.correlation,
+        normalCli: "visible-in-normal-output",
+      },
     })).toThrow(/does not match the Civ7 procedure-core descriptor schema/);
 
     expect(() => createCiv7ProcedureCoreDescriptor({
@@ -197,6 +217,12 @@ describe("Civ7 procedure-core descriptor owner", () => {
         telemetry: "effect-orpc-middleware-hook",
         procedureCore: "typed-procedure-core",
       },
+      correlation: {
+        idSource: "caller-provided-and-validated",
+        normalCli: "omitted-by-default",
+        debugService: "included-in-diagnostics",
+        telemetry: "attached-when-procedure-telemetry-enabled",
+      },
     };
 
     expect(() => createCiv7ProcedureCoreDescriptor(productionMutation)).toThrow(
@@ -241,12 +267,23 @@ describe("Civ7 procedure-core descriptor owner", () => {
         telemetry: "effect-orpc-middleware-hook",
         procedureCore: "typed-procedure-core",
       },
+      correlation: {
+        idSource: "generated-per-call",
+        normalCli: "omitted-by-default",
+        debugService: "included-in-diagnostics",
+        telemetry: "attached-when-procedure-telemetry-enabled",
+      },
     });
 
     expect(summarizeCiv7ProcedureCoreDescriptor(descriptor)).toMatchObject({
       procedureKey: "runtime.playable.status",
       telemetryProjection: "effect-orpc-middleware-hook",
       procedureCoreProjection: "typed-procedure-core",
+      correlation: {
+        normalCli: "omitted-by-default",
+        debugService: "included-in-diagnostics",
+        telemetry: "attached-when-procedure-telemetry-enabled",
+      },
     });
   });
 });

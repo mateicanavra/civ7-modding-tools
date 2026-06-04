@@ -802,12 +802,19 @@ Intake rejection conditions:
   structured reason/details for schema mismatch, raw command tunnel, and
   missing mutation gates. This is not final router/procedure middleware error
   shaping and does not prove external transport error formats.
+- `correlationOwner`: current descriptor-owner shape now records correlation
+  policy: generated-per-call or caller-provided-and-validated IDs, normal CLI
+  omitted by default, debug diagnostics included, and telemetry attached only
+  when procedure telemetry is enabled. This does not implement final procedure
+  middleware correlation generation, propagation, or external transport
+  formatting.
 - `proofPlan`: current proof is planning evidence, local atom test evidence,
   and focused descriptor-owner tests proving one read atom descriptor, raw
   command tunnel rejection for generic raw fields and repo-local
   `command-serialization`/`session/execute` owners, malformed descriptor-shape
   rejection through TypeBox runtime validation, descriptor typed-error
-  details, mutation
+  details, descriptor correlation policy with normal CLI omission by default,
+  mutation
   approval/validator/postcondition/no-repeat gate requirements, and telemetry
   projection as an Effect/oRPC middleware hook rather than a separate transport
   surface. Missing before acceptance: oRPC schema/procedure validation test
@@ -815,8 +822,8 @@ Intake rejection conditions:
   encode/decode round trip, Bun runtime check, CLI semantic projection test,
   AI-ingestion contract
   fixture test,
-  middleware approval/correlation/error tests, and no-raw-command-tunnel tests
-  in the final router/procedure owner.
+  final middleware approval/correlation/error tests, and no-raw-command-tunnel
+  tests in the final router/procedure owner.
 - `projectionPlan`: normal CLI remains omitted here and belongs to the
   semantic CLI row; the oclif shell remains separate. Debug/internal service
   diagnostics belong to the debug row. AI ingestion consumes typed contracts
@@ -829,7 +836,8 @@ Intake rejection conditions:
   fails malformed descriptor shapes before semantic promotion, and fails
   mutation descriptors without approval, validator-first, postcondition, and
   no-repeat-after-unverified gate metadata, with typed descriptor errors for
-  those local owner checks. Required coverage before acceptance
+  those local owner checks, and rejects descriptor policies that make
+  correlation visible in normal output. Required coverage before acceptance
   must still fail if transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command
   strings become router architecture, if the App UI bridge is treated as the

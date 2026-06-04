@@ -59,6 +59,7 @@ import {
 } from "./catalog/capabilities.js";
 export {
   Civ7ProcedureConsumerClassSchema,
+  Civ7ProcedureCorrelationPolicySchema,
   Civ7ProcedureCoreDescriptorSchema,
   Civ7ProcedureFamilySchema,
   Civ7ProcedurePlayerScopeSchema,
@@ -72,6 +73,7 @@ export {
 } from "./procedure-core.js";
 export type {
   Civ7ProcedureConsumerClass,
+  Civ7ProcedureCorrelationPolicy,
   Civ7ProcedureCoreDescriptor,
   Civ7ProcedureCoreDescriptorErrorReason,
   Civ7ProcedureCoreSummary,

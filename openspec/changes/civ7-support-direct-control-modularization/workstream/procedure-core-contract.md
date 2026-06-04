@@ -12,8 +12,11 @@ owners, projection policy, proof boundary, player scope, consumer class, and
 mutation gate metadata. The descriptor factory now performs TypeBox runtime
 shape validation before semantic procedure guards and reports descriptor
 failures as `Civ7DirectControlError` instances with the
-`procedure-descriptor-invalid` code plus structured reason/details. Focused
-proof in
+`procedure-descriptor-invalid` code plus structured reason/details. The
+descriptor also records a correlation policy: request IDs are generated per
+call or caller-provided-and-validated, normal CLI omits them by default,
+debug/proof diagnostics may include them, and telemetry attaches them only when
+procedure telemetry is enabled. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` rejects generic raw
 command tunnel descriptors, rejects repo-local raw command-source/session
 execution descriptors such as `runtime/command-serialization` / `jsLiteral`
@@ -21,7 +24,8 @@ and `session/execute` / `executeCiv7Command`, requires mutation descriptors to
 carry approval, validator-first, postcondition, and no-repeat-after-unverified
 gates, rejects malformed descriptor shapes before procedure promotion, and
 snapshots schema-mismatch, raw-command-tunnel, and mutation-gates-missing error
-details while keeping telemetry as an Effect/oRPC middleware hook rather than a
+details while proving correlation stays omitted from normal CLI by default and
+telemetry correlation is tied to the Effect/oRPC middleware hook rather than a
 separate transport surface. This is local package proof only; it does not add
 Effect/oRPC dependencies, create `packages/civ7-control-orpc`, implement
 router/procedure behavior, choose a broader schema migration, claim runtime
@@ -131,14 +135,15 @@ relationship/team/war/suzerain evidence.
 ## Acceptance Gaps
 
 This contract plus the descriptor owner seed reduce the `contractArtifact`,
-source-owner, descriptor runtime-validation, descriptor typed-error, and
-no-raw-tunnel proof gaps for the current TypeBox descriptor shape, generic raw
-fields, and repo-local command-source/session-execute owners in the Effect/oRPC
-Procedure Cores row, but they do not accept the row. Acceptance still needs:
+source-owner, descriptor runtime-validation, descriptor typed-error,
+descriptor correlation-policy, and no-raw-tunnel proof gaps for the current
+TypeBox descriptor shape, generic raw fields, and repo-local
+command-source/session-execute owners in the Effect/oRPC Procedure Cores row,
+but they do not accept the row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms;
-- context/middleware/error/correlation owners;
+- final context/middleware/error/correlation owners;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;
 - oRPC schema/procedure validation tests;
@@ -147,7 +152,7 @@ Procedure Cores row, but they do not accept the row. Acceptance still needs:
 - Bun runtime checks;
 - CLI semantic projection tests;
 - AI-ingestion contract fixture tests;
-- middleware approval/correlation/error tests;
+- final middleware approval/correlation/error tests;
 - no-raw-command-tunnel tests over stable direct-control atoms;
 - proof-label guards preventing oRPC/local tests from being described as
   live-game proof.
