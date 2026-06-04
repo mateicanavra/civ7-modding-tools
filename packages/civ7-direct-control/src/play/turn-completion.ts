@@ -8,7 +8,7 @@ import {
 import { jsonPayloadFromCommandResult } from "../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
 import type { Civ7ComponentId } from "../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+import { probeHelperSource, type Civ7RuntimeProbe } from "../runtime/probe.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -119,16 +119,6 @@ function buildTurnCompletionStatusCommand(): string {
       }),
     });
   })()`;
-}
-
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
 }
 
 function isTurnCompletionAllowed(

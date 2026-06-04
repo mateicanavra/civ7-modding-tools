@@ -1434,6 +1434,15 @@ runtime/direct-control claims.
         leaving broader atom-local source helper normalization, telemetry, AI
         ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.29 Normalize the turn-completion status command-source helper
+        wiring by reusing the shared runtime probe helper owner from
+        `src/play/turn-completion.ts`, preserving generated command text,
+        approval-first send/unready behavior, guard-first status read, stale
+        notification fallback classification, turn-completion action result
+        shapes, and leaving broader atom-local source helper normalization,
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

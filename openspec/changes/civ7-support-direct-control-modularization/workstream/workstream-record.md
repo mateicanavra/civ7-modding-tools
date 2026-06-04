@@ -2706,3 +2706,14 @@ All future agent waves must be framed before delegation:
   every remaining atom-local source helper, or unblock telemetry, AI ingestion,
   CLI semantic projection, hotseat runtime proof, schema migration, debug
   hierarchy implementation, or Effect/oRPC procedure-core work.
+- Turn-completion command-source helper normalization:
+  `src/play/turn-completion.ts` now imports the shared runtime probe helper
+  owner instead of carrying an atom-local copy in the generated status command.
+  The generated command text remains equivalent, and the turn-completion owner
+  still preserves approval-first complete/unready sends, guard-first status
+  read, stale notification fallback classification, and action result shapes.
+  This is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, normalize every remaining
+  atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
