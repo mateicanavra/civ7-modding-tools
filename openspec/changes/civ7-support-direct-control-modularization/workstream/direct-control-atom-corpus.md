@@ -638,6 +638,31 @@ router/registry/transport adapter, choose Effect Schema, claim runtime/live-game
 proof, accept Task 2.9.4, or unblock broader AI ingestion, debug hierarchy,
 telemetry persistence, or Effect/oRPC procedure cores.
 
+Battlefield-scan procedure atom seed update:
+`src/play/tactical/battlefield.ts` now owns TypeBox input/output schemas for the
+existing read-only battlefield scan atom, including bounded `playerId`,
+`origins`, `radius`, `maxPlayers`, `maxUnits`, and `maxCities` input, neutral
+`relationshipLabelPolicy` output, row-level relationship proof/label guards,
+and root output separation from raw command fields.
+`src/play/tactical/battlefield-procedure.ts` now owns the adjacent
+`strategy.battlefield.scan` descriptor/schema artifact map and concrete call
+wrapper over `getCiv7BattlefieldScan` while staying under the existing
+`strategy` procedure family. `test/tactical-reads.test.ts` proves the fake
+battlefield scan result matches the schema, rejects invalid bounds/map
+locations and context/raw-command procedure input, and rejects stronger
+row-level relationship proof/label output;
+`test/battlefield-scan-procedure.test.ts` proves descriptor schema resolution,
+no-network fake-dependency calls, direct-control option forwarding,
+input-before-dependency rejection, output validation, separated diagnostics,
+no-send command text, and preservation of relationship-unproven semantics. This
+is local read-atom proof only. It does not change CLI output, reinterpret
+battlefield scan as action planning or validator output, infer
+hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain labels, add
+attack/move/send behavior, add a broad tactical catalog, add a
+router/registry/transport adapter, choose Effect Schema, claim runtime/live-game
+proof, accept Task 2.9.4, or unblock broader AI ingestion, debug hierarchy,
+telemetry persistence, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

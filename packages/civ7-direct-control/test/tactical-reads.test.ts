@@ -4,6 +4,8 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
 import {
+  Civ7BattlefieldScanInputSchema,
+  Civ7BattlefieldScanResultSchema,
   Civ7TargetCandidatesInputSchema,
   Civ7TargetCandidatesResultSchema,
   getCiv7BattlefieldScan,
@@ -18,6 +20,49 @@ type FakeTacticalReadTunerServer = {
 };
 
 describe("tactical read wrappers", () => {
+  test("exports TypeBox schemas for the neutral battlefield scan read atom", () => {
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, {
+      origins: [{ x: 17, y: 20 }],
+      radius: 8,
+      maxPlayers: 12,
+      maxUnits: 16,
+      maxCities: 8,
+    })).toBe(true);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { radius: 33 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { maxPlayers: 129 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { maxUnits: 257 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { maxCities: 129 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { rawCommand: "readBattlefieldScan()" })).toBe(false);
+
+    const result = battlefieldScanResult();
+    expect(Value.Check(Civ7BattlefieldScanResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7BattlefieldScanResultSchema, {
+      ...result,
+      units: [
+        {
+          ...result.units[1],
+          relationshipProof: "owner-mismatch",
+        },
+      ],
+    })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanResultSchema, {
+      ...result,
+      owners: [
+        {
+          ...result.owners[1],
+          relationshipLabel: "enemy",
+        },
+      ],
+    })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanResultSchema, {
+      ...result,
+      rawCommand: "readBattlefieldScan()",
+    })).toBe(false);
+  });
+
   test("exports TypeBox schemas for the neutral target-candidates read atom", () => {
     expect(Value.Check(Civ7TargetCandidatesInputSchema, {
       origins: [{ x: 18, y: 20 }],
@@ -436,6 +481,15 @@ function targetCandidatesResult() {
     port: 4318,
     state: { id: "65535", name: "App UI" },
     ...targetCandidatesReadView(),
+  };
+}
+
+function battlefieldScanResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...battlefieldScanReadView(),
   };
 }
 

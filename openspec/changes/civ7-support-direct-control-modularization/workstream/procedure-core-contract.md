@@ -86,6 +86,11 @@ descriptor artifact is
 `packages/civ7-direct-control/src/play/tactical/target-candidates-procedure.ts`,
 which owns the `strategy.target.candidates` descriptor adjacent to the
 read-only target-candidates atom and schema exports while preserving the
+neutral relationship evidence model. The adjacent battlefield-scan descriptor
+artifact is
+`packages/civ7-direct-control/src/play/tactical/battlefield-procedure.ts`,
+which owns the `strategy.battlefield.scan` descriptor adjacent to the
+read-only battlefield scan atom and schema exports while preserving the
 neutral relationship evidence model. This is local package proof only; it does
 not collect runtime evidence, add Effect/oRPC dependencies, create
 `packages/civ7-control-orpc`, implement router/procedure behavior, choose a
@@ -207,6 +212,28 @@ reinterpret candidates as action plans, infer hostile/enemy/non-friendly/
 opponent/threat/war/ally/suzerain labels, add attack/move/send behavior, claim
 runtime proof, or accept the matrix row.
 
+`packages/civ7-direct-control/src/play/tactical/battlefield.ts` now owns
+TypeBox schemas for `getCiv7BattlefieldScan` input, relationship-label policy,
+unit rows, city rows, owner summaries, points of interest, and output. The
+input schema preserves the existing bounded `playerId`, `origins`, `radius`,
+`maxPlayers`, `maxUnits`, and `maxCities` contracts. The output schema keeps
+`relationshipLabelPolicy` constrained to `not-classified` / `none` /
+`relationship-unproven` and constrains row-level relationship proof/label slots
+to `self`/`friendly` for local-player rows or `none`/`relationship-unproven`
+for other-owner rows; endpoint/session/state selection and raw command fields
+remain procedure context/debug concerns. Focused proof in
+`packages/civ7-direct-control/test/tactical-reads.test.ts` validates the
+existing fake battlefield scan result against the output schema, rejects
+out-of-bound inputs and invalid map locations, rejects context/raw-command
+input and root-level raw command output fields, and rejects stronger row-level
+relationship proof or label output. Public facade proof in
+`packages/civ7-direct-control/test/public-api.test.ts` verifies the schemas
+are exported for future procedure-core consumers. This is a read-only
+battlefield-scan schema seed; it does not change normal CLI output,
+reinterpret battlefield scan as action planning or validator output, infer
+hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain labels, add
+attack/move/send behavior, claim runtime proof, or accept the matrix row.
+
 The adjacent ready-unit descriptor artifact reuses those schema exports and
 records root input/output field names from the actual TypeBox schemas,
 including `legalOperations` for the ready-unit operation candidates. Focused
@@ -325,6 +352,26 @@ atom dependencies run, output validation after the atom returns, separated
 output/diagnostics, no-send read-only command text, and preservation of
 relationship-unproven semantics. This is local no-network read-atom proof only;
 it does not change CLI output, reinterpret candidates as action plans, infer
+hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain labels, add
+attack/move/send behavior, add a broad tactical catalog, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
+
+The adjacent battlefield-scan procedure artifact reuses the battlefield scan
+schema exports and records `strategy.battlefield.scan` beside
+`getCiv7BattlefieldScan`. Focused proof in
+`packages/civ7-direct-control/test/battlefield-scan-procedure.test.ts` checks
+the descriptor's input/output field lists against resolved schema root
+properties, including origins, neutral relationship label policy, units,
+cities, owners, points of interest, and notes, without registering a router or
+transport adapter. The same artifact exports a concrete call wrapper over
+`getCiv7BattlefieldScan`, composed through the local procedure-core call
+primitive. Focused proof uses fake atom dependencies to prove direct-control
+option forwarding, input validation before atom dependencies run, output
+validation after the atom returns, separated output/diagnostics, no-send
+read-only command text, and preservation of relationship-unproven semantics.
+This is local no-network read-atom proof only; it does not change CLI output,
+reinterpret battlefield scan as action planning or validator output, infer
 hostile/enemy/non-friendly/opponent/threat/war/ally/suzerain labels, add
 attack/move/send behavior, add a broad tactical catalog, add a router, add
 Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
@@ -471,13 +518,13 @@ repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
 health, notification-view, settlement-recommendations, and target-candidates
-descriptor artifacts with
+and battlefield-scan descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
 unit move-preview, playable-status, App UI snapshot, Tuner health, and
-notification-view, settlement-recommendations, and target-candidates procedure
-call wrappers, but they do not accept the row.
+notification-view, settlement-recommendations, target-candidates, and
+battlefield-scan procedure call wrappers, but they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
@@ -485,8 +532,8 @@ Acceptance still needs:
   procedure contracts;
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the current ready-read, move-preview, runtime-support, and
-  notification-view, settlement-recommendations, and target-candidates call
-  wrappers;
+  notification-view, settlement-recommendations, target-candidates, and
+  battlefield-scan call wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

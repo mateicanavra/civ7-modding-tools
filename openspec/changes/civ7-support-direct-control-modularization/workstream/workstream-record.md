@@ -3573,3 +3573,29 @@ All future agent waves must be framed before delegation:
   router/registry/transport adapter, choose Effect Schema, claim
   runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
   6.1-6.9.
+- Battlefield-scan procedure atom seed:
+  `packages/civ7-direct-control/src/play/tactical/battlefield.ts` now owns
+  TypeBox input/output schemas for the existing read-only battlefield scan
+  atom, and
+  `packages/civ7-direct-control/src/play/tactical/battlefield-procedure.ts`
+  records the adjacent `strategy.battlefield.scan` descriptor/schema artifact
+  map and concrete call wrapper over `getCiv7BattlefieldScan` while preserving
+  the existing `strategy` procedure family and neutral relationship evidence
+  model. Focused proof in
+  `packages/civ7-direct-control/test/tactical-reads.test.ts` validates the fake
+  battlefield scan result against the schema, rejects invalid bounds/map
+  locations plus endpoint/session/state/raw-command procedure input, and
+  rejects stronger row-level relationship proof/label output; proof in
+  `packages/civ7-direct-control/test/battlefield-scan-procedure.test.ts`
+  covers descriptor schema resolution, no-network fake-dependency calls,
+  direct-control option forwarding, input-before-dependency rejection, output
+  validation, separated diagnostics, no-send command text, and preservation of
+  relationship-unproven semantics. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema,
+  descriptor, artifact map, and call-wrapper exports. This is local read-atom
+  proof only; it does not change CLI output, reinterpret battlefield scan as
+  action planning or validator output, infer hostile/enemy/non-friendly/
+  opponent/threat/war/ally/suzerain labels, add attack/move/send behavior, add
+  a broad tactical catalog, add a router/registry/transport adapter, choose
+  Effect Schema, claim runtime/live-game proof, accept Task 2.9.4, or start
+  Tasks 5.1-5.7 or 6.1-6.9.

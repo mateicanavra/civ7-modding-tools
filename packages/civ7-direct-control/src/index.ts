@@ -761,15 +761,33 @@ export {
   requestCiv7NotificationDismissal,
 } from "./play/notifications/dismissal-request.js";
 export type {
+  BattlefieldScanDependencies,
   Civ7BattlefieldScanInput,
   Civ7BattlefieldScanResult,
 } from "./play/tactical/battlefield.js";
-export { getCiv7BattlefieldScan };
+export {
+  Civ7BattlefieldRelationshipLabelPolicySchema,
+  Civ7BattlefieldScanCitySchema,
+  Civ7BattlefieldScanInputSchema,
+  Civ7BattlefieldScanOwnerSchema,
+  Civ7BattlefieldScanPointOfInterestSchema,
+  Civ7BattlefieldScanResultSchema,
+  Civ7BattlefieldScanUnitSchema,
+  getCiv7BattlefieldScan,
+} from "./play/tactical/battlefield.js";
+export {
+  callCiv7BattlefieldScanProcedure,
+  Civ7BattlefieldScanProcedureDescriptor,
+  Civ7BattlefieldScanProcedureSchemaArtifacts,
+} from "./play/tactical/battlefield-procedure.js";
+export type {
+  Civ7BattlefieldScanProcedureCallOptions,
+} from "./play/tactical/battlefield-procedure.js";
 export type {
   Civ7DestinationAnalysisInput,
   Civ7DestinationAnalysisResult,
 } from "./play/tactical/destination.js";
-export { getCiv7DestinationAnalysis };
+export { getCiv7DestinationAnalysis } from "./play/tactical/destination.js";
 export type {
   Civ7SettlementRecommendation,
   Civ7SettlementRecommendationFactor,

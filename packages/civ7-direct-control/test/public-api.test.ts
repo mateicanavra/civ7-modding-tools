@@ -17,6 +17,10 @@ import {
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
   Civ7MapLocationSchema,
+  Civ7BattlefieldScanInputSchema,
+  Civ7BattlefieldScanProcedureDescriptor,
+  Civ7BattlefieldScanProcedureSchemaArtifacts,
+  Civ7BattlefieldScanResultSchema,
   Civ7PlayNotificationViewInputSchema,
   Civ7PlayNotificationViewProcedureDescriptor,
   Civ7PlayNotificationViewProcedureSchemaArtifacts,
@@ -79,6 +83,7 @@ import {
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
   assertCiv7ComponentId,
   callCiv7AppUiSnapshotProcedure,
+  callCiv7BattlefieldScanProcedure,
   callCiv7PlayableStatusProcedure,
   callCiv7PlayNotificationViewProcedure,
   callCiv7ProcedureCore,
@@ -419,6 +424,44 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
+  test("exports battlefield-scan procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, {
+      origins: [{ x: 17, y: 20 }],
+      radius: 8,
+      maxPlayers: 12,
+      maxUnits: 16,
+      maxCities: 8,
+    })).toBe(true);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { radius: 33 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { maxUnits: 257 })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { origins: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7BattlefieldScanInputSchema, { rawCommand: "readBattlefieldScan()" })).toBe(false);
+    expect(Civ7BattlefieldScanResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "state",
+        "localPlayerId",
+        "playerId",
+        "origins",
+        "radius",
+        "hiddenInfoPolicy",
+        "relationshipLabelPolicy",
+        "units",
+        "cities",
+        "owners",
+        "pointsOfInterest",
+        "notes",
+      ]),
+    });
+    expect(Civ7BattlefieldScanResultSchema.properties.relationshipLabelPolicy.properties).toMatchObject({
+      relationshipSource: { const: "not-classified" },
+      relationshipProof: { const: "none" },
+      unprovenLabel: { const: "relationship-unproven" },
+    });
+  });
+
   test("exports procedure schema reference schema from the public facade", () => {
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "direct-control-facade")).toBe(true);
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "raw-socket")).toBe(false);
@@ -583,6 +626,24 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7TargetCandidatesProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7TargetCandidatesProcedureDescriptor.outputSchema)
     ]).toBe(Civ7TargetCandidatesResultSchema);
+  });
+
+  test("exports the battlefield-scan procedure descriptor artifact from the public facade", () => {
+    expect(Civ7BattlefieldScanProcedureDescriptor).toMatchObject({
+      procedureKey: "strategy.battlefield.scan",
+      family: "strategy",
+      atomFunction: "getCiv7BattlefieldScan",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7BattlefieldScanProcedure).toBe("function");
+    expect(Civ7BattlefieldScanProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7BattlefieldScanProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7BattlefieldScanInputSchema);
+    expect(Civ7BattlefieldScanProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7BattlefieldScanProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7BattlefieldScanResultSchema);
   });
 
   test("exports the playable-status procedure descriptor artifact from the public facade", () => {
