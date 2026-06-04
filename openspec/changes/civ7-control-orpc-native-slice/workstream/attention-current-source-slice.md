@@ -69,6 +69,7 @@ errors, and contract metadata. These are local package proofs only.
 ## Residual Risk
 
 The current source set still relies on transitional direct-control-shaped
-ports for notifications and ready actors. Future slices should either deepen
-semantic `attention` behavior with turn-completion and projection policy, or
-burn down old facade-only leaves when the native service shape is sufficient.
+ports for notifications and ready actors. The follow-up turn-completion slice
+deepens the semantic `attention` behavior; future slices should continue
+burning down old facade-only leaves only when the native service shape is
+sufficient.

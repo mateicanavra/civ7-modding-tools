@@ -10,6 +10,7 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcReadyCityViewResult,
   Civ7ControlOrpcReadyUnitViewResult,
+  Civ7ControlOrpcTurnCompletionStatusResult,
 } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
@@ -35,17 +36,23 @@ export const attentionCurrentProcedure =
             input,
             playableStatus,
             notifications: null,
+            turnCompletion: null,
             readyUnit: null,
             readyCity: null,
           });
         }
 
-        const notifications =
-          await context.directControl.getCiv7PlayNotificationView({
+        const [notifications, turnCompletion] = await Promise.all([
+          context.directControl.getCiv7PlayNotificationView({
             ...endpointDefaults,
             maxNotifications: input.maxNotifications,
-          });
-        const readyUnitInput = readyUnitInputFromNotifications(notifications);
+          }),
+          context.directControl.getCiv7TurnCompletionStatus(endpointDefaults),
+        ]);
+        const readyUnitInput = readyUnitInputFromSources(
+          notifications,
+          turnCompletion,
+        );
         const readyCityInput = readyCityInputFromNotifications(notifications);
         const [readyUnit, readyCity] = await Promise.all([
           context.directControl.getCiv7ReadyUnitView(
@@ -62,6 +69,7 @@ export const attentionCurrentProcedure =
           input,
           playableStatus,
           notifications,
+          turnCompletion,
           readyUnit,
           readyCity,
         });
@@ -80,6 +88,7 @@ type AttentionBuildInput = Readonly<{
   input: Civ7AttentionCurrentInput;
   playableStatus: Civ7ControlOrpcPlayableStatusResult;
   notifications: Civ7ControlOrpcPlayNotificationViewResult | null;
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null;
   readyUnit: Civ7ControlOrpcReadyUnitViewResult | null;
   readyCity: Civ7ControlOrpcReadyCityViewResult | null;
 }>;
@@ -87,6 +96,7 @@ type AttentionBuildInput = Readonly<{
 function buildAttentionCurrentResult({
   playableStatus,
   notifications,
+  turnCompletion,
   readyUnit,
   readyCity,
 }: AttentionBuildInput): Civ7AttentionCurrentResult {
@@ -102,7 +112,7 @@ function buildAttentionCurrentResult({
   ];
   const nextSteps = attentionNextSteps({
     playableStatus,
-    notifications,
+    turnCompletion,
     blockers,
     readyActors,
   });
@@ -110,19 +120,21 @@ function buildAttentionCurrentResult({
   return {
     playable: playableStatus.playable,
     readiness: playableStatus.readiness,
-    turn: notifications == null ? null : probeValue<number>(notifications.turn),
-    turnDate: notifications == null
-      ? null
-      : probeValue<string>(notifications.turnDate),
-    canEndTurn: notifications == null
-      ? null
-      : probeValue<boolean>(notifications.canEndTurn),
+    turn: probeValue<number>(turnCompletion?.turn)
+      ?? probeValue<number>(notifications?.turn),
+    turnDate: probeValue<string>(turnCompletion?.turnDate)
+      ?? probeValue<string>(notifications?.turnDate),
+    canEndTurn: turnCompletion == null
+      ? probeValue<boolean>(notifications?.canEndTurn)
+      : probeValue<boolean>(turnCompletion.canEndTurn),
     sourceStatus: {
       playableStatus: "read",
       notifications: notifications == null ? "skipped-not-playable" : "read",
+      turnCompletion: sourceReadStatus(playableStatus),
       readyUnit: sourceReadStatus(playableStatus),
       readyCity: sourceReadStatus(playableStatus),
     },
+    turnCompletion: turnCompletionSummary(turnCompletion),
     summary: {
       blockerCount: blockers.length,
       decisionCount: decisions.length,
@@ -134,6 +146,33 @@ function buildAttentionCurrentResult({
     readyActors,
     nextSteps,
   };
+}
+
+function turnCompletionSummary(
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null,
+): Civ7AttentionCurrentResult["turnCompletion"] {
+  return {
+    hasSentTurnComplete: probeValue<boolean>(
+      turnCompletion?.hasSentTurnComplete,
+    ),
+    canEndTurn: probeValue<boolean>(turnCompletion?.canEndTurn),
+    firstReadyUnitId: probeValue<Civ7ComponentId>(
+      turnCompletion?.firstReadyUnitId,
+    ),
+    blockerStatus: turnCompletionBlockerStatus(turnCompletion),
+  };
+}
+
+function turnCompletionBlockerStatus(
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null,
+): Civ7AttentionCurrentResult["turnCompletion"]["blockerStatus"] {
+  const blocker = turnCompletion?.blocker;
+  if (blocker == null || typeof blocker !== "object") return "unknown";
+  if (!("ok" in blocker) || blocker.ok !== true) return "unknown";
+  if (!("value" in blocker)) return "unknown";
+  const value = blocker.value;
+  if (value === 0 || value === null || value === "NONE") return "none";
+  return "blocked";
 }
 
 function notificationBlockers(
@@ -192,11 +231,13 @@ function notificationDecisions(
   });
 }
 
-function readyUnitInputFromNotifications(
+function readyUnitInputFromSources(
   notifications: Civ7ControlOrpcPlayNotificationViewResult,
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult,
 ): Civ7ReadyUnitViewInput {
   const unitId = probeValue<Civ7ComponentId>(notifications.selectedUnitId)
-    ?? probeValue<Civ7ComponentId>(notifications.firstReadyUnitId);
+    ?? probeValue<Civ7ComponentId>(notifications.firstReadyUnitId)
+    ?? probeValue<Civ7ComponentId>(turnCompletion.firstReadyUnitId);
   return unitId == null ? {} : { unitId };
 }
 
@@ -271,12 +312,12 @@ function readyCityActors(
 
 function attentionNextSteps({
   playableStatus,
-  notifications,
+  turnCompletion,
   blockers,
   readyActors,
 }: Readonly<{
   playableStatus: Civ7ControlOrpcPlayableStatusResult;
-  notifications: Civ7ControlOrpcPlayNotificationViewResult | null;
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null;
   blockers: Civ7AttentionCurrentResult["blockers"];
   readyActors: Civ7AttentionCurrentResult["readyActors"];
 }>): Civ7AttentionCurrentResult["nextSteps"] {
@@ -310,7 +351,7 @@ function attentionNextSteps({
     return [...blockerSteps, ...actorSteps];
   }
 
-  if (probeValue<boolean>(notifications?.canEndTurn) === true) {
+  if (canRecommendEndTurn(turnCompletion)) {
     return [{
       kind: "end-turn",
       source: "attention",
@@ -323,6 +364,19 @@ function attentionNextSteps({
     source: "attention",
     label: "No current blockers found.",
   }];
+}
+
+function canRecommendEndTurn(
+  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null,
+): boolean {
+  if (probeValue<boolean>(turnCompletion?.canEndTurn) !== true) return false;
+  if (probeValue<boolean>(turnCompletion?.hasSentTurnComplete) === true) {
+    return false;
+  }
+  if (probeValue<Civ7ComponentId>(turnCompletion?.firstReadyUnitId) != null) {
+    return false;
+  }
+  return turnCompletionBlockerStatus(turnCompletion) !== "blocked";
 }
 
 function sourceReadStatus(

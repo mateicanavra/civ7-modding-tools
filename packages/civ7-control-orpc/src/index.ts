@@ -11,6 +11,7 @@ export {
   type Civ7ControlOrpcPlayableStatusResult,
   type Civ7ControlOrpcReadyCityViewResult,
   type Civ7ControlOrpcReadyUnitViewResult,
+  type Civ7ControlOrpcTurnCompletionStatusResult,
   type Civ7ControlOrpcUnitSummaryResult,
   type Civ7ControlOrpcDirectControlFacade,
 } from "./dependencies/direct-control";

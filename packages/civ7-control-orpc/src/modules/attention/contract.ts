@@ -24,6 +24,20 @@ export const Civ7AttentionSourceReadStatusSchema = Type.Union([
   Type.Literal("skipped-not-playable"),
 ]);
 
+export const Civ7AttentionTurnCompletionSchema = Type.Object(
+  {
+    hasSentTurnComplete: Type.Union([Type.Boolean(), Type.Null()]),
+    canEndTurn: Type.Union([Type.Boolean(), Type.Null()]),
+    firstReadyUnitId: NullableComponentIdSchema,
+    blockerStatus: Type.Union([
+      Type.Literal("none"),
+      Type.Literal("blocked"),
+      Type.Literal("unknown"),
+    ]),
+  },
+  { additionalProperties: false },
+);
+
 export const Civ7AttentionBlockerSchema = Type.Object(
   {
     source: Type.Union([
@@ -98,11 +112,13 @@ export const Civ7AttentionCurrentResultSchema = Type.Object(
       {
         playableStatus: Type.Literal("read"),
         notifications: Civ7AttentionSourceReadStatusSchema,
+        turnCompletion: Civ7AttentionSourceReadStatusSchema,
         readyUnit: Civ7AttentionSourceReadStatusSchema,
         readyCity: Civ7AttentionSourceReadStatusSchema,
       },
       { additionalProperties: false },
     ),
+    turnCompletion: Civ7AttentionTurnCompletionSchema,
     summary: Type.Object(
       {
         blockerCount: Type.Integer({ minimum: 0 }),

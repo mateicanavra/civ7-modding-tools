@@ -11,6 +11,7 @@ import {
   type Civ7ControlOrpcPlayNotificationViewResult,
   type Civ7ControlOrpcReadyCityViewResult,
   type Civ7ControlOrpcReadyUnitViewResult,
+  type Civ7ControlOrpcTurnCompletionStatusResult,
 } from "../src/index";
 
 describe("attention.current control-oRPC procedure", () => {
@@ -20,6 +21,11 @@ describe("attention.current control-oRPC procedure", () => {
     const fake = fakeContext({
       playableStatus: playableStatusResult(),
       notifications: notificationViewResult({ unitId, cityId }),
+      turnCompletion: turnCompletionStatusResult({
+        canEndTurn: { ok: true, value: false },
+        blocker: { ok: true, value: -2026570723 },
+        firstReadyUnitId: { ok: true, value: unitId },
+      }),
       readyUnit: readyUnitViewResult(unitId),
       readyCity: readyCityViewResult(cityId),
     });
@@ -39,8 +45,15 @@ describe("attention.current control-oRPC procedure", () => {
       sourceStatus: {
         playableStatus: "read",
         notifications: "read",
+        turnCompletion: "read",
         readyUnit: "read",
         readyCity: "read",
+      },
+      turnCompletion: {
+        hasSentTurnComplete: false,
+        canEndTurn: false,
+        firstReadyUnitId: unitId,
+        blockerStatus: "blocked",
       },
       summary: {
         blockerCount: 3,
@@ -92,6 +105,9 @@ describe("attention.current control-oRPC procedure", () => {
         maxNotifications: 12,
       },
     ]);
+    expect(fake.calls.turnCompletion).toEqual([
+      { host: "127.0.0.1", port: 4318, timeoutMs: 1_000 },
+    ]);
     expect(fake.calls.readyUnit).toEqual([
       {
         input: { unitId },
@@ -110,6 +126,7 @@ describe("attention.current control-oRPC procedure", () => {
     const fake = fakeContext({
       playableStatus: playableStatusResult(),
       notifications: cleanNotificationViewResult(),
+      turnCompletion: turnCompletionStatusResult(),
       readyUnit: emptyReadyUnitViewResult(),
       readyCity: emptyReadyCityViewResult(),
     });
@@ -122,6 +139,7 @@ describe("attention.current control-oRPC procedure", () => {
       sourceStatus: {
         playableStatus: "read",
         notifications: "read",
+        turnCompletion: "read",
         readyUnit: "read",
         readyCity: "read",
       },
@@ -145,6 +163,13 @@ describe("attention.current control-oRPC procedure", () => {
         port: 4318,
         timeoutMs: 1_000,
         maxNotifications: 7,
+      },
+    ]);
+    expect(fake.calls.turnCompletion).toEqual([
+      {
+        host: "127.0.0.1",
+        port: 4318,
+        timeoutMs: 1_000,
       },
     ]);
     expect(fake.calls.readyUnit).toEqual([
@@ -174,6 +199,11 @@ describe("attention.current control-oRPC procedure", () => {
     const fake = fakeContext({
       playableStatus: playableStatusResult(),
       notifications: cleanNotificationViewResult(),
+      turnCompletion: turnCompletionStatusResult({
+        canEndTurn: { ok: true, value: false },
+        blocker: { ok: true, value: -2026570723 },
+        firstReadyUnitId: { ok: true, value: null },
+      }),
       readyUnit: readyUnitViewResult(unitId),
       readyCity: emptyReadyCityViewResult(),
     });
@@ -193,6 +223,12 @@ describe("attention.current control-oRPC procedure", () => {
       },
     ]);
     expect(result.sourceStatus.readyUnit).toBe("read");
+    expect(result.sourceStatus.turnCompletion).toBe("read");
+    expect(result.turnCompletion).toMatchObject({
+      canEndTurn: false,
+      firstReadyUnitId: null,
+      blockerStatus: "blocked",
+    });
     expect(result.readyActors).toEqual([
       {
         kind: "unit",
@@ -205,6 +241,94 @@ describe("attention.current control-oRPC procedure", () => {
     expect(result.nextSteps.map((step) => step.kind)).toEqual([
       "act-ready-unit",
     ]);
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
+  });
+
+  test("uses turn-completion ready-unit evidence as a ready port hint", async () => {
+    const unitId = { owner: 0, id: 458_752, type: 26 };
+    const fake = fakeContext({
+      playableStatus: playableStatusResult(),
+      notifications: cleanNotificationViewResult(),
+      turnCompletion: turnCompletionStatusResult({
+        canEndTurn: { ok: true, value: false },
+        blocker: { ok: true, value: -2026570723 },
+        firstReadyUnitId: { ok: true, value: unitId },
+      }),
+      readyUnit: readyUnitViewResult(unitId),
+      readyCity: emptyReadyCityViewResult(),
+    });
+
+    const result = await call(Civ7ControlOrpcRouter.attention.current, {}, {
+      context: fake.context,
+    });
+
+    expect(fake.calls.readyUnit).toEqual([
+      {
+        input: { unitId },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
+      },
+    ]);
+    expect(result.turnCompletion.firstReadyUnitId).toEqual(unitId);
+    expect(result.nextSteps.map((step) => step.kind)).toEqual([
+      "act-ready-unit",
+    ]);
+  });
+
+  test("does not recommend end turn from notifications alone", async () => {
+    const unitId = { owner: 0, id: 458_752, type: 26 };
+    const fake = fakeContext({
+      playableStatus: playableStatusResult(),
+      notifications: cleanNotificationViewResult(),
+      turnCompletion: turnCompletionStatusResult({
+        canEndTurn: { ok: true, value: false },
+        blocker: { ok: true, value: 7 },
+        firstReadyUnitId: { ok: true, value: unitId },
+      }),
+      readyUnit: emptyReadyUnitViewResult(),
+      readyCity: emptyReadyCityViewResult(),
+    });
+
+    const result = await call(Civ7ControlOrpcRouter.attention.current, {}, {
+      context: fake.context,
+    });
+
+    expect(result.canEndTurn).toBe(false);
+    expect(result.turnCompletion).toEqual({
+      hasSentTurnComplete: false,
+      canEndTurn: false,
+      firstReadyUnitId: unitId,
+      blockerStatus: "blocked",
+    });
+    expect(result.nextSteps.map((step) => step.kind)).toEqual(["observe"]);
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
+  });
+
+  test("does not recommend end turn after the turn was already sent", async () => {
+    const fake = fakeContext({
+      playableStatus: playableStatusResult(),
+      notifications: cleanNotificationViewResult(),
+      turnCompletion: turnCompletionStatusResult({
+        hasSentTurnComplete: { ok: true, value: true },
+        canEndTurn: { ok: true, value: true },
+      }),
+      readyUnit: emptyReadyUnitViewResult(),
+      readyCity: emptyReadyCityViewResult(),
+    });
+
+    const result = await call(Civ7ControlOrpcRouter.attention.current, {}, {
+      context: fake.context,
+    });
+
+    expect(result.turnCompletion).toMatchObject({
+      hasSentTurnComplete: true,
+      canEndTurn: true,
+      blockerStatus: "none",
+    });
+    expect(result.nextSteps.map((step) => step.kind)).toEqual(["observe"]);
     expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 
@@ -230,8 +354,15 @@ describe("attention.current control-oRPC procedure", () => {
       sourceStatus: {
         playableStatus: "read",
         notifications: "skipped-not-playable",
+        turnCompletion: "skipped-not-playable",
         readyUnit: "skipped-not-playable",
         readyCity: "skipped-not-playable",
+      },
+      turnCompletion: {
+        hasSentTurnComplete: null,
+        canEndTurn: null,
+        firstReadyUnitId: null,
+        blockerStatus: "unknown",
       },
       summary: {
         blockerCount: 0,
@@ -249,6 +380,7 @@ describe("attention.current control-oRPC procedure", () => {
     });
     expect(fake.calls.playableStatus).toHaveLength(1);
     expect(fake.calls.notifications).toEqual([]);
+    expect(fake.calls.turnCompletion).toEqual([]);
     expect(fake.calls.readyUnit).toEqual([]);
     expect(fake.calls.readyCity).toEqual([]);
   });
@@ -282,6 +414,7 @@ describe("attention.current control-oRPC procedure", () => {
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls.playableStatus).toEqual([]);
       expect(fake.calls.notifications).toEqual([]);
+      expect(fake.calls.turnCompletion).toEqual([]);
       expect(fake.calls.readyUnit).toEqual([]);
       expect(fake.calls.readyCity).toEqual([]);
     }
@@ -343,6 +476,7 @@ type FakeContextOptions = Readonly<{
   playableStatus: Civ7ControlOrpcPlayableStatusResult;
   notifications?: Civ7ControlOrpcPlayNotificationViewResult;
   notificationsError?: Error;
+  turnCompletion?: Civ7ControlOrpcTurnCompletionStatusResult;
   readyUnit?: Civ7ControlOrpcReadyUnitViewResult;
   readyCity?: Civ7ControlOrpcReadyCityViewResult;
 }>;
@@ -352,6 +486,7 @@ function fakeContext(options: FakeContextOptions): {
   calls: {
     playableStatus: unknown[];
     notifications: unknown[];
+    turnCompletion: unknown[];
     readyUnit: Array<{ input: unknown; options: unknown }>;
     readyCity: Array<{ input: unknown; options: unknown }>;
   };
@@ -359,6 +494,7 @@ function fakeContext(options: FakeContextOptions): {
   const calls = {
     playableStatus: [] as unknown[],
     notifications: [] as unknown[],
+    turnCompletion: [] as unknown[],
     readyUnit: [] as Array<{ input: unknown; options: unknown }>,
     readyCity: [] as Array<{ input: unknown; options: unknown }>,
   };
@@ -405,6 +541,10 @@ function fakeContext(options: FakeContextOptions): {
           throw new Error("missing ready-unit fixture");
         }
         return options.readyUnit;
+      },
+      getCiv7TurnCompletionStatus: async (endpointDefaults) => {
+        calls.turnCompletion.push(endpointDefaults);
+        return options.turnCompletion ?? turnCompletionStatusResult();
       },
       getCiv7UnitSummary: async () => {
         throw new Error("not used");
@@ -505,6 +645,24 @@ function cleanNotificationViewResult(): Civ7ControlOrpcPlayNotificationViewResul
       nextDecision: null,
       decisionQueue: [],
     },
+  };
+}
+
+function turnCompletionStatusResult(
+  overrides: Partial<Civ7ControlOrpcTurnCompletionStatusResult> = {},
+): Civ7ControlOrpcTurnCompletionStatusResult {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    localPlayerId: 0,
+    turn: { ok: true, value: 12 },
+    turnDate: { ok: true, value: "3400 BCE" },
+    hasSentTurnComplete: { ok: true, value: false },
+    canEndTurn: { ok: true, value: true },
+    blocker: { ok: true, value: 0 },
+    firstReadyUnitId: { ok: true, value: null },
+    ...overrides,
   };
 }
 

@@ -87,11 +87,17 @@ adding more read-only facade shells.
   - [x] 5.4.1 Record `attention.current` as a service-owned composition
     boundary over playable status, notifications, and ready actor runtime
     ports without adding a direct-control attention facade.
+  - [x] 5.4.2 Record turn-completion status as an `attention.current`
+    runtime read port and semantic projection owner, not a standalone
+    facade-only procedure leaf.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
     that derives semantic blockers, decisions, ready actors, and next steps
     from existing direct-control runtime ports.
+  - [x] 5.5.2 Enrich `attention.current` with turn-completion evidence so
+    end-turn next steps require source-owned turn status instead of clean
+    notifications alone.
 
 ## 6. Native Policy Layering
 
