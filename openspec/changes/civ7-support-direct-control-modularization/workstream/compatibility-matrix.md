@@ -455,9 +455,10 @@ Intake rejection conditions:
   and progression-read `game play traditions` / `game play progress-dashboard`
   proof plus tactical-read, settlement-recommendation, and promotion-readiness
   proof plus rehydrate continuity, notification-HUD, and notification-queue
-  proof plus technology- and culture-option proof now assert through the shared
+  proof plus technology-, culture-, celebration-, and government-option proof
+  now assert through the shared
   `packages/cli/test/commands/game/play/normal-output-boundary.ts` helper that
-  fourteen normal player-agent projection families omit raw
+  sixteen normal player-agent projection families omit raw
   transport/session/probe/correlation command internals. Focused `game health
   --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
   `game status --json`, `game catalog --static --json`,

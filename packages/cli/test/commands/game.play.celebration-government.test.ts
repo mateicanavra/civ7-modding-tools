@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayChooseCelebration from '../../src/commands/game/play/choose-celebration';
 import GamePlayChooseGovernment from '../../src/commands/game/play/choose-government';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play celebration and government commands', () => {
@@ -60,6 +61,7 @@ describe('game play celebration and government commands', () => {
           details?: unknown;
         };
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.result.enabledOptionCount).toBe(2);
       expect(payload.result.disabledOptionCount).toBe(0);
       expect(payload.result.details).toBeUndefined();
@@ -137,6 +139,7 @@ describe('game play celebration and government commands', () => {
           details?: unknown;
         };
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.result.enabledOptionCount).toBe(3);
       expect(payload.result.disabledOptionCount).toBe(0);
       expect(payload.result.details).toBeUndefined();
