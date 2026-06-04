@@ -2871,6 +2871,15 @@ All future agent waves must be framed before delegation:
   AI-ingestion contract, assign source/proof owners, or unblock normal CLI
   semantic envelopes, hotseat runtime, schema migration, or Effect/oRPC
   procedure-core implementation.
+- Debug projection proof increment:
+  focused `game status --json` coverage now joins `game health --json` and
+  `game inspect --json` in proving that debug-owned commands can emit raw
+  host/port/state, composed playable status, App UI snapshot probes, Tuner
+  health globals, and runtime inspection diagnostics. This remains partial
+  local CLI/package proof for the Debug/Internal Service Output row only; it
+  does not accept Task 2.9.4, claim runtime/live-game proof, create telemetry
+  or AI-ingestion contracts, or unblock normal CLI semantic envelopes,
+  hotseat runtime, schema migration, or Effect/oRPC procedure-core work.
 - Operation/proof telemetry contract planning:
   `workstream/operation-proof-telemetry-contract.md` now records the planned
   action/proof telemetry record slots, projection boundaries, proof-class

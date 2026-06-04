@@ -219,6 +219,10 @@ describe('game direct-control commands', () => {
 
   test('reports composed playable status', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameStatus.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameStatus.run(['--host', '127.0.0.1', '--port', String(port), '--json']);
@@ -229,7 +233,74 @@ describe('game direct-control commands', () => {
         'LSQ:',
         expect.stringContaining('CMD:1:(() =>'),
       ]);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        status: {
+          host: string;
+          port: number;
+          playable: true;
+          readiness: string;
+          errors: string[];
+          appUi: {
+            host: string;
+            port: number;
+            state: { id: string; name: string };
+            snapshot: {
+              network: { isInSession: { ok: true; value: boolean } };
+              ui: { loadingStateName: string; canBeginGame: { ok: true; value: boolean } };
+              gameContext: { localPlayerID: number };
+              players: { aliveHumanIds: { ok: true; value: number[] } };
+              map: { width: { ok: true; value: number }; height: { ok: true; value: number } };
+            };
+          };
+          tuner: {
+            host: string;
+            port: number;
+            state: { id: string; name: string };
+            ready: true;
+            snapshot: {
+              ready: true;
+              globals: Record<string, string>;
+              turnDate: { ok: true; value: string };
+            };
+          };
+        };
+      };
+      expect(payload).toMatchObject({
+        ok: true,
+        status: {
+          host: '127.0.0.1',
+          port,
+          playable: true,
+          readiness: 'tuner-ready',
+          errors: [],
+        },
+      });
+      expect(payload.status.appUi).toMatchObject({
+        host: '127.0.0.1',
+        port,
+        state: { id: '65535', name: 'App UI' },
+      });
+      expect(payload.status.appUi.snapshot).toMatchObject({
+        network: { isInSession: { ok: true, value: true } },
+        ui: { loadingStateName: 'WaitingForUIReady', canBeginGame: { ok: true, value: true } },
+        gameContext: { localPlayerID: 0 },
+        players: { aliveHumanIds: { ok: true, value: [0] } },
+        map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
+      });
+      expect(payload.status.tuner).toMatchObject({
+        host: '127.0.0.1',
+        port,
+        state: { id: '1', name: 'Tuner' },
+        ready: true,
+        snapshot: {
+          ready: true,
+          globals: { Game: 'object', Network: 'undefined' },
+          turnDate: { ok: true, value: '4000 BCE' },
+        },
+      });
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
