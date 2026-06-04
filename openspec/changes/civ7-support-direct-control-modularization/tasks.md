@@ -1480,6 +1480,15 @@ runtime/direct-control claims.
         source helper normalization, telemetry, AI ingestion, CLI semantic
         projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.34 Normalize the App UI snapshot and Tuner health command-source
+        helper wiring by reusing the shared runtime probe helper owner from
+        `src/runtime/app-ui-snapshot.ts` and `src/runtime/tuner-health.ts`,
+        preserving generated read-only runtime-status command semantics, App UI
+        snapshot parse shape, Tuner readiness parse shape, wait/session
+        composition, debug/internal projection boundaries, and leaving broader
+        atom-local source helper normalization, telemetry, AI ingestion, CLI
+        semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

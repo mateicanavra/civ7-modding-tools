@@ -2765,3 +2765,14 @@ All future agent waves must be framed before delegation:
   remaining atom-local source helper, or unblock telemetry, AI ingestion, CLI
   semantic projection, hotseat runtime proof, schema migration, debug hierarchy
   implementation, or Effect/oRPC procedure-core work.
+- App UI snapshot/Tuner health command-source helper normalization:
+  `src/runtime/app-ui-snapshot.ts` and `src/runtime/tuner-health.ts` now import
+  the shared runtime probe helper owner instead of carrying inline copies in the
+  generated runtime-status command sources. The generated command semantics
+  remain equivalent, and the runtime owners still preserve App UI snapshot parse
+  shape, Tuner health/readiness parse shape, wait/session composition, and
+  debug/internal projection boundaries. This is local package/source relocation
+  cleanup only and does not claim runtime/live-game proof, accept Task 2.9.4,
+  normalize every remaining atom-local source helper, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.
