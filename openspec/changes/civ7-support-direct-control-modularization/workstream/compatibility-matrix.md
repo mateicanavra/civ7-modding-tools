@@ -27,7 +27,7 @@ from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
 | Hotseat handoff state | Hotseat runtime source owner, hotseat runtime proof owner, runtime gate runner, human-restoration proof owner | Disposable hotseat activation, two-slot `GameContext.localPlayerID` rotation, agent-slot approved operation, turn-complete and human UI restoration evidence | CLI hotseat status, mutation procedure cores, live agent-turn execution, action telemetry |
 | Semantic CLI player-agent view | Full envelope implementation owner, final schema/test owner, debug-separation reviewer/gate owner beyond the recorded CLI owner seed | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
 | Strategy/intelligence ingestion | AI-ingestion contract owner, schema owner, proof owner, source/freshness label owner | Machine-contract fixtures proving source labels, freshness/evidence labels, action/proof vocabulary, and no dependency on CLI strings/raw probes | AI corpus artifacts, strategy/playbook records, static profile recipes, model-training telemetry feeds |
-| Debug/internal service output | Debug/service hierarchy owner, proof owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
+| Debug/internal service output | Final debug/service hierarchy owner, schema/test owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
 | Operation/proof telemetry | Final schema owner, operation-atom adapter owner, projection gate owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
 | Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, approval gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
 
@@ -425,8 +425,14 @@ Intake rejection conditions:
   diagnostics for it
 - `surface`: debug/internal service output
 - `primaryConsumer`: direct-control service/debug hierarchy
-- `sourceOwner`: pending debug/internal service output owner
-- `proofOwner`: pending debug/internal service output proof owner
+- `sourceOwner`: `packages/cli/src/game-debug/debug-service-projection.ts`
+  owner seed for debug/internal field classes and payload path expectations;
+  command-specific debug outputs remain under their existing CLI command and
+  direct-control atom owners
+- `proofOwner`: `packages/cli/test/commands/game/debug-service-projection.test.ts`
+  owner-seed proof plus `packages/cli/test/commands/game.control.test.ts`
+  command-integrated debug payload proof; final row proof/gate owner remains
+  pending
 - `playerScope`: debug/observer scoped unless a row-specific action surface
   assigns local-player or agent-slot scope
 - `consumerClass`: debug/internal service output; support diagnostics; future
@@ -441,8 +447,10 @@ Intake rejection conditions:
   state, raw probes, route selection, closeout traces, correlation, and
   diagnostics
 - `proofLabel`: `planning-evidence-only`
-- `acceptanceStatus`: `pending-debug-service-boundary`; debug owner, proof
-  owner, command/flag boundary, and tests not assigned
+- `acceptanceStatus`: `pending-debug-service-boundary`; source/proof owner seed
+  and command-integrated debug payload proof exist, but final debug hierarchy
+  owner, schema/test owner, command/flag boundary coverage, and separation
+  tests are not assigned
 - `blockingDependents`: debug service hierarchy, runtime-status projection,
   internal diagnostics in procedure cores
 - `stopCondition`: stop if debug/internal output becomes normal CLI output,
@@ -457,8 +465,13 @@ Intake rejection conditions:
   are `packages/cli/test/commands/game.control.test.ts`,
   `packages/civ7-direct-control/test/runtime-and-catalog.test.ts`,
   `packages/civ7-direct-control/test/session.test.ts`, and future
-  normal/debug separation tests. Gate owner remains the support DRA until a
-  dedicated debug/service hierarchy owner is assigned.
+  normal/debug separation tests. The shared debug projection source/proof owner
+  seed is now `packages/cli/src/game-debug/debug-service-projection.ts` with
+  focused proof in
+  `packages/cli/test/commands/game/debug-service-projection.test.ts` and
+  command-integrated proof in `packages/cli/test/commands/game.control.test.ts`.
+  Missing before acceptance: a final debug/service hierarchy owner,
+  schema/test owner, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
   planning updates. A later implementation slice may touch the listed CLI
   debug commands, package atom owners, and focused tests only after assigning a
@@ -470,9 +483,11 @@ Intake rejection conditions:
   debug/disposable visibility, and
   `workstream/debug-service-projection-contract.md`, which names debug-only raw
   field classes, allowed normal summary classes, AI-ingestion boundaries,
-  procedure-core boundaries, acceptance gaps, and stop conditions. Missing
-  before acceptance: a named source/proof owner and implementation tests over
-  that projection boundary.
+  procedure-core boundaries, acceptance gaps, and stop conditions. The current
+  source artifact adds the internal field-class vocabulary, owner metadata, and
+  payload path expectation helper. Missing before acceptance: a final
+  schema/test owner and broader implementation tests over command/flag,
+  normal/debug/AI, telemetry, and procedure diagnostic separation.
 - `proofPlan`: existing local proof includes
   `game.control.test.ts` coverage for health diagnostics, runtime inspection,
   App UI snapshot, playable status, map/GameInfo reads, AI loaded-lever reads,
@@ -500,6 +515,10 @@ Intake rejection conditions:
   selected state, network/UI/player/map probes, Tuner health globals, catalog
   owner/provenance/confidence, visibility revealed/visible counts, grid states,
   own/prototype/enumerable keys, and method owner/length/signature diagnostics.
+  Owner-seed proof now verifies the debug/internal field-class vocabulary and
+  asserts current `game.control.test.ts` payloads expose transport/session
+  state, route selection, runtime/App UI/map probes, correlation diagnostics,
+  and catalog provenance through the seeded debug projection helper.
   Missing proof before acceptance: broader tests proving the raw field classes in
   `workstream/debug-service-projection-contract.md` are reachable only through
   debug-owned commands, flags, or future debug procedures and are not emitted
@@ -511,7 +530,8 @@ Intake rejection conditions:
   out-of-scope until a separate ingestion contract accepts source/freshness and
   evidence labels; telemetry and procedure-core projections remain pending
   separate rows.
-- `stopConditionCoverage`: missing before acceptance. Required coverage must
+- `stopConditionCoverage`: partial owner-seed coverage exists for debug-owned
+  command payload field classes. Required coverage before acceptance must still
   fail if debug/internal output becomes normal CLI player-agent output, AI
   ingestion input, product action authority, or a substitute for live runtime
   proof.

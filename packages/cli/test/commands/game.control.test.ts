@@ -11,6 +11,10 @@ import GameGameInfo from '../../src/commands/game/gameinfo';
 import GameVisibility from '../../src/commands/game/visibility';
 import GameAiLoadedLevers from '../../src/commands/game/ai/loaded-levers';
 import GameOperation from '../../src/commands/game/operation';
+import {
+  debugServiceProjectionMissingPaths,
+  type DebugServiceProjectionExpectation,
+} from '../../src/game-debug/debug-service-projection';
 
 describe('game direct-control commands', () => {
   test('runs arbitrary JavaScript through the direct socket boundary', async () => {
@@ -63,6 +67,12 @@ describe('game direct-control commands', () => {
           state: 'App UI',
         },
       });
+      expectDebugProjectionFields(payload, [
+        { fieldClass: 'route-selection', path: ['request', 'command'] },
+        { fieldClass: 'transport-session-state', path: ['request', 'hosts'] },
+        { fieldClass: 'transport-session-state', path: ['request', 'port'] },
+        { fieldClass: 'transport-session-state', path: ['request', 'state'] },
+      ]);
     } finally {
       log.mockRestore();
     }
@@ -101,6 +111,12 @@ describe('game direct-control commands', () => {
       expect(payload.health.states).toEqual([
         { id: '65535', name: 'App UI' },
         { id: '1', name: 'Tuner' },
+      ]);
+      expectDebugProjectionFields(payload, [
+        { fieldClass: 'transport-session-state', path: ['health', 'host'] },
+        { fieldClass: 'transport-session-state', path: ['health', 'port'] },
+        { fieldClass: 'transport-session-state', path: ['health', 'states'] },
+        { fieldClass: 'transport-session-state', path: ['health', 'selectedState'] },
       ]);
     } finally {
       log.mockRestore();
@@ -158,6 +174,12 @@ describe('game direct-control commands', () => {
       expect(payload.health.error.message).toContain('Unable to reach Civ7 tuner socket');
       expect(payload.health.recoveryHints.join(' ')).toContain(`lsof -nP -iTCP:${port}`);
       expect(payload.health.recoveryHints.join(' ')).toContain('CIV7_TUNER_HOST');
+      expectDebugProjectionFields(payload, [
+        { fieldClass: 'transport-session-state', path: ['health', 'host'] },
+        { fieldClass: 'transport-session-state', path: ['health', 'port'] },
+        { fieldClass: 'correlation-diagnostic', path: ['health', 'error', 'code'] },
+        { fieldClass: 'correlation-diagnostic', path: ['health', 'recoveryHints'] },
+      ]);
     } finally {
       log.mockRestore();
     }
@@ -237,6 +259,17 @@ describe('game direct-control commands', () => {
           },
         ],
       });
+      expectDebugProjectionFields(payload, [
+        { fieldClass: 'transport-session-state', path: ['inspection', 'host'] },
+        { fieldClass: 'transport-session-state', path: ['inspection', 'port'] },
+        { fieldClass: 'transport-session-state', path: ['inspection', 'state'] },
+        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'ownKeys'] },
+        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'prototypeKeys'] },
+        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'enumerableKeys'] },
+        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'methods', 0, 'owner'] },
+        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'methods', 0, 'length'] },
+        { fieldClass: 'raw-probe', path: ['inspection', 'roots', 0, 'methods', 0, 'signature'] },
+      ]);
     } finally {
       log.mockRestore();
       await server.close();
@@ -327,6 +360,16 @@ describe('game direct-control commands', () => {
           plotCount: { ok: true, value: 4536 },
         },
       });
+      expectDebugProjectionFields(payload, [
+        { fieldClass: 'transport-session-state', path: ['snapshot', 'host'] },
+        { fieldClass: 'transport-session-state', path: ['snapshot', 'port'] },
+        { fieldClass: 'transport-session-state', path: ['snapshot', 'state'] },
+        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'network'] },
+        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'ui'] },
+        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'gameContext'] },
+        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'players'] },
+        { fieldClass: 'raw-probe', path: ['snapshot', 'snapshot', 'map'] },
+      ]);
     } finally {
       log.mockRestore();
       await server.close();
@@ -415,6 +458,13 @@ describe('game direct-control commands', () => {
           turnDate: { ok: true, value: '4000 BCE' },
         },
       });
+      expectDebugProjectionFields(payload, [
+        { fieldClass: 'transport-session-state', path: ['status', 'host'] },
+        { fieldClass: 'transport-session-state', path: ['status', 'port'] },
+        { fieldClass: 'raw-probe', path: ['status', 'appUi', 'snapshot'] },
+        { fieldClass: 'raw-probe', path: ['status', 'tuner', 'snapshot', 'globals'] },
+        { fieldClass: 'correlation-diagnostic', path: ['status', 'errors'] },
+      ]);
     } finally {
       log.mockRestore();
       await server.close();
@@ -472,6 +522,11 @@ describe('game direct-control commands', () => {
           confidence: 'source',
         }),
       ]));
+      expectDebugProjectionFields(payload, [
+        { fieldClass: 'resource-log-database-proof', path: ['catalog', 'source'] },
+        { fieldClass: 'resource-log-database-proof', path: ['catalog', 'version'] },
+        { fieldClass: 'resource-log-database-proof', path: ['catalog', 'entries'] },
+      ]);
     } finally {
       log.mockRestore();
     }
@@ -540,6 +595,15 @@ describe('game direct-control commands', () => {
           ],
         },
       });
+      expectDebugProjectionFields(payload, [
+        { fieldClass: 'transport-session-state', path: ['result', 'host'] },
+        { fieldClass: 'transport-session-state', path: ['result', 'port'] },
+        { fieldClass: 'transport-session-state', path: ['result', 'state'] },
+        { fieldClass: 'raw-probe', path: ['result', 'numPlotsRevealed'] },
+        { fieldClass: 'raw-probe', path: ['result', 'numPlotsVisible'] },
+        { fieldClass: 'raw-probe', path: ['result', 'counts'] },
+        { fieldClass: 'raw-probe', path: ['result', 'grid', 'states'] },
+      ]);
     } finally {
       log.mockRestore();
       await server.close();
@@ -611,6 +675,13 @@ describe('game direct-control commands', () => {
     }
   });
 });
+
+function expectDebugProjectionFields(
+  payload: unknown,
+  expectations: readonly DebugServiceProjectionExpectation[]
+): void {
+  expect(debugServiceProjectionMissingPaths(payload, expectations)).toEqual([]);
+}
 
 async function findUnusedPort(): Promise<number> {
   const server = createServer();

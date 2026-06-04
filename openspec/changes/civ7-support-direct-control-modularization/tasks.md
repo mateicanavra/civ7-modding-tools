@@ -113,10 +113,10 @@
         The debug/internal service output row now has a draft acceptance intake
         with concrete current package/CLI owners and missing proof called out,
         but its `acceptanceStatus` remains `pending-debug-service-boundary`
-        until normal/debug/AI separation tests and a debug projection owner are
-        assigned and passing. The planning contract is now recorded in
-        `workstream/debug-service-projection-contract.md`, but it does not
-        assign source/proof owners or accept the row. Focused compact
+        until final hierarchy/schema/gate owners, command/flag boundary
+        coverage, and normal/debug/AI separation tests are assigned and
+        passing. The planning contract is now recorded in
+        `workstream/debug-service-projection-contract.md`. Focused compact
         `game play priorities`, compact `game play ready-city`, compact
         `game play unit-move-preview`, and full/read-only
         `game play ready-unit --json` coverage plus passive
@@ -143,7 +143,14 @@
         network/UI/player/map probes, Tuner health globals, catalog
         owner/provenance/confidence,
         own/prototype/enumerable keys, and method owner/length/signature
-        diagnostics, but the row remains pending.
+        diagnostics. The debug projection source/proof owner seed is now
+        recorded in
+        `packages/cli/src/game-debug/debug-service-projection.ts`,
+        `packages/cli/test/commands/game/debug-service-projection.test.ts`,
+        and `packages/cli/test/commands/game.control.test.ts`, but the row
+        remains pending until final debug hierarchy/schema/test owners,
+        command/flag boundary coverage, normal/debug/AI/procedure separation
+        tests, and stop-condition coverage are assigned and passing.
         The semantic CLI player-agent view row now has a draft acceptance
         intake with current `game play` command/test owners from
         `workstream/cli-play-corpus.md` and missing envelope/schema/proof

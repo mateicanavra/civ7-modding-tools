@@ -114,6 +114,18 @@ These reduce the debug/internal service row proof gap but do not accept Task
 2.9.4, assign a debug projection owner, prove AI-ingestion or telemetry
 separation, implement debug/service hierarchy, or claim runtime/live-game
 proof.
+Debug/internal service projection owner-seed proof now names
+`packages/cli/src/game-debug/debug-service-projection.ts` as the source owner
+for debug/internal field classes and payload path expectations, with focused
+proof in `packages/cli/test/commands/game/debug-service-projection.test.ts`
+and command-integrated proof in
+`packages/cli/test/commands/game.control.test.ts`. The proof ties existing
+debug-owned command payloads to transport/session state, route selection,
+runtime/App UI/map probes, correlation diagnostics, and catalog provenance.
+This reduces the debug/internal service row's source/proof owner gap only; it
+does not implement a debug hierarchy, choose schema technology, prove AI
+ingestion or telemetry separation, accept Task 2.9.4, or claim
+runtime/live-game proof.
 
 ## Current State
 
@@ -2926,6 +2938,20 @@ All future agent waves must be framed before delegation:
   AI-ingestion contract, assign source/proof owners, or unblock normal CLI
   semantic envelopes, hotseat runtime, schema migration, or Effect/oRPC
   procedure-core implementation.
+- Debug/internal service projection owner seed:
+  `packages/cli/src/game-debug/debug-service-projection.ts` now records the
+  debug/internal field-class vocabulary, owner metadata, and payload path
+  expectation helper. Focused proof in
+  `packages/cli/test/commands/game/debug-service-projection.test.ts` covers
+  the owner seed, and command-integrated proof in
+  `packages/cli/test/commands/game.control.test.ts` ties existing debug-owned
+  command payloads to transport/session state, route selection, runtime/App UI
+  and map probes, correlation diagnostics, and catalog provenance. This
+  reduces the row's source/proof owner gap only; it does not implement a debug
+  hierarchy, choose schema technology, accept Task 2.9.4, claim
+  runtime/live-game proof, create telemetry or AI-ingestion contracts, or
+  unblock normal CLI semantic envelopes, hotseat runtime, schema migration, or
+  Effect/oRPC procedure-core work.
 - Debug projection proof increment:
   focused `game status --json` coverage now joins `game health --json` and
   `game inspect --json` in proving that debug-owned commands can emit raw

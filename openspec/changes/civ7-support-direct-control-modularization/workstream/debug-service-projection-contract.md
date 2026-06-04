@@ -75,13 +75,34 @@ must not tunnel raw JavaScript commands, caller-owned socket state, or App UI
 bridge payloads as product authority. Procedure diagnostics must keep normal
 CLI, AI ingestion, telemetry, and debug/service projections distinct.
 
+## Current Owner Seed
+
+`packages/cli/src/game-debug/debug-service-projection.ts` is the current source
+owner seed for debug/internal projection field classes, owner metadata, and
+payload path expectation helpers. Its focused proof owner is
+`packages/cli/test/commands/game/debug-service-projection.test.ts`, and
+command-integrated proof is in `packages/cli/test/commands/game.control.test.ts`.
+
+The owner seed is wired to current debug-owned command payloads for `game exec`
+dry-run routing, `game health` readiness/unavailability diagnostics,
+`game inspect` runtime/App UI snapshots, `game status` composed playable status,
+`game catalog --static`, and `game visibility`. That proof checks raw
+transport/session state, route selection, runtime/App UI/map probes,
+correlation diagnostics, and catalog provenance as debug/internal field
+classes.
+
+This is a TypeScript structural owner seed only. It does not implement a debug
+service hierarchy, add flags, choose TypeBox or Effect Schema, define AI
+ingestion inputs, add telemetry persistence, implement procedure diagnostics,
+prove runtime/live-game behavior, or accept the matrix row.
+
 ## Acceptance Gaps
 
 This contract reduces the `contractArtifact` gap for the Debug/Internal Service
-Output row, but it does not accept the row. Acceptance still needs:
+Output row, and the owner seed reduces the source/proof ownership gap, but it
+does not accept the row. Acceptance still needs:
 
-- a named debug/internal service output source owner;
-- a proof owner and focused tests for command/flag boundaries;
+- a final debug/internal service hierarchy owner and concrete schema/test owner;
 - tests proving raw transport, session, probe, closeout, correlation, and
   diagnostic details are reachable only through debug-owned commands, flags, or
   future debug procedures;
