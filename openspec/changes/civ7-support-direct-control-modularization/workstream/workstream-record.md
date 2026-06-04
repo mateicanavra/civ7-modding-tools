@@ -64,6 +64,8 @@ Promotion-readiness proof now covers its full/read-only ready-unit-derived
 promotion view output.
 Rehydrate proof now covers its full/read-only restart-continuity materialization
 output.
+Notification-HUD proof now covers materialized notification decision output
+across the focused HUD fixture modes.
 Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
