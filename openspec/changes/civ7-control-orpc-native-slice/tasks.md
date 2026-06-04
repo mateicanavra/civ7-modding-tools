@@ -41,6 +41,8 @@
 - [x] 4.4 Prove server-side client calls over the same router graph.
 - [x] 4.5 Implement one map read module over `map.summary.read` with
   in-process server-side client proof.
+- [x] 4.6 Implement one player read module over `player.summary.read` with
+  in-process server-side client proof.
 
 ## 5. Middleware Promotion
 
