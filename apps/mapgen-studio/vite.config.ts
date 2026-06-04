@@ -22,12 +22,14 @@ import {
   getCiv7PlayerSummary,
   getCiv7UnitSummary,
   ensureCiv7SetupMapRowVisible,
+  listCiv7SavedGameConfigurations,
   runCiv7SinglePlayerFromSetup,
   startCiv7Autoplay,
   stopCiv7Autoplay,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
+import { loadCiv7SetupCatalog } from "./src/server/civ7Resources/catalog";
 import {
   RunInGameHttpError,
   createRunInGameOperationStore,
@@ -529,6 +531,48 @@ export default defineConfig(({ command }) => ({
             viteCommand: command,
           });
         });
+        server.middlewares.use("/api/civ7/setup-config", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const snapshot = await getCiv7SetupSnapshot({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS });
+            writeJson(res, 200, {
+              ok: true,
+              observedAt: new Date().toISOString(),
+              setup: snapshot.snapshot,
+              state: snapshot.state,
+              host: snapshot.host,
+              port: snapshot.port,
+            });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 setup config unavailable";
+            writeJson(res, 503, { ok: false, error, observedAt: new Date().toISOString() });
+          }
+        });
+        server.middlewares.use("/api/civ7/saved-configs", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const result = await listCiv7SavedGameConfigurations();
+            writeJson(res, 200, {
+              ok: true,
+              observedAt: new Date().toISOString(),
+              ...result,
+            });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 saved configurations unavailable";
+            writeJson(res, 500, { ok: false, error, observedAt: new Date().toISOString() });
+          }
+        });
+        server.middlewares.use("/api/civ7/setup-catalog", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
+            const catalog = await loadCiv7SetupCatalog({ repoRoot });
+            writeJson(res, 200, { ok: true, catalog });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 setup catalog unavailable";
+            writeJson(res, 500, { ok: false, error, observedAt: new Date().toISOString() });
+          }
+        });
         server.middlewares.use("/api/civ7/run-in-game/status", async (req, res, next) => {
           if (req.method !== "GET") return next();
           const url = new URL(req.url ?? "", "http://localhost");
@@ -560,6 +604,7 @@ export default defineConfig(({ command }) => ({
               resources?: unknown;
               materialization?: { mode?: unknown };
               recovery?: { restartCivProcess?: unknown };
+              setupConfig?: unknown;
               config?: unknown;
               selectedConfig?: {
                 id?: unknown;
@@ -572,7 +617,7 @@ export default defineConfig(({ command }) => ({
             }>(req);
             const parsedRequest = parseRunInGameSetupRequest(body);
             const selected = body.selectedConfig ?? {};
-            const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess } = parsedRequest;
+            const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess, setupConfig } = parsedRequest;
             const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
             const configHash = stableHash(body.config);
             const envelope = makeRepoMapEnvelope({
@@ -624,6 +669,7 @@ export default defineConfig(({ command }) => ({
               ...(playerCount === undefined ? {} : { playerCount }),
               ...(typeof body.resources === "string" ? { resources: body.resources } : {}),
               ...(typeof selected.id === "string" ? { selectedConfigId: selected.id } : {}),
+              setupConfig,
               materializationMode: requestedMode,
               ...(restartCivProcess ? { restartCivProcess } : {}),
             };
@@ -679,9 +725,10 @@ export default defineConfig(({ command }) => ({
                   });
                 });
 
+                const launchMapScript = materialized.mapScript;
                 const rowVisibility = await ensureCiv7SetupMapRowVisible(
                   {
-                    file: materialized.mapScript,
+                    file: launchMapScript,
                     limit: 20,
                     reloadIfMissing: requestedMode === "disposable" ? "exit-to-shell" : "none",
                     waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
@@ -696,12 +743,12 @@ export default defineConfig(({ command }) => ({
                 }
                 const rowProof = rowVisibility.final;
                 if (rowProof.rows.length === 0) {
-                  throw new RunInGameHttpError(409, `Civ7 setup cannot see ${materialized.mapScript}`, {
+                  throw new RunInGameHttpError(409, `Civ7 setup cannot see ${launchMapScript}`, {
                     code: "setup-map-row-not-visible",
                     reloadRequired: true,
                     reloadBoundary: requestedMode === "disposable" ? "process-restart-required" : "setup-row-missing",
                     reloadAttempted: rowVisibility.refreshed,
-                    mapScript: materialized.mapScript,
+                    mapScript: launchMapScript,
                     materialization: {
                       mode: requestedMode,
                       path: materialized.path,
@@ -716,10 +763,13 @@ export default defineConfig(({ command }) => ({
                 runInGameOperations.update(requestId, { phase, materialization });
                 const start = await runCiv7SinglePlayerFromSetup(
                   {
-                    mapScript: materialized.mapScript,
+                    mapScript: launchMapScript,
                     mapSize,
                     seed,
                     ...(playerCount === undefined ? {} : { playerCount }),
+                    ...(setupConfig.savedConfig === undefined ? {} : { savedConfig: setupConfig.savedConfig }),
+                    options: setupConfig.gameOptions,
+                    playerOptions: setupConfig.playerOptions,
                     fromRunningGame: "exit-to-shell",
                     waitForTuner: true,
                     waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,

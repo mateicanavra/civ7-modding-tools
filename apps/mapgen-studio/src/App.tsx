@@ -29,7 +29,6 @@ import type {
   WorldSettings,
 } from "./ui/types";
 
-import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
 import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
@@ -51,6 +50,21 @@ import {
   type RunInGameFailureDetails,
   type RunInGameOperationStatus,
 } from "./features/runInGame/status";
+import {
+  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
+  getLocalPlayerSetup,
+  isDefaultStudioSetupConfig,
+  labelForCiv7SetupValue,
+  normalizeStudioSetupConfig,
+  optionRowsFromParameter,
+  studioSetupConfigFromLiveSnapshot,
+  updateStudioSetupSavedConfig,
+  studioSetupConfigsEqual,
+  type Civ7SavedSetupConfigFile,
+  type Civ7SetupParameterSnapshotLike,
+  type Civ7SetupSnapshotLike,
+  type Civ7StudioSetupConfig,
+} from "./features/civ7Setup/setupConfig";
 import {
   createMapConfigSaveDeployStatus,
   updateMapConfigSaveDeployStatus,
@@ -78,6 +92,7 @@ import { resolveImportedPreset } from "./features/presets/importFlow";
 import { buildPresetExportFile, downloadPresetFile, parsePresetExportFile } from "./features/presets/importExport";
 import { parsePresetKey, type PresetKey } from "./features/presets/types";
 import { usePresets } from "./features/presets/usePresets";
+import { migratePipelineConfig, migratePipelineConfigUnknown } from "./features/configMigrations/pipelineConfig";
 import {
   loadStudioAuthoringState,
   saveStudioAuthoringState,
@@ -204,6 +219,7 @@ async function runCurrentConfigInGame(args: {
   mapSize: string;
   playerCount: number;
   resources: string;
+  setupConfig: Civ7StudioSetupConfig;
   materializationMode: "durable" | "disposable";
   restartCivProcess?: boolean;
   selectedConfig?: {
@@ -232,6 +248,7 @@ async function runCurrentConfigInGame(args: {
         mapSize: args.mapSize,
         playerCount: args.playerCount,
         resources: args.resources,
+        setupConfig: normalizeStudioSetupConfig(args.setupConfig),
         materialization: { mode: args.materializationMode },
         ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
         selectedConfig: args.selectedConfig,
@@ -265,6 +282,109 @@ async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperati
     return body as RunInGameOperationStatus;
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Run in Game status unavailable" };
+  }
+}
+
+async function fetchCiv7SetupConfig(): Promise<
+  | { ok: true; observedAt: string; setup: Civ7SetupSnapshotLike }
+  | { ok: false; error: string; observedAt?: string; statusCode?: number }
+> {
+  try {
+    const res = await fetch("/api/civ7/setup-config");
+    const body = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+      observedAt?: string;
+      setup?: Civ7SetupSnapshotLike;
+      error?: string;
+    } | null;
+    if (!res.ok || !body?.ok || !body.setup) {
+      return {
+        ok: false,
+        error: body?.error ?? `HTTP ${res.status}`,
+        observedAt: body?.observedAt,
+        statusCode: res.status,
+      };
+    }
+    return {
+      ok: true,
+      observedAt: body.observedAt ?? new Date().toISOString(),
+      setup: body.setup,
+    };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Civ7 setup config unavailable" };
+  }
+}
+
+type Civ7SetupCatalogOption = Readonly<{
+  value: string;
+  label: string;
+  source?: string;
+  sourcePath?: string;
+}>;
+
+type Civ7SetupCatalog = Readonly<{
+  observedAt: string;
+  leaders: ReadonlyArray<Civ7SetupCatalogOption>;
+  civilizations: ReadonlyArray<Civ7SetupCatalogOption>;
+  difficulties: ReadonlyArray<Civ7SetupCatalogOption>;
+  gameSpeeds: ReadonlyArray<Civ7SetupCatalogOption>;
+}>;
+
+async function fetchCiv7SavedSetupConfigs(): Promise<
+  | { ok: true; observedAt: string; directory: string; configurations: ReadonlyArray<Civ7SavedSetupConfigFile> }
+  | { ok: false; error: string; observedAt?: string; statusCode?: number }
+> {
+  try {
+    const res = await fetch("/api/civ7/saved-configs");
+    const body = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+      observedAt?: string;
+      directory?: string;
+      configurations?: ReadonlyArray<Civ7SavedSetupConfigFile>;
+      error?: string;
+    } | null;
+    if (!res.ok || !body?.ok || !Array.isArray(body.configurations)) {
+      return {
+        ok: false,
+        error: body?.error ?? `HTTP ${res.status}`,
+        observedAt: body?.observedAt,
+        statusCode: res.status,
+      };
+    }
+    return {
+      ok: true,
+      observedAt: body.observedAt ?? new Date().toISOString(),
+      directory: body.directory ?? "",
+      configurations: body.configurations,
+    };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Civ7 saved configurations unavailable" };
+  }
+}
+
+async function fetchCiv7SetupCatalog(): Promise<
+  | { ok: true; catalog: Civ7SetupCatalog }
+  | { ok: false; error: string; observedAt?: string; statusCode?: number }
+> {
+  try {
+    const res = await fetch("/api/civ7/setup-catalog");
+    const body = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+      catalog?: Civ7SetupCatalog;
+      error?: string;
+      observedAt?: string;
+    } | null;
+    if (!res.ok || !body?.ok || !body.catalog) {
+      return {
+        ok: false,
+        error: body?.error ?? `HTTP ${res.status}`,
+        observedAt: body?.observedAt,
+        statusCode: res.status,
+      };
+    }
+    return { ok: true, catalog: body.catalog };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Civ7 setup catalog unavailable" };
   }
 }
 
@@ -457,7 +577,8 @@ function applyPresetConfig(args: {
 }): PresetApplyResult {
   const { schema, uiMeta, presetConfig, label } = args;
   const skeleton = buildConfigSkeleton(uiMeta);
-  const merged = mergeDeterministic(skeleton, stripSchemaMetadataRoot(presetConfig));
+  const migratedPresetConfig = migratePipelineConfigUnknown(stripSchemaMetadataRoot(presetConfig));
+  const merged = mergeDeterministic(skeleton, migratedPresetConfig);
   const { value, errors } = normalizeStrict<PipelineConfig>(schema, merged, `/preset/${label}`);
   if (errors.length > 0) return { value: null, errors };
   return { value, errors: [] };
@@ -471,6 +592,41 @@ function clampNumber(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+function findSetupParameterLike(
+  parameters: ReadonlyArray<Civ7SetupParameterSnapshotLike> | undefined,
+  id: string,
+): Civ7SetupParameterSnapshotLike | undefined {
+  return parameters?.find((parameter) => parameter.id === id && parameter.exists !== false);
+}
+
+function ensureSelectOption(
+  options: ReadonlyArray<{ value: string; label: string }>,
+  value: unknown,
+): ReadonlyArray<{ value: string; label: string }> {
+  if (typeof value !== "string" || value.length === 0 || options.some((option) => option.value === value)) return options;
+  return [{ value, label: labelForCiv7SetupValue(value) }, ...options];
+}
+
+function mergeSelectOptions(
+  ...groups: ReadonlyArray<ReadonlyArray<{ value: string; label: string }>>
+): ReadonlyArray<{ value: string; label: string }> {
+  const seen = new Set<string>();
+  const out: Array<{ value: string; label: string }> = [];
+  for (const group of groups) {
+    for (const option of group) {
+      if (!option.value && seen.has(option.value)) continue;
+      if (option.value && seen.has(option.value)) continue;
+      seen.add(option.value);
+      out.push(option);
+    }
+  }
+  return out;
+}
+
+function setupCatalogOptions(options: ReadonlyArray<Civ7SetupCatalogOption> | undefined): ReadonlyArray<{ value: string; label: string }> {
+  return (options ?? []).map((option) => ({ value: option.value, label: option.label }));
+}
+
 type LastRunSnapshot = {
   worldSettings: WorldSettings;
   recipeSettings: RecipeSettings;
@@ -482,6 +638,7 @@ function liveSourceMatchesStudio(args: {
   recipeSettings: RecipeSettings;
   worldSettings: WorldSettings;
   pipelineConfig: PipelineConfig;
+  setupConfig: Civ7StudioSetupConfig;
 }): boolean {
   return (
     args.source.recipeSettings.recipe === args.recipeSettings.recipe &&
@@ -489,6 +646,7 @@ function liveSourceMatchesStudio(args: {
     args.source.worldSettings.mapSize === args.worldSettings.mapSize &&
     args.source.worldSettings.playerCount === args.worldSettings.playerCount &&
     args.source.worldSettings.resources === args.worldSettings.resources &&
+    studioSetupConfigsEqual(args.source.setupConfig, args.setupConfig) &&
     configsEqual(args.source.pipelineConfig, args.pipelineConfig)
   );
 }
@@ -538,7 +696,6 @@ function AppContent(props: AppContentProps) {
   const autoRunPendingRef = useRef(false);
 
   const [worldSettings, setWorldSettings] = useState<WorldSettings>(() => initialAuthoringState?.worldSettings ?? {
-    mode: "browser",
     mapSize: "MAPSIZE_STANDARD",
     playerCount: 6,
     resources: "balanced",
@@ -549,6 +706,10 @@ function AppContent(props: AppContentProps) {
     preset: "none",
     seed: "123",
   });
+  const [setupConfig, setSetupConfig] = useState<Civ7StudioSetupConfig>(() =>
+    initialAuthoringState?.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
+  );
+  const initialLiveSetupHydratedRef = useRef(!isDefaultStudioSetupConfig(setupConfig));
   const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
   const [saveDialogState, setSaveDialogState] = useState<{ open: boolean; label: string; description?: string }>({
     open: false,
@@ -699,15 +860,12 @@ function AppContent(props: AppContentProps) {
     saveStudioAuthoringState({
       worldSettings,
       recipeSettings,
+      setupConfig,
       pipelineConfig,
       overridesDisabled,
       repoBackedPresetOverridesByRecipe,
     });
-  }, [overridesDisabled, pipelineConfig, recipeSettings, repoBackedPresetOverridesByRecipe, worldSettings]);
-
-  const dumpLoader = useDumpLoader();
-  const dumpAssetResolver = dumpLoader.state.status === "loaded" ? dumpLoader.state.reader : null;
-  const dumpManifest = dumpLoader.state.status === "loaded" ? dumpLoader.state.manifest : null;
+  }, [overridesDisabled, pipelineConfig, recipeSettings, repoBackedPresetOverridesByRecipe, setupConfig, worldSettings]);
 
   const vizIngestRef = useRef<(event: VizEvent) => void>(() => {});
   const handleVizEvent = useCallback((event: VizEvent) => {
@@ -715,7 +873,7 @@ function AppContent(props: AppContentProps) {
   }, []);
 
   const browserRunner = useBrowserRunner({
-    enabled: worldSettings.mode === "browser",
+    enabled: true,
     onVizEvent: handleVizEvent,
   });
 
@@ -735,19 +893,36 @@ function AppContent(props: AppContentProps) {
     updatedAt?: string;
     error?: string;
   }>({ status: "idle" });
+  const [liveSetup, setLiveSetup] = useState<{
+    status: "idle" | "ok" | "error";
+    setup?: Civ7SetupSnapshotLike;
+    updatedAt?: string;
+    error?: string;
+  }>({ status: "idle" });
+  const [savedSetupConfigs, setSavedSetupConfigs] = useState<{
+    status: "idle" | "ok" | "error";
+    directory?: string;
+    configurations: ReadonlyArray<Civ7SavedSetupConfigFile>;
+    updatedAt?: string;
+    error?: string;
+  }>({ status: "idle", configurations: [] });
+  const [setupCatalog, setSetupCatalog] = useState<{
+    status: "idle" | "ok" | "error";
+    catalog?: Civ7SetupCatalog;
+    updatedAt?: string;
+    error?: string;
+  }>({ status: "idle" });
   const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
   const saveDeployRunning = saveDeployOperation?.status === "running";
   const runInGameRunning = runInGameOperation?.status === "running";
 
   const viz = useVizState({
-    enabled: worldSettings.mode === "browser" || worldSettings.mode === "dump",
-    mode: worldSettings.mode,
-    assetResolver: worldSettings.mode === "dump" ? dumpAssetResolver : null,
+    enabled: true,
     showEdgeOverlay: showEdges,
     overlayDataTypeKey,
     overlayVariantKeyPreference,
     overlayOpacity,
-    allowPendingSelection: worldSettings.mode === "browser" && browserRunning,
+    allowPendingSelection: browserRunning,
     onError: (e) => setLocalError(formatErrorForUi(e)),
   });
   vizIngestRef.current = viz.ingest;
@@ -764,16 +939,6 @@ function AppContent(props: AppContentProps) {
   }, [viz.activeBounds, viz.effectiveLayer?.spaceId]);
 
   useEffect(() => {
-    if (!dumpManifest) return;
-    viz.setDumpManifest(dumpManifest);
-    const firstStep = [...dumpManifest.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
-    setSelectedStageId(viz.pipelineStages[0]?.stageId ?? "");
-    setSelectedStepId(firstStep ?? "");
-    viz.setSelectedLayerKey(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dumpManifest]);
-
-  useEffect(() => {
     if (!viz.manifest) return;
     if (hasEverSeenVizManifestRef.current) return;
     if (!viz.activeBounds) return;
@@ -785,8 +950,7 @@ function AppContent(props: AppContentProps) {
 
   const error =
     localError ??
-    (worldSettings.mode === "browser" ? browserRunner.state.error : null) ??
-    (dumpLoader.state.status === "error" ? dumpLoader.state.message : null);
+    browserRunner.state.error;
 
   useEffect(() => {
     let cancelled = false;
@@ -811,11 +975,27 @@ function AppContent(props: AppContentProps) {
           updatedAt: body.observedAt,
           error: body.ok ? undefined : body.status?.error ?? body.mapSummary?.error,
         });
+        const setup = await fetchCiv7SetupConfig();
+        if (cancelled) return;
+        if (setup.ok) {
+          setLiveSetup({ status: "ok", setup: setup.setup, updatedAt: setup.observedAt });
+        } else {
+          setLiveSetup({
+            status: "error",
+            error: setup.error,
+            updatedAt: setup.observedAt ?? new Date().toISOString(),
+          });
+        }
       } catch (err) {
         if (!cancelled) {
           setLiveRuntime({
             status: "error",
             error: err instanceof Error ? err.message : "Live status unavailable",
+            updatedAt: new Date().toISOString(),
+          });
+          setLiveSetup({
+            status: "error",
+            error: err instanceof Error ? err.message : "Live setup unavailable",
             updatedAt: new Date().toISOString(),
           });
         }
@@ -829,6 +1009,77 @@ function AppContent(props: AppContentProps) {
       if (timer !== null) window.clearTimeout(timer);
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    let retryTimer: number | null = null;
+
+    const load = async () => {
+      const [configs, catalog] = await Promise.all([
+        fetchCiv7SavedSetupConfigs(),
+        fetchCiv7SetupCatalog(),
+      ]);
+      if (cancelled) return;
+      if (configs.ok) {
+        setSavedSetupConfigs({
+          status: "ok",
+          directory: configs.directory,
+          configurations: configs.configurations,
+          updatedAt: configs.observedAt,
+        });
+      } else {
+        setSavedSetupConfigs({
+          status: "error",
+          configurations: [],
+          error: configs.error,
+          updatedAt: configs.observedAt ?? new Date().toISOString(),
+        });
+      }
+      if (catalog.ok) {
+        setSetupCatalog({
+          status: "ok",
+          catalog: catalog.catalog,
+          updatedAt: catalog.catalog.observedAt,
+        });
+      } else {
+        setSetupCatalog({
+          status: "error",
+          error: catalog.error,
+          updatedAt: catalog.observedAt ?? new Date().toISOString(),
+        });
+      }
+
+      if (!configs.ok || !catalog.ok) {
+        retryTimer = window.setTimeout(load, document.hidden ? 10000 : 3000);
+      }
+    };
+
+    const loadNow = () => {
+      if (retryTimer !== null) {
+        window.clearTimeout(retryTimer);
+        retryTimer = null;
+      }
+      void load();
+    };
+
+    void load();
+    window.addEventListener("focus", loadNow);
+    return () => {
+      cancelled = true;
+      if (retryTimer !== null) window.clearTimeout(retryTimer);
+      window.removeEventListener("focus", loadNow);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (initialLiveSetupHydratedRef.current || liveSetup.status !== "ok" || !liveSetup.setup) return;
+    const liveConfig = studioSetupConfigFromLiveSnapshot(liveSetup.setup);
+    setSetupConfig((current) => normalizeStudioSetupConfig({
+      ...liveConfig,
+      mapScript: current.mapScript,
+    }));
+    initialLiveSetupHydratedRef.current = true;
+  }, [liveSetup]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -850,74 +1101,6 @@ function AppContent(props: AppContentProps) {
     return () => ro.disconnect();
   }, []);
 
-  const openDumpFolder = useCallback(async () => {
-    setLocalError(null);
-    setWorldSettings((prev) => ({ ...prev, mode: "dump" }));
-    browserRunner.actions.cancel();
-    await dumpLoader.actions.openViaDirectoryPicker();
-  }, [browserRunner.actions, dumpLoader.actions]);
-
-  const onUploadDumpFolder = useCallback(
-    async (files: FileList) => {
-      setLocalError(null);
-      setWorldSettings((prev) => ({ ...prev, mode: "dump" }));
-      browserRunner.actions.cancel();
-      await dumpLoader.actions.loadFromFileList(files);
-    },
-    [browserRunner.actions, dumpLoader.actions]
-  );
-
-  const [isDumpDropActive, setIsDumpDropActive] = useState(false);
-
-  useEffect(() => {
-    if (worldSettings.mode !== "dump") {
-      setIsDumpDropActive(false);
-      return;
-    }
-
-    let dragDepth = 0;
-    const isFileDrag = (dt: DataTransfer | null) => (dt?.types ? Array.from(dt.types).includes("Files") : false);
-
-    const onDragEnter = (e: DragEvent) => {
-      if (!isFileDrag(e.dataTransfer)) return;
-      dragDepth += 1;
-      setIsDumpDropActive(true);
-    };
-
-    const onDragLeave = (e: DragEvent) => {
-      if (!isFileDrag(e.dataTransfer)) return;
-      dragDepth = Math.max(0, dragDepth - 1);
-      if (dragDepth === 0) setIsDumpDropActive(false);
-    };
-
-    const onDragOver = (e: DragEvent) => {
-      if (!isFileDrag(e.dataTransfer)) return;
-      e.preventDefault();
-    };
-
-    const onDrop = (e: DragEvent) => {
-      if (!isFileDrag(e.dataTransfer)) return;
-      e.preventDefault();
-      dragDepth = 0;
-      setIsDumpDropActive(false);
-      const files = e.dataTransfer?.files;
-      if (!files || files.length === 0) return;
-      void onUploadDumpFolder(files);
-    };
-
-    window.addEventListener("dragenter", onDragEnter);
-    window.addEventListener("dragleave", onDragLeave);
-    window.addEventListener("dragover", onDragOver);
-    window.addEventListener("drop", onDrop);
-
-    return () => {
-      window.removeEventListener("dragenter", onDragEnter);
-      window.removeEventListener("dragleave", onDragLeave);
-      window.removeEventListener("dragover", onDragOver);
-      window.removeEventListener("drop", onDrop);
-    };
-  }, [onUploadDumpFolder, worldSettings.mode]);
-
   const [selectedStageId, setSelectedStageId] = useState("");
   const [selectedStepId, setSelectedStepId] = useState("");
 
@@ -927,24 +1110,12 @@ function AppContent(props: AppContentProps) {
   );
 
   const stages: StageOption[] = useMemo(() => {
-    const labelByStageId = new Map(
-      recipeArtifacts.uiMeta.stages.map((stage) => [stage.stageId, stage.stageLabel] as const)
-    );
-
-    if (worldSettings.mode === "browser") {
-      return recipeArtifacts.uiMeta.stages.map((stage, index) => ({
-        value: stage.stageId,
-        label: stage.stageLabel ?? formatStageName(stage.stageId),
-        index: index + 1,
-      }));
-    }
-
-    return viz.pipelineStages.map((stage, index) => ({
+    return recipeArtifacts.uiMeta.stages.map((stage, index) => ({
       value: stage.stageId,
-      label: labelByStageId.get(stage.stageId) ?? formatStageName(stage.stageId),
+      label: stage.stageLabel ?? formatStageName(stage.stageId),
       index: index + 1,
     }));
-  }, [recipeArtifacts.uiMeta.stages, viz.pipelineStages, worldSettings.mode]);
+  }, [recipeArtifacts.uiMeta.stages]);
 
   const steps: StepOption[] = useMemo(() => {
     if (!selectedStageId) return [];
@@ -955,26 +1126,15 @@ function AppContent(props: AppContentProps) {
       )
     );
 
-    if (worldSettings.mode === "browser") {
-      const stage = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === selectedStageId);
-      return (
-        stage?.steps.map((step) => ({
-          value: step.fullStepId,
-          label: step.stepLabel ?? step.stepId,
-          category: selectedStageId,
-        })) ?? []
-      );
-    }
-
-    const stage = viz.pipelineStages.find((s) => s.stageId === selectedStageId);
+    const stage = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === selectedStageId);
     return (
       stage?.steps.map((step) => ({
-        value: step.stepId,
-        label: labelByFullStepId.get(step.stepId) ?? step.address?.stepId ?? step.stepId,
+        value: step.fullStepId,
+        label: labelByFullStepId.get(step.fullStepId) ?? step.stepLabel ?? step.stepId,
         category: selectedStageId,
       })) ?? []
     );
-  }, [recipeArtifacts.uiMeta.stages, selectedStageId, viz.pipelineStages, worldSettings.mode]);
+  }, [recipeArtifacts.uiMeta.stages, selectedStageId]);
 
   useEffect(() => {
     if (stages.length === 0) return;
@@ -1001,12 +1161,9 @@ function AppContent(props: AppContentProps) {
       const seedStr = overrides?.seed ?? recipeSettings.seed;
       const seed = Number(seedStr) || 0;
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-      const nextWorldSettings = { ...worldSettings, mode: "browser" } as const;
-
-      setWorldSettings(nextWorldSettings);
+      const runPipelineConfig = migratePipelineConfig(pipelineConfig);
 
       const pinned = capturePinnedSelection({
-        mode: "browser",
         selectedStepId: viz.selectedStepId,
         selectedLayerKey: viz.selectedLayerKey,
       });
@@ -1017,9 +1174,9 @@ function AppContent(props: AppContentProps) {
       browserRunner.actions.clearError();
 
       setLastRunSnapshot({
-        worldSettings: nextWorldSettings,
+        worldSettings,
         recipeSettings: { ...recipeSettings, seed: seedStr },
-        pipelineConfig,
+        pipelineConfig: runPipelineConfig,
       });
 
       browserRunner.actions.start({
@@ -1030,7 +1187,7 @@ function AppContent(props: AppContentProps) {
         latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
         playerCount: worldSettings.playerCount,
         resourcesMode: worldSettings.resources,
-        configOverrides: overridesDisabled ? undefined : (pipelineConfig as unknown),
+        configOverrides: overridesDisabled ? undefined : (runPipelineConfig as unknown),
       });
     },
     [browserRunner.actions, overridesDisabled, pipelineConfig, recipeSettings, worldSettings, viz]
@@ -1048,7 +1205,6 @@ function AppContent(props: AppContentProps) {
 
   useEffect(() => {
     if (!autoRunEnabled) return;
-    if (worldSettings.mode !== "browser") return;
     if (overridesDisabled) return;
     if (runInGameRunning || saveDeployRunning) return;
 
@@ -1079,12 +1235,10 @@ function AppContent(props: AppContentProps) {
     runInGameRunning,
     saveDeployRunning,
     startBrowserRun,
-    worldSettings.mode,
   ]);
 
   useEffect(() => {
     if (!autoRunEnabled) return;
-    if (worldSettings.mode !== "browser") return;
     if (overridesDisabled) return;
     if (browserRunning) return;
     if (runInGameRunning || saveDeployRunning) return;
@@ -1093,7 +1247,7 @@ function AppContent(props: AppContentProps) {
     autoRunPendingRef.current = false;
     if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
     startBrowserRun();
-  }, [autoRunEnabled, browserRunning, lastRunSnapshot, overridesDisabled, pipelineConfig, runInGameRunning, saveDeployRunning, startBrowserRun, worldSettings.mode]);
+  }, [autoRunEnabled, browserRunning, lastRunSnapshot, overridesDisabled, pipelineConfig, runInGameRunning, saveDeployRunning, startBrowserRun]);
 
   const openSaveDialog = useCallback((seed?: { label?: string; description?: string }) => {
     setSaveDialogState({
@@ -1469,12 +1623,8 @@ function AppContent(props: AppContentProps) {
       toast("Finish the current Studio operation before running.", { variant: "info" });
       return;
     }
-    if (worldSettings.mode === "dump") {
-      void openDumpFolder();
-      return;
-    }
     startBrowserRun();
-  }, [openDumpFolder, runInGameRunning, saveDeployRunning, startBrowserRun, toast, worldSettings.mode]);
+  }, [runInGameRunning, saveDeployRunning, startBrowserRun, toast]);
 
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
 
@@ -1507,9 +1657,10 @@ function AppContent(props: AppContentProps) {
       recipeSettings,
       worldSettings,
       pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+      setupConfig,
       materializationMode: runInGameMaterializationMode,
     }),
-    [pipelineConfig, recipeSettings, runInGameMaterializationMode, worldSettings]
+    [pipelineConfig, recipeSettings, runInGameMaterializationMode, setupConfig, worldSettings]
   );
 
   const runInGameCurrentRelation = useMemo<RunInGameCurrentRelation>(
@@ -1535,11 +1686,12 @@ function AppContent(props: AppContentProps) {
       source: provedRunInGameSource,
       recipeSettings,
       worldSettings,
+      setupConfig,
       pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
     })
       ? "current"
       : "stale";
-  }, [liveRuntime.seed, liveRuntime.status, pipelineConfig, provedRunInGameSource, recipeSettings, worldSettings]);
+  }, [liveRuntime.seed, liveRuntime.status, pipelineConfig, provedRunInGameSource, recipeSettings, setupConfig, worldSettings]);
 
   const studioMatchesProvedLiveSource = useMemo(() => {
     if (!provedRunInGameSource) return false;
@@ -1547,9 +1699,10 @@ function AppContent(props: AppContentProps) {
       source: provedRunInGameSource,
       recipeSettings,
       worldSettings,
+      setupConfig,
       pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
     });
-  }, [pipelineConfig, provedRunInGameSource, recipeSettings, worldSettings]);
+  }, [pipelineConfig, provedRunInGameSource, recipeSettings, setupConfig, worldSettings]);
 
   const displayedPresetOptions = useMemo(
     () => {
@@ -1561,6 +1714,70 @@ function AppContent(props: AppContentProps) {
     },
     [presetOptions, provedRunInGameSource?.materializationMode, studioMatchesProvedLiveSource]
   );
+
+  const setupControlOptions = useMemo(() => {
+    const setup = liveSetup.setup;
+    const parameters = setup?.setup?.parameters ?? [];
+    const localPlayerId = Number(setup?.setup?.localPlayerId?.ok === true ? setup.setup.localPlayerId.value : getLocalPlayerSetup(setupConfig).playerId);
+    const playerParameters =
+      setup?.setup?.playerParameters?.find((player) => player.playerId === localPlayerId)?.parameters ??
+      setup?.setup?.playerParameters?.[0]?.parameters ??
+      [];
+    const localPlayer = getLocalPlayerSetup(setupConfig);
+    const gameOptions = setupConfig.gameOptions;
+    const playerOptions = localPlayer.options;
+    const savedConfigOptions = [
+      {
+        value: "",
+        label: savedSetupConfigs.status === "idle" ? "Loading configs" : "No saved config",
+      },
+      ...savedSetupConfigs.configurations.map((config) => ({
+        value: config.id,
+        label: config.displayName,
+      })),
+    ];
+    const leader = playerOptions.PlayerLeader;
+    const civilization = playerOptions.PlayerCivilization;
+    const difficulty = gameOptions.Difficulty ?? playerOptions.PlayerDifficulty;
+    const gameSpeed = gameOptions.GameSpeeds;
+    const catalog = setupCatalog.catalog;
+    return {
+      savedConfigOptions: ensureSelectOption(savedConfigOptions, setupConfig.savedConfig?.id),
+      leaderOptions: ensureSelectOption(mergeSelectOptions(
+        [{ value: "", label: "Leader" }],
+        optionRowsFromParameter(findSetupParameterLike(playerParameters, "PlayerLeader")),
+        setupCatalogOptions(catalog?.leaders),
+      ), leader),
+      civilizationOptions: ensureSelectOption(mergeSelectOptions(
+        [{ value: "", label: "Civilization" }],
+        optionRowsFromParameter(findSetupParameterLike(playerParameters, "PlayerCivilization")),
+        setupCatalogOptions(catalog?.civilizations),
+      ), civilization),
+      difficultyOptions: ensureSelectOption(mergeSelectOptions(
+        [{ value: "", label: "Difficulty" }],
+        optionRowsFromParameter(findSetupParameterLike(parameters, "Difficulty")),
+        setupCatalogOptions(catalog?.difficulties),
+      ), difficulty),
+      gameSpeedOptions: ensureSelectOption(mergeSelectOptions(
+        [{ value: "", label: "Speed" }],
+        optionRowsFromParameter(findSetupParameterLike(parameters, "GameSpeeds")),
+        setupCatalogOptions(catalog?.gameSpeeds),
+      ), gameSpeed),
+    };
+  }, [liveSetup.setup, savedSetupConfigs.configurations, savedSetupConfigs.status, setupCatalog.catalog, setupConfig]);
+
+  const handleSavedSetupConfigChange = useCallback((configId: string) => {
+    const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === configId);
+    if (!savedConfig) {
+      setSetupConfig((current) => updateStudioSetupSavedConfig(current, undefined));
+      return;
+    }
+    setSetupConfig((current) => updateStudioSetupSavedConfig(current, savedConfig));
+    const nextSeed = savedConfig.summary.mapSeed ?? savedConfig.summary.gameSeed;
+    if (Number.isInteger(nextSeed)) {
+      setRecipeSettings((current) => ({ ...current, seed: String(nextSeed) }));
+    }
+  }, [savedSetupConfigs.configurations]);
 
   const refreshRunInGameStatus = useCallback(async (requestId: string) => {
     const result = await fetchRunInGameStatus(requestId);
@@ -1707,6 +1924,7 @@ function AppContent(props: AppContentProps) {
       mapSize: mapSize.id,
       playerCount: worldSettings.playerCount,
       resources: worldSettings.resources,
+      setupConfig,
       materializationMode: runInGameMaterializationMode,
       restartCivProcess: options?.restartCivProcess,
       selectedConfig,
@@ -1734,6 +1952,7 @@ function AppContent(props: AppContentProps) {
       recipeSettings,
       worldSettings,
       pipelineConfig: sanitized,
+      setupConfig,
       materializationMode: runInGameMaterializationMode,
     });
     setRunInGameSnapshot(snapshot);
@@ -1742,6 +1961,7 @@ function AppContent(props: AppContentProps) {
       recipeSettings,
       worldSettings,
       pipelineConfig: sanitized,
+      setupConfig,
       materializationMode: runInGameMaterializationMode,
       selectedConfig,
     });
@@ -1763,6 +1983,7 @@ function AppContent(props: AppContentProps) {
     runInGameMaterializationMode,
     runInGameRunning,
     saveDeployRunning,
+    setupConfig,
     toast,
     worldSettings,
     worldSettings.mapSize,
@@ -1776,15 +1997,17 @@ function AppContent(props: AppContentProps) {
       toast("Finish the current Studio operation before syncing from the live game.", { variant: "info" });
       return;
     }
+    const liveSetupConfig = liveSetup.status === "ok" && liveSetup.setup
+      ? studioSetupConfigFromLiveSnapshot(liveSetup.setup)
+      : null;
     if (!provedRunInGameSource) {
-      if (liveRuntime.seed === undefined) {
-        toast("Live game seed is unavailable; run the game through Studio to sync full config.", { variant: "error" });
+      if (liveRuntime.seed === undefined && !liveSetupConfig) {
+        toast("Live game setup is unavailable; run the game through Studio to sync full config.", { variant: "error" });
         return;
       }
-      setRecipeSettings((prev) => ({ ...prev, seed: String(liveRuntime.seed) }));
-      toast("Studio seed synced from live game. Full config sync requires a proved Run in Game source.", {
-        variant: "info",
-      });
+      if (liveRuntime.seed !== undefined) setRecipeSettings((prev) => ({ ...prev, seed: String(liveRuntime.seed) }));
+      if (liveSetupConfig) setSetupConfig(liveSetupConfig);
+      toast(liveSetupConfig ? "Studio setup synced from live game" : "Studio seed synced from live game.", { variant: "success" });
       return;
     }
     const liveSeed = liveRuntime.seed === undefined ? provedRunInGameSource.recipeSettings.seed : String(liveRuntime.seed);
@@ -1802,11 +2025,9 @@ function AppContent(props: AppContentProps) {
       key: nextPreset,
       config: provedRunInGameSource.pipelineConfig,
     };
-    setWorldSettings({
-      ...provedRunInGameSource.worldSettings,
-      mode: "browser",
-    });
+    setWorldSettings(provedRunInGameSource.worldSettings);
     setPipelineConfig(provedRunInGameSource.pipelineConfig);
+    setSetupConfig(liveSetupConfig ?? provedRunInGameSource.setupConfig);
     setOverridesDisabled(false);
     setRecipeSettings({
       ...provedRunInGameSource.recipeSettings,
@@ -1816,7 +2037,7 @@ function AppContent(props: AppContentProps) {
     toast(nextPreset === LIVE_GAME_PRESET_KEY ? "Studio synced to live game config" : "Studio synced to live game preset", {
       variant: "success",
     });
-  }, [browserRunning, liveRuntime, provedRunInGameSource, resolvePreset, runInGameRunning, saveDeployRunning, toast]);
+  }, [browserRunning, liveRuntime, liveSetup, provedRunInGameSource, resolvePreset, runInGameRunning, saveDeployRunning, toast]);
 
   const handleToggleAutoplay = useCallback(async () => {
     if (autoplayActionRunning || browserRunning || runInGameRunning || saveDeployRunning) return;
@@ -2051,18 +2272,11 @@ function AppContent(props: AppContentProps) {
       const stage = stages.find((s) => s.value === stageId);
       if (!stage) return;
 
-      if (worldSettings.mode === "browser") {
-        const stageMeta = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === stageId);
-        const nextStep = stageMeta?.steps[0]?.fullStepId ?? "";
-        setSelectedStepId(nextStep);
-        return;
-      }
-
-      const stageFromManifest = viz.pipelineStages.find((s) => s.stageId === stageId);
-      const nextStep = stageFromManifest?.steps[0]?.stepId ?? "";
+      const stageMeta = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === stageId);
+      const nextStep = stageMeta?.steps[0]?.fullStepId ?? "";
       setSelectedStepId(nextStep);
     },
-    [recipeArtifacts.uiMeta.stages, stages, viz.pipelineStages, worldSettings.mode]
+    [recipeArtifacts.uiMeta.stages, stages]
   );
 
   const handleStepChange = useCallback((stepId: string) => setSelectedStepId(stepId), []);
@@ -2330,7 +2544,11 @@ function AppContent(props: AppContentProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const panelTop = LAYOUT.SPACING + LAYOUT.HEADER_HEIGHT + LAYOUT.SPACING;
+  const [headerHeight, setHeaderHeight] = useState<number>(LAYOUT.HEADER_HEIGHT);
+  const handleHeaderHeightChange = useCallback((height: number) => {
+    setHeaderHeight((prev) => prev === height ? prev : height);
+  }, []);
+  const panelTop = LAYOUT.SPACING + headerHeight + LAYOUT.SPACING;
 
   const backgroundGridEnabled = useMemo(() => {
     if (!showGrid) return false;
@@ -2385,7 +2603,7 @@ function AppContent(props: AppContentProps) {
       />
       {!viz.manifest ? (
         <div className="absolute inset-0 flex items-center justify-center text-[12px] text-[#7a7a8c]">
-          {worldSettings.mode === "browser" ? "Click Run to generate a map" : "Open a dump folder to replay a run"}
+          Click Run to generate a map
         </div>
       ) : null}
     </div>
@@ -2402,13 +2620,12 @@ function AppContent(props: AppContentProps) {
       showGrid={showGrid}
       onShowGridChange={setShowGrid}
       globalSettings={worldSettings}
-      onGlobalSettingsChange={(next) => {
-        setWorldSettings(next);
-        if (next.mode === "dump") {
-          browserRunner.actions.cancel();
-          if (dumpLoader.state.status !== "loaded") toast("Select a dump folder to replay a run", { variant: "info" });
-        }
-      }}
+      onGlobalSettingsChange={setWorldSettings}
+      setupConfig={setupConfig}
+      setupOptions={setupControlOptions}
+      onSetupConfigChange={setSetupConfig}
+      onSavedConfigChange={handleSavedSetupConfigChange}
+      onHeaderHeightChange={handleHeaderHeightChange}
     />
   );
 
@@ -2604,20 +2821,14 @@ function AppContent(props: AppContentProps) {
       {footer}
 
       {error ? (
-        <div className="absolute left-1/2 -translate-x-1/2 top-[84px] z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2 text-[12px] text-red-200 backdrop-blur-sm">
+        <div
+          className="absolute left-1/2 -translate-x-1/2 z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2 text-[12px] text-red-200 backdrop-blur-sm"
+          style={{ top: panelTop }}
+        >
           {error}
         </div>
       ) : null}
 
-      {worldSettings.mode === "dump" && dumpLoader.state.status !== "loaded" ? (
-        <div className="absolute left-1/2 -translate-x-1/2 top-[116px] z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-[#2a2a32] bg-[#141418]/80 px-4 py-2 text-[12px] text-[#8a8a96] backdrop-blur-sm">
-          Dump mode: click Run to select a dump folder, or drag-and-drop a dump folder into the page.
-        </div>
-      ) : null}
-
-      {worldSettings.mode === "dump" && isDumpDropActive ? (
-        <div className="pointer-events-none absolute inset-0 z-20 border-2 border-dashed border-[#2a2a32] bg-[#141418]/40 backdrop-blur-[1px]" />
-      ) : null}
     </div>
   );
 }

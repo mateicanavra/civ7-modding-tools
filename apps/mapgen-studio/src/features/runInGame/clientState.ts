@@ -1,4 +1,10 @@
 import { stableRunInGameStringify, type RunInGameOperationStatus } from "./status";
+import {
+  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
+  normalizeStudioSetupConfig,
+  type Civ7StudioSetupConfig,
+} from "../civ7Setup/setupConfig";
+import { migratePipelineConfig } from "../configMigrations/pipelineConfig";
 import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 
 export type RunInGameClientSnapshot = Readonly<{
@@ -11,6 +17,7 @@ export type RunInGameClientSnapshot = Readonly<{
   resources: string;
   recipe: string;
   preset: string;
+  setupConfig: Civ7StudioSetupConfig;
   materializationMode: "durable" | "disposable";
 }>;
 
@@ -20,6 +27,7 @@ export type RunInGameSourceSnapshot = Readonly<{
   recipeSettings: RecipeSettings;
   worldSettings: WorldSettings;
   pipelineConfig: PipelineConfig;
+  setupConfig: Civ7StudioSetupConfig;
   materializationMode: "durable" | "disposable";
   selectedConfig?: {
     id?: string;
@@ -35,8 +43,10 @@ export function buildRunInGameFingerprint(args: {
   recipeSettings: RecipeSettings;
   worldSettings: WorldSettings;
   pipelineConfig: PipelineConfig;
+  setupConfig: Civ7StudioSetupConfig;
   materializationMode: "durable" | "disposable";
 }): string {
+  const pipelineConfig = migratePipelineConfig(args.pipelineConfig);
   return stableRunInGameStringify({
     recipe: args.recipeSettings.recipe,
     preset: args.recipeSettings.preset,
@@ -45,7 +55,8 @@ export function buildRunInGameFingerprint(args: {
     playerCount: args.worldSettings.playerCount,
     resources: args.worldSettings.resources,
     materializationMode: args.materializationMode,
-    config: args.pipelineConfig,
+    setupConfig: normalizeStudioSetupConfig(args.setupConfig),
+    config: pipelineConfig,
   });
 }
 
@@ -54,6 +65,7 @@ export function buildRunInGameClientSnapshot(args: {
   recipeSettings: RecipeSettings;
   worldSettings: WorldSettings;
   pipelineConfig: PipelineConfig;
+  setupConfig: Civ7StudioSetupConfig;
   materializationMode: "durable" | "disposable";
   now?: () => Date;
 }): RunInGameClientSnapshot {
@@ -67,6 +79,7 @@ export function buildRunInGameClientSnapshot(args: {
     resources: args.worldSettings.resources,
     recipe: args.recipeSettings.recipe,
     preset: args.recipeSettings.preset,
+    setupConfig: normalizeStudioSetupConfig(args.setupConfig),
     materializationMode: args.materializationMode,
   };
 }
@@ -76,16 +89,19 @@ export function buildRunInGameSourceSnapshot(args: {
   recipeSettings: RecipeSettings;
   worldSettings: WorldSettings;
   pipelineConfig: PipelineConfig;
+  setupConfig: Civ7StudioSetupConfig;
   materializationMode: "durable" | "disposable";
   selectedConfig?: RunInGameSourceSnapshot["selectedConfig"];
   now?: () => Date;
 }): RunInGameSourceSnapshot {
+  const pipelineConfig = migratePipelineConfig(args.pipelineConfig);
   return {
     requestId: args.requestId,
     createdAt: (args.now ?? (() => new Date()))().toISOString(),
     recipeSettings: args.recipeSettings,
     worldSettings: args.worldSettings,
-    pipelineConfig: args.pipelineConfig,
+    pipelineConfig,
+    setupConfig: normalizeStudioSetupConfig(args.setupConfig),
     materializationMode: args.materializationMode,
     ...(args.selectedConfig === undefined ? {} : { selectedConfig: args.selectedConfig }),
   };
@@ -119,17 +135,10 @@ function parseRecipeSettings(value: unknown): RecipeSettings | null {
 
 function parseWorldSettings(value: unknown): WorldSettings | null {
   if (!isRecord(value)) return null;
-  if (
-    value.mode !== "browser" &&
-    value.mode !== "dump"
-  ) {
-    return null;
-  }
   if (typeof value.mapSize !== "string" || typeof value.playerCount !== "number" || typeof value.resources !== "string") {
     return null;
   }
   return {
-    mode: value.mode,
     mapSize: value.mapSize as WorldSettings["mapSize"],
     playerCount: value.playerCount,
     resources: value.resources as WorldSettings["resources"],
@@ -165,7 +174,10 @@ export function parseRunInGameClientSnapshot(value: string | null): RunInGameCli
     ) {
       return null;
     }
-    return parsed as RunInGameClientSnapshot;
+    return {
+      ...parsed,
+      setupConfig: normalizeStudioSetupConfig(parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG),
+    } as RunInGameClientSnapshot;
   } catch {
     return null;
   }
@@ -193,7 +205,8 @@ export function parseRunInGameSourceSnapshot(value: string | null): RunInGameSou
       createdAt: parsed.createdAt,
       recipeSettings,
       worldSettings,
-      pipelineConfig: parsed.pipelineConfig as PipelineConfig,
+      pipelineConfig: migratePipelineConfig(parsed.pipelineConfig as PipelineConfig),
+      setupConfig: normalizeStudioSetupConfig(parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG),
       materializationMode: parsed.materializationMode,
       ...(parsed.selectedConfig === undefined ? {} : { selectedConfig: parseSelectedConfig(parsed.selectedConfig) }),
     };

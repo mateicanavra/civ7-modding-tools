@@ -12,7 +12,7 @@ export interface SelectProps extends
   /** Light mode styling */
   lightMode?: boolean;
   /** Options to render */
-  options?: Array<{
+  options?: ReadonlyArray<{
     value: string;
     label: string;
   }>;

@@ -12,7 +12,6 @@ const recipeSettings: RecipeSettings = {
 };
 
 const worldSettings: WorldSettings = {
-  mode: "browser",
   mapSize: "MAPSIZE_STANDARD",
   playerCount: 8,
   resources: "balanced",

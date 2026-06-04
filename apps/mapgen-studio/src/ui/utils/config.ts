@@ -114,7 +114,6 @@ export function configsEqual(a: PipelineConfig, b: PipelineConfig): boolean {
  */
 export function worldSettingsEqual(a: WorldSettings, b: WorldSettings): boolean {
   return (
-    a.mode === b.mode &&
     a.mapSize === b.mapSize &&
     a.playerCount === b.playerCount &&
     a.resources === b.resources

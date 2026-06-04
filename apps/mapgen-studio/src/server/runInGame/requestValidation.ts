@@ -1,3 +1,9 @@
+import {
+  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
+  normalizeStudioSetupConfig,
+  type Civ7StudioSetupConfig,
+} from "../../features/civ7Setup/setupConfig";
+
 export function assertNoRawControlFields(value: unknown): void {
   if (!value || typeof value !== "object") return;
   const stack: unknown[] = [value];
@@ -24,6 +30,7 @@ export function parseRunInGameSetupRequest(body: {
   materialization?: { mode?: unknown };
   recovery?: { restartCivProcess?: unknown };
   selectedConfig?: { id?: unknown };
+  setupConfig?: unknown;
   config?: unknown;
 }): {
   requestedMode: "durable" | "disposable";
@@ -32,6 +39,7 @@ export function parseRunInGameSetupRequest(body: {
   mapSize: string;
   playerCount?: number;
   restartCivProcess: boolean;
+  setupConfig: Civ7StudioSetupConfig;
 } {
   assertNoRawControlFields(body);
   if (body.recipeId !== "mod-swooper-maps/standard") {
@@ -57,12 +65,17 @@ export function parseRunInGameSetupRequest(body: {
     throw new Error("Run in Game playerCount must be an integer between 1 and 64");
   }
   const restartCivProcess = body.recovery?.restartCivProcess === true;
+  const setupConfig = normalizeStudioSetupConfig(body.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG);
+  if (setupConfig.mapScript !== undefined && (!setupConfig.mapScript.trim() || /[\0\r\n]/.test(setupConfig.mapScript))) {
+    throw new Error("Run in Game setupConfig.mapScript must be a non-empty single-line string");
+  }
   return {
     requestedMode,
     id,
     seed,
     mapSize,
     restartCivProcess,
+    setupConfig,
     ...(playerCount === undefined ? {} : { playerCount }),
   };
 }

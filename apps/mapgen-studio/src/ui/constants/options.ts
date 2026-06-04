@@ -6,7 +6,6 @@
 // ============================================================================
 
 import type {
-  WorldMode,
   MapSize,
   ResourceMode,
   SelectOption,
@@ -15,20 +14,11 @@ import type {
   KnobOptionsMap } from
 '../types';
 
-// ============================================================================
-// World Settings Options
-// ============================================================================
-
 export interface MapSizeOption extends SelectOption<MapSize> {
   dimensions: string;
   width: number;
   height: number;
 }
-
-export const WORLD_MODE_OPTIONS: readonly SelectOption<WorldMode>[] = [
-{ value: 'browser', label: 'Browser' },
-{ value: 'dump', label: 'Dump' }] as
-const;
 
 export const MAP_SIZE_OPTIONS: readonly MapSizeOption[] = [
 {

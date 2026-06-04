@@ -33,6 +33,7 @@ export type RunInGameRequestStatus = Readonly<{
   playerCount?: number;
   resources?: string;
   selectedConfigId?: string;
+  setupConfig?: unknown;
   materializationMode?: string;
   restartCivProcess?: boolean;
 }>;

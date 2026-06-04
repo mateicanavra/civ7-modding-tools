@@ -6,8 +6,6 @@
 
 // Options for dropdowns and selectors
 export {
-  // World settings options
-  WORLD_MODE_OPTIONS,
   MAP_SIZE_OPTIONS,
   PLAYER_COUNT_OPTIONS,
   RESOURCE_MODE_OPTIONS,
