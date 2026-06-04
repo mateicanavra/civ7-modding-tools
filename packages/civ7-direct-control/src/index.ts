@@ -192,10 +192,9 @@ import {
   type Civ7UnitSummaryResult,
   getCiv7UnitSummary,
 } from "./play/summaries.js";
-import {
-  requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule,
-  type Civ7DiplomacyResponseInput,
-  type Civ7DiplomacyResponseResult,
+import type {
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseResult,
 } from "./play/operations/diplomacy-request.js";
 import {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
@@ -204,10 +203,9 @@ import {
   type Civ7UnitTargetActionInput,
   type Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
-import {
-  requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule,
-  type Civ7NarrativeChoiceInput,
-  type Civ7NarrativeChoiceResult,
+import type {
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceResult,
 } from "./play/operations/narrative-request.js";
 import type {
   Civ7ProductionChoiceInput,
@@ -687,6 +685,7 @@ export type {
   Civ7DiplomacyResponseInput,
   Civ7DiplomacyResponseResult,
 } from "./play/operations/diplomacy-request.js";
+export { requestCiv7DiplomacyResponse } from "./play/operations/diplomacy-request.js";
 export type {
   Civ7DiplomacyResponsePostcondition,
   Civ7DiplomacyResponsePostconditionClassification,
@@ -696,6 +695,7 @@ export type {
   Civ7NarrativeChoiceInput,
   Civ7NarrativeChoiceResult,
 } from "./play/operations/narrative-request.js";
+export { requestCiv7NarrativeChoice } from "./play/operations/narrative-request.js";
 export type {
   Civ7NarrativeChoicePostcondition,
   Civ7NarrativeChoicePostconditionClassification,
@@ -1106,22 +1106,6 @@ export async function runCiv7SinglePlayerFromSetup(
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
   return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
-}
-
-export async function requestCiv7DiplomacyResponse(
-  input: Civ7DiplomacyResponseInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7DiplomacyResponseResult> {
-  return await requestCiv7DiplomacyResponseFromModule(input, options, approval);
-}
-
-export async function requestCiv7NarrativeChoice(
-  input: Civ7NarrativeChoiceInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7NarrativeChoiceResult> {
-  return await requestCiv7NarrativeChoiceFromModule(input, options, approval);
 }
 
 export async function requestCiv7UnitTargetAction(

@@ -532,6 +532,16 @@ runtime/direct-control claims.
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
         semantic CLI projection, Effect/oRPC procedure-core work, and Task
         2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.31 Prune the diplomacy/narrative facade call-through wrappers by
+        re-exporting `requestCiv7DiplomacyResponse` and
+        `requestCiv7NarrativeChoice` directly from
+        `src/play/operations/{diplomacy-request,narrative-request}.ts`,
+        preserving public package imports, approval-first response behavior,
+        validator-first no-send behavior, App UI closeout command
+        serialization, diplomacy/narrative postcondition classification,
+        package/CLI proof, and leaving runtime/live-game proof, telemetry, AI
+        ingestion, semantic CLI projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

@@ -2516,6 +2516,18 @@ All future agent waves must be framed before delegation:
   proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
   projection, hotseat runtime proof, schema migration, debug hierarchy
   implementation, or Effect/oRPC procedure-core work.
+- Diplomacy/narrative facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `requestCiv7DiplomacyResponse` and `requestCiv7NarrativeChoice` directly
+  from their operation owners instead of keeping trivial async mutation
+  call-through wrappers. The operation owners still own approval-first
+  response behavior, validator-first no-send behavior, App UI closeout command
+  serialization through existing non-facade dependencies, and
+  diplomacy/narrative postcondition classification. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
 - Autoplay action facade call-through cleanup:
   `packages/civ7-direct-control/src/index.ts` now re-exports
   `configureCiv7Autoplay`, `startCiv7Autoplay`, and `stopCiv7Autoplay`
