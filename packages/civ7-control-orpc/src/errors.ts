@@ -28,6 +28,27 @@ export class Civ7DirectControlUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7CitySummaryUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("city.summary.read"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7CitySummaryUnavailableErrorData = Static<
+  typeof Civ7CitySummaryUnavailableErrorDataSchema
+>;
+
+export class Civ7CitySummaryUnavailableError extends ORPCTaggedError(
+  "Civ7CitySummaryUnavailableError",
+  {
+    code: "CITY_SUMMARY_UNAVAILABLE",
+    message: "Direct-control city summary failed.",
+    schema: toStandardSchema(Civ7CitySummaryUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7MapSummaryUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("map.summary.read"),
@@ -134,6 +155,7 @@ export class Civ7UnitSummaryUnavailableError extends ORPCTaggedError(
 ) {}
 
 export const civ7ControlOrpcErrorMap = {
+  CITY_SUMMARY_UNAVAILABLE: Civ7CitySummaryUnavailableError,
   DIRECT_CONTROL_UNAVAILABLE: Civ7DirectControlUnavailableError,
   MAP_SUMMARY_UNAVAILABLE: Civ7MapSummaryUnavailableError,
   PLAYER_SUMMARY_UNAVAILABLE: Civ7PlayerSummaryUnavailableError,
