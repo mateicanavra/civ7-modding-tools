@@ -110,6 +110,18 @@ one unit-target action result shape into separated telemetry approval,
 postcondition, and `outcome_delta` slots while treating the legacy top-level
 `verified` boolean as source evidence only.
 
+`packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` is the
+second operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/test/production-choice-telemetry.test.ts`. It
+adapts one production-choice result shape into separated telemetry approval,
+`validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, `outcome_delta`, `blocker_delta`, and evidence-policy slots
+while using `productionPostcondition` as the proof/classification owner. It
+treats the legacy top-level `verified` boolean as source evidence only and
+keeps missing postcondition, validator-blocked no-send, no-state-change,
+production-state-changed-blocker-still-live, `validation-changed`, and pending
+runtime proof paths no-repeat guarded.
+
 These are TypeScript structural owner seeds only. They do not choose TypeBox or
 Effect Schema, attach broad telemetry adapters to every operation atom,
 implement telemetry persistence, implement AI-ingestion, add procedure
@@ -127,7 +139,7 @@ it does not accept the row. Acceptance still needs:
   cases;
 - broader operation-atom adapters that produce records from existing
   direct-control approval, validation, send, post-read, and postcondition owners
-  beyond the seeded unit-target result adapter;
+  beyond the seeded unit-target and production-choice result adapters;
 - projection separation tests proving normal CLI, debug/internal service,
   AI-ingestion, and procedure-core outputs remain distinct;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or

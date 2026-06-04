@@ -498,6 +498,22 @@ public schema, add telemetry persistence, infer runtime/live-game proof, accept
 Task 2.9.4, or unblock broader operation adapters, AI ingestion, semantic CLI
 output, debug hierarchy, or Effect/oRPC procedure cores.
 
+Production-choice telemetry adapter seed update:
+`src/proof/production-choice-telemetry.ts` now owns the second operation-result
+adapter from the production-choice atom into the operation/proof telemetry
+record shape. `test/production-choice-telemetry.test.ts` proves that the
+adapter separates approval, `validation_pre`, `send_receipt`, `post_read`,
+`validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+evidence policy; uses `productionPostcondition` as the proof/classification
+owner; ignores the legacy top-level `verified` boolean as proof authority when
+explicit postcondition evidence is missing; and keeps validator-blocked
+no-send, no-state-change, blocker-still-live, `validation-changed`, and
+pending-runtime-proof paths no-repeat guarded. This is local package/source
+proof for one production-choice shape only. It does not export a public schema,
+add telemetry persistence, infer runtime/live-game proof, accept Task 2.9.4, or
+unblock broader operation adapters, AI ingestion, semantic CLI output, debug
+hierarchy, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

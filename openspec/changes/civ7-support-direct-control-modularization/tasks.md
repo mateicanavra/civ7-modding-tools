@@ -179,7 +179,12 @@
         the first operation-atom adapter owner seed is now recorded in
         `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` with
         proof in
-        `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`, but
+        `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`, and
+        the second operation-atom adapter owner seed is now recorded in
+        `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
+        with proof in
+        `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
+        but
         the row remains pending until a final schema/test owner, broader
         adapter slices from operation atoms, projection separation tests, and
         proof-label guards are assigned and passing.
@@ -1856,6 +1861,24 @@ runtime/direct-control claims.
       add persistence, implement AI ingestion, add Effect/oRPC middleware,
       claim runtime/live-game proof, accept Task 2.9.4, or create broad
       adapters for every operation family.
+- [x] 4.16 Seed a production-choice operation telemetry adapter owner in
+      `src/proof/production-choice-telemetry.ts` with focused local proof in
+      `test/production-choice-telemetry.test.ts`, preserving approval,
+      `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+      postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
+      separate telemetry slots while treating legacy `verified` booleans as
+      source evidence only. This seeds the operation/proof telemetry row's
+      operation-atom adapter gap for one production-choice shape only; the
+      source-reachable cleared path can summarize confirmed, while missing
+      postcondition, validator-blocked no-send, no-state-change,
+      blocker-still-live, `validation-changed`, and pending-runtime-proof paths
+      remain no-repeat guarded. Defensive enum handling for
+      `production-state-changed` is not counted as focused proof for a current
+      source-reachable production-choice outcome. It does not choose schema
+      technology, add
+      persistence, implement AI ingestion, change CLI/debug projections, add
+      Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
+      or create broad adapters for every operation family.
 
 ## 5. CLI Semantic Surface Lane
 

@@ -28,7 +28,7 @@ from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
 | Semantic CLI player-agent view | Full envelope implementation owner, final schema/test owner, debug-separation reviewer/gate owner beyond the recorded CLI owner seed | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
 | Strategy/intelligence ingestion | AI-ingestion contract owner, schema owner, proof owner, source/freshness label owner | Machine-contract fixtures proving source labels, freshness/evidence labels, action/proof vocabulary, and no dependency on CLI strings/raw probes | AI corpus artifacts, strategy/playbook records, static profile recipes, model-training telemetry feeds |
 | Debug/internal service output | Final debug/service hierarchy owner, schema/test owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
-| Operation/proof telemetry | Final schema owner, broader operation-atom adapter owners beyond the unit-target adapter seed, projection gate owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
+| Operation/proof telemetry | Final schema owner, broader operation-atom adapter owners beyond the unit-target and production-choice adapter seeds, projection gate owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
 | Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, approval gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
 
 Contract-artifact status:
@@ -556,13 +556,15 @@ Intake rejection conditions:
 - `sourceOwner`: `packages/civ7-direct-control/src/proof/operation-telemetry.ts`
   owner seed for record slot vocabulary, structural constructor, and normal
   summary boundary; `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
-  seeds the first unit-target operation-result adapter while broader
+  and `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
+  seed the first two operation-result adapters while broader
   operation-specific adapters remain under their existing operation/proof atom
   owners
 - `proofOwner`: `packages/civ7-direct-control/test/operation-telemetry.test.ts`
   owner-seed proof plus
-  `packages/civ7-direct-control/test/unit-target-telemetry.test.ts` for the
-  unit-target adapter seed; final row proof/gate owner remains pending
+  `packages/civ7-direct-control/test/unit-target-telemetry.test.ts` and
+  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts` for
+  the current adapter seeds; final row proof/gate owner remains pending
 - `playerScope`: operation-local, player-scoped, and agent-slot-scoped for
   mutation-facing records; observer/debug scoped for diagnostics
 - `consumerClass`: proof telemetry; AI-intelligence ingestion; debug/internal
@@ -579,9 +581,9 @@ Intake rejection conditions:
   `validation_pre`, `send_receipt`, `validation_post`, `outcome_delta`, blocker
   deltas, runtime observation links, and stale/unknown classification
 - `proofLabel`: `pending-telemetry-contract`
-- `acceptanceStatus`: `pending-telemetry-contract`; source/proof owner seed and
-  one unit-target operation-result adapter seed exist, but telemetry schema
-  owner, broader operation-atom adapters,
+- `acceptanceStatus`: `pending-telemetry-contract`; source/proof owner seed plus
+  unit-target and production-choice operation-result adapter seeds exist, but
+  telemetry schema owner, broader operation-atom adapters,
   normal/debug/AI/procedure projection separation tests, and runtime proof
   boundary tests are not assigned
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
@@ -607,11 +609,15 @@ Intake rejection conditions:
   `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with focused
   proof in `packages/civ7-direct-control/test/operation-telemetry.test.ts`,
   including no-repeat-guarded summaries for sent-unverified, stale/unknown, and
-  pending-runtime-proof records. The first operation-result adapter owner seed is
-  now `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`, with
-  focused proof in
+  pending-runtime-proof records. Operation-result adapter owner seeds now
+  include `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
+  with focused proof in
   `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`, adapting
-  one unit-target action result shape into separated telemetry slots.
+  one unit-target action result shape into separated telemetry slots, and
+  `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` with
+  focused proof in
+  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
+  adapting one production-choice result shape into separated telemetry slots.
   Missing before acceptance: a final schema/test owner, broader operation-atom
   adapter owners, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
@@ -631,9 +637,9 @@ Intake rejection conditions:
   classes, projection boundaries, acceptance gaps, and stop conditions. The
   current source artifact adds the internal record slot vocabulary,
   constructor, postcondition sanitizer, normal summary boundary, and first
-  unit-target operation-result adapter. Missing before acceptance: a schema/test
-  owner, broader operation-atom adapters, and projection-separation
-  implementation tests over that record contract.
+  unit-target plus production-choice operation-result adapters. Missing before
+  acceptance: a schema/test owner, broader operation-atom adapters, and
+  projection-separation implementation tests over that record contract.
 - `proofPlan`: existing local proof covers approval-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
@@ -648,8 +654,15 @@ Intake rejection conditions:
   postcondition, and `outcome_delta` into separate telemetry slots while
   refusing to treat a legacy top-level `verified` boolean as confirmed
   postcondition proof; missing postcondition, no-state-change, and
-  pending-runtime-proof summaries remain no-repeat guarded. Missing proof before
-  acceptance: broader adapter fixtures for stale/unknown/outcome evidence,
+  pending-runtime-proof summaries remain no-repeat guarded. Production-choice
+  adapter proof verifies that a production result shape maps approval,
+  `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+  postcondition, `outcome_delta`, and `blocker_delta` into separate telemetry
+  slots while using `productionPostcondition` as the classification owner;
+  missing postcondition, validator-blocked no-send, no-state-change,
+  blocker-still-live, `validation-changed`, and pending-runtime-proof paths
+  remain no-repeat guarded. Missing proof before acceptance: broader adapter
+  fixtures for stale/unknown/outcome evidence,
   normal/debug/AI/procedure projection separation tests, and runtime-proof
   labeling tests that prevent local tests or docs from becoming live proof.
 - `projectionPlan`: normal CLI may receive only summarized state-machine
