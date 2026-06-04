@@ -47,6 +47,8 @@
   in-process server-side client proof.
 - [x] 4.8 Implement one city summary module over `city.summary.read` with
   in-process server-side client proof.
+- [x] 4.9 Implement one ready-city module over `city.ready.view` with
+  in-process server-side client proof.
 
 ## 5. Middleware Promotion
 

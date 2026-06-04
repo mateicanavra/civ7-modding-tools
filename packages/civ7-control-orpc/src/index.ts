@@ -9,6 +9,7 @@ export {
   type Civ7ControlOrpcPlayerSummaryResult,
   type Civ7ControlOrpcPlayNotificationViewResult,
   type Civ7ControlOrpcPlayableStatusResult,
+  type Civ7ControlOrpcReadyCityViewResult,
   type Civ7ControlOrpcReadyUnitViewResult,
   type Civ7ControlOrpcUnitSummaryResult,
   type Civ7ControlOrpcDirectControlFacade,
@@ -24,6 +25,8 @@ export {
   Civ7PlayerSummaryUnavailableErrorDataSchema,
   Civ7NotificationViewUnavailableError,
   Civ7NotificationViewUnavailableErrorDataSchema,
+  Civ7ReadyCityViewUnavailableError,
+  Civ7ReadyCityViewUnavailableErrorDataSchema,
   Civ7ReadyUnitViewUnavailableError,
   Civ7ReadyUnitViewUnavailableErrorDataSchema,
   Civ7UnitSummaryUnavailableError,
@@ -36,6 +39,7 @@ export {
   type Civ7MapSummaryUnavailableErrorData,
   type Civ7PlayerSummaryUnavailableErrorData,
   type Civ7NotificationViewUnavailableErrorData,
+  type Civ7ReadyCityViewUnavailableErrorData,
   type Civ7ReadyUnitViewUnavailableErrorData,
   type Civ7UnitSummaryUnavailableErrorData,
 } from "./errors";
@@ -48,15 +52,20 @@ export {
 export { Civ7ControlOrpcRouter } from "./router";
 export {
   Civ7CityContract,
+  Civ7CityReadyViewContract,
+  Civ7CityReadyViewInputStandardSchema,
+  Civ7CityReadyViewResultStandardSchema,
   Civ7CitySummaryContract,
   Civ7CitySummaryInputStandardSchema,
   Civ7CitySummaryResultStandardSchema,
 } from "./modules/city/contract";
 export type {
   Civ7CityContract as Civ7CityContractType,
+  Civ7CityReadyViewContract as Civ7CityReadyViewContractType,
   Civ7CitySummaryContract as Civ7CitySummaryContractType,
 } from "./modules/city/contract";
 export { cityRouter } from "./modules/city/router";
+export { cityReadyViewProcedure } from "./modules/city/procedures/ready-view";
 export { citySummaryReadProcedure } from "./modules/city/procedures/summary-read";
 export {
   Civ7MapContract,

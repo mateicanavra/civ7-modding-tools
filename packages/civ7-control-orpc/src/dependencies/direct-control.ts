@@ -4,6 +4,7 @@ import {
   getCiv7PlayerSummary,
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
+  getCiv7ReadyCityView,
   getCiv7ReadyUnitView,
   getCiv7UnitSummary,
   type Civ7DirectControlOptions,
@@ -12,11 +13,13 @@ import {
   Civ7PlayerSummaryResultSchema,
   Civ7PlayNotificationViewResultSchema,
   Civ7PlayableStatusResultSchema,
+  Civ7ReadyCityViewResultSchema,
   Civ7ReadyUnitViewResultSchema,
   Civ7UnitSummaryResultSchema,
   type Civ7CitySummaryInput,
   type Civ7MapSummaryOptions,
   type Civ7PlayerSummaryInput,
+  type Civ7ReadyCityViewInput,
   type Civ7ReadyUnitViewInput,
   type Civ7UnitSummaryInput,
   type PlayNotificationViewOptions,
@@ -40,6 +43,9 @@ export type Civ7ControlOrpcPlayNotificationViewResult = Static<
 >;
 export type Civ7ControlOrpcReadyUnitViewResult = Static<
   typeof Civ7ReadyUnitViewResultSchema
+>;
+export type Civ7ControlOrpcReadyCityViewResult = Static<
+  typeof Civ7ReadyCityViewResultSchema
 >;
 export type Civ7ControlOrpcUnitSummaryResult = Static<
   typeof Civ7UnitSummaryResultSchema
@@ -67,6 +73,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7ReadyUnitViewInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcReadyUnitViewResult>;
+  getCiv7ReadyCityView(
+    input?: Civ7ReadyCityViewInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcReadyCityViewResult>;
   getCiv7UnitSummary(
     input?: Civ7UnitSummaryInput,
     options?: Civ7DirectControlOptions,
@@ -95,6 +105,10 @@ export const liveCiv7ControlOrpcDirectControlFacade = {
   getCiv7ReadyUnitView: async (input, options) =>
     getCiv7ReadyUnitView(input, options) as Promise<
       Civ7ControlOrpcReadyUnitViewResult
+    >,
+  getCiv7ReadyCityView: async (input, options) =>
+    getCiv7ReadyCityView(input, options) as Promise<
+      Civ7ControlOrpcReadyCityViewResult
     >,
   getCiv7UnitSummary: async (input, options) =>
     getCiv7UnitSummary(input, options) as Promise<

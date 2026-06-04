@@ -1,6 +1,8 @@
 import {
   Civ7CitySummaryInputSchema,
   Civ7CitySummaryResultSchema,
+  Civ7ReadyCityViewInputSchema,
+  Civ7ReadyCityViewResultSchema,
 } from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 
@@ -14,6 +16,12 @@ export const Civ7CitySummaryInputStandardSchema = toStandardSchema(
 );
 export const Civ7CitySummaryResultStandardSchema = toStandardSchema(
   Civ7CitySummaryResultSchema,
+);
+export const Civ7CityReadyViewInputStandardSchema = toStandardSchema(
+  Civ7ReadyCityViewInputSchema,
+);
+export const Civ7CityReadyViewResultStandardSchema = toStandardSchema(
+  Civ7ReadyCityViewResultSchema,
 );
 
 export type Civ7CitySummaryContract = ContractProcedure<
@@ -34,13 +42,37 @@ export const Civ7CitySummaryContract: Civ7CitySummaryContract =
       risk: "read-only",
     });
 
+export type Civ7CityReadyViewContract = ContractProcedure<
+  typeof Civ7CityReadyViewInputStandardSchema,
+  typeof Civ7CityReadyViewResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+export const Civ7CityReadyViewContract: Civ7CityReadyViewContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7CityReadyViewInputStandardSchema)
+    .output(Civ7CityReadyViewResultStandardSchema)
+    .meta({
+      family: "city",
+      procedureKey: "city.ready.view",
+      proofBoundary: "local-package-test",
+      risk: "read-only",
+    });
+
 export type Civ7CityContract = Readonly<{
+  ready: Readonly<{
+    view: Civ7CityReadyViewContract;
+  }>;
   summary: Readonly<{
     read: Civ7CitySummaryContract;
   }>;
 }>;
 
 export const Civ7CityContract: Civ7CityContract = {
+  ready: {
+    view: Civ7CityReadyViewContract,
+  },
   summary: {
     read: Civ7CitySummaryContract,
   },
