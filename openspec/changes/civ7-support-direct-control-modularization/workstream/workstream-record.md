@@ -55,7 +55,8 @@ summary. Follow-up compact `game play unit-move-preview` proof and
 full/read-only `game play ready-unit --json` proof now exercise the same shared
 normal-output boundary over movement and ready-unit projections. Follow-up
 passive `game watch --jsonl` proof now exercises the boundary over watch
-observation output. Follow-up focused `game health --json` and
+observation output, and progression-read proof now covers traditions and
+progress-dashboard JSON surfaces. Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
 inspection fields including host/port/state, state discovery, selected state,
