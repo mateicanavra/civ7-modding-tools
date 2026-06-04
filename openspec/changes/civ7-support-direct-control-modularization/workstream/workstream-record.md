@@ -2893,3 +2893,12 @@ All future agent waves must be framed before delegation:
   owners, or unblock normal CLI semantic envelopes, telemetry, AI ingestion,
   debug/internal service implementation, hotseat runtime, schema migration, or
   Effect/oRPC procedure-core implementation.
+- Procedure schema blocker wording alignment:
+  Task 2.9.4 and Task 6.2 now distinguish the already-recorded TypeBox versus
+  Effect Schema report disposition from the still-missing concrete schema-slice
+  ownership and tests. The bounded-hybrid report disposition remains planning
+  evidence only; procedure-core row acceptance still requires named
+  TypeBox/Effect Schema/Zod adapter ownership, source/proof owners, and
+  procedure-core validation over stable direct-control atoms. This does not
+  accept Task 2.9.4, migrate schemas, add Effect Schema artifacts, implement
+  Effect/oRPC source, or unblock 5.x/6.x work.

@@ -168,8 +168,11 @@
       needs command/flag boundary ownership and tests; operation/proof
       telemetry still needs contract/schema/proof ownership and explicit
       outcome evidence fixtures; Effect/oRPC procedure cores still need
-      procedure/schema/proof ownership, TypeBox-vs-Effect-Schema disposition,
-      and procedure-core tests over stable atoms.
+      procedure/schema/proof ownership, TypeBox/Effect Schema/Zod adapter
+      ownership for a concrete schema slice, and procedure-core tests over
+      stable atoms. The TypeBox versus Effect Schema report disposition is
+      already recorded as bounded-hybrid planning evidence; it is not enough to
+      accept the row without owners and tests.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.
@@ -1831,6 +1834,10 @@ authority are recorded.
     decode/encode, transformations, typed parse errors, Effect integration, or
     machine-ingestion ergonomics matter; document any Zod/oRPC adapter as an
     adapter boundary rather than a third durable schema authority.
+  - The report disposition is planning evidence, not row acceptance. A concrete
+    schema slice still needs TypeBox/Effect Schema/Zod adapter ownership,
+    source/proof owners, and tests before Task 2.9.4 or 6.x implementation can
+    proceed.
   - Migration acceptance checks remain pending: oRPC schema/procedure
     validation test, error-shape snapshot, encode/decode round trip, Bun
     runtime check, CLI semantic projection test, and AI-ingestion contract
