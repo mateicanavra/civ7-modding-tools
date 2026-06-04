@@ -1,10 +1,15 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 
 describe('game play settlement recommendations command', () => {
   test('reads settlement recommendations without sending operations', async () => {
     const server = await startSettlementRecommendationsTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlaySettlementRecommendations.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlaySettlementRecommendations.run([
@@ -19,10 +24,13 @@ describe('game play settlement recommendations command', () => {
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join(''));
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('readSettlementRecommendations'))).toBe(true);
       expect(server.received.some((message) => message.includes('"locations":[{"x":15,"y":23}]'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });

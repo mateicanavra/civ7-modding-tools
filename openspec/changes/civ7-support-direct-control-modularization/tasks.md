@@ -122,8 +122,8 @@
         `game play ready-unit --json` coverage plus passive
         `game watch --jsonl` coverage and progression-read
         `game play traditions` / `game play progress-dashboard` coverage plus
-        tactical-read coverage, now sharing the
-        `game/play/normal-output-boundary.ts` test helper, prove seven normal
+        tactical-read and settlement-recommendation coverage, now sharing the
+        `game/play/normal-output-boundary.ts` test helper, prove eight normal
         player-agent projection families omit raw
         transport/session/probe/correlation command internals, but broader
         debug-command boundary, AI-ingestion, telemetry, and

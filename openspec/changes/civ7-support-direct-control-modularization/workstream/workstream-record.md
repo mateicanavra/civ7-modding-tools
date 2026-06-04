@@ -58,8 +58,9 @@ passive `game watch --jsonl` proof now exercises the boundary over watch
 observation output, and progression-read proof now covers traditions and
 progress-dashboard JSON surfaces. Tactical-read proof now covers civilian route
 triage, target candidates, front summary, battlefield scan, formation snapshot,
-and destination analysis through the focused tactical helper. Follow-up focused
-`game health --json` and
+and destination analysis through the focused tactical helper.
+Settlement-recommendation proof now covers its read-only settlement lens output.
+Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
 inspection fields including host/port/state, state discovery, selected state,
