@@ -2643,3 +2643,17 @@ All future agent waves must be framed before delegation:
   Task 2.9.4, normalize every remaining atom-local source helper, or unblock
   telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof, schema
   migration, debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Tactical read command-source helper normalization:
+  `src/play/tactical/settlement.ts`, `src/play/tactical/target-candidates.ts`,
+  `src/play/tactical/battlefield.ts`, and `src/play/tactical/destination.ts`
+  now import the shared command-source serializer and runtime probe helper owners
+  where those helpers are needed instead of carrying atom-local copies. Tactical
+  runtime object readers remain local to their current source owners. The
+  generated command text remains equivalent, and settlement/target/battlefield/
+  destination wrappers still own their existing validation, bounds, conservative
+  relationship-label policy, parse labels, and read-only/no-send behavior. This
+  is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, normalize every remaining
+  atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
