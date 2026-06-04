@@ -23,22 +23,22 @@
 
 ## 3. Contract And Context Slice
 
-- [ ] 3.1 Create tracked `packages/civ7-control-orpc` source with package
+- [x] 3.1 Create tracked `packages/civ7-control-orpc` source with package
   manifest, exports, and no runtime transport edge.
-- [ ] 3.2 Define contract/context/error/procedure base files using
+- [x] 3.2 Define contract/context/error/procedure base files using
   oRPC/effect-orpc primitives.
-- [ ] 3.3 Add no-network tests that call procedures in process with fake
+- [x] 3.3 Add no-network tests that call procedures in process with fake
   context and fake direct-control facade.
-- [ ] 3.4 Prove endpoint/session/state/raw command fields remain
+- [x] 3.4 Prove endpoint/session/state/raw command fields remain
   context/debug-owned, not normal procedure input.
 
 ## 4. Read-Only Procedure Modules
 
-- [ ] 4.1 Implement the first read-only module over `runtime.playable.status`.
+- [x] 4.1 Implement the first read-only module over `runtime.playable.status`.
 - [ ] 4.2 Implement one notification read module over `notifications.view`.
 - [ ] 4.3 Implement one unit read module over `unit.ready.view` or
   `unit.move.preview`.
-- [ ] 4.4 Prove server-side client calls over the same router graph.
+- [x] 4.4 Prove server-side client calls over the same router graph.
 
 ## 5. Middleware Promotion
 
@@ -66,6 +66,6 @@
 - [x] 7.1 Run `bun run openspec -- validate civ7-control-orpc-native-slice
   --strict`.
 - [x] 7.2 Run `git diff --check`.
-- [ ] 7.3 Run focused package tests/check/build when source implementation is
+- [x] 7.3 Run focused package tests/check/build when source implementation is
   added.
 - [ ] 7.4 Run CLI play tests/check when CLI callers change.

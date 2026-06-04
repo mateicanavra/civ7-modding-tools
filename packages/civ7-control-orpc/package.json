@@ -1,0 +1,47 @@
+{
+  "name": "@civ7/control-orpc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Native oRPC/Effect procedure composition over Civ7 direct-control atoms.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs && tsc -p tsconfig.json --emitDeclarationOnly",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --config vitest.config.ts",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@civ7/direct-control": "workspace:*",
+    "@orpc/client": "^1.14.4",
+    "@orpc/contract": "^1.14.4",
+    "@orpc/server": "^1.14.4",
+    "@orpc/shared": "^1.14.4",
+    "@standard-schema/spec": "^1.1.0",
+    "effect": "3.21.2",
+    "effect-orpc": "^0.2.2",
+    "typebox": "^1.0.80"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "rimraf": "^6.1.2",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  }
+}
