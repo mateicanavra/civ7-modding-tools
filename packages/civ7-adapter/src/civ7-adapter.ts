@@ -28,6 +28,8 @@ import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
 import { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
+import { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
+import { getNaturalWonderFootprintIndices } from "./natural-wonder-footprints.js";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript
@@ -56,6 +58,11 @@ import { assignAdvancedStartRegions as civ7AssignAdvancedStartRegions } from "/b
 // @ts-ignore - resolved only at Civ7 runtime
 // prettier-ignore
 import { generateLakes as civ7GenerateLakes, expandCoasts as civ7ExpandCoasts } from "/base-standard/maps/elevation-terrain-generator.js";
+
+const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
+  string,
+  { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number } | undefined
+>;
 
 /**
  * Production adapter wrapping GameplayMap, TerrainBuilder, AreaBuilder, FractalBuilder
@@ -698,8 +705,23 @@ export class Civ7Adapter implements EngineAdapter {
       Direction: direction,
       Elevation: resolvedElevation,
     };
+    const footprint = getNaturalWonderFootprintIndices({
+      x,
+      y,
+      width: this.width,
+      height: this.height,
+      policy: FEATURE_POLICIES[String(featureType | 0)] ?? {},
+      direction,
+    });
+    if (!footprint) return false;
     if (!this.canHaveFeatureParam(x, y, featureParam)) return false;
-    TerrainBuilder.setFeatureType(x, y, featureParam);
+    const setResult = TerrainBuilder.setFeatureType(x, y, featureParam) as unknown;
+    if (setResult === false) return false;
+    for (const plotIndex of footprint) {
+      const fy = Math.trunc(plotIndex / this.width);
+      const fx = plotIndex - fy * this.width;
+      if ((GameplayMap.getFeatureType(fx, fy) | 0) !== (featureType | 0)) return false;
+    }
     this.recordPlacementEffect();
     return true;
   }

@@ -42,6 +42,9 @@ describe("placement plan operations", () => {
     const width = 4;
     const height = 3;
     const size = width * height;
+    const terrainType = new Uint8Array(size).fill(2);
+    const biomeType = new Uint8Array(size).fill(1);
+    const featureType = new Int16Array(size).fill(-1);
     const result = runOpValidated(planNaturalWonders, {
       width,
       height,
@@ -51,9 +54,17 @@ describe("placement plan operations", () => {
       aridityIndex: new Float32Array(size).fill(0.3),
       riverClass: new Uint8Array(size),
       lakeMask: new Uint8Array(size),
+      coastTerrainType: 3,
+      mountainTerrainType: 0,
+      iceFeatureType: 12,
+      terrainType,
+      biomeType,
+      featureType,
+      noFeatureType: -1,
+      naturalWonderBlockedMask: new Uint8Array(size),
       featureCatalog: [
-        { featureType: 1001, direction: 0 },
-        { featureType: 1002, direction: 1 },
+        { featureType: 1001, direction: 0, validTerrainTypes: [2], validBiomeTypes: [1] },
+        { featureType: 1002, direction: 1, validTerrainTypes: [2], validBiomeTypes: [1] },
       ],
     }, {
       strategy: "default",
@@ -65,6 +76,44 @@ describe("placement plan operations", () => {
     expect(result.placements.length).toBe(2);
     expect(result.placements[0]?.featureType).toBe(1001);
     expect(result.placements[1]?.featureType).toBe(1002);
+  });
+
+  it("does not plan natural wonders on occupied or policy-blocked tiles", () => {
+    const width = 3;
+    const height = 1;
+    const size = width * height;
+    const terrainType = new Uint8Array([3, 2, 2]);
+    const biomeType = new Uint8Array(size).fill(1);
+    const featureType = new Int16Array([-1, 25, -1]);
+    const naturalWonderBlockedMask = new Uint8Array([1, 0, 0]);
+
+    const result = runOpValidated(planNaturalWonders, {
+      width,
+      height,
+      wondersCount: 1,
+      landMask: new Uint8Array(size).fill(1),
+      elevation: Int16Array.from([100, 90, 80]),
+      aridityIndex: new Float32Array(size).fill(0.3),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+      coastTerrainType: 3,
+      mountainTerrainType: 0,
+      iceFeatureType: 12,
+      terrainType,
+      biomeType,
+      featureType,
+      noFeatureType: -1,
+      naturalWonderBlockedMask,
+      featureCatalog: [
+        { featureType: 1001, direction: 0, validTerrainTypes: [2], validBiomeTypes: [1] },
+      ],
+    }, {
+      strategy: "default",
+      config: { minSpacingTiles: 0 },
+    });
+
+    expect(result.plannedCount).toBe(1);
+    expect(result.placements[0]?.plotIndex).toBe(2);
   });
 
   it("plans deterministic discovery placements from physical fields", () => {

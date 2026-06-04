@@ -9,9 +9,9 @@ import plotCoasts from "../../src/recipes/standard/stages/map-morphology/steps/p
 import { buildTestDeps } from "../support/step-deps.js";
 
 describe("map-morphology/plot-coasts", () => {
-  it("stamps coast terrain from coastlineMetrics coastalWater || shelfMask (no Civ expandCoasts)", () => {
-    const width = 4;
-    const height = 3;
+  it("stamps coast terrain from morphology truth plus the static Civ7 compliance band", () => {
+    const width = 20;
+    const height = 6;
     const seed = 1234;
     const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
     const env = {
@@ -30,7 +30,7 @@ describe("map-morphology/plot-coasts", () => {
     const coastalWater = new Uint8Array(size).fill(0);
     coastalWater[1] = 1;
     const shelfMask = new Uint8Array(size).fill(0);
-    shelfMask[6] = 1;
+    shelfMask[28] = 1;
 
     context.artifacts.set("artifact:morphology.topography", { landMask });
     context.artifacts.set("artifact:morphology.coastlineMetrics", {
@@ -47,10 +47,12 @@ describe("map-morphology/plot-coasts", () => {
     // coastalWater becomes COAST terrain
     expect(adapter.getTerrainType(1, 0)).toBe(COAST_TERRAIN);
     // shelfMask becomes COAST terrain
-    expect(adapter.getTerrainType(2, 1)).toBe(COAST_TERRAIN);
-    // other water stays OCEAN terrain
-    expect(adapter.getTerrainType(2, 0)).toBe(OCEAN_TERRAIN);
-    expect(adapter.getTerrainType(3, 2)).toBe(OCEAN_TERRAIN);
+    expect(adapter.getTerrainType(8, 1)).toBe(COAST_TERRAIN);
+    // near-coast ocean is promoted by our deterministic compliance policy
+    expect(adapter.getTerrainType(2, 0)).toBe(COAST_TERRAIN);
+    expect(adapter.getTerrainType(4, 0)).toBe(COAST_TERRAIN);
+    // distant water stays OCEAN terrain
+    expect(adapter.getTerrainType(15, 5)).toBe(OCEAN_TERRAIN);
 
     // expandCoasts is intentionally not invoked by this step.
     expect((adapter as any).calls?.expandCoasts?.length ?? 0).toBe(0);

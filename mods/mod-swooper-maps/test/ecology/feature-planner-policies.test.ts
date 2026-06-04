@@ -38,6 +38,7 @@ describe("ecology feature planner policies", () => {
         scoreColdReef01: f32(size, weakPositive),
         scoreAtoll01: f32(size, weakPositive),
         scoreLotus01: f32(size, weakPositive),
+        lakeMask: new Uint8Array(size),
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },
@@ -109,6 +110,49 @@ describe("ecology feature planner policies", () => {
     expect(vegetation.placements).toEqual([]);
     expect(ice.placements).toEqual([]);
     expect(continentalIce.placements).toEqual([]);
+  });
+
+  it("does not turn synthetic Lotus scores into non-lake placements", () => {
+    const width = 2;
+    const height = 1;
+    const size = width * height;
+
+    const nonLake = ecology.ops.planReefs.run(
+      {
+        width,
+        height,
+        seed: 1,
+        scoreReef01: f32(size, 0),
+        scoreColdReef01: f32(size, 0),
+        scoreAtoll01: f32(size, 0),
+        scoreLotus01: f32(size, 1),
+        lakeMask: new Uint8Array(size),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
+      },
+      normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} })
+    );
+
+    const lakeMask = new Uint8Array(size);
+    lakeMask[1] = 1;
+    const inLake = ecology.ops.planReefs.run(
+      {
+        width,
+        height,
+        seed: 1,
+        scoreReef01: f32(size, 0),
+        scoreColdReef01: f32(size, 0),
+        scoreAtoll01: f32(size, 0),
+        scoreLotus01: f32(size, 1),
+        lakeMask,
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
+      },
+      normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} })
+    );
+
+    expect(nonLake.placements).toEqual([]);
+    expect(inLake.placements).toEqual([{ x: 1, y: 0, feature: "FEATURE_LOTUS" }]);
   });
 
   it("keeps score-to-intent policies local to each feature planner family", () => {

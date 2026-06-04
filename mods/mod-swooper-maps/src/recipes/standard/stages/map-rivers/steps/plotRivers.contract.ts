@@ -7,19 +7,19 @@ import { mapRiversArtifacts } from "../artifacts.js";
 const PlotRiversStepConfigSchema = Type.Object(
   {
     /**
-     * Engine river modeling minimum length threshold (lower = denser).
+     * Minimum navigable channel trunk length selected from Hydrology flow.
      */
     minLength: Type.Integer({
-      description: "Engine river modeling minimum length threshold (lower = denser).",
+      description: "Minimum navigable channel trunk length selected from Hydrology flow.",
       default: 5,
       minimum: 1,
       maximum: 40,
     }),
     /**
-     * Engine river modeling maximum length threshold.
+     * Maximum navigable channel trunk length selected from Hydrology flow.
      */
     maxLength: Type.Integer({
-      description: "Engine river modeling maximum length threshold.",
+      description: "Maximum navigable channel trunk length selected from Hydrology flow.",
       default: 15,
       minimum: 1,
       maximum: 80,
@@ -27,7 +27,7 @@ const PlotRiversStepConfigSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Config for engine river projection (projection-only).",
+    description: "Config for MapGen-owned navigable river projection.",
   }
 );
 

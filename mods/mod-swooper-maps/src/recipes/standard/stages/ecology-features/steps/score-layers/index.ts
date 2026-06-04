@@ -205,6 +205,7 @@ export default createStep(ScoreLayersStepContract, {
         landMask: topography.landMask,
         surfaceTemperature: classification.surfaceTemperature,
         bathymetry: topography.bathymetry,
+        lakeMask: lakePlan.lakeMask,
         shelfMask: coastline.shelfMask,
         coastalWater: coastline.coastalWater,
         distanceToCoast: coastline.distanceToCoast,

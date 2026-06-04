@@ -1,7 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
-import { COAST_TERRAIN, FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
+import {
+  FLAT_TERRAIN,
+  NAVIGABLE_RIVER_TERRAIN,
+  createExtendedMapContext,
+} from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
@@ -35,12 +39,6 @@ class RiverCacheRefreshAdapter extends MockAdapter {
     return this.cachedWater[this.idx2(x, y)] === 1;
   }
 
-  override modelRivers(): void {
-    this.callOrder.push("modelRivers");
-    // Simulate river modeling mutating terrain in a way that requires cache refresh.
-    this.setTerrainType(2, 1, COAST_TERRAIN);
-  }
-
   override validateAndFixTerrain(): void {
     this.callOrder.push("validateAndFixTerrain");
   }
@@ -60,7 +58,7 @@ class RiverCacheRefreshAdapter extends MockAdapter {
 }
 
 describe("map-rivers/plot-rivers", () => {
-  it("rebuilds area/water caches after rivers so downstream checks read current topology", () => {
+  it("stamps MapGen-projected navigable rivers and refreshes downstream caches", () => {
     const width = 5;
     const height = 4;
     const seed = 9876;
@@ -87,25 +85,36 @@ describe("map-rivers/plot-rivers", () => {
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const size = width * height;
+    const discharge = new Float32Array(size);
+    const riverClass = new Uint8Array(size);
+    const flowDir = new Int32Array(size).fill(-1);
+    for (let x = 0; x < width; x++) {
+      const index = x;
+      discharge[index] = x + 1;
+      riverClass[index] = 1;
+      flowDir[index] = x < width - 1 ? x + 1 : -1;
+    }
+
     context.artifacts.set("artifact:hydrology.hydrography", {
       runoff: new Float32Array(size),
-      discharge: new Float32Array(size),
-      riverClass: new Uint8Array(size),
+      discharge,
+      riverClass,
+      flowDir,
       sinkMask: new Uint8Array(size),
       outletMask: new Uint8Array(size),
     });
 
-    expect(adapter.isWater(2, 1)).toBe(false);
+    expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);
 
     plotRivers.run(context as any, { minLength: 5, maxLength: 15 }, {} as any, buildTestDeps(plotRivers));
 
     expect(adapter.callOrder).toEqual([
-      "modelRivers",
       "validateAndFixTerrain",
       "defineNamedRivers",
       "recalculateAreas",
       "storeWaterData",
     ]);
-    expect(adapter.isWater(2, 1)).toBe(true);
+    expect(adapter.getTerrainType(0, 0)).toBe(NAVIGABLE_RIVER_TERRAIN);
+    expect(adapter.getTerrainType(4, 0)).toBe(NAVIGABLE_RIVER_TERRAIN);
   });
 });

@@ -1,7 +1,21 @@
-import { defineVizMeta, logElevationSummary, logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
+import {
+  COAST_TERRAIN,
+  defineVizMeta,
+  logElevationSummary,
+  logLandmassAscii,
+  snapshotEngineHeightfield,
+} from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import BuildElevationStepContract from "./buildElevation.contract.js";
-import { assertNoWaterDrift, summarizeWaterDrift } from "../../../projection-policies/noWaterDrift.js";
+import {
+  assertNoWaterDrift,
+  formatWaterDriftError,
+  summarizeWaterDrift,
+} from "../../../projection-policies/noWaterDrift.js";
+import {
+  CIV7_BUILD_ELEVATION_BOUNDARY_POLICY_V0,
+  applyCiv7BuildElevationBoundaryPolicy,
+} from "../../../projection-policies/elevationBoundaryClassification.js";
 import { mapElevationArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
@@ -13,6 +27,7 @@ export default createStep(BuildElevationStepContract, {
   }),
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
+    const mountains = deps.artifacts.mountains.read(context);
     const projectedLakes = deps.artifacts.engineProjectionLakes.read(context);
     const hydrologySnapshot = deps.artifacts.hydrologyLakesEngineTerrainSnapshot.read(context);
     const { width, height } = context.dimensions;
@@ -28,6 +43,13 @@ export default createStep(BuildElevationStepContract, {
       throw new Error(
         `[map-elevation/build-elevation] lake projection mask length ${projectedLakes.lakeMask.length} does not match ${size}.`
       );
+    }
+    if (
+      mountains.mountainMask.length !== size ||
+      mountains.mountainRegionMask.length !== size ||
+      mountains.hillMask.length !== size
+    ) {
+      throw new Error(`[map-elevation/build-elevation] mountain masks must all match ${size}.`);
     }
     if (hydrologySnapshot.landMask.length !== size) {
       throw new Error(
@@ -52,23 +74,59 @@ export default createStep(BuildElevationStepContract, {
       }));
     }
 
+    const boundaryPolicy = applyCiv7BuildElevationBoundaryPolicy({
+      width,
+      height,
+      landMask: expectedLandMask,
+      mountainMask: mountains.mountainMask,
+      mountainRegionMask: mountains.mountainRegionMask,
+      hillMask: mountains.hillMask,
+      elevation: topography.elevation,
+      seaLevel: topography.seaLevel,
+    });
+    for (let idx = 0; idx < size; idx++) {
+      if (boundaryPolicy.policyCoastMask[idx] !== 1) continue;
+      const y = (idx / width) | 0;
+      const x = idx - y * width;
+      context.adapter.setTerrainType(x, y, COAST_TERRAIN);
+    }
+    expectedLandMask.set(boundaryPolicy.landMask);
+    context.trace.event(() => ({
+      type: "map.elevation.boundaryPolicy",
+      policy: "civ7.buildElevationBoundary.v0",
+      polarWaterRows: boundaryPolicy.polarWaterRows,
+      saddleElevationCeiling: boundaryPolicy.saddleElevationCeiling,
+      promotedLandToCoast: boundaryPolicy.promotedLandToCoast,
+      source: CIV7_BUILD_ELEVATION_BOUNDARY_POLICY_V0.source,
+    }));
+
     /**
      * Civ7 builds visual elevation from the terrain surface already in the engine.
      * We therefore run after static lake projection, matching Firaxis' map-script
      * lifecycle: coasts/continents/mountains/volcanoes, accepted lakes, elevation, rivers.
      * The expected land/water surface remains MapGen-owned: Morphology land plus
-     * the accepted Hydrology lake projection. The adjacent engine snapshot is
-     * diagnostic evidence only; it must not redefine terrain truth.
-     * If the pre-elevation engine surface no longer matches that projection, this
-     * step fails. After buildElevation, Civ7 may apply engine-owned elevation/water
-     * cache adjustments; those are recorded as parity drift and inherited by later
-     * engine-facing stages instead of being repaired after the fact.
+     * accepted Hydrology lake projection plus static Civ7 build-elevation boundary
+     * policies. The adjacent engine snapshot is diagnostic evidence only; it must
+     * not redefine terrain truth. If the engine surface differs before or after
+     * buildElevation, this step fails instead of letting downstream stages inherit
+     * hidden terrain drift.
      */
     assertNoWaterDrift(context, expectedLandMask, "map-elevation/build-elevation:pre");
     context.adapter.recalculateAreas();
     context.adapter.buildElevation();
     context.adapter.recalculateAreas();
     const postElevationDrift = summarizeWaterDrift(context, expectedLandMask, "map-elevation/build-elevation");
+    if (postElevationDrift.driftCount > 0) {
+      context.trace.event(() => ({
+        type: "map.elevation.postBuildWaterDrift",
+        step: "build-elevation",
+        driftCount: postElevationDrift.driftCount,
+        expectedLandButWater: postElevationDrift.expectedLandButWater,
+        expectedWaterButLand: postElevationDrift.expectedWaterButLand,
+        examples: postElevationDrift.examples,
+      }));
+      throw new Error(formatWaterDriftError("map-elevation/build-elevation:post", postElevationDrift));
+    }
 
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
@@ -99,6 +157,22 @@ export default createStep(BuildElevationStepContract, {
         visibility: "debug",
       }),
     });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.elevation.boundaryPolicyCoastMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: boundaryPolicy.policyCoastMask,
+      meta: defineVizMeta("map.elevation.boundaryPolicyCoastMask", {
+        label: "Boundary Policy Coast Mask",
+        group: GROUP_MAP_ELEVATION,
+        description:
+          "Land tiles preprojected to coast by MapGen's static Civ7 build-elevation compliance policy.",
+        role: "membership",
+        palette: "categorical",
+        visibility: "debug",
+      }),
+    });
     if (engine) {
       const driftMask = new Uint8Array(width * height);
       let mismatchCount = 0;
@@ -122,12 +196,12 @@ export default createStep(BuildElevationStepContract, {
       context.trace.event(() => ({
         type: "map.elevation.parity",
         step: "build-elevation",
-          landMaskMismatchCount: mismatchCount,
-          landMaskMismatchShare: Number((mismatchCount / Math.max(1, width * height)).toFixed(4)),
-          expectedLandButWater: postElevationDrift.expectedLandButWater,
-          expectedWaterButLand: postElevationDrift.expectedWaterButLand,
-          examples: postElevationDrift.examples,
-        }));
+        landMaskMismatchCount: mismatchCount,
+        landMaskMismatchShare: Number((mismatchCount / Math.max(1, width * height)).toFixed(4)),
+        expectedLandButWater: postElevationDrift.expectedLandButWater,
+        expectedWaterButLand: postElevationDrift.expectedWaterButLand,
+        examples: postElevationDrift.examples,
+      }));
 
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.elevation.elevation",

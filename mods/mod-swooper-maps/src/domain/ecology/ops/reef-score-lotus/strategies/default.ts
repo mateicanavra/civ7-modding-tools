@@ -13,6 +13,7 @@ export const defaultStrategy = createStrategy(ScoreLotusContract, "default", {
         { label: "landMask", arr: input.landMask as Uint8Array },
         { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
         { label: "bathymetry", arr: input.bathymetry as Int16Array },
+        { label: "lakeMask", arr: input.lakeMask as Uint8Array },
         { label: "shelfMask", arr: input.shelfMask as Uint8Array },
         { label: "coastalWater", arr: input.coastalWater as Uint8Array },
         { label: "distanceToCoast", arr: input.distanceToCoast as Uint16Array },
@@ -27,12 +28,13 @@ export const defaultStrategy = createStrategy(ScoreLotusContract, "default", {
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] !== 0) continue;
+      if (input.lakeMask[i] !== 1) continue;
       if (input.shelfMask[i] !== 1) continue;
       if (input.coastalWater[i] !== 1) continue;
       if ((input.distanceToCoast[i] ?? 0) > maxDistanceToCoast) continue;
 
-      // Lotus is a shallow near-land water feature; it should not claim the
-      // isolated-bank habitat that atolls use.
+      // Lotus is a shallow in-lake water feature; it should not claim the
+      // marine near-shore or isolated-bank habitat used by reefs and atolls.
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],
         config.tempWarmStartC,

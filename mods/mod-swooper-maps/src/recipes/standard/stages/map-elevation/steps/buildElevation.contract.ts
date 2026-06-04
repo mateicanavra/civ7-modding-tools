@@ -20,6 +20,7 @@ const BuildElevationStepContract = defineStep({
   artifacts: {
     requires: [
       morphologyArtifacts.topography,
+      morphologyArtifacts.mountains,
       mapHydrologyArtifacts.engineProjectionLakes,
       mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot,
     ],

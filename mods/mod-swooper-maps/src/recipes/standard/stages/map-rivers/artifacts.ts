@@ -20,13 +20,23 @@ const MapRiversEngineProjectionArtifactSchema = Type.Object(
     riverMismatchCount: Type.Integer({
       minimum: 0,
       description:
-        "Count of hydrography riverClass>0 tiles that did not project to navigable-river terrain in engine snapshot.",
+        "Count of tiles where projected navigable-river terrain and engine readback diverged.",
+    }),
+    selectedRiverRejectedCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of MapGen-selected navigable-river terrain tiles that were not navigable rivers after engine validation.",
+    }),
+    extraEngineRiverCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of navigable-river terrain tiles present in engine readback that were not selected by MapGen's river projection policy.",
     }),
   },
   {
     additionalProperties: false,
     description:
-      "Observed map-rivers engine projection state, used to diagnose Hydrology river intent vs engine readback.",
+      "Observed map-rivers engine projection state, used to diagnose MapGen navigable-river terrain vs engine readback.",
   }
 );
 

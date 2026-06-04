@@ -1,6 +1,10 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
-import type { DiscoveryCatalogEntry } from "@civ7/adapter";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  getNaturalWonderFootprintOffsets,
+  type DiscoveryCatalogEntry,
+} from "@civ7/adapter";
 import {
   OFFICIAL_RESOURCE_CORPUS,
   type OfficialAgeType,
@@ -21,6 +25,30 @@ const DEFAULT_RESOURCE_AGE: OfficialAgeType = "AGE_ANTIQUITY";
 const KNOWN_RESOURCE_AGES = new Set<OfficialAgeType>(
   OFFICIAL_RESOURCE_CORPUS.flatMap((entry) => entry.validAges)
 );
+const FEATURE_VALID_TERRAIN_TYPE_INDICES =
+  CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as Record<
+    string,
+    readonly number[] | undefined
+  >;
+const FEATURE_VALID_BIOME_TYPE_INDICES =
+  CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices as Record<
+    string,
+    readonly number[] | undefined
+  >;
+const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
+  string,
+  {
+    noLake: boolean;
+    minimumElevation?: number;
+    placementClass?: string;
+    naturalWonderTiles?: number;
+    naturalWonderDirection?: number;
+  } | undefined
+>;
+const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as Record<
+  string,
+  readonly string[] | undefined
+>;
 
 export type PlacementPlanBundle = {
   artifact: DeepReadonly<PlacementInputsV1>;
@@ -100,6 +128,39 @@ function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): Discovery
   return candidates;
 }
 
+function readEngineSurface(context: ExtendedMapContext): {
+  terrainType: Uint8Array;
+  biomeType: Uint8Array;
+  featureType: Int16Array;
+} {
+  const { width, height } = context.dimensions;
+  const size = width * height;
+  const terrainType = new Uint8Array(size);
+  const biomeType = new Uint8Array(size);
+  const featureType = new Int16Array(size);
+  for (let i = 0; i < size; i++) {
+    const y = (i / width) | 0;
+    const x = i - y * width;
+    terrainType[i] = Math.max(0, context.adapter.getTerrainType(x, y) | 0);
+    biomeType[i] = Math.max(0, context.adapter.getBiomeType(x, y) | 0);
+    featureType[i] = context.adapter.getFeatureType(x, y) | 0;
+  }
+  return { terrainType, biomeType, featureType };
+}
+
+function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Array {
+  const size = width * height;
+  const mask = new Uint8Array(size);
+  const polarWaterRows = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
+  if (polarWaterRows === 0) return mask;
+  for (let y = 0; y < height; y++) {
+    if (y >= polarWaterRows && y < height - polarWaterRows) continue;
+    const rowStart = y * width;
+    mask.fill(1, rowStart, rowStart + width);
+  }
+  return mask;
+}
+
 /** Builds placement inputs from map info, authored config, and adapter-owned catalogs. */
 export function buildPlacementInputs(
   context: ExtendedMapContext,
@@ -136,7 +197,26 @@ export function buildPlacementInputs(
   };
   const startsPlan = ops.starts({ baseStarts }, config.starts);
   const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
-  const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
+  const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog().map((entry) => {
+    const featureType = entry.featureType | 0;
+    const policy = FEATURE_POLICIES[String(featureType)];
+    return {
+      featureType,
+      direction: entry.direction | 0,
+      validTerrainTypes: [...(FEATURE_VALID_TERRAIN_TYPE_INDICES[String(featureType)] ?? [])],
+      validBiomeTypes: [...(FEATURE_VALID_BIOME_TYPE_INDICES[String(featureType)] ?? [])],
+      ...(policy?.minimumElevation !== undefined
+        ? { minimumElevation: policy.minimumElevation }
+        : {}),
+      ...(policy?.noLake ? { noLake: true } : {}),
+      ...(policy?.placementClass ? { placementClass: policy.placementClass } : {}),
+      ...(policy?.naturalWonderTiles ? { naturalWonderTiles: policy.naturalWonderTiles } : {}),
+      featureTags: [...(FEATURE_TAGS_BY_FEATURE_TYPE[String(featureType)] ?? [])],
+      footprintOffsets: [
+        ...(getNaturalWonderFootprintOffsets(policy ?? {}, entry.direction | 0) ?? []),
+      ],
+    };
+  });
   const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
   const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
   const activeResourceAge = resolveActiveResourceAge();
@@ -144,6 +224,8 @@ export function buildPlacementInputs(
     sanitizeResourceCandidates(context.adapter.getPlaceableResourceTypes(), noResourceSentinel),
     activeResourceAge
   );
+  const engineSurface = readEngineSurface(context);
+  const naturalWonderBlockedMask = buildNaturalWonderBlockedMask(width, height);
   const naturalWonderPlan = ops.naturalWonders(
     {
       width,
@@ -154,6 +236,14 @@ export function buildPlacementInputs(
       aridityIndex: physical.biomeClassification.aridityIndex,
       riverClass: physical.hydrography.riverClass,
       lakeMask: physical.lakePlan.lakeMask,
+      coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
+      mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
+      iceFeatureType: CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_ICE,
+      terrainType: engineSurface.terrainType,
+      biomeType: engineSurface.biomeType,
+      featureType: engineSurface.featureType,
+      noFeatureType: context.adapter.NO_FEATURE | 0,
+      naturalWonderBlockedMask,
       featureCatalog: naturalWonderCatalog,
     },
     config.naturalWonders

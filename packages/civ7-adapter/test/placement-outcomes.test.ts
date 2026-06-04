@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { CIV7_BROWSER_TABLES_V0 } from "../src/civ7-tables.gen.js";
 import { createMockAdapter } from "../src/mock-adapter.js";
 
 /**
@@ -10,12 +11,63 @@ import { createMockAdapter } from "../src/mock-adapter.js";
  * it exposes to every map type.
  */
 describe("typed placement outcomes", () => {
+  it("uses generated static feature legality in the mock adapter", () => {
+    const { biomeGlobals, featureTypes, terrainTypeIndices } = CIV7_BROWSER_TABLES_V0;
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 3,
+      defaultBiomeType: biomeGlobals.BIOME_TROPICAL,
+      defaultTerrainType: terrainTypeIndices.TERRAIN_FLAT,
+    });
+
+    expect(adapter.canHaveFeature(1, 1, featureTypes.FEATURE_REDWOOD_FOREST)).toBe(false);
+    adapter.setBiome(1, 1, biomeGlobals.BIOME_GRASSLAND);
+    expect(adapter.canHaveFeature(1, 1, featureTypes.FEATURE_REDWOOD_FOREST)).toBe(true);
+
+    expect(adapter.canHaveFeature(2, 1, featureTypes.FEATURE_BARRIER_REEF)).toBe(false);
+    adapter.setTerrainType(2, 1, terrainTypeIndices.TERRAIN_COAST);
+    adapter.setBiome(2, 1, biomeGlobals.BIOME_MARINE);
+    expect(adapter.canHaveFeature(2, 1, featureTypes.FEATURE_BARRIER_REEF)).toBe(true);
+
+    adapter.setTerrainType(3, 1, terrainTypeIndices.TERRAIN_MOUNTAIN);
+    adapter.setBiome(3, 1, biomeGlobals.BIOME_GRASSLAND);
+    expect(adapter.canHaveFeature(3, 1, featureTypes.FEATURE_HOERIKWAGGO)).toBe(true);
+  });
+
+  it("uses generated static resource legality in the mock adapter", () => {
+    const { biomeGlobals, resourceTypes, terrainTypeIndices } = CIV7_BROWSER_TABLES_V0;
+    const adapter = createMockAdapter({
+      width: 5,
+      height: 3,
+      defaultBiomeType: biomeGlobals.BIOME_MARINE,
+      defaultTerrainType: terrainTypeIndices.TERRAIN_OCEAN,
+    });
+
+    adapter.setTerrainType(2, 1, terrainTypeIndices.TERRAIN_COAST);
+    adapter.setBiome(2, 1, biomeGlobals.BIOME_MARINE);
+    expect(adapter.canHaveResource(2, 1, resourceTypes.RESOURCE_FISH)).toBe(false);
+
+    adapter.setTerrainType(1, 1, terrainTypeIndices.TERRAIN_FLAT);
+    adapter.setBiome(1, 1, biomeGlobals.BIOME_GRASSLAND);
+    expect(adapter.canHaveResource(2, 1, resourceTypes.RESOURCE_FISH)).toBe(true);
+    expect(adapter.canHaveResource(1, 1, resourceTypes.RESOURCE_IRON)).toBe(false);
+
+    adapter.setTerrainType(1, 1, terrainTypeIndices.TERRAIN_HILL);
+    expect(adapter.canHaveResource(1, 1, resourceTypes.RESOURCE_IRON)).toBe(true);
+  });
+
   it("returns placed resource outcomes with readback evidence", () => {
-    const adapter = createMockAdapter({ width: 4, height: 3 });
+    const { biomeGlobals, resourceTypes, terrainTypeIndices } = CIV7_BROWSER_TABLES_V0;
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 3,
+      defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
+      defaultTerrainType: terrainTypeIndices.TERRAIN_HILL,
+    });
 
     const outcome = adapter.placeResourceIntent(4, 3, {
       plotIndex: 5,
-      resourceType: 7,
+      resourceType: resourceTypes.RESOURCE_GOLD,
     });
 
     expect(outcome).toEqual({
@@ -23,10 +75,10 @@ describe("typed placement outcomes", () => {
       plotIndex: 5,
       x: 1,
       y: 1,
-      resourceType: 7,
-      observedResourceType: 7,
+      resourceType: resourceTypes.RESOURCE_GOLD,
+      observedResourceType: resourceTypes.RESOURCE_GOLD,
     });
-    expect(adapter.getResourceType(1, 1)).toBe(7);
+    expect(adapter.getResourceType(1, 1)).toBe(resourceTypes.RESOURCE_GOLD);
   });
 
   it("returns typed resource rejections without mutating the tile", () => {

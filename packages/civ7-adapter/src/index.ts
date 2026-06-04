@@ -41,6 +41,16 @@ export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type { EngineEffectTagId } from "./effects.js";
 export { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 export { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
+export {
+  getNaturalWonderFootprintIndices,
+  getNaturalWonderFootprintOffsets,
+  hasUnsupportedNaturalWonderPolicyTags,
+  resolveNaturalWonderPlacementDirection,
+} from "./natural-wonder-footprints.js";
+export type {
+  NaturalWonderFootprintOffset,
+  NaturalWonderPlacementPolicy,
+} from "./natural-wonder-footprints.js";
 export { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 export { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
 export type { Civ7BrowserTablesV0 } from "./civ7-tables.gen.js";

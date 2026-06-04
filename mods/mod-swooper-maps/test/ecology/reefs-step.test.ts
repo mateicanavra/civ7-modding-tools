@@ -6,6 +6,7 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
 import planReefsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/index.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
@@ -47,8 +48,8 @@ describe("ecology-features plan-reefs step", () => {
     layers.FEATURE_REEF.fill(1);
 
     const stageArtifacts = implementArtifacts(
-      [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyIce],
-      { scoreLayers: {}, occupancyIce: {} }
+      [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyIce, hydrologyHydrographyArtifacts.lakePlan],
+      { scoreLayers: {}, occupancyIce: {}, lakePlan: {} }
     );
     stageArtifacts.scoreLayers.publish(ctx, { width, height, layers });
     stageArtifacts.occupancyIce.publish(ctx, {
@@ -56,6 +57,13 @@ describe("ecology-features plan-reefs step", () => {
       height,
       featureIndex: new Uint16Array(size),
       reserved: new Uint8Array(size),
+    });
+    stageArtifacts.lakePlan.publish(ctx, {
+      width,
+      height,
+      lakeMask: new Uint8Array(size),
+      plannedLakeTileCount: 0,
+      sinkLakeCount: 0,
     });
 
     const config = {

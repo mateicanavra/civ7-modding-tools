@@ -1,9 +1,15 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import {
+  COAST_TERRAIN,
+  FLAT_TERRAIN,
+  HILL_TERRAIN,
+  MOUNTAIN_TERRAIN,
+  OCEAN_TERRAIN,
+  createExtendedMapContext,
+} from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { FLAT_TERRAIN, HILL_TERRAIN, OCEAN_TERRAIN } from "@swooper/mapgen-core";
 
 import buildElevation from "../../src/recipes/standard/stages/map-elevation/steps/buildElevation.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -44,10 +50,33 @@ function setBuildElevationArtifacts(
   height: number,
   topographyLandMask: Uint8Array,
   acceptedLakeMask = new Uint8Array(width * height),
-  hydrologyLandMask?: Uint8Array
+  hydrologyLandMask?: Uint8Array,
+  morphology?: {
+    elevation?: Int16Array;
+    seaLevel?: number;
+    mountainMask?: Uint8Array;
+    mountainRegionMask?: Uint8Array;
+    hillMask?: Uint8Array;
+  }
 ): void {
   const size = width * height;
-  context.artifacts.set("artifact:morphology.topography", { landMask: topographyLandMask });
+  context.artifacts.set("artifact:morphology.topography", {
+    elevation: morphology?.elevation ?? new Int16Array(size),
+    seaLevel: morphology?.seaLevel ?? 0,
+    landMask: topographyLandMask,
+    bathymetry: new Int16Array(size),
+  });
+  context.artifacts.set("artifact:morphology.mountains", {
+    mountainMask: morphology?.mountainMask ?? new Uint8Array(size),
+    mountainRegionMask: morphology?.mountainRegionMask ?? new Uint8Array(size),
+    mountainRegionIdByTile: new Int32Array(size).fill(-1),
+    hillMask: morphology?.hillMask ?? new Uint8Array(size),
+    foothillMask: new Uint8Array(size),
+    roughLandMask: new Uint8Array(size),
+    orogenyPotential: new Uint8Array(size),
+    fracturePotential: new Uint8Array(size),
+    roughnessPotential: new Uint8Array(size),
+  });
   context.artifacts.set("artifact:map.hydrology.engineProjectionLakes", {
     width,
     height,
@@ -119,7 +148,7 @@ describe("map-elevation/build-elevation", () => {
     expect(adapter.buildElevationCalls).toBe(0);
   });
 
-  it("captures post-buildElevation water drift without aborting generation", () => {
+  it("fails when buildElevation creates new water outside the projected policy surface", () => {
     const width = 4;
     const height = 3;
     const seed = 1234;
@@ -153,13 +182,76 @@ describe("map-elevation/build-elevation", () => {
 
     setBuildElevationArtifacts(context, width, height, landMask);
 
-    expect(() => buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation))).not.toThrow();
+    expect(() => buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation))).toThrow(
+      /map-elevation\/build-elevation:post.*expected land/
+    );
 
     expect(adapter.buildElevationCalls).toBe(1);
+    expect(context.artifacts.has("artifact:map.elevationEngineTerrainSnapshot")).toBe(false);
+  });
+
+  it("preprojects low polar-edge mountain saddle compliance water before buildElevation", () => {
+    const width = 5;
+    const height = 4;
+    const seed = 1357;
+    const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
+    const env = {
+      seed,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+
+    const adapter = new ReliefAfterBuildElevationAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
+    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const size = width * height;
+    const index = (x: number, y: number) => y * width + x;
+    const landMask = new Uint8Array(size).fill(1);
+    const elevation = new Int16Array(size).fill(10);
+    const mountainMask = new Uint8Array(size);
+    const mountainRegionMask = new Uint8Array(size);
+    const hillMask = new Uint8Array(size);
+
+    mountainMask[index(1, 0)] = 1;
+    mountainMask[index(3, 0)] = 1;
+    mountainRegionMask[index(1, 0)] = 1;
+    mountainRegionMask[index(2, 0)] = 1;
+    mountainRegionMask[index(3, 0)] = 1;
+    hillMask[index(2, 0)] = 1;
+    elevation[index(2, 0)] = -4;
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = index(x, y);
+        const terrain =
+          mountainMask[idx] === 1 ? MOUNTAIN_TERRAIN : hillMask[idx] === 1 ? HILL_TERRAIN : FLAT_TERRAIN;
+        adapter.setTerrainType(x, y, terrain);
+        adapter.setWater(x, y, false);
+      }
+    }
+
+    setBuildElevationArtifacts(context, width, height, landMask, new Uint8Array(size), landMask, {
+      elevation,
+      seaLevel: 0,
+      mountainMask,
+      mountainRegionMask,
+      hillMask,
+    });
+
+    buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation));
+
+    expect(adapter.buildElevationCalls).toBe(1);
+    expect(adapter.getTerrainType(2, 0)).toBe(COAST_TERRAIN);
+    expect(adapter.isWater(2, 0)).toBe(true);
     const snapshot = context.artifacts.get("artifact:map.elevationEngineTerrainSnapshot") as {
       landMask: Uint8Array;
     };
-    expect(snapshot.landMask[0]).toBe(0);
+    expect(snapshot.landMask[index(2, 0)]).toBe(0);
   });
 
   it("keeps post-buildElevation terrain when no water drift is detected", () => {

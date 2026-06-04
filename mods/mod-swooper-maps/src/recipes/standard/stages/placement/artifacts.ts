@@ -105,6 +105,7 @@ const NaturalWonderPlacementArtifactSchema = Type.Object(
   {
     plannedCount: Type.Integer({ minimum: 0 }),
     placedCount: Type.Integer({ minimum: 0 }),
+    terrainAdjustedCount: Type.Integer({ minimum: 0 }),
     skippedOutOfBoundsCount: Type.Integer({ minimum: 0 }),
     rejectedCount: Type.Integer({ minimum: 0 }),
   },

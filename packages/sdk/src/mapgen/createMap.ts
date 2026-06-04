@@ -195,7 +195,9 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
     );
     try {
       def.recipe.run(context, env, def.config, {
-        log: (message) => console.log(prefix, message),
+        log: (message) => {
+          console.log(prefix, message);
+        },
       });
     } catch (err) {
       console.error(prefix, "Map generation failed:", err);

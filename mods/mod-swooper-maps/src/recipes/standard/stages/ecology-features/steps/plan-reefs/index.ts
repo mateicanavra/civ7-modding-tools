@@ -28,6 +28,7 @@ export default createStep(PlanReefsStepContract, {
   run: (context, config, ops, deps) => {
     const prev = deps.artifacts.occupancyIce.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read(context);
     const { width, height } = context.dimensions;
 
     const seed = deriveStepSeed(context.env.seed, "ecology:planReefs");
@@ -40,6 +41,7 @@ export default createStep(PlanReefsStepContract, {
         scoreColdReef01: scoreLayers.layers.FEATURE_COLD_REEF,
         scoreAtoll01: scoreLayers.layers.FEATURE_ATOLL,
         scoreLotus01: scoreLayers.layers.FEATURE_LOTUS,
+        lakeMask: lakePlan.lakeMask,
         featureIndex: prev.featureIndex,
         reserved: prev.reserved,
       },
@@ -81,4 +83,3 @@ export default createStep(PlanReefsStepContract, {
     });
   },
 });
-

@@ -14,6 +14,9 @@ const PlanReefsContract = defineOp({
     }),
     scoreAtoll01: TypedArraySchemas.f32({ description: "Atoll suitability score per tile (0..1)." }),
     scoreLotus01: TypedArraySchemas.f32({ description: "Lotus suitability score per tile (0..1)." }),
+    lakeMask: TypedArraySchemas.u8({
+      description: "Hydrology lake mask per tile (1=lake, 0=non-lake); gates lake-only Lotus placement.",
+    }),
     featureIndex: TypedArraySchemas.u16({
       description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",
     }),
