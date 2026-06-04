@@ -84,13 +84,28 @@ Local CLI tests may prove formatting, semantic projection, fixture behavior, and
 normal/debug separation. They do not prove live runtime behavior or hotseat
 product safety.
 
+## Current Owner Seed
+
+`packages/cli/src/game-play/semantic-envelope.ts` is the current
+source owner seed for semantic envelope slot names and normal-output
+debug/internal exclusion marker classes. Its focused proof owner is
+`packages/cli/test/commands/game/play/semantic-envelope.test.ts`, and the
+shared normal-output helper consumes that source owner for forbidden-marker
+detection.
+
+This owner seed is a TypeScript structural contract seed only. It does not
+choose TypeBox or Effect Schema, implement command-integrated semantic
+envelopes, prove AI-ingestion separation, or accept the matrix row.
+
 ## Acceptance Gaps
 
 This contract reduces the `contractArtifact` gap for the Semantic CLI
-Player-Agent View row, but it does not accept the row. Acceptance still needs:
+Player-Agent View row, and the owner seed reduces the source/proof ownership
+gap, but neither accepts the row. Acceptance still needs:
 
-- a named CLI semantic envelope source owner;
-- a schema/test owner and concrete schema choice;
+- command-integrated semantic envelope implementation ownership;
+- a final schema/test owner and concrete TypeBox / Effect Schema / adapter
+  disposition where applicable;
 - focused tests proving normal play output carries the semantic envelope;
 - tests proving raw session, transport, closeout, command, proof JSON,
   correlation, and probe internals are omitted from normal play output;

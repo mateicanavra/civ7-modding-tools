@@ -1,21 +1,6 @@
 import { expect } from 'vitest';
-
-const DEBUG_INTERNAL_MARKERS = [
-  'CMD:',
-  'LSQ:',
-  'GameContext.',
-  'sendRequest',
-  'selectedState',
-  'socket',
-  'requestId',
-  'correlationId',
-  'closeoutTrace',
-  'rawProbe',
-] as const;
+import { normalPlayDebugInternalLeaks } from '../../../../src/game-play/semantic-envelope';
 
 export function expectNormalPlayPayloadToOmitDebugInternals(payload: unknown): void {
-  const text = JSON.stringify(payload);
-  for (const marker of DEBUG_INTERNAL_MARKERS) {
-    expect(text).not.toContain(marker);
-  }
+  expect(normalPlayDebugInternalLeaks(payload)).toEqual([]);
 }

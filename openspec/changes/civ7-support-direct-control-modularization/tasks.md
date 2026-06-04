@@ -149,9 +149,15 @@
         `workstream/cli-play-corpus.md` and missing envelope/schema/proof
         called out, but its `acceptanceStatus` remains
         `pending-cli-semantic-envelope`. The planning contract is now recorded
-        in `workstream/semantic-cli-envelope-contract.md`, but the row remains
-        pending until a semantic envelope owner, schema/test owner, and
-        normal/debug/AI separation tests are assigned and passing.
+        in `workstream/semantic-cli-envelope-contract.md`. The semantic
+        envelope source/proof owner seed is now recorded in
+        `packages/cli/src/game-play/semantic-envelope.ts` and
+        `packages/cli/test/commands/game/play/semantic-envelope.test.ts`, and
+        the shared normal-output helper now consumes that owner for forbidden
+        debug/internal marker detection. The row remains pending until a full
+        envelope implementation owner, final schema/test owner,
+        normal/debug/AI separation tests, and stop-condition coverage are
+        assigned and passing.
         The operation/proof telemetry row now has a draft acceptance intake
         with current operation, approval, postcondition, notification
         verification, setup/turn lifecycle, and focused CLI proof owners

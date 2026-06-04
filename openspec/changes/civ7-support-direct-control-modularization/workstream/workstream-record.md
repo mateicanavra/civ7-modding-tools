@@ -72,6 +72,15 @@ Technology-option proof now covers read-only technology chooser option output.
 Culture-option proof now covers read-only culture chooser option output.
 Celebration-option proof now covers read-only celebration chooser option output.
 Government-option proof now covers read-only government chooser option output.
+Semantic CLI envelope owner-seed proof now names
+`packages/cli/src/game-play/semantic-envelope.ts` as the source owner
+for future envelope slots and normal-output debug/internal exclusion marker
+classes, with focused proof in
+`packages/cli/test/commands/game/play/semantic-envelope.test.ts`. The shared
+normal-output helper now consumes that owner. This reduces the semantic CLI row
+source/proof ownership gap only; it does not implement command-integrated
+envelopes, choose final schema technology, accept Task 2.9.4, prove
+AI-ingestion separation, or claim runtime/live-game proof.
 Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime

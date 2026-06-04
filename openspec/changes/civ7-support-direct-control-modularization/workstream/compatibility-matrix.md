@@ -25,7 +25,7 @@ from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
 | Row | Missing owner/proof assignments | Required proof before acceptance | Dependent lanes that stay blocked |
 | --- | --- | --- | --- |
 | Hotseat handoff state | Hotseat runtime source owner, hotseat runtime proof owner, runtime gate runner, human-restoration proof owner | Disposable hotseat activation, two-slot `GameContext.localPlayerID` rotation, agent-slot approved operation, turn-complete and human UI restoration evidence | CLI hotseat status, mutation procedure cores, live agent-turn execution, action telemetry |
-| Semantic CLI player-agent view | CLI semantic envelope owner, proof owner, envelope schema/test owner, debug-separation reviewer | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
+| Semantic CLI player-agent view | Full envelope implementation owner, final schema/test owner, debug-separation reviewer/gate owner beyond the recorded CLI owner seed | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
 | Strategy/intelligence ingestion | AI-ingestion contract owner, schema owner, proof owner, source/freshness label owner | Machine-contract fixtures proving source labels, freshness/evidence labels, action/proof vocabulary, and no dependency on CLI strings/raw probes | AI corpus artifacts, strategy/playbook records, static profile recipes, model-training telemetry feeds |
 | Debug/internal service output | Debug/service hierarchy owner, proof owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
 | Operation/proof telemetry | Telemetry contract owner, schema owner, proof owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
@@ -217,8 +217,13 @@ Intake rejection conditions:
 - `dependencyDirection`: hotseat/autoplay foundation -> AI-intelligence model
 - `surface`: semantic CLI player-agent view
 - `primaryConsumer`: normal local player-agent CLI user/API
-- `sourceOwner`: pending CLI semantic envelope owner
-- `proofOwner`: pending CLI semantic envelope proof owner
+- `sourceOwner`: `packages/cli/src/game-play/semantic-envelope.ts`
+  owner seed; command-specific projections remain under their existing
+  `game play` command owners until a full envelope implementation owner is
+  assigned
+- `proofOwner`: `packages/cli/test/commands/game/play/semantic-envelope.test.ts`
+  owner-seed proof plus existing focused play suites using the shared
+  normal-output helper; final row proof/gate owner remains pending
 - `playerScope`: current local player and agent-slot scoped; human-turn
   exclusion must remain visible when relevant
 - `consumerClass`: normal CLI player-agent view; AI-intelligence ingestion only
@@ -232,8 +237,9 @@ Intake rejection conditions:
 - `debugServiceProjection`: intentionally omitted from normal output; raw
   internals only through debug-owned commands or flags
 - `proofLabel`: `pending-cli-semantic-envelope`
-- `acceptanceStatus`: `pending-cli-semantic-envelope`; source owner, proof
-  owner, envelope schema, and normal/debug separation tests not assigned
+- `acceptanceStatus`: `pending-cli-semantic-envelope`; source/proof owner seed
+  exists, but full envelope implementation owner, final schema owner,
+  integration fixtures, and normal/debug/AI separation tests are not assigned
 - `blockingDependents`: tasks 5.1-5.7, AI-facing semantic envelope consumers,
   normal CLI runtime-status projection
 - `stopCondition`: stop if normal CLI dumps raw session, transport, closeout,
@@ -248,51 +254,58 @@ Intake rejection conditions:
   owners are the 28 canonical play suites covered by root `test:cli:play`,
   including the focused notification, priorities, ready, tactical, progression,
   production, operation, and mutation-facing command suites listed in that
-  corpus. Missing before acceptance: a named CLI semantic envelope source
-  owner, schema/test owner, and reviewer/gate owner for normal/debug/AI
-  projection separation.
+  corpus. The source/proof owner seed for shared envelope vocabulary and
+  forbidden normal-output internals is now
+  `packages/cli/src/game-play/semantic-envelope.ts` with proof in
+  `packages/cli/test/commands/game/play/semantic-envelope.test.ts`. Missing
+  before acceptance: a full envelope implementation owner, final schema/test
+  owner, and reviewer/gate owner for normal/debug/AI projection separation.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
   planning updates. A later implementation slice may touch the listed play
-  command modules, focused play tests, and a precisely named semantic-envelope
-  owner after the row has a concrete owner. No broad `common`, `utils`,
-  `types`, debug/service, telemetry, AI-ingestion, transport, or procedure-core
-  bucket is authorized.
+  command modules, focused play tests, and the seeded semantic-envelope owner
+  only after assigning a concrete implementation/schema owner. No broad
+  `common`, `utils`, `types`, debug/service, telemetry, AI-ingestion,
+  transport, or procedure-core bucket is authorized.
 - `contractArtifact`: existing artifacts are command-specific play outputs,
   the CLI play corpus inventory, and
   `workstream/semantic-cli-envelope-contract.md`, which defines the planned
   normal CLI semantic slots for game state, blockers, decisions, action
   results, safe/unsafe next steps, postcondition classifications, evidence
   labels, and excluded raw service/debug fields. Missing before acceptance: a
-  named source owner, schema/test owner, and implementation test fixture over
-  that contract.
+  command-integrated envelope implementation, final schema/test owner, and
+  implementation fixture over that contract.
 - `proofPlan`: existing local proof is canonical `test:cli:play` plus the
   focused command owner tests recorded in `workstream/cli-play-corpus.md`.
-  Missing proof before acceptance: tests that normal play output carries the
-  planned semantic envelope from
-  `workstream/semantic-cli-envelope-contract.md`, tests that raw
-  session/transport/closeout/command/proof JSON and correlation/probe internals
-  are omitted from normal play output, and tests or fixtures proving AI
-  ingestion does not consume CLI presentation strings.
+  The semantic owner-seed proof now verifies the planned envelope slot
+  vocabulary and raw debug/internal marker classes used by the shared
+  normal-output helper. Missing proof before acceptance: tests that normal play
+  output carries the planned semantic envelope from
+  `workstream/semantic-cli-envelope-contract.md`, command-integrated tests that
+  raw session/transport/closeout/command/proof JSON and correlation/probe
+  internals are omitted from normal play output, and tests or fixtures proving
+  AI ingestion does not consume CLI presentation strings.
 - `projectionPlan`: normal CLI projection should be semantic player-agent
   state and action guidance only; debug/internal service projection remains
   omitted from normal output or routed through debug-owned commands/flags; AI
   ingestion remains out-of-scope until a separate machine contract accepts
   source/freshness/evidence labels; telemetry and procedure-core projections
   remain pending separate rows.
-- `stopConditionCoverage`: missing before acceptance. Required coverage must
-  fail if normal CLI output includes raw session state, transport details,
-  closeout traces, command strings, proof JSON, route selection, correlation
-  internals, debug probes, or if AI consumers depend on CLI presentation text.
+- `stopConditionCoverage`: partial owner-seed coverage exists for classifying
+  raw debug/internal marker leaks in normal output. Required coverage before
+  acceptance must still fail if command-integrated normal CLI output includes
+  raw session state, transport details, closeout traces, command strings, proof
+  JSON, route selection, correlation internals, debug probes, or if AI
+  consumers depend on CLI presentation text.
 - `downstreamUnblock`: none yet. Acceptance would unblock only the named CLI
   semantic-surface tasks 5.1-5.7 after the envelope contract, owner assignment,
   and separation tests are recorded; it would not unblock AI ingestion,
   telemetry, hotseat runtime proof, debug hierarchy, schema migration,
   transport adapters, or procedure-core implementation.
 - `nonProofClaims`: this intake does not claim runtime/live-game proof, CLI
-  semantic implementation, AI ingestion implementation, telemetry contract
-  acceptance, debug hierarchy implementation, schema migration, Effect/Bun
-  implementation, Effect/oRPC procedure-core work, product-path support, or
-  Task 2.9.4 row acceptance.
+  semantic implementation, final schema selection, AI ingestion implementation,
+  telemetry contract acceptance, debug hierarchy implementation, schema
+  migration, Effect/Bun implementation, Effect/oRPC procedure-core work,
+  product-path support, or Task 2.9.4 row acceptance.
 
 ### Strategy/Intelligence Ingestion
 
