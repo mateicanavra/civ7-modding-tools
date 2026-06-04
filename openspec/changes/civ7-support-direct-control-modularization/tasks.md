@@ -2009,6 +2009,19 @@ runtime/direct-control claims.
       `packages/civ7-control-orpc`, add transport adapters, migrate schemas,
       implement the in-game controller router, claim runtime/live-game proof,
       accept Task 2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.18.1 Record procedure descriptor schema-technology ownership in
+        `src/procedure-core.ts` with focused proof in
+        `test/procedure-core.test.ts` and public facade proof in
+        `test/public-api.test.ts`. Current adjacent procedure descriptors
+        declare `schemaTechnology: "typebox"`, while the descriptor guard
+        rejects unaccepted `effect-schema` and `zod-adapter` claims before
+        procedure promotion. This records the current TypeBox descriptor
+        contract and keeps the TypeBox versus Effect Schema disposition
+        pending; it does not migrate schemas, deprecate TypeBox, add Effect
+        Schema artifacts, implement Effect/oRPC source, add
+        `packages/civ7-control-orpc`, add transport adapters, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
 - [x] 4.19 Seed ready-unit read-atom TypeBox schemas in
       `src/play/ready/unit.ts` with focused proof in
       `test/ready-unit-view.test.ts` and public facade proof in

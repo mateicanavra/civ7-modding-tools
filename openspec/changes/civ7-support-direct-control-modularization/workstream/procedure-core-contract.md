@@ -21,10 +21,14 @@ direct-control schema references through `inputSchema` and `outputSchema`
 owner/export slots, with local guards that keep schema owners in
 `@civ7/direct-control`, require simple exported schema identifiers, and reject
 raw command-source/session schema references. The descriptor now also records
-context requirements for direct-control facade access, endpoint defaults,
-state selection, logger, evidence sink, and live-session policy where relevant,
-and rejects host/port/state procedure input fields when those responsibilities
-are declared context-owned. The procedure-core owner also validates local input
+schema technology ownership: current descriptors declare `typebox`, while
+`effect-schema` and `zod-adapter` claims are rejected until an accepted
+schema-technology owner/proof slice defines their role. The descriptor also
+records context requirements for direct-control facade access, endpoint
+defaults, state selection, logger, evidence sink, and live-session policy where
+relevant, and rejects host/port/state procedure input fields when those
+responsibilities are declared context-owned. The procedure-core owner also
+validates local input
 and output payloads against explicitly resolved TypeBox schema artifacts and
 reports schema mismatches through structured direct-control errors without
 executing atoms, registering a router, or owning transport behavior. The
@@ -304,6 +308,10 @@ or machine-ingestion ergonomics materially help.
 
 If oRPC requires Zod as an adapter layer, that boundary must be documented as
 adapter-only. Zod must not become a third durable schema authority by drift.
+The current descriptor metadata records this boundary explicitly:
+`schemaTechnology: "typebox"` is accepted for local descriptor seeds, while
+`effect-schema` and `zod-adapter` remain representable but unaccepted
+descriptor claims.
 
 Before schema migration or procedure-core row acceptance, the schema owner must
 record:
@@ -337,9 +345,10 @@ relationship/team/war/suzerain evidence.
 
 This contract plus the descriptor owner seed reduce the `contractArtifact`,
 source-owner, descriptor runtime-validation, descriptor typed-error,
-descriptor correlation-policy, descriptor live-runtime-proof guard, and
-descriptor context-policy, and no-raw-tunnel proof gaps for the current TypeBox
-descriptor shape, generic raw fields, repo-local command-source/session-execute
+descriptor correlation-policy, descriptor live-runtime-proof guard, descriptor
+context-policy, descriptor schema-technology guard, and no-raw-tunnel proof
+gaps for the current TypeBox descriptor shape, generic raw fields,
+repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, playable-status, App UI snapshot, and Tuner
 health descriptor artifacts with
@@ -351,6 +360,8 @@ wrappers, but they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
+- accepted TypeBox versus Effect Schema/Zod adapter disposition for final
+  procedure contracts;
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the current ready-read, move-preview, and runtime-support call
   wrappers;

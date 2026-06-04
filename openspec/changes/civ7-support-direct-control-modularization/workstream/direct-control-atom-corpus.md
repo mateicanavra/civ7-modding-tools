@@ -518,6 +518,17 @@ change CLI output, add telemetry persistence, implement AI ingestion, create a
 router/registry/transport, add Effect/oRPC source, prove runtime/live-game
 behavior, accept Task 2.9.4, or start Tasks 6.1-6.9.
 
+Procedure schema-technology descriptor seed update:
+`src/procedure-core.ts` now records schema technology on procedure descriptors
+and accepts the current adjacent `typebox` descriptor contract while rejecting
+unaccepted `effect-schema` and `zod-adapter` claims before procedure
+promotion. `test/procedure-core.test.ts` and `test/public-api.test.ts` prove
+the schema-technology vocabulary, summary/facade exposure, and current
+descriptor metadata. This is local descriptor proof only. It does not migrate
+schemas, deprecate TypeBox, add Effect Schema artifacts, add a Zod adapter,
+implement Effect/oRPC source, prove runtime/live-game behavior, accept Task
+2.9.4, or start Tasks 6.1-6.9.
+
 Unit-target telemetry adapter seed update:
 `src/proof/unit-target-telemetry.ts` now owns the first operation-result adapter
 from the unit-target action atom into the operation/proof telemetry record

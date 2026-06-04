@@ -22,6 +22,7 @@ export const Civ7PlayableStatusProcedureDescriptor = createCiv7ProcedureCoreDesc
   risk: "runtime-support",
   atomOwner: "packages/civ7-direct-control/src/runtime/playable-status.ts",
   atomFunction: "getCiv7PlayableStatus",
+  schemaTechnology: "typebox",
   inputSchema: {
     owner: "packages/civ7-direct-control/src/runtime/playable-status.ts",
     exportName: "Civ7PlayableStatusInputSchema",

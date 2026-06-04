@@ -22,6 +22,7 @@ export const Civ7UnitMovePreviewProcedureDescriptor = createCiv7ProcedureCoreDes
   risk: "read",
   atomOwner: "packages/civ7-direct-control/src/play/ready/move-preview.ts",
   atomFunction: "getCiv7UnitMovePreview",
+  schemaTechnology: "typebox",
   inputSchema: {
     owner: "packages/civ7-direct-control/src/play/ready/move-preview.ts",
     exportName: "Civ7UnitMovePreviewInputSchema",

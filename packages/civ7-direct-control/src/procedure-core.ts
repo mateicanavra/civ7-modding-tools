@@ -111,6 +111,12 @@ export const Civ7ProcedureSchemaReferenceSchema = Type.Object({
   exportName: Type.String(),
 }, { additionalProperties: false });
 export type Civ7ProcedureSchemaReference = Static<typeof Civ7ProcedureSchemaReferenceSchema>;
+export const Civ7ProcedureSchemaTechnologySchema = Type.Union([
+  Type.Literal("typebox"),
+  Type.Literal("effect-schema"),
+  Type.Literal("zod-adapter"),
+]);
+export type Civ7ProcedureSchemaTechnology = Static<typeof Civ7ProcedureSchemaTechnologySchema>;
 export type Civ7ProcedureSchemaArtifactMap = Readonly<Record<string, TSchema | undefined>>;
 export type Civ7ProcedureSchemaResolution = Readonly<{
   procedureKey: string;
@@ -163,6 +169,7 @@ export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   risk: Civ7ProcedureRiskSchema,
   atomOwner: Type.String(),
   atomFunction: Type.String(),
+  schemaTechnology: Civ7ProcedureSchemaTechnologySchema,
   inputSchema: Civ7ProcedureSchemaReferenceSchema,
   outputSchema: Civ7ProcedureSchemaReferenceSchema,
   inputFields: Type.Array(Type.String()),
@@ -186,6 +193,7 @@ export type Civ7ProcedureCoreSummary = Readonly<{
   risk: Civ7ProcedureRisk;
   atomOwner: string;
   atomFunction: string;
+  schemaTechnology: Civ7ProcedureSchemaTechnology;
   inputSchema: Civ7ProcedureSchemaReference;
   outputSchema: Civ7ProcedureSchemaReference;
   playerScope: Civ7ProcedurePlayerScope;
@@ -214,6 +222,7 @@ export type Civ7ProcedureCoreDescriptorErrorReason =
   | "schema-export-invalid"
   | "schema-reference-unresolved"
   | "schema-field-unresolved"
+  | "schema-technology-unaccepted"
   | "context-owned-input-field"
   | "missing-procedure-core-consumer"
   | "live-runtime-proof-unsupported"
@@ -276,6 +285,7 @@ export function createCiv7ProcedureCoreDescriptor(
 ): Civ7ProcedureCoreDescriptor {
   const valid = assertCiv7ProcedureCoreDescriptor(descriptor);
   validateProcedureIdentity(valid);
+  validateSchemaTechnology(valid);
   validateProofBoundary(valid);
   validateContextOwnership(valid);
   validateNoRawCommandTunnel(valid);
@@ -293,6 +303,7 @@ export function summarizeCiv7ProcedureCoreDescriptor(
     risk: valid.risk,
     atomOwner: valid.atomOwner,
     atomFunction: valid.atomFunction,
+    schemaTechnology: valid.schemaTechnology,
     inputSchema: valid.inputSchema,
     outputSchema: valid.outputSchema,
     playerScope: valid.playerScope,
@@ -451,6 +462,20 @@ function validateProcedureIdentity(descriptor: Civ7ProcedureCoreDescriptor): voi
       { procedureKey: descriptor.procedureKey, consumerClasses: descriptor.consumerClasses },
     );
   }
+}
+
+function validateSchemaTechnology(descriptor: Civ7ProcedureCoreDescriptor): void {
+  if (descriptor.schemaTechnology === "typebox") return;
+  throw procedureDescriptorError(
+    `Civ7 procedure ${descriptor.procedureKey} cannot claim ${descriptor.schemaTechnology} schema ownership before an accepted schema-technology slice`,
+    "schema-technology-unaccepted",
+    {
+      procedureKey: descriptor.procedureKey,
+      schemaTechnology: descriptor.schemaTechnology,
+      acceptedTechnology: "typebox",
+      requiredDisposition: "TypeBox versus Effect Schema owner/proof acceptance",
+    },
+  );
 }
 
 function validateProofBoundary(descriptor: Civ7ProcedureCoreDescriptor): void {

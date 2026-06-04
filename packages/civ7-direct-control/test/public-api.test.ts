@@ -25,6 +25,7 @@ import {
   Civ7ProcedureCoreCallResultSchema,
   Civ7ProcedureContextRequirementSchema,
   Civ7ProcedureSchemaReferenceSchema,
+  Civ7ProcedureSchemaTechnologySchema,
   Civ7ReadyCityViewProcedureDescriptor,
   Civ7ReadyCityViewProcedureSchemaArtifacts,
   Civ7ReadyCityViewInputSchema,
@@ -379,10 +380,18 @@ describe("Civ7 direct control public API", () => {
     expect(civ7ProcedureSchemaReferenceKey(outputSchema)).toContain("Civ7ReadyUnitViewResultSchema");
   });
 
+  test("exports procedure schema technology ownership from the public facade", () => {
+    expect(Value.Check(Civ7ProcedureSchemaTechnologySchema, "typebox")).toBe(true);
+    expect(Value.Check(Civ7ProcedureSchemaTechnologySchema, "effect-schema")).toBe(true);
+    expect(Value.Check(Civ7ProcedureSchemaTechnologySchema, "zod-adapter")).toBe(true);
+    expect(Value.Check(Civ7ProcedureSchemaTechnologySchema, "json-schema")).toBe(false);
+  });
+
   test("exports the ready-unit procedure descriptor artifact from the public facade", () => {
     expect(Civ7ReadyUnitViewProcedureDescriptor).toMatchObject({
       procedureKey: "unit.ready.view",
       atomFunction: "getCiv7ReadyUnitView",
+      schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
       context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
     });
@@ -399,6 +408,7 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7ReadyCityViewProcedureDescriptor).toMatchObject({
       procedureKey: "city.ready.view",
       atomFunction: "getCiv7ReadyCityView",
+      schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
       context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
     });
@@ -415,6 +425,7 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7UnitMovePreviewProcedureDescriptor).toMatchObject({
       procedureKey: "unit.move.preview",
       atomFunction: "getCiv7UnitMovePreview",
+      schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
       context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
     });
@@ -431,6 +442,7 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7PlayableStatusProcedureDescriptor).toMatchObject({
       procedureKey: "runtime.playable.status",
       atomFunction: "getCiv7PlayableStatus",
+      schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
       context: expect.arrayContaining([
         "direct-control-facade",
@@ -452,6 +464,7 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7AppUiSnapshotProcedureDescriptor).toMatchObject({
       procedureKey: "runtime.app.ui.snapshot",
       atomFunction: "getCiv7AppUiSnapshot",
+      schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
       context: expect.arrayContaining([
         "direct-control-facade",
@@ -473,6 +486,7 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7TunerHealthProcedureDescriptor).toMatchObject({
       procedureKey: "runtime.tuner.health",
       atomFunction: "checkCiv7TunerHealth",
+      schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
       context: expect.arrayContaining([
         "direct-control-facade",

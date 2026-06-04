@@ -22,6 +22,7 @@ export const Civ7ReadyUnitViewProcedureDescriptor = createCiv7ProcedureCoreDescr
   risk: "read",
   atomOwner: "packages/civ7-direct-control/src/play/ready/unit.ts",
   atomFunction: "getCiv7ReadyUnitView",
+  schemaTechnology: "typebox",
   inputSchema: {
     owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
     exportName: "Civ7ReadyUnitViewInputSchema",

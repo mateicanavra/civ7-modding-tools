@@ -22,6 +22,7 @@ export const Civ7AppUiSnapshotProcedureDescriptor = createCiv7ProcedureCoreDescr
   risk: "runtime-support",
   atomOwner: "packages/civ7-direct-control/src/runtime/app-ui-snapshot.ts",
   atomFunction: "getCiv7AppUiSnapshot",
+  schemaTechnology: "typebox",
   inputSchema: {
     owner: "packages/civ7-direct-control/src/runtime/app-ui-snapshot.ts",
     exportName: "Civ7AppUiSnapshotInputSchema",

@@ -22,6 +22,7 @@ export const Civ7TunerHealthProcedureDescriptor = createCiv7ProcedureCoreDescrip
   risk: "runtime-support",
   atomOwner: "packages/civ7-direct-control/src/runtime/tuner-health.ts",
   atomFunction: "checkCiv7TunerHealth",
+  schemaTechnology: "typebox",
   inputSchema: {
     owner: "packages/civ7-direct-control/src/runtime/tuner-health.ts",
     exportName: "Civ7TunerHealthInputSchema",

@@ -22,6 +22,7 @@ export const Civ7ReadyCityViewProcedureDescriptor = createCiv7ProcedureCoreDescr
   risk: "read",
   atomOwner: "packages/civ7-direct-control/src/play/ready/city.ts",
   atomFunction: "getCiv7ReadyCityView",
+  schemaTechnology: "typebox",
   inputSchema: {
     owner: "packages/civ7-direct-control/src/play/ready/city.ts",
     exportName: "Civ7ReadyCityViewInputSchema",

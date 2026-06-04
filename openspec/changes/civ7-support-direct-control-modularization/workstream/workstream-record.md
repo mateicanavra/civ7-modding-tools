@@ -3493,3 +3493,13 @@ All future agent waves must be framed before delegation:
   persistence, implement AI ingestion, add router/registry/transport behavior,
   add Effect/oRPC source, claim runtime/live-game proof, accept Task 2.9.4, or
   start Tasks 6.1-6.9.
+- Procedure schema-technology descriptor seed:
+  `packages/civ7-direct-control/src/procedure-core.ts` now records
+  `schemaTechnology` on procedure descriptors, accepts current `typebox`
+  descriptors, and rejects unaccepted `effect-schema` and `zod-adapter` claims
+  before procedure promotion. Current adjacent descriptors declare TypeBox, and
+  focused/public facade proof covers the schema-technology vocabulary,
+  descriptor summary exposure, and public export. This is local descriptor
+  proof only; it does not migrate schemas, deprecate TypeBox, add Effect
+  Schema artifacts, add a Zod adapter, implement Effect/oRPC source, claim
+  runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.

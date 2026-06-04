@@ -70,6 +70,7 @@ export {
   Civ7ProcedureProofBoundarySchema,
   Civ7ProcedureRiskSchema,
   Civ7ProcedureSchemaReferenceSchema,
+  Civ7ProcedureSchemaTechnologySchema,
   assertCiv7ProcedureCoreDescriptor,
   callCiv7ProcedureCore,
   civ7ProcedureSchemaReferenceKey,
@@ -100,6 +101,7 @@ export type {
   Civ7ProcedureSchemaArtifactMap,
   Civ7ProcedureSchemaReference,
   Civ7ProcedureSchemaResolution,
+  Civ7ProcedureSchemaTechnology,
 } from "./procedure-core.js";
 import type {
   Civ7AppUiSnapshot,

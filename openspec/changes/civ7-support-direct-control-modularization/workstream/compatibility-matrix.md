@@ -872,7 +872,9 @@ Intake rejection conditions:
   third adjacent runtime-support descriptor artifact is now
   `packages/civ7-direct-control/src/runtime/tuner-health-procedure.ts`, with
   proof in `packages/civ7-direct-control/test/tuner-health-procedure.test.ts`.
-  The
+  The descriptor owner also records `schemaTechnology`, requires current
+  adjacent descriptors to declare `typebox`, and rejects unaccepted
+  `effect-schema` or `zod-adapter` claims before procedure promotion. The
   descriptor resolver now validates descriptor field lists against resolved
   schema root properties. The procedure-core owner now also validates local
   procedure input/output payloads against explicitly resolved TypeBox schema
@@ -890,13 +892,14 @@ Intake rejection conditions:
   `getCiv7AppUiSnapshot`, and `checkCiv7TunerHealth` through fake
   direct-control dependencies in focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
-  runtime-context/middleware/error/correlation owner, broader concrete
-  procedure owners, and explicit owner boundaries for the in-game controller
-  router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the adjacent Tuner health procedure call
-  wrapper, focused no-network proof over fake session/reconnect dependencies,
-  empty Tuner health input schema, public facade exports/proof, Tuner health
-  dependency type exports for local proof injection, and docs/OpenSpec records.
+  accepted TypeBox versus Effect Schema disposition for final procedure
+  contracts, runtime-context/middleware/error/correlation owner, broader
+  concrete procedure owners, and explicit owner boundaries for the in-game
+  controller router, external direct-control bridge, and future AI services.
+- `writeSet`: current write set is the direct-control procedure descriptor
+  owner, adjacent descriptor metadata declaring current TypeBox schema
+  technology, focused descriptor/public facade proof, and docs/OpenSpec
+  records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -1018,9 +1021,12 @@ Intake rejection conditions:
   validator-equivalent map-location inputs against resolved descriptor schema
   artifacts, including raw root-field rejection. Current procedure-call proof
   runs the same resolved schema artifacts around an injected handler, proving
-  input-before-handler and output-after-handler sequencing. This is not a
-  TypeBox versus Effect Schema migration decision and does not prove broader
-  concrete procedure input/output schemas or runtime router schema registration.
+  input-before-handler and output-after-handler sequencing. Current descriptor
+  proof also records TypeBox as the accepted local schema technology and
+  rejects unaccepted Effect Schema/Zod adapter descriptor claims before
+  promotion. This is not a TypeBox versus Effect Schema migration decision and
+  does not prove broader concrete procedure input/output schemas or runtime
+  router schema registration.
 - `concreteProcedureOwner`: current concrete procedure proof exists for
   `unit.ready.view`, `city.ready.view`, `unit.move.preview`,
   `runtime.playable.status`, and `runtime.app.ui.snapshot`, where the adjacent
@@ -1085,9 +1091,11 @@ Intake rejection conditions:
   adjacent ready-unit, ready-city, unit move-preview, playable-status, and
   App UI snapshot procedure call proof over stable direct-control atoms with
   fake dependencies,
-  mutation approval/validator/postcondition/no-repeat gate requirements, and
+  mutation approval/validator/postcondition/no-repeat gate requirements,
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
-  transport surface. Missing before acceptance: final oRPC schema/procedure
+  transport surface, and schema-technology proof that current descriptors
+  declare TypeBox while unaccepted Effect Schema/Zod adapter claims fail before
+  promotion. Missing before acceptance: final oRPC schema/procedure
   validation tests beyond this local TypeBox payload/call helper, final
   router/procedure error-shape snapshot, encode/decode round trip, Bun runtime
   check, CLI semantic projection test, AI-ingestion contract
@@ -1117,6 +1125,9 @@ Intake rejection conditions:
   failures with procedure/correlation details. The adjacent ready-unit,
   ready-city, unit move-preview, playable-status, and App UI snapshot wrappers
   fail before their atom dependencies run when procedure input is invalid.
+  Current descriptors also fail before promotion if they claim unaccepted
+  `effect-schema` or `zod-adapter` ownership instead of the current TypeBox
+  descriptor contract.
   Required coverage before acceptance must still fail if
   transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command

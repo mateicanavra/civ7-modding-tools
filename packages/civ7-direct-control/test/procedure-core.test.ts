@@ -6,6 +6,7 @@ import {
   Civ7ProcedureCoreCallDiagnosticsSchema,
   Civ7ProcedureCoreCallResultSchema,
   Civ7DirectControlError,
+  Civ7ProcedureSchemaTechnologySchema,
   Civ7ReadyUnitViewInputSchema,
   Civ7ReadyUnitViewProcedureDescriptor,
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
@@ -30,6 +31,7 @@ const readyUnitDescriptor: Civ7ProcedureCoreDescriptor = {
   risk: "read",
   atomOwner: "packages/civ7-direct-control/src/play/ready/unit.ts",
   atomFunction: "getCiv7ReadyUnitView",
+  schemaTechnology: "typebox",
   inputSchema: {
     owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
     exportName: "Civ7ReadyUnitViewInputSchema",
@@ -121,6 +123,7 @@ describe("Civ7 procedure-core descriptor owner", () => {
       risk: "read",
       atomOwner: "packages/civ7-direct-control/src/play/ready/unit.ts",
       atomFunction: "getCiv7ReadyUnitView",
+      schemaTechnology: "typebox",
       inputSchema: {
         owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
         exportName: "Civ7ReadyUnitViewInputSchema",
@@ -172,6 +175,11 @@ describe("Civ7 procedure-core descriptor owner", () => {
 
     expect(() => assertCiv7ProcedureCoreDescriptor({
       ...readyUnitDescriptor,
+      schemaTechnology: "json-schema",
+    })).toThrow(/does not match the Civ7 procedure-core descriptor schema/);
+
+    expect(() => assertCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
       correlation: {
         ...readyUnitDescriptor.correlation,
         normalCli: "visible-in-normal-output",
@@ -196,6 +204,46 @@ describe("Civ7 procedure-core descriptor owner", () => {
     } as unknown as Civ7ProcedureCoreDescriptor)).toThrow(
       /does not match the Civ7 procedure-core descriptor schema/,
     );
+  });
+
+  test("records TypeBox as the current procedure schema technology and rejects unaccepted alternatives", () => {
+    expect(Value.Check(Civ7ProcedureSchemaTechnologySchema, "typebox")).toBe(true);
+    expect(Value.Check(Civ7ProcedureSchemaTechnologySchema, "effect-schema")).toBe(true);
+    expect(Value.Check(Civ7ProcedureSchemaTechnologySchema, "zod-adapter")).toBe(true);
+    expect(Value.Check(Civ7ProcedureSchemaTechnologySchema, "json-schema")).toBe(false);
+
+    expect(summarizeCiv7ProcedureCoreDescriptor(readyUnitDescriptor)).toMatchObject({
+      procedureKey: "unit.ready.view",
+      schemaTechnology: "typebox",
+    });
+
+    const effectSchemaError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      schemaTechnology: "effect-schema",
+    }));
+    expect(effectSchemaError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "schema-technology-unaccepted",
+        procedureKey: "unit.ready.view",
+        schemaTechnology: "effect-schema",
+        acceptedTechnology: "typebox",
+      },
+    });
+
+    const zodAdapterError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      schemaTechnology: "zod-adapter",
+    }));
+    expect(zodAdapterError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "schema-technology-unaccepted",
+        procedureKey: "unit.ready.view",
+        schemaTechnology: "zod-adapter",
+        acceptedTechnology: "typebox",
+      },
+    });
   });
 
   test("keeps endpoint and session selection in context instead of procedure input", () => {
