@@ -558,6 +558,14 @@ runtime/direct-control claims.
         classification semantics, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.33 Extract the shared operation runtime probe value/comparison
+        helper into `src/play/operations/probe-values.ts`, preserving the
+        existing postcondition probe value extraction, probe comparison,
+        validation-drift comparison, classifier ordering, unit/population/
+        production/diplomacy/narrative postcondition semantics, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

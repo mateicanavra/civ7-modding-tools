@@ -3,6 +3,7 @@ import type {
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
+import { probeValueChanged } from "./probe-values.js";
 import { stableJson } from "./stable-json.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
@@ -102,11 +103,4 @@ function populationPlacementPostconditionReason(classification: Civ7PopulationPl
     case "no-state-change":
       return "The request was sent, but no observed population-placement, city, or validation state changed.";
   }
-}
-
-function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
-  if (!left || !right) return false;
-  if (left.ok !== right.ok) return true;
-  if (!left.ok || !right.ok) return stableJson(left) !== stableJson(right);
-  return stableJson(left.value) !== stableJson(right.value);
 }

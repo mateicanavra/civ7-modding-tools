@@ -1,3 +1,4 @@
+import { probeValue } from "./probe-values.js";
 import { isRecord, stableJson } from "./stable-json.js";
 import type { Civ7OperationValidationResult } from "./types.js";
 import type {
@@ -134,10 +135,6 @@ function numericField(value: unknown, field: string): number | undefined {
 function sameComponentId(left: Civ7ComponentId | null | undefined, right: Civ7ComponentId | null | undefined): boolean {
   if (left == null || right == null) return left == null && right == null;
   return left.owner === right.owner && left.id === right.id && left.type === right.type;
-}
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
 }
 
 async function sleep(ms: number): Promise<void> {

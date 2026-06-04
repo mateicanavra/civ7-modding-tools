@@ -92,6 +92,14 @@ drift semantics, no-repeat-after-unverified behavior, runtime/live-game proof,
 telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
 work, and Task 2.9.4 matrix-row acceptance remain pending.
 
+Operation helper update: `src/play/operations/probe-values.ts` now owns the
+shared runtime probe value/comparison helpers used by unit, population,
+production, diplomacy, and narrative postcondition classifiers. This is local
+source ownership cleanup only; probe value extraction, probe comparison,
+validation-drift behavior, classifier ordering, runtime/live-game proof,
+telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
+work, and Task 2.9.4 matrix-row acceptance remain pending.
+
 Map row update: `src/play/map/reads.ts` now owns `getCiv7MapSummary`,
 `getCiv7PlotSnapshot`, and `getCiv7MapGrid` orchestration plus their map
 summary, plot snapshot, and bounded grid command/source helpers while public

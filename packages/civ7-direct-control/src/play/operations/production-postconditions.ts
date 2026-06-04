@@ -3,6 +3,7 @@ import type {
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
+import { probeValue, probeValueChanged } from "./probe-values.js";
 import { stableJson } from "./stable-json.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
@@ -108,15 +109,4 @@ function productionPostconditionReason(classification: Civ7ProductionPostconditi
     case "no-state-change":
       return "The sent BUILD request returned, but observed city production state and the production-choice blocker did not change.";
   }
-}
-
-function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
-  if (!left || !right) return false;
-  if (left.ok !== right.ok) return true;
-  if (!left.ok || !right.ok) return stableJson(left) !== stableJson(right);
-  return stableJson(left.value) !== stableJson(right.value);
-}
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
 }

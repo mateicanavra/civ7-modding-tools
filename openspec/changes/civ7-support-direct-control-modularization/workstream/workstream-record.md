@@ -2787,3 +2787,14 @@ All future agent waves must be framed before delegation:
   no-repeat-after-unverified behavior, or unblock telemetry, AI ingestion, CLI
   semantic projection, hotseat runtime proof, schema migration, debug hierarchy
   implementation, or Effect/oRPC procedure-core work.
+- Operation probe value/comparison helper extraction:
+  `src/play/operations/probe-values.ts` now owns the shared runtime probe value
+  extraction and probe comparison helpers used by unit, population, production,
+  diplomacy, and narrative postcondition classifiers. The helper preserves the
+  existing probe value extraction, probe comparison, validation-drift behavior,
+  and classifier ordering. This is local package/source relocation cleanup only
+  and does not claim runtime/live-game proof, accept Task 2.9.4, change
+  postcondition semantics, alter no-repeat-after-unverified behavior, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+  schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
