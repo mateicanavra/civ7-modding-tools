@@ -2632,3 +2632,14 @@ All future agent waves must be framed before delegation:
   or unblock telemetry, AI ingestion, CLI semantic projection, hotseat runtime
   proof, schema migration, debug hierarchy implementation, or Effect/oRPC
   procedure-core work.
+- Ready read command-source helper normalization:
+  `src/play/ready/unit.ts` and `src/play/ready/city.ts` now import the shared
+  command-source serializer and runtime probe helper owners instead of carrying
+  atom-local copies. Ready-city keeps its domain-specific runtime object reader
+  local. The generated command text remains equivalent, and ready-unit/ready-city
+  wrappers still own their existing bounds, no component-id pre-validation,
+  parse labels, and read-only/no-send behavior. This is local package/source
+  relocation cleanup only and does not claim runtime/live-game proof, accept
+  Task 2.9.4, normalize every remaining atom-local source helper, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof, schema
+  migration, debug hierarchy implementation, or Effect/oRPC procedure-core work.
