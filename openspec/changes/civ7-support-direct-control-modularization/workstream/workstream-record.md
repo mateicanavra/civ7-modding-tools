@@ -3291,3 +3291,17 @@ All future agent waves must be framed before delegation:
   middleware, router/procedure behavior, Effect/oRPC source,
   `packages/civ7-control-orpc`, transport adapters, in-game controller source,
   runtime/live-game proof, Task 2.9.4 acceptance, or Tasks 6.1-6.9.
+- Procedure-core schema-payload validation seed:
+  `packages/civ7-direct-control/src/procedure-core.ts` now validates local
+  procedure input/output payloads against explicitly resolved TypeBox schema
+  artifacts. Focused proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` covers ready-unit
+  bounded input, unit move-preview validator-equivalent map-location bounds,
+  ready-unit output shape, and raw root-field rejection without executing
+  atoms. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers exported
+  validation helpers. This is local schema-payload proof only; it does not add
+  router/procedure registration, choose Effect Schema, migrate broader
+  contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
+  adapters, in-game controller source, runtime/live-game proof, Task 2.9.4
+  acceptance, or Tasks 6.1-6.9.

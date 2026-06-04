@@ -178,7 +178,9 @@ export type Civ7ProcedureCoreDescriptorErrorReason =
   | "missing-procedure-core-consumer"
   | "live-runtime-proof-unsupported"
   | "raw-command-tunnel"
-  | "mutation-gates-missing";
+  | "mutation-gates-missing"
+  | "input-schema-invalid"
+  | "output-schema-invalid";
 
 export function isCiv7ProcedureCoreDescriptor(value: unknown): value is Civ7ProcedureCoreDescriptor {
   return Value.Check(Civ7ProcedureCoreDescriptorSchema, value);
@@ -286,6 +288,45 @@ export function resolveCiv7ProcedureCoreSchemas(
     inputSchema,
     outputSchema,
   };
+}
+
+export function validateCiv7ProcedureCoreInput(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  schemas: Civ7ProcedureSchemaArtifactMap,
+  value: unknown,
+): unknown {
+  return validateProcedureCorePayload(descriptor, schemas, "input", value);
+}
+
+export function validateCiv7ProcedureCoreOutput(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  schemas: Civ7ProcedureSchemaArtifactMap,
+  value: unknown,
+): unknown {
+  return validateProcedureCorePayload(descriptor, schemas, "output", value);
+}
+
+function validateProcedureCorePayload(
+  descriptor: Civ7ProcedureCoreDescriptor,
+  schemas: Civ7ProcedureSchemaArtifactMap,
+  role: "input" | "output",
+  value: unknown,
+): unknown {
+  const resolved = resolveCiv7ProcedureCoreSchemas(descriptor, schemas);
+  const schema = role === "input" ? resolved.inputSchema : resolved.outputSchema;
+  if (Value.Check(schema, value)) return value;
+
+  const schemaReference = role === "input" ? descriptor.inputSchema : descriptor.outputSchema;
+  throw procedureDescriptorError(
+    `Civ7 procedure ${descriptor.procedureKey} ${role} payload does not match the resolved schema`,
+    role === "input" ? "input-schema-invalid" : "output-schema-invalid",
+    {
+      procedureKey: resolved.procedureKey,
+      role,
+      schemaReference,
+      errors: Array.from(Value.Errors(schema, value), procedurePayloadErrorDetails).slice(0, 8),
+    },
+  );
 }
 
 function validateProcedureIdentity(descriptor: Civ7ProcedureCoreDescriptor): void {
@@ -463,6 +504,14 @@ function procedureDescriptorError(
   return new Civ7DirectControlError("procedure-descriptor-invalid", message, {
     details: { reason, ...details },
   });
+}
+
+function procedurePayloadErrorDetails(error: unknown): Record<string, unknown> {
+  const candidate = error as { path?: unknown; message?: unknown };
+  return {
+    path: typeof candidate.path === "string" ? candidate.path : "",
+    message: typeof candidate.message === "string" ? candidate.message : "value failed schema validation",
+  };
 }
 
 function normalizeFieldKey(field: string): string {

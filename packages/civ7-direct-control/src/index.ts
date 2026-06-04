@@ -74,6 +74,8 @@ export {
   isCiv7ProcedureCoreDescriptor,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
+  validateCiv7ProcedureCoreInput,
+  validateCiv7ProcedureCoreOutput,
 } from "./procedure-core.js";
 export type {
   Civ7ProcedureConsumerClass,

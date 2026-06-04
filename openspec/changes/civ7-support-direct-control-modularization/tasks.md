@@ -229,7 +229,9 @@
         repo-local command serialization and session execute owners; adjacent
         ready-unit, ready-city, unit move-preview, and playable-status
         schema/descriptor seeds reduce only local stable-atom input/output
-        proof gaps. The descriptor context-policy seed now records direct
+        proof gaps, and the procedure payload validation seed reduces only the
+        local resolved TypeBox input/output validation proof gap. The
+        descriptor context-policy seed now records direct
         control facade, endpoint default, state-selection, logger, evidence
         sink, and live-session policy requirements on current descriptors, and
         rejects endpoint/state fields from procedure input when those concerns
@@ -2063,6 +2065,20 @@ runtime/direct-control claims.
         descriptor metadata/proof only; it does not implement middleware,
         generate correlation IDs at runtime, add router/procedure behavior,
         choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, add transport adapters, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.28 Add local procedure-core payload validation helpers in
+        `src/procedure-core.ts` with focused proof in
+        `test/procedure-core.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This validates procedure input and output
+        payloads against explicit resolved TypeBox schema artifacts for current
+        descriptors, proving ready-unit bounded input, unit move-preview
+        validator-equivalent map-location bounds, ready-unit output shape, and
+        raw root-field rejection without executing atoms or registering a
+        router. This is local schema-payload validation proof only; it does not
+        implement runtime router/procedure registration, choose Effect Schema,
+        migrate broader contracts, add Effect/oRPC source, add
         `packages/civ7-control-orpc`, add transport adapters, implement the
         in-game controller router, claim runtime/live-game proof, accept Task
         2.9.4, or start Tasks 6.1-6.9.

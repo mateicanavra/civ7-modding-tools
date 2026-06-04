@@ -808,15 +808,18 @@ Intake rejection conditions:
   with proof in
   `packages/civ7-direct-control/test/playable-status-procedure.test.ts`. The
   descriptor resolver now validates descriptor field lists against resolved
-  schema root properties.
+  schema root properties. The procedure-core owner now also validates local
+  procedure input/output payloads against explicitly resolved TypeBox schema
+  artifacts, with proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` and public facade
+  export proof in `packages/civ7-direct-control/test/public-api.test.ts`.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   runtime-context/middleware/error/correlation owner, broader concrete
   procedure owners, and explicit owner boundaries for the in-game controller
   router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the playable-status runtime-support schema
-  owner, supporting App UI snapshot and Tuner health schema owners, adjacent
-  playable-status procedure descriptor artifact, focused runtime-status
-  schema/descriptor proof, public facade exports/proof, and docs/OpenSpec
+- `writeSet`: current write set is the direct-control procedure-core payload
+  validation helper, focused procedure-core payload proof over current
+  descriptor schema artifacts, public facade exports/proof, and docs/OpenSpec
   records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
@@ -873,7 +876,11 @@ Intake rejection conditions:
   playable-status result schema coverage for tuner-ready and non-ready
   shell/unavailable/error shapes. The adjacent playable-status descriptor
   artifact records that runtime-support atom's procedure metadata and schema
-  artifact map without registering a router.
+  artifact map without registering a router. The current procedure-core source
+  artifact now also validates input/output payloads against resolved TypeBox
+  schema artifacts, returning typed direct-control errors with local
+  input/output schema-invalid reasons when payloads do not match, without
+  executing atoms or registering a router.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
@@ -902,14 +909,18 @@ Intake rejection conditions:
   and playable-status result schemas, that non-ready shell and unavailable
   error shapes validate with omitted optional `tuner`, failed probes, and
   `errors` evidence, and that the empty procedure input rejects host/port/state
-  and raw command/session selection. This is not a TypeBox versus Effect Schema
-  migration decision and does not prove broader concrete procedure input/output
-  schemas or runtime router schema registration.
+  and raw command/session selection. Current procedure-core payload validation
+  proof validates ready-unit input/output payloads and unit move-preview
+  validator-equivalent map-location inputs against resolved descriptor schema
+  artifacts, including raw root-field rejection. This is not a TypeBox versus
+  Effect Schema migration decision and does not prove broader concrete
+  procedure input/output schemas or runtime router schema registration.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
-  structured reason/details for schema mismatch, raw command tunnel, and
-  missing mutation gates. This is not final router/procedure middleware error
-  shaping and does not prove external transport error formats.
+  structured reason/details for schema mismatch, raw command tunnel, missing
+  mutation gates, and local input/output schema-invalid payload validation.
+  This is not final router/procedure middleware error shaping and does not
+  prove external transport error formats.
 - `correlationOwner`: current descriptor-owner shape now records correlation
   policy: generated-per-call or caller-provided-and-validated IDs, normal CLI
   omitted by default, debug diagnostics included, and telemetry attached only
@@ -940,13 +951,15 @@ Intake rejection conditions:
   runtime-support input/output schemas over the composed App UI/Tuner status
   atom including non-ready shell/unavailable/error shape proof, an adjacent
   playable-status procedure descriptor artifact with generic resolver
-  schema-root field-list proof,
+  schema-root field-list proof, local procedure-core input/output payload
+  validation against resolved TypeBox schema artifacts for ready-unit and unit
+  move-preview descriptors,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
-  transport surface. Missing before acceptance: oRPC schema/procedure
-  validation tests against concrete procedures beyond this read-atom schema
-  seed, final router/procedure error-shape snapshot, encode/decode round trip,
-  Bun runtime check, CLI semantic projection test, AI-ingestion contract
+  transport surface. Missing before acceptance: final oRPC schema/procedure
+  validation tests beyond this local TypeBox payload helper, final
+  router/procedure error-shape snapshot, encode/decode round trip, Bun runtime
+  check, CLI semantic projection test, AI-ingestion contract
   fixture test,
   final middleware approval/correlation/error tests, and no-raw-command-tunnel
   tests in the final router/procedure owner.
@@ -964,8 +977,10 @@ Intake rejection conditions:
   no-repeat-after-unverified gate metadata, with typed descriptor errors for
   those local owner checks, rejects local `live-runtime-proof` descriptor
   claims, rejects descriptor policies that make correlation visible in
-  normal output, and rejects host/port/state input fields when endpoint/state
-  selection is context-owned by the descriptor. Required coverage before acceptance must still fail if
+  normal output, rejects host/port/state input fields when endpoint/state
+  selection is context-owned by the descriptor, and rejects invalid local
+  procedure input/output payloads against resolved descriptor schema artifacts.
+  Required coverage before acceptance must still fail if
   transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command
   strings become router architecture, if the App UI bridge is treated as the

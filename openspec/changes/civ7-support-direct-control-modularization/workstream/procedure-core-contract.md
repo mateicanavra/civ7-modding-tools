@@ -24,7 +24,11 @@ raw command-source/session schema references. The descriptor now also records
 context requirements for direct-control facade access, endpoint defaults,
 state selection, logger, evidence sink, and live-session policy where relevant,
 and rejects host/port/state procedure input fields when those responsibilities
-are declared context-owned. The first concrete descriptor
+are declared context-owned. The procedure-core owner also validates local input
+and output payloads against explicitly resolved TypeBox schema artifacts and
+reports schema mismatches through structured direct-control errors without
+executing atoms, registering a router, or owning transport behavior. The first
+concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
 which owns the `unit.ready.view` descriptor adjacent to the ready-unit atom and
 schema exports. Focused proof in
@@ -151,6 +155,18 @@ and its output field list resolves against the composed playable-status schema
 root properties, including non-ready unavailable output without a `tuner`
 property, without registering a router or transport adapter.
 
+Local procedure-core payload validation now lives in
+`packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit
+input/output payloads and unit move-preview destination payloads against the
+resolved descriptor schema artifacts, including ready-unit bounded input,
+unit move-preview validator-equivalent map-location bounds, ready-unit output
+shape, and raw root-field rejection. Public facade proof in
+`packages/civ7-direct-control/test/public-api.test.ts` verifies the helpers are
+exported. This is schema-payload proof only; it does not execute direct-control
+atoms, add a router, add Effect/oRPC dependencies, choose Effect Schema, claim
+runtime proof, or accept the matrix row.
+
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
 correlation IDs, approval gates, and telemetry hooks. It must serve the
@@ -261,8 +277,9 @@ descriptor context-policy, and no-raw-tunnel proof gaps for the current TypeBox
 descriptor shape, generic raw fields, repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, and playable-status descriptor artifacts with
-schema-root field-list validation in the Effect/oRPC Procedure Cores row, but
-they do not accept the row. Acceptance still needs:
+schema-root field-list validation plus local payload validation against
+resolved schema artifacts in the Effect/oRPC Procedure Cores row, but they do
+not accept the row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms
@@ -273,7 +290,8 @@ they do not accept the row. Acceptance still needs:
 - final schema reference registration in the runtime router/procedure owner;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;
-- oRPC schema/procedure validation tests;
+- final oRPC schema/procedure validation tests beyond the local TypeBox
+  payload helper;
 - final router/procedure error-shape snapshots;
 - encode/decode round-trip tests;
 - Bun runtime checks;

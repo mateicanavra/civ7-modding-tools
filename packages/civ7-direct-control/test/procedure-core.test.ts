@@ -5,13 +5,19 @@ import {
   Civ7ProcedureCoreDescriptorSchema,
   Civ7DirectControlError,
   Civ7ReadyUnitViewInputSchema,
+  Civ7ReadyUnitViewProcedureDescriptor,
+  Civ7ReadyUnitViewProcedureSchemaArtifacts,
   Civ7ReadyUnitViewResultSchema,
+  Civ7UnitMovePreviewProcedureDescriptor,
+  Civ7UnitMovePreviewProcedureSchemaArtifacts,
   assertCiv7ProcedureCoreDescriptor,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ProcedureCoreDescriptor,
   isCiv7ProcedureCoreDescriptor,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
+  validateCiv7ProcedureCoreInput,
+  validateCiv7ProcedureCoreOutput,
   type Civ7ProcedureCoreDescriptor,
 } from "../src/index";
 
@@ -68,6 +74,25 @@ function captureDescriptorError(fn: () => unknown): Civ7DirectControlError {
   }
   throw new Error("Expected descriptor error");
 }
+
+const readyUnitOutput = {
+  host: "127.0.0.1",
+  port: 4318,
+  state: {
+    id: "app-ui",
+    name: "App UI",
+  },
+  localPlayerId: 0,
+  requestedUnitId: null,
+  selectedUnitId: { ok: true, value: null },
+  firstReadyUnitId: { ok: true, value: null },
+  unitId: null,
+  unit: { ok: true, value: null },
+  legalOperations: [],
+  promotionReadiness: { ok: true, value: null },
+  nearby: { ok: true, value: [] },
+  notes: [],
+};
 
 describe("Civ7 procedure-core descriptor owner", () => {
   test("defines a typed no-network procedure descriptor over a stable direct-control atom", () => {
@@ -345,6 +370,113 @@ describe("Civ7 procedure-core descriptor owner", () => {
         role: "outputSchema",
         owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
         exportName: "Civ7ReadyUnitViewResultSchema",
+      },
+    });
+  });
+
+  test("validates procedure inputs against resolved schema artifacts without executing atoms", () => {
+    const readyInput = {
+      unitId: { owner: 0, id: 458752, type: 26 },
+      radius: 2,
+      maxOperations: 96,
+    };
+    expect(validateCiv7ProcedureCoreInput(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      readyInput,
+    )).toBe(readyInput);
+
+    const boundedInputError = captureDescriptorError(() => validateCiv7ProcedureCoreInput(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      { radius: 6 },
+    ));
+    expect(boundedInputError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "input-schema-invalid",
+        procedureKey: "unit.ready.view",
+        role: "input",
+        schemaReference: Civ7ReadyUnitViewProcedureDescriptor.inputSchema,
+      },
+    });
+    expect((boundedInputError.details as { errors: Array<{ message: string }> }).errors).toEqual(
+      expect.arrayContaining([expect.objectContaining({ message: "must be <= 5" })]),
+    );
+
+    const rawInputError = captureDescriptorError(() => validateCiv7ProcedureCoreInput(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      { rawCommand: "Game.turn" },
+    ));
+    expect(rawInputError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "input-schema-invalid",
+        procedureKey: "unit.ready.view",
+        role: "input",
+      },
+    });
+  });
+
+  test("inherits bounded direct-control atom validators through procedure input validation", () => {
+    expect(validateCiv7ProcedureCoreInput(
+      Civ7UnitMovePreviewProcedureDescriptor,
+      Civ7UnitMovePreviewProcedureSchemaArtifacts,
+      {
+        unitId: { owner: 0, id: 65536, type: 26 },
+        destination: { x: 25, y: 35 },
+        maxPlots: 12,
+        maxPathPlots: 8,
+      },
+    )).toMatchObject({
+      destination: { x: 25, y: 35 },
+    });
+
+    for (const destination of [
+      { x: 1.5, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1_000_001 },
+    ]) {
+      const error = captureDescriptorError(() => validateCiv7ProcedureCoreInput(
+        Civ7UnitMovePreviewProcedureDescriptor,
+        Civ7UnitMovePreviewProcedureSchemaArtifacts,
+        { destination },
+      ));
+      expect(error).toMatchObject({
+        code: "procedure-descriptor-invalid",
+        details: {
+          reason: "input-schema-invalid",
+          procedureKey: "unit.move.preview",
+          role: "input",
+          schemaReference: Civ7UnitMovePreviewProcedureDescriptor.inputSchema,
+        },
+      });
+    }
+  });
+
+  test("validates procedure outputs against resolved schema artifacts without exposing raw internals", () => {
+    expect(validateCiv7ProcedureCoreOutput(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      readyUnitOutput,
+    )).toBe(readyUnitOutput);
+
+    const outputError = captureDescriptorError(() => validateCiv7ProcedureCoreOutput(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      {
+        ...readyUnitOutput,
+        rawCommand: "readReadyUnitView()",
+      },
+    ));
+    expect(outputError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "output-schema-invalid",
+        procedureKey: "unit.ready.view",
+        role: "output",
+        schemaReference: Civ7ReadyUnitViewProcedureDescriptor.outputSchema,
       },
     });
   });

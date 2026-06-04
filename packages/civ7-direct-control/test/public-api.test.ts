@@ -58,6 +58,8 @@ import {
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
   resolveCiv7ProcedureCoreSchemas,
+  validateCiv7ProcedureCoreInput,
+  validateCiv7ProcedureCoreOutput,
 } from "../src/index";
 
 describe("Civ7 direct control public API", () => {
@@ -312,6 +314,8 @@ describe("Civ7 direct control public API", () => {
       "packages/civ7-direct-control/src/play/ready/unit.ts#Civ7ReadyUnitViewInputSchema",
     );
     expect(typeof resolveCiv7ProcedureCoreSchemas).toBe("function");
+    expect(typeof validateCiv7ProcedureCoreInput).toBe("function");
+    expect(typeof validateCiv7ProcedureCoreOutput).toBe("function");
     expect(civ7ProcedureSchemaReferenceKey(outputSchema)).toContain("Civ7ReadyUnitViewResultSchema");
   });
 
