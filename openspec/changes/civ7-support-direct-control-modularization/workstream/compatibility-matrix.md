@@ -454,12 +454,13 @@ Intake rejection conditions:
   transport/session/probe/correlation command internals. Focused `game health
   --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
   `game status --json`, `game catalog --static --json`,
-  `game exec --dry-run --json`, and `game visibility --json` proof now assert
-  that debug-owned commands emit raw readiness, composed playable-status, App UI
-  snapshot, runtime inspection, capability catalog provenance fields, explicit
-  exec dry-run request routing fields, and visibility counts/grid probes
-  including host/port/state, raw command text, state discovery, selected state,
-  network/UI/player/map probes, Tuner health globals, catalog
+  `game exec --dry-run --json`, `game visibility --json`, and
+  `game restart --dry-run --json` proof now assert that debug-owned commands
+  emit raw readiness, composed playable-status, App UI snapshot, runtime
+  inspection, capability catalog provenance fields, explicit exec/restart
+  dry-run request routing fields, and visibility counts/grid probes including
+  host/port/state, request id, agent, raw command text, state discovery,
+  selected state, network/UI/player/map probes, Tuner health globals, catalog
   owner/provenance/confidence, visibility revealed/visible counts, grid states,
   own/prototype/enumerable keys, and method owner/length/signature diagnostics.
   Missing proof before acceptance: broader tests proving the raw field classes in

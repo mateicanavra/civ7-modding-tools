@@ -124,12 +124,13 @@
         procedure-diagnostic separation proof remains pending before row
         acceptance. Focused `game health --json`, `game inspect --json`,
         `game inspect --app-ui-snapshot --json`, `game status --json`,
-        `game catalog --static --json`, `game exec --dry-run --json`, and
-        `game visibility --json` coverage now also proves debug-owned commands
-        emit raw readiness, composed playable-status, App UI snapshot, runtime
-        inspection, capability catalog provenance fields, exec dry-run request
-        routing fields, and visibility counts/grid probes including
-        host/port/state, raw command text, state discovery, selected state,
+        `game catalog --static --json`, `game exec --dry-run --json`,
+        `game visibility --json`, and `game restart --dry-run --json` coverage
+        now also proves debug-owned commands emit raw readiness, composed
+        playable-status, App UI snapshot, runtime inspection, capability
+        catalog provenance fields, exec/restart dry-run request routing fields,
+        and visibility counts/grid probes including host/port/state, request
+        id, agent, raw command text, state discovery, selected state,
         network/UI/player/map probes, Tuner health globals, catalog
         owner/provenance/confidence,
         own/prototype/enumerable keys, and method owner/length/signature

@@ -2916,6 +2916,16 @@ All future agent waves must be framed before delegation:
   2.9.4, claim runtime/live-game proof, create telemetry or AI-ingestion
   contracts, or unblock normal CLI semantic envelopes, hotseat runtime, schema
   migration, or Effect/oRPC procedure-core work.
+- Restart dry-run debug proof increment:
+  focused `game restart --dry-run --json` coverage now proves the
+  support/lifecycle restart command emits raw dry-run request routing fields,
+  including request id, agent, host/port/state, and the restart command text,
+  without sending to the tuner socket. This remains partial local CLI proof for
+  the Debug/Internal Service Output row only; it does not exercise restart or
+  begin-game mutation, accept Task 2.9.4, claim runtime/live-game proof, create
+  telemetry or AI-ingestion contracts, promote raw command strings to product
+  authority, or unblock normal CLI semantic envelopes, hotseat runtime, schema
+  migration, or Effect/oRPC procedure-core work.
 - Operation/proof telemetry contract planning:
   `workstream/operation-proof-telemetry-contract.md` now records the planned
   action/proof telemetry record slots, projection boundaries, proof-class
