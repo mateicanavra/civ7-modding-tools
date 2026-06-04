@@ -3480,3 +3480,16 @@ All future agent waves must be framed before delegation:
   contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
   adapters, in-game controller source, runtime/live-game proof, Task 2.9.4
   acceptance, or Tasks 6.1-6.9.
+- Operation telemetry projection-separation seed:
+  `packages/civ7-direct-control/src/proof/operation-telemetry.ts` now exposes a
+  local projection selector that keeps normal CLI/player-agent consumers on the
+  semantic telemetry summary, permits raw records only for debug/internal or
+  raw telemetry consumers, and blocks AI-ingestion/procedure consumers until
+  their accepted contract or middleware owner exists. Focused proof in
+  `packages/civ7-direct-control/test/operation-telemetry.test.ts` covers useful
+  normal status/postcondition/no-repeat guidance while rejecting raw
+  transport/session/proof/debug leakage into normal output. This is local
+  contract/proof only; it does not change CLI behavior, add telemetry
+  persistence, implement AI ingestion, add router/registry/transport behavior,
+  add Effect/oRPC source, claim runtime/live-game proof, accept Task 2.9.4, or
+  start Tasks 6.1-6.9.

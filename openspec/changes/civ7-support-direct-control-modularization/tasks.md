@@ -1977,6 +1977,17 @@ runtime/direct-control claims.
       persistence, implement AI ingestion, change CLI/debug projections, add
       Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
       or create broad adapters for every operation family.
+- [x] 4.17.4 Seed operation telemetry projection-separation proof in
+      `src/proof/operation-telemetry.ts` with focused proof in
+      `test/operation-telemetry.test.ts`, explicitly routing normal
+      CLI/player-agent consumers to the semantic telemetry summary, raw records
+      to debug/internal or raw telemetry consumers only, and AI/procedure
+      consumers to blocked-until-owned projection states. This preserves useful
+      normal action/status/postcondition/no-repeat guidance while keeping raw
+      transport/session/proof/debug slots out of normal output. It does not
+      change CLI behavior, add telemetry persistence, implement AI ingestion,
+      add router/registry/transport code, add Effect/oRPC source, claim
+      runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
 - [x] 4.18 Seed a direct-control procedure-core descriptor owner in
       `src/procedure-core.ts` with focused proof in
       `test/procedure-core.test.ts`, defining TypeBox-backed descriptor slots

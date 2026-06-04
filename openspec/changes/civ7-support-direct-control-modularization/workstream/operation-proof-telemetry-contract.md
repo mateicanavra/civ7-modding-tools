@@ -101,10 +101,13 @@ not include raw telemetry/debug slots. The summary keeps status and
 no-repeat-after-unverified guidance aligned: sent records without confirmed
 postcondition proof, including missing postconditions, unverified confidence,
 stale/unknown outcomes, and pending runtime proof, remain no-repeat guarded.
-The owner also seeds proof-label guards: non-live boundaries reject
-`live-runtime-proof` and `in-game-observation` evidence labels, while
-`pending-runtime-proof` remains a pending proof class instead of a live proof
-claim.
+The owner also seeds proof-label guards and projection separation: non-live
+boundaries reject `live-runtime-proof` and `in-game-observation` evidence
+labels, while `pending-runtime-proof` remains a pending proof class instead of
+a live proof claim; normal CLI/player-agent consumers receive only the summary,
+debug/internal and raw telemetry consumers may receive the raw record, and
+AI/procedure consumers stay blocked until their accepted contract or middleware
+owner exists.
 
 `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` is the first
 operation-atom adapter owner seed. Its focused proof owner is
@@ -180,11 +183,11 @@ it does not accept the row. Acceptance still needs:
   cases;
 - broader operation-atom adapters that produce records from existing
   direct-control approval, validation, send, post-read, and postcondition owners
-  beyond the seeded unit-target, production-choice, diplomacy-response, and
-  narrative-choice result adapters, plus the seeded notification-dismissal App
-  UI action adapter;
-- projection separation tests proving normal CLI, debug/internal service,
-  AI-ingestion, and procedure-core outputs remain distinct;
+  beyond the seeded unit-target, production-choice, diplomacy-response,
+  narrative-choice, and notification-dismissal result adapters;
+- final projection implementation tests at the normal CLI, debug/internal
+  service, AI-ingestion, and procedure-core owners, beyond the local telemetry
+  projection-separation owner seed;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or
   resources from being labeled as live runtime proof across all future
   producers and projections;

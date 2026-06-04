@@ -507,6 +507,17 @@ implement persistence, prove runtime/live-game behavior, accept Task 2.9.4, or
 unblock AI ingestion, semantic CLI output, debug hierarchy, or Effect/oRPC
 procedure cores.
 
+Operation telemetry projection-separation seed update:
+`src/proof/operation-telemetry.ts` now owns a local projection selector over the
+operation/proof telemetry record. `test/operation-telemetry.test.ts` proves
+normal CLI/player-agent consumers receive only the semantic telemetry summary,
+debug/internal and raw telemetry consumers may receive the raw record, and
+AI-ingestion/procedure consumers remain blocked until their accepted contract
+or middleware owner exists. This is local contract/proof only. It does not
+change CLI output, add telemetry persistence, implement AI ingestion, create a
+router/registry/transport, add Effect/oRPC source, prove runtime/live-game
+behavior, accept Task 2.9.4, or start Tasks 6.1-6.9.
+
 Unit-target telemetry adapter seed update:
 `src/proof/unit-target-telemetry.ts` now owns the first operation-result adapter
 from the unit-target action atom into the operation/proof telemetry record

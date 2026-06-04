@@ -170,6 +170,45 @@ export type Civ7OperationProofTelemetrySummary = Readonly<{
   evidenceClasses: readonly Civ7OperationProofClass[];
 }>;
 
+export type Civ7OperationTelemetryProjectionConsumer =
+  | "normal-cli-player-agent"
+  | "debug-internal-service"
+  | "ai-ingestion-contract"
+  | "procedure-core-middleware"
+  | "raw-operation-telemetry";
+
+export type Civ7OperationTelemetryProjection =
+  | Readonly<{
+      consumer: "normal-cli-player-agent";
+      surface: "normal-summary";
+      allowed: true;
+      payload: Civ7OperationProofTelemetrySummary;
+    }>
+  | Readonly<{
+      consumer: "debug-internal-service";
+      surface: "raw-debug-record";
+      allowed: true;
+      payload: Civ7OperationProofTelemetryRecord;
+    }>
+  | Readonly<{
+      consumer: "raw-operation-telemetry";
+      surface: "raw-telemetry-record";
+      allowed: true;
+      payload: Civ7OperationProofTelemetryRecord;
+    }>
+  | Readonly<{
+      consumer: "ai-ingestion-contract";
+      surface: "blocked-until-ai-ingestion-contract";
+      allowed: false;
+      reason: string;
+    }>
+  | Readonly<{
+      consumer: "procedure-core-middleware";
+      surface: "blocked-until-procedure-middleware";
+      allowed: false;
+      reason: string;
+    }>;
+
 export function createCiv7OperationProofTelemetryRecord(
   input: Civ7OperationProofTelemetryRecordInput
 ): Civ7OperationProofTelemetryRecord {
@@ -194,6 +233,49 @@ export function createCiv7OperationProofTelemetryRecord(
     evidencePolicy: input.evidencePolicy,
     runtimeObservationLinks: input.runtimeObservationLinks,
   };
+}
+
+export function projectCiv7OperationProofTelemetry(
+  record: Civ7OperationProofTelemetryRecord,
+  consumer: Civ7OperationTelemetryProjectionConsumer,
+): Civ7OperationTelemetryProjection {
+  switch (consumer) {
+    case "normal-cli-player-agent":
+      return {
+        consumer,
+        surface: "normal-summary",
+        allowed: true,
+        payload: summarizeCiv7OperationProofTelemetry(record),
+      };
+    case "debug-internal-service":
+      return {
+        consumer,
+        surface: "raw-debug-record",
+        allowed: true,
+        payload: record,
+      };
+    case "raw-operation-telemetry":
+      return {
+        consumer,
+        surface: "raw-telemetry-record",
+        allowed: true,
+        payload: record,
+      };
+    case "ai-ingestion-contract":
+      return {
+        consumer,
+        surface: "blocked-until-ai-ingestion-contract",
+        allowed: false,
+        reason: "AI ingestion must use its accepted machine contract, not normal CLI or raw debug telemetry output.",
+      };
+    case "procedure-core-middleware":
+      return {
+        consumer,
+        surface: "blocked-until-procedure-middleware",
+        allowed: false,
+        reason: "Procedure cores may attach telemetry only after the procedure middleware contract owns schema, context, and projection policy.",
+      };
+  }
 }
 
 export function summarizeCiv7OperationProofTelemetry(

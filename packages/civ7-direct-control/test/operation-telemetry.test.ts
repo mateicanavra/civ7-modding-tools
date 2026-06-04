@@ -5,6 +5,7 @@ import {
   CIV7_OPERATION_PROOF_TELEMETRY_RECORD_VERSION,
   CIV7_OPERATION_PROOF_TELEMETRY_SLOTS,
   createCiv7OperationProofTelemetryRecord,
+  projectCiv7OperationProofTelemetry,
   summarizeCiv7OperationProofTelemetry,
   type Civ7OperationProofTelemetryRecordInput,
 } from "../src/proof/operation-telemetry";
@@ -82,6 +83,97 @@ describe("Civ7 operation proof telemetry owner", () => {
     const summary = summarizeCiv7OperationProofTelemetry(record);
     expect(summary.status).toBe("validation-blocked");
     expect(summary.postconditionClassification).toBeUndefined();
+  });
+
+  test("projects only semantic summary fields to the normal player-agent surface", () => {
+    const record = createCiv7OperationProofTelemetryRecord(baseTelemetryInput({
+      validation_post: {
+        evidenceClass: "local-package-test",
+        source: "operation-telemetry.test.ts",
+        freshness: "read-after-send",
+        value: {
+          verified: true,
+          rawCommand: "UnitManager.RequestOperation(...)",
+          session: { stateName: "Tuner" },
+        },
+      },
+      outcome_delta: {
+        evidenceClass: "local-package-test",
+        source: "operation-telemetry.test.ts",
+        freshness: "read-after-send",
+        value: {
+          after: { unitLocation: { x: 48, y: 32 } },
+          rawDebugTrace: ["hidden from normal output"],
+        },
+      },
+    }));
+
+    const projection = projectCiv7OperationProofTelemetry(record, "normal-cli-player-agent");
+
+    expect(projection).toMatchObject({
+      consumer: "normal-cli-player-agent",
+      surface: "normal-summary",
+      allowed: true,
+    });
+    expect(projection.payload).toEqual({
+      operationFamily: "unit-operation",
+      actionId: "move-scout",
+      status: "sent-confirmed",
+      postconditionClassification: "target-reached",
+      noRepeatAfterUnverified: false,
+      proofBoundary: "local-test-proof",
+      evidenceClasses: ["local-package-test", "pending-runtime-proof"],
+    });
+    for (const slot of CIV7_OPERATION_PROOF_TELEMETRY_RAW_DEBUG_SLOTS) {
+      expect(projection.payload).not.toHaveProperty(slot);
+    }
+    expect(JSON.stringify(projection.payload)).not.toContain("rawCommand");
+    expect(JSON.stringify(projection.payload)).not.toContain("session");
+    expect(JSON.stringify(projection.payload)).not.toContain("rawDebugTrace");
+  });
+
+  test("keeps raw proof telemetry on debug/internal or raw telemetry surfaces only", () => {
+    const record = createCiv7OperationProofTelemetryRecord(baseTelemetryInput());
+    const debugProjection = projectCiv7OperationProofTelemetry(record, "debug-internal-service");
+    const rawProjection = projectCiv7OperationProofTelemetry(record, "raw-operation-telemetry");
+
+    expect(debugProjection).toMatchObject({
+      consumer: "debug-internal-service",
+      surface: "raw-debug-record",
+      allowed: true,
+    });
+    expect(rawProjection).toMatchObject({
+      consumer: "raw-operation-telemetry",
+      surface: "raw-telemetry-record",
+      allowed: true,
+    });
+    expect(debugProjection.payload).toBe(record);
+    expect(rawProjection.payload).toBe(record);
+    for (const slot of CIV7_OPERATION_PROOF_TELEMETRY_RAW_DEBUG_SLOTS) {
+      expect(debugProjection.payload).toHaveProperty(slot);
+      expect(rawProjection.payload).toHaveProperty(slot);
+    }
+  });
+
+  test("blocks AI ingestion and procedure middleware until their contracts own projection", () => {
+    const record = createCiv7OperationProofTelemetryRecord(baseTelemetryInput());
+    const aiProjection = projectCiv7OperationProofTelemetry(record, "ai-ingestion-contract");
+    const procedureProjection = projectCiv7OperationProofTelemetry(record, "procedure-core-middleware");
+
+    expect(aiProjection).toMatchObject({
+      consumer: "ai-ingestion-contract",
+      surface: "blocked-until-ai-ingestion-contract",
+      allowed: false,
+    });
+    expect(procedureProjection).toMatchObject({
+      consumer: "procedure-core-middleware",
+      surface: "blocked-until-procedure-middleware",
+      allowed: false,
+    });
+    expect(aiProjection).not.toHaveProperty("payload");
+    expect(procedureProjection).not.toHaveProperty("payload");
+    expect(aiProjection.reason).toMatch(/accepted machine contract/);
+    expect(procedureProjection.reason).toMatch(/procedure middleware contract/);
   });
 
   test("does not carry legacy verified booleans into the telemetry postcondition contract", () => {
