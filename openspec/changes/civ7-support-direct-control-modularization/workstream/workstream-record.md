@@ -2621,3 +2621,14 @@ All future agent waves must be framed before delegation:
   Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic projection,
   hotseat runtime proof, schema migration, debug hierarchy implementation, or
   Effect/oRPC procedure-core work.
+- Unit move-preview command-source helper normalization:
+  `src/play/ready/move-preview.ts` now imports the shared command-source
+  serializer and runtime probe helper owners instead of carrying atom-local
+  copies. The generated command text remains equivalent, and the wrapper still
+  owns destination validation, `maxPlots`/`maxPathPlots` bounds, conservative
+  relationship policy, and read-only/no-send behavior. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, normalize every remaining atom-local source helper,
+  or unblock telemetry, AI ingestion, CLI semantic projection, hotseat runtime
+  proof, schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.

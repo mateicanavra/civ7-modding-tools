@@ -1,4 +1,5 @@
-import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
 import { validateMapLocation } from "../map/validation.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
@@ -81,22 +82,6 @@ function buildUnitMovePreviewCommand(input: Civ7UnitMovePreviewInput & { maxPlot
     return JSON.stringify(readUnitMovePreview(${jsLiteral(input)}));
   })()`;
 }
-
-function jsLiteral(value: unknown): string {
-  const json = JSON.stringify(value);
-  if (json === undefined) {
-    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
-  }
-  return json;
-}
-
-const probeHelperSource = (): string => `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
 
 export function unitMovePreviewSource(): string {
   return `${probeHelperSource()}
