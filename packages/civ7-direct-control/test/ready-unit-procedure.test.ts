@@ -2,11 +2,14 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
 import {
+  Civ7DirectControlError,
   Civ7ReadyUnitViewProcedureDescriptor,
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
+  callCiv7ReadyUnitViewProcedure,
   getCiv7ReadyUnitView,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
+  type ReadyUnitViewDependencies,
 } from "../src/index";
 
 describe("Civ7 ready-unit procedure descriptor", () => {
@@ -49,6 +52,97 @@ describe("Civ7 ready-unit procedure descriptor", () => {
       ...readyUnitViewResult(),
       rawCommand: "readReadyUnitView()",
     })).toBe(false);
+  });
+
+  test("calls the ready-unit atom through the procedure core without touching the live tuner", async () => {
+    const executeCalls: Array<{ host?: string; port?: number; command: string }> = [];
+    const boundedCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const dependencies: ReadyUnitViewDependencies = {
+      boundedInteger: (value, min, max, label) => {
+        boundedCalls.push({ value, min, max, label });
+        if (!Number.isInteger(value) || value < min || value > max) {
+          throw new Civ7DirectControlError("command-failed", `${label} out of bounds`);
+        }
+        return value;
+      },
+      executeAppUiCommand: async (options) => {
+        executeCalls.push({
+          host: options.host,
+          port: options.port,
+          command: options.command,
+        });
+        return {
+          host: options.host ?? "127.0.0.1",
+          port: options.port ?? 4318,
+          state: { id: "65535", name: "App UI" },
+          output: ["{}"],
+        };
+      },
+      parseReadyUnitView: () => readyUnitViewResult(),
+    };
+
+    const result = await callCiv7ReadyUnitViewProcedure({
+      radius: 2,
+      maxOperations: 96,
+    }, {
+      directControl: {
+        host: "127.0.0.1",
+        port: 4318,
+      },
+      procedure: {
+        correlationId: "ready-unit-procedure-test",
+      },
+      dependencies,
+    });
+
+    expect(result.output).toEqual(readyUnitViewResult());
+    expect(result.diagnostics).toMatchObject({
+      procedureKey: "unit.ready.view",
+      correlationId: "ready-unit-procedure-test",
+      proofBoundary: "local-package-test",
+      playerScope: "local-player-scoped",
+      debugServiceCorrelation: true,
+      telemetryCorrelation: false,
+    });
+    expect(boundedCalls).toEqual([
+      { value: 2, min: 0, max: 5, label: "radius" },
+      { value: 96, min: 1, max: 256, label: "maxOperations" },
+    ]);
+    expect(executeCalls).toHaveLength(1);
+    expect(executeCalls[0]).toMatchObject({
+      host: "127.0.0.1",
+      port: 4318,
+    });
+    expect(executeCalls[0]?.command).toContain("readReadyUnitView");
+    expect(executeCalls[0]?.command).toContain('"radius":2');
+    expect(executeCalls[0]?.command).toContain('"maxOperations":96');
+  });
+
+  test("rejects invalid procedure input before ready-unit atom dependencies run", async () => {
+    let executed = false;
+    const dependencies: ReadyUnitViewDependencies = {
+      boundedInteger: () => {
+        throw new Error("boundedInteger should not run after procedure input rejection");
+      },
+      executeAppUiCommand: async () => {
+        executed = true;
+        throw new Error("executeAppUiCommand should not run after procedure input rejection");
+      },
+      parseReadyUnitView: () => readyUnitViewResult(),
+    };
+
+    await expect(callCiv7ReadyUnitViewProcedure({ radius: 6 }, {
+      procedure: { correlationId: "ready-unit-invalid-input" },
+      dependencies,
+    })).rejects.toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "input-schema-invalid",
+        procedureKey: "unit.ready.view",
+        role: "input",
+      },
+    });
+    expect(executed).toBe(false);
   });
 });
 

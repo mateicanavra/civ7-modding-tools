@@ -81,7 +81,7 @@ export const Civ7ReadyUnitViewResultSchema = Type.Object({
 }, { additionalProperties: false });
 export type Civ7ReadyUnitViewResult = Static<typeof Civ7ReadyUnitViewResultSchema>;
 
-type ReadyUnitViewDependencies = Readonly<{
+export type ReadyUnitViewDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,

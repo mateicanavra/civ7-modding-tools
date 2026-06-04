@@ -715,8 +715,9 @@ Intake rejection conditions:
   a local guard refusing `live-runtime-proof` claims before a runtime-proof
   owner exists; descriptor context-policy metadata, payload validation, and a
   local injected-handler call primitive now exist for current schema/descriptor
-  seeds; final procedure-core/schema/runtime-context, middleware, error, and
-  correlation owners remain pending
+  seeds; the first concrete ready-unit procedure call wrapper exists adjacent
+  to the ready-unit atom; final procedure-core/schema/runtime-context,
+  middleware, error, and correlation owners remain pending
 - `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
   owner-seed proof for descriptor construction, generic raw tunnel rejection,
   `runtime/command-serialization` / `jsLiteral` rejection,
@@ -724,7 +725,9 @@ Intake rejection conditions:
   requirements, local `live-runtime-proof` rejection, payload validation,
   injected-handler call sequencing, correlation-id policy, handler failure
   normalization, and telemetry-as-Effect/oRPC-middleware projection; final row
-  proof/gate owner remains pending
+  proof/gate owner remains pending. `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`
+  now also proves the adjacent ready-unit procedure call wrapper with fake atom
+  dependencies.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -818,15 +821,17 @@ Intake rejection conditions:
   The procedure-core owner now also has a no-network call primitive over an
   injected handler, with focused proof for input-before-handler validation,
   output-after-handler validation, separated output/diagnostics, generated and
-  caller-provided correlation IDs, and handler failure normalization.
+  caller-provided correlation IDs, and handler failure normalization. The
+  first concrete ready-unit procedure call wrapper now composes that primitive
+  with `getCiv7ReadyUnitView` through fake direct-control dependencies in
+  focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   runtime-context/middleware/error/correlation owner, broader concrete
   procedure owners, and explicit owner boundaries for the in-game controller
   router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control procedure-core
-  injected-handler call primitive, focused procedure-core call/correlation/error
-  proof over current descriptor schema artifacts, public facade exports/proof,
-  and docs/OpenSpec records.
+- `writeSet`: current write set is the adjacent ready-unit procedure call
+  wrapper, focused no-network proof over fake ready-unit atom dependencies,
+  public facade exports/proof, and docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -892,7 +897,10 @@ Intake rejection conditions:
   output separately from debug/telemetry diagnostics, resolves correlation IDs
   according to descriptor policy, and normalizes handler failures with typed
   direct-control error details, without executing live atoms or registering a
-  router.
+  router. The adjacent ready-unit procedure artifact now also exports a
+  concrete `unit.ready.view` call wrapper that uses the local call primitive to
+  validate input, invoke `getCiv7ReadyUnitView`, validate output, and return
+  diagnostics separately from the ready-unit output.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
@@ -929,6 +937,13 @@ Intake rejection conditions:
   input-before-handler and output-after-handler sequencing. This is not a
   TypeBox versus Effect Schema migration decision and does not prove broader
   concrete procedure input/output schemas or runtime router schema registration.
+- `concreteProcedureOwner`: current concrete procedure proof exists only for
+  `unit.ready.view`, where the adjacent ready-unit procedure wrapper composes
+  `getCiv7ReadyUnitView` with the procedure-core call primitive through fake
+  dependencies. It proves input rejection before atom dependencies run,
+  direct-control option forwarding into the atom, atom output validation, and
+  separated diagnostics. Broader concrete procedures, runtime router
+  registration, and oRPC handler registration remain pending.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, missing
@@ -974,6 +989,8 @@ Intake rejection conditions:
   move-preview descriptors, local injected-handler procedure-call proof for
   input-before-handler/output-after-handler sequencing, separated
   output/diagnostics, correlation-id policy, and handler failure normalization,
+  adjacent ready-unit procedure call proof over the stable ready-unit atom with
+  fake direct-control dependencies,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface. Missing before acceptance: final oRPC schema/procedure
@@ -1003,7 +1020,8 @@ Intake rejection conditions:
   It also fails local calls before handler execution on invalid input, fails
   after handler execution on invalid output, requires caller-provided
   correlation IDs where descriptor policy says so, and wraps injected-handler
-  failures with procedure/correlation details.
+  failures with procedure/correlation details. The adjacent ready-unit wrapper
+  fails before ready-unit atom dependencies run when procedure input is invalid.
   Required coverage before acceptance must still fail if
   transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command

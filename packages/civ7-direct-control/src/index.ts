@@ -630,6 +630,7 @@ export type {
   Civ7ReadyUnitPromotionReadiness,
   Civ7ReadyUnitViewInput,
   Civ7ReadyUnitViewResult,
+  ReadyUnitViewDependencies,
 } from "./play/ready/unit.js";
 export {
   Civ7ReadyUnitNearbyPlotSchema,
@@ -640,9 +641,11 @@ export {
   getCiv7ReadyUnitView,
 } from "./play/ready/unit.js";
 export {
+  callCiv7ReadyUnitViewProcedure,
   Civ7ReadyUnitViewProcedureDescriptor,
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
 } from "./play/ready/unit-procedure.js";
+export type { Civ7ReadyUnitViewProcedureCallOptions } from "./play/ready/unit-procedure.js";
 export type {
   Civ7UnitMovePreviewInput,
   Civ7UnitMovePreviewRelationshipPolicy,

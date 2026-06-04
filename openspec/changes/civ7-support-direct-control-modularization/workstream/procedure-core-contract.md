@@ -133,7 +133,12 @@ checks the descriptor's input/output field lists against resolved schema root
 properties so stale fixture names do not become procedure contract fields. The
 generic resolver guard in `packages/civ7-direct-control/src/procedure-core.ts`
 now owns that field-list check for any descriptor resolved against explicit
-schema artifacts.
+schema artifacts. The same adjacent ready-unit procedure artifact now exports a
+concrete `unit.ready.view` call wrapper over `getCiv7ReadyUnitView`, composed
+through the local procedure-core call primitive. Focused proof uses fake
+ready-unit atom dependencies to prove direct-control option forwarding, input
+validation before atom dependencies run, output validation after the atom
+returns, and separated output/diagnostics without touching the live tuner.
 
 The adjacent ready-city descriptor artifact reuses the ready-city schema exports
 and records `city.ready.view` beside `getCiv7ReadyCityView`. Focused proof in
@@ -297,13 +302,13 @@ owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, and playable-status descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
-Effect/oRPC Procedure Cores row, but they do not accept the row. Acceptance
-still needs:
+Effect/oRPC Procedure Cores row, plus a first concrete ready-unit procedure call
+wrapper, but they do not accept the row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms
-  beyond the ready-unit, ready-city, unit move-preview, and playable-status
-  schema seeds;
+  beyond the ready-unit call wrapper and the ready-city, unit move-preview, and
+  playable-status schema seeds;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;
