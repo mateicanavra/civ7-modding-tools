@@ -1,0 +1,250 @@
+import { Type, type Static } from "typebox";
+
+export const Civ7ProcedureFamilySchema = Type.Union([
+  Type.Literal("health"),
+  Type.Literal("runtime"),
+  Type.Literal("controller"),
+  Type.Literal("notifications"),
+  Type.Literal("choices"),
+  Type.Literal("city"),
+  Type.Literal("unit"),
+  Type.Literal("map"),
+  Type.Literal("strategy"),
+  Type.Literal("intelligence"),
+  Type.Literal("session"),
+]);
+export type Civ7ProcedureFamily = Static<typeof Civ7ProcedureFamilySchema>;
+
+export const Civ7ProcedureRiskSchema = Type.Union([
+  Type.Literal("read"),
+  Type.Literal("mutation"),
+  Type.Literal("debug"),
+  Type.Literal("runtime-support"),
+]);
+export type Civ7ProcedureRisk = Static<typeof Civ7ProcedureRiskSchema>;
+
+export const Civ7ProcedurePlayerScopeSchema = Type.Union([
+  Type.Literal("global"),
+  Type.Literal("local-player-scoped"),
+  Type.Literal("agent-slot-scoped"),
+  Type.Literal("human-turn-visible"),
+  Type.Literal("debug-observer-only"),
+]);
+export type Civ7ProcedurePlayerScope = Static<typeof Civ7ProcedurePlayerScopeSchema>;
+
+export const Civ7ProcedureConsumerClassSchema = Type.Union([
+  Type.Literal("normal-cli-player-agent-view"),
+  Type.Literal("ai-intelligence-ingestion"),
+  Type.Literal("debug-internal-service-output"),
+  Type.Literal("effect-orpc-procedure-core"),
+  Type.Literal("static-profile-shaping"),
+  Type.Literal("runtime-proof-support"),
+]);
+export type Civ7ProcedureConsumerClass = Static<typeof Civ7ProcedureConsumerClassSchema>;
+
+export const Civ7ProcedureProofBoundarySchema = Type.Union([
+  Type.Literal("planning-evidence-only"),
+  Type.Literal("local-package-test"),
+  Type.Literal("cli-local-proof"),
+  Type.Literal("pending-runtime-proof"),
+  Type.Literal("live-runtime-proof"),
+]);
+export type Civ7ProcedureProofBoundary = Static<typeof Civ7ProcedureProofBoundarySchema>;
+
+export const Civ7ProcedureProjectionSchema = Type.Object({
+  normalCli: Type.Union([
+    Type.Literal("semantic-projection"),
+    Type.Literal("summarized-state-machine-status"),
+    Type.Literal("omitted"),
+  ]),
+  debugService: Type.Union([
+    Type.Literal("raw-diagnostic-projection"),
+    Type.Literal("proof-diagnostic-projection"),
+    Type.Literal("omitted"),
+  ]),
+  aiIngestion: Type.Union([
+    Type.Literal("source-labeled-machine-contract"),
+    Type.Literal("blocked-until-ingestion-contract"),
+    Type.Literal("omitted"),
+  ]),
+  telemetry: Type.Union([
+    Type.Literal("effect-orpc-middleware-hook"),
+    Type.Literal("blocked-until-procedure-middleware"),
+    Type.Literal("omitted"),
+  ]),
+  procedureCore: Type.Literal("typed-procedure-core"),
+}, { additionalProperties: false });
+export type Civ7ProcedureProjection = Static<typeof Civ7ProcedureProjectionSchema>;
+
+export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
+  procedureKey: Type.String(),
+  family: Civ7ProcedureFamilySchema,
+  risk: Civ7ProcedureRiskSchema,
+  atomOwner: Type.String(),
+  atomFunction: Type.String(),
+  inputFields: Type.Array(Type.String()),
+  outputFields: Type.Array(Type.String()),
+  playerScope: Civ7ProcedurePlayerScopeSchema,
+  consumerClasses: Type.Array(Civ7ProcedureConsumerClassSchema),
+  proofBoundary: Civ7ProcedureProofBoundarySchema,
+  projection: Civ7ProcedureProjectionSchema,
+  approvalGate: Type.Optional(Type.Boolean()),
+  validatorFirst: Type.Optional(Type.Boolean()),
+  postconditionRequired: Type.Optional(Type.Boolean()),
+  noRepeatAfterUnverified: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
+export type Civ7ProcedureCoreDescriptor = Static<typeof Civ7ProcedureCoreDescriptorSchema>;
+
+export type Civ7ProcedureCoreSummary = Readonly<{
+  procedureKey: string;
+  family: Civ7ProcedureFamily;
+  risk: Civ7ProcedureRisk;
+  atomOwner: string;
+  atomFunction: string;
+  playerScope: Civ7ProcedurePlayerScope;
+  proofBoundary: Civ7ProcedureProofBoundary;
+  normalCliProjection: Civ7ProcedureProjection["normalCli"];
+  debugServiceProjection: Civ7ProcedureProjection["debugService"];
+  aiIngestionProjection: Civ7ProcedureProjection["aiIngestion"];
+  telemetryProjection: Civ7ProcedureProjection["telemetry"];
+  procedureCoreProjection: Civ7ProcedureProjection["procedureCore"];
+  mutationGates: Readonly<{
+    approvalGate: boolean;
+    validatorFirst: boolean;
+    postconditionRequired: boolean;
+    noRepeatAfterUnverified: boolean;
+  }>;
+}>;
+
+const FORBIDDEN_RAW_TUNNEL_KEYS = new Set([
+  "command",
+  "commandserialization",
+  "commandsource",
+  "commandtext",
+  "controlcall",
+  "executeciv7appuicommand",
+  "executeciv7command",
+  "executeciv7tunercommand",
+  "javascript",
+  "js",
+  "jsliteral",
+  "queryciv7tunerstates",
+  "rawcommand",
+  "rawjavascript",
+  "rawsql",
+  "session",
+  "socket",
+  "sql",
+  "stateid",
+  "statename",
+  "stateselection",
+  "tunerstate",
+]);
+
+const FORBIDDEN_RAW_TUNNEL_OWNER_PARTS = [
+  "runtime/command-serialization",
+  "session/execute",
+] as const;
+
+export function createCiv7ProcedureCoreDescriptor(
+  descriptor: Civ7ProcedureCoreDescriptor,
+): Civ7ProcedureCoreDescriptor {
+  validateProcedureIdentity(descriptor);
+  validateNoRawCommandTunnel(descriptor);
+  validateMutationGates(descriptor);
+  return descriptor;
+}
+
+export function summarizeCiv7ProcedureCoreDescriptor(
+  descriptor: Civ7ProcedureCoreDescriptor,
+): Civ7ProcedureCoreSummary {
+  const valid = createCiv7ProcedureCoreDescriptor(descriptor);
+  return {
+    procedureKey: valid.procedureKey,
+    family: valid.family,
+    risk: valid.risk,
+    atomOwner: valid.atomOwner,
+    atomFunction: valid.atomFunction,
+    playerScope: valid.playerScope,
+    proofBoundary: valid.proofBoundary,
+    normalCliProjection: valid.projection.normalCli,
+    debugServiceProjection: valid.projection.debugService,
+    aiIngestionProjection: valid.projection.aiIngestion,
+    telemetryProjection: valid.projection.telemetry,
+    procedureCoreProjection: valid.projection.procedureCore,
+    mutationGates: {
+      approvalGate: valid.approvalGate === true,
+      validatorFirst: valid.validatorFirst === true,
+      postconditionRequired: valid.postconditionRequired === true,
+      noRepeatAfterUnverified: valid.noRepeatAfterUnverified === true,
+    },
+  };
+}
+
+function validateProcedureIdentity(descriptor: Civ7ProcedureCoreDescriptor): void {
+  if (!/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)+$/.test(descriptor.procedureKey)) {
+    throw new Error(`Civ7 procedure key must be a dotted semantic key: ${descriptor.procedureKey}`);
+  }
+  if (!descriptor.procedureKey.startsWith(`${descriptor.family}.`)) {
+    throw new Error(
+      `Civ7 procedure key ${descriptor.procedureKey} must start with its family ${descriptor.family}.`,
+    );
+  }
+  if (!descriptor.atomOwner.startsWith("packages/civ7-direct-control/src/")) {
+    throw new Error(`Civ7 procedure atom owner must stay in @civ7/direct-control: ${descriptor.atomOwner}`);
+  }
+  if (!descriptor.consumerClasses.includes("effect-orpc-procedure-core")) {
+    throw new Error(`Civ7 procedure ${descriptor.procedureKey} must include the procedure-core consumer class`);
+  }
+}
+
+function validateNoRawCommandTunnel(descriptor: Civ7ProcedureCoreDescriptor): void {
+  const fields = [
+    descriptor.procedureKey,
+    descriptor.atomOwner,
+    descriptor.atomFunction,
+    ...descriptor.inputFields,
+    ...descriptor.outputFields,
+  ];
+  const rawFields = fields.filter(hasRawTunnelKey);
+  if (rawFields.length > 0) {
+    throw new Error(
+      `Civ7 procedure ${descriptor.procedureKey} cannot expose raw command tunnel fields: ${rawFields.join(", ")}`,
+    );
+  }
+}
+
+function validateMutationGates(descriptor: Civ7ProcedureCoreDescriptor): void {
+  if (descriptor.risk !== "mutation") return;
+  const missing = [
+    descriptor.approvalGate === true ? null : "approvalGate",
+    descriptor.validatorFirst === true ? null : "validatorFirst",
+    descriptor.postconditionRequired === true ? null : "postconditionRequired",
+    descriptor.noRepeatAfterUnverified === true ? null : "noRepeatAfterUnverified",
+  ].filter((value): value is string => value !== null);
+  if (missing.length > 0) {
+    throw new Error(
+      `Civ7 mutation procedure ${descriptor.procedureKey} is missing required gates: ${missing.join(", ")}`,
+    );
+  }
+}
+
+function normalizeFieldKey(field: string): string {
+  return field.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function hasRawTunnelKey(field: string): boolean {
+  const normalized = normalizeFieldKey(field);
+  const normalizedPath = field.toLowerCase().replace(/\\/g, "/");
+  return FORBIDDEN_RAW_TUNNEL_OWNER_PARTS.some((ownerPart) => normalizedPath.includes(ownerPart))
+    || FORBIDDEN_RAW_TUNNEL_KEYS.has(normalized)
+    || normalized.includes("commandserialization")
+    || normalized.includes("commandsource")
+    || normalized.includes("controlcall")
+    || normalized.includes("executeciv7command")
+    || normalized.includes("executeciv7appuicommand")
+    || normalized.includes("executeciv7tunercommand")
+    || normalized.includes("rawcommand")
+    || normalized.includes("rawjavascript")
+    || normalized.includes("rawsql");
+}

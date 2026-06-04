@@ -165,6 +165,23 @@ than live. This reduces only the telemetry row's proof-label guard gap; it does
 not collect runtime evidence, choose schema technology, add persistence,
 implement AI ingestion, change CLI/debug projections, add Effect/oRPC
 middleware, accept Task 2.9.4, or claim runtime/live-game proof.
+Procedure-core descriptor owner-seed proof now names
+`packages/civ7-direct-control/src/procedure-core.ts` as the direct-control
+owner for procedure descriptor keys, stable atom owners, projection policy,
+proof boundary, player scope, consumer class, mutation gate metadata, and
+no-raw-command-tunnel guards. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` verifies a
+no-network read atom descriptor, rejects generic raw command tunnel descriptors
+and repo-local command-source/session execution descriptors before they can
+become oRPC procedures, requires mutation descriptors to carry approval,
+validator-first, postcondition, and no-repeat-after-unverified gates, and keeps
+telemetry as an Effect/oRPC middleware hook rather than a separate transport
+surface. This reduces only the Effect/oRPC Procedure Cores row's
+source/proof/no-raw-tunnel gap for generic raw fields plus
+`runtime/command-serialization` / `jsLiteral` and `session/execute` /
+`executeCiv7Command`; it does not implement Effect/oRPC source, add
+`packages/civ7-control-orpc`, add transport adapters, migrate schemas, accept
+Task 2.9.4, start Tasks 6.1-6.9, or claim runtime/live-game proof.
 
 ## Current State
 
@@ -3180,3 +3197,20 @@ All future agent waves must be framed before delegation:
   choose TypeBox or Effect Schema, implement every normal play command
   envelope, prove AI-ingestion separation, claim runtime/live-game proof, or
   unblock telemetry, debug hierarchy, hotseat runtime, or Effect/oRPC work.
+- Procedure-core descriptor owner seed:
+  `packages/civ7-direct-control/src/procedure-core.ts` now owns a
+  TypeBox-backed direct-control procedure descriptor shape for stable atom
+  owners, projection policy, proof boundary, player scope, consumer class,
+  mutation gate metadata, and no-raw-command-tunnel guards. Focused proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` covers one
+  no-network read atom descriptor, generic raw tunnel rejection, repo-local
+  `runtime/command-serialization` / `jsLiteral` and `session/execute` /
+  `executeCiv7Command` rejection, mutation
+  approval/validator/postcondition/no-repeat gate requirements, and telemetry
+  projection as an Effect/oRPC middleware hook rather than a separate transport
+  surface. This is local package proof only; it does not implement Effect/oRPC
+  source, add `packages/civ7-control-orpc`, add transport adapters, migrate
+  schemas, implement the in-game controller router, claim runtime/live-game
+  proof, accept Task 2.9.4, start Tasks 6.1-6.9, or unblock CLI semantic,
+  debug hierarchy, telemetry, AI-ingestion, hotseat runtime, or product-path
+  support.

@@ -219,8 +219,13 @@
         error, and correlation owners, schema/procedure validation tests,
         encode/decode and typed-error tests, projection-separation tests, and
         no-raw-command-tunnel tests are assigned and passing. The planning
-        contract is now recorded in `workstream/procedure-core-contract.md`,
-        but it does not assign owners or accept the row.
+        contract is recorded in `workstream/procedure-core-contract.md`, and the
+        first direct-control procedure descriptor owner seed is now recorded in
+        `packages/civ7-direct-control/src/procedure-core.ts` with proof in
+        `packages/civ7-direct-control/test/procedure-core.test.ts`, but this
+        reduces only the source/proof/no-raw-tunnel gap for generic raw fields
+        plus repo-local command serialization and session execute owners, and
+        does not accept the row.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
@@ -1893,6 +1898,23 @@ runtime/direct-control claims.
       schema technology, add persistence, implement AI ingestion, change
       CLI/debug projections, add Effect/oRPC middleware, claim runtime/live-game
       proof, accept Task 2.9.4, or create broad telemetry middleware.
+- [x] 4.18 Seed a direct-control procedure-core descriptor owner in
+      `src/procedure-core.ts` with focused proof in
+      `test/procedure-core.test.ts`, defining TypeBox-backed descriptor slots
+      for stable atom owners, projection policy, proof boundary, player scope,
+      consumer class, and mutation gate metadata. The proof rejects generic raw
+      command tunnel descriptors plus repo-local command-source/session
+      execution descriptors such as `runtime/command-serialization` /
+      `jsLiteral` and `session/execute` / `executeCiv7Command` before they can
+      become oRPC procedures, requires mutation descriptors to carry approval,
+      validator-first, postcondition, and no-repeat-after-unverified gates, and
+      keeps telemetry as an Effect/oRPC middleware hook rather than a separate
+      transport surface.
+      This reduces the Effect/oRPC Procedure Cores row's source/proof owner
+      and no-raw-tunnel proof gap only; it does not implement Effect/oRPC
+      source, add `packages/civ7-control-orpc`, add transport adapters, migrate
+      schemas, implement the in-game controller router, claim runtime/live-game
+      proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -1929,6 +1951,12 @@ service projections, telemetry contract boundaries, and external direct-control
 authority are recorded.
 
 - [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
+  - The descriptor owner seed in Task 4.18 provides local package proof for
+    procedure keys, projection policy, mutation gate metadata, generic raw
+    tunnel rejection, and command-source/session-execute owner rejection over
+    example stable atoms. Task 6.1 remains blocked until Task 2.9.4 row
+    acceptance names final procedure/schema/proof owners and tests over
+    concrete procedure inputs/outputs.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

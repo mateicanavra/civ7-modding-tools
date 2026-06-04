@@ -57,6 +57,27 @@ import {
   type Civ7CapabilityCatalogEntry,
   type Civ7CapabilityCatalogOptions,
 } from "./catalog/capabilities.js";
+export {
+  Civ7ProcedureConsumerClassSchema,
+  Civ7ProcedureCoreDescriptorSchema,
+  Civ7ProcedureFamilySchema,
+  Civ7ProcedurePlayerScopeSchema,
+  Civ7ProcedureProjectionSchema,
+  Civ7ProcedureProofBoundarySchema,
+  Civ7ProcedureRiskSchema,
+  createCiv7ProcedureCoreDescriptor,
+  summarizeCiv7ProcedureCoreDescriptor,
+} from "./procedure-core.js";
+export type {
+  Civ7ProcedureConsumerClass,
+  Civ7ProcedureCoreDescriptor,
+  Civ7ProcedureCoreSummary,
+  Civ7ProcedureFamily,
+  Civ7ProcedurePlayerScope,
+  Civ7ProcedureProjection,
+  Civ7ProcedureProofBoundary,
+  Civ7ProcedureRisk,
+} from "./procedure-core.js";
 import type {
   Civ7AppUiSnapshot,
   Civ7AppUiSnapshotResult,
