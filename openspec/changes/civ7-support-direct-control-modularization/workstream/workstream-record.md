@@ -1086,9 +1086,9 @@ All future agent waves must be framed before delegation:
   narrow progression closeout wrapper relocation. It moves the public wrapper
   orchestration for `requestCiv7TechnologyChoiceCloseout` and
   `requestCiv7CultureChoiceCloseout` into
-  `src/play/progression/{technology,culture}.ts` while keeping the public
-  facade export/call-through in `index.ts`. Executable dependencies remain
-  injected from the facade. This preserves approval-first checks, player/node
+  `src/play/progression/{technology,culture}.ts`; later dependency and
+  call-through cleanup rows record the non-facade owner imports and direct
+  public facade re-exports. This preserves approval-first checks, player/node
   validation, App UI execution, payload parse labels, command serialization,
   optional notification activation, SET_*_TREE_NODE and
   SET_*_TREE_TARGET_NODE send behavior, focused package/CLI proof, and pending
@@ -2499,6 +2499,19 @@ All future agent waves must be framed before delegation:
   cityId and production-args validation, validator-first no-send behavior,
   App UI command execution through existing non-facade dependencies, bounded
   post-send polling, and production postcondition result shape. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Technology/culture closeout facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `requestCiv7TechnologyChoiceCloseout` and
+  `requestCiv7CultureChoiceCloseout` directly from the progression closeout
+  owners instead of keeping trivial async mutation call-through wrappers. The
+  progression closeout owners still own approval-first checks, player/node
+  validation, App UI execution through existing non-facade dependencies,
+  payload parse labels, optional notification activation, and
+  SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE send behavior. This is local
   package/source relocation cleanup only and does not claim runtime/live-game
   proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
   projection, hotseat runtime proof, schema migration, debug hierarchy

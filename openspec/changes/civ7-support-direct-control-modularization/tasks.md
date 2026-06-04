@@ -522,6 +522,16 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.30 Prune the technology/culture closeout facade call-through
+        wrappers by re-exporting `requestCiv7TechnologyChoiceCloseout` and
+        `requestCiv7CultureChoiceCloseout` directly from
+        `src/play/progression/{technology,culture}.ts`, preserving public
+        package imports, approval-first checks, player/node validation, App UI
+        execution, payload parse labels, optional notification activation,
+        SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE send behavior, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

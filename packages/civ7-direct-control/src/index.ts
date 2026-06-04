@@ -247,15 +247,13 @@ import {
   type Civ7TraditionsViewInput,
   type Civ7TraditionsViewResult,
 } from "./play/progression/reads.js";
-import {
-  requestCiv7CultureChoiceCloseout as requestCiv7CultureChoiceCloseoutFromModule,
-  type Civ7CultureChoiceCloseoutInput,
-  type Civ7CultureChoiceCloseoutResult,
+import type {
+  Civ7CultureChoiceCloseoutInput,
+  Civ7CultureChoiceCloseoutResult,
 } from "./play/progression/culture.js";
-import {
-  requestCiv7TechnologyChoiceCloseout as requestCiv7TechnologyChoiceCloseoutFromModule,
-  type Civ7TechnologyChoiceCloseoutInput,
-  type Civ7TechnologyChoiceCloseoutResult,
+import type {
+  Civ7TechnologyChoiceCloseoutInput,
+  Civ7TechnologyChoiceCloseoutResult,
 } from "./play/progression/technology.js";
 import {
   getCiv7ReadyCityView,
@@ -509,10 +507,12 @@ export type {
   Civ7TechnologyChoiceCloseoutInput,
   Civ7TechnologyChoiceCloseoutResult,
 } from "./play/progression/technology.js";
+export { requestCiv7TechnologyChoiceCloseout } from "./play/progression/technology.js";
 export type {
   Civ7CultureChoiceCloseoutInput,
   Civ7CultureChoiceCloseoutResult,
 } from "./play/progression/culture.js";
+export { requestCiv7CultureChoiceCloseout } from "./play/progression/culture.js";
 export type {
   Civ7FullMapGridIdentityCheck,
   Civ7FullMapGridInput,
@@ -1106,22 +1106,6 @@ export async function runCiv7SinglePlayerFromSetup(
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
   return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
-}
-
-export async function requestCiv7TechnologyChoiceCloseout(
-  input: Civ7TechnologyChoiceCloseoutInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7TechnologyChoiceCloseoutResult> {
-  return await requestCiv7TechnologyChoiceCloseoutFromModule(input, options, approval);
-}
-
-export async function requestCiv7CultureChoiceCloseout(
-  input: Civ7CultureChoiceCloseoutInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7CultureChoiceCloseoutResult> {
-  return await requestCiv7CultureChoiceCloseoutFromModule(input, options, approval);
 }
 
 export async function requestCiv7DiplomacyResponse(
