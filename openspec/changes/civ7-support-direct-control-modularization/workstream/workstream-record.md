@@ -3987,3 +3987,21 @@ All future agent waves must be framed before delegation:
   router/registry/transport behavior, choose Effect Schema, add Effect/oRPC
   source, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
   5.1-5.7 or 6.1-6.9.
+
+- Procedure-core error summary shape:
+  `packages/civ7-direct-control/src/procedure-core.ts` now exports
+  `Civ7ProcedureCoreErrorReasonSchema`,
+  `Civ7ProcedureCoreErrorSummarySchema`, and
+  `summarizeCiv7ProcedureCoreError` for local descriptor/call failures.
+  Focused proof in `packages/civ7-direct-control/test/procedure-core.test.ts`
+  covers descriptor input-schema failures and handler failures projected into
+  the summary shape while preserving procedure key, correlation, role, schema
+  reference, reason, and source error code where applicable and omitting raw
+  cause objects, nested cause messages, and raw command details. Public facade
+  proof in `packages/civ7-direct-control/test/public-api.test.ts` validates the
+  exported schemas and helper. This reduces only the local procedure-core typed-error/
+  error-shape proof gap; it does not replace `Civ7DirectControlError`, change
+  CLI output, expose raw failure payloads as normal player-agent output, add
+  router/registry/transport behavior, choose Effect Schema, add Effect/oRPC
+  source, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+  5.1-5.7 or 6.1-6.9.

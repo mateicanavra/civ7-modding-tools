@@ -59,6 +59,8 @@ import {
   Civ7ProductionChoiceResultSchema,
   Civ7ProcedureCoreCallDiagnosticsSchema,
   Civ7ProcedureCoreCallResultSchema,
+  Civ7ProcedureCoreErrorReasonSchema,
+  Civ7ProcedureCoreErrorSummarySchema,
   Civ7ProcedureContextRequirementSchema,
   Civ7ProcedureFamilySchema,
   Civ7ProcedureSchemaReferenceSchema,
@@ -157,6 +159,7 @@ import {
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
   resolveCiv7ProcedureCoreSchemas,
+  summarizeCiv7ProcedureCoreError,
   validateCiv7ProcedureCoreInput,
   validateCiv7ProcedureCoreOutput,
 } from "../src/index";
@@ -815,6 +818,17 @@ describe("Civ7 direct control public API", () => {
         telemetryCorrelation: false,
       },
     })).toBe(true);
+    expect(Value.Check(Civ7ProcedureCoreErrorReasonSchema, "handler-failed")).toBe(true);
+    expect(Value.Check(Civ7ProcedureCoreErrorReasonSchema, "raw-error-dump")).toBe(false);
+    expect(Value.Check(Civ7ProcedureCoreErrorSummarySchema, {
+      code: "procedure-call-failed",
+      message: "Civ7 procedure unit.ready.view handler failed",
+      reason: "handler-failed",
+      procedureKey: "unit.ready.view",
+      correlationId: "corr-1",
+      errorCode: "command-failed",
+    })).toBe(true);
+    expect(summarizeCiv7ProcedureCoreError(new Error("not direct-control"))).toBe(null);
     expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
       owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
       exportName: "Civ7ReadyUnitViewInputSchema",

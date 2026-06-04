@@ -37,7 +37,10 @@ handlers that validates input before handler execution, validates output after
 handler execution, returns procedure output separately from debug/telemetry
 diagnostics, records descriptor-owned schema technology plus projection policy
 in diagnostics, resolves correlation IDs according to descriptor policy, and
-normalizes handler failures with typed direct-control error details. The first
+normalizes handler failures with typed direct-control error details. The
+procedure-core owner also exports a local error summary schema/helper over
+existing descriptor/call failures so future router/error-shape work has a typed
+projection that omits raw cause objects and nested cause messages. The first
 concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
 which owns the `unit.ready.view` descriptor adjacent to the ready-unit atom and
@@ -706,6 +709,18 @@ is local injected-handler proof only; it does not execute live direct-control
 atoms, add a router, add Effect/oRPC dependencies, choose Effect Schema, claim
 runtime proof, or accept the matrix row.
 
+Local procedure-core error summaries now live in
+`packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` projects existing
+descriptor input-schema failures and handler failures into
+`Civ7ProcedureCoreErrorSummarySchema`, preserving procedure key, correlation,
+role, schema reference, reason, and source error code where applicable while
+omitting raw cause objects, nested cause messages, and raw command details.
+Public facade proof validates the exported reason/summary schemas and helper.
+This is local typed-error/error-shape proof only; it does not replace
+`Civ7DirectControlError`, register a router, add transport behavior, choose
+Effect Schema, claim runtime proof, or accept the matrix row.
+
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
 correlation IDs, approval gates, and telemetry hooks. It must serve the
@@ -861,7 +876,7 @@ Acceptance still needs:
   bridge, and future AI services;
 - final oRPC schema/procedure validation tests beyond the local TypeBox
   payload/call helper;
-- final router/procedure error-shape snapshots;
+- final router/procedure error-shape snapshots beyond the local summary helper;
 - encode/decode round-trip tests;
 - Bun runtime checks;
 - CLI semantic projection tests;

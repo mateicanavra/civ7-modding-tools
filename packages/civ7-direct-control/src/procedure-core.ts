@@ -166,6 +166,52 @@ export type Civ7ProcedureCoreCallOptions = Readonly<{
   createCorrelationId?: (procedureKey: string) => string;
 }>;
 
+export const Civ7ProcedureCoreErrorReasonSchema = Type.Union([
+  Type.Literal("schema-mismatch"),
+  Type.Literal("invalid-procedure-key"),
+  Type.Literal("family-mismatch"),
+  Type.Literal("atom-owner-outside-direct-control"),
+  Type.Literal("schema-owner-outside-direct-control"),
+  Type.Literal("schema-export-invalid"),
+  Type.Literal("schema-reference-unresolved"),
+  Type.Literal("schema-field-unresolved"),
+  Type.Literal("schema-technology-unaccepted"),
+  Type.Literal("context-owned-input-field"),
+  Type.Literal("missing-procedure-core-consumer"),
+  Type.Literal("live-runtime-proof-unsupported"),
+  Type.Literal("raw-command-tunnel"),
+  Type.Literal("mutation-gates-missing"),
+  Type.Literal("input-schema-invalid"),
+  Type.Literal("output-schema-invalid"),
+  Type.Literal("correlation-id-missing"),
+  Type.Literal("correlation-id-invalid"),
+  Type.Literal("handler-failed"),
+]);
+
+export const Civ7ProcedureCoreErrorCodeSchema = Type.Union([
+  Type.Literal("procedure-descriptor-invalid"),
+  Type.Literal("procedure-call-failed"),
+]);
+
+export const Civ7ProcedureCoreErrorSummarySchema = Type.Object({
+  code: Civ7ProcedureCoreErrorCodeSchema,
+  message: Type.String(),
+  reason: Civ7ProcedureCoreErrorReasonSchema,
+  procedureKey: Type.Optional(Type.String()),
+  correlationId: Type.Optional(Type.String()),
+  role: Type.Optional(Type.Union([
+    Type.Literal("input"),
+    Type.Literal("output"),
+    Type.Literal("inputSchema"),
+    Type.Literal("outputSchema"),
+    Type.Literal("inputFields"),
+    Type.Literal("outputFields"),
+  ])),
+  schemaReference: Type.Optional(Civ7ProcedureSchemaReferenceSchema),
+  errorCode: Type.Optional(Type.String()),
+}, { additionalProperties: false });
+export type Civ7ProcedureCoreErrorSummary = Static<typeof Civ7ProcedureCoreErrorSummarySchema>;
+
 export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   procedureKey: Type.String(),
   family: Civ7ProcedureFamilySchema,
@@ -217,25 +263,7 @@ export type Civ7ProcedureCoreSummary = Readonly<{
 }>;
 
 export type Civ7ProcedureCoreDescriptorErrorReason =
-  | "schema-mismatch"
-  | "invalid-procedure-key"
-  | "family-mismatch"
-  | "atom-owner-outside-direct-control"
-  | "schema-owner-outside-direct-control"
-  | "schema-export-invalid"
-  | "schema-reference-unresolved"
-  | "schema-field-unresolved"
-  | "schema-technology-unaccepted"
-  | "context-owned-input-field"
-  | "missing-procedure-core-consumer"
-  | "live-runtime-proof-unsupported"
-  | "raw-command-tunnel"
-  | "mutation-gates-missing"
-  | "input-schema-invalid"
-  | "output-schema-invalid"
-  | "correlation-id-missing"
-  | "correlation-id-invalid"
-  | "handler-failed";
+  Static<typeof Civ7ProcedureCoreErrorReasonSchema>;
 
 export function isCiv7ProcedureCoreDescriptor(value: unknown): value is Civ7ProcedureCoreDescriptor {
   return Value.Check(Civ7ProcedureCoreDescriptorSchema, value);
@@ -361,6 +389,32 @@ export function validateCiv7ProcedureCoreOutput(
   value: unknown,
 ): unknown {
   return validateProcedureCorePayload(descriptor, schemas, "output", value);
+}
+
+export function summarizeCiv7ProcedureCoreError(
+  err: unknown,
+): Civ7ProcedureCoreErrorSummary | null {
+  if (!(err instanceof Civ7DirectControlError)) return null;
+  if (err.code !== "procedure-descriptor-invalid" && err.code !== "procedure-call-failed") return null;
+  const details = isProcedureDetailsObject(err.details) ? err.details : {};
+  const reason = details.reason;
+  if (!Value.Check(Civ7ProcedureCoreErrorReasonSchema, reason)) return null;
+
+  const summary: Civ7ProcedureCoreErrorSummary = {
+    code: err.code,
+    message: err.message,
+    reason,
+  };
+  assignString(summary, "procedureKey", details.procedureKey);
+  assignString(summary, "correlationId", details.correlationId);
+  if (Value.Check(Civ7ProcedureCoreErrorSummarySchema.properties.role, details.role)) {
+    summary.role = details.role;
+  }
+  if (Value.Check(Civ7ProcedureSchemaReferenceSchema, details.schemaReference)) {
+    summary.schemaReference = details.schemaReference;
+  }
+  assignString(summary, "errorCode", details.errorCode);
+  return summary;
 }
 
 export async function callCiv7ProcedureCore<TInput = unknown, TOutput = unknown>(
@@ -688,6 +742,18 @@ function procedurePayloadErrorDetails(error: unknown): Record<string, unknown> {
     path: typeof candidate.path === "string" ? candidate.path : "",
     message: typeof candidate.message === "string" ? candidate.message : "value failed schema validation",
   };
+}
+
+function isProcedureDetailsObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function assignString<T extends Record<string, unknown>>(
+  target: T,
+  key: keyof T,
+  value: unknown,
+): void {
+  if (typeof value === "string") target[key] = value as T[keyof T];
 }
 
 function normalizeFieldKey(field: string): string {

@@ -1112,11 +1112,11 @@ Intake rejection conditions:
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
 - `writeSet`: current write set is the direct-control procedure-core
-  diagnostics owner in `packages/civ7-direct-control/src/procedure-core.ts`,
-  focused procedure-core proof, public facade diagnostics schema proof, and
-  docs/OpenSpec records. It records descriptor-owned schema technology and
-  projection policy in local call diagnostics while keeping returned procedure
-  output separate from diagnostics.
+  error summary owner in `packages/civ7-direct-control/src/procedure-core.ts`,
+  focused procedure-core proof, public facade error schema/helper proof, and
+  docs/OpenSpec records. It projects existing descriptor/call failures into a
+  typed local error summary while omitting raw cause objects, nested cause
+  messages, and raw command details.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -1464,7 +1464,8 @@ Intake rejection conditions:
   move-preview descriptors, local injected-handler procedure-call proof for
   input-before-handler/output-after-handler sequencing, separated
   output/diagnostics, descriptor-owned schema technology and projection-policy
-  diagnostics, correlation-id policy, and handler failure normalization,
+  diagnostics, correlation-id policy, handler failure normalization, and local
+  procedure-core error summary projection,
   adjacent ready-unit, ready-city, unit move-preview, playable-status,
   App UI snapshot, Tuner health, notification-view, settlement-recommendations,
   target-candidates, battlefield-scan, destination-analysis, traditions-view,
@@ -1479,8 +1480,9 @@ Intake rejection conditions:
   declare TypeBox while unaccepted Effect Schema/Zod adapter claims fail before
   promotion. Missing before acceptance: final oRPC schema/procedure
   validation tests beyond this local TypeBox payload/call helper, final
-  router/procedure error-shape snapshot, encode/decode round trip, Bun runtime
-  check, CLI semantic projection test, AI-ingestion contract
+  router/procedure error-shape snapshot beyond the local summary helper,
+  encode/decode round trip, Bun runtime check, CLI semantic projection test,
+  AI-ingestion contract
   fixture test,
   final middleware approval/correlation/error tests, and no-raw-command-tunnel
   tests in the final router/procedure owner.
@@ -1506,7 +1508,9 @@ Intake rejection conditions:
   correlation IDs where descriptor policy says so, and wraps injected-handler
   failures with procedure/correlation details while validating that schema
   technology and projection policy are diagnostic metadata rather than returned
-  procedure output. The adjacent ready-unit,
+  procedure output, and validates local error summaries that omit raw cause
+  objects, nested cause messages, and raw command details. The adjacent
+  ready-unit,
   ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
   health, notification-view, settlement-recommendations, target-candidates,
   battlefield-scan, destination-analysis, traditions-view, progress-dashboard,

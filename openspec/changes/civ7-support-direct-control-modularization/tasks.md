@@ -2558,18 +2558,6 @@ runtime/direct-control claims.
         Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
         in-game controller router, claim runtime/live-game proof, accept Task
         2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
-  - [x] 4.55 Add descriptor-owned projection/schema metadata to local
-        procedure-core call diagnostics in `src/procedure-core.ts`. Focused
-        proof in `test/procedure-core.test.ts` covers diagnostic validation for
-        `schemaTechnology` and the full projection policy while keeping those
-        diagnostics separate from the returned procedure output; public facade
-        proof in `test/public-api.test.ts` validates the exported diagnostics
-        and call-result schemas. This reduces only the local procedure-core
-        diagnostics/projection proof gap; it does not change CLI output, expose
-        diagnostics as normal player-agent output, add router/registry/transport
-        behavior, choose Effect Schema, add Effect/oRPC source, claim
-        runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
-        6.1-6.9.
   - [x] 4.48 Add the adjacent turn-completion status procedure atom in
         `src/play/turn-completion-procedure.ts`, with TypeBox input/output
         schemas beside the existing read-only turn-completion status atom in
@@ -2730,6 +2718,30 @@ runtime/direct-control claims.
         Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
         in-game controller router, claim runtime/live-game proof, accept Task
         2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+  - [x] 4.55 Add descriptor-owned projection/schema metadata to local
+        procedure-core call diagnostics in `src/procedure-core.ts`. Focused
+        proof in `test/procedure-core.test.ts` covers diagnostic validation for
+        `schemaTechnology` and the full projection policy while keeping those
+        diagnostics separate from the returned procedure output; public facade
+        proof in `test/public-api.test.ts` validates the exported diagnostics
+        and call-result schemas. This reduces only the local procedure-core
+        diagnostics/projection proof gap; it does not change CLI output, expose
+        diagnostics as normal player-agent output, add router/registry/transport
+        behavior, choose Effect Schema, add Effect/oRPC source, claim
+        runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
+        6.1-6.9.
+  - [x] 4.56 Add a local procedure-core error summary shape in
+        `src/procedure-core.ts`. Focused proof in `test/procedure-core.test.ts`
+        covers descriptor input-schema failures and handler failures projected
+        into `Civ7ProcedureCoreErrorSummarySchema` without raw cause objects,
+        nested raw cause messages, or raw command details; public facade proof in
+        `test/public-api.test.ts` validates the exported reason/summary schemas
+        and helper. This reduces only the local procedure-core typed-error/error-
+        shape proof gap; it does not replace `Civ7DirectControlError`, change CLI
+        output, expose raw failure payloads as normal player-agent output, add
+        router/registry/transport behavior, choose Effect Schema, add Effect/oRPC
+        source, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2903,6 +2915,9 @@ authority are recorded.
     Task 4.55 adds descriptor-owned `schemaTechnology` and projection-policy
     metadata to local procedure-core call diagnostics while keeping diagnostics
     separate from returned procedure output.
+    Task 4.56 adds a local procedure-core error summary shape over existing
+    descriptor/call failures while keeping raw cause objects and nested raw
+    cause messages out of the summary.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
