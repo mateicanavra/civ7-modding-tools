@@ -222,11 +222,6 @@ import {
   type Civ7ProductionChoiceResult,
 } from "./play/operations/production-choice.js";
 import {
-  canStartCiv7CityCommand as canStartCiv7CityCommandFromModule,
-  canStartCiv7CityOperation as canStartCiv7CityOperationFromModule,
-  canStartCiv7PlayerOperation as canStartCiv7PlayerOperationFromModule,
-  canStartCiv7UnitCommand as canStartCiv7UnitCommandFromModule,
-  canStartCiv7UnitOperation as canStartCiv7UnitOperationFromModule,
   requestCiv7CityCommand as requestCiv7CityCommandFromModule,
   requestCiv7CityOperation as requestCiv7CityOperationFromModule,
   requestCiv7PlayerOperation as requestCiv7PlayerOperationFromModule,
@@ -658,6 +653,13 @@ export type {
 } from "./play/operations/types.js";
 export type {
   Civ7OperationRequestResult,
+} from "./play/operations/validate-request.js";
+export {
+  canStartCiv7CityCommand,
+  canStartCiv7CityOperation,
+  canStartCiv7PlayerOperation,
+  canStartCiv7UnitCommand,
+  canStartCiv7UnitOperation,
 } from "./play/operations/validate-request.js";
 export type {
   Civ7UnitOperationPostcondition,
@@ -1156,13 +1158,6 @@ export async function sendCiv7TurnUnready(
   return await sendCiv7TurnUnreadyFromModule(options, approval);
 }
 
-export async function canStartCiv7UnitOperation(
-  input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7UnitOperationFromModule(input, options);
-}
-
 export async function requestCiv7UnitOperation(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
@@ -1171,26 +1166,12 @@ export async function requestCiv7UnitOperation(
   return await requestCiv7UnitOperationFromModule(input, options, approval);
 }
 
-export async function canStartCiv7UnitCommand(
-  input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7UnitCommandFromModule(input, options);
-}
-
 export async function requestCiv7UnitCommand(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7UnitCommandFromModule(input, options, approval);
-}
-
-export async function canStartCiv7CityOperation(
-  input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7CityOperationFromModule(input, options);
 }
 
 export async function requestCiv7CityOperation(
@@ -1208,26 +1189,12 @@ export async function requestCiv7ProductionChoice(
 ): Promise<Civ7ProductionChoiceResult> {
   return await requestCiv7ProductionChoiceFromModule(input, options, approval);
 }
-export async function canStartCiv7CityCommand(
-  input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7CityCommandFromModule(input, options);
-}
-
 export async function requestCiv7CityCommand(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7CityCommandFromModule(input, options, approval);
-}
-
-export async function canStartCiv7PlayerOperation(
-  input: Civ7OperationInput & Readonly<{ playerId: number }>,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7PlayerOperationFromModule(input, options);
 }
 
 export async function requestCiv7PlayerOperation(

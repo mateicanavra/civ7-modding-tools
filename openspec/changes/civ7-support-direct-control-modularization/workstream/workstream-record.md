@@ -2444,3 +2444,14 @@ All future agent waves must be framed before delegation:
   proof, accept Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic
   projection, hotseat runtime proof, schema migration, debug hierarchy
   implementation, or Effect/oRPC procedure-core work.
+- Generic operation validation facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `canStartCiv7UnitOperation`, `canStartCiv7UnitCommand`,
+  `canStartCiv7CityOperation`, `canStartCiv7CityCommand`, and
+  `canStartCiv7PlayerOperation` directly from the generic operation owner
+  instead of keeping trivial async validation call-through wrappers. The
+  approved `request*` mutation wrappers remain explicit in the public facade.
+  This is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.

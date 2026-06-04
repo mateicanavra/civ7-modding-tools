@@ -485,6 +485,16 @@ runtime/direct-control claims.
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
         semantic CLI projection, Effect/oRPC procedure-core work, and Task
         2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.27 Prune generic operation validation facade call-through wrappers
+        by re-exporting `canStartCiv7UnitOperation`,
+        `canStartCiv7UnitCommand`, `canStartCiv7CityOperation`,
+        `canStartCiv7CityCommand`, and `canStartCiv7PlayerOperation`
+        directly from `src/play/operations/validate-request.ts`, preserving
+        public package imports, validation/read-only behavior, the separate
+        approved `request*` mutation wrappers, package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
