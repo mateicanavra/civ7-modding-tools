@@ -3745,3 +3745,25 @@ All future agent waves must be framed before delegation:
   router/registry/transport adapter, choose Effect Schema, claim
   runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
   6.1-6.9.
+- GameInfo-rows procedure atom seed:
+  `packages/civ7-direct-control/src/play/map/gameinfo.ts` now owns TypeBox
+  input/output schemas for the existing bounded GameInfo rows atom, and
+  `packages/civ7-direct-control/src/play/map/gameinfo-procedure.ts` records the
+  adjacent `runtime.gameinfo.rows` descriptor/schema artifact map and concrete
+  call wrapper over `getCiv7GameInfoRows` while preserving GameInfo rows as a
+  runtime/debug diagnostic read surface rather than normal play output.
+  Focused proof in
+  `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` validates
+  the fake Tuner GameInfo rows result against the schema and rejects invalid
+  table/filter plus endpoint/session/state/raw-command procedure input; proof
+  in `packages/civ7-direct-control/test/gameinfo-rows-procedure.test.ts`
+  covers descriptor schema resolution through public exports, no-network
+  fake-dependency calls, direct-control option forwarding,
+  input-before-dependency rejection, output validation, separated diagnostics,
+  Database schema/primary-key probe command text, no-send command text, and
+  descriptor/artifact/call-wrapper exports through `src/index.ts`. Public
+  facade proof in `packages/civ7-direct-control/test/public-api.test.ts` covers
+  the schema exports. This is local read-atom proof only; it does not change
+  CLI output, implement visibility procedure atoms, add a broad map/debug
+  catalog, add a router/registry/transport adapter, choose Effect Schema, claim
+  runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.

@@ -16,6 +16,8 @@ import {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
+  Civ7GameInfoRowsInputSchema,
+  Civ7GameInfoRowsResultSchema,
   Civ7MapGridInputSchema,
   Civ7MapGridResultSchema,
   Civ7MapLocationSchema,
@@ -242,6 +244,40 @@ describe("Civ7 direct control public API", () => {
         "omitted",
         "hiddenInfoPolicy",
         "plots",
+      ]),
+    });
+  });
+
+  test("exports GameInfo rows procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7GameInfoRowsInputSchema, {
+      table: "Resources",
+      limit: 2,
+      filter: { key: "ResourceType", equals: "RESOURCE_COTTON" },
+      includeSchema: true,
+      includePrimaryKeys: true,
+    })).toBe(true);
+    expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources;DROP" })).toBe(false);
+    expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", limit: 1_001 })).toBe(false);
+    expect(Value.Check(Civ7GameInfoRowsInputSchema, {
+      table: "Resources",
+      filter: { key: "Resource-Type", equals: "RESOURCE_COTTON" },
+    })).toBe(false);
+    expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7GameInfoRowsInputSchema, { table: "Resources", rawCommand: "GameInfo.Resources" })).toBe(false);
+    expect(Civ7GameInfoRowsResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "table",
+        "source",
+        "rows",
+        "limit",
+        "offset",
+        "total",
+        "omittedUnknown",
       ]),
     });
   });

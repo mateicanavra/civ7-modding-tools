@@ -2505,6 +2505,27 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         5.1-5.7 or 6.1-6.9.
+  - [x] 4.46 Add the adjacent GameInfo rows procedure atom in
+        `src/play/map/gameinfo-procedure.ts`, with TypeBox input/output
+        schemas beside the existing bounded GameInfo rows atom in
+        `src/play/map/gameinfo.ts`, focused proof in
+        `test/gameinfo-rows-procedure.test.ts`, adjacent atom schema proof in
+        `test/runtime-and-catalog.test.ts`, and public facade schema proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7GameInfoRows` atom under the
+        existing `runtime` procedure family, validates GameInfo table/filter
+        identifiers, bounded `limit`/`offset`, lookup/filter/include toggles,
+        source `"GameInfo"`, runtime-probe totals, optional schema/primary-key
+        probe output, endpoint/session/state/raw-command input exclusion,
+        direct-control option forwarding, and output/diagnostics separation.
+        This is local no-network proof over fake atom dependencies plus the
+        existing fake Tuner fixture only; it does not change CLI output,
+        implement visibility procedure atoms, execute live direct-control
+        atoms, add a broad map/debug catalog, add a router/registry/transport
+        adapter, choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2618,13 +2639,19 @@ authority are recorded.
     plot field vocabulary proof, hidden-info policy output proof, context/raw-
     command input rejection, omitted-count/map/probe output proof, and local
     no-network proof over fake atom dependencies.
+    Task 4.46 adds an adjacent runtime/debug read-atom schema/descriptor/call
+    artifact for `runtime.gameinfo.rows` over the GameInfo rows atom, including
+    GameInfo table/filter identifier proof, bounded limit/offset input,
+    lookup/filter/include toggle proof, context/raw-command input rejection,
+    source/runtime-probe/schema/primary-key output proof, and local no-network
+    proof over fake atom dependencies.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
     runtime-support, notification-view, settlement-recommendations,
     target-candidates, battlefield-scan, destination-analysis, and
-    traditions-view, progress-dashboard, map-summary, plot-snapshot, and map-grid
-    schema seeds,
+    traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
+    and GameInfo-rows schema seeds,
     descriptor schema-reference binding/resolution, adjacent descriptor/call
     artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting

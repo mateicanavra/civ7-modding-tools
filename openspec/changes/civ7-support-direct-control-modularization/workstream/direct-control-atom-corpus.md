@@ -801,6 +801,28 @@ transport adapter, choose Effect Schema, claim runtime/live-game proof, accept
 Task 2.9.4, or unblock broader AI ingestion, debug hierarchy, telemetry
 persistence, or Effect/oRPC procedure cores.
 
+GameInfo-rows procedure atom seed update:
+`src/play/map/gameinfo.ts` now owns TypeBox input/output schemas for the
+existing bounded GameInfo rows atom, including table/filter identifier input,
+bounded `limit`/`offset`, lookup/filter/include toggles, source `"GameInfo"`,
+rows, totals, omitted-row status, and optional schema/primary-key runtime-probe
+output. `src/play/map/gameinfo-procedure.ts` now owns the adjacent
+`runtime.gameinfo.rows` descriptor/schema artifact map and concrete call
+wrapper over `getCiv7GameInfoRows` while keeping this surface debug/internal
+and runtime-evidence scoped rather than normal play output.
+`test/runtime-and-catalog.test.ts` proves the fake Tuner GameInfo rows result
+matches the schema and rejects invalid table/filter/context/raw-command
+procedure input; `test/gameinfo-rows-procedure.test.ts` proves descriptor schema
+resolution, no-network fake-dependency calls, direct-control option
+forwarding, input-before-dependency rejection, output validation, separated
+diagnostics, Database schema/primary-key probe command text, and no-send
+command text. Public facade proof in `test/public-api.test.ts` covers the
+schema exports. This is local read-atom proof only. It does not change CLI
+output, implement visibility procedure atoms, add a broad map/debug catalog,
+add a router/registry/transport adapter, choose Effect Schema, claim
+runtime/live-game proof, accept Task 2.9.4, or unblock broader AI ingestion,
+debug hierarchy, telemetry persistence, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

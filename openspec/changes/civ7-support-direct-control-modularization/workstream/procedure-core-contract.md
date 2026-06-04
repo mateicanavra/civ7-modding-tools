@@ -492,6 +492,25 @@ GameInfo/visibility procedures, add a broad map catalog, add a router, add
 Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
 the matrix row.
 
+The adjacent GameInfo-rows procedure artifact reuses the GameInfo rows schema
+exports and records `runtime.gameinfo.rows` beside `getCiv7GameInfoRows`.
+Focused proof in
+`packages/civ7-direct-control/test/gameinfo-rows-procedure.test.ts` checks the
+descriptor's input/output field lists against resolved schema root properties,
+including table/filter identifiers, bounded `limit`/`offset`, lookup/filter/
+include toggles, source `"GameInfo"`, row output, total/omitted status,
+optional schema/primary-key runtime probes, and raw/context input separation,
+without registering a router or transport adapter. The same artifact exports a
+concrete call wrapper over `getCiv7GameInfoRows`, composed through the local
+procedure-core call primitive. Focused proof uses fake atom dependencies to
+prove direct-control option forwarding, identifier and bounded input
+validation before Tuner execution, output validation after the atom returns,
+separated output/diagnostics, Database schema/primary-key probe command text,
+and no-send read-only command text. This is local no-network read-atom proof
+only; it does not change CLI output, implement visibility procedures, add a
+broad map/debug catalog, add a router, add Effect/oRPC dependencies, choose
+Effect Schema, claim runtime proof, or accept the matrix row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit
@@ -634,14 +653,16 @@ owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
 health, notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
-progress-dashboard descriptor artifacts with
+progress-dashboard, map-summary, plot-snapshot, map-grid, and GameInfo-rows
+descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
 unit move-preview, playable-status, App UI snapshot, Tuner health, and
 notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
-progress-dashboard procedure call wrappers, but they do not accept the row.
+progress-dashboard, map-summary, plot-snapshot, map-grid, and GameInfo-rows
+procedure call wrappers, but they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
@@ -651,7 +672,8 @@ Acceptance still needs:
   beyond the current ready-read, move-preview, runtime-support, and
   notification-view, settlement-recommendations, target-candidates,
   battlefield-scan, destination-analysis, traditions-view, and
-  progress-dashboard call wrappers;
+  progress-dashboard, map-summary, plot-snapshot, map-grid, and GameInfo-rows
+  call wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

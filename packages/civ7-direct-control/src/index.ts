@@ -581,6 +581,19 @@ export {
 } from "./play/map/summary-procedure.js";
 export type { Civ7MapSummaryProcedureCallOptions } from "./play/map/summary-procedure.js";
 export type {
+  GameInfoReadDependencies,
+} from "./play/map/gameinfo.js";
+export {
+  Civ7GameInfoRowsInputSchema,
+  Civ7GameInfoRowsResultSchema,
+} from "./play/map/gameinfo.js";
+export {
+  callCiv7GameInfoRowsProcedure,
+  Civ7GameInfoRowsProcedureDescriptor,
+  Civ7GameInfoRowsProcedureSchemaArtifacts,
+} from "./play/map/gameinfo-procedure.js";
+export type { Civ7GameInfoRowsProcedureCallOptions } from "./play/map/gameinfo-procedure.js";
+export type {
   MapGridReadDependencies,
   MapSummaryReadDependencies,
   PlotSnapshotReadDependencies,
