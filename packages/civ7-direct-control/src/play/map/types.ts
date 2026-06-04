@@ -19,6 +19,13 @@ export type Civ7MapBounds = Readonly<Civ7MapLocation & {
   height: number;
 }>;
 
+export const Civ7MapBoundsSchema = Type.Object({
+  x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  width: Type.Integer({ minimum: 1, maximum: 10_000 }),
+  height: Type.Integer({ minimum: 1, maximum: 10_000 }),
+}, { additionalProperties: false });
+
 export type Civ7HiddenInfoPolicy = "include-hidden" | "visibility-filtered" | "not-player-scoped";
 
 export const Civ7HiddenInfoPolicySchema = Type.Union([
@@ -169,26 +176,50 @@ export type Civ7PlotSnapshotResult = Readonly<{
   state: Civ7TunerState;
 }> & Civ7PlotSnapshot;
 
-export type Civ7MapGridInput = Readonly<{
+export const Civ7MapGridInputSchema = Type.Unsafe<Readonly<{
   bounds?: Civ7MapBounds;
   locations?: ReadonlyArray<Civ7MapLocation>;
   fields: ReadonlyArray<Civ7PlotSnapshotField>;
   playerId?: number;
   includeHidden?: boolean;
   maxPlots?: number;
-}>;
+}>>({
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    bounds: Civ7MapBoundsSchema,
+    locations: Type.Array(Civ7MapLocationSchema, { maxItems: 10_000 }),
+    fields: Type.Array(Civ7PlotSnapshotFieldSchema),
+    playerId: Type.Number(),
+    includeHidden: Type.Boolean(),
+    maxPlots: Type.Integer({ minimum: 1, maximum: 10_000 }),
+  },
+  required: ["fields"],
+  oneOf: [
+    { required: ["bounds"], not: { required: ["locations"] } },
+    { required: ["locations"], not: { required: ["bounds"] } },
+  ],
+});
 
-export type Civ7MapGridResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  bounds?: Civ7MapBounds;
-  fields: ReadonlyArray<Civ7PlotSnapshotField>;
-  plotCount: number;
-  omitted: number;
-  hiddenInfoPolicy: Civ7HiddenInfoPolicy;
-  plots: ReadonlyArray<Civ7PlotSnapshot>;
-}>;
+export type Civ7MapGridInput = Readonly<Static<typeof Civ7MapGridInputSchema>>;
+
+export const Civ7MapGridResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  bounds: Type.Optional(Civ7MapBoundsSchema),
+  fields: Type.Array(Civ7PlotSnapshotFieldSchema),
+  plotCount: Type.Number(),
+  omitted: Type.Number(),
+  hiddenInfoPolicy: Civ7HiddenInfoPolicySchema,
+  map: Type.Optional(Type.Object({
+    width: Civ7RuntimeProbeSchema(Type.Number()),
+    height: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false })),
+  plots: Type.Array(Civ7PlotSnapshotSchema),
+}, { additionalProperties: false });
+
+export type Civ7MapGridResult = Readonly<Static<typeof Civ7MapGridResultSchema>>;
 
 export type Civ7MapGridReadChunk = Readonly<{
   bounds: Civ7MapBounds;

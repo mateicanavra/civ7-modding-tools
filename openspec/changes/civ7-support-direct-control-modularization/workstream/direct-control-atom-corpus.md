@@ -778,6 +778,29 @@ Effect Schema, claim runtime/live-game proof, accept Task 2.9.4, or unblock
 broader AI ingestion, debug hierarchy, telemetry persistence, or Effect/oRPC
 procedure cores.
 
+Map-grid procedure atom seed update:
+`src/play/map/types.ts` now owns TypeBox input/output schemas for the existing
+read-only map grid atom, including exact bounds-or-locations input shape,
+validator-equivalent map bounds/location/list/maxPlots caps, plot field
+vocabulary, hidden-info policy labels, omitted-count output, optional map probe
+output, root output separation from raw command/session fields, and plot
+runtime-probe facts through the existing plot snapshot schema. `src/play/map/
+reads.ts` now exports the map-grid dependency boundary used by focused
+no-network proof. `src/play/map/grid-procedure.ts` now owns the adjacent
+`map.grid.read` descriptor/schema artifact map and concrete call wrapper over
+`getCiv7MapGrid` while staying under the existing `map` procedure family.
+`test/map-and-visibility.test.ts` proves the fake map grid result matches the
+schema and rejects invalid bounds/locations/field/context/raw-command
+procedure input; `test/map-grid-procedure.test.ts` proves descriptor schema
+resolution, no-network fake-dependency calls, direct-control option forwarding,
+input-before-dependency rejection, output validation, separated diagnostics,
+bounded traversal command text, and no-send command text. This is local
+read-atom proof only. It does not change CLI output, implement GameInfo/
+visibility procedure atoms, add a broad map catalog, add a router/registry/
+transport adapter, choose Effect Schema, claim runtime/live-game proof, accept
+Task 2.9.4, or unblock broader AI ingestion, debug hierarchy, telemetry
+persistence, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

@@ -55,6 +55,19 @@ export type PlotSnapshotReadDependencies = Pick<
   "executeTunerCommand" | "jsLiteral" | "parsePlotSnapshot" | "probeHelperSource" | "validateMapLocation"
 >;
 
+export type MapGridReadDependencies = Pick<
+  MapReadDependencies,
+  | "boundedInteger"
+  | "defaultMapGridMaxPlots"
+  | "executeTunerCommand"
+  | "hardMapGridMaxPlots"
+  | "jsLiteral"
+  | "parseMapGrid"
+  | "probeHelperSource"
+  | "validateMapBounds"
+  | "validateMapLocation"
+>;
+
 export async function getCiv7MapSummary(
   options: Civ7MapSummaryOptions = {},
   dependencies: MapSummaryReadDependencies = defaultMapReadDependencies,
@@ -90,7 +103,7 @@ export async function getCiv7PlotSnapshot(
 export async function getCiv7MapGrid(
   input: Civ7MapGridInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: MapReadDependencies = defaultMapReadDependencies,
+  dependencies: MapGridReadDependencies = defaultMapReadDependencies,
 ): Promise<Civ7MapGridResult> {
   const maxPlots = dependencies.boundedInteger(
     input.maxPlots ?? dependencies.defaultMapGridMaxPlots,
@@ -169,7 +182,7 @@ function buildPlotSnapshotCommand(
 function buildMapGridCommand(input: Civ7MapGridInput & {
   fields: ReadonlyArray<Civ7PlotSnapshotField>;
   maxPlots: number;
-}, dependencies: MapReadDependencies): string {
+}, dependencies: MapGridReadDependencies): string {
   return `(() => {
     ${plotSnapshotScriptSource(dependencies)}
     const input = ${dependencies.jsLiteral(input)};
@@ -297,7 +310,7 @@ function normalizePlotFields(fields: ReadonlyArray<Civ7PlotSnapshotField> | unde
   return Array.from(new Set(selected));
 }
 
-function validateMapGridInput(input: Civ7MapGridInput, maxPlots: number, dependencies: MapReadDependencies): void {
+function validateMapGridInput(input: Civ7MapGridInput, maxPlots: number, dependencies: MapGridReadDependencies): void {
   if (!input.bounds && !input.locations) {
     throw new Civ7DirectControlError("command-failed", "Map grid reads require explicit bounds or locations");
   }

@@ -2483,6 +2483,28 @@ runtime/direct-control claims.
         Effect Schema, add Effect/oRPC source, add `packages/civ7-control-orpc`,
         implement the in-game controller router, claim runtime/live-game proof,
         accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+  - [x] 4.45 Add the adjacent map-grid procedure atom in
+        `src/play/map/grid-procedure.ts`, with TypeBox input/output schemas
+        beside the existing read-only map grid atom in `src/play/map/types.ts`,
+        focused proof in `test/map-grid-procedure.test.ts`, adjacent atom schema
+        proof in `test/map-and-visibility.test.ts`, and public facade schema
+        proof in `test/public-api.test.ts`. This composes the local
+        procedure-core call primitive with the existing `getCiv7MapGrid` atom
+        under the existing `map` procedure family, validates exact bounds-or-
+        locations input shape, validator-equivalent map-location/map-bounds
+        integer limits, location-list cap, bounded `maxPlots`, plot field
+        vocabulary, hidden-info policy, omitted-count output, and plot
+        runtime-probe output shape through descriptor schema artifacts, keeps
+        endpoint/session/state/raw-command selection out of procedure input,
+        forwards direct-control options to the atom, and keeps procedure
+        diagnostics separate from map-grid output. This is local no-network
+        proof over fake atom dependencies only; it does not change CLI output,
+        implement GameInfo/visibility procedure atoms, execute live
+        direct-control atoms, add a broad map catalog, add a router/registry/
+        transport adapter, choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2590,13 +2612,19 @@ authority are recorded.
     equivalent map-location bounds, plot field vocabulary proof, hidden-info
     policy output proof, context/raw-command input rejection, plot runtime-probe
     output proof, and local no-network proof over fake atom dependencies.
+    Task 4.45 adds an adjacent read-atom schema/descriptor/call artifact for
+    `map.grid.read` over the map grid atom, including exact bounds-or-locations
+    input proof, validator-equivalent map-bounds/location/list/maxPlots caps,
+    plot field vocabulary proof, hidden-info policy output proof, context/raw-
+    command input rejection, omitted-count/map/probe output proof, and local
+    no-network proof over fake atom dependencies.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
     runtime-support, notification-view, settlement-recommendations,
     target-candidates, battlefield-scan, destination-analysis, and
-    traditions-view, progress-dashboard, map-summary, and plot-snapshot schema
-    seeds,
+    traditions-view, progress-dashboard, map-summary, plot-snapshot, and map-grid
+    schema seeds,
     descriptor schema-reference binding/resolution, adjacent descriptor/call
     artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting

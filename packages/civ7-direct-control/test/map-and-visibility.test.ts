@@ -4,6 +4,8 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
 import {
+  Civ7MapGridInputSchema,
+  Civ7MapGridResultSchema,
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
   Civ7PlotSnapshotInputSchema,
@@ -65,6 +67,60 @@ describe("map and visibility reads", () => {
     expect(Value.Check(Civ7PlotSnapshotResultSchema, plotSnapshotResult())).toBe(true);
     expect(Value.Check(Civ7PlotSnapshotResultSchema, {
       ...plotSnapshotResult(),
+      session: { stateName: "Tuner" },
+    })).toBe(false);
+  });
+
+  test("validates map grid schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      maxPlots: 1,
+    })).toBe(true);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      locations: [{ x: 0, y: 0 }],
+      fields: ["terrain"],
+    })).toBe(true);
+    expect(Value.Check(Civ7MapGridInputSchema, { fields: ["terrain"] })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      locations: [{ x: 0, y: 0 }],
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 0, height: 1 },
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 10_001 },
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      locations: [{ x: 0, y: 1_000_001 }],
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["enemy"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      maxPlots: 10_001,
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      host: "127.0.0.1",
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      rawCommand: "GameplayMap.getGridWidth()",
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridResultSchema, mapGridResult())).toBe(true);
+    expect(Value.Check(Civ7MapGridResultSchema, {
+      ...mapGridResult(),
       session: { stateName: "Tuner" },
     })).toBe(false);
   });
@@ -227,6 +283,15 @@ function plotSnapshotResult() {
     port: 4318,
     state: { id: "1", name: "Tuner" },
     ...plotSnapshotPayload(),
+  };
+}
+
+function mapGridResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...mapGridPayload(),
   };
 }
 

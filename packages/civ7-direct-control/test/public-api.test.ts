@@ -16,6 +16,8 @@ import {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
+  Civ7MapGridInputSchema,
+  Civ7MapGridResultSchema,
   Civ7MapLocationSchema,
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
@@ -199,6 +201,47 @@ describe("Civ7 direct control public API", () => {
         "location",
         "hiddenInfoPolicy",
         "facts",
+      ]),
+    });
+  });
+
+  test("exports map grid procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      maxPlots: 1,
+    })).toBe(true);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      locations: [{ x: 0, y: 0 }],
+      fields: ["terrain"],
+    })).toBe(true);
+    expect(Value.Check(Civ7MapGridInputSchema, { fields: ["terrain"] })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      locations: [{ x: 0, y: 0 }],
+      fields: ["terrain"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["enemy"],
+    })).toBe(false);
+    expect(Value.Check(Civ7MapGridInputSchema, {
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      fields: ["terrain"],
+      rawCommand: "GameplayMap.getGridWidth()",
+    })).toBe(false);
+    expect(Civ7MapGridResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "fields",
+        "plotCount",
+        "omitted",
+        "hiddenInfoPolicy",
+        "plots",
       ]),
     });
   });

@@ -3723,3 +3723,25 @@ All future agent waves must be framed before delegation:
   catalog, add a router/registry/transport adapter, choose Effect Schema, claim
   runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
   6.1-6.9.
+- Map-grid procedure atom seed:
+  `packages/civ7-direct-control/src/play/map/types.ts` now owns TypeBox
+  input/output schemas for the existing read-only map grid atom, and
+  `packages/civ7-direct-control/src/play/map/grid-procedure.ts` records the
+  adjacent `map.grid.read` descriptor/schema artifact map and concrete call
+  wrapper over `getCiv7MapGrid` while preserving the existing `map` procedure
+  family. Focused proof in
+  `packages/civ7-direct-control/test/map-and-visibility.test.ts` validates the
+  fake map grid result against the schema and rejects invalid bounds/locations/
+  field plus endpoint/session/state/raw-command procedure input; proof in
+  `packages/civ7-direct-control/test/map-grid-procedure.test.ts` covers
+  descriptor schema resolution through public exports, no-network
+  fake-dependency calls, direct-control option forwarding,
+  input-before-dependency rejection, output validation, separated diagnostics,
+  bounded traversal command text, no-send command text, and descriptor/artifact/
+  call-wrapper exports through `src/index.ts`. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema
+  exports. This is local read-atom proof only; it does not change CLI output,
+  implement GameInfo/visibility procedure atoms, add a broad map catalog, add a
+  router/registry/transport adapter, choose Effect Schema, claim
+  runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
+  6.1-6.9.
