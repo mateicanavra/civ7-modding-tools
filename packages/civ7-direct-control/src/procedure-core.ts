@@ -212,6 +212,32 @@ export const Civ7ProcedureCoreErrorSummarySchema = Type.Object({
 }, { additionalProperties: false });
 export type Civ7ProcedureCoreErrorSummary = Static<typeof Civ7ProcedureCoreErrorSummarySchema>;
 
+export const Civ7ProcedureCoreCallSuccessEnvelopeSchema = Type.Object({
+  ok: Type.Literal(true),
+  output: Type.Unknown(),
+  diagnostics: Civ7ProcedureCoreCallDiagnosticsSchema,
+}, { additionalProperties: false });
+
+export const Civ7ProcedureCoreCallErrorEnvelopeSchema = Type.Object({
+  ok: Type.Literal(false),
+  error: Civ7ProcedureCoreErrorSummarySchema,
+}, { additionalProperties: false });
+
+export const Civ7ProcedureCoreCallEnvelopeSchema = Type.Union([
+  Civ7ProcedureCoreCallSuccessEnvelopeSchema,
+  Civ7ProcedureCoreCallErrorEnvelopeSchema,
+]);
+export type Civ7ProcedureCoreCallEnvelope<TOutput = unknown> =
+  | Readonly<{
+    ok: true;
+    output: TOutput;
+    diagnostics: Civ7ProcedureCoreCallDiagnostics;
+  }>
+  | Readonly<{
+    ok: false;
+    error: Civ7ProcedureCoreErrorSummary;
+  }>;
+
 export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   procedureKey: Type.String(),
   family: Civ7ProcedureFamilySchema,
@@ -415,6 +441,26 @@ export function summarizeCiv7ProcedureCoreError(
   }
   assignString(summary, "errorCode", details.errorCode);
   return summary;
+}
+
+export async function settleCiv7ProcedureCoreCall<TOutput = unknown>(
+  call: Promise<Civ7ProcedureCoreCallResult<TOutput>>,
+): Promise<Civ7ProcedureCoreCallEnvelope<TOutput>> {
+  try {
+    const result = await call;
+    return {
+      ok: true,
+      output: result.output,
+      diagnostics: result.diagnostics,
+    };
+  } catch (err) {
+    const error = summarizeCiv7ProcedureCoreError(err);
+    if (error === null) throw err;
+    return {
+      ok: false,
+      error,
+    };
+  }
 }
 
 export async function callCiv7ProcedureCore<TInput = unknown, TOutput = unknown>(

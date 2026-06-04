@@ -4,6 +4,7 @@ import { Value } from "typebox/value";
 import {
   Civ7ProcedureCoreDescriptorSchema,
   Civ7ProcedureCoreCallDiagnosticsSchema,
+  Civ7ProcedureCoreCallEnvelopeSchema,
   Civ7ProcedureCoreCallResultSchema,
   Civ7DirectControlError,
   Civ7ProcedureCoreErrorSummarySchema,
@@ -20,6 +21,7 @@ import {
   createCiv7ProcedureCoreDescriptor,
   isCiv7ProcedureCoreDescriptor,
   resolveCiv7ProcedureCoreSchemas,
+  settleCiv7ProcedureCoreCall,
   summarizeCiv7ProcedureCoreDescriptor,
   summarizeCiv7ProcedureCoreError,
   validateCiv7ProcedureCoreInput,
@@ -432,6 +434,70 @@ describe("Civ7 procedure-core descriptor owner", () => {
     expect(serializedHandlerSummary).not.toContain("Game.turn");
     expect(serializedHandlerSummary).not.toContain("rawCommand");
     expect(summarizeCiv7ProcedureCoreError(new Error("plain error"))).toBe(null);
+  });
+
+  test("settles procedure-core calls into JSON-safe success and error envelopes", async () => {
+    const successEnvelope = await settleCiv7ProcedureCoreCall(callCiv7ProcedureCore(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      { radius: 2 },
+      () => readyUnitOutput,
+      { correlationId: "corr-envelope-success" },
+    ));
+
+    expect(successEnvelope).toMatchObject({
+      ok: true,
+      output: readyUnitOutput,
+      diagnostics: {
+        procedureKey: "unit.ready.view",
+        correlationId: "corr-envelope-success",
+        proofBoundary: "local-package-test",
+        playerScope: "local-player-scoped",
+      },
+    });
+    expect(Value.Check(Civ7ProcedureCoreCallEnvelopeSchema, successEnvelope)).toBe(true);
+    expect(Value.Check(
+      Civ7ProcedureCoreCallEnvelopeSchema,
+      JSON.parse(JSON.stringify(successEnvelope)),
+    )).toBe(true);
+
+    const errorEnvelope = await settleCiv7ProcedureCoreCall(callCiv7ProcedureCore(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      { radius: 2 },
+      () => {
+        throw new Civ7DirectControlError(
+          "command-failed",
+          "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
+          { details: { rawCommand: "Game.turn" } },
+        );
+      },
+      { correlationId: "corr-envelope-error" },
+    ));
+
+    expect(errorEnvelope).toEqual({
+      ok: false,
+      error: {
+        code: "procedure-call-failed",
+        message: "Civ7 procedure unit.ready.view handler failed",
+        reason: "handler-failed",
+        procedureKey: "unit.ready.view",
+        correlationId: "corr-envelope-error",
+        errorCode: "command-failed",
+      },
+    });
+    expect(Value.Check(Civ7ProcedureCoreCallEnvelopeSchema, errorEnvelope)).toBe(true);
+    const serializedErrorEnvelope = JSON.stringify(errorEnvelope);
+    expect(Value.Check(
+      Civ7ProcedureCoreCallEnvelopeSchema,
+      JSON.parse(serializedErrorEnvelope),
+    )).toBe(true);
+    expect(serializedErrorEnvelope).not.toContain("CMD");
+    expect(serializedErrorEnvelope).not.toContain("Game.turn");
+    expect(serializedErrorEnvelope).not.toContain("rawCommand");
+
+    await expect(settleCiv7ProcedureCoreCall(Promise.reject(new Error("plain failure"))))
+      .rejects.toThrow(/plain failure/);
   });
 
   test("binds procedure descriptors to direct-control schema owners", () => {

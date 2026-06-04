@@ -4005,3 +4005,22 @@ All future agent waves must be framed before delegation:
   router/registry/transport behavior, choose Effect Schema, add Effect/oRPC
   source, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
   5.1-5.7 or 6.1-6.9.
+
+- Procedure-core settled call envelope:
+  `packages/civ7-direct-control/src/procedure-core.ts` now exports
+  `Civ7ProcedureCoreCallEnvelopeSchema`,
+  `Civ7ProcedureCoreCallSuccessEnvelopeSchema`,
+  `Civ7ProcedureCoreCallErrorEnvelopeSchema`, and
+  `settleCiv7ProcedureCoreCall` over the existing local procedure-call
+  primitive. Focused proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` covers successful
+  calls projected as `{ ok: true, output, diagnostics }`, procedure-core
+  handler failures projected as `{ ok: false, error }`, local JSON round trips,
+  omission of raw command-bearing nested cause details, and rethrow behavior for
+  non-procedure errors. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` validates the exported
+  envelope schema and helper. This reduces only the local procedure-core
+  result/error envelope proof gap; it does not change existing throwing call
+  behavior, change CLI output, add router/registry/transport behavior, choose
+  Effect Schema, add Effect/oRPC source, claim runtime/live-game proof, accept
+  Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.

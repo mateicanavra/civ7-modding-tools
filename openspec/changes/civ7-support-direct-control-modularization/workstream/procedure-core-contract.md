@@ -40,7 +40,11 @@ in diagnostics, resolves correlation IDs according to descriptor policy, and
 normalizes handler failures with typed direct-control error details. The
 procedure-core owner also exports a local error summary schema/helper over
 existing descriptor/call failures so future router/error-shape work has a typed
-projection that omits raw cause objects and nested cause messages. The first
+projection that omits raw cause objects and nested cause messages. It also
+exports a local settled call envelope schema/helper over the existing call
+primitive, preserving successful output/diagnostics and projecting
+procedure-core failures through the safe error summary for JSON round-trip
+proof. The first
 concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
 which owns the `unit.ready.view` descriptor adjacent to the ready-unit atom and
@@ -721,6 +725,19 @@ This is local typed-error/error-shape proof only; it does not replace
 `Civ7DirectControlError`, register a router, add transport behavior, choose
 Effect Schema, claim runtime proof, or accept the matrix row.
 
+Local procedure-core settled call envelopes now live in
+`packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` settles successful
+calls into `{ ok: true, output, diagnostics }`, settles procedure-core handler
+failures into `{ ok: false, error }` using the safe error summary, validates
+JSON round trips through `Civ7ProcedureCoreCallEnvelopeSchema`, proves raw
+command-bearing nested cause details stay out of the error envelope, and
+rethrows non-procedure errors instead of hiding them. Public facade proof
+validates the exported envelope schema and helper. This is local
+result/error-envelope proof only; it does not change existing throwing call
+behavior, register a router, add transport behavior, choose Effect Schema,
+claim runtime proof, or accept the matrix row.
+
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
 correlation IDs, approval gates, and telemetry hooks. It must serve the
@@ -876,8 +893,10 @@ Acceptance still needs:
   bridge, and future AI services;
 - final oRPC schema/procedure validation tests beyond the local TypeBox
   payload/call helper;
-- final router/procedure error-shape snapshots beyond the local summary helper;
-- encode/decode round-trip tests;
+- final router/procedure error-shape snapshots beyond the local summary helper
+  and settled envelope;
+- final oRPC/Bun encode/decode round-trip tests beyond local JSON envelope
+  proof;
 - Bun runtime checks;
 - CLI semantic projection tests;
 - AI-ingestion contract fixture tests;
