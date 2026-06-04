@@ -776,8 +776,25 @@ export type {
   Civ7SettlementRecommendationInput,
   Civ7SettlementRecommendationOrigin,
   Civ7SettlementRecommendationResult,
+  SettlementRecommendationDependencies,
 } from "./play/tactical/settlement.js";
-export { getCiv7SettlementRecommendations };
+export {
+  Civ7SettlementRecommendationFactorSchema,
+  Civ7SettlementRecommendationInputSchema,
+  Civ7SettlementRecommendationOriginSchema,
+  Civ7SettlementRecommendationResultSchema,
+  Civ7SettlementRecommendationSchema,
+  Civ7SettlementSuggestionSchema,
+  getCiv7SettlementRecommendations,
+} from "./play/tactical/settlement.js";
+export {
+  callCiv7SettlementRecommendationsProcedure,
+  Civ7SettlementRecommendationsProcedureDescriptor,
+  Civ7SettlementRecommendationsProcedureSchemaArtifacts,
+} from "./play/tactical/settlement-procedure.js";
+export type {
+  Civ7SettlementRecommendationsProcedureCallOptions,
+} from "./play/tactical/settlement-procedure.js";
 export type {
   Civ7TargetCandidate,
   Civ7TargetCandidatesInput,

@@ -77,8 +77,12 @@ owns the `runtime.tuner.health` descriptor adjacent to the Tuner health atom and
 schema exports. The adjacent notification read descriptor artifact is
 `packages/civ7-direct-control/src/play/notifications/view-procedure.ts`, which
 owns the `notifications.view` descriptor adjacent to the notification read atom
-and schema exports. This is local package proof only; it does not collect
-runtime evidence, add Effect/oRPC dependencies, create
+and schema exports. The adjacent settlement-recommendations descriptor artifact
+is `packages/civ7-direct-control/src/play/tactical/settlement-procedure.ts`,
+which owns the `strategy.settlement.recommendations` descriptor adjacent to the
+read-only settlement recommendation atom and schema exports while staying under
+the existing `strategy` procedure family. This is local package proof only; it
+does not collect runtime evidence, add Effect/oRPC dependencies, create
 `packages/civ7-control-orpc`, implement router/procedure behavior, choose a
 broader schema migration, claim runtime proof, or accept the matrix row.
 
@@ -161,6 +165,23 @@ exported for future procedure-core consumers. This is a read-only notification
 view schema seed; it does not change normal CLI output, notification
 classification, dismissal behavior, runtime proof, or matrix-row acceptance.
 
+`packages/civ7-direct-control/src/play/tactical/settlement.ts` now owns
+TypeBox schemas for `getCiv7SettlementRecommendations` input, settlement
+recommendation factors, origins, suggestions, recommendations, and output. The
+input schema preserves the existing bounded `count` contract and uses the
+shared bounded map-location schema for requested locations; endpoint/session/
+state selection and raw command fields remain procedure context/debug
+concerns. Focused proof in
+`packages/civ7-direct-control/test/settlement-recommendations.test.ts`
+validates the existing fake settlement recommendation result against the
+output schema, rejects out-of-bound `count`, invalid map locations,
+context/raw-command input, and root-level raw command output fields. Public
+facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
+verifies the schemas are exported for future procedure-core consumers. This is
+a read-only settlement recommendation schema seed; it does not change normal
+CLI output, reinterpret recommendations as actions, add city-founding/send
+behavior, claim runtime proof, or accept the matrix row.
+
 The adjacent ready-unit descriptor artifact reuses those schema exports and
 records root input/output field names from the actual TypeBox schemas,
 including `legalOperations` for the ready-unit operation candidates. Focused
@@ -238,14 +259,32 @@ schema exports and records `notifications.view` beside
 checks the descriptor's input/output field lists against resolved schema root
 properties, including notifications, decisions, HUD, and limits, without
 registering a router or transport adapter. The same artifact exports a concrete
-call wrapper composed through the local procedure-core call primitive. Focused
-proof uses fake atom dependencies to prove direct-control option forwarding,
-bounded input validation before atom dependencies run, output validation after
-the atom returns, and separated output/diagnostics. This is local no-network
-read-atom proof only; it does not execute live notification reads, add a router,
-add Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, change
-CLI output, change notification classification/dismissal behavior, or accept
-the matrix row.
+call wrapper over `getCiv7PlayNotificationView`, composed through the local
+procedure-core call primitive. Focused proof uses fake atom dependencies to
+prove direct-control option forwarding, input validation before atom
+dependencies run, output validation after the atom returns, and separated
+output/diagnostics. This is local no-network read-atom proof only; it does not
+change CLI output, notification classification, dismissal behavior, add a
+router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
+
+The adjacent settlement-recommendations procedure artifact reuses the
+settlement recommendation schema exports and records
+`strategy.settlement.recommendations` beside
+`getCiv7SettlementRecommendations`. Focused proof in
+`packages/civ7-direct-control/test/settlement-recommendations-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including requested locations, origins, recommendations, and notes,
+without registering a router or transport adapter. The same artifact exports a
+concrete call wrapper over `getCiv7SettlementRecommendations`, composed
+through the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, input validation before
+atom dependencies run, output validation after the atom returns, separated
+output/diagnostics, and preservation of the read-only settlement lens boundary.
+This is local no-network read-atom proof only; it does not change CLI output,
+reinterpret recommendations as actions, add city-founding/send behavior, add
+a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
 
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
@@ -387,12 +426,13 @@ gaps for the current TypeBox descriptor shape, generic raw fields,
 repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
-health, and notification-view descriptor artifacts with
+health, notification-view, and settlement-recommendations descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
 unit move-preview, playable-status, App UI snapshot, Tuner health, and
-notification-view procedure call wrappers, but they do not accept the row.
+notification-view and settlement-recommendations procedure call wrappers, but
+they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
@@ -400,7 +440,7 @@ Acceptance still needs:
   procedure contracts;
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the current ready-read, move-preview, runtime-support, and
-  notification-view call wrappers;
+  notification-view and settlement-recommendations call wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

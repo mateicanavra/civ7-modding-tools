@@ -757,8 +757,8 @@ Intake rejection conditions:
   owner exists; descriptor context-policy metadata, payload validation, and a
   local injected-handler call primitive now exist for current schema/descriptor
   seeds; concrete ready-unit, ready-city, unit move-preview, playable-status,
-  App UI snapshot, Tuner health, and notification-view procedure call wrappers
-  exist adjacent to their
+  App UI snapshot, Tuner health, notification-view, and
+  settlement-recommendations procedure call wrappers exist adjacent to their
   direct-control atoms; final procedure-core/schema/runtime-context,
   middleware, error, and correlation owners remain pending
 - `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
@@ -785,6 +785,9 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/play-notification-view-procedure.test.ts`
   now also proves the adjacent concrete notification-view procedure call
   wrapper with fake atom dependencies.
+  `packages/civ7-direct-control/test/settlement-recommendations-procedure.test.ts`
+  now also proves the adjacent concrete settlement-recommendations procedure
+  call wrapper with fake atom dependencies.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -883,6 +886,13 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/play-notification-view-procedure.test.ts`
   plus adjacent atom schema proof in
   `packages/civ7-direct-control/test/play-notification-view.test.ts`.
+  The adjacent settlement-recommendations descriptor artifact is now
+  `packages/civ7-direct-control/src/play/tactical/settlement-procedure.ts`,
+  with TypeBox schema ownership in
+  `packages/civ7-direct-control/src/play/tactical/settlement.ts` and proof in
+  `packages/civ7-direct-control/test/settlement-recommendations-procedure.test.ts`
+  plus adjacent atom schema proof in
+  `packages/civ7-direct-control/test/settlement-recommendations.test.ts`.
   The descriptor owner also records `schemaTechnology`, requires current
   adjacent descriptors to declare `typebox`, and rejects unaccepted
   `effect-schema` or `zod-adapter` claims before procedure promotion. The
@@ -897,22 +907,25 @@ Intake rejection conditions:
   output-after-handler validation, separated output/diagnostics, generated and
   caller-provided correlation IDs, and handler failure normalization. The
   concrete ready-unit, ready-city, unit move-preview, playable-status, App UI
-  snapshot, Tuner health, and notification-view procedure call wrappers now
+  snapshot, Tuner health, notification-view, and
+  settlement-recommendations procedure call wrappers now
   compose that primitive with
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
-  `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`, and
-  `getCiv7AppUiSnapshot`, `checkCiv7TunerHealth`, and
-  `getCiv7PlayNotificationView` through fake
+  `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`,
+  `getCiv7AppUiSnapshot`, `checkCiv7TunerHealth`,
+  `getCiv7PlayNotificationView`, and
+  `getCiv7SettlementRecommendations` through fake
   direct-control dependencies in focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   accepted TypeBox versus Effect Schema disposition for final procedure
   contracts, runtime-context/middleware/error/correlation owner, broader
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control procedure descriptor
-  owner, adjacent descriptor/call metadata declaring current TypeBox schema
-  technology, notification-view TypeBox schemas, focused descriptor/atom/public
-  facade proof, and docs/OpenSpec records.
+- `writeSet`: current write set is the direct-control settlement
+  recommendation atom schema owner, adjacent
+  `strategy.settlement.recommendations` descriptor/call metadata declaring
+  current TypeBox schema technology, focused descriptor/atom/public facade
+  proof, and docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,

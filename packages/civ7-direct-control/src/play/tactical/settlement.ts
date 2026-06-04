@@ -1,8 +1,12 @@
+import { Type } from "typebox";
+
+import { Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { probeHelperSource } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { boundedInteger } from "../../validation.js";
+import { Civ7MapLocationSchema } from "../map/types.js";
 
 import type {
   Civ7CommandResult,
@@ -12,6 +16,19 @@ import type {
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7SettlementRecommendationInputSchema = Type.Object({
+  playerId: Type.Optional(Type.Integer({ minimum: 0 })),
+  locations: Type.Optional(Type.Array(Civ7MapLocationSchema)),
+  count: Type.Optional(Type.Integer({ minimum: 1, maximum: 12 })),
+  includeSettlers: Type.Optional(Type.Boolean()),
+  includeCities: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
+
 export type Civ7SettlementRecommendationInput = Readonly<{
   playerId?: number;
   locations?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
@@ -20,11 +37,30 @@ export type Civ7SettlementRecommendationInput = Readonly<{
   includeCities?: boolean;
 }>;
 
+export const Civ7SettlementRecommendationFactorSchema = Type.Object({
+  positive: Type.Boolean(),
+  title: Type.Union([Type.String(), Type.Null()]),
+  description: Type.Union([Type.String(), Type.Null()]),
+}, { additionalProperties: false });
+
 export type Civ7SettlementRecommendationFactor = Readonly<{
   positive: boolean;
   title: string | null;
   description: string | null;
 }>;
+
+export const Civ7SettlementRecommendationOriginSchema = Type.Object({
+  kind: Type.Union([
+    Type.Literal("requested"),
+    Type.Literal("settler"),
+    Type.Literal("city"),
+  ]),
+  location: Civ7MapLocationSchema,
+  plotIndex: Civ7RuntimeProbeSchema(Type.Number()),
+  unitId: Type.Optional(Civ7ComponentIdSchema),
+  cityId: Type.Optional(Civ7ComponentIdSchema),
+  name: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+}, { additionalProperties: false });
 
 export type Civ7SettlementRecommendationOrigin = Readonly<{
   kind: "requested" | "settler" | "city";
@@ -35,6 +71,17 @@ export type Civ7SettlementRecommendationOrigin = Readonly<{
   name?: string | null;
 }>;
 
+export const Civ7SettlementSuggestionSchema = Type.Object({
+  location: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+  plotIndex: Civ7RuntimeProbeSchema(Type.Number()),
+  factors: Type.Array(Civ7SettlementRecommendationFactorSchema),
+}, { additionalProperties: false });
+
+export const Civ7SettlementRecommendationSchema = Type.Object({
+  origin: Civ7SettlementRecommendationOriginSchema,
+  suggestions: Civ7RuntimeProbeSchema(Type.Array(Civ7SettlementSuggestionSchema)),
+}, { additionalProperties: false });
+
 export type Civ7SettlementRecommendation = Readonly<{
   origin: Civ7SettlementRecommendationOrigin;
   suggestions: Civ7RuntimeProbe<ReadonlyArray<Readonly<{
@@ -43,6 +90,19 @@ export type Civ7SettlementRecommendation = Readonly<{
     factors: ReadonlyArray<Civ7SettlementRecommendationFactor>;
   }>>>;
 }>;
+
+export const Civ7SettlementRecommendationResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  localPlayerId: Type.Number(),
+  playerId: Type.Number(),
+  count: Type.Number(),
+  requestedLocations: Type.Array(Civ7MapLocationSchema),
+  origins: Type.Array(Civ7SettlementRecommendationOriginSchema),
+  recommendations: Type.Array(Civ7SettlementRecommendationSchema),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
 
 export type Civ7SettlementRecommendationResult = Readonly<{
   host: string;
@@ -57,7 +117,7 @@ export type Civ7SettlementRecommendationResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
-type SettlementRecommendationDependencies = Readonly<{
+export type SettlementRecommendationDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,

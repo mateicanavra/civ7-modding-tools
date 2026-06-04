@@ -3523,3 +3523,27 @@ All future agent waves must be framed before delegation:
   dismissal behavior, add a router/registry/transport adapter, choose Effect
   Schema, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
   6.1-6.9.
+- Settlement-recommendations procedure atom seed:
+  `packages/civ7-direct-control/src/play/tactical/settlement.ts` now owns
+  TypeBox input/output schemas for the existing read-only settlement
+  recommendation atom, and
+  `packages/civ7-direct-control/src/play/tactical/settlement-procedure.ts`
+  records the adjacent `strategy.settlement.recommendations` descriptor/schema
+  artifact map and concrete call wrapper over
+  `getCiv7SettlementRecommendations` while preserving the existing `strategy`
+  procedure family. Focused proof in
+  `packages/civ7-direct-control/test/settlement-recommendations.test.ts`
+  validates the fake settlement result against the schema and rejects invalid
+  count/location plus endpoint/session/state/raw-command procedure input; proof
+  in
+  `packages/civ7-direct-control/test/settlement-recommendations-procedure.test.ts`
+  covers descriptor schema resolution, no-network fake-dependency calls,
+  direct-control option forwarding, input-before-dependency rejection, output
+  validation, separated diagnostics, and preservation of the read-only
+  settlement lens boundary. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema,
+  descriptor, artifact map, and call-wrapper exports. This is local read-atom
+  proof only; it does not change CLI output, reinterpret recommendations as
+  actions, add city-founding/send behavior, add a router/registry/transport
+  adapter, choose Effect Schema, claim runtime/live-game proof, accept Task
+  2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.

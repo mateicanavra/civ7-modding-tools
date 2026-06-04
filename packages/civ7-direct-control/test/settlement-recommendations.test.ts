@@ -1,8 +1,13 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
-import { getCiv7SettlementRecommendations } from "../src/index";
+import {
+  Civ7SettlementRecommendationInputSchema,
+  Civ7SettlementRecommendationResultSchema,
+  getCiv7SettlementRecommendations,
+} from "../src/index";
 
 type SettlementInput = {
   playerId?: number;
@@ -23,6 +28,29 @@ type FakeTunerServer = {
 };
 
 describe("getCiv7SettlementRecommendations", () => {
+  test("exports TypeBox schemas for the bounded read-only settlement recommendation atom", () => {
+    const requestedInput = {
+      locations: [{ x: 18, y: 27 }],
+      count: 3,
+      includeSettlers: false,
+      includeCities: false,
+    };
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, requestedInput)).toBe(true);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { count: 0 })).toBe(false);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { count: 13 })).toBe(false);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { locations: [{ x: 1.5, y: 0 }] })).toBe(false);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7SettlementRecommendationInputSchema, { rawCommand: "readSettlementRecommendations()" })).toBe(false);
+
+    const result = settlementRecommendationsResult(requestedInput);
+    expect(Value.Check(Civ7SettlementRecommendationResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7SettlementRecommendationResultSchema, {
+      ...result,
+      rawCommand: "readSettlementRecommendations()",
+    })).toBe(false);
+  });
+
   test("routes a requested-location read through App UI settlement recommendations without send operations", async () => {
     const server = await startSettlementRecommendationsTunerServer();
     try {
@@ -243,6 +271,15 @@ function settlementRecommendations(input: SettlementInput) {
       "Recommendations are local-player AI advice for ranking candidate plots; use unit-target/ready-unit validation before moving a Settler.",
       "Official settlement lens seeds recommendations from Settler and city origins; pass --x/--y to focus one live Settler or formation.",
     ],
+  };
+}
+
+function settlementRecommendationsResult(input: SettlementInput) {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...settlementRecommendations(input),
   };
 }
 

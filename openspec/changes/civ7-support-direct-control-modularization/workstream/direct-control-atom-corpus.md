@@ -593,6 +593,27 @@ add a router/registry/transport adapter, choose Effect Schema, claim
 runtime/live-game proof, accept Task 2.9.4, or unblock broader AI ingestion,
 debug hierarchy, telemetry persistence, or Effect/oRPC procedure cores.
 
+Settlement-recommendations procedure atom seed update:
+`src/play/tactical/settlement.ts` now owns TypeBox input/output schemas for the
+existing read-only settlement recommendation atom, including bounded `count`,
+shared map-location input, settlement origin/suggestion output, and root output
+separation from raw command fields.
+`src/play/tactical/settlement-procedure.ts` now owns the adjacent
+`strategy.settlement.recommendations` descriptor/schema artifact map and
+concrete call wrapper over `getCiv7SettlementRecommendations` while staying
+under the existing `strategy` procedure family. `test/settlement-recommendations.test.ts`
+proves the fake settlement result matches the schema and rejects invalid
+count/location plus context/raw-command procedure input;
+`test/settlement-recommendations-procedure.test.ts` proves descriptor schema
+resolution, no-network fake-dependency calls, direct-control option forwarding,
+input-before-dependency rejection, output validation, separated diagnostics,
+and preservation of the read-only settlement lens boundary. This is local
+read-atom proof only. It does not change CLI output, reinterpret
+recommendations as actions, add city-founding/send behavior, add a
+router/registry/transport adapter, choose Effect Schema, claim runtime/live-game
+proof, accept Task 2.9.4, or unblock broader AI ingestion, debug hierarchy,
+telemetry persistence, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,
