@@ -69,6 +69,9 @@ adding more read-only facade shells.
   - [x] 5.2.1 Extract production-choice request/proof classification policy
     into a direct-control-owned helper while preserving legacy request
     `verified` behavior and stricter no-repeat proof semantics.
+  - [x] 5.2.2 Extract notification-dismissal proof/no-repeat policy into a
+    proof helper while keeping runtime postcondition classification in
+    direct-control notification postconditions.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
 - [ ] 5.4 Identify service-owned behavior, runtime ports, policy owners,

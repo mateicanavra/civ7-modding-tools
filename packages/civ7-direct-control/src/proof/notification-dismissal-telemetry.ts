@@ -8,15 +8,13 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
-  type Civ7OperationTelemetryPostcondition,
-  type Civ7OperationTelemetryPostconditionOutcome,
 } from "./operation-telemetry";
+import { notificationDismissalProofPostcondition } from "./notification-dismissal-proof-policy";
 
 import type {
   Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
 } from "../play/notifications/dismissal-request";
-import type { Civ7NotificationDismissalPostconditionClassification } from "../play/notifications/postconditions";
 
 export type Civ7NotificationDismissalTelemetryAdapterInput = Readonly<{
   input: Civ7NotificationDismissInput;
@@ -127,7 +125,7 @@ export function createCiv7NotificationDismissalTelemetryRecord(
           "read-after-send"
         )
       : undefined,
-    postcondition: notificationDismissalTelemetryPostcondition(input.result, input.proofBoundary),
+    postcondition: notificationDismissalProofPostcondition(input.result, input.proofBoundary),
     outcome_delta: input.result.sent
       ? evidence(
           {
@@ -170,94 +168,10 @@ function notificationDismissalEvidencePolicy(
   };
 }
 
-function notificationDismissalTelemetryPostcondition(
-  result: Civ7NotificationDismissalResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
-): Civ7OperationTelemetryPostcondition | undefined {
-  const postcondition = notificationDismissalPostconditionOf(result);
-  if (!result.sent && !postcondition) return undefined;
-  if (proofBoundary === "pending-runtime-proof") {
-    return {
-      classification: postcondition?.classification ?? "pending-runtime-proof",
-      reason: postcondition?.reason ?? "Runtime postcondition proof is pending.",
-      outcome: "unknown",
-      noRepeatAfterUnverified: true,
-      confidence: "pending-runtime-proof",
-    };
-  }
-  if (!postcondition) {
-    return {
-      classification: "missing-postcondition",
-      reason: "The notification dismissal result did not include explicit postcondition evidence.",
-      outcome: "unknown",
-      noRepeatAfterUnverified: true,
-      confidence: "unverified",
-    };
-  }
-  if (!notificationDismissalPostconditionConfirmed(postcondition.classification)) {
-    return {
-      classification: postcondition.classification,
-      reason: postcondition.reason,
-      outcome: notificationDismissalTelemetryOutcome(postcondition.classification),
-      noRepeatAfterUnverified: true,
-      confidence: "unverified",
-    };
-  }
-  return {
-    classification: postcondition.classification,
-    reason: postcondition.reason,
-    outcome: notificationDismissalTelemetryOutcome(postcondition.classification),
-    noRepeatAfterUnverified: false,
-    confidence: "confirmed",
-  };
-}
-
 function notificationDismissalPostconditionOf(
   result: Civ7NotificationDismissalResult,
 ): Civ7NotificationDismissalResult["postcondition"] | undefined {
   return (result as { postcondition?: Civ7NotificationDismissalResult["postcondition"] }).postcondition;
-}
-
-function notificationDismissalPostconditionConfirmed(
-  classification: Civ7NotificationDismissalPostconditionClassification,
-): boolean {
-  switch (classification) {
-    case "notification-disappeared":
-    case "notification-dismissed":
-    case "engine-queue-cleared":
-    case "notification-train-cleared":
-    case "engine-front-moved":
-    case "notification-train-front-moved":
-      return true;
-    case "not-sent":
-    case "missing-after":
-    case "engine-front-still-live":
-    case "no-state-change":
-      return false;
-  }
-}
-
-function notificationDismissalTelemetryOutcome(
-  classification: Civ7NotificationDismissalPostconditionClassification,
-): Civ7OperationTelemetryPostconditionOutcome {
-  switch (classification) {
-    case "not-sent":
-      return "not-sent";
-    case "notification-disappeared":
-    case "engine-queue-cleared":
-    case "notification-train-cleared":
-      return "cleared";
-    case "notification-dismissed":
-    case "engine-front-moved":
-    case "notification-train-front-moved":
-      return "state-changed";
-    case "engine-front-still-live":
-      return "stale";
-    case "missing-after":
-      return "unknown";
-    case "no-state-change":
-      return "no-state-change";
-  }
 }
 
 function notificationDismissalTelemetrySummary(
