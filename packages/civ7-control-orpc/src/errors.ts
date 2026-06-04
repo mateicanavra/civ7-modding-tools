@@ -175,6 +175,27 @@ export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7UnitTargetActionUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("unit.target.action.request"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7UnitTargetActionUnavailableErrorData = Static<
+  typeof Civ7UnitTargetActionUnavailableErrorDataSchema
+>;
+
+export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
+  "Civ7UnitTargetActionUnavailableError",
+  {
+    code: "UNIT_TARGET_ACTION_UNAVAILABLE",
+    message: "Direct-control unit target action request failed.",
+    schema: toStandardSchema(Civ7UnitTargetActionUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -272,6 +293,7 @@ export const civ7ControlOrpcErrorMap = {
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READY_CITY_VIEW_UNAVAILABLE: Civ7ReadyCityViewUnavailableError,
   READY_UNIT_VIEW_UNAVAILABLE: Civ7ReadyUnitViewUnavailableError,
+  UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
   UNIT_SUMMARY_UNAVAILABLE: Civ7UnitSummaryUnavailableError,
 } satisfies EffectErrorMap;
 

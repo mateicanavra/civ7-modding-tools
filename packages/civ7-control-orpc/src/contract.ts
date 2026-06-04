@@ -20,6 +20,10 @@ import {
   type Civ7NotificationsContract as Civ7NotificationsContractType,
 } from "./modules/notifications/contract";
 import {
+  Civ7OperationsContract,
+  type Civ7OperationsContract as Civ7OperationsContractType,
+} from "./modules/operations/contract";
+import {
   Civ7PlayerContract,
   type Civ7PlayerContract as Civ7PlayerContractType,
 } from "./modules/player/contract";
@@ -33,6 +37,7 @@ export type Civ7ControlOrpcContract = Readonly<{
   city: Civ7CityContractType;
   map: Civ7MapContractType;
   notifications: Civ7NotificationsContractType;
+  operations: Civ7OperationsContractType;
   player: Civ7PlayerContractType;
   runtime: Civ7RuntimeContractType;
   unit: Civ7UnitContractType;
@@ -44,6 +49,7 @@ export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
     city: Civ7CityContract,
     map: Civ7MapContract,
     notifications: Civ7NotificationsContract,
+    operations: Civ7OperationsContract,
     player: Civ7PlayerContract,
     runtime: Civ7RuntimeContract,
     unit: Civ7UnitContract,

@@ -10,6 +10,7 @@ import {
   getCiv7UnitSummary,
   requestCiv7NotificationDismissal,
   requestCiv7ProductionChoice,
+  requestCiv7UnitTargetAction,
   type Civ7ActionApproval,
   type Civ7DirectControlOptions,
   Civ7CitySummaryResultSchema,
@@ -21,6 +22,7 @@ import {
   Civ7ReadyCityViewResultSchema,
   Civ7ReadyUnitViewResultSchema,
   Civ7TurnCompletionStatusResultSchema,
+  Civ7UnitTargetActionResultSchema,
   Civ7UnitSummaryResultSchema,
   type Civ7CitySummaryInput,
   type Civ7MapSummaryOptions,
@@ -30,6 +32,7 @@ import {
   type Civ7ProductionChoiceInput,
   type Civ7ReadyCityViewInput,
   type Civ7ReadyUnitViewInput,
+  type Civ7UnitTargetActionInput,
   type Civ7UnitSummaryInput,
   type PlayNotificationViewOptions,
 } from "@civ7/direct-control";
@@ -64,6 +67,9 @@ export type Civ7ControlOrpcReadyCityViewResult = Static<
 export type Civ7ControlOrpcTurnCompletionStatusResult = Static<
   typeof Civ7TurnCompletionStatusResultSchema
 >;
+export type Civ7ControlOrpcUnitTargetActionResult = Static<
+  typeof Civ7UnitTargetActionResultSchema
+>;
 export type Civ7ControlOrpcUnitSummaryResult = Static<
   typeof Civ7UnitSummaryResultSchema
 >;
@@ -90,6 +96,11 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     options: Civ7DirectControlOptions | undefined,
     approval: Civ7ActionApproval,
   ): Promise<Civ7ControlOrpcNotificationDismissalResult>;
+  requestCiv7UnitTargetAction(
+    input: Civ7UnitTargetActionInput,
+    options: Civ7DirectControlOptions | undefined,
+    approval: Civ7ActionApproval,
+  ): Promise<Civ7ControlOrpcUnitTargetActionResult>;
   getCiv7PlayableStatus(
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcPlayableStatusResult>;
@@ -131,6 +142,10 @@ export const liveCiv7ControlOrpcDirectControlFacade = {
   requestCiv7NotificationDismissal: async (input, options, approval) =>
     requestCiv7NotificationDismissal(input, options, approval) as Promise<
       Civ7ControlOrpcNotificationDismissalResult
+    >,
+  requestCiv7UnitTargetAction: async (input, options, approval) =>
+    requestCiv7UnitTargetAction(input, options, approval) as Promise<
+      Civ7ControlOrpcUnitTargetActionResult
     >,
   getCiv7PlayableStatus: async (options) =>
     getCiv7PlayableStatus(options) as Promise<

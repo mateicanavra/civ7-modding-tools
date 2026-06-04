@@ -14,6 +14,7 @@ export {
   type Civ7ControlOrpcReadyCityViewResult,
   type Civ7ControlOrpcReadyUnitViewResult,
   type Civ7ControlOrpcTurnCompletionStatusResult,
+  type Civ7ControlOrpcUnitTargetActionResult,
   type Civ7ControlOrpcUnitSummaryResult,
   type Civ7ControlOrpcDirectControlFacade,
 } from "./dependencies/direct-control";
@@ -40,6 +41,8 @@ export {
   Civ7ReadyCityViewUnavailableErrorDataSchema,
   Civ7ReadyUnitViewUnavailableError,
   Civ7ReadyUnitViewUnavailableErrorDataSchema,
+  Civ7UnitTargetActionUnavailableError,
+  Civ7UnitTargetActionUnavailableErrorDataSchema,
   Civ7UnitSummaryUnavailableError,
   Civ7UnitSummaryUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
@@ -56,6 +59,7 @@ export {
   type Civ7NotificationViewUnavailableErrorData,
   type Civ7ReadyCityViewUnavailableErrorData,
   type Civ7ReadyUnitViewUnavailableErrorData,
+  type Civ7UnitTargetActionUnavailableErrorData,
   type Civ7UnitSummaryUnavailableErrorData,
 } from "./errors";
 export type { Civ7ControlOrpcProcedureMeta } from "./metadata";
@@ -158,6 +162,28 @@ export type {
 export { notificationsRouter } from "./modules/notifications/router";
 export { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
 export { notificationsViewProcedure } from "./modules/notifications/procedures/view";
+export {
+  Civ7OperationsContract,
+  Civ7OperationsUnitTargetActionContract,
+  Civ7OperationsUnitTargetActionFamilySchema,
+  Civ7OperationsUnitTargetActionInputStandardSchema,
+  Civ7OperationsUnitTargetActionNextStepSchema,
+  Civ7OperationsUnitTargetActionPostconditionSummarySchema,
+  Civ7OperationsUnitTargetActionProofOutcomeSchema,
+  Civ7OperationsUnitTargetActionRequestStatusSchema,
+  Civ7OperationsUnitTargetActionResultSchema,
+  Civ7OperationsUnitTargetActionResultStandardSchema,
+  Civ7OperationsUnitTargetActionSelectedSummarySchema,
+  Civ7OperationsUnitTargetActionValidationSummarySchema,
+  Civ7OperationsUnitTargetActionVerificationClassificationSchema,
+} from "./modules/operations/contract";
+export type {
+  Civ7OperationsContract as Civ7OperationsContractType,
+  Civ7OperationsUnitTargetActionContract as Civ7OperationsUnitTargetActionContractType,
+  Civ7OperationsUnitTargetActionResult,
+} from "./modules/operations/contract";
+export { operationsRouter } from "./modules/operations/router";
+export { operationsUnitTargetActionRequestProcedure } from "./modules/operations/procedures/unit-target-action-request";
 export {
   Civ7RuntimeContract,
   Civ7RuntimePlayableStatusContract,

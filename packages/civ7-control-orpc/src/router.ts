@@ -7,6 +7,7 @@ import { attentionRouter } from "./modules/attention/router";
 import { cityRouter } from "./modules/city/router";
 import { mapRouter } from "./modules/map/router";
 import { notificationsRouter } from "./modules/notifications/router";
+import { operationsRouter } from "./modules/operations/router";
 import { playerRouter } from "./modules/player/router";
 import { runtimeRouter } from "./modules/runtime/router";
 import { unitRouter } from "./modules/unit/router";
@@ -19,6 +20,7 @@ export const Civ7ControlOrpcRouter: Router<
   city: cityRouter,
   map: mapRouter,
   notifications: notificationsRouter,
+  operations: operationsRouter,
   player: playerRouter,
   runtime: runtimeRouter,
   unit: unitRouter,

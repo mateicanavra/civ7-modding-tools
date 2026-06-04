@@ -1038,6 +1038,13 @@ export {
   requestCiv7UnitTargetAction,
 } from "./play/operations/unit-target-action.js";
 export {
+  unitTargetProofOutcome,
+  unitTargetProofPostcondition,
+} from "./proof/unit-target-proof-policy";
+export type {
+  Civ7UnitTargetActionVerification,
+} from "./proof/unit-target-proof-policy";
+export {
   callCiv7UnitTargetActionRequestProcedure,
   Civ7UnitTargetActionRequestProcedureDescriptor,
   Civ7UnitTargetActionRequestProcedureSchemaArtifacts,

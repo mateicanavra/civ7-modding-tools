@@ -106,6 +106,10 @@ adding more read-only facade shells.
     write-capable procedure leaf, with oRPC context approval and semantic
     notification dismissal proof projection over the direct-control
     notification dismissal runtime port.
+  - [x] 5.5.5 Seed `unit.target.action.request` as a single native
+    `operations` procedure leaf, with oRPC context approval and semantic
+    unit-target proof projection over the direct-control unit-target runtime
+    port; do not add a broad operations catalog.
 
 ## 6. Native Policy Layering
 
@@ -125,6 +129,9 @@ adding more read-only facade shells.
   - [x] 6.2.3 Reuse shared native approval middleware across
     `city.production.choice.request` and `notifications.dismiss.request` while
     keeping validator-first and postcondition/proof middleware pending.
+  - [x] 6.2.4 Reuse shared native approval middleware for
+    `unit.target.action.request` while keeping validator-first and
+    postcondition/proof middleware pending.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
   - [x] 6.3.1 Compose `city.production.choice.request` through the
@@ -135,6 +142,10 @@ adding more read-only facade shells.
     direct-control approval/validation/postcondition dismissal port and project
     source-owned notification proof/no-repeat semantics into normal output;
     keep shared validator/postcondition middleware pending.
+  - [x] 6.3.3 Compose `unit.target.action.request` through the direct-control
+    validator-first unit-target runtime port and project source-owned
+    verification/proof/no-repeat semantics into normal output; keep shared
+    validator/postcondition middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -144,6 +155,9 @@ adding more read-only facade shells.
     oRPC/effect-orpc error path is proven without custom wrapper plumbing.
   - [ ] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error
     primitives.
+  - [x] 6.4.4 Use native effect-orpc tagged error constructors for
+    `unit.target.action.request` direct-control runtime-port failures while
+    shared safe-error middleware remains pending.
 
 ## 7. Edge Adapters
 
