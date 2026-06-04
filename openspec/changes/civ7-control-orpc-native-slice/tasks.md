@@ -84,8 +84,14 @@ adding more read-only facade shells.
     burn-down map for current direct-control-shaped procedure modules.
 - [ ] 5.4 Identify service-owned behavior, runtime ports, policy owners,
   repositories/read ports, and middleware candidates from the modularized code.
+  - [x] 5.4.1 Record `attention.current` as a service-owned composition
+    boundary over playable status, notifications, and ready actor runtime
+    ports without adding a direct-control attention facade.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
+  - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
+    that derives semantic blockers, decisions, ready actors, and next steps
+    from existing direct-control runtime ports.
 
 ## 6. Native Policy Layering
 

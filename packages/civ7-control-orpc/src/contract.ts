@@ -1,5 +1,9 @@
 import { civ7ControlOrpcContractBase } from "./contract-base";
 import {
+  Civ7AttentionContract,
+  type Civ7AttentionContract as Civ7AttentionContractType,
+} from "./modules/attention/contract";
+import {
   Civ7CityContract,
   type Civ7CityContract as Civ7CityContractType,
 } from "./modules/city/contract";
@@ -25,6 +29,7 @@ import {
 } from "./modules/unit/contract";
 
 export type Civ7ControlOrpcContract = Readonly<{
+  attention: Civ7AttentionContractType;
   city: Civ7CityContractType;
   map: Civ7MapContractType;
   notifications: Civ7NotificationsContractType;
@@ -35,6 +40,7 @@ export type Civ7ControlOrpcContract = Readonly<{
 
 export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
   civ7ControlOrpcContractBase.router({
+    attention: Civ7AttentionContract,
     city: Civ7CityContract,
     map: Civ7MapContract,
     notifications: Civ7NotificationsContract,

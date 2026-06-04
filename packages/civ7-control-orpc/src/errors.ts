@@ -28,6 +28,27 @@ export class Civ7DirectControlUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7AttentionCurrentUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("attention.current"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7AttentionCurrentUnavailableErrorData = Static<
+  typeof Civ7AttentionCurrentUnavailableErrorDataSchema
+>;
+
+export class Civ7AttentionCurrentUnavailableError extends ORPCTaggedError(
+  "Civ7AttentionCurrentUnavailableError",
+  {
+    code: "ATTENTION_CURRENT_UNAVAILABLE",
+    message: "Current attention view failed.",
+    schema: toStandardSchema(Civ7AttentionCurrentUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7CitySummaryUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.summary.read"),
@@ -176,6 +197,7 @@ export class Civ7UnitSummaryUnavailableError extends ORPCTaggedError(
 ) {}
 
 export const civ7ControlOrpcErrorMap = {
+  ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CITY_SUMMARY_UNAVAILABLE: Civ7CitySummaryUnavailableError,
   DIRECT_CONTROL_UNAVAILABLE: Civ7DirectControlUnavailableError,
   MAP_SUMMARY_UNAVAILABLE: Civ7MapSummaryUnavailableError,

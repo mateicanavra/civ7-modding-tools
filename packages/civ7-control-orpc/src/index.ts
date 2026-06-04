@@ -15,6 +15,8 @@ export {
   type Civ7ControlOrpcDirectControlFacade,
 } from "./dependencies/direct-control";
 export {
+  Civ7AttentionCurrentUnavailableError,
+  Civ7AttentionCurrentUnavailableErrorDataSchema,
   Civ7CitySummaryUnavailableError,
   Civ7CitySummaryUnavailableErrorDataSchema,
   Civ7DirectControlUnavailableError,
@@ -32,6 +34,7 @@ export {
   Civ7UnitSummaryUnavailableError,
   Civ7UnitSummaryUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
+  type Civ7AttentionCurrentUnavailableErrorData,
   type Civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcEffectErrorMap,
   type Civ7CitySummaryUnavailableErrorData,
@@ -50,6 +53,22 @@ export {
   type Civ7ControlOrpcImplementer,
 } from "./procedure";
 export { Civ7ControlOrpcRouter } from "./router";
+export {
+  Civ7AttentionContract,
+  Civ7AttentionCurrentContract,
+  Civ7AttentionCurrentInputSchema,
+  Civ7AttentionCurrentInputStandardSchema,
+  Civ7AttentionCurrentResultSchema,
+  Civ7AttentionCurrentResultStandardSchema,
+} from "./modules/attention/contract";
+export type {
+  Civ7AttentionContract as Civ7AttentionContractType,
+  Civ7AttentionCurrentContract as Civ7AttentionCurrentContractType,
+  Civ7AttentionCurrentInput,
+  Civ7AttentionCurrentResult,
+} from "./modules/attention/contract";
+export { attentionRouter } from "./modules/attention/router";
+export { attentionCurrentProcedure } from "./modules/attention/procedures/current";
 export {
   Civ7CityContract,
   Civ7CityReadyViewContract,

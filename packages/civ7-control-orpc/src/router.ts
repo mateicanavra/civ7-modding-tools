@@ -3,6 +3,7 @@ import type { Router } from "@orpc/server";
 import { Civ7ControlOrpcContract } from "./contract";
 import type { Civ7ControlOrpcContext } from "./context";
 import { civ7ControlOrpcImplementer } from "./procedure";
+import { attentionRouter } from "./modules/attention/router";
 import { cityRouter } from "./modules/city/router";
 import { mapRouter } from "./modules/map/router";
 import { notificationsRouter } from "./modules/notifications/router";
@@ -14,6 +15,7 @@ export const Civ7ControlOrpcRouter: Router<
   typeof Civ7ControlOrpcContract,
   Civ7ControlOrpcContext
 > = civ7ControlOrpcImplementer.router({
+  attention: attentionRouter,
   city: cityRouter,
   map: mapRouter,
   notifications: notificationsRouter,

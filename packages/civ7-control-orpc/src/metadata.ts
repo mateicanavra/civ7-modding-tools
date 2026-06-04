@@ -1,5 +1,6 @@
 export type Civ7ControlOrpcProcedureMeta = Readonly<{
   family?:
+    | "attention"
     | "runtime"
     | "notifications"
     | "unit"
