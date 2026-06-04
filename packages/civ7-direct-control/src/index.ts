@@ -230,7 +230,6 @@ import {
 } from "./play/operations/narrative-request.js";
 import {
   requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule,
-  type Civ7ProductionChoiceCommandPayload,
   type Civ7ProductionChoiceInput,
   type Civ7ProductionChoiceResult,
 } from "./play/operations/production-choice.js";
