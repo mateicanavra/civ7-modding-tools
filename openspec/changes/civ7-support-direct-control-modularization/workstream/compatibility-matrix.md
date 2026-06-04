@@ -774,17 +774,21 @@ Intake rejection conditions:
   The descriptor owner now binds procedure descriptors to schema references
   with `inputSchema` and `outputSchema` owner/export slots, and current proof
   binds `unit.ready.view` to the ready-unit schema exports and resolves those
-  references against explicit schema artifacts.
+  references against explicit schema artifacts. The first concrete adjacent
+  descriptor artifact is now
+  `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`, with proof
+  in `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   context/middleware/error/correlation owner, broader concrete procedure
   owners, and explicit owner boundaries for the in-game controller router,
   external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control procedure descriptor
-  owner, direct-control public facade export, focused procedure descriptor
-  proof, public facade proof, and docs/OpenSpec records. Future implementation
-  write sets must name the exact procedure-core module or package, typed schema
-  artifact, middleware/context/error/correlation tests, and narrow adapters to
-  stable direct-control atom owners. No transport adapter,
+- `writeSet`: current write set is the ready-unit procedure descriptor
+  artifact adjacent to the ready-unit atom, direct-control public facade export,
+  focused ready-unit procedure proof, public facade proof, and docs/OpenSpec
+  records. Future implementation write sets must name the exact procedure-core
+  module or package, typed schema artifact, middleware/context/error/correlation
+  tests, and narrow adapters to stable direct-control atom owners. No transport
+  adapter,
   `packages/civ7-control-orpc` behavior, in-game controller router source,
   CLI shell rewrite, AI ingestion, telemetry persistence, raw JS command
   tunnel, broad `common`/`utils`/`types` bucket, or hand-maintained App UI
@@ -811,7 +815,9 @@ Intake rejection conditions:
   artifact also adds TypeBox input/output schemas for the existing
   `getCiv7ReadyUnitView` read atom, including bounded
   `radius`/`maxOperations` input and root-level output shape separation from
-  raw command fields.
+  raw command fields. The adjacent ready-unit descriptor artifact records that
+  read atom's procedure metadata and schema artifact map without registering a
+  router.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
@@ -822,9 +828,12 @@ Intake rejection conditions:
   `unit.ready.view` procedure descriptor to those ready-unit schema exports and
   reject schema owners outside `@civ7/direct-control`, expression-like export
   names, raw command-source/session schema references, and unresolved
-  referenced schema artifacts. This is not a TypeBox versus Effect Schema
-  migration decision and does not prove broader concrete procedure input/output
-  schemas or runtime router schema registration.
+  referenced schema artifacts. Current focused proof also checks the concrete
+  ready-unit descriptor's input/output field lists against resolved TypeBox
+  schema root properties, including `legalOperations` instead of the stale
+  `operationCandidates` fixture name. This is not a TypeBox versus Effect
+  Schema migration decision and does not prove broader concrete procedure
+  input/output schemas or runtime router schema registration.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, and
@@ -845,7 +854,8 @@ Intake rejection conditions:
   local `live-runtime-proof` claim rejection before runtime-proof ownership,
   one ready-unit read-atom input/output schema over a stable direct-control
   atom, ready-unit descriptor schema-reference binding and local schema
-  artifact resolution,
+  artifact resolution, one adjacent ready-unit procedure descriptor artifact
+  with schema-root field-list proof,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface. Missing before acceptance: oRPC schema/procedure

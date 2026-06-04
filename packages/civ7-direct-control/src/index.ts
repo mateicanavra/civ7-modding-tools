@@ -608,6 +608,10 @@ export {
   Civ7ReadyUnitViewResultSchema,
   getCiv7ReadyUnitView,
 } from "./play/ready/unit.js";
+export {
+  Civ7ReadyUnitViewProcedureDescriptor,
+  Civ7ReadyUnitViewProcedureSchemaArtifacts,
+} from "./play/ready/unit-procedure.js";
 export type {
   Civ7UnitMovePreviewInput,
   Civ7UnitMovePreviewResult,

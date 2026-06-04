@@ -13,6 +13,8 @@ import {
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
   Civ7ProcedureSchemaReferenceSchema,
+  Civ7ReadyUnitViewProcedureDescriptor,
+  Civ7ReadyUnitViewProcedureSchemaArtifacts,
   Civ7ReadyUnitViewInputSchema,
   Civ7ReadyUnitViewResultSchema,
   DEFAULT_CIV7_APP_UI_API_ROOTS,
@@ -222,5 +224,19 @@ describe("Civ7 direct control public API", () => {
     );
     expect(typeof resolveCiv7ProcedureCoreSchemas).toBe("function");
     expect(civ7ProcedureSchemaReferenceKey(outputSchema)).toContain("Civ7ReadyUnitViewResultSchema");
+  });
+
+  test("exports the ready-unit procedure descriptor artifact from the public facade", () => {
+    expect(Civ7ReadyUnitViewProcedureDescriptor).toMatchObject({
+      procedureKey: "unit.ready.view",
+      atomFunction: "getCiv7ReadyUnitView",
+      proofBoundary: "local-package-test",
+    });
+    expect(Civ7ReadyUnitViewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7ReadyUnitViewInputSchema);
+    expect(Civ7ReadyUnitViewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7ReadyUnitViewResultSchema);
   });
 });

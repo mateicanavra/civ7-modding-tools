@@ -20,7 +20,10 @@ procedure telemetry is enabled. The descriptor now binds procedures to explicit
 direct-control schema references through `inputSchema` and `outputSchema`
 owner/export slots, with local guards that keep schema owners in
 `@civ7/direct-control`, require simple exported schema identifiers, and reject
-raw command-source/session schema references. Focused proof in
+raw command-source/session schema references. The first concrete descriptor
+artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
+which owns the `unit.ready.view` descriptor adjacent to the ready-unit atom and
+schema exports. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` rejects generic raw
 command tunnel descriptors, rejects repo-local raw command-source/session
 execution descriptors such as `runtime/command-serialization` / `jsLiteral`
@@ -51,6 +54,13 @@ exported for future procedure-core consumers. This is one read atom's
 schema-owner seed only; it does not choose Effect Schema, migrate existing
 contracts, implement a router/procedure, claim runtime proof, or accept the
 matrix row.
+
+The adjacent ready-unit descriptor artifact reuses those schema exports and
+records root input/output field names from the actual TypeBox schemas,
+including `legalOperations` for the ready-unit operation candidates. Focused
+proof in `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties so stale fixture names do not become procedure contract fields.
 
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
@@ -159,8 +169,9 @@ This contract plus the descriptor owner seed reduce the `contractArtifact`,
 source-owner, descriptor runtime-validation, descriptor typed-error,
 descriptor correlation-policy, descriptor live-runtime-proof guard, and
 no-raw-tunnel proof gaps for the current TypeBox descriptor shape, generic raw
-fields, and repo-local command-source/session-execute owners in the Effect/oRPC
-Procedure Cores row, but they do not accept the row. Acceptance still needs:
+fields, repo-local command-source/session-execute owners, and one adjacent
+ready-unit descriptor artifact in the Effect/oRPC Procedure Cores row, but they
+do not accept the row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms
