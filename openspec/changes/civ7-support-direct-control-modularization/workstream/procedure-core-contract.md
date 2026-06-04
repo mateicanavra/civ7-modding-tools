@@ -418,6 +418,26 @@ progression taxonomy family or broad progression catalog, add a router, add
 Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
 the matrix row.
 
+The adjacent progress-dashboard procedure artifact reuses the progress
+dashboard schema exports and records `strategy.progress.dashboard` beside
+`getCiv7ProgressDashboard`. Focused proof in
+`packages/civ7-direct-control/test/progress-dashboard-procedure.test.ts` checks
+the descriptor's input/output field lists against resolved schema root
+properties, including bounded player input, age, player, legacy path, victory,
+triumph, proof-source, hidden-info policy, and notes, without registering a
+router or transport adapter. The same artifact exports a concrete call wrapper
+over `getCiv7ProgressDashboard`, composed through the local procedure-core call
+primitive. Focused proof uses fake atom dependencies to prove direct-control
+option forwarding, input validation before atom dependencies run, output
+validation after the atom returns, separated output/diagnostics, no-send
+read-only command text, and preservation of progress dashboard data as a
+read-only strategy/progress lens rather than chooser behavior. This is local
+no-network read-atom proof only; it does not change CLI output, choose
+technologies/civics/productions/policies/victory strategy, add a progression
+taxonomy family or broad progression catalog, add a router, add Effect/oRPC
+dependencies, choose Effect Schema, claim runtime proof, or accept the matrix
+row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit
@@ -559,15 +579,15 @@ repo-local command-source/session-execute
 owners, context-owned endpoint/state input fields, and adjacent ready-unit,
 ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
 health, notification-view, settlement-recommendations, target-candidates,
-battlefield-scan, destination-analysis, and traditions-view descriptor
-artifacts with
+battlefield-scan, destination-analysis, traditions-view, and
+progress-dashboard descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
 Effect/oRPC Procedure Cores row, plus concrete ready-unit, ready-city,
 unit move-preview, playable-status, App UI snapshot, Tuner health, and
 notification-view, settlement-recommendations, target-candidates,
-battlefield-scan, destination-analysis, and traditions-view procedure call
-wrappers, but they do not accept the row.
+battlefield-scan, destination-analysis, traditions-view, and
+progress-dashboard procedure call wrappers, but they do not accept the row.
 Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
@@ -576,7 +596,8 @@ Acceptance still needs:
 - concrete procedure input/output owners over stable direct-control atoms
   beyond the current ready-read, move-preview, runtime-support, and
   notification-view, settlement-recommendations, target-candidates,
-  battlefield-scan, destination-analysis, and traditions-view call wrappers;
+  battlefield-scan, destination-analysis, traditions-view, and
+  progress-dashboard call wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

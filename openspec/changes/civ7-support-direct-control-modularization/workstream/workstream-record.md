@@ -3651,3 +3651,29 @@ All future agent waves must be framed before delegation:
   progression catalog, add a router/registry/transport adapter, choose Effect
   Schema, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
   5.1-5.7 or 6.1-6.9.
+- Progress-dashboard procedure atom seed:
+  `packages/civ7-direct-control/src/play/progression/reads.ts` now owns
+  TypeBox input/output schemas for the existing read-only progress dashboard
+  atom, and
+  `packages/civ7-direct-control/src/play/progression/progress-dashboard-procedure.ts`
+  records the adjacent `strategy.progress.dashboard` descriptor/schema
+  artifact map and concrete call wrapper over `getCiv7ProgressDashboard` while
+  preserving the existing `strategy` procedure family rather than adding a
+  progression taxonomy family. Focused proof in
+  `packages/civ7-direct-control/test/progression-reads.test.ts` validates the
+  fake progress dashboard result against the schema, rejects invalid player
+  plus endpoint/session/state/raw-command procedure input, and rejects
+  raw-debug hidden/proof-source output fields; proof in
+  `packages/civ7-direct-control/test/progress-dashboard-procedure.test.ts`
+  covers descriptor schema resolution, no-network fake-dependency calls,
+  direct-control option forwarding, input-before-dependency rejection, output
+  validation, separated diagnostics, no-send command text, and preservation of
+  progress dashboard data as a read-only strategy/progress lens rather than
+  chooser behavior. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema,
+  descriptor, artifact map, and call-wrapper exports. This is local read-atom
+  proof only; it does not change CLI output, choose technologies/civics/
+  productions/policies/victory strategy, add a broad progression catalog, add
+  a router/registry/transport adapter, choose Effect Schema, claim
+  runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
+  6.1-6.9.

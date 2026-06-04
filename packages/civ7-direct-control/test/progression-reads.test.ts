@@ -4,6 +4,8 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
 import {
+  Civ7ProgressDashboardInputSchema,
+  Civ7ProgressDashboardResultSchema,
   Civ7TraditionsViewInputSchema,
   Civ7TraditionsViewResultSchema,
   getCiv7ProgressDashboard,
@@ -47,6 +49,32 @@ describe("progression read surfaces", () => {
     expect(Value.Check(Civ7TraditionsViewResultSchema, {
       ...result,
       rawCommand: "readTraditionsView()",
+    })).toBe(false);
+  });
+
+  test("exports TypeBox schemas for the read-only progress dashboard atom", () => {
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, { playerId: 0 })).toBe(true);
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7ProgressDashboardInputSchema, { rawCommand: "readProgressDashboard()" })).toBe(false);
+
+    const result = progressDashboardResult();
+    expect(Value.Check(Civ7ProgressDashboardResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
+      ...result,
+      triumphs: {
+        ...result.triumphs,
+        source: "raw-debug-output",
+      },
+    })).toBe(false);
+    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
+      ...result,
+      hiddenInfoPolicy: "raw-debug-output",
+    })).toBe(false);
+    expect(Value.Check(Civ7ProgressDashboardResultSchema, {
+      ...result,
+      rawCommand: "readProgressDashboard()",
     })).toBe(false);
   });
 
@@ -474,6 +502,15 @@ function progressDashboard() {
       "VictoryManager is module-local in the official UI and may not be globally available through direct App UI eval; this wrapper uses the official lower-level runtime APIs exposed to App UI.",
       "Triumph rows are reported from runtime GameInfo.Triumphs. An empty table means no runtime triumph rows were available from this read, not that rewards are impossible elsewhere.",
     ],
+  };
+}
+
+function progressDashboardResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...progressDashboard(),
   };
 }
 

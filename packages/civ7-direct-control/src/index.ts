@@ -583,9 +583,14 @@ export type {
   Civ7TraditionSummary,
   Civ7TraditionsViewInput,
   Civ7TraditionsViewResult,
+  ProgressDashboardDependencies,
   TraditionsViewDependencies,
 } from "./play/progression/reads.js";
 export {
+  Civ7ProgressDashboardInputSchema,
+  Civ7ProgressDashboardLegacyPathSchema,
+  Civ7ProgressDashboardMilestoneSchema,
+  Civ7ProgressDashboardResultSchema,
   Civ7TraditionActionKindSchema,
   Civ7TraditionActionSchema,
   Civ7TraditionSummarySchema,
@@ -604,6 +609,14 @@ export {
 export type {
   Civ7TraditionsViewProcedureCallOptions,
 } from "./play/progression/traditions-procedure.js";
+export {
+  callCiv7ProgressDashboardProcedure,
+  Civ7ProgressDashboardProcedureDescriptor,
+  Civ7ProgressDashboardProcedureSchemaArtifacts,
+} from "./play/progression/progress-dashboard-procedure.js";
+export type {
+  Civ7ProgressDashboardProcedureCallOptions,
+} from "./play/progression/progress-dashboard-procedure.js";
 export type {
   Civ7TechnologyChoiceCloseoutInput,
   Civ7TechnologyChoiceCloseoutResult,

@@ -33,6 +33,10 @@ import {
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
   Civ7PlayableStatusResultSchema,
+  Civ7ProgressDashboardInputSchema,
+  Civ7ProgressDashboardProcedureDescriptor,
+  Civ7ProgressDashboardProcedureSchemaArtifacts,
+  Civ7ProgressDashboardResultSchema,
   Civ7ProcedureCoreCallDiagnosticsSchema,
   Civ7ProcedureCoreCallResultSchema,
   Civ7ProcedureContextRequirementSchema,
@@ -96,6 +100,7 @@ import {
   callCiv7PlayableStatusProcedure,
   callCiv7PlayNotificationViewProcedure,
   callCiv7ProcedureCore,
+  callCiv7ProgressDashboardProcedure,
   callCiv7ReadyCityViewProcedure,
   callCiv7ReadyUnitViewProcedure,
   callCiv7SettlementRecommendationsProcedure,
@@ -690,6 +695,24 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7TraditionsViewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7TraditionsViewProcedureDescriptor.outputSchema)
     ]).toBe(Civ7TraditionsViewResultSchema);
+  });
+
+  test("exports the progress-dashboard procedure descriptor artifact from the public facade", () => {
+    expect(Civ7ProgressDashboardProcedureDescriptor).toMatchObject({
+      procedureKey: "strategy.progress.dashboard",
+      family: "strategy",
+      atomFunction: "getCiv7ProgressDashboard",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7ProgressDashboardProcedure).toBe("function");
+    expect(Civ7ProgressDashboardProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7ProgressDashboardProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7ProgressDashboardInputSchema);
+    expect(Civ7ProgressDashboardProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7ProgressDashboardProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7ProgressDashboardResultSchema);
   });
 
   test("exports the playable-status procedure descriptor artifact from the public facade", () => {

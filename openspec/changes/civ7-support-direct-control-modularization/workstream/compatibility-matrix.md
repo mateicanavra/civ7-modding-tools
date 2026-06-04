@@ -929,6 +929,13 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/traditions-view-procedure.test.ts` plus
   adjacent atom schema proof in
   `packages/civ7-direct-control/test/progression-reads.test.ts`.
+  The adjacent progress-dashboard descriptor artifact is now
+  `packages/civ7-direct-control/src/play/progression/progress-dashboard-procedure.ts`,
+  with TypeBox schema ownership in
+  `packages/civ7-direct-control/src/play/progression/reads.ts` and proof in
+  `packages/civ7-direct-control/test/progress-dashboard-procedure.test.ts`
+  plus adjacent atom schema proof in
+  `packages/civ7-direct-control/test/progression-reads.test.ts`.
   The descriptor owner also records `schemaTechnology`, requires current
   adjacent descriptors to declare `typebox`, and rejects unaccepted
   `effect-schema` or `zod-adapter` claims before procedure promotion. The
@@ -945,7 +952,7 @@ Intake rejection conditions:
   concrete ready-unit, ready-city, unit move-preview, playable-status, App UI
   snapshot, Tuner health, notification-view, settlement-recommendations,
   target-candidates, battlefield-scan, destination-analysis, and
-  traditions-view procedure call wrappers now
+  traditions-view and progress-dashboard procedure call wrappers now
   compose that primitive with
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
   `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`,
@@ -953,15 +960,15 @@ Intake rejection conditions:
   `getCiv7PlayNotificationView`, and
   `getCiv7SettlementRecommendations`, `getCiv7TargetCandidates`,
   `getCiv7BattlefieldScan`, `getCiv7DestinationAnalysis`, and
-  `getCiv7TraditionsView` through fake direct-control dependencies in focused
-  proof.
+  `getCiv7TraditionsView` and `getCiv7ProgressDashboard` through fake
+  direct-control dependencies in focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   accepted TypeBox versus Effect Schema disposition for final procedure
   contracts, runtime-context/middleware/error/correlation owner, broader
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control traditions view atom
-  schema owner, adjacent `strategy.traditions.view` descriptor/call metadata
+- `writeSet`: current write set is the direct-control progress dashboard atom
+  schema owner, adjacent `strategy.progress.dashboard` descriptor/call metadata
   declaring current TypeBox schema technology, focused descriptor/atom/public
   facade proof, and docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or

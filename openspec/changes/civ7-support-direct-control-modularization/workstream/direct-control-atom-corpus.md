@@ -712,6 +712,29 @@ Effect Schema, claim runtime/live-game proof, accept Task 2.9.4, or unblock
 broader AI ingestion, debug hierarchy, telemetry persistence, or Effect/oRPC
 procedure cores.
 
+Progress-dashboard procedure atom seed update:
+`src/play/progression/reads.ts` now owns TypeBox input/output schemas for the
+existing read-only progress dashboard atom, including bounded `playerId` input,
+age, player, legacy path, victory, triumph, proof-source, hidden-info policy,
+and root output separation from raw command fields.
+`src/play/progression/progress-dashboard-procedure.ts` now owns the adjacent
+`strategy.progress.dashboard` descriptor/schema artifact map and concrete call
+wrapper over `getCiv7ProgressDashboard` while staying under the existing
+`strategy` procedure family instead of adding a progression taxonomy family.
+`test/progression-reads.test.ts` proves the fake progress dashboard result
+matches the schema, rejects invalid player/context/raw-command procedure input,
+and rejects raw-debug hidden/proof-source output fields;
+`test/progress-dashboard-procedure.test.ts` proves descriptor schema resolution,
+no-network fake-dependency calls, direct-control option forwarding,
+input-before-dependency rejection, output validation, separated diagnostics,
+no-send command text, and preservation of progress dashboard data as a
+read-only strategy/progress lens. This is local read-atom proof only. It does
+not change CLI output, choose technologies/civics/productions/policies/victory
+strategy, add a broad progression catalog, add a router/registry/transport
+adapter, choose Effect Schema, claim runtime/live-game proof, accept Task
+2.9.4, or unblock broader AI ingestion, debug hierarchy, telemetry
+persistence, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,
