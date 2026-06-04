@@ -126,6 +126,67 @@ Intake rejection conditions:
   one-client hotseat/local-player rotation proof is missing, or if human-visible
   waiting/restoration is not preserved
 
+#### Acceptance Intake: Hotseat Handoff State
+
+- `ownerAssignment`: current planning evidence is the hotseat/autoplay target
+  thread and peer-report disposition recorded in `tasks.md` 2.8 and
+  `workstream/workstream-record.md`, plus current local source owners that may
+  contribute runtime-status and support evidence:
+  `packages/civ7-direct-control/src/runtime/{app-ui-snapshot,tuner-health,playable-status}.ts`,
+  `src/session/*`, `src/setup/*`, `src/play/autoplay.ts`, and
+  `src/play/turn-completion.ts`. Current local proof owners are
+  `runtime-and-catalog.test.ts`, `session.test.ts`,
+  `setup-and-lifecycle.test.ts`, `restart-lifecycle.test.ts`, and
+  `autoplay-and-turn.test.ts`. Missing before acceptance: a named hotseat
+  runtime source owner, live proof owner, runtime gate runner, and
+  human-restoration proof owner.
+- `writeSet`: this intake authorizes only compatibility-matrix/task/record
+  planning updates. A later hotseat runtime proof slice may touch a precisely
+  named runtime-status/handoff owner, focused runtime gate tests or logs, and
+  narrow setup/session/autoplay/turn-completion adapters after owner assignment.
+  No play-thread wakeup, source mutation, CLI semantic rewrite, telemetry
+  persistence, AI-ingestion contract, transport adapter, or procedure-core
+  implementation is authorized by this intake.
+- `contractArtifact`: existing artifacts are planning records, App UI snapshot
+  shape, Tuner health/playable-status results, session health/reconnect shapes,
+  setup lifecycle results, autoplay support results, and turn-completion
+  results. Missing contract artifact before acceptance: a hotseat handoff state
+  contract/checklist that names session health, current local player,
+  agent-slot ownership, turn/blocker state, approval/action eligibility,
+  curtain/interface state, human-turn refusal, and human-restoration evidence.
+- `proofPlan`: existing proof is planning evidence and local fake-runtime tests
+  for reusable atoms. Missing proof before acceptance: menu/setup hotseat
+  snapshot, disposable hotseat activation, two-slot `GameContext.localPlayerID`
+  rotation, agent-owned current-slot detection, mutation refusal for
+  non-agent human turns, one approved agent-slot operation, turn completion,
+  human UI restoration, fallback non-local operation probe disposition, and
+  bounded Autoplay measurement proof as support/debug evidence only.
+- `projectionPlan`: normal CLI may later summarize current player, slot
+  ownership, handoff readiness, blocker state, action eligibility, and safe
+  next steps through the semantic CLI row; debug/internal service output may
+  expose raw handoff diagnostics only under the debug row; telemetry may record
+  proof details only after the telemetry row is accepted; AI ingestion may
+  consume only source-labeled records after the ingestion row is accepted;
+  procedure cores remain blocked until hotseat proof and procedure schema
+  ownership are accepted.
+- `stopConditionCoverage`: missing before acceptance. Required coverage must
+  fail if Autoplay/Automation becomes the primary external-agent executor, if
+  direct-control mutation can target non-agent human turns, if local-player
+  rotation proof is absent, if human waiting/restoration is not preserved, or
+  if local fake-runtime tests are presented as live hotseat runtime proof.
+- `downstreamUnblock`: none yet. Acceptance would unblock only explicitly named
+  hotseat runtime-status, CLI hotseat semantic projection, mutation procedure
+  gating, and action telemetry slices after live runtime gates and proof owners
+  are recorded; it would not unblock AI ingestion, telemetry persistence,
+  normal CLI semantic envelopes as a whole, debug hierarchy implementation,
+  transport adapters, or procedure-core implementation by itself.
+- `nonProofClaims`: this intake does not claim hotseat activation,
+  local-player rotation, agent-slot action proof, human restoration,
+  runtime/live-game proof, AI-on-hotseat product-path support, CLI semantic
+  implementation, telemetry implementation, AI ingestion, debug hierarchy
+  implementation, schema migration, Effect/Bun implementation, Effect/oRPC
+  procedure-core work, or Task 2.9.4 row acceptance.
+
 ### Semantic CLI Player-Agent View
 
 - `foundationThread`: `019e86b7-b08b-72f3-8341-6c78a1285c93`

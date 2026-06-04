@@ -2296,3 +2296,16 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, or unblock telemetry persistence, semantic CLI
   output, debug hierarchy implementation, schema migration, Effect/Bun, or
   Effect/oRPC procedure-core work.
+- Hotseat handoff compatibility-row intake:
+  `workstream/compatibility-matrix.md` now records a draft acceptance intake
+  for the hotseat handoff state row. The intake uses hotseat/autoplay
+  target-thread and peer-report dispositions plus current runtime, session,
+  setup, autoplay, and turn-completion atom owners as planning/support
+  evidence, then records the missing hotseat runtime source owner, live proof
+  owner, runtime gate runner, human-restoration proof owner, and activation /
+  local-player rotation / approved agent-slot action / human-turn refusal gates
+  needed before acceptance. The row remains `pending-hotseat-runtime-proof`;
+  this update does not claim hotseat activation, runtime/live-game proof,
+  AI-on-hotseat product-path proof, accept Task 2.9.4, or unblock semantic CLI
+  implementation, telemetry, AI ingestion, debug hierarchy implementation,
+  schema migration, Effect/Bun, or Effect/oRPC procedure-core work.

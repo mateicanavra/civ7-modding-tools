@@ -132,6 +132,13 @@
         ingestion contract owner, schema/test owner, source/freshness/evidence
         fixtures, and normal/debug/telemetry/procedure separation tests are
         assigned and passing.
+        The hotseat handoff row now has a draft acceptance intake using the
+        hotseat/autoplay target-thread and peer-report planning evidence plus
+        current runtime/session/setup/autoplay/turn-completion atom owners as
+        candidate support evidence, but its `acceptanceStatus` remains
+        `pending-hotseat-runtime-proof` until hotseat runtime source/proof
+        owners, live activation/rotation/action/restoration gates, and
+        human-turn refusal proof are assigned and passing.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
