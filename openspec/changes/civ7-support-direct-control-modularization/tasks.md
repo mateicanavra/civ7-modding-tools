@@ -1203,25 +1203,31 @@ runtime/direct-control claims.
         wrapper/source owner while keeping the public facade export surface in
         `index.ts`.
   - [x] 4.11.2 Extract visibility summary read wrapper/source owner while
-        keeping the public facade export surface in `index.ts` and leaving
-        reveal mutation, GameInfo rows, setup map rows, and player/unit/city
-        summaries pending.
+        keeping the public facade export surface in `index.ts`; later 4.11
+        rows now own reveal mutation, GameInfo rows, setup map rows, and
+        player/unit/city summaries, while downstream AI ingestion, semantic
+        CLI, telemetry, hotseat runtime proof, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance remain pending.
   - [x] 4.11.3 Extract GameInfo rows read wrapper/source owner while keeping
-        the public facade export surface in `index.ts` and leaving reveal
-        mutation, setup map rows, player/unit/city summaries, AI ingestion, and
-        static profile shaping pending.
+        the public facade export surface in `index.ts`; later 4.11 rows now
+        own reveal mutation, setup map rows, and player/unit/city summaries,
+        while AI ingestion, static profile shaping, semantic CLI, telemetry,
+        hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance remain pending.
   - [x] 4.11.4 Extract player, unit, and city summary read wrapper/source
         owner with focused package proof while keeping public facade exports in
-        `index.ts` and leaving reveal mutation, setup map rows, AI ingestion,
-        static profile shaping, semantic CLI, telemetry, hotseat runtime proof,
-        and Effect/oRPC procedure-core work pending.
+        `index.ts`; later 4.11 rows now own reveal mutation and setup map rows,
+        while AI ingestion, static profile shaping, semantic CLI, telemetry,
+        hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance remain pending.
   - [x] 4.11.5 Extract reveal-map mutation wrapper owner while keeping public
         facade exports in `index.ts`, preserving approval-first and
         disposable-session guards, player-id validation, visibility before/after
         reads, `Visibility.revealAllPlots` command text, classification shape,
-        and leaving setup map rows to 4.11.6 plus AI ingestion, static profile
-        shaping, semantic CLI, telemetry, hotseat runtime proof, and
-        Effect/oRPC procedure-core work pending.
+        and leaving setup map rows to the completed 4.11.6 row while AI
+        ingestion, static profile shaping, semantic CLI, telemetry, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance remain pending.
   - [x] 4.11.6 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts`, preserving setup map script
         validation, `limit` default/bounds, setup-domain/config-db row
@@ -1232,10 +1238,10 @@ runtime/direct-control claims.
         work pending.
   - [x] 4.11.7 Extract map validation helper owner while preserving map
         location `x`/`y` bounds, map-grid `bounds.width`/`bounds.height` hard
-        caps, and existing command-failed messages, and leaving map read source
-        strings, public procedure schemas, telemetry, hotseat runtime proof, AI
-        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
-        and Task 2.9.4 matrix-row acceptance pending.
+        caps, and existing command-failed messages, while keeping runtime
+        behavior changes, public procedure schemas, telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.11.8 Prune map-read facade dependency injection by letting the map
         read owner import existing non-facade executor/parser/validation/source
         helpers directly, while keeping public facade exports stable,
