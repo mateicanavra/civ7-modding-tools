@@ -209,10 +209,9 @@ import {
   type Civ7NarrativeChoiceInput,
   type Civ7NarrativeChoiceResult,
 } from "./play/operations/narrative-request.js";
-import {
-  requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule,
-  type Civ7ProductionChoiceInput,
-  type Civ7ProductionChoiceResult,
+import type {
+  Civ7ProductionChoiceInput,
+  Civ7ProductionChoiceResult,
 } from "./play/operations/production-choice.js";
 import type { Civ7ProductionPostconditionSnapshot } from "./play/operations/production-postconditions.js";
 import {
@@ -682,6 +681,7 @@ export type {
   Civ7ProductionChoiceInput,
   Civ7ProductionChoiceResult,
 } from "./play/operations/production-choice.js";
+export { requestCiv7ProductionChoice } from "./play/operations/production-choice.js";
 export type {
   Civ7DiplomacyResponseCommandPayload,
   Civ7DiplomacyResponseInput,
@@ -1106,14 +1106,6 @@ export async function runCiv7SinglePlayerFromSetup(
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
   return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
-}
-
-export async function requestCiv7ProductionChoice(
-  input: Civ7ProductionChoiceInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7ProductionChoiceResult> {
-  return await requestCiv7ProductionChoiceFromModule(input, options, approval);
 }
 
 export async function requestCiv7TechnologyChoiceCloseout(

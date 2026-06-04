@@ -513,6 +513,15 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.29 Prune the production-choice facade call-through wrapper by
+        re-exporting `requestCiv7ProductionChoice` directly from
+        `src/play/operations/production-choice.ts`, preserving public package
+        imports, approval-first BUILD request behavior, cityId and production
+        args validation, validator-first no-send behavior, production
+        postcondition result shape, package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
