@@ -207,7 +207,6 @@ import {
 import {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
-  getCiv7UnitTargetAction as getCiv7UnitTargetActionFromModule,
   requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
   type Civ7UnitTargetActionInput,
   type Civ7UnitTargetActionResult,
@@ -647,6 +646,7 @@ export type {
   Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
+export { getCiv7UnitTargetAction } from "./play/operations/unit-target-action.js";
 export type {
   Civ7ActionApproval,
 } from "./action-approval.js";
@@ -1268,13 +1268,6 @@ export async function requestCiv7NarrativeChoice(
   approval: Civ7ActionApproval,
 ): Promise<Civ7NarrativeChoiceResult> {
   return await requestCiv7NarrativeChoiceFromModule(input, options, approval);
-}
-
-export async function getCiv7UnitTargetAction(
-  input: Civ7UnitTargetActionInput,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7UnitTargetActionResult> {
-  return await getCiv7UnitTargetActionFromModule(input, options);
 }
 
 export async function requestCiv7UnitTargetAction(

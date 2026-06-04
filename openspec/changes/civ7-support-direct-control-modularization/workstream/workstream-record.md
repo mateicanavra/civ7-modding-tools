@@ -364,6 +364,17 @@ All future agent waves must be framed before delegation:
   2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
   projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Unit-target action plan call-through cleanup: `index.ts` now re-exports
+  `getCiv7UnitTargetAction` directly from
+  `src/play/operations/unit-target-action.ts` after owner-local dependency
+  defaults are in place. This removes the trivial read/plan wrapper while
+  preserving the public package import name, selected-target plan shape,
+  read-vs-send split, and separate approved `requestCiv7UnitTargetAction`
+  mutation wrapper boundary. This is local package/source relocation cleanup
+  proof only: it does not change unit-target mutation behavior, claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, schema/procedure-core work, or
+  Effect/oRPC implementation.
 - Direct-control diplomacy/narrative test slice: completed as additive
   test-only package coverage with two parallel net-new agents, DRA-owned
   integration, official-resource/doc checks for native path fit, local package

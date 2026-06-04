@@ -477,6 +477,14 @@ runtime/direct-control claims.
         classification, package/CLI proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.26 Prune the unit-target action plan facade call-through wrapper by
+        re-exporting `getCiv7UnitTargetAction` directly from
+        `src/play/operations/unit-target-action.ts`, preserving public package
+        imports, read-vs-send split, selected-target plan shape, the separate
+        approved `requestCiv7UnitTargetAction` mutation wrapper, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
