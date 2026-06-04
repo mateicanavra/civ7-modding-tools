@@ -2682,3 +2682,16 @@ All future agent waves must be framed before delegation:
   every remaining atom-local source helper, or unblock telemetry, AI ingestion,
   CLI semantic projection, hotseat runtime proof, schema migration, debug
   hierarchy implementation, or Effect/oRPC procedure-core work.
+- Notification dismissal command-source helper normalization:
+  `src/play/notifications/dismissal.ts` now imports the shared runtime probe
+  helper owner instead of carrying an atom-local copy. The request wrapper still
+  owns the shared command-source serializer dependency, and verification polling
+  remains in the notification verification owner. The generated command text
+  remains equivalent, and dismissal wrappers still preserve approval-first
+  request behavior, read/send split, parse label, no-repeat-after-unverified
+  semantics, and dismissal verification classification. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, normalize every remaining atom-local source helper,
+  or unblock telemetry, AI ingestion, CLI semantic projection, hotseat runtime
+  proof, schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
