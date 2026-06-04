@@ -6,6 +6,8 @@ import { Value } from "typebox/value";
 import {
   Civ7CitySummaryInputSchema,
   Civ7CitySummaryResultSchema,
+  Civ7PlayerSummaryInputSchema,
+  Civ7PlayerSummaryResultSchema,
   Civ7UnitSummaryInputSchema,
   Civ7UnitSummaryResultSchema,
   getCiv7CitySummary,
@@ -20,6 +22,33 @@ type FakeTunerServer = {
 };
 
 describe("player, unit, and city summary reads", () => {
+  test("exports player-summary schemas with bounded player input", () => {
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, {
+      playerIds: [0],
+      includeUnits: true,
+      includeCities: true,
+      maxItems: 64,
+    })).toBe(true);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { playerIds: [1025] })).toBe(false);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { maxItems: 513 })).toBe(false);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { rawCommand: "Players.getAliveIds()" })).toBe(false);
+
+    const summary = playerSummaryResult();
+    expect(Value.Check(Civ7PlayerSummaryResultSchema, summary)).toBe(true);
+    expect(Value.Check(Civ7PlayerSummaryResultSchema, {
+      ...summary,
+      command: "Players.getAliveIds()",
+    })).toBe(false);
+    expect(Value.Check(Civ7PlayerSummaryResultSchema, {
+      ...summary,
+      players: [{
+        ...summary.players[0],
+        unitIds: { ok: true, value: [{ owner: 0, id: 65536, type: 26, command: "Units.get" }] },
+      }],
+    })).toBe(false);
+  });
+
   test("exports unit-summary schemas with bounded player and unit input", () => {
     expect(Value.Check(Civ7UnitSummaryInputSchema, {
       playerIds: [0],
@@ -222,6 +251,15 @@ function playerSummaryPayload() {
       },
     ],
     omitted: 0,
+  };
+}
+
+function playerSummaryResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...playerSummaryPayload(),
   };
 }
 

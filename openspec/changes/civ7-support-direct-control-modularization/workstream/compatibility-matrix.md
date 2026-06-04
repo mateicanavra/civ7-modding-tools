@@ -760,8 +760,8 @@ Intake rejection conditions:
   App UI snapshot, Tuner health, notification-view,
   settlement-recommendations, target-candidates, battlefield-scan,
   destination-analysis, traditions-view, progress-dashboard, map-summary, and
-  plot-snapshot, map-grid, GameInfo-rows, visibility-summary, and
-  turn-completion status, unit-summary, and city-summary
+  plot-snapshot, map-grid, GameInfo-rows, visibility-summary,
+  turn-completion status, unit-summary, city-summary, and player-summary
   procedure call wrappers exist adjacent to their direct-control atoms; final
   procedure-core/schema/runtime-context, middleware, error, and correlation
   owners remain pending
@@ -822,6 +822,9 @@ Intake rejection conditions:
   atom dependencies.
   `packages/civ7-direct-control/test/city-summary-procedure.test.ts` now also
   proves the adjacent concrete city-summary procedure call wrapper with fake
+  atom dependencies.
+  `packages/civ7-direct-control/test/player-summary-procedure.test.ts` now also
+  proves the adjacent concrete player-summary procedure call wrapper with fake
   atom dependencies.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
@@ -1019,6 +1022,15 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/city-summary-procedure.test.ts` plus
   adjacent atom schema proof in
   `packages/civ7-direct-control/test/summary-reads.test.ts`.
+  The adjacent player-summary descriptor artifact is now
+  `packages/civ7-direct-control/src/play/player-summary-procedure.ts`, with
+  TypeBox schema ownership in
+  `packages/civ7-direct-control/src/play/summaries.ts` and proof in
+  `packages/civ7-direct-control/test/player-summary-procedure.test.ts` plus
+  adjacent atom schema proof in
+  `packages/civ7-direct-control/test/summary-reads.test.ts`; this also records
+  the narrow `player` procedure family for the existing player read atom
+  without adding a broad player procedure catalog.
   The descriptor owner also records `schemaTechnology`, requires current
   adjacent descriptors to declare `typebox`, and rejects unaccepted
   `effect-schema` or `zod-adapter` claims before procedure promotion. The
@@ -1036,8 +1048,8 @@ Intake rejection conditions:
   snapshot, Tuner health, notification-view, settlement-recommendations,
   target-candidates, battlefield-scan, destination-analysis, and
   traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
-  GameInfo-rows, visibility-summary, turn-completion status, unit-summary, and
-  city-summary
+  GameInfo-rows, visibility-summary, turn-completion status, unit-summary,
+  city-summary, and player-summary
   procedure call wrappers now
   compose that primitive with
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
@@ -1191,8 +1203,7 @@ Intake rejection conditions:
   router, and exports a concrete `unit.summary.read` call wrapper that uses the
   local call primitive to validate input, invoke the stable read atom, validate
   output, forward direct-control options, and return diagnostics separately from
-  the atom output. The player-summary procedure atom remains outside this
-  summary procedure set.
+  the atom output.
   The current source artifact now also adds TypeBox input/output schemas for
   the existing `getCiv7CitySummary` read atom, including bounded `playerId`/
   `playerIds`, component `cityIds`, bounded `maxItems`, `includeHidden`, city
@@ -1203,8 +1214,19 @@ Intake rejection conditions:
   router, and exports a concrete `city.summary.read` call wrapper that uses the
   local call primitive to validate input, invoke the stable read atom, validate
   output, forward direct-control options, and return diagnostics separately from
-  the atom output. The player-summary procedure atom remains outside this
-  slice.
+  the atom output.
+  The current source artifact now also adds TypeBox input/output schemas for
+  the existing `getCiv7PlayerSummary` read atom, including bounded `playerIds`,
+  bounded `maxItems`, optional unit/city inclusion flags, player runtime-probe
+  output, component-id arrays, endpoint/session/state/raw-command exclusion from
+  procedure input, and root-level output shape separation from raw command
+  fields. The adjacent player-summary procedure artifact records that read
+  atom's procedure metadata and schema artifact map without registering a
+  router, adds the narrow `player` procedure family needed by this existing
+  player read atom, and exports a concrete `player.summary.read` call wrapper
+  that uses the local call primitive to validate input, invoke the stable read
+  atom, validate output, forward direct-control options, and return diagnostics
+  separately from the atom output.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
@@ -1270,7 +1292,13 @@ Intake rejection conditions:
   validator-equivalent map-location output validation, raw root-field
   rejection, descriptor field-list resolution against the city summary
   input/result schemas, no-network fake-dependency calls, and absence of
-  send-operation command text. Current procedure-core payload validation
+  send-operation command text. Current player-summary schema/procedure proof
+  checks bounded player/max-items input, endpoint/session/state/raw-command
+  exclusion from procedure input, fake player summary output validation, player
+  runtime-probe output validation, raw root-field rejection, descriptor
+  field-list resolution against the player summary input/result schemas,
+  no-network fake-dependency calls, the narrow `player` procedure-family guard,
+  and absence of send-operation command text. Current procedure-core payload validation
   proof validates ready-unit input/output payloads and unit move-preview
   validator-equivalent map-location inputs against resolved descriptor schema
   artifacts, including raw root-field rejection. Current procedure-call proof
@@ -1299,8 +1327,8 @@ Intake rejection conditions:
   `getCiv7DestinationAnalysis`, `getCiv7TraditionsView`,
   `getCiv7ProgressDashboard`, `getCiv7MapSummary`,
   `getCiv7PlotSnapshot`, `getCiv7MapGrid`, `getCiv7GameInfoRows`,
-  `getCiv7VisibilitySummary`, `getCiv7UnitSummary`, and
-  `getCiv7CitySummary` with the procedure-core call primitive through fake
+  `getCiv7VisibilitySummary`, `getCiv7UnitSummary`, `getCiv7CitySummary`, and
+  `getCiv7PlayerSummary` with the procedure-core call primitive through fake
   dependencies. They prove input rejection before atom dependencies run,
   direct-control option forwarding into the atoms, atom output validation,
   separated diagnostics, neutral
@@ -1314,7 +1342,9 @@ Intake rejection conditions:
   plus no-reveal command-text proof, and unit-summary bounded player/unit/
   max-items input, runtime-probe output, map-location output, and no-send
   command-text proof, and city-summary bounded player/city/max-items input,
-  runtime-probe output, map-location output, and no-send command-text proof.
+  runtime-probe output, map-location output, and no-send command-text proof,
+  and player-summary bounded player/max-items input, runtime-probe output, and
+  no-send command-text proof.
   Broader concrete procedures, runtime router registration, and oRPC handler
   registration remain pending.
 - `errorOwner`: current descriptor-owner failures now use
@@ -1368,7 +1398,8 @@ Intake rejection conditions:
   App UI snapshot, Tuner health, notification-view, settlement-recommendations,
   target-candidates, battlefield-scan, destination-analysis, traditions-view,
   progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows,
-  visibility-summary, turn-completion status, unit-summary, and city-summary
+  visibility-summary, turn-completion status, unit-summary, city-summary, and
+  player-summary
   procedure call proof over stable direct-control atoms with fake dependencies,
   mutation approval/validator/postcondition/no-repeat gate requirements,
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
@@ -1406,7 +1437,8 @@ Intake rejection conditions:
   health, notification-view, settlement-recommendations, target-candidates,
   battlefield-scan, destination-analysis, traditions-view, progress-dashboard,
   map-summary, plot-snapshot, map-grid, GameInfo-rows, visibility-summary,
-  turn-completion status, unit-summary, and city-summary wrappers fail before
+  turn-completion status, unit-summary, city-summary, and player-summary
+  wrappers fail before
   their atom dependencies run when procedure input is invalid.
   Current descriptors also fail before promotion if they claim unaccepted
   `effect-schema` or `zod-adapter` ownership instead of the current TypeBox

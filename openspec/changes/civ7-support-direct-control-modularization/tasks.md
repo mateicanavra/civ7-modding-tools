@@ -2622,6 +2622,28 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         5.1-5.7 or 6.1-6.9.
+  - [x] 4.51 Add the adjacent player-summary procedure atom in
+        `src/play/player-summary-procedure.ts`, with TypeBox input/output
+        schemas beside the existing read-only player summary atom in
+        `src/play/summaries.ts`, focused proof in
+        `test/player-summary-procedure.test.ts`, adjacent atom schema proof in
+        `test/summary-reads.test.ts`, procedure-family proof in
+        `test/procedure-core.test.ts`, and public facade schema proof in
+        `test/public-api.test.ts`. This adds the narrow `player` procedure
+        family needed for the existing player read atom, then composes the
+        local procedure-core call primitive with `getCiv7PlayerSummary` as
+        `player.summary.read`, validating bounded `playerIds`, bounded
+        `maxItems`, include toggles, player runtime-probe output, component-id
+        unit/city id output, endpoint/session/state/raw-command input
+        exclusion, direct-control option forwarding, output/diagnostics
+        separation, fake-dependency no-network calls, and absence of
+        send-operation command text. This is local no-network read-atom proof
+        only; it does not add a broad player procedure catalog, change CLI
+        output, execute live direct-control atoms, add a router/registry/
+        transport adapter, choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2764,6 +2786,13 @@ authority are recorded.
     validator-equivalent map-location output proof, context/raw-command input
     rejection, no send-operation command-text proof, and local no-network proof
     over fake atom dependencies.
+    Task 4.51 adds the narrow `player` procedure family and an adjacent
+    read-atom schema/descriptor/call artifact for `player.summary.read` over
+    the player summary atom, including bounded player/max-items input proof,
+    include toggle proof, player runtime-probe output proof, component-id
+    unit/city id output proof, context/raw-command input rejection, no
+    send-operation command-text proof, and local no-network proof over fake atom
+    dependencies.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
@@ -2771,8 +2800,8 @@ authority are recorded.
     target-candidates, battlefield-scan, destination-analysis, and
     traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
     GameInfo-rows, visibility-summary, turn-completion status, and
-    unit-summary, and city-summary schema seeds, descriptor schema-reference
-    binding/resolution, adjacent descriptor/call
+    unit-summary, city-summary, and player-summary schema seeds, descriptor
+    schema-reference binding/resolution, adjacent descriptor/call
     artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover

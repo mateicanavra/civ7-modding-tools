@@ -159,6 +159,45 @@ describe("Civ7 procedure-core descriptor owner", () => {
     });
   });
 
+  test("accepts player as an operational procedure family without weakening family-key matching", () => {
+    const playerDescriptor = createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      procedureKey: "player.summary.read",
+      family: "player",
+      atomOwner: "packages/civ7-direct-control/src/play/summaries.ts",
+      atomFunction: "getCiv7PlayerSummary",
+      inputSchema: {
+        owner: "packages/civ7-direct-control/src/play/summaries.ts",
+        exportName: "Civ7PlayerSummaryInputSchema",
+      },
+      outputSchema: {
+        owner: "packages/civ7-direct-control/src/play/summaries.ts",
+        exportName: "Civ7PlayerSummaryResultSchema",
+      },
+      inputFields: ["playerIds", "includeUnits", "includeCities", "maxItems"],
+      outputFields: ["host", "port", "state", "players", "omitted"],
+    });
+
+    expect(summarizeCiv7ProcedureCoreDescriptor(playerDescriptor)).toMatchObject({
+      procedureKey: "player.summary.read",
+      family: "player",
+      atomFunction: "getCiv7PlayerSummary",
+    });
+
+    const mismatchError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...playerDescriptor,
+      procedureKey: "unit.summary.read",
+    }));
+    expect(mismatchError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "family-mismatch",
+        procedureKey: "unit.summary.read",
+        family: "player",
+      },
+    });
+  });
+
   test("runtime-validates descriptor shape before semantic procedure guards", () => {
     expect(isCiv7ProcedureCoreDescriptor({
       ...readyUnitDescriptor,

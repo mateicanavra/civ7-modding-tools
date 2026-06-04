@@ -41,6 +41,10 @@ import {
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
   Civ7PlayableStatusResultSchema,
+  Civ7PlayerSummaryInputSchema,
+  Civ7PlayerSummaryProcedureDescriptor,
+  Civ7PlayerSummaryProcedureSchemaArtifacts,
+  Civ7PlayerSummaryResultSchema,
   Civ7ProgressDashboardInputSchema,
   Civ7ProgressDashboardProcedureDescriptor,
   Civ7ProgressDashboardProcedureSchemaArtifacts,
@@ -48,6 +52,7 @@ import {
   Civ7ProcedureCoreCallDiagnosticsSchema,
   Civ7ProcedureCoreCallResultSchema,
   Civ7ProcedureContextRequirementSchema,
+  Civ7ProcedureFamilySchema,
   Civ7ProcedureSchemaReferenceSchema,
   Civ7ProcedureSchemaTechnologySchema,
   Civ7ReadyCityViewProcedureDescriptor,
@@ -121,6 +126,7 @@ import {
   callCiv7CitySummaryProcedure,
   callCiv7DestinationAnalysisProcedure,
   callCiv7PlayableStatusProcedure,
+  callCiv7PlayerSummaryProcedure,
   callCiv7PlayNotificationViewProcedure,
   callCiv7ProcedureCore,
   callCiv7ProgressDashboardProcedure,
@@ -313,6 +319,29 @@ describe("Civ7 direct control public API", () => {
         "port",
         "state",
         "units",
+        "omitted",
+      ]),
+    });
+  });
+
+  test("exports player summary procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, {
+      playerIds: [0],
+      includeUnits: true,
+      includeCities: true,
+      maxItems: 64,
+    })).toBe(true);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { playerIds: [1025] })).toBe(false);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { maxItems: 513 })).toBe(false);
+    expect(Value.Check(Civ7PlayerSummaryInputSchema, { rawCommand: "Players.getAliveIds()" })).toBe(false);
+    expect(Civ7PlayerSummaryResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "players",
         "omitted",
       ]),
     });
@@ -730,6 +759,8 @@ describe("Civ7 direct control public API", () => {
   });
 
   test("exports procedure schema reference schema from the public facade", () => {
+    expect(Value.Check(Civ7ProcedureFamilySchema, "player")).toBe(true);
+    expect(Value.Check(Civ7ProcedureFamilySchema, "raw-command")).toBe(false);
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "direct-control-facade")).toBe(true);
     expect(Value.Check(Civ7ProcedureContextRequirementSchema, "raw-socket")).toBe(false);
     expect(Value.Check(Civ7ProcedureCoreCallDiagnosticsSchema, {
@@ -1021,6 +1052,24 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7UnitSummaryProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.outputSchema)
     ]).toBe(Civ7UnitSummaryResultSchema);
+  });
+
+  test("exports the player summary procedure descriptor artifact from the public facade", () => {
+    expect(Civ7PlayerSummaryProcedureDescriptor).toMatchObject({
+      procedureKey: "player.summary.read",
+      family: "player",
+      atomFunction: "getCiv7PlayerSummary",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7PlayerSummaryProcedure).toBe("function");
+    expect(Civ7PlayerSummaryProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7PlayerSummaryProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7PlayerSummaryInputSchema);
+    expect(Civ7PlayerSummaryProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7PlayerSummaryProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7PlayerSummaryResultSchema);
   });
 
   test("exports the city summary procedure descriptor artifact from the public facade", () => {

@@ -3858,3 +3858,27 @@ All future agent waves must be framed before delegation:
   catalog, add a router/registry/transport adapter, choose Effect Schema, claim
   runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
   6.1-6.9.
+- Player-summary procedure atom seed:
+  `packages/civ7-direct-control/src/play/summaries.ts` now owns TypeBox input/
+  output schemas for the existing read-only player summary atom, and
+  `packages/civ7-direct-control/src/play/player-summary-procedure.ts` records
+  the adjacent `player.summary.read` descriptor/schema artifact map and
+  concrete call wrapper over `getCiv7PlayerSummary` while adding only the
+  narrow `player` procedure family needed by that existing player read atom.
+  Focused proof in
+  `packages/civ7-direct-control/test/summary-reads.test.ts` validates a fake
+  player summary result against the schema and rejects invalid player/max
+  input plus endpoint/session/state/raw-command procedure input; proof in
+  `packages/civ7-direct-control/test/player-summary-procedure.test.ts` covers
+  descriptor schema resolution through public exports, no-network
+  fake-dependency calls, direct-control option forwarding,
+  input-before-dependency rejection, output validation, separated diagnostics,
+  player summary read command text, no send-operation command text, and
+  descriptor/artifact/call-wrapper exports through `src/index.ts`. Proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` covers the narrow
+  `player` procedure-family key guard. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema and
+  descriptor exports. This is local read-atom proof only; it does not change
+  CLI output, add a broad player or summary catalog, add a router/registry/
+  transport adapter, choose Effect Schema, claim runtime/live-game proof,
+  accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.

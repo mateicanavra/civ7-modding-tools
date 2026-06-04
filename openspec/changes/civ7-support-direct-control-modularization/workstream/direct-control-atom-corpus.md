@@ -179,12 +179,15 @@ also owns TypeBox schemas for the read-only `getCiv7UnitSummary` atom, and
 descriptor/call wrapper with local no-network proof. `src/play/summaries.ts`
 now also owns TypeBox schemas for the read-only `getCiv7CitySummary` atom, and
 `src/play/city-summary-procedure.ts` owns the adjacent `city.summary.read`
-descriptor/call wrapper with local no-network proof while the player-summary
-procedure atom remains pending a separate slice. Later 4.11 slices now own
-reveal mutation and setup map rows; AI ingestion, static profile shaping,
-semantic CLI, telemetry, hotseat runtime proof, broad summary catalogs,
-Effect/oRPC procedure cores, and Task 2.9.4 matrix-row acceptance remain
-pending separate slices.
+descriptor/call wrapper with local no-network proof. `src/play/summaries.ts`
+now also owns TypeBox schemas for the read-only `getCiv7PlayerSummary` atom,
+and `src/play/player-summary-procedure.ts` owns the adjacent
+`player.summary.read` descriptor/call wrapper with local no-network proof while
+adding only the narrow `player` procedure family needed by that existing player
+read atom. Later 4.11 slices now own reveal mutation and setup map rows; AI
+ingestion, static profile shaping, semantic CLI, telemetry, hotseat runtime
+proof, broad summary/player catalogs, Effect/oRPC procedure cores, and Task
+2.9.4 matrix-row acceptance remain pending separate slices.
 
 Runtime API inspection update: `src/runtime/inspection.ts` now owns
 `inspectCiv7RuntimeApi`, its default-root selector, and the generated runtime

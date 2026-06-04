@@ -23,6 +23,29 @@ export type Civ7PlayerSummaryInput = Readonly<{
   maxItems?: number;
 }>;
 
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7PlayerSummaryInputSchema = Type.Object({
+  playerIds: Type.Optional(Type.Array(Type.Integer({ minimum: 0, maximum: 1024 }))),
+  includeUnits: Type.Optional(Type.Boolean()),
+  includeCities: Type.Optional(Type.Boolean()),
+  maxItems: Type.Optional(Type.Integer({ minimum: 1, maximum: 512 })),
+}, { additionalProperties: false });
+
+export const Civ7PlayerSummarySchema = Type.Object({
+  id: Type.Integer({ minimum: 0, maximum: 1024 }),
+  leaderName: Civ7RuntimeProbeSchema(Type.String()),
+  civilizationName: Civ7RuntimeProbeSchema(Type.String()),
+  isHuman: Civ7RuntimeProbeSchema(Type.Boolean()),
+  isAlive: Civ7RuntimeProbeSchema(Type.Boolean()),
+  isTurnActive: Civ7RuntimeProbeSchema(Type.Boolean()),
+  unitIds: Civ7RuntimeProbeSchema(Type.Array(Civ7ComponentIdSchema)),
+  cityIds: Civ7RuntimeProbeSchema(Type.Array(Civ7ComponentIdSchema)),
+}, { additionalProperties: false });
+
 export type Civ7PlayerSummary = Readonly<{
   id: number;
   leaderName: Civ7RuntimeProbe<string>;
@@ -33,6 +56,14 @@ export type Civ7PlayerSummary = Readonly<{
   unitIds: Civ7RuntimeProbe<ReadonlyArray<Civ7ComponentId>>;
   cityIds: Civ7RuntimeProbe<ReadonlyArray<Civ7ComponentId>>;
 }>;
+
+export const Civ7PlayerSummaryResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  players: Type.Array(Civ7PlayerSummarySchema),
+  omitted: Type.Integer({ minimum: 0 }),
+}, { additionalProperties: false });
 
 export type Civ7PlayerSummaryResult = Readonly<{
   host: string;
@@ -49,11 +80,6 @@ export type Civ7UnitSummaryInput = Readonly<{
   maxItems?: number;
   includeHidden?: boolean;
 }>;
-
-const civ7TunerStateSchema = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-}, { additionalProperties: false });
 
 export const Civ7UnitSummaryInputSchema = Type.Object({
   playerIds: Type.Optional(Type.Array(Type.Integer({ minimum: 0, maximum: 1024 }))),
@@ -166,6 +192,16 @@ type SummaryReadDependencies = Readonly<{
   validatePlayerId: (playerId: number) => number;
 }>;
 
+export type Civ7PlayerSummaryDependencies = Pick<
+  SummaryReadDependencies,
+  | "boundedInteger"
+  | "executeTunerCommand"
+  | "jsLiteral"
+  | "parsePlayerSummary"
+  | "probeHelperSource"
+  | "validatePlayerId"
+>;
+
 export type Civ7UnitSummaryDependencies = Pick<
   SummaryReadDependencies,
   | "boundedInteger"
@@ -189,7 +225,7 @@ export type Civ7CitySummaryDependencies = Pick<
 export async function getCiv7PlayerSummary(
   input: Civ7PlayerSummaryInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SummaryReadDependencies = defaultSummaryReadDependencies,
+  dependencies: Civ7PlayerSummaryDependencies = defaultSummaryReadDependencies,
 ): Promise<Civ7PlayerSummaryResult> {
   const result = await dependencies.executeTunerCommand({
     ...options,
@@ -247,7 +283,7 @@ export async function getCiv7CitySummary(
 
 function buildPlayerSummaryCommand(
   input: Civ7PlayerSummaryInput & { maxItems: number },
-  dependencies: SummaryReadDependencies,
+  dependencies: Civ7PlayerSummaryDependencies,
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}

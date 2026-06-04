@@ -625,6 +625,7 @@ export type {
   Civ7CitySummaryInput,
   Civ7CitySummaryResult,
   Civ7PlayerSummary,
+  Civ7PlayerSummaryDependencies,
   Civ7PlayerSummaryInput,
   Civ7PlayerSummaryResult,
   Civ7UnitSummary,
@@ -636,6 +637,9 @@ export {
   Civ7CitySummaryInputSchema,
   Civ7CitySummaryResultSchema,
   Civ7CitySummarySchema,
+  Civ7PlayerSummaryInputSchema,
+  Civ7PlayerSummaryResultSchema,
+  Civ7PlayerSummarySchema,
   Civ7UnitSummaryInputSchema,
   Civ7UnitSummaryResultSchema,
   Civ7UnitSummarySchema,
@@ -645,6 +649,12 @@ export {
   getCiv7PlayerSummary,
   getCiv7UnitSummary,
 };
+export {
+  callCiv7PlayerSummaryProcedure,
+  Civ7PlayerSummaryProcedureDescriptor,
+  Civ7PlayerSummaryProcedureSchemaArtifacts,
+} from "./play/player-summary-procedure";
+export type { Civ7PlayerSummaryProcedureCallOptions } from "./play/player-summary-procedure";
 export {
   callCiv7CitySummaryProcedure,
   Civ7CitySummaryProcedureDescriptor,

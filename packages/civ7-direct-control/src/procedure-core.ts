@@ -10,6 +10,7 @@ export const Civ7ProcedureFamilySchema = Type.Union([
   Type.Literal("controller"),
   Type.Literal("notifications"),
   Type.Literal("choices"),
+  Type.Literal("player"),
   Type.Literal("city"),
   Type.Literal("unit"),
   Type.Literal("map"),
