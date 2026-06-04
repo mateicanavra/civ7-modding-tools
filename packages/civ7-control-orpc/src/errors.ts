@@ -28,8 +28,30 @@ export class Civ7DirectControlUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7NotificationViewUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("notifications.view"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7NotificationViewUnavailableErrorData = Static<
+  typeof Civ7NotificationViewUnavailableErrorDataSchema
+>;
+
+export class Civ7NotificationViewUnavailableError extends ORPCTaggedError(
+  "Civ7NotificationViewUnavailableError",
+  {
+    code: "NOTIFICATION_VIEW_UNAVAILABLE",
+    message: "Direct-control notification view failed.",
+    schema: toStandardSchema(Civ7NotificationViewUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const civ7ControlOrpcErrorMap = {
   DIRECT_CONTROL_UNAVAILABLE: Civ7DirectControlUnavailableError,
+  NOTIFICATION_VIEW_UNAVAILABLE: Civ7NotificationViewUnavailableError,
 } satisfies EffectErrorMap;
 
 export type Civ7ControlOrpcEffectErrorMap = typeof civ7ControlOrpcErrorMap;
