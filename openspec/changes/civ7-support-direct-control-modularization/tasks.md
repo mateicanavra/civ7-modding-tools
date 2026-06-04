@@ -1399,6 +1399,15 @@ runtime/direct-control claims.
         broader atom-local source helper normalization, telemetry, AI ingestion,
         CLI semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
         work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.25 Normalize the progression read command-source helper wiring by
+        reusing the shared command-source serializer and runtime probe helper
+        owners from traditions view and progress dashboard reads, preserving
+        generated command text, player validation, parse labels,
+        hidden-info/read-only/no-send behavior, and leaving technology/culture
+        closeout mutation sources, broader atom-local source helper
+        normalization, telemetry, AI ingestion, CLI semantic projection, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

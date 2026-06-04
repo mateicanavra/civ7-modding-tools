@@ -2657,3 +2657,16 @@ All future agent waves must be framed before delegation:
   atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
   projection, hotseat runtime proof, schema migration, debug hierarchy
   implementation, or Effect/oRPC procedure-core work.
+- Progression read command-source helper normalization:
+  `src/play/progression/reads.ts`, `src/play/progression/traditions.ts`, and
+  `src/play/progression/progress-dashboard.ts` now import the shared
+  command-source serializer and runtime probe helper owners where those helpers
+  are needed instead of carrying atom-local copies. Technology/culture closeout
+  mutation sources remain outside this read-only helper slice. The generated
+  command text remains equivalent, and traditions/progress-dashboard wrappers
+  still own their existing player validation, parse labels, hidden-info policy,
+  and read-only/no-send behavior. This is local package/source relocation cleanup
+  only and does not claim runtime/live-game proof, accept Task 2.9.4, normalize
+  every remaining atom-local source helper, or unblock telemetry, AI ingestion,
+  CLI semantic projection, hotseat runtime proof, schema migration, debug
+  hierarchy implementation, or Effect/oRPC procedure-core work.

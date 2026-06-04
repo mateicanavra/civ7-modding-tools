@@ -1,6 +1,6 @@
-import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { progressDashboardSource } from "./progress-dashboard.js";
 import { traditionsViewSource } from "./traditions.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { validatePlayerId } from "../../validation.js";
@@ -192,14 +192,6 @@ function buildProgressDashboardCommand(input: Civ7ProgressDashboardInput): strin
     ${progressDashboardSource()}
     return JSON.stringify(readProgressDashboard(${jsLiteral(input)}));
   })()`;
-}
-
-function jsLiteral(value: unknown): string {
-  const json = JSON.stringify(value);
-  if (json === undefined) {
-    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
-  }
-  return json;
 }
 
 const defaultTraditionsViewDependencies: TraditionsViewDependencies = {
