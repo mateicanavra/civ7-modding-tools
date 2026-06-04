@@ -771,6 +771,10 @@ Intake rejection conditions:
   `packages/civ7-direct-control/src/play/ready/unit.ts` with focused proof in
   `packages/civ7-direct-control/test/ready-unit-view.test.ts` and public
   facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+  The second concrete read-atom schema owner seed is
+  `packages/civ7-direct-control/src/play/ready/city.ts` with focused proof in
+  `packages/civ7-direct-control/test/ready-city-view.test.ts` and public
+  facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
   The descriptor owner now binds procedure descriptors to schema references
   with `inputSchema` and `outputSchema` owner/export slots, and current proof
   binds `unit.ready.view` to the ready-unit schema exports and resolves those
@@ -778,14 +782,19 @@ Intake rejection conditions:
   descriptor artifact is now
   `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`, with proof
   in `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`. The
+  second concrete adjacent descriptor artifact is now
+  `packages/civ7-direct-control/src/play/ready/city-procedure.ts`, with proof
+  in `packages/civ7-direct-control/test/ready-city-procedure.test.ts`. The
   descriptor resolver now validates descriptor field lists against resolved
   schema root properties.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   context/middleware/error/correlation owner, broader concrete procedure
   owners, and explicit owner boundaries for the in-game controller router,
   external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control procedure descriptor
-  resolver owner, focused procedure descriptor proof, and docs/OpenSpec records.
+- `writeSet`: current write set is the ready-city read atom schema owner,
+  adjacent ready-city procedure descriptor artifact, focused ready-city
+  schema/descriptor proof, public facade exports/proof, and docs/OpenSpec
+  records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -817,24 +826,31 @@ Intake rejection conditions:
   `radius`/`maxOperations` input and root-level output shape separation from
   raw command fields. The adjacent ready-unit descriptor artifact records that
   read atom's procedure metadata and schema artifact map without registering a
+  router. The current source artifact now also adds TypeBox input/output
+  schemas for the existing `getCiv7ReadyCityView` read atom, including bounded
+  `cityId`/`maxOperations` input and root-level output shape separation from
+  raw command fields. The adjacent ready-city descriptor artifact records that
+  read atom's procedure metadata and schema artifact map without registering a
   router.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
   cases. Current TypeBox read-atom schema ownership is seeded for
-  `getCiv7ReadyUnitView` only, with focused proof that the existing fake Tuner
-  result matches `Civ7ReadyUnitViewResultSchema` and raw-command fields are
-  rejected at the result root. Current descriptor schema references bind the
-  `unit.ready.view` procedure descriptor to those ready-unit schema exports and
-  reject schema owners outside `@civ7/direct-control`, expression-like export
-  names, raw command-source/session schema references, and unresolved
-  referenced schema artifacts. Current focused proof also checks the concrete
-  ready-unit descriptor's input/output field lists against resolved TypeBox
-  schema root properties, including `legalOperations` instead of the stale
-  `operationCandidates` fixture name, through the generic descriptor resolver
-  guard. This is not a TypeBox versus Effect Schema migration decision and does
-  not prove broader concrete procedure input/output schemas or runtime router
-  schema registration.
+  `getCiv7ReadyUnitView` and `getCiv7ReadyCityView`, with focused proof that
+  the existing fake Tuner results match their result schemas and raw-command
+  fields are rejected at the result root. Current descriptor schema references
+  bind `unit.ready.view` and `city.ready.view` procedure descriptors to those
+  schema exports and reject schema owners outside `@civ7/direct-control`,
+  expression-like export names, raw command-source/session schema references,
+  and unresolved referenced schema artifacts. Current focused proof also checks
+  the concrete ready-unit and ready-city descriptors' input/output field lists
+  against resolved TypeBox schema root properties, including ready-unit
+  `legalOperations` instead of the stale `operationCandidates` fixture name
+  and ready-city `legalOperations`/`productionCandidates`/`townFocusOptions`/
+  `populationPlacement`, through the generic descriptor resolver guard. This is
+  not a TypeBox versus Effect Schema migration decision and does not prove
+  broader concrete procedure input/output schemas or runtime router schema
+  registration.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, and
@@ -847,16 +863,17 @@ Intake rejection conditions:
   middleware correlation generation, propagation, or external transport
   formatting.
 - `proofPlan`: current proof is planning evidence, local atom test evidence,
-  and focused descriptor-owner tests proving one read atom descriptor, raw
+  and focused descriptor-owner tests proving read atom descriptors, raw
   command tunnel rejection for generic raw fields and repo-local
   `command-serialization`/`session/execute` owners, malformed descriptor-shape
   rejection through TypeBox runtime validation, descriptor typed-error
   details, descriptor correlation policy with normal CLI omission by default,
   local `live-runtime-proof` claim rejection before runtime-proof ownership,
-  one ready-unit read-atom input/output schema over a stable direct-control
-  atom, ready-unit descriptor schema-reference binding and local schema
-  artifact resolution, one adjacent ready-unit procedure descriptor artifact
-  with generic resolver schema-root field-list proof,
+  ready-unit and ready-city read-atom input/output schemas over stable
+  direct-control atoms, ready-unit and ready-city descriptor schema-reference
+  binding plus local schema artifact resolution, adjacent ready-unit and
+  ready-city procedure descriptor artifacts with generic resolver
+  schema-root field-list proof,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface. Missing before acceptance: oRPC schema/procedure

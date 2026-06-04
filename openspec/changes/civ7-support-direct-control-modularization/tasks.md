@@ -1984,6 +1984,24 @@ runtime/direct-control claims.
       add `packages/civ7-control-orpc`, add transport adapters, implement the
       in-game controller router, claim runtime/live-game proof, accept Task
       2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.24 Add ready-city read-atom TypeBox schemas and an adjacent procedure
+      descriptor artifact in `src/play/ready/city.ts` and
+      `src/play/ready/city-procedure.ts`, with focused proof in
+      `test/ready-city-view.test.ts`, `test/ready-city-procedure.test.ts`, and
+      public facade proof in `test/public-api.test.ts`. This records
+      `city.ready.view` beside the existing ready-city atom, validates bounded
+      `cityId`/`maxOperations` input, validates the ready-city result root
+      including `legalOperations`, `productionCandidates`, `townFocusOptions`,
+      and `populationPlacement`, rejects root-level raw command fields, and
+      resolves the descriptor's schema references through the generic
+      schema-root field-list guard. Complex nested runtime values remain
+      bounded TypeBox owner fields with `unknown` where no stable nested
+      contract is accepted yet. This is a second local read-atom
+      schema/descriptor artifact only; it does not implement runtime
+      router/procedure registration, choose Effect Schema, migrate broader
+      contracts, implement Effect/oRPC source, add `packages/civ7-control-orpc`,
+      add transport adapters, implement the in-game controller router, claim
+      runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2033,11 +2051,13 @@ authority are recorded.
     Task 4.22 adds the first adjacent ready-unit descriptor artifact and proves
     its field lists match the resolved ready-unit schema root fields.
     Task 4.23 moves that field-list guard into the generic descriptor resolver.
+    Task 4.24 adds the second adjacent read-atom schema/descriptor artifact for
+    `city.ready.view` over the ready-city decision view.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
-    inputs/outputs beyond that first read-atom schema seed and descriptor
-    schema-reference binding/resolution plus adjacent descriptor artifact and
-    resolver field-list guard.
+    inputs/outputs beyond the ready-unit and ready-city read-atom schema seeds,
+    descriptor schema-reference binding/resolution, adjacent descriptor
+    artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

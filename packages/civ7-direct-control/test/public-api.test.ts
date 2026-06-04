@@ -13,6 +13,10 @@ import {
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
   Civ7ProcedureSchemaReferenceSchema,
+  Civ7ReadyCityViewProcedureDescriptor,
+  Civ7ReadyCityViewProcedureSchemaArtifacts,
+  Civ7ReadyCityViewInputSchema,
+  Civ7ReadyCityViewResultSchema,
   Civ7ReadyUnitViewProcedureDescriptor,
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
   Civ7ReadyUnitViewInputSchema,
@@ -197,6 +201,26 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
+  test("exports ready-city view procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7ReadyCityViewInputSchema, {
+      cityId: { owner: 0, id: 131073, type: 1 },
+      maxOperations: 96,
+    })).toBe(true);
+    expect(Value.Check(Civ7ReadyCityViewInputSchema, { maxOperations: 257 })).toBe(false);
+    expect(Civ7ReadyCityViewResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "state",
+        "localPlayerId",
+        "cityId",
+        "legalOperations",
+        "productionCandidates",
+        "populationPlacement",
+      ]),
+    });
+  });
+
   test("exports procedure schema reference schema from the public facade", () => {
     expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {
       owner: "packages/civ7-direct-control/src/play/ready/unit.ts",
@@ -238,5 +262,19 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7ReadyUnitViewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7ReadyUnitViewProcedureDescriptor.outputSchema)
     ]).toBe(Civ7ReadyUnitViewResultSchema);
+  });
+
+  test("exports the ready-city procedure descriptor artifact from the public facade", () => {
+    expect(Civ7ReadyCityViewProcedureDescriptor).toMatchObject({
+      procedureKey: "city.ready.view",
+      atomFunction: "getCiv7ReadyCityView",
+      proofBoundary: "local-package-test",
+    });
+    expect(Civ7ReadyCityViewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7ReadyCityViewInputSchema);
+    expect(Civ7ReadyCityViewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7ReadyCityViewResultSchema);
   });
 });

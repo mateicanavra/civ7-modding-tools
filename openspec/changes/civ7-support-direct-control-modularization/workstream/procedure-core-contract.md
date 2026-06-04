@@ -38,12 +38,15 @@ caller-provided TypeBox schema artifacts, rejecting descriptor field lists that
 name fields missing from the resolved schema root properties, proving
 correlation stays omitted from normal CLI by default, and proving telemetry
 correlation is tied to the Effect/oRPC middleware hook rather than a separate
-transport surface. This is local package proof only; it does not collect
-runtime evidence, add Effect/oRPC dependencies, create
+transport surface. The second adjacent read-atom descriptor artifact is
+`packages/civ7-direct-control/src/play/ready/city-procedure.ts`, which owns the
+`city.ready.view` descriptor adjacent to the ready-city atom and schema
+exports. This is local package proof only; it does not collect runtime evidence,
+add Effect/oRPC dependencies, create
 `packages/civ7-control-orpc`, implement router/procedure behavior, choose a
 broader schema migration, claim runtime proof, or accept the matrix row.
 
-First concrete read-atom schema seed:
+Concrete read-atom schema seeds:
 `packages/civ7-direct-control/src/play/ready/unit.ts` now owns TypeBox schemas
 for `getCiv7ReadyUnitView` input, output, operation candidates, nearby plots,
 and promotion readiness. Focused proof in
@@ -56,6 +59,18 @@ schema-owner seed only; it does not choose Effect Schema, migrate existing
 contracts, implement a router/procedure, claim runtime proof, or accept the
 matrix row.
 
+`packages/civ7-direct-control/src/play/ready/city.ts` now owns TypeBox schemas
+for `getCiv7ReadyCityView` input, output, city operation candidates,
+production candidates, town-focus options, and population-placement slots.
+Focused proof in
+`packages/civ7-direct-control/test/ready-city-view.test.ts` validates the
+existing fake-runtime ready-city result against the output schema and rejects
+out-of-bound input plus root-level raw command fields. Public facade proof in
+`packages/civ7-direct-control/test/public-api.test.ts` verifies the schemas are
+exported for future procedure-core consumers. Complex nested runtime values
+remain `unknown` within named TypeBox owner fields until a later schema slice
+accepts narrower nested contracts.
+
 The adjacent ready-unit descriptor artifact reuses those schema exports and
 records root input/output field names from the actual TypeBox schemas,
 including `legalOperations` for the ready-unit operation candidates. Focused
@@ -65,6 +80,13 @@ properties so stale fixture names do not become procedure contract fields. The
 generic resolver guard in `packages/civ7-direct-control/src/procedure-core.ts`
 now owns that field-list check for any descriptor resolved against explicit
 schema artifacts.
+
+The adjacent ready-city descriptor artifact reuses the ready-city schema exports
+and records `city.ready.view` beside `getCiv7ReadyCityView`. Focused proof in
+`packages/civ7-direct-control/test/ready-city-procedure.test.ts` checks the
+descriptor's input/output field lists against resolved schema root properties,
+including `legalOperations`, `productionCandidates`, `townFocusOptions`, and
+`populationPlacement`, without registering a router or transport adapter.
 
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
@@ -173,14 +195,14 @@ This contract plus the descriptor owner seed reduce the `contractArtifact`,
 source-owner, descriptor runtime-validation, descriptor typed-error,
 descriptor correlation-policy, descriptor live-runtime-proof guard, and
 no-raw-tunnel proof gaps for the current TypeBox descriptor shape, generic raw
-fields, repo-local command-source/session-execute owners, and one adjacent
-ready-unit descriptor artifact with schema-root field-list validation in the
-Effect/oRPC Procedure Cores row, but they do not accept the row. Acceptance
-still needs:
+fields, repo-local command-source/session-execute owners, and adjacent
+ready-unit and ready-city read descriptor artifacts with schema-root field-list
+validation in the Effect/oRPC Procedure Cores row, but they do not accept the
+row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms
-  beyond the ready-unit read schema seed;
+  beyond the ready-unit and ready-city read schema seeds;
 - final context/middleware/error/correlation owners;
 - final schema reference registration in the runtime router/procedure owner;
 - explicit boundaries for in-game controller router, external direct-control

@@ -3219,3 +3219,18 @@ All future agent waves must be framed before delegation:
   the in-game controller router, claim runtime/live-game proof, accept Task
   2.9.4, start Tasks 6.1-6.9, or unblock CLI semantic, debug hierarchy,
   telemetry, AI-ingestion, hotseat runtime, or product-path support.
+- Ready-city read-atom procedure descriptor seed:
+  `packages/civ7-direct-control/src/play/ready/city.ts` now owns TypeBox
+  schemas for `getCiv7ReadyCityView` input/output and bounded nested
+  ready-city candidate slots, while
+  `packages/civ7-direct-control/src/play/ready/city-procedure.ts` records the
+  adjacent `city.ready.view` descriptor and schema artifact map. Focused proof
+  in `packages/civ7-direct-control/test/ready-city-view.test.ts` and
+  `packages/civ7-direct-control/test/ready-city-procedure.test.ts` validates
+  bounded input, result-root shape, root raw-command rejection, descriptor
+  field-list/schema-reference resolution, and public facade exports. This is
+  the second local read-atom schema/descriptor artifact after ready-unit; it
+  does not implement runtime router/procedure registration, choose Effect
+  Schema, migrate broader contracts, add Effect/oRPC source,
+  `packages/civ7-control-orpc`, transport adapters, in-game controller router
+  source, runtime/live-game proof, Task 2.9.4 acceptance, or Tasks 6.1-6.9.

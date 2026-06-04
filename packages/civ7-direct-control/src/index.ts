@@ -625,7 +625,19 @@ export type {
   Civ7ReadyCityViewInput,
   Civ7ReadyCityViewResult,
 } from "./play/ready/city.js";
-export { getCiv7ReadyCityView };
+export {
+  Civ7ReadyCityOperationCandidateSchema,
+  Civ7ReadyCityPopulationPlacementSchema,
+  Civ7ReadyCityProductionCandidateSchema,
+  Civ7ReadyCityTownFocusOptionSchema,
+  Civ7ReadyCityViewInputSchema,
+  Civ7ReadyCityViewResultSchema,
+  getCiv7ReadyCityView,
+} from "./play/ready/city.js";
+export {
+  Civ7ReadyCityViewProcedureDescriptor,
+  Civ7ReadyCityViewProcedureSchemaArtifacts,
+} from "./play/ready/city-procedure.js";
 export type {
   Civ7PlayDecisionAction,
   Civ7PlayDecisionHint,
