@@ -112,12 +112,34 @@ export class Civ7ReadyUnitViewUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7UnitSummaryUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("unit.summary.read"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7UnitSummaryUnavailableErrorData = Static<
+  typeof Civ7UnitSummaryUnavailableErrorDataSchema
+>;
+
+export class Civ7UnitSummaryUnavailableError extends ORPCTaggedError(
+  "Civ7UnitSummaryUnavailableError",
+  {
+    code: "UNIT_SUMMARY_UNAVAILABLE",
+    message: "Direct-control unit summary failed.",
+    schema: toStandardSchema(Civ7UnitSummaryUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const civ7ControlOrpcErrorMap = {
   DIRECT_CONTROL_UNAVAILABLE: Civ7DirectControlUnavailableError,
   MAP_SUMMARY_UNAVAILABLE: Civ7MapSummaryUnavailableError,
   PLAYER_SUMMARY_UNAVAILABLE: Civ7PlayerSummaryUnavailableError,
   NOTIFICATION_VIEW_UNAVAILABLE: Civ7NotificationViewUnavailableError,
   READY_UNIT_VIEW_UNAVAILABLE: Civ7ReadyUnitViewUnavailableError,
+  UNIT_SUMMARY_UNAVAILABLE: Civ7UnitSummaryUnavailableError,
 } satisfies EffectErrorMap;
 
 export type Civ7ControlOrpcEffectErrorMap = typeof civ7ControlOrpcErrorMap;

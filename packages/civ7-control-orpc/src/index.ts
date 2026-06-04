@@ -9,6 +9,7 @@ export {
   type Civ7ControlOrpcPlayNotificationViewResult,
   type Civ7ControlOrpcPlayableStatusResult,
   type Civ7ControlOrpcReadyUnitViewResult,
+  type Civ7ControlOrpcUnitSummaryResult,
   type Civ7ControlOrpcDirectControlFacade,
 } from "./dependencies/direct-control";
 export {
@@ -22,6 +23,8 @@ export {
   Civ7NotificationViewUnavailableErrorDataSchema,
   Civ7ReadyUnitViewUnavailableError,
   Civ7ReadyUnitViewUnavailableErrorDataSchema,
+  Civ7UnitSummaryUnavailableError,
+  Civ7UnitSummaryUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcEffectErrorMap,
@@ -30,6 +33,7 @@ export {
   type Civ7PlayerSummaryUnavailableErrorData,
   type Civ7NotificationViewUnavailableErrorData,
   type Civ7ReadyUnitViewUnavailableErrorData,
+  type Civ7UnitSummaryUnavailableErrorData,
 } from "./errors";
 export type { Civ7ControlOrpcProcedureMeta } from "./metadata";
 export {
@@ -91,11 +95,16 @@ export {
   Civ7UnitReadyViewContract,
   Civ7UnitReadyViewInputStandardSchema,
   Civ7UnitReadyViewResultStandardSchema,
+  Civ7UnitSummaryContract,
+  Civ7UnitSummaryInputStandardSchema,
+  Civ7UnitSummaryResultStandardSchema,
 } from "./modules/unit/contract";
 export type {
   Civ7UnitContract as Civ7UnitContractType,
   Civ7UnitReadyViewContract as Civ7UnitReadyViewContractType,
+  Civ7UnitSummaryContract as Civ7UnitSummaryContractType,
 } from "./modules/unit/contract";
 export { unitRouter } from "./modules/unit/router";
 export { unitReadyViewProcedure } from "./modules/unit/procedures/ready-view";
+export { unitSummaryReadProcedure } from "./modules/unit/procedures/summary-read";
 export { toStandardSchema } from "./typebox-standard-schema";

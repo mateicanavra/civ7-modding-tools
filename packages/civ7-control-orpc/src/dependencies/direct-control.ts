@@ -4,15 +4,18 @@ import {
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
   getCiv7ReadyUnitView,
+  getCiv7UnitSummary,
   type Civ7DirectControlOptions,
   Civ7MapSummaryResultSchema,
   Civ7PlayerSummaryResultSchema,
   Civ7PlayNotificationViewResultSchema,
   Civ7PlayableStatusResultSchema,
   Civ7ReadyUnitViewResultSchema,
+  Civ7UnitSummaryResultSchema,
   type Civ7MapSummaryOptions,
   type Civ7PlayerSummaryInput,
   type Civ7ReadyUnitViewInput,
+  type Civ7UnitSummaryInput,
   type PlayNotificationViewOptions,
 } from "@civ7/direct-control";
 import type { Static } from "typebox";
@@ -31,6 +34,9 @@ export type Civ7ControlOrpcPlayNotificationViewResult = Static<
 >;
 export type Civ7ControlOrpcReadyUnitViewResult = Static<
   typeof Civ7ReadyUnitViewResultSchema
+>;
+export type Civ7ControlOrpcUnitSummaryResult = Static<
+  typeof Civ7UnitSummaryResultSchema
 >;
 
 export type Civ7ControlOrpcDirectControlFacade = Readonly<{
@@ -51,6 +57,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7ReadyUnitViewInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcReadyUnitViewResult>;
+  getCiv7UnitSummary(
+    input?: Civ7UnitSummaryInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcUnitSummaryResult>;
 }>;
 
 export const liveCiv7ControlOrpcDirectControlFacade = {
@@ -71,5 +81,9 @@ export const liveCiv7ControlOrpcDirectControlFacade = {
   getCiv7ReadyUnitView: async (input, options) =>
     getCiv7ReadyUnitView(input, options) as Promise<
       Civ7ControlOrpcReadyUnitViewResult
+    >,
+  getCiv7UnitSummary: async (input, options) =>
+    getCiv7UnitSummary(input, options) as Promise<
+      Civ7ControlOrpcUnitSummaryResult
     >,
 } satisfies Civ7ControlOrpcDirectControlFacade;

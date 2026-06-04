@@ -43,6 +43,8 @@
   in-process server-side client proof.
 - [x] 4.6 Implement one player read module over `player.summary.read` with
   in-process server-side client proof.
+- [x] 4.7 Implement one unit summary module over `unit.summary.read` with
+  in-process server-side client proof.
 
 ## 5. Middleware Promotion
 
