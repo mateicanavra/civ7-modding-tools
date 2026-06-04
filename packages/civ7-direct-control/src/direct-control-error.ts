@@ -19,7 +19,8 @@ export type Civ7DirectControlErrorCode =
   | "setup-seed-mismatch"
   | "setup-map-size-mismatch"
   | "setup-config-load-failed"
-  | "setup-config-proof-missing";
+  | "setup-config-proof-missing"
+  | "procedure-descriptor-invalid";
 
 export class Civ7DirectControlError extends Error {
   readonly code: Civ7DirectControlErrorCode;

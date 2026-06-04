@@ -3202,17 +3202,20 @@ All future agent waves must be framed before delegation:
   TypeBox-backed direct-control procedure descriptor shape for stable atom
   owners, projection policy, proof boundary, player scope, consumer class,
   mutation gate metadata, runtime descriptor shape validation, and
+  typed descriptor errors through `Civ7DirectControlError` plus
   no-raw-command-tunnel guards. Focused proof in
   `packages/civ7-direct-control/test/procedure-core.test.ts` covers one
   no-network read atom descriptor, malformed descriptor rejection before
   procedure promotion, generic raw tunnel rejection, repo-local
   `runtime/command-serialization` / `jsLiteral` and `session/execute` /
   `executeCiv7Command` rejection, mutation
-  approval/validator/postcondition/no-repeat gate requirements, and telemetry
-  projection as an Effect/oRPC middleware hook rather than a separate transport
-  surface. This is local package proof only; it does not implement Effect/oRPC
-  source, add `packages/civ7-control-orpc`, add transport adapters, choose a
-  broader TypeBox versus Effect Schema migration, implement the in-game
-  controller router, claim runtime/live-game proof, accept Task 2.9.4, start
-  Tasks 6.1-6.9, or unblock CLI semantic, debug hierarchy, telemetry,
-  AI-ingestion, hotseat runtime, or product-path support.
+  approval/validator/postcondition/no-repeat gate requirements, schema/raw/
+  mutation typed-error details, and telemetry projection as an Effect/oRPC
+  middleware hook rather than a separate transport surface. This is local
+  package proof only; it does not implement Effect/oRPC source, add
+  `packages/civ7-control-orpc`, add transport adapters, choose a broader
+  TypeBox versus Effect Schema migration, implement final router/procedure
+  error shaping, implement the in-game controller router, claim
+  runtime/live-game proof, accept Task 2.9.4, start Tasks 6.1-6.9, or unblock
+  CLI semantic, debug hierarchy, telemetry, AI-ingestion, hotseat runtime, or
+  product-path support.

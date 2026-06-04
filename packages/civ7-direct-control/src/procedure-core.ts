@@ -1,6 +1,8 @@
 import { Type, type Static } from "typebox";
 import { Value } from "typebox/value";
 
+import { Civ7DirectControlError } from "./direct-control-error";
+
 export const Civ7ProcedureFamilySchema = Type.Union([
   Type.Literal("health"),
   Type.Literal("runtime"),
@@ -117,6 +119,15 @@ export type Civ7ProcedureCoreSummary = Readonly<{
   }>;
 }>;
 
+export type Civ7ProcedureCoreDescriptorErrorReason =
+  | "schema-mismatch"
+  | "invalid-procedure-key"
+  | "family-mismatch"
+  | "atom-owner-outside-direct-control"
+  | "missing-procedure-core-consumer"
+  | "raw-command-tunnel"
+  | "mutation-gates-missing";
+
 export function isCiv7ProcedureCoreDescriptor(value: unknown): value is Civ7ProcedureCoreDescriptor {
   return Value.Check(Civ7ProcedureCoreDescriptorSchema, value);
 }
@@ -126,7 +137,11 @@ export function assertCiv7ProcedureCoreDescriptor(
   label = "Civ7 procedure descriptor",
 ): Civ7ProcedureCoreDescriptor {
   if (isCiv7ProcedureCoreDescriptor(value)) return value;
-  throw new Error(`${label} does not match the Civ7 procedure-core descriptor schema`);
+  throw procedureDescriptorError(
+    `${label} does not match the Civ7 procedure-core descriptor schema`,
+    "schema-mismatch",
+    { label },
+  );
 }
 
 const FORBIDDEN_RAW_TUNNEL_KEYS = new Set([
@@ -197,18 +212,32 @@ export function summarizeCiv7ProcedureCoreDescriptor(
 
 function validateProcedureIdentity(descriptor: Civ7ProcedureCoreDescriptor): void {
   if (!/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)+$/.test(descriptor.procedureKey)) {
-    throw new Error(`Civ7 procedure key must be a dotted semantic key: ${descriptor.procedureKey}`);
+    throw procedureDescriptorError(
+      `Civ7 procedure key must be a dotted semantic key: ${descriptor.procedureKey}`,
+      "invalid-procedure-key",
+      { procedureKey: descriptor.procedureKey },
+    );
   }
   if (!descriptor.procedureKey.startsWith(`${descriptor.family}.`)) {
-    throw new Error(
+    throw procedureDescriptorError(
       `Civ7 procedure key ${descriptor.procedureKey} must start with its family ${descriptor.family}.`,
+      "family-mismatch",
+      { procedureKey: descriptor.procedureKey, family: descriptor.family },
     );
   }
   if (!descriptor.atomOwner.startsWith("packages/civ7-direct-control/src/")) {
-    throw new Error(`Civ7 procedure atom owner must stay in @civ7/direct-control: ${descriptor.atomOwner}`);
+    throw procedureDescriptorError(
+      `Civ7 procedure atom owner must stay in @civ7/direct-control: ${descriptor.atomOwner}`,
+      "atom-owner-outside-direct-control",
+      { procedureKey: descriptor.procedureKey, atomOwner: descriptor.atomOwner },
+    );
   }
   if (!descriptor.consumerClasses.includes("effect-orpc-procedure-core")) {
-    throw new Error(`Civ7 procedure ${descriptor.procedureKey} must include the procedure-core consumer class`);
+    throw procedureDescriptorError(
+      `Civ7 procedure ${descriptor.procedureKey} must include the procedure-core consumer class`,
+      "missing-procedure-core-consumer",
+      { procedureKey: descriptor.procedureKey, consumerClasses: descriptor.consumerClasses },
+    );
   }
 }
 
@@ -222,8 +251,10 @@ function validateNoRawCommandTunnel(descriptor: Civ7ProcedureCoreDescriptor): vo
   ];
   const rawFields = fields.filter(hasRawTunnelKey);
   if (rawFields.length > 0) {
-    throw new Error(
+    throw procedureDescriptorError(
       `Civ7 procedure ${descriptor.procedureKey} cannot expose raw command tunnel fields: ${rawFields.join(", ")}`,
+      "raw-command-tunnel",
+      { procedureKey: descriptor.procedureKey, fields: rawFields },
     );
   }
 }
@@ -237,10 +268,22 @@ function validateMutationGates(descriptor: Civ7ProcedureCoreDescriptor): void {
     descriptor.noRepeatAfterUnverified === true ? null : "noRepeatAfterUnverified",
   ].filter((value): value is string => value !== null);
   if (missing.length > 0) {
-    throw new Error(
+    throw procedureDescriptorError(
       `Civ7 mutation procedure ${descriptor.procedureKey} is missing required gates: ${missing.join(", ")}`,
+      "mutation-gates-missing",
+      { procedureKey: descriptor.procedureKey, missingGates: missing },
     );
   }
+}
+
+function procedureDescriptorError(
+  message: string,
+  reason: Civ7ProcedureCoreDescriptorErrorReason,
+  details: Record<string, unknown>,
+): Civ7DirectControlError {
+  return new Civ7DirectControlError("procedure-descriptor-invalid", message, {
+    details: { reason, ...details },
+  });
 }
 
 function normalizeFieldKey(field: string): string {

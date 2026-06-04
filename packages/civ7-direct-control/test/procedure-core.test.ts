@@ -3,6 +3,7 @@ import { Value } from "typebox/value";
 
 import {
   Civ7ProcedureCoreDescriptorSchema,
+  Civ7DirectControlError,
   assertCiv7ProcedureCoreDescriptor,
   createCiv7ProcedureCoreDescriptor,
   isCiv7ProcedureCoreDescriptor,
@@ -32,6 +33,16 @@ const readyUnitDescriptor: Civ7ProcedureCoreDescriptor = {
     procedureCore: "typed-procedure-core",
   },
 };
+
+function captureDescriptorError(fn: () => unknown): Civ7DirectControlError {
+  try {
+    fn();
+  } catch (err) {
+    expect(err).toBeInstanceOf(Civ7DirectControlError);
+    return err as Civ7DirectControlError;
+  }
+  throw new Error("Expected descriptor error");
+}
 
 describe("Civ7 procedure-core descriptor owner", () => {
   test("defines a typed no-network procedure descriptor over a stable direct-control atom", () => {
@@ -88,6 +99,61 @@ describe("Civ7 procedure-core descriptor owner", () => {
     } as unknown as Civ7ProcedureCoreDescriptor)).toThrow(
       /does not match the Civ7 procedure-core descriptor schema/,
     );
+  });
+
+  test("reports descriptor failures with typed direct-control error details", () => {
+    const schemaError = captureDescriptorError(() => assertCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      projection: {
+        ...readyUnitDescriptor.projection,
+        procedureCore: "raw-command-tunnel",
+      },
+    }));
+    expect(schemaError).toMatchObject({
+      name: "Civ7DirectControlError",
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "schema-mismatch",
+        label: "Civ7 procedure descriptor",
+      },
+    });
+
+    const rawTunnelError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      atomOwner: "packages/civ7-direct-control/src/session/execute.ts",
+      atomFunction: "executeCiv7Command",
+    }));
+    expect(rawTunnelError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "raw-command-tunnel",
+        procedureKey: "unit.ready.view",
+        fields: [
+          "packages/civ7-direct-control/src/session/execute.ts",
+          "executeCiv7Command",
+        ],
+      },
+    });
+
+    const missingGatesError = captureDescriptorError(() => createCiv7ProcedureCoreDescriptor({
+      ...readyUnitDescriptor,
+      procedureKey: "choices.production.request",
+      family: "choices",
+      risk: "mutation",
+    }));
+    expect(missingGatesError).toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "mutation-gates-missing",
+        procedureKey: "choices.production.request",
+        missingGates: [
+          "approvalGate",
+          "validatorFirst",
+          "postconditionRequired",
+          "noRepeatAfterUnverified",
+        ],
+      },
+    });
   });
 
   test("rejects raw command tunnel descriptors before they can become oRPC procedures", () => {

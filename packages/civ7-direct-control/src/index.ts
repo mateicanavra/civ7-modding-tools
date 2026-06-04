@@ -73,6 +73,7 @@ export {
 export type {
   Civ7ProcedureConsumerClass,
   Civ7ProcedureCoreDescriptor,
+  Civ7ProcedureCoreDescriptorErrorReason,
   Civ7ProcedureCoreSummary,
   Civ7ProcedureFamily,
   Civ7ProcedurePlayerScope,

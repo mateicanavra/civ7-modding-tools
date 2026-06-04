@@ -797,16 +797,23 @@ Intake rejection conditions:
   for malformed projection, consumer-class, array-field, and extra-property
   cases. This is not a TypeBox versus Effect Schema migration decision and does
   not prove concrete procedure input/output schemas.
+- `errorOwner`: current descriptor-owner failures now use
+  `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
+  structured reason/details for schema mismatch, raw command tunnel, and
+  missing mutation gates. This is not final router/procedure middleware error
+  shaping and does not prove external transport error formats.
 - `proofPlan`: current proof is planning evidence, local atom test evidence,
   and focused descriptor-owner tests proving one read atom descriptor, raw
   command tunnel rejection for generic raw fields and repo-local
   `command-serialization`/`session/execute` owners, malformed descriptor-shape
-  rejection through TypeBox runtime validation, mutation
+  rejection through TypeBox runtime validation, descriptor typed-error
+  details, mutation
   approval/validator/postcondition/no-repeat gate requirements, and telemetry
   projection as an Effect/oRPC middleware hook rather than a separate transport
   surface. Missing before acceptance: oRPC schema/procedure validation test
-  against concrete procedures, error-shape snapshot, encode/decode round trip,
-  Bun runtime check, CLI semantic projection test, AI-ingestion contract
+  against concrete procedures, final router/procedure error-shape snapshot,
+  encode/decode round trip, Bun runtime check, CLI semantic projection test,
+  AI-ingestion contract
   fixture test,
   middleware approval/correlation/error tests, and no-raw-command-tunnel tests
   in the final router/procedure owner.
@@ -821,7 +828,8 @@ Intake rejection conditions:
   serializer/session execution owners before they can become procedure cores,
   fails malformed descriptor shapes before semantic promotion, and fails
   mutation descriptors without approval, validator-first, postcondition, and
-  no-repeat-after-unverified gate metadata. Required coverage before acceptance
+  no-repeat-after-unverified gate metadata, with typed descriptor errors for
+  those local owner checks. Required coverage before acceptance
   must still fail if transport adapters or `packages/civ7-control-orpc`
   behavior precede concrete procedure-core contracts/tests, if raw command
   strings become router architecture, if the App UI bridge is treated as the
