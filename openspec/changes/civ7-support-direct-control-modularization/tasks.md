@@ -139,6 +139,15 @@
         `pending-hotseat-runtime-proof` until hotseat runtime source/proof
         owners, live activation/rotation/action/restoration gates, and
         human-turn refusal proof are assigned and passing.
+        The Effect/oRPC procedure cores row now has a draft acceptance intake
+        using the oRPC authority citation, controller-bridge substrate repair,
+        TypeBox versus Effect Schema report disposition, current TypeBox public
+        contracts, and current direct-control atom owners as planning evidence,
+        but its `acceptanceStatus` remains `pending-procedure-core-schema`
+        until procedure-core source/schema/proof owners, context/middleware,
+        error, and correlation owners, schema/procedure validation tests,
+        encode/decode and typed-error tests, projection-separation tests, and
+        no-raw-command-tunnel tests are assigned and passing.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;

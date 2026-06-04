@@ -578,3 +578,56 @@ Intake rejection conditions:
   internal-service/AI/CLI semantic projection ownership criteria; stop if Zod
   appears as an accidental third durable schema authority instead of a
   documented oRPC adapter boundary
+
+#### Acceptance Intake: Effect/oRPC Procedure Cores
+
+- `ownerAssignment`: partial planning evidence exists from the oRPC authority
+  citation, controller-bridge substrate repair, TypeBox versus Effect Schema
+  report disposition, and current direct-control atom owners. Missing before
+  acceptance: named procedure-core source owner, schema owner, proof owner,
+  context/middleware/error/correlation owner, and explicit owner boundaries for
+  the in-game controller router, external direct-control bridge, and future AI
+  services.
+- `writeSet`: current write set is docs/OpenSpec only. Future implementation
+  write sets must name the exact procedure-core module or package, typed schema
+  artifact, middleware/context/error/correlation tests, and narrow adapters to
+  stable direct-control atom owners. No transport adapter,
+  `packages/civ7-control-orpc` behavior, in-game controller router source,
+  CLI shell rewrite, AI ingestion, telemetry persistence, raw JS command
+  tunnel, broad `common`/`utils`/`types` bucket, or hand-maintained App UI
+  method table is accepted by this intake.
+- `contractArtifact`: current artifacts are planning records, current TypeBox
+  public contracts, direct-control atom types/results, the compatibility
+  matrix, and the schema-evaluation disposition. Missing before acceptance:
+  typed procedure contracts with context, approval policy, correlation IDs,
+  typed errors, telemetry hooks, resource/schedule/stream semantics where
+  appropriate, and explicit TypeBox / Effect Schema / Zod adapter ownership.
+- `proofPlan`: current proof is planning evidence and local atom test evidence
+  only. Missing before acceptance: oRPC schema/procedure validation test,
+  error-shape snapshot, encode/decode round trip, Bun runtime check, CLI
+  semantic projection test, AI-ingestion contract fixture test,
+  middleware approval/correlation/error tests, and no-raw-command-tunnel tests
+  over stable direct-control atoms.
+- `projectionPlan`: normal CLI remains omitted here and belongs to the
+  semantic CLI row; the oclif shell remains separate. Debug/internal service
+  diagnostics belong to the debug row. AI ingestion consumes typed contracts
+  only through the AI row. Telemetry hooks compose only after the telemetry row.
+  `globalThis.Civ7IntelligenceBridge.invoke(...)` is serialized ingress into
+  the in-process oRPC/Effect router, not the product API.
+- `stopConditionCoverage`: missing before acceptance. Required coverage must
+  fail if transport adapters or `packages/civ7-control-orpc` behavior precede
+  procedure-core contracts/tests, if raw command strings become procedure
+  architecture, if the App UI bridge is treated as the product API, if Zod
+  becomes an accidental durable schema authority, or if procedure-core schema
+  work starts without TypeBox / Effect Schema / adapter disposition and tests.
+- `downstreamUnblock`: none yet. Acceptance would unblock only specifically
+  named 6.x procedure-core schema, middleware, context, error, and correlation
+  slices after owners/proofs are assigned. It would not unblock transport
+  adapters, in-game controller runtime source, AI ingestion, telemetry
+  persistence, CLI semantic implementation, hotseat runtime proof, or runtime
+  proof by itself.
+- `nonProofClaims`: this intake does not implement Effect/oRPC, migrate
+  schemas, add procedure-core source, add transport adapters, implement the
+  in-game controller router, claim runtime/live-game proof, accept Task 2.9.4,
+  or unblock CLI semantic output, debug hierarchy implementation, telemetry,
+  AI ingestion, hotseat runtime proof, or product-path support.

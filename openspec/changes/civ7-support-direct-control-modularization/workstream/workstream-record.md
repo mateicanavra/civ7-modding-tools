@@ -2309,3 +2309,19 @@ All future agent waves must be framed before delegation:
   AI-on-hotseat product-path proof, accept Task 2.9.4, or unblock semantic CLI
   implementation, telemetry, AI ingestion, debug hierarchy implementation,
   schema migration, Effect/Bun, or Effect/oRPC procedure-core work.
+- Effect/oRPC procedure-core compatibility-row intake:
+  `workstream/compatibility-matrix.md` now records a draft acceptance intake
+  for the Effect/oRPC procedure cores row. The intake uses the oRPC authority
+  citation, controller-bridge substrate repair, TypeBox versus Effect Schema
+  report disposition, current TypeBox public contracts, and current
+  direct-control atom owners as planning evidence, then records the missing
+  procedure-core source owner, schema/proof owner, context/middleware, error,
+  and correlation owner, procedure contract artifact, schema/procedure tests,
+  encode/decode and typed-error tests, projection-separation tests, and
+  no-raw-command-tunnel guards needed before acceptance. The row remains
+  `pending-procedure-core-schema`; this update does not implement Effect/oRPC,
+  migrate schemas, add procedure source, add transport adapters, implement the
+  in-game controller router, claim runtime/live-game proof, accept Task 2.9.4,
+  or unblock semantic CLI implementation, debug hierarchy implementation,
+  telemetry, AI ingestion, hotseat runtime proof, schema migration, or
+  product-path support.
