@@ -2819,3 +2819,15 @@ All future agent waves must be framed before delegation:
   telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
   schema migration, debug hierarchy implementation, or Effect/oRPC
   procedure-core work.
+- Direct-control implementation guard audit:
+  the current support slice was rechecked after the facade/source
+  modularization stack and remains free of new intelligence-layer code,
+  telemetry persistence, Effect/oRPC procedure-core implementation, transport
+  adapters, and App UI companion bridge source in `packages/civ7-direct-control`
+  and `packages/cli`. Existing planning records and any pre-existing package
+  directories remain planning/background evidence only. This closes only Task
+  2.10.1 guard-audit evidence; Task 2.10, Task 2.9.4 matrix-row acceptance,
+  hotseat runtime proof, AI-ingestion contracts, telemetry contracts, CLI
+  semantic envelopes, debug/internal service boundary work, and Effect/oRPC
+  procedure-core implementation remain blocked pending named source/proof
+  owners and accepted matrix rows.
