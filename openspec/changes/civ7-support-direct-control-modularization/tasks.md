@@ -122,9 +122,10 @@
         transport/session/probe/correlation command internals, but broader
         debug-command boundary, AI-ingestion, telemetry, and
         procedure-diagnostic separation proof remains pending before row
-        acceptance. Focused `game inspect --json` coverage now also proves one
-        debug-owned command emits raw runtime inspection fields including
-        host/port/state, own/prototype/enumerable keys, and method
+        acceptance. Focused `game health --json` and `game inspect --json`
+        coverage now also proves debug-owned commands emit raw readiness and
+        runtime inspection fields including host/port/state, state discovery,
+        selected state, own/prototype/enumerable keys, and method
         owner/length/signature diagnostics, but the row remains pending.
         The semantic CLI player-agent view row now has a draft acceptance
         intake with current `game play` command/test owners from

@@ -25,12 +25,40 @@ describe('game direct-control commands', () => {
 
   test('reports direct-control health and available states', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameHealth.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameHealth.run(['--host', '127.0.0.1', '--port', String(port), '--state', 'App UI', '--json']);
 
       expect(server.received).toEqual(['LSQ:']);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        health: {
+          ok: true;
+          status: string;
+          host: string;
+          port: number;
+          states: Array<{ id: string; name: string }>;
+          selectedState: { id: string; name: string };
+        };
+      };
+      expect(payload.ok).toBe(true);
+      expect(payload.health).toMatchObject({
+        ok: true,
+        status: 'ready',
+        host: '127.0.0.1',
+        port,
+        selectedState: { id: '65535', name: 'App UI' },
+      });
+      expect(payload.health.states).toEqual([
+        { id: '65535', name: 'App UI' },
+        { id: '1', name: 'Tuner' },
+      ]);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });

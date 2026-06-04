@@ -51,13 +51,14 @@ transport/session/probe/correlation command internals while preserving the
 existing compact player-agent priority summary. Follow-up compact
 `game play ready-city` proof now asserts that another normal play projection
 omits those same raw internals while preserving the player-agent city decision
-summary. Follow-up focused `game inspect --json` proof now asserts that a
-debug-owned command emits raw runtime inspection fields including
-host/port/state, own/prototype/enumerable keys, and method
-owner/length/signature diagnostics. These reduce the debug/internal service row
-proof gap but do not accept Task 2.9.4, assign a debug projection owner, prove
-AI-ingestion or telemetry separation, implement debug/service hierarchy, or
-claim runtime/live-game proof.
+summary. Follow-up focused `game health --json` and `game inspect --json`
+proof now asserts that debug-owned commands emit raw readiness and runtime
+inspection fields including host/port/state, state discovery, selected state,
+own/prototype/enumerable keys, and method owner/length/signature diagnostics.
+These reduce the debug/internal service row proof gap but do not accept Task
+2.9.4, assign a debug projection owner, prove AI-ingestion or telemetry
+separation, implement debug/service hierarchy, or claim runtime/live-game
+proof.
 
 ## Current State
 
