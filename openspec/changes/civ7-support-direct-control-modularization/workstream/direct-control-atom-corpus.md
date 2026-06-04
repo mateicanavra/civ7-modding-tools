@@ -118,37 +118,46 @@ pending.
 Map row update: `src/play/map/reads.ts` now owns `getCiv7MapSummary`,
 `getCiv7PlotSnapshot`, and `getCiv7MapGrid` orchestration plus their map
 summary, plot snapshot, and bounded grid command/source helpers while public
-facade exports stay in `index.ts`. Visibility summary, reveal mutation,
-GameInfo rows, setup map rows, and player/unit/city summaries remain pending
-separate owner slices.
+facade exports stay in `index.ts`. Later 4.11 slices now own visibility
+summary, reveal mutation, GameInfo rows, setup map rows, and player/unit/city
+summaries in their named modules; AI ingestion, static profile shaping,
+semantic CLI projection, telemetry, hotseat runtime proof, Effect/oRPC
+procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending
+separate lanes.
 
 Map validation row update: `src/play/map/validation.ts` now owns map
 location/bounds validation while `src/validation.ts` owns generic integer
 validation. This preserves the existing location and map-grid hard-cap
-messages/classification; map read source strings, runtime behavior, telemetry,
-AI ingestion, semantic CLI projection, hotseat runtime proof, Effect/oRPC
-procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
+messages/classification; runtime behavior changes, telemetry, AI ingestion,
+semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
+work, and Task 2.9.4 matrix-row acceptance remain pending.
 
 Visibility row update: `src/play/map/visibility.ts` now owns
 `getCiv7VisibilitySummary` orchestration plus its bounded visibility-grid
 command/source helper while the public facade export stays in `index.ts`.
-Reveal mutation, GameInfo rows, setup map rows, and player/unit/city summaries
-remain pending separate owner/proof slices.
+Later 4.11 slices now own reveal mutation, GameInfo rows, setup map rows, and
+player/unit/city summaries in their named modules; runtime/live-game proof for
+mutation claims, AI ingestion, static profile shaping, semantic CLI,
+telemetry, hotseat runtime proof, and Effect/oRPC procedure cores remain
+pending separate owner/proof slices.
 
 GameInfo row update: `src/play/map/gameinfo.ts` now owns
 `getCiv7GameInfoRows` orchestration plus its bounded GameInfo table row
 command/source helper while the public facade export stays in `index.ts`.
-Reveal mutation, setup map rows, player/unit/city summaries, AI ingestion, and
-static profile shaping remain pending separate owner/proof slices.
+Later 4.11 slices now own reveal mutation, setup map rows, and player/unit/city
+summaries; AI ingestion, static profile shaping, semantic CLI projection,
+telemetry, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
+2.9.4 matrix-row acceptance remain pending separate owner/proof slices.
 
 Summary read update: `src/play/summaries.ts` now owns
 `getCiv7PlayerSummary`, `getCiv7UnitSummary`, and `getCiv7CitySummary`
 orchestration plus their command/source helpers while public facade exports stay
 in `index.ts`. `test/summary-reads.test.ts` repairs the focused package proof
 gap for command routing/source shape, validation and bounds, read-only/no-send
-behavior, and unchanged component-id pass-through. Reveal mutation, setup map
-rows, AI ingestion, static profile shaping, semantic CLI, telemetry, hotseat
-runtime proof, and Effect/oRPC procedure cores remain pending separate slices.
+behavior, and unchanged component-id pass-through. Later 4.11 slices now own
+reveal mutation and setup map rows; AI ingestion, static profile shaping,
+semantic CLI, telemetry, hotseat runtime proof, Effect/oRPC procedure cores,
+and Task 2.9.4 matrix-row acceptance remain pending separate slices.
 
 Runtime API inspection update: `src/runtime/inspection.ts` now owns
 `inspectCiv7RuntimeApi`, its default-root selector, and the generated runtime
