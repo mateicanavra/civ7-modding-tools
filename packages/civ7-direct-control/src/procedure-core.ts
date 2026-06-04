@@ -262,6 +262,15 @@ export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
 }, { additionalProperties: false });
 export type Civ7ProcedureCoreDescriptor = Static<typeof Civ7ProcedureCoreDescriptorSchema>;
 
+export const Civ7ProcedureCoreCallContextSchema = Type.Object({
+  descriptor: Civ7ProcedureCoreDescriptorSchema,
+  procedureKey: Type.String(),
+  correlationId: Type.String(),
+  proofBoundary: Civ7ProcedureProofBoundarySchema,
+  playerScope: Civ7ProcedurePlayerScopeSchema,
+  context: Type.Array(Civ7ProcedureContextRequirementSchema),
+}, { additionalProperties: false });
+
 export type Civ7ProcedureCoreSummary = Readonly<{
   procedureKey: string;
   family: Civ7ProcedureFamily;

@@ -44,7 +44,11 @@ projection that omits raw cause objects and nested cause messages. It also
 exports a local settled call envelope schema/helper over the existing call
 primitive, preserving successful output/diagnostics and projecting
 procedure-core failures through the safe error summary for JSON round-trip
-proof. The first
+proof. It also exports a local handler context schema over the injected
+procedure context, keeping endpoint and raw-command details out of the context
+envelope while preserving descriptor, procedure key, correlation, proof
+boundary, player scope, and context requirements for future middleware work.
+The first
 concrete descriptor
 artifact is `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`,
 which owns the `unit.ready.view` descriptor adjacent to the ready-unit atom and
@@ -738,6 +742,16 @@ result/error-envelope proof only; it does not change existing throwing call
 behavior, register a router, add transport behavior, choose Effect Schema,
 claim runtime proof, or accept the matrix row.
 
+Local procedure-core handler context schemas now live in
+`packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
+`packages/civ7-direct-control/test/procedure-core.test.ts` validates the actual
+injected handler context against `Civ7ProcedureCoreCallContextSchema`, proves a
+local JSON round trip, and rejects endpoint/raw-command fields in the context
+envelope. Public facade proof validates the exported context schema. This is
+local context-shape proof only; it does not implement runtime context
+construction, add middleware, register a router, add transport behavior, choose
+Effect Schema, claim runtime proof, or accept the matrix row.
+
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
 correlation IDs, approval gates, and telemetry hooks. It must serve the
@@ -886,8 +900,8 @@ Acceptance still needs:
   player-summary, unit-target action request, production-choice request, and
   notification dismissal request call wrappers;
 - final middleware/error/correlation owners and runtime context construction
-  beyond descriptor context-policy metadata and the local injected-handler call
-  helper;
+  beyond descriptor context-policy metadata, the local injected-handler call
+  helper, and the local handler context schema;
 - final schema reference registration in the runtime router/procedure owner;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;

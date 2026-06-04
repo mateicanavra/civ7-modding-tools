@@ -2753,6 +2753,17 @@ runtime/direct-control claims.
         transport behavior, choose Effect Schema, add Effect/oRPC source, claim
         runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
         6.1-6.9.
+  - [x] 4.58 Add a local procedure-core handler context schema in
+        `src/procedure-core.ts`. Focused proof in `test/procedure-core.test.ts`
+        validates the actual injected handler context against
+        `Civ7ProcedureCoreCallContextSchema`, covers a JSON round trip, and
+        proves endpoint/raw-command fields remain outside the context envelope;
+        public facade proof in `test/public-api.test.ts` validates the exported
+        context schema. This reduces only the local procedure-core context-shape
+        proof gap; it does not implement runtime context construction,
+        middleware, router/registry/transport behavior, choose Effect Schema,
+        add Effect/oRPC source, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2932,6 +2943,9 @@ authority are recorded.
     Task 4.57 adds a local procedure-core settled call envelope for success and
     safe error projections, including JSON round-trip proof, while preserving
     existing throwing call behavior.
+    Task 4.58 adds a local procedure-core handler context schema over the
+    injected handler context while keeping endpoint and raw-command fields out
+    of the context envelope.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,

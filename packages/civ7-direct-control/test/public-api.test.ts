@@ -57,6 +57,7 @@ import {
   Civ7ProductionChoiceRequestProcedureDescriptor,
   Civ7ProductionChoiceRequestProcedureSchemaArtifacts,
   Civ7ProductionChoiceResultSchema,
+  Civ7ProcedureCoreCallContextSchema,
   Civ7ProcedureCoreCallDiagnosticsSchema,
   Civ7ProcedureCoreCallEnvelopeSchema,
   Civ7ProcedureCoreCallResultSchema,
@@ -841,6 +842,23 @@ describe("Civ7 direct control public API", () => {
         errorCode: "command-failed",
       },
     })).toBe(true);
+    expect(Value.Check(Civ7ProcedureCoreCallContextSchema, {
+      descriptor: Civ7ReadyUnitViewProcedureDescriptor,
+      procedureKey: "unit.ready.view",
+      correlationId: "corr-1",
+      proofBoundary: "local-package-test",
+      playerScope: "local-player-scoped",
+      context: ["direct-control-facade"],
+    })).toBe(true);
+    expect(Value.Check(Civ7ProcedureCoreCallContextSchema, {
+      descriptor: Civ7ReadyUnitViewProcedureDescriptor,
+      procedureKey: "unit.ready.view",
+      correlationId: "corr-1",
+      proofBoundary: "local-package-test",
+      playerScope: "local-player-scoped",
+      context: ["direct-control-facade"],
+      rawCommand: "Game.turn",
+    })).toBe(false);
     expect(summarizeCiv7ProcedureCoreError(new Error("not direct-control"))).toBe(null);
     expect(typeof settleCiv7ProcedureCoreCall).toBe("function");
     expect(Value.Check(Civ7ProcedureSchemaReferenceSchema, {

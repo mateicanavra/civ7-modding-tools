@@ -61,6 +61,7 @@ export {
   Civ7ProcedureConsumerClassSchema,
   Civ7ProcedureCorrelationPolicySchema,
   Civ7ProcedureContextRequirementSchema,
+  Civ7ProcedureCoreCallContextSchema,
   Civ7ProcedureCoreCallDiagnosticsSchema,
   Civ7ProcedureCoreCallEnvelopeSchema,
   Civ7ProcedureCoreCallErrorEnvelopeSchema,

@@ -4,6 +4,7 @@ import { Value } from "typebox/value";
 import {
   Civ7ProcedureCoreDescriptorSchema,
   Civ7ProcedureCoreCallDiagnosticsSchema,
+  Civ7ProcedureCoreCallContextSchema,
   Civ7ProcedureCoreCallEnvelopeSchema,
   Civ7ProcedureCoreCallResultSchema,
   Civ7DirectControlError,
@@ -498,6 +499,50 @@ describe("Civ7 procedure-core descriptor owner", () => {
 
     await expect(settleCiv7ProcedureCoreCall(Promise.reject(new Error("plain failure"))))
       .rejects.toThrow(/plain failure/);
+  });
+
+  test("schemas the local procedure handler context without endpoint or raw command fields", async () => {
+    let capturedContext: unknown;
+    const result = await callCiv7ProcedureCore(
+      Civ7ReadyUnitViewProcedureDescriptor,
+      Civ7ReadyUnitViewProcedureSchemaArtifacts,
+      { radius: 2 },
+      (_input, context) => {
+        capturedContext = context;
+        return readyUnitOutput;
+      },
+      { correlationId: "corr-context-schema" },
+    );
+
+    expect(result.output).toEqual(readyUnitOutput);
+    expect(capturedContext).toMatchObject({
+      descriptor: Civ7ReadyUnitViewProcedureDescriptor,
+      procedureKey: "unit.ready.view",
+      correlationId: "corr-context-schema",
+      proofBoundary: "local-package-test",
+      playerScope: "local-player-scoped",
+      context: [
+        "direct-control-facade",
+        "endpoint-defaults",
+        "state-selection",
+        "logger",
+        "evidence-sink",
+      ],
+    });
+    expect(Value.Check(Civ7ProcedureCoreCallContextSchema, capturedContext)).toBe(true);
+    expect(Value.Check(
+      Civ7ProcedureCoreCallContextSchema,
+      JSON.parse(JSON.stringify(capturedContext)),
+    )).toBe(true);
+    expect(Value.Check(Civ7ProcedureCoreCallContextSchema, {
+      ...(capturedContext as object),
+      host: "127.0.0.1",
+    })).toBe(false);
+    expect(Value.Check(Civ7ProcedureCoreCallContextSchema, {
+      ...(capturedContext as object),
+      rawCommand: "Game.turn",
+    })).toBe(false);
+    expect(JSON.stringify(capturedContext)).not.toContain("Game.turn");
   });
 
   test("binds procedure descriptors to direct-control schema owners", () => {

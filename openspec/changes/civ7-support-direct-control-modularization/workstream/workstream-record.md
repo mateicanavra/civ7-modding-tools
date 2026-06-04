@@ -4024,3 +4024,17 @@ All future agent waves must be framed before delegation:
   behavior, change CLI output, add router/registry/transport behavior, choose
   Effect Schema, add Effect/oRPC source, claim runtime/live-game proof, accept
   Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+
+- Procedure-core handler context schema:
+  `packages/civ7-direct-control/src/procedure-core.ts` now exports
+  `Civ7ProcedureCoreCallContextSchema` for the existing injected handler
+  context. Focused proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` validates the
+  actual handler context passed by `callCiv7ProcedureCore`, proves a local JSON
+  round trip, and rejects endpoint/raw-command fields in the context envelope.
+  Public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
+  validates the exported context schema. This reduces only the local
+  procedure-core context-shape proof gap; it does not implement runtime context
+  construction, middleware, router/registry/transport behavior, choose Effect
+  Schema, add Effect/oRPC source, claim runtime/live-game proof, accept Task
+  2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.

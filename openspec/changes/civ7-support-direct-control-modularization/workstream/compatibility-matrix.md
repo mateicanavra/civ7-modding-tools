@@ -1111,13 +1111,13 @@ Intake rejection conditions:
   contracts, runtime-context/middleware/error/correlation owner, broader
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control procedure-core settled
-  envelope owner in `packages/civ7-direct-control/src/procedure-core.ts`,
-  focused procedure-core proof, public facade envelope schema/helper proof, and
-  docs/OpenSpec records. It projects existing procedure calls into local
-  success/error envelopes while preserving existing throwing call behavior,
-  using the safe error summary for failures, and proving local JSON round trips
-  without raw cause objects, nested cause messages, or raw command details.
+- `writeSet`: current write set is the direct-control procedure-core handler
+  context schema owner in `packages/civ7-direct-control/src/procedure-core.ts`,
+  focused procedure-core proof, public facade context schema proof, and
+  docs/OpenSpec records. It schemas the existing injected handler context,
+  proves a local JSON round trip, and keeps endpoint/raw-command fields outside
+  the context envelope without implementing runtime context construction or
+  middleware.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
@@ -1512,7 +1512,8 @@ Intake rejection conditions:
   procedure output, validates local error summaries that omit raw cause
   objects, nested cause messages, and raw command details, and validates local
   settled call envelopes for success/error JSON round trips without raw
-  command-bearing cause details. The adjacent
+  command-bearing cause details, and validates the local handler context schema
+  without endpoint/raw-command fields. The adjacent
   ready-unit,
   ready-city, unit move-preview, playable-status, App UI snapshot, Tuner
   health, notification-view, settlement-recommendations, target-candidates,
