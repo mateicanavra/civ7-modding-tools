@@ -8,15 +8,13 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
-  type Civ7OperationTelemetryPostcondition,
-  type Civ7OperationTelemetryPostconditionOutcome,
 } from "./operation-telemetry";
+import { diplomacyResponseProofPostcondition } from "./diplomacy-response-proof-policy";
 
 import type {
   Civ7DiplomacyResponseInput,
   Civ7DiplomacyResponseResult,
 } from "../play/operations/diplomacy-request";
-import type { Civ7DiplomacyResponsePostconditionClassification } from "../play/operations/diplomacy-postconditions";
 
 export type Civ7DiplomacyResponseTelemetryAdapterInput = Readonly<{
   input: Civ7DiplomacyResponseInput;
@@ -133,7 +131,7 @@ export function createCiv7DiplomacyResponseTelemetryRecord(
           "read-after-send"
         )
       : undefined,
-    postcondition: diplomacyResponsePostcondition(input.result, input.proofBoundary),
+    postcondition: diplomacyResponseProofPostcondition(input.result, input.proofBoundary),
     outcome_delta: input.result.sent
       ? evidence(
           {
@@ -174,78 +172,4 @@ function diplomacyResponseEvidencePolicy(
     pendingProofClasses: input.pendingProofClasses ?? ["pending-runtime-proof"],
     nonProofClaims: input.nonProofClaims ?? ["runtime/live-game proof"],
   };
-}
-
-function diplomacyResponsePostcondition(
-  result: Civ7DiplomacyResponseResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
-): Civ7OperationTelemetryPostcondition | undefined {
-  if (!result.sent && !result.postcondition) return undefined;
-  if (proofBoundary === "pending-runtime-proof") {
-    return {
-      classification: result.postcondition?.classification ?? "pending-runtime-proof",
-      reason: result.postcondition?.reason ?? "Runtime postcondition proof is pending.",
-      outcome: "unknown",
-      noRepeatAfterUnverified: true,
-      confidence: "pending-runtime-proof",
-    };
-  }
-  if (!result.postcondition) {
-    return {
-      classification: "missing-postcondition",
-      reason: "The diplomacy response result did not include explicit postcondition evidence.",
-      outcome: "unknown",
-      noRepeatAfterUnverified: true,
-      confidence: "unverified",
-    };
-  }
-  if (!diplomacyResponsePostconditionConfirmed(result.postcondition.classification)) {
-    return {
-      classification: result.postcondition.classification,
-      reason: result.postcondition.reason,
-      outcome: diplomacyResponseOutcome(result.postcondition.classification),
-      noRepeatAfterUnverified: true,
-      confidence: "unverified",
-    };
-  }
-  return {
-    classification: result.postcondition.classification,
-    reason: result.postcondition.reason,
-    outcome: diplomacyResponseOutcome(result.postcondition.classification),
-    noRepeatAfterUnverified: false,
-    confidence: "confirmed",
-  };
-}
-
-function diplomacyResponsePostconditionConfirmed(
-  classification: Civ7DiplomacyResponsePostconditionClassification,
-): boolean {
-  switch (classification) {
-    case "turn-unblocked":
-    case "diplomacy-blocker-cleared":
-    case "blocking-notification-changed":
-      return true;
-    case "not-sent":
-    case "validation-changed":
-    case "no-state-change":
-      return false;
-  }
-}
-
-function diplomacyResponseOutcome(
-  classification: Civ7DiplomacyResponsePostconditionClassification,
-): Civ7OperationTelemetryPostconditionOutcome {
-  switch (classification) {
-    case "not-sent":
-      return "not-sent";
-    case "turn-unblocked":
-    case "diplomacy-blocker-cleared":
-      return "cleared";
-    case "blocking-notification-changed":
-      return "state-changed";
-    case "validation-changed":
-      return "still-blocked";
-    case "no-state-change":
-      return "no-state-change";
-  }
 }
