@@ -1061,18 +1061,19 @@ Intake rejection conditions:
   `getCiv7TraditionsView`, `getCiv7ProgressDashboard`,
   `getCiv7MapSummary`, `getCiv7PlotSnapshot`, `getCiv7MapGrid`, and
   `getCiv7GameInfoRows`, `getCiv7VisibilitySummary`, and
-  `getCiv7TurnCompletionStatus`, `getCiv7UnitSummary`, and
-  `getCiv7CitySummary` through fake direct-control dependencies in focused
-  proof.
+  `getCiv7TurnCompletionStatus`, `getCiv7UnitSummary`,
+  `getCiv7CitySummary`, and `getCiv7PlayerSummary` through fake
+  direct-control dependencies in focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   accepted TypeBox versus Effect Schema disposition for final procedure
   contracts, runtime-context/middleware/error/correlation owner, broader
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control city summary atom schema/
-  dependency owner, adjacent `city.summary.read` descriptor/call
-  metadata declaring current TypeBox schema technology, focused descriptor/
-  atom/public facade proof, and docs/OpenSpec records.
+- `writeSet`: current write set is the direct-control player summary atom
+  schema/dependency owner, adjacent `player.summary.read` descriptor/call
+  metadata declaring current TypeBox schema technology, the narrow `player`
+  procedure-family guard, focused descriptor/atom/public facade proof, and
+  docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,
