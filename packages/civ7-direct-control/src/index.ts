@@ -140,14 +140,11 @@ import {
   CIV7_RESTART_COMMAND,
   CIV7_UI_LOADING_STATES,
 } from "./setup/constants.js";
-import {
-  configureCiv7Autoplay as configureCiv7AutoplayFromModule,
-  startCiv7Autoplay as startCiv7AutoplayFromModule,
-  stopCiv7Autoplay as stopCiv7AutoplayFromModule,
-  type Civ7AutoplayActionResult,
-  type Civ7AutoplayOptions,
-  type Civ7AutoplayPollOptions,
-  type Civ7AutoplayStatusResult,
+import type {
+  Civ7AutoplayActionResult,
+  Civ7AutoplayOptions,
+  Civ7AutoplayPollOptions,
+  Civ7AutoplayStatusResult,
 } from "./play/autoplay.js";
 import {
   sendCiv7TurnComplete as sendCiv7TurnCompleteFromModule,
@@ -565,7 +562,12 @@ export type {
   Civ7AutoplayPollOptions,
   Civ7AutoplayStatusResult,
 } from "./play/autoplay.js";
-export { getCiv7AutoplayStatus } from "./play/autoplay.js";
+export {
+  configureCiv7Autoplay,
+  getCiv7AutoplayStatus,
+  startCiv7Autoplay,
+  stopCiv7Autoplay,
+} from "./play/autoplay.js";
 export type {
   Civ7TurnCompletionActionResult,
   Civ7TurnCompletionStatusResult,
@@ -1105,27 +1107,6 @@ export async function runCiv7SinglePlayerFromSetup(
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
   return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
-}
-
-export async function configureCiv7Autoplay(
-  options: Civ7AutoplayOptions,
-  approval: Civ7ActionApproval,
-): Promise<Civ7AutoplayActionResult> {
-  return await configureCiv7AutoplayFromModule(options, approval);
-}
-
-export async function startCiv7Autoplay(
-  options: Civ7AutoplayOptions,
-  approval: Civ7ActionApproval,
-): Promise<Civ7AutoplayActionResult> {
-  return await startCiv7AutoplayFromModule(options, approval);
-}
-
-export async function stopCiv7Autoplay(
-  options: Civ7AutoplayOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7AutoplayActionResult> {
-  return await stopCiv7AutoplayFromModule(options, approval);
 }
 
 export async function revealCiv7MapForPlayer(

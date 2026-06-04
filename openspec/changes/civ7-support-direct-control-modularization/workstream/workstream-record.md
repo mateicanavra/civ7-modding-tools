@@ -2455,3 +2455,14 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
   ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
   debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Autoplay action facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports
+  `configureCiv7Autoplay`, `startCiv7Autoplay`, and `stopCiv7Autoplay`
+  directly from the autoplay owner instead of keeping trivial async mutation
+  call-through wrappers. `src/play/autoplay.ts` still owns approval-first
+  mutation behavior, App UI execution, explicit unbounded start semantics, and
+  stop-settling/pause verification. This is local package/source relocation
+  cleanup only and does not claim runtime/live-game proof, accept Task 2.9.4,
+  or unblock telemetry, AI ingestion, CLI semantic projection, hotseat runtime
+  proof, schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
