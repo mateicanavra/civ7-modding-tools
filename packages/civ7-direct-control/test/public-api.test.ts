@@ -33,6 +33,10 @@ import {
   Civ7DestinationAnalysisProcedureDescriptor,
   Civ7DestinationAnalysisProcedureSchemaArtifacts,
   Civ7DestinationAnalysisResultSchema,
+  Civ7NotificationDismissRequestInputSchema,
+  Civ7NotificationDismissRequestProcedureDescriptor,
+  Civ7NotificationDismissRequestProcedureSchemaArtifacts,
+  Civ7NotificationDismissalResultSchema,
   Civ7PlayNotificationViewInputSchema,
   Civ7PlayNotificationViewProcedureDescriptor,
   Civ7PlayNotificationViewProcedureSchemaArtifacts,
@@ -133,6 +137,7 @@ import {
   callCiv7BattlefieldScanProcedure,
   callCiv7CitySummaryProcedure,
   callCiv7DestinationAnalysisProcedure,
+  callCiv7NotificationDismissRequestProcedure,
   callCiv7PlayableStatusProcedure,
   callCiv7PlayerSummaryProcedure,
   callCiv7PlayNotificationViewProcedure,
@@ -1173,6 +1178,43 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7ProductionChoiceRequestProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7ProductionChoiceRequestProcedureDescriptor.outputSchema)
     ]).toBe(Civ7ProductionChoiceResultSchema);
+  });
+
+  test("exports the notification dismissal request procedure descriptor artifact from the public facade", () => {
+    expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
+      notificationId: { owner: 0, id: 113, type: 20 },
+      approvalReason: "test approved notification dismissal",
+    })).toBe(true);
+    expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
+      notificationId: { owner: 0, type: 20 },
+      approvalReason: "test approved notification dismissal",
+    })).toBe(false);
+    expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
+      notificationId: { owner: 0, id: 113, type: 20 },
+      rawCommand: "Game.Notifications.dismiss(...)",
+      approvalReason: "test approved notification dismissal",
+    })).toBe(false);
+    expect(Civ7NotificationDismissRequestProcedureDescriptor).toMatchObject({
+      procedureKey: "notifications.dismiss.request",
+      family: "notifications",
+      risk: "mutation",
+      atomFunction: "requestCiv7NotificationDismissal",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      approvalGate: true,
+      validatorFirst: true,
+      postconditionRequired: true,
+      noRepeatAfterUnverified: true,
+      context: expect.arrayContaining(["direct-control-facade", "approval-policy", "live-session-policy"]),
+    });
+    expect(Civ7NotificationDismissRequestProcedureDescriptor.outputFields).not.toContain("command");
+    expect(typeof callCiv7NotificationDismissRequestProcedure).toBe("function");
+    expect(Civ7NotificationDismissRequestProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7NotificationDismissRequestProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7NotificationDismissRequestInputSchema);
+    expect(Civ7NotificationDismissRequestProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7NotificationDismissRequestProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7NotificationDismissalResultSchema);
   });
 
   test("exports the player summary procedure descriptor artifact from the public facade", () => {

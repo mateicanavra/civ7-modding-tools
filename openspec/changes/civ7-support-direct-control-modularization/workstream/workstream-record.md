@@ -3939,3 +3939,35 @@ All future agent waves must be framed before delegation:
   through procedure output, add a broad operation catalog, add a router/
   registry/transport adapter, choose Effect Schema, claim runtime/live-game
   proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+- Notification-dismissal request procedure atom seed:
+  `packages/civ7-direct-control/src/play/notifications/dismissal-request.ts`
+  now owns TypeBox input/request/result schemas for the existing approval-gated
+  notification dismissal atom, and
+  `packages/civ7-direct-control/src/play/notifications/postconditions.ts` owns
+  notification dismissal summary/postcondition schemas. The existing atom now
+  asserts malformed notification IDs before App UI command construction.
+  `packages/civ7-direct-control/src/play/notifications/dismissal-procedure.ts`
+  records the adjacent `notifications.dismiss.request` descriptor/schema
+  artifact map and concrete call wrapper over
+  `requestCiv7NotificationDismissal`. Focused proof in
+  `packages/civ7-direct-control/test/notification-dismissal-procedure.test.ts`
+  covers descriptor schema resolution through public exports, component-id
+  notification input, explicit approval reason, mutation gate metadata,
+  caller-provided correlation, telemetry middleware projection, no-network fake
+  request calls, approval object construction, direct-control option forwarding,
+  input-before-dependency rejection, output validation for confirmed dismissal
+  and `engine-front-still-live` guarded postconditions, separated diagnostics,
+  no handler execution without caller correlation, and root command/raw-command
+  output rejection. Adjacent proof in
+  `packages/civ7-direct-control/test/notification-dismissal.test.ts` covers
+  malformed notification-id rejection before command construction, while
+  `packages/civ7-direct-control/test/notification-dismissal-telemetry.test.ts`
+  continues to cover no-repeat guarding for unverified/stale/pending telemetry
+  paths. Public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
+  covers the schema and descriptor exports. This is local no-network mutation-
+  procedure proof only; it does not execute live direct-control atoms, change
+  CLI output, weaken approval/validator/postcondition/no-repeat behavior, infer
+  repeat safety from legacy `verified`, expose raw command text through
+  procedure output, add a broad notification or operation catalog, add a router/
+  registry/transport adapter, choose Effect Schema, claim runtime/live-game
+  proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.

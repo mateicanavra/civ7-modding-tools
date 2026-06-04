@@ -97,7 +97,12 @@ production-choice request descriptor artifact is
 which owns the `city.production.choice.request` mutation descriptor adjacent to
 the approved production-choice atom, schema exports, and production
 postcondition schema exports while projecting procedure output without the
-atom's raw command-bearing result field. The adjacent notification read
+atom's raw command-bearing result field. The adjacent notification dismissal
+request descriptor artifact is
+`packages/civ7-direct-control/src/play/notifications/dismissal-procedure.ts`,
+which owns the `notifications.dismiss.request` mutation descriptor adjacent to
+the approval-gated notification dismissal atom, schema exports, and notification
+dismissal postcondition schema exports. The adjacent notification read
 descriptor artifact is
 `packages/civ7-direct-control/src/play/notifications/view-procedure.ts`, which
 owns the `notifications.view` descriptor adjacent to the notification read atom
@@ -649,6 +654,30 @@ weaken approval/validator/postcondition/no-repeat gates, add a router, add
 Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
 the matrix row.
 
+The adjacent notification dismissal request procedure artifact reuses the
+notification dismissal schemas and records `notifications.dismiss.request`
+beside `requestCiv7NotificationDismissal`. Focused proof in
+`packages/civ7-direct-control/test/notification-dismissal-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including component-id notification input, explicit
+`approvalReason`, optional disposable-session intent, mutation gate metadata,
+caller-provided correlation, telemetry middleware projection, and raw/context
+input separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over
+`requestCiv7NotificationDismissal`, composed through the local procedure-core
+call primitive. Focused proof uses a fake request dependency to prove direct-
+control option forwarding, approval object construction before the existing
+atom send path, input validation before dependency execution, output validation
+after the atom returns for confirmed and `engine-front-still-live` guarded
+postconditions, separated output/diagnostics, root command/raw-command output
+rejection, and no handler execution without a caller-provided correlation ID.
+Adjacent atom proof covers malformed notification-id rejection before App UI
+command construction. This is local no-network mutation-procedure proof only;
+it does not execute live direct-control atoms, change CLI output, weaken
+approval/validator/postcondition/no-repeat gates, infer repeat safety from
+legacy `verified`, add a router, add Effect/oRPC dependencies, choose Effect
+Schema, claim runtime proof, or accept the matrix row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit
@@ -794,7 +823,8 @@ health, notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
 progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
 visibility-summary, turn-completion status, unit-summary, city-summary,
-player-summary, unit-target action request, and production-choice request
+player-summary, unit-target action request, production-choice request, and
+notification dismissal request
 descriptor artifacts with
 schema-root field-list validation plus local payload validation against
 resolved schema artifacts plus a local injected-handler call primitive in the
@@ -804,7 +834,8 @@ notification-view, settlement-recommendations, target-candidates,
 battlefield-scan, destination-analysis, traditions-view, and
 progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
 visibility-summary, turn-completion status, unit-summary, city-summary,
-player-summary, unit-target action request, and production-choice request
+player-summary, unit-target action request, production-choice request, and
+notification dismissal request
 procedure call wrappers, but they do not accept the row.
 Acceptance still needs:
 
@@ -817,8 +848,8 @@ Acceptance still needs:
   battlefield-scan, destination-analysis, traditions-view, and
   progress-dashboard, map-summary, plot-snapshot, map-grid, GameInfo-rows, and
   visibility-summary, turn-completion status, unit-summary, city-summary,
-  player-summary, unit-target action request, and production-choice request
-  call wrappers;
+  player-summary, unit-target action request, production-choice request, and
+  notification dismissal request call wrappers;
 - final middleware/error/correlation owners and runtime context construction
   beyond descriptor context-policy metadata and the local injected-handler call
   helper;

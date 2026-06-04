@@ -2692,6 +2692,32 @@ runtime/direct-control claims.
         Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
         in-game controller router, claim runtime/live-game proof, accept Task
         2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+  - [x] 4.54 Add the adjacent notification dismissal request procedure atom in
+        `src/play/notifications/dismissal-procedure.ts`, with TypeBox request/
+        result schemas beside the existing notification dismissal atom in
+        `src/play/notifications/dismissal-request.ts` and postcondition/summary
+        schemas in `src/play/notifications/postconditions.ts`. The existing
+        atom now asserts `notificationId` as a Civ7 ComponentID before building
+        App UI commands. Focused proof in
+        `test/notification-dismissal-procedure.test.ts` covers descriptor schema
+        resolution, explicit `approvalReason`, mutation gate metadata,
+        caller-provided correlation, endpoint/session/state/raw-command input
+        exclusion, no-network fake request calls, approval object construction,
+        direct-control option forwarding, no handler execution without caller
+        correlation or with invalid input, output validation for confirmed and
+        `engine-front-still-live` guarded postconditions, and root command/raw-
+        command output rejection. Adjacent proof in `test/notification-dismissal.test.ts`
+        covers malformed notification-id rejection before App UI command
+        construction, while `test/notification-dismissal-telemetry.test.ts`
+        continues to cover no-repeat guarding for unverified/stale/pending
+        notification dismissal telemetry paths. This is local no-network
+        mutation-procedure proof only; it does not execute live direct-control
+        atoms, change CLI output, weaken approval/validator/postcondition/no-
+        repeat behavior, infer repeat safety from legacy `verified`, add a
+        router/registry/transport adapter, choose Effect Schema, add
+        Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2855,6 +2881,13 @@ authority are recorded.
     context/raw-command input rejection, procedure-safe output projection that
     omits raw command text, production postcondition output proof, and local
     no-network proof over a fake request dependency.
+    Task 4.54 adds the third adjacent mutation schema/descriptor/call artifact
+    for `notifications.dismiss.request` over the notification dismissal atom,
+    including component-id notification input proof, approval reason proof,
+    mutation gate metadata, caller correlation proof, context/raw-command input
+    rejection, notification postcondition output proof for confirmed and guarded
+    stale-engine-front paths, root command/raw-command output rejection, and
+    local no-network proof over a fake request dependency.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
@@ -2862,10 +2895,10 @@ authority are recorded.
     target-candidates, battlefield-scan, destination-analysis, and
     traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
     GameInfo-rows, visibility-summary, turn-completion status, and
-    unit-summary, city-summary, player-summary, unit-target action request, and
-    production-choice request schema seeds, descriptor schema-reference
-    binding/resolution, adjacent descriptor/call artifacts, mutation gate
-    metadata, and resolver field-list guard.
+    unit-summary, city-summary, player-summary, unit-target action request,
+    production-choice request, and notification dismissal request schema seeds,
+    descriptor schema-reference binding/resolution, adjacent descriptor/call
+    artifacts, mutation gate metadata, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

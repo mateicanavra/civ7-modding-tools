@@ -881,6 +881,7 @@ export type {
 } from "./play/notifications/view-procedure.js";
 export type {
   Civ7NotificationDismissInput,
+  Civ7NotificationDismissRequestInput,
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissalSummary,
 } from "./play/notifications/dismissal-request.js";
@@ -889,9 +890,25 @@ export type {
   Civ7NotificationDismissalPostconditionClassification,
 } from "./play/notifications/postconditions.js";
 export {
+  Civ7NotificationDismissInputSchema,
+  Civ7NotificationDismissRequestInputSchema,
+  Civ7NotificationDismissalResultSchema,
   getCiv7NotificationDismissal,
   requestCiv7NotificationDismissal,
 } from "./play/notifications/dismissal-request.js";
+export {
+  Civ7NotificationDismissalPostconditionClassificationSchema,
+  Civ7NotificationDismissalPostconditionSchema,
+  Civ7NotificationDismissalSummarySchema,
+} from "./play/notifications/postconditions.js";
+export {
+  callCiv7NotificationDismissRequestProcedure,
+  Civ7NotificationDismissRequestProcedureDescriptor,
+  Civ7NotificationDismissRequestProcedureSchemaArtifacts,
+} from "./play/notifications/dismissal-procedure.js";
+export type {
+  Civ7NotificationDismissRequestProcedureCallOptions,
+} from "./play/notifications/dismissal-procedure.js";
 export type {
   BattlefieldScanDependencies,
   Civ7BattlefieldScanInput,

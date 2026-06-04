@@ -1,17 +1,59 @@
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { Type, type Static } from "typebox";
+
+import { Civ7ComponentIdSchema } from "../../civ7-component-id.js";
+import {
+  Civ7RuntimeProbeSchema,
+  type Civ7RuntimeProbe,
+} from "../../runtime/probe.js";
 import type { Civ7NotificationDismissalSummary } from "./dismissal-request.js";
 
+export const Civ7NotificationDismissalPostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("missing-after"),
+  Type.Literal("notification-disappeared"),
+  Type.Literal("engine-front-still-live"),
+  Type.Literal("notification-dismissed"),
+  Type.Literal("engine-queue-cleared"),
+  Type.Literal("notification-train-cleared"),
+  Type.Literal("engine-front-moved"),
+  Type.Literal("notification-train-front-moved"),
+  Type.Literal("no-state-change"),
+]);
+
 export type Civ7NotificationDismissalPostconditionClassification =
-  | "not-sent"
-  | "missing-after"
-  | "notification-disappeared"
-  | "engine-front-still-live"
-  | "notification-dismissed"
-  | "engine-queue-cleared"
-  | "notification-train-cleared"
-  | "engine-front-moved"
-  | "notification-train-front-moved"
-  | "no-state-change";
+  Static<typeof Civ7NotificationDismissalPostconditionClassificationSchema>;
+
+const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
+
+export const Civ7NotificationDismissalSummarySchema = Type.Object({
+  id: nullableComponentIdSchema,
+  exists: Type.Boolean(),
+  type: Type.Unknown(),
+  typeName: Type.Union([Type.String(), Type.Null()]),
+  summary: Type.Unknown(),
+  message: Type.Unknown(),
+  target: Type.Unknown(),
+  location: Type.Unknown(),
+  canUserDismiss: Type.Unknown(),
+  expired: Type.Unknown(),
+  dismissed: Type.Unknown(),
+  blocksTurnAdvancement: Civ7RuntimeProbeSchema(Type.Unknown()),
+  endTurnBlockingType: Civ7RuntimeProbeSchema(Type.Unknown()),
+  isEndTurnBlocking: Civ7RuntimeProbeSchema(Type.Boolean()),
+  engineQueueCount: Civ7RuntimeProbeSchema(Type.Number()),
+  engineQueueContains: Civ7RuntimeProbeSchema(Type.Boolean()),
+  engineQueueFirstId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+  isEngineQueueFront: Civ7RuntimeProbeSchema(Type.Boolean()),
+  notificationTrainCount: Civ7RuntimeProbeSchema(Type.Number()),
+  notificationTrainContains: Civ7RuntimeProbeSchema(Type.Boolean()),
+  notificationTrainFirstId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+  isNotificationTrainFront: Civ7RuntimeProbeSchema(Type.Boolean()),
+}, { additionalProperties: false });
+
+export const Civ7NotificationDismissalPostconditionSchema = Type.Object({
+  classification: Civ7NotificationDismissalPostconditionClassificationSchema,
+  reason: Type.String(),
+}, { additionalProperties: false });
 
 export type Civ7NotificationDismissalPostcondition = Readonly<{
   classification: Civ7NotificationDismissalPostconditionClassification;

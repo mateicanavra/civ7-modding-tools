@@ -634,6 +634,28 @@ export a public schema, add telemetry persistence, infer runtime/live-game
 proof, accept Task 2.9.4, or unblock broader operation adapters, AI ingestion,
 semantic CLI output, debug hierarchy, or Effect/oRPC procedure cores.
 
+Notification-dismissal request procedure seed update:
+`src/play/notifications/dismissal-request.ts` now also owns TypeBox schemas for
+the notification dismissal input, approved request input, and result shape;
+`src/play/notifications/postconditions.ts` owns notification dismissal summary
+and postcondition schemas; and `src/play/notifications/dismissal-procedure.ts`
+owns the adjacent `notifications.dismiss.request` descriptor/schema artifact map
+and concrete call wrapper over `requestCiv7NotificationDismissal`. The existing
+atom now rejects malformed notification IDs before building App UI commands.
+Focused proof in `test/notification-dismissal-procedure.test.ts` validates
+component-id notification input, explicit approval reason, mutation gate
+metadata, caller correlation, fake request approval forwarding, context/raw-
+command input rejection, no handler execution before valid input/correlation,
+confirmed and `engine-front-still-live` guarded postcondition output, and root
+command/raw-command output rejection. Existing
+`test/notification-dismissal.test.ts` and
+`test/notification-dismissal-telemetry.test.ts` remain the local atom/
+postcondition and no-repeat evidence. This is local no-network mutation-
+procedure proof only; it does not execute live direct-control atoms, change CLI
+output, weaken approval/validator/postcondition/no-repeat semantics, infer
+repeat safety from legacy `verified`, add a router/transport adapter, choose
+Effect Schema, claim runtime proof, accept Task 2.9.4, or start Tasks 5.x/6.x.
+
 Notification-view procedure atom seed update:
 `src/play/notifications/view.ts` now owns TypeBox input/output schemas for the
 existing read-only notification view atom, including bounded
