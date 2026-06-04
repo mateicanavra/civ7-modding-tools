@@ -23,6 +23,23 @@ export const SEMANTIC_CLI_ENVELOPE_SLOTS = [
 
 export type SemanticCliEnvelopeSlot = typeof SEMANTIC_CLI_ENVELOPE_SLOTS[number];
 
+export type SemanticCliEnvelope = {
+  version: typeof SEMANTIC_CLI_ENVELOPE_VERSION;
+  scope: Record<string, unknown> | null;
+  state: Record<string, unknown> | null;
+  blockers: unknown[];
+  decisions: unknown[];
+  actions: unknown[];
+  result: Record<string, unknown> | null;
+  nextSteps: string[];
+  evidence: Array<Record<string, unknown>>;
+  notes: string[];
+};
+
+export type SemanticCliEnvelopeInput = Omit<SemanticCliEnvelope, 'version'> & {
+  version?: typeof SEMANTIC_CLI_ENVELOPE_VERSION;
+};
+
 export const NORMAL_PLAY_DEBUG_INTERNAL_MARKERS = [
   { marker: 'CMD:', fieldClass: 'raw-command-log' },
   { marker: 'LSQ:', fieldClass: 'raw-sql-log' },
@@ -45,6 +62,21 @@ export type NormalPlayDebugInternalLeak = {
 
 export function isSemanticCliEnvelopeSlot(value: string): value is SemanticCliEnvelopeSlot {
   return (SEMANTIC_CLI_ENVELOPE_SLOTS as readonly string[]).includes(value);
+}
+
+export function createSemanticCliEnvelope(input: SemanticCliEnvelopeInput): SemanticCliEnvelope {
+  return {
+    version: input.version ?? SEMANTIC_CLI_ENVELOPE_VERSION,
+    scope: input.scope,
+    state: input.state,
+    blockers: [...input.blockers],
+    decisions: [...input.decisions],
+    actions: [...input.actions],
+    result: input.result,
+    nextSteps: [...input.nextSteps],
+    evidence: [...input.evidence],
+    notes: [...input.notes],
+  };
 }
 
 export function normalPlayDebugInternalLeaks(payload: unknown): NormalPlayDebugInternalLeak[] {

@@ -81,6 +81,16 @@ normal-output helper now consumes that owner. This reduces the semantic CLI row
 source/proof ownership gap only; it does not implement command-integrated
 envelopes, choose final schema technology, accept Task 2.9.4, prove
 AI-ingestion separation, or claim runtime/live-game proof.
+Compact priorities semantic-envelope proof now emits the first
+command-integrated `semanticEnvelope` on `game play priorities --compact
+--json`, using the structural constructor in
+`packages/cli/src/game-play/semantic-envelope.ts` and focused proof in
+`packages/cli/test/commands/game/play/priorities.test.ts`. The proof keeps
+non-blocking clean-read and battlefield recommendations out of `blockers`.
+This reduces the semantic CLI row's first-integration gap only; it does not
+implement envelope coverage across every normal play command, choose final
+schema technology, accept Task 2.9.4, prove AI-ingestion separation, or claim
+runtime/live-game proof.
 Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
@@ -3036,3 +3046,16 @@ All future agent waves must be framed before delegation:
   the `contractArtifact` planning sub-gap. It does not accept Task 2.9.4,
   assign source/proof/schema owners, add tests, prove runtime behavior, or
   unblock any dependent implementation lane.
+- Compact priorities semantic-envelope integration:
+  `game play priorities --compact --json` now emits the first
+  command-integrated `semanticEnvelope` through
+  `packages/cli/src/game-play/semantic-envelope.ts`, with focused proof in
+  `packages/cli/test/commands/game/play/priorities.test.ts` and structural
+  constructor proof in
+  `packages/cli/test/commands/game/play/semantic-envelope.test.ts`. The
+  priorities proof keeps clean-read end-turn affordances and battlefield POIs
+  out of `blockers` while retaining true blockers such as ready units. This is
+  local CLI proof over compact priorities only; it does not accept Task 2.9.4,
+  choose TypeBox or Effect Schema, implement every normal play command
+  envelope, prove AI-ingestion separation, claim runtime/live-game proof, or
+  unblock telemetry, debug hierarchy, hotseat runtime, or Effect/oRPC work.

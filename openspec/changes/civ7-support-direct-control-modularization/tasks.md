@@ -154,8 +154,10 @@
         `packages/cli/src/game-play/semantic-envelope.ts` and
         `packages/cli/test/commands/game/play/semantic-envelope.test.ts`, and
         the shared normal-output helper now consumes that owner for forbidden
-        debug/internal marker detection. The row remains pending until a full
-        envelope implementation owner, final schema/test owner,
+        debug/internal marker detection. Focused `game play priorities
+        --compact --json` proof now carries the first command-integrated
+        `semanticEnvelope` through that owner. The row remains pending until
+        full command-surface envelope coverage, final schema/test ownership,
         normal/debug/AI separation tests, and stop-condition coverage are
         assigned and passing.
         The operation/proof telemetry row now has a draft acceptance intake

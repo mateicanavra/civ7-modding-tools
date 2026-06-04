@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+  createSemanticCliEnvelope,
   isSemanticCliEnvelopeSlot,
   normalPlayDebugInternalLeaks,
   SEMANTIC_CLI_ENVELOPE_OWNER,
@@ -47,6 +48,24 @@ describe('semantic CLI envelope owner', () => {
     };
 
     expect(normalPlayDebugInternalLeaks(payload)).toEqual([]);
+  });
+
+  test('constructs a structural envelope with every planned slot', () => {
+    const envelope = createSemanticCliEnvelope({
+      scope: { surface: 'game play priorities' },
+      state: { turn: { ok: true, value: 80 } },
+      blockers: [{ kind: 'ready-unit', summary: 'unit needs orders' }],
+      decisions: [{ kind: 'ready-unit', command: 'game play ready-unit --json' }],
+      actions: [{ family: 'ready-unit', command: 'game play ready-unit --json', readOnly: true }],
+      result: { status: 'read-only', sent: false },
+      nextSteps: ['game play ready-unit --json'],
+      evidence: [{ label: 'local-cli-test', proofClass: 'local-cli-output' }],
+      notes: ['local tests do not prove live runtime behavior'],
+    });
+
+    expect(Object.keys(envelope)).toEqual(SEMANTIC_CLI_ENVELOPE_SLOTS);
+    expect(envelope.version).toBe(SEMANTIC_CLI_ENVELOPE_VERSION);
+    expect(normalPlayDebugInternalLeaks(envelope)).toEqual([]);
   });
 
   test('classifies raw internals that must not appear in normal play output', () => {

@@ -218,12 +218,14 @@ Intake rejection conditions:
 - `surface`: semantic CLI player-agent view
 - `primaryConsumer`: normal local player-agent CLI user/API
 - `sourceOwner`: `packages/cli/src/game-play/semantic-envelope.ts`
-  owner seed; command-specific projections remain under their existing
-  `game play` command owners until a full envelope implementation owner is
-  assigned
+  owner seed and structural constructor; command-specific projections remain
+  under their existing `game play` command owners, with `game play priorities`
+  now carrying the first compact semantic-envelope integration
 - `proofOwner`: `packages/cli/test/commands/game/play/semantic-envelope.test.ts`
   owner-seed proof plus existing focused play suites using the shared
-  normal-output helper; final row proof/gate owner remains pending
+  normal-output helper; `packages/cli/test/commands/game/play/priorities.test.ts`
+  proves the first compact priorities envelope integration; final row
+  proof/gate owner remains pending
 - `playerScope`: current local player and agent-slot scoped; human-turn
   exclusion must remain visible when relevant
 - `consumerClass`: normal CLI player-agent view; AI-intelligence ingestion only
@@ -238,8 +240,9 @@ Intake rejection conditions:
   internals only through debug-owned commands or flags
 - `proofLabel`: `pending-cli-semantic-envelope`
 - `acceptanceStatus`: `pending-cli-semantic-envelope`; source/proof owner seed
-  exists, but full envelope implementation owner, final schema owner,
-  integration fixtures, and normal/debug/AI separation tests are not assigned
+  and first compact priorities integration exist, but full command-surface
+  envelope coverage, final schema owner, integration fixtures, and
+  normal/debug/AI separation tests are not assigned
 - `blockingDependents`: tasks 5.1-5.7, AI-facing semantic envelope consumers,
   normal CLI runtime-status projection
 - `stopCondition`: stop if normal CLI dumps raw session, transport, closeout,
@@ -257,33 +260,44 @@ Intake rejection conditions:
   corpus. The source/proof owner seed for shared envelope vocabulary and
   forbidden normal-output internals is now
   `packages/cli/src/game-play/semantic-envelope.ts` with proof in
-  `packages/cli/test/commands/game/play/semantic-envelope.test.ts`. Missing
-  before acceptance: a full envelope implementation owner, final schema/test
-  owner, and reviewer/gate owner for normal/debug/AI projection separation.
+  `packages/cli/test/commands/game/play/semantic-envelope.test.ts`; compact
+  priorities integration is owned by `packages/cli/src/commands/game/play/priorities.ts`
+  and proven in `packages/cli/test/commands/game/play/priorities.test.ts`.
+  Missing before acceptance: full command-surface envelope ownership, final
+  schema/test owner, and reviewer/gate owner for normal/debug/AI projection
+  separation.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
   planning updates. A later implementation slice may touch the listed play
   command modules, focused play tests, and the seeded semantic-envelope owner
-  only after assigning a concrete implementation/schema owner. No broad
-  `common`, `utils`, `types`, debug/service, telemetry, AI-ingestion,
-  transport, or procedure-core bucket is authorized.
+  only after assigning a concrete implementation/schema owner. The compact
+  priorities integration is authorized as the first command-surface proof and
+  does not authorize broad rollout by default. No broad `common`, `utils`,
+  `types`, debug/service, telemetry, AI-ingestion, transport, or
+  procedure-core bucket is authorized.
 - `contractArtifact`: existing artifacts are command-specific play outputs,
   the CLI play corpus inventory, and
   `workstream/semantic-cli-envelope-contract.md`, which defines the planned
   normal CLI semantic slots for game state, blockers, decisions, action
   results, safe/unsafe next steps, postcondition classifications, evidence
-  labels, and excluded raw service/debug fields. Missing before acceptance: a
-  command-integrated envelope implementation, final schema/test owner, and
-  implementation fixture over that contract.
+  labels, and excluded raw service/debug fields. Compact `game play priorities
+  --compact --json` now carries a `semanticEnvelope` fixture over that contract.
+  Missing before acceptance: full command-surface envelope implementation,
+  final schema/test owner, and integration fixtures over the remaining normal
+  play surfaces.
 - `proofPlan`: existing local proof is canonical `test:cli:play` plus the
   focused command owner tests recorded in `workstream/cli-play-corpus.md`.
   The semantic owner-seed proof now verifies the planned envelope slot
   vocabulary and raw debug/internal marker classes used by the shared
-  normal-output helper. Missing proof before acceptance: tests that normal play
-  output carries the planned semantic envelope from
-  `workstream/semantic-cli-envelope-contract.md`, command-integrated tests that
-  raw session/transport/closeout/command/proof JSON and correlation/probe
-  internals are omitted from normal play output, and tests or fixtures proving
-  AI ingestion does not consume CLI presentation strings.
+  normal-output helper. Compact priorities proof now verifies that normal play
+  output carries a `semanticEnvelope` using the planned slots from
+  `workstream/semantic-cli-envelope-contract.md`, limits `blockers` to actual
+  blocking state/items instead of battlefield or clean-read recommendations,
+  and still omits forbidden raw debug/internal marker classes. Missing proof
+  before acceptance: command-integrated envelope tests across the remaining
+  normal play surfaces, tests that raw session/transport/closeout/command/proof
+  JSON and correlation/probe internals are omitted from normal play output, and
+  tests or fixtures proving AI ingestion does not consume CLI presentation
+  strings.
 - `projectionPlan`: normal CLI projection should be semantic player-agent
   state and action guidance only; debug/internal service projection remains
   omitted from normal output or routed through debug-owned commands/flags; AI
@@ -291,21 +305,23 @@ Intake rejection conditions:
   source/freshness/evidence labels; telemetry and procedure-core projections
   remain pending separate rows.
 - `stopConditionCoverage`: partial owner-seed coverage exists for classifying
-  raw debug/internal marker leaks in normal output. Required coverage before
-  acceptance must still fail if command-integrated normal CLI output includes
-  raw session state, transport details, closeout traces, command strings, proof
-  JSON, route selection, correlation internals, debug probes, or if AI
-  consumers depend on CLI presentation text.
+  raw debug/internal marker leaks in normal output, and compact priorities now
+  proves a command-integrated semantic envelope stays inside that marker
+  boundary while keeping non-blocking recommendations out of `blockers`.
+  Required coverage before acceptance must still fail if any normal CLI output
+  includes raw session state, transport details, closeout traces, command
+  strings, proof JSON, route selection, correlation internals, debug probes, or
+  if AI consumers depend on CLI presentation text.
 - `downstreamUnblock`: none yet. Acceptance would unblock only the named CLI
   semantic-surface tasks 5.1-5.7 after the envelope contract, owner assignment,
   and separation tests are recorded; it would not unblock AI ingestion,
   telemetry, hotseat runtime proof, debug hierarchy, schema migration,
   transport adapters, or procedure-core implementation.
 - `nonProofClaims`: this intake does not claim runtime/live-game proof, CLI
-  semantic implementation, final schema selection, AI ingestion implementation,
-  telemetry contract acceptance, debug hierarchy implementation, schema
-  migration, Effect/Bun implementation, Effect/oRPC procedure-core work,
-  product-path support, or Task 2.9.4 row acceptance.
+  semantic implementation beyond compact priorities, final schema selection,
+  AI ingestion implementation, telemetry contract acceptance, debug hierarchy
+  implementation, schema migration, Effect/Bun implementation, Effect/oRPC
+  procedure-core work, product-path support, or Task 2.9.4 row acceptance.
 
 ### Strategy/Intelligence Ingestion
 
