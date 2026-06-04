@@ -62,6 +62,8 @@ and destination analysis through the focused tactical helper.
 Settlement-recommendation proof now covers its read-only settlement lens output.
 Promotion-readiness proof now covers its full/read-only ready-unit-derived
 promotion view output.
+Rehydrate proof now covers its full/read-only restart-continuity materialization
+output.
 Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime

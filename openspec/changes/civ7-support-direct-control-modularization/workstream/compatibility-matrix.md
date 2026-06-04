@@ -454,9 +454,9 @@ Intake rejection conditions:
   `game play ready-unit --json` proof plus passive `game watch --jsonl` proof
   and progression-read `game play traditions` / `game play progress-dashboard`
   proof plus tactical-read, settlement-recommendation, and promotion-readiness
-  proof now assert through the shared
+  proof plus rehydrate continuity proof now assert through the shared
   `packages/cli/test/commands/game/play/normal-output-boundary.ts` helper that
-  nine normal player-agent projection families omit raw
+  ten normal player-agent projection families omit raw
   transport/session/probe/correlation command internals. Focused `game health
   --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
   `game status --json`, `game catalog --static --json`,
