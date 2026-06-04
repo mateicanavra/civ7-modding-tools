@@ -19,6 +19,7 @@ import type {
   Civ7MapGridInput,
   Civ7MapGridResult,
   Civ7MapLocation,
+  Civ7MapSummaryInput,
   Civ7MapSummaryOptions,
   Civ7MapSummaryResult,
   Civ7PlotSnapshotField,
@@ -44,9 +45,14 @@ type MapReadDependencies = Readonly<{
   validateMapLocation: (location: Civ7MapLocation) => void;
 }>;
 
+export type MapSummaryReadDependencies = Pick<
+  MapReadDependencies,
+  "boundedInteger" | "executeCommand" | "jsLiteral" | "parseMapSummary" | "probeHelperSource"
+>;
+
 export async function getCiv7MapSummary(
   options: Civ7MapSummaryOptions = {},
-  dependencies: MapReadDependencies = defaultMapReadDependencies,
+  dependencies: MapSummaryReadDependencies = defaultMapReadDependencies,
 ): Promise<Civ7MapSummaryResult> {
   const result = await dependencies.executeCommand({
     ...options,
@@ -54,7 +60,7 @@ export async function getCiv7MapSummary(
     command: buildMapSummaryCommand(
       {
         includeAreaRegionCounts: options.includeAreaRegionCounts === true,
-        maxIds: options.maxIds ?? 512,
+        maxIds: dependencies.boundedInteger(options.maxIds ?? 512, 0, 1_000_000, "maxIds"),
       },
       dependencies,
     ),
@@ -103,8 +109,8 @@ export async function getCiv7MapGrid(
 }
 
 function buildMapSummaryCommand(
-  options: { includeAreaRegionCounts: boolean; maxIds: number },
-  dependencies: MapReadDependencies,
+  options: Civ7MapSummaryInput & { includeAreaRegionCounts: boolean; maxIds: number },
+  dependencies: MapSummaryReadDependencies,
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}

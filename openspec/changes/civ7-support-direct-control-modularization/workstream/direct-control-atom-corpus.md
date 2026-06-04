@@ -735,6 +735,27 @@ adapter, choose Effect Schema, claim runtime/live-game proof, accept Task
 2.9.4, or unblock broader AI ingestion, debug hierarchy, telemetry
 persistence, or Effect/oRPC procedure cores.
 
+Map-summary procedure atom seed update:
+`src/play/map/types.ts` now owns TypeBox input/output schemas for the existing
+read-only map summary atom, including optional area/region counts, bounded
+`maxIds` input, map/game runtime probes, optional area/region probe output, and
+root output separation from raw command fields. `src/play/map/reads.ts` now
+validates `maxIds` through the existing bounded-integer dependency before
+building the map-summary command. `src/play/map/summary-procedure.ts` now owns
+the adjacent `map.summary.read` descriptor/schema artifact map and concrete
+call wrapper over `getCiv7MapSummary` while staying under the existing `map`
+procedure family. `test/map-and-visibility.test.ts` proves the fake map
+summary result matches the schema and rejects invalid max id/context/raw-command
+procedure input; `test/map-summary-procedure.test.ts` proves descriptor schema
+resolution, no-network fake-dependency calls, direct-control option forwarding,
+input-before-dependency rejection, output validation, separated diagnostics,
+and no-send command text. This is local read-atom proof only. It does not
+change CLI output, implement plot snapshot/map grid/GameInfo/visibility
+procedure atoms, add a broad map catalog, add a router/registry/transport
+adapter, choose Effect Schema, claim runtime/live-game proof, accept Task
+2.9.4, or unblock broader AI ingestion, debug hierarchy, telemetry persistence,
+or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

@@ -17,6 +17,8 @@ import {
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
   Civ7MapLocationSchema,
+  Civ7MapSummaryInputSchema,
+  Civ7MapSummaryResultSchema,
   Civ7BattlefieldScanInputSchema,
   Civ7BattlefieldScanProcedureDescriptor,
   Civ7BattlefieldScanProcedureSchemaArtifacts,
@@ -143,6 +145,29 @@ describe("Civ7 direct control public API", () => {
     expect(Value.Check(Civ7MapLocationSchema, { x: -1, y: 0 })).toBe(false);
     expect(Value.Check(Civ7MapLocationSchema, { x: 0, y: 1_000_001 })).toBe(false);
     expect(Value.Check(Civ7MapLocationSchema, { x: 25, y: 35, rawCommand: "MOVE_TO" })).toBe(false);
+  });
+
+  test("exports map summary procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7MapSummaryInputSchema, {
+      includeAreaRegionCounts: true,
+      maxIds: 512,
+    })).toBe(true);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1.5 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1_000_001 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { rawCommand: "GameplayMap.getGridWidth()" })).toBe(false);
+    expect(Civ7MapSummaryResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "map",
+        "game",
+      ]),
+    });
   });
 
   test("exports default tuner endpoint and state/command constants", () => {

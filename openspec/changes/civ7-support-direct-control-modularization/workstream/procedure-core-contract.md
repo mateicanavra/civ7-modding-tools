@@ -438,6 +438,23 @@ taxonomy family or broad progression catalog, add a router, add Effect/oRPC
 dependencies, choose Effect Schema, claim runtime proof, or accept the matrix
 row.
 
+The adjacent map-summary procedure artifact reuses the map summary schema
+exports and records `map.summary.read` beside `getCiv7MapSummary`. Focused
+proof in `packages/civ7-direct-control/test/map-summary-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including optional area-count input, bounded `maxIds`, map/game
+runtime probes, optional area/region probe output, and raw/context input
+separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over `getCiv7MapSummary`, composed
+through the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, bounded input
+validation before command execution, output validation after the atom returns,
+separated output/diagnostics, and no-send read-only command text. This is local
+no-network read-atom proof only; it does not change CLI output, implement plot
+snapshot/map grid/GameInfo/visibility procedures, add a broad map catalog, add
+a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
+proof, or accept the matrix row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit

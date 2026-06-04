@@ -6,6 +6,7 @@ import type {
   Civ7TunerStateSelection,
 } from "../../session/types.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema } from "../../runtime/probe.js";
 
 export const Civ7MapLocationSchema = Type.Object({
   x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
@@ -20,11 +21,46 @@ export type Civ7MapBounds = Readonly<Civ7MapLocation & {
 
 export type Civ7HiddenInfoPolicy = "include-hidden" | "visibility-filtered" | "not-player-scoped";
 
+export const Civ7MapSummaryInputSchema = Type.Object({
+  includeAreaRegionCounts: Type.Optional(Type.Boolean()),
+  maxIds: Type.Optional(Type.Integer({ minimum: 0, maximum: 1_000_000 })),
+}, { additionalProperties: false });
+
+export type Civ7MapSummaryInput = Readonly<Static<typeof Civ7MapSummaryInputSchema>>;
+
 export type Civ7MapSummaryOptions = Civ7DirectControlOptions & Readonly<{
   state?: Civ7TunerStateSelection;
-  includeAreaRegionCounts?: boolean;
-  maxIds?: number;
-}>;
+}> & Civ7MapSummaryInput;
+
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7MapSummaryResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  map: Type.Object({
+    width: Civ7RuntimeProbeSchema(Type.Number()),
+    height: Civ7RuntimeProbeSchema(Type.Number()),
+    plotCount: Civ7RuntimeProbeSchema(Type.Number()),
+    mapSize: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()])),
+    randomSeed: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false }),
+  game: Type.Object({
+    turn: Civ7RuntimeProbeSchema(Type.Number()),
+    age: Civ7RuntimeProbeSchema(Type.Number()),
+    maxTurns: Civ7RuntimeProbeSchema(Type.Number()),
+    turnDate: Civ7RuntimeProbeSchema(Type.String()),
+    hash: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false }),
+  areas: Type.Optional(Type.Object({
+    areaIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
+    regionIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
+    truncated: Type.Boolean(),
+  }, { additionalProperties: false })),
+}, { additionalProperties: false });
 
 export type Civ7MapSummaryResult = Readonly<{
   host: string;

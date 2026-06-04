@@ -269,6 +269,7 @@ import type {
   Civ7MapGridReadChunk,
   Civ7MapGridResult,
   Civ7MapLocation,
+  Civ7MapSummaryInput,
   Civ7MapSummaryOptions,
   Civ7MapSummaryResult,
   Civ7PlotSnapshot,
@@ -549,6 +550,17 @@ export type {
   Civ7GameInfoRowsResult,
 } from "./play/map/gameinfo.js";
 export { getCiv7GameInfoRows };
+export {
+  Civ7MapSummaryInputSchema,
+  Civ7MapSummaryResultSchema,
+} from "./play/map/types.js";
+export {
+  callCiv7MapSummaryProcedure,
+  Civ7MapSummaryProcedureDescriptor,
+  Civ7MapSummaryProcedureSchemaArtifacts,
+} from "./play/map/summary-procedure.js";
+export type { Civ7MapSummaryProcedureCallOptions } from "./play/map/summary-procedure.js";
+export type { MapSummaryReadDependencies } from "./play/map/reads.js";
 export type {
   Civ7RevealMapResult,
   Civ7VisibilitySummaryInput,

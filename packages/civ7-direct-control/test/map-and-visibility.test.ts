@@ -1,8 +1,11 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
 import {
+  Civ7MapSummaryInputSchema,
+  Civ7MapSummaryResultSchema,
   getCiv7GameInfoRows,
   getCiv7MapGrid,
   getCiv7MapSummary,
@@ -18,6 +21,25 @@ type FakeTunerServer = {
 };
 
 describe("map and visibility reads", () => {
+  test("validates map summary schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7MapSummaryInputSchema, {
+      includeAreaRegionCounts: true,
+      maxIds: 512,
+    })).toBe(true);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1.5 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: -1 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { maxIds: 1_000_001 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryInputSchema, { rawCommand: "GameplayMap.getGridWidth()" })).toBe(false);
+    expect(Value.Check(Civ7MapSummaryResultSchema, mapSummaryResult())).toBe(true);
+    expect(Value.Check(Civ7MapSummaryResultSchema, {
+      ...mapSummaryResult(),
+      rawCommand: "GameplayMap.getGridWidth()",
+    })).toBe(false);
+  });
+
   test("wraps bounded Tuner map and plot reads", async () => {
     const server = await startMapTunerServer();
     try {
@@ -158,6 +180,15 @@ async function startMapTunerServer(): Promise<FakeTunerServer> {
       server.close();
       await once(server, "close");
     },
+  };
+}
+
+function mapSummaryResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...mapSummaryPayload(),
   };
 }
 

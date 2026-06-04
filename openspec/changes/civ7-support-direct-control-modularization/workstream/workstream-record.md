@@ -3677,3 +3677,27 @@ All future agent waves must be framed before delegation:
   a router/registry/transport adapter, choose Effect Schema, claim
   runtime/live-game proof, accept Task 2.9.4, or start Tasks 5.1-5.7 or
   6.1-6.9.
+- Map-summary procedure atom seed:
+  `packages/civ7-direct-control/src/play/map/types.ts` now owns TypeBox
+  input/output schemas for the existing read-only map summary atom, and
+  `packages/civ7-direct-control/src/play/map/summary-procedure.ts` records the
+  adjacent `map.summary.read` descriptor/schema artifact map and concrete call
+  wrapper over `getCiv7MapSummary` while preserving the existing `map`
+  procedure family. `packages/civ7-direct-control/src/play/map/reads.ts` now
+  validates `maxIds` through the existing bounded-integer dependency before
+  command construction so the schema and atom validator boundary agree.
+  Focused proof in `packages/civ7-direct-control/test/map-and-visibility.test.ts`
+  validates the fake map summary result against the schema and rejects invalid
+  `maxIds` plus endpoint/session/state/raw-command procedure input; proof in
+  `packages/civ7-direct-control/test/map-summary-procedure.test.ts` covers
+  descriptor schema resolution through public exports, no-network
+  fake-dependency calls, direct-control option forwarding,
+  input-before-dependency rejection, output validation, separated diagnostics,
+  no-send command text, and descriptor/artifact/call-wrapper exports through
+  `src/index.ts`. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the schema
+  exports. This is local read-atom proof only; it does not change CLI output,
+  implement plot snapshot/map grid/GameInfo/visibility procedure atoms, add a
+  broad map catalog, add a router/registry/transport adapter, choose Effect
+  Schema, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+  5.1-5.7 or 6.1-6.9.
