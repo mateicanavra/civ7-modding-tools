@@ -65,6 +65,9 @@ describe("runtime.playable.status control-oRPC procedure", () => {
   test("maps direct-control facade failures to a tagged Effect/oRPC error without raw details", async () => {
     const context: Civ7ControlOrpcContext = {
       directControl: {
+        getCiv7MapSummary: async () => {
+          throw new Error("not used");
+        },
         getCiv7PlayableStatus: async () => {
           throw new Error(
             "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
@@ -130,6 +133,9 @@ function fakeContext(result: ReturnType<typeof playableStatusResult>): {
         timeoutMs: 1_000,
       },
       directControl: {
+        getCiv7MapSummary: async () => {
+          throw new Error("not used");
+        },
         getCiv7PlayableStatus: async (options) => {
           calls.push(options);
           return result;

@@ -91,6 +91,9 @@ describe("unit.ready.view control-oRPC procedure", () => {
   test("maps ready-unit facade failures to a tagged Effect/oRPC error without raw details", async () => {
     const context: Civ7ControlOrpcContext = {
       directControl: {
+        getCiv7MapSummary: async () => {
+          throw new Error("not used");
+        },
         getCiv7PlayableStatus: async () => {
           throw new Error("not used");
         },
@@ -167,6 +170,9 @@ function fakeContext(
         timeoutMs: 1_000,
       },
       directControl: {
+        getCiv7MapSummary: async () => {
+          throw new Error("not used");
+        },
         getCiv7PlayableStatus: async () => {
           throw new Error("not used");
         },

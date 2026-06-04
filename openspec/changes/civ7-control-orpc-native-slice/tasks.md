@@ -39,6 +39,8 @@
 - [x] 4.3 Implement one unit read module over `unit.ready.view` or
   `unit.move.preview`.
 - [x] 4.4 Prove server-side client calls over the same router graph.
+- [x] 4.5 Implement one map read module over `map.summary.read` with
+  in-process server-side client proof.
 
 ## 5. Middleware Promotion
 
