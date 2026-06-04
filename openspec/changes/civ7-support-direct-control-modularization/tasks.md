@@ -2399,6 +2399,28 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         5.1-5.7 or 6.1-6.9.
+  - [x] 4.41 Add the adjacent traditions-view procedure atom in
+        `src/play/progression/traditions-procedure.ts`, with TypeBox
+        input/output schemas beside the existing read-only traditions view atom
+        in `src/play/progression/reads.ts`, focused proof in
+        `test/traditions-view-procedure.test.ts`, adjacent atom schema proof in
+        `test/progression-reads.test.ts`, and public facade proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7TraditionsView` atom under the
+        existing `strategy` procedure family, validates bounded `playerId`
+        input before atom dependencies run, keeps endpoint/session/state/
+        raw-command selection out of procedure input, validates tradition
+        action-hint output as read-only `CHANGE_TRADITION` affordances rather
+        than sends, forwards direct-control options to the atom, and keeps
+        procedure diagnostics separate from traditions view output. This is
+        local no-network proof over fake atom dependencies only; it does not
+        change CLI output, send or validate tradition changes, reinterpret the
+        view as action execution, execute live direct-control atoms, add a
+        progression taxonomy family or broad progression catalog, add a router/
+        registry/transport adapter, choose Effect Schema, add Effect/oRPC
+        source, add `packages/civ7-control-orpc`, implement the in-game
+        controller router, claim runtime/live-game proof, accept Task 2.9.4, or
+        start Tasks 5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2486,13 +2508,19 @@ authority are recorded.
     input proof, neutral relationship-label-policy output proof, row-level
     relationship-proof/label guard proof, and local no-network proof over fake
     atom dependencies.
+    Task 4.41 adds an adjacent read-atom schema/descriptor/call artifact for
+    `strategy.traditions.view` over the traditions view atom, including bounded
+    player input, tradition action-hint output proof, context/raw-command input
+    rejection, no-send command text proof, and local no-network proof over fake
+    atom dependencies.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
     runtime-support, notification-view, settlement-recommendations,
-    target-candidates, battlefield-scan, and destination-analysis schema seeds,
-    descriptor schema-reference binding/resolution, adjacent descriptor/call
-    artifacts, and resolver field-list guard.
+    target-candidates, battlefield-scan, destination-analysis, and
+    traditions-view schema seeds, descriptor schema-reference
+    binding/resolution, adjacent descriptor/call artifacts, and resolver
+    field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

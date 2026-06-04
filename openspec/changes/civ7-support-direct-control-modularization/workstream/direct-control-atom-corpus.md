@@ -689,6 +689,29 @@ router/registry/transport adapter, choose Effect Schema, claim runtime/live-game
 proof, accept Task 2.9.4, or unblock broader AI ingestion, debug hierarchy,
 telemetry persistence, or Effect/oRPC procedure cores.
 
+Traditions-view procedure atom seed update:
+`src/play/progression/reads.ts` now owns TypeBox input/output schemas for the
+existing read-only traditions view atom, including bounded `playerId` input,
+turn/government/slot state, tradition action hints, recommended CLI
+affordances, hidden-info policy, and root output separation from raw command
+fields. `src/play/progression/traditions-procedure.ts` now owns the adjacent
+`strategy.traditions.view` descriptor/schema artifact map and concrete call
+wrapper over `getCiv7TraditionsView` while staying under the existing
+`strategy` procedure family instead of adding a progression taxonomy family.
+`test/progression-reads.test.ts` proves the fake traditions view result
+matches the schema, rejects invalid player/context/raw-command procedure input,
+and rejects send-shaped action-hint or raw output fields;
+`test/traditions-view-procedure.test.ts` proves descriptor schema resolution,
+no-network fake-dependency calls, direct-control option forwarding,
+input-before-dependency rejection, output validation, separated diagnostics,
+no-send command text, and preservation of action hints as read affordances.
+This is local read-atom proof only. It does not change CLI output, send or
+validate tradition changes, reinterpret the view as action execution, add a
+broad progression catalog, add a router/registry/transport adapter, choose
+Effect Schema, claim runtime/live-game proof, accept Task 2.9.4, or unblock
+broader AI ingestion, debug hierarchy, telemetry persistence, or Effect/oRPC
+procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

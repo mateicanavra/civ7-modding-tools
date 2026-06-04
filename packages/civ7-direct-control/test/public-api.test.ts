@@ -54,6 +54,10 @@ import {
   Civ7TargetCandidatesProcedureDescriptor,
   Civ7TargetCandidatesProcedureSchemaArtifacts,
   Civ7TargetCandidatesResultSchema,
+  Civ7TraditionsViewInputSchema,
+  Civ7TraditionsViewProcedureDescriptor,
+  Civ7TraditionsViewProcedureSchemaArtifacts,
+  Civ7TraditionsViewResultSchema,
   Civ7TunerHealthInputSchema,
   Civ7TunerHealthProcedureDescriptor,
   Civ7TunerHealthProcedureSchemaArtifacts,
@@ -96,6 +100,7 @@ import {
   callCiv7ReadyUnitViewProcedure,
   callCiv7SettlementRecommendationsProcedure,
   callCiv7TargetCandidatesProcedure,
+  callCiv7TraditionsViewProcedure,
   callCiv7TunerHealthProcedure,
   callCiv7UnitMovePreviewProcedure,
   civ7ProcedureSchemaReferenceKey,
@@ -667,6 +672,24 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7DestinationAnalysisProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7DestinationAnalysisProcedureDescriptor.outputSchema)
     ]).toBe(Civ7DestinationAnalysisResultSchema);
+  });
+
+  test("exports the traditions-view procedure descriptor artifact from the public facade", () => {
+    expect(Civ7TraditionsViewProcedureDescriptor).toMatchObject({
+      procedureKey: "strategy.traditions.view",
+      family: "strategy",
+      atomFunction: "getCiv7TraditionsView",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7TraditionsViewProcedure).toBe("function");
+    expect(Civ7TraditionsViewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7TraditionsViewProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7TraditionsViewInputSchema);
+    expect(Civ7TraditionsViewProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7TraditionsViewProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7TraditionsViewResultSchema);
   });
 
   test("exports the playable-status procedure descriptor artifact from the public facade", () => {

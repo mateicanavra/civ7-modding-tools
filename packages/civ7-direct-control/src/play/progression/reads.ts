@@ -1,9 +1,12 @@
+import { Type } from "typebox";
+
 import { progressDashboardSource } from "./progress-dashboard.js";
 import { traditionsViewSource } from "./traditions.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { validatePlayerId } from "../../validation.js";
+import { Civ7RuntimeProbeSchema } from "../../runtime/probe.js";
 
 import type {
   Civ7CommandResult,
@@ -12,7 +15,33 @@ import type {
 } from "../../session/types.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7TraditionsViewInputSchema = Type.Object({
+  playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+}, { additionalProperties: false });
+
 export type Civ7TraditionActionKind = "activate" | "deactivate";
+
+export const Civ7TraditionActionKindSchema = Type.Union([
+  Type.Literal("activate"),
+  Type.Literal("deactivate"),
+]);
+
+export const Civ7TraditionActionSchema = Type.Object({
+  kind: Civ7TraditionActionKindSchema,
+  action: Type.Union([Type.Number(), Type.Null()]),
+  operationType: Type.Literal("CHANGE_TRADITION"),
+  args: Type.Object({
+    TraditionType: Type.Number(),
+    Action: Type.Union([Type.Number(), Type.Null()]),
+  }, { additionalProperties: false }),
+  validation: Civ7RuntimeProbeSchema(Type.Unknown()),
+  cli: Type.String(),
+}, { additionalProperties: false });
 
 export type Civ7TraditionAction = Readonly<{
   kind: Civ7TraditionActionKind;
@@ -25,6 +54,21 @@ export type Civ7TraditionAction = Readonly<{
   validation: Civ7RuntimeProbe<unknown>;
   cli: string;
 }>;
+
+export const Civ7TraditionSummarySchema = Type.Object({
+  id: Type.Number(),
+  type: Type.Union([Type.String(), Type.Null()]),
+  name: Type.Union([Type.String(), Type.Null()]),
+  description: Type.Union([Type.String(), Type.Null()]),
+  ageType: Type.Union([Type.String(), Type.Null()]),
+  cultureSlotType: Type.Union([Type.String(), Type.Null()]),
+  traitType: Type.Union([Type.String(), Type.Null()]),
+  isCrisis: Type.Boolean(),
+  active: Type.Boolean(),
+  unlocked: Type.Boolean(),
+  recentUnlock: Type.Boolean(),
+  actionHints: Type.Array(Civ7TraditionActionSchema),
+}, { additionalProperties: false });
 
 export type Civ7TraditionSummary = Readonly<{
   id: number;
@@ -44,6 +88,40 @@ export type Civ7TraditionSummary = Readonly<{
 export type Civ7TraditionsViewInput = Readonly<{
   playerId?: number;
 }>;
+
+export const Civ7TraditionsViewResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  playerId: Type.Number(),
+  turn: Civ7RuntimeProbeSchema(Type.Number()),
+  turnDate: Civ7RuntimeProbeSchema(Type.String()),
+  governmentType: Civ7RuntimeProbeSchema(Type.Number()),
+  government: Type.Object({
+    type: Type.Union([Type.String(), Type.Null()]),
+    name: Type.Union([Type.String(), Type.Null()]),
+  }, { additionalProperties: false }),
+  slots: Type.Object({
+    total: Civ7RuntimeProbeSchema(Type.Number()),
+    normal: Civ7RuntimeProbeSchema(Type.Number()),
+    crisis: Civ7RuntimeProbeSchema(Type.Number()),
+    active: Type.Number(),
+    unlocked: Type.Number(),
+    available: Type.Number(),
+    open: Type.Number(),
+  }, { additionalProperties: false }),
+  actions: Type.Object({
+    activate: Type.Union([Type.Number(), Type.Null()]),
+    deactivate: Type.Union([Type.Number(), Type.Null()]),
+  }, { additionalProperties: false }),
+  active: Type.Array(Civ7TraditionSummarySchema),
+  available: Type.Array(Civ7TraditionSummarySchema),
+  recentUnlocks: Type.Array(Civ7TraditionSummarySchema),
+  traditions: Type.Array(Civ7TraditionSummarySchema),
+  recommendedCli: Type.Array(Type.String()),
+  hiddenInfoPolicy: Type.Literal("player-culture-runtime"),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
 
 export type Civ7TraditionsViewResult = Readonly<{
   host: string;
@@ -146,7 +224,7 @@ type ProgressionReadBaseDependencies = Readonly<{
   ) => Promise<Civ7CommandResult>;
 }>;
 
-type TraditionsViewDependencies = ProgressionReadBaseDependencies & Readonly<{
+export type TraditionsViewDependencies = ProgressionReadBaseDependencies & Readonly<{
   parseTraditionsView: (result: Civ7CommandResult, label: string) => Civ7TraditionsViewResult;
 }>;
 

@@ -1,8 +1,14 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
-import { getCiv7ProgressDashboard, getCiv7TraditionsView } from "../src/index";
+import {
+  Civ7TraditionsViewInputSchema,
+  Civ7TraditionsViewResultSchema,
+  getCiv7ProgressDashboard,
+  getCiv7TraditionsView,
+} from "../src/index";
 
 type FakeTunerServer = {
   received: string[];
@@ -11,6 +17,39 @@ type FakeTunerServer = {
 };
 
 describe("progression read surfaces", () => {
+  test("exports TypeBox schemas for the read-only traditions view atom", () => {
+    expect(Value.Check(Civ7TraditionsViewInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { playerId: 0 })).toBe(true);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewInputSchema, { rawCommand: "readTraditionsView()" })).toBe(false);
+
+    const result = traditionsViewResult();
+    expect(Value.Check(Civ7TraditionsViewResultSchema, result)).toBe(true);
+    expect(Value.Check(Civ7TraditionsViewResultSchema, {
+      ...result,
+      active: [
+        {
+          ...result.active[0],
+          actionHints: [
+            {
+              ...result.active[0].actionHints[0],
+              operationType: "sendRequest",
+            },
+          ],
+        },
+      ],
+    })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewResultSchema, {
+      ...result,
+      hiddenInfoPolicy: "raw-debug-output",
+    })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewResultSchema, {
+      ...result,
+      rawCommand: "readTraditionsView()",
+    })).toBe(false);
+  });
+
   test("reads traditions view through App UI without sending tradition operations", async () => {
     const server = await startProgressionReadTunerServer();
     try {
@@ -285,6 +324,15 @@ function traditionsView() {
       "Use the exact TraditionType and Action values from actionHints, then validate with game play change-tradition before sending.",
       "Full slots may require deactivating an existing tradition before activating a new one; re-read this view after each mutation.",
     ],
+  };
+}
+
+function traditionsViewResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    ...traditionsView(),
   };
 }
 

@@ -583,11 +583,27 @@ export type {
   Civ7TraditionSummary,
   Civ7TraditionsViewInput,
   Civ7TraditionsViewResult,
+  TraditionsViewDependencies,
+} from "./play/progression/reads.js";
+export {
+  Civ7TraditionActionKindSchema,
+  Civ7TraditionActionSchema,
+  Civ7TraditionSummarySchema,
+  Civ7TraditionsViewInputSchema,
+  Civ7TraditionsViewResultSchema,
 } from "./play/progression/reads.js";
 export {
   getCiv7ProgressDashboard,
   getCiv7TraditionsView,
 };
+export {
+  callCiv7TraditionsViewProcedure,
+  Civ7TraditionsViewProcedureDescriptor,
+  Civ7TraditionsViewProcedureSchemaArtifacts,
+} from "./play/progression/traditions-procedure.js";
+export type {
+  Civ7TraditionsViewProcedureCallOptions,
+} from "./play/progression/traditions-procedure.js";
 export type {
   Civ7TechnologyChoiceCloseoutInput,
   Civ7TechnologyChoiceCloseoutResult,

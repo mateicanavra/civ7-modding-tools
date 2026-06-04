@@ -3626,3 +3626,28 @@ All future agent waves must be framed before delegation:
   labels, add a broad tactical catalog, add a router/registry/transport
   adapter, choose Effect Schema, claim runtime/live-game proof, accept Task
   2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
+- Traditions-view procedure atom seed:
+  `packages/civ7-direct-control/src/play/progression/reads.ts` now owns
+  TypeBox input/output schemas for the existing read-only traditions view atom,
+  and
+  `packages/civ7-direct-control/src/play/progression/traditions-procedure.ts`
+  records the adjacent `strategy.traditions.view` descriptor/schema artifact
+  map and concrete call wrapper over `getCiv7TraditionsView` while preserving
+  the existing `strategy` procedure family rather than adding a progression
+  taxonomy family. Focused proof in
+  `packages/civ7-direct-control/test/progression-reads.test.ts` validates the
+  fake traditions view result against the schema, rejects invalid player plus
+  endpoint/session/state/raw-command procedure input, and rejects send-shaped
+  action-hint or raw output fields; proof in
+  `packages/civ7-direct-control/test/traditions-view-procedure.test.ts` covers
+  descriptor schema resolution, no-network fake-dependency calls,
+  direct-control option forwarding, input-before-dependency rejection, output
+  validation, separated diagnostics, no-send command text, and preservation of
+  tradition action hints as read affordances rather than sends. Public facade
+  proof in `packages/civ7-direct-control/test/public-api.test.ts` covers the
+  schema, descriptor, artifact map, and call-wrapper exports. This is local
+  read-atom proof only; it does not change CLI output, send or validate
+  tradition changes, reinterpret the view as action execution, add a broad
+  progression catalog, add a router/registry/transport adapter, choose Effect
+  Schema, claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+  5.1-5.7 or 6.1-6.9.
