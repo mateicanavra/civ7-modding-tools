@@ -6,6 +6,8 @@ import { Value } from "typebox/value";
 import {
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
+  Civ7PlotSnapshotInputSchema,
+  Civ7PlotSnapshotResultSchema,
   getCiv7GameInfoRows,
   getCiv7MapGrid,
   getCiv7MapSummary,
@@ -37,6 +39,33 @@ describe("map and visibility reads", () => {
     expect(Value.Check(Civ7MapSummaryResultSchema, {
       ...mapSummaryResult(),
       rawCommand: "GameplayMap.getGridWidth()",
+    })).toBe(false);
+  });
+
+  test("validates plot snapshot schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
+      x: 3,
+      y: 4,
+      playerId: 0,
+      fields: ["terrain", "resource", "visibility"],
+      includeHidden: false,
+    })).toBe(true);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 1.5, y: 4 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: -1, y: 4 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 1_000_001 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, fields: ["enemy"] })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
+      x: 3,
+      y: 4,
+      rawCommand: "GameplayMap.getTerrainType(3, 4)",
+    })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotResultSchema, plotSnapshotResult())).toBe(true);
+    expect(Value.Check(Civ7PlotSnapshotResultSchema, {
+      ...plotSnapshotResult(),
+      session: { stateName: "Tuner" },
     })).toBe(false);
   });
 
@@ -189,6 +218,15 @@ function mapSummaryResult() {
     port: 4318,
     state: { id: "1", name: "Tuner" },
     ...mapSummaryPayload(),
+  };
+}
+
+function plotSnapshotResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...plotSnapshotPayload(),
   };
 }
 

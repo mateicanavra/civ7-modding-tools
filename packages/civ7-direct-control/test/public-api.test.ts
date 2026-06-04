@@ -19,6 +19,8 @@ import {
   Civ7MapLocationSchema,
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
+  Civ7PlotSnapshotInputSchema,
+  Civ7PlotSnapshotResultSchema,
   Civ7BattlefieldScanInputSchema,
   Civ7BattlefieldScanProcedureDescriptor,
   Civ7BattlefieldScanProcedureSchemaArtifacts,
@@ -166,6 +168,37 @@ describe("Civ7 direct control public API", () => {
         "state",
         "map",
         "game",
+      ]),
+    });
+  });
+
+  test("exports plot snapshot procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
+      x: 3,
+      y: 4,
+      playerId: 0,
+      fields: ["terrain", "resource", "visibility"],
+    })).toBe(true);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 1.5, y: 4 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: -1 })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, fields: ["enemy"] })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, { x: 3, y: 4, state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7PlotSnapshotInputSchema, {
+      x: 3,
+      y: 4,
+      rawCommand: "GameplayMap.getTerrainType(3, 4)",
+    })).toBe(false);
+    expect(Civ7PlotSnapshotResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "location",
+        "hiddenInfoPolicy",
+        "facts",
       ]),
     });
   });

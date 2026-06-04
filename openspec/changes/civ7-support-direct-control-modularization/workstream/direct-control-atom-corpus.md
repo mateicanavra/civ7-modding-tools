@@ -756,6 +756,28 @@ adapter, choose Effect Schema, claim runtime/live-game proof, accept Task
 2.9.4, or unblock broader AI ingestion, debug hierarchy, telemetry persistence,
 or Effect/oRPC procedure cores.
 
+Plot-snapshot procedure atom seed update:
+`src/play/map/types.ts` now owns TypeBox input/output schemas for the existing
+read-only plot snapshot atom, including validator-equivalent map-location
+integer bounds, optional player scope, plot field vocabulary, hidden-info
+policy labels, root output separation from raw command/session fields, and
+runtime-probe facts keyed by the selected fields. `src/play/map/reads.ts` now
+exports the plot-snapshot dependency boundary used by focused no-network proof.
+`src/play/map/plot-snapshot-procedure.ts` now owns the adjacent
+`map.plot.snapshot` descriptor/schema artifact map and concrete call wrapper
+over `getCiv7PlotSnapshot` while staying under the existing `map` procedure
+family. `test/map-and-visibility.test.ts` proves the fake plot snapshot result
+matches the schema and rejects invalid location/field/context/raw-command
+procedure input; `test/plot-snapshot-procedure.test.ts` proves descriptor
+schema resolution, no-network fake-dependency calls, direct-control option
+forwarding, input-before-dependency rejection, output validation, separated
+diagnostics, and no-send command text. This is local read-atom proof only. It
+does not change CLI output, implement map grid/GameInfo/visibility procedure
+atoms, add a broad map catalog, add a router/registry/transport adapter, choose
+Effect Schema, claim runtime/live-game proof, accept Task 2.9.4, or unblock
+broader AI ingestion, debug hierarchy, telemetry persistence, or Effect/oRPC
+procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

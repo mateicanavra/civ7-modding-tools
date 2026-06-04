@@ -455,6 +455,24 @@ snapshot/map grid/GameInfo/visibility procedures, add a broad map catalog, add
 a router, add Effect/oRPC dependencies, choose Effect Schema, claim runtime
 proof, or accept the matrix row.
 
+The adjacent plot-snapshot procedure artifact reuses the plot snapshot schema
+exports and records `map.plot.snapshot` beside `getCiv7PlotSnapshot`. Focused
+proof in `packages/civ7-direct-control/test/plot-snapshot-procedure.test.ts`
+checks the descriptor's input/output field lists against resolved schema root
+properties, including bounded map location input, field vocabulary, optional
+hidden-info policy controls, plot location, revealed/visible probes,
+hidden-info policy output, runtime-probe facts, and raw/context input
+separation, without registering a router or transport adapter. The same
+artifact exports a concrete call wrapper over `getCiv7PlotSnapshot`, composed
+through the local procedure-core call primitive. Focused proof uses fake atom
+dependencies to prove direct-control option forwarding, map-location validation
+before Tuner execution, output validation after the atom returns, separated
+output/diagnostics, and no-send read-only command text. This is local
+no-network read-atom proof only; it does not change CLI output, implement map
+grid/GameInfo/visibility procedures, add a broad map catalog, add a router, add
+Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
+the matrix row.
+
 Local procedure-core payload validation now lives in
 `packages/civ7-direct-control/src/procedure-core.ts`. Focused proof in
 `packages/civ7-direct-control/test/procedure-core.test.ts` validates ready-unit

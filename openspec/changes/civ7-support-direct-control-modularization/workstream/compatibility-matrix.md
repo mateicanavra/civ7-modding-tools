@@ -759,7 +759,8 @@ Intake rejection conditions:
   seeds; concrete ready-unit, ready-city, unit move-preview, playable-status,
   App UI snapshot, Tuner health, notification-view,
   settlement-recommendations, target-candidates, battlefield-scan,
-  destination-analysis, traditions-view, progress-dashboard, and map-summary
+  destination-analysis, traditions-view, progress-dashboard, map-summary, and
+  plot-snapshot
   procedure call wrappers exist adjacent to their direct-control atoms; final
   procedure-core/schema/runtime-context, middleware, error, and correlation
   owners remain pending
@@ -799,10 +800,11 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/destination-analysis-procedure.test.ts`,
   `packages/civ7-direct-control/test/traditions-view-procedure.test.ts`,
   `packages/civ7-direct-control/test/progress-dashboard-procedure.test.ts`,
-  and `packages/civ7-direct-control/test/map-summary-procedure.test.ts` now
+  `packages/civ7-direct-control/test/map-summary-procedure.test.ts`, and
+  `packages/civ7-direct-control/test/plot-snapshot-procedure.test.ts` now
   also prove adjacent concrete destination-analysis, traditions-view,
-  progress-dashboard, and map-summary procedure call wrappers with fake atom
-  dependencies.
+  progress-dashboard, map-summary, and plot-snapshot procedure call wrappers
+  with fake atom dependencies.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
@@ -951,6 +953,13 @@ Intake rejection conditions:
   `packages/civ7-direct-control/test/map-summary-procedure.test.ts` plus
   adjacent atom schema proof in
   `packages/civ7-direct-control/test/map-and-visibility.test.ts`.
+  The adjacent plot-snapshot descriptor artifact is now
+  `packages/civ7-direct-control/src/play/map/plot-snapshot-procedure.ts`, with
+  TypeBox schema ownership in
+  `packages/civ7-direct-control/src/play/map/types.ts` and proof in
+  `packages/civ7-direct-control/test/plot-snapshot-procedure.test.ts` plus
+  adjacent atom schema proof in
+  `packages/civ7-direct-control/test/map-and-visibility.test.ts`.
   The descriptor owner also records `schemaTechnology`, requires current
   adjacent descriptors to declare `typebox`, and rejects unaccepted
   `effect-schema` or `zod-adapter` claims before procedure promotion. The
@@ -967,7 +976,8 @@ Intake rejection conditions:
   concrete ready-unit, ready-city, unit move-preview, playable-status, App UI
   snapshot, Tuner health, notification-view, settlement-recommendations,
   target-candidates, battlefield-scan, destination-analysis, and
-  traditions-view, progress-dashboard, and map-summary procedure call wrappers now
+  traditions-view, progress-dashboard, map-summary, and plot-snapshot procedure
+  call wrappers now
   compose that primitive with
   `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
   `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`,
@@ -975,18 +985,18 @@ Intake rejection conditions:
   `getCiv7PlayNotificationView`, and
   `getCiv7SettlementRecommendations`, `getCiv7TargetCandidates`,
   `getCiv7BattlefieldScan`, `getCiv7DestinationAnalysis`, and
-  `getCiv7TraditionsView`, `getCiv7ProgressDashboard`, and
-  `getCiv7MapSummary` through fake
+  `getCiv7TraditionsView`, `getCiv7ProgressDashboard`,
+  `getCiv7MapSummary`, and `getCiv7PlotSnapshot` through fake
   direct-control dependencies in focused proof.
   Missing before acceptance: final procedure-core schema owner, proof owner,
   accepted TypeBox versus Effect Schema disposition for final procedure
   contracts, runtime-context/middleware/error/correlation owner, broader
   concrete procedure owners, and explicit owner boundaries for the in-game
   controller router, external direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control map-summary atom schema
-  owner, adjacent `map.summary.read` descriptor/call metadata declaring current
-  TypeBox schema technology, focused descriptor/atom/public facade proof, and
-  docs/OpenSpec records.
+- `writeSet`: current write set is the direct-control plot-snapshot atom schema
+  owner, adjacent `map.plot.snapshot` descriptor/call metadata declaring
+  current TypeBox schema technology, focused descriptor/atom/public facade
+  proof, and docs/OpenSpec records.
   Future implementation write sets must name the exact procedure-core module or
   package, typed schema artifact, middleware/context/error/correlation tests,
   and narrow adapters to stable direct-control atom owners. No transport adapter,

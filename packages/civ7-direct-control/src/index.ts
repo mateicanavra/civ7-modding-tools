@@ -551,16 +551,30 @@ export type {
 } from "./play/map/gameinfo.js";
 export { getCiv7GameInfoRows };
 export {
+  Civ7HiddenInfoPolicySchema,
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
+  Civ7PlotSnapshotFieldSchema,
+  Civ7PlotSnapshotInputSchema,
+  Civ7PlotSnapshotResultSchema,
+  Civ7PlotSnapshotSchema,
 } from "./play/map/types.js";
+export {
+  callCiv7PlotSnapshotProcedure,
+  Civ7PlotSnapshotProcedureDescriptor,
+  Civ7PlotSnapshotProcedureSchemaArtifacts,
+} from "./play/map/plot-snapshot-procedure.js";
+export type { Civ7PlotSnapshotProcedureCallOptions } from "./play/map/plot-snapshot-procedure.js";
 export {
   callCiv7MapSummaryProcedure,
   Civ7MapSummaryProcedureDescriptor,
   Civ7MapSummaryProcedureSchemaArtifacts,
 } from "./play/map/summary-procedure.js";
 export type { Civ7MapSummaryProcedureCallOptions } from "./play/map/summary-procedure.js";
-export type { MapSummaryReadDependencies } from "./play/map/reads.js";
+export type {
+  MapSummaryReadDependencies,
+  PlotSnapshotReadDependencies,
+} from "./play/map/reads.js";
 export type {
   Civ7RevealMapResult,
   Civ7VisibilitySummaryInput,

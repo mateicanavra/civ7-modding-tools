@@ -21,6 +21,12 @@ export type Civ7MapBounds = Readonly<Civ7MapLocation & {
 
 export type Civ7HiddenInfoPolicy = "include-hidden" | "visibility-filtered" | "not-player-scoped";
 
+export const Civ7HiddenInfoPolicySchema = Type.Union([
+  Type.Literal("include-hidden"),
+  Type.Literal("visibility-filtered"),
+  Type.Literal("not-player-scoped"),
+]);
+
 export const Civ7MapSummaryInputSchema = Type.Object({
   includeAreaRegionCounts: Type.Optional(Type.Boolean()),
   maxIds: Type.Optional(Type.Integer({ minimum: 0, maximum: 1_000_000 })),
@@ -102,27 +108,66 @@ export type Civ7PlotSnapshotField =
   | "city"
   | "units";
 
-export type Civ7PlotSnapshotInput = Readonly<Civ7MapLocation & {
-  playerId?: number;
-  fields?: ReadonlyArray<Civ7PlotSnapshotField>;
-  includeHidden?: boolean;
-}>;
+export const Civ7PlotSnapshotFieldSchema = Type.Union([
+  Type.Literal("terrain"),
+  Type.Literal("biome"),
+  Type.Literal("feature"),
+  Type.Literal("resource"),
+  Type.Literal("climate"),
+  Type.Literal("hydrology"),
+  Type.Literal("yields"),
+  Type.Literal("owner"),
+  Type.Literal("visibility"),
+  Type.Literal("areaRegion"),
+  Type.Literal("tags"),
+  Type.Literal("city"),
+  Type.Literal("units"),
+]);
 
-export type Civ7PlotSnapshot = Readonly<{
-  location: Readonly<Civ7MapLocation & {
-    index: Civ7RuntimeProbe<number>;
-  }>;
-  revealedState?: Civ7RuntimeProbe<number | string>;
-  visible?: Civ7RuntimeProbe<boolean>;
-  hiddenInfoPolicy: Civ7HiddenInfoPolicy;
-  facts: Readonly<Record<string, Civ7RuntimeProbe<unknown>>>;
-}>;
+export const Civ7PlotSnapshotInputSchema = Type.Object({
+  x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  playerId: Type.Optional(Type.Number()),
+  fields: Type.Optional(Type.Array(Civ7PlotSnapshotFieldSchema)),
+  includeHidden: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
 
-export type Civ7PlotSnapshotResult = Civ7PlotSnapshot & Readonly<{
+export type Civ7PlotSnapshotInput = Readonly<Static<typeof Civ7PlotSnapshotInputSchema>>;
+
+export const Civ7PlotSnapshotSchema = Type.Object({
+  location: Type.Object({
+    x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    index: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false }),
+  revealedState: Type.Optional(Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()]))),
+  visible: Type.Optional(Civ7RuntimeProbeSchema(Type.Boolean())),
+  hiddenInfoPolicy: Civ7HiddenInfoPolicySchema,
+  facts: Type.Record(Type.String(), Civ7RuntimeProbeSchema(Type.Unknown())),
+}, { additionalProperties: false });
+
+export const Civ7PlotSnapshotResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  location: Type.Object({
+    x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    index: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false }),
+  revealedState: Type.Optional(Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()]))),
+  visible: Type.Optional(Civ7RuntimeProbeSchema(Type.Boolean())),
+  hiddenInfoPolicy: Civ7HiddenInfoPolicySchema,
+  facts: Type.Record(Type.String(), Civ7RuntimeProbeSchema(Type.Unknown())),
+}, { additionalProperties: false });
+
+export type Civ7PlotSnapshot = Readonly<Static<typeof Civ7PlotSnapshotSchema>>;
+
+export type Civ7PlotSnapshotResult = Readonly<{
   host: string;
   port: number;
   state: Civ7TunerState;
-}>;
+}> & Civ7PlotSnapshot;
 
 export type Civ7MapGridInput = Readonly<{
   bounds?: Civ7MapBounds;

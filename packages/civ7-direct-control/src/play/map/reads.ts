@@ -50,6 +50,11 @@ export type MapSummaryReadDependencies = Pick<
   "boundedInteger" | "executeCommand" | "jsLiteral" | "parseMapSummary" | "probeHelperSource"
 >;
 
+export type PlotSnapshotReadDependencies = Pick<
+  MapReadDependencies,
+  "executeTunerCommand" | "jsLiteral" | "parsePlotSnapshot" | "probeHelperSource" | "validateMapLocation"
+>;
+
 export async function getCiv7MapSummary(
   options: Civ7MapSummaryOptions = {},
   dependencies: MapSummaryReadDependencies = defaultMapReadDependencies,
@@ -71,13 +76,13 @@ export async function getCiv7MapSummary(
 export async function getCiv7PlotSnapshot(
   input: Civ7PlotSnapshotInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: MapReadDependencies = defaultMapReadDependencies,
+  dependencies: PlotSnapshotReadDependencies = defaultMapReadDependencies,
 ): Promise<Civ7PlotSnapshotResult> {
   dependencies.validateMapLocation(input);
   const fields = normalizePlotFields(input.fields);
   const result = await dependencies.executeTunerCommand({
     ...options,
-    command: buildPlotSnapshotCommand({ ...input, fields }, dependencies),
+    command: buildPlotSnapshotCommand({ ...input, fields: Array.from(fields) }, dependencies),
   });
   return dependencies.parsePlotSnapshot(result, "Civ7 plot snapshot");
 }
@@ -153,7 +158,7 @@ function buildMapSummaryCommand(
 
 function buildPlotSnapshotCommand(
   input: Civ7PlotSnapshotInput & { fields: ReadonlyArray<Civ7PlotSnapshotField> },
-  dependencies: MapReadDependencies,
+  dependencies: PlotSnapshotReadDependencies,
 ): string {
   return `(() => {
     ${plotSnapshotScriptSource(dependencies)}
@@ -195,7 +200,7 @@ function buildMapGridCommand(input: Civ7MapGridInput & {
   })()`;
 }
 
-function plotSnapshotScriptSource(dependencies: MapReadDependencies): string {
+function plotSnapshotScriptSource(dependencies: Pick<MapReadDependencies, "probeHelperSource">): string {
   return `${dependencies.probeHelperSource()}
     const callPlot = (name, x, y) => {
       const fn = GameplayMap[name];
