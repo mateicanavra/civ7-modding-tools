@@ -173,11 +173,10 @@ import {
   type Civ7GameInfoRowsInput,
   type Civ7GameInfoRowsResult,
 } from "./play/map/gameinfo.js";
-import {
-  revealCiv7MapForPlayer as revealCiv7MapForPlayerFromModule,
-  type Civ7RevealMapResult,
-  type Civ7VisibilitySummaryInput,
-  type Civ7VisibilitySummaryResult,
+import type {
+  Civ7RevealMapResult,
+  Civ7VisibilitySummaryInput,
+  Civ7VisibilitySummaryResult,
 } from "./play/map/visibility.js";
 import {
   type Civ7CitySummary,
@@ -485,7 +484,10 @@ export type {
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
 } from "./play/map/visibility.js";
-export { getCiv7VisibilitySummary } from "./play/map/visibility.js";
+export {
+  getCiv7VisibilitySummary,
+  revealCiv7MapForPlayer,
+} from "./play/map/visibility.js";
 export type {
   Civ7CitySummary,
   Civ7CitySummaryInput,
@@ -1111,14 +1113,6 @@ export async function runCiv7SinglePlayerFromSetup(
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
   return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
-}
-
-export async function revealCiv7MapForPlayer(
-  input: Readonly<{ playerId: number }>,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7RevealMapResult> {
-  return await revealCiv7MapForPlayerFromModule(input, options, approval);
 }
 
 export async function requestCiv7UnitOperation(
