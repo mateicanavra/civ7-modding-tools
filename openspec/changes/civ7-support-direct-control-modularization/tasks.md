@@ -490,6 +490,13 @@ runtime/direct-control claims.
         telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.7.13 Prune trivial tactical/progression read facade call-through
+        wrappers by re-exporting the read-owner functions directly from
+        `index.ts`, preserving public package imports for settlement
+        recommendations, target candidates, traditions view, progress dashboard,
+        battlefield scan, and destination analysis while leaving telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.

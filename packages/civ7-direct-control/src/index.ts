@@ -271,8 +271,8 @@ import type {
   Civ7PlotSnapshotResult,
 } from "./play/map/types.js";
 import {
-  getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
-  getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
+  getCiv7ProgressDashboard,
+  getCiv7TraditionsView,
   type Civ7ProgressDashboardInput,
   type Civ7ProgressDashboardResult,
   type Civ7TraditionsViewInput,
@@ -311,17 +311,17 @@ import {
   type Civ7ReadyUnitViewResult,
 } from "./play/ready/unit.js";
 import {
-  getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule,
+  getCiv7BattlefieldScan,
   type Civ7BattlefieldScanInput,
   type Civ7BattlefieldScanResult,
 } from "./play/tactical/battlefield.js";
 import {
-  getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule,
+  getCiv7DestinationAnalysis,
   type Civ7DestinationAnalysisInput,
   type Civ7DestinationAnalysisResult,
 } from "./play/tactical/destination.js";
 import {
-  getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule,
+  getCiv7SettlementRecommendations,
   type Civ7SettlementRecommendation,
   type Civ7SettlementRecommendationFactor,
   type Civ7SettlementRecommendationInput,
@@ -329,7 +329,7 @@ import {
   type Civ7SettlementRecommendationResult,
 } from "./play/tactical/settlement.js";
 import {
-  getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule,
+  getCiv7TargetCandidates,
   type Civ7TargetCandidate,
   type Civ7TargetCandidatesInput,
   type Civ7TargetCandidatesResult,
@@ -523,6 +523,10 @@ export type {
   Civ7TraditionsViewInput,
   Civ7TraditionsViewResult,
 } from "./play/progression/reads.js";
+export {
+  getCiv7ProgressDashboard,
+  getCiv7TraditionsView,
+};
 export type {
   Civ7TechnologyChoiceCloseoutInput,
   Civ7TechnologyChoiceCloseoutResult,
@@ -606,10 +610,12 @@ export type {
   Civ7BattlefieldScanInput,
   Civ7BattlefieldScanResult,
 } from "./play/tactical/battlefield.js";
+export { getCiv7BattlefieldScan };
 export type {
   Civ7DestinationAnalysisInput,
   Civ7DestinationAnalysisResult,
 } from "./play/tactical/destination.js";
+export { getCiv7DestinationAnalysis };
 export type {
   Civ7SettlementRecommendation,
   Civ7SettlementRecommendationFactor,
@@ -617,11 +623,13 @@ export type {
   Civ7SettlementRecommendationOrigin,
   Civ7SettlementRecommendationResult,
 } from "./play/tactical/settlement.js";
+export { getCiv7SettlementRecommendations };
 export type {
   Civ7TargetCandidate,
   Civ7TargetCandidatesInput,
   Civ7TargetCandidatesResult,
 } from "./play/tactical/target-candidates.js";
+export { getCiv7TargetCandidates };
 export {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
@@ -1325,48 +1333,6 @@ export async function getCiv7ReadyCityView(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ReadyCityViewResult> {
   return await getCiv7ReadyCityViewFromModule(input, options);
-}
-
-export async function getCiv7SettlementRecommendations(
-  input: Civ7SettlementRecommendationInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7SettlementRecommendationResult> {
-  return await getCiv7SettlementRecommendationsFromModule(input, options);
-}
-
-export async function getCiv7TargetCandidates(
-  input: Civ7TargetCandidatesInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7TargetCandidatesResult> {
-  return await getCiv7TargetCandidatesFromModule(input, options);
-}
-
-export async function getCiv7TraditionsView(
-  input: Civ7TraditionsViewInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7TraditionsViewResult> {
-  return await getCiv7TraditionsViewFromModule(input, options);
-}
-
-export async function getCiv7ProgressDashboard(
-  input: Civ7ProgressDashboardInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7ProgressDashboardResult> {
-  return await getCiv7ProgressDashboardFromModule(input, options);
-}
-
-export async function getCiv7BattlefieldScan(
-  input: Civ7BattlefieldScanInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7BattlefieldScanResult> {
-  return await getCiv7BattlefieldScanFromModule(input, options);
-}
-
-export async function getCiv7DestinationAnalysis(
-  input: Civ7DestinationAnalysisInput,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7DestinationAnalysisResult> {
-  return await getCiv7DestinationAnalysisFromModule(input, options);
 }
 
 export async function requestCiv7UnitTargetAction(

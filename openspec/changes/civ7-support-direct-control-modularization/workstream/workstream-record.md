@@ -2346,3 +2346,12 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
   ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
   debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Tactical/progression read facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports the read-owner
+  functions directly for settlement recommendations, target candidates,
+  traditions view, progress dashboard, battlefield scan, and destination
+  analysis instead of keeping trivial async call-through wrappers. This is
+  local read-only package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.
