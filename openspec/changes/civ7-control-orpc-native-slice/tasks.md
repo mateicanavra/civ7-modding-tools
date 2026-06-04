@@ -76,6 +76,8 @@ adding more read-only facade shells.
     helper while preserving path-shortfall repeat guarding.
   - [x] 5.2.4 Extract narrative and diplomacy closeout proof/no-repeat
     policies into proof helpers while preserving current closeout semantics.
+  - [x] 5.2.5 Extract population-placement proof/no-repeat policy into
+    focused helpers while preserving legacy request `verified` behavior.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
   - [x] 5.3.1 Define the target semantic capability families and transitional

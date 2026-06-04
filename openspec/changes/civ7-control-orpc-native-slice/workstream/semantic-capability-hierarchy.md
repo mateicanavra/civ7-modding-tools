@@ -212,10 +212,9 @@ Good next slices:
 - create a service-owned `attention` module that composes notifications, ready
   units/cities, and turn-completion status into a semantic blocker/decision
   view without raw diagnostics;
-- return to Task 5.2 for the next narrow write-capable proof-policy owner:
-  population placement currently has direct-control validation/postcondition
-  evidence but no focused proof/no-repeat helper or pending-runtime-proof
-  mapping;
+- continue Task 5.2 only for narrow write-capable proof-policy owners with
+  source-owned validators/postconditions; population placement is now seeded
+  by `workstream/population-placement-proof-policy-source-slice.md`;
 - create a mutation procedure only after approval, validator-first, and
   postcondition/no-repeat policies are composed through native oRPC/effect-orpc
   primitives;

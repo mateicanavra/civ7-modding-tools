@@ -8,6 +8,7 @@ import {
   type Civ7PopulationPlacementPostcondition,
   type Civ7PopulationPlacementPostconditionSnapshot,
 } from "./population-postconditions.js";
+import { populationPlacementRequestVerified } from "./population-placement-proof.js";
 import {
   productionPostconditionFor,
   type Civ7ProductionPostcondition,
@@ -236,7 +237,7 @@ async function requestCiv7Operation(
     postcondition
       ? postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change"
       : populationPostcondition
-        ? populationPostcondition.classification !== "not-sent" && populationPostcondition.classification !== "no-state-change"
+        ? populationPlacementRequestVerified(populationPostcondition.classification)
         : productionPostcondition
           ? productionPostcondition.classification !== "not-sent"
             && productionPostcondition.classification !== "no-state-change"
