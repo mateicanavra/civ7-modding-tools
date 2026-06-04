@@ -3305,6 +3305,22 @@ All future agent waves must be framed before delegation:
   contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
   adapters, in-game controller source, runtime/live-game proof, Task 2.9.4
   acceptance, or Tasks 6.1-6.9.
+- Unit move-preview concrete procedure call seed:
+  `packages/civ7-direct-control/src/play/ready/move-preview-procedure.ts` now
+  exports a concrete `unit.move.preview` procedure call wrapper over the
+  existing `getCiv7UnitMovePreview` atom. It composes the local procedure-core
+  call primitive with the unit move-preview descriptor/schema artifact map,
+  validates procedure input before atom dependencies run, validates the atom
+  output, forwards direct-control options into the atom, preserves the neutral
+  relationship-policy output, and returns procedure diagnostics separately from
+  the move-preview output. Focused proof in
+  `packages/civ7-direct-control/test/unit-move-preview-procedure.test.ts` uses
+  fake atom dependencies and does not touch the tuner. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the wrapper
+  export. This is local no-network proof only; it does not add a
+  router/registry/transport adapter, choose Effect Schema, add Effect/oRPC
+  source, `packages/civ7-control-orpc`, in-game controller source,
+  runtime/live-game proof, Task 2.9.4 acceptance, or Tasks 6.1-6.9.
 - Ready-city concrete procedure call seed:
   `packages/civ7-direct-control/src/play/ready/city-procedure.ts` now exports a
   concrete `city.ready.view` procedure call wrapper over the existing

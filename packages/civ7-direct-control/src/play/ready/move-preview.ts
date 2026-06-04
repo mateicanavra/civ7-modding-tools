@@ -59,7 +59,7 @@ export const Civ7UnitMovePreviewResultSchema = Type.Object({
 }, { additionalProperties: false });
 export type Civ7UnitMovePreviewResult = Readonly<Static<typeof Civ7UnitMovePreviewResultSchema>>;
 
-type UnitMovePreviewDependencies = Readonly<{
+export type UnitMovePreviewDependencies = Readonly<{
   validateMapLocation: (location: Civ7MapLocation) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (

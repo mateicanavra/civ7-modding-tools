@@ -60,6 +60,7 @@ import {
   callCiv7ProcedureCore,
   callCiv7ReadyCityViewProcedure,
   callCiv7ReadyUnitViewProcedure,
+  callCiv7UnitMovePreviewProcedure,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
   resolveCiv7ProcedureCoreSchemas,
@@ -385,6 +386,7 @@ describe("Civ7 direct control public API", () => {
       proofBoundary: "local-package-test",
       context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
     });
+    expect(typeof callCiv7UnitMovePreviewProcedure).toBe("function");
     expect(Civ7UnitMovePreviewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.inputSchema)
     ]).toBe(Civ7UnitMovePreviewInputSchema);

@@ -650,6 +650,7 @@ export type {
   Civ7UnitMovePreviewInput,
   Civ7UnitMovePreviewRelationshipPolicy,
   Civ7UnitMovePreviewResult,
+  UnitMovePreviewDependencies,
 } from "./play/ready/move-preview.js";
 export {
   Civ7UnitMovePreviewInputSchema,
@@ -658,9 +659,11 @@ export {
   getCiv7UnitMovePreview,
 } from "./play/ready/move-preview.js";
 export {
+  callCiv7UnitMovePreviewProcedure,
   Civ7UnitMovePreviewProcedureDescriptor,
   Civ7UnitMovePreviewProcedureSchemaArtifacts,
 } from "./play/ready/move-preview-procedure.js";
+export type { Civ7UnitMovePreviewProcedureCallOptions } from "./play/ready/move-preview-procedure.js";
 export type {
   Civ7ReadyCityOperationCandidate,
   Civ7ReadyCityPopulationPlacement,

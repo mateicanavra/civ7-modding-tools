@@ -2,11 +2,14 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
 import {
+  Civ7DirectControlError,
   Civ7UnitMovePreviewProcedureDescriptor,
   Civ7UnitMovePreviewProcedureSchemaArtifacts,
+  callCiv7UnitMovePreviewProcedure,
   getCiv7UnitMovePreview,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
+  type UnitMovePreviewDependencies,
 } from "../src/index";
 
 describe("Civ7 unit-move-preview procedure descriptor", () => {
@@ -59,6 +62,117 @@ describe("Civ7 unit-move-preview procedure descriptor", () => {
       ...unitMovePreviewResult(),
       rawCommand: "readUnitMovePreview()",
     })).toBe(false);
+  });
+
+  test("calls the unit move-preview atom through the procedure core without touching the live tuner", async () => {
+    const executeCalls: Array<{ host?: string; port?: number; command: string }> = [];
+    const boundedCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const validatedLocations: Array<{ x: number; y: number }> = [];
+    const dependencies: UnitMovePreviewDependencies = {
+      validateMapLocation: (location) => {
+        validatedLocations.push(location);
+      },
+      boundedInteger: (value, min, max, label) => {
+        boundedCalls.push({ value, min, max, label });
+        if (!Number.isInteger(value) || value < min || value > max) {
+          throw new Civ7DirectControlError("command-failed", `${label} out of bounds`);
+        }
+        return value;
+      },
+      executeAppUiCommand: async (options) => {
+        executeCalls.push({
+          host: options.host,
+          port: options.port,
+          command: options.command,
+        });
+        return {
+          host: options.host ?? "127.0.0.1",
+          port: options.port ?? 4318,
+          state: { id: "65535", name: "App UI" },
+          output: ["{}"],
+        };
+      },
+      parseUnitMovePreview: () => unitMovePreviewResult(),
+    };
+
+    const unitId = { owner: 0, id: 65536, type: 26 };
+    const destination = { x: 25, y: 35 };
+    const result = await callCiv7UnitMovePreviewProcedure({
+      unitId,
+      destination,
+      maxPlots: 12,
+      maxPathPlots: 8,
+    }, {
+      directControl: {
+        host: "127.0.0.1",
+        port: 4318,
+      },
+      procedure: {
+        correlationId: "unit-move-preview-procedure-test",
+      },
+      dependencies,
+    });
+
+    expect(result.output).toEqual(unitMovePreviewResult());
+    expect(result.output.relationshipPolicy).toMatchObject({
+      relationshipSource: "not-classified",
+      relationshipProof: "none",
+      unprovenLabel: "relationship-unproven",
+    });
+    expect(result.diagnostics).toMatchObject({
+      procedureKey: "unit.move.preview",
+      correlationId: "unit-move-preview-procedure-test",
+      proofBoundary: "local-package-test",
+      playerScope: "local-player-scoped",
+      debugServiceCorrelation: true,
+      telemetryCorrelation: false,
+    });
+    expect(validatedLocations).toEqual([destination]);
+    expect(boundedCalls).toEqual([
+      { value: 12, min: 1, max: 512, label: "maxPlots" },
+      { value: 8, min: 1, max: 256, label: "maxPathPlots" },
+    ]);
+    expect(executeCalls).toHaveLength(1);
+    expect(executeCalls[0]).toMatchObject({
+      host: "127.0.0.1",
+      port: 4318,
+    });
+    expect(executeCalls[0]?.command).toContain("readUnitMovePreview");
+    expect(executeCalls[0]?.command).toContain('"destination":{"x":25,"y":35}');
+    expect(executeCalls[0]?.command).toContain('"maxPlots":12');
+    expect(executeCalls[0]?.command).toContain('"maxPathPlots":8');
+  });
+
+  test("rejects invalid procedure input before unit move-preview atom dependencies run", async () => {
+    let executed = false;
+    const dependencies: UnitMovePreviewDependencies = {
+      validateMapLocation: () => {
+        throw new Error("validateMapLocation should not run after procedure input rejection");
+      },
+      boundedInteger: () => {
+        throw new Error("boundedInteger should not run after procedure input rejection");
+      },
+      executeAppUiCommand: async () => {
+        executed = true;
+        throw new Error("executeAppUiCommand should not run after procedure input rejection");
+      },
+      parseUnitMovePreview: () => unitMovePreviewResult(),
+    };
+
+    await expect(callCiv7UnitMovePreviewProcedure({
+      destination: { x: 1.5, y: 0 },
+    }, {
+      procedure: { correlationId: "unit-move-preview-invalid-input" },
+      dependencies,
+    })).rejects.toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "input-schema-invalid",
+        procedureKey: "unit.move.preview",
+        role: "input",
+      },
+    });
+    expect(executed).toBe(false);
   });
 });
 

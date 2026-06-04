@@ -2124,6 +2124,21 @@ runtime/direct-control claims.
         Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
         in-game controller router, claim runtime/live-game proof, accept Task
         2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.32 Add the adjacent unit move-preview procedure call wrapper in
+        `src/play/ready/move-preview-procedure.ts`, with focused proof in
+        `test/unit-move-preview-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7UnitMovePreview` atom, validates
+        procedure input before atom dependencies run, validates the atom output
+        through the descriptor schema artifacts, forwards direct-control
+        options to the atom, preserves the neutral relationship-policy output,
+        and keeps procedure diagnostics separate from the move-preview output.
+        This is local no-network proof over fake atom dependencies only; it
+        does not execute live direct-control atoms, add a router/registry/
+        transport adapter, choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
