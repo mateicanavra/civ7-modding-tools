@@ -106,6 +106,10 @@ describe('game direct-control commands', () => {
 
   test('inspects runtime API roots in a selected state', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameInspect.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameInspect.run([
@@ -121,7 +125,47 @@ describe('game direct-control commands', () => {
       ]);
 
       expect(server.received).toEqual(['LSQ:', expect.stringContaining('CMD:65535:(() =>')]);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        inspection: {
+          host: string;
+          port: number;
+          state: { id: string; name: string };
+          roots: Array<{
+            name: string;
+            ownKeys: string[];
+            prototypeKeys: string[];
+            enumerableKeys: string[];
+            methods: Array<{
+              name: string;
+              owner: string;
+              length: number;
+              signature: string;
+            }>;
+          }>;
+        };
+      };
+      expect(payload.inspection).toMatchObject({
+        host: '127.0.0.1',
+        port,
+        state: { id: '65535', name: 'App UI' },
+      });
+      expect(payload.inspection.roots[0]).toMatchObject({
+        name: 'Network',
+        ownKeys: ['isInSession'],
+        prototypeKeys: ['restartGame'],
+        enumerableKeys: ['isInSession', 'restartGame'],
+        methods: [
+          {
+            name: 'restartGame',
+            owner: 'prototype',
+            length: 0,
+            signature: 'function restartGame() { [native code] }',
+          },
+        ],
+      });
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });

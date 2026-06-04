@@ -450,8 +450,11 @@ Intake rejection conditions:
   and operation validation through the package boundary; package proof includes
   `runtime-and-catalog.test.ts` and `session.test.ts`. Focused compact
   `game play priorities` proof now asserts that one normal play projection
-  omits raw transport/session/probe/correlation command internals. Missing
-  proof before acceptance: broader tests proving the raw field classes in
+  omits raw transport/session/probe/correlation command internals. Focused
+  `game inspect --json` proof now asserts that one debug-owned command emits
+  raw runtime inspection fields including host/port/state,
+  own/prototype/enumerable keys, and method owner/length/signature diagnostics.
+  Missing proof before acceptance: broader tests proving the raw field classes in
   `workstream/debug-service-projection-contract.md` are reachable only through
   debug-owned commands, flags, or future debug procedures and are not emitted
   by normal play output or accepted AI-ingestion contracts.
