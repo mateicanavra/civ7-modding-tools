@@ -1443,6 +1443,15 @@ runtime/direct-control claims.
         telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.12.30 Normalize the generic operation router command-source helper
+        wiring by reusing the shared runtime probe helper owner from
+        `src/play/operations/router.ts`, preserving generated router source,
+        validator-first operation routing, approval-first request behavior,
+        unit/population/production postcondition snapshot shape, no-repeat
+        boundaries, and leaving broader atom-local source helper normalization,
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

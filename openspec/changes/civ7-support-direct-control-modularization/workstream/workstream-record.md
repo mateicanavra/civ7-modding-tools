@@ -2717,3 +2717,14 @@ All future agent waves must be framed before delegation:
   atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
   projection, hotseat runtime proof, schema migration, debug hierarchy
   implementation, or Effect/oRPC procedure-core work.
+- Operation router command-source helper normalization:
+  `src/play/operations/router.ts` now imports the shared runtime probe helper
+  owner instead of carrying an atom-local copy in the embedded generic operation
+  router source. The generated router source remains equivalent, and the generic
+  operation owner still preserves validator-first routing, approval-first
+  requests, unit/population/production postcondition snapshot shapes, and
+  no-repeat boundaries. This is local package/source relocation cleanup only and
+  does not claim runtime/live-game proof, accept Task 2.9.4, normalize every
+  remaining atom-local source helper, or unblock telemetry, AI ingestion, CLI
+  semantic projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
