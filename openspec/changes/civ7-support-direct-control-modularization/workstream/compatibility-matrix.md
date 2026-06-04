@@ -448,8 +448,10 @@ Intake rejection conditions:
   `game.control.test.ts` coverage for health diagnostics, runtime inspection,
   App UI snapshot, playable status, map/GameInfo reads, AI loaded-lever reads,
   and operation validation through the package boundary; package proof includes
-  `runtime-and-catalog.test.ts` and `session.test.ts`. Missing proof before
-  acceptance: tests proving the raw field classes in
+  `runtime-and-catalog.test.ts` and `session.test.ts`. Focused compact
+  `game play priorities` proof now asserts that one normal play projection
+  omits raw transport/session/probe/correlation command internals. Missing
+  proof before acceptance: broader tests proving the raw field classes in
   `workstream/debug-service-projection-contract.md` are reachable only through
   debug-owned commands, flags, or future debug procedures and are not emitted
   by normal play output or accepted AI-ingestion contracts.

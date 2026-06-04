@@ -75,6 +75,7 @@ describe('game play priorities command', () => {
       expect(payload.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
       expect(payload.priorities.every((item) => item.evidence === undefined)).toBe(true);
       expect(payload.view).toBeUndefined();
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -385,6 +386,24 @@ async function runPriorities(
     log.mockRestore();
   }
   return { payload: JSON.parse(writes.join('')), server };
+}
+
+function expectNormalPlayPayloadToOmitDebugInternals(payload: unknown): void {
+  const serialized = JSON.stringify(payload);
+  for (const forbidden of [
+    'CMD:',
+    'LSQ:',
+    'GameContext.',
+    'sendRequest',
+    'selectedState',
+    'socket',
+    'requestId',
+    'correlationId',
+    'closeoutTrace',
+    'rawProbe',
+  ]) {
+    expect(serialized).not.toContain(forbidden);
+  }
 }
 
 async function startPrioritiesTunerServer(mode: PriorityHudMode): Promise<FakeTunerServer> {

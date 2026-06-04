@@ -44,6 +44,15 @@ implementation.
   transport/proof internals as normal play output; relationship labels outrun
   official evidence.
 
+Debug/internal service projection partial proof: completed as a narrow
+normal/debug separation test over compact `game play priorities` output. The
+focused CLI test now asserts that the normal play projection omits raw
+transport/session/probe/correlation command internals while preserving the
+existing compact player-agent priority summary. This reduces the
+debug/internal service row proof gap but does not accept Task 2.9.4, assign a
+debug projection owner, prove AI-ingestion or telemetry separation, implement
+debug/service hierarchy, or claim runtime/live-game proof.
+
 ## Current State
 
 - Worktree:
