@@ -650,11 +650,13 @@ Intake rejection conditions:
   correlation id, source/freshness label, stale/unknown classification, proof
   classes, projection boundaries, acceptance gaps, and stop conditions. The
   current source artifact adds the internal record slot vocabulary,
-  constructor, postcondition sanitizer, normal summary boundary, and first
+  constructor, postcondition sanitizer, normal summary boundary, first
   unit-target, production-choice, diplomacy-response, and narrative-choice
-  operation-result adapters. Missing before acceptance: a schema/test owner,
-  broader operation-atom adapters, and projection-separation implementation
-  tests over that record contract.
+  operation-result adapters, and a notification dismissal postcondition owner
+  prerequisite that future telemetry must consume instead of inferring from
+  legacy `verified`. Missing before acceptance: a schema/test owner, broader
+  operation-atom adapters, and projection-separation implementation tests over
+  that record contract.
 - `proofPlan`: existing local proof covers approval-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
@@ -690,7 +692,11 @@ Intake rejection conditions:
   narrative choice postcondition as the classification owner; missing
   postcondition, validator-blocked no-send, `no-state-change`,
   `validation-changed`, and pending-runtime-proof paths remain no-repeat
-  guarded. Proof-label guard coverage now rejects local,
+  guarded. Notification dismissal postcondition proof now names
+  `src/play/notifications/postconditions.ts` as the source classification owner
+  for dismissal results and proves stale engine-front train-absent or dismissed
+  evidence remains unverified before any future telemetry adapter can consume
+  the shape. Proof-label guard coverage now rejects local,
   planning, pending, and other non-live telemetry records that try to carry
   `live-runtime-proof` or `in-game-observation` labels, while allowing those
   labels only under an explicit `live-runtime-proof` boundary. Missing proof

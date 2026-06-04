@@ -404,6 +404,17 @@ runtime/direct-control claims.
         notification dismissal proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.4.8 Seed a notification dismissal postcondition classification
+        owner in `src/play/notifications/postconditions.ts` and attach the
+        explicit postcondition to wrapper results, preserving approval-first
+        dismissal behavior, final identity-based verification ordering, and
+        focused package proof that stale engine-front train-absent or
+        dismissed-flag evidence remains unverified. This is a source-owned
+        postcondition prerequisite for future telemetry/procedure consumers; it
+        does not add a telemetry adapter, change normal CLI/debug/AI
+        projections, add persistence, add router/registry/transport or
+        Effect/oRPC source, claim runtime/live-game proof, or accept Task 2.9.4
+        or Tasks 6.1-6.9.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.

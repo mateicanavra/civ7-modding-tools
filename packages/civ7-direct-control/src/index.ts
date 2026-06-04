@@ -724,6 +724,10 @@ export type {
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissalSummary,
 } from "./play/notifications/dismissal-request.js";
+export type {
+  Civ7NotificationDismissalPostcondition,
+  Civ7NotificationDismissalPostconditionClassification,
+} from "./play/notifications/postconditions.js";
 export {
   getCiv7NotificationDismissal,
   requestCiv7NotificationDismissal,
