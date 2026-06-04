@@ -154,6 +154,22 @@ telemetry row's operation-atom adapter gap for one additional operation shape;
 it does not choose schema technology, add persistence, implement AI ingestion,
 change CLI/debug projections, add Effect/oRPC middleware, accept Task 2.9.4, or
 claim runtime/live-game proof.
+Diplomacy-response telemetry adapter owner-seed proof now names
+`packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts` as
+the third operation-result adapter owner from the diplomacy-response closeout
+atom into operation/proof telemetry. Focused proof in
+`packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`
+verifies that approval, `validation_pre`, `send_receipt`, `post_read`,
+`validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+evidence policy stay separate; the source-owned diplomacy response
+postcondition remains the proof/classification owner; legacy top-level
+`verified` booleans are source evidence only; and missing postcondition,
+validator-blocked no-send, `no-state-change`, `validation-changed`, and
+pending-runtime-proof paths remain no-repeat guarded. This reduces only the
+telemetry row's operation-atom adapter gap for one additional closeout shape;
+it does not choose schema technology, add persistence, implement AI ingestion,
+change CLI/debug projections, add Effect/oRPC middleware, accept Task 2.9.4, or
+claim runtime/live-game proof.
 Operation telemetry proof-label guard proof now strengthens
 `packages/civ7-direct-control/src/proof/operation-telemetry.ts` so non-live
 proof boundaries reject `live-runtime-proof` and `in-game-observation` evidence

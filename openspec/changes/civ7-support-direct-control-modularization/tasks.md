@@ -184,6 +184,10 @@
         `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
         with proof in
         `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
+        the third operation-atom adapter owner seed is now recorded in
+        `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`
+        with proof in
+        `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`,
         and the telemetry proof-label guard seed is now recorded in
         `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with
         proof in
@@ -1910,6 +1914,23 @@ runtime/direct-control claims.
       schema technology, add persistence, implement AI ingestion, change
       CLI/debug projections, add Effect/oRPC middleware, claim runtime/live-game
       proof, accept Task 2.9.4, or create broad telemetry middleware.
+- [x] 4.17.1 Seed a diplomacy-response operation telemetry adapter owner in
+      `src/proof/diplomacy-response-telemetry.ts` with focused local proof in
+      `test/diplomacy-response-telemetry.test.ts`, preserving approval,
+      `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+      postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
+      separate telemetry slots while treating legacy `verified` booleans as
+      source evidence only. This seeds the operation/proof telemetry row's
+      operation-atom adapter gap for one diplomacy-response shape only; source
+      postcondition classifications `turn-unblocked`,
+      `diplomacy-blocker-cleared`, and `blocking-notification-changed` can
+      summarize confirmed, while missing postcondition, validator-blocked
+      no-send, `no-state-change`, `validation-changed`, and
+      pending-runtime-proof paths remain no-repeat guarded. It does not choose
+      schema technology, add persistence, implement AI ingestion, change
+      CLI/debug projections, add Effect/oRPC middleware, claim
+      runtime/live-game proof, accept Task 2.9.4, or create broad adapters for
+      every operation family.
 - [x] 4.18 Seed a direct-control procedure-core descriptor owner in
       `src/procedure-core.ts` with focused proof in
       `test/procedure-core.test.ts`, defining TypeBox-backed descriptor slots
