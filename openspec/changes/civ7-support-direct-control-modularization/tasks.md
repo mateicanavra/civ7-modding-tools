@@ -1317,6 +1317,13 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, CLI semantic projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.13.5 Prune the autoplay status facade call-through wrapper by
+        re-exporting `getCiv7AutoplayStatus` directly from
+        `src/play/autoplay.ts`, preserving public package imports, status read
+        shape, the separate configure/start/stop mutation wrappers, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, telemetry,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.14 Extract setup/start lifecycle atoms.
   - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts` and leaving

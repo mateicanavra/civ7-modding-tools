@@ -990,6 +990,16 @@ All future agent waves must be framed before delegation:
   only: it does not claim hotseat runtime proof, runtime/live-game proof, accept
   Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
   projection, schema/procedure-core work, or Effect/oRPC implementation.
+- Autoplay status call-through cleanup: `index.ts` now re-exports
+  `getCiv7AutoplayStatus` directly from `src/play/autoplay.ts` after
+  owner-local dependency defaults are in place. This removes the trivial status
+  read wrapper while preserving the public package import name, status result
+  shape, and the separate configure/start/stop mutation wrapper boundary. This
+  is local package/source relocation cleanup proof only: it does not change
+  autoplay mutation behavior, claim hotseat runtime proof, claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, schema/procedure-core work, or
+  Effect/oRPC implementation.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
