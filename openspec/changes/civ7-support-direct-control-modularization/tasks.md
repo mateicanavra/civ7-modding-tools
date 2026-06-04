@@ -106,6 +106,11 @@
         fields recorded in `workstream/compatibility-matrix.md`: owner
         assignment, write set, contract artifact, proof plan, projection plan,
         stop-condition coverage, downstream unblock, and non-proof claims.
+        The debug/internal service output row now has a draft acceptance intake
+        with concrete current package/CLI owners and missing proof called out,
+        but its `acceptanceStatus` remains `pending-debug-service-boundary`
+        until normal/debug/AI separation tests and a debug projection contract
+        are assigned and passing.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;

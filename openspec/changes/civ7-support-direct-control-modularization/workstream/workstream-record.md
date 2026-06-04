@@ -2253,3 +2253,12 @@ All future agent waves must be framed before delegation:
   source behavior, claim runtime/live-game proof, accept Task 2.9.4, or unblock
   CLI semantic, telemetry, AI ingestion, schema migration, Effect/Bun, or
   Effect/oRPC procedure-core work.
+- Debug/internal service compatibility-row intake: `workstream/compatibility-matrix.md`
+  now records a draft acceptance intake for the debug/internal service output
+  row. The intake names current debug CLI/package source owners, current local
+  proof owners, missing projection contract work, and missing normal/debug/AI
+  separation tests. The row remains `pending-debug-service-boundary`; this
+  update does not accept Task 2.9.4, start debug hierarchy implementation,
+  claim runtime/live-game proof, or unblock normal CLI semantic envelopes,
+  telemetry, AI ingestion, schema migration, Effect/Bun, or Effect/oRPC
+  procedure-core work.

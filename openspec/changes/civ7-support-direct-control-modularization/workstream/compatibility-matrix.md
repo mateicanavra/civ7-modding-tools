@@ -220,6 +220,58 @@ Intake rejection conditions:
 - `stopCondition`: stop if debug/internal output becomes normal CLI output,
   AI-ingestion input, or a product action authority
 
+#### Acceptance Intake: Debug/Internal Service Output
+
+- `ownerAssignment`: source owners are the existing debug/direct-control CLI
+  commands under `packages/cli/src/commands/game/{exec,health,inspect,status,catalog,visibility}.ts`
+  plus their package atom owners in `packages/civ7-direct-control/src/session`,
+  `src/runtime`, `src/catalog`, and `src/play/map/visibility.ts`. Proof owners
+  are `packages/cli/test/commands/game.control.test.ts`,
+  `packages/civ7-direct-control/test/runtime-and-catalog.test.ts`,
+  `packages/civ7-direct-control/test/session.test.ts`, and future
+  normal/debug separation tests. Gate owner remains the support DRA until a
+  dedicated debug/service hierarchy owner is assigned.
+- `writeSet`: this intake authorizes only compatibility-matrix/task/record
+  planning updates. A later implementation slice may touch the listed CLI
+  debug commands, package atom owners, and focused tests only after assigning a
+  concrete debug/service owner. No broad `common`, `utils`, `types`,
+  transport, telemetry, or AI-ingestion bucket is authorized.
+- `contractArtifact`: existing contract artifacts are package result shapes for
+  runtime inspection, bounded root inspection, App UI snapshot, Tuner health,
+  playable status, capability catalog, direct-control health, and reveal-map
+  debug/disposable visibility. Missing contract artifact before acceptance:
+  a documented debug/internal service projection contract that names which raw
+  fields are debug-only and which summaries, if any, may feed normal CLI or
+  AI-ingestion surfaces.
+- `proofPlan`: existing local proof includes
+  `game.control.test.ts` coverage for health diagnostics, runtime inspection,
+  App UI snapshot, playable status, map/GameInfo reads, AI loaded-lever reads,
+  and operation validation through the package boundary; package proof includes
+  `runtime-and-catalog.test.ts` and `session.test.ts`. Missing proof before
+  acceptance: tests proving raw transport/session/probe/closeout/correlation
+  details are reachable only through debug-owned commands or flags and are not
+  emitted by normal play output or accepted AI-ingestion contracts.
+- `projectionPlan`: normal CLI projection remains omitted/debug-only for raw
+  runtime/service fields; debug/internal service projection may include raw
+  transport/session state, probe output, route selection, closeout traces,
+  correlation, catalog provenance, and diagnostics; AI ingestion remains
+  out-of-scope until a separate ingestion contract accepts source/freshness and
+  evidence labels; telemetry and procedure-core projections remain pending
+  separate rows.
+- `stopConditionCoverage`: missing before acceptance. Required coverage must
+  fail if debug/internal output becomes normal CLI player-agent output, AI
+  ingestion input, product action authority, or a substitute for live runtime
+  proof.
+- `downstreamUnblock`: none yet. Acceptance of this row would unblock only
+  debug/service hierarchy and internal procedure diagnostics explicitly named
+  in a later update; it would not unblock normal CLI semantic envelopes,
+  telemetry, AI ingestion, hotseat runtime proof, or transport adapters.
+- `nonProofClaims`: this intake does not claim runtime/live-game proof, AI
+  ingestion implementation, telemetry contract acceptance, CLI semantic
+  envelope implementation, Effect/oRPC procedure-core readiness, App UI bridge
+  implementation, or product-path support. `acceptanceStatus` remains
+  `pending-debug-service-boundary`.
+
 ### Operation/Proof Telemetry
 
 - `foundationThread`: `019e86b7-b08b-72f3-8341-6c78a1285c93`
