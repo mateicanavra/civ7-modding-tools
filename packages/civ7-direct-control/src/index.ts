@@ -627,14 +627,26 @@ export type {
   Civ7PlayerSummaryInput,
   Civ7PlayerSummaryResult,
   Civ7UnitSummary,
+  Civ7UnitSummaryDependencies,
   Civ7UnitSummaryInput,
   Civ7UnitSummaryResult,
+} from "./play/summaries.js";
+export {
+  Civ7UnitSummaryInputSchema,
+  Civ7UnitSummaryResultSchema,
+  Civ7UnitSummarySchema,
 } from "./play/summaries.js";
 export {
   getCiv7CitySummary,
   getCiv7PlayerSummary,
   getCiv7UnitSummary,
 };
+export {
+  callCiv7UnitSummaryProcedure,
+  Civ7UnitSummaryProcedureDescriptor,
+  Civ7UnitSummaryProcedureSchemaArtifacts,
+} from "./play/unit-summary-procedure.js";
+export type { Civ7UnitSummaryProcedureCallOptions } from "./play/unit-summary-procedure.js";
 export type {
   Civ7ProgressDashboardInput,
   Civ7ProgressDashboardLegacyPath,

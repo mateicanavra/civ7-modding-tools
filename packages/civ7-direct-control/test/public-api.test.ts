@@ -78,6 +78,10 @@ import {
   Civ7TurnCompletionStatusProcedureDescriptor,
   Civ7TurnCompletionStatusProcedureSchemaArtifacts,
   Civ7TurnCompletionStatusResultSchema,
+  Civ7UnitSummaryInputSchema,
+  Civ7UnitSummaryProcedureDescriptor,
+  Civ7UnitSummaryProcedureSchemaArtifacts,
+  Civ7UnitSummaryResultSchema,
   Civ7VisibilitySummaryInputSchema,
   Civ7VisibilitySummaryResultSchema,
   Civ7UnitMovePreviewProcedureDescriptor,
@@ -122,6 +126,7 @@ import {
   callCiv7TraditionsViewProcedure,
   callCiv7TunerHealthProcedure,
   callCiv7TurnCompletionStatusProcedure,
+  callCiv7UnitSummaryProcedure,
   callCiv7UnitMovePreviewProcedure,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
@@ -282,6 +287,28 @@ describe("Civ7 direct control public API", () => {
         "numPlotsRevealed",
         "numPlotsVisible",
         "counts",
+      ]),
+    });
+  });
+
+  test("exports unit summary procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7UnitSummaryInputSchema, {
+      playerId: 0,
+      unitIds: [{ owner: -1, id: -1, type: 26 }],
+      maxItems: 128,
+    })).toBe(true);
+    expect(Value.Check(Civ7UnitSummaryInputSchema, { playerId: 1025 })).toBe(false);
+    expect(Value.Check(Civ7UnitSummaryInputSchema, { maxItems: 1_001 })).toBe(false);
+    expect(Value.Check(Civ7UnitSummaryInputSchema, { rawCommand: "Units.get(id)" })).toBe(false);
+    expect(Civ7UnitSummaryResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "units",
+        "omitted",
       ]),
     });
   });
@@ -950,6 +977,23 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7TurnCompletionStatusProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7TurnCompletionStatusProcedureDescriptor.outputSchema)
     ]).toBe(Civ7TurnCompletionStatusResultSchema);
+  });
+
+  test("exports the unit summary procedure descriptor artifact from the public facade", () => {
+    expect(Civ7UnitSummaryProcedureDescriptor).toMatchObject({
+      procedureKey: "unit.summary.read",
+      atomFunction: "getCiv7UnitSummary",
+      schemaTechnology: "typebox",
+      proofBoundary: "local-package-test",
+      context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
+    });
+    expect(typeof callCiv7UnitSummaryProcedure).toBe("function");
+    expect(Civ7UnitSummaryProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7UnitSummaryInputSchema);
+    expect(Civ7UnitSummaryProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7UnitSummaryProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7UnitSummaryResultSchema);
   });
 
   test("exports the App UI snapshot procedure descriptor artifact from the public facade", () => {

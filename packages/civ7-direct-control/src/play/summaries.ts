@@ -1,5 +1,8 @@
+import { Type } from "typebox";
+
+import { Civ7ComponentIdSchema } from "../civ7-component-id.js";
 import { jsLiteral } from "../runtime/command-serialization.js";
-import { probeHelperSource } from "../runtime/probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../session/command-result.js";
 import { executeCiv7TunerCommand } from "../session/execute.js";
 import type {
@@ -9,6 +12,7 @@ import type {
 } from "../session/types.js";
 import type { Civ7ComponentId } from "../civ7-component-id.js";
 import type { Civ7MapLocation } from "./map/types.js";
+import { Civ7MapLocationSchema } from "./map/types.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import { boundedInteger, validatePlayerId } from "../validation.js";
 
@@ -46,6 +50,31 @@ export type Civ7UnitSummaryInput = Readonly<{
   includeHidden?: boolean;
 }>;
 
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7UnitSummaryInputSchema = Type.Object({
+  playerIds: Type.Optional(Type.Array(Type.Integer({ minimum: 0, maximum: 1024 }))),
+  unitIds: Type.Optional(Type.Array(Civ7ComponentIdSchema)),
+  playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+  maxItems: Type.Optional(Type.Integer({ minimum: 1, maximum: 1_000 })),
+  includeHidden: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false });
+
+export const Civ7UnitSummarySchema = Type.Object({
+  id: Civ7ComponentIdSchema,
+  owner: Civ7RuntimeProbeSchema(Type.Number()),
+  name: Civ7RuntimeProbeSchema(Type.String()),
+  type: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()])),
+  location: Civ7RuntimeProbeSchema(Civ7MapLocationSchema),
+  health: Civ7RuntimeProbeSchema(Type.Number()),
+  damage: Civ7RuntimeProbeSchema(Type.Number()),
+  movement: Civ7RuntimeProbeSchema(Type.Number()),
+  activity: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()])),
+}, { additionalProperties: false });
+
 export type Civ7UnitSummary = Readonly<{
   id: Civ7ComponentId;
   owner: Civ7RuntimeProbe<number>;
@@ -57,6 +86,14 @@ export type Civ7UnitSummary = Readonly<{
   movement: Civ7RuntimeProbe<number>;
   activity: Civ7RuntimeProbe<number | string>;
 }>;
+
+export const Civ7UnitSummaryResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  units: Type.Array(Civ7UnitSummarySchema),
+  omitted: Type.Integer({ minimum: 0 }),
+}, { additionalProperties: false });
 
 export type Civ7UnitSummaryResult = Readonly<{
   host: string;
@@ -103,6 +140,16 @@ type SummaryReadDependencies = Readonly<{
   validatePlayerId: (playerId: number) => number;
 }>;
 
+export type Civ7UnitSummaryDependencies = Pick<
+  SummaryReadDependencies,
+  | "boundedInteger"
+  | "executeTunerCommand"
+  | "jsLiteral"
+  | "parseUnitSummary"
+  | "probeHelperSource"
+  | "validatePlayerId"
+>;
+
 export async function getCiv7PlayerSummary(
   input: Civ7PlayerSummaryInput = {},
   options: Civ7DirectControlOptions = {},
@@ -125,7 +172,7 @@ export async function getCiv7PlayerSummary(
 export async function getCiv7UnitSummary(
   input: Civ7UnitSummaryInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SummaryReadDependencies = defaultSummaryReadDependencies,
+  dependencies: Civ7UnitSummaryDependencies = defaultSummaryReadDependencies,
 ): Promise<Civ7UnitSummaryResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeTunerCommand({
@@ -194,7 +241,7 @@ function buildPlayerSummaryCommand(
 
 function buildUnitSummaryCommand(
   input: Civ7UnitSummaryInput & { maxItems: number },
-  dependencies: SummaryReadDependencies,
+  dependencies: Civ7UnitSummaryDependencies,
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}

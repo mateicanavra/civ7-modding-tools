@@ -1,8 +1,11 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
 import {
+  Civ7UnitSummaryInputSchema,
+  Civ7UnitSummaryResultSchema,
   getCiv7CitySummary,
   getCiv7PlayerSummary,
   getCiv7UnitSummary,
@@ -15,6 +18,37 @@ type FakeTunerServer = {
 };
 
 describe("player, unit, and city summary reads", () => {
+  test("exports unit-summary schemas with bounded player and unit input", () => {
+    expect(Value.Check(Civ7UnitSummaryInputSchema, {
+      playerIds: [0],
+      unitIds: [{ owner: -1, id: -1, type: 26 }],
+      playerId: 0,
+      maxItems: 128,
+      includeHidden: false,
+    })).toBe(true);
+    expect(Value.Check(Civ7UnitSummaryInputSchema, { playerId: 1025 })).toBe(false);
+    expect(Value.Check(Civ7UnitSummaryInputSchema, { maxItems: 1_001 })).toBe(false);
+    expect(Value.Check(Civ7UnitSummaryInputSchema, {
+      unitIds: [{ owner: -1, id: -1, type: 26, command: "Units.get" }],
+    })).toBe(false);
+    expect(Value.Check(Civ7UnitSummaryInputSchema, { state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7UnitSummaryInputSchema, { rawCommand: "Units.get(id)" })).toBe(false);
+
+    const summary = unitSummaryResult();
+    expect(Value.Check(Civ7UnitSummaryResultSchema, summary)).toBe(true);
+    expect(Value.Check(Civ7UnitSummaryResultSchema, {
+      ...summary,
+      command: "Units.get(id)",
+    })).toBe(false);
+    expect(Value.Check(Civ7UnitSummaryResultSchema, {
+      ...summary,
+      units: [{
+        ...summary.units[0],
+        location: { ok: true, value: { x: 1.5, y: 11 } },
+      }],
+    })).toBe(false);
+  });
+
   test("wraps summary reads without sending operations", async () => {
     const server = await startSummaryTunerServer();
     try {
@@ -174,6 +208,15 @@ function unitSummaryPayload() {
       },
     ],
     omitted: 0,
+  };
+}
+
+function unitSummaryResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...unitSummaryPayload(),
   };
 }
 
