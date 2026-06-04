@@ -723,8 +723,9 @@ All future agent waves must be framed before delegation:
   constants ownership relocation. It moves only autoplay default max-turn,
   wait, poll, and stop-stability constants into `src/play/autoplay.ts` while
   keeping public facade re-exports in `index.ts`. This preserves autoplay
-  wrapper defaults and keeps App UI execution, validation, approval, sleeping,
-  and serializer dependencies injected from the facade. Broader public
+  wrapper defaults; later autoplay facade dependency-pruning slices moved App
+  UI execution, validation, approval, sleeping, and serializer defaults into
+  the autoplay owner. Broader public
   constants/types, procedure schemas, operation/proof telemetry, AI ingestion,
   hotseat runtime proof, CLI semantic projection, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
@@ -734,8 +735,9 @@ All future agent waves must be framed before delegation:
   constants ownership relocation. It moves only unit-target post-send
   verification wait/poll defaults into `src/play/operations/unit-target-action.ts`
   while keeping public facade re-exports in `index.ts`. This preserves bounded
-  unit-target verification timing and keeps command execution, parsing, and
-  approval dependencies injected from the facade. Broader public constants/types,
+  unit-target verification timing; a later unit-target facade dependency-pruning
+  slice moved command execution, parsing, and approval defaults into the
+  unit-target owner. Broader public constants/types,
   procedure schemas, operation/proof telemetry, AI ingestion, hotseat runtime
   proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
   2.9.4 matrix-row acceptance stay pending. This is local package/constants
@@ -1526,9 +1528,10 @@ All future agent waves must be framed before delegation:
   orchestration, the private production-choice command builder, production
   argument validation, read-only status payload reads, and bounded post-send
   polling into `src/play/operations/production-choice.ts` while keeping the
-  public facade export in `index.ts`. The facade still injects approval,
-  ComponentID validation, App UI execution, city-operation validation,
-  payload parsing, and serialization. This preserves approval-first BUILD
+  public facade export in `index.ts`. Later production-choice facade dependency
+  cleanup moved approval, ComponentID validation, App UI execution,
+  city-operation validation, payload parsing, and serialization defaults into
+  the production-choice owner. This preserves approval-first BUILD
   request behavior, validator-first sends, invalid-prevalidation no-send
   status payloads, production postcondition classification, and package/CLI
   production proof. Generic operation wrapper composition, telemetry, AI
@@ -2195,9 +2198,10 @@ All future agent waves must be framed before delegation:
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
   `src/play/operations/diplomacy-request.ts` while keeping public facade exports
-  in `index.ts`. The facade still injects approval, App UI execution,
-  notification reads, player-operation validation, payload parsing, and
-  serialization. This preserves optional notification activation,
+  in `index.ts`. Later diplomacy response facade dependency cleanup moved
+  approval, App UI execution, notification reads, player-operation validation,
+  payload parsing, and serialization defaults into the diplomacy request owner.
+  This preserves optional notification activation,
   RESPOND_DIPLOMATIC_ACTION send behavior, leader acknowledgement, diplomacy UI
   closeout calls, focused diplomacy package/CLI proof, and existing
   postcondition classification. Runtime/live-game proof, telemetry, AI
@@ -2222,9 +2226,10 @@ All future agent waves must be framed before delegation:
   operation source relocation. It moves only the App UI narrative choice
   command builder and embedded source into
   `src/play/operations/narrative-request.ts` while keeping public facade exports
-  in `index.ts`. The facade still injects approval, App UI execution,
-  notification reads, player-operation validation, payload parsing, ComponentID
-  validation, and serialization. This preserves CHOOSE_NARRATIVE_STORY_DIRECTION
+  in `index.ts`. Later narrative choice facade dependency cleanup moved
+  approval, App UI execution, notification reads, player-operation validation,
+  payload parsing, ComponentID validation, and serialization defaults into the
+  narrative request owner. This preserves CHOOSE_NARRATIVE_STORY_DIRECTION
   send behavior, narrative popup/panel closeout calls, focused narrative
   package/CLI proof, and existing postcondition classification. Runtime/live-game
   proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
