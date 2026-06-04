@@ -100,6 +100,15 @@ validation-drift behavior, classifier ordering, runtime/live-game proof,
 telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
 work, and Task 2.9.4 matrix-row acceptance remain pending.
 
+Operation helper update: `src/play/operations/component-id.ts` now owns the
+shared component-id comparison helper used by diplomacy and narrative
+postcondition classifiers. This is local source ownership cleanup only:
+diplomacy blocking notification comparison, narrative blocker identity
+comparison, classifier ordering, no-repeat-after-unverified behavior,
+runtime/live-game proof, telemetry, AI ingestion, semantic CLI projection,
+Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+pending.
+
 Map row update: `src/play/map/reads.ts` now owns `getCiv7MapSummary`,
 `getCiv7PlotSnapshot`, and `getCiv7MapGrid` orchestration plus their map
 summary, plot snapshot, and bounded grid command/source helpers while public

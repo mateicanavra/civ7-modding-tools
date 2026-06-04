@@ -566,6 +566,13 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.6.34 Extract the shared operation component-id comparison helper into
+        `src/play/operations/component-id.ts`, preserving diplomacy blocking
+        notification comparison, narrative blocker identity comparison,
+        postcondition classifier ordering, no-repeat-after-unverified
+        semantics, and leaving runtime/live-game proof, telemetry, AI
+        ingestion, semantic CLI projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

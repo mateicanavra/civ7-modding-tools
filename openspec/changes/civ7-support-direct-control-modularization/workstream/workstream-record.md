@@ -2798,3 +2798,14 @@ All future agent waves must be framed before delegation:
   telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
   schema migration, debug hierarchy implementation, or Effect/oRPC
   procedure-core work.
+- Operation component-id comparison helper extraction:
+  `src/play/operations/component-id.ts` now owns the shared component-id
+  comparison helper used by diplomacy and narrative postcondition classifiers.
+  The helper preserves the existing diplomacy blocking notification comparison,
+  narrative blocker identity comparison, classifier ordering, and
+  no-repeat-after-unverified behavior. This is local package/source relocation
+  cleanup only and does not claim runtime/live-game proof, accept Task 2.9.4,
+  change postcondition semantics, infer relationship labels, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+  schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.

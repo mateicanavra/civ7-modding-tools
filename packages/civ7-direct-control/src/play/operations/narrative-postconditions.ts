@@ -1,3 +1,4 @@
+import { sameComponentId } from "./component-id.js";
 import { probeValue } from "./probe-values.js";
 import { isRecord, stableJson } from "./stable-json.js";
 import type { Civ7OperationValidationResult } from "./types.js";
@@ -5,7 +6,6 @@ import type {
   Civ7NarrativeChoiceCommandPayload,
   Civ7NarrativeChoiceInput,
 } from "./narrative-request.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import type {
@@ -130,11 +130,6 @@ function numericField(value: unknown, field: string): number | undefined {
   if (!isRecord(value)) return undefined;
   const candidate = value[field];
   return typeof candidate === "number" ? candidate : undefined;
-}
-
-function sameComponentId(left: Civ7ComponentId | null | undefined, right: Civ7ComponentId | null | undefined): boolean {
-  if (left == null || right == null) return left == null && right == null;
-  return left.owner === right.owner && left.id === right.id && left.type === right.type;
 }
 
 async function sleep(ms: number): Promise<void> {
