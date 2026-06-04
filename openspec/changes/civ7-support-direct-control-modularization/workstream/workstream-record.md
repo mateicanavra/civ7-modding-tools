@@ -2902,3 +2902,11 @@ All future agent waves must be framed before delegation:
   procedure-core validation over stable direct-control atoms. This does not
   accept Task 2.9.4, migrate schemas, add Effect Schema artifacts, implement
   Effect/oRPC source, or unblock 5.x/6.x work.
+- Compatibility contract-artifact status:
+  `workstream/compatibility-matrix.md` now summarizes that all six row contract
+  artifacts are recorded: hotseat handoff, semantic CLI envelope,
+  strategy/intelligence ingestion, debug/internal service projection,
+  operation/proof telemetry, and Effect/oRPC procedure core. This closes only
+  the `contractArtifact` planning sub-gap. It does not accept Task 2.9.4,
+  assign source/proof/schema owners, add tests, prove runtime behavior, or
+  unblock any dependent implementation lane.

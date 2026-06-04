@@ -31,6 +31,24 @@ from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
 | Operation/proof telemetry | Telemetry contract owner, schema owner, proof owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
 | Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, approval gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
 
+Contract-artifact status:
+
+- Hotseat handoff state: `workstream/hotseat-handoff-contract.md` recorded.
+- Semantic CLI player-agent view:
+  `workstream/semantic-cli-envelope-contract.md` recorded.
+- Strategy/intelligence ingestion:
+  `workstream/strategy-intelligence-ingestion-contract.md` recorded.
+- Debug/internal service output:
+  `workstream/debug-service-projection-contract.md` recorded.
+- Operation/proof telemetry:
+  `workstream/operation-proof-telemetry-contract.md` recorded.
+- Effect/oRPC procedure cores: `workstream/procedure-core-contract.md`
+  recorded.
+
+These artifacts close only the `contractArtifact` planning sub-gap. They do not
+accept any row, assign source/proof/schema owners, create tests, prove runtime
+behavior, or unblock dependent implementation lanes.
+
 Global acceptance stop conditions:
 
 - Stop if a row says it supports both target consumers without separating

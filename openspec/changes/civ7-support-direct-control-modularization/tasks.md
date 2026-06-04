@@ -102,6 +102,10 @@
         The matrix also records a row-by-row acceptance backlog; those blockers
         must be cleared per row before any dependent implementation lane can
         consume that row as accepted.
+        All six row contract artifacts are now recorded in
+        `workstream/compatibility-matrix.md`, but that closes only the
+        `contractArtifact` planning sub-gap. Row acceptance still requires
+        source/proof/schema owners, tests, and stop-condition coverage.
         A future row acceptance update must include the row acceptance intake
         fields recorded in `workstream/compatibility-matrix.md`: owner
         assignment, write set, contract artifact, proof plan, projection plan,
