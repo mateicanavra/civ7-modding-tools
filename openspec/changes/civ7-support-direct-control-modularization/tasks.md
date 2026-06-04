@@ -2526,6 +2526,28 @@ runtime/direct-control claims.
         `packages/civ7-control-orpc`, implement the in-game controller router,
         claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
         5.1-5.7 or 6.1-6.9.
+  - [x] 4.47 Add the adjacent visibility-summary procedure atom in
+        `src/play/map/visibility-procedure.ts`, with TypeBox input/output
+        schemas beside the existing bounded visibility summary atom in
+        `src/play/map/visibility.ts`, focused proof in
+        `test/visibility-summary-procedure.test.ts`, adjacent atom schema
+        proof in `test/map-and-visibility.test.ts`, and public facade schema
+        proof in `test/public-api.test.ts`. This composes the local
+        procedure-core call primitive with the existing
+        `getCiv7VisibilitySummary` atom under the existing `map` procedure
+        family, validates bounded `playerId`, validator-equivalent map bounds,
+        the existing `includeGrid`-requires-`bounds` invariant, bounded
+        `maxPlots`, revealed/visible runtime-probe output, counts/grid output,
+        endpoint/session/state/raw-command input exclusion, direct-control
+        option forwarding, no-reveal command text, and output/diagnostics
+        separation. This is local no-network proof over fake atom dependencies
+        plus the existing fake Tuner fixture only; it does not wrap
+        `revealCiv7MapForPlayer`, change reveal mutation behavior, change CLI
+        output, execute live direct-control atoms, add a broad map catalog, add
+        a router/registry/transport adapter, choose Effect Schema, add
+        Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 5.1-5.7 or 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2645,13 +2667,19 @@ authority are recorded.
     lookup/filter/include toggle proof, context/raw-command input rejection,
     source/runtime-probe/schema/primary-key output proof, and local no-network
     proof over fake atom dependencies.
+    Task 4.47 adds an adjacent read-atom schema/descriptor/call artifact for
+    `map.visibility.read` over the visibility summary atom, including bounded
+    player/map-bounds/maxPlots input proof, the existing includeGrid/bounds
+    invariant, context/raw-command input rejection, revealed/visible runtime-
+    probe output proof, no-reveal command-text proof, and local no-network proof
+    over fake atom dependencies.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
     inputs/outputs beyond the ready-unit, ready-city, unit move-preview,
     runtime-support, notification-view, settlement-recommendations,
     target-candidates, battlefield-scan, destination-analysis, and
     traditions-view, progress-dashboard, map-summary, plot-snapshot, map-grid,
-    and GameInfo-rows schema seeds,
+    GameInfo-rows, and visibility-summary schema seeds,
     descriptor schema-reference binding/resolution, adjacent descriptor/call
     artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting

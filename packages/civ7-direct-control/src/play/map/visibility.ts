@@ -1,3 +1,5 @@
+import { Type, type Static } from "typebox";
+
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { assertApproved, type Civ7ActionApproval } from "../../action-approval.js";
 import type {
@@ -7,6 +9,7 @@ import type {
 } from "../../session/types.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import {
+  Civ7RuntimeProbeSchema,
   probeHelperSource,
   probeValue,
   type Civ7RuntimeProbe,
@@ -19,14 +22,58 @@ import {
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./constants.js";
 import type { Civ7MapBounds, Civ7MapLocation } from "./types.js";
+import { Civ7MapBoundsSchema, Civ7MapLocationSchema } from "./types.js";
 import { validateMapBounds } from "./validation.js";
 
-export type Civ7VisibilitySummaryInput = Readonly<{
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7VisibilitySummaryInputSchema = Type.Unsafe<Readonly<{
   playerId: number;
   bounds?: Civ7MapBounds;
   includeGrid?: boolean;
   maxPlots?: number;
-}>;
+}>>({
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
+    bounds: Civ7MapBoundsSchema,
+    includeGrid: Type.Boolean(),
+    maxPlots: Type.Integer({ minimum: 1, maximum: HARD_CIV7_MAP_GRID_MAX_PLOTS }),
+  },
+  required: ["playerId"],
+  anyOf: [
+    { not: { properties: { includeGrid: { const: true } }, required: ["includeGrid"] } },
+    { properties: { includeGrid: { const: true } }, required: ["includeGrid", "bounds"] },
+  ],
+});
+
+export type Civ7VisibilitySummaryInput = Readonly<Static<typeof Civ7VisibilitySummaryInputSchema>>;
+
+export const Civ7VisibilityGridStateSchema = Type.Object({
+  ...Civ7MapLocationSchema.properties,
+  state: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()])),
+  visible: Civ7RuntimeProbeSchema(Type.Boolean()),
+}, { additionalProperties: false });
+
+export const Civ7VisibilitySummaryResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
+  numPlotsRevealed: Civ7RuntimeProbeSchema(Type.Number()),
+  numPlotsVisible: Civ7RuntimeProbeSchema(Type.Number()),
+  counts: Type.Record(Type.String(), Type.Number()),
+  grid: Type.Optional(Type.Object({
+    bounds: Civ7MapBoundsSchema,
+    plotCount: Type.Number(),
+    omitted: Type.Number(),
+    states: Type.Array(Civ7VisibilityGridStateSchema),
+  }, { additionalProperties: false })),
+}, { additionalProperties: false });
 
 export type Civ7VisibilitySummaryResult = Readonly<{
   host: string;
@@ -58,7 +105,7 @@ export type Civ7RevealMapResult = Readonly<{
   classification: "revealed" | "already-revealed" | "unverified";
 }>;
 
-type VisibilityReadDependencies = Readonly<{
+export type VisibilityReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   defaultMapGridMaxPlots: number;
   executeTunerCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;

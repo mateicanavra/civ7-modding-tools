@@ -10,6 +10,8 @@ import {
   Civ7MapSummaryResultSchema,
   Civ7PlotSnapshotInputSchema,
   Civ7PlotSnapshotResultSchema,
+  Civ7VisibilitySummaryInputSchema,
+  Civ7VisibilitySummaryResultSchema,
   getCiv7GameInfoRows,
   getCiv7MapGrid,
   getCiv7MapSummary,
@@ -122,6 +124,40 @@ describe("map and visibility reads", () => {
     expect(Value.Check(Civ7MapGridResultSchema, {
       ...mapGridResult(),
       session: { stateName: "Tuner" },
+    })).toBe(false);
+  });
+
+  test("validates visibility summary schema boundaries beside the read atom", () => {
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      includeGrid: true,
+      maxPlots: 2,
+    })).toBe(true);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0 })).toBe(true);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1.5 })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: -1 })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1_025 })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      includeGrid: true,
+    })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      bounds: { x: 0, y: 0, width: 0, height: 1 },
+      includeGrid: true,
+    })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      maxPlots: 10_001,
+    })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, rawCommand: "Visibility.revealAllPlots(0)" })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryResultSchema, visibilitySummaryResult())).toBe(true);
+    expect(Value.Check(Civ7VisibilitySummaryResultSchema, {
+      ...visibilitySummaryResult(),
+      command: "Visibility.revealAllPlots(0)",
     })).toBe(false);
   });
 
@@ -292,6 +328,15 @@ function mapGridResult() {
     port: 4318,
     state: { id: "1", name: "Tuner" },
     ...mapGridPayload(),
+  };
+}
+
+function visibilitySummaryResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "1", name: "Tuner" },
+    ...visibilityPayload(10),
   };
 }
 

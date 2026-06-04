@@ -74,6 +74,8 @@ import {
   Civ7TunerHealthProcedureDescriptor,
   Civ7TunerHealthProcedureSchemaArtifacts,
   Civ7TunerHealthResultSchema,
+  Civ7VisibilitySummaryInputSchema,
+  Civ7VisibilitySummaryResultSchema,
   Civ7UnitMovePreviewProcedureDescriptor,
   Civ7UnitMovePreviewProcedureSchemaArtifacts,
   Civ7UnitMovePreviewInputSchema,
@@ -244,6 +246,37 @@ describe("Civ7 direct control public API", () => {
         "omitted",
         "hiddenInfoPolicy",
         "plots",
+      ]),
+    });
+  });
+
+  test("exports visibility summary procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+      includeGrid: true,
+      maxPlots: 2,
+    })).toBe(true);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0 })).toBe(true);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1.5 })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 1_025 })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, includeGrid: true })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, { playerId: 0, host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7VisibilitySummaryInputSchema, {
+      playerId: 0,
+      rawCommand: "Visibility.revealAllPlots(0)",
+    })).toBe(false);
+    expect(Civ7VisibilitySummaryResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "state",
+        "playerId",
+        "numPlotsRevealed",
+        "numPlotsVisible",
+        "counts",
       ]),
     });
   });

@@ -602,11 +602,23 @@ export type {
   Civ7RevealMapResult,
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
+  VisibilityReadDependencies,
 } from "./play/map/visibility.js";
 export {
+  Civ7VisibilityGridStateSchema,
+  Civ7VisibilitySummaryInputSchema,
+  Civ7VisibilitySummaryResultSchema,
   getCiv7VisibilitySummary,
   revealCiv7MapForPlayer,
 } from "./play/map/visibility.js";
+export {
+  callCiv7VisibilitySummaryProcedure,
+  Civ7VisibilitySummaryProcedureDescriptor,
+  Civ7VisibilitySummaryProcedureSchemaArtifacts,
+} from "./play/map/visibility-procedure.js";
+export type {
+  Civ7VisibilitySummaryProcedureCallOptions,
+} from "./play/map/visibility-procedure.js";
 export type {
   Civ7CitySummary,
   Civ7CitySummaryInput,

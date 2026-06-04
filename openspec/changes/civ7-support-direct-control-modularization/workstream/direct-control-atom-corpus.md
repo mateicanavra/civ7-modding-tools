@@ -823,6 +823,28 @@ add a router/registry/transport adapter, choose Effect Schema, claim
 runtime/live-game proof, accept Task 2.9.4, or unblock broader AI ingestion,
 debug hierarchy, telemetry persistence, or Effect/oRPC procedure cores.
 
+Visibility-summary procedure atom seed update:
+`src/play/map/visibility.ts` now owns TypeBox input/output schemas for the
+existing bounded visibility summary atom, including bounded `playerId`, shared
+map-bounds input, the existing `includeGrid`-requires-`bounds` invariant,
+bounded `maxPlots`, revealed/visible runtime probes, counts, and optional grid
+state output. `src/play/map/visibility-procedure.ts` now owns the adjacent
+`map.visibility.read` descriptor/schema artifact map and concrete call wrapper
+over `getCiv7VisibilitySummary` while leaving `revealCiv7MapForPlayer` as a
+separate approval-gated mutation owner. `test/map-and-visibility.test.ts`
+proves the fake visibility summary result matches the schema and rejects
+invalid player/bounds/context/raw-command procedure input;
+`test/visibility-summary-procedure.test.ts` proves descriptor schema resolution,
+no-network fake-dependency calls, direct-control option forwarding,
+input-before-dependency rejection, output validation, separated diagnostics,
+visibility read command text, and absence of reveal/send command text. Public
+facade proof in `test/public-api.test.ts` covers the schema exports. This is
+local read-atom proof only. It does not change CLI output, wrap reveal-map
+mutation, add a broad map catalog, add a router/registry/transport adapter,
+choose Effect Schema, claim runtime/live-game proof, accept Task 2.9.4, or
+unblock broader AI ingestion, debug hierarchy, telemetry persistence, or
+Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,
