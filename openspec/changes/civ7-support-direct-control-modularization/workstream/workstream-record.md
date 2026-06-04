@@ -1990,6 +1990,17 @@ All future agent waves must be framed before delegation:
   matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
   hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Setup-read call-through cleanup: `index.ts` now re-exports
+  `getCiv7SetupSnapshot` and `getCiv7SetupMapRows` directly from
+  `src/setup/reads.ts` after the owner-local dependency defaults are in place.
+  This removes the trivial async read wrappers while preserving the public
+  package import names, setup snapshot/map-row read behavior, and the separate
+  setup map-row visibility refresh boundary. This is local package/source
+  relocation cleanup proof only: it does not change setup map-row refresh,
+  setup lifecycle behavior, claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
 - Setup-preparation facade dependency cleanup: `src/setup/prepare.ts` now
   imports existing non-facade setup-read defaults, command-result parser, and
   setup option identifier validation directly for

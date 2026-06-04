@@ -91,8 +91,8 @@ import type {
 import {
   defaultSetupReadDependencies,
   ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
-  getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
-  getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
+  getCiv7SetupMapRows,
+  getCiv7SetupSnapshot,
   type Civ7PlayerSetupParameterSnapshot,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsInput,
@@ -457,6 +457,10 @@ export type {
   Civ7SetupSnapshot,
   Civ7SetupSnapshotResult,
 } from "./setup/reads.js";
+export {
+  getCiv7SetupMapRows,
+  getCiv7SetupSnapshot,
+};
 export type {
   Civ7PlayerSetupOptions,
   Civ7PreparedSetupResult,
@@ -1018,19 +1022,6 @@ export async function getCiv7FullMapGrid(
     chunks,
     plots,
   };
-}
-
-export async function getCiv7SetupSnapshot(
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7SetupSnapshotResult> {
-  return await getCiv7SetupSnapshotFromModule(options);
-}
-
-export async function getCiv7SetupMapRows(
-  input: Civ7SetupMapRowsInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7SetupMapRowsResult> {
-  return await getCiv7SetupMapRowsFromModule(input, options);
 }
 
 function setupReadDependencies() {

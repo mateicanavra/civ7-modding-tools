@@ -1433,6 +1433,14 @@ runtime/direct-control claims.
         runtime proof, AI ingestion, semantic CLI projection, telemetry,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.14.14 Prune trivial setup read facade call-through wrappers by
+        re-exporting `getCiv7SetupSnapshot` and `getCiv7SetupMapRows` directly
+        from `src/setup/reads.ts`, preserving public package imports, setup
+        snapshot/map-row read behavior, the separate setup map-row visibility
+        refresh boundary, setup lifecycle behavior, runtime proof, hotseat
+        runtime proof, AI ingestion, semantic CLI projection, telemetry,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 
 ## 5. CLI Semantic Surface Lane
 
