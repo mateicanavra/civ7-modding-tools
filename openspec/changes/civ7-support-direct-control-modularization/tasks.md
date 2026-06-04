@@ -1931,6 +1931,22 @@ runtime/direct-control claims.
       CLI/debug projections, add Effect/oRPC middleware, claim
       runtime/live-game proof, accept Task 2.9.4, or create broad adapters for
       every operation family.
+- [x] 4.17.2 Seed a narrative-choice operation telemetry adapter owner in
+      `src/proof/narrative-choice-telemetry.ts` with focused local proof in
+      `test/narrative-choice-telemetry.test.ts`, preserving approval,
+      `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+      postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
+      separate telemetry slots while treating legacy `verified` booleans as
+      source evidence only. This seeds the operation/proof telemetry row's
+      operation-atom adapter gap for one narrative-choice shape only; source
+      postcondition classifications `turn-unblocked`,
+      `narrative-blocker-cleared`, and `narrative-panel-cleared` can summarize
+      confirmed, while missing postcondition, validator-blocked no-send,
+      `no-state-change`, `validation-changed`, and pending-runtime-proof paths
+      remain no-repeat guarded. It does not choose schema technology, add
+      persistence, implement AI ingestion, change CLI/debug projections, add
+      Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
+      or create broad adapters for every operation family.
 - [x] 4.18 Seed a direct-control procedure-core descriptor owner in
       `src/procedure-core.ts` with focused proof in
       `test/procedure-core.test.ts`, defining TypeBox-backed descriptor slots

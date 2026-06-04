@@ -556,16 +556,18 @@ Intake rejection conditions:
 - `sourceOwner`: `packages/civ7-direct-control/src/proof/operation-telemetry.ts`
   owner seed for record slot vocabulary, structural constructor, and normal
   summary boundary; `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
-  `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`, and
-  `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts` seed
-  the first three operation-result adapters while broader
+  `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`,
+  `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`, and
+  `packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts` seed
+  the first four operation-result adapters while broader
   operation-specific adapters remain under their existing operation/proof atom
   owners
 - `proofOwner`: `packages/civ7-direct-control/test/operation-telemetry.test.ts`
   owner-seed proof plus
   `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`,
-  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`, and
-  `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`
+  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
+  `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`, and
+  `packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`
   for the current adapter seeds; final row proof/gate owner remains pending
 - `playerScope`: operation-local, player-scoped, and agent-slot-scoped for
   mutation-facing records; observer/debug scoped for diagnostics
@@ -584,10 +586,10 @@ Intake rejection conditions:
   deltas, runtime observation links, and stale/unknown classification
 - `proofLabel`: `pending-telemetry-contract`
 - `acceptanceStatus`: `pending-telemetry-contract`; source/proof owner seed plus
-  unit-target, production-choice, and diplomacy-response operation-result
-  adapter seeds exist, but telemetry schema owner, broader operation-atom adapters,
-  normal/debug/AI/procedure projection separation tests, and final runtime
-  proof boundary gates are not assigned
+  unit-target, production-choice, diplomacy-response, and narrative-choice
+  operation-result adapter seeds exist, but telemetry schema owner, broader
+  operation-atom adapters, normal/debug/AI/procedure projection separation
+  tests, and final runtime proof boundary gates are not assigned
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
   middleware, action audit vocabulary, semantic CLI proof summaries
 - `stopCondition`: stop if telemetry trains or acts on vague `verified: true`,
@@ -625,7 +627,11 @@ Intake rejection conditions:
   and `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`
   with focused proof in
   `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`,
-  adapting one diplomacy-response result shape into separated telemetry slots.
+  adapting one diplomacy-response result shape into separated telemetry slots,
+  and `packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts`
+  with focused proof in
+  `packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`,
+  adapting one narrative-choice result shape into separated telemetry slots.
   Missing before acceptance: a final schema/test owner, broader operation-atom
   adapter owners, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
@@ -645,9 +651,10 @@ Intake rejection conditions:
   classes, projection boundaries, acceptance gaps, and stop conditions. The
   current source artifact adds the internal record slot vocabulary,
   constructor, postcondition sanitizer, normal summary boundary, and first
-  unit-target, production-choice, and diplomacy-response operation-result
-  adapters. Missing before acceptance: a schema/test owner, broader operation-atom adapters, and
-  projection-separation implementation tests over that record contract.
+  unit-target, production-choice, diplomacy-response, and narrative-choice
+  operation-result adapters. Missing before acceptance: a schema/test owner,
+  broader operation-atom adapters, and projection-separation implementation
+  tests over that record contract.
 - `proofPlan`: existing local proof covers approval-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
@@ -676,7 +683,14 @@ Intake rejection conditions:
   slots while using the source-owned diplomacy response postcondition as the
   classification owner; missing postcondition, validator-blocked no-send,
   `no-state-change`, `validation-changed`, and pending-runtime-proof paths
-  remain no-repeat guarded. Proof-label guard coverage now rejects local,
+  remain no-repeat guarded. Narrative-choice adapter proof verifies that a
+  narrative result shape maps approval, `validation_pre`, `send_receipt`,
+  `post_read`, `validation_post`, postcondition, `outcome_delta`, and
+  `blocker_delta` into separate telemetry slots while using the source-owned
+  narrative choice postcondition as the classification owner; missing
+  postcondition, validator-blocked no-send, `no-state-change`,
+  `validation-changed`, and pending-runtime-proof paths remain no-repeat
+  guarded. Proof-label guard coverage now rejects local,
   planning, pending, and other non-live telemetry records that try to carry
   `live-runtime-proof` or `in-game-observation` labels, while allowing those
   labels only under an explicit `live-runtime-proof` boundary. Missing proof
