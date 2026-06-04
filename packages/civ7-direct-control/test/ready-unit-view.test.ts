@@ -1,8 +1,13 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
-import { getCiv7ReadyUnitView } from "../src/index";
+import {
+  Civ7ReadyUnitViewInputSchema,
+  Civ7ReadyUnitViewResultSchema,
+  getCiv7ReadyUnitView,
+} from "../src/index";
 
 type FakeTunerServer = {
   received: string[];
@@ -37,6 +42,18 @@ describe("getCiv7ReadyUnitView", () => {
       });
       expect(server.received.some((message) => message.includes("readReadyUnitView"))).toBe(true);
       expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
+      expect(Value.Check(Civ7ReadyUnitViewInputSchema, {
+        unitId: { owner: 0, id: 458752, type: 26 },
+        radius: 2,
+        maxOperations: 96,
+      })).toBe(true);
+      expect(Value.Check(Civ7ReadyUnitViewInputSchema, { radius: 6 })).toBe(false);
+      expect(Value.Check(Civ7ReadyUnitViewInputSchema, { rawCommand: "readReadyUnitView()" })).toBe(false);
+      expect(Value.Check(Civ7ReadyUnitViewResultSchema, view)).toBe(true);
+      expect(Value.Check(Civ7ReadyUnitViewResultSchema, {
+        ...view,
+        command: "readReadyUnitView()",
+      })).toBe(false);
     } finally {
       await server.close();
     }
@@ -133,6 +150,10 @@ function readyUnitView() {
         result: { Success: true },
       },
     ],
+    promotionReadiness: {
+      ok: true,
+      value: null,
+    },
     nearby: {
       ok: true,
       value: [

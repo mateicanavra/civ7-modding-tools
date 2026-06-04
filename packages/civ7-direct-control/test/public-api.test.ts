@@ -12,6 +12,8 @@ import {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
+  Civ7ReadyUnitViewInputSchema,
+  Civ7ReadyUnitViewResultSchema,
   DEFAULT_CIV7_APP_UI_API_ROOTS,
   DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
   DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
@@ -168,5 +170,25 @@ describe("Civ7 direct control public API", () => {
     expect(Value.Check(Civ7CapabilityCatalogEntrySchema, entry)).toBe(true);
     expect(Value.Check(Civ7CapabilityCatalogSchema, catalog)).toBe(true);
     expect(Value.Check(Civ7CapabilityCatalogEntrySchema, { ...entry, risk: "runtime-proof" })).toBe(false);
+  });
+
+  test("exports ready-unit view procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7ReadyUnitViewInputSchema, {
+      unitId: { owner: 0, id: 458752, type: 26 },
+      radius: 2,
+      maxOperations: 96,
+    })).toBe(true);
+    expect(Value.Check(Civ7ReadyUnitViewInputSchema, { radius: 6 })).toBe(false);
+    expect(Civ7ReadyUnitViewResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "state",
+        "localPlayerId",
+        "unitId",
+        "legalOperations",
+        "promotionReadiness",
+      ]),
+    });
   });
 });

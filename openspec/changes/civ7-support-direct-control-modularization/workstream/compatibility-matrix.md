@@ -766,13 +766,20 @@ Intake rejection conditions:
   report disposition, and current direct-control atom owners. The current
   descriptor source/proof owner seed is
   `packages/civ7-direct-control/src/procedure-core.ts` with proof in
-  `packages/civ7-direct-control/test/procedure-core.test.ts`. Missing before
-  acceptance: final procedure-core schema owner, proof owner,
-  context/middleware/error/correlation owner, concrete procedure owners, and
-  explicit owner boundaries for the in-game controller router, external
-  direct-control bridge, and future AI services.
-- `writeSet`: current write set is the direct-control descriptor owner,
-  focused package proof, and docs/OpenSpec records. Future implementation write
+  `packages/civ7-direct-control/test/procedure-core.test.ts`. The first
+  concrete read-atom schema owner seed is
+  `packages/civ7-direct-control/src/play/ready/unit.ts` with focused proof in
+  `packages/civ7-direct-control/test/ready-unit-view.test.ts` and public
+  facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+  Missing before acceptance: final procedure-core schema owner, proof owner,
+  context/middleware/error/correlation owner, broader concrete procedure
+  owners, and explicit owner boundaries for the in-game controller router,
+  external direct-control bridge, and future AI services.
+- `writeSet`: current write set is the ready-unit read atom schema owner in
+  `packages/civ7-direct-control/src/play/ready/unit.ts`, the reusable runtime
+  probe schema helper in `packages/civ7-direct-control/src/runtime/probe.ts`,
+  the direct-control public facade export, focused ready-unit package proof,
+  public facade proof, and docs/OpenSpec records. Future implementation write
   sets must name the exact procedure-core module or package, typed schema
   artifact, middleware/context/error/correlation tests, and narrow adapters to
   stable direct-control atom owners. No transport adapter,
@@ -794,12 +801,19 @@ Intake rejection conditions:
   schema and guard owner for procedure keys, stable atom owners, projection
   policy, proof boundary, player scope, consumer class, and mutation gate
   metadata, including command-source/session-execute owner rejection and local
-  `live-runtime-proof` claim rejection.
+  `live-runtime-proof` claim rejection. The current source artifact also adds
+  TypeBox input/output schemas for the existing `getCiv7ReadyUnitView` read
+  atom, including bounded `radius`/`maxOperations` input and root-level output
+  shape separation from raw command fields.
 - `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
   the direct-control descriptor owner before semantic guards, with local proof
   for malformed projection, consumer-class, array-field, and extra-property
-  cases. This is not a TypeBox versus Effect Schema migration decision and does
-  not prove concrete procedure input/output schemas.
+  cases. Current TypeBox read-atom schema ownership is seeded for
+  `getCiv7ReadyUnitView` only, with focused proof that the existing fake Tuner
+  result matches `Civ7ReadyUnitViewResultSchema` and raw-command fields are
+  rejected at the result root. This is not a TypeBox versus Effect Schema
+  migration decision and does not prove broader concrete procedure
+  input/output schemas.
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, and
@@ -818,12 +832,14 @@ Intake rejection conditions:
   rejection through TypeBox runtime validation, descriptor typed-error
   details, descriptor correlation policy with normal CLI omission by default,
   local `live-runtime-proof` claim rejection before runtime-proof ownership,
+  one ready-unit read-atom input/output schema over a stable direct-control
+  atom,
   mutation approval/validator/postcondition/no-repeat gate requirements, and
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
-  transport surface. Missing before acceptance: oRPC schema/procedure validation test
-  against concrete procedures, final router/procedure error-shape snapshot,
-  encode/decode round trip, Bun runtime check, CLI semantic projection test,
-  AI-ingestion contract
+  transport surface. Missing before acceptance: oRPC schema/procedure
+  validation tests against concrete procedures beyond this read-atom schema
+  seed, final router/procedure error-shape snapshot, encode/decode round trip,
+  Bun runtime check, CLI semantic projection test, AI-ingestion contract
   fixture test,
   final middleware approval/correlation/error tests, and no-raw-command-tunnel
   tests in the final router/procedure owner.

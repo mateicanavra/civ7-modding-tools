@@ -32,6 +32,19 @@ not collect runtime evidence, add Effect/oRPC dependencies, create
 `packages/civ7-control-orpc`, implement router/procedure behavior, choose a
 broader schema migration, claim runtime proof, or accept the matrix row.
 
+First concrete read-atom schema seed:
+`packages/civ7-direct-control/src/play/ready/unit.ts` now owns TypeBox schemas
+for `getCiv7ReadyUnitView` input, output, operation candidates, nearby plots,
+and promotion readiness. Focused proof in
+`packages/civ7-direct-control/test/ready-unit-view.test.ts` validates the
+existing fake-runtime ready-unit result against the output schema and rejects
+out-of-bound input plus root-level raw command fields. Public facade proof in
+`packages/civ7-direct-control/test/public-api.test.ts` verifies the schemas are
+exported for future procedure-core consumers. This is one read atom's
+schema-owner seed only; it does not choose Effect Schema, migrate existing
+contracts, implement a router/procedure, claim runtime proof, or accept the
+matrix row.
+
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
 correlation IDs, approval gates, and telemetry hooks. It must serve the
@@ -143,7 +156,8 @@ fields, and repo-local command-source/session-execute owners in the Effect/oRPC
 Procedure Cores row, but they do not accept the row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
-- concrete procedure input/output owners over stable direct-control atoms;
+- concrete procedure input/output owners over stable direct-control atoms
+  beyond the ready-unit read schema seed;
 - final context/middleware/error/correlation owners;
 - explicit boundaries for in-game controller router, external direct-control
   bridge, and future AI services;

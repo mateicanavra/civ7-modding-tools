@@ -1922,6 +1922,16 @@ runtime/direct-control claims.
       `packages/civ7-control-orpc`, add transport adapters, migrate schemas,
       implement the in-game controller router, claim runtime/live-game proof,
       accept Task 2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.19 Seed ready-unit read-atom TypeBox schemas in
+      `src/play/ready/unit.ts` with focused proof in
+      `test/ready-unit-view.test.ts` and public facade proof in
+      `test/public-api.test.ts`. This records one concrete read atom's
+      bounded input and result schema owner for future procedure-core
+      composition while rejecting out-of-bound input and root-level raw command
+      fields. It does not choose Effect Schema, migrate broader contracts,
+      implement Effect/oRPC source, add `packages/civ7-control-orpc`, add
+      transport adapters, implement the in-game controller router, claim
+      runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -1962,9 +1972,11 @@ authority are recorded.
     procedure keys, projection policy, mutation gate metadata, generic raw
     tunnel rejection, command-source/session-execute owner rejection, and
     local rejection of `live-runtime-proof` claims over example stable atoms.
+    Task 4.19 adds one concrete ready-unit read-atom TypeBox input/output
+    schema seed for future procedure-core composition.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
-    inputs/outputs.
+    inputs/outputs beyond that first read-atom schema seed.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

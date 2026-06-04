@@ -594,7 +594,14 @@ export type {
   Civ7ReadyUnitViewInput,
   Civ7ReadyUnitViewResult,
 } from "./play/ready/unit.js";
-export { getCiv7ReadyUnitView };
+export {
+  Civ7ReadyUnitNearbyPlotSchema,
+  Civ7ReadyUnitOperationCandidateSchema,
+  Civ7ReadyUnitPromotionReadinessSchema,
+  Civ7ReadyUnitViewInputSchema,
+  Civ7ReadyUnitViewResultSchema,
+  getCiv7ReadyUnitView,
+} from "./play/ready/unit.js";
 export type {
   Civ7UnitMovePreviewInput,
   Civ7UnitMovePreviewResult,
