@@ -1365,6 +1365,14 @@ runtime/direct-control claims.
         strings, result shapes, package/CLI proof, and leaving hotseat runtime
         proof, AI ingestion, CLI semantic projection, telemetry, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.13.8 Prune the turn-completion action facade call-through wrappers by
+        re-exporting `sendCiv7TurnComplete` and `sendCiv7TurnUnready` directly
+        from `src/play/turn-completion.ts`, preserving public package imports,
+        approval-first mutation behavior, stale notification fallback
+        classification, turn-completion action result shapes, package/CLI
+        proof, and leaving hotseat runtime proof, AI ingestion, CLI semantic
+        projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.14 Extract setup/start lifecycle atoms.
   - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts` and leaving

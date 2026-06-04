@@ -146,11 +146,9 @@ import type {
   Civ7AutoplayPollOptions,
   Civ7AutoplayStatusResult,
 } from "./play/autoplay.js";
-import {
-  sendCiv7TurnComplete as sendCiv7TurnCompleteFromModule,
-  sendCiv7TurnUnready as sendCiv7TurnUnreadyFromModule,
-  type Civ7TurnCompletionActionResult,
-  type Civ7TurnCompletionStatusResult,
+import type {
+  Civ7TurnCompletionActionResult,
+  Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
 import {
   requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
@@ -572,7 +570,11 @@ export type {
   Civ7TurnCompletionActionResult,
   Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
-export { getCiv7TurnCompletionStatus } from "./play/turn-completion.js";
+export {
+  getCiv7TurnCompletionStatus,
+  sendCiv7TurnComplete,
+  sendCiv7TurnUnready,
+} from "./play/turn-completion.js";
 export type {
   Civ7ReadyUnitNearbyPlot,
   Civ7ReadyUnitOperationCandidate,
@@ -1123,20 +1125,6 @@ export async function requestCiv7NotificationDismissal(
   approval: Civ7ActionApproval,
 ): Promise<Civ7NotificationDismissalResult> {
   return await requestCiv7NotificationDismissalFromModule(input, options, approval);
-}
-
-export async function sendCiv7TurnComplete(
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7TurnCompletionActionResult> {
-  return await sendCiv7TurnCompleteFromModule(options, approval);
-}
-
-export async function sendCiv7TurnUnready(
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7TurnCompletionActionResult> {
-  return await sendCiv7TurnUnreadyFromModule(options, approval);
 }
 
 export async function requestCiv7UnitOperation(
