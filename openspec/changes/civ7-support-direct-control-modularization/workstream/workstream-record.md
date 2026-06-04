@@ -2831,3 +2831,12 @@ All future agent waves must be framed before delegation:
   semantic envelopes, debug/internal service boundary work, and Effect/oRPC
   procedure-core implementation remain blocked pending named source/proof
   owners and accepted matrix rows.
+- Semantic CLI envelope contract planning:
+  `workstream/semantic-cli-envelope-contract.md` now records the planned normal
+  `game play` semantic envelope slots, normal CLI exclusions, proof-class
+  separation, acceptance gaps, and stop conditions for the Semantic CLI
+  Player-Agent View matrix row. This reduces the row's contract-artifact gap
+  only; it does not implement CLI semantic output, accept Task 2.9.4, claim
+  runtime/live-game proof, create an AI-ingestion or telemetry contract, assign
+  a schema/test owner, or unblock debug/internal service, hotseat runtime,
+  schema migration, or Effect/oRPC procedure-core implementation.

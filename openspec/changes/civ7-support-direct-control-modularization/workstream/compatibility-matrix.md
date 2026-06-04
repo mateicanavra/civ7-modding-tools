@@ -234,19 +234,22 @@ Intake rejection conditions:
   owner after the row has a concrete owner. No broad `common`, `utils`,
   `types`, debug/service, telemetry, AI-ingestion, transport, or procedure-core
   bucket is authorized.
-- `contractArtifact`: existing artifacts are command-specific play outputs and
-  the CLI play corpus inventory. Missing contract artifact before acceptance:
-  a semantic player-agent envelope contract that defines game state, blockers,
-  decisions, action results, safe/unsafe next steps, and postcondition
-  classifications while explicitly excluding raw service/debug fields from
-  normal play output.
+- `contractArtifact`: existing artifacts are command-specific play outputs,
+  the CLI play corpus inventory, and
+  `workstream/semantic-cli-envelope-contract.md`, which defines the planned
+  normal CLI semantic slots for game state, blockers, decisions, action
+  results, safe/unsafe next steps, postcondition classifications, evidence
+  labels, and excluded raw service/debug fields. Missing before acceptance: a
+  named source owner, schema/test owner, and implementation test fixture over
+  that contract.
 - `proofPlan`: existing local proof is canonical `test:cli:play` plus the
   focused command owner tests recorded in `workstream/cli-play-corpus.md`.
   Missing proof before acceptance: tests that normal play output carries the
-  semantic envelope, tests that raw session/transport/closeout/command/proof
-  JSON and correlation/probe internals are omitted from normal play output, and
-  tests or fixtures proving AI ingestion does not consume CLI presentation
-  strings.
+  planned semantic envelope from
+  `workstream/semantic-cli-envelope-contract.md`, tests that raw
+  session/transport/closeout/command/proof JSON and correlation/probe internals
+  are omitted from normal play output, and tests or fixtures proving AI
+  ingestion does not consume CLI presentation strings.
 - `projectionPlan`: normal CLI projection should be semantic player-agent
   state and action guidance only; debug/internal service projection remains
   omitted from normal output or routed through debug-owned commands/flags; AI

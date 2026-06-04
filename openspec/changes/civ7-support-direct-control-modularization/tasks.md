@@ -115,9 +115,10 @@
         intake with current `game play` command/test owners from
         `workstream/cli-play-corpus.md` and missing envelope/schema/proof
         called out, but its `acceptanceStatus` remains
-        `pending-cli-semantic-envelope` until a semantic envelope owner,
-        contract, and normal/debug/AI separation tests are assigned and
-        passing.
+        `pending-cli-semantic-envelope`. The planning contract is now recorded
+        in `workstream/semantic-cli-envelope-contract.md`, but the row remains
+        pending until a semantic envelope owner, schema/test owner, and
+        normal/debug/AI separation tests are assigned and passing.
         The operation/proof telemetry row now has a draft acceptance intake
         with current operation, approval, postcondition, notification
         verification, setup/turn lifecycle, and focused CLI proof owners
