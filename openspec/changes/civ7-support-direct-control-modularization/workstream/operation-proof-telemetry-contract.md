@@ -150,14 +150,18 @@ as source evidence only and keeps missing postcondition, validator-blocked
 no-send, `no-state-change`, `validation-changed`, and pending runtime proof
 paths no-repeat guarded.
 
-`packages/civ7-direct-control/src/play/notifications/postconditions.ts` is a
-notification dismissal source-owner prerequisite for a future adapter, not a
-telemetry adapter yet. Its focused proof owner is
-`packages/civ7-direct-control/test/notification-dismissal.test.ts`. It attaches
-explicit dismissal postcondition classification to notification dismissal
-results and keeps stale engine-front train-absent or dismissed-flag evidence
-unverified, so future telemetry must consume postcondition evidence rather than
-treating the legacy top-level `verified` boolean as proof authority.
+`packages/civ7-direct-control/src/proof/notification-dismissal-telemetry.ts`
+is the fifth operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/test/notification-dismissal-telemetry.test.ts`.
+It adapts one notification-dismissal App UI action result shape into separated
+telemetry approval, `validation_pre`, `send_receipt`, `post_read`,
+`validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+evidence-policy slots while using
+`packages/civ7-direct-control/src/play/notifications/postconditions.ts` as the
+proof/classification owner. It treats the legacy top-level `verified` boolean
+as source evidence only and keeps missing postcondition, validator-blocked
+no-send, `not-sent`, `missing-after`, `engine-front-still-live`,
+`no-state-change`, and pending runtime proof paths no-repeat guarded.
 
 These are TypeScript structural owner seeds only. They do not choose TypeBox or
 Effect Schema, attach broad telemetry adapters to every operation atom,
@@ -177,8 +181,8 @@ it does not accept the row. Acceptance still needs:
 - broader operation-atom adapters that produce records from existing
   direct-control approval, validation, send, post-read, and postcondition owners
   beyond the seeded unit-target, production-choice, diplomacy-response, and
-  narrative-choice result adapters, including notification dismissal only after
-  its source-owned postcondition classification is consumed directly;
+  narrative-choice result adapters, plus the seeded notification-dismissal App
+  UI action adapter;
 - projection separation tests proving normal CLI, debug/internal service,
   AI-ingestion, and procedure-core outputs remain distinct;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or

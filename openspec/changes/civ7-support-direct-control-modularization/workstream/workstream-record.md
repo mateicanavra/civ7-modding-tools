@@ -186,20 +186,23 @@ operation-atom adapter gap for one additional closeout shape; it does not
 choose schema technology, add persistence, implement AI ingestion, change
 CLI/debug projections, add Effect/oRPC middleware, accept Task 2.9.4, or claim
 runtime/live-game proof.
-Notification dismissal postcondition owner-seed proof now names
-`packages/civ7-direct-control/src/play/notifications/postconditions.ts` as the
-source classification owner for notification dismissal results before a future
-telemetry adapter consumes that shape. The wrapper attaches an explicit
-postcondition to `getCiv7NotificationDismissal` and
-`requestCiv7NotificationDismissal` results, and polling recomputes it from the
-final after-read. Focused proof in
-`packages/civ7-direct-control/test/notification-dismissal.test.ts` verifies
-that stale engine-front train-absent evidence and dismissed-flag evidence stay
-classified as `engine-front-still-live` and unverified, while confirmed
-disappearance remains source-owned postcondition evidence. This does not add a
-telemetry adapter, change normal CLI/debug/AI projections, add persistence,
-add router/registry/transport or Effect/oRPC source, accept Task 2.9.4 or
-Tasks 6.1-6.9, or claim runtime/live-game proof.
+Notification-dismissal telemetry adapter owner-seed proof now names
+`packages/civ7-direct-control/src/proof/notification-dismissal-telemetry.ts`
+as the fifth operation-result adapter owner from the notification-dismissal App
+UI action atom into operation/proof telemetry. Focused proof in
+`packages/civ7-direct-control/test/notification-dismissal-telemetry.test.ts`
+verifies that approval, `validation_pre`, `send_receipt`, `post_read`,
+`validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+evidence policy stay separate; the source-owned notification dismissal
+postcondition remains the proof/classification owner; legacy top-level
+`verified` booleans are source evidence only; and missing postcondition,
+validator-blocked no-send, `not-sent`, `missing-after`,
+`engine-front-still-live`, `no-state-change`, and pending-runtime-proof paths
+remain no-repeat guarded. This reduces only the telemetry row's operation-atom
+adapter gap for one additional App UI action shape; it does not choose schema
+technology, add persistence, implement AI ingestion, change CLI/debug
+projections, add Effect/oRPC middleware, accept Task 2.9.4 or Tasks 6.1-6.9,
+or claim runtime/live-game proof.
 Operation telemetry proof-label guard proof now strengthens
 `packages/civ7-direct-control/src/proof/operation-telemetry.ts` so non-live
 proof boundaries reject `live-runtime-proof` and `in-game-observation` evidence

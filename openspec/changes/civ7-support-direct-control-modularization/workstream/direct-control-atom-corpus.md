@@ -536,6 +536,23 @@ add telemetry persistence, infer runtime/live-game proof, accept Task 2.9.4, or
 unblock broader operation adapters, AI ingestion, semantic CLI output, debug
 hierarchy, or Effect/oRPC procedure cores.
 
+Notification-dismissal telemetry adapter seed update:
+`src/proof/notification-dismissal-telemetry.ts` now owns the first App UI
+action closeout adapter from notification dismissal into the operation/proof
+telemetry record shape. `test/notification-dismissal-telemetry.test.ts` proves
+that the adapter separates approval, `validation_pre`, `send_receipt`,
+`post_read`, `validation_post`, postcondition, `outcome_delta`,
+`blocker_delta`, and evidence policy; uses the notification dismissal
+postcondition owner as proof/classification authority; ignores the legacy
+top-level `verified` boolean as proof authority when explicit postcondition
+evidence is missing; and keeps validator-blocked no-send, `not-sent`,
+`missing-after`, `engine-front-still-live`, `no-state-change`, and
+pending-runtime-proof paths no-repeat guarded. This is local package/source
+proof for one notification-dismissal App UI action shape only. It does not
+export a public schema, add telemetry persistence, infer runtime/live-game
+proof, accept Task 2.9.4, or unblock broader operation adapters, AI ingestion,
+semantic CLI output, debug hierarchy, or Effect/oRPC procedure cores.
+
 ## Forbidden Owners
 
 - CLI must not own raw socket framing, state discovery, reconnect polling,

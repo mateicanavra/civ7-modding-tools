@@ -1958,6 +1958,25 @@ runtime/direct-control claims.
       persistence, implement AI ingestion, change CLI/debug projections, add
       Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
       or create broad adapters for every operation family.
+- [x] 4.17.3 Seed a notification-dismissal operation telemetry adapter owner
+      in `src/proof/notification-dismissal-telemetry.ts` with focused local
+      proof in `test/notification-dismissal-telemetry.test.ts`, preserving
+      approval, `validation_pre`, `send_receipt`, `post_read`,
+      `validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+      evidence policy as separate telemetry slots while treating legacy
+      `verified` booleans as source evidence only. This seeds the
+      operation/proof telemetry row's operation-atom adapter gap for one
+      notification-dismissal App UI action shape only; the source-owned
+      postcondition classifications `notification-disappeared`,
+      `notification-dismissed`, `engine-queue-cleared`,
+      `notification-train-cleared`, `engine-front-moved`, and
+      `notification-train-front-moved` can summarize confirmed, while missing
+      postcondition, validator-blocked no-send, `not-sent`, `missing-after`,
+      `engine-front-still-live`, `no-state-change`, and pending-runtime-proof
+      paths remain no-repeat guarded. It does not choose schema technology, add
+      persistence, implement AI ingestion, change CLI/debug projections, add
+      Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
+      or create broad adapters for every operation family.
 - [x] 4.18 Seed a direct-control procedure-core descriptor owner in
       `src/procedure-core.ts` with focused proof in
       `test/procedure-core.test.ts`, defining TypeBox-backed descriptor slots
