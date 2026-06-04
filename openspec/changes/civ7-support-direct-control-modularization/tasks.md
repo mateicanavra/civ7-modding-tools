@@ -1269,6 +1269,13 @@ runtime/direct-control claims.
         telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.12.21 Prune the remaining capability catalog facade call-through
+        wrapper by re-exporting `generateCiv7CapabilityCatalog` directly from
+        `src/catalog/capabilities.ts`, preserving the public package import
+        name, static/runtime catalog behavior, official-resource fixture scope,
+        generated-output-as-evidence policy, and leaving telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

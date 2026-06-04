@@ -51,7 +51,7 @@ import {
   Civ7CapabilityCatalogSchema,
   DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
   DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
-  generateCiv7CapabilityCatalog as generateCiv7CapabilityCatalogFromModule,
+  generateCiv7CapabilityCatalog,
   loadCiv7OfficialResourceCapabilities,
   type Civ7CapabilityCatalog,
   type Civ7CapabilityCatalogEntry,
@@ -395,6 +395,7 @@ export {
   createStaticCiv7CapabilityCatalog,
   DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
   DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
+  generateCiv7CapabilityCatalog,
 } from "./catalog/capabilities.js";
 export type {
   Civ7CapabilityCatalog,
@@ -1317,12 +1318,6 @@ export async function requestCiv7UnitTargetAction(
   approval: Civ7ActionApproval,
 ): Promise<Civ7UnitTargetActionResult> {
   return await requestCiv7UnitTargetActionFromModule(input, options, approval);
-}
-
-export async function generateCiv7CapabilityCatalog(
-  options: Civ7CapabilityCatalogOptions = {},
-): Promise<Civ7CapabilityCatalog> {
-  return await generateCiv7CapabilityCatalogFromModule(options);
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {

@@ -633,6 +633,16 @@ All future agent waves must be framed before delegation:
   claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
   telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
   schema/procedure-core work, or Effect/oRPC implementation.
+- Capability catalog call-through cleanup:
+  `index.ts` now re-exports `generateCiv7CapabilityCatalog` directly from
+  `src/catalog/capabilities.ts` after the owner-local dependency defaults are
+  already in place. This removes the remaining trivial async facade wrapper
+  while preserving the public package import name, static/runtime catalog
+  behavior, official-resource fixture scope, and generated-output-as-evidence
+  policy. This is local package/source relocation cleanup proof only: it does
+  not claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
+  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control runtime inspection constants slice: completed as a narrow
   constants ownership relocation. It moves only the default App UI/Tuner API
   root catalogs and bounded root `maxKeys`/`maxMethods` defaults into
