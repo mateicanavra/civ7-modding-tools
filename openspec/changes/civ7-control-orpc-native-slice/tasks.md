@@ -98,6 +98,10 @@ adding more read-only facade shells.
   - [x] 5.5.2 Enrich `attention.current` with turn-completion evidence so
     end-turn next steps require source-owned turn status instead of clean
     notifications alone.
+  - [x] 5.5.3 Seed `city.production.choice.request` as the first native
+    write-capable procedure leaf, with oRPC context approval and semantic
+    production proof projection over the direct-control production-choice
+    runtime port.
 
 ## 6. Native Policy Layering
 
@@ -105,8 +109,15 @@ adding more read-only facade shells.
   repeated policy and the implementation uses native oRPC/effect-orpc
   primitives.
 - [ ] 6.2 Add approval middleware before mutation procedures.
+  - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
+    `city.production.choice.request`; keep shared approval middleware pending
+    until another mutation procedure reuses the same policy.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
+  - [x] 6.3.1 Compose `city.production.choice.request` through the
+    direct-control validator-first production-choice port and project
+    source-owned postcondition/no-repeat proof semantics into normal output;
+    keep shared validator/postcondition middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for

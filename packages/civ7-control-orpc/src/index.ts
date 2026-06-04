@@ -9,6 +9,7 @@ export {
   type Civ7ControlOrpcPlayerSummaryResult,
   type Civ7ControlOrpcPlayNotificationViewResult,
   type Civ7ControlOrpcPlayableStatusResult,
+  type Civ7ControlOrpcProductionChoiceResult,
   type Civ7ControlOrpcReadyCityViewResult,
   type Civ7ControlOrpcReadyUnitViewResult,
   type Civ7ControlOrpcTurnCompletionStatusResult,
@@ -24,8 +25,12 @@ export {
   Civ7DirectControlUnavailableErrorDataSchema,
   Civ7MapSummaryUnavailableError,
   Civ7MapSummaryUnavailableErrorDataSchema,
+  Civ7MutationApprovalRequiredError,
+  Civ7MutationApprovalRequiredErrorDataSchema,
   Civ7PlayerSummaryUnavailableError,
   Civ7PlayerSummaryUnavailableErrorDataSchema,
+  Civ7ProductionChoiceUnavailableError,
+  Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7NotificationViewUnavailableError,
   Civ7NotificationViewUnavailableErrorDataSchema,
   Civ7ReadyCityViewUnavailableError,
@@ -41,7 +46,9 @@ export {
   type Civ7CitySummaryUnavailableErrorData,
   type Civ7DirectControlUnavailableErrorData,
   type Civ7MapSummaryUnavailableErrorData,
+  type Civ7MutationApprovalRequiredErrorData,
   type Civ7PlayerSummaryUnavailableErrorData,
+  type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7NotificationViewUnavailableErrorData,
   type Civ7ReadyCityViewUnavailableErrorData,
   type Civ7ReadyUnitViewUnavailableErrorData,
@@ -72,6 +79,15 @@ export { attentionRouter } from "./modules/attention/router";
 export { attentionCurrentProcedure } from "./modules/attention/procedures/current";
 export {
   Civ7CityContract,
+  Civ7CityProductionChoiceContract,
+  Civ7CityProductionChoiceInputStandardSchema,
+  Civ7CityProductionChoiceNextStepSchema,
+  Civ7CityProductionChoicePostconditionSummarySchema,
+  Civ7CityProductionChoiceProofOutcomeSchema,
+  Civ7CityProductionChoiceRequestStatusSchema,
+  Civ7CityProductionChoiceResultSchema,
+  Civ7CityProductionChoiceResultStandardSchema,
+  Civ7CityProductionChoiceValidationSummarySchema,
   Civ7CityReadyViewContract,
   Civ7CityReadyViewInputStandardSchema,
   Civ7CityReadyViewResultStandardSchema,
@@ -81,10 +97,13 @@ export {
 } from "./modules/city/contract";
 export type {
   Civ7CityContract as Civ7CityContractType,
+  Civ7CityProductionChoiceContract as Civ7CityProductionChoiceContractType,
+  Civ7CityProductionChoiceResult,
   Civ7CityReadyViewContract as Civ7CityReadyViewContractType,
   Civ7CitySummaryContract as Civ7CitySummaryContractType,
 } from "./modules/city/contract";
 export { cityRouter } from "./modules/city/router";
+export { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/production-choice-request";
 export { cityReadyViewProcedure } from "./modules/city/procedures/ready-view";
 export { citySummaryReadProcedure } from "./modules/city/procedures/summary-read";
 export {

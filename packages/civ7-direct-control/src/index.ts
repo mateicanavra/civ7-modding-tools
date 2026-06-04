@@ -1099,6 +1099,14 @@ export {
   requestCiv7ProductionChoice,
 } from "./play/operations/production-choice.js";
 export {
+  productionChoicePostconditionConfirmed,
+  productionChoicePostconditionOutcome,
+  productionChoiceRequestVerified,
+} from "./play/operations/production-choice-proof";
+export type {
+  Civ7ProductionChoicePostconditionOutcome,
+} from "./play/operations/production-choice-proof";
+export {
   callCiv7ProductionChoiceRequestProcedure,
   Civ7ProductionChoiceRequestProcedureDescriptor,
   Civ7ProductionChoiceRequestProcedureSchemaArtifacts,

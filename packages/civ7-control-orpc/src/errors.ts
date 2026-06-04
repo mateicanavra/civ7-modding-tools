@@ -154,6 +154,49 @@ export class Civ7NotificationViewUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String(),
+    source: Type.Literal("context.approval"),
+    risk: Type.Literal("mutation"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7MutationApprovalRequiredErrorData = Static<
+  typeof Civ7MutationApprovalRequiredErrorDataSchema
+>;
+
+export class Civ7MutationApprovalRequiredError extends ORPCTaggedError(
+  "Civ7MutationApprovalRequiredError",
+  {
+    code: "MUTATION_APPROVAL_REQUIRED",
+    message: "Explicit mutation approval is required.",
+    schema: toStandardSchema(Civ7MutationApprovalRequiredErrorDataSchema),
+    status: 403,
+  },
+) {}
+
+export const Civ7ProductionChoiceUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("city.production.choice.request"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProductionChoiceUnavailableErrorData = Static<
+  typeof Civ7ProductionChoiceUnavailableErrorDataSchema
+>;
+
+export class Civ7ProductionChoiceUnavailableError extends ORPCTaggedError(
+  "Civ7ProductionChoiceUnavailableError",
+  {
+    code: "PRODUCTION_CHOICE_UNAVAILABLE",
+    message: "Direct-control production choice request failed.",
+    schema: toStandardSchema(Civ7ProductionChoiceUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7ReadyUnitViewUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.ready.view"),
@@ -201,8 +244,10 @@ export const civ7ControlOrpcErrorMap = {
   CITY_SUMMARY_UNAVAILABLE: Civ7CitySummaryUnavailableError,
   DIRECT_CONTROL_UNAVAILABLE: Civ7DirectControlUnavailableError,
   MAP_SUMMARY_UNAVAILABLE: Civ7MapSummaryUnavailableError,
+  MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   PLAYER_SUMMARY_UNAVAILABLE: Civ7PlayerSummaryUnavailableError,
   NOTIFICATION_VIEW_UNAVAILABLE: Civ7NotificationViewUnavailableError,
+  PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READY_CITY_VIEW_UNAVAILABLE: Civ7ReadyCityViewUnavailableError,
   READY_UNIT_VIEW_UNAVAILABLE: Civ7ReadyUnitViewUnavailableError,
   UNIT_SUMMARY_UNAVAILABLE: Civ7UnitSummaryUnavailableError,
