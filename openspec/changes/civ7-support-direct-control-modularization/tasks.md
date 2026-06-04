@@ -123,9 +123,9 @@
         `game watch --jsonl` coverage and progression-read
         `game play traditions` / `game play progress-dashboard` coverage plus
         tactical-read, settlement-recommendation, and promotion-readiness
-        coverage plus rehydrate continuity and notification-HUD coverage, now
-        sharing the
-        `game/play/normal-output-boundary.ts` test helper, prove eleven normal
+        coverage plus rehydrate continuity, notification-HUD, and
+        notification-queue coverage, now sharing the
+        `game/play/normal-output-boundary.ts` test helper, prove twelve normal
         player-agent projection families omit raw
         transport/session/probe/correlation command internals, but broader
         debug-command boundary, AI-ingestion, telemetry, and
