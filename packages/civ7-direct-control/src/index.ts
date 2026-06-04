@@ -117,10 +117,9 @@ import {
   type Civ7SetupOptionValue,
   type Civ7SinglePlayerSetupInput,
 } from "./setup/prepare.js";
-import {
-  startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule,
-  type Civ7PreparedStartInput,
-  type Civ7SinglePlayerStartResult,
+import type {
+  Civ7PreparedStartInput,
+  Civ7SinglePlayerStartResult,
 } from "./setup/start.js";
 import {
   runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule,
@@ -437,6 +436,7 @@ export type {
   Civ7PreparedStartInput,
   Civ7SinglePlayerStartResult,
 } from "./setup/start.js";
+export { startPreparedCiv7SinglePlayerGame } from "./setup/start.js";
 export type {
   Civ7SinglePlayerRunInput,
   Civ7SinglePlayerRunResult,
@@ -1065,14 +1065,6 @@ export async function loadCiv7SavedGameConfiguration(
     command,
     loaded: command.output.some((line) => line.includes('"ok":true')),
   };
-}
-
-export async function startPreparedCiv7SinglePlayerGame(
-  input: Civ7PreparedStartInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7SinglePlayerStartResult> {
-  return await startPreparedCiv7SinglePlayerGameFromModule(input, options, approval);
 }
 
 export async function runCiv7SinglePlayerFromSetup(
