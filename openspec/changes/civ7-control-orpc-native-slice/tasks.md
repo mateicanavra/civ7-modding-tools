@@ -72,6 +72,8 @@ adding more read-only facade shells.
   - [x] 5.2.2 Extract notification-dismissal proof/no-repeat policy into a
     proof helper while keeping runtime postcondition classification in
     direct-control notification postconditions.
+  - [x] 5.2.3 Extract unit-target action proof/no-repeat policy into a proof
+    helper while preserving path-shortfall repeat guarding.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
 - [ ] 5.4 Identify service-owned behavior, runtime ports, policy owners,
