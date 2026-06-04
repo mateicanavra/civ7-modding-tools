@@ -2088,17 +2088,19 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
   AI ingestion, semantic CLI projection, hotseat runtime proof,
   schema/procedure-core work, or Effect/oRPC implementation.
-- Setup-preparation call-through cleanup: `index.ts` now re-exports
-  `prepareCiv7SinglePlayerSetup` directly from `src/setup/prepare.ts` after
-  owner-local dependency defaults are in place. This removes the trivial async
-  preparation facade wrapper while preserving public package import names,
-  approval-first setup mutation, setup snapshot readback, map-row proof, setup
-  option validation, prepare command source, and no-replay package proof.
-  Prepared-start, setup-run, and restart/begin lifecycle composition remain
-  separate. This is local package/source relocation cleanup proof only: it does
-  not claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
-  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
-  schema/procedure-core work, or Effect/oRPC implementation.
+- Setup-preparation call-through reconciliation: during live-control restack,
+  the direct re-export cleanup was rejected because App UI saved-configuration
+  loading still lives in the public facade. `index.ts` keeps the
+  `prepareCiv7SinglePlayerSetup` bridge and injects the saved-config-aware
+  setup-read dependencies into the owner call. This preserves public package
+  import names, approval-first setup mutation, saved-config preload, setup
+  snapshot readback, map-row proof, setup option validation, prepare command
+  source, and no-replay package proof. Future cleanup can remove the bridge only
+  after saved-config App UI loading is owned below the facade. This is local
+  package/source reconciliation proof only: it does not claim runtime/live-game
+  proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, schema/procedure-core work, or
+  Effect/oRPC implementation.
 - Prepared-start call-through cleanup: `index.ts` now re-exports
   `startPreparedCiv7SinglePlayerGame` directly from `src/setup/start.ts` after
   owner-local dependency defaults are in place. This removes the trivial async
@@ -2111,6 +2113,20 @@ All future agent waves must be framed before delegation:
   matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
   hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Setup-run call-through reconciliation: during live-control restack, the
+  direct re-export cleanup was rejected because setup-run must preserve the
+  saved-config-aware prepare bridge until App UI saved-configuration loading is
+  owned below the facade. `index.ts` keeps a narrow
+  `runCiv7SinglePlayerFromSetup` bridge that injects the facade
+  `prepareCiv7SinglePlayerSetup`, setup-read owner, prepared-start owner, and
+  setup-phase wait owner into `src/setup/run.ts`. This preserves public package
+  import names, approval-first setup/run behavior, active-game exit-to-shell
+  guard, exit-to-main-menu command routing, shell wait, prepare/start chaining,
+  saved-config preload through run, verified result shape, and no-replay package
+  proof. This is local package/source reconciliation proof only: it does not
+  claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
+  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Prepared-start facade dependency cleanup: `src/setup/start.ts` now imports
   existing non-facade setup-read defaults, session/reconnect execution,
   Tuner-ready wait, map-summary read, command-result parser, setup

@@ -92,6 +92,7 @@ import {
   defaultSetupReadDependencies,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
+  waitForCiv7SetupPhase,
   type Civ7PlayerSetupParameterSnapshot,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsInput,
@@ -117,9 +118,10 @@ import {
   type Civ7SetupOptionValue,
   type Civ7SinglePlayerSetupInput,
 } from "./setup/prepare.js";
-import type {
-  Civ7PreparedStartInput,
-  Civ7SinglePlayerStartResult,
+import {
+  startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule,
+  type Civ7PreparedStartInput,
+  type Civ7SinglePlayerStartResult,
 } from "./setup/start.js";
 import {
   runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule,
@@ -1072,7 +1074,17 @@ export async function runCiv7SinglePlayerFromSetup(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
-  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
+  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval, {
+    assertApproved,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+    getSetupSnapshot: getCiv7SetupSnapshot,
+    prepareSetup: prepareCiv7SinglePlayerSetup,
+    startPreparedGame: startPreparedCiv7SinglePlayerGameFromModule,
+    validateIdentifier,
+    waitForSetupPhase: waitForCiv7SetupPhase,
+  });
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {

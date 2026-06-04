@@ -1580,15 +1580,17 @@ runtime/direct-control claims.
         leaving runtime/live-game proof, hotseat runtime proof, AI ingestion,
         semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
-  - [x] 4.14.17 Prune the setup preparation facade call-through wrapper by
-        re-exporting `prepareCiv7SinglePlayerSetup` directly from
-        `src/setup/prepare.ts`, preserving public package imports,
-        approval-first setup mutation, setup snapshot readback, map-row proof,
-        setup option validation, prepare command source, no-replay package
-        proof, and leaving prepared-start/setup-run lifecycle composition,
-        runtime/live-game proof, hotseat runtime proof, AI ingestion, semantic
-        CLI projection, telemetry, Effect/oRPC procedure-core work, and Task
-        2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.17 Reconcile the setup preparation facade call-through during
+        restack by keeping the public `prepareCiv7SinglePlayerSetup` bridge in
+        `index.ts`, because App UI saved-configuration loading remains
+        facade-owned. This preserves approval-first setup mutation, saved-config
+        preload, setup snapshot readback, map-row proof, setup option
+        validation, prepare command source, and no-replay package proof. A
+        future cleanup can prune this wrapper only after saved-config App UI
+        loading moves below the facade; runtime/live-game proof, hotseat runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+        pending.
   - [x] 4.14.18 Prune the prepared-start facade call-through wrapper by
         re-exporting `startPreparedCiv7SinglePlayerGame` directly from
         `src/setup/start.ts`, preserving public package imports,
@@ -1599,6 +1601,18 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.14.19 Reconcile the setup-run facade call-through during restack by
+        keeping `runCiv7SinglePlayerFromSetup` in `index.ts` as the narrow
+        composition bridge that injects the saved-config-aware prepare wrapper,
+        setup-read owner, setup-start owner, and setup-phase wait owner. This
+        preserves approval-first setup/run behavior, active-game exit-to-shell
+        guard, exit-to-main-menu command routing, shell wait, prepare/start
+        chaining, saved-config preload through run, verified result shape, and
+        no-replay package proof. A future cleanup can prune this wrapper only
+        after saved-config App UI loading moves below the facade; runtime/live
+        proof, hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance remain pending.
 
 ## 5. CLI Semantic Surface Lane
 
