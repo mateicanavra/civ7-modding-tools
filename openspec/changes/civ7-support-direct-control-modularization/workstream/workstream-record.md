@@ -3305,6 +3305,21 @@ All future agent waves must be framed before delegation:
   contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
   adapters, in-game controller source, runtime/live-game proof, Task 2.9.4
   acceptance, or Tasks 6.1-6.9.
+- Ready-city concrete procedure call seed:
+  `packages/civ7-direct-control/src/play/ready/city-procedure.ts` now exports a
+  concrete `city.ready.view` procedure call wrapper over the existing
+  `getCiv7ReadyCityView` atom. It composes the local procedure-core call
+  primitive with the ready-city descriptor/schema artifact map, validates
+  procedure input before atom dependencies run, validates the atom output,
+  forwards direct-control options into the atom, and returns procedure
+  diagnostics separately from the ready-city output. Focused proof in
+  `packages/civ7-direct-control/test/ready-city-procedure.test.ts` uses fake
+  atom dependencies and does not touch the tuner. Public facade proof in
+  `packages/civ7-direct-control/test/public-api.test.ts` covers the wrapper
+  export. This is local no-network proof only; it does not add a
+  router/registry/transport adapter, choose Effect Schema, add Effect/oRPC
+  source, `packages/civ7-control-orpc`, in-game controller source,
+  runtime/live-game proof, Task 2.9.4 acceptance, or Tasks 6.1-6.9.
 - Ready-unit concrete procedure call seed:
   `packages/civ7-direct-control/src/play/ready/unit-procedure.ts` now exports a
   concrete `unit.ready.view` procedure call wrapper over the existing

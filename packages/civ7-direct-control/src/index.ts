@@ -668,6 +668,7 @@ export type {
   Civ7ReadyCityTownFocusOption,
   Civ7ReadyCityViewInput,
   Civ7ReadyCityViewResult,
+  ReadyCityViewDependencies,
 } from "./play/ready/city.js";
 export {
   Civ7ReadyCityOperationCandidateSchema,
@@ -679,9 +680,11 @@ export {
   getCiv7ReadyCityView,
 } from "./play/ready/city.js";
 export {
+  callCiv7ReadyCityViewProcedure,
   Civ7ReadyCityViewProcedureDescriptor,
   Civ7ReadyCityViewProcedureSchemaArtifacts,
 } from "./play/ready/city-procedure.js";
+export type { Civ7ReadyCityViewProcedureCallOptions } from "./play/ready/city-procedure.js";
 export type {
   Civ7PlayDecisionAction,
   Civ7PlayDecisionHint,

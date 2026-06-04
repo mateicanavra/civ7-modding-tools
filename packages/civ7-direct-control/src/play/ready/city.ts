@@ -94,7 +94,7 @@ export const Civ7ReadyCityViewResultSchema = Type.Object({
 }, { additionalProperties: false });
 export type Civ7ReadyCityViewResult = Static<typeof Civ7ReadyCityViewResultSchema>;
 
-type ReadyCityViewDependencies = Readonly<{
+export type ReadyCityViewDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,

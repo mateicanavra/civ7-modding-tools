@@ -58,6 +58,7 @@ import {
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
   assertCiv7ComponentId,
   callCiv7ProcedureCore,
+  callCiv7ReadyCityViewProcedure,
   callCiv7ReadyUnitViewProcedure,
   civ7ProcedureSchemaReferenceKey,
   createCiv7ControlRequestId,
@@ -368,6 +369,7 @@ describe("Civ7 direct control public API", () => {
       proofBoundary: "local-package-test",
       context: expect.arrayContaining(["direct-control-facade", "endpoint-defaults", "state-selection"]),
     });
+    expect(typeof callCiv7ReadyCityViewProcedure).toBe("function");
     expect(Civ7ReadyCityViewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7ReadyCityViewProcedureDescriptor.inputSchema)
     ]).toBe(Civ7ReadyCityViewInputSchema);

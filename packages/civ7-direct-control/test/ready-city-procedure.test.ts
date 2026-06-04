@@ -2,11 +2,14 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
 import {
+  Civ7DirectControlError,
   Civ7ReadyCityViewProcedureDescriptor,
   Civ7ReadyCityViewProcedureSchemaArtifacts,
+  callCiv7ReadyCityViewProcedure,
   getCiv7ReadyCityView,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
+  type ReadyCityViewDependencies,
 } from "../src/index";
 
 describe("Civ7 ready-city procedure descriptor", () => {
@@ -54,6 +57,97 @@ describe("Civ7 ready-city procedure descriptor", () => {
       ...readyCityViewResult(),
       rawCommand: "readReadyCityView()",
     })).toBe(false);
+  });
+
+  test("calls the ready-city atom through the procedure core without touching the live tuner", async () => {
+    const executeCalls: Array<{ host?: string; port?: number; command: string }> = [];
+    const boundedCalls: Array<{ value: number; min: number; max: number; label: string }> = [];
+    const dependencies: ReadyCityViewDependencies = {
+      boundedInteger: (value, min, max, label) => {
+        boundedCalls.push({ value, min, max, label });
+        if (!Number.isInteger(value) || value < min || value > max) {
+          throw new Civ7DirectControlError("command-failed", `${label} out of bounds`);
+        }
+        return value;
+      },
+      executeAppUiCommand: async (options) => {
+        executeCalls.push({
+          host: options.host,
+          port: options.port,
+          command: options.command,
+        });
+        return {
+          host: options.host ?? "127.0.0.1",
+          port: options.port ?? 4318,
+          state: { id: "65535", name: "App UI" },
+          output: ["{}"],
+        };
+      },
+      parseReadyCityView: () => readyCityViewResult(),
+    };
+
+    const cityId = { owner: 0, id: 131073, type: 1 };
+    const result = await callCiv7ReadyCityViewProcedure({
+      cityId,
+      maxOperations: 96,
+    }, {
+      directControl: {
+        host: "127.0.0.1",
+        port: 4318,
+      },
+      procedure: {
+        correlationId: "ready-city-procedure-test",
+      },
+      dependencies,
+    });
+
+    expect(result.output).toEqual(readyCityViewResult());
+    expect(result.diagnostics).toMatchObject({
+      procedureKey: "city.ready.view",
+      correlationId: "ready-city-procedure-test",
+      proofBoundary: "local-package-test",
+      playerScope: "local-player-scoped",
+      debugServiceCorrelation: true,
+      telemetryCorrelation: false,
+    });
+    expect(boundedCalls).toEqual([
+      { value: 96, min: 1, max: 256, label: "maxOperations" },
+    ]);
+    expect(executeCalls).toHaveLength(1);
+    expect(executeCalls[0]).toMatchObject({
+      host: "127.0.0.1",
+      port: 4318,
+    });
+    expect(executeCalls[0]?.command).toContain("readReadyCityView");
+    expect(executeCalls[0]?.command).toContain('"maxOperations":96');
+    expect(executeCalls[0]?.command).toContain('"cityId":{"owner":0,"id":131073,"type":1}');
+  });
+
+  test("rejects invalid procedure input before ready-city atom dependencies run", async () => {
+    let executed = false;
+    const dependencies: ReadyCityViewDependencies = {
+      boundedInteger: () => {
+        throw new Error("boundedInteger should not run after procedure input rejection");
+      },
+      executeAppUiCommand: async () => {
+        executed = true;
+        throw new Error("executeAppUiCommand should not run after procedure input rejection");
+      },
+      parseReadyCityView: () => readyCityViewResult(),
+    };
+
+    await expect(callCiv7ReadyCityViewProcedure({ maxOperations: 257 }, {
+      procedure: { correlationId: "ready-city-invalid-input" },
+      dependencies,
+    })).rejects.toMatchObject({
+      code: "procedure-descriptor-invalid",
+      details: {
+        reason: "input-schema-invalid",
+        procedureKey: "city.ready.view",
+        role: "input",
+      },
+    });
+    expect(executed).toBe(false);
   });
 });
 
