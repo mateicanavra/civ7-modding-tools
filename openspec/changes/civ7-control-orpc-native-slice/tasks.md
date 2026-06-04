@@ -78,6 +78,8 @@ adding more read-only facade shells.
     policies into proof helpers while preserving current closeout semantics.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
+  - [x] 5.3.1 Define the target semantic capability families and transitional
+    burn-down map for current direct-control-shaped procedure modules.
 - [ ] 5.4 Identify service-owned behavior, runtime ports, policy owners,
   repositories/read ports, and middleware candidates from the modularized code.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers

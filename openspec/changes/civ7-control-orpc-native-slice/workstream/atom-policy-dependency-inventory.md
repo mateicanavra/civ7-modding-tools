@@ -198,10 +198,23 @@ context-composer, event bus, or router registry.
 - Direct-control descriptor work grows new framework mechanics instead of
   recording atom metadata and policy facts.
 
+## Semantic Hierarchy Seed
+
+`workstream/semantic-capability-hierarchy.md` defines the target
+Sieve/player-agent capability families: `readiness`, `attention`, `world`,
+`strategy`, `decisions`, `operations`, and `debug`. Current direct-control
+descriptor families remain source evidence and transitional package shape, not
+the long-term service hierarchy.
+
+Future implementation slices should use that hierarchy to decide where
+service-owned behavior belongs before adding another package module or
+procedure leaf.
+
 ## Next Native Source Slice
 
 Do not add another facade-only read wrapper. The next source slice should
-either retire one transitional shell by moving service behavior into a native
-oRPC procedure module, or promote a repeated policy through actual
+either implement a semantic family such as `attention` with service-owned
+composition, retire one transitional shell by moving service behavior into a
+native oRPC procedure module, or promote a repeated policy through actual
 oRPC/effect-orpc primitives with reviewable ownership evidence that no custom
 wiring or duplicated service shell was added.
