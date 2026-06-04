@@ -2872,3 +2872,13 @@ All future agent waves must be framed before delegation:
   contracts, assign source/proof owners, or unblock normal CLI semantic
   envelopes, debug/internal service implementation, hotseat runtime, schema
   migration, or Effect/oRPC procedure-core implementation.
+- Hotseat handoff contract planning:
+  `workstream/hotseat-handoff-contract.md` now records the planned handoff
+  state slots, runtime proof gates, projection boundaries, acceptance gaps, and
+  stop conditions for the Hotseat Handoff State matrix row. This reduces the
+  row's contract-artifact gap only; it does not implement hotseat runtime
+  source, accept Task 2.9.4, claim runtime/live-game proof, assign source/proof
+  owners, wake the play thread, approve any live action, or unblock normal CLI
+  semantic envelopes, telemetry, AI ingestion, debug/internal service
+  implementation, schema migration, or Effect/oRPC procedure-core
+  implementation.

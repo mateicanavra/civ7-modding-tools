@@ -145,7 +145,10 @@
         candidate support evidence, but its `acceptanceStatus` remains
         `pending-hotseat-runtime-proof` until hotseat runtime source/proof
         owners, live activation/rotation/action/restoration gates, and
-        human-turn refusal proof are assigned and passing.
+        human-turn refusal proof are assigned and passing. The planning
+        contract/checklist is now recorded in
+        `workstream/hotseat-handoff-contract.md`, but it does not assign owners
+        or accept the row.
         The Effect/oRPC procedure cores row now has a draft acceptance intake
         using the oRPC authority citation, controller-bridge substrate repair,
         TypeBox versus Effect Schema report disposition, current TypeBox public

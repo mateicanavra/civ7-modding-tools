@@ -150,17 +150,22 @@ Intake rejection conditions:
 - `contractArtifact`: existing artifacts are planning records, App UI snapshot
   shape, Tuner health/playable-status results, session health/reconnect shapes,
   setup lifecycle results, autoplay support results, and turn-completion
-  results. Missing contract artifact before acceptance: a hotseat handoff state
-  contract/checklist that names session health, current local player,
-  agent-slot ownership, turn/blocker state, approval/action eligibility,
-  curtain/interface state, human-turn refusal, and human-restoration evidence.
+  results, and `workstream/hotseat-handoff-contract.md`, which names future
+  handoff state slots for session health, current local player, slot ownership,
+  turn/blocker state, curtain/interface state, action eligibility, approval
+  state, post-action state, runtime proof gates, projection boundaries,
+  acceptance gaps, and stop conditions. Missing before acceptance: a named
+  runtime source/proof owner, gate runner, human-restoration proof owner, and
+  live runtime evidence over that contract.
 - `proofPlan`: existing proof is planning evidence and local fake-runtime tests
-  for reusable atoms. Missing proof before acceptance: menu/setup hotseat
-  snapshot, disposable hotseat activation, two-slot `GameContext.localPlayerID`
-  rotation, agent-owned current-slot detection, mutation refusal for
-  non-agent human turns, one approved agent-slot operation, turn completion,
-  human UI restoration, fallback non-local operation probe disposition, and
-  bounded Autoplay measurement proof as support/debug evidence only.
+  for reusable atoms. Missing proof before acceptance: the runtime proof gates
+  listed in `workstream/hotseat-handoff-contract.md`, including menu/setup
+  hotseat snapshot, disposable hotseat activation, two-slot
+  `GameContext.localPlayerID` rotation, agent-owned current-slot detection,
+  mutation refusal for non-agent human turns, one approved agent-slot
+  operation, turn completion, human UI restoration, fallback non-local
+  operation probe disposition, and bounded Autoplay measurement proof as
+  support/debug evidence only.
 - `projectionPlan`: normal CLI may later summarize current player, slot
   ownership, handoff readiness, blocker state, action eligibility, and safe
   next steps through the semantic CLI row; debug/internal service output may
