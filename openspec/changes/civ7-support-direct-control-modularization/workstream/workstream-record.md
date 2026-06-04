@@ -126,6 +126,18 @@ This reduces the debug/internal service row's source/proof owner gap only; it
 does not implement a debug hierarchy, choose schema technology, prove AI
 ingestion or telemetry separation, accept Task 2.9.4, or claim
 runtime/live-game proof.
+Unit-target telemetry adapter owner-seed proof now names
+`packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` as the first
+operation-result adapter owner from the unit-target action atom into
+operation/proof telemetry. Focused proof in
+`packages/civ7-direct-control/test/unit-target-telemetry.test.ts` verifies that
+approval, `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, and `outcome_delta` stay separate; legacy top-level `verified`
+booleans are source evidence only; and missing postcondition, no-state-change,
+and pending-runtime-proof sends remain no-repeat guarded. This reduces only the
+telemetry row's operation-atom adapter gap for one operation shape; it does not
+choose schema technology, add persistence, implement AI ingestion, add
+Effect/oRPC middleware, accept Task 2.9.4, or claim runtime/live-game proof.
 
 ## Current State
 
@@ -2907,6 +2919,20 @@ All future agent waves must be framed before delegation:
   telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
   schema migration, debug hierarchy implementation, or Effect/oRPC
   procedure-core work.
+- Unit-target telemetry adapter owner seed:
+  `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` now adapts
+  the unit-target action result shape into the operation/proof telemetry record
+  owner without exporting a public schema. Focused proof in
+  `packages/civ7-direct-control/test/unit-target-telemetry.test.ts` checks
+  separated approval, `validation_pre`, `send_receipt`, `post_read`,
+  `validation_post`, postcondition, and `outcome_delta` slots; verifies that a
+  legacy top-level `verified: true` without explicit verification is still
+  summarized as sent-unverified/no-repeat guarded; and keeps no-state-change
+  and pending-runtime-proof paths guarded. This is local package/source proof
+  for one operation shape only; it does not accept Task 2.9.4, choose schema
+  technology, add telemetry persistence, implement AI ingestion, add
+  Effect/oRPC middleware, claim runtime/live-game proof, or unblock broader
+  operation adapters.
 - Direct-control implementation guard audit:
   the current support slice was rechecked after the facade/source
   modularization stack and remains free of new intelligence-layer code,

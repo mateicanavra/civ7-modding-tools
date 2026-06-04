@@ -102,10 +102,18 @@ no-repeat-after-unverified guidance aligned: sent records without confirmed
 postcondition proof, including missing postconditions, unverified confidence,
 stale/unknown outcomes, and pending runtime proof, remain no-repeat guarded.
 
-This is a TypeScript structural owner seed only. It does not choose TypeBox or
-Effect Schema, attach telemetry adapters to operation atoms, implement
-telemetry persistence, implement AI-ingestion, add procedure middleware, prove
-runtime/live-game behavior, or accept the matrix row.
+`packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` is the first
+operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/test/unit-target-telemetry.test.ts`. It adapts
+one unit-target action result shape into separated telemetry approval,
+`validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, and `outcome_delta` slots while treating the legacy top-level
+`verified` boolean as source evidence only.
+
+These are TypeScript structural owner seeds only. They do not choose TypeBox or
+Effect Schema, attach broad telemetry adapters to every operation atom,
+implement telemetry persistence, implement AI-ingestion, add procedure
+middleware, prove runtime/live-game behavior, or accept the matrix row.
 
 ## Acceptance Gaps
 
@@ -117,8 +125,9 @@ it does not accept the row. Acceptance still needs:
 - broader record-construction tests for approval, validation, send receipt,
   post-read, postcondition, outcome delta, blocker delta, stale, and unknown
   cases;
-- operation-atom adapters that produce records from existing direct-control
-  approval, validation, send, post-read, and postcondition owners;
+- broader operation-atom adapters that produce records from existing
+  direct-control approval, validation, send, post-read, and postcondition owners
+  beyond the seeded unit-target result adapter;
 - projection separation tests proving normal CLI, debug/internal service,
   AI-ingestion, and procedure-core outputs remain distinct;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or

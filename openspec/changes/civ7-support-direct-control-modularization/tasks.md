@@ -175,9 +175,13 @@
         `workstream/operation-proof-telemetry-contract.md`. The telemetry
         source/proof owner seed is now recorded in
         `packages/civ7-direct-control/src/proof/operation-telemetry.ts` and
-        `packages/civ7-direct-control/test/operation-telemetry.test.ts`, but
-        the row remains pending until a final schema/test owner, adapter
-        slices from operation atoms, projection separation tests, and
+        `packages/civ7-direct-control/test/operation-telemetry.test.ts`, and
+        the first operation-atom adapter owner seed is now recorded in
+        `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` with
+        proof in
+        `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`, but
+        the row remains pending until a final schema/test owner, broader
+        adapter slices from operation atoms, projection separation tests, and
         proof-label guards are assigned and passing.
         The strategy/intelligence ingestion row now has a draft acceptance
         intake using current target-thread/peer-report planning evidence and
@@ -1841,6 +1845,17 @@ runtime/direct-control claims.
         proof, hotseat runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance remain pending.
+- [x] 4.15 Seed a unit-target operation telemetry adapter owner in
+      `src/proof/unit-target-telemetry.ts` with focused local proof in
+      `test/unit-target-telemetry.test.ts`, preserving approval,
+      `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+      postcondition, and `outcome_delta` as separate telemetry slots while
+      treating legacy `verified` booleans as source evidence only. This seeds
+      the operation/proof telemetry row's operation-atom adapter gap for one
+      unit-target action shape only; it does not choose schema technology,
+      add persistence, implement AI ingestion, add Effect/oRPC middleware,
+      claim runtime/live-game proof, accept Task 2.9.4, or create broad
+      adapters for every operation family.
 
 ## 5. CLI Semantic Surface Lane
 
