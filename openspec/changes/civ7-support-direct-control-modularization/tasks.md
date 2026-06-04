@@ -1091,6 +1091,14 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.11.12 Prune trivial map/GameInfo/summary read facade call-through
+        wrappers by re-exporting the read-owner functions directly from
+        `index.ts`, preserving public package imports for map summary, plot
+        snapshot, map grid, GameInfo rows, and player/unit/city summaries while
+        leaving visibility/reveal mutation, setup reads, public procedure
+        schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as

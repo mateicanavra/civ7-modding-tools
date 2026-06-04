@@ -173,12 +173,12 @@ import type {
   Civ7PlayNotificationViewResult,
 } from "./play/notifications/view.js";
 import {
-  getCiv7MapGrid as getCiv7MapGridFromModule,
-  getCiv7MapSummary as getCiv7MapSummaryFromModule,
-  getCiv7PlotSnapshot as getCiv7PlotSnapshotFromModule,
+  getCiv7MapGrid,
+  getCiv7MapSummary,
+  getCiv7PlotSnapshot,
 } from "./play/map/reads.js";
 import {
-  getCiv7GameInfoRows as getCiv7GameInfoRowsFromModule,
+  getCiv7GameInfoRows,
   type Civ7GameInfoRowsInput,
   type Civ7GameInfoRowsResult,
 } from "./play/map/gameinfo.js";
@@ -193,15 +193,15 @@ import {
   type Civ7CitySummary,
   type Civ7CitySummaryInput,
   type Civ7CitySummaryResult,
-  getCiv7CitySummary as getCiv7CitySummaryFromModule,
+  getCiv7CitySummary,
   type Civ7PlayerSummary,
   type Civ7PlayerSummaryInput,
   type Civ7PlayerSummaryResult,
-  getCiv7PlayerSummary as getCiv7PlayerSummaryFromModule,
+  getCiv7PlayerSummary,
   type Civ7UnitSummary,
   type Civ7UnitSummaryInput,
   type Civ7UnitSummaryResult,
-  getCiv7UnitSummary as getCiv7UnitSummaryFromModule,
+  getCiv7UnitSummary,
 } from "./play/summaries.js";
 import {
   requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule,
@@ -491,6 +491,7 @@ export type {
   Civ7GameInfoRowsInput,
   Civ7GameInfoRowsResult,
 } from "./play/map/gameinfo.js";
+export { getCiv7GameInfoRows };
 export type {
   Civ7RevealMapResult,
   Civ7VisibilitySummaryInput,
@@ -507,6 +508,11 @@ export type {
   Civ7UnitSummaryInput,
   Civ7UnitSummaryResult,
 } from "./play/summaries.js";
+export {
+  getCiv7CitySummary,
+  getCiv7PlayerSummary,
+  getCiv7UnitSummary,
+};
 export type {
   Civ7ProgressDashboardInput,
   Civ7ProgressDashboardLegacyPath,
@@ -542,6 +548,11 @@ export type {
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
 } from "./play/map/types.js";
+export {
+  getCiv7MapGrid,
+  getCiv7MapSummary,
+  getCiv7PlotSnapshot,
+};
 export {
   DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
   DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
@@ -811,26 +822,6 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
   return await restartCiv7GameAndBeginFromModule(options);
 }
 
-export async function getCiv7MapSummary(
-  options: Civ7MapSummaryOptions = {},
-): Promise<Civ7MapSummaryResult> {
-  return await getCiv7MapSummaryFromModule(options);
-}
-
-export async function getCiv7PlotSnapshot(
-  input: Civ7PlotSnapshotInput,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7PlotSnapshotResult> {
-  return await getCiv7PlotSnapshotFromModule(input, options);
-}
-
-export async function getCiv7MapGrid(
-  input: Civ7MapGridInput,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7MapGridResult> {
-  return await getCiv7MapGridFromModule(input, options);
-}
-
 export async function getCiv7ResourcePlacementFeasibility(
   input: Civ7ResourcePlacementFeasibilityInput,
   options: Civ7DirectControlOptions = {},
@@ -1017,39 +1008,11 @@ export async function getCiv7FullMapGrid(
   };
 }
 
-export async function getCiv7PlayerSummary(
-  input: Civ7PlayerSummaryInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7PlayerSummaryResult> {
-  return await getCiv7PlayerSummaryFromModule(input, options);
-}
-
-export async function getCiv7UnitSummary(
-  input: Civ7UnitSummaryInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7UnitSummaryResult> {
-  return await getCiv7UnitSummaryFromModule(input, options);
-}
-
-export async function getCiv7CitySummary(
-  input: Civ7CitySummaryInput = {},
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7CitySummaryResult> {
-  return await getCiv7CitySummaryFromModule(input, options);
-}
-
 export async function getCiv7VisibilitySummary(
   input: Civ7VisibilitySummaryInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7VisibilitySummaryResult> {
   return await getCiv7VisibilitySummaryFromModule(input, options);
-}
-
-export async function getCiv7GameInfoRows(
-  input: Civ7GameInfoRowsInput,
-  options: Civ7DirectControlOptions = {},
-): Promise<Civ7GameInfoRowsResult> {
-  return await getCiv7GameInfoRowsFromModule(input, options);
 }
 
 export async function getCiv7SetupSnapshot(

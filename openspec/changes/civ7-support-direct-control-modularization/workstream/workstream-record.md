@@ -2336,3 +2336,13 @@ All future agent waves must be framed before delegation:
   telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
   schema migration, debug hierarchy implementation, or Effect/oRPC
   procedure-core work.
+- Map/GameInfo/summary read facade call-through cleanup:
+  `packages/civ7-direct-control/src/index.ts` now re-exports the read-owner
+  functions directly for map summary, plot snapshot, map grid, GameInfo rows,
+  and player/unit/city summaries instead of keeping trivial async call-through
+  wrappers. The read-owner modules and public package import names stay stable;
+  visibility/reveal mutation and setup reads remain outside this cleanup. This
+  is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.
