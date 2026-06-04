@@ -404,7 +404,11 @@ export type {
   Civ7AppUiSnapshot,
   Civ7AppUiSnapshotResult,
 } from "./runtime/app-ui-snapshot.js";
-export { getCiv7AppUiSnapshot } from "./runtime/app-ui-snapshot.js";
+export {
+  Civ7AppUiSnapshotResultSchema,
+  Civ7AppUiSnapshotSchema,
+  getCiv7AppUiSnapshot,
+} from "./runtime/app-ui-snapshot.js";
 export type {
   Civ7RuntimeApiInspection,
   Civ7RuntimeApiMethod,
@@ -423,10 +427,24 @@ export type {
 } from "./runtime/tuner-health.js";
 export {
   checkCiv7TunerHealth,
+  Civ7TunerHealthResultSchema,
+  Civ7TunerHealthSnapshotSchema,
   waitForCiv7TunerReady,
 } from "./runtime/tuner-health.js";
-export type { Civ7PlayableStatusResult } from "./runtime/playable-status.js";
-export { getCiv7PlayableStatus } from "./runtime/playable-status.js";
+export type {
+  Civ7PlayableStatusInput,
+  Civ7PlayableStatusResult,
+} from "./runtime/playable-status.js";
+export {
+  Civ7PlayableReadinessSchema,
+  Civ7PlayableStatusInputSchema,
+  Civ7PlayableStatusResultSchema,
+  getCiv7PlayableStatus,
+} from "./runtime/playable-status.js";
+export {
+  Civ7PlayableStatusProcedureDescriptor,
+  Civ7PlayableStatusProcedureSchemaArtifacts,
+} from "./runtime/playable-status-procedure.js";
 export {
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,

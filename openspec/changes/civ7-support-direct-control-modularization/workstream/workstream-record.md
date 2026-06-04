@@ -3254,3 +3254,23 @@ All future agent waves must be framed before delegation:
   `packages/civ7-control-orpc`, transport adapters, in-game controller router
   source, movement send authority, runtime/live-game proof, Task 2.9.4
   acceptance, or Tasks 6.1-6.9.
+- Playable-status runtime-support procedure descriptor seed:
+  `packages/civ7-direct-control/src/runtime/playable-status.ts` now owns
+  TypeBox schemas for the composed `getCiv7PlayableStatus` input/output while
+  `packages/civ7-direct-control/src/runtime/{app-ui-snapshot,tuner-health}.ts`
+  own the supporting App UI snapshot and Tuner health result schemas.
+  `packages/civ7-direct-control/src/runtime/playable-status-procedure.ts`
+  records the adjacent `runtime.playable.status` descriptor and schema
+  artifact map. Focused proof in
+  `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` and
+  `packages/civ7-direct-control/test/playable-status-procedure.test.ts`
+  validates tuner-ready and non-ready shell/unavailable/error shapes, failed
+  probes, omitted optional `tuner`, `errors` evidence, empty context-owned input
+  that rejects host/port/state/raw command fields, output root raw-command
+  rejection, descriptor field-list/schema-reference resolution, and public
+  facade exports. This is the first local runtime-support schema/descriptor
+  artifact after the three read-atom descriptor seeds; it does not implement
+  runtime router/procedure registration, choose Effect Schema, migrate broader
+  contracts, add Effect/oRPC source, `packages/civ7-control-orpc`, transport
+  adapters, in-game controller router source, runtime/live-game proof, Task
+  2.9.4 acceptance, or Tasks 6.1-6.9.

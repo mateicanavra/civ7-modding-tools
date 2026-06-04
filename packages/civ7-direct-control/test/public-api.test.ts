@@ -13,6 +13,10 @@ import {
   Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
   Civ7MapLocationSchema,
+  Civ7PlayableStatusInputSchema,
+  Civ7PlayableStatusProcedureDescriptor,
+  Civ7PlayableStatusProcedureSchemaArtifacts,
+  Civ7PlayableStatusResultSchema,
   Civ7ProcedureSchemaReferenceSchema,
   Civ7ReadyCityViewProcedureDescriptor,
   Civ7ReadyCityViewProcedureSchemaArtifacts,
@@ -194,6 +198,28 @@ describe("Civ7 direct control public API", () => {
     expect(Value.Check(Civ7CapabilityCatalogEntrySchema, { ...entry, risk: "runtime-proof" })).toBe(false);
   });
 
+  test("exports playable-status procedure candidate schemas from the public facade", () => {
+    expect(Value.Check(Civ7PlayableStatusInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7PlayableStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7PlayableStatusInputSchema, { port: 4318 })).toBe(false);
+    expect(Value.Check(Civ7PlayableStatusInputSchema, { state: { role: "tuner" } })).toBe(false);
+    expect(Value.Check(Civ7PlayableStatusInputSchema, { session: { state: "Tuner" } })).toBe(false);
+    expect(Value.Check(Civ7PlayableStatusInputSchema, { command: "Game.turn" })).toBe(false);
+    expect(Value.Check(Civ7PlayableStatusInputSchema, { rawCommand: "Game.turn" })).toBe(false);
+    expect(Civ7PlayableStatusResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining([
+        "host",
+        "port",
+        "playable",
+        "readiness",
+        "appUi",
+        "errors",
+      ]),
+    });
+  });
+
   test("exports ready-unit view procedure candidate schemas from the public facade", () => {
     expect(Value.Check(Civ7ReadyUnitViewInputSchema, {
       unitId: { owner: 0, id: 458752, type: 26 },
@@ -326,5 +352,19 @@ describe("Civ7 direct control public API", () => {
     expect(Civ7UnitMovePreviewProcedureSchemaArtifacts[
       civ7ProcedureSchemaReferenceKey(Civ7UnitMovePreviewProcedureDescriptor.outputSchema)
     ]).toBe(Civ7UnitMovePreviewResultSchema);
+  });
+
+  test("exports the playable-status procedure descriptor artifact from the public facade", () => {
+    expect(Civ7PlayableStatusProcedureDescriptor).toMatchObject({
+      procedureKey: "runtime.playable.status",
+      atomFunction: "getCiv7PlayableStatus",
+      proofBoundary: "local-package-test",
+    });
+    expect(Civ7PlayableStatusProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.inputSchema)
+    ]).toBe(Civ7PlayableStatusInputSchema);
+    expect(Civ7PlayableStatusProcedureSchemaArtifacts[
+      civ7ProcedureSchemaReferenceKey(Civ7PlayableStatusProcedureDescriptor.outputSchema)
+    ]).toBe(Civ7PlayableStatusResultSchema);
   });
 });

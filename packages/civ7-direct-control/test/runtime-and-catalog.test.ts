@@ -4,7 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 import {
+  Civ7AppUiSnapshotResultSchema,
+  Civ7PlayableStatusInputSchema,
+  Civ7PlayableStatusResultSchema,
+  Civ7TunerHealthResultSchema,
   checkCiv7TunerHealth,
   createStaticCiv7CapabilityCatalog,
   DEFAULT_CIV7_APP_UI_API_ROOTS,
@@ -136,6 +141,15 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
         appUi: { state: { id: "65535", name: "App UI" } },
         tuner: { state: { id: "1", name: "Tuner" }, ready: true },
       });
+      expect(Value.Check(Civ7AppUiSnapshotResultSchema, snapshot)).toBe(true);
+      expect(Value.Check(Civ7TunerHealthResultSchema, health)).toBe(true);
+      expect(Value.Check(Civ7PlayableStatusResultSchema, playable)).toBe(true);
+      expect(Value.Check(Civ7PlayableStatusInputSchema, {})).toBe(true);
+      expect(Value.Check(Civ7PlayableStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
+      expect(Value.Check(Civ7PlayableStatusResultSchema, {
+        ...playable,
+        rawCommand: "Game.turn",
+      })).toBe(false);
     } finally {
       await server.close();
     }
@@ -156,9 +170,84 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
       expect(status.appUi.snapshot.ui.inShell).toEqual({ ok: true, value: true });
       expect(status.tuner?.ready).toBe(false);
       expect(status.errors).toEqual([]);
+      expect(Value.Check(Civ7PlayableStatusResultSchema, status)).toBe(true);
     } finally {
       await server.close();
     }
+  });
+
+  test("validates playable status when Tuner health is unavailable", async () => {
+    const status = await getCiv7PlayableStatus({}, {
+      checkTunerHealth: async () => {
+        throw new Error("Tuner socket unavailable");
+      },
+      errorMessage: (err) => err instanceof Error ? err.message : String(err),
+      getAppUiSnapshot: async () => ({
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "65535", name: "App UI" },
+        snapshot: {
+          network: {
+            isInSession: { ok: false, error: "Network unavailable" },
+            numPlayers: { ok: false, error: "Network unavailable" },
+            hostPlayerId: { ok: false, error: "Network unavailable" },
+            isConnectedToNetwork: { ok: false, error: "Network unavailable" },
+            isAuthenticated: { ok: false, error: "Network unavailable" },
+            isLoggedIn: { ok: false, error: "Network unavailable" },
+          },
+          autoplay: {
+            isActive: false,
+            turns: 0,
+            isPaused: false,
+            isPausedOrPending: false,
+            observeAsPlayer: -1,
+            returnAsPlayer: -1,
+          },
+          game: {
+            turn: -1,
+            age: -1,
+            maxTurns: 0,
+            turnDate: { ok: false, error: "Game unavailable" },
+            hash: { ok: false, error: "Game unavailable" },
+          },
+          ui: {
+            inGame: { ok: false, error: "UI unavailable" },
+            inShell: { ok: false, error: "UI unavailable" },
+            inLoading: { ok: false, error: "UI unavailable" },
+            loadingState: { ok: false, error: "UI unavailable" },
+            loadingStateName: null,
+            canBeginGame: { ok: false, error: "UI unavailable" },
+            canNotifyUIReady: "undefined",
+            skipStartButton: { ok: false, error: "Configuration unavailable" },
+            automationActive: { ok: false, error: "Automation unavailable" },
+          },
+          gameContext: {
+            localPlayerID: -1,
+            localObserverID: -1,
+            hasRequestedPause: { ok: false, error: "GameContext unavailable" },
+          },
+          players: {
+            maxPlayers: 0,
+            aliveIds: { ok: false, error: "Players unavailable" },
+            aliveHumanIds: { ok: false, error: "Players unavailable" },
+            numAliveHumans: { ok: false, error: "Players unavailable" },
+          },
+          map: {
+            width: { ok: false, error: "Map unavailable" },
+            height: { ok: false, error: "Map unavailable" },
+            plotCount: { ok: false, error: "Map unavailable" },
+            mapSize: { ok: false, error: "Map unavailable" },
+            randomSeed: { ok: false, error: "Map unavailable" },
+          },
+        },
+      }),
+    });
+
+    expect(status.playable).toBe(false);
+    expect(status.readiness).toBe("unavailable");
+    expect(status.tuner).toBeUndefined();
+    expect(status.errors).toEqual(["Tuner socket unavailable"]);
+    expect(Value.Check(Civ7PlayableStatusResultSchema, status)).toBe(true);
   });
 
   test("inspects runtime roots and targeted GameInfo rows through read helpers", async () => {

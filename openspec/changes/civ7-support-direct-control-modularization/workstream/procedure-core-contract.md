@@ -44,7 +44,11 @@ transport surface. The second adjacent read-atom descriptor artifact is
 exports. The third adjacent read-atom descriptor artifact is
 `packages/civ7-direct-control/src/play/ready/move-preview-procedure.ts`, which
 owns the `unit.move.preview` descriptor adjacent to the unit move-preview atom
-and schema exports. This is local package proof only; it does not collect
+and schema exports. The first adjacent runtime-support descriptor artifact is
+`packages/civ7-direct-control/src/runtime/playable-status-procedure.ts`, which
+owns the `runtime.playable.status` descriptor adjacent to the composed
+playable-status atom and schema exports. This is local package proof only; it
+does not collect
 runtime evidence, add Effect/oRPC dependencies, create
 `packages/civ7-control-orpc`, implement router/procedure behavior, choose a
 broader schema migration, claim runtime proof, or accept the matrix row.
@@ -90,6 +94,21 @@ exported for future procedure-core consumers. Complex engine-derived movement
 and path values remain `unknown` within named TypeBox owner fields until a
 later schema slice accepts narrower nested contracts.
 
+`packages/civ7-direct-control/src/runtime/playable-status.ts` now owns TypeBox
+schemas for `getCiv7PlayableStatus` input, readiness labels, and output. The
+supporting runtime owners
+`packages/civ7-direct-control/src/runtime/{app-ui-snapshot,tuner-health}.ts`
+now own TypeBox schemas for the App UI snapshot and Tuner health result shapes
+that `getCiv7PlayableStatus` composes. The playable-status input schema is
+empty with `additionalProperties: false`; endpoint/session selection remains a
+procedure context concern, not host/port/state/raw-command input. Focused proof
+in `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` validates
+the existing fake App UI/Tuner results against the schemas, validates non-ready
+shell and unavailable/error shapes including failed probes, omitted optional
+`tuner`, and `errors` evidence, and rejects root-level raw command fields.
+Public facade proof in `packages/civ7-direct-control/test/public-api.test.ts`
+verifies the schemas are exported for future procedure-core consumers.
+
 The adjacent ready-unit descriptor artifact reuses those schema exports and
 records root input/output field names from the actual TypeBox schemas,
 including `legalOperations` for the ready-unit operation candidates. Focused
@@ -115,6 +134,15 @@ the descriptor's input/output field lists against resolved schema root
 properties, including reachability, queued/requested destination/path, and
 neutral `relationshipPolicy`, without registering a router or transport
 adapter.
+
+The adjacent playable-status descriptor artifact reuses the playable-status
+schema exports and records `runtime.playable.status` beside
+`getCiv7PlayableStatus`. Focused proof in
+`packages/civ7-direct-control/test/playable-status-procedure.test.ts` checks
+the descriptor's empty input schema rejects endpoint/session/raw-command fields
+and its output field list resolves against the composed playable-status schema
+root properties, including non-ready unavailable output without a `tuner`
+property, without registering a router or transport adapter.
 
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
@@ -224,13 +252,14 @@ source-owner, descriptor runtime-validation, descriptor typed-error,
 descriptor correlation-policy, descriptor live-runtime-proof guard, and
 no-raw-tunnel proof gaps for the current TypeBox descriptor shape, generic raw
 fields, repo-local command-source/session-execute owners, and adjacent
-ready-unit, ready-city, and unit move-preview read descriptor artifacts with
-schema-root field-list validation in the Effect/oRPC Procedure Cores row, but
-they do not accept the row. Acceptance still needs:
+ready-unit, ready-city, unit move-preview, and playable-status descriptor
+artifacts with schema-root field-list validation in the Effect/oRPC Procedure
+Cores row, but they do not accept the row. Acceptance still needs:
 
 - final concrete procedure schema and proof owners;
 - concrete procedure input/output owners over stable direct-control atoms
-  beyond the ready-unit, ready-city, and unit move-preview read schema seeds;
+  beyond the ready-unit, ready-city, unit move-preview, and playable-status
+  schema seeds;
 - final context/middleware/error/correlation owners;
 - final schema reference registration in the runtime router/procedure owner;
 - explicit boundaries for in-game controller router, external direct-control

@@ -226,8 +226,10 @@
         reduces only the source/proof/descriptor-runtime-validation/
         descriptor-typed-error/descriptor-correlation/no-raw-tunnel gap for
         the current TypeBox descriptor shape, generic raw fields, and
-        repo-local command serialization and session execute owners, and does
-        not accept the row.
+        repo-local command serialization and session execute owners; adjacent
+        ready-unit, ready-city, unit move-preview, and playable-status
+        schema/descriptor seeds reduce only local stable-atom input/output
+        proof gaps, and do not accept the row.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
@@ -2023,6 +2025,27 @@ runtime/direct-control claims.
       contracts, implement Effect/oRPC source, add `packages/civ7-control-orpc`,
       add transport adapters, implement the in-game controller router, claim
       runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.26 Add playable-status runtime-support TypeBox schemas and an adjacent
+      procedure descriptor artifact in
+      `src/runtime/{app-ui-snapshot,tuner-health,playable-status}.ts` and
+      `src/runtime/playable-status-procedure.ts`, with focused proof in
+      `test/runtime-and-catalog.test.ts`,
+      `test/playable-status-procedure.test.ts`, and public facade proof in
+      `test/public-api.test.ts`. This records `runtime.playable.status` beside
+      the existing `getCiv7PlayableStatus` atom, keeps endpoint/session
+      selection out of the empty procedure input schema so host/port/state/raw
+      command remain context/debug-owned, validates App UI snapshot, Tuner
+      health, and composed playable-status result shapes, validates both
+      `tuner-ready` and non-ready shell/unavailable/error shapes including
+      optional omitted `tuner`, failed probes, and `errors` evidence, rejects
+      root-level raw command fields, and resolves the descriptor's schema
+      references through the generic schema-root field-list guard. This is a
+      local runtime-support schema/descriptor artifact only; it does not
+      implement runtime router/procedure registration, choose Effect Schema,
+      migrate broader contracts, implement Effect/oRPC source, add
+      `packages/civ7-control-orpc`, add transport adapters, implement the
+      in-game controller router, claim runtime/live-game proof, accept Task
+      2.9.4, or start Tasks 6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -2077,10 +2100,14 @@ authority are recorded.
     Task 4.25 adds the third adjacent read-atom schema/descriptor artifact for
     `unit.move.preview` over the read-only unit movement preview, including a
     map-location schema that matches the existing atom validator boundary.
+    Task 4.26 adds an adjacent runtime-support schema/descriptor artifact for
+    `runtime.playable.status` over the composed App UI/Tuner playable-status
+    atom, including non-ready shell/unavailable/error shape proof and an empty
+    procedure input schema that leaves endpoint/session selection in context.
     Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
     procedure/schema/proof owners and tests over concrete procedure
-    inputs/outputs beyond the ready-unit, ready-city, and unit move-preview
-    read-atom schema seeds, descriptor schema-reference binding/resolution,
+    inputs/outputs beyond the ready-unit, ready-city, unit move-preview, and
+    playable-status schema seeds, descriptor schema-reference binding/resolution,
     adjacent descriptor artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
