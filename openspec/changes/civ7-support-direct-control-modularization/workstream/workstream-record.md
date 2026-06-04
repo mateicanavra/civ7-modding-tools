@@ -68,6 +68,7 @@ Notification-HUD proof now covers materialized notification decision output
 across the focused HUD fixture modes.
 Notification-queue proof now covers read-only notification scheduling output
 across the focused queue fixture modes.
+Technology-option proof now covers read-only technology chooser option output.
 Follow-up focused `game health --json` and
 `game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
