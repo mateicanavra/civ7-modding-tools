@@ -2695,3 +2695,14 @@ All future agent waves must be framed before delegation:
   or unblock telemetry, AI ingestion, CLI semantic projection, hotseat runtime
   proof, schema migration, debug hierarchy implementation, or Effect/oRPC
   procedure-core work.
+- Progression closeout command-source helper normalization:
+  `src/play/progression/{technology,culture}.ts` now import the shared runtime
+  probe helper owner instead of carrying atom-local copies in their embedded
+  closeout sources. The generated command text remains equivalent, and the
+  closeout wrappers still preserve approval-first request behavior, player/node
+  validation, read/send split, parse labels, and semantic notification plus
+  operation send result shape. This is local package/source relocation cleanup
+  only and does not claim runtime/live-game proof, accept Task 2.9.4, normalize
+  every remaining atom-local source helper, or unblock telemetry, AI ingestion,
+  CLI semantic projection, hotseat runtime proof, schema migration, debug
+  hierarchy implementation, or Effect/oRPC procedure-core work.
