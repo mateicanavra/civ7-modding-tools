@@ -2088,6 +2088,17 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
   AI ingestion, semantic CLI projection, hotseat runtime proof,
   schema/procedure-core work, or Effect/oRPC implementation.
+- Setup-preparation call-through cleanup: `index.ts` now re-exports
+  `prepareCiv7SinglePlayerSetup` directly from `src/setup/prepare.ts` after
+  owner-local dependency defaults are in place. This removes the trivial async
+  preparation facade wrapper while preserving public package import names,
+  approval-first setup mutation, setup snapshot readback, map-row proof, setup
+  option validation, prepare command source, and no-replay package proof.
+  Prepared-start, setup-run, and restart/begin lifecycle composition remain
+  separate. This is local package/source relocation cleanup proof only: it does
+  not claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
+  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Prepared-start facade dependency cleanup: `src/setup/start.ts` now imports
   existing non-facade setup-read defaults, session/reconnect execution,
   Tuner-ready wait, map-summary read, command-result parser, setup

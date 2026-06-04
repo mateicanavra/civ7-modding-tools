@@ -1580,6 +1580,15 @@ runtime/direct-control claims.
         leaving runtime/live-game proof, hotseat runtime proof, AI ingestion,
         semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.17 Prune the setup preparation facade call-through wrapper by
+        re-exporting `prepareCiv7SinglePlayerSetup` directly from
+        `src/setup/prepare.ts`, preserving public package imports,
+        approval-first setup mutation, setup snapshot readback, map-row proof,
+        setup option validation, prepare command source, no-replay package
+        proof, and leaving prepared-start/setup-run lifecycle composition,
+        runtime/live-game proof, hotseat runtime proof, AI ingestion, semantic
+        CLI projection, telemetry, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

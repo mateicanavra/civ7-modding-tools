@@ -1024,6 +1024,14 @@ function setupReadDependencies() {
   } as const;
 }
 
+export async function prepareCiv7SinglePlayerSetup(
+  input: Civ7SinglePlayerSetupInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+): Promise<Civ7PreparedSetupResult> {
+  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval, setupReadDependencies());
+}
+
 export async function listCiv7SavedGameConfigurations(
   input: Civ7SavedGameConfigurationListInput = {},
 ): Promise<Civ7SavedGameConfigurationListResult> {
@@ -1057,14 +1065,6 @@ export async function loadCiv7SavedGameConfiguration(
     command,
     loaded: command.output.some((line) => line.includes('"ok":true')),
   };
-}
-
-export async function prepareCiv7SinglePlayerSetup(
-  input: Civ7SinglePlayerSetupInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7PreparedSetupResult> {
-  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval);
 }
 
 export async function startPreparedCiv7SinglePlayerGame(
