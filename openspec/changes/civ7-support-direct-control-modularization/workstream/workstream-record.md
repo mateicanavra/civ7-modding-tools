@@ -1639,6 +1639,15 @@ All future agent waves must be framed before delegation:
   projection, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
   2.9.4 matrix-row acceptance remain pending. This is local source hygiene proof
   only, not runtime/live-game proof.
+- Direct-control autoplay poll option type re-export import cleanup slice:
+  completed as a narrow type-only source ownership cleanup after the autoplay
+  poll options type was already exposed through a direct `export type ... from`
+  declaration. The public facade no longer imports that type only to re-export
+  it, and public facade exports remain stable. Autoplay behavior, runtime proof,
+  operation/proof telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local source hygiene proof only, not
+  runtime/live-game proof.
 - Direct-control generic validation primitive slice: completed as a narrow
   primitive/helper ownership relocation. It moves only bounded integer, simple
   identifier, and player-id validation helpers into `src/validation.ts` while
