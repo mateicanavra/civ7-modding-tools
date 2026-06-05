@@ -49,8 +49,6 @@ describe('game play population placement commands', () => {
         '--location',
         '2543',
         '--send',
-        '--reason',
-        'test population worker placement',
         '--json',
       ]);
 
@@ -125,8 +123,6 @@ describe('game play population placement commands', () => {
         '--y',
         '19',
         '--send',
-        '--reason',
-        'test population expansion placement',
         '--json',
       ]);
 

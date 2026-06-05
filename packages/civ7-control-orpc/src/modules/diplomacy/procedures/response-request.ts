@@ -26,7 +26,6 @@ export const diplomacyResponseRequestProcedure =
         const result = await context.directControl.requestCiv7DiplomacyResponse(
           input,
           context.endpointDefaults,
-          context.approval!,
         );
         return diplomacyResponseResult(input, result);
       },

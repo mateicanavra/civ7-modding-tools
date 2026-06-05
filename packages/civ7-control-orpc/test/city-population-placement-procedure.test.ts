@@ -4,7 +4,6 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  Civ7MutationApprovalRequiredError,
   Civ7PopulationPlacementUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
@@ -17,7 +16,7 @@ type PopulationPlacementRuntimeResult = Awaited<
 >;
 
 describe("city.population.place.request control-oRPC procedure", () => {
-  test("maps assign-worker placement to the semantic population runtime port with context approval", async () => {
+  test("maps assign-worker placement to the semantic population runtime port ", async () => {
     const fake = fakeContext(
       operationRequestResult("population-ready-cleared", "assign-worker"),
     );
@@ -74,11 +73,6 @@ describe("city.population.place.request control-oRPC procedure", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: {
-        approved: true,
-        reason: "test approved population placement",
-        disposableSession: true,
-      },
     }]);
   });
 
@@ -113,36 +107,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: {
-        approved: true,
-        reason: "test approved population placement",
-        disposableSession: true,
-      },
     }]);
-  });
-
-  test("requires context approval before either population placement runtime port runs", async () => {
-    const fake = fakeContext(
-      operationRequestResult("population-ready-cleared", "assign-worker"),
-      { approval: undefined },
-    );
-
-    await expect(
-      call(Civ7ControlOrpcRouter.city.population.place.request, {
-        mode: "assign-worker",
-        playerId: 0,
-        location: 2543,
-      }, { context: fake.context }),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      status: 403,
-      data: {
-        procedureKey: "city.population.place.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls).toEqual([]);
   });
 
   test("keeps state-changed placement proof no-repeat guarded", async () => {
@@ -243,14 +208,8 @@ describe("city.population.place.request control-oRPC procedure", () => {
     });
   });
 
-  test("keeps approval, endpoint, session, operation, and raw command fields out of procedure input", async () => {
+  test("keeps endpoint, session, operation, and raw command fields out of procedure input", async () => {
     const invalidInputs = [
-      {
-        mode: "assign-worker",
-        playerId: 0,
-        location: 2543,
-        approvalReason: "test approved population placement",
-      },
       { mode: "assign-worker", playerId: 0, location: 2543, host: "127.0.0.1" },
       { mode: "assign-worker", playerId: 0, location: 2543, port: 4318 },
       { mode: "assign-worker", playerId: 0, location: 2543, stateName: "App UI" },
@@ -345,16 +304,9 @@ describe("city.population.place.request control-oRPC procedure", () => {
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
-    });
-    expect(
-      Civ7ControlOrpcContract.city.population.place.request["~orpc"].errorMap,
-    ).toHaveProperty("MUTATION_APPROVAL_REQUIRED");
-    expect(
+    });    expect(
       Civ7ControlOrpcContract.city.population.place.request["~orpc"].errorMap,
     ).toHaveProperty("POPULATION_PLACEMENT_UNAVAILABLE");
-    expect(Civ7MutationApprovalRequiredError.code).toBe(
-      "MUTATION_APPROVAL_REQUIRED",
-    );
     expect(Civ7PopulationPlacementUnavailableError.code).toBe(
       "POPULATION_PLACEMENT_UNAVAILABLE",
     );
@@ -364,7 +316,6 @@ describe("city.population.place.request control-oRPC procedure", () => {
 function fakeContext(
   resultOrError: PopulationPlacementRuntimeResult | Error,
   options: {
-    approval?: Civ7ControlOrpcContext["approval"];
   } = {},
 ): {
   context: Civ7ControlOrpcContext;
@@ -372,14 +323,12 @@ function fakeContext(
     method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
     input: unknown;
     options: unknown;
-    approval: unknown;
   }>;
 } {
   const calls: Array<{
     method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
     input: unknown;
     options: unknown;
-    approval: unknown;
   }> = [];
 
   return {
@@ -389,35 +338,24 @@ function fakeContext(
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: options.approval === undefined && !("approval" in options)
-        ? {
-            approved: true,
-            reason: "test approved population placement",
-            disposableSession: true,
-          }
-        : options.approval,
       directControl: {
         getCiv7PlayableStatus: async () => ({
           playable: true,
           readiness: "tuner-ready",
         }),
-        requestCiv7AssignWorkerPlacement: async (input, endpointDefaults, approval) => {
+        requestCiv7AssignWorkerPlacement: async (input, endpointDefaults) => {
           calls.push({
             method: "requestCiv7AssignWorkerPlacement",
             input,
-            options: endpointDefaults,
-            approval,
-          });
+            options: endpointDefaults,          });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
         },
-        requestCiv7ExpandCityPlacement: async (input, endpointDefaults, approval) => {
+        requestCiv7ExpandCityPlacement: async (input, endpointDefaults) => {
           calls.push({
             method: "requestCiv7ExpandCityPlacement",
             input,
-            options: endpointDefaults,
-            approval,
-          });
+            options: endpointDefaults,          });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
         },

@@ -173,7 +173,7 @@ function isBatchSafeDismissalCandidate(item: Civ7PlayDecisionQueueItem): boolean
 
 function commandFor(item: Civ7PlayDecisionQueueItem, disposition: QueueDisposition): string | null {
   if (disposition === 'reviewed-dismissal-candidate' && item.notificationId) {
-    return `game play dismiss-notification --target '${JSON.stringify(item.notificationId)}' --send --reason '<reviewed: ${reasonSlug(item)}>'`;
+    return `game play dismiss-notification --target '${JSON.stringify(item.notificationId)}' --send`;
   }
   const recommendedDetailCommand = recommendedCliFromDecisionDetails((item as { details?: unknown }).details);
   if (recommendedDetailCommand) return recommendedDetailCommand;

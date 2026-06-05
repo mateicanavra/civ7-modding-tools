@@ -127,8 +127,6 @@ describe('game play technology commands', () => {
           '--node',
           '-1255676052',
           '--send',
-          '--reason',
-          'test technology target selection',
           '--json',
         ]);
       } finally {
@@ -182,8 +180,6 @@ describe('game play technology commands', () => {
         '--send',
         '--timeout-ms',
         '1000',
-        '--reason',
-        'test sticky technology target selection',
         '--json',
       ]);
 
@@ -235,8 +231,6 @@ describe('game play technology commands', () => {
         '--send',
         '--timeout-ms',
         '1000',
-        '--reason',
-        'test technology state changed but blocker persisted',
         '--json',
       ]);
 
@@ -435,11 +429,11 @@ function playNotificationView(mode: 'tech-choice' | 'ready-unit', technologyStat
     chooseValidation: { ok: true, value: { Success: row.enabled } },
     targetValidation: { ok: true, value: { Success: row.enabled } },
     cli: row.enabled
-      ? `game play choose-tech --player-id 0 --node ${row.nodeType} --send --reason '<why this technology was selected>'`
+      ? `game play choose-tech --player-id 0 --node ${row.nodeType} --send`
       : null,
     validateCli: `game play choose-tech --player-id 0 --node ${row.nodeType} --json`,
     targetCli: row.enabled
-      ? `game play set-tech-target --player-id 0 --node ${row.nodeType} --send --reason '<why this technology target was selected>'`
+      ? `game play set-tech-target --player-id 0 --node ${row.nodeType} --send`
       : null,
   }));
   const details = {

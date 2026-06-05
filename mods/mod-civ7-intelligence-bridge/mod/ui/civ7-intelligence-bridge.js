@@ -27178,7 +27178,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-NNNSCP4V.js
+// ../../packages/civ7-control-orpc/dist/chunk-3ACVXNZZ.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -28201,25 +28201,6 @@ var Civ7TurnCompletionUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
-var Civ7MutationApprovalRequiredErrorDataSchema = typebox_exports.Object(
-  {
-    procedureKey: typebox_exports.String(),
-    source: typebox_exports.Literal("context.approval"),
-    risk: typebox_exports.Literal("mutation"),
-    ...Civ7ControlOrpcErrorCorrelationProperties
-  },
-  { additionalProperties: false }
-);
-var Civ7MutationApprovalRequiredError = class extends ORPCTaggedError(
-  "Civ7MutationApprovalRequiredError",
-  {
-    code: "MUTATION_APPROVAL_REQUIRED",
-    message: "Explicit mutation approval is required.",
-    schema: toStandardSchema(Civ7MutationApprovalRequiredErrorDataSchema),
-    status: 403
-  }
-) {
-};
 var Civ7MutationReadinessRequiredErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.String(),
@@ -28317,7 +28298,6 @@ var civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
-  MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
@@ -30020,25 +30000,6 @@ function civ7MutationProcedureKey(meta, path) {
   if (path.length > 0) return path.join(".");
   return "unknown-procedure";
 }
-var civ7MutationApprovalMiddleware = civ7ControlOrpcImplementer.middleware(({ context: context5, errors, next, path, procedure }) => {
-  const approval = mutationApprovalFromContext(context5.approval);
-  if (approval == null) {
-    throw errors.MUTATION_APPROVAL_REQUIRED({
-      data: {
-        procedureKey: civ7MutationProcedureKey(procedure["~orpc"].meta, path),
-        source: "context.approval",
-        risk: "mutation",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    });
-  }
-  return next({ context: { approval } });
-});
-function mutationApprovalFromContext(approval) {
-  if (approval?.approved !== true) return null;
-  if (!approval.reason.trim()) return null;
-  return approval;
-}
 var civ7MutationReadinessMiddleware = civ7ControlOrpcImplementer.middleware(async ({ context: context5, errors, next, path, procedure }) => {
   const procedureKey = civ7MutationProcedureKey(procedure["~orpc"].meta, path);
   const status = await context5.directControl.getCiv7PlayableStatus(
@@ -30068,7 +30029,7 @@ var civ7MutationReadinessMiddleware = civ7ControlOrpcImplementer.middleware(asyn
   return next();
 });
 function civ7ControlOrpcMutationProcedure(procedure) {
-  return procedure.use(civ7MutationApprovalMiddleware).use(civ7MutationReadinessMiddleware);
+  return procedure.use(civ7MutationReadinessMiddleware);
 }
 function civ7MutationRequestStatus(input) {
   if (!input.sent) return "not-sent";
@@ -30155,8 +30116,7 @@ var cityProductionChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
     try: async () => {
       const result = await context5.directControl.requestCiv7ProductionChoice(
         input,
-        context5.endpointDefaults,
-        context5.approval
+        context5.endpointDefaults
       );
       return cityProductionChoiceResult(input, result);
     },
@@ -30237,15 +30197,13 @@ var cityPopulationPlaceRequestProcedure = civ7ControlOrpcMutationProcedure(
           playerId: input.playerId,
           location: input.location
         },
-        context5.endpointDefaults,
-        context5.approval
+        context5.endpointDefaults
       ) : await context5.directControl.requestCiv7ExpandCityPlacement(
         {
           cityId: input.cityId,
           destination: input.destination
         },
-        context5.endpointDefaults,
-        context5.approval
+        context5.endpointDefaults
       );
       return cityPopulationPlacementResult(input, result);
     },
@@ -30350,8 +30308,7 @@ var diplomacyResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
     try: async () => {
       const result = await context5.directControl.requestCiv7DiplomacyResponse(
         input,
-        context5.endpointDefaults,
-        context5.approval
+        context5.endpointDefaults
       );
       return diplomacyResponseResult(input, result);
     },
@@ -30409,8 +30366,7 @@ var narrativeChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
     try: async () => {
       const result = await context5.directControl.requestCiv7NarrativeChoice(
         input,
-        context5.endpointDefaults,
-        context5.approval
+        context5.endpointDefaults
       );
       return narrativeChoiceResult(input, result);
     },
@@ -30468,8 +30424,7 @@ var notificationsDismissRequestProcedure = civ7ControlOrpcMutationProcedure(
     try: async () => {
       const result = await context5.directControl.requestCiv7NotificationDismissal(
         input,
-        context5.endpointDefaults,
-        context5.approval
+        context5.endpointDefaults
       );
       return notificationDismissalResult(result);
     },
@@ -30583,14 +30538,12 @@ async function requestProgressionChoice(kind, input, dependencies) {
   if (kind === "technology") {
     return dependencies.context.directControl.requestCiv7TechnologyChoiceCloseout(
       requestInput,
-      dependencies.context.endpointDefaults,
-      dependencies.context.approval
+      dependencies.context.endpointDefaults
     );
   }
   return dependencies.context.directControl.requestCiv7CultureChoiceCloseout(
     requestInput,
-    dependencies.context.endpointDefaults,
-    dependencies.context.approval
+    dependencies.context.endpointDefaults
   );
 }
 function progressionChoiceRuntimeInput(input, before2) {
@@ -30781,7 +30734,7 @@ function readinessCapability(status, context5) {
     return {
       canObserve: true,
       canMutate: true,
-      reason: "Runtime control is ready for in-game reads and approved actions."
+      reason: "Runtime control is ready for in-game reads and guarded actions."
     };
   }
   switch (status.readiness) {
@@ -31068,8 +31021,7 @@ var turnCompleteRequestProcedure = civ7ControlOrpcMutationProcedure(
   return yield* Effect_exports.tryPromise({
     try: async () => {
       const result = await context5.directControl.requestCiv7TurnComplete(
-        context5.endpointDefaults,
-        context5.approval
+        context5.endpointDefaults
       );
       return turnCompletionResult(result);
     },
@@ -31191,8 +31143,7 @@ var unitTargetActionRequestProcedure = civ7ControlOrpcMutationProcedure(
     try: async () => {
       const result = await context5.directControl.requestCiv7UnitTargetAction(
         input,
-        context5.endpointDefaults,
-        context5.approval
+        context5.endpointDefaults
       );
       return unitTargetActionResult(result);
     },
@@ -31299,15 +31250,6 @@ var Civ7ControlOrpcRouter = civ7ControlOrpcImplementer.router({
 function createCiv7ControlOrpcServerClient(context5) {
   return createRouterClient(Civ7ControlOrpcRouter, { context: context5 });
 }
-var Civ7ControllerBridgeApprovalSchema = typebox_exports.Object(
-  {
-    source: typebox_exports.Literal("controller-runtime"),
-    approved: typebox_exports.Literal(true),
-    reason: typebox_exports.String({ minLength: 1 }),
-    disposableSession: typebox_exports.Optional(typebox_exports.Boolean())
-  },
-  { additionalProperties: false }
-);
 var Civ7ControllerBridgeMutationProofSchema = typebox_exports.Object(
   {
     lifecycle: typebox_exports.Object(
@@ -31354,7 +31296,6 @@ var Civ7ControllerBridgeNotificationDismissRequestSchema = typebox_exports.Objec
   {
     procedureKey: typebox_exports.Literal("notifications.dismiss.request"),
     input: Civ7NotificationDismissInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31363,7 +31304,6 @@ var Civ7ControllerBridgeTurnCompleteRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("turn.complete.request"),
     input: Civ7TurnCompletionInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31372,7 +31312,6 @@ var Civ7ControllerBridgeCityProductionChoiceRequestSchema = typebox_exports.Obje
   {
     procedureKey: typebox_exports.Literal("city.production.choice.request"),
     input: Civ7CityProductionChoiceInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31381,7 +31320,6 @@ var Civ7ControllerBridgeCityPopulationPlacementRequestSchema = typebox_exports.O
   {
     procedureKey: typebox_exports.Literal("city.population.place.request"),
     input: Civ7CityPopulationPlacementInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31390,7 +31328,6 @@ var Civ7ControllerBridgeNarrativeChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("narrative.choice.request"),
     input: Civ7NarrativeChoiceInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31399,7 +31336,6 @@ var Civ7ControllerBridgeDiplomacyResponseRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("diplomacy.response.request"),
     input: Civ7DiplomacyResponseInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31408,7 +31344,6 @@ var Civ7ControllerBridgeUnitTargetActionRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("unit.target.action.request"),
     input: Civ7UnitTargetActionInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31417,7 +31352,6 @@ var Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema = typebox_expor
   {
     procedureKey: typebox_exports.Literal("progression.technology.choice.request"),
     input: Civ7ProgressionChoiceInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31426,7 +31360,6 @@ var Civ7ControllerBridgeProgressionCultureChoiceRequestSchema = typebox_exports.
   {
     procedureKey: typebox_exports.Literal("progression.culture.choice.request"),
     input: Civ7ProgressionChoiceInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31610,10 +31543,8 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         reason: "invalid-envelope"
       }, request2);
     }
-    const approval = isControllerBridgeMutationRequest(request2) ? request2.approval : context5.approval;
     const client = createCiv7ControlOrpcServerClient({
       ...context5,
-      approval,
       correlation: request2.correlationId == null ? context5.correlation : {
         ...context5.correlation,
         correlationId: request2.correlationId
@@ -31779,16 +31710,8 @@ function installCiv7IntelligenceBridge(options) {
   return bridge2;
 }
 
-// ../../packages/civ7-direct-control/dist/chunk-6BOOJQFW.js
-function assertApproved(approval, action) {
-  if (!approval || approval.approved !== true || !approval.reason.trim()) {
-    throw new Civ7DirectControlError("command-failed", `Explicit approval with a reason is required before ${action}`);
-  }
-}
-
 // ../../packages/civ7-direct-control/dist/play/notifications/game-ui-dismissal.js
-async function requestCiv7GameUiNotificationDismissal(input, approval, target = globalThis) {
-  assertApproved(approval, "dismissing Civ7 notification");
+async function requestCiv7GameUiNotificationDismissal(input, target = globalThis) {
   assertCiv7ComponentId(input.notificationId, "notificationId");
   return notificationDismissalResult2(
     input.notificationId,
@@ -32200,6 +32123,41 @@ async function getCiv7GameUiReadyCityView(input = {}, target = globalThis) {
     ]
   };
 }
+async function requestCiv7GameUiTurnComplete(target = globalThis) {
+  const before2 = await getCiv7GameUiTurnCompletionStatus(target);
+  if (!gameUiTurnCompletionAllowed(before2)) {
+    return {
+      sent: false,
+      before: before2,
+      fallbackPreflight: await getCiv7GameUiPlayNotificationView({}, target),
+      reason: "turn-completion-blocked"
+    };
+  }
+  const sendTurnComplete = target.GameContext?.sendTurnComplete;
+  if (typeof sendTurnComplete !== "function") {
+    return {
+      sent: false,
+      before: before2,
+      fallbackPreflight: await getCiv7GameUiPlayNotificationView({}, target),
+      reason: "turn-completion-blocked"
+    };
+  }
+  target.UI?.Player?.deselectAllUnits?.();
+  sendTurnComplete();
+  const after3 = await getCiv7GameUiTurnCompletionStatus(target);
+  return {
+    sent: true,
+    before: before2,
+    after: after3,
+    command: {
+      host: "game-ui",
+      port: 0,
+      state: { id: "game-ui", name: "Game UI" },
+      output: ["game-ui-turn-completion-requested"]
+    },
+    verified: probeValue5(after3.hasSentTurnComplete) === true || probeValue5(after3.turn) !== probeValue5(before2.turn)
+  };
+}
 function gameUiNotificationSummaries(target, playerId, maxNotifications) {
   const notifications = target.Game?.Notifications;
   const ids3 = safeValue2(() => notifications?.getIdsForPlayer?.(playerId), []);
@@ -32342,6 +32300,12 @@ function probe2(fn2) {
 function ok(value2) {
   return { ok: true, value: value2 };
 }
+function gameUiTurnCompletionAllowed(status) {
+  return probeValue5(status.canEndTurn) === true && probeValue5(status.hasSentTurnComplete) !== true;
+}
+function probeValue5(probe3) {
+  return probe3.ok ? probe3.value : void 0;
+}
 function isPresent2(value2) {
   return value2 != null;
 }
@@ -32376,7 +32340,7 @@ function createCiv7GameUiDirectControlFacade(target) {
   };
   return {
     requestCiv7ProductionChoice: unsupported,
-    requestCiv7NotificationDismissal: async (input, _options, approval) => await requestCiv7GameUiNotificationDismissal(input, approval, target),
+    requestCiv7NotificationDismissal: async (input) => await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: unsupported,
     requestCiv7DiplomacyResponse: unsupported,
     requestCiv7TechnologyChoiceCloseout: unsupported,
@@ -32384,7 +32348,7 @@ function createCiv7GameUiDirectControlFacade(target) {
     requestCiv7AssignWorkerPlacement: unsupported,
     requestCiv7ExpandCityPlacement: unsupported,
     requestCiv7UnitTargetAction: unsupported,
-    requestCiv7TurnComplete: unsupported,
+    requestCiv7TurnComplete: async () => await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
     getCiv7PlayNotificationView: async (options) => await getCiv7GameUiPlayNotificationView({
       maxNotifications: options?.maxNotifications
@@ -32398,10 +32362,10 @@ function createCiv7GameUiDirectControlFacade(target) {
 }
 function gameUiPlayableStatus(target) {
   const snapshot = gameUiSnapshot(target);
-  const inGame = probeValue5(snapshot.ui.inGame) === true;
-  const inShell = probeValue5(snapshot.ui.inShell) === true;
-  const inLoading = probeValue5(snapshot.ui.inLoading) === true;
-  const canBegin = probeValue5(snapshot.ui.canBeginGame) === true;
+  const inGame = probeValue23(snapshot.ui.inGame) === true;
+  const inShell = probeValue23(snapshot.ui.inShell) === true;
+  const inLoading = probeValue23(snapshot.ui.inLoading) === true;
+  const canBegin = probeValue23(snapshot.ui.canBeginGame) === true;
   const readiness = inGame ? "app-ui-game" : canBegin ? "begin-ready" : inLoading ? "loading" : inShell ? "shell" : "unavailable";
   return {
     host: "game-ui",
@@ -32418,10 +32382,15 @@ function gameUiPlayableStatus(target) {
   };
 }
 function gameUiSupportedMutationProcedures(target) {
-  if (gameUiControllerMutationProof(target) != null && gameUiNotificationDismissalAvailable(target)) {
-    return ["notifications.dismiss.request"];
+  if (gameUiControllerMutationProof(target) == null) return [];
+  const supported2 = [];
+  if (gameUiNotificationDismissalAvailable(target)) {
+    supported2.push("notifications.dismiss.request");
   }
-  return [];
+  if (gameUiTurnCompletionAvailable(target)) {
+    supported2.push("turn.complete.request");
+  }
+  return supported2;
 }
 function gameUiSupportedReadProcedures(target) {
   if (gameUiControllerMutationProof(target) != null && gameUiAttentionReadAvailable(target)) {
@@ -32436,6 +32405,9 @@ function gameUiNotificationDismissalAvailable(target) {
 }
 function gameUiAttentionReadAvailable(target) {
   return typeof target.Game?.Notifications?.getIdsForPlayer === "function" && typeof target.Game?.Notifications?.find === "function" && typeof target.UI?.Player?.getFirstReadyUnit === "function" && isControllerPlayerId(target.GameContext?.localPlayerID);
+}
+function gameUiTurnCompletionAvailable(target) {
+  return gameUiAttentionReadAvailable(target) && typeof target.GameContext?.hasSentTurnComplete === "function" && typeof target.GameContext?.sendTurnComplete === "function" && typeof target.canEndTurn === "function" && typeof target.Game?.getTurnDate === "function" && typeof target.Game?.Notifications?.getEndTurnBlockingType === "function";
 }
 function gameUiSnapshot(target) {
   return {
@@ -32500,7 +32472,7 @@ function gameUiSnapshot(target) {
   };
 }
 function gameUiControllerMutationProof(target) {
-  if (probeValue5(probe22(() => target.UI?.isInGame?.() ?? false)) !== true) {
+  if (probeValue23(probe22(() => target.UI?.isInGame?.() ?? false)) !== true) {
     return null;
   }
   const localPlayerId = target.GameContext?.localPlayerID;
@@ -32557,7 +32529,7 @@ function probe22(fn2) {
 function ok2(value2) {
   return { ok: true, value: value2 };
 }
-function probeValue5(probe3) {
+function probeValue23(probe3) {
   return probe3.ok ? probe3.value : void 0;
 }
 

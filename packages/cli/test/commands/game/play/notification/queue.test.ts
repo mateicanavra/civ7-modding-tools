@@ -70,9 +70,7 @@ describe('game play notification queue command', () => {
       expect(step.typeName).toBe('NOTIFICATION_LEGACY_COMPLETED');
       expect(step.disposition).toBe('reviewed-dismissal-candidate');
       expect(step.safeToBatch).toBe(true);
-      expect(step.command).toContain('dismiss-notification');
-      expect(step.command).toContain('<reviewed: notification-legacy-completed>');
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(step.command).toContain('dismiss-notification');      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
     }
@@ -84,9 +82,7 @@ describe('game play notification queue command', () => {
       const step = payload.view.schedule[0];
       expect(step.disposition).toBe('reviewed-dismissal-candidate');
       expect(step.typeName).toBe('NOTIFICATION_UNIT_LOST');
-      expect(step.command).toContain("game play dismiss-notification --target '{\"owner\":0,\"id\":34,\"type\":20}'");
-      expect(step.command).toContain('<reviewed: notification-unit-lost>');
-      expect(step.command).not.toMatch(/enemy|hostile|opponent/i);
+      expect(step.command).toContain("game play dismiss-notification --target '{\"owner\":0,\"id\":34,\"type\":20}'");      expect(step.command).not.toMatch(/enemy|hostile|opponent/i);
       expect(step.safeToBatch).toBe(false);
     } finally {
       await server.close();

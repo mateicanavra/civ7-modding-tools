@@ -57,7 +57,7 @@ procedure modules before adding transport edges.
 ## Requires
 
 - Stable direct-control runtime ports and adjacent schema/proof owners.
-- Direct-control proof vocabulary for approval, validator-first sends,
+- Direct-control proof vocabulary for validator-first sends,
   postconditions, no-repeat-after-unverified, relationship authority, and
   runtime proof labels.
 - A schema-technology decision or explicit adapter plan for TypeBox and
@@ -103,7 +103,7 @@ procedure modules before adding transport edges.
   policy/dependency boundaries for future oRPC middleware/context.
 - A procedure surface requires endpoint/session/state/raw command fields in
   normal input instead of context/debug/internal ownership.
-- A mutation procedure cannot preserve approval, validator-first,
+- A mutation procedure cannot preserve validator-first,
   postcondition, and no-repeat-after-unverified semantics through typed
   middleware/proof records.
 - The implementation cannot test procedures in-process with oRPC-supported

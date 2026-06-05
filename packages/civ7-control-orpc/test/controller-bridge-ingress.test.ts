@@ -153,7 +153,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted notifications.dismiss.request through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted notifications.dismiss.request through the in-process router with controller proof", async () => {
     const fake = fakeNotificationDismissContext();
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -165,11 +165,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await ingress.invoke({
       procedureKey: "notifications.dismiss.request",
       input: { notificationId },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved notification dismissal",
-      },
       correlationId: "controller-notification-1",
     });
 
@@ -193,20 +188,10 @@ describe("Civ7 controller bridge ingress", () => {
     expect(fake.calls.dismissal).toEqual([{
       input: { notificationId },
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved notification dismissal",
-      },
     }]);
     expect(fake.contextRequests).toEqual([{
       procedureKey: "notifications.dismiss.request",
       input: { notificationId },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved notification dismissal",
-      },
       correlationId: "controller-notification-1",
     }]);
 
@@ -216,15 +201,14 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("\"session\"");
     expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"approval\"");
-    expect(serialized).not.toContain("controller approved notification dismissal");
+
     expect(serialized).not.toContain("NotificationModel.manager.dismiss");
     expect(serialized).not.toContain("Game.Notifications.dismiss");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted turn.complete.request through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted turn.complete.request through the in-process router with controller proof", async () => {
     const fake = fakeTurnCompleteContext();
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -236,11 +220,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await ingress.invoke({
       procedureKey: "turn.complete.request",
       input: {},
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved turn completion",
-      },
       correlationId: "controller-turn-1",
     });
 
@@ -262,20 +241,10 @@ describe("Civ7 controller bridge ingress", () => {
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.turnCompletion).toEqual([{
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved turn completion",
-      },
     }]);
     expect(fake.contextRequests).toEqual([{
       procedureKey: "turn.complete.request",
       input: {},
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved turn completion",
-      },
       correlationId: "controller-turn-1",
     }]);
 
@@ -285,15 +254,14 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("\"session\"");
     expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"approval\"");
-    expect(serialized).not.toContain("controller approved turn completion");
+
     expect(serialized).not.toContain("GameContext.sendTurnComplete");
     expect(serialized).not.toContain("CMD");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted unit.target.action.request through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted unit.target.action.request through the in-process router with controller proof", async () => {
     const fake = fakeUnitTargetActionContext();
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -305,11 +273,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await ingress.invoke({
       procedureKey: "unit.target.action.request",
       input: { unitId, ...target },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved unit target action",
-      },
       correlationId: "controller-unit-target-1",
     });
 
@@ -334,20 +297,10 @@ describe("Civ7 controller bridge ingress", () => {
     expect(fake.calls.targetAction).toEqual([{
       input: { unitId, ...target },
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved unit target action",
-      },
     }]);
     expect(fake.contextRequests).toEqual([{
       procedureKey: "unit.target.action.request",
       input: { unitId, ...target },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved unit target action",
-      },
       correlationId: "controller-unit-target-1",
     }]);
 
@@ -357,15 +310,14 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("\"session\"");
     expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"approval\"");
-    expect(serialized).not.toContain("controller approved unit target action");
+
     expect(serialized).not.toContain("Game.UnitOperations.sendRequest");
     expect(serialized).not.toContain("CMD");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted city.production.choice.request through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted city.production.choice.request through the in-process router with controller proof", async () => {
     const fake = fakeProductionChoiceContext();
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -377,11 +329,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await ingress.invoke({
       procedureKey: "city.production.choice.request",
       input: { cityId, args: productionArgs },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved production choice",
-      },
       correlationId: "controller-production-1",
     });
 
@@ -406,20 +353,10 @@ describe("Civ7 controller bridge ingress", () => {
     expect(fake.calls.production).toEqual([{
       input: { cityId, args: productionArgs },
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved production choice",
-      },
     }]);
     expect(fake.contextRequests).toEqual([{
       procedureKey: "city.production.choice.request",
       input: { cityId, args: productionArgs },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved production choice",
-      },
       correlationId: "controller-production-1",
     }]);
 
@@ -429,8 +366,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("\"session\"");
     expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"approval\"");
-    expect(serialized).not.toContain("controller approved production choice");
+
     expect(serialized).not.toContain("Game.CityOperations.sendRequest");
     expect(serialized).not.toContain("Game.CityOperations.canStart");
     expect(serialized).not.toContain("CMD");
@@ -438,7 +374,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted city.population.place.request through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted city.population.place.request through the in-process router with controller proof", async () => {
     const fake = fakePopulationPlacementContext();
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -453,11 +389,6 @@ describe("Civ7 controller bridge ingress", () => {
         mode: "assign-worker",
         playerId: 0,
         location: workerLocation,
-      },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved population placement",
       },
       correlationId: "controller-population-1",
     });
@@ -487,11 +418,6 @@ describe("Civ7 controller bridge ingress", () => {
       method: "requestCiv7AssignWorkerPlacement",
       input: { playerId: 0, location: workerLocation },
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved population placement",
-      },
     }]);
     expect(fake.contextRequests).toEqual([{
       procedureKey: "city.population.place.request",
@@ -499,11 +425,6 @@ describe("Civ7 controller bridge ingress", () => {
         mode: "assign-worker",
         playerId: 0,
         location: workerLocation,
-      },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved population placement",
       },
       correlationId: "controller-population-1",
     }]);
@@ -514,8 +435,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("\"session\"");
     expect(serialized).not.toContain("\"rawCommand\"");
-    expect(serialized).not.toContain("\"approval\"");
-    expect(serialized).not.toContain("controller approved population placement");
+
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("Game.CityCommands.sendRequest");
     expect(serialized).not.toContain("CMD");
@@ -523,7 +443,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted narrative.choice.request through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted narrative.choice.request through the in-process router with controller proof", async () => {
     const fake = fakeNarrativeChoiceContext();
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -535,11 +455,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await ingress.invoke({
       procedureKey: "narrative.choice.request",
       input: narrativeInput,
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved narrative choice",
-      },
       correlationId: "controller-narrative-1",
     });
 
@@ -566,20 +481,10 @@ describe("Civ7 controller bridge ingress", () => {
     expect(fake.calls.narrative).toEqual([{
       input: narrativeInput,
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved narrative choice",
-      },
     }]);
     expect(fake.contextRequests).toEqual([{
       procedureKey: "narrative.choice.request",
       input: narrativeInput,
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved narrative choice",
-      },
       correlationId: "controller-narrative-1",
     }]);
 
@@ -591,8 +496,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"rawCommand\"");
     expect(serialized).not.toContain("\"command\"");
     expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"approval\"");
-    expect(serialized).not.toContain("controller approved narrative choice");
+
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("Game.turn");
     expect(serialized).not.toContain("CMD");
@@ -600,7 +504,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted diplomacy.response.request through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted diplomacy.response.request through the in-process router with controller proof", async () => {
     const fake = fakeDiplomacyResponseContext();
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -612,11 +516,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await ingress.invoke({
       procedureKey: "diplomacy.response.request",
       input: diplomacyInput,
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved diplomacy response",
-      },
       correlationId: "controller-diplomacy-1",
     });
 
@@ -643,20 +542,10 @@ describe("Civ7 controller bridge ingress", () => {
     expect(fake.calls.diplomacy).toEqual([{
       input: diplomacyInput,
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved diplomacy response",
-      },
     }]);
     expect(fake.contextRequests).toEqual([{
       procedureKey: "diplomacy.response.request",
       input: diplomacyInput,
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved diplomacy response",
-      },
       correlationId: "controller-diplomacy-1",
     }]);
 
@@ -668,9 +557,8 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"rawCommand\"");
     expect(serialized).not.toContain("\"command\"");
     expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"approval\"");
     expect(serialized).not.toContain("\"verified\"");
-    expect(serialized).not.toContain("controller approved diplomacy response");
+
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("DiplomacyManager");
     expect(serialized).not.toContain("CMD");
@@ -678,7 +566,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted progression technology choice through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted progression technology choice through the in-process router with controller proof", async () => {
     const fake = fakeProgressionChoiceContext();
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -690,11 +578,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await ingress.invoke({
       procedureKey: "progression.technology.choice.request",
       input: progressionTechnologyInput,
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved technology choice",
-      },
       correlationId: "controller-progression-tech-1",
     });
 
@@ -725,11 +608,6 @@ describe("Civ7 controller bridge ingress", () => {
         notificationId,
       },
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved technology choice",
-      },
     }]);
     expect(fake.calls.culture).toEqual([]);
 
@@ -741,8 +619,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"rawCommand\"");
     expect(serialized).not.toContain("\"command\"");
     expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"approval\"");
-    expect(serialized).not.toContain("controller approved technology choice");
+
     expect(serialized).not.toContain("SET_TECH_TREE_NODE");
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("CMD");
@@ -750,7 +627,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
-  test("invokes allowlisted progression culture choice through the in-process router with explicit approval", async () => {
+  test("invokes allowlisted progression culture choice through the in-process router with controller proof", async () => {
     const fake = fakeProgressionChoiceContext("culture");
     const ingress = createCiv7ControllerBridgeIngress({
       createContext: (request) => {
@@ -762,11 +639,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await ingress.invoke({
       procedureKey: "progression.culture.choice.request",
       input: progressionCultureInput,
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved culture choice",
-      },
       correlationId: "controller-progression-culture-1",
     });
 
@@ -798,11 +670,6 @@ describe("Civ7 controller bridge ingress", () => {
         notificationId,
       },
       options: { timeoutMs: 1_000 },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved culture choice",
-      },
     }]);
 
     const serialized = JSON.stringify(response);
@@ -813,8 +680,7 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"rawCommand\"");
     expect(serialized).not.toContain("\"command\"");
     expect(serialized).not.toContain("\"payload\"");
-    expect(serialized).not.toContain("\"approval\"");
-    expect(serialized).not.toContain("controller approved culture choice");
+
     expect(serialized).not.toContain("SET_CULTURE_TREE_NODE");
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
     expect(serialized).not.toContain("CMD");
@@ -831,43 +697,22 @@ describe("Civ7 controller bridge ingress", () => {
       { procedureKey: "readiness.current", input: {}, command: "Game.turn" },
       { procedureKey: "readiness.current", input: {}, rawCommand: "Game.turn" },
       { procedureKey: "readiness.current", input: { rawCommand: "Game.turn" } },
-      { procedureKey: "readiness.current", input: {}, approval: { approved: true } },
       { procedureKey: "attention.current", input: {}, host: "127.0.0.1" },
       { procedureKey: "attention.current", input: {}, session: { state: "Tuner" } },
       { procedureKey: "attention.current", input: {}, rawCommand: "Game.turn" },
       { procedureKey: "attention.current", input: { rawCommand: "Game.turn" } },
-      { procedureKey: "attention.current", input: {}, approval: { approved: true } },
-      { procedureKey: "notifications.dismiss.request", input: { notificationId } },
       {
         procedureKey: "notifications.dismiss.request",
         input: { notificationId },
-        approval: controllerApproval(),
         host: "127.0.0.1",
       },
       {
         procedureKey: "notifications.dismiss.request",
         input: { notificationId, rawCommand: "Game.Notifications.dismiss(...)" },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "notifications.dismiss.request",
         input: { notificationId },
-        approval: {
-          source: "controller-runtime",
-          approved: true,
-          reason: "controller approved dismissal",
-          command: "Game.Notifications.dismiss(...)",
-        },
-      },
-      {
-        procedureKey: "notifications.dismiss.request",
-        input: { notificationId },
-        approval: { approved: true, reason: "controller approved dismissal" },
-      },
-      {
-        procedureKey: "notifications.dismiss.request",
-        input: { notificationId },
-        approval: controllerApproval(),
         controllerProof: {
           ...controllerMutationProof(),
           lifecycle: { source: "controller-runtime", status: "loading" },
@@ -876,7 +721,6 @@ describe("Civ7 controller bridge ingress", () => {
       {
         procedureKey: "notifications.dismiss.request",
         input: { notificationId },
-        approval: controllerApproval(),
         controllerProof: {
           ...controllerMutationProof(),
           localPlayer: { source: "input.playerId", playerId: 0 },
@@ -885,59 +729,28 @@ describe("Civ7 controller bridge ingress", () => {
       {
         procedureKey: "notifications.dismiss.request",
         input: { notificationId },
-        approval: controllerApproval(),
         controllerProof: {
           ...controllerMutationProof(),
           hotseat: { source: "controller-runtime", status: "unknown" },
         },
       },
-      { procedureKey: "turn.complete.request", input: {} },
       {
         procedureKey: "turn.complete.request",
         input: { rawCommand: "GameContext.sendTurnComplete()" },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "turn.complete.request",
         input: {},
-        approval: controllerApproval(),
         session: { state: "App UI" },
       },
       {
-        procedureKey: "turn.complete.request",
-        input: {},
-        approval: {
-          source: "controller-runtime",
-          approved: true,
-          reason: "controller approved turn completion",
-          command: "GameContext.sendTurnComplete()",
-        },
-      },
-      { procedureKey: "unit.target.action.request", input: { unitId, ...target } },
-      {
         procedureKey: "unit.target.action.request",
         input: { unitId, ...target, rawCommand: "Game.UnitOperations.sendRequest(...)" },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "unit.target.action.request",
         input: { unitId, ...target },
-        approval: controllerApproval(),
         state: { name: "App UI" },
-      },
-      {
-        procedureKey: "unit.target.action.request",
-        input: { unitId, ...target },
-        approval: {
-          source: "controller-runtime",
-          approved: true,
-          reason: "controller approved unit target action",
-          command: "Game.UnitOperations.sendRequest(...)",
-        },
-      },
-      {
-        procedureKey: "city.production.choice.request",
-        input: { cityId, args: productionArgs },
       },
       {
         procedureKey: "city.production.choice.request",
@@ -946,31 +759,11 @@ describe("Civ7 controller bridge ingress", () => {
           args: productionArgs,
           rawCommand: "Game.CityOperations.sendRequest(...)",
         },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "city.production.choice.request",
         input: { cityId, args: productionArgs },
-        approval: controllerApproval(),
         session: { state: "App UI" },
-      },
-      {
-        procedureKey: "city.production.choice.request",
-        input: { cityId, args: productionArgs },
-        approval: {
-          source: "controller-runtime",
-          approved: true,
-          reason: "controller approved production choice",
-          command: "Game.CityOperations.sendRequest(...)",
-        },
-      },
-      {
-        procedureKey: "city.population.place.request",
-        input: {
-          mode: "assign-worker",
-          playerId: 0,
-          location: workerLocation,
-        },
       },
       {
         procedureKey: "city.population.place.request",
@@ -980,7 +773,6 @@ describe("Civ7 controller bridge ingress", () => {
           location: workerLocation,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "city.population.place.request",
@@ -989,56 +781,26 @@ describe("Civ7 controller bridge ingress", () => {
           cityId,
           destination: target,
         },
-        approval: controllerApproval(),
         state: { name: "App UI" },
       },
-      {
-        procedureKey: "city.population.place.request",
-        input: {
-          mode: "assign-worker",
-          playerId: 0,
-          location: workerLocation,
-        },
-        approval: {
-          source: "controller-runtime",
-          approved: true,
-          reason: "controller approved population placement",
-          command: "Game.PlayerOperations.sendRequest(...)",
-        },
-      },
-      { procedureKey: "narrative.choice.request", input: narrativeInput },
       {
         procedureKey: "narrative.choice.request",
         input: {
           ...narrativeInput,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "narrative.choice.request",
         input: narrativeInput,
-        approval: controllerApproval(),
         session: { state: "App UI" },
       },
-      {
-        procedureKey: "narrative.choice.request",
-        input: narrativeInput,
-        approval: {
-          source: "controller-runtime",
-          approved: true,
-          reason: "controller approved narrative choice",
-          command: "Game.PlayerOperations.sendRequest(...)",
-        },
-      },
-      { procedureKey: "diplomacy.response.request", input: diplomacyInput },
       {
         procedureKey: "diplomacy.response.request",
         input: {
           ...diplomacyInput,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "diplomacy.response.request",
@@ -1046,27 +808,11 @@ describe("Civ7 controller bridge ingress", () => {
           ...diplomacyInput,
           activateNotification: false,
         },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "diplomacy.response.request",
         input: diplomacyInput,
-        approval: controllerApproval(),
         session: { state: "App UI" },
-      },
-      {
-        procedureKey: "diplomacy.response.request",
-        input: diplomacyInput,
-        approval: {
-          source: "controller-runtime",
-          approved: true,
-          reason: "controller approved diplomacy response",
-          command: "Game.PlayerOperations.sendRequest(...)",
-        },
-      },
-      {
-        procedureKey: "progression.technology.choice.request",
-        input: progressionTechnologyInput,
       },
       {
         procedureKey: "progression.technology.choice.request",
@@ -1074,27 +820,11 @@ describe("Civ7 controller bridge ingress", () => {
           ...progressionTechnologyInput,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "progression.technology.choice.request",
         input: progressionTechnologyInput,
-        approval: controllerApproval(),
         session: { state: "App UI" },
-      },
-      {
-        procedureKey: "progression.technology.choice.request",
-        input: progressionTechnologyInput,
-        approval: {
-          source: "controller-runtime",
-          approved: true,
-          reason: "controller approved technology choice",
-          command: "Game.PlayerOperations.sendRequest(...)",
-        },
-      },
-      {
-        procedureKey: "progression.culture.choice.request",
-        input: progressionCultureInput,
       },
       {
         procedureKey: "progression.culture.choice.request",
@@ -1102,7 +832,6 @@ describe("Civ7 controller bridge ingress", () => {
           ...progressionCultureInput,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
-        approval: controllerApproval(),
       },
     ];
 
@@ -1130,7 +859,6 @@ describe("Civ7 controller bridge ingress", () => {
     const response = await invokeCiv7ControllerBridgeRequest({
       procedureKey: "notifications.dismiss.request",
       input: { notificationId },
-      approval: controllerApproval(),
       correlationId: "controller-missing-proof-1",
     }, {
       createContext: () => fake.context,
@@ -1168,38 +896,6 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls).toEqual([]);
-  });
-
-  test("keeps mutation approval middleware authoritative after envelope validation", async () => {
-    const fake = fakeNotificationDismissContext();
-
-    const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "notifications.dismiss.request",
-      input: { notificationId },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "   ",
-      },
-      correlationId: "controller-notification-approval-1",
-    }, {
-      createContext: () => fake.context,
-    });
-
-    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
-    expect(response).toEqual({
-      ok: false,
-      correlationId: "controller-notification-approval-1",
-      error: {
-        code: "MUTATION_APPROVAL_REQUIRED",
-        message: "Explicit mutation approval is required.",
-        reason: "procedure-failed",
-      },
-    });
-    expect(fake.calls).toEqual({
-      status: [],
-      dismissal: [],
-    });
   });
 
   test("keeps raw direct-control failure details out of bridge failures", async () => {
@@ -1312,7 +1008,6 @@ function fakeNotificationDismissContext(): {
     dismissal: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   };
   contextRequests: unknown[];
@@ -1323,7 +1018,6 @@ function fakeNotificationDismissContext(): {
     dismissal: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   } = {
     status: [],
@@ -1340,8 +1034,8 @@ function fakeNotificationDismissContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
-        requestCiv7NotificationDismissal: async (input, options, approval) => {
-          calls.dismissal.push({ input, options, approval });
+        requestCiv7NotificationDismissal: async (input, options) => {
+          calls.dismissal.push({ input, options });
           return notificationDismissalResult("notification-disappeared");
         },
       } as Civ7ControlOrpcContext["directControl"],
@@ -1354,7 +1048,6 @@ function fakeTurnCompleteContext(): {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     turnCompletion: Array<{
       options: unknown;
-      approval: unknown;
     }>;
   };
   contextRequests: unknown[];
@@ -1364,7 +1057,6 @@ function fakeTurnCompleteContext(): {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     turnCompletion: Array<{
       options: unknown;
-      approval: unknown;
     }>;
   } = {
     status: [],
@@ -1381,8 +1073,8 @@ function fakeTurnCompleteContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
-        requestCiv7TurnComplete: async (options, approval) => {
-          calls.turnCompletion.push({ options, approval });
+        requestCiv7TurnComplete: async (options) => {
+          calls.turnCompletion.push({ options });
           return turnCompletionRequestResult();
         },
       } as Civ7ControlOrpcContext["directControl"],
@@ -1396,7 +1088,6 @@ function fakeUnitTargetActionContext(): {
     targetAction: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   };
   contextRequests: unknown[];
@@ -1407,7 +1098,6 @@ function fakeUnitTargetActionContext(): {
     targetAction: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   } = {
     status: [],
@@ -1424,8 +1114,8 @@ function fakeUnitTargetActionContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
-        requestCiv7UnitTargetAction: async (input, options, approval) => {
-          calls.targetAction.push({ input, options, approval });
+        requestCiv7UnitTargetAction: async (input, options) => {
+          calls.targetAction.push({ input, options });
           return unitTargetActionResult();
         },
       } as Civ7ControlOrpcContext["directControl"],
@@ -1439,7 +1129,6 @@ function fakeProductionChoiceContext(): {
     production: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   };
   contextRequests: unknown[];
@@ -1450,7 +1139,6 @@ function fakeProductionChoiceContext(): {
     production: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   } = {
     status: [],
@@ -1467,8 +1155,8 @@ function fakeProductionChoiceContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
-        requestCiv7ProductionChoice: async (input, options, approval) => {
-          calls.production.push({ input, options, approval });
+        requestCiv7ProductionChoice: async (input, options) => {
+          calls.production.push({ input, options });
           return productionChoiceResult();
         },
       } as Civ7ControlOrpcContext["directControl"],
@@ -1483,7 +1171,6 @@ function fakePopulationPlacementContext(): {
       method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   };
   contextRequests: unknown[];
@@ -1495,7 +1182,6 @@ function fakePopulationPlacementContext(): {
       method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   } = {
     status: [],
@@ -1512,21 +1198,19 @@ function fakePopulationPlacementContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
-        requestCiv7AssignWorkerPlacement: async (input, options, approval) => {
+        requestCiv7AssignWorkerPlacement: async (input, options) => {
           calls.population.push({
             method: "requestCiv7AssignWorkerPlacement",
             input,
             options,
-            approval,
           });
           return populationPlacementResult("assign-worker");
         },
-        requestCiv7ExpandCityPlacement: async (input, options, approval) => {
+        requestCiv7ExpandCityPlacement: async (input, options) => {
           calls.population.push({
             method: "requestCiv7ExpandCityPlacement",
             input,
             options,
-            approval,
           });
           return populationPlacementResult("expand-city");
         },
@@ -1541,7 +1225,6 @@ function fakeNarrativeChoiceContext(): {
     narrative: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   };
   contextRequests: unknown[];
@@ -1552,7 +1235,6 @@ function fakeNarrativeChoiceContext(): {
     narrative: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   } = {
     status: [],
@@ -1569,8 +1251,8 @@ function fakeNarrativeChoiceContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
-        requestCiv7NarrativeChoice: async (input, options, approval) => {
-          calls.narrative.push({ input, options, approval });
+        requestCiv7NarrativeChoice: async (input, options) => {
+          calls.narrative.push({ input, options });
           return narrativeChoiceResult();
         },
       } as Civ7ControlOrpcContext["directControl"],
@@ -1584,7 +1266,6 @@ function fakeDiplomacyResponseContext(): {
     diplomacy: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   };
   contextRequests: unknown[];
@@ -1595,7 +1276,6 @@ function fakeDiplomacyResponseContext(): {
     diplomacy: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   } = {
     status: [],
@@ -1612,8 +1292,8 @@ function fakeDiplomacyResponseContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
-        requestCiv7DiplomacyResponse: async (input, options, approval) => {
-          calls.diplomacy.push({ input, options, approval });
+        requestCiv7DiplomacyResponse: async (input, options) => {
+          calls.diplomacy.push({ input, options });
           return diplomacyResponseResult();
         },
       } as Civ7ControlOrpcContext["directControl"],
@@ -1628,12 +1308,10 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
     technology: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
     culture: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   };
   contextRequests: unknown[];
@@ -1645,12 +1323,10 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
     technology: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
     culture: Array<{
       input: unknown;
       options: unknown;
-      approval: unknown;
     }>;
   } = {
     status: [],
@@ -1677,24 +1353,16 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
           calls.views.push(options);
           return views.shift() ?? progressionCleanNotificationView();
         },
-        requestCiv7TechnologyChoiceCloseout: async (input, options, approval) => {
-          calls.technology.push({ input, options, approval });
+        requestCiv7TechnologyChoiceCloseout: async (input, options) => {
+          calls.technology.push({ input, options });
           return progressionCloseoutResult("technology");
         },
-        requestCiv7CultureChoiceCloseout: async (input, options, approval) => {
-          calls.culture.push({ input, options, approval });
+        requestCiv7CultureChoiceCloseout: async (input, options) => {
+          calls.culture.push({ input, options });
           return progressionCloseoutResult("culture");
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
-  };
-}
-
-function controllerApproval(): Record<string, unknown> {
-  return {
-    source: "controller-runtime",
-    approved: true,
-    reason: "controller approved dismissal",
   };
 }
 

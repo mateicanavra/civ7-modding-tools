@@ -1,10 +1,8 @@
 import { Command, Flags } from '@oclif/core';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   executePlayOperationSequence,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -20,8 +18,8 @@ export default class GamePlayChangeTradition extends Command {
 
   static examples = [
     '<%= config.bin %> game play change-tradition --player-id 0 --tradition-type 2057145683 --action 1318334332 --json',
-    '<%= config.bin %> game play change-tradition --player-id 0 --tradition-type -331546976 --action -1326475004 --send --reason "activate Honor after tradition review" --json',
-    '<%= config.bin %> game play change-tradition --player-id 0 --tradition-type -331546976 --action -1326475004 --send --closeout --reason "activate and close reviewed tradition assignment" --json',
+    '<%= config.bin %> game play change-tradition --player-id 0 --tradition-type -331546976 --action -1326475004 --send --json',
+    '<%= config.bin %> game play change-tradition --player-id 0 --tradition-type -331546976 --action -1326475004 --send --closeout --json',
   ];
 
   static flags = {
@@ -51,9 +49,6 @@ export default class GamePlayChangeTradition extends Command {
       description: 'Also run CONSIDER_ASSIGN_TRADITIONS as part of the same caller-level workflow',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -65,9 +60,7 @@ export default class GamePlayChangeTradition extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayChangeTradition);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play change-tradition');
-    const input = {
+    const { flags } = await this.parse(GamePlayChangeTradition);    const input = {
       operationType: CHANGE_TRADITION,
       playerId: flags['player-id'],
       args: {
@@ -92,14 +85,14 @@ export default class GamePlayChangeTradition extends Command {
             args: {},
           },
         },
-      ], options, { send: flags.send, reason });
+      ], options, { send: flags.send });
 
       emitPlayResult(this.log.bind(this), flags.json, result);
       return;
     }
 
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+      ? await sendPlayOperation('player-operation', input, options)
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

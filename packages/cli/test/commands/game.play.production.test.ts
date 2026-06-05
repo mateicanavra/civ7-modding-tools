@@ -22,8 +22,6 @@ describe('game play production commands', () => {
         '--unit-type',
         '1558890441',
         '--send',
-        '--reason',
-        'test unit production',
         '--json',
       ]);
 
@@ -60,8 +58,6 @@ describe('game play production commands', () => {
         '--y',
         '31',
         '--send',
-        '--reason',
-        'test constructible production placement',
         '--json',
       ]);
 
@@ -120,8 +116,6 @@ describe('game play production commands', () => {
         '--unit-type',
         '1558890441',
         '--send',
-        '--reason',
-        'test production closeout',
         '--json',
       ]);
 

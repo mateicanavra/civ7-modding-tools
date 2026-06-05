@@ -43,7 +43,7 @@ authority.
 
 - no new standalone `runtime.turn.completion.status` oRPC read wrapper;
 - no direct-control attention facade;
-- no turn-complete send/mutation procedure, approval middleware,
+- no turn-complete send/mutation procedure, readiness middleware,
   postcondition/no-repeat middleware, or runtime/live-game proof claim;
 - no CLI, Studio, HTTP/RPCLink, OpenAPI, global bridge, or in-game UIScript
   adapter work;

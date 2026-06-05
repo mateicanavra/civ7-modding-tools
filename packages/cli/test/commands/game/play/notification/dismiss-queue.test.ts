@@ -5,7 +5,7 @@ import { type FakeTunerServer, startFakeTunerServer } from '../../../fixtures/tu
 type DismissQueueMode = 'mixed-queue' | 'unit-lost-report';
 
 describe('game play dismiss-notification-queue command', () => {
-  test('bulk dismisses only eligible informational queue items with approval', async () => {
+  test('bulk dismisses only eligible informational queue items with send enabled', async () => {
     const dryRun = await runDismissNotificationQueue('mixed-queue');
     try {
       expect(dryRun.payload.view.send).toBe(false);
@@ -20,8 +20,6 @@ describe('game play dismiss-notification-queue command', () => {
 
     const sent = await runDismissNotificationQueue('mixed-queue', [
       '--send',
-      '--reason',
-      'reviewed queue reports',
     ]);
     try {
       expect(sent.payload.view.send).toBe(true);

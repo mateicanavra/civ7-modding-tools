@@ -57,10 +57,6 @@ describe("progression choice control-oRPC procedures", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: {
-        approved: true,
-        reason: "local progression choice proof",
-      },
     }]);
     expect(fake.calls.culture).toEqual([]);
     expect(result).toEqual({
@@ -131,10 +127,6 @@ describe("progression choice control-oRPC procedures", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: {
-        approved: true,
-        reason: "local progression choice proof",
-      },
     }]);
     expect(result.playerId).toBe(0);
     expect(result.status).toBe("sent-confirmed");
@@ -169,10 +161,6 @@ describe("progression choice control-oRPC procedures", () => {
         host: "127.0.0.1",
         port: 4318,
         timeoutMs: 1_000,
-      },
-      approval: {
-        approved: true,
-        reason: "local progression choice proof",
       },
     }]);
     expect(fake.calls.technology).toEqual([]);
@@ -276,33 +264,6 @@ describe("progression choice control-oRPC procedures", () => {
       label: "Do not repeat this progression choice request until fresh attention and progression evidence is read.",
     }]);
     expect(JSON.stringify(result)).not.toContain("CMD");
-  });
-
-  test("requires approval before readiness, reads, or request execution", async () => {
-    const fake = fakeContext({
-      views: [cleanView(), cleanView()],
-      technologyResult: progressionCloseoutResult("technology"),
-      approved: false,
-    });
-
-    await expect(
-      call(
-        Civ7ControlOrpcRouter.progression.technology.choice.request,
-        technologyInput,
-        { context: fake.context },
-      ),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      data: {
-        procedureKey: "progression.technology.choice.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls.readiness).toEqual([]);
-    expect(fake.calls.views).toEqual([]);
-    expect(fake.calls.technology).toEqual([]);
-    expect(fake.calls.culture).toEqual([]);
   });
 
   test("keeps endpoint/session/state/raw command fields and UI toggles out of procedure input", async () => {
@@ -436,7 +397,6 @@ function fakeContext(options: Readonly<{
   views: readonly (Civ7ControlOrpcPlayNotificationViewResult | Error)[];
   technologyResult?: Civ7ControlOrpcTechnologyChoiceCloseoutResult;
   cultureResult?: Civ7ControlOrpcCultureChoiceCloseoutResult;
-  approved?: boolean;
   playable?: boolean;
 }>): {
   calls: {
@@ -445,12 +405,10 @@ function fakeContext(options: Readonly<{
     technology: Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
-      approval: Civ7ControlOrpcContext["approval"];
     }>>;
     culture: Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
-      approval: Civ7ControlOrpcContext["approval"];
     }>>;
   };
   context: Civ7ControlOrpcContext;
@@ -462,21 +420,16 @@ function fakeContext(options: Readonly<{
     technology: [] as Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
-      approval: Civ7ControlOrpcContext["approval"];
     }>>,
     culture: [] as Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
-      approval: Civ7ControlOrpcContext["approval"];
     }>>,
   };
 
   return {
     calls,
     context: {
-      approval: options.approved === false
-        ? undefined
-        : { approved: true, reason: "local progression choice proof" },
       endpointDefaults: {
         host: "127.0.0.1",
         port: 4318,
@@ -495,27 +448,19 @@ function fakeContext(options: Readonly<{
         },
         requestCiv7TechnologyChoiceCloseout: async (
           input,
-          endpointDefaults,
-          approval,
-        ) => {
+          endpointDefaults,        ) => {
           calls.technology.push({
             input,
-            options: endpointDefaults,
-            approval,
-          });
+            options: endpointDefaults,          });
           return options.technologyResult
             ?? progressionCloseoutResult("technology");
         },
         requestCiv7CultureChoiceCloseout: async (
           input,
-          endpointDefaults,
-          approval,
-        ) => {
+          endpointDefaults,        ) => {
           calls.culture.push({
             input,
-            options: endpointDefaults,
-            approval,
-          });
+            options: endpointDefaults,          });
           return options.cultureResult ?? progressionCloseoutResult("culture");
         },
       } as Civ7ControlOrpcContext["directControl"],

@@ -44,8 +44,7 @@ describe("unit target action requests", () => {
       });
       const request = await requestCiv7UnitTargetAction(
         input,
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test unit target action" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(plan).toMatchObject({
@@ -102,24 +101,6 @@ describe("unit target action requests", () => {
     }
   });
 
-  test("requires approval before sending unit target actions", async () => {
-    const server = await startUnitTargetActionTunerServer();
-    try {
-      const { port } = server.address();
-      await expect(
-        requestCiv7UnitTargetAction(
-          { unitId: { owner: 0, id: 65536, type: 26 }, x: 23, y: 33 },
-          { host: "127.0.0.1", port, timeoutMs: 1_000 },
-          undefined as never
-        )
-      ).rejects.toMatchObject({ code: "command-failed" });
-      expect(server.received).toEqual([]);
-      expect(server.targetActionCalls).toEqual([]);
-    } finally {
-      await server.close();
-    }
-  });
-
   test("reports sent no-ops as unverified postcondition misses without repeating the send", async () => {
     const server = await startUnitTargetActionTunerServer("no-op-after-send");
     try {
@@ -128,8 +109,7 @@ describe("unit target action requests", () => {
       const input = { unitId, x: 23, y: 33 };
       const request = await requestCiv7UnitTargetAction(
         input,
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test no-op unit target action" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.selected).toMatchObject({
@@ -265,7 +245,7 @@ function unitTargetActionPayload(call: UnitTargetActionCall, mode: UnitTargetMod
             destinationReached: null,
             requestedLocation: { x: input.x, y: input.y },
             landedLocation: { x: 22, y: 33 },
-            reason: "read-only target resolution; use --send with an approval reason to mutate",
+            reason: "read-only target resolution; use --send to request a mutation",
           },
         }),
     notes: [

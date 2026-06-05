@@ -9,7 +9,7 @@ Seed the second write-capable native `packages/civ7-control-orpc` procedure
 without copying direct-control procedure-core wiring or adding transport edges.
 `notifications.dismiss.request` owns the caller-facing oRPC service contract
 for a reviewed notification dismissal while `@civ7/direct-control` remains the
-runtime, App UI command, approval, postcondition, verification, and proof-policy
+runtime, App UI command,  postcondition, verification, and proof-policy
 owner.
 
 ## Write Set
@@ -30,12 +30,12 @@ owner.
 
 - accepts only the source-owned notification dismissal input shape:
   `notificationId`;
-- takes explicit mutation approval from typed oRPC context, not normal
+- takes explicit readiness from typed oRPC context, not normal
   procedure input;
 - uses native effect-oRPC leaf `.use(...)` middleware to reject missing or
-  empty approval before the direct-control mutation port runs;
+  failed readiness before the direct-control mutation port runs;
 - calls the direct-control `requestCiv7NotificationDismissal` runtime port with
-  endpoint defaults and approved context;
+  endpoint defaults and readiness context;
 - consumes the direct-control notification dismissal proof helper for
   confirmed/unverified postcondition and no-repeat classification;
 - returns a semantic normal output with send status, pre/post validation
@@ -49,8 +49,8 @@ owner.
 - no direct-control-local procedure-core, middleware runner, correlation bus,
   error bus, router registry, or context composer;
 - no shared validator/postcondition middleware promotion beyond the repeated
-  leaf-scoped native middleware proof; shared approval promotion is recorded in
-  the later approval-middleware slice;
+  leaf-scoped native middleware proof; shared readiness promotion is recorded in
+  the later readiness-middleware slice;
 - no CLI, Studio, HTTP/RPCLink, OpenAPI, global bridge, or in-game UIScript
   adapter work;
 - no runtime/live-game proof claim from local package tests;
@@ -73,15 +73,15 @@ owner.
 - `git diff --check`
 
 Focused proof covers in-process procedure calls, server-side router client
-calls, approval middleware refusal before mutation, endpoint/session/raw command
+calls, readiness middleware refusal before mutation, endpoint/session/raw command
 input rejection, safe tagged error projection, confirmed notification dismissal
 postconditions, stale/unverified no-repeat guarded postconditions, and
 validator-blocked not-sent projection. These are local package proofs only.
 
 ## Residual Risk
 
-Approval is now repeated across two mutation procedure leaves, making shared
-native approval middleware the next policy-layering candidate. The later
-approval-middleware slice owns that cross-leaf promotion. Shared validator-first
+Validator/postcondition/no-repeat safety is now repeated across two mutation procedure leaves, making shared
+native readiness middleware the next policy-layering candidate. The later
+readiness-middleware slice owns that cross-leaf promotion. Shared validator-first
 and postcondition/proof middleware also remain pending until a clean common
 shape is proven without custom wrapper plumbing.

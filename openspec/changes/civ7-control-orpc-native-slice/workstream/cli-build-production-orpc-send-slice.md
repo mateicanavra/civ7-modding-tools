@@ -33,7 +33,7 @@ it is a separate convenience command over the older generic operation wrapper.
 
 ## Proof
 
-- Focused CLI production tests prove the approved `build-production --send`
+- Focused CLI production tests prove the accepted `build-production --send`
   path reaches the existing direct-control production runtime command through
   the in-process service client path, emits semantic
   `city.production.choice.request` output, and keeps raw command/session/state,

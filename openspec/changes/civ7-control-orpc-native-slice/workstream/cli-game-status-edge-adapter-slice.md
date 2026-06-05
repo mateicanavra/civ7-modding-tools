@@ -7,7 +7,7 @@ Date: 2026-06-05.
 
 Route the first existing CLI caller through the native in-process
 `packages/civ7-control-orpc` server-side procedure client after the core router
-shape gained service-owned reads, mutation leaves, approval middleware, safe
+shape gained service-owned reads, mutation leaves, readiness middleware, safe
 errors, correlation, and readiness guards.
 
 This advances the edge-adapter lane without adding transport. The CLI remains

@@ -78,8 +78,6 @@ describe('game play diplomacy response commands', () => {
         '--notification-id',
         '{"owner":0,"id":19,"type":20}',
         '--send',
-        '--reason',
-        'test diplomacy response closeout',
         '--json',
       ]);
 
@@ -379,7 +377,7 @@ function playNotificationView(mode: 'stale-diplomacy', diplomacyCloseoutObserved
           enabled: true,
           disabled: false,
           validation: { ok: true, value: { Success: true } },
-          cli: "game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+          cli: "game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send",
         },
       ],
       disabledOptions: [],

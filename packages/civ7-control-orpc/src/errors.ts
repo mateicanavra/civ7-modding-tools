@@ -213,29 +213,6 @@ export class Civ7TurnCompletionUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
-export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
-  {
-    procedureKey: Type.String(),
-    source: Type.Literal("context.approval"),
-    risk: Type.Literal("mutation"),
-    ...Civ7ControlOrpcErrorCorrelationProperties,
-  },
-  { additionalProperties: false },
-);
-export type Civ7MutationApprovalRequiredErrorData = Static<
-  typeof Civ7MutationApprovalRequiredErrorDataSchema
->;
-
-export class Civ7MutationApprovalRequiredError extends ORPCTaggedError(
-  "Civ7MutationApprovalRequiredError",
-  {
-    code: "MUTATION_APPROVAL_REQUIRED",
-    message: "Explicit mutation approval is required.",
-    schema: toStandardSchema(Civ7MutationApprovalRequiredErrorDataSchema),
-    status: 403,
-  },
-) {}
-
 export const Civ7MutationReadinessRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -353,7 +330,6 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
-  MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,

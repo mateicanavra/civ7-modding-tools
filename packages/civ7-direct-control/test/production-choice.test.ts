@@ -38,8 +38,7 @@ describe("production choice requests", () => {
       const cityId = { owner: 0, id: 65536, type: 1 };
       const request = await requestCiv7ProductionChoice(
         { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test official production choice" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -95,8 +94,7 @@ describe("production choice requests", () => {
       const cityId = { owner: 0, id: 65536, type: 1 };
       const request = await requestCiv7ProductionChoice(
         { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test sticky production blocker" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);

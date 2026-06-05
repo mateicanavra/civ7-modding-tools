@@ -24,7 +24,6 @@ export const unitTargetActionRequestProcedure =
         const result = await context.directControl.requestCiv7UnitTargetAction(
           input,
           context.endpointDefaults,
-          context.approval!,
         );
         return unitTargetActionResult(result);
       },

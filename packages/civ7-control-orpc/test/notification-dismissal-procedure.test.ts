@@ -5,7 +5,6 @@ import { Value } from "typebox/value";
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  Civ7MutationApprovalRequiredError,
   Civ7NotificationDismissInputSchema,
   Civ7NotificationDismissalPostconditionClassificationSchema,
   Civ7NotificationDismissalUnavailableError,
@@ -35,7 +34,7 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
     )).toBe(false);
   });
 
-  test("calls notification dismissal through native Effect/oRPC with context approval", async () => {
+  test("calls notification dismissal through native Effect/oRPC ", async () => {
     const fake = fakeContext(
       notificationDismissalResult("notification-disappeared"),
     );
@@ -85,11 +84,6 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: {
-        approved: true,
-        reason: "test approved notification dismissal",
-        disposableSession: true,
-      },
     }]);
   });
 
@@ -105,55 +99,6 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
 
     expect(result.status).toBe("sent-confirmed");
     expect(fake.calls).toHaveLength(1);
-  });
-
-  test("requires context approval before the direct-control mutation port runs", async () => {
-    const fake = fakeContext(
-      notificationDismissalResult("notification-disappeared"),
-      { approval: undefined },
-    );
-
-    await expect(
-      call(Civ7ControlOrpcRouter.notifications.dismiss.request, {
-        notificationId,
-      }, { context: fake.context }),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      status: 403,
-      data: {
-        procedureKey: "notifications.dismiss.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls).toEqual([]);
-  });
-
-  test("rejects empty approval reasons before the direct-control mutation port runs", async () => {
-    const fake = fakeContext(
-      notificationDismissalResult("notification-disappeared"),
-      {
-        approval: {
-          approved: true,
-          reason: "   ",
-        },
-      },
-    );
-
-    await expect(
-      call(Civ7ControlOrpcRouter.notifications.dismiss.request, {
-        notificationId,
-      }, { context: fake.context }),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      status: 403,
-      data: {
-        procedureKey: "notifications.dismiss.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls).toEqual([]);
   });
 
   test("keeps stale notification postconditions no-repeat guarded", async () => {
@@ -226,9 +171,8 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
     });
   });
 
-  test("keeps approval, endpoint, session, state, and raw command fields out of procedure input", async () => {
+  test("keeps endpoint, session, state, and raw command fields out of procedure input", async () => {
     const invalidInputs = [
-      { notificationId, approvalReason: "test approved dismissal" },
       { notificationId, disposableSession: true },
       { notificationId, host: "127.0.0.1" },
       { notificationId, port: 4318 },
@@ -295,16 +239,9 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
-    });
-    expect(
-      Civ7ControlOrpcContract.notifications.dismiss.request["~orpc"].errorMap,
-    ).toHaveProperty("MUTATION_APPROVAL_REQUIRED");
-    expect(
+    });    expect(
       Civ7ControlOrpcContract.notifications.dismiss.request["~orpc"].errorMap,
     ).toHaveProperty("NOTIFICATION_DISMISSAL_UNAVAILABLE");
-    expect(Civ7MutationApprovalRequiredError.code).toBe(
-      "MUTATION_APPROVAL_REQUIRED",
-    );
     expect(Civ7NotificationDismissalUnavailableError.code).toBe(
       "NOTIFICATION_DISMISSAL_UNAVAILABLE",
     );
@@ -314,20 +251,17 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
 function fakeContext(
   resultOrError: Civ7ControlOrpcNotificationDismissalResult | Error,
   options: {
-    approval?: Civ7ControlOrpcContext["approval"];
   } = {},
 ): {
   context: Civ7ControlOrpcContext;
   calls: Array<{
     input: unknown;
     options: unknown;
-    approval: unknown;
   }>;
 } {
   const calls: Array<{
     input: unknown;
     options: unknown;
-    approval: unknown;
   }> = [];
 
   return {
@@ -337,13 +271,6 @@ function fakeContext(
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: options.approval === undefined && !("approval" in options)
-        ? {
-            approved: true,
-            reason: "test approved notification dismissal",
-            disposableSession: true,
-          }
-        : options.approval,
       directControl: {
         getCiv7PlayableStatus: async () => ({
           playable: true,
@@ -351,10 +278,8 @@ function fakeContext(
         }),
         requestCiv7NotificationDismissal: async (
           input,
-          endpointDefaults,
-          approval,
-        ) => {
-          calls.push({ input, options: endpointDefaults, approval });
+          endpointDefaults,        ) => {
+          calls.push({ input, options: endpointDefaults });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
         },

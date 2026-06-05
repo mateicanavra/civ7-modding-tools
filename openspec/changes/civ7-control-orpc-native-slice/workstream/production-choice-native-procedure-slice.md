@@ -30,12 +30,12 @@ validator, command-serialization, postcondition, and proof-policy owner.
 
 - accepts only the source-owned production choice input shape: `cityId` and
   production `args`;
-- takes explicit mutation approval from typed oRPC context, not normal
+- takes explicit readiness from typed oRPC context, not normal
   procedure input;
 - uses native effect-oRPC leaf `.use(...)` middleware to reject missing or
-  empty approval before the direct-control mutation port runs;
+  failed readiness before the direct-control mutation port runs;
 - calls the direct-control `requestCiv7ProductionChoice` runtime port with
-  endpoint defaults and approved context;
+  endpoint defaults and readiness context;
 - consumes direct-control production proof helpers for confirmed/unverified
   postcondition and no-repeat classification;
 - returns a semantic normal output with send status, validation booleans,
@@ -48,8 +48,8 @@ validator, command-serialization, postcondition, and proof-policy owner.
 - no direct-control-local procedure-core, middleware runner, correlation bus,
   error bus, router registry, or context composer;
 - no shared validator/postcondition middleware promotion beyond the leaf-scoped
-  native middleware proof; shared approval promotion is recorded in the later
-  approval-middleware slice;
+  native middleware proof; shared readiness promotion is recorded in the later
+  readiness-middleware slice;
 - no CLI, Studio, HTTP/RPCLink, OpenAPI, global bridge, or in-game UIScript
   adapter work;
 - no runtime/live-game proof claim from local package tests;
@@ -64,16 +64,16 @@ validator, command-serialization, postcondition, and proof-policy owner.
 - `bun run --cwd packages/civ7-control-orpc check`
 
 Focused proof covers in-process procedure calls, server-side router client
-calls, approval middleware refusal before mutation, endpoint/session/raw
+calls, readiness middleware refusal before mutation, endpoint/session/raw
 command input rejection, safe tagged error projection, confirmed production
 postconditions, unverified/no-repeat guarded postconditions, and validator
 blocked not-sent projection. These are local package proofs only.
 
 ## Residual Risk
 
-This slice initially kept approval leaf-scoped until a second mutation procedure
-needed the same policy. The later approval-middleware slice owns the shared
-native approval promotion. Shared validator-first and postcondition/proof
+This slice initially kept readiness leaf-scoped until a second mutation procedure
+needed the same policy. The later readiness-middleware slice owns the shared
+native readiness promotion. Shared validator-first and postcondition/proof
 middleware remain pending; this slice proves the native oRPC/effect-orpc hook
 point and the first semantic mutation projection without claiming runtime/live
 closure.

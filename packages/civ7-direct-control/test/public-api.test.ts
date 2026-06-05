@@ -1136,20 +1136,17 @@ describe("Civ7 direct control public API", () => {
       unitId: { owner: 0, id: 65536, type: 26 },
       x: 23,
       y: 33,
-      approvalReason: "test approved unit-target request",
     })).toBe(true);
     expect(Value.Check(Civ7UnitTargetActionRequestInputSchema, {
       unitId: { owner: 0, id: 65536 },
       x: 23,
       y: 1_000_001,
-      approvalReason: "test approved unit-target request",
     })).toBe(false);
     expect(Value.Check(Civ7UnitTargetActionRequestInputSchema, {
       unitId: { owner: 0, id: 65536 },
       x: 23,
       y: 33,
       rawCommand: "Game.UnitOperations.sendRequest(...)",
-      approvalReason: "test approved unit-target request",
     })).toBe(false);
     expect(Civ7UnitTargetActionRequestProcedureDescriptor).toMatchObject({
       procedureKey: "unit.target.action.request",
@@ -1158,11 +1155,10 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "requestCiv7UnitTargetAction",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      approvalGate: true,
       validatorFirst: true,
       postconditionRequired: true,
       noRepeatAfterUnverified: true,
-      context: expect.arrayContaining(["direct-control-facade", "approval-policy", "live-session-policy"]),
+      context: expect.arrayContaining(["direct-control-facade", "live-session-policy"]),
     });
     expect(typeof callCiv7UnitTargetActionRequestProcedure).toBe("function");
     expect(Civ7UnitTargetActionRequestProcedureSchemaArtifacts[
@@ -1177,18 +1173,15 @@ describe("Civ7 direct control public API", () => {
     expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { ConstructibleType: 713967338, X: 22, Y: 31 },
-      approvalReason: "test approved production choice",
     })).toBe(true);
     expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { UnitType: 102, ConstructibleType: 713967338 },
-      approvalReason: "test approved production choice",
     })).toBe(false);
     expect(Value.Check(Civ7ProductionChoiceRequestInputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { ConstructibleType: 713967338 },
       rawCommand: "Game.CityOperations.sendRequest(...)",
-      approvalReason: "test approved production choice",
     })).toBe(false);
     expect(Civ7ProductionChoiceRequestProcedureDescriptor).toMatchObject({
       procedureKey: "city.production.choice.request",
@@ -1197,11 +1190,10 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "requestCiv7ProductionChoice",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      approvalGate: true,
       validatorFirst: true,
       postconditionRequired: true,
       noRepeatAfterUnverified: true,
-      context: expect.arrayContaining(["direct-control-facade", "approval-policy", "live-session-policy"]),
+      context: expect.arrayContaining(["direct-control-facade", "live-session-policy"]),
     });
     expect(Civ7ProductionChoiceRequestProcedureDescriptor.outputFields).not.toContain("command");
     expect(Value.Check(Civ7ProductionChoiceResultSchema, {
@@ -1245,16 +1237,13 @@ describe("Civ7 direct control public API", () => {
   test("exports the notification dismissal request procedure descriptor artifact from the public facade", () => {
     expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
       notificationId: { owner: 0, id: 113, type: 20 },
-      approvalReason: "test approved notification dismissal",
     })).toBe(true);
     expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
       notificationId: { owner: 0, type: 20 },
-      approvalReason: "test approved notification dismissal",
     })).toBe(false);
     expect(Value.Check(Civ7NotificationDismissRequestInputSchema, {
       notificationId: { owner: 0, id: 113, type: 20 },
       rawCommand: "Game.Notifications.dismiss(...)",
-      approvalReason: "test approved notification dismissal",
     })).toBe(false);
     expect(Civ7NotificationDismissRequestProcedureDescriptor).toMatchObject({
       procedureKey: "notifications.dismiss.request",
@@ -1263,11 +1252,10 @@ describe("Civ7 direct control public API", () => {
       atomFunction: "requestCiv7NotificationDismissal",
       schemaTechnology: "typebox",
       proofBoundary: "local-package-test",
-      approvalGate: true,
       validatorFirst: true,
       postconditionRequired: true,
       noRepeatAfterUnverified: true,
-      context: expect.arrayContaining(["direct-control-facade", "approval-policy", "live-session-policy"]),
+      context: expect.arrayContaining(["direct-control-facade", "live-session-policy"]),
     });
     expect(Civ7NotificationDismissRequestProcedureDescriptor.outputFields).not.toContain("command");
     expect(typeof callCiv7NotificationDismissRequestProcedure).toBe("function");

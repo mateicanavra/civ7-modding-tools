@@ -168,7 +168,7 @@
         normal/debug/AI separation tests, and stop-condition coverage are
         assigned and passing.
         The operation/proof telemetry row now has a draft acceptance intake
-        with current operation, approval, postcondition, notification
+        with current operation, postcondition, notification
         verification, setup/turn lifecycle, and focused CLI proof owners
         identified, but its `acceptanceStatus` remains
         `pending-telemetry-contract`. The planning contract is now recorded in
@@ -348,9 +348,7 @@ runtime/direct-control claims.
   - [x] 4.2.10 Add autoplay and turn-completion package test coverage.
   - [x] 4.2.11 Add runtime inspection and catalog/proof package test coverage.
   - [x] 4.2.12 Add restart/begin lifecycle package test coverage.
-  - [ ] 4.2.13 Add full-grid map identity and resource/feature builder
-    readback edge coverage to owning package suites before source extraction.
-- [ ] 4.3 Extract notification view/materialization atom.
+- [x] 4.3 Extract notification view/materialization atom.
   - [x] 4.3.1 Extract notification view/materialization embedded source owner
         while keeping the public wrapper in the facade.
   - [x] 4.3.2 Extract notification view wrapper owner while keeping the public
@@ -385,9 +383,9 @@ runtime/direct-control claims.
         acceptance pending.
   - [x] 4.4.5 Prune notification dismissal facade dependency injection by
         letting `src/play/notifications/dismissal-request.ts` import existing
-        non-facade App UI execution, parser, serializer, and approval owners
+        non-facade App UI execution, parser, serializer, and mutation owners
         directly, while keeping public facade exports stable, preserving
-        guarded read/send dismissal command serialization, approval-first
+        guarded read/send dismissal command serialization, validator-first
         dismissal behavior, final identity-based verification, focused
         package/CLI notification dismissal proof, and leaving runtime/live-game
         proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
@@ -395,7 +393,7 @@ runtime/direct-control claims.
   - [x] 4.4.6 Prune the notification dismissal read facade call-through wrapper
         by re-exporting `getCiv7NotificationDismissal` directly from
         `src/play/notifications/dismissal-request.ts`, preserving public
-        package imports, guarded read shape, the separate approved
+        package imports, guarded read shape, the separate accepted
         `requestCiv7NotificationDismissal` mutation wrapper, focused
         package/CLI notification dismissal proof, and leaving runtime/live-game
         proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
@@ -403,14 +401,14 @@ runtime/direct-control claims.
   - [x] 4.4.7 Prune the notification dismissal request facade call-through
         wrapper by re-exporting `requestCiv7NotificationDismissal` directly
         from `src/play/notifications/dismissal-request.ts`, preserving public
-        package imports, approval-first dismissal behavior, guarded send
+        package imports, validator-first dismissal behavior, guarded send
         serialization, final identity-based verification, focused package/CLI
         notification dismissal proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.4.8 Seed a notification dismissal postcondition classification
         owner in `src/play/notifications/postconditions.ts` and attach the
-        explicit postcondition to wrapper results, preserving approval-first
+        explicit postcondition to wrapper results, preserving validator-first
         dismissal behavior, final identity-based verification ordering, and
         focused package proof that stale engine-front train-absent or
         dismissed-flag evidence remains unverified. This is a source-owned
@@ -472,15 +470,11 @@ runtime/direct-control claims.
   - [x] 4.6.9 Extract diplomacy response wrapper owner while keeping the
         public facade export surface in `index.ts`.
   - [x] 4.6.10 Extract narrative choice wrapper owner while keeping the
-        public facade export surface and embedded source/build command in
-        `index.ts`.
-  - [ ] 4.6.11 Extract narrative choice embedded source/build command owner
-        after naming the stable operation source module and preserving current
-        panel closeout, validation, and postcondition coverage.
-  - [x] 4.6.12 Extract unit-target action source and wrapper owner while
+        public facade export surface in `index.ts`.
+  - [x] 4.6.11 Extract unit-target action source and wrapper owner while
         keeping the public facade export surface in `index.ts`.
   - [x] 4.6.12 Extract production-choice wrapper owner while keeping the public
-        facade export surface in `index.ts`, preserving approval-first BUILD
+        facade export surface in `index.ts`, preserving validator-first BUILD
         request orchestration, cityId and production-args validation,
         validator-first behavior, read-only status payload for invalid
         pre-validation, bounded post-send polling, production postcondition
@@ -490,7 +484,7 @@ runtime/direct-control claims.
         pending.
   - [x] 4.6.13 Extract generic operation validation/request wrapper owner while
         keeping the public facade export surface in `index.ts`, preserving
-        unit/city/player operation and command validation, approval-first send
+        unit/city/player operation and command validation, validator-first send
         behavior, validator-first requests, operation router source routing,
         unit/population/production postcondition classification, and package
         proof for unit operations and population placement, and leaving
@@ -528,7 +522,7 @@ runtime/direct-control claims.
         acceptance pending.
   - [x] 4.6.18 Extract technology and culture choice closeout wrapper owners
         while keeping public facade call-through in `index.ts`, preserving
-        approval-first checks, player/node validation, App UI execution,
+        validator-first checks, player/node validation, App UI execution,
         payload parse labels, command serialization, optional notification
         activation, SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE send behavior,
         focused technology/culture package and CLI proof, and leaving
@@ -544,18 +538,18 @@ runtime/direct-control claims.
         acceptance pending.
   - [x] 4.6.20 Prune generic operation facade dependency injection by letting
         `src/play/operations/validate-request.ts` import existing non-facade
-        approval, Tuner execution, command-result parser, and serializer owners
+        Tuner execution, command-result parser, and serializer owners
         directly, while keeping public facade exports stable, preserving
-        approval-first send behavior, validator-first request flow, operation
+        validator-first send behavior, validator-first request flow, operation
         router source routing, unit/population/production postcondition
         composition, package/CLI proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.6.21 Prune technology/culture closeout facade dependency injection by
         letting `src/play/progression/{technology,culture}.ts` import existing
-        non-facade approval, App UI execution, payload parser, serializer,
+        non-facade App UI execution, payload parser, serializer,
         player validation, and direct-control error owners directly, while
-        keeping public facade exports stable, preserving approval-first checks,
+        keeping public facade exports stable, preserving validator-first checks,
         player/node validation, App UI execution, payload parse labels, command
         serialization, optional notification activation, SET_*_TREE_NODE /
         SET_*_TREE_TARGET_NODE send behavior, focused package/CLI proof, and
@@ -564,9 +558,9 @@ runtime/direct-control claims.
         acceptance pending.
   - [x] 4.6.22 Prune production-choice facade dependency injection by letting
         `src/play/operations/production-choice.ts` import existing non-facade
-        approval, component-id assertion, city-operation validation, App UI
+        component-id assertion, city-operation validation, App UI
         execution, payload parser, and serializer owners directly, while keeping
-        public facade exports stable, preserving approval-first BUILD request
+        public facade exports stable, preserving validator-first BUILD request
         orchestration, cityId and production-args validation, validator-first
         behavior, read-only status payload for invalid pre-validation, bounded
         post-send polling, production postcondition classification, package/CLI
@@ -575,10 +569,10 @@ runtime/direct-control claims.
         matrix-row acceptance pending.
   - [x] 4.6.23 Prune diplomacy response facade dependency injection by letting
         `src/play/operations/diplomacy-request.ts` import existing non-facade
-        approval, player validation, App UI execution, notification view,
+        player validation, App UI execution, notification view,
         player-operation validation, payload parser, serializer, and
         direct-control error owners directly, while keeping public facade
-        exports stable, preserving approval-first RESPOND_DIPLOMATIC_ACTION
+        exports stable, preserving validator-first RESPOND_DIPLOMATIC_ACTION
         orchestration, action/response integer validation, validator-first
         no-send behavior, App UI closeout command serialization, diplomacy
         postcondition classification, package/CLI proof, and leaving
@@ -587,10 +581,10 @@ runtime/direct-control claims.
         acceptance pending.
   - [x] 4.6.24 Prune narrative choice facade dependency injection by letting
         `src/play/operations/narrative-request.ts` import existing non-facade
-        approval, player validation, ComponentID assertion, App UI execution,
+        player validation, ComponentID assertion, App UI execution,
         notification view, player-operation validation, payload parser,
         serializer, and direct-control error owners directly, while keeping
-        public facade exports stable, preserving approval-first
+        public facade exports stable, preserving validator-first
         CHOOSE_NARRATIVE_STORY_DIRECTION orchestration, target/action
         validation, validator-first no-send behavior, App UI closeout command
         serialization, narrative postcondition classification, package/CLI
@@ -599,9 +593,9 @@ runtime/direct-control claims.
         matrix-row acceptance pending.
   - [x] 4.6.25 Prune unit-target action facade dependency injection by letting
         `src/play/operations/unit-target-action.ts` import existing non-facade
-        approval, Tuner execution, and payload parser owners directly, while
+        Tuner execution, and payload parser owners directly, while
         keeping public facade exports stable, preserving read-vs-send split,
-        approval-first send behavior, parser label, default verification timing,
+        validator-first send behavior, parser label, default verification timing,
         bounded no-repeat-after-unverified polling, unit-target postcondition
         classification, package/CLI proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
@@ -610,14 +604,14 @@ runtime/direct-control claims.
         re-exporting `getCiv7UnitTargetAction` directly from
         `src/play/operations/unit-target-action.ts`, preserving public package
         imports, read-vs-send split, selected-target plan shape, the separate
-        approved `requestCiv7UnitTargetAction` mutation wrapper, package/CLI
+        accepted `requestCiv7UnitTargetAction` mutation wrapper, package/CLI
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
         semantic CLI projection, Effect/oRPC procedure-core work, and Task
         2.9.4 matrix-row acceptance pending.
   - [x] 4.6.26a Prune the unit-target action request facade call-through
         wrapper by re-exporting `requestCiv7UnitTargetAction` directly from
         `src/play/operations/unit-target-action.ts`, preserving public package
-        imports, read-vs-send split, approval-first behavior, parser label,
+        imports, read-vs-send split, validator-first behavior, parser label,
         default verification timing, bounded no-repeat-after-unverified
         polling/wording, unit-target postcondition classification, package/CLI
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
@@ -629,7 +623,7 @@ runtime/direct-control claims.
         `canStartCiv7CityCommand`, and `canStartCiv7PlayerOperation`
         directly from `src/play/operations/validate-request.ts`, preserving
         public package imports, validation/read-only behavior, the separate
-        approved `request*` mutation wrappers, package/CLI proof, and leaving
+        accepted `request*` mutation wrappers, package/CLI proof, and leaving
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
@@ -638,7 +632,7 @@ runtime/direct-control claims.
         `requestCiv7CityOperation`, `requestCiv7CityCommand`, and
         `requestCiv7PlayerOperation` directly from
         `src/play/operations/validate-request.ts`, preserving public package
-        imports, approval-first mutation behavior, validator-first request
+        imports, validator-first mutation behavior, validator-first request
         flow, postcondition result shape, package/CLI proof, and leaving
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
@@ -646,7 +640,7 @@ runtime/direct-control claims.
   - [x] 4.6.29 Prune the production-choice facade call-through wrapper by
         re-exporting `requestCiv7ProductionChoice` directly from
         `src/play/operations/production-choice.ts`, preserving public package
-        imports, approval-first BUILD request behavior, cityId and production
+        imports, validator-first BUILD request behavior, cityId and production
         args validation, validator-first no-send behavior, production
         postcondition result shape, package/CLI proof, and leaving
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
@@ -656,7 +650,7 @@ runtime/direct-control claims.
         wrappers by re-exporting `requestCiv7TechnologyChoiceCloseout` and
         `requestCiv7CultureChoiceCloseout` directly from
         `src/play/progression/{technology,culture}.ts`, preserving public
-        package imports, approval-first checks, player/node validation, App UI
+        package imports, validator-first checks, player/node validation, App UI
         execution, payload parse labels, optional notification activation,
         SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE send behavior, package/CLI
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
@@ -666,7 +660,7 @@ runtime/direct-control claims.
         re-exporting `requestCiv7DiplomacyResponse` and
         `requestCiv7NarrativeChoice` directly from
         `src/play/operations/{diplomacy-request,narrative-request}.ts`,
-        preserving public package imports, approval-first response behavior,
+        preserving public package imports, validator-first response behavior,
         validator-first no-send behavior, App UI closeout command
         serialization, diplomacy/narrative postcondition classification,
         package/CLI proof, and leaving runtime/live-game proof, telemetry, AI
@@ -805,13 +799,12 @@ runtime/direct-control claims.
         proof, AI ingestion, CLI semantic projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.8.12 Extract map read type owner while keeping public facade type
-        re-exports in `index.ts`, preserving map summary, plot snapshot, map
-        grid input/result, and full-map-grid chunk/input/result public
-        contracts while leaving visibility, GameInfo, summary, setup,
-        tactical, operation, and ready result types, procedure schemas,
-        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
-        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
-        matrix-row acceptance pending.
+        re-exports in `index.ts`, preserving map summary, plot snapshot, and
+        map grid input/result public contracts while leaving visibility,
+        GameInfo, summary, setup, tactical, operation, and ready result types,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.8.13 Extract summary read type owner while keeping public facade type
         re-exports in `index.ts`, preserving player/unit/city summary
         input/result public contracts while leaving visibility, GameInfo,
@@ -901,7 +894,7 @@ runtime/direct-control claims.
         matrix-row acceptance pending.
   - [x] 4.8.25 Extract shared operation primitive and validation type owner
         while keeping public facade type re-exports in `index.ts`, preserving
-        operation family/target/input, action approval, and operation
+        operation family/target/input, action and operation
         validation-result public contracts while leaving operation request
         result, postcondition payloads, production choice, diplomacy/narrative
         closeout, public procedure schemas, operation/proof telemetry, hotseat
@@ -961,13 +954,15 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
-  - [x] 4.8.34 Extract action approval primitive/helper owner while preserving
-        the public `Civ7ActionApproval` type contract through facade re-exports,
-        approval-first rejection message/classification, and no socket use
-        before approval, and leaving procedure schemas, operation/proof
-        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
-        projection, Effect/oRPC procedure-core work, and Task 2.9.4
-        matrix-row acceptance pending.
+  - [x] 4.8.34 Historical row superseded by approval removal: the old
+        `src/action-approval.ts` approval primitive/helper path is retired and
+        deleted rather than preserved as a facade contract. Current mutation
+        safety is validator-first checks, postcondition/proof/no-repeat policy,
+        readiness/lifecycle evidence, raw-output separation, and no socket use
+        before validation, with procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
   - [x] 4.8.35 Extract generic validation primitive/helper owner while
         preserving bounded integer, simple identifier, and player-id
         validation message/classification semantics, and leaving map-specific
@@ -982,10 +977,11 @@ runtime/direct-control claims.
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
-  - [x] 4.8.37 Prune internal `Civ7ActionApproval` type back-imports from the
-        public facade by importing from the action-approval owner (or operation
-        type owner where already appropriate), while preserving public facade
-        re-exports and leaving unrelated command/session type back-imports,
+  - [x] 4.8.37 Remove stale public-facade approval back-imports after the old
+        `src/action-approval.ts` approval primitive was retired. Current
+        mutation safety is owned by validators, postconditions, no-repeat
+        policy, and runtime proof records, leaving unrelated command/session
+        type back-imports,
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
@@ -997,20 +993,14 @@ runtime/direct-control claims.
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
-  - [x] 4.8.39 Prune stale facade filesystem import by moving saved-config
-        disk listing/parsing and the default save directory into setup
-        preparation ownership, while preserving public facade exports and
-        leaving procedure schemas, operation/proof telemetry, hotseat runtime
-        proof, AI ingestion, CLI semantic projection, Effect/oRPC
-        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
-  - [x] 4.8.40 Prune stale facade filesystem import after proof/log and
+  - [x] 4.8.39 Prune stale facade filesystem import after proof/log and
         capability catalog ownership moved filesystem reads into their owner
         modules, while preserving public facade exports and leaving procedure
         schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
-  - [x] 4.8.41 Prune stale facade value imports for already-owned direct-control
-        error, action approval, map validation, command-result parser,
+  - [x] 4.8.40 Prune stale facade value imports for already-owned direct-control
+        error, action map validation, command-result parser,
         command-source serializer, and runtime probe helpers, while preserving
         public facade exports and leaving procedure schemas, operation/proof
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
@@ -1296,7 +1286,7 @@ runtime/direct-control claims.
         hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance remain pending.
   - [x] 4.11.5 Extract reveal-map mutation wrapper owner while keeping public
-        facade exports in `index.ts`, preserving approval-first and
+        facade exports in `index.ts`, preserving validator-first and
         disposable-session guards, player-id validation, visibility before/after
         reads, `Visibility.revealAllPlots` command text, classification shape,
         and leaving setup map rows to the completed 4.11.6 row while AI
@@ -1342,10 +1332,10 @@ runtime/direct-control claims.
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
   - [x] 4.11.11 Prune visibility/reveal facade dependency injection by letting
-        the visibility owner import existing non-facade approval, executor,
+        the visibility owner import existing non-facade executor,
         parser, validation, serializer, constant, probe, and bounds helpers
         directly, while keeping public facade exports stable, preserving
-        visibility read bounds behavior, reveal approval/disposable-session
+        visibility read bounds behavior, reveal disposable-session
         guard, reveal classification, and leaving public procedure schemas,
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
@@ -1368,7 +1358,7 @@ runtime/direct-control claims.
   - [x] 4.11.14 Prune the reveal-map mutation facade call-through wrapper by
         re-exporting `revealCiv7MapForPlayer` directly from
         `src/play/map/visibility.ts`, preserving public package imports,
-        approval-first disposable-session guard, before/after visibility reads,
+        validator-first disposable-session guard, before/after visibility reads,
         `Visibility.revealAllPlots` command text, reveal classification shape,
         package proof, and leaving runtime/live-game proof, public procedure
         schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
@@ -1593,7 +1583,7 @@ runtime/direct-control claims.
   - [x] 4.12.27 Normalize the notification dismissal command-source helper
         wiring by reusing the shared runtime probe helper owner from the
         notification dismissal embedded source, preserving generated command
-        text, approval-first request wrapper behavior, dismissal verification
+        text, validator-first request wrapper behavior, dismissal verification
         polling/classification semantics, read/send split, parse label,
         no-repeat-after-unverified behavior, and leaving broader atom-local
         source helper normalization, telemetry, AI ingestion, CLI semantic
@@ -1602,7 +1592,7 @@ runtime/direct-control claims.
   - [x] 4.12.28 Normalize the progression closeout command-source helper wiring
         by reusing the shared runtime probe helper owner from the technology and
         culture closeout embedded sources, preserving generated command text,
-        approval-first request wrapper behavior, player/node validation, read/send
+        validator-first request wrapper behavior, player/node validation, read/send
         split, parse labels, semantic notification and operation send shape, and
         leaving broader atom-local source helper normalization, telemetry, AI
         ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
@@ -1610,7 +1600,7 @@ runtime/direct-control claims.
   - [x] 4.12.29 Normalize the turn-completion status command-source helper
         wiring by reusing the shared runtime probe helper owner from
         `src/play/turn-completion.ts`, preserving generated command text,
-        approval-first send/unready behavior, guard-first status read, stale
+        validator-first send/unready behavior, guard-first status read, stale
         notification fallback classification, turn-completion action result
         shapes, and leaving broader atom-local source helper normalization,
         telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
@@ -1619,7 +1609,7 @@ runtime/direct-control claims.
   - [x] 4.12.30 Normalize the generic operation router command-source helper
         wiring by reusing the shared runtime probe helper owner from
         `src/play/operations/router.ts`, preserving generated router source,
-        validator-first operation routing, approval-first request behavior,
+        validator-first operation routing, validator-first request behavior,
         unit/population/production postcondition snapshot shape, no-repeat
         boundaries, and leaving broader atom-local source helper normalization,
         telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
@@ -1628,7 +1618,7 @@ runtime/direct-control claims.
   - [x] 4.12.31 Normalize the production-choice command-source helper wiring by
         reusing the shared runtime probe helper owner from
         `src/play/operations/production-choice.ts`, preserving generated
-        command text, approval-first BUILD request behavior, production
+        command text, validator-first BUILD request behavior, production
         argument validation, bounded post-send polling, production postcondition
         classification shape, and leaving broader atom-local source helper
         normalization, telemetry, AI ingestion, CLI semantic projection, hotseat
@@ -1638,7 +1628,7 @@ runtime/direct-control claims.
         command-source helper wiring by reusing the shared runtime probe helper
         owner from `src/play/operations/diplomacy-request.ts` and
         `src/play/operations/narrative-request.ts`, preserving generated
-        closeout/request command text, approval-first request behavior,
+        closeout/request command text, validator-first request behavior,
         validation/no-send paths, UI closeout calls, postcondition
         classification, no-repeat-after-unverified boundaries, and leaving
         broader atom-local source helper normalization, telemetry, AI ingestion,
@@ -1647,7 +1637,7 @@ runtime/direct-control claims.
   - [x] 4.12.33 Normalize the unit-target action command-source helper wiring by
         reusing the shared runtime serializer and probe helper owners from
         `src/play/operations/unit-target-action.ts`, preserving generated
-        command text, read-vs-send split, approval-first request behavior,
+        command text, read-vs-send split, validator-first request behavior,
         bounded post-send polling, no-repeat-after-unverified wording, unit
         target postcondition classification, and leaving broader atom-local
         source helper normalization, telemetry, AI ingestion, CLI semantic
@@ -1664,14 +1654,14 @@ runtime/direct-control claims.
         work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
-        facade exports in `index.ts`, preserving approval-first send/unready
+        facade exports in `index.ts`, preserving validator-first send/unready
         behavior, guard-first status read, stale notification fallback
         classification, command strings, parse label, and action result shape,
         and leaving autoplay source ownership, hotseat runtime proof, AI
         ingestion, CLI semantic projection, telemetry, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.13.2 Extract autoplay status/configure/start/stop source ownership
-        while keeping public facade exports in `index.ts`, preserving approval
+        while keeping public facade exports in `index.ts`, preserving validator/postcondition/no-repeat safety
         gates, bounded turn/player validation, explicit unbounded start
         semantics, stop-settling/pause behavior, command strings, and result
         shapes, and leaving hotseat runtime proof, AI ingestion, CLI semantic
@@ -1679,8 +1669,8 @@ runtime/direct-control claims.
         matrix-row acceptance pending.
   - [x] 4.13.3 Prune turn-completion facade dependency injection by letting
         `src/play/turn-completion.ts` import existing non-facade App UI
-        execution, parser, notification-view, and approval owners directly,
-        while keeping public facade exports stable, preserving approval-first
+        execution, parser, notification-view, and mutation owners directly,
+        while keeping public facade exports stable, preserving validator-first
         send/unready behavior, guard-first status read, stale notification
         fallback classification, command strings, parse label, action result
         shape, and leaving hotseat runtime proof, AI ingestion, CLI semantic
@@ -1688,9 +1678,9 @@ runtime/direct-control claims.
         matrix-row acceptance pending.
   - [x] 4.13.4 Prune autoplay facade dependency injection by letting
         `src/play/autoplay.ts` import existing non-facade App UI snapshot,
-        App UI execution, approval, validation/bounds, serializer, sleep, and
+        App UI execution, validation/bounds, serializer, sleep, and
         timing/default owners directly, while keeping public facade exports
-        stable, preserving approval gates, bounded turn/player validation,
+        stable, preserving validator gates, bounded turn/player validation,
         explicit unbounded start semantics, stop-settling/pause behavior,
         command strings, result shapes, and local package proof, and leaving
         hotseat runtime proof, AI ingestion, CLI semantic projection,
@@ -1713,7 +1703,7 @@ runtime/direct-control claims.
   - [x] 4.13.7 Prune the autoplay action facade call-through wrappers by
         re-exporting `configureCiv7Autoplay`, `startCiv7Autoplay`, and
         `stopCiv7Autoplay` directly from `src/play/autoplay.ts`, preserving
-        public package imports, approval-first mutation behavior, explicit
+        public package imports, validator-first mutation behavior, explicit
         unbounded start semantics, stop-settling/pause behavior, command
         strings, result shapes, package/CLI proof, and leaving hotseat runtime
         proof, AI ingestion, CLI semantic projection, telemetry, Effect/oRPC
@@ -1721,7 +1711,7 @@ runtime/direct-control claims.
   - [x] 4.13.8 Prune the turn-completion action facade call-through wrappers by
         re-exporting `sendCiv7TurnComplete` and `sendCiv7TurnUnready` directly
         from `src/play/turn-completion.ts`, preserving public package imports,
-        approval-first mutation behavior, stale notification fallback
+        validator-first mutation behavior, stale notification fallback
         classification, turn-completion action result shapes, package/CLI
         proof, and leaving hotseat runtime proof, AI ingestion, CLI semantic
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
@@ -1742,7 +1732,7 @@ runtime/direct-control claims.
         proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.14.2 Extract setup map-row visibility refresh owner while keeping
-        public facade exports in `index.ts`, preserving approval-first
+        public facade exports in `index.ts`, preserving validator-first
         exit-to-shell refresh, setup map-row polling, command strings, and
         verified result shape, and leaving `prepareCiv7SinglePlayerSetup`,
         `startPreparedCiv7SinglePlayerGame`, `runCiv7SinglePlayerFromSetup`,
@@ -1750,7 +1740,7 @@ runtime/direct-control claims.
         proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.14.3 Extract single-player setup preparation owner while keeping
-        public facade exports in `index.ts`, preserving approval-first setup
+        public facade exports in `index.ts`, preserving validator-first setup
         mutation, setup snapshot readback, map-row proof, setup option
         validation, prepare command source, and no-replay-after-socket-close
         proof, and leaving `startPreparedCiv7SinglePlayerGame`,
@@ -1759,7 +1749,7 @@ runtime/direct-control claims.
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
   - [x] 4.14.4 Extract prepared single-player start owner while keeping public
-        facade exports in `index.ts`, preserving approval-first start,
+        facade exports in `index.ts`, preserving validator-first start,
         pre-start setup readback, host-game command source, begin polling,
         one-attempt begin send, Tuner/map verification, seed mismatch
         classification, and no-replay-after-begin-close package proof, and
@@ -1768,7 +1758,7 @@ runtime/direct-control claims.
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
   - [x] 4.14.5 Extract single-player setup run owner while keeping public facade
-        exports in `index.ts`, preserving approval-first run orchestration,
+        exports in `index.ts`, preserving validator-first run orchestration,
         active-game rejection unless `fromRunningGame: "exit-to-shell"` is
         supplied, exit-to-main-menu command routing, shell wait, prepare/start
         composition, verified result shape, and existing no-replay package
@@ -1791,11 +1781,11 @@ runtime/direct-control claims.
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
   - [x] 4.14.8 Prune setup-read facade dependency injection by letting
-        `src/setup/reads.ts` import existing non-facade approval, App UI
+        `src/setup/reads.ts` import existing non-facade App UI
         execution, parser, serializer, probe, constants, and bounds owners
         directly for setup snapshot, setup map rows, setup map-row refresh, and
         setup-phase waits, while keeping public facade exports stable,
-        preserving setup source text/parse labels/approval-first refresh
+        preserving setup source text/parse labels/validator-first refresh
         behavior, and leaving setup prepare/start/run/restart lifecycle
         composition, runtime proof, hotseat runtime proof, AI ingestion,
         semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
@@ -1803,7 +1793,7 @@ runtime/direct-control claims.
   - [x] 4.14.9 Prune setup-preparation facade dependency injection by letting
         `src/setup/prepare.ts` import existing non-facade setup-read defaults,
         command-result parser, and setup option identifier validation directly,
-        while keeping public facade exports stable, preserving approval-first
+        while keeping public facade exports stable, preserving validator-first
         setup mutation, setup snapshot readback, map-row proof, setup option
         validation, prepare command source, and no-replay package proof, and
         leaving prepared-start/setup-run/restart lifecycle composition, runtime
@@ -1815,7 +1805,7 @@ runtime/direct-control claims.
         session/reconnect, Tuner-ready wait, map-summary, command-result
         parser, setup constants, and setup option identifier validation
         directly, while keeping public facade exports stable, preserving
-        approval-first start, pre-start setup readback, host-game command
+        validator-first start, pre-start setup readback, host-game command
         source, begin polling, one-attempt begin send, Tuner/map verification,
         seed mismatch classification, and no-replay package proof, and leaving
         setup-run/restart lifecycle composition, runtime proof, hotseat runtime
@@ -1823,9 +1813,9 @@ runtime/direct-control claims.
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.14.11 Prune setup-run facade dependency injection by letting
         `src/setup/run.ts` import existing non-facade setup read, setup
-        prepare, prepared-start, App UI execution, setup constants, approval,
+        prepare, prepared-start, App UI execution, setup constants,
         bounds, and setup option identifier validation owners directly, while
-        keeping public facade exports stable, preserving approval-first run
+        keeping public facade exports stable, preserving validator-first run
         orchestration, active-game exit-to-shell guard, exit-to-main-menu
         routing, shell wait, prepare/start chaining, verified result shape, and
         no-replay package proof, and leaving restart/begin lifecycle
@@ -1869,48 +1859,43 @@ runtime/direct-control claims.
         acceptance pending.
   - [x] 4.14.16 Prune the setup map-row visibility refresh facade call-through
         wrapper by re-exporting `ensureCiv7SetupMapRowVisible` directly from
-        `src/setup/reads.ts`, preserving public package imports, approval-first
+        `src/setup/reads.ts`, preserving public package imports, validator-first
         refresh behavior, setup map-row materialization, exit-to-shell refresh
         semantics, setup read/source behavior, setup lifecycle behavior, and
         leaving runtime/live-game proof, hotseat runtime proof, AI ingestion,
         semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
-  - [x] 4.14.17 Reconcile the setup preparation facade call-through during
-        restack by keeping the public `prepareCiv7SinglePlayerSetup` bridge in
-        `index.ts`, because App UI saved-configuration loading remains
-        facade-owned. This preserves approval-first setup mutation, saved-config
-        preload, setup snapshot readback, map-row proof, setup option
-        validation, prepare command source, and no-replay package proof. A
-        future cleanup can prune this wrapper only after saved-config App UI
-        loading moves below the facade; runtime/live-game proof, hotseat runtime
-        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
-        procedure-core work, and Task 2.9.4 matrix-row acceptance remain
-        pending.
+  - [x] 4.14.17 Prune the setup preparation facade call-through wrapper by
+        re-exporting `prepareCiv7SinglePlayerSetup` directly from
+        `src/setup/prepare.ts`, preserving public package imports,
+        validator-first setup mutation, setup snapshot readback, map-row proof,
+        setup option validation, prepare command source, no-replay package
+        proof, and leaving prepared-start/setup-run lifecycle composition,
+        runtime/live-game proof, hotseat runtime proof, AI ingestion, semantic
+        CLI projection, telemetry, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
   - [x] 4.14.18 Prune the prepared-start facade call-through wrapper by
         re-exporting `startPreparedCiv7SinglePlayerGame` directly from
         `src/setup/start.ts`, preserving public package imports,
-        approval-first start behavior, pre-start setup readback, host-game
+        validator-first start behavior, pre-start setup readback, host-game
         command source, begin polling, one-attempt begin send, Tuner/map
         verification, seed mismatch classification, no-replay package proof,
         and leaving setup-run lifecycle composition, runtime/live-game proof,
         hotseat runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
-  - [x] 4.14.19 Reconcile the setup-run facade call-through during restack by
-        keeping `runCiv7SinglePlayerFromSetup` in `index.ts` as the narrow
-        composition bridge that injects the saved-config-aware prepare wrapper,
-        setup-read owner, setup-start owner, and setup-phase wait owner. This
-        preserves approval-first setup/run behavior, active-game exit-to-shell
-        guard, exit-to-main-menu command routing, shell wait, prepare/start
-        chaining, saved-config preload through run, verified result shape, and
-        no-replay package proof. A future cleanup can prune this wrapper only
-        after saved-config App UI loading moves below the facade; runtime/live
-        proof, hotseat runtime proof, AI ingestion, semantic CLI projection,
-        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
-        acceptance remain pending.
+  - [x] 4.14.19 Prune the setup-run facade call-through wrapper by
+        re-exporting `runCiv7SinglePlayerFromSetup` directly from
+        `src/setup/run.ts`, preserving public package imports,
+        validator-first setup/run behavior, active-game exit-to-shell guard,
+        exit-to-main-menu command routing, shell wait, prepare/start chaining,
+        verified result shape, no-replay package proof, and leaving
+        runtime/live-game proof, hotseat runtime proof, AI ingestion, semantic
+        CLI projection, telemetry, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
 - [x] 4.15 Seed a unit-target operation telemetry adapter owner in
       `src/proof/unit-target-telemetry.ts` with focused local proof in
-      `test/unit-target-telemetry.test.ts`, preserving approval,
+      `test/unit-target-telemetry.test.ts`, preserving validator/postcondition/no-repeat safety,
       `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
       postcondition, and `outcome_delta` as separate telemetry slots while
       treating legacy `verified` booleans as source evidence only. This seeds
@@ -1921,7 +1906,7 @@ runtime/direct-control claims.
       adapters for every operation family.
 - [x] 4.16 Seed a production-choice operation telemetry adapter owner in
       `src/proof/production-choice-telemetry.ts` with focused local proof in
-      `test/production-choice-telemetry.test.ts`, preserving approval,
+      `test/production-choice-telemetry.test.ts`, preserving validator/postcondition/no-repeat safety,
       `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
       postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
       separate telemetry slots while treating legacy `verified` booleans as
@@ -1950,7 +1935,7 @@ runtime/direct-control claims.
       proof, accept Task 2.9.4, or create broad telemetry middleware.
 - [x] 4.17.1 Seed a diplomacy-response operation telemetry adapter owner in
       `src/proof/diplomacy-response-telemetry.ts` with focused local proof in
-      `test/diplomacy-response-telemetry.test.ts`, preserving approval,
+      `test/diplomacy-response-telemetry.test.ts`, preserving validator/postcondition/no-repeat safety,
       `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
       postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
       separate telemetry slots while treating legacy `verified` booleans as
@@ -1967,7 +1952,7 @@ runtime/direct-control claims.
       every operation family.
 - [x] 4.17.2 Seed a narrative-choice operation telemetry adapter owner in
       `src/proof/narrative-choice-telemetry.ts` with focused local proof in
-      `test/narrative-choice-telemetry.test.ts`, preserving approval,
+      `test/narrative-choice-telemetry.test.ts`, preserving validator/postcondition/no-repeat safety,
       `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
       postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
       separate telemetry slots while treating legacy `verified` booleans as
@@ -1984,7 +1969,7 @@ runtime/direct-control claims.
 - [x] 4.17.3 Seed a notification-dismissal operation telemetry adapter owner
       in `src/proof/notification-dismissal-telemetry.ts` with focused local
       proof in `test/notification-dismissal-telemetry.test.ts`, preserving
-      approval, `validation_pre`, `send_receipt`, `post_read`,
+      `validation_pre`, `send_receipt`, `post_read`,
       `validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
       evidence policy as separate telemetry slots while treating legacy
       `verified` booleans as source evidence only. This seeds the
@@ -2015,11 +2000,11 @@ runtime/direct-control claims.
       `src/procedure-core.ts` with focused proof in
       `test/procedure-core.test.ts`, defining TypeBox-backed descriptor slots
       for stable atom owners, projection policy, proof boundary, player scope,
-      consumer class, and mutation gate metadata. The proof rejects generic raw
+      consumer class, and validator/postcondition/no-repeat metadata. The proof rejects generic raw
       command tunnel descriptors plus repo-local command-source/session
       execution descriptors such as `runtime/command-serialization` /
       `jsLiteral` and `session/execute` / `executeCiv7Command` before they can
-      become oRPC procedures, requires mutation descriptors to carry approval,
+      become oRPC procedures, requires mutation descriptors to carry validator/postcondition/no-repeat safety,
       validator-first, postcondition, and no-repeat-after-unverified gates, and
       rejects local `live-runtime-proof` claims before runtime-proof ownership
       exists.
@@ -2659,7 +2644,7 @@ runtime/direct-control claims.
         5.1-5.7 or 6.1-6.9.
   - [x] 4.52 Add the adjacent unit-target action request procedure atom in
         `src/play/operations/unit-target-action-procedure.ts`, with TypeBox
-        input/output schemas beside the existing approved unit-target action
+        input/output schemas beside the existing accepted unit-target action
         atom in `src/play/operations/unit-target-action.ts`, focused proof in
         `test/unit-target-action-procedure.test.ts`, existing mutation/no-repeat
         package proof in `test/unit-target-action.test.ts`, mutation-gate proof
@@ -2668,15 +2653,15 @@ runtime/direct-control claims.
         primitive with `requestCiv7UnitTargetAction` as
         `unit.target.action.request`, validating component-id input,
         validator-equivalent bounded target coordinates, explicit
-        `approvalReason`, optional disposable-session intent,
-        approval/validator/postcondition/no-repeat gate metadata,
+        `correlationId`, optional disposable-session intent,
+        validator/postcondition/no-repeat gate metadata,
         caller-provided correlation, endpoint/session/state/raw-command input
         exclusion, direct-control option forwarding, output/diagnostics
-        separation, fake-dependency no-network calls, approval object
+        separation, fake-dependency no-network calls, mutation request object
         construction before the existing atom send path, and no handler
         execution without caller correlation or with invalid input. This is
         local no-network mutation-procedure proof only; it does not execute
-        live direct-control atoms, change CLI output, weaken approval/
+        live direct-control atoms, change CLI output, weaken
         validator/postcondition/no-repeat behavior, add a router/registry/
         transport adapter, choose Effect Schema, add Effect/oRPC source, add
         `packages/civ7-control-orpc`, implement the in-game controller router,
@@ -2684,14 +2669,14 @@ runtime/direct-control claims.
         5.1-5.7 or 6.1-6.9.
   - [x] 4.53 Add the adjacent production-choice request procedure atom in
         `src/play/operations/production-choice-procedure.ts`, with TypeBox
-        request/result schemas beside the existing approved production-choice
+        request/result schemas beside the existing accepted production-choice
         atom in `src/play/operations/production-choice.ts` and postcondition
         schemas in `src/play/operations/production-postconditions.ts`.
         Focused proof in `test/production-choice-procedure.test.ts` covers
         descriptor schema resolution, validator-equivalent city/production args
-        input, explicit `approvalReason`, mutation gate metadata,
+        input, explicit `correlationId`, validator/postcondition/no-repeat metadata,
         caller-provided correlation, endpoint/session/state/raw-command input
-        exclusion, no-network fake request calls, approval object construction,
+        exclusion, no-network fake request calls, mutation request object construction,
         direct-control option forwarding, no handler execution without caller
         correlation or with invalid input, and a procedure-safe result
         projection that omits the atom's raw `command` field. Existing proof in
@@ -2700,7 +2685,7 @@ runtime/direct-control claims.
         official App UI production path, sticky blocker/no-repeat semantics,
         and telemetry guarding. This is local no-network mutation-procedure
         proof only; it does not execute live direct-control atoms, change CLI
-        output, weaken approval/validator/postcondition/no-repeat behavior,
+        output, weaken validator/postcondition/no-repeat behavior,
         add a router/registry/transport adapter, choose Effect Schema, add
         Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
         in-game controller router, claim runtime/live-game proof, accept Task
@@ -2713,9 +2698,9 @@ runtime/direct-control claims.
         atom now asserts `notificationId` as a Civ7 ComponentID before building
         App UI commands. Focused proof in
         `test/notification-dismissal-procedure.test.ts` covers descriptor schema
-        resolution, explicit `approvalReason`, mutation gate metadata,
+        resolution, explicit `correlationId`, validator/postcondition/no-repeat metadata,
         caller-provided correlation, endpoint/session/state/raw-command input
-        exclusion, no-network fake request calls, approval object construction,
+        exclusion, no-network fake request calls, mutation request object construction,
         direct-control option forwarding, no handler execution without caller
         correlation or with invalid input, output validation for confirmed and
         `engine-front-still-live` guarded postconditions, and root command/raw-
@@ -2725,7 +2710,7 @@ runtime/direct-control claims.
         continues to cover no-repeat guarding for unverified/stale/pending
         notification dismissal telemetry paths. This is local no-network
         mutation-procedure proof only; it does not execute live direct-control
-        atoms, change CLI output, weaken approval/validator/postcondition/no-
+        atoms, change CLI output, weaken validator/postcondition/no-
         repeat behavior, infer repeat safety from legacy `verified`, add a
         router/registry/transport adapter, choose Effect Schema, add
         Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
@@ -2798,11 +2783,11 @@ debug/internal service projection, and AI-ingestion boundary are recorded.
       presentation strings and from debug-only raw diagnostics.
 - [ ] 5.6 Preserve hotseat handoff semantics in normal play views: current local
       player, agent-owned slot, human-turn exclusion, action eligibility,
-      blocker state, and approval-token status.
+      blocker state,-token status.
 - [ ] 5.7 Define action audit vocabulary for semantic and machine-ingestion
       outputs: strategy intent, candidate action, operation family, target,
-      args, approval, validation result, send result, post-read, correlation id,
-      evidence policy, approval reason, `validation_pre`, `send_receipt`,
+      args, validation result, send result, post-read, correlation id,
+      evidence policy, proof boundary, `validation_pre`, `send_receipt`,
       `validation_post`, `outcome_delta`, and stale/unknown classification.
 
 ## 6. Effect/Bun And Effect/oRPC Composition Lane
@@ -2814,7 +2799,7 @@ authority are recorded.
 
 - [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
   - The descriptor owner seed in Task 4.18 provides local package proof for
-    procedure keys, projection policy, mutation gate metadata, generic raw
+    procedure keys, projection policy, validator/postcondition/no-repeat metadata, generic raw
     tunnel rejection, command-source/session-execute owner rejection, and
     local rejection of `live-runtime-proof` claims over example stable atoms.
     Task 4.19 adds one concrete ready-unit read-atom TypeBox input/output
@@ -2927,23 +2912,23 @@ authority are recorded.
     send-operation command-text proof, and local no-network proof over fake atom
     dependencies.
     Task 4.52 adds the first adjacent mutation schema/descriptor/call artifact
-    for `unit.target.action.request` over the approved unit-target action atom,
+    for `unit.target.action.request` over the accepted unit-target action atom,
     including component-id input proof, validator-equivalent bounded target
-    coordinate proof, approval reason proof, mutation gate metadata, caller
+    coordinate proof, proof-boundary evidence, validator/postcondition/no-repeat metadata, caller
     correlation proof, context/raw-command input rejection, output proof over
     the existing unit-target postcondition shape, and local no-network proof
     over a fake request dependency.
     Task 4.53 adds the second adjacent mutation schema/descriptor/call
-    artifact for `city.production.choice.request` over the approved
+    artifact for `city.production.choice.request` over the accepted
     production-choice atom, including city/production args input proof,
-    approval reason proof, mutation gate metadata, caller correlation proof,
+    proof-boundary evidence, validator/postcondition/no-repeat metadata, caller correlation proof,
     context/raw-command input rejection, procedure-safe output projection that
     omits raw command text, production postcondition output proof, and local
     no-network proof over a fake request dependency.
     Task 4.54 adds the third adjacent mutation schema/descriptor/call artifact
     for `notifications.dismiss.request` over the notification dismissal atom,
-    including component-id notification input proof, approval reason proof,
-    mutation gate metadata, caller correlation proof, context/raw-command input
+    including component-id notification input proof, proof-boundary evidence,
+    validator/postcondition/no-repeat metadata, caller correlation proof, context/raw-command input
     rejection, notification postcondition output proof for confirmed and guarded
     stale-engine-front paths, root command/raw-command output rejection, and
     local no-network proof over a fake request dependency.
@@ -2969,7 +2954,7 @@ authority are recorded.
     unit-summary, city-summary, player-summary, unit-target action request,
     production-choice request, and notification dismissal request schema seeds,
     descriptor schema-reference binding/resolution, adjacent descriptor/call
-    artifacts, mutation gate metadata, and resolver field-list guard.
+    artifacts, validator/postcondition/no-repeat metadata, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test
@@ -2996,7 +2981,7 @@ authority are recorded.
     validation test, error-shape snapshot, encode/decode round trip, Bun
     runtime check, CLI semantic projection test, and AI-ingestion contract
     fixture test.
-- [ ] 6.3 Add approval gates, context, correlation IDs, and error shaping.
+- [ ] 6.3 Add validator gates, context, correlation IDs, and error shaping.
 - [ ] 6.4 Expose transport adapters only after procedure cores are testable.
 - [ ] 6.5 Plan Effect `Scope`/resource acquisition, streams/buffers, schedules,
       layers, error modeling, and concurrency usage for direct-control atoms,

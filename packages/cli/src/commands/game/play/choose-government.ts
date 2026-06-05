@@ -1,10 +1,8 @@
 import { Command, Flags } from '@oclif/core';
 import { getCiv7PlayNotificationView } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -20,7 +18,7 @@ export default class GamePlayChooseGovernment extends Command {
   static examples = [
     '<%= config.bin %> game play choose-government --options --json',
     '<%= config.bin %> game play choose-government --player-id 0 --government-type 0 --json',
-    '<%= config.bin %> game play choose-government --player-id 0 --government-type 0 --send --reason "choose Classical Republic from live government picker" --json',
+    '<%= config.bin %> game play choose-government --player-id 0 --government-type 0 --send --json',
   ];
 
   static flags = {
@@ -46,9 +44,6 @@ export default class GamePlayChooseGovernment extends Command {
     send: Flags.boolean({
       description: 'Send CHANGE_GOVERNMENT after validator success',
       default: false,
-    }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
     }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
@@ -89,9 +84,7 @@ export default class GamePlayChooseGovernment extends Command {
     }
     if (typeof flags['government-type'] !== 'number') {
       throw new Error('game play choose-government requires --government-type unless --options is used');
-    }
-    const reason = requireSendReason(flags.send, flags.reason, 'game play choose-government');
-    const input = {
+    }    const input = {
       operationType: CHANGE_GOVERNMENT,
       playerId: flags['player-id'],
       args: {
@@ -100,7 +93,7 @@ export default class GamePlayChooseGovernment extends Command {
       },
     };
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+      ? await sendPlayOperation('player-operation', input, options)
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

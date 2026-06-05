@@ -4,7 +4,6 @@ import {
   type Civ7ComponentId,
   isCiv7ComponentId,
 } from "./civ7-component-id.js";
-import { assertApproved, type Civ7ActionApproval } from "./action-approval.js";
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
 import { errorMessage } from "./error-message.js";
 import { discoverCiv7DirectControlEndpoint } from "./session/discovery.js";
@@ -1079,9 +1078,6 @@ export type {
   Civ7UnitTargetActionRequestProcedureCallOptions,
 } from "./play/operations/unit-target-action-procedure.js";
 export type {
-  Civ7ActionApproval,
-} from "./action-approval.js";
-export type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationTarget,
@@ -1512,9 +1508,8 @@ function setupReadDependencies() {
 export async function prepareCiv7SinglePlayerSetup(
   input: Civ7SinglePlayerSetupInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
 ): Promise<Civ7PreparedSetupResult> {
-  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval, setupReadDependencies());
+  return await prepareCiv7SinglePlayerSetupFromModule(input, options, setupReadDependencies());
 }
 
 export async function listCiv7SavedGameConfigurations(
@@ -1555,10 +1550,8 @@ export async function loadCiv7SavedGameConfiguration(
 export async function runCiv7SinglePlayerFromSetup(
   input: Civ7SinglePlayerRunInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
-  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval, {
-    assertApproved,
+  return await runCiv7SinglePlayerFromSetupFromModule(input, options, {
     boundedInteger,
     executeAppUiCommand: executeCiv7AppUiCommand,
     exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,

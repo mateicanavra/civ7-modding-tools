@@ -1,6 +1,5 @@
 export { createCiv7ControlOrpcServerClient } from "./client";
 export {
-  Civ7ControllerBridgeApprovalSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
   Civ7ControllerBridgeErrorSchema,
@@ -19,7 +18,6 @@ export {
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
 export type {
-  Civ7ControllerBridgeApproval,
   Civ7ControllerBridgeAttentionCurrentRequest,
   Civ7ControllerBridgeAttentionCurrentSuccessResponse,
   Civ7ControllerBridgeContextFactory,
@@ -57,8 +55,6 @@ export {
   Civ7CorrelationIdInvalidErrorDataSchema,
   Civ7DiplomacyResponseUnavailableError,
   Civ7DiplomacyResponseUnavailableErrorDataSchema,
-  Civ7MutationApprovalRequiredError,
-  Civ7MutationApprovalRequiredErrorDataSchema,
   Civ7MutationReadinessRequiredError,
   Civ7MutationReadinessRequiredErrorDataSchema,
   Civ7MutationReadinessUnavailableError,
@@ -87,7 +83,6 @@ export {
   type Civ7ControlOrpcEffectErrorMap,
   type Civ7CorrelationIdInvalidErrorData,
   type Civ7DiplomacyResponseUnavailableErrorData,
-  type Civ7MutationApprovalRequiredErrorData,
   type Civ7MutationReadinessRequiredErrorData,
   type Civ7MutationReadinessUnavailableErrorData,
   type Civ7NarrativeChoiceUnavailableErrorData,

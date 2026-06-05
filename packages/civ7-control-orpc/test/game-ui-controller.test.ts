@@ -94,18 +94,13 @@ describe("Civ7 game UI controller bootstrap", () => {
     }]);
   });
 
-  test("executes approved notification dismissal through game UI runtime", async () => {
+  test("executes notification dismissal through game UI runtime", async () => {
     const target = gameUiNotificationTarget(notificationId);
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
     const response = await bridge.invoke({
       procedureKey: "notifications.dismiss.request",
       input: { notificationId },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved notification dismissal",
-      },
       correlationId: "game-ui-notification-dismiss-1",
     });
 
@@ -132,7 +127,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("NotificationModel.manager.dismiss");
     expect(serialized).not.toContain("Game.Notifications.dismiss");
-    expect(serialized).not.toContain("controller approved");
+
     expect(serialized).not.toContain("\"host\"");
     expect(serialized).not.toContain("\"port\"");
     expect(serialized).not.toContain("\"state\"");
@@ -145,11 +140,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "notifications.dismiss.request",
       input: { notificationId: { owner: 0, id: 113, type: 20 } },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved notification dismissal",
-      },
     });
 
     expect(response).toEqual({
@@ -162,7 +152,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     expect(JSON.stringify(response)).not.toContain("NotificationModel");
     expect(JSON.stringify(response)).not.toContain("Game.Notifications");
-    expect(JSON.stringify(response)).not.toContain("controller approved");
+
   });
 
   test("keeps unsupported game UI mutations bounded when notification dismissal is available", async () => {
@@ -172,11 +162,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "turn.complete.request",
       input: {},
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved turn completion",
-      },
     });
 
     expect(response).toEqual({
@@ -187,8 +172,157 @@ describe("Civ7 game UI controller bootstrap", () => {
         reason: "procedure-failed",
       },
     });
-    expect(JSON.stringify(response)).not.toContain("controller approved");
+
     expect(JSON.stringify(response)).not.toContain("Civ7 game UI controller dependency");
+  });
+
+  test("executes turn completion through game UI service dependency", async () => {
+    const sendCalls: string[] = [];
+    const deselectCalls: string[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      blocksTurnAdvancement: false,
+      canEndTurn: true,
+      turnCompletion: {
+        onSend: () => sendCalls.push("send"),
+        onDeselect: () => deselectCalls.push("deselect"),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "turn.complete.request",
+      input: {},
+      correlationId: "game-ui-turn-complete-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "turn.complete.request",
+      correlationId: "game-ui-turn-complete-1",
+      output: {
+        sent: true,
+        status: "sent-guarded",
+        before: {
+          turn: 42,
+          hasSentTurnComplete: false,
+          canEndTurn: true,
+          blocker: 0,
+        },
+        after: {
+          turn: 42,
+          hasSentTurnComplete: true,
+          canEndTurn: true,
+          blocker: 0,
+        },
+        postcondition: {
+          classification: "turn-complete-sent",
+          confirmed: true,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "turn.complete.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual(["send"]);
+    expect(deselectCalls).toEqual(["deselect"]);
+    const serialized = JSON.stringify(response);
+
+    expect(serialized).not.toContain("GameContext.sendTurnComplete");
+    expect(serialized).not.toContain("game-ui-turn-completion-requested");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+  });
+
+  test("keeps blocked game UI turn completion semantic and no-repeat guarded", async () => {
+    const sendCalls: string[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      blocksTurnAdvancement: true,
+      canEndTurn: false,
+      turnCompletion: {
+        onSend: () => sendCalls.push("send"),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "turn.complete.request",
+      input: {},
+      correlationId: "game-ui-turn-blocked-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "turn.complete.request",
+      output: {
+        sent: false,
+        status: "not-sent",
+        before: {
+          turn: 42,
+          hasSentTurnComplete: false,
+          canEndTurn: false,
+          blocker: notificationId.type,
+        },
+        after: null,
+        postcondition: {
+          classification: "turn-completion-blocked",
+          outcome: "not-sent",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [
+          { kind: "inspect-turn-completion" },
+          { kind: "do-not-repeat" },
+        ],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+
+    expect(JSON.stringify(response)).not.toContain("GameContext.sendTurnComplete");
+  });
+
+  test("does not repeat game UI turn completion after already-sent evidence", async () => {
+    const sendCalls: string[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      blocksTurnAdvancement: false,
+      canEndTurn: true,
+      turnCompletion: {
+        initiallySent: true,
+        onSend: () => sendCalls.push("send"),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "turn.complete.request",
+      input: {},
+      correlationId: "game-ui-turn-already-sent-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: false,
+        status: "not-sent",
+        before: {
+          hasSentTurnComplete: true,
+          canEndTurn: true,
+        },
+        postcondition: {
+          classification: "turn-completion-blocked",
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [
+          { kind: "inspect-turn-completion" },
+          { kind: "do-not-repeat" },
+        ],
+      },
+    });
+    expect(sendCalls).toEqual([]);
   });
 
   test("reads supported game UI attention without ready actor overclaim", async () => {
@@ -431,11 +565,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "notifications.dismiss.request",
       input: { notificationId: { owner: 0, id: 113, type: 20 } },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved notification dismissal",
-      },
     });
 
     expect(response).toEqual({
@@ -447,7 +576,7 @@ describe("Civ7 game UI controller bootstrap", () => {
         reason: "invalid-envelope",
       },
     });
-    expect(JSON.stringify(response)).not.toContain("controller approved");
+
   });
 
   test("creates context without endpoint or raw command inputs", async () => {
@@ -462,7 +591,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
 
     expect(context.endpointDefaults).toEqual({ timeoutMs: 250 });
-    expect(context.approval).toBeUndefined();
     expect(context.controller).toEqual({
       supportedReadProcedures: [],
       supportedMutationProcedures: [],
@@ -501,11 +629,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const context = await createContext({
       procedureKey: "notifications.dismiss.request",
       input: { notificationId },
-      approval: {
-        source: "controller-runtime",
-        approved: true,
-        reason: "controller approved notification dismissal",
-      },
     });
 
     expect(context.controller).toEqual({
@@ -601,10 +724,16 @@ function gameUiNotificationTarget(
     selectedCityId?: { owner: number; id: number; type: number };
     notificationTarget?: { owner: number; id: number; type: number };
     canEndTurn?: boolean;
+    turnCompletion?: {
+      initiallySent?: boolean;
+      onSend?: () => void;
+      onDeselect?: () => void;
+    };
   }> = {},
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
   let exists = true;
+  let turnCompletionSent = options.turnCompletion?.initiallySent ?? false;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
     Type: notificationId.type,
@@ -626,7 +755,20 @@ function gameUiNotificationTarget(
         getHeadSelectedUnit: () => options.selectedUnitId ?? null,
         getFirstReadyUnit: () => options.firstReadyUnitId ?? null,
         getHeadSelectedCity: () => options.selectedCityId ?? null,
+        deselectAllUnits: () => options.turnCompletion?.onDeselect?.(),
       },
+    },
+    GameContext: {
+      ...target.GameContext,
+      hasSentTurnComplete: options.turnCompletion == null
+        ? target.GameContext?.hasSentTurnComplete
+        : () => turnCompletionSent,
+      sendTurnComplete: options.turnCompletion == null
+        ? undefined
+        : () => {
+            options.turnCompletion?.onSend?.();
+            turnCompletionSent = true;
+          },
     },
     canEndTurn: () => options.canEndTurn ?? false,
     Game: {

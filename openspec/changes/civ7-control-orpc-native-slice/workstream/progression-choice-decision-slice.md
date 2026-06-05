@@ -37,7 +37,7 @@ The service procedure owns:
   domain leaf;
 - the `progression.technology.choice.request` and
   `progression.culture.choice.request` contract/router/procedure leaves;
-- approval and playable-readiness composition through existing native
+- playable-readiness composition through existing native
   effect-oRPC middleware;
 - before/after notification evidence collection around the direct-control
   closeout request;

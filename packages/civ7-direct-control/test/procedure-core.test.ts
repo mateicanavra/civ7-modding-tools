@@ -156,7 +156,6 @@ describe("Civ7 procedure-core descriptor owner", () => {
         "evidence-sink",
       ],
       mutationGates: {
-        approvalGate: false,
         validatorFirst: false,
         postconditionRequired: false,
         noRepeatAfterUnverified: false,
@@ -372,7 +371,6 @@ describe("Civ7 procedure-core descriptor owner", () => {
         reason: "mutation-gates-missing",
         procedureKey: "choices.production.request",
         missingGates: [
-          "approvalGate",
           "validatorFirst",
           "postconditionRequired",
           "noRepeatAfterUnverified",
@@ -985,7 +983,7 @@ describe("Civ7 procedure-core descriptor owner", () => {
     })).toThrow(/raw command tunnel fields: .*session\/execute.*executeCiv7Command/);
   });
 
-  test("requires mutation procedures to carry approval, validator, postcondition, and no-repeat gates", () => {
+  test("requires mutation procedures to carry validator, postcondition, and no-repeat gates", () => {
     const productionMutation: Civ7ProcedureCoreDescriptor = {
       ...readyUnitDescriptor,
       procedureKey: "choices.production.request",
@@ -993,7 +991,7 @@ describe("Civ7 procedure-core descriptor owner", () => {
       risk: "mutation",
       atomOwner: "packages/civ7-direct-control/src/play/operations/production-choice.ts",
       atomFunction: "requestCiv7ProductionChoice",
-      inputFields: ["cityId", "constructibleType", "approvalReason"],
+      inputFields: ["cityId", "constructibleType"],
       outputFields: ["postcondition", "outcomeDelta", "blockerDelta"],
       projection: {
         normalCli: "semantic-projection",
@@ -1011,19 +1009,17 @@ describe("Civ7 procedure-core descriptor owner", () => {
     };
 
     expect(() => createCiv7ProcedureCoreDescriptor(productionMutation)).toThrow(
-      /approvalGate, validatorFirst, postconditionRequired, noRepeatAfterUnverified/,
+      /validatorFirst, postconditionRequired, noRepeatAfterUnverified/,
     );
 
     const descriptor = createCiv7ProcedureCoreDescriptor({
       ...productionMutation,
-      approvalGate: true,
       validatorFirst: true,
       postconditionRequired: true,
       noRepeatAfterUnverified: true,
     });
 
     expect(summarizeCiv7ProcedureCoreDescriptor(descriptor).mutationGates).toEqual({
-      approvalGate: true,
       validatorFirst: true,
       postconditionRequired: true,
       noRepeatAfterUnverified: true,

@@ -2,11 +2,9 @@ import { Command, Flags } from '@oclif/core';
 import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  requireSendReason,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
@@ -22,7 +20,6 @@ type BuildProductionFlags = Readonly<{
   x?: number;
   y?: number;
   send: boolean;
-  reason?: string;
   'timeout-ms': number;
   json: boolean;
 }>;
@@ -31,11 +28,11 @@ export default class GamePlayBuildProduction extends Command {
   static id = 'game play build-production';
   static summary = 'Validate or choose city production';
   static description =
-    'Validates city-operation BUILD choices, or sends production through the native control-oRPC city procedure when --send and --reason are explicit.';
+    'Validates city-operation BUILD choices, or sends production through the native control-oRPC city procedure when --send is explicit.';
 
   static examples = [
     '<%= config.bin %> game play build-production --city-id \'{"owner":0,"id":65536,"type":25}\' --unit-type 1558890441 --json',
-    '<%= config.bin %> game play build-production --city-id \'{"owner":0,"id":65536,"type":1}\' --constructible-type 713967338 --x 22 --y 31 --send --reason "place Ancient Walls on the validated plot" --json',
+    '<%= config.bin %> game play build-production --city-id \'{"owner":0,"id":65536,"type":1}\' --constructible-type 713967338 --x 22 --y 31 --send --json',
     '<%= config.bin %> game play build-production --city-id \'{"owner":0,"id":65536,"type":1}\' --project-type 12345 --json',
   ];
 
@@ -74,9 +71,6 @@ export default class GamePlayBuildProduction extends Command {
       description: 'Send BUILD after validator success',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -90,7 +84,6 @@ export default class GamePlayBuildProduction extends Command {
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayBuildProduction);
     const typedFlags = flags as BuildProductionFlags;
-    const reason = requireSendReason(typedFlags.send, typedFlags.reason, 'game play build-production');
     const input = {
       operationType: BUILD,
       cityId: parseComponentId(typedFlags['city-id'], 'city-id'),
@@ -101,7 +94,6 @@ export default class GamePlayBuildProduction extends Command {
       ? await createCiv7ControlOrpcServerClient({
           directControl: liveCiv7ControlOrpcDirectControlFacade,
           endpointDefaults: options,
-          approval: buildApproval(reason),
         }).city.production.choice.request({ cityId: input.cityId, args: input.args })
       : await validatePlayOperation('city-operation', input, options);
 

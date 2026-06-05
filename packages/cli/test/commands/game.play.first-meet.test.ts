@@ -51,8 +51,6 @@ describe('game play first-meet diplomacy command', () => {
         '--response',
         'neutral',
         '--send',
-        '--reason',
-        'test neutral first-meet response',
         '--json',
       ]);
 
@@ -99,8 +97,6 @@ describe('game play first-meet diplomacy command', () => {
         '--send',
         '--timeout-ms',
         '1000',
-        '--reason',
-        'test sticky first-meet response',
         '--json',
       ]);
 

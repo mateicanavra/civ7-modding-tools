@@ -49,8 +49,6 @@ describe('game play unit target command', () => {
         '--y',
         '33',
         '--send',
-        '--reason',
-        'test postcondition miss',
         '--json',
       ]);
 
@@ -110,8 +108,6 @@ describe('game play unit target command', () => {
         '--y',
         '33',
         '--send',
-        '--reason',
-        'test delayed postcondition',
         '--json',
       ]);
 
@@ -161,8 +157,6 @@ describe('game play unit target command', () => {
         '--y',
         '33',
         '--send',
-        '--reason',
-        'test movement path shortfall',
         '--json',
       ]);
 
@@ -420,7 +414,7 @@ function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' |
             destinationReached: null,
             requestedLocation: { x: 23, y: 33 },
             landedLocation: { x: 22, y: 33 },
-            reason: 'read-only target resolution; use --send with an approval reason to mutate',
+            reason: 'read-only target resolution; use --send to mutate',
           },
         }),
     notes: ['Selection follows the official right-click WorldInput target order.'],

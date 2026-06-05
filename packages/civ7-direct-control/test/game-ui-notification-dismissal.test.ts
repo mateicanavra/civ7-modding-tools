@@ -11,7 +11,6 @@ describe("game UI notification dismissal runtime", () => {
     const notificationId = { owner: 0, id: 113, type: 20 };
     const result = await requestCiv7GameUiNotificationDismissal(
       { notificationId },
-      { approved: true, reason: "test approved game UI notification dismissal" },
       gameUiNotificationTarget(notificationId),
     );
 
@@ -47,7 +46,6 @@ describe("game UI notification dismissal runtime", () => {
     const notificationId = { owner: 0, id: 113, type: 20 };
     const result = await requestCiv7GameUiNotificationDismissal(
       { notificationId },
-      { approved: true, reason: "test approved missing notification dismissal" },
       gameUiNotificationTarget(notificationId, { exists: false }),
     );
 

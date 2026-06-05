@@ -32,7 +32,7 @@ postcondition/no-repeat helper.
 
 - Focused package proof calls the procedure in process with fake context and a
   fake direct-control runtime port.
-- Tests cover context-owned empty input, approval before readiness/mutation,
+- Tests cover context-owned empty input, readiness before mutation,
   playable readiness before mutation, server-side client calls, tagged failure
   projection, raw-output omission, confirmed turn-advanced projection, and
   guarded turn-complete-sent/no-state-change/missing-postcondition paths.

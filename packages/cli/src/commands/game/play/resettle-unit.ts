@@ -1,10 +1,8 @@
 import { Command, Flags } from '@oclif/core';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -19,7 +17,7 @@ export default class GamePlayResettleUnit extends Command {
 
   static examples = [
     '<%= config.bin %> game play resettle-unit --unit-id \'{"owner":0,"id":1703951,"type":26}\' --x 17 --y 25 --json',
-    '<%= config.bin %> game play resettle-unit --unit-id \'{"owner":0,"id":1703951,"type":26}\' --x 17 --y 25 --send --reason "resettle migrant into validated owned district" --json',
+    '<%= config.bin %> game play resettle-unit --unit-id \'{"owner":0,"id":1703951,"type":26}\' --x 17 --y 25 --send --json',
   ];
 
   static flags = {
@@ -45,9 +43,6 @@ export default class GamePlayResettleUnit extends Command {
       description: 'Send UNITCOMMAND_RESETTLE after validator success',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -59,9 +54,7 @@ export default class GamePlayResettleUnit extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayResettleUnit);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play resettle-unit');
-    const input = {
+    const { flags } = await this.parse(GamePlayResettleUnit);    const input = {
       operationType: RESETTLE,
       unitId: parseComponentId(flags['unit-id'], 'unit-id'),
       args: {
@@ -71,7 +64,7 @@ export default class GamePlayResettleUnit extends Command {
     };
     const options = buildDirectControlOptions(flags);
     const result = flags.send
-      ? await sendPlayOperation('unit-command', input, options, buildApproval(reason))
+      ? await sendPlayOperation('unit-command', input, options)
       : await validatePlayOperation('unit-command', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

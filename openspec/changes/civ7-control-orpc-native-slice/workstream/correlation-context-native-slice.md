@@ -28,7 +28,7 @@ The service context now accepts optional `correlation.correlationId`. A native
 effect-oRPC middleware validates the ID before procedure handlers run. Invalid
 IDs fail with `CORRELATION_ID_INVALID` and do not echo the invalid value.
 
-Validated IDs may appear in package-owned typed error data for approval and
+Validated IDs may appear in package-owned typed error data for validator/postcondition/no-repeat safety and
 direct-control runtime-port failures. Normal procedure inputs and outputs do
 not gain correlation fields, and successful procedure calls do not claim runtime
 telemetry propagation.
@@ -48,7 +48,7 @@ telemetry propagation.
 
 Focused package proof covers:
 
-- valid service correlation is attached to typed approval and facade-failure
+- valid service correlation is attached to typed facade-failure
   error data;
 - invalid service correlation is rejected before the direct-control mutation
   port runs;

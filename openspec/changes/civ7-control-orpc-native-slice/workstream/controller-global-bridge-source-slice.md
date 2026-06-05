@@ -32,21 +32,21 @@ The global bridge source seed:
 - delegates requests to the existing controller ingress instead of
   implementing a second router, dispatcher, or procedure runner;
 - preserves the ingress rejection of raw command, session, state, endpoint, and
-  mutation approval fields for the current read-only allowlist;
+  readiness fields for the current read-only allowlist;
 - returns the same bounded success and failure response shapes as the
   controller ingress.
 
 The actual Civ7 UIScript/modinfo package remains unimplemented and is the
 future owner that may pass ambient `globalThis`. This package does not own game
 global discovery, local-player/hotseat identity,
-approval-token minting, or runtime lifecycle certification in this slice.
+controller-proof minting, or runtime lifecycle certification in this slice.
 
 ## Non-Goals
 
 - no Civ7 modinfo or UIScript bundle;
 - no runtime/live-game proof or play-thread action;
 - no mutation procedure allowlist;
-- no local-player/hotseat proof, approval-token implementation, or evidence
+- no local-player/hotseat proof, controller-proof implementation, or evidence
   sink;
 - no raw command/session/tuner payload ingress;
 - no HTTP/RPCLink/OpenAPI transport;
@@ -70,4 +70,4 @@ These are local package/OpenSpec proofs only.
 The repository still needs the actual Civ7 controller UIScript/mod package that
 loads this adapter in the `scope="game"` environment. Mutation ingress remains
 blocked until a separate slice owns local-player/hotseat identity, explicit
-approval, lifecycle certification, and proof/evidence sinks.
+lifecycle certification, and proof/evidence sinks.

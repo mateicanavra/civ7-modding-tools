@@ -26,7 +26,6 @@ export const narrativeChoiceRequestProcedure =
         const result = await context.directControl.requestCiv7NarrativeChoice(
           input,
           context.endpointDefaults,
-          context.approval!,
         );
         return narrativeChoiceResult(input, result);
       },

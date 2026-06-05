@@ -48,7 +48,7 @@ this slice because first-meet handling is a separate diplomacy capability.
 - Focused control-oRPC diplomacy response tests prove the service projection
   reports source-owned acted-player evidence from the direct-control result
   rather than echoing caller validation identity.
-- Focused CLI diplomacy response tests prove the approved
+- Focused CLI diplomacy response tests prove the accepted
   `respond-diplomacy --send` path reaches the existing direct-control official
   UI closeout runtime command through the in-process service client path,
   emits semantic `diplomacy.response.request` output, and keeps raw

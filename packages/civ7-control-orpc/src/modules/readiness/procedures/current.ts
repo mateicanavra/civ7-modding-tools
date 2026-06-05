@@ -84,7 +84,7 @@ function readinessCapability(
     return {
       canObserve: true,
       canMutate: true,
-      reason: "Runtime control is ready for in-game reads and approved actions.",
+      reason: "Runtime control is ready for in-game reads and guarded actions.",
     };
   }
 

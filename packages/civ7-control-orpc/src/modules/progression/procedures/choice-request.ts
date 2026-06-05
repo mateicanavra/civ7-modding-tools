@@ -36,9 +36,6 @@ type ProgressionChoicePostcondition = Civ7MutationProofPostcondition<
   ProgressionChoiceResult["postcondition"]["classification"],
   ProgressionChoiceResult["postcondition"]["outcome"]
 >;
-type ApprovedCiv7ControlOrpcContext = Civ7ControlOrpcContext & Readonly<{
-  approval: NonNullable<Civ7ControlOrpcContext["approval"]>;
-}>;
 type ProgressionChoicePostRead =
   | Readonly<{
       status: "read";
@@ -70,7 +67,7 @@ export const progressionTechnologyChoiceRequestProcedure =
         );
         const requestInput = progressionChoiceRuntimeInput(input, before);
         const result = await requestProgressionChoice(kind, requestInput, {
-          context: context as ApprovedCiv7ControlOrpcContext,
+          context,
         });
         const after = await readAfterProgressionChoice(context, result);
         return progressionChoiceResult(kind, source, requestInput, result, before, after);
@@ -103,7 +100,7 @@ export const progressionCultureChoiceRequestProcedure =
         );
         const requestInput = progressionChoiceRuntimeInput(input, before);
         const result = await requestProgressionChoice(kind, requestInput, {
-          context: context as ApprovedCiv7ControlOrpcContext,
+          context,
         });
         const after = await readAfterProgressionChoice(context, result);
         return progressionChoiceResult(kind, source, requestInput, result, before, after);
@@ -123,7 +120,7 @@ async function requestProgressionChoice(
   kind: ProgressionChoiceKind,
   input: Civ7ProgressionChoiceInput,
   dependencies: Readonly<{
-    context: ApprovedCiv7ControlOrpcContext;
+    context: Civ7ControlOrpcContext;
   }>,
 ): Promise<ProgressionChoiceCloseoutResult> {
   const requestInput = {
@@ -138,14 +135,12 @@ async function requestProgressionChoice(
     return dependencies.context.directControl.requestCiv7TechnologyChoiceCloseout(
       requestInput,
       dependencies.context.endpointDefaults,
-      dependencies.context.approval!,
     );
   }
 
   return dependencies.context.directControl.requestCiv7CultureChoiceCloseout(
     requestInput,
     dependencies.context.endpointDefaults,
-    dependencies.context.approval!,
   );
 }
 

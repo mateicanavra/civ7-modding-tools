@@ -1,6 +1,5 @@
 import { Type, type Static } from "typebox";
 
-import { assertApproved } from "../../action-approval.js";
 import { assertCiv7ComponentId, Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
@@ -19,7 +18,6 @@ import {
   type Civ7OperationRequestResult,
 } from "./validate-request.js";
 import type {
-  Civ7ActionApproval,
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
@@ -105,8 +103,6 @@ export type Civ7ProductionChoiceInput = Readonly<{
 export const Civ7ProductionChoiceRequestInputSchema = Type.Object({
   cityId: Civ7ComponentIdSchema,
   args: civ7ProductionChoiceArgsSchema,
-  approvalReason: Type.String({ minLength: 1 }),
-  disposableSession: Type.Optional(Type.Boolean()),
 }, { additionalProperties: false });
 export type Civ7ProductionChoiceRequestInput = Readonly<Static<typeof Civ7ProductionChoiceRequestInputSchema>>;
 
@@ -171,7 +167,6 @@ export const Civ7ProductionChoiceResultSchema = Type.Object({
 }, { additionalProperties: false });
 
 type ProductionChoiceDependencies = Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   assertComponentId: (value: Civ7ComponentId, label?: string) => void;
   canStartCityOperation: (
     input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
@@ -185,10 +180,8 @@ type ProductionChoiceDependencies = Readonly<{
 export async function requestCiv7ProductionChoice(
   input: Civ7ProductionChoiceInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: ProductionChoiceDependencies = defaultProductionChoiceDependencies,
 ): Promise<Civ7ProductionChoiceResult> {
-  dependencies.assertApproved(approval, "choosing city production");
   dependencies.assertComponentId(input.cityId, "cityId");
   validateProductionChoiceArgs(input.args);
   const operationInput = {
@@ -249,7 +242,6 @@ export async function requestCiv7ProductionChoice(
 }
 
 const defaultProductionChoiceDependencies: ProductionChoiceDependencies = {
-  assertApproved,
   assertComponentId: assertCiv7ComponentId,
   canStartCityOperation: canStartCiv7CityOperation,
   executeAppUiCommand: executeCiv7AppUiCommand,

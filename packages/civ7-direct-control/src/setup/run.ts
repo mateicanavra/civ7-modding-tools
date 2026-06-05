@@ -1,5 +1,4 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
-import { assertApproved } from "../action-approval.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
 import { boundedInteger, validateIdentifier } from "../validation.js";
 import {
@@ -23,7 +22,6 @@ import type {
 import { startPreparedCiv7SinglePlayerGame } from "./start.js";
 import { CIV7_EXIT_TO_MAIN_MENU_COMMAND } from "./constants.js";
 
-import type { Civ7ActionApproval } from "../action-approval.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -44,7 +42,6 @@ export type Civ7SinglePlayerRunResult = Readonly<{
 }>;
 
 type SetupRunDependencies = Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (options: Civ7DirectControlOptions & { command: string }) => Promise<Civ7CommandResult>;
   exitToMainMenuCommand: string;
@@ -52,12 +49,10 @@ type SetupRunDependencies = Readonly<{
   prepareSetup: (
     input: Civ7SinglePlayerSetupInput,
     options: Civ7DirectControlOptions,
-    approval: Civ7ActionApproval,
   ) => Promise<Civ7PreparedSetupResult>;
   startPreparedGame: (
     input: Civ7PreparedStartInput,
     options: Civ7DirectControlOptions,
-    approval: Civ7ActionApproval,
   ) => Promise<Civ7SinglePlayerStartResult>;
   validateIdentifier: (value: string, label: string) => string;
   waitForSetupPhase: (
@@ -73,10 +68,8 @@ type SetupRunDependencies = Readonly<{
 export async function runCiv7SinglePlayerFromSetup(
   input: Civ7SinglePlayerRunInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: SetupRunDependencies = defaultSetupRunDependencies,
 ): Promise<Civ7SinglePlayerRunResult> {
-  dependencies.assertApproved(approval, "running Civ7 single-player from setup");
   const normalized = normalizeSinglePlayerSetupInput(input, dependencies);
   let shellExit: Civ7CommandResult | undefined;
   const initial = await dependencies.getSetupSnapshot(options);
@@ -100,7 +93,6 @@ export async function runCiv7SinglePlayerFromSetup(
   const prepare = await dependencies.prepareSetup(
     { ...normalized, requireShell: true },
     options,
-    approval,
   );
   const start = await dependencies.startPreparedGame(
     {
@@ -110,7 +102,6 @@ export async function runCiv7SinglePlayerFromSetup(
       pollIntervalMs: input.pollIntervalMs,
     },
     options,
-    approval,
   );
   return {
     shellExit,
@@ -121,7 +112,6 @@ export async function runCiv7SinglePlayerFromSetup(
 }
 
 const defaultSetupRunDependencies: SetupRunDependencies = {
-  assertApproved,
   boundedInteger,
   executeAppUiCommand: executeCiv7AppUiCommand,
   exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,

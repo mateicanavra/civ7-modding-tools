@@ -10,8 +10,8 @@ through the package-local controller ingress without turning the bridge into a
 generic mutation dispatcher or reintroducing the generic decisions root.
 
 The serialized bridge envelope stays closed. Procedure input reuses the
-existing narrative-choice procedure input schema, approval is controller-runtime
-metadata, and mutation dispatch requires controller proof metadata before
+existing narrative-choice procedure input schema is controller-runtime
+metadata, and mutation dispatch requires controller lifecycle proof before
 context construction and native router dispatch.
 
 ## Write Set
@@ -27,15 +27,15 @@ The controller ingress now:
 - accepts `narrative.choice.request` as an additional allowlisted mutation
   procedure key;
 - validates the existing semantic narrative choice input shape;
-- requires closed controller-runtime approval metadata with a non-empty reason;
-- requires closed controller proof metadata for game-controller-ready lifecycle,
+- requires closed controller-runtime context metadata with a non-empty reason;
+- requires closed controller lifecycle proof for game-controller-ready lifecycle,
   `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;
-- rejects missing or invalid approval/proof metadata before context
+- rejects missing or invalid lifecycle proof before context
   construction, native router dispatch, readiness reads, or direct-control
   mutation ports;
-- maps accepted approval metadata into native oRPC context and lets the
-  existing mutation approval/readiness/proof procedure path remain
+- maps readiness context metadata into native oRPC context and lets the
+  existing mutation readiness/proof procedure path remain
   authoritative;
 - delegates to
   `createCiv7ControlOrpcServerClient(context).narrative.choice.request(...)`;
@@ -45,10 +45,10 @@ The controller ingress now:
 - rejects raw host, port, session, state, command, rawCommand, App UI closeout
   payloads, panel/popup internals, direct-control runtime payloads, and legacy
   `verified` from the serialized bridge request/response surface;
-- keeps controller approval reason as request metadata and does not echo it in
+- keeps controller lifecycle, local-player, and hotseat proof out of
   bridge success or failure output.
 
-The controller proof metadata is a local package boundary for serialized
+The controller lifecycle proof is a local package boundary for serialized
 ingress. It is not live-game proof that a Civ7 UIScript has collected those
 facts in a running game.
 
@@ -84,5 +84,5 @@ These are local package proofs only.
 The actual game-scope adapter still needs a Civ7 UIScript/mod package and a
 runtime-owned context/proof factory before this mutation ingress can be loaded
 in a running game. Further mutation allowlists remain blocked until each
-procedure has an explicit approval/proof/lifecycle boundary and local tests for
+procedure has an explicit proof/lifecycle boundary and local tests for
 pre-dispatch rejection.

@@ -30,7 +30,7 @@ The controller ingress now:
 - validates each request against that procedure's existing input schema;
 - calls the existing in-process router client for both procedures;
 - returns the existing semantic procedure outputs;
-- rejects raw host, port, session, state, command, rawCommand, and approval
+- rejects raw host, port, session, state, command, rawCommand,
   fields from the serialized bridge envelope;
 - rejects mutation procedure keys before context construction.
 
@@ -43,7 +43,7 @@ runtime ports. This slice does not add a bridge-local attention read wrapper.
 - no Civ7 modinfo or UIScript bundle;
 - no ambient `globalThis` selection by this package;
 - no mutation procedure allowlist;
-- no local-player/hotseat proof, approval-token implementation, or evidence
+- no local-player/hotseat proof, controller-proof implementation, or evidence
   sink;
 - no raw command/session/tuner payload ingress;
 - no HTTP/RPCLink/OpenAPI transport;
@@ -67,4 +67,4 @@ These are local package/OpenSpec proofs only.
 The actual game-scope adapter still needs a Civ7 UIScript/mod package and
 runtime-owned context factory before the bridge can be loaded in a running
 game. Mutation ingress remains blocked on local-player/hotseat identity,
-explicit approval, lifecycle certification, and proof/evidence sinks.
+explicit lifecycle certification, and proof/evidence sinks.

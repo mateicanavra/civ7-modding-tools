@@ -6,11 +6,9 @@ import {
   technologyChoicePostcondition,
 } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   executePlayOperationSequence,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -28,7 +26,7 @@ export default class GamePlayChooseTech extends Command {
   static examples = [
     '<%= config.bin %> game play choose-tech --options --json',
     '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --json',
-    '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --reason "choose Masonry after advisor warning" --json',
+    '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --json',
   ];
 
   static flags = {
@@ -56,9 +54,6 @@ export default class GamePlayChooseTech extends Command {
       description: 'Compatibility no-op; send mode already clears the chooser target as one caller-level workflow',
       default: false,
       hidden: true,
-    }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
     }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
@@ -101,9 +96,7 @@ export default class GamePlayChooseTech extends Command {
     }
     if (typeof flags.node !== 'number') {
       throw new Error('game play choose-tech requires --node unless --options is used');
-    }
-    const reason = requireSendReason(flags.send, flags.reason, 'game play choose-tech');
-    const input = {
+    }    const input = {
       operationType: SET_TECH_TREE_NODE,
       playerId: flags['player-id'],
       args: {
@@ -117,7 +110,7 @@ export default class GamePlayChooseTech extends Command {
           playerId: flags['player-id'],
           node: flags.node,
           notificationId: before ? findTechnologyChoiceNotification(before)?.id : undefined,
-        }, options, reason)
+        }, options)
         : await executePlayOperationSequence([
           {
             label: 'choose technology node',
@@ -135,7 +128,7 @@ export default class GamePlayChooseTech extends Command {
               },
             },
           },
-        ], options, { send: flags.send, reason });
+        ], options, { send: flags.send });
 
       if (flags.send && before) {
         const after = await waitForTechnologyChoicePostcondition(before, options);
@@ -156,7 +149,7 @@ export default class GamePlayChooseTech extends Command {
     }
 
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+      ? await sendPlayOperation('player-operation', input, options)
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
@@ -238,13 +231,12 @@ function probeValue(value: unknown): unknown {
 async function technologyChoiceAppUiCloseoutResult(
   input: { playerId: number; node: number; notificationId?: unknown },
   options: ReturnType<typeof buildDirectControlOptions>,
-  reason: string,
 ) {
   const result = await requestCiv7TechnologyChoiceCloseout({
     playerId: input.playerId,
     node: input.node,
     notificationId: isComponentId(input.notificationId) ? input.notificationId : undefined,
-  }, options, buildApproval(reason));
+  }, options);
   const payload = isRecord(result.payload) ? result.payload : {};
   return {
     mode: 'send',

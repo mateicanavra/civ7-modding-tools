@@ -1,7 +1,6 @@
 import { Type, type Static } from "typebox";
 
 import { Civ7DirectControlError } from "../direct-control-error.js";
-import { assertApproved, type Civ7ActionApproval } from "../action-approval.js";
 import { Civ7ComponentIdSchema } from "../civ7-component-id.js";
 import {
   getCiv7PlayNotificationView,
@@ -55,7 +54,6 @@ export type Civ7TurnCompletionStatusDependencies = Readonly<{
 }>;
 
 type TurnCompletionDependencies = Civ7TurnCompletionStatusDependencies & Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   getPlayNotificationView: (options: Civ7DirectControlOptions) => Promise<Civ7PlayNotificationViewResult>;
 }>;
 
@@ -91,10 +89,9 @@ export async function getCiv7TurnCompletionStatus(
 
 export async function sendCiv7TurnComplete(
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies,
 ): Promise<Civ7TurnCompletionActionResult> {
-  const result = await requestCiv7TurnComplete(options, approval, dependencies);
+  const result = await requestCiv7TurnComplete(options, dependencies);
   if (!result.sent) {
     throw new Civ7DirectControlError("command-failed", "Civ7 turn complete is blocked by current game state", {
       details: { before: result.before, fallbackPreflight: result.fallbackPreflight },
@@ -106,10 +103,8 @@ export async function sendCiv7TurnComplete(
 
 export async function requestCiv7TurnComplete(
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies,
 ): Promise<Civ7TurnCompletionRequestResult> {
-  dependencies.assertApproved(approval, "requesting Civ7 turn complete");
   const before = await getCiv7TurnCompletionStatus(options, dependencies);
   const fallbackPreflight = probeValue(before.canEndTurn) === true
     ? undefined
@@ -135,10 +130,8 @@ export async function requestCiv7TurnComplete(
 
 export async function sendCiv7TurnUnready(
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies,
 ): Promise<Civ7TurnCompletionActionResult> {
-  dependencies.assertApproved(approval, "sending Civ7 turn unready");
   const before = await getCiv7TurnCompletionStatus(options, dependencies);
   const command = await dependencies.executeAppUiCommand({
     ...options,
@@ -239,7 +232,6 @@ function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
 }
 
 const defaultTurnCompletionDependencies: TurnCompletionDependencies = {
-  assertApproved,
   executeAppUiCommand: executeCiv7AppUiCommand,
   getPlayNotificationView: getCiv7PlayNotificationView,
   parseTurnCompletionStatus: (result, label) =>

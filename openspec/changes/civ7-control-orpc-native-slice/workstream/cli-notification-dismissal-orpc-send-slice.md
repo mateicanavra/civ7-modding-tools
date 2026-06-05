@@ -30,7 +30,7 @@ facade-only notification read procedure.
 
 ## Proof
 
-- Focused CLI test proves the approved send path reaches the existing
+- Focused CLI test proves the send path reaches the existing
   direct-control notification dismissal runtime command through the in-process
   service client path, emits semantic `notifications.dismiss.request` output,
   and keeps raw command/session/state, route diagnostics, closeout path,

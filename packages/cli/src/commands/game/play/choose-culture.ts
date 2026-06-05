@@ -6,11 +6,9 @@ import {
   requestCiv7CultureChoiceCloseout,
 } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   executePlayOperationSequence,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -28,8 +26,8 @@ export default class GamePlayChooseCulture extends Command {
   static examples = [
     '<%= config.bin %> game play choose-culture --options --json',
     '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --json',
-    '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --send --reason "start Mysticism from live culture chooser" --json',
-    '<%= config.bin %> game play choose-culture --player-id 0 --node -1677668973 --send --closeout --reason "choose live Birtutu node and close chooser" --json',
+    '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --send --json',
+    '<%= config.bin %> game play choose-culture --player-id 0 --node -1677668973 --send --closeout --json',
   ];
 
   static flags = {
@@ -56,9 +54,6 @@ export default class GamePlayChooseCulture extends Command {
     closeout: Flags.boolean({
       description: 'Also clear the chooser target node as part of the same caller-level workflow',
       default: false,
-    }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
     }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
@@ -100,9 +95,7 @@ export default class GamePlayChooseCulture extends Command {
     }
     if (typeof flags.node !== 'number') {
       throw new Error('game play choose-culture requires --node unless --options is used');
-    }
-    const reason = requireSendReason(flags.send, flags.reason, 'game play choose-culture');
-    const input = {
+    }    const input = {
       operationType: SET_CULTURE_TREE_NODE,
       playerId: flags['player-id'],
       args: {
@@ -116,7 +109,7 @@ export default class GamePlayChooseCulture extends Command {
           playerId: flags['player-id'],
           node: flags.node,
           notificationId: before ? findCultureChoiceNotification(before)?.id : undefined,
-        }, options, reason)
+        }, options)
         : await executePlayOperationSequence([
           {
             label: 'choose culture node',
@@ -134,7 +127,7 @@ export default class GamePlayChooseCulture extends Command {
               },
             },
           },
-        ], options, { send: flags.send, reason });
+        ], options, { send: flags.send });
 
       if (flags.send && before) {
         const after = await waitForCultureChoicePostcondition(before, options);
@@ -155,7 +148,7 @@ export default class GamePlayChooseCulture extends Command {
     }
 
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+      ? await sendPlayOperation('player-operation', input, options)
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
@@ -237,13 +230,12 @@ function probeValue(value: unknown): unknown {
 async function cultureChoiceAppUiCloseoutResult(
   input: { playerId: number; node: number; notificationId?: unknown },
   options: ReturnType<typeof buildDirectControlOptions>,
-  reason: string,
 ) {
   const result = await requestCiv7CultureChoiceCloseout({
     playerId: input.playerId,
     node: input.node,
     notificationId: isComponentId(input.notificationId) ? input.notificationId : undefined,
-  }, options, buildApproval(reason));
+  }, options);
   const payload = isRecord(result.payload) ? result.payload : {};
   return {
     mode: 'send',

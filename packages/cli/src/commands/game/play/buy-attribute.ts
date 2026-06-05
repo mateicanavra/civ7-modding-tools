@@ -1,10 +1,8 @@
 import { Command, Flags } from '@oclif/core';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   executePlayOperationSequence,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -20,8 +18,8 @@ export default class GamePlayBuyAttribute extends Command {
 
   static examples = [
     '<%= config.bin %> game play buy-attribute --player-id 0 --node 20 --json',
-    '<%= config.bin %> game play buy-attribute --player-id 0 --node 20 --send --reason "buy live validated attribute node" --json',
-    '<%= config.bin %> game play buy-attribute --player-id 0 --node 20 --send --closeout --reason "buy attribute and close reviewed assignment" --json',
+    '<%= config.bin %> game play buy-attribute --player-id 0 --node 20 --send --json',
+    '<%= config.bin %> game play buy-attribute --player-id 0 --node 20 --send --closeout --json',
   ];
 
   static flags = {
@@ -47,9 +45,6 @@ export default class GamePlayBuyAttribute extends Command {
       description: 'Also run CONSIDER_ASSIGN_ATTRIBUTE as part of the same caller-level workflow',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -61,9 +56,7 @@ export default class GamePlayBuyAttribute extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayBuyAttribute);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play buy-attribute');
-    const input = {
+    const { flags } = await this.parse(GamePlayBuyAttribute);    const input = {
       operationType: BUY_ATTRIBUTE_TREE_NODE,
       playerId: flags['player-id'],
       args: {
@@ -87,14 +80,14 @@ export default class GamePlayBuyAttribute extends Command {
             args: {},
           },
         },
-      ], options, { send: flags.send, reason });
+      ], options, { send: flags.send });
 
       emitPlayResult(this.log.bind(this), flags.json, result);
       return;
     }
 
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+      ? await sendPlayOperation('player-operation', input, options)
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

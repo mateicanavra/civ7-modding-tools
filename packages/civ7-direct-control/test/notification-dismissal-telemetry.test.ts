@@ -32,7 +32,6 @@ describe("notification-dismissal telemetry adapter", () => {
       risk: "mutation",
     });
     expect(record.operationFamily).toBe("app-ui-action");
-    expect(record.approval.status).toBe("approved");
     expect(record.validation_pre?.value).toMatchObject({
       valid: true,
       canDismiss: true,
@@ -232,12 +231,6 @@ function notificationTelemetryInput(
       notificationId: notificationId(),
     },
     result: notificationDismissalResult(),
-    approval: {
-      required: true,
-      status: "approved",
-      reason: "test notification dismissal telemetry adapter",
-      source: "notification-dismissal-telemetry.test.ts",
-    },
     source: "notification-dismissal-telemetry.test.ts",
     ...overrides,
   };

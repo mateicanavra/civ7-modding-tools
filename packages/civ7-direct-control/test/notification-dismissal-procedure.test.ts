@@ -9,14 +9,13 @@ import {
   callCiv7NotificationDismissRequestProcedure,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7ActionApproval,
   type Civ7NotificationDismissInput,
   type Civ7NotificationDismissalResult,
   type Civ7NotificationDismissalSummary,
 } from "../src/index";
 
 describe("Civ7 notification dismissal request procedure descriptor", () => {
-  test("records approved notification dismissal mutation gates and resolves schemas", () => {
+  test("records notification dismissal validator, postcondition, and no-repeat metadata and resolves schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7NotificationDismissRequestProcedureDescriptor);
     expect(summary).toMatchObject({
       procedureKey: "notifications.dismiss.request",
@@ -29,7 +28,6 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
       aiIngestionProjection: "blocked-until-ingestion-contract",
       telemetryProjection: "effect-orpc-middleware-hook",
       mutationGates: {
-        approvalGate: true,
         validatorFirst: true,
         postconditionRequired: true,
         noRepeatAfterUnverified: true,
@@ -49,23 +47,16 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
     expect(Civ7NotificationDismissRequestProcedureDescriptor.outputFields).not.toContain("command");
     expect(Value.Check(resolved.inputSchema, {
       notificationId: { owner: 0, id: 113, type: 20 },
-      approvalReason: "test approved notification dismissal",
     })).toBe(true);
     expect(Value.Check(resolved.inputSchema, {
       notificationId: { owner: 0, type: 20 },
-      approvalReason: "x",
     })).toBe(false);
     expect(Value.Check(resolved.inputSchema, {
       notificationId: { owner: 0, id: 113, type: 20 },
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      notificationId: { owner: 0, id: 113, type: 20 },
-      approvalReason: "x",
       rawCommand: "Game.Notifications.dismiss(...)",
     })).toBe(false);
     expect(Value.Check(resolved.inputSchema, {
       notificationId: { owner: 0, id: 113, type: 20 },
-      approvalReason: "x",
       state: { role: "app-ui" },
     })).toBe(false);
     expect(Value.Check(resolved.outputSchema, notificationDismissalResult())).toBe(true);
@@ -85,18 +76,15 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
     })).toBe(false);
   });
 
-  test("calls the approved notification dismissal atom through the procedure core", async () => {
+  test("calls the notification dismissal atom through the procedure core", async () => {
     const calls: Array<{
       input: Civ7NotificationDismissInput;
       host?: string;
       port?: number;
-      approval: Civ7ActionApproval;
     }> = [];
 
     const result = await callCiv7NotificationDismissRequestProcedure({
       notificationId: { owner: 0, id: 113, type: 20 },
-      approvalReason: "test approved notification dismissal",
-      disposableSession: true,
     }, {
       directControl: {
         host: "127.0.0.1",
@@ -105,12 +93,11 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
       procedure: {
         correlationId: "notification-dismissal-procedure-test",
       },
-      request: async (input, options, approval) => {
+      request: async (input, options) => {
         calls.push({
           input,
           host: options.host,
           port: options.port,
-          approval,
         });
         return notificationDismissalResult();
       },
@@ -132,11 +119,6 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
       },
       host: "127.0.0.1",
       port: 4318,
-      approval: {
-        approved: true,
-        reason: "test approved notification dismissal",
-        disposableSession: true,
-      },
     }]);
   });
 
@@ -144,11 +126,9 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
     let requested = false;
 
     for (const input of [
-      { notificationId: { owner: 0, type: 20 }, approvalReason: "x" },
-      { notificationId: { owner: 0, id: 113, type: 20 } },
+      { notificationId: { owner: 0, type: 20 } },
       {
         notificationId: { owner: 0, id: 113, type: 20 },
-        approvalReason: "x",
         command: "Game.Notifications.dismiss(...)",
       },
     ]) {
@@ -174,7 +154,6 @@ describe("Civ7 notification dismissal request procedure descriptor", () => {
     let requested = false;
     await expect(callCiv7NotificationDismissRequestProcedure({
       notificationId: { owner: 0, id: 113, type: 20 },
-      approvalReason: "test approved notification dismissal",
     }, {
       request: async () => {
         requested = true;

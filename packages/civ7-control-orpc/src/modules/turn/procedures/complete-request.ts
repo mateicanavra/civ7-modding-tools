@@ -25,7 +25,6 @@ export const turnCompleteRequestProcedure =
       try: async () => {
         const result = await context.directControl.requestCiv7TurnComplete(
           context.endpointDefaults,
-          context.approval!,
         );
         return turnCompletionResult(result);
       },

@@ -36,7 +36,7 @@ describe("readiness.current control-oRPC procedure", () => {
       capability: {
         canObserve: true,
         canMutate: true,
-        reason: "Runtime control is ready for in-game reads and approved actions.",
+        reason: "Runtime control is ready for in-game reads and guarded actions.",
       },
       sources: {
         gameUi: {

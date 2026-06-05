@@ -1,13 +1,11 @@
 import { Type, type Static } from "typebox";
 
-import { assertApproved } from "../../action-approval.js";
 import { Civ7ComponentIdSchema, type Civ7ComponentId } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
 
-import type { Civ7ActionApproval } from "./types.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -47,8 +45,6 @@ export const Civ7UnitTargetActionRequestInputSchema = Type.Object({
   unitId: Civ7ComponentIdSchema,
   x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
   y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
-  approvalReason: Type.String({ minLength: 1 }),
-  disposableSession: Type.Optional(Type.Boolean()),
 }, { additionalProperties: false });
 export type Civ7UnitTargetActionRequestInput = Readonly<Static<typeof Civ7UnitTargetActionRequestInputSchema>>;
 
@@ -155,7 +151,6 @@ export type Civ7UnitTargetActionResult = Readonly<{
 }>;
 
 type UnitTargetActionDependencies = Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   executeTunerCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,
   ) => Promise<Civ7CommandResult>;
@@ -182,10 +177,8 @@ export async function getCiv7UnitTargetAction(
 export async function requestCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: UnitTargetActionDependencies = defaultUnitTargetActionDependencies,
 ): Promise<Civ7UnitTargetActionResult> {
-  dependencies.assertApproved(approval, "sending Civ7 unit target action");
   const result = await dependencies.executeTunerCommand({
     ...options,
     command: buildUnitTargetActionCommand(input, { send: true }),
@@ -195,7 +188,6 @@ export async function requestCiv7UnitTargetAction(
 }
 
 const defaultUnitTargetActionDependencies: UnitTargetActionDependencies = {
-  assertApproved,
   executeTunerCommand: executeCiv7TunerCommand,
   parseUnitTargetAction: (result, label) =>
     jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, label),
@@ -324,7 +316,7 @@ function unitTargetVerificationReason(classification: NonNullable<Civ7UnitTarget
     case "no-state-change":
       return "bounded post-send polling did not observe a unit or target-plot change";
     case "not-sent":
-      return "read-only target resolution; use --send with an approval reason to mutate";
+      return "read-only target resolution; use --send to mutate";
   }
 }
 
@@ -545,7 +537,7 @@ function unitTargetActionSource(): string {
           destinationReached: null,
           requestedLocation: { x: input.x, y: input.y },
           landedLocation: locationFromUnitProbe(beforeUnit),
-          reason: "read-only target resolution; use --send with an approval reason to mutate",
+          reason: "read-only target resolution; use --send to mutate",
         };
       }
       return out;

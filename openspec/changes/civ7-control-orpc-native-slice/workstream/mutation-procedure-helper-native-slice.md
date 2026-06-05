@@ -5,11 +5,11 @@ Date: 2026-06-05.
 
 ## Purpose
 
-Promote the repeated approval-plus-readiness mutation procedure chain into a
+Promote the repeated readiness mutation procedure chain into a
 small native oRPC/effect-oRPC helper while preserving each mutation leaf as the
 domain owner of service behavior and result projection.
 
-The helper composes the existing shared approval and playable-readiness
+The helper composes the existing shared playable-readiness
 middleware on the selected procedure leaf. It does not create a root mutation
 implementer, dispatcher, router, or operation catalog.
 
@@ -17,7 +17,7 @@ implementer, dispatcher, router, or operation catalog.
 
 - `packages/civ7-control-orpc/src/middleware/mutation-procedure.ts`
 - `packages/civ7-control-orpc/src/middleware/mutation-procedure-key.ts`
-- `packages/civ7-control-orpc/src/middleware/mutation-approval.ts`
+- `packages/civ7-control-orpc/src/middleware/mutation-procedure.ts`
 - `packages/civ7-control-orpc/src/middleware/mutation-readiness.ts`
 - existing mutation procedure leaves under `notifications`, `narrative`,
   `diplomacy`, `progression`, `city`, `unit`, and `turn`
@@ -28,12 +28,12 @@ implementer, dispatcher, router, or operation catalog.
 
 The shared helper:
 
-- reuses native `.use(...)` middleware composition for approval and readiness;
+- reuses native `.use(...)` middleware composition for readiness;
 - applies the middleware chain to concrete procedure leaves, not to the root
   implementer;
 - preserves bad-input rejection before readiness reads or direct-control
   mutation ports are called;
-- shares procedure-key extraction between mutation approval and readiness
+- shares procedure-key extraction between readiness and readiness
   middleware;
 - leaves each procedure's direct-control runtime port, typed error, proof
   projection, no-repeat semantics, and semantic output unchanged.
@@ -71,4 +71,4 @@ These are local package/source proofs only.
 
 Validator-first policy, postcondition/proof middleware, telemetry sinks, and
 runtime/live proof remain pending. Additional controller mutation ingress still
-requires explicit approval/proof/lifecycle gating before dispatch.
+requires explicit proof/lifecycle gating before dispatch.

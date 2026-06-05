@@ -39,7 +39,7 @@ slots or direct equivalents:
 | `state` | Summarizes game/turn/loading/readiness state that is relevant to a player-agent decision. |
 | `blockers` | Lists current blockers such as notifications, ready units, ready cities, progression choices, narrative choices, diplomacy prompts, or production needs. |
 | `decisions` | Lists meaningful choices the player-agent can evaluate, with labels and safe/unsafe markers when known. |
-| `actions` | Lists candidate commands or actions with semantic family, target, args, approval requirement, and read-only/no-send markers. |
+| `actions` | Lists candidate commands or actions with semantic family, target, args, mutation requirement, and read-only/no-send markers. |
 | `result` | Summarizes mutation results with sent status, verification/postcondition classification, reason, and no-repeat-after-unverified guidance where applicable. |
 | `nextSteps` | Provides safe next commands, reread guidance, or explicit stop conditions for the player-agent surface. |
 | `evidence` | Carries source/proof labels at player-agent granularity, without raw proof payloads. |

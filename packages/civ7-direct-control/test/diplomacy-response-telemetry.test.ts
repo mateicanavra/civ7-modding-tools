@@ -31,7 +31,6 @@ describe("diplomacy-response telemetry adapter", () => {
       risk: "mutation",
     });
     expect(record.operationFamily).toBe("player-operation");
-    expect(record.approval.status).toBe("approved");
     expect(record.validation_pre?.value).toMatchObject({
       valid: true,
       operationType: "RESPOND_DIPLOMATIC_ACTION",
@@ -202,12 +201,6 @@ function diplomacyTelemetryInput(
       notificationId: notificationId(),
     },
     result: diplomacyResponseResult(),
-    approval: {
-      required: true,
-      status: "approved",
-      reason: "test diplomacy response telemetry adapter",
-      source: "diplomacy-response-telemetry.test.ts",
-    },
     source: "diplomacy-response-telemetry.test.ts",
     ...overrides,
   };

@@ -31,7 +31,7 @@ describe('game play operation wrapper commands', () => {
     }
   });
 
-  test('sends approved unit operations through direct-control once', async () => {
+  test('sends unit operations through direct-control once', async () => {
     const server = await startOperationTunerServer();
     try {
       const { port } = server.address();
@@ -47,8 +47,6 @@ describe('game play operation wrapper commands', () => {
         '--unit-id',
         '{"owner":0,"id":65536,"type":26}',
         '--send',
-        '--reason',
-        'test approved unit queue operation',
         '--json',
       ]);
 
@@ -59,7 +57,7 @@ describe('game play operation wrapper commands', () => {
     }
   });
 
-  test('wraps advisor warning acknowledgement as an approved player operation', async () => {
+  test('wraps advisor warning acknowledgement as an player operation', async () => {
     const server = await startOperationTunerServer();
     try {
       const { port } = server.address();
@@ -73,8 +71,6 @@ describe('game play operation wrapper commands', () => {
         '--target',
         '{"owner":0,"id":12345,"type":99}',
         '--send',
-        '--reason',
-        'test advisor acknowledgement',
         '--json',
       ]);
 
@@ -114,7 +110,7 @@ describe('game play operation wrapper commands', () => {
     }
   });
 
-  test('wraps unit upgrade as an approved unit command', async () => {
+  test('wraps unit upgrade as an unit command', async () => {
     const server = await startOperationTunerServer();
     try {
       const { port } = server.address();
@@ -126,8 +122,6 @@ describe('game play operation wrapper commands', () => {
         '--unit-id',
         '{"owner":0,"id":1769488,"type":26}',
         '--send',
-        '--reason',
-        'test approved unit upgrade',
         '--json',
       ]);
 

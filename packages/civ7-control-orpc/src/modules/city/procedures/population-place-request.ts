@@ -37,7 +37,6 @@ export const cityPopulationPlaceRequestProcedure =
               location: input.location,
             },
             context.endpointDefaults,
-            context.approval!,
           )
           : await context.directControl.requestCiv7ExpandCityPlacement(
             {
@@ -45,7 +44,6 @@ export const cityPopulationPlaceRequestProcedure =
               destination: input.destination,
             },
             context.endpointDefaults,
-            context.approval!,
           );
         return cityPopulationPlacementResult(input, result);
       },

@@ -143,9 +143,9 @@ function compactTraditionRow(
     operationType: action?.operationType ?? null,
     validationSuccess,
     validateCli: action?.cli ? `${action.cli} --json` : null,
-    sendCli: action?.cli ? `${action.cli} --send --reason '<why this tradition change was selected>'` : null,
+    sendCli: action?.cli ? `${action.cli} --send` : null,
     sendCloseoutCli: options.sendCloseout && action?.cli
-      ? `${action.cli} --send --closeout --reason '<why this tradition change was selected>'`
+      ? `${action.cli} --send --closeout`
       : null,
   };
 }

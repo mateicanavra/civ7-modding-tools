@@ -65,5 +65,5 @@ The focused proof covers every current population-placement postcondition
 classification, request-level `verified` compatibility, sent-without-
 postcondition evidence, omitted no-send/no-evidence postconditions, and
 pending-runtime-proof over an otherwise cleared classification. Existing
-population placement fake-tuner tests preserve the approved `ASSIGN_WORKER` and
+population placement fake-tuner tests preserve the accepted `ASSIGN_WORKER` and
 `EXPAND` request behavior without live-game proof claims.

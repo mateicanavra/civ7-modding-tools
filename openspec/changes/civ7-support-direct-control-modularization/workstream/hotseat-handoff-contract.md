@@ -36,7 +36,7 @@ these slots or direct equivalents:
 | `blockerState` | Blocking notification, ready unit, ready city, progression, diplomacy, narrative, turn-completion, or none. |
 | `curtainState` | Human-visible waiting/curtain/interface state during agent turns. |
 | `actionEligibility` | Whether direct-control mutation is allowed, refused, or pending proof for the current local player. |
-| `approvalState` | Approval token/reason state required before any mutation-facing send. |
+| `mutationGateState` | Validator/postcondition/no-repeat safety state for lifecycle and local-player proof before mutation-facing sends. |
 | `postActionState` | Postcondition, turn completion, and human restoration status after an agent action or turn end. |
 
 ## Runtime Proof Gates
@@ -52,7 +52,7 @@ defer these gates:
    evidence.
 4. Agent-owned current-slot detection is recorded from official evidence.
 5. Direct-control mutation is refused for non-agent human turns.
-6. One approved agent-slot operation follows approval-first, validator-first,
+6. One accepted agent-slot operation follows validator-first,
    no-repeat-after-unverified behavior.
 7. Agent turn completion reaches a stable post-turn state.
 8. Human UI restoration is observed after the agent turn.

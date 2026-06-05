@@ -45,8 +45,7 @@ describe("population placement requests", () => {
           operationType: "ASSIGN_WORKER",
           args: { Location: 2543, Amount: 1 },
         },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test population placement request" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(validation).toMatchObject({
@@ -127,8 +126,7 @@ describe("population placement requests", () => {
           operationType: "EXPAND",
           args: { X: 16, Y: 19 },
         },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test city expansion request" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(validation).toMatchObject({

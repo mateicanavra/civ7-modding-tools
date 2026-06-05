@@ -24,7 +24,7 @@ The write set is:
   custom wrapper plumbing.
 
 No direct-control procedure-core implementation, custom router/middleware
-pipeline, correlation framework, approval middleware, validator/postcondition
+pipeline, correlation framework, readiness middleware, validator/postcondition
 middleware, mutation procedure, transport edge, CLI caller, Studio caller,
 in-game bridge, OpenAPI surface, Task 2.9.4/5.x/6.x acceptance, runtime proof,
 or play-thread action is part of this slice.
@@ -75,7 +75,7 @@ Verification run:
 ## Remaining Boundaries
 
 This is local package proof only. It does not prove Civ7 runtime behavior,
-runtime availability, or mutation safety.
+runtime availability, or validator/postcondition/no-repeat safety.
 
-Correlation, approval, validator-first, postcondition/proof, mutation
+Correlation, validator-first, postcondition/proof, mutation
 procedures, edge adapters, and runtime proof remain pending.

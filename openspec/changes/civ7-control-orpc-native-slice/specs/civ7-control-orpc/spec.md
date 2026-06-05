@@ -83,7 +83,7 @@ errors, and server-side callers.
   classification schema for that service procedure
 - **AND** the input admits only the semantic city production choice request
   shape: city ID plus exactly one valid production args variant
-- **AND** approval, endpoint, session, state, and raw command fields remain
+- **AND** endpoint, session, state, and raw command fields remain
   excluded from procedure input
 - **AND** direct-control remains the runtime/proof owner for production-choice
   sends, validators, source postcondition classification, and no-repeat proof
@@ -94,7 +94,7 @@ errors, and server-side callers.
 - **THEN** control-oRPC owns the input schema for that service procedure
 - **AND** the input admits only the semantic unit target request shape: unit ID
   plus bounded integer map coordinates
-- **AND** approval, endpoint, session, state, and raw command fields remain
+- **AND** endpoint, session, state, and raw command fields remain
   excluded from procedure input
 - **AND** direct-control remains the runtime/proof owner for unit target action
   sends, validators, source verification classification, and no-repeat proof
@@ -133,7 +133,7 @@ errors, and server-side callers.
 - **AND** normal output excludes host, port, state, session, raw command, and
   debug transport details
 - **AND** planning candidates remain read-only evidence and are not promoted to
-  approved movement, attack, war, or send authority
+  authorized movement, attack, war, or send authority
 - **AND** other-owner contact, proximity, ranking, and action legality preserve
   relationship-unproven semantics unless official relationship, team, war, or
   suzerain evidence proves stronger labels
@@ -155,7 +155,7 @@ errors, and server-side callers.
   dependencies
 
 #### Scenario: Direct-control prework names middleware candidates
-- **WHEN** a direct-control slice records approval, validator-first,
+- **WHEN** a direct-control slice records validator-first,
   postcondition, relationship, telemetry, error, or correlation behavior for
   future procedures
 - **THEN** it names the policy/dependency boundary for future oRPC middleware
@@ -180,7 +180,7 @@ normal procedure input.
 
 #### Scenario: Context supplies runtime dependencies
 - **WHEN** a procedure needs endpoint defaults, state selection, logger,
-  evidence sink, clock, approval, risk policy, correlation, or direct-control
+  evidence sink, clock, risk policy, correlation, or direct-control
   facade access
 - **THEN** those values are supplied through oRPC context or caller/runtime
   adapter construction
@@ -215,12 +215,11 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   tunnel
 
 #### Scenario: CLI end-turn send uses native turn procedure
-- **WHEN** `game play end-turn --send` requests an approved turn completion
+- **WHEN** `game play end-turn --send` requests a turn completion
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-  and approval reason
 - **AND** the send path calls the in-process `turn.complete.request`
   server-side client
-- **AND** the procedure's approval, readiness, direct-control guard, and
+- **AND** the procedure's readiness, direct-control guard, and
   postcondition projection remain authoritative for the send
 - **AND** expected pre-send guard blocks project as semantic `not-sent`
   turn-completion output with inspect/do-not-repeat next steps rather than
@@ -234,13 +233,11 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI notification dismissal send uses native notification procedure
-- **WHEN** `game play dismiss-notification --send` requests an approved
-  notification dismissal
+- **WHEN** `game play dismiss-notification --send` requests a notification dismissal
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-  and approval reason
 - **AND** the send path calls the in-process `notifications.dismiss.request`
   server-side client
-- **AND** the procedure's approval, readiness, direct-control validator,
+- **AND** the procedure's readiness, direct-control validator,
   postcondition projection, and no-repeat policy remain authoritative for the
   send
 - **AND** the normal JSON result is the semantic notification dismissal
@@ -252,13 +249,11 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI unit target send uses native unit procedure
-- **WHEN** `game play unit-target --send` requests an approved unit target
-  action
+- **WHEN** `game play unit-target --send` requests a unit target action
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-  and approval reason
 - **AND** the send path calls the in-process `unit.target.action.request`
   server-side client under the `unit` router
-- **AND** the procedure's approval, readiness, direct-control validator,
+- **AND** the procedure's readiness, direct-control validator,
   unit-target postcondition projection, and no-repeat policy remain
   authoritative for the send
 - **AND** the normal JSON result is the semantic unit target action procedure
@@ -271,13 +266,11 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI build-production send uses native city procedure
-- **WHEN** `game play build-production --send` requests an approved city
-  production choice
+- **WHEN** `game play build-production --send` requests a city production choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-  and approval reason
 - **AND** the send path calls the in-process `city.production.choice.request`
   server-side client under the `city` router
-- **AND** the procedure's approval, readiness, direct-control production
+- **AND** the procedure's readiness, direct-control production
   validator, production postcondition projection, and no-repeat policy remain
   authoritative for the send
 - **AND** the normal JSON result is the semantic city production choice
@@ -292,14 +285,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI diplomacy response send uses native diplomacy procedure
-- **WHEN** `game play respond-diplomacy --send` requests an approved diplomacy
-  response
+- **WHEN** `game play respond-diplomacy --send` requests a diplomacy response
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-  and approval reason
 - **AND** the send path calls the in-process
   `diplomacy.response.request` server-side client under the
   `diplomacy` router
-- **AND** the procedure's approval, readiness, direct-control diplomacy
+- **AND** the procedure's readiness, direct-control diplomacy
   response port, diplomacy postcondition projection, and no-repeat policy
   remain authoritative for the send
 - **AND** the send result uses direct-control source evidence for the acted
@@ -317,14 +308,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI narrative choice send uses native narrative procedure
-- **WHEN** `game play choose-narrative --send` requests an approved narrative
-  story direction choice
+- **WHEN** `game play choose-narrative --send` requests a narrative story direction choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-  and approval reason
 - **AND** the send path calls the in-process
   `narrative.choice.request` server-side client under the
   `narrative` router
-- **AND** the procedure's approval, readiness, direct-control narrative choice
+- **AND** the procedure's readiness, direct-control narrative choice
   port, narrative postcondition projection, and no-repeat policy remain
   authoritative for the send
 - **AND** the send result uses direct-control source evidence for the acted
@@ -351,7 +340,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** ingress requests identify an allowlisted procedure key and serialized
   procedure input, not raw command/session/tuner payloads
 - **AND** controller runtime context owns local-player/hotseat identity,
-  approval tokens, lifecycle certification, and proof/evidence sinks
+  lifecycle certification, and proof/evidence sinks
 - **AND** implementation remains pending until source owners, schemas/tests,
   mutation proof policy, and runtime proof boundaries are explicitly accepted
 
@@ -365,7 +354,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   factory
 - **AND** it calls the existing in-process router/client rather than
   implementing a second router or custom procedure runner
-- **AND** raw command/session/tuner endpoint fields and mutation approvals are
+- **AND** raw command/session/tuner endpoint fields are
   rejected from the read-only ingress envelope
 - **AND** failures project bounded bridge error data without raw direct-control
   command details
@@ -396,7 +385,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   procedure input schema
 - **AND** `attention.current` invocation delegates to the existing in-process
   router/client rather than adding a bridge-local dispatcher or read wrapper
-- **AND** raw command/session/tuner endpoint fields and mutation approvals
+- **AND** raw command/session/tuner endpoint fields
   remain rejected from the ingress envelope
 - **AND** mutation allowlists, local-player/hotseat proof, runtime proof, Civ7
   UIScript/modinfo packaging, and full `7.3` implementation remain pending
@@ -407,12 +396,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **THEN** the only accepted mutation key in that slice is the service-owned
   `notifications.dismiss.request` procedure
 - **AND** its request envelope validates the existing notification-dismissal
-  procedure input schema plus closed controller-runtime approval metadata
-- **AND** controller context requires closed controller proof metadata for
+  procedure input schema
+- **AND** controller context requires closed controller lifecycle proof for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
   evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
-  native mutation approval/readiness/proof procedure middleware rather than
+  native readiness and proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
 - **AND** raw host, port, session, state, command, rawCommand, and raw
   direct-control dismissal internals remain excluded from bridge request and
@@ -427,12 +416,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **THEN** the accepted mutation key in that slice is the service-owned
   `turn.complete.request` procedure
 - **AND** its request envelope validates the existing empty turn-completion
-  procedure input schema plus closed controller-runtime approval metadata
-- **AND** controller context requires closed controller proof metadata for
+  procedure input schema
+- **AND** controller context requires closed controller lifecycle proof for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
   evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
-  native mutation approval/readiness/proof procedure middleware rather than
+  native readiness and proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
 - **AND** raw host, port, session, state, command, rawCommand, and raw
   direct-control turn-completion internals remain excluded from bridge request
@@ -447,18 +436,16 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **THEN** the accepted mutation key in that slice is the service-owned
   `unit.target.action.request` procedure
 - **AND** its request envelope validates the existing unit-target-action
-  procedure input schema plus closed controller-runtime approval metadata
-- **AND** controller context requires closed controller proof metadata for
+  procedure input schema
+- **AND** controller context requires closed controller lifecycle proof for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
   evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
-  native mutation approval/readiness/proof procedure middleware rather than
+  native readiness and proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
 - **AND** raw host, port, session, state, command, rawCommand, and raw
   direct-control unit-operation internals remain excluded from bridge request
   and response shapes
-- **AND** controller approval reason remains request metadata and is not echoed
-  in bridge success or failure output
 - **AND** local tests prove only the serialized ingress gate and in-process
   service dispatch; Civ7 UIScript/modinfo packaging, further mutation
   allowlists, runtime/live proof, and full `7.3` implementation remain pending
@@ -469,18 +456,16 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **THEN** the accepted mutation key in that slice is the service-owned
   `city.production.choice.request` procedure
 - **AND** its request envelope validates the existing city-production-choice
-  procedure input schema plus closed controller-runtime approval metadata
-- **AND** controller context requires closed controller proof metadata for
+  procedure input schema
+- **AND** controller context requires closed controller lifecycle proof for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
   evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
-  native mutation approval/readiness/proof procedure middleware rather than
+  native readiness and proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
 - **AND** raw host, port, session, state, command, rawCommand, and raw
   direct-control city-operation internals remain excluded from bridge request
   and response shapes
-- **AND** controller approval reason remains request metadata and is not echoed
-  in bridge success or failure output
 - **AND** local tests prove only the serialized ingress gate and in-process
   service dispatch; Civ7 UIScript/modinfo packaging, further mutation
   allowlists, runtime/live proof, and full `7.3` implementation remain pending
@@ -491,19 +476,17 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **THEN** the accepted mutation key in that slice is the service-owned
   `city.population.place.request` procedure
 - **AND** its request envelope validates the existing population-placement
-  procedure input schema plus closed controller-runtime approval metadata
-- **AND** controller context requires closed controller proof metadata for
+  procedure input schema
+- **AND** controller context requires closed controller lifecycle proof for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
   evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
-  native mutation approval/readiness/proof procedure middleware rather than
+  native readiness and proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
 - **AND** raw host, port, session, state, command, rawCommand, generic
   `operationType`, raw operation `args`, and raw direct-control
   player-operation/city-command internals remain excluded from bridge request
   and response shapes
-- **AND** controller approval reason remains request metadata and is not echoed
-  in bridge success or failure output
 - **AND** local tests prove only the serialized ingress gate and in-process
   service dispatch; Civ7 UIScript/modinfo packaging, further mutation
   allowlists, runtime/live proof, and full `7.3` implementation remain pending
@@ -514,18 +497,16 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **THEN** the accepted mutation key in that slice is the service-owned
   `narrative.choice.request` procedure
 - **AND** its request envelope validates the existing narrative-choice
-  procedure input schema plus closed controller-runtime approval metadata
-- **AND** controller context requires closed controller proof metadata for
+  procedure input schema
+- **AND** controller context requires closed controller lifecycle proof for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
   evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
-  native mutation approval/readiness/proof procedure middleware rather than
+  native readiness and proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
 - **AND** raw host, port, session, state, command, rawCommand, App UI closeout
   payloads, panel/popup internals, direct-control runtime payloads, and legacy
   `verified` remain excluded from bridge request and response shapes
-- **AND** controller approval reason remains request metadata and is not echoed
-  in bridge success or failure output
 - **AND** local tests prove only the serialized ingress gate and in-process
   service dispatch; Civ7 UIScript/modinfo packaging, further mutation
   allowlists, runtime/live proof, and full `7.3` implementation remain pending
@@ -536,18 +517,16 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **THEN** the accepted mutation key in that slice is the service-owned
   `diplomacy.response.request` procedure
 - **AND** its request envelope validates the existing diplomacy-response
-  procedure input schema plus closed controller-runtime approval metadata
-- **AND** controller context requires closed controller proof metadata for
+  procedure input schema
+- **AND** controller context requires closed controller lifecycle proof for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
   evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
-  native mutation approval/readiness/proof procedure middleware rather than
+  native readiness and proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
 - **AND** raw host, port, session, state, command, rawCommand, App UI closeout
   payloads, notification internals, direct-control runtime payloads, and legacy
   `verified` remain excluded from bridge request and response shapes
-- **AND** controller approval reason remains request metadata and is not echoed
-  in bridge success or failure output
 - **AND** local tests prove only the serialized ingress gate and in-process
   service dispatch; Civ7 UIScript/modinfo packaging, further mutation
   allowlists, runtime/live proof, and full `7.3` implementation remain pending
@@ -560,19 +539,16 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `progression.technology.choice.request` and
   `progression.culture.choice.request` procedures
 - **AND** their request envelopes validate the existing semantic
-  player/node/notification input schema plus closed controller-runtime approval
-  metadata
-- **AND** controller context requires closed controller proof metadata for
+  player/node/notification input schema
+- **AND** controller context requires closed controller lifecycle proof for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
   evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
-  native mutation approval/readiness/proof procedure middleware rather than
+  native readiness and proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
 - **AND** raw host, port, session, state, command, rawCommand, payload,
   player-operation/App UI closeout internals, and legacy `verified` remain
   excluded from bridge request and response shapes
-- **AND** controller approval reason remains request metadata and is not echoed
-  in bridge success or failure output
 - **AND** local tests prove only the serialized ingress gate and in-process
   service dispatch; Civ7 UIScript/modinfo packaging, further mutation
   allowlists, runtime/live proof, and full `7.3` implementation remain pending
@@ -604,7 +580,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 #### Scenario: Controller mutation proof is context-owned
 - **WHEN** the controller bridge receives an allowlisted mutation request
 - **THEN** the serialized request envelope validates semantic procedure input
-  plus controller-runtime approval metadata, not caller-supplied lifecycle,
+  rather than caller-supplied lifecycle,
   local-player, or hotseat proof
 - **AND** `controllerProof` in the serialized request is rejected as an extra
   field rather than trusted as runtime evidence
@@ -626,7 +602,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   runtime APIs
 - **THEN** the context may execute the service-owned
   `notifications.dismiss.request` procedure through the existing in-process
-  router and native mutation approval/readiness/proof procedure middleware
+  router and native readiness and proof procedure middleware
 - **AND** the game UI notification-dismissal access path executes against
   ambient `Game.Notifications`, `NotificationModel`, `GameContext`, and
   notification queue evidence without tuner socket/session command
@@ -641,7 +617,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   support as bounded procedure capability facts without changing broad
   `canObserve` or `canMutate` readiness
 - **AND** normal bridge success output remains the semantic notification
-  dismissal result and omits raw route internals, approval reason, host, port,
+  dismissal result and omits raw route internals, host, port,
   state, command, rawCommand, session, and tuner payloads
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, other mutation runtime
@@ -679,13 +655,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
-Mutation-capable control procedures SHALL preserve direct-control approval,
+Mutation-capable control procedures SHALL preserve direct-control
 validator-first, postcondition, no-repeat-after-unverified, and runtime-proof
 boundaries.
 
 #### Scenario: Mutation request procedure is implemented
 - **WHEN** a mutation-capable procedure sends or requests a Civ7 operation
-- **THEN** approval is checked before send authority
 - **AND** validators run before command construction/send where the atom has a
   validator
 - **AND** postcondition and proof telemetry classify sent, unverified, stale,
@@ -708,7 +683,7 @@ boundaries.
   implication
 
 #### Scenario: Shared mutation procedure helper applies native middleware
-- **WHEN** existing mutation procedures share approval and playable-readiness
+- **WHEN** existing mutation procedures share playable-readiness
   gates
 - **THEN** the shared helper composes those gates through native
   oRPC/effect-oRPC middleware on the selected procedure leaf
@@ -731,7 +706,7 @@ boundaries.
   `narrative.choice.request`
 - **AND** the former generic `decisions.narrative` placement is burned down
   rather than preserved as a compatibility path
-- **AND** it checks mutation approval and playable readiness before invoking
+- **AND** it checks playable readiness before invoking
   direct-control runtime authority
 - **AND** it consumes direct-control narrative validators and proof helpers as
   runtime/proof ports rather than reimplementing postcondition truth
@@ -751,7 +726,7 @@ boundaries.
   `diplomacy.response.request`
 - **AND** the former generic `decisions.diplomacy` placement is burned down
   rather than preserved as a compatibility path
-- **AND** it checks mutation approval and playable readiness before invoking
+- **AND** it checks playable readiness before invoking
   direct-control runtime authority
 - **AND** it consumes direct-control diplomacy validators and proof helpers as
   runtime/proof ports rather than inferring proof from legacy `verified`
@@ -774,7 +749,7 @@ boundaries.
 - **THEN** it is offered under the semantic `progression` router as
   `progression.technology.choice.request` or
   `progression.culture.choice.request`
-- **AND** it checks mutation approval and playable readiness before invoking
+- **AND** it checks playable readiness before invoking
   direct-control runtime authority
 - **AND** it reads notification evidence before and after the closeout request
   and consumes direct-control progression postcondition helpers rather than
@@ -836,7 +811,7 @@ modules before broad implementation.
   sticky-blocker, and turn-unblocked postcondition classification belongs to a
   direct-control progression proof owner rather than CLI-only logic
 - **AND** native service procedures remain pending until caller-facing
-  contracts, semantic projection, approval/readiness policy, and no-repeat
+  contracts, semantic projection, readiness policy, and no-repeat
   behavior are explicitly accepted
 - **AND** local postcondition tests do not claim live Civ7 runtime proof
 
@@ -852,9 +827,9 @@ modules before broad implementation.
 - **AND** local postcondition tests do not claim live Civ7 runtime proof
 
 #### Scenario: Turn completion request procedure is implemented
-- **WHEN** `turn.complete.request` requests an approved turn-completion send
+- **WHEN** `turn.complete.request` requests a turn-completion send
 - **THEN** it is offered under the semantic `turn` router
-- **AND** it checks context-owned mutation approval and playable readiness
+- **AND** it checks playable readiness
   before invoking direct-control runtime authority
 - **AND** the procedure consumes the direct-control turn-completion runtime
   port and turn-completion proof helper rather than inferring from legacy
@@ -862,7 +837,7 @@ modules before broad implementation.
 - **AND** expected direct-control guard-blocked requests are projected as
   semantic `not-sent` output, not runtime unavailability
 - **AND** normal input is empty and endpoint, session, state, raw command, and
-  approval fields remain context-owned
+  endpoint and runtime fields remain context-owned
 - **AND** normal output projects before/after turn facts, postcondition
   summary, request status, and next steps without raw command/session/tuner
   details

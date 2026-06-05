@@ -29,7 +29,7 @@ procedure only to wrap that status atom.
 
 ## Proof
 
-- Focused CLI test proves the approved send path reaches the real
+- Focused CLI test proves the send path reaches the real
   `GameContext.sendTurnComplete()` runtime command only through the in-process
   service client path, emits semantic `turn.complete.request` output, and keeps
   raw command/session/state fields out of normal JSON.

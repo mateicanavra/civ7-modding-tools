@@ -2,6 +2,7 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcReadyCityViewResult,
   Civ7ControlOrpcReadyUnitViewResult,
+  Civ7ControlOrpcTurnCompletionRequestResult,
   Civ7ControlOrpcTurnCompletionStatusResult,
 } from "./dependencies/direct-control";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
@@ -19,6 +20,7 @@ export type Civ7GameUiAttentionTarget = Readonly<{
   GameContext?: {
     localPlayerID?: number;
     hasSentTurnComplete?: () => boolean;
+    sendTurnComplete?: () => unknown;
   };
   Game?: {
     turn?: number;
@@ -45,6 +47,7 @@ export type Civ7GameUiAttentionTarget = Readonly<{
       getHeadSelectedUnit?: () => unknown;
       getFirstReadyUnit?: () => unknown;
       getHeadSelectedCity?: () => unknown;
+      deselectAllUnits?: () => unknown;
     };
   };
   Units?: {
@@ -211,6 +214,48 @@ export async function getCiv7GameUiReadyCityView(
       "Requested, selected, and notification-target city ids are hints only; they are not ready-city proof.",
       "Production and city-operation candidates remain empty in game UI scope; use validator-backed mutation procedures before any send.",
     ],
+  };
+}
+
+export async function requestCiv7GameUiTurnComplete(
+  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget,
+): Promise<Civ7ControlOrpcTurnCompletionRequestResult> {
+  const before = await getCiv7GameUiTurnCompletionStatus(target);
+  if (!gameUiTurnCompletionAllowed(before)) {
+    return {
+      sent: false,
+      before,
+      fallbackPreflight: await getCiv7GameUiPlayNotificationView({}, target),
+      reason: "turn-completion-blocked",
+    };
+  }
+
+  const sendTurnComplete = target.GameContext?.sendTurnComplete;
+  if (typeof sendTurnComplete !== "function") {
+    return {
+      sent: false,
+      before,
+      fallbackPreflight: await getCiv7GameUiPlayNotificationView({}, target),
+      reason: "turn-completion-blocked",
+    };
+  }
+
+  target.UI?.Player?.deselectAllUnits?.();
+  sendTurnComplete();
+
+  const after = await getCiv7GameUiTurnCompletionStatus(target);
+  return {
+    sent: true,
+    before,
+    after,
+    command: {
+      host: "game-ui",
+      port: 0,
+      state: { id: "game-ui", name: "Game UI" },
+      output: ["game-ui-turn-completion-requested"],
+    },
+    verified: probeValue(after.hasSentTurnComplete) === true
+      || probeValue(after.turn) !== probeValue(before.turn),
   };
 }
 
@@ -414,6 +459,17 @@ function probe<T>(fn: () => T): RuntimeProbe<T> {
 
 function ok<T>(value: T): RuntimeProbe<T> {
   return { ok: true, value };
+}
+
+function gameUiTurnCompletionAllowed(
+  status: Civ7ControlOrpcTurnCompletionStatusResult,
+): boolean {
+  return probeValue(status.canEndTurn) === true
+    && probeValue(status.hasSentTurnComplete) !== true;
+}
+
+function probeValue<T>(probe: RuntimeProbe<T>): T | undefined {
+  return probe.ok ? probe.value : undefined;
 }
 
 function isPresent<T>(value: T | null | undefined): value is T {

@@ -50,8 +50,6 @@ describe('game play attribute and tradition commands', () => {
           '20',
           '--send',
           '--closeout',
-          '--reason',
-          'test attribute purchase closeout',
           '--json',
         ]);
       } finally {
@@ -119,8 +117,6 @@ describe('game play attribute and tradition commands', () => {
           '-1326475004',
           '--send',
           '--closeout',
-          '--reason',
-          'test tradition change closeout',
           '--json',
         ]);
       } finally {

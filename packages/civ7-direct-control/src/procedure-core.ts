@@ -99,7 +99,6 @@ export const Civ7ProcedureContextRequirementSchema = Type.Union([
   Type.Literal("direct-control-facade"),
   Type.Literal("endpoint-defaults"),
   Type.Literal("state-selection"),
-  Type.Literal("approval-policy"),
   Type.Literal("logger"),
   Type.Literal("clock"),
   Type.Literal("evidence-sink"),
@@ -255,7 +254,6 @@ export const Civ7ProcedureCoreDescriptorSchema = Type.Object({
   projection: Civ7ProcedureProjectionSchema,
   correlation: Civ7ProcedureCorrelationPolicySchema,
   context: Type.Array(Civ7ProcedureContextRequirementSchema),
-  approvalGate: Type.Optional(Type.Boolean()),
   validatorFirst: Type.Optional(Type.Boolean()),
   postconditionRequired: Type.Optional(Type.Boolean()),
   noRepeatAfterUnverified: Type.Optional(Type.Boolean()),
@@ -290,7 +288,6 @@ export type Civ7ProcedureCoreSummary = Readonly<{
   correlation: Civ7ProcedureCorrelationPolicy;
   context: ReadonlyArray<Civ7ProcedureContextRequirement>;
   mutationGates: Readonly<{
-    approvalGate: boolean;
     validatorFirst: boolean;
     postconditionRequired: boolean;
     noRepeatAfterUnverified: boolean;
@@ -382,7 +379,6 @@ export function summarizeCiv7ProcedureCoreDescriptor(
     correlation: valid.correlation,
     context: valid.context,
     mutationGates: {
-      approvalGate: valid.approvalGate === true,
       validatorFirst: valid.validatorFirst === true,
       postconditionRequired: valid.postconditionRequired === true,
       noRepeatAfterUnverified: valid.noRepeatAfterUnverified === true,
@@ -647,7 +643,6 @@ function validateNoRawCommandTunnel(descriptor: Civ7ProcedureCoreDescriptor): vo
 function validateMutationGates(descriptor: Civ7ProcedureCoreDescriptor): void {
   if (descriptor.risk !== "mutation") return;
   const missing = [
-    descriptor.approvalGate === true ? null : "approvalGate",
     descriptor.validatorFirst === true ? null : "validatorFirst",
     descriptor.postconditionRequired === true ? null : "postconditionRequired",
     descriptor.noRepeatAfterUnverified === true ? null : "noRepeatAfterUnverified",

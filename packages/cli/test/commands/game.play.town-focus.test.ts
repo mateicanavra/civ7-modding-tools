@@ -55,8 +55,6 @@ describe('game play town focus commands', () => {
           '-548685232',
           '--send',
           '--closeout',
-          '--reason',
-          'test town focus closeout',
           '--json',
         ]);
       } finally {

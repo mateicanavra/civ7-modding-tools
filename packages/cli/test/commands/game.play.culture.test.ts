@@ -97,8 +97,6 @@ describe('game play culture commands', () => {
         '--node',
         '-1677668973',
         '--send',
-        '--reason',
-        'test culture target closeout',
         '--json',
       ]);
 
@@ -130,8 +128,6 @@ describe('game play culture commands', () => {
           '-1677668973',
           '--send',
           '--closeout',
-          '--reason',
-          'test culture target closeout',
           '--json',
         ]);
       } finally {
@@ -176,8 +172,6 @@ describe('game play culture commands', () => {
         '--closeout',
         '--timeout-ms',
         '1000',
-        '--reason',
-        'test sticky culture target selection',
         '--json',
       ]);
 
@@ -230,8 +224,6 @@ describe('game play culture commands', () => {
         '--closeout',
         '--timeout-ms',
         '1000',
-        '--reason',
-        'test culture state changed but blocker persisted',
         '--json',
       ]);
 
@@ -438,11 +430,11 @@ function playNotificationView(mode: 'culture-choice' | 'ready-unit', cultureStat
     chooseValidation: { ok: true, value: { Success: row.enabled } },
     targetValidation: { ok: true, value: { Success: row.enabled } },
     cli: row.enabled
-      ? `game play choose-culture --player-id 0 --node ${row.nodeType} --send --closeout --reason '<why this culture node was selected>'`
+      ? `game play choose-culture --player-id 0 --node ${row.nodeType} --send --closeout`
       : null,
     validateCli: `game play choose-culture --player-id 0 --node ${row.nodeType} --json`,
     targetCli: row.enabled
-      ? `game play set-culture-target --player-id 0 --node ${row.nodeType} --send --reason '<why this culture target was selected>'`
+      ? `game play set-culture-target --player-id 0 --node ${row.nodeType} --send`
       : null,
   }));
   const details = {

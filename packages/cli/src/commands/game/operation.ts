@@ -23,7 +23,7 @@ export default class GameOperation extends Command {
 
   static examples = [
     '<%= config.bin %> game operation --family unit-operation --operation-type SKIP_TURN --unit-id \'{"owner":0,"id":65536,"type":26}\' --json',
-    '<%= config.bin %> game operation --family unit-operation --operation-type SKIP_TURN --unit-id \'{"owner":0,"id":65536,"type":26}\' --send --reason "smoke test" --json',
+    '<%= config.bin %> game operation --family unit-operation --operation-type SKIP_TURN --unit-id \'{"owner":0,"id":65536,"type":26}\' --send --json',
   ];
 
   static flags = {
@@ -58,9 +58,6 @@ export default class GameOperation extends Command {
       description: 'Send the request after validator success',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -80,11 +77,7 @@ export default class GameOperation extends Command {
     };
     const input = buildOperationInput(flags);
     const result = flags.send
-      ? await sendOperation(flags.family, input, options, {
-          approved: true,
-          reason: flags.reason ?? `CLI ${flags.family} request`,
-          disposableSession: true,
-        })
+      ? await sendOperation(flags.family, input, options)
       : await validateOperation(flags.family, input, options);
 
     if (flags.json) {
@@ -126,13 +119,12 @@ async function sendOperation(
   family: string,
   input: Civ7OperationInput,
   options: { host?: string; port?: number; timeoutMs?: number },
-  approval: { approved: true; reason: string; disposableSession: boolean },
 ) {
-  if (family === 'unit-operation') return await requestCiv7UnitOperation(assertUnitInput(input), options, approval);
-  if (family === 'unit-command') return await requestCiv7UnitCommand(assertUnitInput(input), options, approval);
-  if (family === 'city-operation') return await requestCiv7CityOperation(assertCityInput(input), options, approval);
-  if (family === 'city-command') return await requestCiv7CityCommand(assertCityInput(input), options, approval);
-  return await requestCiv7PlayerOperation(assertPlayerInput(input), options, approval);
+  if (family === 'unit-operation') return await requestCiv7UnitOperation(assertUnitInput(input), options);
+  if (family === 'unit-command') return await requestCiv7UnitCommand(assertUnitInput(input), options);
+  if (family === 'city-operation') return await requestCiv7CityOperation(assertCityInput(input), options);
+  if (family === 'city-command') return await requestCiv7CityCommand(assertCityInput(input), options);
+  return await requestCiv7PlayerOperation(assertPlayerInput(input), options);
 }
 
 function parseComponentId(value: string | undefined, flag: string): Civ7ComponentId {

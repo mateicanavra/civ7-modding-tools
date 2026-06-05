@@ -6,7 +6,7 @@ Date: 2026-06-04.
 ## Purpose
 
 Seed a native `packages/civ7-control-orpc` unit-domain procedure for an
-approved unit target action without copying direct-control procedure-core wiring
+accepted unit target action without copying direct-control procedure-core wiring
 or adding transport edges. `unit.target.action.request` owns the caller-facing
 oRPC service contract for a unit target action under the unit router while
 `@civ7/direct-control` remains the runtime, validator, command-serialization,
@@ -35,10 +35,10 @@ bounded verification, postcondition, and proof/no-repeat owner.
   `procedureKey: "unit.target.action.request"` as the stable capability key;
 - accepts only the source-owned unit target input shape: `unitId`, `x`, and
   `y`;
-- takes explicit mutation approval from typed oRPC context through the shared
-  native effect-oRPC approval middleware, not normal procedure input;
+- takes explicit readiness from typed oRPC context through the shared
+  native effect-oRPC readiness middleware, not normal procedure input;
 - calls the direct-control `requestCiv7UnitTargetAction` runtime port with
-  endpoint defaults and approved context;
+  endpoint defaults and readiness context;
 - consumes the direct-control unit-target proof helper for confirmed,
   unverified, missing-postcondition, and no-repeat classification;
 - returns semantic normal output with target, send status, candidate validation
@@ -80,7 +80,7 @@ bounded verification, postcondition, and proof/no-repeat owner.
 - `git diff --check`
 
 Focused proof covers in-process procedure calls, server-side router client
-calls, shared approval middleware refusal before mutation, endpoint/session/raw
+calls, shared readiness middleware refusal before mutation, endpoint/session/raw
 command input rejection, safe tagged error projection, confirmed target-reached
 repeat-safe postconditions, confirmed `path-shortfall` no-repeat guarded
 postconditions, unverified `no-state-change` no-repeat guarded postconditions,

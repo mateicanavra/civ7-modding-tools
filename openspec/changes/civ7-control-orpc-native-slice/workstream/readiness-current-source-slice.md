@@ -32,7 +32,7 @@ is part of this slice.
 port through typed context and projects it into normal service output:
 
 - readiness and playable status;
-- support capability booleans for observation and approved mutation;
+- support capability booleans for observation and accepted mutation;
 - bounded game UI/runtime-control source summaries;
 - an error count instead of raw runtime error messages;
 - semantic next steps.

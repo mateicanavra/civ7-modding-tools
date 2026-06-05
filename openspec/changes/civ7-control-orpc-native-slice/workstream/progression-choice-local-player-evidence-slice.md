@@ -25,14 +25,14 @@ instead of treating caller `playerId` as controller/runtime send authority.
 - `@civ7/direct-control` remains the low-level App UI/Tuner closeout runtime
   port and progression postcondition classifier owner.
 - `packages/civ7-control-orpc` owns the service behavior that composes
-  approval, readiness, before/after notification evidence, closeout runtime
+  readiness, before/after notification evidence, closeout runtime
   ports, and semantic output.
 - Caller `playerId` remains part of the caller-facing progression input, but
   the service binds the closeout request and normal output to the source-owned
   local-player evidence from the before-notification read.
 - Progression controller bridge ingress remains rejected until a separate
   allowlist slice adds the request/response union, dispatch branch, closed
-  controller approval/proof envelope, and package/OpenSpec proof.
+  controller proof envelope, and package/OpenSpec proof.
 
 ## Proof Collected
 

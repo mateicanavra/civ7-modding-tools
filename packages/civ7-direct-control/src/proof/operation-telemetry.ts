@@ -9,7 +9,6 @@ export const CIV7_OPERATION_PROOF_TELEMETRY_SLOTS = [
   "operationFamily",
   "target",
   "args",
-  "approval",
   "validation_pre",
   "send_receipt",
   "post_read",
@@ -26,7 +25,6 @@ export const CIV7_OPERATION_PROOF_TELEMETRY_RAW_DEBUG_SLOTS = [
   "strategyIntent",
   "target",
   "args",
-  "approval",
   "validation_pre",
   "send_receipt",
   "post_read",
@@ -84,13 +82,6 @@ export type Civ7OperationTelemetryCandidateAction = Readonly<{
   risk: "read" | "mutation" | "setup" | "debug";
 }>;
 
-export type Civ7OperationTelemetryApproval = Readonly<{
-  required: boolean;
-  status: "not-required" | "approved" | "refused" | "pending";
-  reason?: string;
-  source?: string;
-}>;
-
 export type Civ7OperationTelemetrySendReceipt = Readonly<{
   status: "not-attempted" | "sent" | "not-sent" | "send-failed";
   requestFamily?: string;
@@ -137,7 +128,6 @@ export type Civ7OperationProofTelemetryRecord = Readonly<{
   operationFamily: string;
   target?: Civ7OperationTelemetryEvidence;
   args?: Civ7OperationTelemetryEvidence;
-  approval: Civ7OperationTelemetryApproval;
   validation_pre?: Civ7OperationTelemetryEvidence;
   send_receipt: Civ7OperationTelemetrySendReceipt;
   post_read?: Civ7OperationTelemetryEvidence;
@@ -158,7 +148,6 @@ export type Civ7OperationProofTelemetrySummary = Readonly<{
   operationFamily: string;
   actionId: string;
   status:
-    | "approval-refused"
     | "validation-blocked"
     | "not-sent"
     | "sent-confirmed"
@@ -222,7 +211,6 @@ export function createCiv7OperationProofTelemetryRecord(
     operationFamily: input.operationFamily,
     target: input.target,
     args: input.args,
-    approval: input.approval,
     validation_pre: input.validation_pre,
     send_receipt: input.send_receipt,
     post_read: input.post_read,
@@ -297,7 +285,6 @@ export function summarizeCiv7OperationProofTelemetry(
 }
 
 function summarizeStatus(record: Civ7OperationProofTelemetryRecord): Civ7OperationProofTelemetrySummary["status"] {
-  if (record.approval.status === "refused") return "approval-refused";
   if (hasValidationBlocked(record.validation_pre)) return "validation-blocked";
   if (record.send_receipt.status !== "sent") return "not-sent";
   if (record.evidencePolicy.proofBoundary === "pending-runtime-proof") return "pending-runtime-proof";

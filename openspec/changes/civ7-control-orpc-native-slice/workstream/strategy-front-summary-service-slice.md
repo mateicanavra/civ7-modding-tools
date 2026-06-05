@@ -53,7 +53,7 @@ declare war, approve a send, validate a target action, or close a blocker.
   read wrapper;
 - no broad strategy/tactical catalog, world summary revival, or public
   direct-control summary surface;
-- no mutation behavior, approval policy change, validator/postcondition
+- no mutation behavior, mutation policy change, validator/postcondition
   middleware, telemetry persistence, or raw proof/debug projection;
 - no CLI, Studio, RPCLink, OpenAPI, in-game bridge, transport, or
   `Civ7IntelligenceBridge` implementation;

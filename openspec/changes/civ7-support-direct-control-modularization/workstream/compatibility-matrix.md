@@ -24,12 +24,12 @@ from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
 
 | Row | Missing owner/proof assignments | Required proof before acceptance | Dependent lanes that stay blocked |
 | --- | --- | --- | --- |
-| Hotseat handoff state | Hotseat runtime source owner, hotseat runtime proof owner, runtime gate runner, human-restoration proof owner | Disposable hotseat activation, two-slot `GameContext.localPlayerID` rotation, agent-slot approved operation, turn-complete and human UI restoration evidence | CLI hotseat status, mutation procedure cores, live agent-turn execution, action telemetry |
+| Hotseat handoff state | Hotseat runtime source owner, hotseat runtime proof owner, runtime gate runner, human-restoration proof owner | Disposable hotseat activation, two-slot `GameContext.localPlayerID` rotation, agent-slot accepted operation, turn-complete and human UI restoration evidence | CLI hotseat status, mutation procedure cores, live agent-turn execution, action telemetry |
 | Semantic CLI player-agent view | Full envelope implementation owner, final schema/test owner, debug-separation reviewer/gate owner beyond the recorded CLI owner seed | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
 | Strategy/intelligence ingestion | AI-ingestion contract owner, schema owner, proof owner, source/freshness label owner | Machine-contract fixtures proving source labels, freshness/evidence labels, action/proof vocabulary, and no dependency on CLI strings/raw probes | AI corpus artifacts, strategy/playbook records, static profile recipes, model-training telemetry feeds |
 | Debug/internal service output | Final debug/service hierarchy owner, schema/test owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
-| Operation/proof telemetry | Final schema owner, broader operation-atom adapter owners beyond the unit-target and production-choice adapter seeds, projection gate owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
-| Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, approval gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
+| Operation/proof telemetry | Final schema owner, broader operation-atom adapter owners beyond the unit-target and production-choice adapter seeds, projection gate owner, runtime-proof boundary owner | Contract fixtures proving validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
+| Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, validator gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
 
 Contract-artifact status:
 
@@ -170,7 +170,7 @@ Intake rejection conditions:
   setup lifecycle results, autoplay support results, and turn-completion
   results, and `workstream/hotseat-handoff-contract.md`, which names future
   handoff state slots for session health, current local player, slot ownership,
-  turn/blocker state, curtain/interface state, action eligibility, approval
+  turn/blocker state, curtain/interface state, action eligibility
   state, post-action state, runtime proof gates, projection boundaries,
   acceptance gaps, and stop conditions. Missing before acceptance: a named
   runtime source/proof owner, gate runner, human-restoration proof owner, and
@@ -180,7 +180,7 @@ Intake rejection conditions:
   listed in `workstream/hotseat-handoff-contract.md`, including menu/setup
   hotseat snapshot, disposable hotseat activation, two-slot
   `GameContext.localPlayerID` rotation, agent-owned current-slot detection,
-  mutation refusal for non-agent human turns, one approved agent-slot
+  mutation refusal for non-agent human turns, one accepted agent-slot
   operation, turn completion, human UI restoration, fallback non-local
   operation probe disposition, and bounded Autoplay measurement proof as
   support/debug evidence only.
@@ -401,7 +401,7 @@ Intake rejection conditions:
 - `stopConditionCoverage`: missing before acceptance. Required coverage must
   fail if AI consumers train on CLI strings, raw JavaScript commands, raw SQL,
   runtime reflection, companion/App UI mutation surfaces, unlabeled artifacts,
-  or `verified: true` without explicit approval, validation, send, post-read,
+  or `verified: true` without explicit validation, send, post-read,
   outcome, and stale/unknown evidence.
 - `downstreamUnblock`: none yet. Acceptance would unblock only explicitly named
   AI-ingestion contract, corpus-record fixture, strategy-data, and static
@@ -580,8 +580,8 @@ Intake rejection conditions:
 - `normalCliProjection`: summarized state-machine status and explicit
   stale/unknown/postcondition classification only
 - `debugServiceProjection`: proof telemetry with strategy intent, candidate
-  action, operation family, target, args, approval, validation result, send
-  result, post-read, correlation id, evidence policy, approval reason,
+  action, operation family, target, args, validation result, send
+  result, post-read, correlation id, evidence policy, correlation/proof metadata,
   `validation_pre`, `send_receipt`, `validation_post`, `outcome_delta`, blocker
   deltas, runtime observation links, and stale/unknown classification
 - `proofLabel`: `pending-telemetry-contract`
@@ -593,13 +593,13 @@ Intake rejection conditions:
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
   middleware, action audit vocabulary, semantic CLI proof summaries
 - `stopCondition`: stop if telemetry trains or acts on vague `verified: true`,
-  collapses approval/validation/send/postcondition/outcome evidence, or claims
+  collapses validation/send/postcondition/outcome evidence, or claims
   live proof from local tests, target-thread evidence, peer reports, or docs
 
 #### Acceptance Intake: Operation/Proof Telemetry
 
 - `ownerAssignment`: current source evidence is distributed across
-  `packages/civ7-direct-control/src/action-approval.ts`,
+  deleted `packages/civ7-direct-control/src/action-approval.ts` approval primitive,
   `src/play/operations/{validate-request,router,unit-postconditions,population-postconditions,production-postconditions,production-choice,unit-target-action,diplomacy-request,diplomacy-postconditions,narrative-request,narrative-postconditions}.ts`,
   `src/play/notifications/{dismissal-request,verification}.ts`,
   `src/play/turn-completion.ts`, `src/setup/*`, and their public facade
@@ -641,11 +641,11 @@ Intake rejection conditions:
   assigned. No broad `common`, `utils`, debug/service, CLI presentation,
   AI-ingestion, persistence, transport, or procedure-core bucket is authorized.
 - `contractArtifact`: existing artifacts are package result/postcondition
-  shapes, approval primitives, validation/send wrappers, closeout
+  shapes primitives, validation/send wrappers, closeout
   classifications, notification verification summaries, proof/log helper
   outputs, and `workstream/operation-proof-telemetry-contract.md`, which names
   future record slots for strategy intent, candidate action, operation family,
-  target, args, approval, validation result, send receipt, post-read,
+  target, args, validation result, send receipt, post-read,
   postcondition classification, outcome delta, blocker delta, evidence policy,
   correlation id, source/freshness label, stale/unknown classification, proof
   classes, projection boundaries, acceptance gaps, and stop conditions. The
@@ -656,43 +656,43 @@ Intake rejection conditions:
   a schema/test owner, broader operation-atom adapters, and
   final consumer-owned projection implementation tests over that record
   contract.
-- `proofPlan`: existing local proof covers approval-first behavior,
+- `proofPlan`: existing local proof covers validator-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
   verification, and setup/turn lifecycle readback in package and focused CLI
   tests. Owner-seed proof now covers telemetry record construction against
-  `workstream/operation-proof-telemetry-contract.md`, keeps approval,
+  `workstream/operation-proof-telemetry-contract.md`, keeps validation,
   validation, send, post-read, outcome, and blocker evidence as separate slots,
   strips legacy `verified` booleans from the postcondition contract, and keeps
   raw telemetry slots out of the normal summary boundary. Unit-target adapter
-  proof now verifies that a real operation result shape maps approval,
+  proof now verifies that a real operation result shape maps validation,
   `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
   postcondition, and `outcome_delta` into separate telemetry slots while
   refusing to treat a legacy top-level `verified` boolean as confirmed
   postcondition proof; missing postcondition, no-state-change, and
   pending-runtime-proof summaries remain no-repeat guarded. Production-choice
-  adapter proof verifies that a production result shape maps approval,
+  adapter proof verifies that a production result shape maps validation,
   `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
   postcondition, `outcome_delta`, and `blocker_delta` into separate telemetry
   slots while using `productionPostcondition` as the classification owner;
   missing postcondition, validator-blocked no-send, no-state-change,
   blocker-still-live, `validation-changed`, and pending-runtime-proof paths
   remain no-repeat guarded. Diplomacy-response
-  adapter proof verifies that a diplomacy result shape maps approval,
+  adapter proof verifies that a diplomacy result shape maps validation,
   `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
   postcondition, `outcome_delta`, and `blocker_delta` into separate telemetry
   slots while using the source-owned diplomacy response postcondition as the
   classification owner; missing postcondition, validator-blocked no-send,
   `no-state-change`, `validation-changed`, and pending-runtime-proof paths
   remain no-repeat guarded. Narrative-choice adapter proof verifies that a
-  narrative result shape maps approval, `validation_pre`, `send_receipt`,
+  narrative result shape maps `validation_pre`, `send_receipt`,
   `post_read`, `validation_post`, postcondition, `outcome_delta`, and
   `blocker_delta` into separate telemetry slots while using the source-owned
   narrative choice postcondition as the classification owner; missing
   postcondition, validator-blocked no-send, `no-state-change`,
   `validation-changed`, and pending-runtime-proof paths remain no-repeat
   guarded. Notification-dismissal adapter proof verifies that an App UI action
-  result shape maps approval, `validation_pre`, `send_receipt`, `post_read`,
+  result shape maps `validation_pre`, `send_receipt`, `post_read`,
   `validation_post`, postcondition, `outcome_delta`, and `blocker_delta` into
   separate telemetry slots while using the source-owned notification dismissal
   postcondition as the classification owner; missing postcondition,
@@ -722,7 +722,7 @@ Intake rejection conditions:
   summary/projection boundary. It also rejects live-runtime and in-game proof
   labels under non-live proof boundaries, and blocks local AI/procedure
   projection until those owners accept contracts. Required coverage before
-  acceptance must still fail if telemetry collapses approval, validation, send,
+  acceptance must still fail if telemetry collapses validation, send,
   postcondition, post-read, and outcome evidence into `verified: true`; if AI
   ingestion or procedure cores consume raw CLI/debug strings; or if future
   producers or projections relabel local tests, target threads, peer reports,
@@ -751,7 +751,7 @@ Intake rejection conditions:
 - `sourceOwner`: `packages/civ7-direct-control/src/procedure-core.ts` owner
   seed for direct-control procedure descriptors, TypeBox descriptor schema,
   projection policy slots, proof boundary slots, player scope, consumer class,
-  mutation gate metadata, and no-raw-command-tunnel guards over generic raw
+  validator/postcondition/no-repeat metadata, and no-raw-command-tunnel guards over generic raw
   fields plus repo-local command serialization and session execute owners, and
   a local guard refusing `live-runtime-proof` claims before a runtime-proof
   owner exists; descriptor context-policy metadata, payload validation, and a
@@ -769,7 +769,7 @@ Intake rejection conditions:
 - `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
   owner-seed proof for descriptor construction, generic raw tunnel rejection,
   `runtime/command-serialization` / `jsLiteral` rejection,
-  `session/execute` / `executeCiv7Command` rejection, mutation gate
+  `session/execute` / `executeCiv7Command` rejection
   requirements, local `live-runtime-proof` rejection, payload validation,
   injected-handler call sequencing, correlation-id policy, handler failure
   normalization, and telemetry-as-Effect/oRPC-middleware projection; final row
@@ -829,10 +829,10 @@ Intake rejection conditions:
   atom dependencies.
   `packages/civ7-direct-control/test/unit-target-action-procedure.test.ts` now
   also proves the adjacent concrete unit-target action request procedure call
-  wrapper with fake request dependencies and mutation gate metadata.
+  wrapper with fake request dependencies and validator/postcondition/no-repeat metadata.
   `packages/civ7-direct-control/test/production-choice-procedure.test.ts` now
   also proves the adjacent concrete production-choice request procedure call
-  wrapper with fake request dependencies, mutation gate metadata, and
+  wrapper with fake request dependencies, validator/postcondition/no-repeat metadata, and
   raw-command-free procedure output projection.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
@@ -846,7 +846,7 @@ Intake rejection conditions:
   inputs/outputs still need schema/type ownership before typed oRPC cores
 - `normalCliProjection`: omitted field; CLI shell remains oclif and semantic
   CLI output is a separate surface
-- `debugServiceProjection`: correlation/audit detail, typed errors, approval
+- `debugServiceProjection`: correlation/audit detail, typed errors
   gates, telemetry hooks, resource/schedule/stream diagnostics where appropriate
 - `proofLabel`: `pending-procedure-core-schema`
 - `acceptanceStatus`: `pending-procedure-core-schema`; descriptor source/proof
@@ -1046,7 +1046,7 @@ Intake rejection conditions:
   proof in
   `packages/civ7-direct-control/test/unit-target-action-procedure.test.ts`;
   this records the first mutation procedure wrapper over an existing
-  approval-first direct-control atom without claiming live runtime proof.
+  validator-first direct-control atom without claiming live runtime proof.
   The adjacent production-choice request descriptor artifact is now
   `packages/civ7-direct-control/src/play/operations/production-choice-procedure.ts`,
   with TypeBox schema ownership in
@@ -1056,7 +1056,7 @@ Intake rejection conditions:
   and proof in
   `packages/civ7-direct-control/test/production-choice-procedure.test.ts`;
   this records the second mutation procedure wrapper over an existing
-  approval-first direct-control atom while projecting procedure output without
+  validator-first direct-control atom while projecting procedure output without
   raw command text and without claiming live runtime proof.
   The adjacent notification dismissal request descriptor artifact is now
   `packages/civ7-direct-control/src/play/notifications/dismissal-procedure.ts`,
@@ -1066,7 +1066,7 @@ Intake rejection conditions:
   `packages/civ7-direct-control/src/play/notifications/postconditions.ts`, and
   proof in
   `packages/civ7-direct-control/test/notification-dismissal-procedure.test.ts`;
-  this records the third mutation procedure wrapper over an existing approval-
+  this records the third mutation procedure wrapper over an existing mutation-
   first direct-control atom while preserving source-owned notification
   dismissal postconditions, root command/raw-command output rejection, and no
   live runtime proof claim.
@@ -1137,7 +1137,7 @@ Intake rejection conditions:
   service boundaries, and implementation tests over concrete procedure
   contracts. The current source artifact adds a TypeBox-backed descriptor
   schema and guard owner for procedure keys, stable atom owners, projection
-  policy, proof boundary, player scope, consumer class, and mutation gate
+  policy, proof boundary, player scope, consumer class,
   metadata, including command-source/session-execute owner rejection and local
   `live-runtime-proof` claim rejection. The descriptor artifact now also
   records `inputSchema` and `outputSchema` references with direct-control owner
@@ -1403,15 +1403,15 @@ Intake rejection conditions:
   runtime-probe output, map-location output, and no-send command-text proof,
   and player-summary bounded player/max-items input, runtime-probe output, and
   no-send command-text proof, and unit-target action request bounded target
-  input, approval reason, mutation gate metadata, caller correlation, telemetry
-  middleware projection, fake request approval forwarding, and no handler
+  input, correlation/proof metadata, validator/postcondition/no-repeat metadata, caller correlation, telemetry
+  middleware projection, fake request mutation request forwarding, and no handler
   execution without valid input/correlation, and production-choice request
-  validator-equivalent city/production args input, approval reason, mutation
+  validator-equivalent city/production args input, correlation/proof metadata, mutation
   gate metadata, caller correlation, telemetry middleware projection, fake
-  request approval forwarding, raw-command-free procedure output projection,
+  request mutation request forwarding, raw-command-free procedure output projection,
   and no handler execution without valid input/correlation, and notification
-  dismissal request component-id input, approval reason, mutation gate metadata,
-  caller correlation, telemetry middleware projection, fake request approval
+  dismissal request component-id input, correlation/proof metadata, validator/postcondition/no-repeat metadata,
+  caller correlation, telemetry middleware projection, fake request validator/postcondition/no-repeat safety
   forwarding, confirmed and guarded stale-engine-front postcondition output
   validation, root command/raw-command output rejection, malformed notification-
   id rejection before App UI command construction, and no handler execution
@@ -1421,7 +1421,7 @@ Intake rejection conditions:
 - `errorOwner`: current descriptor-owner failures now use
   `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
   structured reason/details for schema mismatch, raw command tunnel, missing
-  mutation gates, local input/output schema-invalid payload validation, and
+  validator/postcondition/no-repeat safety checks, local input/output schema-invalid payload validation, and
   local correlation-id policy failures. The injected-handler call primitive
   wraps handler failures with `procedure-call-failed` and structured
   procedure/correlation/source-error details. This is not final router/procedure
@@ -1475,7 +1475,7 @@ Intake rejection conditions:
   player-summary, unit-target action request, production-choice request, and
   notification dismissal request procedure call proof over stable direct-control
   atoms with fake dependencies,
-  mutation approval/validator/postcondition/no-repeat gate requirements,
+  mutation validator/postcondition/no-repeat gate requirements,
   telemetry projection as an Effect/oRPC middleware hook rather than a separate
   transport surface, and schema-technology proof that current descriptors
   declare TypeBox while unaccepted Effect Schema/Zod adapter claims fail before
@@ -1485,7 +1485,7 @@ Intake rejection conditions:
   settled envelope, final oRPC/Bun encode/decode round trip beyond local JSON
   envelope proof, Bun runtime check, CLI semantic projection test, AI-ingestion contract
   fixture test,
-  final middleware approval/correlation/error tests, and no-raw-command-tunnel
+  final middleware correlation/error tests, and no-raw-command-tunnel
   tests in the final router/procedure owner.
 - `projectionPlan`: normal CLI remains omitted here and belongs to the
   semantic CLI row; the oclif shell remains separate. Debug/internal service
@@ -1497,7 +1497,7 @@ Intake rejection conditions:
   command tunnel descriptors and descriptors over the repo-local command
   serializer/session execution owners before they can become procedure cores,
   fails malformed descriptor shapes before semantic promotion, and fails
-  mutation descriptors without approval, validator-first, postcondition, and
+  mutation descriptors without validator-first, postcondition, and
   no-repeat-after-unverified gate metadata, with typed descriptor errors for
   those local owner checks, rejects local `live-runtime-proof` descriptor
   claims, rejects descriptor policies that make correlation visible in

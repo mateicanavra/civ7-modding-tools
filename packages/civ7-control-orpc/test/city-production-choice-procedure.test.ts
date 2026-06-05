@@ -6,7 +6,6 @@ import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7CorrelationIdInvalidError,
-  Civ7MutationApprovalRequiredError,
   Civ7MutationReadinessRequiredError,
   Civ7MutationReadinessUnavailableError,
   Civ7CityProductionChoiceInputSchema,
@@ -34,11 +33,6 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     expect(Value.Check(Civ7CityProductionChoiceInputSchema, {
       cityId,
       args,
-      approvalReason: "test approved production choice",
-    })).toBe(false);
-    expect(Value.Check(Civ7CityProductionChoiceInputSchema, {
-      cityId,
-      args,
       session: { state: "App UI" },
     })).toBe(false);
     expect(Value.Check(Civ7CityProductionChoiceInputSchema, {
@@ -55,7 +49,7 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     )).toBe(false);
   });
 
-  test("calls the production choice mutation through native Effect/oRPC with context approval", async () => {
+  test("calls the production choice mutation through native Effect/oRPC ", async () => {
     const fake = fakeContext(
       productionChoiceResult("production-choice-cleared"),
     );
@@ -103,11 +97,6 @@ describe("city.production.choice.request control-oRPC procedure", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: {
-        approved: true,
-        reason: "test approved production choice",
-        disposableSession: true,
-      },
     }]);
   });
 
@@ -121,55 +110,6 @@ describe("city.production.choice.request control-oRPC procedure", () => {
 
     expect(result.status).toBe("sent-confirmed");
     expect(fake.calls).toHaveLength(1);
-  });
-
-  test("requires context approval before the direct-control mutation port runs", async () => {
-    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
-      approval: undefined,
-      correlationId: "support-turn-42",
-    });
-
-    await expect(
-      call(Civ7ControlOrpcRouter.city.production.choice.request, {
-        cityId,
-        args,
-      }, { context: fake.context }),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      status: 403,
-      data: {
-        procedureKey: "city.production.choice.request",
-        source: "context.approval",
-        risk: "mutation",
-        correlationId: "support-turn-42",
-      },
-    });
-    expect(fake.calls).toEqual([]);
-  });
-
-  test("rejects empty approval reasons before the direct-control mutation port runs", async () => {
-    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
-      approval: {
-        approved: true,
-        reason: "   ",
-      },
-    });
-
-    await expect(
-      call(Civ7ControlOrpcRouter.city.production.choice.request, {
-        cityId,
-        args,
-      }, { context: fake.context }),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      status: 403,
-      data: {
-        procedureKey: "city.production.choice.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls).toEqual([]);
   });
 
   test("requires playable readiness before the direct-control mutation port runs", async () => {
@@ -268,41 +208,6 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     }
   });
 
-  test("projects unexpected middleware failures without raw implementation details", async () => {
-    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
-      approval: {
-        approved: true,
-        reason: 7,
-      } as never,
-    });
-
-    await expect(
-      call(Civ7ControlOrpcRouter.city.production.choice.request, {
-        cityId,
-        args,
-      }, { context: fake.context }),
-    ).rejects.toMatchObject({
-      code: "INTERNAL_SERVER_ERROR",
-      status: 500,
-      message: "Civ7 control-oRPC procedure failed.",
-    });
-    expect(fake.calls).toEqual([]);
-
-    try {
-      await call(Civ7ControlOrpcRouter.city.production.choice.request, {
-        cityId,
-        args,
-      }, { context: fake.context });
-    } catch (err) {
-      const serialized = JSON.stringify(err);
-      expect(serialized).not.toContain("trim");
-      expect(serialized).not.toContain("reason");
-      expect(serialized).not.toContain("TypeError");
-      expect(serialized).not.toContain("Game.CityOperations");
-      expect(serialized).not.toContain("CMD");
-    }
-  });
-
   test("keeps unconfirmed production postconditions no-repeat guarded", async () => {
     const fake = fakeContext(
       productionChoiceResult("production-state-changed-blocker-still-live", {
@@ -368,9 +273,8 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     });
   });
 
-  test("keeps approval, endpoint, session, state, and raw command fields out of procedure input", async () => {
+  test("keeps endpoint, session, state, and raw command fields out of procedure input", async () => {
     const invalidInputs = [
-      { cityId, args, approvalReason: "test approved production choice" },
       { cityId, args, disposableSession: true },
       { cityId, args, host: "127.0.0.1" },
       { cityId, args, port: 4318 },
@@ -440,11 +344,7 @@ describe("city.production.choice.request control-oRPC procedure", () => {
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
-    });
-    expect(
-      Civ7ControlOrpcContract.city.production.choice.request["~orpc"].errorMap,
-    ).toHaveProperty("MUTATION_APPROVAL_REQUIRED");
-    expect(
+    });    expect(
       Civ7ControlOrpcContract.city.production.choice.request["~orpc"].errorMap,
     ).toHaveProperty("CORRELATION_ID_INVALID");
     expect(
@@ -456,9 +356,6 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     expect(
       Civ7ControlOrpcContract.city.production.choice.request["~orpc"].errorMap,
     ).toHaveProperty("PRODUCTION_CHOICE_UNAVAILABLE");
-    expect(Civ7MutationApprovalRequiredError.code).toBe(
-      "MUTATION_APPROVAL_REQUIRED",
-    );
     expect(Civ7CorrelationIdInvalidError.code).toBe("CORRELATION_ID_INVALID");
     expect(Civ7MutationReadinessRequiredError.code).toBe(
       "MUTATION_READINESS_REQUIRED",
@@ -475,7 +372,6 @@ describe("city.production.choice.request control-oRPC procedure", () => {
 function fakeContext(
   resultOrError: Civ7ControlOrpcProductionChoiceResult | Error,
   options: {
-    approval?: Civ7ControlOrpcContext["approval"];
     correlationId?: string;
     playableStatus?: Readonly<{
       playable: boolean;
@@ -488,13 +384,11 @@ function fakeContext(
   calls: Array<{
     input: unknown;
     options: unknown;
-    approval: unknown;
   }>;
 } {
   const calls: Array<{
     input: unknown;
     options: unknown;
-    approval: unknown;
   }> = [];
 
   return {
@@ -504,13 +398,6 @@ function fakeContext(
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: options.approval === undefined && !("approval" in options)
-        ? {
-            approved: true,
-            reason: "test approved production choice",
-            disposableSession: true,
-          }
-        : options.approval,
       directControl: {
         getCiv7PlayableStatus: async () => {
           if (options.playableStatusError != null) {
@@ -521,8 +408,8 @@ function fakeContext(
             readiness: "tuner-ready",
           };
         },
-        requestCiv7ProductionChoice: async (input, endpointDefaults, approval) => {
-          calls.push({ input, options: endpointDefaults, approval });
+        requestCiv7ProductionChoice: async (input, endpointDefaults) => {
+          calls.push({ input, options: endpointDefaults });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
         },

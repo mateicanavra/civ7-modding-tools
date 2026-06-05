@@ -40,7 +40,7 @@ The args schema admits exactly one valid production choice variant:
 - `ConstructibleType`
 - `ConstructibleType` with `X` and `Y`
 
-The input remains closed against approval, endpoint, session, state, and raw
+The input remains closed against endpoint, session, state, and raw
 command fields. The classification enum is the normal service projection
 vocabulary; the direct-control proof helper remains the source authority for
 runtime classification and no-repeat semantics.

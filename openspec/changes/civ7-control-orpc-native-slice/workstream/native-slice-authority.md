@@ -27,7 +27,7 @@ direct-control runtime authority.
 Direct-control runtime ports
   Own Civ7 runtime resource access: socket/session lifecycle, state
   selection, command-source serialization, raw probe execution, validators,
-  approval types, postconditions, proof labels, and relationship evidence
+  mutation policy facts, postconditions, proof labels, and relationship evidence
   policy.
 
 Control-oRPC package
@@ -106,7 +106,7 @@ wrapper instead, the records are stale and must be repaired before code.
 
 | Policy | Current owner evidence | Future native placement |
 |---|---|---|
-| approval | direct-control approval types and mutation descriptors | oRPC middleware over mutation procedures |
+| validator/postcondition/no-repeat safety | direct-control mutation types and mutation descriptors | oRPC middleware over mutation procedures |
 | validator-first | operation validators and request wrappers | oRPC middleware/procedure guard before send |
 | postcondition/no-repeat | postcondition classifiers and operation telemetry | oRPC middleware plus direct-control proof record |
 | relationship authority | current tactical `relationshipLabelPolicy` schemas plus the OpenSpec neutral-relationship invariant | read projection policy and optional middleware guard |
@@ -136,11 +136,11 @@ endpointDefaults
 stateSelection
   Tuner/App UI state-selection policy supplied by caller/runtime adapter.
 
-approval
-  Explicit mutation approval evidence.
+validator/postcondition/no-repeat safety
+  Explicit readiness evidence.
 
 riskPolicy
-  Read-only/send-approved/live-proof policy.
+  Read-only/send-accepted/live-proof policy.
 
 evidenceSink
   Procedure/debug/proof telemetry sink.
@@ -169,7 +169,7 @@ Accepted candidate classes:
 
 - endpoint defaults;
 - readiness;
-- approval;
+- validator/postcondition/no-repeat safety;
 - validator-first;
 - postcondition/proof recording;
 - relationship authority;
@@ -219,7 +219,7 @@ The semantic hierarchy seed is now recorded in
 start another read-only module. It should implement a semantic family with
 service-owned composition, modularize write-capable behavior and proof/policy
 owners, or layer a repeated policy through native oRPC/effect-orpc primitives.
-Mutation modules should wait until approval, validator-first, and
+Mutation modules should wait until validator-first, and
 postcondition/no-repeat boundaries are explicit and can be composed through
 native oRPC/effect-orpc rather than custom wrapper plumbing.
 
@@ -231,7 +231,7 @@ Older branch `d3d49b48f` contains useful source evidence:
 - `router.ts`: Effect/oRPC router graph and in-process handlers;
 - `services.ts`: Effect service tag over direct-control facade;
 - `types.ts`: context and envelope;
-- `orpc.test.ts`: in-process calls, approval blocking, relationship evidence,
+- `orpc.test.ts`: in-process calls, mutation blocking, relationship evidence,
   and server-side client proof.
 
 Do not merge it as-is. Mine it for router families, server-side proof shape,

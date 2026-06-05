@@ -1,4 +1,3 @@
-import { assertApproved, type Civ7ActionApproval } from "../../action-approval.js";
 import {
   assertCiv7ComponentId,
   type Civ7ComponentId,
@@ -59,10 +58,8 @@ export type Civ7GameUiNotificationDismissalTarget = Readonly<{
 
 export async function requestCiv7GameUiNotificationDismissal(
   input: Civ7NotificationDismissInput,
-  approval: Civ7ActionApproval,
   target: Civ7GameUiNotificationDismissalTarget = globalThis as Civ7GameUiNotificationDismissalTarget,
 ): Promise<Civ7NotificationDismissalResult> {
-  assertApproved(approval, "dismissing Civ7 notification");
   assertCiv7ComponentId(input.notificationId, "notificationId");
   return notificationDismissalResult(
     input.notificationId,

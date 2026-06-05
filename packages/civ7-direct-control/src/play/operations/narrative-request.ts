@@ -4,7 +4,6 @@ import {
   waitForCiv7NarrativeChoiceAfter,
 } from "./narrative-postconditions.js";
 import type {
-  Civ7ActionApproval,
   Civ7OperationValidationResult,
 } from "./types.js";
 
@@ -12,7 +11,6 @@ import {
   assertCiv7ComponentId,
   type Civ7ComponentId,
 } from "../../civ7-component-id.js";
-import { assertApproved } from "../../action-approval.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { probeHelperSource } from "../../runtime/probe.js";
@@ -66,7 +64,6 @@ export type Civ7NarrativeChoiceResult = Readonly<{
 }>;
 
 type NarrativeChoiceRequestDependencies = Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   validatePlayerId: (playerId: number) => void;
   assertComponentId: (value: unknown, name: string) => void;
   executeAppUiCommand: (
@@ -93,10 +90,8 @@ type NarrativeChoiceRequestDependencies = Readonly<{
 export async function requestCiv7NarrativeChoice(
   input: Civ7NarrativeChoiceInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: NarrativeChoiceRequestDependencies = defaultNarrativeChoiceRequestDependencies,
 ): Promise<Civ7NarrativeChoiceResult> {
-  dependencies.assertApproved(approval, "choosing a narrative story direction");
   dependencies.validatePlayerId(input.playerId);
   if (!input.targetType) dependencies.invalidTargetTypeError();
   dependencies.assertComponentId(input.target, "target");
@@ -167,7 +162,6 @@ export async function requestCiv7NarrativeChoice(
 }
 
 const defaultNarrativeChoiceRequestDependencies: NarrativeChoiceRequestDependencies = {
-  assertApproved,
   validatePlayerId,
   assertComponentId: assertCiv7ComponentId,
   executeAppUiCommand: executeCiv7AppUiCommand,

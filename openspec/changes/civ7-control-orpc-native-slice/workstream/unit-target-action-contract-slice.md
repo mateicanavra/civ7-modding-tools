@@ -32,7 +32,7 @@ The input remains the semantic unit target action request shape:
 - bounded integer `x`
 - bounded integer `y`
 
-The input remains closed against approval, endpoint, session, state, and raw
+The input remains closed against endpoint, session, state, and raw
 command fields. Unit target action verification classification, proof outcome,
 and no-repeat semantics remain direct-control proof authority consumed by the
 procedure.

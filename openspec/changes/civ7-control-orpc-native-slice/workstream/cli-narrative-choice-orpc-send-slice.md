@@ -48,7 +48,7 @@ direct-control player-operation validation.
 - Focused control-oRPC narrative choice tests prove the service projection
   reports source-owned acted-player evidence from the direct-control result
   rather than echoing caller validation identity.
-- Focused CLI narrative tests prove the approved `choose-narrative --send`
+- Focused CLI narrative tests prove the accepted `choose-narrative --send`
   path accepts caller validation player `2`, reports source-owned acted/local
   player `0`, reaches the existing direct-control official UI narrative
   closeout runtime command through the in-process service client path, emits

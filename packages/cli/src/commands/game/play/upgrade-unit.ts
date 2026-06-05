@@ -1,10 +1,8 @@
 import { Command, Flags } from '@oclif/core';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -19,7 +17,7 @@ export default class GamePlayUpgradeUnit extends Command {
 
   static examples = [
     '<%= config.bin %> game play upgrade-unit --unit-id \'{"owner":0,"id":1769488,"type":26}\' --json',
-    '<%= config.bin %> game play upgrade-unit --unit-id \'{"owner":0,"id":1769488,"type":26}\' --send --reason "upgrade eligible warrior to preserve the defensive line" --json',
+    '<%= config.bin %> game play upgrade-unit --unit-id \'{"owner":0,"id":1769488,"type":26}\' --send --json',
   ];
 
   static flags = {
@@ -37,9 +35,6 @@ export default class GamePlayUpgradeUnit extends Command {
       description: 'Send UNITCOMMAND_UPGRADE after validator success',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -51,16 +46,14 @@ export default class GamePlayUpgradeUnit extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayUpgradeUnit);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play upgrade-unit');
-    const input = {
+    const { flags } = await this.parse(GamePlayUpgradeUnit);    const input = {
       operationType: UPGRADE,
       unitId: parseComponentId(flags['unit-id'], 'unit-id'),
       args: {},
     };
     const options = buildDirectControlOptions(flags);
     const result = flags.send
-      ? await sendPlayOperation('unit-command', input, options, buildApproval(reason))
+      ? await sendPlayOperation('unit-command', input, options)
       : await validatePlayOperation('unit-command', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

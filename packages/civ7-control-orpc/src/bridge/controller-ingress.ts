@@ -45,19 +45,6 @@ import {
   Civ7UnitTargetActionResultSchema,
 } from "../modules/unit/contract";
 
-export const Civ7ControllerBridgeApprovalSchema = Type.Object(
-  {
-    source: Type.Literal("controller-runtime"),
-    approved: Type.Literal(true),
-    reason: Type.String({ minLength: 1 }),
-    disposableSession: Type.Optional(Type.Boolean()),
-  },
-  { additionalProperties: false },
-);
-export type Civ7ControllerBridgeApproval = Static<
-  typeof Civ7ControllerBridgeApprovalSchema
->;
-
 export const Civ7ControllerBridgeMutationProofSchema = Type.Object(
   {
     lifecycle: Type.Object(
@@ -116,7 +103,6 @@ export const Civ7ControllerBridgeNotificationDismissRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
     input: Civ7NotificationDismissInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -129,7 +115,6 @@ export const Civ7ControllerBridgeTurnCompleteRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("turn.complete.request"),
     input: Civ7TurnCompletionInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -142,7 +127,6 @@ export const Civ7ControllerBridgeCityProductionChoiceRequestSchema = Type.Object
   {
     procedureKey: Type.Literal("city.production.choice.request"),
     input: Civ7CityProductionChoiceInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -156,7 +140,6 @@ export const Civ7ControllerBridgeCityPopulationPlacementRequestSchema =
     {
       procedureKey: Type.Literal("city.population.place.request"),
       input: Civ7CityPopulationPlacementInputSchema,
-      approval: Civ7ControllerBridgeApprovalSchema,
       correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
     },
     { additionalProperties: false },
@@ -169,7 +152,6 @@ export const Civ7ControllerBridgeNarrativeChoiceRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("narrative.choice.request"),
     input: Civ7NarrativeChoiceInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -182,7 +164,6 @@ export const Civ7ControllerBridgeDiplomacyResponseRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("diplomacy.response.request"),
     input: Civ7DiplomacyResponseInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -195,7 +176,6 @@ export const Civ7ControllerBridgeUnitTargetActionRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.target.action.request"),
     input: Civ7UnitTargetActionInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -209,7 +189,6 @@ export const Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema =
     {
       procedureKey: Type.Literal("progression.technology.choice.request"),
       input: Civ7ProgressionChoiceInputSchema,
-      approval: Civ7ControllerBridgeApprovalSchema,
       correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
     },
     { additionalProperties: false },
@@ -223,7 +202,6 @@ export const Civ7ControllerBridgeProgressionCultureChoiceRequestSchema =
     {
       procedureKey: Type.Literal("progression.culture.choice.request"),
       input: Civ7ProgressionChoiceInputSchema,
-      approval: Civ7ControllerBridgeApprovalSchema,
       correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
     },
     { additionalProperties: false },
@@ -533,12 +511,8 @@ export async function invokeCiv7ControllerBridgeRequest(
         reason: "invalid-envelope",
       }, request);
     }
-    const approval = isControllerBridgeMutationRequest(request)
-      ? request.approval
-      : context.approval;
     const client = createCiv7ControlOrpcServerClient({
       ...context,
-      approval,
       correlation: request.correlationId == null
         ? context.correlation
         : {

@@ -42,14 +42,14 @@ live-game/runtime proof claim.
   `Civ7ControlOrpcRouter.diplomacy.response.request`;
 - does not preserve a `Civ7ControlOrpcRouter.decisions.diplomacy` route or
   `Civ7DecisionsDiplomacy*` public type surface;
-- reuses shared native mutation approval and playable-readiness middleware
+- reuses shared native readiness and playable-readiness middleware
   before direct-control runtime authority is invoked;
 - accepts semantic caller input: `playerId`, `actionId`, `responseType`, and
   optional `notificationId`;
 - does not expose direct-control-only `activateNotification` or `uiCloseout`
   toggles as normal procedure input;
 - calls the direct-control diplomacy response runtime port with endpoint
-  defaults and approval supplied through oRPC context;
+  defaults and runtime policy supplied through oRPC context;
 - consumes source-owned direct-control diplomacy proof helpers for
   postcondition and no-repeat classification;
 - projects normal output as semantic response status, validation summary,
@@ -83,7 +83,7 @@ source-owned diplomacy postconditions may summarize as sent-confirmed.
 
 Focused package proof covers:
 
-- approval is required before readiness and diplomacy response execution;
+- readiness is required and diplomacy response execution;
 - playable readiness middleware runs before direct-control request authority;
 - confirmed source-owned diplomacy postconditions project as sent-confirmed;
 - validator-blocked and no-state-change paths remain guarded and do not infer

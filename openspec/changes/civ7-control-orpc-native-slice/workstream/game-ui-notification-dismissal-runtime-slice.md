@@ -9,7 +9,7 @@ Add the first game-resident mutation runtime port behind the serialized
 controller ingress: `notifications.dismiss.request`.
 
 This moves the game-scoped controller from bootstrap-only proof toward the
-product outcome where approved actions execute inside the native in-process
+product outcome where accepted actions execute inside the native in-process
 control-oRPC service. It does not claim deployed Civ7 runtime proof.
 
 ## Write Set
@@ -36,7 +36,7 @@ control-oRPC service. It does not claim deployed Civ7 runtime proof.
   `notifications.dismiss.request` procedure and keeps other game UI mutation
   ports bounded by the existing readiness error projection.
 - Normal bridge output remains the semantic notification dismissal result and
-  omits route internals, approval reason, host, port, state, command,
+  omits route internals, context-owned proof, host, port, state, command,
   rawCommand, session, and tuner payloads.
 
 ## Non-Goals

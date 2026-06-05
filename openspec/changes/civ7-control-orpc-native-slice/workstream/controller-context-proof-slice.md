@@ -25,7 +25,7 @@ runtime facts.
 ## Behavior Boundary
 
 - Mutation request envelopes still carry semantic procedure input plus
-  controller-runtime approval metadata.
+  controller-runtime context metadata.
 - Caller-supplied `controllerProof` is rejected as an extra serialized field.
 - The bridge requires controller context to provide closed lifecycle,
   local-player, and single-local-player/hotseat proof before native router

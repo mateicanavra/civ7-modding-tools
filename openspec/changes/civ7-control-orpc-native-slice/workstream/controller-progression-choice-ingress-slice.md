@@ -28,15 +28,15 @@ request/output identity to the before-notification read's `localPlayerId`.
   `progression.culture.choice.request` as additional allowlisted mutations;
 - validates the existing semantic progression input shape: `playerId`, `node`,
   and optional `notificationId`;
-- requires the closed controller approval envelope plus game-controller-ready
+- requires the controller lifecycle proof envelope plus game-controller-ready
   lifecycle evidence, `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;
 - constructs context through the caller-owned factory and invokes the existing
   in-process control-oRPC router/client;
-- preserves progression service behavior: approval/readiness middleware,
+- preserves progression service behavior: readiness middleware,
   before/after notification reads, local-player evidence binding, direct-control
   closeout runtime ports, postcondition projection, and no-repeat next steps;
-- keeps controller approval reason as request metadata and does not echo it in
+- keeps controller lifecycle, local-player, and hotseat proof out of
   success/failure output.
 
 ## Raw Surface Exclusions

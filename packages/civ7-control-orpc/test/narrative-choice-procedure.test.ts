@@ -36,10 +36,6 @@ describe("narrative.choice.request control-oRPC procedure", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: {
-        approved: true,
-        reason: "local narrative choice proof",
-      },
     }]);
     expect(result).toEqual({
       playerId: 0,
@@ -158,29 +154,6 @@ describe("narrative.choice.request control-oRPC procedure", () => {
     }]);
   });
 
-  test("requires approval before readiness or request execution", async () => {
-    const fake = fakeContext(narrativeChoiceResult("narrative-blocker-cleared"), {
-      approved: false,
-    });
-
-    await expect(
-      call(
-        Civ7ControlOrpcRouter.narrative.choice.request,
-        narrativeInput,
-        { context: fake.context },
-      ),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      data: {
-        procedureKey: "narrative.choice.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls.readiness).toEqual([]);
-    expect(fake.calls.request).toEqual([]);
-  });
-
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
     const invalidInputs = [
       { ...narrativeInput, host: "127.0.0.1" },
@@ -288,14 +261,13 @@ describe("narrative.choice.request control-oRPC procedure", () => {
 
 function fakeContext(
   result: Civ7ControlOrpcNarrativeChoiceResult,
-  options: Partial<{ approved: boolean; playable: boolean }> = {},
+  options: Partial<{ playable: boolean }> = {},
 ): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     request: Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
-      approval: Civ7ControlOrpcContext["approval"];
     }>>;
   };
   context: Civ7ControlOrpcContext;
@@ -305,16 +277,12 @@ function fakeContext(
     request: [] as Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
-      approval: Civ7ControlOrpcContext["approval"];
     }>>,
   };
 
   return {
     calls,
     context: {
-      approval: options.approved === false
-        ? undefined
-        : { approved: true, reason: "local narrative choice proof" },
       endpointDefaults: {
         host: "127.0.0.1",
         port: 4318,
@@ -325,8 +293,8 @@ function fakeContext(
           calls.readiness.push(endpointDefaults);
           return playableStatusResult(options.playable ?? true);
         },
-        requestCiv7NarrativeChoice: async (input, endpointDefaults, approval) => {
-          calls.request.push({ input, options: endpointDefaults, approval });
+        requestCiv7NarrativeChoice: async (input, endpointDefaults) => {
+          calls.request.push({ input, options: endpointDefaults });
           return result;
         },
       } as Civ7ControlOrpcContext["directControl"],

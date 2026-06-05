@@ -14,6 +14,7 @@ import {
   getCiv7GameUiReadyCityView,
   getCiv7GameUiReadyUnitView,
   getCiv7GameUiTurnCompletionStatus,
+  requestCiv7GameUiTurnComplete,
   type Civ7GameUiAttentionTarget,
 } from "./game-ui-attention";
 import type {
@@ -50,6 +51,7 @@ export type Civ7GameUiRuntimeTarget = {
     localObserverID?: number;
     hasRequestedPause?: () => boolean;
     hasSentTurnComplete?: () => boolean;
+    sendTurnComplete?: () => unknown;
   };
   Game?: {
     turn?: number;
@@ -145,8 +147,8 @@ function createCiv7GameUiDirectControlFacade(
 
   return {
     requestCiv7ProductionChoice: unsupported,
-    requestCiv7NotificationDismissal: async (input, _options, approval) =>
-      await requestCiv7GameUiNotificationDismissal(input, approval, target),
+    requestCiv7NotificationDismissal: async (input) =>
+      await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: unsupported,
     requestCiv7DiplomacyResponse: unsupported,
     requestCiv7TechnologyChoiceCloseout: unsupported,
@@ -154,7 +156,8 @@ function createCiv7GameUiDirectControlFacade(
     requestCiv7AssignWorkerPlacement: unsupported,
     requestCiv7ExpandCityPlacement: unsupported,
     requestCiv7UnitTargetAction: unsupported,
-    requestCiv7TurnComplete: unsupported,
+    requestCiv7TurnComplete: async () =>
+      await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
     getCiv7PlayNotificationView: async (options) =>
       await getCiv7GameUiPlayNotificationView({
@@ -207,13 +210,15 @@ function gameUiPlayableStatus(
 function gameUiSupportedMutationProcedures(
   target: Civ7GameUiRuntimeTarget,
 ): readonly string[] {
-  if (
-    gameUiControllerMutationProof(target) != null
-    && gameUiNotificationDismissalAvailable(target)
-  ) {
-    return ["notifications.dismiss.request"];
+  if (gameUiControllerMutationProof(target) == null) return [];
+  const supported: string[] = [];
+  if (gameUiNotificationDismissalAvailable(target)) {
+    supported.push("notifications.dismiss.request");
   }
-  return [];
+  if (gameUiTurnCompletionAvailable(target)) {
+    supported.push("turn.complete.request");
+  }
+  return supported;
 }
 
 function gameUiSupportedReadProcedures(
@@ -246,6 +251,15 @@ function gameUiAttentionReadAvailable(target: Civ7GameUiRuntimeTarget): boolean 
     && typeof target.Game?.Notifications?.find === "function"
     && typeof target.UI?.Player?.getFirstReadyUnit === "function"
     && isControllerPlayerId(target.GameContext?.localPlayerID);
+}
+
+function gameUiTurnCompletionAvailable(target: Civ7GameUiRuntimeTarget): boolean {
+  return gameUiAttentionReadAvailable(target)
+    && typeof target.GameContext?.hasSentTurnComplete === "function"
+    && typeof target.GameContext?.sendTurnComplete === "function"
+    && typeof target.canEndTurn === "function"
+    && typeof target.Game?.getTurnDate === "function"
+    && typeof target.Game?.Notifications?.getEndTurnBlockingType === "function";
 }
 
 function gameUiSnapshot(target: Civ7GameUiRuntimeTarget) {

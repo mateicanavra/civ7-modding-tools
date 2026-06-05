@@ -27,7 +27,6 @@ export const cityProductionChoiceRequestProcedure =
         const result = await context.directControl.requestCiv7ProductionChoice(
           input,
           context.endpointDefaults,
-          context.approval!,
         );
         return cityProductionChoiceResult(input, result);
       },

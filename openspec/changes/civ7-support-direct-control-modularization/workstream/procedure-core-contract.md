@@ -17,7 +17,7 @@ oRPC/effect-orpc already provides.
 Current owner seed: `packages/civ7-direct-control/src/procedure-core.ts`
 records a direct-control-local descriptor owner for procedure keys, stable atom
 owners, projection policy, proof boundary, player scope, consumer class, and
-mutation gate metadata. The descriptor factory now performs TypeBox runtime
+validator/postcondition/no-repeat metadata. The descriptor factory now performs TypeBox runtime
 shape validation before semantic procedure guards and reports descriptor
 failures as `Civ7DirectControlError` instances with the
 `procedure-descriptor-invalid` code plus structured reason/details. The
@@ -66,7 +66,7 @@ schema exports. Focused proof in
 command tunnel descriptors, rejects repo-local raw command-source/session
 execution descriptors such as `runtime/command-serialization` / `jsLiteral`
 and `session/execute` / `executeCiv7Command`, requires mutation descriptors to
-carry approval, validator-first, postcondition, and no-repeat-after-unverified
+carry validator-first, postcondition, and no-repeat-after-unverified
 gates, rejects malformed descriptor shapes before procedure promotion, and
 snapshots schema-mismatch, raw-command-tunnel, and mutation-gates-missing error
 details while rejecting `live-runtime-proof` claims from the local descriptor
@@ -112,17 +112,17 @@ schema exports, and is the first narrow `player` procedure-family owner. The
 adjacent unit-target action request descriptor artifact is
 `packages/civ7-direct-control/src/play/operations/unit-target-action-procedure.ts`,
 which owns the `unit.target.action.request` mutation descriptor adjacent to the
-approved unit-target action atom and schema exports. The adjacent
+accepted unit-target action atom and schema exports. The adjacent
 production-choice request descriptor artifact is
 `packages/civ7-direct-control/src/play/operations/production-choice-procedure.ts`,
 which owns the `city.production.choice.request` mutation descriptor adjacent to
-the approved production-choice atom, schema exports, and production
+the accepted production-choice atom, schema exports, and production
 postcondition schema exports while projecting procedure output without the
 atom's raw command-bearing result field. The adjacent notification dismissal
 request descriptor artifact is
 `packages/civ7-direct-control/src/play/notifications/dismissal-procedure.ts`,
 which owns the `notifications.dismiss.request` mutation descriptor adjacent to
-the approval-gated notification dismissal atom, schema exports, and notification
+the mutation-gated notification dismissal atom, schema exports, and notification
 dismissal postcondition schema exports. The adjacent notification read
 descriptor artifact is
 `packages/civ7-direct-control/src/play/notifications/view-procedure.ts`, which
@@ -660,18 +660,18 @@ unit-target action schemas and records `unit.target.action.request` beside
 `packages/civ7-direct-control/test/unit-target-action-procedure.test.ts`
 checks the descriptor's input/output field lists against resolved schema root
 properties, including component-id input, validator-equivalent bounded target
-coordinates, explicit `approvalReason`, optional disposable-session intent,
-mutation gate metadata, caller-provided correlation, telemetry middleware
+coordinates, explicit `correlationId`, optional disposable-session intent,
+validator/postcondition/no-repeat metadata, caller-provided correlation, telemetry middleware
 projection, and raw/context input separation, without registering a router or
 transport adapter. The same artifact exports a concrete call wrapper over
 `requestCiv7UnitTargetAction`, composed through the local procedure-core call
 primitive. Focused proof uses a fake request dependency to prove direct-control
-option forwarding, approval object construction before the existing atom send
+option forwarding, mutation request object construction before the existing atom send
 path, input validation before dependency execution, output validation after the
 atom returns, separated output/diagnostics, and no handler execution without a
 caller-provided correlation ID. This is local no-network mutation-procedure
 proof only; it does not execute live direct-control atoms, change CLI output,
-weaken approval/validator/postcondition/no-repeat gates, add a router, add
+weaken validator/postcondition/no-repeat gates, add a router, add
 Effect/oRPC dependencies, choose Effect Schema, claim runtime proof, or accept
 the matrix row.
 
@@ -681,13 +681,13 @@ beside `requestCiv7NotificationDismissal`. Focused proof in
 `packages/civ7-direct-control/test/notification-dismissal-procedure.test.ts`
 checks the descriptor's input/output field lists against resolved schema root
 properties, including component-id notification input, explicit
-`approvalReason`, optional disposable-session intent, mutation gate metadata,
+`correlationId`, optional disposable-session intent, validator/postcondition/no-repeat metadata,
 caller-provided correlation, telemetry middleware projection, and raw/context
 input separation, without registering a router or transport adapter. The same
 artifact exports a concrete call wrapper over
 `requestCiv7NotificationDismissal`, composed through the local procedure-core
 call primitive. Focused proof uses a fake request dependency to prove direct-
-control option forwarding, approval object construction before the existing
+control option forwarding, mutation request object construction before the existing
 atom send path, input validation before dependency execution, output validation
 after the atom returns for confirmed and `engine-front-still-live` guarded
 postconditions, separated output/diagnostics, root command/raw-command output
@@ -695,7 +695,7 @@ rejection, and no handler execution without a caller-provided correlation ID.
 Adjacent atom proof covers malformed notification-id rejection before App UI
 command construction. This is local no-network mutation-procedure proof only;
 it does not execute live direct-control atoms, change CLI output, weaken
-approval/validator/postcondition/no-repeat gates, infer repeat safety from
+validator/postcondition/no-repeat gates, infer repeat safety from
 legacy `verified`, add a router, add Effect/oRPC dependencies, choose Effect
 Schema, claim runtime proof, or accept the matrix row.
 
@@ -763,7 +763,7 @@ Effect Schema, claim runtime proof, or accept the matrix row.
 
 The procedure-core target exists to compose repo-owned direct-control
 capabilities through typed procedures, context, middleware, error shaping,
-correlation IDs, approval gates, and telemetry hooks. It must serve the
+correlation IDs, validator gates, and telemetry hooks. It must serve the
 in-game controller router, external direct-control bridge, and future AI
 services without turning any transport boundary into product authority.
 
@@ -795,10 +795,10 @@ or direct equivalents:
 | Slot | Purpose |
 |---|---|
 | `procedureKey` | Stable router/procedure identity by capability, risk, and proof boundary. |
-| `inputSchema` | Type-owned input contract with bounded values, player scope, approval reason when needed, and no raw JS literals. |
+| `inputSchema` | Type-owned input contract with bounded values, player scope, correlation and proof-boundary metadata when needed, and no raw JS literals. |
 | `outputSchema` | Type-owned output contract with semantic result, debug/proof references, and evidence labels as appropriate. |
-| `context` | Typed direct-control facade, controller facade if available, endpoint defaults, risk policy, approval, logger, clock, evidence sink, and live-session policy. |
-| `middleware` | Reusable readiness, approval, validator-first, postcondition, relationship-authority, evidence-recording, error-normalization, and bounded polling policy. |
+| `context` | Typed direct-control facade, controller facade if available, endpoint defaults, risk policy, logger, clock, evidence sink, and live-session policy. |
+| `middleware` | Reusable readiness, validator-first, postcondition, relationship-authority, evidence-recording, error-normalization, and bounded polling policy. |
 | `errorShape` | Typed errors that preserve direct-control parser labels, proof boundaries, and player-safe failure reasons without dumping raw internals by default. |
 | `correlation` | Request/correlation identifiers for debug/proof/telemetry surfaces without leaking into normal CLI by default. |
 | `projectionPolicy` | Explicit normal CLI, debug/internal service, AI-ingestion, telemetry, and procedure-core projection separation. |
@@ -857,8 +857,8 @@ record:
 ## Middleware Boundaries
 
 Middleware may centralize repeated policy only after procedure atoms make that
-policy real. It may validate and record approval, but it must not invent
-approval. Mutating procedures require approval-first, validator-first behavior,
+policy real. It may validate and record but it must not invent
+validator/postcondition/no-repeat safety. Mutating procedures require validator-first behavior,
 postcondition classification, stale/unknown handling, and no-repeat guidance
 where applicable.
 
@@ -923,7 +923,7 @@ Acceptance still needs:
 - Bun runtime checks;
 - CLI semantic projection tests;
 - AI-ingestion contract fixture tests;
-- final middleware approval/correlation/error tests;
+- final middleware correlation/error tests;
 - no-raw-command-tunnel tests over stable direct-control atoms;
 - final proof-label guards in the procedure/router/runtime-proof owner.
 

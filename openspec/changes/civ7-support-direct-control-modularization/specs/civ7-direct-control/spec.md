@@ -26,7 +26,7 @@ transport composition.
 - **THEN** it composes a stable direct-control atom or procedure core
 - **AND** it does not define the runtime behavior through transport routing
 - **AND** it includes typed input/output schema, context/error shaping,
-  correlation identity, and approval gates when mutation-facing
+  correlation identity, and validator gates when mutation-facing
 
 ### Requirement: Civ7 Support Proof Claims Stay Evidence-Scoped
 
@@ -40,7 +40,7 @@ and runtime behavior proof separately.
 
 #### Scenario: A mutation-facing runtime slice closes
 - **WHEN** a branch changes mutation-facing direct-control behavior
-- **THEN** it requires approval-first behavior, validator-first behavior,
+- **THEN** it requires validator-first behavior,
   no-repeat-after-unverified semantics, postcondition evidence, and
   support-owned real-game proof when Civ7 is responsive
 - **AND** if Civ7 is unavailable the closure records `pending-runtime-proof`

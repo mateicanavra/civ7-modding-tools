@@ -34,7 +34,6 @@ describe("unit-target telemetry adapter", () => {
       risk: "mutation",
     });
     expect(record.operationFamily).toBe("unit-operation");
-    expect(record.approval.status).toBe("approved");
     expect(record.validation_pre?.value).toMatchObject({
       valid: true,
       selected: { family: "unit-operation", operationType: "MOVE_TO" },
@@ -176,12 +175,6 @@ function unitTargetTelemetryInput(
       y: 33,
     },
     result: unitTargetResult(),
-    approval: {
-      required: true,
-      status: "approved",
-      reason: "test unit target telemetry adapter",
-      source: "unit-target-telemetry.test.ts",
-    },
     source: "unit-target-telemetry.test.ts",
     ...overrides,
   };
