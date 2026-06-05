@@ -12,8 +12,7 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcTechnologyChoiceCloseoutResult,
 } from "../../../dependencies/direct-control";
-import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
-import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
@@ -54,25 +53,10 @@ type ProgressionChoicePostRead =
       view: null;
     }>;
 
-const progressionTechnologyChoiceRequestWithApproval =
-  civ7ControlOrpcImplementer.progression.technology.choice.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const progressionTechnologyChoiceRequestReady =
-  progressionTechnologyChoiceRequestWithApproval.use(
-    civ7MutationReadinessMiddleware,
-  );
-const progressionCultureChoiceRequestWithApproval =
-  civ7ControlOrpcImplementer.progression.culture.choice.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const progressionCultureChoiceRequestReady =
-  progressionCultureChoiceRequestWithApproval.use(
-    civ7MutationReadinessMiddleware,
-  );
-
 export const progressionTechnologyChoiceRequestProcedure =
-  progressionTechnologyChoiceRequestReady.effect(function* ({
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.progression.technology.choice.request,
+  ).effect(function* ({
     context,
     errors,
     input,
@@ -85,7 +69,7 @@ export const progressionTechnologyChoiceRequestProcedure =
           context.endpointDefaults,
         );
         const result = await requestProgressionChoice(kind, input, {
-          context,
+          context: context as ApprovedCiv7ControlOrpcContext,
         });
         const after = await readAfterProgressionChoice(context, result);
         return progressionChoiceResult(kind, source, input, result, before, after);
@@ -102,7 +86,9 @@ export const progressionTechnologyChoiceRequestProcedure =
   });
 
 export const progressionCultureChoiceRequestProcedure =
-  progressionCultureChoiceRequestReady.effect(function* ({
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.progression.culture.choice.request,
+  ).effect(function* ({
     context,
     errors,
     input,
@@ -115,7 +101,7 @@ export const progressionCultureChoiceRequestProcedure =
           context.endpointDefaults,
         );
         const result = await requestProgressionChoice(kind, input, {
-          context,
+          context: context as ApprovedCiv7ControlOrpcContext,
         });
         const after = await readAfterProgressionChoice(context, result);
         return progressionChoiceResult(kind, source, input, result, before, after);
@@ -150,14 +136,14 @@ async function requestProgressionChoice(
     return dependencies.context.directControl.requestCiv7TechnologyChoiceCloseout(
       requestInput,
       dependencies.context.endpointDefaults,
-      dependencies.context.approval,
+      dependencies.context.approval!,
     );
   }
 
   return dependencies.context.directControl.requestCiv7CultureChoiceCloseout(
     requestInput,
     dependencies.context.endpointDefaults,
-    dependencies.context.approval,
+    dependencies.context.approval!,
   );
 }
 

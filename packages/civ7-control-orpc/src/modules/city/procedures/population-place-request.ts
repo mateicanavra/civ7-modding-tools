@@ -2,8 +2,7 @@ import { populationPlacementProofPostcondition } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
-import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
-import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
@@ -21,15 +20,10 @@ type Civ7ControlOrpcPopulationPlacementRuntimeResult = Awaited<
   >
 >;
 
-const cityPopulationPlaceRequestWithApproval =
-  civ7ControlOrpcImplementer.city.population.place.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const cityPopulationPlaceRequestReady =
-  cityPopulationPlaceRequestWithApproval.use(civ7MutationReadinessMiddleware);
-
 export const cityPopulationPlaceRequestProcedure =
-  cityPopulationPlaceRequestReady.effect(function* ({
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.city.population.place.request,
+  ).effect(function* ({
     context,
     errors,
     input,
@@ -43,7 +37,7 @@ export const cityPopulationPlaceRequestProcedure =
               location: input.location,
             },
             context.endpointDefaults,
-            context.approval,
+            context.approval!,
           )
           : await context.directControl.requestCiv7ExpandCityPlacement(
             {
@@ -51,7 +45,7 @@ export const cityPopulationPlaceRequestProcedure =
               destination: input.destination,
             },
             context.endpointDefaults,
-            context.approval,
+            context.approval!,
           );
         return cityPopulationPlacementResult(input, result);
       },

@@ -473,6 +473,24 @@ boundaries.
   validator/postcondition middleware or parent Task 6.x completion by
   implication
 
+#### Scenario: Shared mutation procedure helper applies native middleware
+- **WHEN** existing mutation procedures share approval and playable-readiness
+  gates
+- **THEN** the shared helper composes those gates through native
+  oRPC/effect-oRPC middleware on the selected procedure leaf
+- **AND** invalid procedure input remains rejected before readiness reads or
+  direct-control mutation ports are called
+- **AND** procedures still own domain-specific service behavior, typed errors,
+  and semantic result projection
+- **AND** validator-first and postcondition/proof policy remain
+  procedure-local, policy-helper-owned, or source-owned until separately
+  promoted
+- **AND** the shared helper does not add a root implementer, custom dispatcher,
+  runner, operation root, decision root, context bus, error bus, or transport
+  edge
+- **AND** local tests do not claim live Civ7 runtime proof or Task 6.x
+  completion
+
 #### Scenario: Narrative choice request procedure is implemented
 - **WHEN** a narrative choice procedure requests a player choice
 - **THEN** it is offered under the `narrative` domain router as

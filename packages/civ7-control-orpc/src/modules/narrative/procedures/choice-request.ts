@@ -2,8 +2,7 @@ import { narrativeChoiceProofPostcondition } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNarrativeChoiceResult } from "../../../dependencies/direct-control";
-import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
-import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
@@ -14,17 +13,10 @@ import type {
   Civ7NarrativeChoiceResult,
 } from "../contract";
 
-const narrativeChoiceRequestWithApproval =
-  civ7ControlOrpcImplementer.narrative.choice.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const narrativeChoiceRequestReady =
-  narrativeChoiceRequestWithApproval.use(
-    civ7MutationReadinessMiddleware,
-  );
-
 export const narrativeChoiceRequestProcedure =
-  narrativeChoiceRequestReady.effect(function* ({
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.narrative.choice.request,
+  ).effect(function* ({
     context,
     errors,
     input,
@@ -34,7 +26,7 @@ export const narrativeChoiceRequestProcedure =
         const result = await context.directControl.requestCiv7NarrativeChoice(
           input,
           context.endpointDefaults,
-          context.approval,
+          context.approval!,
         );
         return narrativeChoiceResult(input, result);
       },

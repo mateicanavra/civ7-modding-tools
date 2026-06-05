@@ -271,6 +271,11 @@ adding more read-only facade shells.
     playable-status runtime ports. Keep live-game proof, transport
     propagation, validator-first middleware, and postcondition/proof
     middleware pending.
+  - [x] 6.1.3 Promote the repeated approval-plus-readiness mutation procedure
+    chain into a leaf-scoped native effect-oRPC helper reused by existing
+    mutation leaves. Keep validator-first middleware, postcondition/proof
+    middleware, telemetry propagation, live runtime proof, and parent Task 6.x
+    acceptance pending.
 - [ ] 6.2 Add approval middleware before mutation procedures.
   - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
     `city.production.choice.request`; keep shared approval middleware pending
@@ -531,6 +536,9 @@ adding more read-only facade shells.
   intelligence-bridge tests, control-oRPC package test/check/build, strict
   OpenSpec validates, and diff hygiene for the controller turn-completion
   ingress allowlist slice.
+- [x] 8.34 Run focused mutation procedure regressions, control-oRPC package
+  test/check/build, strict OpenSpec validates, and diff hygiene for the shared
+  native mutation procedure helper slice.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

@@ -2,8 +2,7 @@ import { unitTargetProofPostcondition } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcUnitTargetActionResult } from "../../../dependencies/direct-control";
-import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
-import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
@@ -12,15 +11,10 @@ import {
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7UnitTargetActionResult } from "../contract";
 
-const unitTargetActionRequestWithApproval =
-  civ7ControlOrpcImplementer.unit.target.action.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const unitTargetActionRequestReady =
-  unitTargetActionRequestWithApproval.use(civ7MutationReadinessMiddleware);
-
 export const unitTargetActionRequestProcedure =
-  unitTargetActionRequestReady.effect(function* ({
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.unit.target.action.request,
+  ).effect(function* ({
     context,
     errors,
     input,
@@ -30,7 +24,7 @@ export const unitTargetActionRequestProcedure =
         const result = await context.directControl.requestCiv7UnitTargetAction(
           input,
           context.endpointDefaults,
-          context.approval,
+          context.approval!,
         );
         return unitTargetActionResult(result);
       },

@@ -1,12 +1,13 @@
-import type { Civ7ControlOrpcProcedureMeta } from "../metadata";
 import { civ7ControlOrpcErrorCorrelationData } from "../model/correlation";
 import { civ7ControlOrpcImplementer } from "../procedure";
+
+import { civ7MutationProcedureKey } from "./mutation-procedure-key";
 
 export const civ7MutationReadinessMiddleware =
   civ7ControlOrpcImplementer.middleware(async (
     { context, errors, next, path, procedure },
   ) => {
-    const procedureKey = mutationProcedureKey(procedure["~orpc"].meta, path);
+    const procedureKey = civ7MutationProcedureKey(procedure["~orpc"].meta, path);
     const status = await context.directControl.getCiv7PlayableStatus(
       context.endpointDefaults,
     ).catch(() => {
@@ -35,14 +36,3 @@ export const civ7MutationReadinessMiddleware =
 
     return next();
   });
-
-function mutationProcedureKey(
-  meta: Civ7ControlOrpcProcedureMeta,
-  path: readonly string[],
-): string {
-  if (typeof meta.procedureKey === "string" && meta.procedureKey.trim()) {
-    return meta.procedureKey;
-  }
-  if (path.length > 0) return path.join(".");
-  return "unknown-procedure";
-}

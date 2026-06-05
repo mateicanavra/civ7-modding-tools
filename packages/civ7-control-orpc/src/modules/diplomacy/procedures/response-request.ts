@@ -2,8 +2,7 @@ import { diplomacyResponseProofPostcondition } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcDiplomacyResponseResult } from "../../../dependencies/direct-control";
-import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
-import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7CloseoutMutationProjection,
@@ -14,17 +13,10 @@ import type {
   Civ7DiplomacyResponseResult,
 } from "../contract";
 
-const diplomacyResponseRequestWithApproval =
-  civ7ControlOrpcImplementer.diplomacy.response.request.use(
-    civ7MutationApprovalMiddleware,
-  );
-const diplomacyResponseRequestReady =
-  diplomacyResponseRequestWithApproval.use(
-    civ7MutationReadinessMiddleware,
-  );
-
 export const diplomacyResponseRequestProcedure =
-  diplomacyResponseRequestReady.effect(function* ({
+  civ7ControlOrpcMutationProcedure(
+    civ7ControlOrpcImplementer.diplomacy.response.request,
+  ).effect(function* ({
     context,
     errors,
     input,
@@ -34,7 +26,7 @@ export const diplomacyResponseRequestProcedure =
         const result = await context.directControl.requestCiv7DiplomacyResponse(
           input,
           context.endpointDefaults,
-          context.approval,
+          context.approval!,
         );
         return diplomacyResponseResult(input, result);
       },
