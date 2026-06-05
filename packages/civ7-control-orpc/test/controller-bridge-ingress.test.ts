@@ -10,6 +10,8 @@ import {
 } from "../src/index";
 
 const notificationId = { owner: 0, id: 113, type: 20 };
+const unitId = { owner: 0, id: 458_752, type: 26 };
+const target = { x: 22, y: 31 };
 
 describe("Civ7 controller bridge ingress", () => {
   test("invokes allowlisted readiness.current through the in-process router", async () => {
@@ -265,6 +267,80 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted unit.target.action.request through the in-process router with explicit approval", async () => {
+    const fake = fakeUnitTargetActionContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "unit.target.action.request",
+      input: { unitId, ...target },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved unit target action",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-unit-target-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "unit.target.action.request",
+      correlationId: "controller-unit-target-1",
+      output: {
+        unitId,
+        target,
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "target-reached",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.targetAction).toEqual([{
+      input: { unitId, ...target },
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved unit target action",
+      },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "unit.target.action.request",
+      input: { unitId, ...target },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved unit target action",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-unit-target-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("controller approved unit target action");
+    expect(serialized).not.toContain("Game.UnitOperations.sendRequest");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -373,6 +449,36 @@ describe("Civ7 controller bridge ingress", () => {
         },
         controllerProof: controllerMutationProof(),
       },
+      { procedureKey: "unit.target.action.request", input: { unitId, ...target } },
+      {
+        procedureKey: "unit.target.action.request",
+        input: { unitId, ...target },
+        approval: controllerApproval(),
+      },
+      {
+        procedureKey: "unit.target.action.request",
+        input: { unitId, ...target, rawCommand: "Game.UnitOperations.sendRequest(...)" },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "unit.target.action.request",
+        input: { unitId, ...target },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+        state: { name: "App UI" },
+      },
+      {
+        procedureKey: "unit.target.action.request",
+        input: { unitId, ...target },
+        approval: {
+          source: "controller-runtime",
+          approved: true,
+          reason: "controller approved unit target action",
+          command: "Game.UnitOperations.sendRequest(...)",
+        },
+        controllerProof: controllerMutationProof(),
+      },
     ];
 
     for (const request of invalidRequests) {
@@ -397,10 +503,11 @@ describe("Civ7 controller bridge ingress", () => {
     const fake = fakeContext(playableStatusResult());
 
     const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "unit.target.action.request",
+      procedureKey: "city.population.place.request",
       input: {
-        unitId: { owner: 0, id: 1, type: 1 },
-        target: { x: 10, y: 12 },
+        mode: "assign-worker",
+        playerId: 0,
+        location: 6,
       },
     }, {
       createContext: () => fake.context,
@@ -631,6 +738,48 @@ function fakeTurnCompleteContext(): {
   };
 }
 
+function fakeUnitTargetActionContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    targetAction: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    targetAction: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  } = {
+    status: [],
+    targetAction: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7UnitTargetAction: async (input, options, approval) => {
+          calls.targetAction.push({ input, options, approval });
+          return unitTargetActionResult();
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
 function controllerApproval(): Record<string, unknown> {
   return {
     source: "controller-runtime",
@@ -790,5 +939,83 @@ function turnCompletionRequestResult(): any {
       output: ["CMD:65535:GameContext.sendTurnComplete()"],
     },
     verified: true,
+  };
+}
+
+function unitTargetActionResult(): any {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    unitId,
+    target: {
+      ...target,
+      index: { ok: true, value: 713_967_338 },
+    },
+    beforeUnit: unitProbe({ x: 20, y: 31 }),
+    beforeTargetUnits: { ok: true, value: [] },
+    candidates: [
+      {
+        family: "unit-command",
+        operationType: "UNITCOMMAND_ARMY_OVERRUN",
+        args: { X: target.x, Y: target.y },
+        valid: false,
+        result: { error: "not available" },
+        targetInReturnedPlots: null,
+        rejectedReason: "canStart false",
+      },
+      {
+        family: "unit-operation",
+        operationType: "MOVE_TO",
+        args: { X: target.x, Y: target.y, Modifiers: 0 },
+        valid: true,
+        result: { raw: "Game.UnitOperations.canStart(...)" },
+        targetInReturnedPlots: true,
+      },
+    ],
+    selected: {
+      family: "unit-operation",
+      operationType: "MOVE_TO",
+      args: { X: target.x, Y: target.y, Modifiers: 0 },
+      valid: true,
+      result: { raw: "Game.UnitOperations.canStart(...)" },
+      targetInReturnedPlots: true,
+    },
+    sent: true,
+    sendResult: {
+      rawCommand: "Game.UnitOperations.sendRequest(...)",
+    },
+    afterUnit: unitProbe(target),
+    afterTargetUnits: { ok: true, value: [] },
+    verified: true,
+    verification: {
+      status: "verified",
+      classification: "target-reached",
+      unitChanged: true,
+      targetUnitsChanged: false,
+      destinationReached: true,
+      requestedLocation: target,
+      landedLocation: target,
+      source: "bounded-poll",
+      attempts: 2,
+      observedAfterMs: 500,
+      reason: "test target-reached",
+    },
+    notes: ["fixture"],
+  };
+}
+
+function unitProbe(location: { x: number; y: number }) {
+  return {
+    ok: true as const,
+    value: {
+      id: unitId,
+      owner: unitId.owner,
+      type: unitId.type,
+      location,
+      movementMovesRemaining: 1,
+      movementTurnsRemaining: 0,
+      attacksRemaining: 1,
+    },
   };
 }
