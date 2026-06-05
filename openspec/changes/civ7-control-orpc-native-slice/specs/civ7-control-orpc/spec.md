@@ -63,6 +63,18 @@ errors, and server-side callers.
   dismissal sends, validators, postcondition classification, and no-repeat
   proof semantics consumed by the procedure
 
+#### Scenario: Production choice service contract is offered
+- **WHEN** `city.production.choice.request` exposes its caller-facing contract
+- **THEN** control-oRPC owns the input schema and normal postcondition
+  classification schema for that service procedure
+- **AND** the input admits only the semantic city production choice request
+  shape: city ID plus exactly one valid production args variant
+- **AND** approval, endpoint, session, state, and raw command fields remain
+  excluded from procedure input
+- **AND** direct-control remains the runtime/proof owner for production-choice
+  sends, validators, source postcondition classification, and no-repeat proof
+  semantics consumed by the procedure
+
 #### Scenario: Strategy planning view is added
 - **WHEN** a strategy planning procedure is implemented
 - **THEN** it composes planning evidence from bounded runtime/read ports into a

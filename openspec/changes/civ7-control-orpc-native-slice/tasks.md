@@ -154,6 +154,10 @@ adding more read-only facade shells.
     normal postcondition classification schemas into control-oRPC service
     ownership while leaving direct-control notification dismissal runtime/proof
     helpers authoritative.
+  - [x] 5.4.11 Move `city.production.choice.request` caller-facing input and
+    normal postcondition classification schemas into control-oRPC service
+    ownership while leaving direct-control production-choice runtime/proof
+    helpers authoritative.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -389,3 +393,7 @@ adding more read-only facade shells.
   control-oRPC package test/check/build, strict OpenSpec validates,
   notification contract direct-control import scan, and diff hygiene for the
   notification dismissal service contract ownership slice.
+- [x] 8.16 Run focused production choice procedure/contract tests,
+  control-oRPC package test/check/build, strict OpenSpec validates, city
+  contract direct-control import scan, and diff hygiene for the production
+  choice service contract ownership slice.

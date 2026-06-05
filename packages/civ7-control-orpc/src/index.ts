@@ -136,8 +136,10 @@ export {
   Civ7CityPopulationPlacementSummarySchema,
   Civ7CityPopulationPlacementValidationSummarySchema,
   Civ7CityProductionChoiceContract,
+  Civ7CityProductionChoiceInputSchema,
   Civ7CityProductionChoiceInputStandardSchema,
   Civ7CityProductionChoiceNextStepSchema,
+  Civ7CityProductionChoicePostconditionClassificationSchema,
   Civ7CityProductionChoicePostconditionSummarySchema,
   Civ7CityProductionChoiceProofOutcomeSchema,
   Civ7CityProductionChoiceRequestStatusSchema,
@@ -151,6 +153,7 @@ export type {
   Civ7CityPopulationPlacementInput,
   Civ7CityPopulationPlacementResult,
   Civ7CityProductionChoiceContract as Civ7CityProductionChoiceContractType,
+  Civ7CityProductionChoiceInput,
   Civ7CityProductionChoiceResult,
 } from "./modules/city/contract";
 export { cityRouter } from "./modules/city/router";

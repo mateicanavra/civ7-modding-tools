@@ -1,7 +1,3 @@
-import {
-  Civ7ProductionChoiceInputSchema,
-  Civ7ProductionPostconditionClassificationSchema,
-} from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 import { Type, type Static } from "typebox";
 
@@ -14,8 +10,77 @@ import {
 } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
+const Civ7CityProductionChoiceArgsSchema = Type.Unsafe<
+  Readonly<Record<string, number>>
+>({
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    UnitType: { type: "integer" },
+    ConstructibleType: { type: "integer" },
+    ProjectType: { type: "integer" },
+    X: { type: "integer" },
+    Y: { type: "integer" },
+  },
+  oneOf: [
+    {
+      required: ["UnitType"],
+      not: {
+        anyOf: [
+          { required: ["ConstructibleType"] },
+          { required: ["ProjectType"] },
+          { required: ["X"] },
+          { required: ["Y"] },
+        ],
+      },
+    },
+    {
+      required: ["ProjectType"],
+      not: {
+        anyOf: [
+          { required: ["UnitType"] },
+          { required: ["ConstructibleType"] },
+          { required: ["X"] },
+          { required: ["Y"] },
+        ],
+      },
+    },
+    {
+      required: ["ConstructibleType"],
+      not: {
+        anyOf: [
+          { required: ["UnitType"] },
+          { required: ["ProjectType"] },
+          { required: ["X"] },
+          { required: ["Y"] },
+        ],
+      },
+    },
+    {
+      required: ["ConstructibleType", "X", "Y"],
+      not: {
+        anyOf: [
+          { required: ["UnitType"] },
+          { required: ["ProjectType"] },
+        ],
+      },
+    },
+  ],
+});
+
+export const Civ7CityProductionChoiceInputSchema = Type.Object(
+  {
+    cityId: Civ7ControlOrpcComponentIdSchema,
+    args: Civ7CityProductionChoiceArgsSchema,
+  },
+  { additionalProperties: false },
+);
+export type Civ7CityProductionChoiceInput = Static<
+  typeof Civ7CityProductionChoiceInputSchema
+>;
+
 export const Civ7CityProductionChoiceInputStandardSchema = toStandardSchema(
-  Civ7ProductionChoiceInputSchema,
+  Civ7CityProductionChoiceInputSchema,
 );
 
 export const Civ7CityPopulationPlacementInputSchema = Type.Union([
@@ -165,10 +230,20 @@ export const Civ7CityProductionChoiceRequestStatusSchema = Type.Union([
   Type.Literal("sent-unverified"),
 ]);
 
+export const Civ7CityProductionChoicePostconditionClassificationSchema =
+  Type.Union([
+    Type.Literal("not-sent"),
+    Type.Literal("production-choice-cleared"),
+    Type.Literal("production-state-changed"),
+    Type.Literal("production-state-changed-blocker-still-live"),
+    Type.Literal("validation-changed"),
+    Type.Literal("no-state-change"),
+  ]);
+
 export const Civ7CityProductionChoicePostconditionSummarySchema = Type.Object(
   {
     classification: Type.Union([
-      Civ7ProductionPostconditionClassificationSchema,
+      Civ7CityProductionChoicePostconditionClassificationSchema,
       Type.Literal("missing-postcondition"),
     ]),
     reason: Type.String(),
