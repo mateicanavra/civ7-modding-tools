@@ -11,6 +11,7 @@ import {
   getRecipeArtifacts,
   STUDIO_RECIPE_ARTIFACTS,
 } from "../../src/recipes/catalog";
+import { migratePipelineConfigUnknown } from "../../src/features/configMigrations/pipelineConfig";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -51,6 +52,17 @@ function hasRawOpEnvelope(value: unknown): boolean {
     return true;
   }
   return Object.values(obj).some(hasRawOpEnvelope);
+}
+
+function mergeDeterministic(base: unknown, overrides: unknown): unknown {
+  if (overrides === undefined) return base;
+  if (!isObject(base) || !isObject(overrides)) return overrides;
+
+  const out: Record<string, unknown> = { ...base };
+  for (const key of Object.keys(overrides)) {
+    out[key] = mergeDeterministic(base[key], overrides[key]);
+  }
+  return out;
 }
 
 describe("standard recipe generated artifact guardrails", () => {
@@ -102,5 +114,52 @@ describe("standard recipe generated artifact guardrails", () => {
       );
       expect(errors).toEqual([]);
     }
+  });
+
+  it("migrates stale Studio overrides before the worker-style strict compile path", () => {
+    const runtimeEntry = getRuntimeRecipe("mod-swooper-maps/standard");
+    const staleOverrides = {
+      foundation: {
+        meshResolution: {
+          plateCount: 28,
+          cellsPerPlate: 2,
+          relaxationSteps: 2,
+          referenceArea: 4536,
+          plateScalePower: 0.8,
+        },
+        platePartition: {
+          plateCount: 28,
+          referenceArea: 4536,
+          plateScalePower: 0.8,
+        },
+      },
+    };
+
+    const merged = mergeDeterministic(
+      runtimeEntry.defaultConfig,
+      migratePipelineConfigUnknown(staleOverrides)
+    );
+    const { value, errors } = normalizeStrict<Record<string, unknown>>(
+      runtimeEntry.configSchema,
+      merged,
+      "/config"
+    );
+
+    expect(errors).toEqual([]);
+    const foundation = value.foundation as Record<string, Record<string, unknown>>;
+    expect(foundation.meshResolution).not.toHaveProperty("referenceArea");
+    expect(foundation.meshResolution).not.toHaveProperty("plateScalePower");
+    expect(foundation.platePartition).not.toHaveProperty("referenceArea");
+    expect(foundation.platePartition).not.toHaveProperty("plateScalePower");
+
+    const plan = runtimeEntry.recipe.compile(
+      {
+        seed: 123,
+        dimensions: { width: 84, height: 54 },
+        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+      },
+      value
+    );
+    expect(plan.nodes.length).toBeGreaterThan(0);
   });
 });

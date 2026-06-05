@@ -196,6 +196,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     runInGameStatus?.materialization?.mapScript ? `Map: ${runInGameStatus.materialization.mapScript}` : null,
     runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
     runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
+    runInGameStatus?.details?.recoveryHint ? `Recovery: ${runInGameStatus.details.recoveryHint}` : null,
   ].filter(Boolean).join("\n");
   const updateSetting = <K extends keyof RecipeSettings,>(
   key: K,

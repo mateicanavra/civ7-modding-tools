@@ -86,7 +86,7 @@ describe("standard browser runner layer visibility", () => {
       return event.layer.dataTypeKey === "foundation.plates.tileMovement" && visibilityOf(event.layer) === "default";
     });
     expect(tileMotionLayers.map((event) => event.layer.spaceId)).toEqual(
-      expect.arrayContaining(["tile.hexOddR"])
+      expect.arrayContaining(["tile.hexOddQ"])
     );
     expect(tileMotionLayers.map((event) => `${event.layer.kind}:${event.layer.meta?.role ?? ""}`)).toEqual(
       expect.arrayContaining(["gridFields:vector", "segments:arrows"])

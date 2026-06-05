@@ -47,6 +47,10 @@ Every layer declares its coordinate space via **`spaceId`**:
 - tile spaces: `"tile.hexOddR"`, `"tile.hexOddQ"`
 - non-tile spaces: `"mesh.world"`, `"world.xy"`
 
+Standard Swooper Maps tile layers should emit `"tile.hexOddQ"` so Studio
+coordinates match generation and live Civ7 row-major tile readback. Studio still
+accepts `"tile.hexOddR"` for legacy dumps and compatibility fixtures.
+
 MapGen Studio’s Explore panel treats **`spaceId` as the Space selector**, and groups layers as:
 `dataTypeKey → spaceId → kind[:role] → variantKey`
 

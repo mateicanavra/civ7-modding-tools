@@ -106,12 +106,19 @@ function oddRPointFromTileXY(x: number, y: number, size: number): [number, numbe
   return [px, py];
 }
 
+function orientTilePointNorthUp(point: [number, number]): [number, number] {
+  const [x, y] = point;
+  return [x, -y];
+}
+
 function tilePoint(spaceId: VizSpaceId, x: number, y: number, size: number): [number, number] {
-  return spaceId === "tile.hexOddQ" ? oddQPointFromTileXY(x, y, size) : oddRPointFromTileXY(x, y, size);
+  const point = spaceId === "tile.hexOddQ" ? oddQPointFromTileXY(x, y, size) : oddRPointFromTileXY(x, y, size);
+  return orientTilePointNorthUp(point);
 }
 
 function tileCenter(spaceId: VizSpaceId, col: number, row: number, size: number): [number, number] {
-  return spaceId === "tile.hexOddQ" ? oddQTileCenter(col, row, size) : oddRTileCenter(col, row, size);
+  const point = spaceId === "tile.hexOddQ" ? oddQTileCenter(col, row, size) : oddRTileCenter(col, row, size);
+  return orientTilePointNorthUp(point);
 }
 
 function transformPoint(spaceId: VizSpaceId, x: number, y: number, tileSize: number): [number, number] {
@@ -180,14 +187,14 @@ export function boundsForTileGrid(spaceId: VizSpaceId, dims: { width: number; he
     const hasOddRow = height > 1;
     const maxCenterX = s3 * ((width - 1) + (hasOddRow ? 0.5 : 0));
     const maxCenterY = 1.5 * tileSize * (height - 1);
-    return [-s, -s, maxCenterX + s, maxCenterY + s];
+    return [-s, -maxCenterY - s, maxCenterX + s, s];
   }
 
   // tile.hexOddQ
   const hasOddCol = width > 1;
   const maxCenterX = s3 * (width - 1);
   const maxCenterY = 1.5 * tileSize * ((height - 1) + (hasOddCol ? 0.5 : 0));
-  return [-s, -s, maxCenterX + s, maxCenterY + s];
+  return [-s, -maxCenterY - s, maxCenterX + s, s];
 }
 
 export function boundsForLayerInRenderSpace(layer: VizLayerEntryV1, tileSize = 1): Bounds {

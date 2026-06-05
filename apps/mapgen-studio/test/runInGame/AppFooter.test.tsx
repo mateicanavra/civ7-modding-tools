@@ -105,6 +105,29 @@ describe("AppFooter Run in Game status", () => {
     expect(html).toContain("Restart Civ &amp; Run");
   });
 
+  it("keeps map script fatal recovery on retry instead of process restart", () => {
+    const html = renderFooter({
+      ok: false,
+      requestId: "studio-run-in-game-map-script-failed",
+      phase: "failed",
+      status: "failed",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying", "preparing-setup", "starting-game", "waiting-for-proof"],
+      error: "Civ7 could not load generated map script",
+      details: {
+        code: "map-script-load-failed",
+        dismissNotificationRequired: true,
+        recoveryBoundary: "civ-notification-dismiss",
+        recoveryHint: "Dismiss the Civ fatal notification, fix or regenerate the map script, then retry Run in Game.",
+      },
+    }, "current");
+
+    expect(html).toContain("Retry Run");
+    expect(html).not.toContain("Restart Civ &amp; Run");
+    expect(html).toContain("Dismiss the Civ fatal notification");
+  });
+
   it("marks a previous operation stale when the authored Studio state has changed", () => {
     const html = renderFooter({
       ok: true,

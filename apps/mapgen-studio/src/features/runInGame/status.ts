@@ -48,6 +48,9 @@ export type RunInGameFailureDetails = Readonly<{
   reloadRequired?: boolean;
   reloadBoundary?: string;
   reloadAttempted?: boolean;
+  dismissNotificationRequired?: boolean;
+  recoveryBoundary?: string;
+  recoveryHint?: string;
   completedPhases?: ReadonlyArray<RunInGamePhase>;
   directControlCode?: string;
   cause?: unknown;

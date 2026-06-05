@@ -35,7 +35,9 @@ import {
   createRunInGameOperationStore,
   type RunInGameOperationState,
 } from "./src/server/runInGame/operationState";
+import { classifyCiv7MapgenLogFailure } from "./src/server/runInGame/logFailure";
 import { parseRunInGameSetupRequest } from "./src/server/runInGame/requestValidation";
+import { shutdownCiv7MacProcess } from "./src/server/runInGame/macosProcessRestart";
 import { buildSwooperMapsStudioDeployCommand } from "./src/server/mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "./src/server/mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValidation";
@@ -47,8 +49,13 @@ const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
 const RUN_IN_GAME_OPERATION_TTL_MS = 30 * 60_000;
 const CIV7_STEAM_APP_ID = "1295660";
+const CIV7_PROCESS_PATTERN = "CivilizationVII.app/Contents/MacOS/CivilizationVII";
+const CIV7_PROCESS_GRACEFUL_QUIT_TIMEOUT_MS = 45_000;
+const CIV7_PROCESS_FORCE_QUIT_TIMEOUT_MS = 30_000;
+const CIV7_PROCESS_FORCE_KILL_TIMEOUT_MS = 15_000;
 const CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS = 180_000;
 const CIV7_PROCESS_RESTART_POLL_INTERVAL_MS = 2_000;
+const CIV7_PROCESS_EXIT_STABLE_POLLS = 2;
 const STUDIO_SERVER_STARTED_AT = new Date().toISOString();
 const STUDIO_SERVER_INSTANCE_ID = createCiv7ControlRequestId("studio-server");
 
@@ -82,6 +89,13 @@ function stableHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
 }
 
+async function readFreshLogText(logPath: string, snapshot: Awaited<ReturnType<typeof snapshotFile>>): Promise<string> {
+  const current = await snapshotFile(logPath);
+  if (!current.exists) return "";
+  const fullText = await readFile(logPath, "utf8");
+  return current.size >= snapshot.size ? fullText.slice(snapshot.size) : fullText;
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -90,6 +104,8 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   command: string;
   quit: { command: string; stdout: string; stderr: string };
   kill?: { command: string; stdout: string; stderr: string };
+  forceKill?: { command: string; stdout: string; stderr: string };
+  shutdown: Awaited<ReturnType<typeof shutdownCiv7MacProcess>>;
   launch: { command: string; stdout: string; stderr: string };
   setupPhase?: string;
 }> {
@@ -97,36 +113,17 @@ async function restartCiv7ProcessViaSteam(): Promise<{
     throw new Error("Civ7 process restart from Studio is currently supported on macOS only");
   }
 
-  const quitCommand = "osascript -e 'tell application id \"com.2k.civ7\" to quit'";
-  const quitResult = await execFileAsync("osascript", ["-e", 'tell application id "com.2k.civ7" to quit'], {
-    timeout: 10_000,
-    maxBuffer: 1024 * 1024,
-  }).catch((err: unknown) => {
-    if (err && typeof err === "object" && "stdout" in err && "stderr" in err) {
-      return { stdout: String((err as { stdout?: unknown }).stdout ?? ""), stderr: String((err as { stderr?: unknown }).stderr ?? "") };
-    }
-    throw err;
+  const shutdown = await shutdownCiv7MacProcess({
+    execFileAsync,
+    sleep,
+    tail,
+    processPattern: CIV7_PROCESS_PATTERN,
+    gracefulQuitTimeoutMs: CIV7_PROCESS_GRACEFUL_QUIT_TIMEOUT_MS,
+    forceQuitTimeoutMs: CIV7_PROCESS_FORCE_QUIT_TIMEOUT_MS,
+    forceKillTimeoutMs: CIV7_PROCESS_FORCE_KILL_TIMEOUT_MS,
+    pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
+    stableAbsentPolls: CIV7_PROCESS_EXIT_STABLE_POLLS,
   });
-
-  await sleep(5_000);
-
-  let killResult: { command: string; stdout: string; stderr: string } | undefined;
-  const stillRunning = await execFileAsync("pgrep", ["-f", "CivilizationVII.app/Contents/MacOS/CivilizationVII"], {
-    timeout: 5_000,
-    maxBuffer: 1024 * 1024,
-  }).then(
-    () => true,
-    () => false,
-  );
-  if (stillRunning) {
-    const killCommand = "pkill -f CivilizationVII.app/Contents/MacOS/CivilizationVII";
-    const { stdout, stderr } = await execFileAsync("pkill", ["-f", "CivilizationVII.app/Contents/MacOS/CivilizationVII"], {
-      timeout: 10_000,
-      maxBuffer: 1024 * 1024,
-    });
-    killResult = { command: killCommand, stdout: tail(stdout), stderr: tail(stderr) };
-    await sleep(3_000);
-  }
 
   const launchCommand = `open steam://rungameid/${CIV7_STEAM_APP_ID}`;
   const launch = await execFileAsync("open", [`steam://rungameid/${CIV7_STEAM_APP_ID}`], {
@@ -152,9 +149,11 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   }
 
   return {
-    command: `${quitCommand} && ${launchCommand}`,
-    quit: { command: quitCommand, stdout: tail(quitResult.stdout), stderr: tail(quitResult.stderr) },
-    ...(killResult === undefined ? {} : { kill: killResult }),
+    command: `${shutdown.quit.command} && ${launchCommand}`,
+    quit: shutdown.quit,
+    ...(shutdown.kill === undefined ? {} : { kill: shutdown.kill }),
+    ...(shutdown.forceKill === undefined ? {} : { forceKill: shutdown.forceKill }),
+    shutdown,
     launch: { command: launchCommand, stdout: tail(launch.stdout), stderr: tail(launch.stderr) },
     setupPhase,
   };
@@ -818,6 +817,17 @@ export default defineConfig(({ command }) => ({
                   markers: ["[mapgen-proof]", requestId, configHash, envelopeHash],
                   timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
                   rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
+                }).catch(async (err: unknown) => {
+                  const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(() => "");
+                  const mapgenFailure = classifyCiv7MapgenLogFailure(freshLogText, { mapScript: launchMapScript });
+                  if (mapgenFailure) {
+                    throw new RunInGameHttpError(500, mapgenFailure.message, {
+                      ...mapgenFailure,
+                      materialization,
+                      cause: err instanceof Error ? err.message : String(err),
+                    });
+                  }
+                  throw err;
                 });
 
                 runInGameOperations.complete(requestId, {
