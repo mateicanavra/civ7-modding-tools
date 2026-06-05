@@ -52,6 +52,17 @@ errors, and server-side callers.
   helpers may remain direct-control-owned until a later accepted service
   contract slice separates them deliberately
 
+#### Scenario: Notification dismissal service contract is offered
+- **WHEN** `notifications.dismiss.request` exposes its caller-facing contract
+- **THEN** control-oRPC owns the input schema and normal postcondition
+  classification schema for that service procedure
+- **AND** the input admits only the semantic notification ID request shape
+- **AND** raw command/session/tuner endpoint fields remain excluded from
+  procedure input
+- **AND** direct-control remains the runtime/proof owner for notification
+  dismissal sends, validators, postcondition classification, and no-repeat
+  proof semantics consumed by the procedure
+
 #### Scenario: Strategy planning view is added
 - **WHEN** a strategy planning procedure is implemented
 - **THEN** it composes planning evidence from bounded runtime/read ports into a

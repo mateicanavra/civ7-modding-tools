@@ -1,10 +1,13 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7MutationApprovalRequiredError,
+  Civ7NotificationDismissInputSchema,
+  Civ7NotificationDismissalPostconditionClassificationSchema,
   Civ7NotificationDismissalUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
@@ -14,6 +17,24 @@ import {
 const notificationId = { owner: 0, id: 113, type: 20 };
 
 describe("notifications.dismiss.request control-oRPC procedure", () => {
+  test("owns the caller-facing notification dismiss contract without raw fields", () => {
+    expect(Value.Check(Civ7NotificationDismissInputSchema, {
+      notificationId,
+    })).toBe(true);
+    expect(Value.Check(Civ7NotificationDismissInputSchema, {
+      notificationId,
+      rawCommand: "Game.turn",
+    })).toBe(false);
+    expect(Value.Check(
+      Civ7NotificationDismissalPostconditionClassificationSchema,
+      "engine-front-still-live",
+    )).toBe(true);
+    expect(Value.Check(
+      Civ7NotificationDismissalPostconditionClassificationSchema,
+      "pending-runtime-proof",
+    )).toBe(false);
+  });
+
   test("calls notification dismissal through native Effect/oRPC with context approval", async () => {
     const fake = fakeContext(
       notificationDismissalResult("notification-disappeared"),

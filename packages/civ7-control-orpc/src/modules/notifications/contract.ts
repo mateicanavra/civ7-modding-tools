@@ -1,7 +1,3 @@
-import {
-  Civ7NotificationDismissInputSchema,
-  Civ7NotificationDismissalPostconditionClassificationSchema,
-} from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 import { Type, type Static } from "typebox";
 
@@ -10,6 +6,16 @@ import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
+
+export const Civ7NotificationDismissInputSchema = Type.Object(
+  {
+    notificationId: Civ7ControlOrpcComponentIdSchema,
+  },
+  { additionalProperties: false },
+);
+export type Civ7NotificationDismissInput = Static<
+  typeof Civ7NotificationDismissInputSchema
+>;
 
 export const Civ7NotificationDismissInputStandardSchema = toStandardSchema(
   Civ7NotificationDismissInputSchema,
@@ -30,6 +36,20 @@ export const Civ7NotificationDismissalRequestStatusSchema = Type.Union([
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-unverified"),
 ]);
+
+export const Civ7NotificationDismissalPostconditionClassificationSchema =
+  Type.Union([
+    Type.Literal("not-sent"),
+    Type.Literal("missing-after"),
+    Type.Literal("notification-disappeared"),
+    Type.Literal("engine-front-still-live"),
+    Type.Literal("notification-dismissed"),
+    Type.Literal("engine-queue-cleared"),
+    Type.Literal("notification-train-cleared"),
+    Type.Literal("engine-front-moved"),
+    Type.Literal("notification-train-front-moved"),
+    Type.Literal("no-state-change"),
+  ]);
 
 export const Civ7NotificationDismissalPostconditionSummarySchema = Type.Object(
   {

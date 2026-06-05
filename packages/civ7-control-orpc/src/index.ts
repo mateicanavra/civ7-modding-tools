@@ -195,9 +195,11 @@ export { decisionsDiplomacyResponseRequestProcedure } from "./modules/decisions/
 export { decisionsNarrativeChoiceRequestProcedure } from "./modules/decisions/procedures/narrative-choice-request";
 export {
   Civ7NotificationsContract,
+  Civ7NotificationDismissInputSchema,
   Civ7NotificationDismissalContract,
   Civ7NotificationDismissInputStandardSchema,
   Civ7NotificationDismissalNextStepSchema,
+  Civ7NotificationDismissalPostconditionClassificationSchema,
   Civ7NotificationDismissalPostconditionSummarySchema,
   Civ7NotificationDismissalProofOutcomeSchema,
   Civ7NotificationDismissalRequestStatusSchema,
@@ -207,6 +209,7 @@ export {
 } from "./modules/notifications/contract";
 export type {
   Civ7NotificationDismissalContract as Civ7NotificationDismissalContractType,
+  Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
   Civ7NotificationsContract as Civ7NotificationsContractType,
 } from "./modules/notifications/contract";
