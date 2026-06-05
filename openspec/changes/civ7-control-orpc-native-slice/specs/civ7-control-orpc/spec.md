@@ -16,6 +16,18 @@ errors, and server-side callers.
   postcondition classifiers, command serialization, proof facts, and other
   low-level authority that must remain runtime-owned
 
+#### Scenario: Strategy planning view is added
+- **WHEN** a strategy planning procedure is implemented
+- **THEN** it composes planning evidence from bounded runtime/read ports into a
+  service-owned projection
+- **AND** normal output excludes host, port, state, session, raw command, and
+  debug transport details
+- **AND** planning candidates remain read-only evidence and are not promoted to
+  approved movement, attack, war, or send authority
+- **AND** other-owner contact, proximity, ranking, and action legality preserve
+  relationship-unproven semantics unless official relationship, team, war, or
+  suzerain evidence proves stronger labels
+
 #### Scenario: Transitional facade-only procedure remains
 - **WHEN** a current facade-only read leaf is retained while the native service
   shape is being corrected

@@ -33,6 +33,8 @@ export {
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7ReadinessCurrentUnavailableError,
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
+  Civ7StrategyFrontSummaryUnavailableError,
+  Civ7StrategyFrontSummaryUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
@@ -47,6 +49,7 @@ export {
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
+  type Civ7StrategyFrontSummaryUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
 } from "./errors";
 export {
@@ -154,6 +157,29 @@ export type {
 } from "./modules/readiness/contract";
 export { readinessRouter } from "./modules/readiness/router";
 export { readinessCurrentProcedure } from "./modules/readiness/procedures/current";
+export {
+  Civ7StrategyContract,
+  Civ7StrategyFrontSummaryContract,
+  Civ7StrategyFrontSummaryInputSchema,
+  Civ7StrategyFrontSummaryInputStandardSchema,
+  Civ7StrategyFrontSummaryNextStepSchema,
+  Civ7StrategyFrontPointOfInterestSchema,
+  Civ7StrategyFrontSummaryResultSchema,
+  Civ7StrategyFrontSummaryResultStandardSchema,
+  Civ7StrategyFrontSourceStatusSchema,
+  Civ7StrategyFrontTargetCandidateSchema,
+  Civ7StrategyObservedOwnerSchema,
+  Civ7StrategyRelationshipClassificationSchema,
+  Civ7StrategyRelationshipLabelPolicySchema,
+} from "./modules/strategy/contract";
+export type {
+  Civ7StrategyContract as Civ7StrategyContractType,
+  Civ7StrategyFrontSummaryContract as Civ7StrategyFrontSummaryContractType,
+  Civ7StrategyFrontSummaryInput,
+  Civ7StrategyFrontSummaryResult,
+} from "./modules/strategy/contract";
+export { strategyRouter } from "./modules/strategy/router";
+export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
 export {
   Civ7UnitContract,
   Civ7UnitTargetActionContract,

@@ -118,6 +118,11 @@ adding more read-only facade shells.
     either decompose lower-level Tuner/probe resources first or move semantic
     summary behavior into the control-oRPC service owner. See
     `workstream/world-runtime-resource-boundary.md`.
+  - [x] 5.4.4 Record `strategy.frontSummary` as a service-owned planning
+    composition over target-candidate and battlefield-scan runtime/read ports.
+    The service owns the normal projection, next-step wording, raw-output
+    exclusion, and relationship-unproven policy; no strategy catalog, action
+    authority, runtime proof, or parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -151,6 +156,11 @@ adding more read-only facade shells.
     direct-control proof classifiers, validator summaries, and
     postcondition/no-repeat authority procedure-local; shared
     validator/postcondition middleware remains pending.
+  - [x] 5.5.9 Seed `strategy.frontSummary` as a native service-owned planning
+    procedure that composes target-candidate and battlefield-scan evidence into
+    neutral front planning output without adding same-shaped read wrappers,
+    operation sends, strategy catalogs, relationship labels beyond official
+    evidence, or runtime/live proof claims.
 
 ## 6. Native Policy Layering
 

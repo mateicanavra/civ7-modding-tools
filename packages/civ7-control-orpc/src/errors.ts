@@ -56,6 +56,28 @@ export class Civ7AttentionCurrentUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7StrategyFrontSummaryUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("strategy.frontSummary"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7StrategyFrontSummaryUnavailableErrorData = Static<
+  typeof Civ7StrategyFrontSummaryUnavailableErrorDataSchema
+>;
+
+export class Civ7StrategyFrontSummaryUnavailableError extends ORPCTaggedError(
+  "Civ7StrategyFrontSummaryUnavailableError",
+  {
+    code: "STRATEGY_FRONT_SUMMARY_UNAVAILABLE",
+    message: "Strategy front summary failed.",
+    schema: toStandardSchema(Civ7StrategyFrontSummaryUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -246,6 +268,7 @@ export const civ7ControlOrpcErrorMap = {
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
+  STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
 } satisfies EffectErrorMap;
 
