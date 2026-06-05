@@ -261,6 +261,36 @@ export class Civ7MutationReadinessUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7MutationProofBoundaryInvalidErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String(),
+    source: Type.Literal("mutation-proof-boundary"),
+    risk: Type.Literal("mutation"),
+    reason: Type.Union([
+      Type.Literal("missing-postcondition"),
+      Type.Literal("missing-no-repeat-boundary"),
+      Type.Literal("unverified-repeat-safe"),
+      Type.Literal("sent-unverified-without-do-not-repeat"),
+      Type.Literal("sent-guarded-without-do-not-repeat"),
+    ]),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7MutationProofBoundaryInvalidErrorData = Static<
+  typeof Civ7MutationProofBoundaryInvalidErrorDataSchema
+>;
+
+export class Civ7MutationProofBoundaryInvalidError extends ORPCTaggedError(
+  "Civ7MutationProofBoundaryInvalidError",
+  {
+    code: "MUTATION_PROOF_BOUNDARY_INVALID",
+    message: "Mutation output violated the proof/no-repeat boundary.",
+    schema: toStandardSchema(Civ7MutationProofBoundaryInvalidErrorDataSchema),
+    status: 500,
+  },
+) {}
+
 export const Civ7ProductionChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.production.choice.request"),
@@ -330,6 +360,7 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
+  MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,

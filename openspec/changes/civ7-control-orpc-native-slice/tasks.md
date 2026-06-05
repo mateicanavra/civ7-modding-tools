@@ -339,6 +339,12 @@ adding more read-only facade shells.
     turn-completion runtime authority and source-owned turn-completion
     proof/no-repeat semantics; keep live runtime proof and shared
     validator/postcondition middleware pending.
+  - [x] 6.3.12 Promote a shared native oRPC/effect-oRPC mutation proof
+    boundary middleware that inspects procedure outputs after handlers run,
+    rejects missing postcondition/no-repeat envelopes, and refuses
+    unverified or pending-runtime-proof outputs that would appear repeat-safe.
+    Keep validator-first middleware, telemetry sinks, runtime proof, and
+    parent Task 6.x acceptance pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for

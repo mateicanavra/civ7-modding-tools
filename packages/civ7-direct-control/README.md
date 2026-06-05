@@ -78,7 +78,6 @@ if (canSkip.valid) {
   await requestCiv7UnitOperation(
     { unitId, operationType: "SKIP_TURN" },
     {},
-    { approved: true, reason: "disposable smoke test" },
   );
 }
 ```
@@ -93,13 +92,14 @@ First-class wrappers now cover:
   Tuner health, turn-complete status/actions;
 - map reads: summary, one-plot snapshots, bounded grids, visibility summaries,
   player/unit/city summaries, and targeted `GameInfo` rows;
-- approved actions: Autoplay configure/start/stop, disposable reveal, and
+- mutating actions: Autoplay configure/start/stop, disposable reveal, and
   validator-backed Unit/City/Player operation/command requests;
 - catalog/type support: TypeBox schema exports, static catalog generation,
   runtime catalog generation, and official-resource capability scanning.
 
-Mutating wrappers require explicit approval. Replay is not automatic after a
-failed mutation, and reveal requires `disposableSession` approval.
+Mutating wrappers run validator-first and report postcondition/no-repeat
+evidence. Replay is not automatic after a failed or unverified mutation, and
+reveal remains constrained to disposable-session callers.
 
 Autoplay start may omit `--turns`; the package sets native return/observe
 players when it can infer them and clears a prior pause before starting. Stop
