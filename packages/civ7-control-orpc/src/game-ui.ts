@@ -9,6 +9,13 @@ import {
   installCiv7IntelligenceBridge,
   type Civ7IntelligenceBridge,
 } from "./bridge/intelligence-bridge";
+import {
+  getCiv7GameUiPlayNotificationView,
+  getCiv7GameUiReadyCityView,
+  getCiv7GameUiReadyUnitView,
+  getCiv7GameUiTurnCompletionStatus,
+  type Civ7GameUiAttentionTarget,
+} from "./game-ui-attention";
 import type {
   Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcPlayableStatusResult,
@@ -16,7 +23,7 @@ import type {
 
 type Civ7GameUiNotifications = NonNullable<
   NonNullable<Civ7GameUiNotificationDismissalTarget["Game"]>["Notifications"]
->;
+> & NonNullable<NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"]>;
 
 type RuntimeProbe<T> = Readonly<
   | { ok: true; value: T }
@@ -33,12 +40,16 @@ export type Civ7GameUiRuntimeTarget = {
     isInLoading?: () => boolean;
     getGameLoadingState?: () => number;
     notifyUIReady?: () => void;
+    Player?: Civ7GameUiAttentionTarget["UI"] extends infer UI
+      ? UI extends { Player?: infer Player } ? Player : never
+      : never;
   };
   UIGameLoadingState?: Record<string, number>;
   GameContext?: {
     localPlayerID?: number;
     localObserverID?: number;
     hasRequestedPause?: () => boolean;
+    hasSentTurnComplete?: () => boolean;
   };
   Game?: {
     turn?: number;
@@ -80,6 +91,7 @@ export type Civ7GameUiRuntimeTarget = {
   Configuration?: {
     getGame?: () => { skipStartButton?: boolean };
   };
+  canEndTurn?: () => boolean;
 };
 
 export type Civ7GameUiControllerOptions = Readonly<{
@@ -113,6 +125,8 @@ export function createCiv7GameUiControllerContextFactory(
     directControl,
     endpointDefaults: { timeoutMs: options.timeoutMs ?? 1_000 },
     controller: {
+      supportedReadProcedures:
+        gameUiSupportedReadProcedures(options.target),
       supportedMutationProcedures:
         gameUiSupportedMutationProcedures(options.target),
     },
@@ -125,7 +139,7 @@ function createCiv7GameUiDirectControlFacade(
 ): Civ7ControlOrpcDirectControlFacade {
   const unsupported = async (): Promise<never> => {
     throw new Error(
-      "Civ7 game UI controller runtime port is not implemented for this procedure.",
+      "Civ7 game UI controller dependency is not implemented for this procedure.",
     );
   };
 
@@ -142,12 +156,18 @@ function createCiv7GameUiDirectControlFacade(
     requestCiv7UnitTargetAction: unsupported,
     requestCiv7TurnComplete: unsupported,
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
-    getCiv7PlayNotificationView: unsupported,
+    getCiv7PlayNotificationView: async (options) =>
+      await getCiv7GameUiPlayNotificationView({
+        maxNotifications: options?.maxNotifications,
+      }, target),
     getCiv7BattlefieldScan: unsupported,
-    getCiv7ReadyUnitView: unsupported,
-    getCiv7ReadyCityView: unsupported,
+    getCiv7ReadyUnitView: async (input) =>
+      await getCiv7GameUiReadyUnitView(input, target),
+    getCiv7ReadyCityView: async (input) =>
+      await getCiv7GameUiReadyCityView(input, target),
     getCiv7TargetCandidates: unsupported,
-    getCiv7TurnCompletionStatus: unsupported,
+    getCiv7TurnCompletionStatus: async () =>
+      await getCiv7GameUiTurnCompletionStatus(target),
   };
 }
 
@@ -196,6 +216,18 @@ function gameUiSupportedMutationProcedures(
   return [];
 }
 
+function gameUiSupportedReadProcedures(
+  target: Civ7GameUiRuntimeTarget,
+): readonly string[] {
+  if (
+    gameUiControllerMutationProof(target) != null
+    && gameUiAttentionReadAvailable(target)
+  ) {
+    return ["attention.current"];
+  }
+  return [];
+}
+
 function gameUiNotificationDismissalAvailable(
   target: Civ7GameUiRuntimeTarget,
 ): boolean {
@@ -207,6 +239,13 @@ function gameUiNotificationDismissalAvailable(
       || typeof manager?.dismiss === "function"
       || typeof manager?.onDismiss === "function"
     );
+}
+
+function gameUiAttentionReadAvailable(target: Civ7GameUiRuntimeTarget): boolean {
+  return typeof target.Game?.Notifications?.getIdsForPlayer === "function"
+    && typeof target.Game?.Notifications?.find === "function"
+    && typeof target.UI?.Player?.getFirstReadyUnit === "function"
+    && isControllerPlayerId(target.GameContext?.localPlayerID);
 }
 
 function gameUiSnapshot(target: Civ7GameUiRuntimeTarget) {

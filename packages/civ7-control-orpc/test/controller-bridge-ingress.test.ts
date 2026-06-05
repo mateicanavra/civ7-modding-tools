@@ -1820,6 +1820,10 @@ function cleanNotificationViewResult(): any {
       nextDecision: null,
       decisionQueue: [],
     },
+    limits: {
+      maxNotifications: 25,
+      truncated: false,
+    },
   };
 }
 

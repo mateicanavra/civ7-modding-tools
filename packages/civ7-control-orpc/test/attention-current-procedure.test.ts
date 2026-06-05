@@ -278,6 +278,49 @@ describe("attention.current control-oRPC procedure", () => {
     ]);
   });
 
+  test("does not report clean attention when notification coverage is truncated", async () => {
+    const fake = fakeContext({
+      playableStatus: playableStatusResult(),
+      notifications: {
+        ...cleanNotificationViewResult(),
+        limits: {
+          maxNotifications: 1,
+          truncated: true,
+        },
+      },
+      turnCompletion: turnCompletionStatusResult({
+        canEndTurn: { ok: true, value: false },
+      }),
+      readyUnit: emptyReadyUnitViewResult(),
+      readyCity: emptyReadyCityViewResult(),
+    });
+
+    const result = await call(Civ7ControlOrpcRouter.attention.current, {
+      maxNotifications: 1,
+    }, {
+      context: fake.context,
+    });
+
+    expect(result.summary).toMatchObject({
+      blockerCount: 0,
+      decisionCount: 0,
+      readyActorCount: 0,
+      nextStepCount: 1,
+    });
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "observe",
+        source: "attention",
+        label:
+          "Notification coverage is truncated; inspect more attention evidence before concluding there are no blockers.",
+      },
+    ]);
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
+    expect(result.nextSteps.map((step) => step.label)).not.toContain(
+      "No current blockers found.",
+    );
+  });
+
   test("does not recommend end turn from notifications alone", async () => {
     const unitId = { owner: 0, id: 458_752, type: 26 };
     const fake = fakeContext({

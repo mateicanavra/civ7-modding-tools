@@ -627,7 +627,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **THEN** the context may execute the service-owned
   `notifications.dismiss.request` procedure through the existing in-process
   router and native mutation approval/readiness/proof procedure middleware
-- **AND** the game-safe direct-control runtime subpath executes against
+- **AND** the game UI notification-dismissal access path executes against
   ambient `Game.Notifications`, `NotificationModel`, `GameContext`, and
   notification queue evidence without tuner socket/session command
   serialization
@@ -645,6 +645,36 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   state, command, rawCommand, session, and tuner payloads
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, other mutation runtime
+  ports, play-thread action, and full `7.3` implementation remain pending
+
+#### Scenario: Game UI controller supports current attention reads
+- **WHEN** the game-scoped controller context exposes notification, turn, and
+  official first-ready-unit attention read APIs
+- **THEN** the context may execute the service-owned `attention.current`
+  procedure through the existing in-process router
+- **AND** the control-oRPC game UI controller adapter reads ambient
+  `Game.Notifications`, turn, end-turn blocker, and first-ready-unit evidence
+  as controller context/dependency input without adding a direct-control
+  game-UI attention subpath
+- **AND** the game-UI context lists `attention.current` as a supported read
+  only when controller proof plus notification and first-ready-unit APIs are
+  available
+- **AND** first-ready-unit evidence may project as ready-unit source coverage,
+  but selected-unit ids are only hints and MUST NOT become ready-unit blockers
+- **AND** ready-city source reads remain `skipped-unsupported` in game UI
+  context until an official ready-city source exists; selected-city ids and
+  notification target ids are only hints and MUST NOT become ready-city
+  blockers
+- **AND** `attention.current` does not recommend `end-turn` without ready actor
+  source coverage
+- **AND** truncated notification coverage is marked in the controller read
+  dependency result and projects as incomplete attention evidence rather than an
+  unqualified no-blocker conclusion
+- **AND** normal bridge/service output remains semantic and omits raw host,
+  port, state, command, rawCommand, session, tuner payloads, and direct-control
+  socket details
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, broader read/mutation
   ports, play-thread action, and full `7.3` implementation remain pending
 
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics

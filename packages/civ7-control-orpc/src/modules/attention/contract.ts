@@ -25,6 +25,7 @@ export type Civ7AttentionCurrentInput = Static<
 export const Civ7AttentionSourceReadStatusSchema = Type.Union([
   Type.Literal("read"),
   Type.Literal("skipped-not-playable"),
+  Type.Literal("skipped-unsupported"),
 ]);
 
 export const Civ7AttentionTurnCompletionSchema = Type.Object(

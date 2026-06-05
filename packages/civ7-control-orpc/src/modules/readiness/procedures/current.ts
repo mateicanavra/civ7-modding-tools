@@ -38,7 +38,7 @@ function readinessCurrentResult(
   return {
     playable: status.playable,
     readiness: status.readiness,
-    capability: readinessCapability(status),
+    capability: readinessCapability(status, context),
     sources: {
       gameUi: {
         inGame: probeValue(status.appUi.snapshot.ui.inGame),
@@ -52,7 +52,7 @@ function readinessCurrentResult(
     },
     controller: readinessControllerSummary(context),
     errorCount: status.errors.length,
-    nextSteps: readinessNextSteps(status),
+    nextSteps: readinessNextSteps(status, context),
   };
 }
 
@@ -78,6 +78,7 @@ function readinessControllerSummary(
 
 function readinessCapability(
   status: Civ7ControlOrpcPlayableStatusResult,
+  context: Civ7ControlOrpcContext,
 ): Civ7ReadinessCurrentResult["capability"] {
   if (status.playable) {
     return {
@@ -89,6 +90,14 @@ function readinessCapability(
 
   switch (status.readiness) {
     case "app-ui-game":
+      if (supportsAttentionCurrent(context)) {
+        return {
+          canObserve: true,
+          canMutate: false,
+          reason:
+            "The game UI controller can read supported attention; broad runtime mutation remains unavailable.",
+        };
+      }
       return {
         canObserve: false,
         canMutate: false,
@@ -124,8 +133,12 @@ function readinessCapability(
 
 function readinessNextSteps(
   status: Civ7ControlOrpcPlayableStatusResult,
+  context: Civ7ControlOrpcContext,
 ): Civ7ReadinessCurrentResult["nextSteps"] {
-  if (status.playable) {
+  if (
+    status.playable
+    || (status.readiness === "app-ui-game" && supportsAttentionCurrent(context))
+  ) {
     return [{
       kind: "read-attention",
       source: "readiness.current",
@@ -166,6 +179,11 @@ function readinessNextSteps(
         label: "Inspect Civ7 runtime readiness before continuing.",
       }];
   }
+}
+
+function supportsAttentionCurrent(context: Civ7ControlOrpcContext): boolean {
+  return context.controller?.supportedReadProcedures?.includes("attention.current")
+    === true;
 }
 
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | null {

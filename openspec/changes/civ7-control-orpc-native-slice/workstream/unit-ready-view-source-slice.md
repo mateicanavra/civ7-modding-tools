@@ -7,8 +7,9 @@ Historical note: this is transitional proof of native in-process oRPC
 mechanics, not a template for future facade-only read wrappers.
 The control-oRPC `unit.ready.view` leaf has since been removed. Current
 ready-unit service behavior is owned by `attention.current`, which consumes the
-direct-control ready-unit runtime port from typed context. The direct-control
-ready-unit atom and facade method remain available as low-level runtime ports.
+direct-control ready-unit source evidence from typed context. The
+direct-control ready-unit atom and facade method remain historical source
+evidence owners, not templates for new semantic runtime ports.
 
 ## Scope
 

@@ -79,14 +79,14 @@ outcome. The workstream is rebaselined around this order:
      state, Tuner snapshot, or runtime error details.
    - The historical `notifications.view` facade leaf has been burned down;
      current notification, decision, and blocker service behavior is composed
-     by `attention.current` through the direct-control notification runtime
-     port.
+     by `attention.current` through service-owned projection over
+     direct-control notification source evidence.
    - The historical `unit.ready.view` facade leaf has been burned down; current
-     ready-unit service behavior is composed by `attention.current` through the
-     direct-control ready-unit runtime port.
+     ready-unit service behavior is composed by `attention.current` through
+     service-owned projection over direct-control ready-unit source evidence.
    - The historical `city.ready.view` facade leaf has been burned down; current
-     ready-city service behavior is composed by `attention.current` through the
-     direct-control ready-city runtime port.
+     ready-city service behavior is composed by `attention.current` through
+     service-owned projection over direct-control ready-city source evidence.
    - No further facade-only leaves should be added.
    - The next implementation work should move real service behavior and
      composition into native oRPC procedure modules while direct-control keeps
