@@ -412,6 +412,15 @@ adding more read-only facade shells.
     output, preserve the existing direct-control operation validation path for
     read-only mode, leave `game play build-unit` outside this slice, and keep
     live runtime proof pending.
+  - [x] 7.1.6 Route `civ7 game play respond-diplomacy --send` through the
+    in-process `decisions.diplomacy.response.request` server-side client under
+    the `decisions` router. Keep endpoint flags and approval reason as context
+    construction, emit the semantic diplomacy response projection for send
+    output with direct-control acted/local-player evidence rather than treating
+    `--player-id` as send authority, preserve the existing direct-control
+    player-operation validation path for read-only mode, leave
+    `game play respond-first-meet` outside this slice, and keep live runtime
+    proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -537,3 +546,6 @@ adding more read-only facade shells.
 - [x] 8.28 Run focused CLI production tests, `check:cli`, `test:cli:play`,
   relevant OpenSpec strict validates, and diff hygiene for the CLI
   build-production send migration slice.
+- [x] 8.29 Run focused CLI diplomacy response tests, `check:cli`,
+  `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
+  the CLI diplomacy response send migration slice.

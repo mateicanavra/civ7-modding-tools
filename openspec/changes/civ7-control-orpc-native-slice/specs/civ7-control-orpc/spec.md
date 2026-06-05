@@ -276,6 +276,31 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   caller migration reconciles that convenience command
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI diplomacy response send uses native decision procedure
+- **WHEN** `game play respond-diplomacy --send` requests an approved diplomacy
+  response
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process
+  `decisions.diplomacy.response.request` server-side client under the
+  `decisions` router
+- **AND** the procedure's approval, readiness, direct-control diplomacy
+  response port, diplomacy postcondition projection, and no-repeat policy
+  remain authoritative for the send
+- **AND** the send result uses direct-control source evidence for the acted
+  local player rather than treating the caller validation `--player-id` as send
+  authority
+- **AND** the normal JSON result is the semantic diplomacy response procedure
+  projection without raw command/session/state/Tuner details, UI closeout
+  payloads, diplomacy state internals, direct-control runtime payloads, or
+  legacy `verified`
+- **AND** the read-only `game play respond-diplomacy` validation path remains
+  direct-control player-operation validation until a separate accepted service
+  read exists
+- **AND** `game play respond-first-meet` remains outside this slice until a
+  separate first-meet service procedure exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: In-game controller bridge preflight is recorded
 - **WHEN** the in-game controller bridge is planned before source
   implementation
@@ -391,6 +416,9 @@ boundaries.
   notification identity rather than direct-control UI toggles
 - **AND** its normal output projects semantic status, validation summary,
   postcondition summary, and next steps
+- **AND** its normal output uses direct-control source evidence for the acted
+  player rather than echoing caller validation identity when runtime sends use
+  the local player
 - **AND** it excludes endpoint, session, state, raw command, payload,
   notification internals, UI closeout internals, and legacy `verified` details
   from caller-facing input and output

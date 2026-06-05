@@ -77,6 +77,25 @@ describe("decisions.diplomacy.response.request control-oRPC procedure", () => {
     expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
   });
 
+  test("projects source-owned acted player evidence instead of caller validation player", async () => {
+    const input = {
+      ...diplomacyInput,
+      playerId: 2,
+    };
+    const fake = fakeContext(diplomacyResponseResult("diplomacy-blocker-cleared", {
+      playerId: 0,
+    }));
+
+    const result = await call(
+      Civ7ControlOrpcRouter.decisions.diplomacy.response.request,
+      input,
+      { context: fake.context },
+    );
+
+    expect(fake.calls.request[0]?.input).toEqual(input);
+    expect(result.playerId).toBe(0);
+  });
+
   test("keeps sent no-state-change diplomacy responses no-repeat guarded", async () => {
     const fake = fakeContext(diplomacyResponseResult("no-state-change", {
       afterValid: true,
@@ -314,6 +333,7 @@ function fakeContext(
 function diplomacyResponseResult(
   classification: Civ7ControlOrpcDiplomacyResponseResult["postcondition"]["classification"],
   options: Partial<{
+    playerId: number;
     sent: boolean;
     beforeValid: boolean;
     afterValid: boolean;
@@ -322,6 +342,7 @@ function diplomacyResponseResult(
 ): Civ7ControlOrpcDiplomacyResponseResult {
   const sent = options.sent ?? classification !== "not-sent";
   return {
+    playerId: options.playerId ?? diplomacyInput.playerId,
     before: {} as Civ7ControlOrpcDiplomacyResponseResult["before"],
     beforeValidation: {
       valid: options.beforeValid ?? classification !== "not-sent",
