@@ -79,6 +79,7 @@ export const Civ7DecisionsDiplomacyResponsePostconditionClassificationSchema =
 export const Civ7DecisionsProgressionChoicePostconditionClassificationSchema =
   Type.Union([
     Type.Literal("not-sent"),
+    Type.Literal("pending-runtime-proof"),
     Type.Literal("turn-unblocked"),
     Type.Literal("technology-choice-cleared"),
     Type.Literal("technology-choice-transitioned"),
@@ -127,7 +128,12 @@ export const Civ7DecisionsDiplomacyResponseValidationSummarySchema =
 export const Civ7DecisionsProgressionChoiceEvidenceSummarySchema = Type.Object(
   {
     beforeBlockerPresent: Type.Boolean(),
-    afterBlockerPresent: Type.Boolean(),
+    afterReadStatus: Type.Union([
+      Type.Literal("read"),
+      Type.Literal("failed"),
+      Type.Literal("skipped-not-sent"),
+    ]),
+    afterBlockerPresent: Type.Union([Type.Boolean(), Type.Null()]),
     canEndTurnAfter: Type.Union([Type.Boolean(), Type.Null()]),
   },
   { additionalProperties: false },

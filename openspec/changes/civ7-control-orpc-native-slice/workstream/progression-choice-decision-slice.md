@@ -37,6 +37,8 @@ The service procedure owns:
   closeout request;
 - semantic projection to sent status, evidence summary, postcondition summary,
   and next steps;
+- no-repeat guarded pending-runtime-proof projection when a sent closeout cannot
+  complete the post-send notification read;
 - bounded tagged error projection for direct-control runtime-port failures.
 
 Direct-control remains the source authority for:
@@ -84,7 +86,10 @@ remains pending for any future live mutation closure claim.
 ## Residual Risk
 
 The service procedure performs one before and one after notification read around
-the direct-control closeout request. It does not claim bounded live polling or
-runtime certainty. Sticky blocker and state-changed-blocker-still-live paths
-remain no-repeat guarded and require fresh attention/progression evidence before
-another attempt.
+the direct-control closeout request when a closeout is sent. It does not claim
+bounded live polling or runtime certainty. If the closeout was sent but the
+post-send read fails, the caller receives `sent-unverified` with
+`pending-runtime-proof` confidence and a do-not-repeat next step. Sticky
+blocker and state-changed-blocker-still-live paths also remain no-repeat
+guarded and require fresh attention/progression evidence before another
+attempt.

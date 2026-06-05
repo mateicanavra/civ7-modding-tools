@@ -32,6 +32,19 @@ type ProgressionChoiceCloseoutResult =
 type ApprovedCiv7ControlOrpcContext = Civ7ControlOrpcContext & Readonly<{
   approval: NonNullable<Civ7ControlOrpcContext["approval"]>;
 }>;
+type ProgressionChoicePostRead =
+  | Readonly<{
+      status: "read";
+      view: Civ7ControlOrpcPlayNotificationViewResult;
+    }>
+  | Readonly<{
+      status: "failed";
+      view: null;
+    }>
+  | Readonly<{
+      status: "skipped-not-sent";
+      view: null;
+    }>;
 
 const decisionsProgressionChoiceRequestWithApproval =
   civ7ControlOrpcImplementer.decisions.progression.choice.request.use(
@@ -56,9 +69,7 @@ export const decisionsProgressionChoiceRequestProcedure =
         const result = await requestProgressionChoice(input, {
           context,
         });
-        const after = await context.directControl.getCiv7PlayNotificationView(
-          context.endpointDefaults,
-        );
+        const after = await readAfterProgressionChoice(context, result);
         return progressionChoiceResult(input, result, before, after);
       },
       catch: () =>
@@ -105,7 +116,7 @@ function progressionChoiceResult(
   input: Civ7DecisionsProgressionChoiceInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
-  after: Civ7ControlOrpcPlayNotificationViewResult,
+  after: ProgressionChoicePostRead,
 ): Civ7DecisionsProgressionChoiceResult {
   const postcondition = progressionChoicePostconditionSummary(
     input,
@@ -129,8 +140,13 @@ function progressionChoiceResult(
     status,
     evidence: {
       beforeBlockerPresent: progressionBlockerPresent(input.kind, before),
-      afterBlockerPresent: progressionBlockerPresent(input.kind, after),
-      canEndTurnAfter: booleanProbeValue(after.canEndTurn),
+      afterReadStatus: after.status,
+      afterBlockerPresent: after.view == null
+        ? null
+        : progressionBlockerPresent(input.kind, after.view),
+      canEndTurnAfter: after.view == null
+        ? null
+        : booleanProbeValue(after.view.canEndTurn),
     },
     postcondition,
     nextSteps: civ7MutationNextSteps({
@@ -148,7 +164,7 @@ function progressionChoicePostconditionSummary(
   input: Civ7DecisionsProgressionChoiceInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
-  after: Civ7ControlOrpcPlayNotificationViewResult,
+  after: ProgressionChoicePostRead,
 ): Civ7DecisionsProgressionChoiceResult["postcondition"] {
   if (!result.sent) {
     return {
@@ -161,9 +177,20 @@ function progressionChoicePostconditionSummary(
     };
   }
 
+  if (after.view == null) {
+    return {
+      classification: "pending-runtime-proof",
+      reason: "The progression choice closeout was sent, but the post-send notification read failed; do not repeat until fresh attention evidence is available.",
+      outcome: "unknown",
+      confidence: "pending-runtime-proof",
+      confirmed: false,
+      noRepeatAfterUnverified: true,
+    };
+  }
+
   const postcondition = input.kind === "technology"
-    ? technologyChoicePostcondition(before, after)
-    : cultureChoicePostcondition(before, after);
+    ? technologyChoicePostcondition(before, after.view)
+    : cultureChoicePostcondition(before, after.view);
   const outcome = progressionChoiceOutcome(postcondition.classification);
   const confidence: Civ7MutationProofConfidence = postcondition.verified
     ? "confirmed"
@@ -193,11 +220,31 @@ function progressionChoiceOutcome(
     case "technology-state-changed-blocker-still-live":
     case "culture-state-changed-blocker-still-live":
       return "still-blocked";
+    case "pending-runtime-proof":
+      return "unknown";
     case "not-sent":
       return "not-sent";
     case "technology-choice-sticky-blocker":
     case "culture-choice-sticky-blocker":
       return "no-state-change";
+  }
+}
+
+async function readAfterProgressionChoice(
+  context: Civ7ControlOrpcContext,
+  result: ProgressionChoiceCloseoutResult,
+): Promise<ProgressionChoicePostRead> {
+  if (!result.sent) return { status: "skipped-not-sent", view: null };
+
+  try {
+    return {
+      status: "read",
+      view: await context.directControl.getCiv7PlayNotificationView(
+        context.endpointDefaults,
+      ),
+    };
+  } catch {
+    return { status: "failed", view: null };
   }
 }
 

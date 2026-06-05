@@ -229,6 +229,10 @@ adding more read-only facade shells.
     classification into semantic output without exposing raw
     command/session/payload/App UI closeout details or claiming runtime/live
     proof.
+  - [x] 5.5.13 Guard `decisions.progression.choice.request` post-send
+    notification read failures as sent-unverified pending runtime proof with
+    no-repeat next steps, instead of surfacing a generic unavailable error after
+    mutation authority may have been used.
 
 ## 6. Native Policy Layering
 
@@ -303,6 +307,9 @@ adding more read-only facade shells.
     direct-control technology/culture closeout runtime ports and source-owned
     progression choice proof/no-repeat semantics; keep shared
     validator/postcondition middleware pending.
+  - [x] 6.3.9 Preserve progression choice no-repeat proof boundaries when
+    after-read evidence is unavailable after a sent closeout; keep live
+    runtime proof and shared postcondition middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -446,3 +453,6 @@ adding more read-only facade shells.
   tests, control-oRPC package test/check/build, focused direct-control
   progression proof-policy tests, relevant OpenSpec strict validates, and diff
   hygiene for the progression choice decision procedure slice.
+- [x] 8.21 Run focused control-oRPC progression choice procedure regression,
+  package check, relevant OpenSpec strict validates, and diff hygiene for the
+  progression choice after-read proof-boundary correction.

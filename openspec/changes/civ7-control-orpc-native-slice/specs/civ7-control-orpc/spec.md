@@ -93,6 +93,8 @@ errors, and server-side callers.
   next-step schemas for that service procedure
 - **AND** the input admits only progression kind, player ID, node ID, and
   optional notification identity
+- **AND** the evidence summary distinguishes read, failed, and skipped-not-sent
+  post-read states without inventing after-state facts
 - **AND** endpoint, session, state, raw command, payload, App UI activation
   toggles, and direct-control closeout internals remain excluded from procedure
   input and normal output
@@ -329,6 +331,8 @@ boundaries.
   notification identity rather than direct-control App UI toggles
 - **AND** its normal output projects semantic status, evidence summary,
   postcondition summary, and next steps
+- **AND** if the closeout was sent but the post-send notification read fails,
+  the result remains no-repeat guarded as sent-unverified pending runtime proof
 - **AND** it excludes endpoint, session, state, raw command, payload, App UI
   closeout internals, and legacy proof booleans from caller-facing input and
   output

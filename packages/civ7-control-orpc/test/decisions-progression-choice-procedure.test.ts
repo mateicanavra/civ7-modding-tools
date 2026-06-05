@@ -74,6 +74,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
       status: "sent-confirmed",
       evidence: {
         beforeBlockerPresent: true,
+        afterReadStatus: "read",
         afterBlockerPresent: false,
         canEndTurnAfter: true,
       },
@@ -174,6 +175,12 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
     expect(result).toMatchObject({
       sent: false,
       status: "not-sent",
+      evidence: {
+        beforeBlockerPresent: true,
+        afterReadStatus: "skipped-not-sent",
+        afterBlockerPresent: null,
+        canEndTurnAfter: null,
+      },
       postcondition: {
         classification: "not-sent",
         outcome: "not-sent",
@@ -187,6 +194,51 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
       source: "decisions.progression.choice.request",
       label: "Inspect current attention and progression choice state before attempting another progression request.",
     }]);
+    expect(fake.calls.views).toHaveLength(1);
+  });
+
+  test("keeps sent progression choices no-repeat guarded when the post-read fails", async () => {
+    const before = notificationView("NOTIFICATION_CHOOSE_TECH", {
+      currentResearching: probe(10),
+      targetNode: probe(20),
+    });
+    const fake = fakeContext({
+      views: [
+        before,
+        new Error("Timed out waiting for Civ7 tuner response to CMD:65535:Game.turn"),
+      ],
+      technologyResult: progressionCloseoutResult("technology"),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.decisions.progression.choice.request,
+      technologyInput,
+      { context: fake.context },
+    );
+
+    expect(result).toMatchObject({
+      sent: true,
+      status: "sent-unverified",
+      evidence: {
+        beforeBlockerPresent: true,
+        afterReadStatus: "failed",
+        afterBlockerPresent: null,
+        canEndTurnAfter: null,
+      },
+      postcondition: {
+        classification: "pending-runtime-proof",
+        outcome: "unknown",
+        confidence: "pending-runtime-proof",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+    });
+    expect(result.nextSteps).toEqual([{
+      kind: "do-not-repeat",
+      source: "decisions.progression.choice.request",
+      label: "Do not repeat this progression choice request until fresh attention and progression evidence is read.",
+    }]);
+    expect(JSON.stringify(result)).not.toContain("CMD");
   });
 
   test("requires approval before readiness, reads, or request execution", async () => {
@@ -328,7 +380,7 @@ describe("decisions.progression.choice.request control-oRPC procedure", () => {
 });
 
 function fakeContext(options: Readonly<{
-  views: readonly Civ7ControlOrpcPlayNotificationViewResult[];
+  views: readonly (Civ7ControlOrpcPlayNotificationViewResult | Error)[];
   technologyResult?: Civ7ControlOrpcTechnologyChoiceCloseoutResult;
   cultureResult?: Civ7ControlOrpcCultureChoiceCloseoutResult;
   approved?: boolean;
@@ -384,7 +436,9 @@ function fakeContext(options: Readonly<{
         },
         getCiv7PlayNotificationView: async (endpointDefaults) => {
           calls.views.push(endpointDefaults);
-          return views.shift() ?? cleanView();
+          const view = views.shift() ?? cleanView();
+          if (view instanceof Error) throw view;
+          return view;
         },
         requestCiv7TechnologyChoiceCloseout: async (
           input,
