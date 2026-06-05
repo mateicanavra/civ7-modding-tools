@@ -15,10 +15,13 @@
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",
+    "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
     "@deck.gl/core": "^9.0.43",
     "@deck.gl/layers": "^9.0.43",
     "@deck.gl/react": "^9.0.43",
+    "@orpc/client": "^1.14.4",
+    "@orpc/server": "^1.14.4",
     "@rjsf/core": "^6.2.5",
     "@rjsf/utils": "^6.2.5",
     "@rjsf/validator-ajv8": "^6.2.5",

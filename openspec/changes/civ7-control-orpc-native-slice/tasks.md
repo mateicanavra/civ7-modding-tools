@@ -231,8 +231,12 @@ adding more read-only facade shells.
     `readiness.current` server-side client. Keep CLI endpoint flags as context
     construction, emit the semantic readiness projection, and keep raw
     direct-control playable-status internals out of normal status output.
-- [ ] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
+- [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
+  - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
+    Node middleware with native `RPCHandler`, add a browser `RPCLink` client,
+    and route the live footer readiness member through
+    `readiness.current` while preserving existing map/autoplay REST fields.
 - [ ] 7.3 Add in-game controller bridge only as serialized ingress into the
   in-process router.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented

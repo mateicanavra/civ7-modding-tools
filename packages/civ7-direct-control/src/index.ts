@@ -41,6 +41,7 @@ import {
 import { executeSessionCommandWithReconnect } from "./session/reconnect.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
+  logTextFromSnapshot,
   snapshotFile,
   waitForFreshLogMarkers,
   type FileSnapshot,
@@ -398,6 +399,7 @@ export { createCiv7ControlRequestId } from "./session/request-id.js";
 export { selectCiv7TunerState } from "./session/state.js";
 export {
   DEFAULT_CIV7_SCRIPTING_LOG,
+  logTextFromSnapshot,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
