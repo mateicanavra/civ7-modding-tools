@@ -1086,6 +1086,13 @@ export type {
   Civ7PopulationPlacementPostconditionClassification,
   Civ7PopulationPlacementPostconditionSnapshot,
 } from "./play/operations/population-postconditions.js";
+export {
+  populationPlacementProofOutcome,
+  populationPlacementProofPostcondition,
+} from "./proof/population-placement-proof-policy.js";
+export type {
+  Civ7PopulationPlacementProofSource,
+} from "./proof/population-placement-proof-policy.js";
 export type {
   Civ7ProductionPostcondition,
   Civ7ProductionPostconditionClassification,

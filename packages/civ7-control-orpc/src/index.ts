@@ -33,6 +33,8 @@ export {
   Civ7NotificationDismissalUnavailableErrorDataSchema,
   Civ7PlayerSummaryUnavailableError,
   Civ7PlayerSummaryUnavailableErrorDataSchema,
+  Civ7PopulationPlacementUnavailableError,
+  Civ7PopulationPlacementUnavailableErrorDataSchema,
   Civ7ProductionChoiceUnavailableError,
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7NotificationViewUnavailableError,
@@ -55,6 +57,7 @@ export {
   type Civ7MutationApprovalRequiredErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7PlayerSummaryUnavailableErrorData,
+  type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7NotificationViewUnavailableErrorData,
   type Civ7ReadyCityViewUnavailableErrorData,
@@ -87,6 +90,19 @@ export { attentionRouter } from "./modules/attention/router";
 export { attentionCurrentProcedure } from "./modules/attention/procedures/current";
 export {
   Civ7CityContract,
+  Civ7CityPopulationPlacementContract,
+  Civ7CityPopulationPlacementInputSchema,
+  Civ7CityPopulationPlacementInputStandardSchema,
+  Civ7CityPopulationPlacementModeSchema,
+  Civ7CityPopulationPlacementNextStepSchema,
+  Civ7CityPopulationPlacementPostconditionClassificationSchema,
+  Civ7CityPopulationPlacementPostconditionSummarySchema,
+  Civ7CityPopulationPlacementProofOutcomeSchema,
+  Civ7CityPopulationPlacementRequestStatusSchema,
+  Civ7CityPopulationPlacementResultSchema,
+  Civ7CityPopulationPlacementResultStandardSchema,
+  Civ7CityPopulationPlacementSummarySchema,
+  Civ7CityPopulationPlacementValidationSummarySchema,
   Civ7CityProductionChoiceContract,
   Civ7CityProductionChoiceInputStandardSchema,
   Civ7CityProductionChoiceNextStepSchema,
@@ -105,12 +121,16 @@ export {
 } from "./modules/city/contract";
 export type {
   Civ7CityContract as Civ7CityContractType,
+  Civ7CityPopulationPlacementContract as Civ7CityPopulationPlacementContractType,
+  Civ7CityPopulationPlacementInput,
+  Civ7CityPopulationPlacementResult,
   Civ7CityProductionChoiceContract as Civ7CityProductionChoiceContractType,
   Civ7CityProductionChoiceResult,
   Civ7CityReadyViewContract as Civ7CityReadyViewContractType,
   Civ7CitySummaryContract as Civ7CitySummaryContractType,
 } from "./modules/city/contract";
 export { cityRouter } from "./modules/city/router";
+export { cityPopulationPlaceRequestProcedure } from "./modules/city/procedures/population-place-request";
 export { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/production-choice-request";
 export { cityReadyViewProcedure } from "./modules/city/procedures/ready-view";
 export { citySummaryReadProcedure } from "./modules/city/procedures/summary-read";

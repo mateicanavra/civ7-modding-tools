@@ -239,6 +239,27 @@ export class Civ7ProductionChoiceUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7PopulationPlacementUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("city.population.place.request"),
+    source: Type.Literal("direct-control-facade"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7PopulationPlacementUnavailableErrorData = Static<
+  typeof Civ7PopulationPlacementUnavailableErrorDataSchema
+>;
+
+export class Civ7PopulationPlacementUnavailableError extends ORPCTaggedError(
+  "Civ7PopulationPlacementUnavailableError",
+  {
+    code: "POPULATION_PLACEMENT_UNAVAILABLE",
+    message: "Direct-control population placement request failed.",
+    schema: toStandardSchema(Civ7PopulationPlacementUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7ReadyUnitViewUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.ready.view"),
@@ -290,6 +311,7 @@ export const civ7ControlOrpcErrorMap = {
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   PLAYER_SUMMARY_UNAVAILABLE: Civ7PlayerSummaryUnavailableError,
   NOTIFICATION_VIEW_UNAVAILABLE: Civ7NotificationViewUnavailableError,
+  POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READY_CITY_VIEW_UNAVAILABLE: Civ7ReadyCityViewUnavailableError,
   READY_UNIT_VIEW_UNAVAILABLE: Civ7ReadyUnitViewUnavailableError,
