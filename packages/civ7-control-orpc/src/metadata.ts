@@ -7,8 +7,7 @@ export type Civ7ControlOrpcProcedureMeta = Readonly<{
     | "city"
     | "map"
     | "player"
-    | "strategy"
-    | "operations";
+    | "strategy";
   procedureKey?: string;
   proofBoundary?: "local-package-test" | "pending-runtime-proof" | "runtime-proof";
   risk?: "read-only" | "runtime-support" | "mutation";

@@ -4,15 +4,15 @@ import { Effect } from "effect";
 import type { Civ7ControlOrpcUnitTargetActionResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
-import type { Civ7OperationsUnitTargetActionResult } from "../contract";
+import type { Civ7UnitTargetActionResult } from "../contract";
 
-const operationsUnitTargetActionRequestWithApproval =
-  civ7ControlOrpcImplementer.operations.unit.target.action.request.use(
+const unitTargetActionRequestWithApproval =
+  civ7ControlOrpcImplementer.unit.target.action.request.use(
     civ7MutationApprovalMiddleware,
   );
 
-export const operationsUnitTargetActionRequestProcedure =
-  operationsUnitTargetActionRequestWithApproval.effect(function* ({
+export const unitTargetActionRequestProcedure =
+  unitTargetActionRequestWithApproval.effect(function* ({
     context,
     errors,
     input,
@@ -38,7 +38,7 @@ export const operationsUnitTargetActionRequestProcedure =
 
 function unitTargetActionResult(
   result: Civ7ControlOrpcUnitTargetActionResult,
-): Civ7OperationsUnitTargetActionResult {
+): Civ7UnitTargetActionResult {
   const postcondition = unitTargetActionPostconditionSummary(result);
   const status = unitTargetActionStatus(result, postcondition);
 
@@ -73,7 +73,7 @@ function acceptedCandidate(
 
 function unitTargetActionPostconditionSummary(
   result: Civ7ControlOrpcUnitTargetActionResult,
-): Civ7OperationsUnitTargetActionResult["postcondition"] {
+): Civ7UnitTargetActionResult["postcondition"] {
   const verification = result.verification;
   const requestedLocation = {
     x: verification?.requestedLocation.x ?? result.target.x,
@@ -103,10 +103,10 @@ function unitTargetActionPostconditionSummary(
 
   return {
     classification: postcondition.classification as
-      Civ7OperationsUnitTargetActionResult["postcondition"]["classification"],
+      Civ7UnitTargetActionResult["postcondition"]["classification"],
     reason: postcondition.reason,
     outcome: postcondition.outcome as
-      Civ7OperationsUnitTargetActionResult["postcondition"]["outcome"],
+      Civ7UnitTargetActionResult["postcondition"]["outcome"],
     confidence,
     confirmed: confidence === "confirmed",
     noRepeatAfterUnverified: postcondition.noRepeatAfterUnverified,
@@ -119,8 +119,8 @@ function unitTargetActionPostconditionSummary(
 
 function unitTargetActionStatus(
   result: Civ7ControlOrpcUnitTargetActionResult,
-  postcondition: Civ7OperationsUnitTargetActionResult["postcondition"],
-): Civ7OperationsUnitTargetActionResult["status"] {
+  postcondition: Civ7UnitTargetActionResult["postcondition"],
+): Civ7UnitTargetActionResult["status"] {
   if (!result.sent) return "not-sent";
   if (postcondition.confidence !== "confirmed") return "sent-unverified";
   if (postcondition.noRepeatAfterUnverified) return "sent-guarded";
@@ -128,9 +128,9 @@ function unitTargetActionStatus(
 }
 
 function unitTargetActionNextSteps(
-  status: Civ7OperationsUnitTargetActionResult["status"],
-  postcondition: Civ7OperationsUnitTargetActionResult["postcondition"],
-): Civ7OperationsUnitTargetActionResult["nextSteps"] {
+  status: Civ7UnitTargetActionResult["status"],
+  postcondition: Civ7UnitTargetActionResult["postcondition"],
+): Civ7UnitTargetActionResult["nextSteps"] {
   if (status === "not-sent") {
     return [{
       kind: "inspect-unit-action",

@@ -19,7 +19,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     const fake = fakeContext(unitTargetActionResult("target-reached"));
 
     const result = await call(
-      Civ7ControlOrpcRouter.operations.unit.target.action.request,
+      Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
       { context: fake.context },
     );
@@ -85,7 +85,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     const fake = fakeContext(unitTargetActionResult("target-reached"));
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
-    const result = await client.operations.unit.target.action.request({
+    const result = await client.unit.target.action.request({
       unitId,
       ...target,
     });
@@ -100,7 +100,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     });
 
     await expect(
-      call(Civ7ControlOrpcRouter.operations.unit.target.action.request, {
+      call(Civ7ControlOrpcRouter.unit.target.action.request, {
         unitId,
         ...target,
       }, { context: fake.context }),
@@ -125,7 +125,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     });
 
     await expect(
-      call(Civ7ControlOrpcRouter.operations.unit.target.action.request, {
+      call(Civ7ControlOrpcRouter.unit.target.action.request, {
         unitId,
         ...target,
       }, { context: fake.context }),
@@ -145,7 +145,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     const fake = fakeContext(unitTargetActionResult("path-shortfall"));
 
     const result = await call(
-      Civ7ControlOrpcRouter.operations.unit.target.action.request,
+      Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
       { context: fake.context },
     );
@@ -173,7 +173,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     const fake = fakeContext(unitTargetActionResult("no-state-change"));
 
     const result = await call(
-      Civ7ControlOrpcRouter.operations.unit.target.action.request,
+      Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
       { context: fake.context },
     );
@@ -202,7 +202,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     }));
 
     const result = await call(
-      Civ7ControlOrpcRouter.operations.unit.target.action.request,
+      Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
       { context: fake.context },
     );
@@ -228,7 +228,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     }));
 
     const result = await call(
-      Civ7ControlOrpcRouter.operations.unit.target.action.request,
+      Civ7ControlOrpcRouter.unit.target.action.request,
       { unitId, ...target },
       { context: fake.context },
     );
@@ -274,7 +274,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
 
       await expect(
         call(
-          Civ7ControlOrpcRouter.operations.unit.target.action.request,
+          Civ7ControlOrpcRouter.unit.target.action.request,
           input as never,
           { context: fake.context },
         ),
@@ -289,7 +289,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     ));
 
     await expect(
-      call(Civ7ControlOrpcRouter.operations.unit.target.action.request, {
+      call(Civ7ControlOrpcRouter.unit.target.action.request, {
         unitId,
         ...target,
       }, { context: fake.context }),
@@ -303,7 +303,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     });
 
     try {
-      await call(Civ7ControlOrpcRouter.operations.unit.target.action.request, {
+      await call(Civ7ControlOrpcRouter.unit.target.action.request, {
         unitId,
         ...target,
       }, { context: fake.context });
@@ -318,21 +318,21 @@ describe("unit.target.action.request control-oRPC procedure", () => {
 
   test("publishes a contract-first unit.target.action.request leaf", () => {
     expect(
-      Civ7ControlOrpcContract.operations.unit.target.action.request["~orpc"],
+      Civ7ControlOrpcContract.unit.target.action.request["~orpc"],
     ).toMatchObject({
       meta: {
-        family: "operations",
+        family: "unit",
         procedureKey: "unit.target.action.request",
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
     });
     expect(
-      Civ7ControlOrpcContract.operations.unit.target.action.request["~orpc"]
+      Civ7ControlOrpcContract.unit.target.action.request["~orpc"]
         .errorMap,
     ).toHaveProperty("MUTATION_APPROVAL_REQUIRED");
     expect(
-      Civ7ControlOrpcContract.operations.unit.target.action.request["~orpc"]
+      Civ7ControlOrpcContract.unit.target.action.request["~orpc"]
         .errorMap,
     ).toHaveProperty("UNIT_TARGET_ACTION_UNAVAILABLE");
     expect(Civ7MutationApprovalRequiredError.code).toBe(

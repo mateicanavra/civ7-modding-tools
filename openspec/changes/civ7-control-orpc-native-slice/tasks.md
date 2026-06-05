@@ -106,10 +106,10 @@ adding more read-only facade shells.
     write-capable procedure leaf, with oRPC context approval and semantic
     notification dismissal proof projection over the direct-control
     notification dismissal runtime port.
-  - [x] 5.5.5 Seed `unit.target.action.request` as a single native
-    `operations` procedure leaf, with oRPC context approval and semantic
-    unit-target proof projection over the direct-control unit-target runtime
-    port; do not add a broad operations catalog.
+  - [x] 5.5.5 Seed `unit.target.action.request` as a single native unit
+    procedure leaf, with oRPC context approval and semantic unit-target proof
+    projection over the direct-control unit-target runtime port; do not add a
+    broad operations catalog or an operations entry router.
   - [x] 5.5.6 Seed `city.population.place.request` as a single native city
     procedure leaf that owns the semantic assign-worker versus expand-city
     caller shape over direct-control player-operation/city-command runtime

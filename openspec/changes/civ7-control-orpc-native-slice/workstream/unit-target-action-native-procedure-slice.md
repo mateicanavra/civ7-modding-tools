@@ -5,12 +5,12 @@ Date: 2026-06-04.
 
 ## Purpose
 
-Seed a native `packages/civ7-control-orpc` `operations` procedure for an
+Seed a native `packages/civ7-control-orpc` unit-domain procedure for an
 approved unit target action without copying direct-control procedure-core wiring
 or adding transport edges. `unit.target.action.request` owns the caller-facing
-oRPC service contract for a unit target action while `@civ7/direct-control`
-remains the runtime, validator, command-serialization, bounded verification,
-postcondition, and proof/no-repeat owner.
+oRPC service contract for a unit target action under the unit router while
+`@civ7/direct-control` remains the runtime, validator, command-serialization,
+bounded verification, postcondition, and proof/no-repeat owner.
 
 ## Write Set
 
@@ -21,9 +21,9 @@ postcondition, and proof/no-repeat owner.
 - `packages/civ7-control-orpc/src/metadata.ts`
 - `packages/civ7-control-orpc/src/router.ts`
 - `packages/civ7-control-orpc/src/index.ts`
-- `packages/civ7-control-orpc/src/modules/operations/contract.ts`
-- `packages/civ7-control-orpc/src/modules/operations/router.ts`
-- `packages/civ7-control-orpc/src/modules/operations/procedures/unit-target-action-request.ts`
+- `packages/civ7-control-orpc/src/modules/unit/contract.ts`
+- `packages/civ7-control-orpc/src/modules/unit/router.ts`
+- `packages/civ7-control-orpc/src/modules/unit/procedures/target-action-request.ts`
 - `packages/civ7-control-orpc/test/unit-target-action-procedure.test.ts`
 - this OpenSpec record and `tasks.md`
 
@@ -31,7 +31,7 @@ postcondition, and proof/no-repeat owner.
 
 `unit.target.action.request`:
 
-- lives under the semantic `operations` router family and keeps
+- lives under the semantic `unit` router family and keeps
   `procedureKey: "unit.target.action.request"` as the stable capability key;
 - accepts only the source-owned unit target input shape: `unitId`, `x`, and
   `y`;
@@ -55,7 +55,7 @@ postcondition, and proof/no-repeat owner.
 
 - no direct-control procedure-core, middleware runner, context composer,
   router registry, correlation bus, error bus, or transport adapter;
-- no broad `operations` catalog beyond this single concrete procedure leaf;
+- no broad operations catalog or operations entry router;
 - no setup, restart, autoplay, turn-send, reveal-map, generic operation, or
   read-only facade-wrapper claim;
 - no shared validator/postcondition middleware promotion in this slice;
@@ -90,8 +90,8 @@ These are local package proofs only.
 ## Residual Risk
 
 Shared validator-first, postcondition/proof, safe-error, and correlation
-middleware remain pending. This slice adds another concrete mutation procedure
-and a semantic `operations` module, but it does not claim a broad operations
-catalog or parent Task 5.x/6.x acceptance. Runtime proof remains pending until
+middleware remain pending. This slice adds a concrete unit-domain mutation
+procedure, but it does not claim a broad operation catalog, operations entry
+router, or parent Task 5.x/6.x acceptance. Runtime proof remains pending until
 a support-owned real-game verification slice explicitly exercises the procedure
 against a responsive Civ7 session.

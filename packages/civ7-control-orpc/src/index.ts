@@ -183,28 +183,6 @@ export { notificationsRouter } from "./modules/notifications/router";
 export { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
 export { notificationsViewProcedure } from "./modules/notifications/procedures/view";
 export {
-  Civ7OperationsContract,
-  Civ7OperationsUnitTargetActionContract,
-  Civ7OperationsUnitTargetActionFamilySchema,
-  Civ7OperationsUnitTargetActionInputStandardSchema,
-  Civ7OperationsUnitTargetActionNextStepSchema,
-  Civ7OperationsUnitTargetActionPostconditionSummarySchema,
-  Civ7OperationsUnitTargetActionProofOutcomeSchema,
-  Civ7OperationsUnitTargetActionRequestStatusSchema,
-  Civ7OperationsUnitTargetActionResultSchema,
-  Civ7OperationsUnitTargetActionResultStandardSchema,
-  Civ7OperationsUnitTargetActionSelectedSummarySchema,
-  Civ7OperationsUnitTargetActionValidationSummarySchema,
-  Civ7OperationsUnitTargetActionVerificationClassificationSchema,
-} from "./modules/operations/contract";
-export type {
-  Civ7OperationsContract as Civ7OperationsContractType,
-  Civ7OperationsUnitTargetActionContract as Civ7OperationsUnitTargetActionContractType,
-  Civ7OperationsUnitTargetActionResult,
-} from "./modules/operations/contract";
-export { operationsRouter } from "./modules/operations/router";
-export { operationsUnitTargetActionRequestProcedure } from "./modules/operations/procedures/unit-target-action-request";
-export {
   Civ7RuntimeContract,
   Civ7RuntimePlayableStatusContract,
   Civ7RuntimePlayableStatusInputStandardSchema,
@@ -224,13 +202,28 @@ export {
   Civ7UnitSummaryContract,
   Civ7UnitSummaryInputStandardSchema,
   Civ7UnitSummaryResultStandardSchema,
+  Civ7UnitTargetActionContract,
+  Civ7UnitTargetActionFamilySchema,
+  Civ7UnitTargetActionInputStandardSchema,
+  Civ7UnitTargetActionNextStepSchema,
+  Civ7UnitTargetActionPostconditionSummarySchema,
+  Civ7UnitTargetActionProofOutcomeSchema,
+  Civ7UnitTargetActionRequestStatusSchema,
+  Civ7UnitTargetActionResultSchema,
+  Civ7UnitTargetActionResultStandardSchema,
+  Civ7UnitTargetActionSelectedSummarySchema,
+  Civ7UnitTargetActionValidationSummarySchema,
+  Civ7UnitTargetActionVerificationClassificationSchema,
 } from "./modules/unit/contract";
 export type {
   Civ7UnitContract as Civ7UnitContractType,
   Civ7UnitReadyViewContract as Civ7UnitReadyViewContractType,
   Civ7UnitSummaryContract as Civ7UnitSummaryContractType,
+  Civ7UnitTargetActionContract as Civ7UnitTargetActionContractType,
+  Civ7UnitTargetActionResult,
 } from "./modules/unit/contract";
 export { unitRouter } from "./modules/unit/router";
 export { unitReadyViewProcedure } from "./modules/unit/procedures/ready-view";
 export { unitSummaryReadProcedure } from "./modules/unit/procedures/summary-read";
+export { unitTargetActionRequestProcedure } from "./modules/unit/procedures/target-action-request";
 export { toStandardSchema } from "./typebox-standard-schema";

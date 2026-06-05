@@ -65,7 +65,7 @@ Service ownership:
 - classify blockers, decisions, actions, and next steps for normal
   player-agent output;
 - keep non-blocking observations out of blocker slots;
-- route mutation candidates to approved operation procedures, never to raw
+- route mutation candidates to approved domain procedures, never to raw
   command text.
 
 ### `world`
@@ -124,18 +124,20 @@ Service ownership:
 - require approval and no-repeat proof policy before any send;
 - do not infer repeat safety from legacy `verified` booleans.
 
-### `operations`
+### Domain-Owned Mutations
 
-Represents approved mutations that send a gameplay action.
+Represents approved gameplay sends owned by the domain whose state and
+language define the action. Operations are verbs/capabilities, not a semantic
+entry family.
 
 Source evidence:
 
-- unit target action;
-- notification dismissal;
+- unit target action under `unit`;
+- notification dismissal under the notification/attention mutation domain;
 - setup/restart/begin actions;
 - autoplay actions;
 - turn completion sends;
-- future movement or city/unit operations.
+- future movement or city/unit sends under their owning domains.
 
 Service ownership:
 
@@ -172,16 +174,16 @@ Service ownership:
 | `runtime.tuner.health`, `runtime.app.ui.snapshot`, `runtime.gameinfo.rows` | `debug`, with readiness summaries consumed by `readiness` |
 | `runtime.turn.completion.status` | `attention` and `readiness` |
 | `notifications.view` | `attention` |
-| `notifications.dismiss.request` | `operations` |
+| `notifications.dismiss.request` | notification domain mutation; semantic target still needs rebaseline |
 | `unit.ready.view`, `city.ready.view` | `attention` |
 | `unit.summary.read`, `city.summary.read`, `player.summary.read` | `world` |
-| `unit.move.preview` | `world` read plus future `operations` validation evidence |
-| `unit.target.action.request` | `operations` |
+| `unit.move.preview` | `world` read plus future unit validation evidence |
+| `unit.target.action.request` | `unit` |
 | `city.production.choice.request` | `decisions` |
 | `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `world` |
 | `strategy.*` planning reads | `strategy` |
 | narrative, diplomacy, culture, technology, population closeouts | `decisions` |
-| setup, restart, autoplay, reveal-map, turn-send behavior | `operations` or `debug`, depending on approval/risk class |
+| setup, restart, autoplay, reveal-map, turn-send behavior | domain-owned mutation or `debug`, depending on approval/risk class |
 
 Existing `packages/civ7-control-orpc/src/modules/**` files may remain while
 the router is transitional. New implementation slices should not add another
@@ -198,7 +200,7 @@ modules or explicitly burns down an old wrapper.
 | `world` | Bounded world/actor state views for reasoning | map reads, visibility, plot/grid reads, player/city/unit summaries | `directControl`, `endpointDefaults`, `stateSelection`, relationship policy | relationship authority, bounded-read policy |
 | `strategy` | Planning/recommendation views without action authority | settlement, target candidates, battlefield, destination, progress/tradition reads | `directControl`, `endpointDefaults`, relationship policy, risk policy | relationship authority, projection separation |
 | `decisions` | Choice procedures that close blockers or select player options | production, culture, technology, narrative, diplomacy, population validators/postconditions/proof helpers | `directControl`, approval, risk policy, evidence sink, clock, correlation, logger | approval, validator-first, postcondition/proof, no-repeat |
-| `operations` | Approved gameplay sends with explicit pre/post proof | unit target, notification dismissal, setup/autoplay/turn/movement runtime ports and proof owners | `directControl`, approval, risk policy, evidence sink, clock, correlation, logger | approval, validator-first, postcondition/proof, no-repeat, readiness |
+| domain-owned mutations | Approved gameplay sends with explicit pre/post proof, placed under the owning domain router rather than an `operations` root | unit target, notification dismissal, setup/autoplay/turn/movement runtime ports and proof owners | `directControl`, approval, risk policy, evidence sink, clock, correlation, logger | approval, validator-first, postcondition/proof, no-repeat, readiness |
 | `debug` | Intentional diagnostics and support-only inspection | Tuner/App UI snapshots, GameInfo rows, capability catalog, root inspection, raw proof/debug projections | `directControl`, endpoint/state debug context, logger, correlation | safe error projection, debug projection separation |
 
 This matrix is preparatory evidence for Task 5.4, not acceptance of Task 5.4.
