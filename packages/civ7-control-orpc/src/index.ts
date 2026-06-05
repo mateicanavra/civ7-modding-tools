@@ -265,6 +265,7 @@ export {
   Civ7UnitContract,
   Civ7UnitTargetActionContract,
   Civ7UnitTargetActionFamilySchema,
+  Civ7UnitTargetActionInputSchema,
   Civ7UnitTargetActionInputStandardSchema,
   Civ7UnitTargetActionNextStepSchema,
   Civ7UnitTargetActionPostconditionSummarySchema,
@@ -279,6 +280,7 @@ export {
 export type {
   Civ7UnitContract as Civ7UnitContractType,
   Civ7UnitTargetActionContract as Civ7UnitTargetActionContractType,
+  Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResult,
 } from "./modules/unit/contract";
 export { unitRouter } from "./modules/unit/router";

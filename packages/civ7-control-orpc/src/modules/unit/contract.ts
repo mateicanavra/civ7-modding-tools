@@ -1,6 +1,3 @@
-import {
-  Civ7UnitTargetActionInputSchema,
-} from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 import { Type, type Static } from "typebox";
 
@@ -12,6 +9,18 @@ import {
   Civ7ControlOrpcMapLocationSchema,
 } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
+
+export const Civ7UnitTargetActionInputSchema = Type.Object(
+  {
+    unitId: Civ7ControlOrpcComponentIdSchema,
+    x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  },
+  { additionalProperties: false },
+);
+export type Civ7UnitTargetActionInput = Static<
+  typeof Civ7UnitTargetActionInputSchema
+>;
 
 export const Civ7UnitTargetActionInputStandardSchema = toStandardSchema(
   Civ7UnitTargetActionInputSchema,

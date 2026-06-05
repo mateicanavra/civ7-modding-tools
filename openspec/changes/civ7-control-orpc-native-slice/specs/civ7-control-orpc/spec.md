@@ -75,6 +75,17 @@ errors, and server-side callers.
   sends, validators, source postcondition classification, and no-repeat proof
   semantics consumed by the procedure
 
+#### Scenario: Unit target action service contract is offered
+- **WHEN** `unit.target.action.request` exposes its caller-facing contract
+- **THEN** control-oRPC owns the input schema for that service procedure
+- **AND** the input admits only the semantic unit target request shape: unit ID
+  plus bounded integer map coordinates
+- **AND** approval, endpoint, session, state, and raw command fields remain
+  excluded from procedure input
+- **AND** direct-control remains the runtime/proof owner for unit target action
+  sends, validators, source verification classification, and no-repeat proof
+  semantics consumed by the procedure
+
 #### Scenario: Strategy planning view is added
 - **WHEN** a strategy planning procedure is implemented
 - **THEN** it composes planning evidence from bounded runtime/read ports into a

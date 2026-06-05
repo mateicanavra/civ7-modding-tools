@@ -158,6 +158,9 @@ adding more read-only facade shells.
     normal postcondition classification schemas into control-oRPC service
     ownership while leaving direct-control production-choice runtime/proof
     helpers authoritative.
+  - [x] 5.4.12 Move `unit.target.action.request` caller-facing input schema
+    into control-oRPC service ownership while leaving direct-control unit
+    target action runtime/proof helpers authoritative.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -397,3 +400,7 @@ adding more read-only facade shells.
   control-oRPC package test/check/build, strict OpenSpec validates, city
   contract direct-control import scan, and diff hygiene for the production
   choice service contract ownership slice.
+- [x] 8.17 Run focused unit target action procedure/contract tests,
+  control-oRPC package test/check/build, strict OpenSpec validates, unit
+  contract direct-control import scan, and diff hygiene for the unit target
+  action service contract ownership slice.
