@@ -277,14 +277,14 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   caller migration reconciles that convenience command
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI diplomacy response send uses native decision procedure
+#### Scenario: CLI diplomacy response send uses native diplomacy procedure
 - **WHEN** `game play respond-diplomacy --send` requests an approved diplomacy
   response
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
   and approval reason
 - **AND** the send path calls the in-process
-  `decisions.diplomacy.response.request` server-side client under the
-  `decisions` router
+  `diplomacy.response.request` server-side client under the
+  `diplomacy` router
 - **AND** the procedure's approval, readiness, direct-control diplomacy
   response port, diplomacy postcondition projection, and no-repeat policy
   remain authoritative for the send
@@ -437,10 +437,11 @@ boundaries.
   not-sent paths remain no-repeat guarded
 
 #### Scenario: Diplomacy response request procedure is implemented
-- **WHEN** a diplomacy response decision procedure requests a player response
-- **THEN** it is currently offered under a transitional `decisions` router
-- **AND** that root placement is residual domain-hierarchy debt, not target
-  authority for future diplomacy service work
+- **WHEN** a diplomacy response procedure requests a player response
+- **THEN** it is offered under the `diplomacy` domain router as
+  `diplomacy.response.request`
+- **AND** the former generic `decisions.diplomacy` placement is burned down
+  rather than preserved as a compatibility path
 - **AND** it checks mutation approval and playable readiness before invoking
   direct-control runtime authority
 - **AND** it consumes direct-control diplomacy validators and proof helpers as

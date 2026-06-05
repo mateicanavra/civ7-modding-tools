@@ -187,7 +187,7 @@ Service ownership:
 | `city.production.choice.request` | `city` |
 | `progression.technology.choice.request`, `progression.culture.choice.request` | `progression` |
 | `decisions.narrative.choice.request` | residual debt; rehome under a `narrative` domain root |
-| `decisions.diplomacy.response.request` | residual debt; rehome under a `diplomacy` domain root |
+| `diplomacy.response.request` | `diplomacy` |
 | `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `map.summary.read` wrapper burned down; future `world` service must not treat direct-control summary envelopes as bare runtime ports |
 | `strategy.*` planning reads | `strategy` |
 | narrative, diplomacy, culture, technology, population closeouts | owning Civ domain, not a generic decisions/action root |

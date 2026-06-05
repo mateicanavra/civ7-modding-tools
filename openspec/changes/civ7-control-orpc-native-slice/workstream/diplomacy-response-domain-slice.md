@@ -1,39 +1,49 @@
-# Diplomacy Response Decision Procedure Slice
+# Diplomacy Response Domain Procedure Slice
 
 Status: implemented local source slice.
 Date: 2026-06-05.
 
 ## Purpose
 
-Seed `decisions.diplomacy.response.request` as a native service-owned decision
-procedure over the existing direct-control diplomacy response runtime/proof
-authority.
+Rehome the existing diplomacy response mutation from the generic
+`decisions.diplomacy.response.request` placement to the domain-owned
+`diplomacy.response.request` procedure over the existing direct-control
+diplomacy response runtime/proof authority.
 
-This advances the write-capable native procedure lane without adding a broad
-decisions catalog, direct-control procedure core, transport edge, caller-local
-command wiring, or live-game/runtime proof claim.
+This advances the write-capable native procedure lane and burns down the
+generic decisions root for diplomacy without adding a broad diplomacy catalog,
+direct-control procedure core, transport edge, caller-local command wiring, or
+live-game/runtime proof claim.
 
 ## Write Set
 
-- `packages/civ7-direct-control/src/index.ts`
-- `packages/civ7-control-orpc/src/dependencies/direct-control.ts`
+- `packages/civ7-control-orpc/src/contract.ts`
+- `packages/civ7-control-orpc/src/router.ts`
+- `packages/civ7-control-orpc/src/metadata.ts`
 - `packages/civ7-control-orpc/src/modules/decisions/contract.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/procedures/diplomacy-response-request.ts`
 - `packages/civ7-control-orpc/src/modules/decisions/router.ts`
+- `packages/civ7-control-orpc/src/modules/diplomacy/contract.ts`
+- `packages/civ7-control-orpc/src/modules/diplomacy/procedures/response-request.ts`
+- `packages/civ7-control-orpc/src/modules/diplomacy/router.ts`
 - `packages/civ7-control-orpc/src/errors.ts`
 - `packages/civ7-control-orpc/src/index.ts`
-- `packages/civ7-control-orpc/test/decisions-diplomacy-response-procedure.test.ts`
+- `packages/civ7-control-orpc/test/diplomacy-response-procedure.test.ts`
+- `packages/cli/src/commands/game/play/respond-diplomacy.ts`
+- `packages/cli/test/commands/game.play.diplomacy-response.test.ts`
 - `openspec/changes/civ7-control-orpc-native-slice/specs/civ7-control-orpc/spec.md`
 - `openspec/changes/civ7-control-orpc-native-slice/tasks.md`
+- `openspec/changes/civ7-control-orpc-native-slice/workstream/cli-diplomacy-response-orpc-send-slice.md`
 - `openspec/changes/civ7-control-orpc-native-slice/workstream/semantic-capability-hierarchy.md`
 - this workstream note
 
 ## Behavior Boundary
 
-`decisions.diplomacy.response.request`:
+`diplomacy.response.request`:
 
-- uses the native decisions router shape
-  `Civ7ControlOrpcRouter.decisions.diplomacy.response.request`;
+- uses the native diplomacy router shape
+  `Civ7ControlOrpcRouter.diplomacy.response.request`;
+- does not preserve a `Civ7ControlOrpcRouter.decisions.diplomacy` route or
+  `Civ7DecisionsDiplomacy*` public type surface;
 - reuses shared native mutation approval and playable-readiness middleware
   before direct-control runtime authority is invoked;
 - accepts semantic caller input: `playerId`, `actionId`, `responseType`, and
@@ -56,14 +66,16 @@ source-owned diplomacy postconditions may summarize as sent-confirmed.
 
 ## Non-Goals
 
-- no broad decisions catalog, operation router, direct-control procedure core,
+- no broad diplomacy catalog, operation router, direct-control procedure core,
   custom middleware/context/correlation/error wiring, or raw command tunnel;
 - no normal input for direct-control UI toggles such as `activateNotification`
   or `uiCloseout`;
-- no culture/technology closeout procedure; those still need source-owned
-  postcondition/proof policy before native decision exposure;
-- no CLI, Studio, RPCLink, OpenAPI, in-game bridge, transport, or
-  `Civ7IntelligenceBridge` implementation;
+- no narrative root rehome, culture/technology behavior change, or additional
+  closeout procedure;
+- no CLI behavior change beyond retargeting the existing
+  `respond-diplomacy --send` caller to the domain procedure; no Studio,
+  RPCLink, OpenAPI, in-game bridge, transport, or `Civ7IntelligenceBridge`
+  implementation;
 - no telemetry persistence, AI ingestion surface, normal debug projection, or
   broad validator/postcondition middleware promotion;
 - no runtime/live-game proof claim, play-thread action, or Task 5.x/6.x parent
@@ -90,10 +102,13 @@ Closure gates:
 
 - `bun run --cwd packages/civ7-direct-control test test/diplomacy-response-proof-policy.test.ts`
 - `bun run --cwd packages/civ7-direct-control build`
-- `bun run --cwd packages/civ7-control-orpc test test/decisions-diplomacy-response-procedure.test.ts`
+- `bun run --cwd packages/civ7-control-orpc test -- diplomacy-response-procedure.test.ts`
+- `bun run --cwd packages/cli test -- game.play.diplomacy-response.test.ts`
 - `bun run --cwd packages/civ7-control-orpc test`
 - `bun run --cwd packages/civ7-control-orpc check`
 - `bun run --cwd packages/civ7-control-orpc build`
+- `bun run check:cli`
+- `bun run test:cli:play`
 - `bun run openspec -- validate civ7-control-orpc-native-slice --strict`
 - `bun run openspec -- validate civ7-support-direct-control-modularization --strict`
 - `git diff --check`
@@ -103,6 +118,6 @@ Closure gates:
 This is local package proof only. It proves native service composition,
 middleware ordering, semantic projection, tagged error shape, and local
 no-repeat preservation. It does not prove live Civ7 diplomacy panel behavior,
-runtime Tuner responsiveness, bridge/transport behavior, full decisions-family
-coverage, shared validator/postcondition middleware, or parent Task 5.x/6.x
+runtime Tuner responsiveness, bridge/transport behavior, narrative root
+rehome, shared validator/postcondition middleware, or parent Task 5.x/6.x
 completion.

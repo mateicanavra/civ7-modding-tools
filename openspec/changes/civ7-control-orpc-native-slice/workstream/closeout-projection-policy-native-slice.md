@@ -22,7 +22,7 @@ procedure output.
 - `packages/civ7-control-orpc/src/policy/mutation-result.ts`
 - `packages/civ7-control-orpc/src/modules/notifications/procedures/dismiss-request.ts`
 - `packages/civ7-control-orpc/src/modules/decisions/procedures/narrative-choice-request.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/procedures/diplomacy-response-request.ts`
+- `packages/civ7-control-orpc/src/modules/diplomacy/procedures/response-request.ts`
 - `packages/civ7-control-orpc/src/modules/decisions/procedures/progression-choice-request.ts`
 - `packages/civ7-control-orpc/test/mutation-result-policy.test.ts`
 - this OpenSpec record, `tasks.md`, and `specs/civ7-control-orpc/spec.md`

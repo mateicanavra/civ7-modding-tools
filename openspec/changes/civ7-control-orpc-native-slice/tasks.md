@@ -139,11 +139,11 @@ adding more read-only facade shells.
     normal proof projection, raw-output exclusion, and no-repeat next steps;
     no direct-control procedure core, broad decisions catalog, runtime proof,
     or parent Task 5.x/6.x acceptance.
-  - [x] 5.4.6 Record `decisions.diplomacy.response.request` as a
-    service-owned decision boundary over direct-control diplomacy runtime,
+  - [x] 5.4.6 Record `diplomacy.response.request` as a
+    service-owned diplomacy boundary over direct-control diplomacy runtime,
     validator, and proof ports. The service owns the caller-facing semantic
     response shape, normal proof projection, raw-output exclusion, and
-    no-repeat next steps; direct-control-only UI toggles, broad decisions
+    no-repeat next steps; direct-control-only UI toggles, generic decisions
     catalogs, runtime proof, and parent Task 5.x/6.x acceptance remain out of
     scope.
   - [x] 5.4.7 Burn down root public exports of direct-control runtime-port
@@ -226,12 +226,12 @@ adding more read-only facade shells.
     operation sends, strategy catalogs, relationship labels beyond official
     evidence, or runtime/live proof claims.
   - [x] 5.5.10 Seed `decisions.narrative.choice.request` as a native
-    service-owned decision procedure that composes approval, playable
+    service-owned narrative procedure that composes approval, playable
     readiness, direct-control narrative request authority, and source-owned
     narrative proof classification into semantic output without exposing raw
     command/session/payload details or claiming runtime/live proof.
-  - [x] 5.5.11 Seed `decisions.diplomacy.response.request` as a native
-    service-owned decision procedure that composes approval, playable
+  - [x] 5.5.11 Seed `diplomacy.response.request` as a native
+    service-owned diplomacy procedure that composes approval, playable
     readiness, direct-control diplomacy response authority, and source-owned
     diplomacy proof classification into semantic output without exposing raw
     command/session/payload/UI-closeout details or claiming runtime/live proof.
@@ -285,7 +285,7 @@ adding more read-only facade shells.
     `decisions.narrative.choice.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.7 Reuse shared native approval middleware for
-    `decisions.diplomacy.response.request` while keeping validator-first and
+    `diplomacy.response.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.8 Reuse shared native approval middleware for
     `progression.technology.choice.request` and
@@ -316,7 +316,7 @@ adding more read-only facade shells.
     direct-control narrative request runtime port and project source-owned
     narrative proof/no-repeat semantics into normal output; keep shared
     validator/postcondition middleware pending.
-  - [x] 6.3.6 Compose `decisions.diplomacy.response.request` through the
+  - [x] 6.3.6 Compose `diplomacy.response.request` through the
     direct-control diplomacy response runtime port and project source-owned
     diplomacy proof/no-repeat semantics into normal output; keep shared
     validator/postcondition middleware pending.
@@ -370,7 +370,7 @@ adding more read-only facade shells.
     while keeping raw direct-control cause, command, session, and payload
     details out of public error data.
   - [x] 6.4.8 Use native effect-orpc tagged error constructors for
-    `decisions.diplomacy.response.request` direct-control runtime-port
+    `diplomacy.response.request` direct-control runtime-port
     failures while keeping raw direct-control cause, command, session, payload,
     and UI-closeout details out of public error data.
   - [x] 6.4.9 Use native effect-orpc tagged error constructors for progression
@@ -416,8 +416,8 @@ adding more read-only facade shells.
     read-only mode, leave `game play build-unit` outside this slice, and keep
     live runtime proof pending.
   - [x] 7.1.6 Route `civ7 game play respond-diplomacy --send` through the
-    in-process `decisions.diplomacy.response.request` server-side client under
-    the `decisions` router. Keep endpoint flags and approval reason as context
+    in-process `diplomacy.response.request` server-side client under
+    the `diplomacy` router. Keep endpoint flags and approval reason as context
     construction, emit the semantic diplomacy response projection for send
     output with direct-control acted/local-player evidence rather than treating
     `--player-id` as send authority, preserve the existing direct-control
@@ -481,7 +481,7 @@ adding more read-only facade shells.
   `decisions.narrative.choice.request` before closing that slice.
 - [x] 8.6 Run direct-control diplomacy proof, control-oRPC diplomacy response,
   package check/build, OpenSpec strict validation, and diff hygiene gates for
-  `decisions.diplomacy.response.request` before closing that slice.
+  `diplomacy.response.request` before closing that slice.
 - [x] 8.7 Run focused control-oRPC mutation projection policy and affected
   notification/narrative/diplomacy procedure tests, package check/build,
   strict OpenSpec validates, and diff hygiene when the shared closeout

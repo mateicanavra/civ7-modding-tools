@@ -3,8 +3,8 @@
 ## Scope
 
 Route `civ7 game play respond-diplomacy --send` through the native in-process
-`decisions.diplomacy.response.request` server-side client under the
-`decisions` router. The CLI remains the shell-facing command owner;
+`diplomacy.response.request` server-side client under the
+`diplomacy` router. The CLI remains the shell-facing command owner;
 `packages/civ7-control-orpc` owns the semantic diplomacy response send
 procedure; `@civ7/direct-control` remains the low-level runtime/proof port for
 official UI closeout behavior, validation, post-read evidence, and diplomacy
@@ -18,8 +18,8 @@ this slice because first-meet handling is a separate diplomacy capability.
 
 - `packages/civ7-direct-control/src/play/operations/diplomacy-request.ts`
 - `packages/civ7-direct-control/test/diplomacy-response.test.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/procedures/diplomacy-response-request.ts`
-- `packages/civ7-control-orpc/test/decisions-diplomacy-response-procedure.test.ts`
+- `packages/civ7-control-orpc/src/modules/diplomacy/procedures/response-request.ts`
+- `packages/civ7-control-orpc/test/diplomacy-response-procedure.test.ts`
 - `packages/cli/src/commands/game/play/respond-diplomacy.ts`
 - `packages/cli/test/commands/game.play.diplomacy-response.test.ts`
 - This OpenSpec scenario/task/workstream record
@@ -51,7 +51,7 @@ this slice because first-meet handling is a separate diplomacy capability.
 - Focused CLI diplomacy response tests prove the approved
   `respond-diplomacy --send` path reaches the existing direct-control official
   UI closeout runtime command through the in-process service client path,
-  emits semantic `decisions.diplomacy.response.request` output, and keeps raw
+  emits semantic `diplomacy.response.request` output, and keeps raw
   command/session/state, UI closeout payloads, runtime payloads, diplomacy
   internals, and legacy `verified` out of normal JSON.
 - Closure still requires relevant control-oRPC checks, `check:cli`,
