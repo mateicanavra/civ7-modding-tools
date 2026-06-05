@@ -25,11 +25,5 @@
 		<Row Tag="LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION">
 			<Text>Swooper Earthlike</Text>
 		</Row>
-		<Row Tag="LOC_MAP_COPY_OF_LIVE_GAME_NAME">
-			<Text>Copy of Live Game</Text>
-		</Row>
-		<Row Tag="LOC_MAP_COPY_OF_LIVE_GAME_DESCRIPTION">
-			<Text>Config and seed from the last Studio Run in Game request.</Text>
-		</Row>
 	</EnglishText>
 </Database>

@@ -25,11 +25,5 @@
 			Description="LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION"
 			SortIndex="900"
 		/>
-		<Row
-			File="{swooper-maps}/maps/copy-of-live-game.js"
-			Name="LOC_MAP_COPY_OF_LIVE_GAME_NAME"
-			Description="LOC_MAP_COPY_OF_LIVE_GAME_DESCRIPTION"
-			SortIndex="1900"
-		/>
 	</Maps>
 </Database>

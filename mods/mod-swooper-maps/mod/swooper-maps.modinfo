@@ -25,7 +25,6 @@
 					<Item>maps/shattered-ring.js</Item>
 					<Item>maps/sundered-archipelago.js</Item>
 					<Item>maps/swooper-earthlike.js</Item>
-					<Item>maps/copy-of-live-game.js</Item>
 				</ImportFiles>
 			</Actions>
 		</ActionGroup>
