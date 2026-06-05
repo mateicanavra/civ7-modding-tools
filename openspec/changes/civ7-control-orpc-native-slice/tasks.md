@@ -133,11 +133,11 @@ adding more read-only facade shells.
     The service owns the normal projection, next-step wording, raw-output
     exclusion, and relationship-unproven policy; no strategy catalog, action
     authority, runtime proof, or parent Task 5.x/6.x acceptance.
-  - [x] 5.4.5 Record `decisions.narrative.choice.request` as a service-owned
-    decision boundary over direct-control narrative runtime, validator, and
+  - [x] 5.4.5 Record `narrative.choice.request` as a service-owned
+    narrative boundary over direct-control narrative runtime, validator, and
     proof ports. The service owns the caller-facing semantic choice shape,
     normal proof projection, raw-output exclusion, and no-repeat next steps;
-    no direct-control procedure core, broad decisions catalog, runtime proof,
+    no direct-control procedure core, generic decisions root, runtime proof,
     or parent Task 5.x/6.x acceptance.
   - [x] 5.4.6 Record `diplomacy.response.request` as a
     service-owned diplomacy boundary over direct-control diplomacy runtime,
@@ -225,7 +225,7 @@ adding more read-only facade shells.
     neutral front planning output without adding same-shaped read wrappers,
     operation sends, strategy catalogs, relationship labels beyond official
     evidence, or runtime/live proof claims.
-  - [x] 5.5.10 Seed `decisions.narrative.choice.request` as a native
+  - [x] 5.5.10 Seed `narrative.choice.request` as a native
     service-owned narrative procedure that composes approval, playable
     readiness, direct-control narrative request authority, and source-owned
     narrative proof classification into semantic output without exposing raw
@@ -282,7 +282,7 @@ adding more read-only facade shells.
     `city.population.place.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.6 Reuse shared native approval middleware for
-    `decisions.narrative.choice.request` while keeping validator-first and
+    `narrative.choice.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.7 Reuse shared native approval middleware for
     `diplomacy.response.request` while keeping validator-first and
@@ -312,7 +312,7 @@ adding more read-only facade shells.
     direct-control validator-first player-operation/city-command runtime ports
     and project source-owned population-placement proof/no-repeat semantics
     into normal output; keep shared validator/postcondition middleware pending.
-  - [x] 6.3.5 Compose `decisions.narrative.choice.request` through the
+  - [x] 6.3.5 Compose `narrative.choice.request` through the
     direct-control narrative request runtime port and project source-owned
     narrative proof/no-repeat semantics into normal output; keep shared
     validator/postcondition middleware pending.
@@ -366,7 +366,7 @@ adding more read-only facade shells.
     `city.population.place.request` direct-control runtime-port failures while
     shared safe-error middleware remains pending.
   - [x] 6.4.7 Use native effect-orpc tagged error constructors for
-    `decisions.narrative.choice.request` direct-control runtime-port failures
+    `narrative.choice.request` direct-control runtime-port failures
     while keeping raw direct-control cause, command, session, and payload
     details out of public error data.
   - [x] 6.4.8 Use native effect-orpc tagged error constructors for
@@ -425,8 +425,8 @@ adding more read-only facade shells.
     `game play respond-first-meet` outside this slice, and keep live runtime
     proof pending.
   - [x] 7.1.7 Route `civ7 game play choose-narrative --send` through the
-    in-process `decisions.narrative.choice.request` server-side client under
-    the `decisions` router. Keep endpoint flags and approval reason as context
+    in-process `narrative.choice.request` server-side client under
+    the `narrative` router. Keep endpoint flags and approval reason as context
     construction, emit the semantic narrative choice projection for send output
     with direct-control acted/local-player evidence rather than treating
     `--player-id` as send authority, preserve the existing direct-control
@@ -476,9 +476,9 @@ adding more read-only facade shells.
   added.
 - [x] 8.4 Run CLI play tests/check when a CLI caller is routed through
   procedures.
-- [x] 8.5 Run direct-control narrative proof, control-oRPC narrative decision,
+- [x] 8.5 Run direct-control narrative proof, control-oRPC narrative,
   package check/build, OpenSpec strict validation, and diff hygiene gates for
-  `decisions.narrative.choice.request` before closing that slice.
+  `narrative.choice.request` before closing that slice.
 - [x] 8.6 Run direct-control diplomacy proof, control-oRPC diplomacy response,
   package check/build, OpenSpec strict validation, and diff hygiene gates for
   `diplomacy.response.request` before closing that slice.
@@ -561,6 +561,6 @@ adding more read-only facade shells.
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI diplomacy response send migration slice.
 - [x] 8.30 Run focused direct-control narrative request, control-oRPC
-  narrative decision, CLI narrative tests, `check:cli`, `test:cli:play`,
+  narrative, CLI narrative tests, `check:cli`, `test:cli:play`,
   relevant OpenSpec strict validates, and diff hygiene for the CLI narrative
   choice send migration slice.

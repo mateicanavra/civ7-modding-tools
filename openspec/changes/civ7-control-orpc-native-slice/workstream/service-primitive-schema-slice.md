@@ -50,7 +50,7 @@ service-contract slice separates them deliberately.
 
 ## Proof Collected
 
-- `bun run --cwd packages/civ7-control-orpc test test/primitive-schemas.test.ts test/attention-current-procedure.test.ts test/notification-dismissal-procedure.test.ts test/city-population-placement-procedure.test.ts test/strategy-front-summary-procedure.test.ts test/unit-target-action-procedure.test.ts test/decisions-narrative-choice-procedure.test.ts test/decisions-diplomacy-response-procedure.test.ts`
+- `bun run --cwd packages/civ7-control-orpc test test/primitive-schemas.test.ts test/attention-current-procedure.test.ts test/notification-dismissal-procedure.test.ts test/city-population-placement-procedure.test.ts test/strategy-front-summary-procedure.test.ts test/unit-target-action-procedure.test.ts test/narrative-choice-procedure.test.ts test/diplomacy-response-procedure.test.ts`
 - `bun run --cwd packages/civ7-control-orpc test`
 - `bun run --cwd packages/civ7-control-orpc check`
 - `bun run --cwd packages/civ7-control-orpc build`

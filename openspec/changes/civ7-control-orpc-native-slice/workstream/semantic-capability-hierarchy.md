@@ -186,7 +186,7 @@ Service ownership:
 | `unit.target.action.request` | `unit` |
 | `city.production.choice.request` | `city` |
 | `progression.technology.choice.request`, `progression.culture.choice.request` | `progression` |
-| `decisions.narrative.choice.request` | residual debt; rehome under a `narrative` domain root |
+| `narrative.choice.request` | `narrative` |
 | `diplomacy.response.request` | `diplomacy` |
 | `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `map.summary.read` wrapper burned down; future `world` service must not treat direct-control summary envelopes as bare runtime ports |
 | `strategy.*` planning reads | `strategy` |

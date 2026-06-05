@@ -124,7 +124,7 @@ export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
 
 export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("decisions.narrative.choice.request"),
+    procedureKey: Type.Literal("narrative.choice.request"),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },

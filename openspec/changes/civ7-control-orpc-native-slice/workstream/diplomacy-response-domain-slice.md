@@ -20,8 +20,6 @@ live-game/runtime proof claim.
 - `packages/civ7-control-orpc/src/contract.ts`
 - `packages/civ7-control-orpc/src/router.ts`
 - `packages/civ7-control-orpc/src/metadata.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/contract.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/router.ts`
 - `packages/civ7-control-orpc/src/modules/diplomacy/contract.ts`
 - `packages/civ7-control-orpc/src/modules/diplomacy/procedures/response-request.ts`
 - `packages/civ7-control-orpc/src/modules/diplomacy/router.ts`

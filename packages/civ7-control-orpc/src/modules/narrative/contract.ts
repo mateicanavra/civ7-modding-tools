@@ -7,7 +7,7 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7DecisionsNarrativeChoiceInputSchema = Type.Object(
+export const Civ7NarrativeChoiceInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     targetType: Type.String({ minLength: 1 }),
@@ -16,11 +16,11 @@ export const Civ7DecisionsNarrativeChoiceInputSchema = Type.Object(
   },
   { additionalProperties: false },
 );
-export type Civ7DecisionsNarrativeChoiceInput = Static<
-  typeof Civ7DecisionsNarrativeChoiceInputSchema
+export type Civ7NarrativeChoiceInput = Static<
+  typeof Civ7NarrativeChoiceInputSchema
 >;
 
-export const Civ7DecisionsNarrativeChoicePostconditionClassificationSchema =
+export const Civ7NarrativeChoicePostconditionClassificationSchema =
   Type.Union([
     Type.Literal("not-sent"),
     Type.Literal("turn-unblocked"),
@@ -31,7 +31,7 @@ export const Civ7DecisionsNarrativeChoicePostconditionClassificationSchema =
     Type.Literal("missing-postcondition"),
   ]);
 
-export const Civ7DecisionsNarrativeChoiceProofOutcomeSchema = Type.Union([
+export const Civ7NarrativeChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("still-blocked"),
@@ -40,24 +40,24 @@ export const Civ7DecisionsNarrativeChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("stale"),
   Type.Literal("unknown"),
 ]);
-export const Civ7DecisionsNarrativeChoiceRequestStatusSchema = Type.Union([
+export const Civ7NarrativeChoiceRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-unverified"),
 ]);
-export const Civ7DecisionsNarrativeChoiceValidationSummarySchema = Type.Object(
+export const Civ7NarrativeChoiceValidationSummarySchema = Type.Object(
   {
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
   { additionalProperties: false },
 );
-export const Civ7DecisionsNarrativeChoicePostconditionSummarySchema =
+export const Civ7NarrativeChoicePostconditionSummarySchema =
   Type.Object(
     {
-      classification: Civ7DecisionsNarrativeChoicePostconditionClassificationSchema,
+      classification: Civ7NarrativeChoicePostconditionClassificationSchema,
       reason: Type.String(),
-      outcome: Civ7DecisionsNarrativeChoiceProofOutcomeSchema,
+      outcome: Civ7NarrativeChoiceProofOutcomeSchema,
       confidence: Type.Union([
         Type.Literal("confirmed"),
         Type.Literal("unverified"),
@@ -68,70 +68,66 @@ export const Civ7DecisionsNarrativeChoicePostconditionSummarySchema =
     },
     { additionalProperties: false },
   );
-export const Civ7DecisionsNarrativeChoiceNextStepSchema = Type.Object(
+export const Civ7NarrativeChoiceNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
       Type.Literal("do-not-repeat"),
       Type.Literal("inspect-narrative-choice"),
     ]),
-    source: Type.Literal("decisions.narrative.choice.request"),
+    source: Type.Literal("narrative.choice.request"),
     label: Type.String(),
   },
   { additionalProperties: false },
 );
-export const Civ7DecisionsNarrativeChoiceResultSchema = Type.Object(
+export const Civ7NarrativeChoiceResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     targetType: Type.String(),
     target: Civ7ControlOrpcComponentIdSchema,
     action: Type.Integer(),
     sent: Type.Boolean(),
-    status: Civ7DecisionsNarrativeChoiceRequestStatusSchema,
-    validation: Civ7DecisionsNarrativeChoiceValidationSummarySchema,
-    postcondition: Civ7DecisionsNarrativeChoicePostconditionSummarySchema,
-    nextSteps: Type.Array(Civ7DecisionsNarrativeChoiceNextStepSchema),
+    status: Civ7NarrativeChoiceRequestStatusSchema,
+    validation: Civ7NarrativeChoiceValidationSummarySchema,
+    postcondition: Civ7NarrativeChoicePostconditionSummarySchema,
+    nextSteps: Type.Array(Civ7NarrativeChoiceNextStepSchema),
   },
   { additionalProperties: false },
 );
-export type Civ7DecisionsNarrativeChoiceResult = Static<
-  typeof Civ7DecisionsNarrativeChoiceResultSchema
+export type Civ7NarrativeChoiceResult = Static<
+  typeof Civ7NarrativeChoiceResultSchema
 >;
 
-export const Civ7DecisionsNarrativeChoiceInputStandardSchema =
-  toStandardSchema(Civ7DecisionsNarrativeChoiceInputSchema);
-export const Civ7DecisionsNarrativeChoiceResultStandardSchema =
-  toStandardSchema(Civ7DecisionsNarrativeChoiceResultSchema);
-export type Civ7DecisionsNarrativeChoiceContract = ContractProcedure<
-  typeof Civ7DecisionsNarrativeChoiceInputStandardSchema,
-  typeof Civ7DecisionsNarrativeChoiceResultStandardSchema,
+export const Civ7NarrativeChoiceInputStandardSchema =
+  toStandardSchema(Civ7NarrativeChoiceInputSchema);
+export const Civ7NarrativeChoiceResultStandardSchema =
+  toStandardSchema(Civ7NarrativeChoiceResultSchema);
+export type Civ7NarrativeChoiceContract = ContractProcedure<
+  typeof Civ7NarrativeChoiceInputStandardSchema,
+  typeof Civ7NarrativeChoiceResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7DecisionsNarrativeChoiceContract:
-  Civ7DecisionsNarrativeChoiceContract = civ7ControlOrpcContractBase
-    .input(Civ7DecisionsNarrativeChoiceInputStandardSchema)
-    .output(Civ7DecisionsNarrativeChoiceResultStandardSchema)
+export const Civ7NarrativeChoiceContract:
+  Civ7NarrativeChoiceContract = civ7ControlOrpcContractBase
+    .input(Civ7NarrativeChoiceInputStandardSchema)
+    .output(Civ7NarrativeChoiceResultStandardSchema)
     .meta({
-      family: "decisions",
-      procedureKey: "decisions.narrative.choice.request",
+      family: "narrative",
+      procedureKey: "narrative.choice.request",
       proofBoundary: "local-package-test",
       risk: "mutation",
     });
 
-export type Civ7DecisionsContract = Readonly<{
-  narrative: Readonly<{
-    choice: Readonly<{
-      request: Civ7DecisionsNarrativeChoiceContract;
-    }>;
+export type Civ7NarrativeContract = Readonly<{
+  choice: Readonly<{
+    request: Civ7NarrativeChoiceContract;
   }>;
 }>;
 
-export const Civ7DecisionsContract: Civ7DecisionsContract = {
-  narrative: {
-    choice: {
-      request: Civ7DecisionsNarrativeChoiceContract,
-    },
+export const Civ7NarrativeContract: Civ7NarrativeContract = {
+  choice: {
+    request: Civ7NarrativeChoiceContract,
   },
 };

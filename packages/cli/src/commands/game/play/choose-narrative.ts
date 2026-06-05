@@ -17,7 +17,7 @@ export default class GamePlayChooseNarrative extends Command {
   static id = 'game play choose-narrative';
   static summary = 'Validate or choose a narrative story direction';
   static description =
-    'Validates narrative story direction choices as player operations, or sends them through the native control-oRPC decision procedure when --send and --reason are explicit.';
+    'Validates narrative story direction choices as player operations, or sends them through the native control-oRPC narrative procedure when --send and --reason are explicit.';
 
   static examples = [
     '<%= config.bin %> game play choose-narrative --options --json',
@@ -118,7 +118,7 @@ export default class GamePlayChooseNarrative extends Command {
           directControl: liveCiv7ControlOrpcDirectControlFacade,
           endpointDefaults: options,
           approval: buildApproval(reason),
-        }).decisions.narrative.choice.request({
+        }).narrative.choice.request({
           playerId: flags['player-id'],
           targetType: flags['target-type'],
           target,

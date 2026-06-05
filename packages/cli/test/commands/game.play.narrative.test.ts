@@ -80,7 +80,7 @@ describe('game play narrative commands', () => {
       });
       expect(payload.result.nextSteps[0]).toMatchObject({
         kind: 'refresh-attention',
-        source: 'decisions.narrative.choice.request',
+        source: 'narrative.choice.request',
       });
       expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendNarrativeChoice'))).toBe(true);
@@ -140,7 +140,7 @@ describe('game play narrative commands', () => {
       });
       expect(payload.result.nextSteps[0]).toMatchObject({
         kind: 'do-not-repeat',
-        source: 'decisions.narrative.choice.request',
+        source: 'narrative.choice.request',
       });
       expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendNarrativeChoice'))).toBe(true);

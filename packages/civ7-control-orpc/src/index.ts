@@ -166,27 +166,27 @@ export { cityRouter } from "./modules/city/router";
 export { cityPopulationPlaceRequestProcedure } from "./modules/city/procedures/population-place-request";
 export { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/production-choice-request";
 export {
-  Civ7DecisionsContract,
-  Civ7DecisionsNarrativeChoiceContract,
-  Civ7DecisionsNarrativeChoiceInputSchema,
-  Civ7DecisionsNarrativeChoiceInputStandardSchema,
-  Civ7DecisionsNarrativeChoiceNextStepSchema,
-  Civ7DecisionsNarrativeChoicePostconditionClassificationSchema,
-  Civ7DecisionsNarrativeChoicePostconditionSummarySchema,
-  Civ7DecisionsNarrativeChoiceProofOutcomeSchema,
-  Civ7DecisionsNarrativeChoiceRequestStatusSchema,
-  Civ7DecisionsNarrativeChoiceResultSchema,
-  Civ7DecisionsNarrativeChoiceResultStandardSchema,
-  Civ7DecisionsNarrativeChoiceValidationSummarySchema,
-} from "./modules/decisions/contract";
+  Civ7NarrativeContract,
+  Civ7NarrativeChoiceContract,
+  Civ7NarrativeChoiceInputSchema,
+  Civ7NarrativeChoiceInputStandardSchema,
+  Civ7NarrativeChoiceNextStepSchema,
+  Civ7NarrativeChoicePostconditionClassificationSchema,
+  Civ7NarrativeChoicePostconditionSummarySchema,
+  Civ7NarrativeChoiceProofOutcomeSchema,
+  Civ7NarrativeChoiceRequestStatusSchema,
+  Civ7NarrativeChoiceResultSchema,
+  Civ7NarrativeChoiceResultStandardSchema,
+  Civ7NarrativeChoiceValidationSummarySchema,
+} from "./modules/narrative/contract";
 export type {
-  Civ7DecisionsContract as Civ7DecisionsContractType,
-  Civ7DecisionsNarrativeChoiceContract as Civ7DecisionsNarrativeChoiceContractType,
-  Civ7DecisionsNarrativeChoiceInput,
-  Civ7DecisionsNarrativeChoiceResult,
-} from "./modules/decisions/contract";
-export { decisionsRouter } from "./modules/decisions/router";
-export { decisionsNarrativeChoiceRequestProcedure } from "./modules/decisions/procedures/narrative-choice-request";
+  Civ7NarrativeContract as Civ7NarrativeContractType,
+  Civ7NarrativeChoiceContract as Civ7NarrativeChoiceContractType,
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceResult,
+} from "./modules/narrative/contract";
+export { narrativeRouter } from "./modules/narrative/router";
+export { narrativeChoiceRequestProcedure } from "./modules/narrative/procedures/choice-request";
 export {
   Civ7DiplomacyContract,
   Civ7DiplomacyResponseContract,

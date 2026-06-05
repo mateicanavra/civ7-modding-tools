@@ -302,14 +302,14 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   separate first-meet service procedure exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI narrative choice send uses native decision procedure
+#### Scenario: CLI narrative choice send uses native narrative procedure
 - **WHEN** `game play choose-narrative --send` requests an approved narrative
   story direction choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
   and approval reason
 - **AND** the send path calls the in-process
-  `decisions.narrative.choice.request` server-side client under the
-  `decisions` router
+  `narrative.choice.request` server-side client under the
+  `narrative` router
 - **AND** the procedure's approval, readiness, direct-control narrative choice
   port, narrative postcondition projection, and no-repeat policy remain
   authoritative for the send
@@ -417,11 +417,12 @@ boundaries.
   validator/postcondition middleware or parent Task 6.x completion by
   implication
 
-#### Scenario: Narrative decision request procedure is implemented
-- **WHEN** a narrative choice decision procedure requests a player choice
-- **THEN** it is currently offered under a transitional `decisions` router
-- **AND** that root placement is residual domain-hierarchy debt, not target
-  authority for future narrative service work
+#### Scenario: Narrative choice request procedure is implemented
+- **WHEN** a narrative choice procedure requests a player choice
+- **THEN** it is offered under the `narrative` domain router as
+  `narrative.choice.request`
+- **AND** the former generic `decisions.narrative` placement is burned down
+  rather than preserved as a compatibility path
 - **AND** it checks mutation approval and playable readiness before invoking
   direct-control runtime authority
 - **AND** it consumes direct-control narrative validators and proof helpers as

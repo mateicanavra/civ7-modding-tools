@@ -21,9 +21,9 @@ procedure output.
 
 - `packages/civ7-control-orpc/src/policy/mutation-result.ts`
 - `packages/civ7-control-orpc/src/modules/notifications/procedures/dismiss-request.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/procedures/narrative-choice-request.ts`
+- `packages/civ7-control-orpc/src/modules/narrative/procedures/choice-request.ts`
 - `packages/civ7-control-orpc/src/modules/diplomacy/procedures/response-request.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/procedures/progression-choice-request.ts`
+- `packages/civ7-control-orpc/src/modules/progression/procedures/choice-request.ts`
 - `packages/civ7-control-orpc/test/mutation-result-policy.test.ts`
 - this OpenSpec record, `tasks.md`, and `specs/civ7-control-orpc/spec.md`
 
@@ -61,7 +61,7 @@ I/O.
 
 Planned closure gates:
 
-- `bun run --cwd packages/civ7-control-orpc test test/mutation-result-policy.test.ts test/notification-dismissal-procedure.test.ts test/decisions-narrative-choice-procedure.test.ts test/decisions-diplomacy-response-procedure.test.ts test/decisions-progression-choice-procedure.test.ts`
+- `bun run --cwd packages/civ7-control-orpc test test/mutation-result-policy.test.ts test/notification-dismissal-procedure.test.ts test/narrative-choice-procedure.test.ts test/diplomacy-response-procedure.test.ts test/progression-choice-procedure.test.ts`
 - `bun run --cwd packages/civ7-control-orpc test`
 - `bun run --cwd packages/civ7-control-orpc check`
 - `bun run --cwd packages/civ7-control-orpc build`

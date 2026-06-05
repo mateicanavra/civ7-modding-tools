@@ -22,8 +22,6 @@ procedure path, not by a generic `kind` discriminator under an action bucket.
 - `packages/civ7-control-orpc/src/dependencies/direct-control.ts`
 - `packages/civ7-control-orpc/src/errors.ts`
 - `packages/civ7-control-orpc/src/index.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/contract.ts`
-- `packages/civ7-control-orpc/src/modules/decisions/router.ts`
 - `packages/civ7-control-orpc/src/modules/progression/contract.ts`
 - `packages/civ7-control-orpc/src/modules/progression/router.ts`
 - `packages/civ7-control-orpc/src/modules/progression/procedures/choice-request.ts`

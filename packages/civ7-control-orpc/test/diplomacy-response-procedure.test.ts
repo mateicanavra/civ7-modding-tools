@@ -274,10 +274,10 @@ describe("diplomacy.response.request control-oRPC procedure", () => {
       },
     });
     expect(
-      (Civ7ControlOrpcContract.decisions as Record<string, unknown>).diplomacy,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
     ).toBeUndefined();
     expect(
-      (Civ7ControlOrpcRouter.decisions as Record<string, unknown>).diplomacy,
+      (Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions,
     ).toBeUndefined();
     expect(
       Civ7ControlOrpcContract.diplomacy.response.request["~orpc"].errorMap,

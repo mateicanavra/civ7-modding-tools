@@ -381,10 +381,10 @@ describe("progression choice control-oRPC procedures", () => {
       Civ7ControlOrpcContract.progression.technology.choice.request["~orpc"].errorMap,
     ).toHaveProperty("PROGRESSION_CHOICE_UNAVAILABLE");
     expect(
-      (Civ7ControlOrpcContract.decisions as Record<string, unknown>).progression,
+      (Civ7ControlOrpcContract as unknown as Record<string, unknown>).decisions,
     ).toBeUndefined();
     expect(
-      (Civ7ControlOrpcRouter.decisions as Record<string, unknown>).progression,
+      (Civ7ControlOrpcRouter as unknown as Record<string, unknown>).decisions,
     ).toBeUndefined();
     expect(Civ7ProgressionChoiceUnavailableError.code).toBe(
       "PROGRESSION_CHOICE_UNAVAILABLE",
