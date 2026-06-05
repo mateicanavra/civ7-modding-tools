@@ -136,7 +136,7 @@ export function createRunInGameOperationStore(options: StoreOptions) {
       ok: false,
       phase: status,
       status,
-      error: err instanceof Error ? err.message : String(err),
+      error: publicRunInGameFailureMessage(err, details),
       details,
       ...(materialization === undefined ? {} : { materialization }),
     });
@@ -195,9 +195,12 @@ export function runInGameFailureDetails(
   const failureClass = classifyRunInGameFailure(err, phase);
   const nextMaterialization = materialization ?? (isMaterializationStatus(httpDetails.materialization) ? httpDetails.materialization : undefined);
   const code = directControlCode ?? (typeof httpDetails.code === "string" ? httpDetails.code : undefined);
-  const cause = err instanceof Civ7DirectControlError ? cloneForJson(err.details) : undefined;
+  const publicHttpDetails = sanitizeRunInGameStatusRecord(httpDetails);
+  const cause = err instanceof Civ7DirectControlError
+    ? sanitizeRunInGameStatusValue(err.details)
+    : undefined;
   return {
-    ...httpDetails,
+    ...publicHttpDetails,
     failureClass,
     phase,
     completedPhases: state?.completedPhases ?? [],
@@ -223,6 +226,94 @@ export function classifyRunInGameFailure(err: unknown, phase: RunInGamePhase): "
 function cloneForJson(value: unknown): unknown {
   if (value === undefined) return undefined;
   return JSON.parse(JSON.stringify(value));
+}
+
+function publicRunInGameFailureMessage(
+  err: unknown,
+  details: RunInGameFailureDetails,
+): string {
+  const phase = details.phase ?? "failed";
+  const phaseLabel = publicRunInGamePhaseLabel(phase);
+  if (err instanceof RunInGameHttpError) {
+    return redactRuntimeCommandText(err.message);
+  }
+  if (err instanceof Civ7DirectControlError) {
+    switch (err.code) {
+      case "response-timeout":
+        return `Civ7 did not respond during ${phaseLabel}; status is uncertain.`;
+      case "socket-closed":
+        return `Civ7 tuner connection closed during ${phaseLabel}; status is uncertain.`;
+      case "connection-timeout":
+        return `Timed out connecting to Civ7 during ${phaseLabel}.`;
+      case "all-hosts-unavailable":
+      case "no-hosts":
+        return `No configured Civ7 tuner endpoint was available during ${phaseLabel}.`;
+      default:
+        return `Civ7 direct-control failed during ${phaseLabel}.`;
+    }
+  }
+  return redactRuntimeCommandText(err instanceof Error ? err.message : String(err));
+}
+
+function publicRunInGamePhaseLabel(phase: RunInGamePhase): string {
+  switch (phase) {
+    case "materializing":
+      return "materialization";
+    case "deploying":
+      return "deployment";
+    case "restarting-civ":
+      return "Civ restart";
+    case "checking-civ7":
+      return "Civ7 readiness check";
+    case "reload-needed":
+      return "reload recovery";
+    case "preparing-setup":
+      return "setup preparation";
+    case "starting-game":
+      return "game start";
+    case "waiting-for-proof":
+      return "runtime proof";
+    case "idle":
+    case "complete":
+    case "blocked":
+    case "failed":
+    case "uncertain":
+      return phase;
+  }
+}
+
+function sanitizeRunInGameStatusValue(value: unknown): unknown {
+  if (value === undefined) return undefined;
+  const cloned = cloneForJson(value);
+  return sanitizeClonedRunInGameStatusValue(cloned);
+}
+
+function sanitizeRunInGameStatusRecord(value: Record<string, unknown>): Record<string, unknown> {
+  const sanitized = sanitizeRunInGameStatusValue(value);
+  return isRecord(sanitized) ? sanitized : {};
+}
+
+function sanitizeClonedRunInGameStatusValue(value: unknown): unknown {
+  if (typeof value === "string") return redactRuntimeCommandText(value);
+  if (Array.isArray(value)) return value.map(sanitizeClonedRunInGameStatusValue);
+  if (!isRecord(value)) return value;
+
+  const out: Record<string, unknown> = {};
+  for (const [key, next] of Object.entries(value)) {
+    if (isRawRuntimeCommandDetailKey(key)) continue;
+    out[key] = sanitizeClonedRunInGameStatusValue(next);
+  }
+  return out;
+}
+
+function isRawRuntimeCommandDetailKey(key: string): boolean {
+  return /(?:^|\.)(?:command|rawCommand|jsLiteral|payload|startPayload|state|stateName|session|sessionSelection)(?:$|\.)/i.test(key);
+}
+
+function redactRuntimeCommandText(value: string): string {
+  return value
+    .replace(/CMD:[0-9]+:[\s\S]*/g, "[redacted-runtime-command]")
+    .replace(/LSQ:[\s\S]*/g, "[redacted-runtime-command]");
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

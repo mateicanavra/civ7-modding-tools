@@ -36,6 +36,8 @@
     rendering for stale/completed state; browser click proof for the primary
     disposable route.
   - Still bounded: route-level Vite middleware tests for every HTTP branch.
+  - Follow-up hardening: operation-state helper proof now covers raw Tuner
+    command timeout sanitization in public status and copyable diagnostics.
 
 ## 4. Vite/Turbo Robustness
 
