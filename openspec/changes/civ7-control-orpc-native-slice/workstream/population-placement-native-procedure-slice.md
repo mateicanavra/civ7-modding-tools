@@ -37,10 +37,12 @@ and proof/no-repeat owner.
   `cityId` and bounded map `destination`;
 - takes explicit mutation approval from typed oRPC context through the shared
   native effect-oRPC approval middleware, not normal procedure input;
-- maps `assign-worker` to the direct-control `requestCiv7PlayerOperation`
-  runtime port with `ASSIGN_WORKER { Location, Amount: 1 }`;
-- maps `expand-city` to the direct-control `requestCiv7CityCommand` runtime
-  port with `EXPAND { X, Y }`;
+- maps `assign-worker` to the control-oRPC runtime facade's semantic
+  `requestCiv7AssignWorkerPlacement` port; the live facade adapter maps that
+  to direct-control's low-level player-operation runtime authority internally;
+- maps `expand-city` to the control-oRPC runtime facade's semantic
+  `requestCiv7ExpandCityPlacement` port; the live facade adapter maps that to
+  direct-control's low-level city-command runtime authority internally;
 - consumes the direct-control population-placement proof helper through a
   narrowed proof-source shape (`sent` plus population postcondition evidence)
   for confirmed, unverified, missing-postcondition, and no-repeat

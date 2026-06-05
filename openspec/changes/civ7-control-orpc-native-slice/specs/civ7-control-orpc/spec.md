@@ -39,6 +39,20 @@ errors, and server-side callers.
 - **AND** the runtime entrypoint does not expose raw command/session/tuner
   payloads or make direct-control result envelopes normal service output
 
+#### Scenario: Runtime facade narrows population placement ports
+- **WHEN** `city.population.place.request` needs low-level player-operation or
+  city-command runtime authority for population placement
+- **THEN** the control-oRPC runtime facade exposes semantic
+  assign-worker-placement and expand-city-placement ports to context
+  constructors and procedures
+- **AND** those ports accept only the service-owned placement shapes rather
+  than generic `operationType` and raw `args`
+- **AND** the live facade adapter may map those semantic ports to
+  direct-control-owned player-operation and city-command runtime functions
+  internally
+- **AND** raw generic operation inputs remain excluded from normal procedure
+  input and from the exported control-oRPC context-construction surface
+
 #### Scenario: Shared service primitives are needed by procedure contracts
 - **WHEN** service-owned procedure contracts need common Civ7 primitives such
   as component IDs or map locations in caller-facing input or output

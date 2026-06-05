@@ -17,7 +17,7 @@ import type {
 
 type Civ7ControlOrpcPopulationPlacementRuntimeResult = Awaited<
   ReturnType<
-    Civ7ControlOrpcContext["directControl"]["requestCiv7PlayerOperation"]
+    Civ7ControlOrpcContext["directControl"]["requestCiv7AssignWorkerPlacement"]
   >
 >;
 
@@ -37,26 +37,18 @@ export const cityPopulationPlaceRequestProcedure =
     return yield* Effect.tryPromise({
       try: async () => {
         const result = input.mode === "assign-worker"
-          ? await context.directControl.requestCiv7PlayerOperation(
+          ? await context.directControl.requestCiv7AssignWorkerPlacement(
             {
               playerId: input.playerId,
-              operationType: "ASSIGN_WORKER",
-              args: {
-                Location: input.location,
-                Amount: 1,
-              },
+              location: input.location,
             },
             context.endpointDefaults,
             context.approval,
           )
-          : await context.directControl.requestCiv7CityCommand(
+          : await context.directControl.requestCiv7ExpandCityPlacement(
             {
               cityId: input.cityId,
-              operationType: "EXPAND",
-              args: {
-                X: input.destination.x,
-                Y: input.destination.y,
-              },
+              destination: input.destination,
             },
             context.endpointDefaults,
             context.approval,

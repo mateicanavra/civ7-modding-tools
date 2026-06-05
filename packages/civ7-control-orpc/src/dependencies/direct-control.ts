@@ -17,7 +17,6 @@ import {
   requestCiv7TechnologyChoiceCloseout,
   requestCiv7UnitTargetAction,
   type Civ7ActionApproval,
-  type Civ7ComponentId,
   type Civ7DirectControlOptions,
   Civ7BattlefieldScanResultSchema,
   type Civ7DiplomacyResponseInput,
@@ -37,7 +36,6 @@ import {
   type Civ7BattlefieldScanInput,
   type Civ7NotificationDismissInput,
   type Civ7NotificationDismissalResult,
-  type Civ7OperationInput,
   type Civ7PopulationPlacementProofSource,
   type Civ7ProductionChoiceInput,
   type Civ7ReadyCityViewInput,
@@ -50,6 +48,11 @@ import {
   type PlayNotificationViewOptions,
 } from "@civ7/direct-control";
 import type { Static } from "typebox";
+
+import type {
+  Civ7ControlOrpcComponentId,
+  Civ7ControlOrpcMapLocation,
+} from "../model/primitives";
 
 export type Civ7ControlOrpcNotificationDismissalResult =
   Civ7NotificationDismissalResult;
@@ -67,6 +70,14 @@ type Civ7ControlOrpcPopulationPlacementRuntimeResult =
     before: Readonly<{ valid: boolean }>;
     after: Readonly<{ valid: boolean }>;
   }>;
+export type Civ7ControlOrpcAssignWorkerPlacementInput = Readonly<{
+  playerId: number;
+  location: number;
+}>;
+export type Civ7ControlOrpcExpandCityPlacementInput = Readonly<{
+  cityId: Civ7ControlOrpcComponentId;
+  destination: Civ7ControlOrpcMapLocation;
+}>;
 export type Civ7ControlOrpcPlayableStatusResult = Static<
   typeof Civ7PlayableStatusResultSchema
 >;
@@ -126,13 +137,13 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     options: Civ7DirectControlOptions | undefined,
     approval: Civ7ActionApproval,
   ): Promise<Civ7ControlOrpcCultureChoiceCloseoutResult>;
-  requestCiv7CityCommand(
-    input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
+  requestCiv7AssignWorkerPlacement(
+    input: Civ7ControlOrpcAssignWorkerPlacementInput,
     options: Civ7DirectControlOptions | undefined,
     approval: Civ7ActionApproval,
   ): Promise<Civ7ControlOrpcPopulationPlacementRuntimeResult>;
-  requestCiv7PlayerOperation(
-    input: Civ7OperationInput & Readonly<{ playerId: number }>,
+  requestCiv7ExpandCityPlacement(
+    input: Civ7ControlOrpcExpandCityPlacementInput,
     options: Civ7DirectControlOptions | undefined,
     approval: Civ7ActionApproval,
   ): Promise<Civ7ControlOrpcPopulationPlacementRuntimeResult>;
@@ -190,12 +201,26 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7TechnologyChoiceCloseout(input, options, approval),
   requestCiv7CultureChoiceCloseout: async (input, options, approval) =>
     requestCiv7CultureChoiceCloseout(input, options, approval),
-  requestCiv7CityCommand: async (input, options, approval) =>
-    requestCiv7CityCommand(input, options, approval) as Promise<
+  requestCiv7AssignWorkerPlacement: async (input, options, approval) =>
+    requestCiv7PlayerOperation({
+      playerId: input.playerId,
+      operationType: "ASSIGN_WORKER",
+      args: {
+        Location: input.location,
+        Amount: 1,
+      },
+    }, options, approval) as Promise<
       Civ7ControlOrpcPopulationPlacementRuntimeResult
     >,
-  requestCiv7PlayerOperation: async (input, options, approval) =>
-    requestCiv7PlayerOperation(input, options, approval) as Promise<
+  requestCiv7ExpandCityPlacement: async (input, options, approval) =>
+    requestCiv7CityCommand({
+      cityId: input.cityId,
+      operationType: "EXPAND",
+      args: {
+        X: input.destination.x,
+        Y: input.destination.y,
+      },
+    }, options, approval) as Promise<
       Civ7ControlOrpcPopulationPlacementRuntimeResult
     >,
   requestCiv7UnitTargetAction: async (input, options, approval) =>

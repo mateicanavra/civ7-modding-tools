@@ -187,6 +187,12 @@ adding more read-only facade shells.
     input, semantic before/after proof projection, raw-output exclusion, and
     no-repeat next steps; CLI end-turn migration, runtime proof, and parent
     Task 5.x/6.x acceptance remain out of scope.
+  - [x] 5.4.16 Narrow the control-oRPC runtime facade for
+    `city.population.place.request` from generic player/city operation ports
+    to semantic assign-worker and expand-city placement ports. Keep
+    direct-control's low-level player-operation/city-command authority inside
+    the live facade adapter and keep raw operation inputs out of the exported
+    context-construction surface.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -510,6 +516,10 @@ adding more read-only facade shells.
   intelligence-bridge tests, control-oRPC check/build, strict OpenSpec
   validates, and diff hygiene for the first controller mutation ingress
   allowlist slice.
+- [x] 8.32 Run focused population-placement procedure tests, control-oRPC
+  package test/check/build, strict OpenSpec validates, generic runtime-port
+  scan, and diff hygiene for the population placement runtime facade narrowing
+  slice.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
