@@ -12,6 +12,8 @@ import {
 const notificationId = { owner: 0, id: 113, type: 20 };
 const unitId = { owner: 0, id: 458_752, type: 26 };
 const target = { x: 22, y: 31 };
+const cityId = { owner: 0, id: 65_536, type: 1 };
+const productionArgs = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
 
 describe("Civ7 controller bridge ingress", () => {
   test("invokes allowlisted readiness.current through the in-process router", async () => {
@@ -341,6 +343,81 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted city.production.choice.request through the in-process router with explicit approval", async () => {
+    const fake = fakeProductionChoiceContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "city.production.choice.request",
+      input: { cityId, args: productionArgs },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved production choice",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-production-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "city.production.choice.request",
+      correlationId: "controller-production-1",
+      output: {
+        cityId,
+        args: productionArgs,
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "production-choice-cleared",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.production).toEqual([{
+      input: { cityId, args: productionArgs },
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved production choice",
+      },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "city.production.choice.request",
+      input: { cityId, args: productionArgs },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved production choice",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-production-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("controller approved production choice");
+    expect(serialized).not.toContain("Game.CityOperations.sendRequest");
+    expect(serialized).not.toContain("Game.CityOperations.canStart");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -476,6 +553,43 @@ describe("Civ7 controller bridge ingress", () => {
           approved: true,
           reason: "controller approved unit target action",
           command: "Game.UnitOperations.sendRequest(...)",
+        },
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "city.production.choice.request",
+        input: { cityId, args: productionArgs },
+      },
+      {
+        procedureKey: "city.production.choice.request",
+        input: { cityId, args: productionArgs },
+        approval: controllerApproval(),
+      },
+      {
+        procedureKey: "city.production.choice.request",
+        input: {
+          cityId,
+          args: productionArgs,
+          rawCommand: "Game.CityOperations.sendRequest(...)",
+        },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "city.production.choice.request",
+        input: { cityId, args: productionArgs },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "city.production.choice.request",
+        input: { cityId, args: productionArgs },
+        approval: {
+          source: "controller-runtime",
+          approved: true,
+          reason: "controller approved production choice",
+          command: "Game.CityOperations.sendRequest(...)",
         },
         controllerProof: controllerMutationProof(),
       },
@@ -780,6 +894,48 @@ function fakeUnitTargetActionContext(): {
   };
 }
 
+function fakeProductionChoiceContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    production: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    production: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  } = {
+    status: [],
+    production: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7ProductionChoice: async (input, options, approval) => {
+          calls.production.push({ input, options, approval });
+          return productionChoiceResult();
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
 function controllerApproval(): Record<string, unknown> {
   return {
     source: "controller-runtime",
@@ -1016,6 +1172,82 @@ function unitProbe(location: { x: number; y: number }) {
       movementMovesRemaining: 1,
       movementTurnsRemaining: 0,
       attacksRemaining: 1,
+    },
+  };
+}
+
+function productionChoiceResult(): any {
+  return {
+    before: productionValidationResult(true),
+    after: productionValidationResult(true),
+    sent: true,
+    verified: true,
+    productionPostcondition: {
+      family: "city-operation",
+      operationType: "BUILD",
+      classification: "production-choice-cleared",
+      before: productionSnapshot("before"),
+      after: productionSnapshot("after"),
+      productionStateChanged: true,
+      blockerStillLive: false,
+      reason: "test production-choice-cleared",
+    },
+    payload: {
+      cityId,
+      args: productionArgs,
+      beforeValidation: { raw: "before-validation" },
+      afterValidation: { raw: "after-validation" },
+      sent: true,
+      sendResult: {
+        ok: true,
+        value: {
+          rawCommand: "Game.CityOperations.sendRequest(...)",
+        },
+      },
+      beforeProductionPostcondition: productionSnapshot("before"),
+      afterProductionPostcondition: productionSnapshot("after"),
+      notes: ["fixture"],
+    },
+    command: {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "65535", name: "App UI" },
+      output: ["{}"],
+    },
+  };
+}
+
+function productionValidationResult(valid: boolean) {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    family: "city-operation" as const,
+    operationType: "BUILD" as const,
+    enumValue: 713_967_338,
+    target: { cityId },
+    args: productionArgs,
+    valid,
+    result: {
+      raw: "validation-result",
+      command: "Game.CityOperations.canStart(...)",
+    },
+  };
+}
+
+function productionSnapshot(label: "before" | "after") {
+  return {
+    cityId,
+    city: { ok: true, value: { label } },
+    buildQueue: { ok: true, value: { label } },
+    selectedCityId: { ok: true, value: cityId },
+    blocker: { ok: true, value: -2_026_570_723 },
+    canEndTurn: { ok: true, value: false },
+    blockingProductionNotification: {
+      ok: true,
+      value: {
+        matchesCity: label === "before",
+      },
     },
   };
 }
