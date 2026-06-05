@@ -1,4 +1,24 @@
 export { createCiv7ControlOrpcServerClient } from "./client";
+export {
+  Civ7ControllerBridgeErrorSchema,
+  Civ7ControllerBridgeFailureResponseSchema,
+  Civ7ControllerBridgeReadinessCurrentRequestSchema,
+  Civ7ControllerBridgeRequestSchema,
+  Civ7ControllerBridgeResponseSchema,
+  Civ7ControllerBridgeSuccessResponseSchema,
+  createCiv7ControllerBridgeIngress,
+  invokeCiv7ControllerBridgeRequest,
+} from "./bridge/controller-ingress";
+export type {
+  Civ7ControllerBridgeContextFactory,
+  Civ7ControllerBridgeError,
+  Civ7ControllerBridgeFailureResponse,
+  Civ7ControllerBridgeIngress,
+  Civ7ControllerBridgeReadinessCurrentRequest,
+  Civ7ControllerBridgeRequest,
+  Civ7ControllerBridgeResponse,
+  Civ7ControllerBridgeSuccessResponse,
+} from "./bridge/controller-ingress";
 export { civ7ControlOrpcContractBase } from "./contract-base";
 export { Civ7ControlOrpcContract } from "./contract";
 export type { Civ7ControlOrpcContext } from "./context";

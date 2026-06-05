@@ -118,6 +118,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** implementation remains pending until source owners, schemas/tests,
   mutation proof policy, and runtime proof boundaries are explicitly accepted
 
+#### Scenario: Read-only controller ingress core is seeded
+- **WHEN** a package-local controller ingress core is implemented before the
+  global UIScript bridge is installed
+- **THEN** it validates a closed serialized request envelope with a stable
+  allowlisted procedure key and procedure input
+- **AND** the first allowlisted procedure is read-only `readiness.current`
+- **AND** it constructs oRPC context through a caller-owned controller runtime
+  factory
+- **AND** it calls the existing in-process router/client rather than
+  implementing a second router or custom procedure runner
+- **AND** raw command/session/tuner endpoint fields and mutation approvals are
+  rejected from the read-only ingress envelope
+- **AND** failures project bounded bridge error data without raw direct-control
+  command details
+- **AND** global bridge installation, UIScript packaging, mutation allowlists,
+  runtime proof, and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control approval,

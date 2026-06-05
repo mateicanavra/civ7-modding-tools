@@ -305,6 +305,12 @@ adding more read-only facade shells.
     calls are allowlisted, context construction stays in the controller
     runtime adapter, mutation calls require explicit approval/local-player
     proof, and source implementation remains pending.
+  - [x] 7.3.2 Seed a package-local read-only controller ingress core for
+    `readiness.current`: validate a closed serialized envelope, allowlist the
+    procedure key, construct context through a caller-owned factory, call the
+    existing in-process router client, and keep global bridge installation,
+    UIScript packaging, mutation allowlists, runtime proof, and full `7.3`
+    implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -330,3 +336,6 @@ adding more read-only facade shells.
 - [x] 8.8 Run strict OpenSpec validates and diff hygiene for the controller
   bridge preflight record. No source implementation, runtime proof, play-thread
   action, or `7.3` implementation acceptance is claimed by that record.
+- [x] 8.9 Run focused controller-ingress package tests, package check/build,
+  strict OpenSpec validates, and diff hygiene for the read-only
+  `readiness.current` controller ingress source seed.
