@@ -26,6 +26,11 @@
       "import": "./dist/play/progression/choice-postconditions.js",
       "require": "./dist/play/progression/choice-postconditions.cjs"
     },
+    "./play/notifications/game-ui-dismissal": {
+      "types": "./dist/play/notifications/game-ui-dismissal.d.ts",
+      "import": "./dist/play/notifications/game-ui-dismissal.js",
+      "require": "./dist/play/notifications/game-ui-dismissal.cjs"
+    },
     "./proof/diplomacy-response-proof-policy": {
       "types": "./dist/proof/diplomacy-response-proof-policy.d.ts",
       "import": "./dist/proof/diplomacy-response-proof-policy.js",

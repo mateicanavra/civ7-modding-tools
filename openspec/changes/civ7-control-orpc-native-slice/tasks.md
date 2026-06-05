@@ -576,6 +576,18 @@ adding more read-only facade shells.
     `Players` globals while mutation runtime ports remain unsupported. Keep
     Civ7 deployment, live runtime proof, mutation runtime support, and full
     `7.3` implementation pending.
+  - [x] 7.3.15 Add the first game-resident mutation runtime port for
+    `notifications.dismiss.request`: expose a game-safe direct-control subpath
+    that executes against ambient `Game.Notifications`, `NotificationModel`,
+    `GameContext`, and notification queue evidence without tuner socket/session
+    command serialization; wire `@civ7/control-orpc/game-ui` to use it when
+    controller proof and notification dismissal APIs are available through an
+    explicit context-supported procedure list; keep broad `readiness.current`
+    observe/mutate capability conservative while only
+    `notifications.dismiss.request` is admitted; keep normal bridge output
+    semantic and raw route/approval/session/state/command details omitted;
+    keep other mutation runtime ports, deployed Civ7 proof, play-thread action,
+    and full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -671,6 +683,13 @@ adding more read-only facade shells.
   hygiene for the context-owned controller proof slice. These are local package
   proofs only and do not claim deployed Civ7 runtime proof, mutation runtime
   support, play-thread action, or full `7.3` acceptance.
+- [x] 8.44 Run direct-control check/build for the game-safe notification
+  dismissal subpath, focused game-ui/controller/notification procedure tests,
+  control-oRPC package check/build/test, controller mod package check/build/test
+  with bundle scan, strict OpenSpec validates, and diff hygiene for the first
+  game-resident notification dismissal runtime port. These are local package
+  and bundle proofs only and do not claim deployed Civ7 runtime proof, other
+  mutation runtime support, play-thread action, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

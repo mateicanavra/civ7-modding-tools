@@ -21,7 +21,10 @@ export const civ7MutationReadinessMiddleware =
       });
     });
 
-    if (!status.playable) {
+    if (
+      !status.playable
+      && !context.controller?.supportedMutationProcedures?.includes(procedureKey)
+    ) {
       throw errors.MUTATION_READINESS_REQUIRED({
         data: {
           procedureKey,

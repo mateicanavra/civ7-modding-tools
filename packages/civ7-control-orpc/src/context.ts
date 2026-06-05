@@ -11,4 +11,7 @@ export type Civ7ControlOrpcContext = Readonly<{
   endpointDefaults?: Civ7DirectControlOptions;
   approval?: Civ7ActionApproval;
   correlation?: Civ7ControlOrpcCorrelationContext;
+  controller?: Readonly<{
+    supportedMutationProcedures?: readonly string[];
+  }>;
 }>;

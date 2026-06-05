@@ -590,17 +590,16 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the local game-UI context can answer `readiness.current` from ambient
   game UI globals without accepting host, port, session, state, raw command, or
   transport input
-- **AND** this bootstrap does not report mutation capability while mutation
-  runtime ports remain unsupported
+- **AND** this bootstrap does not report mutation capability unless a
+  game-resident runtime port is supported by controller-owned context proof
 - **AND** unsupported mutation runtime ports fail through bounded oRPC/bridge
   error projection without raw command/session/App UI payload leakage
 - **AND** the generated UI bundle does not include Node built-in imports,
   direct-control socket/session runtime implementation, raw command/session
   command strings, or RPC transport symbols
 - **AND** local package and bundle tests prove only source shape and build
-  integrity; deployed Civ7 UIScript loading, controller lifecycle/hotseat
-  certification, mutation runtime support, live runtime proof, and full `7.3`
-  implementation remain pending
+  integrity; deployed Civ7 UIScript loading, broader mutation runtime support,
+  live runtime proof, and full `7.3` implementation remain pending
 
 #### Scenario: Controller mutation proof is context-owned
 - **WHEN** the controller bridge receives an allowlisted mutation request
@@ -621,6 +620,29 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** local package tests prove only context-owned proof sourcing and
   serialized envelope closure; deployed Civ7 runtime proof, mutation runtime
   support, play-thread action, and full `7.3` implementation remain pending
+
+#### Scenario: Game UI controller supports notification dismissal
+- **WHEN** the game-scoped controller context exposes notification dismissal
+  runtime APIs
+- **THEN** the context may execute the service-owned
+  `notifications.dismiss.request` procedure through the existing in-process
+  router and native mutation approval/readiness/proof procedure middleware
+- **AND** the game-safe direct-control runtime subpath executes against
+  ambient `Game.Notifications`, `NotificationModel`, `GameContext`, and
+  notification queue evidence without tuner socket/session command
+  serialization
+- **AND** broad `readiness.current` observe/mutate capability remains
+  conservative until game UI read/attention and mutation surfaces are actually
+  implemented
+- **AND** native mutation readiness admits only the explicitly context-listed
+  `notifications.dismiss.request` game-UI mutation while other mutation ports
+  remain bounded as unsupported
+- **AND** normal bridge success output remains the semantic notification
+  dismissal result and omits raw route internals, approval reason, host, port,
+  state, command, rawCommand, session, and tuner payloads
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, other mutation runtime
+  ports, play-thread action, and full `7.3` implementation remain pending
 
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 

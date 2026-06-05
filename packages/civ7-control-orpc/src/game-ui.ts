@@ -1,3 +1,8 @@
+import {
+  requestCiv7GameUiNotificationDismissal,
+  type Civ7GameUiNotificationDismissalTarget,
+} from "@civ7/direct-control/play/notifications/game-ui-dismissal";
+
 import type { Civ7ControllerBridgeContextFactory } from "./bridge/controller-ingress";
 import type { Civ7ControllerBridgeMutationProof } from "./bridge/controller-ingress";
 import {
@@ -9,6 +14,10 @@ import type {
   Civ7ControlOrpcPlayableStatusResult,
 } from "./dependencies/direct-control";
 
+type Civ7GameUiNotifications = NonNullable<
+  NonNullable<Civ7GameUiNotificationDismissalTarget["Game"]>["Notifications"]
+>;
+
 type RuntimeProbe<T> = Readonly<
   | { ok: true; value: T }
   | { ok: false; error: string }
@@ -16,6 +25,8 @@ type RuntimeProbe<T> = Readonly<
 
 export type Civ7GameUiRuntimeTarget = {
   Civ7IntelligenceBridge?: Civ7IntelligenceBridge;
+  EndTurnBlockingTypes?: Civ7GameUiNotificationDismissalTarget["EndTurnBlockingTypes"];
+  NotificationModel?: Civ7GameUiNotificationDismissalTarget["NotificationModel"];
   UI?: {
     isInGame?: () => boolean;
     isInShell?: () => boolean;
@@ -35,6 +46,7 @@ export type Civ7GameUiRuntimeTarget = {
     maxTurns?: number;
     getTurnDate?: () => string;
     getHash?: () => number;
+    Notifications?: Civ7GameUiNotifications;
   };
   Autoplay?: {
     isActive?: boolean;
@@ -100,6 +112,10 @@ export function createCiv7GameUiControllerContextFactory(
   return () => ({
     directControl,
     endpointDefaults: { timeoutMs: options.timeoutMs ?? 1_000 },
+    controller: {
+      supportedMutationProcedures:
+        gameUiSupportedMutationProcedures(options.target),
+    },
     controllerProof: gameUiControllerMutationProof(options.target) ?? undefined,
   });
 }
@@ -115,7 +131,8 @@ function createCiv7GameUiDirectControlFacade(
 
   return {
     requestCiv7ProductionChoice: unsupported,
-    requestCiv7NotificationDismissal: unsupported,
+    requestCiv7NotificationDismissal: async (input, _options, approval) =>
+      await requestCiv7GameUiNotificationDismissal(input, approval, target),
     requestCiv7NarrativeChoice: unsupported,
     requestCiv7DiplomacyResponse: unsupported,
     requestCiv7TechnologyChoiceCloseout: unsupported,
@@ -165,6 +182,31 @@ function gameUiPlayableStatus(
     },
     errors: [],
   };
+}
+
+function gameUiSupportedMutationProcedures(
+  target: Civ7GameUiRuntimeTarget,
+): readonly string[] {
+  if (
+    gameUiControllerMutationProof(target) != null
+    && gameUiNotificationDismissalAvailable(target)
+  ) {
+    return ["notifications.dismiss.request"];
+  }
+  return [];
+}
+
+function gameUiNotificationDismissalAvailable(
+  target: Civ7GameUiRuntimeTarget,
+): boolean {
+  const notifications = target.Game?.Notifications;
+  const manager = target.NotificationModel?.manager;
+  return typeof notifications?.find === "function"
+    && (
+      typeof notifications.dismiss === "function"
+      || typeof manager?.dismiss === "function"
+      || typeof manager?.onDismiss === "function"
+    );
 }
 
 function gameUiSnapshot(target: Civ7GameUiRuntimeTarget) {
