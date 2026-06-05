@@ -16,6 +16,18 @@ errors, and server-side callers.
   postcondition classifiers, command serialization, proof facts, and other
   low-level authority that must remain runtime-owned
 
+#### Scenario: Package root exposes service-owned surface
+- **WHEN** `@civ7/control-orpc` publishes its root entrypoint
+- **THEN** root exports include service contracts, routers, server-side clients,
+  bridge ingress/bindings, semantic procedure input/output schemas, typed
+  errors, and the context/facade types needed by edge adapters
+- **AND** root exports do not publish direct-control runtime-port result
+  aliases such as playable-status, notification, ready-actor, production,
+  target-action, or closeout request result envelopes
+- **AND** direct-control runtime result shapes remain internal service
+  dependency/test details or are imported from `@civ7/direct-control` when a
+  low-level runtime fixture needs the owning type
+
 #### Scenario: Strategy planning view is added
 - **WHEN** a strategy planning procedure is implemented
 - **THEN** it composes planning evidence from bounded runtime/read ports into a

@@ -40,14 +40,6 @@ export { Civ7ControlOrpcContract } from "./contract";
 export type { Civ7ControlOrpcContext } from "./context";
 export {
   liveCiv7ControlOrpcDirectControlFacade,
-  type Civ7ControlOrpcNotificationDismissalResult,
-  type Civ7ControlOrpcPlayNotificationViewResult,
-  type Civ7ControlOrpcPlayableStatusResult,
-  type Civ7ControlOrpcProductionChoiceResult,
-  type Civ7ControlOrpcReadyCityViewResult,
-  type Civ7ControlOrpcReadyUnitViewResult,
-  type Civ7ControlOrpcTurnCompletionStatusResult,
-  type Civ7ControlOrpcUnitTargetActionResult,
   type Civ7ControlOrpcDirectControlFacade,
 } from "./dependencies/direct-control";
 export {

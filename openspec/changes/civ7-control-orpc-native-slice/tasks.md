@@ -136,6 +136,11 @@ adding more read-only facade shells.
     no-repeat next steps; direct-control-only UI toggles, broad decisions
     catalogs, runtime proof, and parent Task 5.x/6.x acceptance remain out of
     scope.
+  - [x] 5.4.7 Burn down root public exports of direct-control runtime-port
+    result aliases from `@civ7/control-orpc`. Keep the live direct-control
+    facade and facade type available for edge-adapter context construction, but
+    leave raw result envelopes internal to service dependencies/tests or owned
+    by `@civ7/direct-control`.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -357,3 +362,6 @@ adding more read-only facade shells.
 - [x] 8.11 Run focused controller-ingress/intelligence-bridge tests, package
   check/build, strict OpenSpec validates, and diff hygiene for the
   `attention.current` controller ingress allowlist slice.
+- [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
+  strict OpenSpec validates, public root-export scan, and diff hygiene for the
+  raw runtime result root-export burn-down slice.
