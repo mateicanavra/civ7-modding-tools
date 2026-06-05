@@ -117,7 +117,6 @@ export const Civ7ControllerBridgeNotificationDismissRequestSchema = Type.Object(
     procedureKey: Type.Literal("notifications.dismiss.request"),
     input: Civ7NotificationDismissInputSchema,
     approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -131,7 +130,6 @@ export const Civ7ControllerBridgeTurnCompleteRequestSchema = Type.Object(
     procedureKey: Type.Literal("turn.complete.request"),
     input: Civ7TurnCompletionInputSchema,
     approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -145,7 +143,6 @@ export const Civ7ControllerBridgeCityProductionChoiceRequestSchema = Type.Object
     procedureKey: Type.Literal("city.production.choice.request"),
     input: Civ7CityProductionChoiceInputSchema,
     approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -160,7 +157,6 @@ export const Civ7ControllerBridgeCityPopulationPlacementRequestSchema =
       procedureKey: Type.Literal("city.population.place.request"),
       input: Civ7CityPopulationPlacementInputSchema,
       approval: Civ7ControllerBridgeApprovalSchema,
-      controllerProof: Civ7ControllerBridgeMutationProofSchema,
       correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
     },
     { additionalProperties: false },
@@ -174,7 +170,6 @@ export const Civ7ControllerBridgeNarrativeChoiceRequestSchema = Type.Object(
     procedureKey: Type.Literal("narrative.choice.request"),
     input: Civ7NarrativeChoiceInputSchema,
     approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -188,7 +183,6 @@ export const Civ7ControllerBridgeDiplomacyResponseRequestSchema = Type.Object(
     procedureKey: Type.Literal("diplomacy.response.request"),
     input: Civ7DiplomacyResponseInputSchema,
     approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -202,7 +196,6 @@ export const Civ7ControllerBridgeUnitTargetActionRequestSchema = Type.Object(
     procedureKey: Type.Literal("unit.target.action.request"),
     input: Civ7UnitTargetActionInputSchema,
     approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -217,7 +210,6 @@ export const Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema =
       procedureKey: Type.Literal("progression.technology.choice.request"),
       input: Civ7ProgressionChoiceInputSchema,
       approval: Civ7ControllerBridgeApprovalSchema,
-      controllerProof: Civ7ControllerBridgeMutationProofSchema,
       correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
     },
     { additionalProperties: false },
@@ -232,7 +224,6 @@ export const Civ7ControllerBridgeProgressionCultureChoiceRequestSchema =
       procedureKey: Type.Literal("progression.culture.choice.request"),
       input: Civ7ProgressionChoiceInputSchema,
       approval: Civ7ControllerBridgeApprovalSchema,
-      controllerProof: Civ7ControllerBridgeMutationProofSchema,
       correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
     },
     { additionalProperties: false },
@@ -485,9 +476,13 @@ export type Civ7ControllerBridgeResponse = Static<
   typeof Civ7ControllerBridgeResponseSchema
 >;
 
+export type Civ7ControllerBridgeContext = Civ7ControlOrpcContext & Readonly<{
+  controllerProof?: unknown;
+}>;
+
 export type Civ7ControllerBridgeContextFactory = (
   request: Civ7ControllerBridgeRequest,
-) => Civ7ControlOrpcContext | Promise<Civ7ControlOrpcContext>;
+) => Civ7ControllerBridgeContext | Promise<Civ7ControllerBridgeContext>;
 
 export type Civ7ControllerBridgeIngress = Readonly<{
   invoke(request: unknown): Promise<Civ7ControllerBridgeResponse>;
@@ -527,6 +522,17 @@ export async function invokeCiv7ControllerBridgeRequest(
 
   try {
     const context = await options.createContext(request);
+    const controllerProof = isControllerBridgeMutationRequest(request)
+      ? controllerProofFromContext(context)
+      : undefined;
+    if (isControllerBridgeMutationRequest(request) && controllerProof == null) {
+      return bridgeFailure({
+        code: "BRIDGE_CONTROLLER_PROOF_REQUIRED",
+        message:
+          "Civ7 controller bridge mutation proof is required before dispatch.",
+        reason: "invalid-envelope",
+      }, request);
+    }
     const approval = isControllerBridgeMutationRequest(request)
       ? request.approval
       : context.approval;
@@ -676,6 +682,15 @@ export async function invokeCiv7ControllerBridgeRequest(
   } catch (err) {
     return bridgeFailure(safeBridgeProcedureError(err), request);
   }
+}
+
+function controllerProofFromContext(
+  context: Civ7ControllerBridgeContext,
+): Civ7ControllerBridgeMutationProof | null {
+  if (!Value.Check(Civ7ControllerBridgeMutationProofSchema, context.controllerProof)) {
+    return null;
+  }
+  return context.controllerProof;
 }
 
 function isUnsupportedProcedureRequest(

@@ -9,6 +9,10 @@ import {
   type Civ7ControlOrpcPlayableStatusResult,
 } from "../src/index";
 
+type TestControllerContext = Civ7ControlOrpcContext & Readonly<{
+  controllerProof?: unknown;
+}>;
+
 const notificationId = { owner: 0, id: 113, type: 20 };
 const unitId = { owner: 0, id: 458_752, type: 26 };
 const target = { x: 22, y: 31 };
@@ -166,7 +170,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved notification dismissal",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-notification-1",
     });
 
@@ -204,7 +207,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved notification dismissal",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-notification-1",
     }]);
 
@@ -239,7 +241,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved turn completion",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-turn-1",
     });
 
@@ -275,7 +276,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved turn completion",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-turn-1",
     }]);
 
@@ -310,7 +310,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved unit target action",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-unit-target-1",
     });
 
@@ -349,7 +348,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved unit target action",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-unit-target-1",
     }]);
 
@@ -384,7 +382,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved production choice",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-production-1",
     });
 
@@ -423,7 +420,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved production choice",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-production-1",
     }]);
 
@@ -463,7 +459,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved population placement",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-population-1",
     });
 
@@ -510,7 +505,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved population placement",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-population-1",
     }]);
 
@@ -546,7 +540,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved narrative choice",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-narrative-1",
     });
 
@@ -587,7 +580,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved narrative choice",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-narrative-1",
     }]);
 
@@ -625,7 +617,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved diplomacy response",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-diplomacy-1",
     });
 
@@ -666,7 +657,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved diplomacy response",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-diplomacy-1",
     }]);
 
@@ -705,7 +695,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved technology choice",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-progression-tech-1",
     });
 
@@ -778,7 +767,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "controller approved culture choice",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-progression-culture-1",
     });
 
@@ -854,14 +842,12 @@ describe("Civ7 controller bridge ingress", () => {
         procedureKey: "notifications.dismiss.request",
         input: { notificationId },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
         host: "127.0.0.1",
       },
       {
         procedureKey: "notifications.dismiss.request",
         input: { notificationId, rawCommand: "Game.Notifications.dismiss(...)" },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "notifications.dismiss.request",
@@ -872,18 +858,11 @@ describe("Civ7 controller bridge ingress", () => {
           reason: "controller approved dismissal",
           command: "Game.Notifications.dismiss(...)",
         },
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "notifications.dismiss.request",
         input: { notificationId },
         approval: { approved: true, reason: "controller approved dismissal" },
-        controllerProof: controllerMutationProof(),
-      },
-      {
-        procedureKey: "notifications.dismiss.request",
-        input: { notificationId },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "notifications.dismiss.request",
@@ -915,20 +894,13 @@ describe("Civ7 controller bridge ingress", () => {
       { procedureKey: "turn.complete.request", input: {} },
       {
         procedureKey: "turn.complete.request",
-        input: {},
-        approval: controllerApproval(),
-      },
-      {
-        procedureKey: "turn.complete.request",
         input: { rawCommand: "GameContext.sendTurnComplete()" },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "turn.complete.request",
         input: {},
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
         session: { state: "App UI" },
       },
       {
@@ -940,25 +912,17 @@ describe("Civ7 controller bridge ingress", () => {
           reason: "controller approved turn completion",
           command: "GameContext.sendTurnComplete()",
         },
-        controllerProof: controllerMutationProof(),
       },
       { procedureKey: "unit.target.action.request", input: { unitId, ...target } },
       {
         procedureKey: "unit.target.action.request",
-        input: { unitId, ...target },
-        approval: controllerApproval(),
-      },
-      {
-        procedureKey: "unit.target.action.request",
         input: { unitId, ...target, rawCommand: "Game.UnitOperations.sendRequest(...)" },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "unit.target.action.request",
         input: { unitId, ...target },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
         state: { name: "App UI" },
       },
       {
@@ -970,16 +934,10 @@ describe("Civ7 controller bridge ingress", () => {
           reason: "controller approved unit target action",
           command: "Game.UnitOperations.sendRequest(...)",
         },
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "city.production.choice.request",
         input: { cityId, args: productionArgs },
-      },
-      {
-        procedureKey: "city.production.choice.request",
-        input: { cityId, args: productionArgs },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "city.production.choice.request",
@@ -989,13 +947,11 @@ describe("Civ7 controller bridge ingress", () => {
           rawCommand: "Game.CityOperations.sendRequest(...)",
         },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "city.production.choice.request",
         input: { cityId, args: productionArgs },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
         session: { state: "App UI" },
       },
       {
@@ -1007,7 +963,6 @@ describe("Civ7 controller bridge ingress", () => {
           reason: "controller approved production choice",
           command: "Game.CityOperations.sendRequest(...)",
         },
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "city.population.place.request",
@@ -1016,15 +971,6 @@ describe("Civ7 controller bridge ingress", () => {
           playerId: 0,
           location: workerLocation,
         },
-      },
-      {
-        procedureKey: "city.population.place.request",
-        input: {
-          mode: "assign-worker",
-          playerId: 0,
-          location: workerLocation,
-        },
-        approval: controllerApproval(),
       },
       {
         procedureKey: "city.population.place.request",
@@ -1035,7 +981,6 @@ describe("Civ7 controller bridge ingress", () => {
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "city.population.place.request",
@@ -1045,7 +990,6 @@ describe("Civ7 controller bridge ingress", () => {
           destination: target,
         },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
         state: { name: "App UI" },
       },
       {
@@ -1061,14 +1005,8 @@ describe("Civ7 controller bridge ingress", () => {
           reason: "controller approved population placement",
           command: "Game.PlayerOperations.sendRequest(...)",
         },
-        controllerProof: controllerMutationProof(),
       },
       { procedureKey: "narrative.choice.request", input: narrativeInput },
-      {
-        procedureKey: "narrative.choice.request",
-        input: narrativeInput,
-        approval: controllerApproval(),
-      },
       {
         procedureKey: "narrative.choice.request",
         input: {
@@ -1076,13 +1014,11 @@ describe("Civ7 controller bridge ingress", () => {
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "narrative.choice.request",
         input: narrativeInput,
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
         session: { state: "App UI" },
       },
       {
@@ -1094,14 +1030,8 @@ describe("Civ7 controller bridge ingress", () => {
           reason: "controller approved narrative choice",
           command: "Game.PlayerOperations.sendRequest(...)",
         },
-        controllerProof: controllerMutationProof(),
       },
       { procedureKey: "diplomacy.response.request", input: diplomacyInput },
-      {
-        procedureKey: "diplomacy.response.request",
-        input: diplomacyInput,
-        approval: controllerApproval(),
-      },
       {
         procedureKey: "diplomacy.response.request",
         input: {
@@ -1109,7 +1039,6 @@ describe("Civ7 controller bridge ingress", () => {
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "diplomacy.response.request",
@@ -1118,13 +1047,11 @@ describe("Civ7 controller bridge ingress", () => {
           activateNotification: false,
         },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "diplomacy.response.request",
         input: diplomacyInput,
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
         session: { state: "App UI" },
       },
       {
@@ -1136,16 +1063,10 @@ describe("Civ7 controller bridge ingress", () => {
           reason: "controller approved diplomacy response",
           command: "Game.PlayerOperations.sendRequest(...)",
         },
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "progression.technology.choice.request",
         input: progressionTechnologyInput,
-      },
-      {
-        procedureKey: "progression.technology.choice.request",
-        input: progressionTechnologyInput,
-        approval: controllerApproval(),
       },
       {
         procedureKey: "progression.technology.choice.request",
@@ -1154,13 +1075,11 @@ describe("Civ7 controller bridge ingress", () => {
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "progression.technology.choice.request",
         input: progressionTechnologyInput,
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
         session: { state: "App UI" },
       },
       {
@@ -1172,7 +1091,6 @@ describe("Civ7 controller bridge ingress", () => {
           reason: "controller approved technology choice",
           command: "Game.PlayerOperations.sendRequest(...)",
         },
-        controllerProof: controllerMutationProof(),
       },
       {
         procedureKey: "progression.culture.choice.request",
@@ -1185,7 +1103,6 @@ describe("Civ7 controller bridge ingress", () => {
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
         approval: controllerApproval(),
-        controllerProof: controllerMutationProof(),
       },
     ];
 
@@ -1205,6 +1122,31 @@ describe("Civ7 controller bridge ingress", () => {
       });
       expect(fake.calls).toEqual([]);
     }
+  });
+
+  test("requires controller-owned mutation proof before dispatch", async () => {
+    const fake = fakeContext(playableStatusResult(), false);
+
+    const response = await invokeCiv7ControllerBridgeRequest({
+      procedureKey: "notifications.dismiss.request",
+      input: { notificationId },
+      approval: controllerApproval(),
+      correlationId: "controller-missing-proof-1",
+    }, {
+      createContext: () => fake.context,
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      correlationId: "controller-missing-proof-1",
+      error: {
+        code: "BRIDGE_CONTROLLER_PROOF_REQUIRED",
+        message:
+          "Civ7 controller bridge mutation proof is required before dispatch.",
+        reason: "invalid-envelope",
+      },
+    });
+    expect(fake.calls).toEqual([]);
   });
 
   test("rejects procedures outside the bridge allowlist without dispatch", async () => {
@@ -1239,7 +1181,6 @@ describe("Civ7 controller bridge ingress", () => {
         approved: true,
         reason: "   ",
       },
-      controllerProof: controllerMutationProof(),
       correlationId: "controller-notification-approval-1",
     }, {
       createContext: () => fake.context,
@@ -1294,10 +1235,11 @@ describe("Civ7 controller bridge ingress", () => {
 
 function fakeContext(
   resultOrError: Civ7ControlOrpcPlayableStatusResult | Error,
+  withControllerProof = true,
 ): {
   calls: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: Array<Civ7ControlOrpcContext["endpointDefaults"]> = [];
   return {
@@ -1305,6 +1247,9 @@ function fakeContext(
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      ...(withControllerProof
+        ? { controllerProof: controllerMutationProof() }
+        : {}),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.push(options);
@@ -1322,7 +1267,7 @@ function fakeAttentionContext(unitId: { owner: number; id: number; type: number 
     readyUnit: Array<{ input: unknown; options: unknown }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     notifications: Array<Record<string, unknown> | undefined>;
@@ -1336,6 +1281,7 @@ function fakeAttentionContext(unitId: { owner: number; id: number; type: number 
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async () => playableStatusResult(),
         getCiv7PlayNotificationView: async (options) => {
@@ -1370,7 +1316,7 @@ function fakeNotificationDismissContext(): {
     }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -1388,6 +1334,7 @@ function fakeNotificationDismissContext(): {
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1411,7 +1358,7 @@ function fakeTurnCompleteContext(): {
     }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -1428,6 +1375,7 @@ function fakeTurnCompleteContext(): {
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1452,7 +1400,7 @@ function fakeUnitTargetActionContext(): {
     }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -1470,6 +1418,7 @@ function fakeUnitTargetActionContext(): {
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1494,7 +1443,7 @@ function fakeProductionChoiceContext(): {
     }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -1512,6 +1461,7 @@ function fakeProductionChoiceContext(): {
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1537,7 +1487,7 @@ function fakePopulationPlacementContext(): {
     }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -1556,6 +1506,7 @@ function fakePopulationPlacementContext(): {
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1594,7 +1545,7 @@ function fakeNarrativeChoiceContext(): {
     }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -1612,6 +1563,7 @@ function fakeNarrativeChoiceContext(): {
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1636,7 +1588,7 @@ function fakeDiplomacyResponseContext(): {
     }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -1654,6 +1606,7 @@ function fakeDiplomacyResponseContext(): {
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1684,7 +1637,7 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
     }>;
   };
   contextRequests: unknown[];
-  context: Civ7ControlOrpcContext;
+  context: TestControllerContext;
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -1714,6 +1667,7 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
     contextRequests: [],
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);

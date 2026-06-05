@@ -1,4 +1,5 @@
 import type { Civ7ControllerBridgeContextFactory } from "./bridge/controller-ingress";
+import type { Civ7ControllerBridgeMutationProof } from "./bridge/controller-ingress";
 import {
   installCiv7IntelligenceBridge,
   type Civ7IntelligenceBridge,
@@ -99,6 +100,7 @@ export function createCiv7GameUiControllerContextFactory(
   return () => ({
     directControl,
     endpointDefaults: { timeoutMs: options.timeoutMs ?? 1_000 },
+    controllerProof: gameUiControllerMutationProof(options.target) ?? undefined,
   });
 }
 
@@ -226,6 +228,54 @@ function gameUiSnapshot(target: Civ7GameUiRuntimeTarget) {
       randomSeed: probe(() => target.GameplayMap?.getRandomSeed?.() ?? 0),
     },
   };
+}
+
+function gameUiControllerMutationProof(
+  target: Civ7GameUiRuntimeTarget,
+): Civ7ControllerBridgeMutationProof | null {
+  if (probeValue(probe(() => target.UI?.isInGame?.() ?? false)) !== true) {
+    return null;
+  }
+
+  const localPlayerId = target.GameContext?.localPlayerID;
+  if (!isControllerPlayerId(localPlayerId)) return null;
+  if (!isSingleLocalHuman(target, localPlayerId)) return null;
+
+  return {
+    lifecycle: {
+      source: "controller-runtime",
+      status: "game-controller-ready",
+    },
+    localPlayer: {
+      source: "GameContext.localPlayerID",
+      playerId: localPlayerId,
+    },
+    hotseat: {
+      source: "controller-runtime",
+      status: "single-local-player",
+    },
+  };
+}
+
+function isSingleLocalHuman(
+  target: Civ7GameUiRuntimeTarget,
+  localPlayerId: number,
+): boolean {
+  const aliveHumanIds = probe(() => target.Players?.getAliveHumanIds?.());
+  if (aliveHumanIds.ok && Array.isArray(aliveHumanIds.value)) {
+    return aliveHumanIds.value.length === 1
+      && aliveHumanIds.value[0] === localPlayerId;
+  }
+
+  const aliveHumanCount = probe(() => target.Players?.getNumAliveHumans?.());
+  return aliveHumanCount.ok && aliveHumanCount.value === 1;
+}
+
+function isControllerPlayerId(playerId: unknown): playerId is number {
+  return typeof playerId === "number"
+    && Number.isInteger(playerId)
+    && playerId >= 0
+    && playerId <= 255;
 }
 
 function canBeginGame(target: Civ7GameUiRuntimeTarget): RuntimeProbe<boolean> {

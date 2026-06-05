@@ -57,20 +57,6 @@ describe("Civ7 game UI controller bootstrap", () => {
         approved: true,
         reason: "controller approved notification dismissal",
       },
-      controllerProof: {
-        lifecycle: {
-          source: "controller-runtime",
-          status: "game-controller-ready",
-        },
-        localPlayer: {
-          source: "GameContext.localPlayerID",
-          playerId: 0,
-        },
-        hotseat: {
-          source: "controller-runtime",
-          status: "single-local-player",
-        },
-      },
     });
 
     expect(response).toEqual({
@@ -83,6 +69,39 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     expect(JSON.stringify(response)).not.toContain("NotificationModel");
     expect(JSON.stringify(response)).not.toContain("Game.Notifications");
+    expect(JSON.stringify(response)).not.toContain("controller approved");
+  });
+
+  test("requires game-owned mutation proof before bridge dispatch", async () => {
+    const target = gameUiTarget({
+      Players: {
+        maxPlayers: 8,
+        getAliveIds: () => [0, 1],
+        getAliveHumanIds: () => [0, 1],
+        getNumAliveHumans: () => 2,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "notifications.dismiss.request",
+      input: { notificationId: { owner: 0, id: 113, type: 20 } },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved notification dismissal",
+      },
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      error: {
+        code: "BRIDGE_CONTROLLER_PROOF_REQUIRED",
+        message:
+          "Civ7 controller bridge mutation proof is required before dispatch.",
+        reason: "invalid-envelope",
+      },
+    });
     expect(JSON.stringify(response)).not.toContain("controller approved");
   });
 
@@ -99,6 +118,20 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     expect(context.endpointDefaults).toEqual({ timeoutMs: 250 });
     expect(context.approval).toBeUndefined();
+    expect(context.controllerProof).toEqual({
+      lifecycle: {
+        source: "controller-runtime",
+        status: "game-controller-ready",
+      },
+      localPlayer: {
+        source: "GameContext.localPlayerID",
+        playerId: 0,
+      },
+      hotseat: {
+        source: "controller-runtime",
+        status: "single-local-player",
+      },
+    });
     expect(await context.directControl.getCiv7PlayableStatus()).toMatchObject({
       host: "game-ui",
       port: 0,
@@ -111,8 +144,10 @@ describe("Civ7 game UI controller bootstrap", () => {
   });
 });
 
-function gameUiTarget(): Civ7GameUiRuntimeTarget {
-  return {
+function gameUiTarget(
+  overrides: Partial<Civ7GameUiRuntimeTarget> = {},
+): Civ7GameUiRuntimeTarget {
+  const target: Civ7GameUiRuntimeTarget = {
     UI: {
       isInGame: () => true,
       isInShell: () => false,
@@ -169,5 +204,9 @@ function gameUiTarget(): Civ7GameUiRuntimeTarget {
     Configuration: {
       getGame: () => ({ skipStartButton: false }),
     },
+  };
+  return {
+    ...target,
+    ...overrides,
   };
 }

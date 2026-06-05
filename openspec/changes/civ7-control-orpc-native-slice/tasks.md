@@ -482,57 +482,64 @@ adding more read-only facade shells.
     UIScript/modinfo packaging, and full `7.3` implementation pending.
   - [x] 7.3.5 Allowlist the first controller-ingress mutation,
     `notifications.dismiss.request`, only behind a closed serialized
-    controller approval/proof envelope. Require controller-runtime approval
-    metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; keep
+    controller approval envelope plus controller-context proof. Require
+    controller-runtime approval metadata in the request and
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; keep
     additional mutation allowlists, UIScript/modinfo packaging, runtime proof,
     and full `7.3` implementation pending.
   - [x] 7.3.6 Allowlist `turn.complete.request` through the same closed
-    controller approval/proof envelope. Require controller-runtime approval
-    metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; keep
+    controller approval envelope plus controller-context proof. Require
+    controller-runtime approval metadata in the request and
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; keep
     further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
     full `7.3` implementation pending.
   - [x] 7.3.7 Allowlist `unit.target.action.request` through the same closed
-    controller approval/proof envelope. Require controller-runtime approval
-    metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; keep
+    controller approval envelope plus controller-context proof. Require
+    controller-runtime approval metadata in the request and
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; keep
     further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
     full `7.3` implementation pending.
   - [x] 7.3.8 Allowlist `city.production.choice.request` through the same
-    closed controller approval/proof envelope. Require controller-runtime
-    approval metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; keep
+    closed controller approval envelope plus controller-context proof. Require
+    controller-runtime approval metadata in the request and
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; keep
     further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
     full `7.3` implementation pending.
   - [x] 7.3.9 Allowlist `city.population.place.request` through the same
-    closed controller approval/proof envelope. Require controller-runtime
-    approval metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; validate
+    closed controller approval envelope plus controller-context proof. Require
+    controller-runtime approval metadata in the request and
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; validate
     the existing semantic assign-worker/expand-city input shape, keep raw
     player-operation/city-command internals and approval reason out of bridge
     output, and keep further mutation allowlists, UIScript/modinfo packaging,
     runtime proof, and full `7.3` implementation pending.
   - [x] 7.3.10 Allowlist `narrative.choice.request` through the same closed
-    controller approval/proof envelope. Require controller-runtime approval
-    metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; validate
+    controller approval envelope plus controller-context proof. Require
+    controller-runtime approval metadata in the request and
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; validate
     the existing semantic narrative choice input shape, keep raw
     player-operation/App UI closeout/panel/popup internals and approval reason
     out of bridge output, and keep further mutation allowlists,
     UIScript/modinfo packaging, runtime proof, and full `7.3` implementation
     pending.
   - [x] 7.3.11 Allowlist `diplomacy.response.request` through the same closed
-    controller approval/proof envelope. Require controller-runtime approval
-    metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; validate
+    controller approval envelope plus controller-context proof. Require
+    controller-runtime approval metadata in the request and
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; validate
     the existing semantic diplomacy response input shape, keep raw
     player-operation/App UI closeout/notification/direct-control runtime
     internals and approval reason out of bridge output, and keep further
@@ -540,10 +547,10 @@ adding more read-only facade shells.
     `7.3` implementation pending.
   - [x] 7.3.12 Allowlist `progression.technology.choice.request` and
     `progression.culture.choice.request` through the same closed controller
-    approval/proof envelope. Require controller-runtime approval metadata,
-    game-controller-ready lifecycle evidence, `GameContext.localPlayerID`
-    evidence, and single-local-player/hotseat evidence before context
-    construction and native router dispatch; validate the existing semantic
+    approval envelope plus controller-context proof. Require controller-runtime
+    approval metadata in the request and game-controller-ready lifecycle,
+    `GameContext.localPlayerID`, and single-local-player/hotseat evidence in
+    controller context before native router dispatch; validate the existing semantic
     player/node/notification input shape, keep raw player-operation/App UI
     closeout/direct-control runtime internals and approval reason out of bridge
     output, and keep further mutation allowlists, UIScript/modinfo packaging,
@@ -559,6 +566,16 @@ adding more read-only facade shells.
     import Node/socket direct-control runtime code. Keep mutation runtime ports,
     lifecycle/hotseat certification, Civ7 deployment, live runtime proof, and
     full `7.3` implementation pending.
+  - [x] 7.3.14 Move controller mutation proof authority out of the serialized
+    caller envelope and into controller context. Require mutation request
+    envelopes to carry semantic input plus controller-runtime approval metadata
+    only; reject caller-supplied `controllerProof` as an extra field. Require
+    context-owned game-controller-ready lifecycle, `GameContext.localPlayerID`,
+    and single-local-player/hotseat proof before native router dispatch. Let
+    the game-UI adapter derive that proof from ambient `UI`, `GameContext`, and
+    `Players` globals while mutation runtime ports remain unsupported. Keep
+    Civ7 deployment, live runtime proof, mutation runtime support, and full
+    `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -649,6 +666,11 @@ adding more read-only facade shells.
   command/session strings, and RPC transport symbols. These are local
   source/bundle proofs only and do not claim deployed Civ7 runtime proof,
   mutation runtime support, play-thread action, or full `7.3` acceptance.
+- [x] 8.43 Run focused controller-ingress and game-ui controller tests,
+  control-oRPC package check/build/test, strict OpenSpec validates, and diff
+  hygiene for the context-owned controller proof slice. These are local package
+  proofs only and do not claim deployed Civ7 runtime proof, mutation runtime
+  support, play-thread action, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

@@ -408,10 +408,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `notifications.dismiss.request` procedure
 - **AND** its request envelope validates the existing notification-dismissal
   procedure input schema plus closed controller-runtime approval metadata
-- **AND** the same envelope requires closed controller proof metadata for
+- **AND** controller context requires closed controller proof metadata for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
-  evidence, and single-local-player/hotseat status before context construction
-  and native router dispatch
+  evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
   native mutation approval/readiness/proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
@@ -429,10 +428,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `turn.complete.request` procedure
 - **AND** its request envelope validates the existing empty turn-completion
   procedure input schema plus closed controller-runtime approval metadata
-- **AND** the same envelope requires closed controller proof metadata for
+- **AND** controller context requires closed controller proof metadata for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
-  evidence, and single-local-player/hotseat status before context construction
-  and native router dispatch
+  evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
   native mutation approval/readiness/proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
@@ -450,10 +448,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `unit.target.action.request` procedure
 - **AND** its request envelope validates the existing unit-target-action
   procedure input schema plus closed controller-runtime approval metadata
-- **AND** the same envelope requires closed controller proof metadata for
+- **AND** controller context requires closed controller proof metadata for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
-  evidence, and single-local-player/hotseat status before context construction
-  and native router dispatch
+  evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
   native mutation approval/readiness/proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
@@ -473,10 +470,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `city.production.choice.request` procedure
 - **AND** its request envelope validates the existing city-production-choice
   procedure input schema plus closed controller-runtime approval metadata
-- **AND** the same envelope requires closed controller proof metadata for
+- **AND** controller context requires closed controller proof metadata for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
-  evidence, and single-local-player/hotseat status before context construction
-  and native router dispatch
+  evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
   native mutation approval/readiness/proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
@@ -496,10 +492,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `city.population.place.request` procedure
 - **AND** its request envelope validates the existing population-placement
   procedure input schema plus closed controller-runtime approval metadata
-- **AND** the same envelope requires closed controller proof metadata for
+- **AND** controller context requires closed controller proof metadata for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
-  evidence, and single-local-player/hotseat status before context construction
-  and native router dispatch
+  evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
   native mutation approval/readiness/proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
@@ -520,10 +515,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `narrative.choice.request` procedure
 - **AND** its request envelope validates the existing narrative-choice
   procedure input schema plus closed controller-runtime approval metadata
-- **AND** the same envelope requires closed controller proof metadata for
+- **AND** controller context requires closed controller proof metadata for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
-  evidence, and single-local-player/hotseat status before context construction
-  and native router dispatch
+  evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
   native mutation approval/readiness/proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
@@ -543,10 +537,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `diplomacy.response.request` procedure
 - **AND** its request envelope validates the existing diplomacy-response
   procedure input schema plus closed controller-runtime approval metadata
-- **AND** the same envelope requires closed controller proof metadata for
+- **AND** controller context requires closed controller proof metadata for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
-  evidence, and single-local-player/hotseat status before context construction
-  and native router dispatch
+  evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
   native mutation approval/readiness/proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
@@ -569,10 +562,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** their request envelopes validate the existing semantic
   player/node/notification input schema plus closed controller-runtime approval
   metadata
-- **AND** the same envelopes require closed controller proof metadata for
+- **AND** controller context requires closed controller proof metadata for
   game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
-  evidence, and single-local-player/hotseat status before context construction
-  and native router dispatch
+  evidence, and single-local-player/hotseat status before native router dispatch
 - **AND** invocation delegates to the existing in-process router/client and
   native mutation approval/readiness/proof procedure middleware rather than
   adding a bridge-local dispatcher or mutation runner
@@ -609,6 +601,26 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   integrity; deployed Civ7 UIScript loading, controller lifecycle/hotseat
   certification, mutation runtime support, live runtime proof, and full `7.3`
   implementation remain pending
+
+#### Scenario: Controller mutation proof is context-owned
+- **WHEN** the controller bridge receives an allowlisted mutation request
+- **THEN** the serialized request envelope validates semantic procedure input
+  plus controller-runtime approval metadata, not caller-supplied lifecycle,
+  local-player, or hotseat proof
+- **AND** `controllerProof` in the serialized request is rejected as an extra
+  field rather than trusted as runtime evidence
+- **AND** controller context must provide game-controller-ready lifecycle,
+  `GameContext.localPlayerID`, and single-local-player/hotseat proof before
+  native router dispatch
+- **AND** the game-UI adapter derives that proof from ambient `UI`,
+  `GameContext`, and `Players` globals when the current game process provides
+  bounded single-local-player evidence
+- **AND** missing or insufficient context proof fails before mutation dispatch
+  through bounded bridge error output without raw command/session/App UI
+  payload leakage
+- **AND** local package tests prove only context-owned proof sourcing and
+  serialized envelope closure; deployed Civ7 runtime proof, mutation runtime
+  support, play-thread action, and full `7.3` implementation remain pending
 
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
