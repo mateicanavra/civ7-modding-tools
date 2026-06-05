@@ -178,11 +178,11 @@ Service ownership:
 | `notifications.dismiss.request` | notification domain mutation; semantic target still needs rebaseline |
 | `unit.ready.view` | burned down; `attention.current` consumes the direct-control ready-unit port |
 | `city.ready.view` | burned down; `attention.current` consumes the direct-control ready-city port |
-| `unit.summary.read`, `city.summary.read`, `player.summary.read` | burned down as public oRPC wrappers; future service-owned `world` view |
+| `unit.summary.read`, `city.summary.read`, `player.summary.read` | burned down as public oRPC wrappers; future `world` service must decompose lower-level runtime/probe resources or move semantic summary behavior into control-oRPC |
 | `unit.move.preview` | `world` read plus future unit validation evidence |
 | `unit.target.action.request` | `unit` |
 | `city.production.choice.request` | `decisions` |
-| `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `map.summary.read` wrapper burned down; future service-owned `world` view for map/grid/visibility |
+| `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `map.summary.read` wrapper burned down; future `world` service must not treat direct-control summary envelopes as bare runtime ports |
 | `strategy.*` planning reads | `strategy` |
 | narrative, diplomacy, culture, technology, population closeouts | `decisions` |
 | setup, restart, autoplay, reveal-map, turn-send behavior | domain-owned mutation or `debug`, depending on approval/risk class |

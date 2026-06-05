@@ -20,14 +20,15 @@ router registries, or transport handling.
 
 The product surface is a Civ7 control procedure layer for player support,
 Studio, in-game controller, and future AI callers. It composes stable
-service-owned capabilities over direct-control runtime ports; it does not
-replace direct-control runtime authority.
+service-owned capabilities over honest runtime resources; it does not replace
+direct-control runtime authority.
 
 ```text
 Direct-control runtime ports
-  Own Civ7 runtime access, validators, command-source serialization,
-  approval types, postconditions, proof labels, relationship evidence policy,
-  and semantic/debug projection facts.
+  Own Civ7 runtime resource access: socket/session lifecycle, state
+  selection, command-source serialization, raw probe execution, validators,
+  approval types, postconditions, proof labels, and relationship evidence
+  policy.
 
 Control-oRPC package
   Owns the offered service procedures: contracts, product procedure logic,
@@ -58,6 +59,27 @@ The OpenSpec workstream now freezes additional facade-only shells. The existing
 shells remain only as named transitional debt to be retired, moved, or
 rewritten in later slices. Do not add punitive tests for this transient debt;
 if broad enforcement is needed, use the repo lint/guardrail system.
+
+## Runtime Resource Boundary
+
+Do not call a direct-control function a runtime port only because it sits below
+the oRPC package. A valid runtime resource boundary is about tuner/Civ bridge
+mechanics: resource acquisition and release, socket/session protocol,
+buffering, schedules/reconnects, state selection, command serialization, raw
+probe execution, validators, and proof/postcondition ownership.
+
+Semantic service behavior belongs in `packages/civ7-control-orpc`. If a
+direct-control function already builds a semantic summary or service-shaped
+envelope, a native procedure must not simply import it and publish a nicer
+router surface. The implementation must either decompose lower-level runtime
+resources first, or move/consolidate that semantic behavior into the service
+owner.
+
+This especially blocks a naive `world.current` over direct-control
+`getCiv7MapSummary`, `getCiv7PlayerSummary`, `getCiv7UnitSummary`, and
+`getCiv7CitySummary`. Those functions remain useful evidence of fields and
+runtime probes, but they are not accepted as the final runtime-resource split
+for a world service slice.
 
 ## Rebaselined Workstream Order
 
@@ -101,7 +123,9 @@ handlers run:
 
 ```text
 directControl
-  Typed facade over direct-control runtime ports and proof/policy owners.
+  Typed facade over direct-control runtime resources and proof/policy owners.
+  It must not grow facade-only access to service-shaped direct-control
+  summaries as a shortcut around moving service behavior into control-oRPC.
 
 controller
   Optional in-game controller facade for scope="game" router execution.

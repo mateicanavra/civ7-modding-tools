@@ -68,8 +68,10 @@ outcome. The workstream is rebaselined around this order:
 3. Freeze facade-only wrapper expansion and move to service-owned procedures.
    - The historical read-only leaves over `unit.summary.read`,
      `map.summary.read`, `player.summary.read`, and `city.summary.read` have
-     been burned down; the direct-control summary atoms remain low-level
-     read capability owners until a real service-owned `world` view moves
+     been burned down. The direct-control summary functions are still
+     service-shaped transitional read debt, not proven low-level runtime
+     resources for `world.current`. A future world service slice must either
+     decompose lower-level Tuner/probe resources first or move semantic summary
      behavior into control-oRPC.
    - The historical `runtime.playable.status` facade leaf has been replaced by
      `readiness.current`, which projects the direct-control playable-status
@@ -103,7 +105,20 @@ outcome. The workstream is rebaselined around this order:
    - Local fake tests prove code boundaries only; mutation/runtime claims still
      require real-game proof or explicit pending-runtime-proof.
 
-5. Promote shared middleware only after repetition is real.
+5. Separate runtime resources from service behavior before world/read
+   composition.
+   - `@civ7/direct-control` may own tuner socket/session lifecycle, state
+     selection, command serialization, raw probe execution, validators,
+     postcondition/proof owners, and resource acquisition/release.
+   - `packages/civ7-control-orpc` owns native service contracts, routers,
+     typed context, tagged errors, middleware, semantic composition, and normal
+     caller-facing projection.
+   - Do not classify a direct-control function as a runtime port merely
+     because it already exists. If it builds semantic summary envelopes, a
+     native service slice must move or consolidate that behavior instead of
+     wrapping it.
+
+6. Promote shared middleware only after repetition is real.
    - Middleware candidates include endpoint defaults, readiness, approval,
      validator-first, postcondition/proof recording, relationship authority,
      safe error projection, correlation, and telemetry hooks.
@@ -112,13 +127,13 @@ outcome. The workstream is rebaselined around this order:
    - Use oRPC/effect-orpc middleware primitives; do not build a parallel
      `beforeHandler`/event/correlation pipeline.
 
-6. Add mutation procedures after middleware proof.
+7. Add mutation procedures after middleware proof.
    - Mutation procedures must preserve approval-first, validator-first,
      separated send receipt, post-read, postcondition classification,
      no-repeat-after-unverified, and honest pending-runtime-proof semantics.
    - Legacy `verified` booleans are source evidence, not proof authority.
 
-7. Add edge adapters last.
+8. Add edge adapters last.
    - CLI and tests call the router in process.
    - Studio browser/server uses `RPCHandler`/`RPCLink` after the shared router
      is stable.
