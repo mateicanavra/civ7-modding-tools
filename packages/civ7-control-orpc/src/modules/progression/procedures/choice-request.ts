@@ -68,11 +68,12 @@ export const progressionTechnologyChoiceRequestProcedure =
         const before = await context.directControl.getCiv7PlayNotificationView(
           context.endpointDefaults,
         );
-        const result = await requestProgressionChoice(kind, input, {
+        const requestInput = progressionChoiceRuntimeInput(input, before);
+        const result = await requestProgressionChoice(kind, requestInput, {
           context: context as ApprovedCiv7ControlOrpcContext,
         });
         const after = await readAfterProgressionChoice(context, result);
-        return progressionChoiceResult(kind, source, input, result, before, after);
+        return progressionChoiceResult(kind, source, requestInput, result, before, after);
       },
       catch: () =>
         errors.PROGRESSION_CHOICE_UNAVAILABLE({
@@ -100,11 +101,12 @@ export const progressionCultureChoiceRequestProcedure =
         const before = await context.directControl.getCiv7PlayNotificationView(
           context.endpointDefaults,
         );
-        const result = await requestProgressionChoice(kind, input, {
+        const requestInput = progressionChoiceRuntimeInput(input, before);
+        const result = await requestProgressionChoice(kind, requestInput, {
           context: context as ApprovedCiv7ControlOrpcContext,
         });
         const after = await readAfterProgressionChoice(context, result);
-        return progressionChoiceResult(kind, source, input, result, before, after);
+        return progressionChoiceResult(kind, source, requestInput, result, before, after);
       },
       catch: () =>
         errors.PROGRESSION_CHOICE_UNAVAILABLE({
@@ -145,6 +147,19 @@ async function requestProgressionChoice(
     dependencies.context.endpointDefaults,
     dependencies.context.approval!,
   );
+}
+
+function progressionChoiceRuntimeInput(
+  input: Civ7ProgressionChoiceInput,
+  before: Civ7ControlOrpcPlayNotificationViewResult,
+): Civ7ProgressionChoiceInput {
+  return {
+    playerId: before.localPlayerId,
+    node: input.node,
+    ...(input.notificationId === undefined
+      ? {}
+      : { notificationId: input.notificationId }),
+  };
 }
 
 function progressionChoiceResult(

@@ -100,6 +100,46 @@ describe("progression choice control-oRPC procedures", () => {
     expect(serialized).not.toContain("SET_TECH_TREE_NODE");
   });
 
+  test("uses local-player notification evidence rather than caller player id for progression sends", async () => {
+    const before = notificationView("NOTIFICATION_CHOOSE_TECH", {
+      currentResearching: probe(10),
+      targetNode: probe(20),
+    });
+    const after = cleanView({ canEndTurn: true });
+    const fake = fakeContext({
+      views: [before, after],
+      technologyResult: progressionCloseoutResult("technology"),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.progression.technology.choice.request,
+      {
+        ...technologyInput,
+        playerId: 2,
+      },
+      { context: fake.context },
+    );
+
+    expect(fake.calls.technology).toEqual([{
+      input: {
+        playerId: 0,
+        node: 18_001,
+        notificationId: { owner: 0, id: 72, type: 20 },
+      },
+      options: {
+        host: "127.0.0.1",
+        port: 4318,
+        timeoutMs: 1_000,
+      },
+      approval: {
+        approved: true,
+        reason: "local progression choice proof",
+      },
+    }]);
+    expect(result.playerId).toBe(0);
+    expect(result.status).toBe("sent-confirmed");
+  });
+
   test("keeps sent culture choices no-repeat guarded while the blocker remains live", async () => {
     const before = notificationView("NOTIFICATION_CHOOSE_CULTURE_NODE", {
       currentResearching: probe(30),

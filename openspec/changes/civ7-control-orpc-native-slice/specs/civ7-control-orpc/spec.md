@@ -664,6 +664,9 @@ boundaries.
 - **AND** its normal input exposes player, node, and optional notification
   identity rather than a generic `kind` discriminator or direct-control App UI
   toggles
+- **AND** its closeout request and normal output use the local-player evidence
+  from the before-notification read rather than treating caller `playerId` as
+  controller/runtime send authority
 - **AND** its normal output projects semantic status, evidence summary,
   postcondition summary, and next steps
 - **AND** if the closeout was sent but the post-send notification read fails,

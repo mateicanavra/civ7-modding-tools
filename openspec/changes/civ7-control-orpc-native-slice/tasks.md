@@ -252,6 +252,11 @@ adding more read-only facade shells.
     as sent-unverified pending runtime proof with no-repeat next steps, instead
     of surfacing a generic unavailable error after mutation authority may have
     been used.
+  - [x] 5.5.13.1 Bind progression choice closeout request identity to the
+    before-notification read's local-player evidence before invoking
+    direct-control technology/culture closeout ports. Keep caller `playerId` as
+    validation/context input, not controller/runtime send authority, and keep
+    progression bridge allowlisting pending.
   - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
     mutation procedure that composes approval, playable readiness,
     direct-control turn-completion send authority, and source-owned
@@ -605,6 +610,11 @@ adding more read-only facade shells.
   diff hygiene for the controller diplomacy response ingress allowlist slice.
   These are local package proofs only and do not claim Civ7 UIScript/modinfo
   packaging, live runtime proof, play-thread action, or full `7.3` acceptance.
+- [x] 8.40 Run focused control-oRPC progression choice procedure tests,
+  control-oRPC package test/check/build, strict OpenSpec validates, and diff
+  hygiene for the progression local-player evidence repair. These are local
+  package proofs only and do not allowlist progression through the controller
+  bridge, claim live runtime proof, or accept parent Task 7.3.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
