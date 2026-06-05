@@ -218,6 +218,24 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   procedure exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI notification dismissal send uses native notification procedure
+- **WHEN** `game play dismiss-notification --send` requests an approved
+  notification dismissal
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process `notifications.dismiss.request`
+  server-side client
+- **AND** the procedure's approval, readiness, direct-control validator,
+  postcondition projection, and no-repeat policy remain authoritative for the
+  send
+- **AND** the normal JSON result is the semantic notification dismissal
+  procedure projection without raw command/session/state/Tuner details, route
+  diagnostics, closeout path, verification attempts, or legacy `verified`
+- **AND** the read-only `game play dismiss-notification` inspection path
+  remains a direct-control notification dismissal read until a separate
+  accepted service read exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: In-game controller bridge preflight is recorded
 - **WHEN** the in-game controller bridge is planned before source
   implementation

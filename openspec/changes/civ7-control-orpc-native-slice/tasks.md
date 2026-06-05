@@ -381,8 +381,8 @@ adding more read-only facade shells.
 
 ## 7. Edge Adapters
 
-- [x] 7.1 Route one CLI caller through the in-process procedure client only
-  after the service-owned router shape is stable.
+- [x] 7.1 Route selected CLI callers through the in-process procedure client
+  only after the service-owned router shape is stable.
   - [x] 7.1.1 Route `civ7 game status` through the in-process
     `readiness.current` server-side client. Keep CLI endpoint flags as context
     construction, emit the semantic readiness projection, and keep raw
@@ -393,6 +393,12 @@ adding more read-only facade shells.
     turn-completion projection for send and expected guard-blocked `not-sent`
     output, preserve the existing direct-control status read for check-only
     mode, and keep live runtime proof pending.
+  - [x] 7.1.3 Route `civ7 game play dismiss-notification --send` through the
+    in-process `notifications.dismiss.request` server-side client. Keep
+    endpoint flags and approval reason as context construction, emit the
+    semantic notification dismissal projection for send output, preserve the
+    existing direct-control notification dismissal read for inspect-only mode,
+    and keep live runtime proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -509,3 +515,6 @@ adding more read-only facade shells.
   completion, and CLI end-turn tests, `check:cli`, `test:cli:play`, relevant
   OpenSpec strict validates, and diff hygiene for the CLI turn-completion send
   migration slice.
+- [x] 8.26 Run focused CLI notification dismissal tests, `check:cli`,
+  `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
+  the CLI notification dismissal send migration slice.
