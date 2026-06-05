@@ -13,7 +13,7 @@ import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.
 import { mapRiversArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlotRiversStepContract, {
   artifacts: implementArtifacts(

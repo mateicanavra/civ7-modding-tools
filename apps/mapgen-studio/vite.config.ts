@@ -797,6 +797,7 @@ export default defineConfig(({ command }) => ({
                     mapScript: launchMapScript,
                     mapSize,
                     seed,
+                    gameSeed: seed,
                     ...(playerCount === undefined ? {} : { playerCount }),
                     ...(setupConfig.savedConfig === undefined ? {} : { savedConfig: setupConfig.savedConfig }),
                     options: setupConfig.gameOptions,

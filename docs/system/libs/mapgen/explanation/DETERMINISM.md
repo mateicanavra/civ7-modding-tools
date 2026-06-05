@@ -22,9 +22,14 @@ Explain how MapGen achieves deterministic runs (and where determinism can be acc
 
 Key contributors:
 - an explicit run `env` with seed and dimensions,
-- a deterministic RNG state tracked in context,
+- a deterministic RNG state tracked in context and derived from `env.seed`,
 - strict config compilation (no silent unknowns),
 - stable plan fingerprinting for trace/viz identity.
+
+`ctxRandom(...)`, `deriveStepSeed(...)`, and `createLabelRng(...)` are the
+pipeline-owned entropy surfaces. They must not delegate to
+`EngineAdapter.getRandomNumber(...)`; the adapter RNG is a Civ7 compatibility
+surface for adapter-owned behavior, not authored MapGen physics.
 
 ## Debug posture (trace/viz)
 

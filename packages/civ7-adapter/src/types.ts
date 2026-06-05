@@ -457,7 +457,14 @@ export interface EngineAdapter {
 
   // === RANDOM NUMBER GENERATION ===
 
-  /** Seeded RNG (0..max-1) */
+  /**
+   * Civ7 engine RNG (0..max-1).
+   *
+   * MapGen-authored generation must not use this as an entropy source; use
+   * `ctxRandom`/`deriveStepSeed` from `@swooper/mapgen-core` so Studio, tests,
+   * and Civ7 runtime share the same pipeline-owned randomness. This adapter
+   * method remains for adapter-owned compatibility with Civ7 engine surfaces.
+   */
   getRandomNumber(max: number, label: string): number;
 
   // === UTILITIES ===

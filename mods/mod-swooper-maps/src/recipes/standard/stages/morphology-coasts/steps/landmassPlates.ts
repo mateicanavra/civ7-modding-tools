@@ -17,7 +17,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 const GROUP_TOPOGRAPHY = "Morphology / Topography";
 const GROUP_SUBSTRATE = "Morphology / Substrate";
 const GROUP_BELT_DRIVERS = "Morphology / Belt Drivers";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);

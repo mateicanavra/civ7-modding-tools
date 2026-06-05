@@ -1,8 +1,7 @@
 import type { MapDimensions } from "@civ7/adapter";
-import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, defineVizMeta, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
-import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import {
@@ -18,7 +17,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_COASTLINES = "Morphology / Coastlines";
 const GROUP_SHELF = "Morphology / Shelf";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);

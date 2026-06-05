@@ -1,13 +1,13 @@
 import {
   computeSampleStep,
   defineVizMeta,
+  deriveStepSeed,
   renderAsciiGrid,
   xyFromIndex,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
 import VolcanoesStepContract from "./volcanoes.contract.js";
-import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import {
   MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER,
@@ -19,7 +19,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 type VolcanoKind = "subductionArc" | "rift" | "hotspot";
 
 const GROUP_VOLCANOES = "Morphology / Volcanoes";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);

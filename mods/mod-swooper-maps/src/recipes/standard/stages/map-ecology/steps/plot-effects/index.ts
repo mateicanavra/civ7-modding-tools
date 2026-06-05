@@ -23,7 +23,7 @@ export default createStep(PlotEffectsStepContract, {
 
       context.viz?.dumpPoints(context.trace, {
         dataTypeKey: "map.ecology.plotEffects.plotEffect",
-        spaceId: "tile.hexOddR",
+        spaceId: "tile.hexOddQ",
         positions,
         values,
         valueFormat: "u16",

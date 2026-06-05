@@ -11,7 +11,7 @@ import {
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
 
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function computeFlowDir(options: {
   width: number;

@@ -8,7 +8,7 @@
  *
  * Invariants:
  * - Passes should ONLY access engine APIs via the adapter
- * - RNG calls should go through ctx.rng() for deterministic replay
+ * - RNG calls should go through ctxRandom/deriveStepSeed for deterministic replay
  * - Context is immutable reference (but buffers/fields are mutable for performance)
  * - Buffers are currently treated as artifacts for pipeline gating and DX
  *   (see ArtifactStore + MapBuffers notes for the temporary exception).
@@ -17,6 +17,7 @@
 import type { EngineAdapter, MapDimensions } from "@civ7/adapter";
 import type { Env } from "@mapgen/core/env.js";
 import { initializeTerrainConstants } from "@mapgen/core/terrain-constants.js";
+import { createLabelRng, type LabelRng } from "@mapgen/lib/rng/label.js";
 import type { TraceScope } from "@mapgen/trace/index.js";
 import { createNoopTraceScope } from "@mapgen/trace/index.js";
 import type {
@@ -183,11 +184,15 @@ export class ArtifactStore extends Map<string, unknown> {}
 // ============================================================================
 
 /**
- * RNG state for deterministic replay
+ * RNG state for deterministic replay.
+ *
+ * MapGen-authored randomness is seeded from `Env.seed`; the Civ7 adapter RNG is
+ * reserved for adapter-owned engine compatibility surfaces.
  */
 export interface RNGState {
   callCounts: Map<string, number>;
-  seed: number | null;
+  seed: number;
+  nextInt: LabelRng;
 }
 
 /**
@@ -337,7 +342,8 @@ export function createExtendedMapContext(
     },
     rng: {
       callCounts: new Map(),
-      seed: null,
+      seed: env.seed,
+      nextInt: createLabelRng(env.seed),
     },
     env,
     metrics: {
@@ -363,7 +369,10 @@ export function createExtendedMapContext(
 
 /**
  * Deterministic RNG helper for MapContext.
- * Tracks call counts per label for debugging and replay.
+ *
+ * Tracks call counts per label for debugging and replay. This deliberately
+ * derives from `ctx.env.seed`, not `ctx.adapter.getRandomNumber`, so browser,
+ * tests, and Civ7 runtime all consume the same authored entropy stream.
  */
 export function ctxRandom(
   ctx: ExtendedMapContext,
@@ -372,7 +381,7 @@ export function ctxRandom(
 ): number {
   const count = ctx.rng.callCounts.get(label) || 0;
   ctx.rng.callCounts.set(label, count + 1);
-  return ctx.adapter.getRandomNumber(max, `${label}_${count}`);
+  return ctx.rng.nextInt(max, `${label}_${count}`);
 }
 
 /**

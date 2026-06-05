@@ -35,16 +35,31 @@ This policy prevents derived outputs from becoming accidental “sources of trut
 - Projection steps depend on truth, not the other way around.
 - Projection outputs are treated as recomputable and non-canonical.
 - Debug overlays/snapshots can exist, but must be labeled derived/non-canonical.
+- Adapter legality/readback calls can validate or materialize authored truth at
+  projection boundaries.
 
 ### Disallowed
 
 - Truth steps that depend on projection-only surfaces.
 - Using debug overlays/snapshots as canonical pipeline products.
 - Documenting projections as if they are the primary domain model.
+- Using Civ7 engine RNG or official generator calls as inputs to authored truth.
+
+### Adapter Surface Taxonomy
+
+- **Authored entropy:** owned by MapGen core via `ctxRandom(...)`,
+  `deriveStepSeed(...)`, and `createLabelRng(...)` from `env.seed`.
+- **Policy/legality/readback:** adapter calls such as `canHaveFeature`,
+  `canHaveResource`, `getTerrainType`, `getFeatureType`, and `getResourceType`.
+- **Projection/materialization:** adapter calls such as `setTerrainType`,
+  `setBiomeType`, `setFeatureType`, `setResourceType`, `stampLakes`,
+  `placeResourceIntent`, `placeDiscoveryIntent`, and `setStartPosition`.
+- **Engine compatibility only:** `getRandomNumber` and official generators such
+  as resource/discovery/snow/biome/start generators. Standard authored
+  generation must not depend on these.
 
 ## Ground truth anchors
 
 - Narrative overlay snapshots are explicitly derived/non-canonical: `packages/mapgen-core/src/core/types.ts`
 - Target architecture posture for pipeline compilation and artifacts: `docs/projects/engine-refactor-v1/resources/spec/recipe-compile/architecture/00-fundamentals.md`
 - Standard content package posture: `docs/projects/engine-refactor-v1/resources/spec/SPEC-standard-content-package.md`
-

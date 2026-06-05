@@ -5,7 +5,7 @@ import { validateResourceBasinsArtifact } from "../../../ecology/artifact-valida
 import ResourceBasinsStepContract from "./contract.js";
 
 const GROUP_RESOURCE_BASINS = "Ecology / Resource Basins";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(ResourceBasinsStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.resourceBasins], {

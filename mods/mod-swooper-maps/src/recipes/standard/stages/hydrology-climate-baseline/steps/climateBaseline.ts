@@ -47,7 +47,7 @@ const GROUP_CLIMATE = "Hydrology / Climate";
 const GROUP_WIND = "Hydrology / Wind";
 const GROUP_CURRENT = "Hydrology / Currents";
 const GROUP_OCEAN = "Hydrology / Ocean";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function clampLatitudeDeg(latitudeDeg: number): number {
   if (!Number.isFinite(latitudeDeg)) return 0;

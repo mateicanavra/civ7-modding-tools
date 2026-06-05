@@ -242,7 +242,7 @@ export function emitStartViabilityViz(
   if (starts.scoreByTile.length === size) {
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "placement.starts.viabilityScore",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       dims: { width, height },
       format: "f32",
       values: starts.scoreByTile as Float32Array,
@@ -258,7 +258,7 @@ export function emitStartViabilityViz(
   if (starts.tierByTile.length === size) {
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "placement.starts.viabilityTier",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       dims: { width, height },
       format: "u8",
       values: starts.tierByTile as Uint8Array,
@@ -290,7 +290,7 @@ export function emitStartSectorViz(
 
   context.viz?.dumpGrid(context.trace, {
     dataTypeKey: "placement.starts.sectorId",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     dims: { width, height },
     format: "u16",
     values: grid,
@@ -391,7 +391,7 @@ export function emitStartPositionsViz(context: ExtendedMapContext, startPosition
 
   context.viz?.dumpGrid(context.trace, {
     dataTypeKey: "placement.starts.startPosition",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     dims: { width, height },
     format: "u16",
     values: grid,
@@ -406,7 +406,7 @@ export function emitStartPositionsViz(context: ExtendedMapContext, startPosition
 
   context.viz?.dumpPoints(context.trace, {
     dataTypeKey: "placement.starts.startPosition",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     positions,
     values,
     valueFormat: "u16",

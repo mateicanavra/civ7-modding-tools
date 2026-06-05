@@ -127,7 +127,7 @@ export function applyPlacementPlan({
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "map.placement.engine.landMask",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       dims: { width, height },
       format: "u8",
       values: engineSnapshot.landMask,

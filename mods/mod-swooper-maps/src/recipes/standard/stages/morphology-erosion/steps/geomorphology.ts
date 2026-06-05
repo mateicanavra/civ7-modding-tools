@@ -14,7 +14,7 @@ import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/co
 import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/config.js";
 
 const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(GeomorphologyStepContract, {
   normalize: (config, ctx) => {

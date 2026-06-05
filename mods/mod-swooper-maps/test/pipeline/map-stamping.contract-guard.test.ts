@@ -130,6 +130,16 @@ describe("map stamping contract guardrails", () => {
     expect(callers).toEqual([path.join(stagesRoot, "map-rivers/steps/plotRivers.ts")]);
   });
 
+  it("labels standard recipe tile layers as Civ row-major odd-q", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
+    const files = listFilesRecursive(stagesRoot).filter((file) => file.endsWith(".ts"));
+
+    const oddRCallsites = files.filter((file) => readFileSync(file, "utf8").includes("tile.hexOddR"));
+
+    expect(oddRCallsites).toEqual([]);
+  });
+
   it("does not add stage-shaped map helper directories outside the recipe stage list", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");

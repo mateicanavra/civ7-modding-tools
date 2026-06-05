@@ -1,7 +1,7 @@
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import { createLabelRng } from "@swooper/mapgen-core";
 
 import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";

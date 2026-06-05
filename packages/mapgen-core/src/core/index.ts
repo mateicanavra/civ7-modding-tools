@@ -36,7 +36,7 @@ export { clamp, clamp01, clampInt, clampPct } from "@mapgen/lib/math/clamp.js";
 export { clampChance, rollPercent } from "@mapgen/lib/math/chance.js";
 export { lerp } from "@mapgen/lib/math/lerp.js";
 export { normalizeRange } from "@mapgen/lib/math/range.js";
-export { createLabelRng } from "@mapgen/lib/rng/label.js";
+export { createLabelRng, deriveStepSeed } from "@mapgen/lib/rng/label.js";
 export type { LabelRng } from "@mapgen/lib/rng/label.js";
 
 /**
