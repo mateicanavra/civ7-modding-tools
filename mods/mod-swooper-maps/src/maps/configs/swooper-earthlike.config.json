@@ -233,7 +233,7 @@
         "driverExponent": 0.1,
         "mountainMaxFraction": 0.1,
         "hillMaxFraction": 0.22,
-        "foothillHillBudgetShare": 0.5,
+        "foothillHillBudgetShare": 0.7,
         "mountainSpineFraction": 0.08,
         "mountainSpineDilationSteps": 2,
         "rangeRegionThresholdScale": 0.35,

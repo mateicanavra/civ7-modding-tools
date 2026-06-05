@@ -40,6 +40,9 @@ export type WorldBalanceStats = Readonly<{
   plannedFoothillShareOfPreLakeLand: number;
   plannedRoughLandHillTiles: number;
   plannedRoughLandHillShareOfPreLakeLand: number;
+  plannedRoughLandHillComponentCount: number;
+  plannedLargestRoughLandHillComponentSize: number;
+  plannedLargestRoughLandHillComponentDiameter: number;
   plannedMeanRoughnessPotential: number;
   plannedRoughTerrainTiles: number;
   plannedRoughTerrainShareOfPreLakeLand: number;
@@ -657,6 +660,7 @@ export function collectWorldBalanceStats(args: Readonly<{
   const plannedHillTiles = countMask(mountains.hillMask);
   const plannedFoothillTiles = countMask(mountains.foothillMask);
   const plannedRoughLandHillTiles = countMask(mountains.roughLandMask);
+  const plannedRoughLandHillComponents = computeMaskComponents(mountains.roughLandMask, width, height);
   const landRoughnessPotential: number[] = [];
   for (let i = 0; i < mountains.roughnessPotential.length; i++) {
     if (topography.landMask[i] === 1) landRoughnessPotential.push(mountains.roughnessPotential[i] ?? 0);
@@ -722,6 +726,9 @@ export function collectWorldBalanceStats(args: Readonly<{
       plannedRoughLandHillTiles,
       preLakeLandTiles
     ),
+    plannedRoughLandHillComponentCount: plannedRoughLandHillComponents.componentCount,
+    plannedLargestRoughLandHillComponentSize: plannedRoughLandHillComponents.largestComponentSize,
+    plannedLargestRoughLandHillComponentDiameter: plannedRoughLandHillComponents.largestComponentDiameter,
     plannedMeanRoughnessPotential: roundMetric(mean(landRoughnessPotential)),
     plannedRoughTerrainTiles,
     plannedRoughTerrainShareOfPreLakeLand: shareOf(plannedRoughTerrainTiles, preLakeLandTiles),

@@ -119,6 +119,40 @@ function normalizeFlowAccum(value: number): number {
   return clamp01(Math.log1p(Math.max(0, value)) / 8);
 }
 
+function countAcceptedWithinHexDistance(params: {
+  index: number;
+  width: number;
+  height: number;
+  mask: Uint8Array;
+  maxDistance: number;
+}): number {
+  const { index, width, height, mask, maxDistance } = params;
+  if (maxDistance <= 0) return mask[index] === 1 ? 1 : 0;
+
+  const visited = new Uint8Array(mask.length);
+  const queue: Array<{ idx: number; distance: number }> = [{ idx: index, distance: 0 }];
+  visited[index] = 1;
+  let count = 0;
+  let head = 0;
+
+  while (head < queue.length) {
+    const { idx, distance } = queue[head++]!;
+    if (mask[idx] === 1) count += 1;
+    if (distance >= maxDistance) continue;
+
+    const x = idx % width;
+    const y = (idx / width) | 0;
+    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+      const next = ny * width + nx;
+      if (visited[next] === 1) return;
+      visited[next] = 1;
+      queue.push({ idx: next, distance: distance + 1 });
+    });
+  }
+
+  return count;
+}
+
 export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default", {
   run: (input, config) => {
     const {
@@ -155,7 +189,7 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       if (foothillMask[i] === 1) foothillCount += 1;
     }
 
-    const threshold = Math.max(0.08, config.hillThreshold * 0.5);
+    const threshold = Math.max(0.1, config.hillThreshold);
     const candidates: number[] = [];
 
     for (let i = 0; i < size; i++) {
@@ -211,30 +245,44 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
           : boundary === BOUNDARY_TYPE.divergent
             ? rift
             : stress);
+      const localReliefSupport = clamp01(localRelief * 1.2 + escarpment * 0.8 + basinMargin * 0.5);
+      const activeDeformationSupport = clamp01(
+        boundaryShoulder * 0.85 + riftShoulder * 0.65 + stress * (boundary === BOUNDARY_TYPE.transform ? 0.45 : 0.15)
+      );
+      const dissectedUplandSupport = clamp01(
+        (oldHighland * 0.3 + rollingUpland * 0.25 + plateau * 0.45) *
+          (0.15 + localReliefSupport * 0.65 + fractal * 0.2)
+      );
 
       const score = clamp01(
-        (oldHighland * 0.95 +
-          rollingUpland * 0.75 +
+        (oldHighland * 0.25 +
+          rollingUpland * 0.35 +
           riftShoulder * 0.7 +
-          plateau * 0.55 +
-          escarpment * 0.65 +
+          plateau * 0.2 +
+          escarpment * 0.85 +
           basinMargin * 0.4 +
-          boundaryShoulder * 0.45) *
+          boundaryShoulder * 0.45 +
+          dissectedUplandSupport * 0.8) *
           Math.max(0, config.tectonicIntensity) *
-          (0.75 + fractal * 0.5)
+          (0.45 + fractal * 0.65)
       );
       roughScoreByTile[i] = score;
       roughnessPotential[i] = encodeNormalizedToU8(score);
 
       const hasCausalSupport =
-        oldHighland > 0.06 ||
-        rollingUpland > 0.08 ||
-        riftShoulder > 0.08 ||
-        plateau > 0.08 ||
-        escarpment > 0.1 ||
+        localReliefSupport > 0.12 ||
+        activeDeformationSupport > 0.16 ||
+        riftShoulder > 0.12 ||
+        escarpment > 0.12 ||
         basinMargin > 0.06 ||
-        boundaryShoulder > 0.08;
-      if (hasCausalSupport && score >= threshold) candidates.push(i);
+        (dissectedUplandSupport > 0.08 &&
+          fractal > 0.48 &&
+          (localReliefSupport > 0.08 || activeDeformationSupport > 0.12 || flowRelief > 0.25));
+      const textureGate =
+        fractal > 0.42 ||
+        localReliefSupport > 0.2 ||
+        activeDeformationSupport > 0.28;
+      if (hasCausalSupport && textureGate && score >= threshold) candidates.push(i);
     }
 
     const hillBudgetRaw =
@@ -256,9 +304,21 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       return a - b;
     });
 
-    for (let k = 0; k < roughTarget; k++) {
+    let accepted = 0;
+    for (let k = 0; k < candidates.length && accepted < roughTarget; k++) {
       const idx = candidates[k]!;
+      const nearbyAccepted = countAcceptedWithinHexDistance({
+        index: idx,
+        width,
+        height,
+        mask: hillMask,
+        maxDistance: 2,
+      });
+      const score = roughScoreByTile[idx] ?? 0;
+      const localDensityLimit = score > threshold * 2.25 ? 5 : score > threshold * 1.5 ? 4 : 2;
+      if (nearbyAccepted >= localDensityLimit) continue;
       hillMask[idx] = 1;
+      accepted += 1;
     }
 
     return { hillMask, roughnessPotential };

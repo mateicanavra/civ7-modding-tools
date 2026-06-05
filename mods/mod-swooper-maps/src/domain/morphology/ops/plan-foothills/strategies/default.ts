@@ -174,6 +174,10 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
 
       const dist = distanceToMountains[i] ?? 255;
       const closeToMountains = dist !== 255 && dist <= foothillMaxDistance;
+      const distanceNorm =
+        closeToMountains && foothillMaxDistance > 0
+          ? Math.max(0, Math.min(1, (foothillMaxDistance - Math.max(0, dist - 1)) / foothillMaxDistance))
+          : 0;
 
       // Allow foothills either as skirts adjacent to ridges, or as boundary-adjacent ruggedness
       // only when physics indicates meaningful deformation. This prevents planet-wide hills when
@@ -181,6 +185,7 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const closenessNorm = boundaryCloseness[i] / 255;
       const boundaryStrength = resolveBoundaryStrength(closenessNorm, boundaryGate, falloffExponent);
       const closeToBoundary = boundaryStrength > 0;
+      const fractal = normalizeMountainFractal(fractalHill[i]);
 
       // Strong boundary deformation signals (byte-space) used to avoid "all hills everywhere".
       // The threshold is `driverSignalByteMin` so this remains coherent with determinism gates.
@@ -195,10 +200,15 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const strongTransform = boundary === BOUNDARY_TYPE.transform && stressByte >= config.driverSignalByteMin;
       const strongBoundaryDeformation = strongConvergence || strongDivergence || strongTransform;
 
-      const ridgeSkirt =
-        foothillMaxDistance > 0 && closeToMountains && score > 0;
+      const nearRidge = dist <= 2;
+      const outerSkirtVariance = fractal > 0.34 + distanceNorm * 0.18 || strongBoundaryDeformation;
+      const ridgeSkirt = foothillMaxDistance > 0 && closeToMountains && score > 0 && (nearRidge || outerSkirtVariance);
 
       if (ridgeSkirt || (closeToBoundary && strongBoundaryDeformation)) {
+        if (ridgeSkirt) {
+          const distanceScale = nearRidge ? 1 : 0.45 + fractal * 0.55;
+          hillScoreByTile[i] = score * (0.45 + distanceNorm * 0.55) * distanceScale;
+        }
         candidates.push(i);
       }
     }
