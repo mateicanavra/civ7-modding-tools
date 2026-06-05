@@ -301,6 +301,31 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   separate first-meet service procedure exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI narrative choice send uses native decision procedure
+- **WHEN** `game play choose-narrative --send` requests an approved narrative
+  story direction choice
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process
+  `decisions.narrative.choice.request` server-side client under the
+  `decisions` router
+- **AND** the procedure's approval, readiness, direct-control narrative choice
+  port, narrative postcondition projection, and no-repeat policy remain
+  authoritative for the send
+- **AND** the send result uses direct-control source evidence for the acted
+  local player rather than treating the caller validation `--player-id` as send
+  authority
+- **AND** the normal JSON result is the semantic narrative choice procedure
+  projection without raw command/session/state/Tuner details, App UI closeout
+  payloads, panel/popup internals, direct-control runtime payloads, or legacy
+  `verified`
+- **AND** the read-only `game play choose-narrative --options` path remains a
+  direct-control notification/option read until a separate accepted service
+  read exists
+- **AND** the read-only validation path remains direct-control
+  player-operation validation until a separate accepted service read exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: In-game controller bridge preflight is recorded
 - **WHEN** the in-game controller bridge is planned before source
   implementation
@@ -400,6 +425,9 @@ boundaries.
   runtime/proof ports rather than reimplementing postcondition truth
 - **AND** its normal output projects semantic status, validation summary,
   postcondition summary, and next steps
+- **AND** its normal output uses direct-control source evidence for the acted
+  player rather than echoing caller validation identity when runtime sends use
+  the local player
 - **AND** it excludes endpoint, session, state, raw command, payload, and
   legacy `verified` details from caller-facing input and output
 - **AND** unverified, stale, missing-postcondition, no-state-change, and

@@ -53,6 +53,7 @@ export type Civ7NarrativeChoiceCommandPayload = Readonly<{
 }>;
 
 export type Civ7NarrativeChoiceResult = Readonly<{
+  playerId: number;
   before: Civ7PlayNotificationViewResult;
   beforeValidation: Civ7OperationValidationResult;
   command?: Civ7CommandResult;
@@ -102,8 +103,9 @@ export async function requestCiv7NarrativeChoice(
   if (!Number.isInteger(input.action)) dependencies.invalidActionError();
 
   const before = await dependencies.getPlayNotificationView(options);
+  const playerId = before.localPlayerId;
   const operationInput = {
-    playerId: input.playerId,
+    playerId,
     operationType: "CHOOSE_NARRATIVE_STORY_DIRECTION",
     args: {
       TargetType: input.targetType,
@@ -114,6 +116,7 @@ export async function requestCiv7NarrativeChoice(
   const beforeValidation = await dependencies.canStartPlayerOperation(operationInput, options);
   if (!beforeValidation.valid) {
     return {
+      playerId,
       before,
       beforeValidation,
       after: before,
@@ -150,6 +153,7 @@ export async function requestCiv7NarrativeChoice(
     payload,
   );
   return {
+    playerId,
     before,
     beforeValidation,
     command,

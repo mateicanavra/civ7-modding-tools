@@ -421,6 +421,14 @@ adding more read-only facade shells.
     player-operation validation path for read-only mode, leave
     `game play respond-first-meet` outside this slice, and keep live runtime
     proof pending.
+  - [x] 7.1.7 Route `civ7 game play choose-narrative --send` through the
+    in-process `decisions.narrative.choice.request` server-side client under
+    the `decisions` router. Keep endpoint flags and approval reason as context
+    construction, emit the semantic narrative choice projection for send output
+    with direct-control acted/local-player evidence rather than treating
+    `--player-id` as send authority, preserve the existing direct-control
+    `--options` and player-operation validation paths for read-only mode, and
+    keep live runtime proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -549,3 +557,7 @@ adding more read-only facade shells.
 - [x] 8.29 Run focused CLI diplomacy response tests, `check:cli`,
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI diplomacy response send migration slice.
+- [x] 8.30 Run focused direct-control narrative request, control-oRPC
+  narrative decision, CLI narrative tests, `check:cli`, `test:cli:play`,
+  relevant OpenSpec strict validates, and diff hygiene for the CLI narrative
+  choice send migration slice.

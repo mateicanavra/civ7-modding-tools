@@ -1,5 +1,7 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7PlayNotificationView, requestCiv7NarrativeChoice } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
+import { getCiv7PlayNotificationView } from '@civ7/direct-control';
 import {
   buildApproval,
   buildDirectControlOptions,
@@ -15,7 +17,7 @@ export default class GamePlayChooseNarrative extends Command {
   static id = 'game play choose-narrative';
   static summary = 'Validate or choose a narrative story direction';
   static description =
-    'Wraps player-operation CHOOSE_NARRATIVE_STORY_DIRECTION with the live story target, target type, action, and official narrative UI close handling.';
+    'Validates narrative story direction choices as player operations, or sends them through the native control-oRPC decision procedure when --send and --reason are explicit.';
 
   static examples = [
     '<%= config.bin %> game play choose-narrative --options --json',
@@ -112,12 +114,16 @@ export default class GamePlayChooseNarrative extends Command {
       },
     };
     const result = flags.send
-      ? await requestCiv7NarrativeChoice({
+      ? await createCiv7ControlOrpcServerClient({
+          directControl: liveCiv7ControlOrpcDirectControlFacade,
+          endpointDefaults: options,
+          approval: buildApproval(reason),
+        }).decisions.narrative.choice.request({
           playerId: flags['player-id'],
           targetType: flags['target-type'],
           target,
           action: flags.action,
-        }, options, buildApproval(reason))
+        })
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

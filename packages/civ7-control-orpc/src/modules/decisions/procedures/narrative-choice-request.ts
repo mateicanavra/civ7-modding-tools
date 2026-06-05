@@ -68,7 +68,7 @@ function narrativeChoiceResult(
   });
 
   return {
-    playerId: input.playerId,
+    playerId: result.playerId,
     targetType: input.targetType,
     target: input.target,
     action: input.action,

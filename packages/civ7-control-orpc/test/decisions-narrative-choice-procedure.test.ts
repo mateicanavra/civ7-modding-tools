@@ -77,6 +77,25 @@ describe("decisions.narrative.choice.request control-oRPC procedure", () => {
     expect(serialized).not.toContain("Game.turn");
   });
 
+  test("projects source-owned acted player evidence instead of caller validation player", async () => {
+    const input = {
+      ...narrativeInput,
+      playerId: 2,
+    };
+    const fake = fakeContext(narrativeChoiceResult("narrative-blocker-cleared", {
+      playerId: 0,
+    }));
+
+    const result = await call(
+      Civ7ControlOrpcRouter.decisions.narrative.choice.request,
+      input,
+      { context: fake.context },
+    );
+
+    expect(fake.calls.request[0]?.input).toEqual(input);
+    expect(result.playerId).toBe(0);
+  });
+
   test("keeps sent no-state-change narrative choices no-repeat guarded", async () => {
     const fake = fakeContext(narrativeChoiceResult("no-state-change", {
       afterValid: true,
@@ -312,6 +331,7 @@ function fakeContext(
 function narrativeChoiceResult(
   classification: Civ7ControlOrpcNarrativeChoiceResult["postcondition"]["classification"],
   options: Partial<{
+    playerId: number;
     sent: boolean;
     beforeValid: boolean;
     afterValid: boolean;
@@ -320,6 +340,7 @@ function narrativeChoiceResult(
 ): Civ7ControlOrpcNarrativeChoiceResult {
   const sent = options.sent ?? classification !== "not-sent";
   return {
+    playerId: options.playerId ?? narrativeInput.playerId,
     before: {} as Civ7ControlOrpcNarrativeChoiceResult["before"],
     beforeValidation: {
       valid: options.beforeValid ?? classification !== "not-sent",

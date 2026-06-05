@@ -45,6 +45,8 @@ command wiring, or live-game/runtime proof claim.
   postcondition and no-repeat classification;
 - projects normal output as semantic choice status, validation summary,
   postcondition summary, and next steps;
+- projects acted player identity from source-owned direct-control runtime
+  evidence rather than echoing caller validation identity;
 - excludes endpoint host/port, state/session controls, raw command strings,
   raw payloads, and legacy `verified` details from procedure input and normal
   output.
@@ -71,6 +73,8 @@ Focused package proof covers:
 - approval is required before readiness and narrative request execution;
 - playable readiness middleware runs before direct-control request authority;
 - confirmed source-owned narrative postconditions project as sent-confirmed;
+- source-owned acted-player evidence is projected instead of caller validation
+  player identity when runtime sends use the local player;
 - validator-blocked and no-state-change paths remain guarded and do not infer
   repeat safety from legacy `verified`;
 - endpoint/session/state/raw command fields are rejected as procedure input;
