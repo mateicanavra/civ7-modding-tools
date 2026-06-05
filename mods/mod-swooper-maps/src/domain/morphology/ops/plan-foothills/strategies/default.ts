@@ -103,6 +103,7 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
     const oldBeltHillScale = Math.max(0, Math.min(2, config.oldBeltHillScale));
     const foothillMaxDistance = Math.max(0, Math.min(255, Math.round(config.foothillMaxDistance))) | 0;
     const hillMaxFraction = Math.max(0, Math.min(1, config.hillMaxFraction));
+    const foothillBudgetShare = Math.max(0, Math.min(1, config.foothillHillBudgetShare));
 
     let landCount = 0;
     let mountainCount = 0;
@@ -202,7 +203,7 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       }
     }
 
-    const hillTargetRaw = Math.floor(landCount * hillMaxFraction) | 0;
+    const hillTargetRaw = Math.floor(landCount * hillMaxFraction * foothillBudgetShare) | 0;
     const hillCapacity = Math.max(0, landCount - mountainCount) | 0;
     const hillTarget = Math.max(0, Math.min(candidates.length, hillCapacity, hillTargetRaw)) | 0;
 

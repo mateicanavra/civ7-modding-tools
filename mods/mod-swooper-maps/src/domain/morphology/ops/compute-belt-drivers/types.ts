@@ -2,6 +2,7 @@ export type BeltComponentSummary = {
   id: number;
   boundaryType: number;
   size: number;
+  diameter: number;
   meanUpliftBlend: number;
   meanWidthScale: number;
   meanSigma: number;

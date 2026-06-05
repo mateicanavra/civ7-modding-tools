@@ -109,14 +109,6 @@
         }
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "config": {},
-          "strategy": "default"
-        }
-      }
-    },
     "morphology-erosion": {
       "geomorphology": {
         "geomorphology": {
@@ -174,6 +166,7 @@
             "convergenceBonus": 0.95,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.3,
             "fractureBoundaryWeight": 0.7,
@@ -211,6 +204,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.3,
             "riftPenalty": 0.7,
             "tectonicIntensity": 0.85,
@@ -227,6 +225,7 @@
             "convergenceBonus": 0.95,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.3,
             "fractureBoundaryWeight": 0.7,
@@ -264,6 +263,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.3,
             "riftPenalty": 0.7,
             "tectonicIntensity": 0.85,
@@ -280,6 +284,7 @@
             "convergenceBonus": 0.95,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.3,
             "fractureBoundaryWeight": 0.7,
@@ -317,6 +322,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.3,
             "riftPenalty": 0.7,
             "tectonicIntensity": 0.85,
@@ -343,6 +353,14 @@
             "shieldPenalty": 0.35,
             "transformMultiplier": 1.1
           },
+          "strategy": "default"
+        }
+      }
+    },
+    "morphology-routing": {
+      "routing": {
+        "routing": {
+          "config": {},
           "strategy": "default"
         }
       }
@@ -458,14 +476,6 @@
         }
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "config": {},
-          "strategy": "default"
-        }
-      }
-    },
     "morphology-erosion": {
       "geomorphology": {
         "geomorphology": {
@@ -523,6 +533,7 @@
             "convergenceBonus": 1,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.3,
             "fractureBoundaryWeight": 0.7,
@@ -560,6 +571,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.35,
             "riftPenalty": 0.7,
             "tectonicIntensity": 0.65,
@@ -576,6 +592,7 @@
             "convergenceBonus": 1,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.3,
             "fractureBoundaryWeight": 0.7,
@@ -613,6 +630,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.35,
             "riftPenalty": 0.7,
             "tectonicIntensity": 0.65,
@@ -629,6 +651,7 @@
             "convergenceBonus": 1,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.3,
             "fractureBoundaryWeight": 0.7,
@@ -666,6 +689,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.35,
             "riftPenalty": 0.7,
             "tectonicIntensity": 0.65,
@@ -692,6 +720,14 @@
             "shieldPenalty": 0.2,
             "transformMultiplier": 1.4
           },
+          "strategy": "default"
+        }
+      }
+    },
+    "morphology-routing": {
+      "routing": {
+        "routing": {
+          "config": {},
           "strategy": "default"
         }
       }
@@ -807,14 +843,6 @@
         }
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "config": {},
-          "strategy": "default"
-        }
-      }
-    },
     "morphology-erosion": {
       "geomorphology": {
         "geomorphology": {
@@ -872,6 +900,7 @@
             "convergenceBonus": 0.6,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.9,
             "fractureBoundaryWeight": 0.7,
@@ -909,6 +938,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.45,
             "riftPenalty": 0.65,
             "tectonicIntensity": 0.63,
@@ -925,6 +959,7 @@
             "convergenceBonus": 0.6,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.9,
             "fractureBoundaryWeight": 0.7,
@@ -962,6 +997,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.45,
             "riftPenalty": 0.65,
             "tectonicIntensity": 0.63,
@@ -978,6 +1018,7 @@
             "convergenceBonus": 0.6,
             "driverExponent": 1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.6,
             "foothillMaxDistance": 2,
             "fractalWeight": 0.9,
             "fractureBoundaryWeight": 0.7,
@@ -1015,6 +1056,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.45,
             "riftPenalty": 0.65,
             "tectonicIntensity": 0.63,
@@ -1041,6 +1087,14 @@
             "shieldPenalty": 0.3,
             "transformMultiplier": 0.7
           },
+          "strategy": "default"
+        }
+      }
+    },
+    "morphology-routing": {
+      "routing": {
+        "routing": {
+          "config": {},
           "strategy": "default"
         }
       }
@@ -1156,14 +1210,6 @@
         }
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "config": {},
-          "strategy": "default"
-        }
-      }
-    },
     "morphology-erosion": {
       "geomorphology": {
         "geomorphology": {
@@ -1221,6 +1267,7 @@
             "convergenceBonus": 1,
             "driverExponent": 0.1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.5,
             "foothillMaxDistance": 3,
             "fractalWeight": 0.25,
             "fractureBoundaryWeight": 0.7,
@@ -1232,7 +1279,7 @@
             "hillFoothillFractalGain": 0.5,
             "hillFractalScale": 0.3,
             "hillInteriorFalloff": 0,
-            "hillMaxFraction": 0.18,
+            "hillMaxFraction": 0.22,
             "hillRiftBonus": 0.25,
             "hillRiftBonusScale": 0.5,
             "hillRiftDepthScale": 0.5,
@@ -1258,6 +1305,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.2,
             "riftPenalty": 1,
             "tectonicIntensity": 2.125,
@@ -1274,6 +1326,7 @@
             "convergenceBonus": 1,
             "driverExponent": 0.1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.5,
             "foothillMaxDistance": 3,
             "fractalWeight": 0.25,
             "fractureBoundaryWeight": 0.7,
@@ -1285,7 +1338,7 @@
             "hillFoothillFractalGain": 0.5,
             "hillFractalScale": 0.3,
             "hillInteriorFalloff": 0,
-            "hillMaxFraction": 0.18,
+            "hillMaxFraction": 0.22,
             "hillRiftBonus": 0.25,
             "hillRiftBonusScale": 0.5,
             "hillRiftDepthScale": 0.5,
@@ -1311,6 +1364,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.2,
             "riftPenalty": 1,
             "tectonicIntensity": 2.125,
@@ -1327,6 +1385,7 @@
             "convergenceBonus": 1,
             "driverExponent": 0.1,
             "driverSignalByteMin": 30,
+            "foothillHillBudgetShare": 0.5,
             "foothillMaxDistance": 3,
             "fractalWeight": 0.25,
             "fractureBoundaryWeight": 0.7,
@@ -1338,7 +1397,7 @@
             "hillFoothillFractalGain": 0.5,
             "hillFractalScale": 0.3,
             "hillInteriorFalloff": 0,
-            "hillMaxFraction": 0.18,
+            "hillMaxFraction": 0.22,
             "hillRiftBonus": 0.25,
             "hillRiftBonusScale": 0.5,
             "hillRiftDepthScale": 0.5,
@@ -1364,6 +1423,11 @@
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
+            "rangeCorridorSlack": 4,
+            "rangePassFractalCutoff": 0.08,
+            "rangeRegionMinDiameter": 10,
+            "rangeRegionThresholdScale": 0.35,
+            "rangeSpineDensity": 1,
             "riftDepth": 0.2,
             "riftPenalty": 1,
             "tectonicIntensity": 2.125,
@@ -1390,6 +1454,14 @@
             "shieldPenalty": 0.55,
             "transformMultiplier": 0.8
           },
+          "strategy": "default"
+        }
+      }
+    },
+    "morphology-routing": {
+      "routing": {
+        "routing": {
+          "config": {},
           "strategy": "default"
         }
       }

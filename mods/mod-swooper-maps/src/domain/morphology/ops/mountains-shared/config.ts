@@ -72,6 +72,14 @@ export const MountainsConfigSchema = Type.Object({
     minimum: 0,
     maximum: 1,
   }),
+  /** Fraction of the hill budget reserved for foothill skirts around ridge systems. */
+  foothillHillBudgetShare: Type.Number({
+    description:
+      "Controls the share of hill terrain budget reserved for foothills around mountain ridge systems; the remainder is reserved for rough uplands.",
+    default: 0.6,
+    minimum: 0,
+    maximum: 1,
+  }),
   /**
    * Target fraction of land tiles used as *ridge spines* (0..1).
    *
@@ -95,6 +103,56 @@ export const MountainsConfigSchema = Type.Object({
     default: 1,
     minimum: 0,
     maximum: 6,
+  }),
+  /**
+   * Relative threshold for the full mountain-region footprint before peak/spine classification.
+   *
+   * This is intentionally independent from `mountainThreshold`: a range region includes passes,
+   * shoulders, valleys, and foothills, while the mountain threshold classifies true peak/ridge tiles.
+   */
+  rangeRegionThresholdScale: Type.Number({
+    description:
+      "Controls how much lower than mountainThreshold a tectonic range-region footprint may extend.",
+    default: 0.35,
+    minimum: 0,
+    maximum: 1,
+  }),
+  /**
+   * Minimum end-to-end component length for preferred range-region planning.
+   *
+   * Shorter high-scoring components can still produce mountains, but long components receive priority
+   * so active margins read as ranges rather than isolated peak clusters.
+   */
+  rangeRegionMinDiameter: Type.Integer({
+    description:
+      "Controls the preferred minimum end-to-end hex length for a mountain range-region component.",
+    default: 10,
+    minimum: 0,
+    maximum: 80,
+  }),
+  /** Corridor slack around a component's end-to-end spine path, in hex steps. */
+  rangeCorridorSlack: Type.Integer({
+    description:
+      "Controls how many hexes away from the traced range axis can still count as range spine corridor.",
+    default: 4,
+    minimum: 0,
+    maximum: 12,
+  }),
+  /** Target true-mountain spine density along each range component, in tiles per hex of component length. */
+  rangeSpineDensity: Type.Number({
+    description:
+      "Controls how continuously true mountain spines are painted along traced range-region components.",
+    default: 1.0,
+    minimum: 0.1,
+    maximum: 4,
+  }),
+  /** Low fractal values below this cutoff open passes/valleys inside lower-scoring range corridors. */
+  rangePassFractalCutoff: Type.Number({
+    description:
+      "Controls pass and valley gaps inside range corridors; lower values produce fewer gaps.",
+    default: 0.08,
+    minimum: 0,
+    maximum: 1,
   }),
   /**
    * Age-based relief attenuation for mountains (0..1).

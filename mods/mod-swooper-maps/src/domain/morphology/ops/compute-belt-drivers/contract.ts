@@ -13,6 +13,10 @@ const BeltComponentSummarySchema = Type.Object(
       description: "Boundary type (BOUNDARY_TYPE values).",
     }),
     size: Type.Integer({ minimum: 0, description: "Number of tiles in this connected belt seed component." }),
+    diameter: Type.Integer({
+      minimum: 0,
+      description: "Approximate hex-graph end-to-end length of this connected belt seed component.",
+    }),
     meanUpliftBlend: Type.Number({
       description: "Mean uplift blend intensity (0..255) across belt seeds in this component (pre-decay).",
     }),

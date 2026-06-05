@@ -4,11 +4,11 @@ import {
   defineVizMeta,
   renderAsciiGrid,
   shadeByte,
+  deriveStepSeed,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import {
   MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
@@ -21,7 +21,7 @@ import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import MountainsStepContract from "./mountains.contract.js";
 
 const GROUP_MORPHOLOGY_FEATURES = "Morphology / Features";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function buildFractalArray(width: number, height: number, seed: number, grain: number): Int16Array {
   const fractal = new Int16Array(width * height);
@@ -151,6 +151,7 @@ export default createStep(MountainsStepContract, {
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
         beltAge: beltDrivers.beltAge,
+        beltMask: beltDrivers.beltMask,
         fractalMountain,
       },
       config.ridges

@@ -4,7 +4,7 @@ import {
   type ResourcePlacementRejectionReason,
 } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
+import { collectMaskComponentsOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
@@ -30,10 +30,12 @@ export type WorldBalanceStats = Readonly<{
   plannedMountainShareOfPreLakeLand: number;
   plannedMountainComponentCount: number;
   plannedLargestMountainComponentSize: number;
+  plannedLargestMountainComponentDiameter: number;
   plannedHillTiles: number;
   plannedHillShareOfPreLakeLand: number;
   plannedHillComponentCount: number;
   plannedLargestHillComponentSize: number;
+  plannedLargestHillComponentDiameter: number;
   plannedFoothillTiles: number;
   plannedFoothillShareOfPreLakeLand: number;
   plannedRoughLandHillTiles: number;
@@ -49,6 +51,7 @@ export type WorldBalanceStats = Readonly<{
   finalMountainShareOfPreLakeLand: number;
   finalMountainComponentCount: number;
   finalLargestMountainComponentSize: number;
+  finalLargestMountainComponentDiameter: number;
   finalNonVolcanoMountainTiles: number;
   finalNonVolcanoMountainShareOfPreLakeLand: number;
   finalVolcanoMountainTiles: number;
@@ -57,6 +60,7 @@ export type WorldBalanceStats = Readonly<{
   finalHillShareOfPreLakeLand: number;
   finalHillComponentCount: number;
   finalLargestHillComponentSize: number;
+  finalLargestHillComponentDiameter: number;
   finalRoughTerrainTiles: number;
   finalRoughTerrainShareOfPreLakeLand: number;
   finalNonVolcanoRoughTerrainTiles: number;
@@ -279,36 +283,24 @@ function computeMaskComponents(mask: Uint8Array, width: number, height: number):
   componentCount: number;
   singleTileCount: number;
   largestComponentSize: number;
+  largestComponentDiameter: number;
 } {
-  const visited = new Uint8Array(mask.length);
-  let componentCount = 0;
+  const components = collectMaskComponentsOddQ({ mask, width, height });
   let singleTileCount = 0;
   let largestComponentSize = 0;
-
-  for (let i = 0; i < mask.length; i++) {
-    if (mask[i] !== 1 || visited[i] === 1) continue;
-    componentCount += 1;
-    let componentSize = 0;
-    const queue = [i];
-    visited[i] = 1;
-
-    while (queue.length > 0) {
-      const current = queue.pop()!;
-      componentSize += 1;
-      const x = current % width;
-      const y = (current / width) | 0;
-      for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
-        if (mask[neighbor] !== 1 || visited[neighbor] === 1) continue;
-        visited[neighbor] = 1;
-        queue.push(neighbor);
-      }
-    }
-
-    if (componentSize === 1) singleTileCount += 1;
-    largestComponentSize = Math.max(largestComponentSize, componentSize);
+  let largestComponentDiameter = 0;
+  for (const component of components) {
+    if (component.size === 1) singleTileCount += 1;
+    largestComponentSize = Math.max(largestComponentSize, component.size);
+    largestComponentDiameter = Math.max(largestComponentDiameter, component.diameter);
   }
 
-  return { componentCount, singleTileCount, largestComponentSize };
+  return {
+    componentCount: components.length,
+    singleTileCount,
+    largestComponentSize,
+    largestComponentDiameter,
+  };
 }
 
 /**
@@ -717,10 +709,12 @@ export function collectWorldBalanceStats(args: Readonly<{
     plannedMountainShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : plannedMountainTiles / preLakeLandTiles,
     plannedMountainComponentCount: plannedMountainComponents.componentCount,
     plannedLargestMountainComponentSize: plannedMountainComponents.largestComponentSize,
+    plannedLargestMountainComponentDiameter: plannedMountainComponents.largestComponentDiameter,
     plannedHillTiles,
     plannedHillShareOfPreLakeLand: shareOf(plannedHillTiles, preLakeLandTiles),
     plannedHillComponentCount: plannedHillComponents.componentCount,
     plannedLargestHillComponentSize: plannedHillComponents.largestComponentSize,
+    plannedLargestHillComponentDiameter: plannedHillComponents.largestComponentDiameter,
     plannedFoothillTiles,
     plannedFoothillShareOfPreLakeLand: shareOf(plannedFoothillTiles, preLakeLandTiles),
     plannedRoughLandHillTiles,
@@ -739,6 +733,7 @@ export function collectWorldBalanceStats(args: Readonly<{
     finalMountainShareOfPreLakeLand: shareOf(finalMountainTiles, preLakeLandTiles),
     finalMountainComponentCount: finalMountainComponents.componentCount,
     finalLargestMountainComponentSize: finalMountainComponents.largestComponentSize,
+    finalLargestMountainComponentDiameter: finalMountainComponents.largestComponentDiameter,
     finalNonVolcanoMountainTiles,
     finalNonVolcanoMountainShareOfPreLakeLand: shareOf(
       finalNonVolcanoMountainTiles,
@@ -750,6 +745,7 @@ export function collectWorldBalanceStats(args: Readonly<{
     finalHillShareOfPreLakeLand: shareOf(finalHillTiles, preLakeLandTiles),
     finalHillComponentCount: finalHillComponents.componentCount,
     finalLargestHillComponentSize: finalHillComponents.largestComponentSize,
+    finalLargestHillComponentDiameter: finalHillComponents.largestComponentDiameter,
     finalRoughTerrainTiles,
     finalRoughTerrainShareOfPreLakeLand: shareOf(finalRoughTerrainTiles, preLakeLandTiles),
     finalNonVolcanoRoughTerrainTiles,

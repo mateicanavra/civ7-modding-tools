@@ -2,9 +2,9 @@
   "$schema": "../../../dist/recipes/standard-map-config.schema.json",
   "id": "swooper-earthlike",
   "name": "Swooper Earthlike",
-  "description": "An Earth-analogue world with vast oceans, a handful of major continents, and familiar climate belts. Expect wet equatorial jungles, dry subtropical deserts, temperate heartlands, and polar tundra shaped by plate-driven mountain arcs and broad passive coasts.",
+  "description": "Swooper Earthlike",
   "recipe": "standard",
-  "sortIndex": 501,
+  "sortIndex": 900,
   "config": {
     "foundation": {
       "knobs": {
@@ -13,8 +13,6 @@
       "meshResolution": {
         "plateCount": 24,
         "cellsPerPlate": 13,
-        "referenceArea": 4536,
-        "plateScalePower": 0.8,
         "relaxationSteps": 2
       },
       "mantleSources": {
@@ -44,8 +42,6 @@
       },
       "platePartition": {
         "plateCount": 37,
-        "referenceArea": 4536,
-        "plateScalePower": 0.8,
         "polarCaps": {
           "capFraction": 0.08,
           "microplateBandFraction": 0.2,
@@ -236,9 +232,15 @@
         "driverSignalByteMin": 30,
         "driverExponent": 0.1,
         "mountainMaxFraction": 0.1,
-        "hillMaxFraction": 0.18,
+        "hillMaxFraction": 0.22,
+        "foothillHillBudgetShare": 0.5,
         "mountainSpineFraction": 0.08,
         "mountainSpineDilationSteps": 2,
+        "rangeRegionThresholdScale": 0.35,
+        "rangeRegionMinDiameter": 10,
+        "rangeCorridorSlack": 4,
+        "rangeSpineDensity": 1,
+        "rangePassFractalCutoff": 0.08,
         "oldBeltMountainScale": 0.4,
         "oldBeltHillScale": 1.1,
         "foothillMaxDistance": 3,
@@ -741,7 +743,6 @@
       }
     },
     "placement": {
-      "knobs": {},
       "naturalWonders": {
         "minSpacingTiles": 6
       },
@@ -761,18 +762,19 @@
       "starts": {
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
-        "minExpansionLandTiles": 14,
+        "minExpansionLandTiles": 4,
         "islandClusterRadiusTiles": 5,
-        "minIslandClusterLandTiles": 18,
-        "maxIslandStartCoastDistance": 1,
+        "minIslandClusterLandTiles": 3,
+        "maxIslandStartCoastDistance": 8,
         "minStartSpacingTiles": 9,
-        "resourceSupportRadiusTiles": 4,
+        "resourceSupportRadiusTiles": 1,
         "resourceSupportWeight": 1,
         "fertilityWeight": 1.2,
         "freshwaterWeight": 0.9,
-        "largeLandmassWeight": 1,
+        "largeLandmassWeight": 4,
         "roughnessPenaltyWeight": 0.6
-      }
+      },
+      "knobs": {}
     }
   }
 }

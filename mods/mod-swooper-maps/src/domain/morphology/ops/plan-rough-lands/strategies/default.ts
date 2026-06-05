@@ -237,11 +237,16 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       if (hasCausalSupport && score >= threshold) candidates.push(i);
     }
 
-    const hillBudgetRaw = Math.floor(landCount * Math.max(0, Math.min(1, config.hillMaxFraction))) | 0;
+    const hillBudgetRaw =
+      Math.floor(
+        landCount *
+          Math.max(0, Math.min(1, config.hillMaxFraction)) *
+          (1 - Math.max(0, Math.min(1, config.foothillHillBudgetShare)))
+      ) | 0;
     const hillCapacity = Math.max(0, landCount - mountainCount - foothillCount) | 0;
     const roughTarget = Math.max(
       0,
-      Math.min(candidates.length, hillCapacity, hillBudgetRaw - foothillCount)
+      Math.min(candidates.length, hillCapacity, hillBudgetRaw)
     ) | 0;
 
     candidates.sort((a, b) => {
