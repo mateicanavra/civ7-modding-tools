@@ -8,10 +8,6 @@ import {
   type Civ7CityContract as Civ7CityContractType,
 } from "./modules/city/contract";
 import {
-  Civ7MapContract,
-  type Civ7MapContract as Civ7MapContractType,
-} from "./modules/map/contract";
-import {
   Civ7ReadinessContract,
   type Civ7ReadinessContract as Civ7ReadinessContractType,
 } from "./modules/readiness/contract";
@@ -20,10 +16,6 @@ import {
   type Civ7NotificationsContract as Civ7NotificationsContractType,
 } from "./modules/notifications/contract";
 import {
-  Civ7PlayerContract,
-  type Civ7PlayerContract as Civ7PlayerContractType,
-} from "./modules/player/contract";
-import {
   Civ7UnitContract,
   type Civ7UnitContract as Civ7UnitContractType,
 } from "./modules/unit/contract";
@@ -31,9 +23,7 @@ import {
 export type Civ7ControlOrpcContract = Readonly<{
   attention: Civ7AttentionContractType;
   city: Civ7CityContractType;
-  map: Civ7MapContractType;
   notifications: Civ7NotificationsContractType;
-  player: Civ7PlayerContractType;
   readiness: Civ7ReadinessContractType;
   unit: Civ7UnitContractType;
 }>;
@@ -42,9 +32,7 @@ export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
   civ7ControlOrpcContractBase.router({
     attention: Civ7AttentionContract,
     city: Civ7CityContract,
-    map: Civ7MapContract,
     notifications: Civ7NotificationsContract,
-    player: Civ7PlayerContract,
     readiness: Civ7ReadinessContract,
     unit: Civ7UnitContract,
   });

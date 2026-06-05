@@ -91,6 +91,9 @@ future package proves repeated use through oRPC/effect-orpc primitives.
 - Ready views and summaries are read atoms over stable TypeBox schemas:
   `unit.ready.view`, `unit.move.preview`, `unit.summary.read`,
   `city.ready.view`, `city.summary.read`, and `player.summary.read`.
+  Their transitional public control-oRPC facade leaves have been burned down;
+  future exposure should be a service-owned semantic view, not a direct
+  wrapper over these atoms.
 - Strategy reads are planning evidence: traditions, progress dashboard,
   settlement recommendations, target candidates, battlefield scan, and
   destination analysis.

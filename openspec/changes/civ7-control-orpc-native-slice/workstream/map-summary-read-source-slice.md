@@ -1,10 +1,16 @@
 # Map Summary Read Source Slice
 
-Status: implemented local source slice.
+Status: burned down after transitional proof.
 Date: 2026-06-04.
 
 Historical note: this is transitional proof of native in-process oRPC
 mechanics, not a template for future facade-only read wrappers.
+
+Burn-down note: the public `map.summary.read` control-oRPC contract, router
+family, handler, tagged error, direct-control facade context method, and
+focused test were removed in the summary-wrapper burn-down slice. The
+direct-control map summary atom remains the low-level read owner until a real
+service-owned `world` view is designed.
 
 ## Scope
 

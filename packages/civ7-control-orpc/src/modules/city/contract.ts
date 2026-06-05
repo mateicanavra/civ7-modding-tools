@@ -1,6 +1,4 @@
 import {
-  Civ7CitySummaryInputSchema,
-  Civ7CitySummaryResultSchema,
   Civ7ComponentIdSchema,
   Civ7MapLocationSchema,
   Civ7ProductionChoiceInputSchema,
@@ -14,12 +12,6 @@ import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7CitySummaryInputStandardSchema = toStandardSchema(
-  Civ7CitySummaryInputSchema,
-);
-export const Civ7CitySummaryResultStandardSchema = toStandardSchema(
-  Civ7CitySummaryResultSchema,
-);
 export const Civ7CityProductionChoiceInputStandardSchema = toStandardSchema(
   Civ7ProductionChoiceInputSchema,
 );
@@ -232,24 +224,6 @@ export const Civ7CityProductionChoiceResultStandardSchema = toStandardSchema(
   Civ7CityProductionChoiceResultSchema,
 );
 
-export type Civ7CitySummaryContract = ContractProcedure<
-  typeof Civ7CitySummaryInputStandardSchema,
-  typeof Civ7CitySummaryResultStandardSchema,
-  Civ7ControlOrpcErrorMap,
-  Civ7ControlOrpcProcedureMeta
->;
-
-export const Civ7CitySummaryContract: Civ7CitySummaryContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7CitySummaryInputStandardSchema)
-    .output(Civ7CitySummaryResultStandardSchema)
-    .meta({
-      family: "city",
-      procedureKey: "city.summary.read",
-      proofBoundary: "local-package-test",
-      risk: "read-only",
-    });
-
 export type Civ7CityPopulationPlacementContract = ContractProcedure<
   typeof Civ7CityPopulationPlacementInputStandardSchema,
   typeof Civ7CityPopulationPlacementResultStandardSchema,
@@ -297,9 +271,6 @@ export type Civ7CityContract = Readonly<{
       request: Civ7CityProductionChoiceContract;
     }>;
   }>;
-  summary: Readonly<{
-    read: Civ7CitySummaryContract;
-  }>;
 }>;
 
 export const Civ7CityContract: Civ7CityContract = {
@@ -312,8 +283,5 @@ export const Civ7CityContract: Civ7CityContract = {
     choice: {
       request: Civ7CityProductionChoiceContract,
     },
-  },
-  summary: {
-    read: Civ7CitySummaryContract,
   },
 };

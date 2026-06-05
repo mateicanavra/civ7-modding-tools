@@ -71,6 +71,11 @@
     control-oRPC facade leaf with the service-owned `readiness.current`
     procedure; keep direct-control playable status as an internal runtime port
     and omit raw host/port/state/Tuner/error details from normal output.
+  - [x] 4.11.5 Burn down the remaining transitional summary read facade
+    leaves: `map.summary.read`, `player.summary.read`, `unit.summary.read`,
+    and `city.summary.read`. Keep direct-control summary atoms as low-level
+    runtime/read capability owners until a real service-owned `world` view is
+    designed and implemented.
 
 This phase is closed as transitional proof only. It must not be extended by
 adding more read-only facade shells.

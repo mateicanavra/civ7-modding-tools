@@ -1,6 +1,5 @@
 import { cityProductionChoiceRequestProcedure } from "./procedures/production-choice-request";
 import { cityPopulationPlaceRequestProcedure } from "./procedures/population-place-request";
-import { citySummaryReadProcedure } from "./procedures/summary-read";
 
 export const cityRouter = {
   population: {
@@ -12,8 +11,5 @@ export const cityRouter = {
     choice: {
       request: cityProductionChoiceRequestProcedure,
     },
-  },
-  summary: {
-    read: citySummaryReadProcedure,
   },
 };

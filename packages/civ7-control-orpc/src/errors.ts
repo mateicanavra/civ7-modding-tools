@@ -49,69 +49,6 @@ export class Civ7AttentionCurrentUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
-export const Civ7CitySummaryUnavailableErrorDataSchema = Type.Object(
-  {
-    procedureKey: Type.Literal("city.summary.read"),
-    source: Type.Literal("direct-control-facade"),
-  },
-  { additionalProperties: false },
-);
-export type Civ7CitySummaryUnavailableErrorData = Static<
-  typeof Civ7CitySummaryUnavailableErrorDataSchema
->;
-
-export class Civ7CitySummaryUnavailableError extends ORPCTaggedError(
-  "Civ7CitySummaryUnavailableError",
-  {
-    code: "CITY_SUMMARY_UNAVAILABLE",
-    message: "Direct-control city summary failed.",
-    schema: toStandardSchema(Civ7CitySummaryUnavailableErrorDataSchema),
-    status: 503,
-  },
-) {}
-
-export const Civ7MapSummaryUnavailableErrorDataSchema = Type.Object(
-  {
-    procedureKey: Type.Literal("map.summary.read"),
-    source: Type.Literal("direct-control-facade"),
-  },
-  { additionalProperties: false },
-);
-export type Civ7MapSummaryUnavailableErrorData = Static<
-  typeof Civ7MapSummaryUnavailableErrorDataSchema
->;
-
-export class Civ7MapSummaryUnavailableError extends ORPCTaggedError(
-  "Civ7MapSummaryUnavailableError",
-  {
-    code: "MAP_SUMMARY_UNAVAILABLE",
-    message: "Direct-control map summary failed.",
-    schema: toStandardSchema(Civ7MapSummaryUnavailableErrorDataSchema),
-    status: 503,
-  },
-) {}
-
-export const Civ7PlayerSummaryUnavailableErrorDataSchema = Type.Object(
-  {
-    procedureKey: Type.Literal("player.summary.read"),
-    source: Type.Literal("direct-control-facade"),
-  },
-  { additionalProperties: false },
-);
-export type Civ7PlayerSummaryUnavailableErrorData = Static<
-  typeof Civ7PlayerSummaryUnavailableErrorDataSchema
->;
-
-export class Civ7PlayerSummaryUnavailableError extends ORPCTaggedError(
-  "Civ7PlayerSummaryUnavailableError",
-  {
-    code: "PLAYER_SUMMARY_UNAVAILABLE",
-    message: "Direct-control player summary failed.",
-    schema: toStandardSchema(Civ7PlayerSummaryUnavailableErrorDataSchema),
-    status: 503,
-  },
-) {}
-
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -218,39 +155,14 @@ export class Civ7PopulationPlacementUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
-export const Civ7UnitSummaryUnavailableErrorDataSchema = Type.Object(
-  {
-    procedureKey: Type.Literal("unit.summary.read"),
-    source: Type.Literal("direct-control-facade"),
-  },
-  { additionalProperties: false },
-);
-export type Civ7UnitSummaryUnavailableErrorData = Static<
-  typeof Civ7UnitSummaryUnavailableErrorDataSchema
->;
-
-export class Civ7UnitSummaryUnavailableError extends ORPCTaggedError(
-  "Civ7UnitSummaryUnavailableError",
-  {
-    code: "UNIT_SUMMARY_UNAVAILABLE",
-    message: "Direct-control unit summary failed.",
-    schema: toStandardSchema(Civ7UnitSummaryUnavailableErrorDataSchema),
-    status: 503,
-  },
-) {}
-
 export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
-  CITY_SUMMARY_UNAVAILABLE: Civ7CitySummaryUnavailableError,
-  MAP_SUMMARY_UNAVAILABLE: Civ7MapSummaryUnavailableError,
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
-  PLAYER_SUMMARY_UNAVAILABLE: Civ7PlayerSummaryUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
-  UNIT_SUMMARY_UNAVAILABLE: Civ7UnitSummaryUnavailableError,
 } satisfies EffectErrorMap;
 
 export type Civ7ControlOrpcEffectErrorMap = typeof civ7ControlOrpcErrorMap;
