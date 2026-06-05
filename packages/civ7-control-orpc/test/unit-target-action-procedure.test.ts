@@ -378,6 +378,10 @@ function fakeContext(
           }
         : options.approval,
       directControl: {
+        getCiv7PlayableStatus: async () => ({
+          playable: true,
+          readiness: "tuner-ready",
+        }),
         requestCiv7UnitTargetAction: async (
           input,
           endpointDefaults,

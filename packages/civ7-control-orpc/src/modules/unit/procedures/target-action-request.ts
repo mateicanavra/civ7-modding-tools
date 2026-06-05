@@ -3,6 +3,7 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcUnitTargetActionResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
@@ -15,9 +16,11 @@ const unitTargetActionRequestWithApproval =
   civ7ControlOrpcImplementer.unit.target.action.request.use(
     civ7MutationApprovalMiddleware,
   );
+const unitTargetActionRequestReady =
+  unitTargetActionRequestWithApproval.use(civ7MutationReadinessMiddleware);
 
 export const unitTargetActionRequestProcedure =
-  unitTargetActionRequestWithApproval.effect(function* ({
+  unitTargetActionRequestReady.effect(function* ({
     context,
     errors,
     input,

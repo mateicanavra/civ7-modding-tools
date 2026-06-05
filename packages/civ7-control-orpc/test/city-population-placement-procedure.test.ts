@@ -405,6 +405,10 @@ function fakeContext(
           }
         : options.approval,
       directControl: {
+        getCiv7PlayableStatus: async () => ({
+          playable: true,
+          readiness: "tuner-ready",
+        }),
         requestCiv7CityCommand: async (input, endpointDefaults, approval) => {
           calls.push({
             method: "requestCiv7CityCommand",

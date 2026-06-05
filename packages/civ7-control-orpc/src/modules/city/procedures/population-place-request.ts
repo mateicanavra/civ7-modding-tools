@@ -3,6 +3,7 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
@@ -24,9 +25,11 @@ const cityPopulationPlaceRequestWithApproval =
   civ7ControlOrpcImplementer.city.population.place.request.use(
     civ7MutationApprovalMiddleware,
   );
+const cityPopulationPlaceRequestReady =
+  cityPopulationPlaceRequestWithApproval.use(civ7MutationReadinessMiddleware);
 
 export const cityPopulationPlaceRequestProcedure =
-  cityPopulationPlaceRequestWithApproval.effect(function* ({
+  cityPopulationPlaceRequestReady.effect(function* ({
     context,
     errors,
     input,

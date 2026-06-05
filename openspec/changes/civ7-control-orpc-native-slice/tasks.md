@@ -160,6 +160,11 @@ adding more read-only facade shells.
   - [x] 6.1.1 Promote the repeated mutation approval gate into shared native
     effect-oRPC builder middleware after the production-choice and notification
     dismissal leaves proved the same context-owned approval policy.
+  - [x] 6.1.2 Promote the repeated mutation playable-readiness precondition
+    into shared native effect-oRPC middleware over existing direct-control
+    playable-status runtime ports. Keep live-game proof, transport
+    propagation, validator-first middleware, and postcondition/proof
+    middleware pending.
 - [ ] 6.2 Add approval middleware before mutation procedures.
   - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
     `city.production.choice.request`; keep shared approval middleware pending

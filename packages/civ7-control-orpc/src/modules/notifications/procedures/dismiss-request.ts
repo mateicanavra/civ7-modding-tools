@@ -5,6 +5,7 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
@@ -17,9 +18,11 @@ const notificationsDismissRequestWithApproval =
   civ7ControlOrpcImplementer.notifications.dismiss.request.use(
     civ7MutationApprovalMiddleware,
   );
+const notificationsDismissRequestReady =
+  notificationsDismissRequestWithApproval.use(civ7MutationReadinessMiddleware);
 
 export const notificationsDismissRequestProcedure =
-  notificationsDismissRequestWithApproval.effect(function* ({
+  notificationsDismissRequestReady.effect(function* ({
     context,
     errors,
     input,

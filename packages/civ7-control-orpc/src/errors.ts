@@ -123,6 +123,54 @@ export class Civ7MutationApprovalRequiredError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7MutationReadinessRequiredErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String(),
+    source: Type.Literal("readiness.current"),
+    risk: Type.Literal("mutation"),
+    playable: Type.Literal(false),
+    readiness: Type.String(),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7MutationReadinessRequiredErrorData = Static<
+  typeof Civ7MutationReadinessRequiredErrorDataSchema
+>;
+
+export class Civ7MutationReadinessRequiredError extends ORPCTaggedError(
+  "Civ7MutationReadinessRequiredError",
+  {
+    code: "MUTATION_READINESS_REQUIRED",
+    message: "Playable Civ7 readiness is required before mutation.",
+    schema: toStandardSchema(Civ7MutationReadinessRequiredErrorDataSchema),
+    status: 409,
+  },
+) {}
+
+export const Civ7MutationReadinessUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String(),
+    source: Type.Literal("direct-control-facade"),
+    risk: Type.Literal("mutation"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7MutationReadinessUnavailableErrorData = Static<
+  typeof Civ7MutationReadinessUnavailableErrorDataSchema
+>;
+
+export class Civ7MutationReadinessUnavailableError extends ORPCTaggedError(
+  "Civ7MutationReadinessUnavailableError",
+  {
+    code: "MUTATION_READINESS_UNAVAILABLE",
+    message: "Playable Civ7 readiness could not be verified before mutation.",
+    schema: toStandardSchema(Civ7MutationReadinessUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7ProductionChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.production.choice.request"),
@@ -192,6 +240,8 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
+  MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
+  MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,

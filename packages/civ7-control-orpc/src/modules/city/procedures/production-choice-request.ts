@@ -6,6 +6,7 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcProductionChoiceResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
@@ -18,9 +19,11 @@ const cityProductionChoiceRequestWithApproval =
   civ7ControlOrpcImplementer.city.production.choice.request.use(
     civ7MutationApprovalMiddleware,
   );
+const cityProductionChoiceRequestReady =
+  cityProductionChoiceRequestWithApproval.use(civ7MutationReadinessMiddleware);
 
 export const cityProductionChoiceRequestProcedure =
-  cityProductionChoiceRequestWithApproval.effect(function* ({
+  cityProductionChoiceRequestReady.effect(function* ({
     context,
     errors,
     input,

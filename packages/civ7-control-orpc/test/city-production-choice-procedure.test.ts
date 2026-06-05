@@ -6,6 +6,8 @@ import {
   Civ7ControlOrpcRouter,
   Civ7CorrelationIdInvalidError,
   Civ7MutationApprovalRequiredError,
+  Civ7MutationReadinessRequiredError,
+  Civ7MutationReadinessUnavailableError,
   Civ7ProductionChoiceUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
@@ -131,6 +133,69 @@ describe("city.production.choice.request control-oRPC procedure", () => {
       },
     });
     expect(fake.calls).toEqual([]);
+  });
+
+  test("requires playable readiness before the direct-control mutation port runs", async () => {
+    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
+      playableStatus: {
+        playable: false,
+        readiness: "shell",
+      },
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context }),
+    ).rejects.toMatchObject({
+      code: "MUTATION_READINESS_REQUIRED",
+      status: 409,
+      data: {
+        procedureKey: "city.production.choice.request",
+        source: "readiness.current",
+        risk: "mutation",
+        playable: false,
+        readiness: "shell",
+      },
+    });
+    expect(fake.calls).toEqual([]);
+  });
+
+  test("maps readiness read failures before mutation without raw details", async () => {
+    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
+      playableStatusError: new Error(
+        "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
+      ),
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context }),
+    ).rejects.toMatchObject({
+      code: "MUTATION_READINESS_UNAVAILABLE",
+      status: 503,
+      data: {
+        procedureKey: "city.production.choice.request",
+        source: "direct-control-facade",
+        risk: "mutation",
+      },
+    });
+    expect(fake.calls).toEqual([]);
+
+    try {
+      await call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context });
+    } catch (err) {
+      const serialized = JSON.stringify(err);
+      expect(serialized).not.toContain("CMD");
+      expect(serialized).not.toContain("Game.turn");
+      expect(serialized).not.toContain("rawCommand");
+    }
   });
 
   test("rejects invalid context correlation before the direct-control mutation port runs", async () => {
@@ -347,11 +412,23 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     ).toHaveProperty("CORRELATION_ID_INVALID");
     expect(
       Civ7ControlOrpcContract.city.production.choice.request["~orpc"].errorMap,
+    ).toHaveProperty("MUTATION_READINESS_REQUIRED");
+    expect(
+      Civ7ControlOrpcContract.city.production.choice.request["~orpc"].errorMap,
+    ).toHaveProperty("MUTATION_READINESS_UNAVAILABLE");
+    expect(
+      Civ7ControlOrpcContract.city.production.choice.request["~orpc"].errorMap,
     ).toHaveProperty("PRODUCTION_CHOICE_UNAVAILABLE");
     expect(Civ7MutationApprovalRequiredError.code).toBe(
       "MUTATION_APPROVAL_REQUIRED",
     );
     expect(Civ7CorrelationIdInvalidError.code).toBe("CORRELATION_ID_INVALID");
+    expect(Civ7MutationReadinessRequiredError.code).toBe(
+      "MUTATION_READINESS_REQUIRED",
+    );
+    expect(Civ7MutationReadinessUnavailableError.code).toBe(
+      "MUTATION_READINESS_UNAVAILABLE",
+    );
     expect(Civ7ProductionChoiceUnavailableError.code).toBe(
       "PRODUCTION_CHOICE_UNAVAILABLE",
     );
@@ -363,6 +440,11 @@ function fakeContext(
   options: {
     approval?: Civ7ControlOrpcContext["approval"];
     correlationId?: string;
+    playableStatus?: Readonly<{
+      playable: boolean;
+      readiness: string;
+    }>;
+    playableStatusError?: Error;
   } = {},
 ): {
   context: Civ7ControlOrpcContext;
@@ -393,6 +475,15 @@ function fakeContext(
           }
         : options.approval,
       directControl: {
+        getCiv7PlayableStatus: async () => {
+          if (options.playableStatusError != null) {
+            throw options.playableStatusError;
+          }
+          return options.playableStatus ?? {
+            playable: true,
+            readiness: "tuner-ready",
+          };
+        },
         requestCiv7ProductionChoice: async (input, endpointDefaults, approval) => {
           calls.push({ input, options: endpointDefaults, approval });
           if (resultOrError instanceof Error) throw resultOrError;
