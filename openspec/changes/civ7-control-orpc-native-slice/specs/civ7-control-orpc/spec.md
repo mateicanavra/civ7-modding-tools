@@ -119,6 +119,20 @@ boundaries.
   unknown, missing-postcondition, and pending-runtime-proof outcomes honestly
 - **AND** unverified or pending proof paths remain no-repeat guarded
 
+#### Scenario: Narrative decision request procedure is implemented
+- **WHEN** a narrative choice decision procedure requests a player choice
+- **THEN** it is offered under the semantic `decisions` router
+- **AND** it checks mutation approval and playable readiness before invoking
+  direct-control runtime authority
+- **AND** it consumes direct-control narrative validators and proof helpers as
+  runtime/proof ports rather than reimplementing postcondition truth
+- **AND** its normal output projects semantic status, validation summary,
+  postcondition summary, and next steps
+- **AND** it excludes endpoint, session, state, raw command, payload, and
+  legacy `verified` details from caller-facing input and output
+- **AND** unverified, stale, missing-postcondition, no-state-change, and
+  not-sent paths remain no-repeat guarded
+
 #### Scenario: Local procedure test passes
 - **WHEN** a local fake-context procedure test passes
 - **THEN** it may prove contract/middleware/projection behavior

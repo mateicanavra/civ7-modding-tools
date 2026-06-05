@@ -122,6 +122,28 @@ export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("decisions.narrative.choice.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7NarrativeChoiceUnavailableErrorData = Static<
+  typeof Civ7NarrativeChoiceUnavailableErrorDataSchema
+>;
+
+export class Civ7NarrativeChoiceUnavailableError extends ORPCTaggedError(
+  "Civ7NarrativeChoiceUnavailableError",
+  {
+    code: "NARRATIVE_CHOICE_UNAVAILABLE",
+    message: "Direct-control narrative choice request failed.",
+    schema: toStandardSchema(Civ7NarrativeChoiceUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -264,6 +286,7 @@ export const civ7ControlOrpcErrorMap = {
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
+  NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,

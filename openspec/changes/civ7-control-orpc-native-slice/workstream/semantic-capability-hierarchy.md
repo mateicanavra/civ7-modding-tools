@@ -182,6 +182,7 @@ Service ownership:
 | `unit.move.preview` | `world` read plus future unit validation evidence |
 | `unit.target.action.request` | `unit` |
 | `city.production.choice.request` | `decisions` |
+| `decisions.narrative.choice.request` | `decisions` |
 | `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `map.summary.read` wrapper burned down; future `world` service must not treat direct-control summary envelopes as bare runtime ports |
 | `strategy.*` planning reads | `strategy` |
 | narrative, diplomacy, culture, technology, population closeouts | `decisions` |

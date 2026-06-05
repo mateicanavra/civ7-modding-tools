@@ -1,10 +1,10 @@
-import type { Civ7NarrativeChoiceResult } from "../play/operations/narrative-request";
-import type { Civ7NarrativeChoicePostconditionClassification } from "../play/operations/narrative-postconditions";
+import type { Civ7NarrativeChoiceResult } from "../play/operations/narrative-request.js";
+import type { Civ7NarrativeChoicePostconditionClassification } from "../play/operations/narrative-postconditions.js";
 import type {
   Civ7OperationProofBoundary,
   Civ7OperationTelemetryPostcondition,
   Civ7OperationTelemetryPostconditionOutcome,
-} from "./operation-telemetry";
+} from "./operation-telemetry.js";
 
 export function narrativeChoiceProofPostcondition(
   result: Civ7NarrativeChoiceResult,

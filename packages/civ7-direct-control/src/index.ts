@@ -1154,6 +1154,10 @@ export type {
   Civ7NarrativeChoicePostcondition,
   Civ7NarrativeChoicePostconditionClassification,
 } from "./play/operations/narrative-postconditions.js";
+export {
+  narrativeChoiceProofOutcome,
+  narrativeChoiceProofPostcondition,
+} from "./proof/narrative-choice-proof-policy.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;

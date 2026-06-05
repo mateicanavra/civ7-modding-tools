@@ -6,6 +6,7 @@ import {
   getCiv7ReadyUnitView,
   getCiv7TargetCandidates,
   getCiv7TurnCompletionStatus,
+  requestCiv7NarrativeChoice,
   requestCiv7NotificationDismissal,
   requestCiv7CityCommand,
   requestCiv7PlayerOperation,
@@ -15,6 +16,8 @@ import {
   type Civ7ComponentId,
   type Civ7DirectControlOptions,
   Civ7BattlefieldScanResultSchema,
+  type Civ7NarrativeChoiceInput,
+  type Civ7NarrativeChoiceResult,
   Civ7PlayNotificationViewResultSchema,
   Civ7PlayableStatusResultSchema,
   Civ7ProductionChoiceResultSchema,
@@ -39,6 +42,7 @@ import type { Static } from "typebox";
 
 export type Civ7ControlOrpcNotificationDismissalResult =
   Civ7NotificationDismissalResult;
+export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
 type Civ7ControlOrpcPopulationPlacementRuntimeResult =
   Civ7PopulationPlacementProofSource & Readonly<{
     before: Readonly<{ valid: boolean }>;
@@ -83,6 +87,11 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     options: Civ7DirectControlOptions | undefined,
     approval: Civ7ActionApproval,
   ): Promise<Civ7ControlOrpcNotificationDismissalResult>;
+  requestCiv7NarrativeChoice(
+    input: Civ7NarrativeChoiceInput,
+    options: Civ7DirectControlOptions | undefined,
+    approval: Civ7ActionApproval,
+  ): Promise<Civ7ControlOrpcNarrativeChoiceResult>;
   requestCiv7CityCommand(
     input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
     options: Civ7DirectControlOptions | undefined,
@@ -135,6 +144,8 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7NotificationDismissal(input, options, approval) as Promise<
       Civ7ControlOrpcNotificationDismissalResult
     >,
+  requestCiv7NarrativeChoice: async (input, options, approval) =>
+    requestCiv7NarrativeChoice(input, options, approval),
   requestCiv7CityCommand: async (input, options, approval) =>
     requestCiv7CityCommand(input, options, approval) as Promise<
       Civ7ControlOrpcPopulationPlacementRuntimeResult

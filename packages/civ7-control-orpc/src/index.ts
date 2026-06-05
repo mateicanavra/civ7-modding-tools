@@ -25,6 +25,8 @@ export {
   Civ7MutationReadinessRequiredErrorDataSchema,
   Civ7MutationReadinessUnavailableError,
   Civ7MutationReadinessUnavailableErrorDataSchema,
+  Civ7NarrativeChoiceUnavailableError,
+  Civ7NarrativeChoiceUnavailableErrorDataSchema,
   Civ7NotificationDismissalUnavailableError,
   Civ7NotificationDismissalUnavailableErrorDataSchema,
   Civ7PopulationPlacementUnavailableError,
@@ -45,6 +47,7 @@ export {
   type Civ7MutationApprovalRequiredErrorData,
   type Civ7MutationReadinessRequiredErrorData,
   type Civ7MutationReadinessUnavailableErrorData,
+  type Civ7NarrativeChoiceUnavailableErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
@@ -118,6 +121,28 @@ export type {
 export { cityRouter } from "./modules/city/router";
 export { cityPopulationPlaceRequestProcedure } from "./modules/city/procedures/population-place-request";
 export { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/production-choice-request";
+export {
+  Civ7DecisionsContract,
+  Civ7DecisionsNarrativeChoiceContract,
+  Civ7DecisionsNarrativeChoiceInputSchema,
+  Civ7DecisionsNarrativeChoiceInputStandardSchema,
+  Civ7DecisionsNarrativeChoiceNextStepSchema,
+  Civ7DecisionsNarrativeChoicePostconditionClassificationSchema,
+  Civ7DecisionsNarrativeChoicePostconditionSummarySchema,
+  Civ7DecisionsNarrativeChoiceProofOutcomeSchema,
+  Civ7DecisionsNarrativeChoiceRequestStatusSchema,
+  Civ7DecisionsNarrativeChoiceResultSchema,
+  Civ7DecisionsNarrativeChoiceResultStandardSchema,
+  Civ7DecisionsNarrativeChoiceValidationSummarySchema,
+} from "./modules/decisions/contract";
+export type {
+  Civ7DecisionsContract as Civ7DecisionsContractType,
+  Civ7DecisionsNarrativeChoiceContract as Civ7DecisionsNarrativeChoiceContractType,
+  Civ7DecisionsNarrativeChoiceInput,
+  Civ7DecisionsNarrativeChoiceResult,
+} from "./modules/decisions/contract";
+export { decisionsRouter } from "./modules/decisions/router";
+export { decisionsNarrativeChoiceRequestProcedure } from "./modules/decisions/procedures/narrative-choice-request";
 export {
   Civ7NotificationsContract,
   Civ7NotificationDismissalContract,
