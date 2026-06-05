@@ -32,6 +32,9 @@ describe("Civ7 game UI controller bootstrap", () => {
           canObserve: false,
           canMutate: false,
         },
+        controller: {
+          supportedProcedures: [],
+        },
         sources: {
           gameUi: {
             inGame: true,
@@ -68,6 +71,12 @@ describe("Civ7 game UI controller bootstrap", () => {
           canObserve: false,
           canMutate: false,
           reason: "The game is open, but runtime control is not ready.",
+        },
+        controller: {
+          supportedProcedures: [{
+            procedureKey: "notifications.dismiss.request",
+            risk: "mutation",
+          }],
         },
       },
     });

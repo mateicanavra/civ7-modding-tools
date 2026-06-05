@@ -53,6 +53,26 @@ export const Civ7ReadinessSourceSummarySchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const Civ7ReadinessControllerProcedureRiskSchema = Type.Union([
+  Type.Literal("read-only"),
+  Type.Literal("mutation"),
+]);
+
+export const Civ7ReadinessControllerProcedureSchema = Type.Object(
+  {
+    procedureKey: Type.String({ minLength: 1 }),
+    risk: Civ7ReadinessControllerProcedureRiskSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const Civ7ReadinessControllerSummarySchema = Type.Object(
+  {
+    supportedProcedures: Type.Array(Civ7ReadinessControllerProcedureSchema),
+  },
+  { additionalProperties: false },
+);
+
 export const Civ7ReadinessNextStepSchema = Type.Object(
   {
     kind: Type.Union([
@@ -75,6 +95,7 @@ export const Civ7ReadinessCurrentResultSchema = Type.Object(
     readiness: Civ7ReadinessLevelSchema,
     capability: Civ7ReadinessCapabilitySchema,
     sources: Civ7ReadinessSourceSummarySchema,
+    controller: Civ7ReadinessControllerSummarySchema,
     errorCount: Type.Integer({ minimum: 0 }),
     nextSteps: Type.Array(Civ7ReadinessNextStepSchema),
   },

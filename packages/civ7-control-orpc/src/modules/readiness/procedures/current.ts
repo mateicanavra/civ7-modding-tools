@@ -1,6 +1,7 @@
 import type { Civ7RuntimeProbe } from "@civ7/direct-control";
 import { Effect } from "effect";
 
+import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcPlayableStatusResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
@@ -17,6 +18,7 @@ export const readinessCurrentProcedure =
           await context.directControl.getCiv7PlayableStatus(
             context.endpointDefaults,
           ),
+          context,
         ),
       catch: () =>
         errors.READINESS_CURRENT_UNAVAILABLE({
@@ -31,6 +33,7 @@ export const readinessCurrentProcedure =
 
 function readinessCurrentResult(
   status: Civ7ControlOrpcPlayableStatusResult,
+  context: Civ7ControlOrpcContext,
 ): Civ7ReadinessCurrentResult {
   return {
     playable: status.playable,
@@ -47,8 +50,29 @@ function readinessCurrentResult(
         ready: status.tuner?.ready ?? null,
       },
     },
+    controller: readinessControllerSummary(context),
     errorCount: status.errors.length,
     nextSteps: readinessNextSteps(status),
+  };
+}
+
+function readinessControllerSummary(
+  context: Civ7ControlOrpcContext,
+): Civ7ReadinessCurrentResult["controller"] {
+  const readProcedures = context.controller?.supportedReadProcedures ?? [];
+  const mutationProcedures =
+    context.controller?.supportedMutationProcedures ?? [];
+  return {
+    supportedProcedures: [
+      ...readProcedures.map((procedureKey) => ({
+        procedureKey,
+        risk: "read-only" as const,
+      })),
+      ...mutationProcedures.map((procedureKey) => ({
+        procedureKey,
+        risk: "mutation" as const,
+      })),
+    ],
   };
 }
 

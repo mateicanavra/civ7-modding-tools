@@ -49,6 +49,9 @@ describe("readiness.current control-oRPC procedure", () => {
           ready: true,
         },
       },
+      controller: {
+        supportedProcedures: [],
+      },
       errorCount: 1,
       nextSteps: [{
         kind: "read-attention",
@@ -102,6 +105,48 @@ describe("readiness.current control-oRPC procedure", () => {
       }],
     });
     expect(fake.calls).toHaveLength(1);
+  });
+
+  test("reports narrow controller-supported procedure capabilities without broad readiness overclaim", async () => {
+    const fake = fakeContext(playableStatusResult({
+      playable: false,
+      readiness: "app-ui-game",
+      tunerReady: null,
+    }), {
+      controller: {
+        supportedMutationProcedures: ["notifications.dismiss.request"],
+      },
+    });
+
+    const result = await call(Civ7ControlOrpcRouter.readiness.current, {}, {
+      context: fake.context,
+    });
+
+    expect(result).toMatchObject({
+      playable: false,
+      readiness: "app-ui-game",
+      capability: {
+        canObserve: false,
+        canMutate: false,
+        reason: "The game is open, but runtime control is not ready.",
+      },
+      controller: {
+        supportedProcedures: [{
+          procedureKey: "notifications.dismiss.request",
+          risk: "mutation",
+        }],
+      },
+      nextSteps: [{
+        kind: "restore-tuner",
+        source: "readiness.current",
+      }],
+    });
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain(
+      "read-attention",
+    );
+    expect(JSON.stringify(result)).not.toContain("\"host\"");
+    expect(JSON.stringify(result)).not.toContain("\"port\"");
+    expect(JSON.stringify(result)).not.toContain("\"state\"");
   });
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
@@ -178,7 +223,10 @@ describe("readiness.current control-oRPC procedure", () => {
   });
 });
 
-function fakeContext(result: Civ7ControlOrpcPlayableStatusResult): {
+function fakeContext(
+  result: Civ7ControlOrpcPlayableStatusResult,
+  overrides: Partial<Pick<Civ7ControlOrpcContext, "controller">> = {},
+): {
   calls: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
   context: Civ7ControlOrpcContext;
 } {
@@ -198,6 +246,7 @@ function fakeContext(result: Civ7ControlOrpcPlayableStatusResult): {
           return result;
         },
       } as Civ7ControlOrpcContext["directControl"],
+      ...overrides,
     },
   };
 }

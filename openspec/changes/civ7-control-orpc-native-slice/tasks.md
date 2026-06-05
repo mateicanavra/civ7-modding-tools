@@ -588,6 +588,14 @@ adding more read-only facade shells.
     semantic and raw route/approval/session/state/command details omitted;
     keep other mutation runtime ports, deployed Civ7 proof, play-thread action,
     and full `7.3` implementation pending.
+  - [x] 7.3.16 Expose narrow game-controller supported procedure facts through
+    `readiness.current`: derive read/mutation support from typed oRPC context,
+    report `notifications.dismiss.request` as the only game-UI supported
+    mutation when its runtime port is actually available, and keep broad
+    `canObserve`, `canMutate`, and `read-attention` readiness conservative
+    until the corresponding read/attention and mutation ports exist. Keep live
+    runtime proof, other game-UI ports, a separate controller catalog, and full
+    `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -690,6 +698,12 @@ adding more read-only facade shells.
   game-resident notification dismissal runtime port. These are local package
   and bundle proofs only and do not claim deployed Civ7 runtime proof, other
   mutation runtime support, play-thread action, or full `7.3` acceptance.
+- [x] 8.45 Run focused readiness/current, game-ui controller, and controller
+  ingress tests plus control-oRPC check/build/test, strict OpenSpec validates,
+  and diff hygiene for the controller-supported procedure readiness projection.
+  These are local package proofs only and do not claim deployed Civ7 runtime
+  proof, additional game-UI runtime ports, play-thread action, a separate
+  controller capability catalog, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

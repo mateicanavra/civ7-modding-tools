@@ -637,6 +637,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** native mutation readiness admits only the explicitly context-listed
   `notifications.dismiss.request` game-UI mutation while other mutation ports
   remain bounded as unsupported
+- **AND** `readiness.current` exposes the same context-listed controller
+  support as bounded procedure capability facts without changing broad
+  `canObserve` or `canMutate` readiness
 - **AND** normal bridge success output remains the semantic notification
   dismissal result and omits raw route internals, approval reason, host, port,
   state, command, rawCommand, session, and tuner payloads
