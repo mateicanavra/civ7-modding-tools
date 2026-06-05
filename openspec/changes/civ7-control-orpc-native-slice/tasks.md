@@ -399,6 +399,12 @@ adding more read-only facade shells.
     semantic notification dismissal projection for send output, preserve the
     existing direct-control notification dismissal read for inspect-only mode,
     and keep live runtime proof pending.
+  - [x] 7.1.4 Route `civ7 game play unit-target --send` through the
+    in-process `unit.target.action.request` server-side client under the
+    `unit` router. Keep endpoint flags and approval reason as context
+    construction, emit the semantic unit target action projection for send
+    output, preserve the existing direct-control unit target planning read for
+    read-only mode, and keep live runtime proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -518,3 +524,6 @@ adding more read-only facade shells.
 - [x] 8.26 Run focused CLI notification dismissal tests, `check:cli`,
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI notification dismissal send migration slice.
+- [x] 8.27 Run focused CLI unit target tests, `check:cli`, `test:cli:play`,
+  relevant OpenSpec strict validates, and diff hygiene for the CLI unit target
+  send migration slice.

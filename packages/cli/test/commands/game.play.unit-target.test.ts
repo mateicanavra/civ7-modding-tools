@@ -56,13 +56,33 @@ describe('game play unit target command', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: { sent: boolean; verified: boolean; verification: { status: string; classification: string; reason: string } };
+        result: UnitTargetActionSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.verification.status).toBe('no-state-change');
-      expect(payload.result.verification.classification).toBe('no-state-change');
-      expect(payload.result.verification.reason).toMatch(/re-read .*before repeating/);
+      expect(payload.result.status).toBe('sent-unverified');
+      expect(payload.result.validation).toMatchObject({
+        candidateCount: 1,
+        acceptedCandidateCount: 1,
+        selected: {
+          family: 'unit-operation',
+          operationType: 'UNITOPERATION_RANGE_ATTACK',
+          valid: true,
+          targetInReturnedPlots: true,
+          rejectedReason: null,
+        },
+      });
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'no-state-change',
+        outcome: 'no-state-change',
+        confidence: 'unverified',
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'unit.target.action.request',
+      });
+      expectSemanticUnitTargetOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('"send":true'))).toBe(true);
     } finally {
       log.mockRestore();
@@ -97,15 +117,23 @@ describe('game play unit target command', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: { sent: boolean; verified: boolean; verification: { status: string; classification: string; source: string; attempts: number; reason: string } };
+        result: UnitTargetActionSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.verification.status).toBe('verified');
-      expect(payload.result.verification.classification).toBe('unit-state-changed');
-      expect(payload.result.verification.source).toBe('bounded-poll');
-      expect(payload.result.verification.attempts).toBeGreaterThan(0);
-      expect(payload.result.verification.reason).toMatch(/bounded post-send polling/);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'unit-state-changed',
+        outcome: 'state-changed',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+        source: 'bounded-poll',
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'refresh-attention',
+        source: 'unit.target.action.request',
+      });
+      expectSemanticUnitTargetOmitsRawRuntimeDetails(payload.result);
       expect(server.received.filter((message) => message.includes('readUnitTargetAction')).length).toBeGreaterThan(1);
     } finally {
       log.mockRestore();
@@ -140,25 +168,25 @@ describe('game play unit target command', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          verified: boolean;
-          verification: {
-            status: string;
-            classification: string;
-            destinationReached: boolean;
-            requestedLocation: { x: number; y: number };
-            landedLocation: { x: number; y: number };
-            reason: string;
-          };
-        };
+        result: UnitTargetActionSendResult;
       };
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.verification.status).toBe('verified');
-      expect(payload.result.verification.classification).toBe('path-shortfall');
-      expect(payload.result.verification.destinationReached).toBe(false);
-      expect(payload.result.verification.requestedLocation).toEqual({ x: 23, y: 33 });
-      expect(payload.result.verification.landedLocation).toEqual({ x: 22, y: 34 });
-      expect(payload.result.verification.reason).toMatch(/landed short/);
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.status).toBe('sent-guarded');
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'path-shortfall',
+        outcome: 'state-changed',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: true,
+        destinationReached: false,
+        requestedLocation: { x: 23, y: 33 },
+        landedLocation: { x: 22, y: 34 },
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'unit.target.action.request',
+      });
+      expectSemanticUnitTargetOmitsRawRuntimeDetails(payload.result);
     } finally {
       log.mockRestore();
       await server.close();
@@ -166,12 +194,68 @@ describe('game play unit target command', () => {
   });
 });
 
+type UnitTargetActionSendResult = {
+  unitId: { owner: number; id: number; type: number };
+  target: { x: number; y: number };
+  sent: boolean;
+  status: string;
+  validation: {
+    candidateCount: number;
+    acceptedCandidateCount: number;
+    selected: null | {
+      family: string;
+      operationType: string;
+      valid: boolean;
+      targetInReturnedPlots: boolean | null;
+      rejectedReason: string | null;
+    };
+  };
+  postcondition: {
+    classification: string;
+    outcome: string;
+    confidence: string;
+    confirmed: boolean;
+    noRepeatAfterUnverified: boolean;
+    destinationReached: boolean | null;
+    requestedLocation: { x: number; y: number };
+    landedLocation: { x: number; y: number } | null;
+    source: string | null;
+  };
+  nextSteps: Array<{ kind: string; source: string; label: string }>;
+};
+
+function expectSemanticUnitTargetOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"sendResult"');
+  expect(serialized).not.toContain('"result"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"verification"');
+  expect(serialized).not.toContain('"beforeUnit"');
+  expect(serialized).not.toContain('"afterUnit"');
+  expect(serialized).not.toContain('"beforeTargetUnits"');
+  expect(serialized).not.toContain('"afterTargetUnits"');
+  expect(serialized).not.toContain('Game.UnitOperations');
+  expect(serialized).not.toContain('Game.UnitCommands');
+}
+
 async function startUnitTargetTunerServer(options: {
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
 } = {}): Promise<FakeTunerServer> {
   let unitTargetSendObserved = false;
   return startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
       if (message.includes('readUnitTargetAction')) {
         const send = message.includes('"send":true');
         if (send) unitTargetSendObserved = true;
@@ -183,6 +267,84 @@ async function startUnitTargetTunerServer(options: {
       return undefined;
     },
   });
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 1,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '4000 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 1 },
+    turnDate: { ok: true, value: '4000 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
+  };
 }
 
 function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send' | 'delayed-observed' = 'verified') {

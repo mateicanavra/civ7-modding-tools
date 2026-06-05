@@ -236,6 +236,25 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   accepted service read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI unit target send uses native unit procedure
+- **WHEN** `game play unit-target --send` requests an approved unit target
+  action
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process `unit.target.action.request`
+  server-side client under the `unit` router
+- **AND** the procedure's approval, readiness, direct-control validator,
+  unit-target postcondition projection, and no-repeat policy remain
+  authoritative for the send
+- **AND** the normal JSON result is the semantic unit target action procedure
+  projection without raw command/session/state/Tuner details, send results,
+  before/after runtime probes, direct-control verification envelopes, or
+  legacy `verified`
+- **AND** the read-only `game play unit-target` planning path remains a
+  direct-control unit target action read until a separate accepted service read
+  exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: In-game controller bridge preflight is recorded
 - **WHEN** the in-game controller bridge is planned before source
   implementation
