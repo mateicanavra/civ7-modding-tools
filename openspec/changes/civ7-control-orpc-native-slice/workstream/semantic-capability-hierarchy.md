@@ -104,21 +104,24 @@ Service ownership:
 - preserve `relationship-unproven` semantics unless official
   relationship/team/war/suzerain evidence proves stronger labels.
 
-### `decisions`
+### Domain Choice Procedures
 
-Represents player choices that close a blocker or select an option.
+Represents player choices that close a blocker or select an option. Choice,
+decision, request, response, and action are procedure roles, not service root
+families. The owning Civ domain should come first.
 
 Source evidence:
 
-- city production choice;
-- technology and culture closeouts;
-- narrative choice;
-- diplomacy response;
-- population placement.
+- `city.production.choice.request`;
+- `progression.technology.choice.request` and
+  `progression.culture.choice.request`;
+- future narrative choice under a `narrative` domain root;
+- future diplomacy response under a `diplomacy` domain root;
+- population placement under `city`.
 
 Service ownership:
 
-- own the caller-facing choice procedure shape and semantic output;
+- own the caller-facing domain procedure shape and semantic output;
 - consume direct-control validators, postcondition classifiers, and proof
   helpers as runtime/proof ports;
 - require approval and no-repeat proof policy before any send;
@@ -181,12 +184,13 @@ Service ownership:
 | `unit.summary.read`, `city.summary.read`, `player.summary.read` | burned down as public oRPC wrappers; future `world` service must decompose lower-level runtime/probe resources or move semantic summary behavior into control-oRPC |
 | `unit.move.preview` | `world` read plus future unit validation evidence |
 | `unit.target.action.request` | `unit` |
-| `city.production.choice.request` | `decisions` |
-| `decisions.narrative.choice.request` | `decisions` |
-| `decisions.diplomacy.response.request` | `decisions` |
+| `city.production.choice.request` | `city` |
+| `progression.technology.choice.request`, `progression.culture.choice.request` | `progression` |
+| `decisions.narrative.choice.request` | residual debt; rehome under a `narrative` domain root |
+| `decisions.diplomacy.response.request` | residual debt; rehome under a `diplomacy` domain root |
 | `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `map.summary.read` wrapper burned down; future `world` service must not treat direct-control summary envelopes as bare runtime ports |
 | `strategy.*` planning reads | `strategy` |
-| narrative, diplomacy, culture, technology, population closeouts | `decisions` |
+| narrative, diplomacy, culture, technology, population closeouts | owning Civ domain, not a generic decisions/action root |
 | setup, restart, autoplay, reveal-map, turn-send behavior | domain-owned mutation or `debug`, depending on approval/risk class |
 
 Existing `packages/civ7-control-orpc/src/modules/**` files may remain while
@@ -203,7 +207,7 @@ modules or explicitly burns down an old wrapper.
 | `attention` | Current blockers, required decisions, ready actors, and semantic next steps | notifications view, ready unit/city reads, turn completion status, closeout blocker reads | `directControl`, `endpointDefaults`, `stateSelection`, projection policy, `logger` | readiness, projection separation, relationship authority when actor labels appear |
 | `world` | Bounded world/actor state views for reasoning | map reads, visibility, plot/grid reads, player/city/unit summaries | `directControl`, `endpointDefaults`, `stateSelection`, relationship policy | relationship authority, bounded-read policy |
 | `strategy` | Planning/recommendation views without action authority | settlement, target candidates, battlefield, destination, progress/tradition reads | `directControl`, `endpointDefaults`, relationship policy, risk policy | relationship authority, projection separation |
-| `decisions` | Choice procedures that close blockers or select player options | production, culture, technology, narrative, diplomacy, population validators/postconditions/proof helpers | `directControl`, approval, risk policy, evidence sink, clock, correlation, logger | approval, validator-first, postcondition/proof, no-repeat |
+| domain choice procedures | Choice procedures that close blockers or select player options under their owning Civ domain | production, culture, technology, narrative, diplomacy, population validators/postconditions/proof helpers | `directControl`, approval, risk policy, evidence sink, clock, correlation, logger | approval, validator-first, postcondition/proof, no-repeat |
 | domain-owned mutations | Approved gameplay sends with explicit pre/post proof, placed under the owning domain router rather than an `operations` root | unit target, notification dismissal, setup/autoplay/turn/movement runtime ports and proof owners | `directControl`, approval, risk policy, evidence sink, clock, correlation, logger | approval, validator-first, postcondition/proof, no-repeat, readiness |
 | `debug` | Intentional diagnostics and support-only inspection | Tuner/App UI snapshots, GameInfo rows, capability catalog, root inspection, raw proof/debug projections | `directControl`, endpoint/state debug context, logger, correlation | safe error projection, debug projection separation |
 

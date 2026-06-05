@@ -174,12 +174,13 @@ adding more read-only facade shells.
   - [x] 5.4.13 Add a package verification guard that fails if control-oRPC
     module contract files import direct-control, while leaving runtime/proof
     procedure imports and focused equivalence tests out of that guard.
-  - [x] 5.4.14 Record `decisions.progression.choice.request` as a
-    service-owned decision boundary over direct-control technology/culture
-    closeout runtime ports and progression-choice proof helpers. The service
-    owns caller-facing input, semantic evidence/proof projection, raw-output
-    exclusion, and no-repeat next steps; broad decisions catalogs, runtime
-    proof, and parent Task 5.x/6.x acceptance remain out of scope.
+  - [x] 5.4.14 Record `progression.technology.choice.request` and
+    `progression.culture.choice.request` as service-owned progression
+    boundaries over direct-control technology/culture closeout runtime ports
+    and progression-choice proof helpers. The service owns caller-facing
+    input, semantic evidence/proof projection, raw-output exclusion, and
+    no-repeat next steps; broad choice/action catalogs, runtime proof, and
+    parent Task 5.x/6.x acceptance remain out of scope.
   - [x] 5.4.15 Record `turn.complete.request` as a service-owned turn
     mutation boundary over the direct-control turn completion runtime port and
     turn-completion proof helper. The service owns the empty caller-facing
@@ -234,17 +235,17 @@ adding more read-only facade shells.
     readiness, direct-control diplomacy response authority, and source-owned
     diplomacy proof classification into semantic output without exposing raw
     command/session/payload/UI-closeout details or claiming runtime/live proof.
-  - [x] 5.5.12 Seed `decisions.progression.choice.request` as a native
-    service-owned decision procedure that composes approval, playable
-    readiness, before/after notification evidence, direct-control
-    technology/culture closeout authority, and source-owned progression proof
-    classification into semantic output without exposing raw
-    command/session/payload/App UI closeout details or claiming runtime/live
-    proof.
-  - [x] 5.5.13 Guard `decisions.progression.choice.request` post-send
-    notification read failures as sent-unverified pending runtime proof with
-    no-repeat next steps, instead of surfacing a generic unavailable error after
-    mutation authority may have been used.
+  - [x] 5.5.12 Seed `progression.technology.choice.request` and
+    `progression.culture.choice.request` as native service-owned progression
+    procedures that compose approval, playable readiness, before/after
+    notification evidence, direct-control technology/culture closeout
+    authority, and source-owned progression proof classification into semantic
+    output without exposing raw command/session/payload/App UI closeout details
+    or claiming runtime/live proof.
+  - [x] 5.5.13 Guard progression choice post-send notification read failures
+    as sent-unverified pending runtime proof with no-repeat next steps, instead
+    of surfacing a generic unavailable error after mutation authority may have
+    been used.
   - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
     mutation procedure that composes approval, playable readiness,
     direct-control turn-completion send authority, and source-owned
@@ -287,7 +288,8 @@ adding more read-only facade shells.
     `decisions.diplomacy.response.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.8 Reuse shared native approval middleware for
-    `decisions.progression.choice.request` while keeping validator-first and
+    `progression.technology.choice.request` and
+    `progression.culture.choice.request` while keeping validator-first and
     postcondition/proof middleware pending.
   - [x] 6.2.9 Reuse shared native approval middleware for
     `turn.complete.request` while keeping validator-first and
@@ -323,15 +325,16 @@ adding more read-only facade shells.
     narrative, and diplomacy mutation procedures. Keep direct-control proof
     classifiers as source authority and keep shared validator/postcondition
     middleware pending.
-  - [x] 6.3.8 Compose `decisions.progression.choice.request` through
-    direct-control technology/culture closeout runtime ports and source-owned
-    progression choice proof/no-repeat semantics; keep shared
-    validator/postcondition middleware pending.
+  - [x] 6.3.8 Compose `progression.technology.choice.request` and
+    `progression.culture.choice.request` through direct-control
+    technology/culture closeout runtime ports and source-owned progression
+    choice proof/no-repeat semantics; keep shared validator/postcondition
+    middleware pending.
   - [x] 6.3.9 Preserve progression choice no-repeat proof boundaries when
     after-read evidence is unavailable after a sent closeout; keep live
     runtime proof and shared postcondition middleware pending.
   - [x] 6.3.10 Extend the shared closeout-style mutation projection helper to
-    `decisions.progression.choice.request` so source-owned progression
+    progression choice request leaves so source-owned progression
     postconditions and explicit pending-proof boundaries derive normal
     postcondition summaries, request status, and no-repeat next steps without
     accepting shared validator/postcondition middleware.
@@ -370,10 +373,10 @@ adding more read-only facade shells.
     `decisions.diplomacy.response.request` direct-control runtime-port
     failures while keeping raw direct-control cause, command, session, payload,
     and UI-closeout details out of public error data.
-  - [x] 6.4.9 Use native effect-orpc tagged error constructors for
-    `decisions.progression.choice.request` direct-control runtime-port
-    failures while keeping raw direct-control cause, command, session, payload,
-    and App UI closeout details out of public error data.
+  - [x] 6.4.9 Use native effect-orpc tagged error constructors for progression
+    choice direct-control runtime-port failures while keeping raw
+    direct-control cause, command, session, payload, and App UI closeout
+    details out of public error data.
   - [x] 6.4.10 Use native effect-orpc tagged error constructors for
     `turn.complete.request` direct-control runtime-port failures while keeping
     raw direct-control cause, command, session, state, and Tuner details out of

@@ -168,7 +168,10 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
 
 export const Civ7ProgressionChoiceUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("decisions.progression.choice.request"),
+    procedureKey: Type.Union([
+      Type.Literal("progression.technology.choice.request"),
+      Type.Literal("progression.culture.choice.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorCorrelationProperties,
   },

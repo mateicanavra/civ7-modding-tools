@@ -118,8 +118,10 @@ future package proves repeated use through oRPC/effect-orpc primitives.
   capabilities but are not accepted native procedure atoms in this inventory.
   Technology/culture closeout postcondition classification remains
   direct-control-owned in
-  `src/play/progression/choice-postconditions.ts`; `decisions.progression.choice.request`
-  owns the semantic service contract/projection over those runtime/proof ports.
+  `src/play/progression/choice-postconditions.ts`;
+  `progression.technology.choice.request` and
+  `progression.culture.choice.request` own the semantic service
+  contract/projection over those runtime/proof ports.
 
 ## Policy Owners
 

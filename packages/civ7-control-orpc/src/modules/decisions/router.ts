@@ -1,6 +1,5 @@
 import { decisionsDiplomacyResponseRequestProcedure } from "./procedures/diplomacy-response-request";
 import { decisionsNarrativeChoiceRequestProcedure } from "./procedures/narrative-choice-request";
-import { decisionsProgressionChoiceRequestProcedure } from "./procedures/progression-choice-request";
 
 export const decisionsRouter = {
   diplomacy: {
@@ -11,11 +10,6 @@ export const decisionsRouter = {
   narrative: {
     choice: {
       request: decisionsNarrativeChoiceRequestProcedure,
-    },
-  },
-  progression: {
-    choice: {
-      request: decisionsProgressionChoiceRequestProcedure,
     },
   },
 };

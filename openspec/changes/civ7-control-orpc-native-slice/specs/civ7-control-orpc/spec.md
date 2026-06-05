@@ -87,12 +87,13 @@ errors, and server-side callers.
   semantics consumed by the procedure
 
 #### Scenario: Progression choice service contract is offered
-- **WHEN** `decisions.progression.choice.request` exposes its caller-facing
-  contract
+- **WHEN** `progression.technology.choice.request` and
+  `progression.culture.choice.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, evidence, and
-  next-step schemas for that service procedure
-- **AND** the input admits only progression kind, player ID, node ID, and
-  optional notification identity
+  next-step schemas for those service procedures
+- **AND** the input admits only player ID, node ID, and optional notification
+  identity, with technology versus culture expressed by the domain procedure
+  path rather than a generic kind discriminator
 - **AND** the evidence summary distinguishes read, failed, and skipped-not-sent
   post-read states without inventing after-state facts
 - **AND** endpoint, session, state, raw command, payload, App UI activation
@@ -418,7 +419,9 @@ boundaries.
 
 #### Scenario: Narrative decision request procedure is implemented
 - **WHEN** a narrative choice decision procedure requests a player choice
-- **THEN** it is offered under the semantic `decisions` router
+- **THEN** it is currently offered under a transitional `decisions` router
+- **AND** that root placement is residual domain-hierarchy debt, not target
+  authority for future narrative service work
 - **AND** it checks mutation approval and playable readiness before invoking
   direct-control runtime authority
 - **AND** it consumes direct-control narrative validators and proof helpers as
@@ -435,7 +438,9 @@ boundaries.
 
 #### Scenario: Diplomacy response request procedure is implemented
 - **WHEN** a diplomacy response decision procedure requests a player response
-- **THEN** it is offered under the semantic `decisions` router
+- **THEN** it is currently offered under a transitional `decisions` router
+- **AND** that root placement is residual domain-hierarchy debt, not target
+  authority for future diplomacy service work
 - **AND** it checks mutation approval and playable readiness before invoking
   direct-control runtime authority
 - **AND** it consumes direct-control diplomacy validators and proof helpers as
@@ -456,14 +461,17 @@ boundaries.
 #### Scenario: Progression choice request procedure is implemented
 - **WHEN** a technology or culture progression choice procedure requests a
   player node selection
-- **THEN** it is offered under the semantic `decisions` router
+- **THEN** it is offered under the semantic `progression` router as
+  `progression.technology.choice.request` or
+  `progression.culture.choice.request`
 - **AND** it checks mutation approval and playable readiness before invoking
   direct-control runtime authority
 - **AND** it reads notification evidence before and after the closeout request
   and consumes direct-control progression postcondition helpers rather than
   reimplementing blocker proof truth
-- **AND** its normal input exposes progression kind, player, node, and optional
-  notification identity rather than direct-control App UI toggles
+- **AND** its normal input exposes player, node, and optional notification
+  identity rather than a generic `kind` discriminator or direct-control App UI
+  toggles
 - **AND** its normal output projects semantic status, evidence summary,
   postcondition summary, and next steps
 - **AND** if the closeout was sent but the post-send notification read fails,
@@ -508,9 +516,9 @@ modules before broad implementation.
 - **AND** the future oRPC module can consume those facts without reaching into
   raw command/session internals
 
-#### Scenario: Progression choice proof policy is owned before native decisions
+#### Scenario: Progression choice proof policy is owned before native procedures
 - **WHEN** technology or culture choice closeouts are prepared for future
-  `decisions` procedure exposure
+  progression procedure exposure
 - **THEN** blocker-clearing, blocker-transitioned, state-changed-blocker-live,
   sticky-blocker, and turn-unblocked postcondition classification belongs to a
   direct-control progression proof owner rather than CLI-only logic
