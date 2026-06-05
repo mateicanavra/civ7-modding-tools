@@ -1,7 +1,17 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: [
+    "src/index.ts",
+    "src/play/operations/production-choice-proof.ts",
+    "src/play/progression/choice-postconditions.ts",
+    "src/proof/diplomacy-response-proof-policy.ts",
+    "src/proof/narrative-choice-proof-policy.ts",
+    "src/proof/notification-dismissal-proof-policy.ts",
+    "src/proof/population-placement-proof-policy.ts",
+    "src/proof/turn-completion-proof-policy.ts",
+    "src/proof/unit-target-proof-policy.ts",
+  ],
   format: ["esm", "cjs"],
   target: "es2022",
   clean: true,

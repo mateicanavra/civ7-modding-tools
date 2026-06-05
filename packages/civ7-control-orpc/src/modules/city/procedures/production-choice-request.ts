@@ -1,7 +1,7 @@
 import {
   productionChoicePostconditionConfirmed,
   productionChoicePostconditionOutcome,
-} from "@civ7/direct-control";
+} from "@civ7/direct-control/play/operations/production-choice-proof";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcProductionChoiceResult } from "../../../dependencies/direct-control";

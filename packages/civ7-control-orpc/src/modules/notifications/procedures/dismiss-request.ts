@@ -1,6 +1,6 @@
 import {
   notificationDismissalProofPostcondition,
-} from "@civ7/direct-control";
+} from "@civ7/direct-control/proof/notification-dismissal-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../dependencies/direct-control";

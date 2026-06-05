@@ -1,4 +1,4 @@
-import { populationPlacementProofPostcondition } from "@civ7/direct-control";
+import { populationPlacementProofPostcondition } from "@civ7/direct-control/proof/population-placement-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";

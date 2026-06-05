@@ -77,6 +77,19 @@
         "vitest": "^4.0.18",
       },
     },
+    "mods/mod-civ7-intelligence-bridge": {
+      "name": "mod-civ7-intelligence-bridge",
+      "version": "0.1.0",
+      "dependencies": {
+        "@civ7/control-orpc": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/node": "^22.14.0",
+        "tsup": "^8.5.1",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.18",
+      },
+    },
     "mods/mod-swooper-civ-dacia": {
       "name": "civ-mod-dacia",
       "version": "1.0.0",
@@ -2253,6 +2266,8 @@
     "mkdirp": ["mkdirp@1.0.4", "", { "bin": { "mkdirp": "bin/cmd.js" } }, "sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw=="],
 
     "mlly": ["mlly@1.8.0", "", { "dependencies": { "acorn": "^8.15.0", "pathe": "^2.0.3", "pkg-types": "^1.3.1", "ufo": "^1.6.1" } }, "sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g=="],
+
+    "mod-civ7-intelligence-bridge": ["mod-civ7-intelligence-bridge@workspace:mods/mod-civ7-intelligence-bridge"],
 
     "mod-swooper-maps": ["mod-swooper-maps@workspace:mods/mod-swooper-maps"],
 

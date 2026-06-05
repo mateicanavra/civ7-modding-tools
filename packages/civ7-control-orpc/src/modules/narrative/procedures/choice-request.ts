@@ -1,4 +1,4 @@
-import { narrativeChoiceProofPostcondition } from "@civ7/direct-control";
+import { narrativeChoiceProofPostcondition } from "@civ7/direct-control/proof/narrative-choice-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNarrativeChoiceResult } from "../../../dependencies/direct-control";

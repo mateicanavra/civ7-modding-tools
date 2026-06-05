@@ -548,6 +548,17 @@ adding more read-only facade shells.
     closeout/direct-control runtime internals and approval reason out of bridge
     output, and keep further mutation allowlists, UIScript/modinfo packaging,
     runtime proof, and full `7.3` implementation pending.
+  - [x] 7.3.13 Seed the repo-owned game-scoped controller bootstrap package:
+    add a `mods/*` package with generated `scope="game"` `<UIScripts>`
+    `.modinfo`, bundle a single UI entry that installs the existing
+    `Civ7IntelligenceBridge` through the narrow `@civ7/control-orpc/game-ui`
+    entrypoint, and provide a local game-UI readiness context for
+    `readiness.current` that does not report mutation capability while mutation
+    ports remain unsupported. Split direct-control proof/postcondition helper
+    imports onto proof-only package subpaths so the generated UI bundle does not
+    import Node/socket direct-control runtime code. Keep mutation runtime ports,
+    lifecycle/hotseat certification, Civ7 deployment, live runtime proof, and
+    full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -630,6 +641,14 @@ adding more read-only facade shells.
   diff hygiene for the controller progression choice ingress allowlist slice.
   These are local package proofs only and do not claim Civ7 UIScript/modinfo
   packaging, live runtime proof, play-thread action, or full `7.3` acceptance.
+- [x] 8.42 Run focused game-UI bootstrap/control-oRPC tests, controller mod
+  package tests/check/build, control-oRPC package test/check/build, strict
+  OpenSpec validates, and diff hygiene for the game-scoped controller bootstrap
+  package seed. Include a bundle scan proving the generated UI script omits
+  Node built-in imports, direct-control package-root/socket runtime code, raw
+  command/session strings, and RPC transport symbols. These are local
+  source/bundle proofs only and do not claim deployed Civ7 runtime proof,
+  mutation runtime support, play-thread action, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

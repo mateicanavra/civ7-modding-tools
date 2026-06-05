@@ -3,7 +3,7 @@ import {
   findCultureChoiceNotification,
   findTechnologyChoiceNotification,
   technologyChoicePostcondition,
-} from "@civ7/direct-control";
+} from "@civ7/direct-control/play/progression/choice-postconditions";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";

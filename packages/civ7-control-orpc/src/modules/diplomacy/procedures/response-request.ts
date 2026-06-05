@@ -1,4 +1,4 @@
-import { diplomacyResponseProofPostcondition } from "@civ7/direct-control";
+import { diplomacyResponseProofPostcondition } from "@civ7/direct-control/proof/diplomacy-response-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcDiplomacyResponseResult } from "../../../dependencies/direct-control";

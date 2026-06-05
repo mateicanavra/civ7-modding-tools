@@ -585,6 +585,31 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   service dispatch; Civ7 UIScript/modinfo packaging, further mutation
   allowlists, runtime/live proof, and full `7.3` implementation remain pending
 
+#### Scenario: Game-scoped controller bootstrap package is seeded
+- **WHEN** the repository adds the first Civ7 controller bootstrap artifact
+- **THEN** the artifact is a `mods/*` package with a generated `.modinfo` that
+  declares a `scope="game"` action group and a `<UIScripts>` entry for the
+  controller UI script
+- **AND** the UI script imports the narrow `@civ7/control-orpc/game-ui`
+  entrypoint rather than the broad package root or a transport edge
+- **AND** the game-UI entry installs the existing `Civ7IntelligenceBridge`
+  global binding over the native controller ingress and server-side router
+  client rather than creating a second dispatcher
+- **AND** the local game-UI context can answer `readiness.current` from ambient
+  game UI globals without accepting host, port, session, state, raw command, or
+  transport input
+- **AND** this bootstrap does not report mutation capability while mutation
+  runtime ports remain unsupported
+- **AND** unsupported mutation runtime ports fail through bounded oRPC/bridge
+  error projection without raw command/session/App UI payload leakage
+- **AND** the generated UI bundle does not include Node built-in imports,
+  direct-control socket/session runtime implementation, raw command/session
+  command strings, or RPC transport symbols
+- **AND** local package and bundle tests prove only source shape and build
+  integrity; deployed Civ7 UIScript loading, controller lifecycle/hotseat
+  certification, mutation runtime support, live runtime proof, and full `7.3`
+  implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control approval,
