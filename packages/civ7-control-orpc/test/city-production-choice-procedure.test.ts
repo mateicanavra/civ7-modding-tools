@@ -130,6 +130,41 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     expect(fake.calls).toEqual([]);
   });
 
+  test("projects unexpected middleware failures without raw implementation details", async () => {
+    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
+      approval: {
+        approved: true,
+        reason: 7,
+      } as never,
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context }),
+    ).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      status: 500,
+      message: "Civ7 control-oRPC procedure failed.",
+    });
+    expect(fake.calls).toEqual([]);
+
+    try {
+      await call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context });
+    } catch (err) {
+      const serialized = JSON.stringify(err);
+      expect(serialized).not.toContain("trim");
+      expect(serialized).not.toContain("reason");
+      expect(serialized).not.toContain("TypeError");
+      expect(serialized).not.toContain("Game.CityOperations");
+      expect(serialized).not.toContain("CMD");
+    }
+  });
+
   test("keeps unconfirmed production postconditions no-repeat guarded", async () => {
     const fake = fakeContext(
       productionChoiceResult("production-state-changed-blocker-still-live", {

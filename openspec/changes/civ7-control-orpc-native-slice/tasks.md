@@ -197,8 +197,10 @@ adding more read-only facade shells.
   - [x] 6.4.6 Use native effect-orpc tagged error constructors for
     `readiness.current` direct-control runtime-port failures while shared
     safe-error middleware remains pending.
-  - [ ] 6.4.2 Promote shared safe-error middleware only after the native
-    oRPC/effect-orpc error path is proven without custom wrapper plumbing.
+  - [x] 6.4.2 Promote shared safe-error middleware for final public projection
+    of downstream oRPC/procedure failures, while keeping raw direct-control
+    runtime-port classification inside Effect handlers where effect-oRPC can
+    still see the source failure.
   - [ ] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error
     primitives.
   - [x] 6.4.4 Use native effect-orpc tagged error constructors for
