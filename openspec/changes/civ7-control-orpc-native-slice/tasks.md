@@ -168,6 +168,12 @@ adding more read-only facade shells.
   - [x] 5.4.13 Add a package verification guard that fails if control-oRPC
     module contract files import direct-control, while leaving runtime/proof
     procedure imports and focused equivalence tests out of that guard.
+  - [x] 5.4.14 Record `decisions.progression.choice.request` as a
+    service-owned decision boundary over direct-control technology/culture
+    closeout runtime ports and progression-choice proof helpers. The service
+    owns caller-facing input, semantic evidence/proof projection, raw-output
+    exclusion, and no-repeat next steps; broad decisions catalogs, runtime
+    proof, and parent Task 5.x/6.x acceptance remain out of scope.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -216,6 +222,13 @@ adding more read-only facade shells.
     readiness, direct-control diplomacy response authority, and source-owned
     diplomacy proof classification into semantic output without exposing raw
     command/session/payload/UI-closeout details or claiming runtime/live proof.
+  - [x] 5.5.12 Seed `decisions.progression.choice.request` as a native
+    service-owned decision procedure that composes approval, playable
+    readiness, before/after notification evidence, direct-control
+    technology/culture closeout authority, and source-owned progression proof
+    classification into semantic output without exposing raw
+    command/session/payload/App UI closeout details or claiming runtime/live
+    proof.
 
 ## 6. Native Policy Layering
 
@@ -252,6 +265,9 @@ adding more read-only facade shells.
   - [x] 6.2.7 Reuse shared native approval middleware for
     `decisions.diplomacy.response.request` while keeping validator-first and
     postcondition/proof middleware pending.
+  - [x] 6.2.8 Reuse shared native approval middleware for
+    `decisions.progression.choice.request` while keeping validator-first and
+    postcondition/proof middleware pending.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
   - [x] 6.3.1 Compose `city.production.choice.request` through the
@@ -283,6 +299,10 @@ adding more read-only facade shells.
     narrative, and diplomacy mutation procedures. Keep direct-control proof
     classifiers as source authority and keep shared validator/postcondition
     middleware pending.
+  - [x] 6.3.8 Compose `decisions.progression.choice.request` through
+    direct-control technology/culture closeout runtime ports and source-owned
+    progression choice proof/no-repeat semantics; keep shared
+    validator/postcondition middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -314,6 +334,10 @@ adding more read-only facade shells.
     `decisions.diplomacy.response.request` direct-control runtime-port
     failures while keeping raw direct-control cause, command, session, payload,
     and UI-closeout details out of public error data.
+  - [x] 6.4.9 Use native effect-orpc tagged error constructors for
+    `decisions.progression.choice.request` direct-control runtime-port
+    failures while keeping raw direct-control cause, command, session, payload,
+    and App UI closeout details out of public error data.
 
 ## 7. Edge Adapters
 
@@ -418,3 +442,7 @@ adding more read-only facade shells.
   adjacent CLI technology/culture command tests, direct-control check/build,
   relevant OpenSpec strict validates, and diff hygiene for the progression
   choice proof-policy ownership slice.
+- [x] 8.20 Run focused control-oRPC progression choice decision procedure
+  tests, control-oRPC package test/check/build, focused direct-control
+  progression proof-policy tests, relevant OpenSpec strict validates, and diff
+  hygiene for the progression choice decision procedure slice.

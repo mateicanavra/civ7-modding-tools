@@ -7,11 +7,13 @@ import {
   getCiv7TargetCandidates,
   getCiv7TurnCompletionStatus,
   requestCiv7DiplomacyResponse,
+  requestCiv7CultureChoiceCloseout,
   requestCiv7NarrativeChoice,
   requestCiv7NotificationDismissal,
   requestCiv7CityCommand,
   requestCiv7PlayerOperation,
   requestCiv7ProductionChoice,
+  requestCiv7TechnologyChoiceCloseout,
   requestCiv7UnitTargetAction,
   type Civ7ActionApproval,
   type Civ7ComponentId,
@@ -19,6 +21,8 @@ import {
   Civ7BattlefieldScanResultSchema,
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
+  type Civ7CultureChoiceCloseoutInput,
+  type Civ7CultureChoiceCloseoutResult,
   type Civ7NarrativeChoiceInput,
   type Civ7NarrativeChoiceResult,
   Civ7PlayNotificationViewResultSchema,
@@ -38,6 +42,8 @@ import {
   type Civ7ReadyCityViewInput,
   type Civ7ReadyUnitViewInput,
   type Civ7TargetCandidatesInput,
+  type Civ7TechnologyChoiceCloseoutInput,
+  type Civ7TechnologyChoiceCloseoutResult,
   type Civ7UnitTargetActionInput,
   type PlayNotificationViewOptions,
 } from "@civ7/direct-control";
@@ -47,7 +53,11 @@ export type Civ7ControlOrpcNotificationDismissalResult =
   Civ7NotificationDismissalResult;
 export type Civ7ControlOrpcDiplomacyResponseResult =
   Civ7DiplomacyResponseResult;
+export type Civ7ControlOrpcCultureChoiceCloseoutResult =
+  Civ7CultureChoiceCloseoutResult;
 export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
+export type Civ7ControlOrpcTechnologyChoiceCloseoutResult =
+  Civ7TechnologyChoiceCloseoutResult;
 type Civ7ControlOrpcPopulationPlacementRuntimeResult =
   Civ7PopulationPlacementProofSource & Readonly<{
     before: Readonly<{ valid: boolean }>;
@@ -102,6 +112,16 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     options: Civ7DirectControlOptions | undefined,
     approval: Civ7ActionApproval,
   ): Promise<Civ7ControlOrpcDiplomacyResponseResult>;
+  requestCiv7TechnologyChoiceCloseout(
+    input: Civ7TechnologyChoiceCloseoutInput,
+    options: Civ7DirectControlOptions | undefined,
+    approval: Civ7ActionApproval,
+  ): Promise<Civ7ControlOrpcTechnologyChoiceCloseoutResult>;
+  requestCiv7CultureChoiceCloseout(
+    input: Civ7CultureChoiceCloseoutInput,
+    options: Civ7DirectControlOptions | undefined,
+    approval: Civ7ActionApproval,
+  ): Promise<Civ7ControlOrpcCultureChoiceCloseoutResult>;
   requestCiv7CityCommand(
     input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
     options: Civ7DirectControlOptions | undefined,
@@ -158,6 +178,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7NarrativeChoice(input, options, approval),
   requestCiv7DiplomacyResponse: async (input, options, approval) =>
     requestCiv7DiplomacyResponse(input, options, approval),
+  requestCiv7TechnologyChoiceCloseout: async (input, options, approval) =>
+    requestCiv7TechnologyChoiceCloseout(input, options, approval),
+  requestCiv7CultureChoiceCloseout: async (input, options, approval) =>
+    requestCiv7CultureChoiceCloseout(input, options, approval),
   requestCiv7CityCommand: async (input, options, approval) =>
     requestCiv7CityCommand(input, options, approval) as Promise<
       Civ7ControlOrpcPopulationPlacementRuntimeResult

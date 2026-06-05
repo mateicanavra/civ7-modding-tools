@@ -57,6 +57,8 @@ export {
   Civ7NotificationDismissalUnavailableErrorDataSchema,
   Civ7PopulationPlacementUnavailableError,
   Civ7PopulationPlacementUnavailableErrorDataSchema,
+  Civ7ProgressionChoiceUnavailableError,
+  Civ7ProgressionChoiceUnavailableErrorDataSchema,
   Civ7ProductionChoiceUnavailableError,
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7ReadinessCurrentUnavailableError,
@@ -77,6 +79,7 @@ export {
   type Civ7NarrativeChoiceUnavailableErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
+  type Civ7ProgressionChoiceUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
@@ -183,6 +186,18 @@ export {
   Civ7DecisionsNarrativeChoiceResultSchema,
   Civ7DecisionsNarrativeChoiceResultStandardSchema,
   Civ7DecisionsNarrativeChoiceValidationSummarySchema,
+  Civ7DecisionsProgressionChoiceContract,
+  Civ7DecisionsProgressionChoiceEvidenceSummarySchema,
+  Civ7DecisionsProgressionChoiceInputSchema,
+  Civ7DecisionsProgressionChoiceInputStandardSchema,
+  Civ7DecisionsProgressionChoiceKindSchema,
+  Civ7DecisionsProgressionChoiceNextStepSchema,
+  Civ7DecisionsProgressionChoicePostconditionClassificationSchema,
+  Civ7DecisionsProgressionChoicePostconditionSummarySchema,
+  Civ7DecisionsProgressionChoiceProofOutcomeSchema,
+  Civ7DecisionsProgressionChoiceRequestStatusSchema,
+  Civ7DecisionsProgressionChoiceResultSchema,
+  Civ7DecisionsProgressionChoiceResultStandardSchema,
 } from "./modules/decisions/contract";
 export type {
   Civ7DecisionsContract as Civ7DecisionsContractType,
@@ -192,10 +207,15 @@ export type {
   Civ7DecisionsNarrativeChoiceContract as Civ7DecisionsNarrativeChoiceContractType,
   Civ7DecisionsNarrativeChoiceInput,
   Civ7DecisionsNarrativeChoiceResult,
+  Civ7DecisionsProgressionChoiceContract as Civ7DecisionsProgressionChoiceContractType,
+  Civ7DecisionsProgressionChoiceInput,
+  Civ7DecisionsProgressionChoiceKind,
+  Civ7DecisionsProgressionChoiceResult,
 } from "./modules/decisions/contract";
 export { decisionsRouter } from "./modules/decisions/router";
 export { decisionsDiplomacyResponseRequestProcedure } from "./modules/decisions/procedures/diplomacy-response-request";
 export { decisionsNarrativeChoiceRequestProcedure } from "./modules/decisions/procedures/narrative-choice-request";
+export { decisionsProgressionChoiceRequestProcedure } from "./modules/decisions/procedures/progression-choice-request";
 export {
   Civ7NotificationsContract,
   Civ7NotificationDismissInputSchema,

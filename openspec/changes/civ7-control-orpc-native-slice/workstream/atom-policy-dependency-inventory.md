@@ -110,14 +110,14 @@ future package proves repeated use through oRPC/effect-orpc primitives.
   production postconditions.
 - `notifications.dismiss.request` wraps notification dismissal and dismissal
   postconditions.
-- Diplomacy, narrative, population placement, technology/culture closeout, turn
-  completion sends, setup actions, autoplay actions, reveal-map, and generic
-  operation request wrappers exist as source capabilities, but they are not
-  accepted native procedure atoms in this inventory. Technology/culture
-  closeout postcondition classification is now direct-control-owned in
-  `src/play/progression/choice-postconditions.ts`, but each progression choice
-  still needs a separate native service contract/projection slice before
-  `packages/civ7-control-orpc` composes it as a procedure.
+- Diplomacy, narrative, population placement, and technology/culture closeout
+  source capabilities now have bounded native procedure leaves. Turn completion
+  sends, setup actions, autoplay actions, reveal-map, and generic operation
+  request wrappers still exist as source capabilities but are not accepted
+  native procedure atoms in this inventory. Technology/culture closeout
+  postcondition classification remains direct-control-owned in
+  `src/play/progression/choice-postconditions.ts`; `decisions.progression.choice.request`
+  owns the semantic service contract/projection over those runtime/proof ports.
 
 ## Policy Owners
 

@@ -86,6 +86,20 @@ errors, and server-side callers.
   sends, validators, source verification classification, and no-repeat proof
   semantics consumed by the procedure
 
+#### Scenario: Progression choice service contract is offered
+- **WHEN** `decisions.progression.choice.request` exposes its caller-facing
+  contract
+- **THEN** control-oRPC owns the input, output, postcondition, evidence, and
+  next-step schemas for that service procedure
+- **AND** the input admits only progression kind, player ID, node ID, and
+  optional notification identity
+- **AND** endpoint, session, state, raw command, payload, App UI activation
+  toggles, and direct-control closeout internals remain excluded from procedure
+  input and normal output
+- **AND** direct-control remains the runtime/proof owner for technology/culture
+  closeout sends, command serialization, notification postcondition
+  classifiers, and no-repeat proof semantics consumed by the procedure
+
 #### Scenario: Service contract ownership is guarded
 - **WHEN** control-oRPC service contracts are checked
 - **THEN** package verification fails if module contract files import
@@ -301,6 +315,25 @@ boundaries.
   from caller-facing input and output
 - **AND** unverified, missing-postcondition, no-state-change, validation-changed,
   and not-sent paths remain no-repeat guarded
+
+#### Scenario: Progression choice request procedure is implemented
+- **WHEN** a technology or culture progression choice procedure requests a
+  player node selection
+- **THEN** it is offered under the semantic `decisions` router
+- **AND** it checks mutation approval and playable readiness before invoking
+  direct-control runtime authority
+- **AND** it reads notification evidence before and after the closeout request
+  and consumes direct-control progression postcondition helpers rather than
+  reimplementing blocker proof truth
+- **AND** its normal input exposes progression kind, player, node, and optional
+  notification identity rather than direct-control App UI toggles
+- **AND** its normal output projects semantic status, evidence summary,
+  postcondition summary, and next steps
+- **AND** it excludes endpoint, session, state, raw command, payload, App UI
+  closeout internals, and legacy proof booleans from caller-facing input and
+  output
+- **AND** not-sent, sticky-blocker, state-changed-blocker-still-live, and other
+  unverified paths remain no-repeat guarded
 
 #### Scenario: Local procedure test passes
 - **WHEN** a local fake-context procedure test passes

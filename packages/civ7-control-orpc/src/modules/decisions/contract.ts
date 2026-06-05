@@ -33,6 +33,27 @@ export type Civ7DecisionsDiplomacyResponseInput = Static<
   typeof Civ7DecisionsDiplomacyResponseInputSchema
 >;
 
+export const Civ7DecisionsProgressionChoiceKindSchema = Type.Union([
+  Type.Literal("technology"),
+  Type.Literal("culture"),
+]);
+export type Civ7DecisionsProgressionChoiceKind = Static<
+  typeof Civ7DecisionsProgressionChoiceKindSchema
+>;
+
+export const Civ7DecisionsProgressionChoiceInputSchema = Type.Object(
+  {
+    kind: Civ7DecisionsProgressionChoiceKindSchema,
+    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
+    node: Type.Integer(),
+    notificationId: Type.Optional(Civ7ControlOrpcComponentIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7DecisionsProgressionChoiceInput = Static<
+  typeof Civ7DecisionsProgressionChoiceInputSchema
+>;
+
 export const Civ7DecisionsNarrativeChoicePostconditionClassificationSchema =
   Type.Union([
     Type.Literal("not-sent"),
@@ -55,6 +76,20 @@ export const Civ7DecisionsDiplomacyResponsePostconditionClassificationSchema =
     Type.Literal("missing-postcondition"),
   ]);
 
+export const Civ7DecisionsProgressionChoicePostconditionClassificationSchema =
+  Type.Union([
+    Type.Literal("not-sent"),
+    Type.Literal("turn-unblocked"),
+    Type.Literal("technology-choice-cleared"),
+    Type.Literal("technology-choice-transitioned"),
+    Type.Literal("technology-state-changed-blocker-still-live"),
+    Type.Literal("technology-choice-sticky-blocker"),
+    Type.Literal("culture-choice-cleared"),
+    Type.Literal("culture-choice-transitioned"),
+    Type.Literal("culture-state-changed-blocker-still-live"),
+    Type.Literal("culture-choice-sticky-blocker"),
+  ]);
+
 export const Civ7DecisionsNarrativeChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
@@ -66,6 +101,8 @@ export const Civ7DecisionsNarrativeChoiceProofOutcomeSchema = Type.Union([
 ]);
 export const Civ7DecisionsDiplomacyResponseProofOutcomeSchema =
   Civ7DecisionsNarrativeChoiceProofOutcomeSchema;
+export const Civ7DecisionsProgressionChoiceProofOutcomeSchema =
+  Civ7DecisionsNarrativeChoiceProofOutcomeSchema;
 
 export const Civ7DecisionsNarrativeChoiceRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
@@ -73,6 +110,8 @@ export const Civ7DecisionsNarrativeChoiceRequestStatusSchema = Type.Union([
   Type.Literal("sent-unverified"),
 ]);
 export const Civ7DecisionsDiplomacyResponseRequestStatusSchema =
+  Civ7DecisionsNarrativeChoiceRequestStatusSchema;
+export const Civ7DecisionsProgressionChoiceRequestStatusSchema =
   Civ7DecisionsNarrativeChoiceRequestStatusSchema;
 
 export const Civ7DecisionsNarrativeChoiceValidationSummarySchema = Type.Object(
@@ -84,6 +123,15 @@ export const Civ7DecisionsNarrativeChoiceValidationSummarySchema = Type.Object(
 );
 export const Civ7DecisionsDiplomacyResponseValidationSummarySchema =
   Civ7DecisionsNarrativeChoiceValidationSummarySchema;
+
+export const Civ7DecisionsProgressionChoiceEvidenceSummarySchema = Type.Object(
+  {
+    beforeBlockerPresent: Type.Boolean(),
+    afterBlockerPresent: Type.Boolean(),
+    canEndTurnAfter: Type.Union([Type.Boolean(), Type.Null()]),
+  },
+  { additionalProperties: false },
+);
 
 export const Civ7DecisionsNarrativeChoicePostconditionSummarySchema =
   Type.Object(
@@ -117,6 +165,23 @@ export const Civ7DecisionsDiplomacyResponsePostconditionSummarySchema =
     },
     { additionalProperties: false },
   );
+export const Civ7DecisionsProgressionChoicePostconditionSummarySchema =
+  Type.Object(
+    {
+      classification:
+        Civ7DecisionsProgressionChoicePostconditionClassificationSchema,
+      reason: Type.String(),
+      outcome: Civ7DecisionsProgressionChoiceProofOutcomeSchema,
+      confidence: Type.Union([
+        Type.Literal("confirmed"),
+        Type.Literal("unverified"),
+        Type.Literal("pending-runtime-proof"),
+      ]),
+      confirmed: Type.Boolean(),
+      noRepeatAfterUnverified: Type.Boolean(),
+    },
+    { additionalProperties: false },
+  );
 
 export const Civ7DecisionsNarrativeChoiceNextStepSchema = Type.Object(
   {
@@ -138,6 +203,18 @@ export const Civ7DecisionsDiplomacyResponseNextStepSchema = Type.Object(
       Type.Literal("inspect-diplomacy-response"),
     ]),
     source: Type.Literal("decisions.diplomacy.response.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+export const Civ7DecisionsProgressionChoiceNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("refresh-attention"),
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-progression-choice"),
+    ]),
+    source: Type.Literal("decisions.progression.choice.request"),
     label: Type.String(),
   },
   { additionalProperties: false },
@@ -179,6 +256,24 @@ export type Civ7DecisionsDiplomacyResponseResult = Static<
   typeof Civ7DecisionsDiplomacyResponseResultSchema
 >;
 
+export const Civ7DecisionsProgressionChoiceResultSchema = Type.Object(
+  {
+    kind: Civ7DecisionsProgressionChoiceKindSchema,
+    playerId: Type.Integer({ minimum: 0 }),
+    node: Type.Integer(),
+    notificationId: Type.Optional(Civ7ControlOrpcComponentIdSchema),
+    sent: Type.Boolean(),
+    status: Civ7DecisionsProgressionChoiceRequestStatusSchema,
+    evidence: Civ7DecisionsProgressionChoiceEvidenceSummarySchema,
+    postcondition: Civ7DecisionsProgressionChoicePostconditionSummarySchema,
+    nextSteps: Type.Array(Civ7DecisionsProgressionChoiceNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7DecisionsProgressionChoiceResult = Static<
+  typeof Civ7DecisionsProgressionChoiceResultSchema
+>;
+
 export const Civ7DecisionsNarrativeChoiceInputStandardSchema =
   toStandardSchema(Civ7DecisionsNarrativeChoiceInputSchema);
 export const Civ7DecisionsNarrativeChoiceResultStandardSchema =
@@ -187,6 +282,10 @@ export const Civ7DecisionsDiplomacyResponseInputStandardSchema =
   toStandardSchema(Civ7DecisionsDiplomacyResponseInputSchema);
 export const Civ7DecisionsDiplomacyResponseResultStandardSchema =
   toStandardSchema(Civ7DecisionsDiplomacyResponseResultSchema);
+export const Civ7DecisionsProgressionChoiceInputStandardSchema =
+  toStandardSchema(Civ7DecisionsProgressionChoiceInputSchema);
+export const Civ7DecisionsProgressionChoiceResultStandardSchema =
+  toStandardSchema(Civ7DecisionsProgressionChoiceResultSchema);
 
 export type Civ7DecisionsNarrativeChoiceContract = ContractProcedure<
   typeof Civ7DecisionsNarrativeChoiceInputStandardSchema,
@@ -224,6 +323,24 @@ export const Civ7DecisionsDiplomacyResponseContract:
       risk: "mutation",
     });
 
+export type Civ7DecisionsProgressionChoiceContract = ContractProcedure<
+  typeof Civ7DecisionsProgressionChoiceInputStandardSchema,
+  typeof Civ7DecisionsProgressionChoiceResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+export const Civ7DecisionsProgressionChoiceContract:
+  Civ7DecisionsProgressionChoiceContract = civ7ControlOrpcContractBase
+    .input(Civ7DecisionsProgressionChoiceInputStandardSchema)
+    .output(Civ7DecisionsProgressionChoiceResultStandardSchema)
+    .meta({
+      family: "decisions",
+      procedureKey: "decisions.progression.choice.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
 export type Civ7DecisionsContract = Readonly<{
   diplomacy: Readonly<{
     response: Readonly<{
@@ -233,6 +350,11 @@ export type Civ7DecisionsContract = Readonly<{
   narrative: Readonly<{
     choice: Readonly<{
       request: Civ7DecisionsNarrativeChoiceContract;
+    }>;
+  }>;
+  progression: Readonly<{
+    choice: Readonly<{
+      request: Civ7DecisionsProgressionChoiceContract;
     }>;
   }>;
 }>;
@@ -246,6 +368,11 @@ export const Civ7DecisionsContract: Civ7DecisionsContract = {
   narrative: {
     choice: {
       request: Civ7DecisionsNarrativeChoiceContract,
+    },
+  },
+  progression: {
+    choice: {
+      request: Civ7DecisionsProgressionChoiceContract,
     },
   },
 };
