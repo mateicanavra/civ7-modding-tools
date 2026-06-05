@@ -146,6 +146,11 @@ adding more read-only facade shells.
     that projects direct-control playable status into safe readiness,
     capability, source-summary, and next-step output without exposing raw
     runtime details.
+  - [x] 5.5.8 Extract repeated mutation result status and next-step semantics
+    into a package-local control-oRPC service policy while keeping
+    direct-control proof classifiers, validator summaries, and
+    postcondition/no-repeat authority procedure-local; shared
+    validator/postcondition middleware remains pending.
 
 ## 6. Native Policy Layering
 

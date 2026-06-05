@@ -4,6 +4,10 @@ import { Effect } from "effect";
 import type { Civ7ControlOrpcUnitTargetActionResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7MutationNextSteps,
+  civ7MutationRequestStatus,
+} from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7UnitTargetActionResult } from "../contract";
 
@@ -42,7 +46,10 @@ function unitTargetActionResult(
   result: Civ7ControlOrpcUnitTargetActionResult,
 ): Civ7UnitTargetActionResult {
   const postcondition = unitTargetActionPostconditionSummary(result);
-  const status = unitTargetActionStatus(result, postcondition);
+  const status = civ7MutationRequestStatus({
+    sent: result.sent,
+    postcondition,
+  });
 
   return {
     unitId: result.unitId,
@@ -63,7 +70,14 @@ function unitTargetActionResult(
           },
     },
     postcondition,
-    nextSteps: unitTargetActionNextSteps(status, postcondition),
+    nextSteps: civ7MutationNextSteps({
+      status,
+      postcondition,
+      source: "unit.target.action.request",
+      inspectKind: "inspect-unit-action",
+      inspectLabel: "Inspect unit target candidates before attempting another unit action request.",
+      doNotRepeatLabel: "Do not repeat this unit target action until fresh unit and target evidence is read.",
+    }),
   };
 }
 
@@ -117,39 +131,4 @@ function unitTargetActionPostconditionSummary(
     landedLocation,
     source: verification?.source ?? null,
   };
-}
-
-function unitTargetActionStatus(
-  result: Civ7ControlOrpcUnitTargetActionResult,
-  postcondition: Civ7UnitTargetActionResult["postcondition"],
-): Civ7UnitTargetActionResult["status"] {
-  if (!result.sent) return "not-sent";
-  if (postcondition.confidence !== "confirmed") return "sent-unverified";
-  if (postcondition.noRepeatAfterUnverified) return "sent-guarded";
-  return "sent-confirmed";
-}
-
-function unitTargetActionNextSteps(
-  status: Civ7UnitTargetActionResult["status"],
-  postcondition: Civ7UnitTargetActionResult["postcondition"],
-): Civ7UnitTargetActionResult["nextSteps"] {
-  if (status === "not-sent") {
-    return [{
-      kind: "inspect-unit-action",
-      source: "unit.target.action.request",
-      label: "Inspect unit target candidates before attempting another unit action request.",
-    }];
-  }
-  if (postcondition.noRepeatAfterUnverified) {
-    return [{
-      kind: "do-not-repeat",
-      source: "unit.target.action.request",
-      label: "Do not repeat this unit target action until fresh unit and target evidence is read.",
-    }];
-  }
-  return [{
-    kind: "refresh-attention",
-    source: "unit.target.action.request",
-    label: "Refresh current attention before choosing the next player action.",
-  }];
 }

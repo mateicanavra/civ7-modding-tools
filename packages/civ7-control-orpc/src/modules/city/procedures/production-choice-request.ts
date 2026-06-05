@@ -7,6 +7,10 @@ import { Effect } from "effect";
 import type { Civ7ControlOrpcProductionChoiceResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7MutationNextSteps,
+  civ7MutationRequestStatusWithoutGuarded,
+} from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7CityProductionChoiceResult } from "../contract";
 
@@ -49,7 +53,10 @@ function cityProductionChoiceResult(
   result: Civ7ControlOrpcProductionChoiceResult,
 ): Civ7CityProductionChoiceResult {
   const postcondition = productionPostconditionSummary(result);
-  const status = productionChoiceStatus(result, postcondition);
+  const status = civ7MutationRequestStatusWithoutGuarded({
+    sent: result.sent,
+    postcondition,
+  });
 
   return {
     cityId: input.cityId,
@@ -61,7 +68,14 @@ function cityProductionChoiceResult(
       afterValid: result.after.valid,
     },
     postcondition,
-    nextSteps: productionChoiceNextSteps(status, postcondition),
+    nextSteps: civ7MutationNextSteps({
+      status,
+      postcondition,
+      source: "city.production.choice.request",
+      inspectKind: "inspect-production",
+      inspectLabel: "Inspect production options before attempting another production request.",
+      doNotRepeatLabel: "Do not repeat this production request until fresh attention and production evidence is read.",
+    }),
   };
 }
 
@@ -95,37 +109,4 @@ function productionPostconditionSummary(
     productionStateChanged: postcondition.productionStateChanged,
     blockerStillLive: postcondition.blockerStillLive,
   };
-}
-
-function productionChoiceStatus(
-  result: Civ7ControlOrpcProductionChoiceResult,
-  postcondition: Civ7CityProductionChoiceResult["postcondition"],
-): Civ7CityProductionChoiceResult["status"] {
-  if (!result.sent) return "not-sent";
-  return postcondition.confirmed ? "sent-confirmed" : "sent-unverified";
-}
-
-function productionChoiceNextSteps(
-  status: Civ7CityProductionChoiceResult["status"],
-  postcondition: Civ7CityProductionChoiceResult["postcondition"],
-): Civ7CityProductionChoiceResult["nextSteps"] {
-  if (status === "not-sent") {
-    return [{
-      kind: "inspect-production",
-      source: "city.production.choice.request",
-      label: "Inspect production options before attempting another production request.",
-    }];
-  }
-  if (postcondition.noRepeatAfterUnverified) {
-    return [{
-      kind: "do-not-repeat",
-      source: "city.production.choice.request",
-      label: "Do not repeat this production request until fresh attention and production evidence is read.",
-    }];
-  }
-  return [{
-    kind: "refresh-attention",
-    source: "city.production.choice.request",
-    label: "Refresh current attention before choosing the next player action.",
-  }];
 }
