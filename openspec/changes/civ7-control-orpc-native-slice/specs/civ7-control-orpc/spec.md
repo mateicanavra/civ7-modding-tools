@@ -119,6 +119,19 @@ boundaries.
   unknown, missing-postcondition, and pending-runtime-proof outcomes honestly
 - **AND** unverified or pending proof paths remain no-repeat guarded
 
+#### Scenario: Closeout-style mutation projection is shared
+- **WHEN** notification dismissal, narrative choice, or diplomacy response
+  procedures receive source-owned direct-control postcondition evidence
+- **THEN** the shared control-oRPC mutation projection policy derives the
+  caller-facing postcondition confirmation and no-repeat summary
+- **AND** direct-control remains the source authority for domain
+  classifications, outcomes, and proof-boundary confidence
+- **AND** missing postcondition and pending-runtime-proof inputs project as
+  unconfirmed and no-repeat guarded
+- **AND** this shared projection helper does not accept shared
+  validator/postcondition middleware or parent Task 6.x completion by
+  implication
+
 #### Scenario: Narrative decision request procedure is implemented
 - **WHEN** a narrative choice decision procedure requests a player choice
 - **THEN** it is offered under the semantic `decisions` router

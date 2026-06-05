@@ -246,6 +246,11 @@ adding more read-only facade shells.
     direct-control diplomacy response runtime port and project source-owned
     diplomacy proof/no-repeat semantics into normal output; keep shared
     validator/postcondition middleware pending.
+  - [x] 6.3.7 Extract repeated closeout-style postcondition projection into a
+    shared control-oRPC mutation policy helper reused by notification,
+    narrative, and diplomacy mutation procedures. Keep direct-control proof
+    classifiers as source authority and keep shared validator/postcondition
+    middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -312,3 +317,7 @@ adding more read-only facade shells.
 - [x] 8.6 Run direct-control diplomacy proof, control-oRPC diplomacy response,
   package check/build, OpenSpec strict validation, and diff hygiene gates for
   `decisions.diplomacy.response.request` before closing that slice.
+- [x] 8.7 Run focused control-oRPC mutation projection policy and affected
+  notification/narrative/diplomacy procedure tests, package check/build,
+  strict OpenSpec validates, and diff hygiene when the shared closeout
+  projection helper is extracted.

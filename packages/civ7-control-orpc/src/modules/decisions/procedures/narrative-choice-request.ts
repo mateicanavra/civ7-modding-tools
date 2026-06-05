@@ -7,6 +7,7 @@ import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-re
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
   civ7MutationNextSteps,
+  civ7MutationPostconditionSummary,
   civ7MutationRequestStatusWithoutGuarded,
 } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
@@ -87,25 +88,12 @@ function narrativeChoicePostconditionSummary(
   result: Civ7ControlOrpcNarrativeChoiceResult,
 ): Civ7DecisionsNarrativeChoiceResult["postcondition"] {
   const postcondition = narrativeChoiceProofPostcondition(result, undefined);
-  if (postcondition == null) {
-    return {
+  return civ7MutationPostconditionSummary({
+    postcondition,
+    missing: {
       classification: "missing-postcondition",
       reason: "The narrative choice result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent",
-      confidence: "unverified",
-      confirmed: false,
-      noRepeatAfterUnverified: true,
-    };
-  }
-
-  return {
-    classification: postcondition.classification as
-      Civ7DecisionsNarrativeChoiceResult["postcondition"]["classification"],
-    reason: postcondition.reason,
-    outcome: postcondition.outcome,
-    confidence: postcondition.confidence,
-    confirmed: postcondition.confidence === "confirmed"
-      && !postcondition.noRepeatAfterUnverified,
-    noRepeatAfterUnverified: postcondition.noRepeatAfterUnverified,
-  };
+    },
+  }) as Civ7DecisionsNarrativeChoiceResult["postcondition"];
 }
