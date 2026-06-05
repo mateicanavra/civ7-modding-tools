@@ -38,6 +38,11 @@ const PlanResourcesContract = defineOp({
     candidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
     targetCount: Type.Integer({ minimum: 0 }),
     plannedCount: Type.Integer({ minimum: 0 }),
+    minSpacingTiles: Type.Integer({
+      minimum: 0,
+      description:
+        "Minimum odd-q hex spacing used while selecting planned resources; materialization must preserve this during legality fallback.",
+    }),
     placements: Type.Array(
       Type.Object({
         plotIndex: Type.Integer({ minimum: 0 }),

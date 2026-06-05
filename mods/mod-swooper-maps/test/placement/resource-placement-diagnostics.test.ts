@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import {
@@ -31,6 +32,7 @@ describe("resource placement diagnostics", () => {
         candidateResourceTypes: [4, 9],
         targetCount: 4,
         plannedCount: 4,
+        minSpacingTiles: 0,
         placements: [
           { plotIndex: 0, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.9 },
           { plotIndex: 1, preferredResourceType: 9, preferredTypeOffset: 1, priority: 0.8 },
@@ -108,12 +110,58 @@ describe("resource placement diagnostics", () => {
           candidateResourceTypes: [4, 36, 38, 40],
           targetCount: 1,
           plannedCount: 1,
+          minSpacingTiles: 0,
           placements: [
             { plotIndex: 0, preferredResourceType: 38, preferredTypeOffset: 0, priority: 0.9 },
           ],
         },
       })
     ).toThrow(/RESOURCE_COAL:deferred-future-age.*RESOURCE_OIL:deferred-future-age.*RESOURCE_RUBBER:deferred-future-age/);
+  });
+
+  it("preserves resource spacing while rescuing adjacent planned plots", () => {
+    const width = 8;
+    const height = 4;
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(1933),
+      canHaveResource: () => true,
+    });
+
+    const outcomes = placeResourcesWithTypedOutcomes({
+      adapter,
+      width,
+      height,
+      resources: {
+        width,
+        height,
+        candidateResourceTypes: [4],
+        targetCount: 4,
+        plannedCount: 4,
+        minSpacingTiles: 2,
+        placements: [
+          { plotIndex: 0, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.9 },
+          { plotIndex: 1, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.8 },
+          { plotIndex: 2, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.7 },
+          { plotIndex: 3, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.6 },
+        ],
+      },
+    });
+
+    expect(outcomes.summary.placedCount).toBe(4);
+    expect(outcomes.assignment.minSpacingTiles).toBe(2);
+    expect(outcomes.assignment.spacingBlockedCount).toBeGreaterThan(0);
+    const placedPlotIndices = outcomes.outcomes.map((outcome) => outcome.plotIndex);
+    for (let i = 0; i < placedPlotIndices.length; i++) {
+      for (let j = i + 1; j < placedPlotIndices.length; j++) {
+        expect(
+          hexDistanceOddQPeriodicX(placedPlotIndices[i]!, placedPlotIndices[j]!, width)
+        ).toBeGreaterThanOrEqual(2);
+      }
+    }
   });
 
   it("formats compact runtime telemetry for scripting logs", () => {
@@ -201,6 +249,8 @@ describe("resource placement diagnostics", () => {
       {
         requestedPlannedCount: 159,
         assignedCount: 159,
+        minSpacingTiles: 2,
+        spacingBlockedCount: 11,
         reassignedCount: 120,
         unassignedPreferredCount: 18,
         candidateResourceTypes: Array.from({ length: 55 }, (_, resourceType) => resourceType),
@@ -237,7 +287,6 @@ describe("resource placement diagnostics", () => {
         assignedCount: 159,
         reassignedCount: 120,
         unassignedPreferredCount: 18,
-        candidateResourceTypeCount: 55,
         legalCandidateResourceTypeCount: 53,
         unassignableResourceTypes: [5, 15],
       },

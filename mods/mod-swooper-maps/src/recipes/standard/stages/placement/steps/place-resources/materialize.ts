@@ -6,6 +6,7 @@ import type {
 } from "@civ7/adapter";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
+import { buildDispersedGridOrder, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import placement from "@mapgen/domain/placement";
 import { getInitialMapResourcePolicyForStaticSlot } from "../../../../../../domain/resources/initial-map-authoring-policy.js";
@@ -86,7 +87,12 @@ function allPlotIndices(size: number): number[] {
   return Array.from({ length: size }, (_value, index) => index);
 }
 
-function buildCandidatePlotOrder(placements: readonly PlacementCandidate[], size: number): number[] {
+function buildCandidatePlotOrder(
+  placements: readonly PlacementCandidate[],
+  size: number,
+  width: number,
+  height: number
+): number[] {
   const seen = new Set<number>();
   const order: number[] = [];
   for (const placement of placements) {
@@ -95,7 +101,9 @@ function buildCandidatePlotOrder(placements: readonly PlacementCandidate[], size
     seen.add(plotIndex);
     order.push(plotIndex);
   }
-  for (const plotIndex of allPlotIndices(size)) {
+  const fallbackOrder =
+    width > 0 && height > 0 ? buildDispersedGridOrder({ width, height }) : allPlotIndices(size);
+  for (const plotIndex of fallbackOrder) {
     if (seen.has(plotIndex)) continue;
     order.push(plotIndex);
   }
@@ -138,6 +146,58 @@ function chooseLeastUsedLegalResource(args: {
     }
   }
   return bestType;
+}
+
+function isFarEnoughFromAssignments(args: {
+  plotIndex: number;
+  assignments: readonly ResourceAssignment[];
+  width: number;
+  minSpacingTiles: number;
+}): boolean {
+  if (args.minSpacingTiles <= 0) return true;
+  for (const assignment of args.assignments) {
+    if (
+      hexDistanceOddQPeriodicX(args.plotIndex, assignment.plotIndex, args.width) <
+      args.minSpacingTiles
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function findLeastUsedLegalPlot(args: {
+  adapter: ExtendedMapContext["adapter"];
+  width: number;
+  height: number;
+  plotOrder: readonly number[];
+  resourceType: number;
+  usedPlots: ReadonlySet<number>;
+  assignments: readonly ResourceAssignment[];
+  minSpacingTiles: number;
+}): { plotIndex: number | null; spacingBlockedCount: number } {
+  let spacingBlockedCount = 0;
+  for (const candidatePlot of args.plotOrder) {
+    if (args.usedPlots.has(candidatePlot)) continue;
+    if (
+      !isLegalResourceTile(args.adapter, args.width, args.height, candidatePlot, args.resourceType)
+    ) {
+      continue;
+    }
+    if (
+      !isFarEnoughFromAssignments({
+        plotIndex: candidatePlot,
+        assignments: args.assignments,
+        width: args.width,
+        minSpacingTiles: args.minSpacingTiles,
+      })
+    ) {
+      spacingBlockedCount += 1;
+      continue;
+    }
+    return { plotIndex: candidatePlot, spacingBlockedCount };
+  }
+  return { plotIndex: null, spacingBlockedCount };
 }
 
 function describeResourceType(resourceType: number): string {
@@ -183,17 +243,19 @@ function assignResourceIntents(args: {
 }): ResourceAssignmentResult {
   const size = Math.max(0, args.width * args.height);
   const targetCount = Math.min(args.resources.placements.length, size);
+  const minSpacingTiles = Math.max(0, Math.trunc(args.resources.minSpacingTiles ?? 0));
   const plannedPlacements = args.resources.placements.map((placement) => ({
     plotIndex: Math.trunc(placement.plotIndex),
     preferredResourceType: Math.trunc(placement.preferredResourceType),
     preferredTypeOffset: Math.trunc(placement.preferredTypeOffset),
     priority: placement.priority,
   }));
-  const plotOrder = buildCandidatePlotOrder(plannedPlacements, size);
+  const plotOrder = buildCandidatePlotOrder(plannedPlacements, size, args.width, args.height);
   const preferredByPlot = buildPreferredResourceByPlot(plannedPlacements, size);
   const usedPlots = new Set<number>();
   const perTypeCounts = new Map<number, number>();
   const assignments: ResourceAssignment[] = [];
+  let spacingBlockedCount = 0;
 
   const addAssignment = (plotIndex: number, resourceType: number): void => {
     usedPlots.add(plotIndex);
@@ -207,12 +269,19 @@ function assignResourceIntents(args: {
 
   for (const resourceType of args.candidateResourceTypes) {
     if (assignments.length >= targetCount) break;
-    const plotIndex = plotOrder.find(
-      (candidatePlot) =>
-        !usedPlots.has(candidatePlot) &&
-        isLegalResourceTile(args.adapter, args.width, args.height, candidatePlot, resourceType)
-    );
-    if (plotIndex === undefined) continue;
+    const result = findLeastUsedLegalPlot({
+      adapter: args.adapter,
+      width: args.width,
+      height: args.height,
+      plotOrder,
+      resourceType,
+      usedPlots,
+      assignments,
+      minSpacingTiles,
+    });
+    spacingBlockedCount += result.spacingBlockedCount;
+    const plotIndex = result.plotIndex;
+    if (plotIndex === null) continue;
     addAssignment(plotIndex, resourceType);
   }
 
@@ -220,6 +289,17 @@ function assignResourceIntents(args: {
     if (assignments.length >= targetCount) break;
     const plotIndex = Math.trunc(placement.plotIndex);
     if (plotIndex < 0 || plotIndex >= size || usedPlots.has(plotIndex)) continue;
+    if (
+      !isFarEnoughFromAssignments({
+        plotIndex,
+        assignments,
+        width: args.width,
+        minSpacingTiles,
+      })
+    ) {
+      spacingBlockedCount += 1;
+      continue;
+    }
     const resourceType = chooseLeastUsedLegalResource({
       adapter: args.adapter,
       width: args.width,
@@ -235,6 +315,17 @@ function assignResourceIntents(args: {
   for (const plotIndex of plotOrder) {
     if (assignments.length >= targetCount) break;
     if (usedPlots.has(plotIndex)) continue;
+    if (
+      !isFarEnoughFromAssignments({
+        plotIndex,
+        assignments,
+        width: args.width,
+        minSpacingTiles,
+      })
+    ) {
+      spacingBlockedCount += 1;
+      continue;
+    }
     const resourceType = chooseLeastUsedLegalResource({
       adapter: args.adapter,
       width: args.width,
@@ -259,6 +350,8 @@ function assignResourceIntents(args: {
       candidateResourceTypes: args.candidateResourceTypes,
       plotOrder,
       usedPlots,
+      minSpacingTiles,
+      spacingBlockedCount,
     }),
   };
 }
@@ -273,6 +366,8 @@ function summarizeResourceAssignments(args: {
   candidateResourceTypes: readonly number[];
   plotOrder: readonly number[];
   usedPlots: ReadonlySet<number>;
+  minSpacingTiles: number;
+  spacingBlockedCount: number;
 }): ResourceAssignmentSummary {
   const byResource = new Map<
     number,
@@ -340,6 +435,8 @@ function summarizeResourceAssignments(args: {
   return {
     requestedPlannedCount: args.plannedPlacements.length,
     assignedCount: args.assignments.length,
+    minSpacingTiles: args.minSpacingTiles,
+    spacingBlockedCount: args.spacingBlockedCount,
     reassignedCount,
     unassignedPreferredCount,
     candidateResourceTypes: [...args.candidateResourceTypes],
@@ -491,9 +588,10 @@ export function buildResourcePlacementRuntimeTelemetry(
           assignment: {
             requestedPlannedCount: assignment.requestedPlannedCount,
             assignedCount: assignment.assignedCount,
+            minSpacingTiles: assignment.minSpacingTiles,
+            spacingBlockedCount: assignment.spacingBlockedCount,
             reassignedCount: assignment.reassignedCount,
             unassignedPreferredCount: assignment.unassignedPreferredCount,
-            candidateResourceTypeCount: assignment.candidateResourceTypes.length,
             legalCandidateResourceTypeCount: assignment.legalCandidateResourceTypes.length,
             unassignableResourceTypes: assignment.unassignableResourceTypes,
           },

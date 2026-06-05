@@ -79,6 +79,25 @@ const CASES = [
 
 function expectResourceDiagnostics(stats: WorldBalanceStats): void {
   expect(stats.resourcePlannedCount, `${stats.label} resource plans`).toBeGreaterThan(0);
+  expect(
+    stats.resourceRequestedPlannedCount,
+    `${stats.label} requested resource plans`
+  ).toBeGreaterThanOrEqual(stats.resourcePlannedCount);
+  expect(stats.resourceAssignedCount, `${stats.label} assigned resource plans`).toBe(
+    stats.resourcePlannedCount
+  );
+  expect(
+    stats.resourceReassignmentShare,
+    `${stats.label} reassignment share floor`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.resourceReassignmentShare,
+    `${stats.label} reassignment share ceiling`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    stats.resourceLegalCandidateResourceTypeCount,
+    `${stats.label} legal resource candidate types`
+  ).toBeGreaterThan(0);
   expect(stats.resourceUniquePlannedTypes, `${stats.label} planned resource variety`).toBeGreaterThanOrEqual(
     Math.min(55, stats.resourcePlannedCount)
   );
@@ -108,6 +127,36 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
     stats.resourceOutcomeCountsByReason.reduce((sum, entry) => sum + entry.count, 0),
     `${stats.label} resource by-reason total`
   ).toBe(stats.resourceRejectedCount + stats.resourceMismatchCount);
+  if (stats.resourcePlacedCount > 1) {
+    expect(
+      stats.resourcePlacedNearestNeighborMin,
+      `${stats.label} placed resource spacing`
+    ).toBeGreaterThanOrEqual(stats.resourceAssignmentMinSpacingTiles);
+  }
+  expect(
+    stats.resourcePlacedMaxLocalDensityRadius2,
+    `${stats.label} placed resource local density`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.resourcePlacedSectorMaxShare,
+    `${stats.label} placed resource sector max share`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    stats.resourcePlacedSectorEntropy01,
+    `${stats.label} placed resource sector entropy`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.resourcePlacedSectorEntropy01,
+    `${stats.label} placed resource sector entropy`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    stats.resourcePlacedPolarBandShare,
+    `${stats.label} placed resource polar share`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Object.values(stats.resourcePlacedBiomeSymbolCounts).reduce((sum, count) => sum + count, 0),
+    `${stats.label} placed resource biome totals`
+  ).toBe(stats.resourcePlacedCount);
 
   for (const entry of stats.resourceOutcomeCountsByResource) {
     expect(

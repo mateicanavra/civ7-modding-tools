@@ -4,7 +4,11 @@ import {
   type ResourcePlacementRejectionReason,
 } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { collectMaskComponentsOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
+import {
+  collectMaskComponentsOddQ,
+  getHexNeighborIndicesOddQ,
+  hexDistanceOddQPeriodicX,
+} from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
@@ -118,14 +122,34 @@ export type WorldBalanceStats = Readonly<{
   resourcePlacedCount: number;
   resourceRejectedCount: number;
   resourceMismatchCount: number;
+  resourceRequestedPlannedCount: number;
+  resourceAssignedCount: number;
+  resourceReassignedCount: number;
+  resourceReassignmentShare: number;
+  resourceUnassignedPreferredCount: number;
+  resourceAssignmentMinSpacingTiles: number;
+  resourceAssignmentSpacingBlockedCount: number;
+  resourceLegalCandidateResourceTypeCount: number;
   resourceUniquePlannedTypes: number;
   resourceUniquePlacedTypes: number;
   resourcePlacedCountMinByType: number;
   resourcePlacedCountMaxByType: number;
+  resourcePlannedNearestNeighborMin: number;
+  resourcePlannedNearestNeighborP10: number;
+  resourcePlannedNearestNeighborMedian: number;
+  resourcePlacedNearestNeighborMin: number;
+  resourcePlacedNearestNeighborP10: number;
+  resourcePlacedNearestNeighborMedian: number;
+  resourcePlacedMaxLocalDensityRadius2: number;
+  resourcePlacedSectorMaxShare: number;
+  resourcePlacedSectorEntropy01: number;
+  resourcePlacedLatitudeBandMaxOverLandShare: number;
+  resourcePlacedPolarBandShare: number;
   resourceOutcomeCountsByResource: readonly ResourceOutcomeResourceStats[];
   resourceOutcomeCountsByReason: readonly ResourceOutcomeReasonStats[];
   resourcePlanTypeCounts: Readonly<Record<string, number>>;
   resourcePlacedTypeCounts: Readonly<Record<string, number>>;
+  resourcePlacedBiomeSymbolCounts: Readonly<Record<string, number>>;
   resourceRejectReasonCounts: Readonly<Record<string, number>>;
   finalResourceTypeCounts: Readonly<Record<string, number>>;
 }>;
@@ -306,6 +330,121 @@ function computeMaskComponents(mask: Uint8Array, width: number, height: number):
   };
 }
 
+function computeNearestNeighborStats(plotIndices: readonly number[], width: number): {
+  min: number;
+  p10: number;
+  median: number;
+} {
+  if (plotIndices.length < 2) return { min: 0, p10: 0, median: 0 };
+  const distances: number[] = [];
+  for (let i = 0; i < plotIndices.length; i++) {
+    let best = Number.POSITIVE_INFINITY;
+    for (let j = 0; j < plotIndices.length; j++) {
+      if (i === j) continue;
+      best = Math.min(best, hexDistanceOddQPeriodicX(plotIndices[i]!, plotIndices[j]!, width));
+    }
+    if (Number.isFinite(best)) distances.push(best);
+  }
+  return {
+    min: percentile(distances, 0),
+    p10: percentile(distances, 0.1),
+    median: percentile(distances, 0.5),
+  };
+}
+
+function computeMaxLocalDensity(
+  plotIndices: readonly number[],
+  width: number,
+  radius: number
+): number {
+  if (plotIndices.length === 0) return 0;
+  let maxDensity = 0;
+  for (const plotIndex of plotIndices) {
+    let density = 0;
+    for (const other of plotIndices) {
+      if (hexDistanceOddQPeriodicX(plotIndex, other, width) <= radius) density += 1;
+    }
+    maxDensity = Math.max(maxDensity, density);
+  }
+  return maxDensity;
+}
+
+function computeSectorDistributionStats(
+  plotIndices: readonly number[],
+  width: number,
+  height: number,
+  sectorCols = 8,
+  sectorRows = 4
+): { maxShare: number; entropy01: number } {
+  if (plotIndices.length === 0) return { maxShare: 0, entropy01: 0 };
+  const cols = Math.max(1, Math.min(width, sectorCols));
+  const rows = Math.max(1, Math.min(height, sectorRows));
+  const counts = new Array(cols * rows).fill(0);
+  for (const plotIndex of plotIndices) {
+    const x = plotIndex % width;
+    const y = (plotIndex / width) | 0;
+    const sx = Math.min(cols - 1, Math.floor((x * cols) / width));
+    const sy = Math.min(rows - 1, Math.floor((y * rows) / height));
+    counts[sy * cols + sx] += 1;
+  }
+
+  let entropy = 0;
+  let maxShare = 0;
+  for (const count of counts) {
+    if (count <= 0) continue;
+    const share = count / plotIndices.length;
+    maxShare = Math.max(maxShare, share);
+    entropy -= share * Math.log(share);
+  }
+  const entropy01 = counts.length <= 1 ? 1 : entropy / Math.log(counts.length);
+  return { maxShare: roundMetric(maxShare), entropy01: roundMetric(entropy01) };
+}
+
+function computeLatitudeDistributionStats(args: {
+  landMask: Uint8Array;
+  plotIndices: readonly number[];
+  width: number;
+  height: number;
+  bandCount?: number;
+}): { maxOverLandShare: number; polarBandShare: number } {
+  const bandCount = Math.max(1, args.bandCount ?? 10);
+  if (args.plotIndices.length === 0) return { maxOverLandShare: 0, polarBandShare: 0 };
+  const landByBand = new Array(bandCount).fill(0);
+  const resourcesByBand = new Array(bandCount).fill(0);
+  let landTotal = 0;
+  for (let i = 0; i < args.landMask.length; i++) {
+    if (args.landMask[i] !== 1) continue;
+    const y = (i / args.width) | 0;
+    const band = Math.min(bandCount - 1, Math.floor((y * bandCount) / args.height));
+    landByBand[band] += 1;
+    landTotal += 1;
+  }
+  for (const plotIndex of args.plotIndices) {
+    const y = (plotIndex / args.width) | 0;
+    const band = Math.min(bandCount - 1, Math.floor((y * bandCount) / args.height));
+    resourcesByBand[band] += 1;
+  }
+
+  let maxOverLandShare = 0;
+  for (let band = 0; band < bandCount; band++) {
+    const landShare = landTotal === 0 ? 0 : landByBand[band] / landTotal;
+    if (landShare <= 0) continue;
+    const resourceShare = resourcesByBand[band] / args.plotIndices.length;
+    maxOverLandShare = Math.max(maxOverLandShare, resourceShare / landShare);
+  }
+
+  const polarBandCount = Math.min(2, Math.floor(bandCount / 2));
+  let polarCount = 0;
+  for (let band = 0; band < polarBandCount; band++) {
+    polarCount += resourcesByBand[band] + resourcesByBand[bandCount - 1 - band];
+  }
+
+  return {
+    maxOverLandShare: roundMetric(maxOverLandShare),
+    polarBandShare: roundMetric(polarCount / args.plotIndices.length),
+  };
+}
+
 /**
  * Habitat gates are intentionally broad product checks, not copies of the
  * scoring strategies. They catch categorical inversions like "taiga only scores
@@ -436,7 +575,7 @@ export function collectWorldBalanceStats(args: Readonly<{
     | {
         targetCount?: number;
         plannedCount?: number;
-        placements?: ReadonlyArray<Readonly<{ preferredResourceType?: number }>>;
+        placements?: ReadonlyArray<Readonly<{ plotIndex?: number; preferredResourceType?: number }>>;
       }
     | undefined;
   const resourcePlacement = context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
@@ -449,9 +588,19 @@ export function collectWorldBalanceStats(args: Readonly<{
           byResource?: ResourceOutcomeResourceStats[];
           byReason?: ResourceOutcomeReasonStats[];
         };
+        assignment?: {
+          requestedPlannedCount?: number;
+          assignedCount?: number;
+          minSpacingTiles?: number;
+          spacingBlockedCount?: number;
+          reassignedCount?: number;
+          unassignedPreferredCount?: number;
+          legalCandidateResourceTypes?: readonly number[];
+        };
         outcomes?: ReadonlyArray<
           Readonly<{
             status?: "placed" | "rejected" | "mismatch";
+            plotIndex?: number;
             resourceType?: number;
             reason?: string;
           }>
@@ -562,6 +711,7 @@ export function collectWorldBalanceStats(args: Readonly<{
   );
   const resourcePlanTypeCounts: Record<string, number> = {};
   const resourcePlacedTypeCounts: Record<string, number> = {};
+  const resourcePlacedBiomeSymbolCounts: Record<string, number> = {};
   const resourceRejectReasonCounts: Record<string, number> = {};
   const finalResourceTypeCounts: Record<string, number> = {};
   const featureTypeByKey = Object.fromEntries(
@@ -644,14 +794,40 @@ export function collectWorldBalanceStats(args: Readonly<{
       incrementCount(resourcePlanTypeCounts, placement.preferredResourceType as number);
     }
   }
+  const resourcePlannedPlotIndices = resourcePlan.placements
+    .map((placement) =>
+      Number.isFinite(placement.plotIndex) ? Math.trunc(placement.plotIndex as number) : -1
+    )
+    .filter((plotIndex) => plotIndex >= 0 && plotIndex < width * height);
+  const resourcePlacedPlotIndices: number[] = [];
   for (const outcome of resourcePlacement.outcomes) {
     if (outcome.status === "placed" && Number.isFinite(outcome.resourceType)) {
       incrementCount(resourcePlacedTypeCounts, outcome.resourceType as number);
+      const plotIndex = Number.isFinite(outcome.plotIndex)
+        ? Math.trunc(outcome.plotIndex as number)
+        : -1;
+      if (plotIndex >= 0 && plotIndex < width * height) {
+        resourcePlacedPlotIndices.push(plotIndex);
+        incrementCount(
+          resourcePlacedBiomeSymbolCounts,
+          biomeSymbolFromIndex(classification.biomeIndex[plotIndex] ?? 255)
+        );
+      }
     }
     if (outcome.status === "rejected") {
       incrementCount(resourceRejectReasonCounts, outcome.reason ?? "unknown");
     }
   }
+
+  const resourcePlannedNearestNeighbor = computeNearestNeighborStats(resourcePlannedPlotIndices, width);
+  const resourcePlacedNearestNeighbor = computeNearestNeighborStats(resourcePlacedPlotIndices, width);
+  const resourcePlacedSectors = computeSectorDistributionStats(resourcePlacedPlotIndices, width, height);
+  const resourcePlacedLatitude = computeLatitudeDistributionStats({
+    landMask: topography.landMask,
+    plotIndices: resourcePlacedPlotIndices,
+    width,
+    height,
+  });
 
   const preLakeLandTiles = countMask(topography.landMask);
   const plannedMountainTiles = countMask(mountains.mountainMask);
@@ -816,16 +992,55 @@ export function collectWorldBalanceStats(args: Readonly<{
     resourcePlacedCount: Math.max(0, resourcePlacement.summary?.placedCount ?? 0),
     resourceRejectedCount: Math.max(0, resourcePlacement.summary?.rejectedCount ?? 0),
     resourceMismatchCount: Math.max(0, resourcePlacement.summary?.mismatchCount ?? 0),
+    resourceRequestedPlannedCount: Math.max(
+      0,
+      resourcePlacement.assignment?.requestedPlannedCount ?? 0
+    ),
+    resourceAssignedCount: Math.max(0, resourcePlacement.assignment?.assignedCount ?? 0),
+    resourceReassignedCount: Math.max(0, resourcePlacement.assignment?.reassignedCount ?? 0),
+    resourceReassignmentShare:
+      (resourcePlacement.assignment?.assignedCount ?? 0) === 0
+        ? 0
+        : roundMetric(
+            (resourcePlacement.assignment?.reassignedCount ?? 0) /
+              Math.max(1, resourcePlacement.assignment?.assignedCount ?? 0)
+          ),
+    resourceUnassignedPreferredCount: Math.max(
+      0,
+      resourcePlacement.assignment?.unassignedPreferredCount ?? 0
+    ),
+    resourceAssignmentMinSpacingTiles: Math.max(
+      0,
+      resourcePlacement.assignment?.minSpacingTiles ?? 0
+    ),
+    resourceAssignmentSpacingBlockedCount: Math.max(
+      0,
+      resourcePlacement.assignment?.spacingBlockedCount ?? 0
+    ),
+    resourceLegalCandidateResourceTypeCount:
+      resourcePlacement.assignment?.legalCandidateResourceTypes?.length ?? 0,
     resourceUniquePlannedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.plannedCount > 0)
       .length,
     resourceUniquePlacedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.placedCount > 0)
       .length,
     resourcePlacedCountMinByType: resourcePlacedCounts.length === 0 ? 0 : Math.min(...resourcePlacedCounts),
     resourcePlacedCountMaxByType: resourcePlacedCounts.length === 0 ? 0 : Math.max(...resourcePlacedCounts),
+    resourcePlannedNearestNeighborMin: resourcePlannedNearestNeighbor.min,
+    resourcePlannedNearestNeighborP10: resourcePlannedNearestNeighbor.p10,
+    resourcePlannedNearestNeighborMedian: resourcePlannedNearestNeighbor.median,
+    resourcePlacedNearestNeighborMin: resourcePlacedNearestNeighbor.min,
+    resourcePlacedNearestNeighborP10: resourcePlacedNearestNeighbor.p10,
+    resourcePlacedNearestNeighborMedian: resourcePlacedNearestNeighbor.median,
+    resourcePlacedMaxLocalDensityRadius2: computeMaxLocalDensity(resourcePlacedPlotIndices, width, 2),
+    resourcePlacedSectorMaxShare: resourcePlacedSectors.maxShare,
+    resourcePlacedSectorEntropy01: resourcePlacedSectors.entropy01,
+    resourcePlacedLatitudeBandMaxOverLandShare: resourcePlacedLatitude.maxOverLandShare,
+    resourcePlacedPolarBandShare: resourcePlacedLatitude.polarBandShare,
     resourceOutcomeCountsByResource,
     resourceOutcomeCountsByReason: resourcePlacement.summary.byReason ?? [],
     resourcePlanTypeCounts,
     resourcePlacedTypeCounts,
+    resourcePlacedBiomeSymbolCounts,
     resourceRejectReasonCounts,
     finalResourceTypeCounts,
   };

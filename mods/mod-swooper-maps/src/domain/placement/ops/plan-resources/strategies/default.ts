@@ -61,6 +61,7 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
         candidateResourceTypes: [],
         targetCount: 0,
         plannedCount: 0,
+        minSpacingTiles: Math.max(0, config.minSpacingTiles | 0),
         placements: [],
       };
     }
@@ -169,6 +170,7 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
       candidateResourceTypes,
       targetCount,
       plannedCount: selected.length,
+      minSpacingTiles,
       placements: selected,
     };
   },

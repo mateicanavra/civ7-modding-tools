@@ -250,6 +250,8 @@ const ResourceAssignmentSummarySchema = Type.Object(
   {
     requestedPlannedCount: Type.Integer({ minimum: 0 }),
     assignedCount: Type.Integer({ minimum: 0 }),
+    minSpacingTiles: Type.Integer({ minimum: 0 }),
+    spacingBlockedCount: Type.Integer({ minimum: 0 }),
     reassignedCount: Type.Integer({ minimum: 0 }),
     unassignedPreferredCount: Type.Integer({ minimum: 0 }),
     candidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
