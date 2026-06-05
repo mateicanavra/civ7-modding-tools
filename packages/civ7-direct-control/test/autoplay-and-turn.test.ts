@@ -9,6 +9,7 @@ import {
   configureCiv7Autoplay,
   getCiv7AutoplayStatus,
   getCiv7TurnCompletionStatus,
+  requestCiv7TurnComplete,
   sendCiv7TurnComplete,
   sendCiv7TurnUnready,
   startCiv7Autoplay,
@@ -53,6 +54,89 @@ describe("Civ7 autoplay and turn completion", () => {
     await expect(sendCiv7TurnUnready({}, undefined as never)).rejects.toMatchObject({
       code: "command-failed",
     });
+  });
+
+  test("returns guard-blocked turn completion requests without sending", async () => {
+    const calls: string[] = [];
+    const blockedStatus = turnCompletionStatusResult({
+      canEndTurn: { ok: true, value: false },
+    });
+    const dependencies = {
+      assertApproved: () => {},
+      executeAppUiCommand: async (options: { command: string }) => {
+        calls.push(options.command);
+        return commandResult();
+      },
+      getPlayNotificationView: async () => ({
+        notifications: [{
+          isEndTurnBlocking: true,
+          typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+          canUserDismiss: false,
+          decision: { category: "town-focus" },
+        }],
+      }),
+      parseTurnCompletionStatus: () => blockedStatus,
+    };
+
+    const request = await requestCiv7TurnComplete({}, {
+      approved: true,
+      reason: "test blocked turn completion request",
+    }, dependencies as never);
+
+    expect(request).toMatchObject({
+      sent: false,
+      reason: "turn-completion-blocked",
+      before: {
+        canEndTurn: { ok: true, value: false },
+      },
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toContain("GameContext.hasSentTurnComplete");
+    expect(calls).not.toContain("GameContext.sendTurnComplete()");
+    await expect(sendCiv7TurnComplete({}, {
+      approved: true,
+      reason: "test blocked legacy turn completion send",
+    }, dependencies as never)).rejects.toMatchObject({
+      code: "command-failed",
+    });
+  });
+
+  test("returns sent turn completion request results after command execution", async () => {
+    const calls: string[] = [];
+    const statuses = [
+      turnCompletionStatusResult(),
+      turnCompletionStatusResult({
+        turn: { ok: true, value: 13 },
+        hasSentTurnComplete: { ok: true, value: true },
+      }),
+    ];
+    const dependencies = {
+      assertApproved: () => {},
+      executeAppUiCommand: async (options: { command: string }) => {
+        calls.push(options.command);
+        return commandResult();
+      },
+      getPlayNotificationView: async () => ({ notifications: [] }),
+      parseTurnCompletionStatus: () => statuses.shift() ?? turnCompletionStatusResult(),
+    };
+
+    const request = await requestCiv7TurnComplete({}, {
+      approved: true,
+      reason: "test sent turn completion request",
+    }, dependencies as never);
+
+    expect(request).toMatchObject({
+      sent: true,
+      verified: true,
+      before: {
+        turn: { ok: true, value: 12 },
+      },
+      after: {
+        turn: { ok: true, value: 13 },
+      },
+    });
+    expect(calls.some((command) => command.includes("GameContext.hasSentTurnComplete"))).toBe(true);
+    expect(calls).toContain("GameContext.sendTurnComplete()");
   });
 
   test("routes autoplay configure and explicit unbounded start through App UI commands", async () => {
@@ -245,7 +329,16 @@ describe("Civ7 autoplay and turn completion", () => {
   });
 });
 
-function turnCompletionStatusResult() {
+function commandResult() {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    output: ["null"],
+  };
+}
+
+function turnCompletionStatusResult(overrides: Record<string, unknown> = {}) {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -257,6 +350,7 @@ function turnCompletionStatusResult() {
     canEndTurn: { ok: true as const, value: true },
     blocker: { ok: true as const, value: 0 },
     firstReadyUnitId: { ok: true as const, value: null },
+    ...overrides,
   };
 }
 

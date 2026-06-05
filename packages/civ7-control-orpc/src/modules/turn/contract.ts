@@ -20,6 +20,7 @@ export const Civ7TurnCompletionInputStandardSchema = toStandardSchema(
 );
 
 export const Civ7TurnCompletionRequestStatusSchema = Type.Union([
+  Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-guarded"),
   Type.Literal("sent-unverified"),
@@ -30,6 +31,7 @@ export const Civ7TurnCompletionPostconditionClassificationSchema = Type.Union(
     Type.Literal("turn-advanced"),
     Type.Literal("turn-complete-sent"),
     Type.Literal("already-complete"),
+    Type.Literal("turn-completion-blocked"),
     Type.Literal("no-state-change"),
     Type.Literal("missing-postcondition"),
     Type.Literal("pending-runtime-proof"),
@@ -39,6 +41,7 @@ export const Civ7TurnCompletionPostconditionClassificationSchema = Type.Union(
 export const Civ7TurnCompletionProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
+  Type.Literal("not-sent"),
   Type.Literal("no-state-change"),
   Type.Literal("unknown"),
 ]);
@@ -89,10 +92,10 @@ export const Civ7TurnCompletionNextStepSchema = Type.Object(
 
 export const Civ7TurnCompletionResultSchema = Type.Object(
   {
-    sent: Type.Literal(true),
+    sent: Type.Boolean(),
     status: Civ7TurnCompletionRequestStatusSchema,
     before: Civ7TurnCompletionProbeSummarySchema,
-    after: Civ7TurnCompletionProbeSummarySchema,
+    after: Type.Union([Civ7TurnCompletionProbeSummarySchema, Type.Null()]),
     postcondition: Civ7TurnCompletionPostconditionSummarySchema,
     nextSteps: Type.Array(Civ7TurnCompletionNextStepSchema),
   },

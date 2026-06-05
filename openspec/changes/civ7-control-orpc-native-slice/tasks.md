@@ -387,6 +387,12 @@ adding more read-only facade shells.
     `readiness.current` server-side client. Keep CLI endpoint flags as context
     construction, emit the semantic readiness projection, and keep raw
     direct-control playable-status internals out of normal status output.
+  - [x] 7.1.2 Route `civ7 game play end-turn --send` through the in-process
+    `turn.complete.request` server-side client. Keep endpoint flags and
+    approval reason as context construction, emit the semantic
+    turn-completion projection for send and expected guard-blocked `not-sent`
+    output, preserve the existing direct-control status read for check-only
+    mode, and keep live runtime proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -499,3 +505,7 @@ adding more read-only facade shells.
 - [x] 8.24 Run focused control-oRPC turn-completion procedure tests,
   control-oRPC package test/check/build, relevant OpenSpec strict validates,
   and diff hygiene for the native turn completion procedure slice.
+- [x] 8.25 Run focused direct-control request-result, control-oRPC turn
+  completion, and CLI end-turn tests, `check:cli`, `test:cli:play`, relevant
+  OpenSpec strict validates, and diff hygiene for the CLI turn-completion send
+  migration slice.

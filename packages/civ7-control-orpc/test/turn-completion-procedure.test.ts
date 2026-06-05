@@ -12,7 +12,7 @@ import {
   type Civ7ControlOrpcContext,
   type Civ7TurnCompletionResult,
 } from "../src/index";
-import type { Civ7ControlOrpcTurnCompletionActionResult } from "../src/dependencies/direct-control";
+import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../src/dependencies/direct-control";
 
 describe("turn.complete.request control-oRPC procedure", () => {
   test("owns the caller-facing turn completion input without runtime controls", () => {
@@ -175,6 +175,47 @@ describe("turn.complete.request control-oRPC procedure", () => {
     });
   });
 
+  test("projects expected guard-blocked turn completion as semantic not-sent output", async () => {
+    const fake = fakeContext(turnCompletionBlockedResult());
+
+    const result = await call(
+      Civ7ControlOrpcRouter.turn.complete.request,
+      {},
+      { context: fake.context },
+    );
+
+    expect(result).toMatchObject({
+      sent: false,
+      status: "not-sent",
+      before: {
+        turn: 12,
+        hasSentTurnComplete: false,
+        canEndTurn: false,
+        blocker: 0,
+        firstReadyUnitId: null,
+      },
+      after: null,
+      postcondition: {
+        classification: "turn-completion-blocked",
+        outcome: "not-sent",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-turn-completion",
+          source: "turn.complete.request",
+        },
+        {
+          kind: "do-not-repeat",
+          source: "turn.complete.request",
+        },
+      ],
+    });
+    expectPublicResultOmitsRawRuntimeDetails(result);
+  });
+
   test("requires context approval before readiness and mutation ports run", async () => {
     const fake = fakeContext(turnCompletionActionResult({}), {
       approval: undefined,
@@ -280,7 +321,7 @@ function expectPublicResultOmitsRawRuntimeDetails(
 }
 
 function fakeContext(
-  resultOrError: Civ7ControlOrpcTurnCompletionActionResult | Error,
+  resultOrError: Civ7ControlOrpcTurnCompletionRequestResult | Error,
   options: Readonly<{
     approval?: Civ7ControlOrpcContext["approval"];
   }> = {},
@@ -330,9 +371,10 @@ function fakeContext(
 }
 
 function turnCompletionActionResult(
-  overrides: Partial<Civ7ControlOrpcTurnCompletionActionResult>,
-): Civ7ControlOrpcTurnCompletionActionResult {
+  overrides: Partial<Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>>,
+): Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }> {
   return {
+    sent: true,
     before: turnCompletionStatus({ turn: 12, hasSentTurnComplete: false }),
     after: turnCompletionStatus({ turn: 12, hasSentTurnComplete: true }),
     command: {
@@ -345,15 +387,38 @@ function turnCompletionActionResult(
     },
     verified: true,
     ...overrides,
-  } as Civ7ControlOrpcTurnCompletionActionResult;
+  } as Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>;
+}
+
+function turnCompletionBlockedResult(): Extract<
+  Civ7ControlOrpcTurnCompletionRequestResult,
+  { sent: false }
+> {
+  return {
+    sent: false,
+    reason: "turn-completion-blocked",
+    before: turnCompletionStatus({
+      turn: 12,
+      hasSentTurnComplete: false,
+      canEndTurn: false,
+    }),
+    fallbackPreflight: {
+      notifications: [{
+        isEndTurnBlocking: true,
+        typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+        decision: { category: "town-focus" },
+      }],
+    },
+  } as Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: false }>;
 }
 
 function turnCompletionStatus(options: Readonly<{
   turn: number;
   hasSentTurnComplete: boolean;
+  canEndTurn?: boolean;
   turnOk?: boolean;
   hasSentTurnCompleteOk?: boolean;
-}>): Civ7ControlOrpcTurnCompletionActionResult["before"] {
+}>): Civ7ControlOrpcTurnCompletionRequestResult["before"] {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -366,7 +431,7 @@ function turnCompletionStatus(options: Readonly<{
     hasSentTurnComplete: options.hasSentTurnCompleteOk === false
       ? { ok: false, reason: "missing sent state" }
       : { ok: true, value: options.hasSentTurnComplete },
-    canEndTurn: { ok: true, value: true },
+    canEndTurn: { ok: true, value: options.canEndTurn ?? true },
     blocker: { ok: true, value: 0 },
     firstReadyUnitId: { ok: true, value: null },
   };

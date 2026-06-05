@@ -199,6 +199,25 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the adapter does not become an alternate product API or raw command
   tunnel
 
+#### Scenario: CLI end-turn send uses native turn procedure
+- **WHEN** `game play end-turn --send` requests an approved turn completion
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process `turn.complete.request`
+  server-side client
+- **AND** the procedure's approval, readiness, direct-control guard, and
+  postcondition projection remain authoritative for the send
+- **AND** expected pre-send guard blocks project as semantic `not-sent`
+  turn-completion output with inspect/do-not-repeat next steps rather than
+  `TURN_COMPLETION_UNAVAILABLE`
+- **AND** the normal JSON result is the semantic turn-completion procedure
+  projection without raw command/session/state/Tuner details or legacy
+  `verified`
+- **AND** the read-only `game play end-turn` status path remains a
+  direct-control turn-completion status read until a separate accepted read
+  procedure exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: In-game controller bridge preflight is recorded
 - **WHEN** the in-game controller bridge is planned before source
   implementation
@@ -405,6 +424,8 @@ modules before broad implementation.
 - **AND** the procedure consumes the direct-control turn-completion runtime
   port and turn-completion proof helper rather than inferring from legacy
   `verified`
+- **AND** expected direct-control guard-blocked requests are projected as
+  semantic `not-sent` output, not runtime unavailability
 - **AND** normal input is empty and endpoint, session, state, raw command, and
   approval fields remain context-owned
 - **AND** normal output projects before/after turn facts, postcondition

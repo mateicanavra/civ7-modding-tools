@@ -4,7 +4,7 @@ import {
 } from "@civ7/direct-control";
 import { Effect } from "effect";
 
-import type { Civ7ControlOrpcTurnCompletionActionResult } from "../../../dependencies/direct-control";
+import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
 import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
@@ -47,8 +47,10 @@ export const turnCompleteRequestProcedure =
   });
 
 function turnCompletionResult(
-  result: Civ7ControlOrpcTurnCompletionActionResult,
+  result: Civ7ControlOrpcTurnCompletionRequestResult,
 ): Civ7TurnCompletionResult {
+  if (!result.sent) return blockedTurnCompletionResult(result);
+
   const postcondition = turnCompletionPostconditionSummary(result);
   const status = turnCompletionRequestStatus(postcondition);
 
@@ -69,6 +71,43 @@ function turnCompletionResult(
   };
 }
 
+function blockedTurnCompletionResult(
+  result: Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: false }>,
+): Civ7TurnCompletionResult {
+  const postcondition: Civ7TurnCompletionResult["postcondition"] = {
+    classification: "turn-completion-blocked",
+    reason: "Direct-control turn-completion guards blocked the request before command execution.",
+    outcome: "not-sent",
+    confidence: "unverified",
+    confirmed: false,
+    noRepeatAfterUnverified: true,
+  };
+  const status = civ7MutationRequestStatus({
+    sent: false,
+    postcondition,
+  });
+
+  return {
+    sent: false,
+    status,
+    before: turnCompletionProbeSummary(result.before),
+    after: null,
+    postcondition,
+    nextSteps: [
+      {
+        kind: "inspect-turn-completion",
+        source: "turn.complete.request",
+        label: "Inspect current turn completion blockers before attempting another turn completion request.",
+      },
+      {
+        kind: "do-not-repeat",
+        source: "turn.complete.request",
+        label: "Do not repeat turn completion until fresh turn and attention evidence is read.",
+      },
+    ],
+  };
+}
+
 function turnCompletionRequestStatus(
   postcondition: Civ7TurnCompletionResult["postcondition"],
 ): Civ7TurnCompletionResult["status"] {
@@ -83,7 +122,7 @@ function turnCompletionRequestStatus(
 }
 
 function turnCompletionPostconditionSummary(
-  result: Civ7ControlOrpcTurnCompletionActionResult,
+  result: Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>,
 ): Civ7TurnCompletionResult["postcondition"] {
   const postcondition = turnCompletionProofPostcondition(result, undefined);
   const confirmed = postcondition.confidence === "confirmed";
@@ -101,7 +140,7 @@ function turnCompletionPostconditionSummary(
 }
 
 function turnCompletionProbeSummary(
-  status: Civ7ControlOrpcTurnCompletionActionResult["before"],
+  status: Civ7ControlOrpcTurnCompletionRequestResult["before"],
 ): Civ7TurnCompletionResult["before"] {
   return {
     turn: probeValue(status.turn),
