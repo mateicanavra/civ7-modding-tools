@@ -144,6 +144,28 @@ export class Civ7NarrativeChoiceUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7DiplomacyResponseUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("decisions.diplomacy.response.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7DiplomacyResponseUnavailableErrorData = Static<
+  typeof Civ7DiplomacyResponseUnavailableErrorDataSchema
+>;
+
+export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
+  "Civ7DiplomacyResponseUnavailableError",
+  {
+    code: "DIPLOMACY_RESPONSE_UNAVAILABLE",
+    message: "Direct-control diplomacy response request failed.",
+    schema: toStandardSchema(Civ7DiplomacyResponseUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -283,6 +305,7 @@ export class Civ7CorrelationIdInvalidError extends ORPCTaggedError(
 export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,

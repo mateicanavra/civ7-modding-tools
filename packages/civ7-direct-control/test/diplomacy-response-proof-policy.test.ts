@@ -4,11 +4,11 @@ import {
   diplomacyResponsePostconditionConfirmed,
   diplomacyResponseProofOutcome,
   diplomacyResponseProofPostcondition,
-} from "../src/proof/diplomacy-response-proof-policy";
+} from "../src/proof/diplomacy-response-proof-policy.js";
 
-import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request";
-import type { Civ7DiplomacyResponsePostconditionClassification } from "../src/play/operations/diplomacy-postconditions";
-import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry";
+import type { Civ7DiplomacyResponseResult } from "../src/play/operations/diplomacy-request.js";
+import type { Civ7DiplomacyResponsePostconditionClassification } from "../src/play/operations/diplomacy-postconditions.js";
+import type { Civ7OperationTelemetryPostconditionOutcome } from "../src/proof/operation-telemetry.js";
 
 type DiplomacyResponseProofCase = Readonly<{
   classification: Civ7DiplomacyResponsePostconditionClassification;

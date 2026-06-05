@@ -8,13 +8,13 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
-} from "./operation-telemetry";
-import { diplomacyResponseProofPostcondition } from "./diplomacy-response-proof-policy";
+} from "./operation-telemetry.js";
+import { diplomacyResponseProofPostcondition } from "./diplomacy-response-proof-policy.js";
 
 import type {
   Civ7DiplomacyResponseInput,
   Civ7DiplomacyResponseResult,
-} from "../play/operations/diplomacy-request";
+} from "../play/operations/diplomacy-request.js";
 
 export type Civ7DiplomacyResponseTelemetryAdapterInput = Readonly<{
   input: Civ7DiplomacyResponseInput;

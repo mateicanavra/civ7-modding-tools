@@ -1144,6 +1144,10 @@ export type {
   Civ7DiplomacyResponsePostcondition,
   Civ7DiplomacyResponsePostconditionClassification,
 } from "./play/operations/diplomacy-postconditions.js";
+export {
+  diplomacyResponseProofOutcome,
+  diplomacyResponseProofPostcondition,
+} from "./proof/diplomacy-response-proof-policy.js";
 export type {
   Civ7NarrativeChoiceCommandPayload,
   Civ7NarrativeChoiceInput,

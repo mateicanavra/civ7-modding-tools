@@ -129,6 +129,13 @@ adding more read-only facade shells.
     normal proof projection, raw-output exclusion, and no-repeat next steps;
     no direct-control procedure core, broad decisions catalog, runtime proof,
     or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.6 Record `decisions.diplomacy.response.request` as a
+    service-owned decision boundary over direct-control diplomacy runtime,
+    validator, and proof ports. The service owns the caller-facing semantic
+    response shape, normal proof projection, raw-output exclusion, and
+    no-repeat next steps; direct-control-only UI toggles, broad decisions
+    catalogs, runtime proof, and parent Task 5.x/6.x acceptance remain out of
+    scope.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -172,6 +179,11 @@ adding more read-only facade shells.
     readiness, direct-control narrative request authority, and source-owned
     narrative proof classification into semantic output without exposing raw
     command/session/payload details or claiming runtime/live proof.
+  - [x] 5.5.11 Seed `decisions.diplomacy.response.request` as a native
+    service-owned decision procedure that composes approval, playable
+    readiness, direct-control diplomacy response authority, and source-owned
+    diplomacy proof classification into semantic output without exposing raw
+    command/session/payload/UI-closeout details or claiming runtime/live proof.
 
 ## 6. Native Policy Layering
 
@@ -205,6 +217,9 @@ adding more read-only facade shells.
   - [x] 6.2.6 Reuse shared native approval middleware for
     `decisions.narrative.choice.request` while keeping validator-first and
     postcondition/proof middleware pending.
+  - [x] 6.2.7 Reuse shared native approval middleware for
+    `decisions.diplomacy.response.request` while keeping validator-first and
+    postcondition/proof middleware pending.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
   - [x] 6.3.1 Compose `city.production.choice.request` through the
@@ -226,6 +241,10 @@ adding more read-only facade shells.
   - [x] 6.3.5 Compose `decisions.narrative.choice.request` through the
     direct-control narrative request runtime port and project source-owned
     narrative proof/no-repeat semantics into normal output; keep shared
+    validator/postcondition middleware pending.
+  - [x] 6.3.6 Compose `decisions.diplomacy.response.request` through the
+    direct-control diplomacy response runtime port and project source-owned
+    diplomacy proof/no-repeat semantics into normal output; keep shared
     validator/postcondition middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
@@ -254,6 +273,10 @@ adding more read-only facade shells.
     `decisions.narrative.choice.request` direct-control runtime-port failures
     while keeping raw direct-control cause, command, session, and payload
     details out of public error data.
+  - [x] 6.4.8 Use native effect-orpc tagged error constructors for
+    `decisions.diplomacy.response.request` direct-control runtime-port
+    failures while keeping raw direct-control cause, command, session, payload,
+    and UI-closeout details out of public error data.
 
 ## 7. Edge Adapters
 
@@ -286,3 +309,6 @@ adding more read-only facade shells.
 - [x] 8.5 Run direct-control narrative proof, control-oRPC narrative decision,
   package check/build, OpenSpec strict validation, and diff hygiene gates for
   `decisions.narrative.choice.request` before closing that slice.
+- [x] 8.6 Run direct-control diplomacy proof, control-oRPC diplomacy response,
+  package check/build, OpenSpec strict validation, and diff hygiene gates for
+  `decisions.diplomacy.response.request` before closing that slice.

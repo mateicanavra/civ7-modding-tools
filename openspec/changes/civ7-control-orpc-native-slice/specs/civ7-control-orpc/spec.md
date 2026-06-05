@@ -133,6 +133,23 @@ boundaries.
 - **AND** unverified, stale, missing-postcondition, no-state-change, and
   not-sent paths remain no-repeat guarded
 
+#### Scenario: Diplomacy response request procedure is implemented
+- **WHEN** a diplomacy response decision procedure requests a player response
+- **THEN** it is offered under the semantic `decisions` router
+- **AND** it checks mutation approval and playable readiness before invoking
+  direct-control runtime authority
+- **AND** it consumes direct-control diplomacy validators and proof helpers as
+  runtime/proof ports rather than inferring proof from legacy `verified`
+- **AND** its normal input exposes player, action, response, and optional
+  notification identity rather than direct-control UI toggles
+- **AND** its normal output projects semantic status, validation summary,
+  postcondition summary, and next steps
+- **AND** it excludes endpoint, session, state, raw command, payload,
+  notification internals, UI closeout internals, and legacy `verified` details
+  from caller-facing input and output
+- **AND** unverified, missing-postcondition, no-state-change, validation-changed,
+  and not-sent paths remain no-repeat guarded
+
 #### Scenario: Local procedure test passes
 - **WHEN** a local fake-context procedure test passes
 - **THEN** it may prove contract/middleware/projection behavior
