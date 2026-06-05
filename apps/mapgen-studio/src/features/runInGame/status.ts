@@ -36,6 +36,7 @@ export type RunInGameRequestStatus = Readonly<{
   setupConfig?: unknown;
   materializationMode?: string;
   restartCivProcess?: boolean;
+  fingerprint?: string;
 }>;
 
 export type RunInGameFailureDetails = Readonly<{

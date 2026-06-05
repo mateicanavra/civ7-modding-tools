@@ -3,6 +3,10 @@ import {
   normalizeStudioSetupConfig,
   type Civ7StudioSetupConfig,
 } from "../../features/civ7Setup/setupConfig";
+import {
+  formatCiv7StudioSeedError,
+  parseCiv7StudioSeed,
+} from "../../features/civ7Setup/seedPolicy";
 
 export function assertNoRawControlFields(value: unknown): void {
   if (!value || typeof value !== "object") return;
@@ -56,8 +60,9 @@ export function parseRunInGameSetupRequest(body: {
       ? selected.id
       : "studio-current";
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Run in Game map config id must be kebab-case");
-  const seed = Number(body.seed);
-  if (!Number.isInteger(seed)) throw new Error("Run in Game seed must be an integer");
+  const seedPolicy = parseCiv7StudioSeed(body.seed);
+  if (!seedPolicy.ok) throw new Error(`Run in Game ${formatCiv7StudioSeedError(seedPolicy)}`);
+  const seed = seedPolicy.value;
   const mapSize = typeof body.mapSize === "string" ? body.mapSize : "MAPSIZE_STANDARD";
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize)) throw new Error("Run in Game mapSize must be a Civ7 MAPSIZE_* value");
   const playerCount = body.playerCount === undefined ? undefined : Number(body.playerCount);

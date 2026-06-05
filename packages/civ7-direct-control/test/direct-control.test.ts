@@ -5,6 +5,7 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { describe, expect, test } from "vitest";
 import {
+  CIV7_SIGNED_INT_SEED_MAX,
   CIV7_RESTART_COMMAND,
   Civ7DirectControlError,
   DEFAULT_CIV7_TUNER_HOST,
@@ -77,6 +78,27 @@ describe("Civ7 direct control", () => {
     expect([true, false]).toContain(health.ok);
     expect(DEFAULT_CIV7_TUNER_HOST).toBe("127.0.0.1");
     expect(DEFAULT_CIV7_TUNER_PORT).toBe(4318);
+  });
+
+  test("rejects setup seeds Civ7 would wrap before mutating setup state", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await expect(
+        prepareCiv7SinglePlayerSetup(
+          {
+            mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+            mapSize: "MAPSIZE_SMALL",
+            seed: CIV7_SIGNED_INT_SEED_MAX + 1,
+          },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 },
+          { approved: true, reason: "test seed range policy" },
+        ),
+      ).rejects.toMatchObject({ code: "setup-parameter-invalid" });
+      expect(server.received.some((message) => message.includes("editMap.setMapSeed"))).toBe(false);
+    } finally {
+      await server.close();
+    }
   });
 
   test("queries states and sends commands using the tuner frame protocol", async () => {
@@ -495,6 +517,34 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("blocks setup preparation when Civ7 refuses a saved game configuration load", async () => {
+    const server = await startTunerServer({ savedConfigLoadOk: false });
+    try {
+      const { port } = server.address();
+      await expect(
+        prepareCiv7SinglePlayerSetup(
+          {
+            mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+            mapSize: "MAPSIZE_SMALL",
+            seed: 222,
+            savedConfig: {
+              id: "tot-config",
+              displayName: "ToT Config",
+              fileName: "ToT Config.Civ7Cfg",
+              path: "/tmp/ToT Config.Civ7Cfg",
+            },
+          },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 },
+          { approved: true, reason: "test failed saved config load" },
+        ),
+      ).rejects.toMatchObject({ code: "setup-config-load-failed" });
+      expect(server.received.some((message) => message.includes("Network.loadGame") && message.includes("GAME_CONFIGURATION"))).toBe(true);
+      expect(server.received.some((message) => message.includes("editMap.setScript"))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test("prepares and starts a single-player game through setup wrappers", async () => {
     const server = await startTunerServer();
     try {
@@ -894,6 +944,7 @@ async function startTunerServer(options: {
   initialInShell?: boolean;
   closeOnSetupMutation?: boolean;
   closeOnBegin?: boolean;
+  savedConfigLoadOk?: boolean;
   postStartSeedOverride?: number;
   hiddenMapScript?: string;
   revealHiddenMapRowOnShellExit?: boolean;
@@ -1065,12 +1116,16 @@ async function startTunerServer(options: {
           inShell = false;
           socket.write(encodeResponse(frame.listenerId, ["null"]));
         } else if (frame.message.includes("Network.loadGame") && frame.message.includes("GAME_CONFIGURATION")) {
-          setupDifficulty = "DIFFICULTY_CUSTOM";
-          setupLeader = "LEADER_ALEXANDER";
-          setupCivilization = "CIVILIZATION_GREECE";
-          setupPlayerDifficulty = "DIFFICULTY_CUSTOM";
-          setupRevision += 1;
-          socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"serverType":0}']));
+          if (options.savedConfigLoadOk === false) {
+            socket.write(encodeResponse(frame.listenerId, ['{"ok":false,"serverType":0}']));
+          } else {
+            setupDifficulty = "DIFFICULTY_CUSTOM";
+            setupLeader = "LEADER_ALEXANDER";
+            setupCivilization = "CIVILIZATION_GREECE";
+            setupPlayerDifficulty = "DIFFICULTY_CUSTOM";
+            setupRevision += 1;
+            socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"serverType":0}']));
+          }
         } else if (frame.message.includes("editMap.setScript")) {
           if (options.closeOnSetupMutation) {
             socket.destroy();

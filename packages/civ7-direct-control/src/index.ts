@@ -3,6 +3,11 @@ import { homedir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
 import { Socket, createConnection } from "node:net";
 import { Type, type Static } from "typebox";
+import {
+  CIV7_SIGNED_INT_SEED_MAX,
+  CIV7_SIGNED_INT_SEED_MIN,
+  assessCiv7SignedIntSeed,
+} from "./policy/setup.js";
 
 export const DEFAULT_CIV7_TUNER_HOST = "127.0.0.1";
 export const DEFAULT_CIV7_TUNER_PORT = 4318;
@@ -14,6 +19,7 @@ export const CIV7_RESTART_COMMAND = "Network.restartGame()";
 export const CIV7_BEGIN_GAME_COMMAND = "UI.notifyUIReady()";
 export const CIV7_EXIT_TO_MAIN_MENU_COMMAND = 'engine.call("exitToMainMenu")';
 export const CIV7_RELOAD_UI_COMMAND = "UI.reloadUI()";
+export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const CIV7_UI_LOADING_STATES = {
   NotStarted: 0,
   WaitingForGameplayData: 1,
@@ -997,6 +1003,7 @@ export type Civ7DirectControlErrorCode =
   | "setup-start-timeout"
   | "setup-seed-mismatch"
   | "setup-map-size-mismatch"
+  | "setup-config-load-failed"
   | "setup-config-proof-missing";
 
 export class Civ7DirectControlError extends Error {
@@ -1830,6 +1837,13 @@ export async function prepareCiv7SinglePlayerSetup(
         pollIntervalMs: 1_000,
       })
     : undefined;
+  if (savedConfigLoad && !savedConfigLoad.loaded) {
+    throw new Civ7DirectControlError(
+      "setup-config-load-failed",
+      `Civ7 did not load saved configuration ${savedConfigLoad.savedConfig.fileName}`,
+      { details: savedConfigLoad },
+    );
+  }
   const before = await getCiv7SetupSnapshot(options);
   if (normalized.requireShell !== false && before.snapshot.phase !== "shell") {
     throw new Civ7DirectControlError(
@@ -4033,12 +4047,8 @@ function normalizeSinglePlayerSetupInput(input: Civ7SinglePlayerSetupInput): Civ
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(input.mapSize)) {
     throw new Civ7DirectControlError("setup-parameter-invalid", "mapSize must be a Civ7 MAPSIZE_* value");
   }
-  if (!Number.isInteger(input.seed)) {
-    throw new Civ7DirectControlError("setup-parameter-invalid", "seed must be an integer");
-  }
-  if (input.gameSeed !== undefined && !Number.isInteger(input.gameSeed)) {
-    throw new Civ7DirectControlError("setup-parameter-invalid", "gameSeed must be an integer");
-  }
+  validateSetupSeed(input.seed, "seed");
+  if (input.gameSeed !== undefined) validateSetupSeed(input.gameSeed, "gameSeed");
   if (input.playerCount !== undefined) boundedInteger(input.playerCount, 1, 64, "playerCount");
   const options: Record<string, Civ7SetupOptionValue> = {};
   for (const [key, value] of Object.entries(input.options ?? {})) {
@@ -4072,6 +4082,17 @@ function normalizeSinglePlayerSetupInput(input: Civ7SinglePlayerSetupInput): Civ
     options,
     playerOptions,
   };
+}
+
+function validateSetupSeed(value: unknown, label: string): number {
+  const seed = assessCiv7SignedIntSeed(value);
+  if (!seed.ok) {
+    const suffix = seed.reason === "not-integer"
+      ? "must be an integer"
+      : `must be an integer between ${seed.min} and ${seed.max}`;
+    throw new Civ7DirectControlError("setup-parameter-invalid", `${label} ${suffix}`);
+  }
+  return seed.value;
 }
 
 function findSetupParameter(snapshot: Civ7SetupSnapshot, id: string): Civ7SetupParameterSnapshot | undefined {

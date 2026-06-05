@@ -615,7 +615,14 @@ export default defineConfig(({ command }) => ({
                 latitudeBounds?: unknown;
               };
             }>(req);
-            const parsedRequest = parseRunInGameSetupRequest(body);
+            let parsedRequest: ReturnType<typeof parseRunInGameSetupRequest>;
+            try {
+              parsedRequest = parseRunInGameSetupRequest(body);
+            } catch (err) {
+              throw new RunInGameHttpError(400, err instanceof Error ? err.message : "Invalid Run in Game request", {
+                code: "run-in-game-request-invalid",
+              });
+            }
             const selected = body.selectedConfig ?? {};
             const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess, setupConfig } = parsedRequest;
             const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
@@ -635,17 +642,41 @@ export default defineConfig(({ command }) => ({
               latitudeBounds: selected.latitudeBounds ?? null,
               configHash,
             });
+            const requestFingerprint = stableHash({
+              recipeId: "mod-swooper-maps/standard",
+              seed,
+              mapSize,
+              playerCount: playerCount ?? null,
+              resources: typeof body.resources === "string" ? body.resources : null,
+              selectedConfigId: typeof selected.id === "string" ? selected.id : null,
+              setupConfig,
+              materializationMode: requestedMode,
+              configHash,
+              envelopeHash,
+            });
             const activeOperation = runInGameOperations.findActive();
             if (activeOperation) {
-              writeJson(res, 202, {
-                ...activeOperation,
-                details: {
-                  ...activeOperation.details,
-                  duplicateRequest: true,
-                  code: "run-in-game-operation-active",
-                  activeRequestId: activeOperation.requestId,
-                },
-              });
+              if (activeOperation.request?.fingerprint === requestFingerprint) {
+                writeJson(res, 202, {
+                  ...activeOperation,
+                  details: {
+                    ...activeOperation.details,
+                    duplicateRequest: true,
+                    code: "run-in-game-operation-active",
+                    activeRequestId: activeOperation.requestId,
+                  },
+                });
+              } else {
+                writeJson(res, 409, {
+                  ok: false,
+                  error: "Another Run in Game request is already running; wait for it to finish before launching a different config.",
+                  details: {
+                    code: "run-in-game-operation-active",
+                    activeRequestId: activeOperation.requestId,
+                    activePhase: activeOperation.phase,
+                  },
+                });
+              }
               return;
             }
             const activeSaveDeploy = saveDeployOperations.findActive();
@@ -672,6 +703,7 @@ export default defineConfig(({ command }) => ({
               setupConfig,
               materializationMode: requestedMode,
               ...(restartCivProcess ? { restartCivProcess } : {}),
+              fingerprint: requestFingerprint,
             };
             const operation = runInGameOperations.create(requestId, requestStatus);
             const run = async () => {

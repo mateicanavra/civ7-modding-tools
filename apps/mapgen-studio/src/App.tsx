@@ -66,6 +66,11 @@ import {
   type Civ7StudioSetupConfig,
 } from "./features/civ7Setup/setupConfig";
 import {
+  formatCiv7StudioSeedError,
+  parseCiv7StudioSeed,
+  randomCiv7StudioSeed,
+} from "./features/civ7Setup/seedPolicy";
+import {
   createMapConfigSaveDeployStatus,
   updateMapConfigSaveDeployStatus,
   type MapConfigSaveDeployStatus,
@@ -106,19 +111,6 @@ import {
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
 import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
-
-function randomU32(): number {
-  try {
-    if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-      const buf = new Uint32Array(1);
-      crypto.getRandomValues(buf);
-      return buf[0] ?? 0;
-    }
-  } catch {
-    // ignore
-  }
-  return (Math.random() * 0xffffffff) >>> 0;
-}
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -1074,11 +1066,14 @@ function AppContent(props: AppContentProps) {
   useEffect(() => {
     if (initialLiveSetupHydratedRef.current || liveSetup.status !== "ok" || !liveSetup.setup) return;
     const liveConfig = studioSetupConfigFromLiveSnapshot(liveSetup.setup);
-    setSetupConfig((current) => normalizeStudioSetupConfig({
-      ...liveConfig,
-      mapScript: current.mapScript,
-    }));
-    initialLiveSetupHydratedRef.current = true;
+    setSetupConfig((current) => {
+      initialLiveSetupHydratedRef.current = true;
+      if (!isDefaultStudioSetupConfig(current) || current.savedConfig) return current;
+      return normalizeStudioSetupConfig({
+        ...liveConfig,
+        mapScript: current.mapScript,
+      });
+    });
   }, [liveSetup]);
 
   useEffect(() => {
@@ -1159,7 +1154,14 @@ function AppContent(props: AppContentProps) {
       setLocalError(null);
 
       const seedStr = overrides?.seed ?? recipeSettings.seed;
-      const seed = Number(seedStr) || 0;
+      const seedPolicy = parseCiv7StudioSeed(seedStr);
+      if (!seedPolicy.ok) {
+        const message = formatCiv7StudioSeedError(seedPolicy);
+        setLocalError(message);
+        toast(message, { variant: "error" });
+        return;
+      }
+      const seed = seedPolicy.value;
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
       const runPipelineConfig = migratePipelineConfig(pipelineConfig);
 
@@ -1190,7 +1192,7 @@ function AppContent(props: AppContentProps) {
         configOverrides: overridesDisabled ? undefined : (runPipelineConfig as unknown),
       });
     },
-    [browserRunner.actions, overridesDisabled, pipelineConfig, recipeSettings, worldSettings, viz]
+    [browserRunner.actions, overridesDisabled, pipelineConfig, recipeSettings, toast, worldSettings, viz]
   );
 
   useEffect(() => {
@@ -1613,7 +1615,7 @@ function AppContent(props: AppContentProps) {
       toast("Finish the current Studio operation before rerolling.", { variant: "info" });
       return;
     }
-    const next = String(randomU32());
+    const next = randomCiv7StudioSeed();
     setRecipeSettings((prev) => ({ ...prev, seed: next }));
     startBrowserRun({ seed: next });
   }, [runInGameRunning, saveDeployRunning, startBrowserRun, toast]);
@@ -1774,10 +1776,15 @@ function AppContent(props: AppContentProps) {
     }
     setSetupConfig((current) => updateStudioSetupSavedConfig(current, savedConfig));
     const nextSeed = savedConfig.summary.mapSeed ?? savedConfig.summary.gameSeed;
-    if (Number.isInteger(nextSeed)) {
-      setRecipeSettings((current) => ({ ...current, seed: String(nextSeed) }));
+    if (nextSeed !== undefined) {
+      const seedPolicy = parseCiv7StudioSeed(nextSeed);
+      if (seedPolicy.ok) {
+        setRecipeSettings((current) => ({ ...current, seed: String(seedPolicy.value) }));
+      } else {
+        toast(`Saved config seed ignored: ${formatCiv7StudioSeedError(seedPolicy)}`, { variant: "info" });
+      }
     }
-  }, [savedSetupConfigs.configurations]);
+  }, [savedSetupConfigs.configurations, toast]);
 
   const refreshRunInGameStatus = useCallback(async (requestId: string) => {
     const result = await fetchRunInGameStatus(requestId);
@@ -1905,6 +1912,13 @@ function AppContent(props: AppContentProps) {
   const handleRunInGame = useCallback(async (options?: { restartCivProcess?: boolean }) => {
     if (runInGameRunning || saveDeployRunning) return;
     setLocalError(null);
+    const seedPolicy = parseCiv7StudioSeed(recipeSettings.seed);
+    if (!seedPolicy.ok) {
+      const message = formatCiv7StudioSeedError(seedPolicy);
+      setLocalError(message);
+      toast(message, { variant: "error" });
+      return;
+    }
     const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
     const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
