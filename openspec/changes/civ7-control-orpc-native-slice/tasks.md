@@ -201,8 +201,11 @@ adding more read-only facade shells.
     of downstream oRPC/procedure failures, while keeping raw direct-control
     runtime-port classification inside Effect handlers where effect-oRPC can
     still see the source failure.
-  - [ ] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error
-    primitives.
+  - [x] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error
+    primitives: validate optional service correlation in native context
+    middleware and attach only validated IDs to typed error data. Keep
+    transport/header propagation, runtime telemetry propagation, and custom
+    correlation buses out of scope.
   - [x] 6.4.4 Use native effect-orpc tagged error constructors for
     `unit.target.action.request` direct-control runtime-port failures while
     shared safe-error middleware remains pending.

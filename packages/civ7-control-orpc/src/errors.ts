@@ -5,12 +5,18 @@ import {
 } from "effect-orpc";
 import { Type, type Static } from "typebox";
 
+import { Civ7ControlOrpcCorrelationIdSchema } from "./model/correlation";
 import { toStandardSchema } from "./typebox-standard-schema";
+
+const Civ7ControlOrpcErrorCorrelationProperties = {
+  correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+};
 
 export const Civ7ReadinessCurrentUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("readiness.current"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
 );
@@ -32,6 +38,7 @@ export const Civ7AttentionCurrentUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("attention.current"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
 );
@@ -53,6 +60,7 @@ export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
 );
@@ -74,6 +82,7 @@ export const Civ7UnitTargetActionUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.target.action.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
 );
@@ -96,6 +105,7 @@ export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
     procedureKey: Type.String(),
     source: Type.Literal("context.approval"),
     risk: Type.Literal("mutation"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
 );
@@ -117,6 +127,7 @@ export const Civ7ProductionChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.production.choice.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
 );
@@ -138,6 +149,7 @@ export const Civ7PopulationPlacementUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.population.place.request"),
     source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
   },
   { additionalProperties: false },
 );
@@ -155,8 +167,30 @@ export class Civ7PopulationPlacementUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7CorrelationIdInvalidErrorDataSchema = Type.Object(
+  {
+    source: Type.Literal("context.correlation"),
+    reason: Type.Literal("correlation-id-invalid"),
+  },
+  { additionalProperties: false },
+);
+export type Civ7CorrelationIdInvalidErrorData = Static<
+  typeof Civ7CorrelationIdInvalidErrorDataSchema
+>;
+
+export class Civ7CorrelationIdInvalidError extends ORPCTaggedError(
+  "Civ7CorrelationIdInvalidError",
+  {
+    code: "CORRELATION_ID_INVALID",
+    message: "Civ7 control-oRPC correlation id is invalid.",
+    schema: toStandardSchema(Civ7CorrelationIdInvalidErrorDataSchema),
+    status: 400,
+  },
+) {}
+
 export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
+  CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,

@@ -4,6 +4,7 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
+  Civ7CorrelationIdInvalidError,
   Civ7MutationApprovalRequiredError,
   Civ7ProductionChoiceUnavailableError,
   createCiv7ControlOrpcServerClient,
@@ -86,6 +87,7 @@ describe("city.production.choice.request control-oRPC procedure", () => {
   test("requires context approval before the direct-control mutation port runs", async () => {
     const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
       approval: undefined,
+      correlationId: "support-turn-42",
     });
 
     await expect(
@@ -100,6 +102,7 @@ describe("city.production.choice.request control-oRPC procedure", () => {
         procedureKey: "city.production.choice.request",
         source: "context.approval",
         risk: "mutation",
+        correlationId: "support-turn-42",
       },
     });
     expect(fake.calls).toEqual([]);
@@ -128,6 +131,39 @@ describe("city.production.choice.request control-oRPC procedure", () => {
       },
     });
     expect(fake.calls).toEqual([]);
+  });
+
+  test("rejects invalid context correlation before the direct-control mutation port runs", async () => {
+    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
+      correlationId: "CMD:Game.CityOperations sendRequest",
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context }),
+    ).rejects.toMatchObject({
+      code: "CORRELATION_ID_INVALID",
+      status: 400,
+      data: {
+        source: "context.correlation",
+        reason: "correlation-id-invalid",
+      },
+    });
+    expect(fake.calls).toEqual([]);
+
+    try {
+      await call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context });
+    } catch (err) {
+      const serialized = JSON.stringify(err);
+      expect(serialized).not.toContain("Game.CityOperations");
+      expect(serialized).not.toContain("CMD");
+      expect(serialized).not.toContain("sendRequest");
+    }
   });
 
   test("projects unexpected middleware failures without raw implementation details", async () => {
@@ -256,9 +292,12 @@ describe("city.production.choice.request control-oRPC procedure", () => {
   });
 
   test("maps production choice facade failures to a tagged error without raw details", async () => {
-    const fake = fakeContext(new Error(
-      "Timed out waiting for Civ7 tuner response to CMD:65535:Game.CityOperations.sendRequest(...)",
-    ));
+    const fake = fakeContext(
+      new Error(
+        "Timed out waiting for Civ7 tuner response to CMD:65535:Game.CityOperations.sendRequest(...)",
+      ),
+      { correlationId: "support-turn-42" },
+    );
 
     await expect(
       call(Civ7ControlOrpcRouter.city.production.choice.request, {
@@ -271,6 +310,7 @@ describe("city.production.choice.request control-oRPC procedure", () => {
       data: {
         procedureKey: "city.production.choice.request",
         source: "direct-control-facade",
+        correlationId: "support-turn-42",
       },
     });
 
@@ -304,10 +344,14 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     ).toHaveProperty("MUTATION_APPROVAL_REQUIRED");
     expect(
       Civ7ControlOrpcContract.city.production.choice.request["~orpc"].errorMap,
+    ).toHaveProperty("CORRELATION_ID_INVALID");
+    expect(
+      Civ7ControlOrpcContract.city.production.choice.request["~orpc"].errorMap,
     ).toHaveProperty("PRODUCTION_CHOICE_UNAVAILABLE");
     expect(Civ7MutationApprovalRequiredError.code).toBe(
       "MUTATION_APPROVAL_REQUIRED",
     );
+    expect(Civ7CorrelationIdInvalidError.code).toBe("CORRELATION_ID_INVALID");
     expect(Civ7ProductionChoiceUnavailableError.code).toBe(
       "PRODUCTION_CHOICE_UNAVAILABLE",
     );
@@ -318,6 +362,7 @@ function fakeContext(
   resultOrError: Civ7ControlOrpcProductionChoiceResult | Error,
   options: {
     approval?: Civ7ControlOrpcContext["approval"];
+    correlationId?: string;
   } = {},
 ): {
   context: Civ7ControlOrpcContext;
@@ -354,6 +399,9 @@ function fakeContext(
           return resultOrError;
         },
       } as Civ7ControlOrpcContext["directControl"],
+      correlation: options.correlationId == null
+        ? undefined
+        : { correlationId: options.correlationId },
     },
     calls,
   };

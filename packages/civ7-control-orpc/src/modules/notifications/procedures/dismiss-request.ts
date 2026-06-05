@@ -5,6 +5,7 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7NotificationDismissalResult } from "../contract";
 
@@ -34,6 +35,7 @@ export const notificationsDismissRequestProcedure =
           data: {
             procedureKey: "notifications.dismiss.request",
             source: "direct-control-facade",
+            ...civ7ControlOrpcErrorCorrelationData(context),
           },
         }),
     });

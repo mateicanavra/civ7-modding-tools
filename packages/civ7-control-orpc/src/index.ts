@@ -17,6 +17,8 @@ export {
 export {
   Civ7AttentionCurrentUnavailableError,
   Civ7AttentionCurrentUnavailableErrorDataSchema,
+  Civ7CorrelationIdInvalidError,
+  Civ7CorrelationIdInvalidErrorDataSchema,
   Civ7MutationApprovalRequiredError,
   Civ7MutationApprovalRequiredErrorDataSchema,
   Civ7NotificationDismissalUnavailableError,
@@ -33,6 +35,7 @@ export {
   type Civ7AttentionCurrentUnavailableErrorData,
   type Civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcEffectErrorMap,
+  type Civ7CorrelationIdInvalidErrorData,
   type Civ7MutationApprovalRequiredErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
@@ -40,6 +43,13 @@ export {
   type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
 } from "./errors";
+export {
+  Civ7ControlOrpcCorrelationIdSchema,
+  civ7ControlOrpcErrorCorrelationData,
+  isCiv7ControlOrpcCorrelationId,
+  type Civ7ControlOrpcCorrelationContext,
+  type Civ7ControlOrpcCorrelationId,
+} from "./model/correlation";
 export type { Civ7ControlOrpcProcedureMeta } from "./metadata";
 export {
   civ7ControlOrpcEffectRuntime,

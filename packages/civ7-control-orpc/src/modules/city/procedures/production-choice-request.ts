@@ -6,6 +6,7 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcProductionChoiceResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7CityProductionChoiceResult } from "../contract";
 
@@ -34,6 +35,7 @@ export const cityProductionChoiceRequestProcedure =
           data: {
             procedureKey: "city.production.choice.request",
             source: "direct-control-facade",
+            ...civ7ControlOrpcErrorCorrelationData(context),
           },
         }),
     });

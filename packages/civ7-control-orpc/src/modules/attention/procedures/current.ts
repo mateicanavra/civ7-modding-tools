@@ -12,6 +12,7 @@ import type {
   Civ7ControlOrpcReadyUnitViewResult,
   Civ7ControlOrpcTurnCompletionStatusResult,
 } from "../../../dependencies/direct-control";
+import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7AttentionCurrentInput,
@@ -79,6 +80,7 @@ export const attentionCurrentProcedure =
           data: {
             procedureKey: "attention.current",
             source: "direct-control-facade",
+            ...civ7ControlOrpcErrorCorrelationData(context),
           },
         }),
     });

@@ -1,6 +1,7 @@
 import type { Civ7ActionApproval } from "@civ7/direct-control";
 
 import type { Civ7ControlOrpcProcedureMeta } from "../metadata";
+import { civ7ControlOrpcErrorCorrelationData } from "../model/correlation";
 import { civ7ControlOrpcImplementer } from "../procedure";
 
 export const civ7MutationApprovalMiddleware =
@@ -14,6 +15,7 @@ export const civ7MutationApprovalMiddleware =
           procedureKey: mutationProcedureKey(procedure["~orpc"].meta, path),
           source: "context.approval",
           risk: "mutation",
+          ...civ7ControlOrpcErrorCorrelationData(context),
         },
       });
     }
