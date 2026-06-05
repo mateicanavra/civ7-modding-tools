@@ -115,8 +115,8 @@ Source evidence:
 - `city.production.choice.request`;
 - `progression.technology.choice.request` and
   `progression.culture.choice.request`;
-- future narrative choice under a `narrative` domain root;
-- future diplomacy response under a `diplomacy` domain root;
+- implemented `narrative.choice.request` under the `narrative` domain root;
+- implemented `diplomacy.response.request` under the `diplomacy` domain root;
 - population placement under `city`.
 
 Service ownership:
