@@ -39,8 +39,6 @@ export {
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7NotificationViewUnavailableError,
   Civ7NotificationViewUnavailableErrorDataSchema,
-  Civ7ReadyCityViewUnavailableError,
-  Civ7ReadyCityViewUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   Civ7UnitSummaryUnavailableError,
@@ -58,7 +56,6 @@ export {
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7NotificationViewUnavailableErrorData,
-  type Civ7ReadyCityViewUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
   type Civ7UnitSummaryUnavailableErrorData,
 } from "./errors";
@@ -109,9 +106,6 @@ export {
   Civ7CityProductionChoiceResultSchema,
   Civ7CityProductionChoiceResultStandardSchema,
   Civ7CityProductionChoiceValidationSummarySchema,
-  Civ7CityReadyViewContract,
-  Civ7CityReadyViewInputStandardSchema,
-  Civ7CityReadyViewResultStandardSchema,
   Civ7CitySummaryContract,
   Civ7CitySummaryInputStandardSchema,
   Civ7CitySummaryResultStandardSchema,
@@ -123,13 +117,11 @@ export type {
   Civ7CityPopulationPlacementResult,
   Civ7CityProductionChoiceContract as Civ7CityProductionChoiceContractType,
   Civ7CityProductionChoiceResult,
-  Civ7CityReadyViewContract as Civ7CityReadyViewContractType,
   Civ7CitySummaryContract as Civ7CitySummaryContractType,
 } from "./modules/city/contract";
 export { cityRouter } from "./modules/city/router";
 export { cityPopulationPlaceRequestProcedure } from "./modules/city/procedures/population-place-request";
 export { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/production-choice-request";
-export { cityReadyViewProcedure } from "./modules/city/procedures/ready-view";
 export { citySummaryReadProcedure } from "./modules/city/procedures/summary-read";
 export {
   Civ7MapContract,

@@ -59,6 +59,10 @@
     facade leaf after `attention.current` became the service-owned ready-unit
     attention composer; keep the direct-control ready-unit runtime port as an
     internal context dependency.
+  - [x] 4.11.2 Burn down the transitional `city.ready.view` control-oRPC
+    facade leaf after `attention.current` became the service-owned ready-city
+    attention composer; keep the direct-control ready-city runtime port as an
+    internal context dependency.
 
 This phase is closed as transitional proof only. It must not be extended by
 adding more read-only facade shells.
