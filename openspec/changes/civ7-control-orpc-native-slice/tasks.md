@@ -523,6 +523,16 @@ adding more read-only facade shells.
     out of bridge output, and keep further mutation allowlists,
     UIScript/modinfo packaging, runtime proof, and full `7.3` implementation
     pending.
+  - [x] 7.3.11 Allowlist `diplomacy.response.request` through the same closed
+    controller approval/proof envelope. Require controller-runtime approval
+    metadata, game-controller-ready lifecycle evidence,
+    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
+    evidence before context construction and native router dispatch; validate
+    the existing semantic diplomacy response input shape, keep raw
+    player-operation/App UI closeout/notification/direct-control runtime
+    internals and approval reason out of bridge output, and keep further
+    mutation allowlists, UIScript/modinfo packaging, runtime proof, and full
+    `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -589,6 +599,11 @@ adding more read-only facade shells.
   control-oRPC package test/check/build, strict OpenSpec validates, and diff
   hygiene for the controller narrative choice ingress allowlist slice. These
   are local package proofs only and do not claim Civ7 UIScript/modinfo
+  packaging, live runtime proof, play-thread action, or full `7.3` acceptance.
+- [x] 8.39 Run focused controller-ingress and diplomacy-response procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates, and
+  diff hygiene for the controller diplomacy response ingress allowlist slice.
+  These are local package proofs only and do not claim Civ7 UIScript/modinfo
   packaging, live runtime proof, play-thread action, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the

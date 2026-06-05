@@ -22,6 +22,12 @@ const narrativeInput = {
   target: narrativeTarget,
   action: 1,
 };
+const diplomacyInput = {
+  playerId: 2,
+  actionId: 8_821,
+  responseType: -1_713_616_684,
+  notificationId,
+};
 
 describe("Civ7 controller bridge ingress", () => {
   test("invokes allowlisted readiness.current through the in-process router", async () => {
@@ -592,6 +598,86 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted diplomacy.response.request through the in-process router with explicit approval", async () => {
+    const fake = fakeDiplomacyResponseContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "diplomacy.response.request",
+      input: diplomacyInput,
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved diplomacy response",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-diplomacy-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "diplomacy.response.request",
+      correlationId: "controller-diplomacy-1",
+      output: {
+        playerId: 0,
+        actionId: 8_821,
+        responseType: -1_713_616_684,
+        notificationId,
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "diplomacy-blocker-cleared",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.diplomacy).toEqual([{
+      input: diplomacyInput,
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved diplomacy response",
+      },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "diplomacy.response.request",
+      input: diplomacyInput,
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved diplomacy response",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-diplomacy-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain("controller approved diplomacy response");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+    expect(serialized).not.toContain("DiplomacyManager");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -854,6 +940,48 @@ describe("Civ7 controller bridge ingress", () => {
         },
         controllerProof: controllerMutationProof(),
       },
+      { procedureKey: "diplomacy.response.request", input: diplomacyInput },
+      {
+        procedureKey: "diplomacy.response.request",
+        input: diplomacyInput,
+        approval: controllerApproval(),
+      },
+      {
+        procedureKey: "diplomacy.response.request",
+        input: {
+          ...diplomacyInput,
+          rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "diplomacy.response.request",
+        input: {
+          ...diplomacyInput,
+          activateNotification: false,
+        },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "diplomacy.response.request",
+        input: diplomacyInput,
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "diplomacy.response.request",
+        input: diplomacyInput,
+        approval: {
+          source: "controller-runtime",
+          approved: true,
+          reason: "controller approved diplomacy response",
+          command: "Game.PlayerOperations.sendRequest(...)",
+        },
+        controllerProof: controllerMutationProof(),
+      },
     ];
 
     for (const request of invalidRequests) {
@@ -878,8 +1006,8 @@ describe("Civ7 controller bridge ingress", () => {
     const fake = fakeContext(playableStatusResult());
 
     const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "diplomacy.response.request",
-      input: { playerId: 0, actionId: 1, responseType: 1 },
+      procedureKey: "progression.technology.choice.request",
+      input: { playerId: 0, node: 123 },
     }, {
       createContext: () => fake.context,
     });
@@ -1287,6 +1415,48 @@ function fakeNarrativeChoiceContext(): {
         requestCiv7NarrativeChoice: async (input, options, approval) => {
           calls.narrative.push({ input, options, approval });
           return narrativeChoiceResult();
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
+function fakeDiplomacyResponseContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    diplomacy: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    diplomacy: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  } = {
+    status: [],
+    diplomacy: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7DiplomacyResponse: async (input, options, approval) => {
+          calls.diplomacy.push({ input, options, approval });
+          return diplomacyResponseResult();
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -1712,6 +1882,43 @@ function narrativeChoiceResult(): any {
     postcondition: {
       classification: "narrative-blocker-cleared",
       reason: "test narrative-blocker-cleared",
+    },
+  };
+}
+
+function diplomacyResponseResult(): any {
+  return {
+    playerId: 0,
+    before: {},
+    beforeValidation: {
+      valid: true,
+      result: {
+        command: "Game.PlayerOperations.canStart(...)",
+      },
+    },
+    command: {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "65535", name: "App UI" },
+      output: ["CMD:65535:Game.PlayerOperations.sendRequest(...)"],
+    },
+    payload: {
+      sent: true,
+      rawCommand: "Game.PlayerOperations.sendRequest(...)",
+      uiCloseout: "DiplomacyManager.closeResponsePopup(...)",
+    },
+    after: {},
+    afterValidation: {
+      valid: false,
+      result: {
+        command: "Game.PlayerOperations.canStart(...)",
+      },
+    },
+    sent: true,
+    verified: true,
+    postcondition: {
+      classification: "diplomacy-blocker-cleared",
+      reason: "test diplomacy-blocker-cleared",
     },
   };
 }
