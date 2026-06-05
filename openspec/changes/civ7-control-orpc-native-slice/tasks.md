@@ -63,6 +63,10 @@
     facade leaf after `attention.current` became the service-owned ready-city
     attention composer; keep the direct-control ready-city runtime port as an
     internal context dependency.
+  - [x] 4.11.3 Burn down the transitional `notifications.view` control-oRPC
+    facade leaf after `attention.current` became the service-owned
+    notification, decision, and blocker composer; keep the direct-control
+    notification runtime port as an internal context dependency.
 
 This phase is closed as transitional proof only. It must not be extended by
 adding more read-only facade shells.
@@ -168,9 +172,8 @@ adding more read-only facade shells.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
-    `runtime.playable.status`, `notifications.view`, and the historical
-    `unit.ready.view` facade failure before the unit-ready wrapper was burned
-    down.
+    `runtime.playable.status`, plus the historical `notifications.view` and
+    `unit.ready.view` facade failures before those wrappers were burned down.
   - [ ] 6.4.2 Promote shared safe-error middleware only after the native
     oRPC/effect-orpc error path is proven without custom wrapper plumbing.
   - [ ] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error

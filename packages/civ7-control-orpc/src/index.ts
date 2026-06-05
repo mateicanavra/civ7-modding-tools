@@ -37,8 +37,6 @@ export {
   Civ7PopulationPlacementUnavailableErrorDataSchema,
   Civ7ProductionChoiceUnavailableError,
   Civ7ProductionChoiceUnavailableErrorDataSchema,
-  Civ7NotificationViewUnavailableError,
-  Civ7NotificationViewUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   Civ7UnitSummaryUnavailableError,
@@ -55,7 +53,6 @@ export {
   type Civ7PlayerSummaryUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
-  type Civ7NotificationViewUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
   type Civ7UnitSummaryUnavailableErrorData,
 } from "./errors";
@@ -158,19 +155,14 @@ export {
   Civ7NotificationDismissalResultSchema,
   Civ7NotificationDismissalResultStandardSchema,
   Civ7NotificationDismissalValidationSummarySchema,
-  Civ7NotificationsViewContract,
-  Civ7NotificationsViewInputStandardSchema,
-  Civ7NotificationsViewResultStandardSchema,
 } from "./modules/notifications/contract";
 export type {
   Civ7NotificationDismissalContract as Civ7NotificationDismissalContractType,
   Civ7NotificationDismissalResult,
   Civ7NotificationsContract as Civ7NotificationsContractType,
-  Civ7NotificationsViewContract as Civ7NotificationsViewContractType,
 } from "./modules/notifications/contract";
 export { notificationsRouter } from "./modules/notifications/router";
 export { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
-export { notificationsViewProcedure } from "./modules/notifications/procedures/view";
 export {
   Civ7RuntimeContract,
   Civ7RuntimePlayableStatusContract,

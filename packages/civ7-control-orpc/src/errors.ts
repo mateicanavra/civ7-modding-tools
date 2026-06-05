@@ -112,27 +112,6 @@ export class Civ7PlayerSummaryUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
-export const Civ7NotificationViewUnavailableErrorDataSchema = Type.Object(
-  {
-    procedureKey: Type.Literal("notifications.view"),
-    source: Type.Literal("direct-control-facade"),
-  },
-  { additionalProperties: false },
-);
-export type Civ7NotificationViewUnavailableErrorData = Static<
-  typeof Civ7NotificationViewUnavailableErrorDataSchema
->;
-
-export class Civ7NotificationViewUnavailableError extends ORPCTaggedError(
-  "Civ7NotificationViewUnavailableError",
-  {
-    code: "NOTIFICATION_VIEW_UNAVAILABLE",
-    message: "Direct-control notification view failed.",
-    schema: toStandardSchema(Civ7NotificationViewUnavailableErrorDataSchema),
-    status: 503,
-  },
-) {}
-
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -268,7 +247,6 @@ export const civ7ControlOrpcErrorMap = {
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   PLAYER_SUMMARY_UNAVAILABLE: Civ7PlayerSummaryUnavailableError,
-  NOTIFICATION_VIEW_UNAVAILABLE: Civ7NotificationViewUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,

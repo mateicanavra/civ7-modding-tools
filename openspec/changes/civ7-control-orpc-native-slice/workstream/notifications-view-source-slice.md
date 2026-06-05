@@ -1,10 +1,16 @@
 # Notifications View Source Slice
 
-Status: implemented local source slice.
+Status: burned down after serving as local source proof.
 Date: 2026-06-04.
 
-Historical note: this is transitional proof of native in-process oRPC
+Historical note: this was transitional proof of native in-process oRPC
 mechanics, not a template for future facade-only read wrappers.
+
+The control-oRPC `notifications.view` leaf has since been removed. Current
+notification, decision, and blocker service behavior is owned by
+`attention.current`, which consumes the direct-control notification runtime
+port from typed context. The direct-control notification read atom and facade
+method remain available as low-level runtime ports.
 
 ## Scope
 

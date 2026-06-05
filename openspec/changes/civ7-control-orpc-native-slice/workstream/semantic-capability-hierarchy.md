@@ -173,7 +173,7 @@ Service ownership:
 | `runtime.playable.status` | `readiness` |
 | `runtime.tuner.health`, `runtime.app.ui.snapshot`, `runtime.gameinfo.rows` | `debug`, with readiness summaries consumed by `readiness` |
 | `runtime.turn.completion.status` | `attention` and `readiness` |
-| `notifications.view` | `attention` |
+| `notifications.view` | burned down; `attention.current` consumes the direct-control notification port |
 | `notifications.dismiss.request` | notification domain mutation; semantic target still needs rebaseline |
 | `unit.ready.view` | burned down; `attention.current` consumes the direct-control ready-unit port |
 | `city.ready.view` | burned down; `attention.current` consumes the direct-control ready-city port |

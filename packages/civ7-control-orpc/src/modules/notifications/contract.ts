@@ -2,8 +2,6 @@ import {
   Civ7ComponentIdSchema,
   Civ7NotificationDismissInputSchema,
   Civ7NotificationDismissalPostconditionClassificationSchema,
-  Civ7PlayNotificationViewInputSchema,
-  Civ7PlayNotificationViewResultSchema,
 } from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 import { Type, type Static } from "typebox";
@@ -13,12 +11,6 @@ import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7NotificationsViewInputStandardSchema = toStandardSchema(
-  Civ7PlayNotificationViewInputSchema,
-);
-export const Civ7NotificationsViewResultStandardSchema = toStandardSchema(
-  Civ7PlayNotificationViewResultSchema,
-);
 export const Civ7NotificationDismissInputStandardSchema = toStandardSchema(
   Civ7NotificationDismissInputSchema,
 );
@@ -99,24 +91,6 @@ export const Civ7NotificationDismissalResultStandardSchema = toStandardSchema(
   Civ7NotificationDismissalResultSchema,
 );
 
-export type Civ7NotificationsViewContract = ContractProcedure<
-  typeof Civ7NotificationsViewInputStandardSchema,
-  typeof Civ7NotificationsViewResultStandardSchema,
-  Civ7ControlOrpcErrorMap,
-  Civ7ControlOrpcProcedureMeta
->;
-
-export const Civ7NotificationsViewContract: Civ7NotificationsViewContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7NotificationsViewInputStandardSchema)
-    .output(Civ7NotificationsViewResultStandardSchema)
-    .meta({
-      family: "notifications",
-      procedureKey: "notifications.view",
-      proofBoundary: "local-package-test",
-      risk: "read-only",
-    });
-
 export type Civ7NotificationDismissalContract = ContractProcedure<
   typeof Civ7NotificationDismissInputStandardSchema,
   typeof Civ7NotificationDismissalResultStandardSchema,
@@ -139,12 +113,10 @@ export type Civ7NotificationsContract = Readonly<{
   dismiss: Readonly<{
     request: Civ7NotificationDismissalContract;
   }>;
-  view: Civ7NotificationsViewContract;
 }>;
 
 export const Civ7NotificationsContract: Civ7NotificationsContract = {
   dismiss: {
     request: Civ7NotificationDismissalContract,
   },
-  view: Civ7NotificationsViewContract,
 };
