@@ -33,7 +33,7 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 19, cellsPerPlate: 7, relaxationSteps: 6, referenceArea: 16000, plateScalePower: 1 },
+        config: { plateCount: 19, cellsPerPlate: 7, relaxationSteps: 6},
       },
       ctx as any
     );
@@ -45,7 +45,7 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 2 }, computeCrust.defaultConfig).crust;
 
     const plateGraphConfig = computePlateGraph.normalize(
-      { strategy: "default", config: { plateCount: 19, referenceArea: 16000, plateScalePower: 1 } },
+      { strategy: "default", config: { plateCount: 19} },
       ctx as any
     );
     const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 3 }, plateGraphConfig).plateGraph;

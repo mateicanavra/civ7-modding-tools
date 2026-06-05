@@ -10,15 +10,16 @@ Should D04 be rewritten to require **dual history outputs**: Eulerian era-resolv
 - Docs: `docs/projects/pipeline-realism/resources/spec/synthesis-d01-d02-d04.md` (current D04 summary)
 - Docs: `docs/projects/pipeline-realism/resources/packets/foundation-proposals/tectonic-evolution-engine.md` (Lagrangian framing)
 - Docs: `docs/projects/pipeline-realism/resources/packets/foundation-refactor-proposal-packet/raw/docs/system/libs/mapgen/_archive/foundation-tectonic-evolution-spec.md` (Eulerian framing)
-- Docs: `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` (current artifacts + `eraCount` guard)
-- Code: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (`FoundationTectonicHistorySchema`)
-- Code: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` (`computeTectonicHistory`, `buildEraFields`)
-- Code: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (`eraCount !== 3` guard)
+- Docs: `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` (current artifacts + 5..8 era contract)
+- Code: `mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/schemas.ts` (`FoundationTectonicHistorySchema`, `FoundationTectonicProvenanceSchema`)
+- Code: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts` (era fields)
+- Code: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts` (history rollups)
+- Code: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/index.ts` and `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts` (provenance)
 
 ## Why this is ambiguous
 
 - Proposal C treats history as **Lagrangian material tracking** (provenance-first), while Proposal D treats history as **Eulerian era-resolved fields** (field-first).
-- The current contract already publishes `artifact:foundation.tectonicHistory`, but Morphology does not consume it and validation hard-codes `eraCount === 3`.
+- The current contract already publishes `artifact:foundation.tectonicHistory` and `artifact:foundation.tectonicProvenance`, but Morphology does not consume them directly yet.
 - D04 needs to resolve whether provenance is mandatory and whether history is a single artifact or dual outputs.
 
 ## Why it matters

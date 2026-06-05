@@ -371,7 +371,7 @@ describe("m11 tectonics (segments + history)", () => {
     expect(weakSeg.extension[0]).toBeLessThanOrEqual(strongSeg.extension[0]);
   });
 
-  it("3-era history is deterministic and populates lastActiveEra", () => {
+  it("5-era history is deterministic and populates lastActiveEra", () => {
     const mesh = makeTwoCellMesh();
     const crust = {
       maturity: new Float32Array([0, 0.9]),

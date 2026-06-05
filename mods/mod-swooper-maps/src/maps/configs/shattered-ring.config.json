@@ -10,8 +10,6 @@
       "meshResolution": {
         "plateCount": 37,
         "cellsPerPlate": 2,
-        "referenceArea": 4000,
-        "plateScalePower": 0.5,
         "relaxationSteps": 2
       },
       "mantleSources": {
@@ -41,8 +39,6 @@
       },
       "platePartition": {
         "plateCount": 37,
-        "referenceArea": 4000,
-        "plateScalePower": 0.5,
         "polarCaps": {
           "capFraction": 0.1,
           "microplateBandFraction": 0.2,

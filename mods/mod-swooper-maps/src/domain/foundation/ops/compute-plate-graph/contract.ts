@@ -10,19 +10,7 @@ const StrategySchema = Type.Object(
       minimum: 2,
       maximum: 256,
       description:
-        "Authored plate count (scaled to the runtime map size in normalization).",
-    }),
-    referenceArea: Type.Integer({
-      default: 4000,
-      minimum: 1,
-      maximum: 1_000_000,
-      description: "Reference map area (width*height) used for plateCount scaling.",
-    }),
-    plateScalePower: Type.Number({
-      default: 0.5,
-      minimum: 0,
-      maximum: 2,
-      description: "Exponent applied to (area/referenceArea) when scaling plateCount.",
+        "Authored tectonic plate count for the selected map size.",
     }),
     polarCaps: Type.Optional(
       Type.Object(

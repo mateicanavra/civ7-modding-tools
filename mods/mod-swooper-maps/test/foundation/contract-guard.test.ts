@@ -10,9 +10,11 @@ import {
   FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
   FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
+import foundation from "../../src/domain/foundation/index.js";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import ProjectionStepContract from "../../src/recipes/standard/stages/foundation/steps/projection.contract.js";
+import TectonicsStepContract from "../../src/recipes/standard/stages/foundation/steps/tectonics.contract.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];
@@ -134,12 +136,6 @@ describe("foundation contract guardrails", () => {
       expect(text).not.toContain("tangentialSpeed");
       expect(text).not.toContain("tangentialJitterDeg");
     }
-
-    const tectonicHistoryContract = readFileSync(
-      path.join(repoRoot, "src/domain/foundation/ops/compute-tectonic-history/contract.ts"),
-      "utf8"
-    );
-    expect(tectonicHistoryContract).not.toContain("segments: FoundationTectonicSegmentsSchema");
   });
 
   it("keeps foundation advanced override lowering typed (no runtime cast-merge path)", () => {
@@ -178,59 +174,22 @@ describe("foundation contract guardrails", () => {
     }
   });
 
-  it("keeps tectonics step on decomposed op chain (no mega-op binding)", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const tectonicsStepContract = readFileSync(
-      path.join(repoRoot, "src/recipes/standard/stages/foundation/steps/tectonics.contract.ts"),
-      "utf8"
+  it("exposes tectonics as focused op contracts instead of the legacy aggregate", () => {
+    const domainOpKeys = Object.keys(foundation.ops);
+    const tectonicsStepOpKeys = Object.keys(TectonicsStepContract.ops);
+
+    expect(domainOpKeys).not.toContain("computeTectonicHistory");
+    expect(tectonicsStepOpKeys).not.toContain("computeTectonicHistory");
+    expect(tectonicsStepOpKeys).toEqual(
+      expect.arrayContaining([
+        "computeEraPlateMembership",
+        "computeEraTectonicFields",
+        "computeTectonicHistoryRollups",
+        "computeTectonicsCurrent",
+        "computeTracerAdvection",
+        "computeTectonicProvenance",
+      ])
     );
-    expect(tectonicsStepContract).not.toMatch(/\bcomputeTectonicHistory\s*:/);
-    expect(tectonicsStepContract).toContain("computeEraPlateMembership");
-    expect(tectonicsStepContract).toContain("computeEraTectonicFields");
-    expect(tectonicsStepContract).toContain("computeTectonicHistoryRollups");
-    expect(tectonicsStepContract).toContain("computeTectonicsCurrent");
-    expect(tectonicsStepContract).toContain("computeTracerAdvection");
-    expect(tectonicsStepContract).toContain("computeTectonicProvenance");
-  });
-
-  it("does not expose legacy computeTectonicHistory through foundation domain ops surfaces", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const contractsFile = readFileSync(path.join(repoRoot, "src/domain/foundation/ops/contracts.ts"), "utf8");
-    const implementationsFile = readFileSync(path.join(repoRoot, "src/domain/foundation/ops/index.ts"), "utf8");
-
-    expect(contractsFile).not.toMatch(/\bcomputeTectonicHistory\b/);
-    expect(contractsFile).not.toContain("./compute-tectonic-history/contract.js");
-
-    expect(implementationsFile).not.toMatch(/\bcomputeTectonicHistory\b/);
-    expect(implementationsFile).not.toContain("./compute-tectonic-history/index.js");
-  });
-
-  it("keeps decomposed tectonics ops off legacy compute-tectonic-history internals", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const decomposedOpFiles = [
-      "src/domain/foundation/ops/compute-era-plate-membership/contract.ts",
-      "src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts",
-      "src/domain/foundation/ops/compute-era-tectonic-fields/contract.ts",
-      "src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts",
-      "src/domain/foundation/ops/compute-hotspot-events/contract.ts",
-      "src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts",
-      "src/domain/foundation/ops/compute-segment-events/contract.ts",
-      "src/domain/foundation/ops/compute-segment-events/strategies/default.ts",
-      "src/domain/foundation/ops/compute-tectonic-history-rollups/contract.ts",
-      "src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts",
-      "src/domain/foundation/ops/compute-tectonics-current/contract.ts",
-      "src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts",
-      "src/domain/foundation/ops/compute-tracer-advection/contract.ts",
-      "src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts",
-      "src/domain/foundation/ops/compute-tectonic-provenance/contract.ts",
-      "src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts",
-    ] as const;
-
-    for (const relativeFile of decomposedOpFiles) {
-      const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
-      expect(text).not.toContain("compute-tectonic-history/lib/");
-      expect(text).not.toContain("compute-tectonic-history/contract.js");
-    }
   });
 
   it("keeps decomposed tectonics strategy imports local to op rules/modules", () => {
@@ -251,9 +210,6 @@ describe("foundation contract guardrails", () => {
       const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
       expect(text).not.toContain("domain/foundation/lib/tectonics/");
       expect(text).not.toContain("lib/tectonics/");
-      expect(text).not.toContain("compute-tectonic-history/lib/");
-      expect(text).not.toContain("compute-tectonic-history/contract.js");
-
       const importSources = text
         .split(/\r?\n/)
         .map((line) => line.match(/^\s*import(?:\s+type)?\s+.*\sfrom\s+["']([^"']+)["'];?/))
@@ -290,22 +246,6 @@ describe("foundation contract guardrails", () => {
     for (const relativeFile of rulesFiles) {
       const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
       expect(text).not.toMatch(forbiddenReExportPattern);
-    }
-  });
-
-  it("keeps foundation tectonics consumers off compute-tectonic-history contract imports", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const files = [
-      "src/domain/foundation/ops/compute-crust-evolution/contract.ts",
-      "src/domain/foundation/ops/compute-plates-tensors/contract.ts",
-      "src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts",
-      "src/domain/foundation/lib/require.ts",
-    ] as const;
-
-    for (const relativeFile of files) {
-      const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
-      expect(text).not.toContain("compute-tectonic-history/contract.js");
-      expect(text).toContain("tectonics/schemas.js");
     }
   });
 

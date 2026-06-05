@@ -74,7 +74,7 @@ describe("m11 plate graph resistance sensitivity", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 26, cellsPerPlate: 10, relaxationSteps: 3, referenceArea: 12600, plateScalePower: 0 },
+        config: { plateCount: 26, cellsPerPlate: 10, relaxationSteps: 3},
       },
       ctx as any
     );
@@ -102,8 +102,6 @@ describe("m11 plate graph resistance sensitivity", () => {
         config: {
           ...computePlateGraph.defaultConfig.config,
           plateCount: 26,
-          referenceArea: width * height,
-          plateScalePower: 0,
         },
       }
     ).plateGraph;
@@ -114,8 +112,6 @@ describe("m11 plate graph resistance sensitivity", () => {
         config: {
           ...computePlateGraph.defaultConfig.config,
           plateCount: 26,
-          referenceArea: width * height,
-          plateScalePower: 0,
         },
       }
     ).plateGraph;
@@ -126,8 +122,6 @@ describe("m11 plate graph resistance sensitivity", () => {
         config: {
           ...computePlateGraph.defaultConfig.config,
           plateCount: 26,
-          referenceArea: width * height,
-          plateScalePower: 0,
         },
       }
     ).plateGraph;

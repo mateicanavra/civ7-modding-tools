@@ -595,6 +595,12 @@ describe("Shipped map configs", () => {
     const meshResolutionProps =
       (props.meshResolution as { properties?: Record<string, unknown> }).properties ?? {};
     expect(meshResolutionProps).not.toHaveProperty("cellCount");
+    expect(meshResolutionProps).not.toHaveProperty("referenceArea");
+    expect(meshResolutionProps).not.toHaveProperty("plateScalePower");
+    const platePartitionProps =
+      (props.platePartition as { properties?: Record<string, unknown> }).properties ?? {};
+    expect(platePartitionProps).not.toHaveProperty("referenceArea");
+    expect(platePartitionProps).not.toHaveProperty("plateScalePower");
     expect(JSON.stringify(props)).not.toContain("\"strategy\"");
     expect(JSON.stringify(props)).not.toContain("\"config\"");
   });

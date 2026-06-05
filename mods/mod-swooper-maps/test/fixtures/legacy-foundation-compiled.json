@@ -49,11 +49,9 @@
     "mesh": {
       "computeMesh": {
         "config": {
-          "cellCount": 82,
+          "cellCount": 74,
           "cellsPerPlate": 2,
-          "plateCount": 41,
-          "plateScalePower": 0.5,
-          "referenceArea": 4000,
+          "plateCount": 37,
           "relaxationSteps": 2
         },
         "strategy": "default"
@@ -62,16 +60,14 @@
     "plate-graph": {
       "computePlateGraph": {
         "config": {
-          "plateCount": 41,
-          "plateScalePower": 0.5,
+          "plateCount": 37,
           "polarCaps": {
             "capFraction": 0.1,
             "microplateBandFraction": 0.2,
             "microplateMinAreaCells": 8,
             "microplatesMinPlateCount": 14,
             "microplatesPerPole": 0
-          },
-          "referenceArea": 4000
+          }
         },
         "strategy": "default"
       }
@@ -224,11 +220,9 @@
     "mesh": {
       "computeMesh": {
         "config": {
-          "cellCount": 92,
+          "cellCount": 84,
           "cellsPerPlate": 2,
-          "plateCount": 46,
-          "plateScalePower": 0.5,
-          "referenceArea": 4000,
+          "plateCount": 42,
           "relaxationSteps": 2
         },
         "strategy": "default"
@@ -237,16 +231,14 @@
     "plate-graph": {
       "computePlateGraph": {
         "config": {
-          "plateCount": 46,
-          "plateScalePower": 0.5,
+          "plateCount": 42,
           "polarCaps": {
             "capFraction": 0.1,
             "microplateBandFraction": 0.2,
             "microplateMinAreaCells": 8,
             "microplatesMinPlateCount": 14,
             "microplatesPerPole": 0
-          },
-          "referenceArea": 4000
+          }
         },
         "strategy": "default"
       }
@@ -399,11 +391,9 @@
     "mesh": {
       "computeMesh": {
         "config": {
-          "cellCount": 26,
+          "cellCount": 24,
           "cellsPerPlate": 2,
-          "plateCount": 13,
-          "plateScalePower": 0.5,
-          "referenceArea": 4000,
+          "plateCount": 12,
           "relaxationSteps": 2
         },
         "strategy": "default"
@@ -412,16 +402,14 @@
     "plate-graph": {
       "computePlateGraph": {
         "config": {
-          "plateCount": 13,
-          "plateScalePower": 0.5,
+          "plateCount": 12,
           "polarCaps": {
             "capFraction": 0.1,
             "microplateBandFraction": 0.2,
             "microplateMinAreaCells": 8,
             "microplatesMinPlateCount": 14,
             "microplatesPerPole": 0
-          },
-          "referenceArea": 4000
+          }
         },
         "strategy": "default"
       }
@@ -574,11 +562,9 @@
     "mesh": {
       "computeMesh": {
         "config": {
-          "cellCount": 325,
+          "cellCount": 312,
           "cellsPerPlate": 13,
-          "plateCount": 25,
-          "plateScalePower": 0.8,
-          "referenceArea": 4536,
+          "plateCount": 24,
           "relaxationSteps": 2
         },
         "strategy": "default"
@@ -587,16 +573,14 @@
     "plate-graph": {
       "computePlateGraph": {
         "config": {
-          "plateCount": 39,
-          "plateScalePower": 0.8,
+          "plateCount": 37,
           "polarCaps": {
             "capFraction": 0.08,
             "microplateBandFraction": 0.2,
             "microplateMinAreaCells": 8,
             "microplatesMinPlateCount": 14,
             "microplatesPerPole": 0
-          },
-          "referenceArea": 4536
+          }
         },
         "strategy": "default"
       }

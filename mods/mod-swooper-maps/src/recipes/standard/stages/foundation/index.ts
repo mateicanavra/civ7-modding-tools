@@ -60,7 +60,7 @@ function omitObjectProperties(schema: TSchema, keys: readonly string[]): TSchema
 
 const MeshResolutionSchema = defaultStrategyConfigSchema(
   opConfigSchema(mesh.contract.ops, "computeMesh"),
-  "Mesh resolution controls. These fields set the generated tectonic mesh density and relaxation behavior; cellCount is derived during compile/runtime normalization and is intentionally not authored.",
+  "Mesh resolution controls. These fields set generated tectonic mesh density and relaxation behavior for the selected map size; cellCount is derived during compile/runtime normalization and is intentionally not authored.",
   ["cellCount"]
 );
 
@@ -81,7 +81,7 @@ const LithosphereSchema = defaultStrategyConfigSchema(
 
 const PlatePartitionSchema = defaultStrategyConfigSchema(
   opConfigSchema(plateGraph.contract.ops, "computePlateGraph"),
-  "Plate partition controls. These fields determine plate seed count scaling and polar cap/microplate partition behavior."
+  "Plate partition controls. These fields determine selected-map-size plate count and polar cap/microplate partition behavior."
 );
 
 const PlateMotionSchema = defaultStrategyConfigSchema(

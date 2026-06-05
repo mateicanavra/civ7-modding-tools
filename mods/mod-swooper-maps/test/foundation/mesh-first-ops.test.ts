@@ -73,7 +73,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2, referenceArea: 800, plateScalePower: 0 },
+        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -138,7 +138,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2, referenceArea: 800, plateScalePower: 0 },
+        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -265,7 +265,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2, referenceArea: 2400, plateScalePower: 0 },
+        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -280,7 +280,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
 
       const plateGraph = computePlateGraph.run(
         { mesh, crust, rngSeed: 3000 + seed },
-        { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }
+        { strategy: "default", config: { plateCount: 16} }
       ).plateGraph;
 
       const plateMotion = derivePlateMotion(mesh, plateGraph, 4000 + seed);
@@ -352,7 +352,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 4, relaxationSteps: 2, referenceArea: 800, plateScalePower: 0 },
+        config: { plateCount: 16, cellsPerPlate: 4, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -407,7 +407,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2, referenceArea: 2400, plateScalePower: 0 },
+        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -417,7 +417,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 11 }, computeCrust.defaultConfig).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
-      { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }
+      { strategy: "default", config: { plateCount: 16} }
     ).plateGraph;
     const plateMotion = derivePlateMotion(mesh, plateGraph, 13);
     const segments = computeTectonicSegments.run(

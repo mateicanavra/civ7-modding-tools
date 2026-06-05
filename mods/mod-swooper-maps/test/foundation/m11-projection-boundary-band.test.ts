@@ -93,8 +93,6 @@ describe("m11 plates projection (boundary band)", () => {
           plateCount: 10,
           cellsPerPlate: 4,
           relaxationSteps: 2,
-          referenceArea: width * height,
-          plateScalePower: 0,
         },
       },
       ctx as any
@@ -115,7 +113,7 @@ describe("m11 plates projection (boundary band)", () => {
     } as const;
 
     const plateGraphConfig = computePlateGraph.normalize(
-      { strategy: "default", config: { plateCount: 10, referenceArea: width * height, plateScalePower: 0 } },
+      { strategy: "default", config: { plateCount: 10} },
       ctx as any
     );
     const plateGraph = computePlateGraph.run({ mesh, crust: crust as any, rngSeed: 11 }, plateGraphConfig).plateGraph;

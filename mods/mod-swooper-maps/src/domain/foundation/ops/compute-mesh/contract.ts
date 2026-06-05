@@ -63,20 +63,6 @@ const ComputeMeshContract = defineOp({
           description:
             "Controls mesh resolution by setting how many mesh cells are generated per normalized plate.",
         }),
-        referenceArea: Type.Integer({
-          default: 4000,
-          minimum: 1,
-          maximum: 1_000_000,
-          description:
-            "Sets the map area used as the scaling baseline when mesh density adapts to map dimensions.",
-        }),
-        plateScalePower: Type.Number({
-          default: 0.5,
-          minimum: 0,
-          maximum: 2,
-          description:
-            "Controls how strongly map area changes affect normalized plate and mesh density.",
-        }),
         relaxationSteps: Type.Integer({
           default: 2,
           minimum: 0,

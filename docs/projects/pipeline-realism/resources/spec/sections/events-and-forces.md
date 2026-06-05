@@ -193,8 +193,13 @@ Expected auditability:
 - `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`
 - Current segment source (event seeds today):
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts`
-- Current era diffusion implementation (to be replaced by event emission + budgets):
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
+- Current event and era-field implementation:
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/index.ts`
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/index.ts`
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts`
+- Current history/provenance rollup implementation:
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts`
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts`
 - Projection into tile-space drivers consumed by Morphology:
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts`
 - Current Morphology consumers of emitted forces:

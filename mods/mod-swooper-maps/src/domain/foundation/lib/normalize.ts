@@ -19,15 +19,30 @@ export function requireEnvDimensions(
 
   const width = dims["width"];
   const height = dims["height"];
-  if (typeof width !== "number" || typeof height !== "number" || !Number.isFinite(width) || !Number.isFinite(height)) {
+  if (
+    typeof width !== "number" ||
+    typeof height !== "number" ||
+    !Number.isSafeInteger(width) ||
+    !Number.isSafeInteger(height)
+  ) {
     throw new Error(`[Foundation] Invalid env.dimensions for ${scope}.`);
   }
 
-  const widthInt = width | 0;
-  const heightInt = height | 0;
-  if (widthInt <= 0 || heightInt <= 0) {
+  if (width <= 0 || height <= 0) {
     throw new Error(`[Foundation] Invalid env.dimensions for ${scope}.`);
   }
 
-  return { width: widthInt, height: heightInt };
+  return { width, height };
+}
+
+export function deriveFoundationReferenceArea(dimensions: Readonly<{ width: number; height: number }>): number {
+  const { width, height } = dimensions;
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width <= 0 || height <= 0) {
+    throw new Error("[Foundation] Cannot derive reference area from invalid map dimensions.");
+  }
+  const area = width * height;
+  if (!Number.isSafeInteger(area) || area <= 0) {
+    throw new Error("[Foundation] Cannot derive reference area from invalid map area.");
+  }
+  return area;
 }

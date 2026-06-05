@@ -23,7 +23,7 @@ describe("foundation plate motion (D03r)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2, referenceArea: 1200, plateScalePower: 0 },
+        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -58,7 +58,7 @@ describe("foundation plate motion (D03r)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2, referenceArea: 1200, plateScalePower: 0 },
+        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -119,7 +119,7 @@ describe("foundation plate motion (D03r)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2, referenceArea: 1200, plateScalePower: 0 },
+        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -168,7 +168,7 @@ describe("foundation plate motion (D03r)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2, referenceArea: 800, plateScalePower: 0 },
+        config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2},
       },
       ctx as any
     );

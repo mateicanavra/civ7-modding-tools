@@ -7,7 +7,7 @@ What is the **maximal Morphology-first** consumption contract for Foundation era
 ## Context (pointers only)
 
 - Docs: `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` (truth + projection artifacts; `tectonicHistory`, `tectonics`, tile projections); `docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md` (current Morphology contract: consumes `foundation.plates` + `foundation.crustTiles`); `docs/system/libs/mapgen/adrs/adr-001-era-tagged-morphology.md` (single-pass era interpretation; provenance payload pattern); `docs/projects/pipeline-realism/resources/decisions/d04-evolution-semantics-history-model.md` (Eulerian era fields + bounded tracer)
-- Code: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (`eraCount !== 3` guard); `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts` (current upstream deps); `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (era fields + rollups); `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts` (segment inputs for belt continuity)
+- Code: `mods/mod-swooper-maps/src/domain/foundation/lib/require.ts` (history/provenance validation); `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts` (current upstream deps); `mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/contract.ts` (era fields); `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/contract.ts` (rollups); `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/contract.ts` (provenance); `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts` (segment inputs for belt continuity)
 
 ## Why this is ambiguous
 
@@ -27,7 +27,7 @@ Morphology consumes **per-era tectonic fields + bounded tracer provenance** and 
 ## Why we might not yet simplify
 
 - Foundation does not yet publish **tile-space era projections** or tracer projections; adding them is a contract + performance change.
-- Current validation enforces `eraCount === 3`, limiting blending generality.
+- Foundation history/provenance validation now allows 5..8 eras; Morphology still needs an explicit era-selection/blending contract.
 - Some Morphology ops are still tuned around single-snapshot `plates` tensors.
 
 ## Options

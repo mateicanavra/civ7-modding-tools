@@ -97,22 +97,16 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     });
 
     // Foundation:
-    // - plateCount sets authored plate count before dimension-aware scaling.
-    const area = env.dimensions.width * env.dimensions.height;
-    const meshScale = Math.pow(
-      area / compiled.foundation.mesh.computeMesh.config.referenceArea,
-      compiled.foundation.mesh.computeMesh.config.plateScalePower
+    // - plateCount is the authored override for the selected map size.
+    expect(compiled.foundation.mesh.computeMesh.config.plateCount).toBe(12);
+    expect(compiled.foundation["plate-graph"].computePlateGraph.config.plateCount).toBe(12);
+    expect(compiled.foundation.mesh.computeMesh.config).not.toHaveProperty("referenceArea");
+    expect(compiled.foundation.mesh.computeMesh.config).not.toHaveProperty("plateScalePower");
+    expect(compiled.foundation["plate-graph"].computePlateGraph.config).not.toHaveProperty(
+      "referenceArea"
     );
-    const expectedMeshPlateCount = Math.max(2, Math.round(12 * meshScale));
-    expect(compiled.foundation.mesh.computeMesh.config.plateCount).toBe(expectedMeshPlateCount);
-
-    const plateGraphScale = Math.pow(
-      area / compiled.foundation["plate-graph"].computePlateGraph.config.referenceArea,
-      compiled.foundation["plate-graph"].computePlateGraph.config.plateScalePower
-    );
-    const expectedPlateGraphPlateCount = Math.max(2, Math.round(12 * plateGraphScale));
-    expect(compiled.foundation["plate-graph"].computePlateGraph.config.plateCount).toBe(
-      expectedPlateGraphPlateCount
+    expect(compiled.foundation["plate-graph"].computePlateGraph.config).not.toHaveProperty(
+      "plateScalePower"
     );
     // - plateActivity influences projection through knob transforms (no stage profile bridge).
     expect(
