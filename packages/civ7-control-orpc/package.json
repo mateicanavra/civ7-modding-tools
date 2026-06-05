@@ -34,7 +34,8 @@
   },
   "scripts": {
     "build": "tsup --config tsup.config.ts && rimraf tsconfig.tsbuildinfo && tsc -p tsconfig.json --emitDeclarationOnly --noEmit false",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit && bun ../../scripts/lint/lint-control-orpc-contract-ownership.mjs",
+    "lint:contract-ownership": "bun ../../scripts/lint/lint-control-orpc-contract-ownership.mjs",
     "test": "vitest run --config vitest.config.ts",
     "clean": "rimraf dist"
   },

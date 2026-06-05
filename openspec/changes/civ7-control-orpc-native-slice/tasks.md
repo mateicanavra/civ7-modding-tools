@@ -161,6 +161,9 @@ adding more read-only facade shells.
   - [x] 5.4.12 Move `unit.target.action.request` caller-facing input schema
     into control-oRPC service ownership while leaving direct-control unit
     target action runtime/proof helpers authoritative.
+  - [x] 5.4.13 Add a package verification guard that fails if control-oRPC
+    module contract files import direct-control, while leaving runtime/proof
+    procedure imports and focused equivalence tests out of that guard.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -404,3 +407,6 @@ adding more read-only facade shells.
   control-oRPC package test/check/build, strict OpenSpec validates, unit
   contract direct-control import scan, and diff hygiene for the unit target
   action service contract ownership slice.
+- [x] 8.18 Run the control-oRPC contract-ownership lint guard through package
+  check, control-oRPC package test/build, strict OpenSpec validates, and diff
+  hygiene for the service contract ownership guard slice.

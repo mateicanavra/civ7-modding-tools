@@ -86,6 +86,15 @@ errors, and server-side callers.
   sends, validators, source verification classification, and no-repeat proof
   semantics consumed by the procedure
 
+#### Scenario: Service contract ownership is guarded
+- **WHEN** control-oRPC service contracts are checked
+- **THEN** package verification fails if module contract files import
+  `@civ7/direct-control`
+- **AND** the guard is limited to caller-facing service contract ownership
+- **AND** direct-control runtime/proof imports remain allowed in procedure,
+  dependency, and focused equivalence-test code where they are runtime/proof
+  evidence rather than normal service contract authority
+
 #### Scenario: Strategy planning view is added
 - **WHEN** a strategy planning procedure is implemented
 - **THEN** it composes planning evidence from bounded runtime/read ports into a
