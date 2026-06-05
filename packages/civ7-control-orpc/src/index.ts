@@ -1,8 +1,11 @@
 export { createCiv7ControlOrpcServerClient } from "./client";
 export {
+  Civ7ControllerBridgeAttentionCurrentRequestSchema,
+  Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
   Civ7ControllerBridgeErrorSchema,
   Civ7ControllerBridgeFailureResponseSchema,
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
+  Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeRequestSchema,
   Civ7ControllerBridgeResponseSchema,
   Civ7ControllerBridgeSuccessResponseSchema,
@@ -10,11 +13,14 @@ export {
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
 export type {
+  Civ7ControllerBridgeAttentionCurrentRequest,
+  Civ7ControllerBridgeAttentionCurrentSuccessResponse,
   Civ7ControllerBridgeContextFactory,
   Civ7ControllerBridgeError,
   Civ7ControllerBridgeFailureResponse,
   Civ7ControllerBridgeIngress,
   Civ7ControllerBridgeReadinessCurrentRequest,
+  Civ7ControllerBridgeReadinessCurrentSuccessResponse,
   Civ7ControllerBridgeRequest,
   Civ7ControllerBridgeResponse,
   Civ7ControllerBridgeSuccessResponse,

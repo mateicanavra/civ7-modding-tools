@@ -317,6 +317,12 @@ adding more read-only facade shells.
     replaced, delegate to the existing in-process router ingress, and keep
     ambient `globalThis` selection by the Civ7 UIScript adapter, mutation
     allowlists, runtime proof, and full `7.3` implementation pending.
+  - [x] 7.3.4 Allowlist the service-owned read-only `attention.current`
+    procedure through the package-local controller ingress: validate the
+    existing attention input schema, delegate to the existing in-process router
+    client, preserve raw command/session/tuner endpoint rejection, and keep
+    mutation allowlists, local-player/hotseat proof, runtime proof, Civ7
+    UIScript/modinfo packaging, and full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -348,3 +354,6 @@ adding more read-only facade shells.
 - [x] 8.10 Run focused intelligence-bridge/controller-ingress tests, package
   check/build, strict OpenSpec validates, and diff hygiene for the package-local
   global bridge binding source seed.
+- [x] 8.11 Run focused controller-ingress/intelligence-bridge tests, package
+  check/build, strict OpenSpec validates, and diff hygiene for the
+  `attention.current` controller ingress allowlist slice.

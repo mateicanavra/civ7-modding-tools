@@ -151,6 +151,19 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   allowlists, local-player/hotseat proof, runtime proof, and full `7.3`
   implementation remain pending
 
+#### Scenario: Controller ingress allows current attention reads
+- **WHEN** the package-local controller ingress expands beyond readiness proof
+- **THEN** it may allowlist the service-owned read-only `attention.current`
+  procedure
+- **AND** `attention.current` requests validate through their existing
+  procedure input schema
+- **AND** `attention.current` invocation delegates to the existing in-process
+  router/client rather than adding a bridge-local dispatcher or read wrapper
+- **AND** raw command/session/tuner endpoint fields and mutation approvals
+  remain rejected from the ingress envelope
+- **AND** mutation allowlists, local-player/hotseat proof, runtime proof, Civ7
+  UIScript/modinfo packaging, and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control approval,

@@ -57,6 +57,68 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted attention.current through the in-process router", async () => {
+    const unitId = { owner: 0, id: 458_752, type: 26 };
+    const fake = fakeAttentionContext(unitId);
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "attention.current",
+      input: { maxNotifications: 4 },
+      correlationId: "controller-attention-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "attention.current",
+      correlationId: "controller-attention-1",
+      output: {
+        playable: true,
+        readiness: "tuner-ready",
+        sourceStatus: {
+          playableStatus: "read",
+          notifications: "read",
+          turnCompletion: "read",
+          readyUnit: "read",
+          readyCity: "read",
+        },
+        summary: {
+          blockerCount: 1,
+          decisionCount: 0,
+          readyActorCount: 1,
+          nextStepCount: 1,
+        },
+      },
+    });
+    expect(fake.calls.notifications).toEqual([
+      { timeoutMs: 1_000, maxNotifications: 4 },
+    ]);
+    expect(fake.calls.readyUnit).toEqual([
+      { input: {}, options: { timeoutMs: 1_000 } },
+    ]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "attention.current",
+      input: { maxNotifications: 4 },
+      correlationId: "controller-attention-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("Game.turn");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -67,6 +129,11 @@ describe("Civ7 controller bridge ingress", () => {
       { procedureKey: "readiness.current", input: {}, rawCommand: "Game.turn" },
       { procedureKey: "readiness.current", input: { rawCommand: "Game.turn" } },
       { procedureKey: "readiness.current", input: {}, approval: { approved: true } },
+      { procedureKey: "attention.current", input: {}, host: "127.0.0.1" },
+      { procedureKey: "attention.current", input: {}, session: { state: "Tuner" } },
+      { procedureKey: "attention.current", input: {}, rawCommand: "Game.turn" },
+      { procedureKey: "attention.current", input: { rawCommand: "Game.turn" } },
+      { procedureKey: "attention.current", input: {}, approval: { approved: true } },
     ];
 
     for (const request of invalidRequests) {
@@ -166,6 +233,50 @@ function fakeContext(
   };
 }
 
+function fakeAttentionContext(unitId: { owner: number; id: number; type: number }): {
+  calls: {
+    notifications: Array<Record<string, unknown> | undefined>;
+    readyUnit: Array<{ input: unknown; options: unknown }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    notifications: Array<Record<string, unknown> | undefined>;
+    readyUnit: Array<{ input: unknown; options: unknown }>;
+  } = {
+    notifications: [],
+    readyUnit: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async () => playableStatusResult(),
+        getCiv7PlayNotificationView: async (options) => {
+          calls.notifications.push(options);
+          return cleanNotificationViewResult();
+        },
+        getCiv7TurnCompletionStatus: async () => turnCompletionStatusResult(),
+        getCiv7ReadyUnitView: async (input, options) => {
+          calls.readyUnit.push({ input, options });
+          return {
+            unitId,
+            legalOperations: [{ family: "unit-operation", operationType: "MOVE_TO" }],
+          };
+        },
+        getCiv7ReadyCityView: async () => ({
+          cityId: null,
+          blockingCityId: { ok: true, value: null },
+          legalOperations: [],
+        }),
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
 function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
   return {
     host: "127.0.0.1",
@@ -196,5 +307,32 @@ function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
       },
     },
     errors: ["raw Tuner detail"],
+  };
+}
+
+function cleanNotificationViewResult(): any {
+  return {
+    turn: { ok: true, value: 12 },
+    turnDate: { ok: true, value: "3400 BCE" },
+    canEndTurn: { ok: true, value: false },
+    selectedUnitId: { ok: true, value: null },
+    firstReadyUnitId: { ok: true, value: null },
+    selectedCityId: { ok: true, value: null },
+    blockingNotificationId: { ok: true, value: null },
+    hud: {
+      nextDecision: null,
+      decisionQueue: [],
+    },
+  };
+}
+
+function turnCompletionStatusResult(): any {
+  return {
+    turn: { ok: true, value: 12 },
+    turnDate: { ok: true, value: "3400 BCE" },
+    hasSentTurnComplete: { ok: true, value: false },
+    canEndTurn: { ok: true, value: false },
+    firstReadyUnitId: { ok: true, value: null },
+    blocker: { ok: true, value: 0 },
   };
 }
