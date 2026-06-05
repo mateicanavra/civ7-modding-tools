@@ -23,8 +23,6 @@ export {
   Civ7AttentionCurrentUnavailableErrorDataSchema,
   Civ7CitySummaryUnavailableError,
   Civ7CitySummaryUnavailableErrorDataSchema,
-  Civ7DirectControlUnavailableError,
-  Civ7DirectControlUnavailableErrorDataSchema,
   Civ7MapSummaryUnavailableError,
   Civ7MapSummaryUnavailableErrorDataSchema,
   Civ7MutationApprovalRequiredError,
@@ -37,6 +35,8 @@ export {
   Civ7PopulationPlacementUnavailableErrorDataSchema,
   Civ7ProductionChoiceUnavailableError,
   Civ7ProductionChoiceUnavailableErrorDataSchema,
+  Civ7ReadinessCurrentUnavailableError,
+  Civ7ReadinessCurrentUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   Civ7UnitSummaryUnavailableError,
@@ -46,13 +46,13 @@ export {
   type Civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcEffectErrorMap,
   type Civ7CitySummaryUnavailableErrorData,
-  type Civ7DirectControlUnavailableErrorData,
   type Civ7MapSummaryUnavailableErrorData,
   type Civ7MutationApprovalRequiredErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7PlayerSummaryUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
+  type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
   type Civ7UnitSummaryUnavailableErrorData,
 } from "./errors";
@@ -164,17 +164,25 @@ export type {
 export { notificationsRouter } from "./modules/notifications/router";
 export { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
 export {
-  Civ7RuntimeContract,
-  Civ7RuntimePlayableStatusContract,
-  Civ7RuntimePlayableStatusInputStandardSchema,
-  Civ7RuntimePlayableStatusResultStandardSchema,
-} from "./modules/runtime/contract";
+  Civ7ReadinessCapabilitySchema,
+  Civ7ReadinessContract,
+  Civ7ReadinessCurrentContract,
+  Civ7ReadinessCurrentInputSchema,
+  Civ7ReadinessCurrentInputStandardSchema,
+  Civ7ReadinessCurrentResultSchema,
+  Civ7ReadinessCurrentResultStandardSchema,
+  Civ7ReadinessLevelSchema,
+  Civ7ReadinessNextStepSchema,
+  Civ7ReadinessSourceSummarySchema,
+} from "./modules/readiness/contract";
 export type {
-  Civ7RuntimeContract as Civ7RuntimeContractType,
-  Civ7RuntimePlayableStatusContract as Civ7RuntimePlayableStatusContractType,
-} from "./modules/runtime/contract";
-export { runtimeRouter } from "./modules/runtime/router";
-export { runtimePlayableStatusProcedure } from "./modules/runtime/procedures/playable-status";
+  Civ7ReadinessContract as Civ7ReadinessContractType,
+  Civ7ReadinessCurrentContract as Civ7ReadinessCurrentContractType,
+  Civ7ReadinessCurrentInput,
+  Civ7ReadinessCurrentResult,
+} from "./modules/readiness/contract";
+export { readinessRouter } from "./modules/readiness/router";
+export { readinessCurrentProcedure } from "./modules/readiness/procedures/current";
 export {
   Civ7UnitContract,
   Civ7UnitSummaryContract,

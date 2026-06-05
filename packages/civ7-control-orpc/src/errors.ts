@@ -7,23 +7,23 @@ import { Type, type Static } from "typebox";
 
 import { toStandardSchema } from "./typebox-standard-schema";
 
-export const Civ7DirectControlUnavailableErrorDataSchema = Type.Object(
+export const Civ7ReadinessCurrentUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("runtime.playable.status"),
+    procedureKey: Type.Literal("readiness.current"),
     source: Type.Literal("direct-control-facade"),
   },
   { additionalProperties: false },
 );
-export type Civ7DirectControlUnavailableErrorData = Static<
-  typeof Civ7DirectControlUnavailableErrorDataSchema
+export type Civ7ReadinessCurrentUnavailableErrorData = Static<
+  typeof Civ7ReadinessCurrentUnavailableErrorDataSchema
 >;
 
-export class Civ7DirectControlUnavailableError extends ORPCTaggedError(
-  "Civ7DirectControlUnavailableError",
+export class Civ7ReadinessCurrentUnavailableError extends ORPCTaggedError(
+  "Civ7ReadinessCurrentUnavailableError",
   {
-    code: "DIRECT_CONTROL_UNAVAILABLE",
-    message: "Direct-control playable status failed.",
-    schema: toStandardSchema(Civ7DirectControlUnavailableErrorDataSchema),
+    code: "READINESS_CURRENT_UNAVAILABLE",
+    message: "Current readiness view failed.",
+    schema: toStandardSchema(Civ7ReadinessCurrentUnavailableErrorDataSchema),
     status: 503,
   },
 ) {}
@@ -242,13 +242,13 @@ export class Civ7UnitSummaryUnavailableError extends ORPCTaggedError(
 export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CITY_SUMMARY_UNAVAILABLE: Civ7CitySummaryUnavailableError,
-  DIRECT_CONTROL_UNAVAILABLE: Civ7DirectControlUnavailableError,
   MAP_SUMMARY_UNAVAILABLE: Civ7MapSummaryUnavailableError,
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   PLAYER_SUMMARY_UNAVAILABLE: Civ7PlayerSummaryUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
+  READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
   UNIT_SUMMARY_UNAVAILABLE: Civ7UnitSummaryUnavailableError,
 } satisfies EffectErrorMap;

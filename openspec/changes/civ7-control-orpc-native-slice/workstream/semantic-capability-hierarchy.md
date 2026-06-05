@@ -170,7 +170,8 @@ Service ownership:
 
 | Current module family | Target semantic family |
 |---|---|
-| `runtime.playable.status` | `readiness` |
+| `runtime.playable.status` | replaced by `readiness.current`; direct-control playable status remains the runtime port |
+| `readiness.current` | `readiness` |
 | `runtime.tuner.health`, `runtime.app.ui.snapshot`, `runtime.gameinfo.rows` | `debug`, with readiness summaries consumed by `readiness` |
 | `runtime.turn.completion.status` | `attention` and `readiness` |
 | `notifications.view` | burned down; `attention.current` consumes the direct-control notification port |

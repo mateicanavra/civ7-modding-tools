@@ -66,9 +66,13 @@ outcome. The workstream is rebaselined around this order:
      atom code.
 
 3. Freeze facade-only wrapper expansion and move to service-owned procedures.
-   - Existing read-only leaves over `runtime.playable.status`,
-     `unit.summary.read`, `map.summary.read`, `player.summary.read`, and
-     `city.summary.read` are transitional proof of in-process router mechanics.
+   - Existing read-only leaves over `unit.summary.read`, `map.summary.read`,
+     `player.summary.read`, and `city.summary.read` are transitional proof of
+     in-process router mechanics.
+   - The historical `runtime.playable.status` facade leaf has been replaced by
+     `readiness.current`, which projects the direct-control playable-status
+     runtime port into a semantic readiness result without raw host, port,
+     state, Tuner snapshot, or runtime error details.
    - The historical `notifications.view` facade leaf has been burned down;
      current notification, decision, and blocker service behavior is composed
      by `attention.current` through the direct-control notification runtime
@@ -156,11 +160,15 @@ packages/civ7-control-orpc
     error-projection.ts
     telemetry.ts
   src/modules/
+    readiness/
+      contract.ts
+      router.ts
+      procedures/
+        current.ts
     runtime/
       contract.ts
       router.ts
       procedures/
-        playable-status.ts
         app-ui-snapshot.ts
         tuner-health.ts
     notifications/
