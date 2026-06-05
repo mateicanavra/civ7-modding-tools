@@ -478,6 +478,13 @@ adding more read-only facade shells.
     evidence before context construction and native router dispatch; keep
     additional mutation allowlists, UIScript/modinfo packaging, runtime proof,
     and full `7.3` implementation pending.
+  - [x] 7.3.6 Allowlist `turn.complete.request` through the same closed
+    controller approval/proof envelope. Require controller-runtime approval
+    metadata, game-controller-ready lifecycle evidence,
+    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
+    evidence before context construction and native router dispatch; keep
+    further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
+    full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -520,6 +527,10 @@ adding more read-only facade shells.
   package test/check/build, strict OpenSpec validates, generic runtime-port
   scan, and diff hygiene for the population placement runtime facade narrowing
   slice.
+- [x] 8.33 Run focused controller-ingress, turn-completion, and
+  intelligence-bridge tests, control-oRPC package test/check/build, strict
+  OpenSpec validates, and diff hygiene for the controller turn-completion
+  ingress allowlist slice.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

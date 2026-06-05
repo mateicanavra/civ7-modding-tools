@@ -17,6 +17,10 @@ import {
   Civ7ReadinessCurrentInputSchema,
   Civ7ReadinessCurrentResultSchema,
 } from "../modules/readiness/contract";
+import {
+  Civ7TurnCompletionInputSchema,
+  Civ7TurnCompletionResultSchema,
+} from "../modules/turn/contract";
 
 export const Civ7ControllerBridgeApprovalSchema = Type.Object(
   {
@@ -99,15 +103,31 @@ export type Civ7ControllerBridgeNotificationDismissRequest = Static<
   typeof Civ7ControllerBridgeNotificationDismissRequestSchema
 >;
 
+export const Civ7ControllerBridgeTurnCompleteRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("turn.complete.request"),
+    input: Civ7TurnCompletionInputSchema,
+    approval: Civ7ControllerBridgeApprovalSchema,
+    controllerProof: Civ7ControllerBridgeMutationProofSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeTurnCompleteRequest = Static<
+  typeof Civ7ControllerBridgeTurnCompleteRequestSchema
+>;
+
 export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
   Civ7ControllerBridgeNotificationDismissRequestSchema,
+  Civ7ControllerBridgeTurnCompleteRequestSchema,
 ]);
 export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeReadinessCurrentRequest
   | Civ7ControllerBridgeAttentionCurrentRequest
-  | Civ7ControllerBridgeNotificationDismissRequest;
+  | Civ7ControllerBridgeNotificationDismissRequest
+  | Civ7ControllerBridgeTurnCompleteRequest;
 
 export const Civ7ControllerBridgeErrorSchema = Type.Object(
   {
@@ -167,15 +187,31 @@ export type Civ7ControllerBridgeNotificationDismissSuccessResponse = Static<
   typeof Civ7ControllerBridgeNotificationDismissSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeTurnCompleteSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("turn.complete.request"),
+      output: Civ7TurnCompletionResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeTurnCompleteSuccessResponse = Static<
+  typeof Civ7ControllerBridgeTurnCompleteSuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
   Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
+  Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
 ]);
 export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeReadinessCurrentSuccessResponse
   | Civ7ControllerBridgeAttentionCurrentSuccessResponse
-  | Civ7ControllerBridgeNotificationDismissSuccessResponse;
+  | Civ7ControllerBridgeNotificationDismissSuccessResponse
+  | Civ7ControllerBridgeTurnCompleteSuccessResponse;
 
 export const Civ7ControllerBridgeFailureResponseSchema = Type.Object(
   {
@@ -239,11 +275,13 @@ export async function invokeCiv7ControllerBridgeRequest(
 
   try {
     const context = await options.createContext(request);
+    const approval = request.procedureKey === "notifications.dismiss.request" ||
+        request.procedureKey === "turn.complete.request"
+      ? request.approval
+      : context.approval;
     const client = createCiv7ControlOrpcServerClient({
       ...context,
-      approval: request.procedureKey === "notifications.dismiss.request"
-        ? request.approval
-        : context.approval,
+      approval,
       correlation: request.correlationId == null
         ? context.correlation
         : {
@@ -275,6 +313,18 @@ export async function invokeCiv7ControllerBridgeRequest(
       };
     }
 
+    if (request.procedureKey === "turn.complete.request") {
+      const output = await client.turn.complete.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "turn.complete.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
     const output = await client.attention.current(request.input);
     return {
       ok: true,
@@ -297,7 +347,8 @@ function isUnsupportedProcedureRequest(
   return typeof request.procedureKey === "string"
     && request.procedureKey !== "readiness.current"
     && request.procedureKey !== "attention.current"
-    && request.procedureKey !== "notifications.dismiss.request";
+    && request.procedureKey !== "notifications.dismiss.request"
+    && request.procedureKey !== "turn.complete.request";
 }
 
 function safeBridgeProcedureError(err: unknown): Civ7ControllerBridgeError {

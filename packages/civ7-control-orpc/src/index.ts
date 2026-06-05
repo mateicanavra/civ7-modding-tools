@@ -13,6 +13,8 @@ export {
   Civ7ControllerBridgeRequestSchema,
   Civ7ControllerBridgeResponseSchema,
   Civ7ControllerBridgeSuccessResponseSchema,
+  Civ7ControllerBridgeTurnCompleteRequestSchema,
+  Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
@@ -32,6 +34,8 @@ export type {
   Civ7ControllerBridgeRequest,
   Civ7ControllerBridgeResponse,
   Civ7ControllerBridgeSuccessResponse,
+  Civ7ControllerBridgeTurnCompleteRequest,
+  Civ7ControllerBridgeTurnCompleteSuccessResponse,
 } from "./bridge/controller-ingress";
 export {
   CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY,

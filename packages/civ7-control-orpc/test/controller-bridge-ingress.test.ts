@@ -194,6 +194,77 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted turn.complete.request through the in-process router with explicit approval", async () => {
+    const fake = fakeTurnCompleteContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "turn.complete.request",
+      input: {},
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved turn completion",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-turn-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "turn.complete.request",
+      correlationId: "controller-turn-1",
+      output: {
+        sent: true,
+        status: "sent-guarded",
+        postcondition: {
+          classification: "turn-complete-sent",
+          confirmed: true,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.turnCompletion).toEqual([{
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved turn completion",
+      },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "turn.complete.request",
+      input: {},
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved turn completion",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-turn-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("controller approved turn completion");
+    expect(serialized).not.toContain("GameContext.sendTurnComplete");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -271,6 +342,36 @@ describe("Civ7 controller bridge ingress", () => {
           ...controllerMutationProof(),
           hotseat: { source: "controller-runtime", status: "unknown" },
         },
+      },
+      { procedureKey: "turn.complete.request", input: {} },
+      {
+        procedureKey: "turn.complete.request",
+        input: {},
+        approval: controllerApproval(),
+      },
+      {
+        procedureKey: "turn.complete.request",
+        input: { rawCommand: "GameContext.sendTurnComplete()" },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "turn.complete.request",
+        input: {},
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "turn.complete.request",
+        input: {},
+        approval: {
+          source: "controller-runtime",
+          approved: true,
+          reason: "controller approved turn completion",
+          command: "GameContext.sendTurnComplete()",
+        },
+        controllerProof: controllerMutationProof(),
       },
     ];
 
@@ -490,6 +591,46 @@ function fakeNotificationDismissContext(): {
   };
 }
 
+function fakeTurnCompleteContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    turnCompletion: Array<{
+      options: unknown;
+      approval: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    turnCompletion: Array<{
+      options: unknown;
+      approval: unknown;
+    }>;
+  } = {
+    status: [],
+    turnCompletion: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7TurnComplete: async (options, approval) => {
+          calls.turnCompletion.push({ options, approval });
+          return turnCompletionRequestResult();
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
 function controllerApproval(): Record<string, unknown> {
   return {
     source: "controller-runtime",
@@ -631,5 +772,23 @@ function turnCompletionStatusResult(): any {
     canEndTurn: { ok: true, value: false },
     firstReadyUnitId: { ok: true, value: null },
     blocker: { ok: true, value: 0 },
+  };
+}
+
+function turnCompletionRequestResult(): any {
+  return {
+    sent: true,
+    before: turnCompletionStatusResult(),
+    after: {
+      ...turnCompletionStatusResult(),
+      hasSentTurnComplete: { ok: true, value: true },
+    },
+    command: {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "65535", name: "App UI" },
+      output: ["CMD:65535:GameContext.sendTurnComplete()"],
+    },
+    verified: true,
   };
 }
