@@ -1,13 +1,16 @@
-import { Civ7ComponentIdSchema } from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 import { Type, type Static } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
+import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-const NullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
+const NullableComponentIdSchema = Type.Union([
+  Civ7ControlOrpcComponentIdSchema,
+  Type.Null(),
+]);
 
 export const Civ7AttentionCurrentInputSchema = Type.Object(
   {

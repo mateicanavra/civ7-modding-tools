@@ -89,6 +89,14 @@ export {
   type Civ7ControlOrpcCorrelationContext,
   type Civ7ControlOrpcCorrelationId,
 } from "./model/correlation";
+export {
+  Civ7ControlOrpcComponentIdSchema,
+  Civ7ControlOrpcMapLocationSchema,
+} from "./model/primitives";
+export type {
+  Civ7ControlOrpcComponentId,
+  Civ7ControlOrpcMapLocation,
+} from "./model/primitives";
 export type { Civ7ControlOrpcProcedureMeta } from "./metadata";
 export {
   civ7ControlOrpcEffectRuntime,

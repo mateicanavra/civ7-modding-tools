@@ -1,16 +1,16 @@
-import { Civ7MapLocationSchema } from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 import { Type, type Static } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
+import { Civ7ControlOrpcMapLocationSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
 export const Civ7StrategyFrontSummaryInputSchema = Type.Object(
   {
     playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
-    origins: Type.Optional(Type.Array(Civ7MapLocationSchema)),
+    origins: Type.Optional(Type.Array(Civ7ControlOrpcMapLocationSchema)),
     candidateLimit: Type.Optional(Type.Integer({ minimum: 1, maximum: 8 })),
     scanRadius: Type.Optional(Type.Integer({ minimum: 1, maximum: 32 })),
     maxPlayers: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
@@ -65,7 +65,7 @@ export const Civ7StrategyFrontPointOfInterestSchema = Type.Object(
   {
     kind: Type.String(),
     severity: Type.String(),
-    location: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+    location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     summary: Type.String(),
   },
   { additionalProperties: false },
@@ -103,7 +103,7 @@ export const Civ7StrategyFrontSummaryResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     localPlayerId: Type.Integer({ minimum: 0 }),
-    origins: Type.Array(Civ7MapLocationSchema),
+    origins: Type.Array(Civ7ControlOrpcMapLocationSchema),
     sourceStatus: Civ7StrategyFrontSourceStatusSchema,
     relationshipLabelPolicy: Civ7StrategyRelationshipLabelPolicySchema,
     summary: Type.Object(

@@ -39,6 +39,19 @@ errors, and server-side callers.
 - **AND** the runtime entrypoint does not expose raw command/session/tuner
   payloads or make direct-control result envelopes normal service output
 
+#### Scenario: Shared service primitives are needed by procedure contracts
+- **WHEN** service-owned procedure contracts need common Civ7 primitives such
+  as component IDs or map locations in caller-facing input or output
+- **THEN** `packages/civ7-control-orpc` owns equivalent primitive TypeBox
+  schemas under its service model
+- **AND** focused proof keeps those primitive schemas equivalent to the current
+  direct-control runtime-owner primitives
+- **AND** procedure contracts do not import direct-control primitive value
+  schemas only to describe normal service input or output
+- **AND** operation-specific runtime-port schemas, validators, and proof
+  helpers may remain direct-control-owned until a later accepted service
+  contract slice separates them deliberately
+
 #### Scenario: Strategy planning view is added
 - **WHEN** a strategy planning procedure is implemented
 - **THEN** it composes planning evidence from bounded runtime/read ports into a

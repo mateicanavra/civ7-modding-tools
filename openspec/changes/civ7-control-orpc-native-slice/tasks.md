@@ -145,6 +145,11 @@ adding more read-only facade shells.
     root `@civ7/control-orpc` service entrypoint and into explicit
     `@civ7/control-orpc/runtime` context-construction exports for CLI and
     Studio edge adapters.
+  - [x] 5.4.9 Move shared caller-facing component ID and map-location
+    primitive schemas into `packages/civ7-control-orpc` service model
+    ownership, prove equivalence to direct-control primitives, and switch
+    attention, notification, city, unit, decisions, and strategy contracts off
+    direct-control primitive value imports.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -372,3 +377,7 @@ adding more read-only facade shells.
 - [x] 8.13 Run control-oRPC package test/check/build, affected CLI/Studio
   checks/tests, strict OpenSpec validates, root facade-export scan, and diff
   hygiene for the explicit runtime entrypoint split.
+- [x] 8.14 Run focused primitive-schema equivalence and affected procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates,
+  primitive import scan, and diff hygiene for the shared service primitive
+  ownership slice.

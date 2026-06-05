@@ -1,6 +1,4 @@
 import {
-  Civ7ComponentIdSchema,
-  Civ7MapLocationSchema,
   Civ7ProductionChoiceInputSchema,
   Civ7ProductionPostconditionClassificationSchema,
 } from "@civ7/direct-control";
@@ -10,6 +8,10 @@ import { Type, type Static } from "typebox";
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
+import {
+  Civ7ControlOrpcComponentIdSchema,
+  Civ7ControlOrpcMapLocationSchema,
+} from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
 export const Civ7CityProductionChoiceInputStandardSchema = toStandardSchema(
@@ -28,8 +30,8 @@ export const Civ7CityPopulationPlacementInputSchema = Type.Union([
   Type.Object(
     {
       mode: Type.Literal("expand-city"),
-      cityId: Civ7ComponentIdSchema,
-      destination: Civ7MapLocationSchema,
+      cityId: Civ7ControlOrpcComponentIdSchema,
+      destination: Civ7ControlOrpcMapLocationSchema,
     },
     { additionalProperties: false },
   ),
@@ -85,8 +87,8 @@ export const Civ7CityPopulationPlacementSummarySchema = Type.Union([
   Type.Object(
     {
       mode: Type.Literal("expand-city"),
-      cityId: Civ7ComponentIdSchema,
-      destination: Civ7MapLocationSchema,
+      cityId: Civ7ControlOrpcComponentIdSchema,
+      destination: Civ7ControlOrpcMapLocationSchema,
     },
     { additionalProperties: false },
   ),
@@ -206,7 +208,7 @@ export const Civ7CityProductionChoiceNextStepSchema = Type.Object(
 
 export const Civ7CityProductionChoiceResultSchema = Type.Object(
   {
-    cityId: Civ7ComponentIdSchema,
+    cityId: Civ7ControlOrpcComponentIdSchema,
     args: Type.Record(Type.String(), Type.Number()),
     sent: Type.Boolean(),
     status: Civ7CityProductionChoiceRequestStatusSchema,

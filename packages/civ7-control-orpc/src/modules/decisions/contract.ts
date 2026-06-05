@@ -1,17 +1,17 @@
-import { Civ7ComponentIdSchema } from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 import { Type, type Static } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
+import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
 export const Civ7DecisionsNarrativeChoiceInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     targetType: Type.String({ minLength: 1 }),
-    target: Civ7ComponentIdSchema,
+    target: Civ7ControlOrpcComponentIdSchema,
     action: Type.Integer(),
   },
   { additionalProperties: false },
@@ -25,7 +25,7 @@ export const Civ7DecisionsDiplomacyResponseInputSchema = Type.Object(
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     actionId: Type.Integer(),
     responseType: Type.Integer(),
-    notificationId: Type.Optional(Civ7ComponentIdSchema),
+    notificationId: Type.Optional(Civ7ControlOrpcComponentIdSchema),
   },
   { additionalProperties: false },
 );
@@ -147,7 +147,7 @@ export const Civ7DecisionsNarrativeChoiceResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     targetType: Type.String(),
-    target: Civ7ComponentIdSchema,
+    target: Civ7ControlOrpcComponentIdSchema,
     action: Type.Integer(),
     sent: Type.Boolean(),
     status: Civ7DecisionsNarrativeChoiceRequestStatusSchema,
@@ -166,7 +166,7 @@ export const Civ7DecisionsDiplomacyResponseResultSchema = Type.Object(
     playerId: Type.Integer({ minimum: 0 }),
     actionId: Type.Integer(),
     responseType: Type.Integer(),
-    notificationId: Type.Optional(Civ7ComponentIdSchema),
+    notificationId: Type.Optional(Civ7ControlOrpcComponentIdSchema),
     sent: Type.Boolean(),
     status: Civ7DecisionsDiplomacyResponseRequestStatusSchema,
     validation: Civ7DecisionsDiplomacyResponseValidationSummarySchema,

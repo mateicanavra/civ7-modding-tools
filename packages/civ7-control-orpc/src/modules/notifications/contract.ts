@@ -1,5 +1,4 @@
 import {
-  Civ7ComponentIdSchema,
   Civ7NotificationDismissInputSchema,
   Civ7NotificationDismissalPostconditionClassificationSchema,
 } from "@civ7/direct-control";
@@ -9,6 +8,7 @@ import { Type, type Static } from "typebox";
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
+import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
 export const Civ7NotificationDismissInputStandardSchema = toStandardSchema(
@@ -74,7 +74,7 @@ export const Civ7NotificationDismissalNextStepSchema = Type.Object(
 
 export const Civ7NotificationDismissalResultSchema = Type.Object(
   {
-    notificationId: Civ7ComponentIdSchema,
+    notificationId: Civ7ControlOrpcComponentIdSchema,
     sent: Type.Boolean(),
     status: Civ7NotificationDismissalRequestStatusSchema,
     validation: Civ7NotificationDismissalValidationSummarySchema,
