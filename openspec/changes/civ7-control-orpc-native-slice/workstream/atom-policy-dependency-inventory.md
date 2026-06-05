@@ -113,9 +113,11 @@ future package proves repeated use through oRPC/effect-orpc primitives.
 - Diplomacy, narrative, population placement, technology/culture closeout, turn
   completion sends, setup actions, autoplay actions, reveal-map, and generic
   operation request wrappers exist as source capabilities, but they are not
-  accepted native procedure atoms in this inventory. Each needs a separate
-  descriptor/schema/proof slice before `packages/civ7-control-orpc` composes it
-  as a procedure.
+  accepted native procedure atoms in this inventory. Technology/culture
+  closeout postcondition classification is now direct-control-owned in
+  `src/play/progression/choice-postconditions.ts`, but each progression choice
+  still needs a separate native service contract/projection slice before
+  `packages/civ7-control-orpc` composes it as a procedure.
 
 ## Policy Owners
 
@@ -123,7 +125,7 @@ future package proves repeated use through oRPC/effect-orpc primitives.
 |---|---|---|
 | Approval | `src/action-approval.ts` plus mutation atom inputs carrying `approvalReason` and optional disposable-session intent | oRPC mutation middleware or procedure guard; must not invent approval |
 | Validator-first | `src/play/operations/validate-request.ts`, unit-target/production/notification request owners | oRPC middleware/procedure guard before send when an atom has validator support |
-| Postcondition classification | `src/play/operations/*-postconditions.ts`, `src/play/notifications/postconditions.ts` | Direct-control classifier remains owner; oRPC middleware consumes classification |
+| Postcondition classification | `src/play/operations/*-postconditions.ts`, `src/play/notifications/postconditions.ts`, `src/play/progression/choice-postconditions.ts` | Direct-control classifier remains owner; oRPC middleware consumes classification |
 | No-repeat-after-unverified | `src/proof/operation-telemetry.ts` plus specialized proof-policy helpers and telemetry adapters; production choice now starts in `src/play/operations/production-choice-proof.ts`, notification dismissal in `src/proof/notification-dismissal-proof-policy.ts`, unit target action in `src/proof/unit-target-proof-policy.ts`, narrative choice in `src/proof/narrative-choice-proof-policy.ts`, diplomacy response in `src/proof/diplomacy-response-proof-policy.ts`, and population placement in `src/play/operations/population-placement-proof.ts` plus `src/proof/population-placement-proof-policy.ts` | oRPC mutation proof middleware consumes, never weakens, and never infers repeat safety from `verified` |
 | Relationship authority | current tactical `relationshipLabelPolicy` schemas plus the OpenSpec neutral-relationship invariant | Read projection policy or middleware guard; no hostile/enemy/opponent labels from proximity/owner mismatch |
 | Command serialization | `src/runtime/command-serialization.ts` and atom-local `build*Command` functions | Direct-control-only implementation detail; never procedure input/output |

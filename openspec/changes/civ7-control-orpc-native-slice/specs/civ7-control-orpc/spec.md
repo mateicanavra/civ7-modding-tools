@@ -336,6 +336,17 @@ modules before broad implementation.
 - **AND** the future oRPC module can consume those facts without reaching into
   raw command/session internals
 
+#### Scenario: Progression choice proof policy is owned before native decisions
+- **WHEN** technology or culture choice closeouts are prepared for future
+  `decisions` procedure exposure
+- **THEN** blocker-clearing, blocker-transitioned, state-changed-blocker-live,
+  sticky-blocker, and turn-unblocked postcondition classification belongs to a
+  direct-control progression proof owner rather than CLI-only logic
+- **AND** native service procedures remain pending until caller-facing
+  contracts, semantic projection, approval/readiness policy, and no-repeat
+  behavior are explicitly accepted
+- **AND** local postcondition tests do not claim live Civ7 runtime proof
+
 #### Scenario: Data or runtime access is needed
 - **WHEN** a procedure needs data-layer or runtime access beyond pure input
   values

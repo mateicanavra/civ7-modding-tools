@@ -727,6 +727,19 @@ export type {
   Civ7TechnologyChoiceCloseoutResult,
 } from "./play/progression/technology.js";
 export { requestCiv7TechnologyChoiceCloseout } from "./play/progression/technology.js";
+export {
+  cultureChoicePostcondition,
+  findCultureChoiceNotification,
+  findTechnologyChoiceNotification,
+  technologyChoicePostcondition,
+} from "./play/progression/choice-postconditions.js";
+export type {
+  Civ7CultureChoicePostconditionClassification,
+  Civ7ProgressionChoiceNotification,
+  Civ7ProgressionChoiceNotificationView,
+  Civ7ProgressionChoicePostcondition,
+  Civ7TechnologyChoicePostconditionClassification,
+} from "./play/progression/choice-postconditions.js";
 export type {
   Civ7CultureChoiceCloseoutInput,
   Civ7CultureChoiceCloseoutResult,

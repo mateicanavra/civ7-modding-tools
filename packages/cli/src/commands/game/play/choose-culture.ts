@@ -1,5 +1,10 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7PlayNotificationView, requestCiv7CultureChoiceCloseout } from '@civ7/direct-control';
+import {
+  cultureChoicePostcondition,
+  findCultureChoiceNotification,
+  getCiv7PlayNotificationView,
+  requestCiv7CultureChoiceCloseout,
+} from '@civ7/direct-control';
 import {
   buildApproval,
   buildDirectControlOptions,
@@ -286,93 +291,6 @@ async function waitForCultureChoicePostcondition(
     last = await getCiv7PlayNotificationView(options);
   }
   return last;
-}
-
-function cultureChoicePostcondition(
-  before: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-  after: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-): {
-  classification:
-    | 'turn-unblocked'
-    | 'culture-choice-cleared'
-    | 'culture-choice-transitioned'
-    | 'culture-state-changed-blocker-still-live'
-    | 'culture-choice-sticky-blocker';
-  verified: boolean;
-  reason: string;
-} {
-  if (probeValue(after.canEndTurn) === true) {
-    return {
-      classification: 'turn-unblocked',
-      verified: true,
-      reason: 'The culture choice workflow left the turn unblocked.',
-    };
-  }
-  const beforeBlocker = findCultureChoiceNotification(before);
-  const afterBlocker = findCultureChoiceNotification(after);
-  if (beforeBlocker && !afterBlocker) {
-    return {
-      classification: 'culture-choice-cleared',
-      verified: true,
-      reason: 'The end-turn-blocking culture choice notification is no longer present.',
-    };
-  }
-  if (beforeBlocker && afterBlocker && !sameNotificationId(beforeBlocker.id, afterBlocker.id)) {
-    return {
-      classification: 'culture-choice-transitioned',
-      verified: true,
-      reason: 'The end-turn-blocking culture choice notification changed after the selection.',
-    };
-  }
-  if (beforeBlocker && afterBlocker && cultureChoiceDetailsChanged(beforeBlocker.details, afterBlocker.details)) {
-    return {
-      classification: 'culture-state-changed-blocker-still-live',
-      verified: false,
-      reason: 'The culture state changed, but the same culture choice notification still blocks turn flow.',
-    };
-  }
-  return {
-    classification: 'culture-choice-sticky-blocker',
-    verified: false,
-    reason: 'The culture choice workflow returned, but the same culture choice notification still blocks turn flow.',
-  };
-}
-
-function findCultureChoiceNotification(
-  view: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-): { id?: unknown; details?: unknown } | null {
-  return view.notifications.find((notification) => {
-    const typeName = String(notification.typeName ?? '').toUpperCase();
-    return notification.isEndTurnBlocking === true && typeName.includes('CHOOSE_CULTURE');
-  }) ?? null;
-}
-
-function sameNotificationId(left: unknown, right: unknown): boolean {
-  if (!isRecord(left) || !isRecord(right)) return left == null && right == null;
-  return left.owner === right.owner && left.id === right.id && left.type === right.type;
-}
-
-function cultureChoiceDetailsChanged(left: unknown, right: unknown): boolean {
-  if (!isRecord(left) || !isRecord(right)) return false;
-  return stableJson(probeValue(left.currentResearching)) !== stableJson(probeValue(right.currentResearching))
-    || stableJson(probeValue(left.targetNode)) !== stableJson(probeValue(right.targetNode));
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
-}
-
-function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
-  if (Array.isArray(value)) {
-    for (const item of value) flattenKeys(item, keys);
-    return keys;
-  }
-  if (!isRecord(value)) return keys;
-  for (const [key, child] of Object.entries(value)) {
-    keys[key] = true;
-    flattenKeys(child, keys);
-  }
-  return keys;
 }
 
 function isComponentId(value: unknown): value is { owner: number; id: number; type?: number } {

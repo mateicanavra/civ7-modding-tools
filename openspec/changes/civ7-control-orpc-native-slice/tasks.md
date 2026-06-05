@@ -100,6 +100,10 @@ adding more read-only facade shells.
     policies into proof helpers while preserving current closeout semantics.
   - [x] 5.2.5 Extract population-placement proof/no-repeat policy into
     focused helpers while preserving legacy request `verified` behavior.
+  - [x] 5.2.6 Extract technology/culture progression-choice postcondition
+    policy out of CLI commands into direct-control progression proof ownership.
+    Keep native `decisions` procedures, shared postcondition middleware,
+    runtime proof, and parent Task 5.x/6.x acceptance pending.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
   - [x] 5.3.1 Define the target semantic capability families and transitional
@@ -410,3 +414,7 @@ adding more read-only facade shells.
 - [x] 8.18 Run the control-oRPC contract-ownership lint guard through package
   check, control-oRPC package test/build, strict OpenSpec validates, and diff
   hygiene for the service contract ownership guard slice.
+- [x] 8.19 Run focused direct-control progression-choice postcondition tests,
+  adjacent CLI technology/culture command tests, direct-control check/build,
+  relevant OpenSpec strict validates, and diff hygiene for the progression
+  choice proof-policy ownership slice.
