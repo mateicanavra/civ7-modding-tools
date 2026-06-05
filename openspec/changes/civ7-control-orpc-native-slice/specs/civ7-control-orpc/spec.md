@@ -132,8 +132,24 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   rejected from the read-only ingress envelope
 - **AND** failures project bounded bridge error data without raw direct-control
   command details
-- **AND** global bridge installation, UIScript packaging, mutation allowlists,
+- **AND** Civ7 UIScript/game-scope bridge installation, mutation allowlists,
   runtime proof, and full `7.3` implementation remain pending
+
+#### Scenario: Global intelligence bridge binding delegates to ingress
+- **WHEN** a package-local `Civ7IntelligenceBridge` binding is installed on a
+  caller-provided target before the Civ7 UIScript/modinfo package is
+  implemented
+- **THEN** the binding exposes only `invoke(request)` on a caller-provided
+  target
+- **AND** `invoke(request)` delegates to the existing controller ingress over
+  the native in-process router/client
+- **AND** the installer refuses to overwrite an existing bridge unless
+  replacement is explicit
+- **AND** raw command/session/tuner endpoint fields remain rejected by the
+  ingress envelope after global installation
+- **AND** ambient `globalThis` selection by the Civ7 UIScript adapter, mutation
+  allowlists, local-player/hotseat proof, runtime proof, and full `7.3`
+  implementation remain pending
 
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 

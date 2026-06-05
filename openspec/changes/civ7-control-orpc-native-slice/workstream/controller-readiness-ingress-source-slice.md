@@ -6,8 +6,8 @@ Date: 2026-06-05.
 ## Purpose
 
 Seed the first source-owned in-game controller ingress component without
-installing `globalThis.Civ7IntelligenceBridge`, adding a mod UIScript package,
-or creating a generic bridge API.
+installing an ambient `globalThis.Civ7IntelligenceBridge`, adding a mod
+UIScript package, or creating a generic bridge API.
 
 This slice proves a narrow serialized ingress path into the existing native
 control-oRPC router: a caller-provided controller runtime factory constructs
@@ -42,7 +42,7 @@ own local-player identity, mint approval tokens, or install a global bridge.
 
 ## Non-Goals
 
-- no `globalThis.Civ7IntelligenceBridge` installation;
+- no ambient `globalThis.Civ7IntelligenceBridge` installation;
 - no modinfo, UIScript bundle, or Civ runtime packaging;
 - no mutation procedure allowlist;
 - no local-player/hotseat identity proof or approval-token implementation;
@@ -65,8 +65,8 @@ These are local package/OpenSpec proofs only.
 
 ## Residual Risk
 
-The global bridge and actual Civ7 UIScript loading path are still unimplemented.
-The next source slice must choose the mod/package owner and build shape before
-installing `globalThis.Civ7IntelligenceBridge.invoke(...)`. Mutation ingress
-also remains blocked on controller-owned approval, local-player/hotseat
+The actual Civ7 UIScript loading path is still unimplemented. A later
+game-scope adapter must choose the mod/package owner and build shape before it
+passes ambient `globalThis` to the package-local bridge binding. Mutation
+ingress also remains blocked on controller-owned approval, local-player/hotseat
 identity, lifecycle certification, and proof/evidence sinks.

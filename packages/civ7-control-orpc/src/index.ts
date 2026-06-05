@@ -19,6 +19,16 @@ export type {
   Civ7ControllerBridgeResponse,
   Civ7ControllerBridgeSuccessResponse,
 } from "./bridge/controller-ingress";
+export {
+  CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY,
+  createCiv7IntelligenceBridge,
+  installCiv7IntelligenceBridge,
+} from "./bridge/intelligence-bridge";
+export type {
+  Civ7IntelligenceBridge,
+  Civ7IntelligenceBridgeGlobalTarget,
+  Civ7IntelligenceBridgeInstallOptions,
+} from "./bridge/intelligence-bridge";
 export { civ7ControlOrpcContractBase } from "./contract-base";
 export { Civ7ControlOrpcContract } from "./contract";
 export type { Civ7ControlOrpcContext } from "./context";

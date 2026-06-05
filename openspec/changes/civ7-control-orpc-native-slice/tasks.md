@@ -308,9 +308,15 @@ adding more read-only facade shells.
   - [x] 7.3.2 Seed a package-local read-only controller ingress core for
     `readiness.current`: validate a closed serialized envelope, allowlist the
     procedure key, construct context through a caller-owned factory, call the
-    existing in-process router client, and keep global bridge installation,
-    UIScript packaging, mutation allowlists, runtime proof, and full `7.3`
+    existing in-process router client, and keep Civ7 UIScript/game-scope bridge
+    installation, mutation allowlists, runtime proof, and full `7.3`
     implementation pending.
+  - [x] 7.3.3 Install a package-local `Civ7IntelligenceBridge` global binding
+    over the existing controller ingress on a caller-provided target:
+    expose only `invoke(request)`, reject accidental overwrite unless explicitly
+    replaced, delegate to the existing in-process router ingress, and keep
+    ambient `globalThis` selection by the Civ7 UIScript adapter, mutation
+    allowlists, runtime proof, and full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -339,3 +345,6 @@ adding more read-only facade shells.
 - [x] 8.9 Run focused controller-ingress package tests, package check/build,
   strict OpenSpec validates, and diff hygiene for the read-only
   `readiness.current` controller ingress source seed.
+- [x] 8.10 Run focused intelligence-bridge/controller-ingress tests, package
+  check/build, strict OpenSpec validates, and diff hygiene for the package-local
+  global bridge binding source seed.
