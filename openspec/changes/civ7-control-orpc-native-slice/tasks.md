@@ -104,6 +104,12 @@ adding more read-only facade shells.
     policy out of CLI commands into direct-control progression proof ownership.
     Keep native `decisions` procedures, shared postcondition middleware,
     runtime proof, and parent Task 5.x/6.x acceptance pending.
+  - [x] 5.2.7 Extract turn-completion send proof/no-repeat policy into a
+    direct-control-owned helper. Preserve the existing turn-completion runtime
+    send path while classifying turn-advanced, turn-complete-sent,
+    already-complete, no-state-change, missing-postcondition, and
+    pending-runtime-proof paths before any native turn mutation procedure is
+    accepted.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
   - [x] 5.3.1 Define the target semantic capability families and transitional
@@ -465,3 +471,6 @@ adding more read-only facade shells.
   notification/narrative/diplomacy/progression procedure tests, package
   test/check/build, relevant OpenSpec strict validates, and diff hygiene for
   the progression closeout projection helper extension.
+- [x] 8.23 Run focused turn-completion proof-policy tests, direct-control
+  package test/check/build, relevant OpenSpec strict validates, and diff
+  hygiene for the turn-completion proof/no-repeat ownership slice.

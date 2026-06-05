@@ -800,6 +800,14 @@ export {
   sendCiv7TurnUnready,
 } from "./play/turn-completion.js";
 export {
+  turnCompletionPostconditionConfirmed,
+  turnCompletionProofOutcome,
+  turnCompletionProofPostcondition,
+} from "./proof/turn-completion-proof-policy";
+export type {
+  Civ7TurnCompletionPostconditionClassification,
+} from "./proof/turn-completion-proof-policy";
+export {
   callCiv7TurnCompletionStatusProcedure,
   Civ7TurnCompletionStatusProcedureDescriptor,
   Civ7TurnCompletionStatusProcedureSchemaArtifacts,

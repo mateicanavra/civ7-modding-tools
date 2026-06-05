@@ -386,6 +386,20 @@ modules before broad implementation.
   behavior are explicitly accepted
 - **AND** local postcondition tests do not claim live Civ7 runtime proof
 
+#### Scenario: Turn completion proof policy is owned before native turn mutation
+- **WHEN** turn completion sends are prepared for future native procedure
+  exposure
+- **THEN** turn-advanced, turn-complete-sent, already-complete,
+  no-state-change, missing-postcondition, and pending-runtime-proof
+  classification belongs to a direct-control proof owner rather than native
+  service code inferring from legacy `verified`
+- **AND** turn-complete-sent and already-complete paths remain no-repeat
+  guarded until fresh turn/attention evidence is read
+- **AND** native turn completion procedure exposure remains pending until the
+  caller-facing contract, semantic projection, approval/readiness policy, and
+  runtime proof boundary are explicitly accepted
+- **AND** local postcondition tests do not claim live Civ7 runtime proof
+
 #### Scenario: Data or runtime access is needed
 - **WHEN** a procedure needs data-layer or runtime access beyond pure input
   values
