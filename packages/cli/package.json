@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@civ7/config": "workspace:*",
+    "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
     "@civ7/plugin-files": "workspace:*",
     "@civ7/plugin-git": "workspace:*",

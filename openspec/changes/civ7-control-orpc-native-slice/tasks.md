@@ -225,8 +225,12 @@ adding more read-only facade shells.
 
 ## 7. Edge Adapters
 
-- [ ] 7.1 Route one CLI caller through the in-process procedure client only
+- [x] 7.1 Route one CLI caller through the in-process procedure client only
   after the service-owned router shape is stable.
+  - [x] 7.1.1 Route `civ7 game status` through the in-process
+    `readiness.current` server-side client. Keep CLI endpoint flags as context
+    construction, emit the semantic readiness projection, and keep raw
+    direct-control playable-status internals out of normal status output.
 - [ ] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
 - [ ] 7.3 Add in-game controller bridge only as serialized ingress into the
@@ -241,4 +245,5 @@ adding more read-only facade shells.
 - [x] 8.2 Run `git diff --check`.
 - [x] 8.3 Run focused package tests/check/build when source implementation is
   added.
-- [ ] 8.4 Run CLI play tests/check when CLI callers change.
+- [x] 8.4 Run CLI play tests/check when a CLI caller is routed through
+  procedures.
