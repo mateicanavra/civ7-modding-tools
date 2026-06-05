@@ -15,6 +15,13 @@ const target = { x: 22, y: 31 };
 const cityId = { owner: 0, id: 65_536, type: 1 };
 const productionArgs = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
 const workerLocation = 2543;
+const narrativeTarget = { owner: 0, id: 7_001, type: 12 };
+const narrativeInput = {
+  playerId: 2,
+  targetType: "DISCOVERY_STORY",
+  target: narrativeTarget,
+  action: 1,
+};
 
 describe("Civ7 controller bridge ingress", () => {
   test("invokes allowlisted readiness.current through the in-process router", async () => {
@@ -506,6 +513,85 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted narrative.choice.request through the in-process router with explicit approval", async () => {
+    const fake = fakeNarrativeChoiceContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "narrative.choice.request",
+      input: narrativeInput,
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved narrative choice",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-narrative-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "narrative.choice.request",
+      correlationId: "controller-narrative-1",
+      output: {
+        playerId: 0,
+        targetType: "DISCOVERY_STORY",
+        target: narrativeTarget,
+        action: 1,
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "narrative-blocker-cleared",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.narrative).toEqual([{
+      input: narrativeInput,
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved narrative choice",
+      },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "narrative.choice.request",
+      input: narrativeInput,
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved narrative choice",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-narrative-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("controller approved narrative choice");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+    expect(serialized).not.toContain("Game.turn");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -735,6 +821,39 @@ describe("Civ7 controller bridge ingress", () => {
         },
         controllerProof: controllerMutationProof(),
       },
+      { procedureKey: "narrative.choice.request", input: narrativeInput },
+      {
+        procedureKey: "narrative.choice.request",
+        input: narrativeInput,
+        approval: controllerApproval(),
+      },
+      {
+        procedureKey: "narrative.choice.request",
+        input: {
+          ...narrativeInput,
+          rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "narrative.choice.request",
+        input: narrativeInput,
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "narrative.choice.request",
+        input: narrativeInput,
+        approval: {
+          source: "controller-runtime",
+          approved: true,
+          reason: "controller approved narrative choice",
+          command: "Game.PlayerOperations.sendRequest(...)",
+        },
+        controllerProof: controllerMutationProof(),
+      },
     ];
 
     for (const request of invalidRequests) {
@@ -759,8 +878,8 @@ describe("Civ7 controller bridge ingress", () => {
     const fake = fakeContext(playableStatusResult());
 
     const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "narrative.choice.request",
-      input: { playerId: 0, choiceId: 1 },
+      procedureKey: "diplomacy.response.request",
+      input: { playerId: 0, actionId: 1, responseType: 1 },
     }, {
       createContext: () => fake.context,
     });
@@ -1126,6 +1245,48 @@ function fakePopulationPlacementContext(): {
             approval,
           });
           return populationPlacementResult("expand-city");
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
+function fakeNarrativeChoiceContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    narrative: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    narrative: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  } = {
+    status: [],
+    narrative: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7NarrativeChoice: async (input, options, approval) => {
+          calls.narrative.push({ input, options, approval });
+          return narrativeChoiceResult();
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -1515,6 +1676,42 @@ function populationPlacementValidationResult(
       command: family === "city-command"
         ? "Game.CityCommands.canStart(...)"
         : "Game.PlayerOperations.canStart(...)",
+    },
+  };
+}
+
+function narrativeChoiceResult(): any {
+  return {
+    playerId: 0,
+    before: {},
+    beforeValidation: {
+      valid: true,
+      result: {
+        command: "Game.PlayerOperations.canStart(...)",
+      },
+    },
+    command: {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "65535", name: "App UI" },
+      output: ["CMD:65535:Game.turn"],
+    },
+    payload: {
+      sent: true,
+      rawCommand: "Game.PlayerOperations.sendRequest(...)",
+    },
+    after: {},
+    afterValidation: {
+      valid: false,
+      result: {
+        command: "Game.PlayerOperations.canStart(...)",
+      },
+    },
+    sent: true,
+    verified: true,
+    postcondition: {
+      classification: "narrative-blocker-cleared",
+      reason: "test narrative-blocker-cleared",
     },
   };
 }

@@ -20,6 +20,10 @@ import {
   Civ7NotificationDismissalResultSchema,
 } from "../modules/notifications/contract";
 import {
+  Civ7NarrativeChoiceInputSchema,
+  Civ7NarrativeChoiceResultSchema,
+} from "../modules/narrative/contract";
+import {
   Civ7ReadinessCurrentInputSchema,
   Civ7ReadinessCurrentResultSchema,
 } from "../modules/readiness/contract";
@@ -156,6 +160,20 @@ export type Civ7ControllerBridgeCityPopulationPlacementRequest = Static<
   typeof Civ7ControllerBridgeCityPopulationPlacementRequestSchema
 >;
 
+export const Civ7ControllerBridgeNarrativeChoiceRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("narrative.choice.request"),
+    input: Civ7NarrativeChoiceInputSchema,
+    approval: Civ7ControllerBridgeApprovalSchema,
+    controllerProof: Civ7ControllerBridgeMutationProofSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeNarrativeChoiceRequest = Static<
+  typeof Civ7ControllerBridgeNarrativeChoiceRequestSchema
+>;
+
 export const Civ7ControllerBridgeUnitTargetActionRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.target.action.request"),
@@ -177,6 +195,7 @@ export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
   Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
+  Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
 ]);
 export type Civ7ControllerBridgeRequest =
@@ -186,6 +205,7 @@ export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeTurnCompleteRequest
   | Civ7ControllerBridgeCityProductionChoiceRequest
   | Civ7ControllerBridgeCityPopulationPlacementRequest
+  | Civ7ControllerBridgeNarrativeChoiceRequest
   | Civ7ControllerBridgeUnitTargetActionRequest;
 
 export const Civ7ControllerBridgeErrorSchema = Type.Object(
@@ -288,6 +308,20 @@ export type Civ7ControllerBridgeCityPopulationPlacementSuccessResponse = Static<
   typeof Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("narrative.choice.request"),
+      output: Civ7NarrativeChoiceResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeNarrativeChoiceSuccessResponse = Static<
+  typeof Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema =
   Type.Object(
     {
@@ -309,6 +343,7 @@ export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
   Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+  Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
 ]);
 export type Civ7ControllerBridgeSuccessResponse =
@@ -318,6 +353,7 @@ export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeTurnCompleteSuccessResponse
   | Civ7ControllerBridgeCityProductionChoiceSuccessResponse
   | Civ7ControllerBridgeCityPopulationPlacementSuccessResponse
+  | Civ7ControllerBridgeNarrativeChoiceSuccessResponse
   | Civ7ControllerBridgeUnitTargetActionSuccessResponse;
 
 export const Civ7ControllerBridgeFailureResponseSchema = Type.Object(
@@ -455,6 +491,18 @@ export async function invokeCiv7ControllerBridgeRequest(
       };
     }
 
+    if (request.procedureKey === "narrative.choice.request") {
+      const output = await client.narrative.choice.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "narrative.choice.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
     if (request.procedureKey === "unit.target.action.request") {
       const output = await client.unit.target.action.request(request.input);
       return {
@@ -493,6 +541,7 @@ function isUnsupportedProcedureRequest(
     && request.procedureKey !== "turn.complete.request"
     && request.procedureKey !== "city.production.choice.request"
     && request.procedureKey !== "city.population.place.request"
+    && request.procedureKey !== "narrative.choice.request"
     && request.procedureKey !== "unit.target.action.request";
 }
 
@@ -503,11 +552,13 @@ function isControllerBridgeMutationRequest(
   | Civ7ControllerBridgeTurnCompleteRequest
   | Civ7ControllerBridgeCityProductionChoiceRequest
   | Civ7ControllerBridgeCityPopulationPlacementRequest
+  | Civ7ControllerBridgeNarrativeChoiceRequest
   | Civ7ControllerBridgeUnitTargetActionRequest {
   return request.procedureKey === "notifications.dismiss.request"
     || request.procedureKey === "turn.complete.request"
     || request.procedureKey === "city.production.choice.request"
     || request.procedureKey === "city.population.place.request"
+    || request.procedureKey === "narrative.choice.request"
     || request.procedureKey === "unit.target.action.request";
 }
 
