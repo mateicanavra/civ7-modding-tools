@@ -41,8 +41,6 @@ export {
   Civ7NotificationViewUnavailableErrorDataSchema,
   Civ7ReadyCityViewUnavailableError,
   Civ7ReadyCityViewUnavailableErrorDataSchema,
-  Civ7ReadyUnitViewUnavailableError,
-  Civ7ReadyUnitViewUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   Civ7UnitSummaryUnavailableError,
@@ -61,7 +59,6 @@ export {
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7NotificationViewUnavailableErrorData,
   type Civ7ReadyCityViewUnavailableErrorData,
-  type Civ7ReadyUnitViewUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
   type Civ7UnitSummaryUnavailableErrorData,
 } from "./errors";
@@ -196,9 +193,6 @@ export { runtimeRouter } from "./modules/runtime/router";
 export { runtimePlayableStatusProcedure } from "./modules/runtime/procedures/playable-status";
 export {
   Civ7UnitContract,
-  Civ7UnitReadyViewContract,
-  Civ7UnitReadyViewInputStandardSchema,
-  Civ7UnitReadyViewResultStandardSchema,
   Civ7UnitSummaryContract,
   Civ7UnitSummaryInputStandardSchema,
   Civ7UnitSummaryResultStandardSchema,
@@ -217,13 +211,11 @@ export {
 } from "./modules/unit/contract";
 export type {
   Civ7UnitContract as Civ7UnitContractType,
-  Civ7UnitReadyViewContract as Civ7UnitReadyViewContractType,
   Civ7UnitSummaryContract as Civ7UnitSummaryContractType,
   Civ7UnitTargetActionContract as Civ7UnitTargetActionContractType,
   Civ7UnitTargetActionResult,
 } from "./modules/unit/contract";
 export { unitRouter } from "./modules/unit/router";
-export { unitReadyViewProcedure } from "./modules/unit/procedures/ready-view";
 export { unitSummaryReadProcedure } from "./modules/unit/procedures/summary-read";
 export { unitTargetActionRequestProcedure } from "./modules/unit/procedures/target-action-request";
 export { toStandardSchema } from "./typebox-standard-schema";

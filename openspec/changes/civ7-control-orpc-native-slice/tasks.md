@@ -55,6 +55,10 @@
   workstream authority.
 - [ ] 4.11 Replace transitional facade-only read wrappers with native
   service-owned procedure implementations or explicitly burn them down.
+  - [x] 4.11.1 Burn down the transitional `unit.ready.view` control-oRPC
+    facade leaf after `attention.current` became the service-owned ready-unit
+    attention composer; keep the direct-control ready-unit runtime port as an
+    internal context dependency.
 
 This phase is closed as transitional proof only. It must not be extended by
 adding more read-only facade shells.
@@ -160,8 +164,9 @@ adding more read-only facade shells.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
-    `runtime.playable.status`, `notifications.view`, and `unit.ready.view`
-    facade failures.
+    `runtime.playable.status`, `notifications.view`, and the historical
+    `unit.ready.view` facade failure before the unit-ready wrapper was burned
+    down.
   - [ ] 6.4.2 Promote shared safe-error middleware only after the native
     oRPC/effect-orpc error path is proven without custom wrapper plumbing.
   - [ ] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error

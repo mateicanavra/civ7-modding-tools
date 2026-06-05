@@ -175,7 +175,8 @@ Service ownership:
 | `runtime.turn.completion.status` | `attention` and `readiness` |
 | `notifications.view` | `attention` |
 | `notifications.dismiss.request` | notification domain mutation; semantic target still needs rebaseline |
-| `unit.ready.view`, `city.ready.view` | `attention` |
+| `unit.ready.view` | burned down; `attention.current` consumes the direct-control ready-unit port |
+| `city.ready.view` | `attention` |
 | `unit.summary.read`, `city.summary.read`, `player.summary.read` | `world` |
 | `unit.move.preview` | `world` read plus future unit validation evidence |
 | `unit.target.action.request` | `unit` |

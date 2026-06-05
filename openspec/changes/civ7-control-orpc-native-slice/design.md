@@ -67,9 +67,12 @@ outcome. The workstream is rebaselined around this order:
 
 3. Freeze facade-only wrapper expansion and move to service-owned procedures.
    - Existing read-only leaves over `runtime.playable.status`,
-     `notifications.view`, `unit.ready.view`, `unit.summary.read`,
-     `map.summary.read`, `player.summary.read`, `city.summary.read`, and
-     `city.ready.view` are transitional proof of in-process router mechanics.
+     `notifications.view`, `unit.summary.read`, `map.summary.read`,
+     `player.summary.read`, `city.summary.read`, and `city.ready.view` are
+     transitional proof of in-process router mechanics.
+   - The historical `unit.ready.view` facade leaf has been burned down; current
+     ready-unit service behavior is composed by `attention.current` through the
+     direct-control ready-unit runtime port.
    - No further facade-only leaves should be added.
    - The next implementation work should move real service behavior and
      composition into native oRPC procedure modules while direct-control keeps
@@ -164,7 +167,6 @@ packages/civ7-control-orpc
       contract.ts
       router.ts
       procedures/
-        ready-view.ts
         move-preview.ts
         summary-read.ts
         target-action-request.ts

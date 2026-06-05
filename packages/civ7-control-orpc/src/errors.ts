@@ -260,27 +260,6 @@ export class Civ7PopulationPlacementUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
-export const Civ7ReadyUnitViewUnavailableErrorDataSchema = Type.Object(
-  {
-    procedureKey: Type.Literal("unit.ready.view"),
-    source: Type.Literal("direct-control-facade"),
-  },
-  { additionalProperties: false },
-);
-export type Civ7ReadyUnitViewUnavailableErrorData = Static<
-  typeof Civ7ReadyUnitViewUnavailableErrorDataSchema
->;
-
-export class Civ7ReadyUnitViewUnavailableError extends ORPCTaggedError(
-  "Civ7ReadyUnitViewUnavailableError",
-  {
-    code: "READY_UNIT_VIEW_UNAVAILABLE",
-    message: "Direct-control ready-unit view failed.",
-    schema: toStandardSchema(Civ7ReadyUnitViewUnavailableErrorDataSchema),
-    status: 503,
-  },
-) {}
-
 export const Civ7UnitSummaryUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.summary.read"),
@@ -314,7 +293,6 @@ export const civ7ControlOrpcErrorMap = {
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READY_CITY_VIEW_UNAVAILABLE: Civ7ReadyCityViewUnavailableError,
-  READY_UNIT_VIEW_UNAVAILABLE: Civ7ReadyUnitViewUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
   UNIT_SUMMARY_UNAVAILABLE: Civ7UnitSummaryUnavailableError,
 } satisfies EffectErrorMap;
