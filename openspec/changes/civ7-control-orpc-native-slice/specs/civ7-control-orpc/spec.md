@@ -104,6 +104,20 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the adapter does not become an alternate product API or raw command
   tunnel
 
+#### Scenario: In-game controller bridge preflight is recorded
+- **WHEN** the in-game controller bridge is planned before source
+  implementation
+- **THEN** the bridge contract treats `Civ7IntelligenceBridge.invoke(...)` as
+  serialized ingress only
+- **AND** the game-scoped UIScript owns loading an in-process oRPC/Effect
+  router rather than exposing a hand-maintained App UI method table
+- **AND** ingress requests identify an allowlisted procedure key and serialized
+  procedure input, not raw command/session/tuner payloads
+- **AND** controller runtime context owns local-player/hotseat identity,
+  approval tokens, lifecycle certification, and proof/evidence sinks
+- **AND** implementation remains pending until source owners, schemas/tests,
+  mutation proof policy, and runtime proof boundaries are explicitly accepted
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control approval,

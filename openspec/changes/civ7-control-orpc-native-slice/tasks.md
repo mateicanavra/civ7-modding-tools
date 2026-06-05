@@ -299,6 +299,12 @@ adding more read-only facade shells.
     `readiness.current` while preserving existing map/autoplay REST fields.
 - [ ] 7.3 Add in-game controller bridge only as serialized ingress into the
   in-process router.
+  - [x] 7.3.1 Record the in-game controller bridge preflight contract:
+    `Civ7IntelligenceBridge.invoke(...)` is serialized ingress only, the
+    game-scoped UIScript loads an in-process oRPC/Effect router, procedure
+    calls are allowlisted, context construction stays in the controller
+    runtime adapter, mutation calls require explicit approval/local-player
+    proof, and source implementation remains pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -321,3 +327,6 @@ adding more read-only facade shells.
   notification/narrative/diplomacy procedure tests, package check/build,
   strict OpenSpec validates, and diff hygiene when the shared closeout
   projection helper is extracted.
+- [x] 8.8 Run strict OpenSpec validates and diff hygiene for the controller
+  bridge preflight record. No source implementation, runtime proof, play-thread
+  action, or `7.3` implementation acceptance is claimed by that record.
