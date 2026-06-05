@@ -275,10 +275,12 @@ boundaries.
 - **AND** unverified or pending proof paths remain no-repeat guarded
 
 #### Scenario: Closeout-style mutation projection is shared
-- **WHEN** notification dismissal, narrative choice, or diplomacy response
-  procedures receive source-owned direct-control postcondition evidence
+- **WHEN** notification dismissal, narrative choice, diplomacy response, or
+  progression choice procedures receive source-owned direct-control
+  postcondition evidence or an explicit local pending-proof boundary
 - **THEN** the shared control-oRPC mutation projection policy derives the
-  caller-facing postcondition confirmation and no-repeat summary
+  caller-facing postcondition confirmation, request status, and no-repeat next
+  steps
 - **AND** direct-control remains the source authority for domain
   classifications, outcomes, and proof-boundary confidence
 - **AND** missing postcondition and pending-runtime-proof inputs project as

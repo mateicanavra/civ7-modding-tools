@@ -310,6 +310,11 @@ adding more read-only facade shells.
   - [x] 6.3.9 Preserve progression choice no-repeat proof boundaries when
     after-read evidence is unavailable after a sent closeout; keep live
     runtime proof and shared postcondition middleware pending.
+  - [x] 6.3.10 Extend the shared closeout-style mutation projection helper to
+    `decisions.progression.choice.request` so source-owned progression
+    postconditions and explicit pending-proof boundaries derive normal
+    postcondition summaries, request status, and no-repeat next steps without
+    accepting shared validator/postcondition middleware.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -456,3 +461,7 @@ adding more read-only facade shells.
 - [x] 8.21 Run focused control-oRPC progression choice procedure regression,
   package check, relevant OpenSpec strict validates, and diff hygiene for the
   progression choice after-read proof-boundary correction.
+- [x] 8.22 Run focused mutation-result policy regression, affected
+  notification/narrative/diplomacy/progression procedure tests, package
+  test/check/build, relevant OpenSpec strict validates, and diff hygiene for
+  the progression closeout projection helper extension.

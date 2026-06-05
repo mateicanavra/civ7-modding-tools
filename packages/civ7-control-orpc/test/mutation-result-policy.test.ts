@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  civ7CloseoutMutationProjection,
   civ7MutationPostconditionSummary,
   civ7MutationRequestStatusWithoutGuarded,
 } from "../src/policy/mutation-result";
@@ -85,5 +86,66 @@ describe("control-oRPC mutation result policy", () => {
       sent: true,
       postcondition,
     })).toBe("sent-confirmed");
+  });
+
+  test("projects closeout-style postconditions into status and next steps", () => {
+    const confirmed = civ7CloseoutMutationProjection({
+      sent: true,
+      postcondition: {
+        classification: "blocker-cleared",
+        reason: "The blocker was cleared.",
+        outcome: "cleared",
+        confidence: "confirmed",
+        noRepeatAfterUnverified: false,
+      },
+      missing: {
+        classification: "missing-postcondition",
+        reason: "No explicit postcondition evidence was returned.",
+        outcome: "unknown",
+      },
+      source: "decisions.progression.choice.request",
+      inspectKind: "inspect-progression-choice",
+      inspectLabel: "Inspect progression state before retrying.",
+      doNotRepeatLabel: "Do not repeat until fresh progression evidence is read.",
+    });
+
+    expect(confirmed.status).toBe("sent-confirmed");
+    expect(confirmed.postcondition).toMatchObject({
+      confirmed: true,
+      noRepeatAfterUnverified: false,
+    });
+    expect(confirmed.nextSteps).toEqual([{
+      kind: "refresh-attention",
+      source: "decisions.progression.choice.request",
+      label: "Refresh current attention before choosing the next player action.",
+    }]);
+
+    const pending = civ7CloseoutMutationProjection({
+      sent: true,
+      postcondition: {
+        classification: "pending-runtime-proof",
+        reason: "Live runtime proof has not been collected.",
+        outcome: "unknown",
+        confidence: "pending-runtime-proof",
+        noRepeatAfterUnverified: true,
+      },
+      missing: {
+        classification: "missing-postcondition",
+        reason: "No explicit postcondition evidence was returned.",
+        outcome: "unknown",
+      },
+      source: "decisions.progression.choice.request",
+      inspectKind: "inspect-progression-choice",
+      inspectLabel: "Inspect progression state before retrying.",
+      doNotRepeatLabel: "Do not repeat until fresh progression evidence is read.",
+    });
+
+    expect(pending.status).toBe("sent-unverified");
+    expect(pending.postcondition.confirmed).toBe(false);
+    expect(pending.nextSteps).toEqual([{
+      kind: "do-not-repeat",
+      source: "decisions.progression.choice.request",
+      label: "Do not repeat until fresh progression evidence is read.",
+    }]);
   });
 });

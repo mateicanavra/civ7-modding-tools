@@ -11,9 +11,11 @@ creating a custom procedure framework or accepting shared
 validator/postcondition middleware prematurely.
 
 The repeated behavior is narrow: after a notification dismissal, narrative
-choice, or diplomacy response runtime port returns source-owned direct-control
-postcondition evidence, control-oRPC derives the caller-facing confirmation
-boolean and no-repeat guard fields for semantic procedure output.
+choice, diplomacy response, or progression choice runtime path returns
+source-owned direct-control postcondition evidence, or the service records an
+explicit local pending-proof boundary, control-oRPC derives the caller-facing
+confirmation boolean, request status, and no-repeat next steps for semantic
+procedure output.
 
 ## Write Set
 
@@ -21,6 +23,7 @@ boolean and no-repeat guard fields for semantic procedure output.
 - `packages/civ7-control-orpc/src/modules/notifications/procedures/dismiss-request.ts`
 - `packages/civ7-control-orpc/src/modules/decisions/procedures/narrative-choice-request.ts`
 - `packages/civ7-control-orpc/src/modules/decisions/procedures/diplomacy-response-request.ts`
+- `packages/civ7-control-orpc/src/modules/decisions/procedures/progression-choice-request.ts`
 - `packages/civ7-control-orpc/test/mutation-result-policy.test.ts`
 - this OpenSpec record, `tasks.md`, and `specs/civ7-control-orpc/spec.md`
 
@@ -29,6 +32,8 @@ boolean and no-repeat guard fields for semantic procedure output.
 The shared helper:
 
 - consumes already-classified direct-control proof postconditions;
+- accepts explicit local pending-proof boundaries when a sent progression
+  closeout cannot collect the post-send notification read;
 - treats missing postconditions as unverified and no-repeat guarded;
 - preserves `pending-runtime-proof` as unconfirmed and no-repeat guarded;
 - marks a summary confirmed only when confidence is `confirmed` and
@@ -36,10 +41,11 @@ The shared helper:
 - keeps request status and next-step derivation in the existing mutation-result
   policy owner.
 
-Direct-control remains the source authority for notification, narrative, and
-diplomacy classifications, proof outcomes, and proof-boundary confidence. The
-procedures still own semantic service output and still exclude raw
-command/session/payload/UI-closeout/legacy `verified` fields from normal I/O.
+Direct-control remains the source authority for notification, narrative,
+diplomacy, and progression classifications, proof outcomes, and proof-boundary
+confidence. The procedures still own semantic service output and still exclude
+raw command/session/payload/UI-closeout/legacy `verified` fields from normal
+I/O.
 
 ## Non-Goals
 
@@ -55,7 +61,7 @@ command/session/payload/UI-closeout/legacy `verified` fields from normal I/O.
 
 Planned closure gates:
 
-- `bun run --cwd packages/civ7-control-orpc test test/mutation-result-policy.test.ts test/notification-dismissal-procedure.test.ts test/decisions-narrative-choice-procedure.test.ts test/decisions-diplomacy-response-procedure.test.ts`
+- `bun run --cwd packages/civ7-control-orpc test test/mutation-result-policy.test.ts test/notification-dismissal-procedure.test.ts test/decisions-narrative-choice-procedure.test.ts test/decisions-diplomacy-response-procedure.test.ts test/decisions-progression-choice-procedure.test.ts`
 - `bun run --cwd packages/civ7-control-orpc test`
 - `bun run --cwd packages/civ7-control-orpc check`
 - `bun run --cwd packages/civ7-control-orpc build`

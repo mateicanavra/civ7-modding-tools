@@ -16,9 +16,8 @@ import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-app
 import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
-  civ7MutationNextSteps,
-  civ7MutationRequestStatusWithoutGuarded,
-  type Civ7MutationProofConfidence,
+  civ7CloseoutMutationProjection,
+  type Civ7MutationProofPostcondition,
 } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
@@ -29,6 +28,10 @@ import type {
 type ProgressionChoiceCloseoutResult =
   | Civ7ControlOrpcTechnologyChoiceCloseoutResult
   | Civ7ControlOrpcCultureChoiceCloseoutResult;
+type ProgressionChoicePostcondition = Civ7MutationProofPostcondition<
+  Civ7DecisionsProgressionChoiceResult["postcondition"]["classification"],
+  Civ7DecisionsProgressionChoiceResult["postcondition"]["outcome"]
+>;
 type ApprovedCiv7ControlOrpcContext = Civ7ControlOrpcContext & Readonly<{
   approval: NonNullable<Civ7ControlOrpcContext["approval"]>;
 }>;
@@ -118,15 +121,18 @@ function progressionChoiceResult(
   before: Civ7ControlOrpcPlayNotificationViewResult,
   after: ProgressionChoicePostRead,
 ): Civ7DecisionsProgressionChoiceResult {
-  const postcondition = progressionChoicePostconditionSummary(
-    input,
-    result,
-    before,
-    after,
-  );
-  const status = civ7MutationRequestStatusWithoutGuarded({
+  const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
-    postcondition,
+    postcondition: progressionChoicePostcondition(input, result, before, after),
+    missing: {
+      classification: "pending-runtime-proof",
+      reason: "The progression choice result did not include explicit postcondition evidence.",
+      outcome: "unknown",
+    },
+    source: "decisions.progression.choice.request",
+    inspectKind: "inspect-progression-choice",
+    inspectLabel: "Inspect current attention and progression choice state before attempting another progression request.",
+    doNotRepeatLabel: "Do not repeat this progression choice request until fresh attention and progression evidence is read.",
   });
 
   return {
@@ -137,7 +143,7 @@ function progressionChoiceResult(
       ? {}
       : { notificationId: input.notificationId }),
     sent: result.sent,
-    status,
+    status: projection.status,
     evidence: {
       beforeBlockerPresent: progressionBlockerPresent(input.kind, before),
       afterReadStatus: after.status,
@@ -148,31 +154,23 @@ function progressionChoiceResult(
         ? null
         : booleanProbeValue(after.view.canEndTurn),
     },
-    postcondition,
-    nextSteps: civ7MutationNextSteps({
-      status,
-      postcondition,
-      source: "decisions.progression.choice.request",
-      inspectKind: "inspect-progression-choice",
-      inspectLabel: "Inspect current attention and progression choice state before attempting another progression request.",
-      doNotRepeatLabel: "Do not repeat this progression choice request until fresh attention and progression evidence is read.",
-    }),
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps,
   };
 }
 
-function progressionChoicePostconditionSummary(
+function progressionChoicePostcondition(
   input: Civ7DecisionsProgressionChoiceInput,
   result: ProgressionChoiceCloseoutResult,
   before: Civ7ControlOrpcPlayNotificationViewResult,
   after: ProgressionChoicePostRead,
-): Civ7DecisionsProgressionChoiceResult["postcondition"] {
+): ProgressionChoicePostcondition {
   if (!result.sent) {
     return {
       classification: "not-sent",
       reason: "The progression choice closeout did not send both required App UI progression requests.",
       outcome: "not-sent",
       confidence: "unverified",
-      confirmed: false,
       noRepeatAfterUnverified: true,
     };
   }
@@ -183,7 +181,6 @@ function progressionChoicePostconditionSummary(
       reason: "The progression choice closeout was sent, but the post-send notification read failed; do not repeat until fresh attention evidence is available.",
       outcome: "unknown",
       confidence: "pending-runtime-proof",
-      confirmed: false,
       noRepeatAfterUnverified: true,
     };
   }
@@ -192,16 +189,12 @@ function progressionChoicePostconditionSummary(
     ? technologyChoicePostcondition(before, after.view)
     : cultureChoicePostcondition(before, after.view);
   const outcome = progressionChoiceOutcome(postcondition.classification);
-  const confidence: Civ7MutationProofConfidence = postcondition.verified
-    ? "confirmed"
-    : "unverified";
 
   return {
     classification: postcondition.classification,
     reason: postcondition.reason,
     outcome,
-    confidence,
-    confirmed: postcondition.verified,
+    confidence: postcondition.verified ? "confirmed" : "unverified",
     noRepeatAfterUnverified: !postcondition.verified,
   };
 }
