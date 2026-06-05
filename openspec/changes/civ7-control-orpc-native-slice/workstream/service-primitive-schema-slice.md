@@ -18,7 +18,7 @@ schemas.
 
 - `packages/civ7-control-orpc/src/model/primitives.ts`
 - `packages/civ7-control-orpc/src/index.ts`
-- service contracts under `src/modules/{attention,notifications,city,unit,decisions,strategy}/contract.ts`
+- service contracts under `src/modules/{attention,notifications,city,unit,narrative,diplomacy,progression,strategy}/contract.ts`
 - `packages/civ7-control-orpc/test/primitive-schemas.test.ts`
 - this OpenSpec record, `tasks.md`, and `specs/civ7-control-orpc/spec.md`
 

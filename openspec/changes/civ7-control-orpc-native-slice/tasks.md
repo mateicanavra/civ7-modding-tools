@@ -102,8 +102,8 @@ adding more read-only facade shells.
     focused helpers while preserving legacy request `verified` behavior.
   - [x] 5.2.6 Extract technology/culture progression-choice postcondition
     policy out of CLI commands into direct-control progression proof ownership.
-    Keep native `decisions` procedures, shared postcondition middleware,
-    runtime proof, and parent Task 5.x/6.x acceptance pending.
+    Keep native domain-owned progression procedures, shared postcondition
+    middleware, runtime proof, and parent Task 5.x/6.x acceptance pending.
   - [x] 5.2.7 Extract turn-completion send proof/no-repeat policy into a
     direct-control-owned helper. Preserve the existing turn-completion runtime
     send path while classifying turn-advanced, turn-complete-sent,
@@ -158,8 +158,8 @@ adding more read-only facade shells.
   - [x] 5.4.9 Move shared caller-facing component ID and map-location
     primitive schemas into `packages/civ7-control-orpc` service model
     ownership, prove equivalence to direct-control primitives, and switch
-    attention, notification, city, unit, decisions, and strategy contracts off
-    direct-control primitive value imports.
+    attention, notification, city, unit, narrative, diplomacy, progression,
+    and strategy contracts off direct-control primitive value imports.
   - [x] 5.4.10 Move `notifications.dismiss.request` caller-facing input and
     normal postcondition classification schemas into control-oRPC service
     ownership while leaving direct-control notification dismissal runtime/proof

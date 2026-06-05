@@ -211,9 +211,9 @@ context-composer, event bus, or router registry.
 
 `workstream/semantic-capability-hierarchy.md` defines the target
 Sieve/player-agent capability families: `readiness`, `attention`, `world`,
-`strategy`, `decisions`, domain-owned mutations, and `debug`. Current
-direct-control descriptor families remain source evidence and transitional
-package shape, not the long-term service hierarchy.
+`strategy`, `narrative`, `diplomacy`, `progression`, domain-owned mutations,
+and `debug`. Current direct-control descriptor families remain source evidence
+and transitional package shape, not the long-term service hierarchy.
 
 Future implementation slices should use that hierarchy to decide where
 service-owned behavior belongs before adding another package module or
