@@ -538,6 +538,16 @@ adding more read-only facade shells.
     internals and approval reason out of bridge output, and keep further
     mutation allowlists, UIScript/modinfo packaging, runtime proof, and full
     `7.3` implementation pending.
+  - [x] 7.3.12 Allowlist `progression.technology.choice.request` and
+    `progression.culture.choice.request` through the same closed controller
+    approval/proof envelope. Require controller-runtime approval metadata,
+    game-controller-ready lifecycle evidence, `GameContext.localPlayerID`
+    evidence, and single-local-player/hotseat evidence before context
+    construction and native router dispatch; validate the existing semantic
+    player/node/notification input shape, keep raw player-operation/App UI
+    closeout/direct-control runtime internals and approval reason out of bridge
+    output, and keep further mutation allowlists, UIScript/modinfo packaging,
+    runtime proof, and full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -615,6 +625,11 @@ adding more read-only facade shells.
   hygiene for the progression local-player evidence repair. These are local
   package proofs only and do not allowlist progression through the controller
   bridge, claim live runtime proof, or accept parent Task 7.3.
+- [x] 8.41 Run focused controller-ingress and progression-choice procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates, and
+  diff hygiene for the controller progression choice ingress allowlist slice.
+  These are local package proofs only and do not claim Civ7 UIScript/modinfo
+  packaging, live runtime proof, play-thread action, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

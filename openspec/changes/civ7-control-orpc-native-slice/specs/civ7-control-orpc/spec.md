@@ -559,6 +559,32 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   service dispatch; Civ7 UIScript/modinfo packaging, further mutation
   allowlists, runtime/live proof, and full `7.3` implementation remain pending
 
+#### Scenario: Controller ingress allowlists progression choice mutations
+- **WHEN** the package-local controller ingress allowlists progression choices
+  after the native progression service procedures bind send identity to
+  local-player notification evidence
+- **THEN** the accepted mutation keys in that slice are the service-owned
+  `progression.technology.choice.request` and
+  `progression.culture.choice.request` procedures
+- **AND** their request envelopes validate the existing semantic
+  player/node/notification input schema plus closed controller-runtime approval
+  metadata
+- **AND** the same envelopes require closed controller proof metadata for
+  game-controller-ready lifecycle, `GameContext.localPlayerID` local-player
+  evidence, and single-local-player/hotseat status before context construction
+  and native router dispatch
+- **AND** invocation delegates to the existing in-process router/client and
+  native mutation approval/readiness/proof procedure middleware rather than
+  adding a bridge-local dispatcher or mutation runner
+- **AND** raw host, port, session, state, command, rawCommand, payload,
+  player-operation/App UI closeout internals, and legacy `verified` remain
+  excluded from bridge request and response shapes
+- **AND** controller approval reason remains request metadata and is not echoed
+  in bridge success or failure output
+- **AND** local tests prove only the serialized ingress gate and in-process
+  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
+  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control approval,

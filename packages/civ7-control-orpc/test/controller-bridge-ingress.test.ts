@@ -28,6 +28,16 @@ const diplomacyInput = {
   responseType: -1_713_616_684,
   notificationId,
 };
+const progressionTechnologyInput = {
+  playerId: 2,
+  node: 18_001,
+  notificationId,
+};
+const progressionCultureInput = {
+  playerId: 2,
+  node: 27_001,
+  notificationId,
+};
 
 describe("Civ7 controller bridge ingress", () => {
   test("invokes allowlisted readiness.current through the in-process router", async () => {
@@ -678,6 +688,152 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted progression technology choice through the in-process router with explicit approval", async () => {
+    const fake = fakeProgressionChoiceContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "progression.technology.choice.request",
+      input: progressionTechnologyInput,
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved technology choice",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-progression-tech-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "progression.technology.choice.request",
+      correlationId: "controller-progression-tech-1",
+      output: {
+        playerId: 0,
+        node: 18_001,
+        notificationId,
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "turn-unblocked",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }, { timeoutMs: 1_000 }]);
+    expect(fake.calls.technology).toEqual([{
+      input: {
+        playerId: 0,
+        node: 18_001,
+        notificationId,
+      },
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved technology choice",
+      },
+    }]);
+    expect(fake.calls.culture).toEqual([]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("controller approved technology choice");
+    expect(serialized).not.toContain("SET_TECH_TREE_NODE");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
+  test("invokes allowlisted progression culture choice through the in-process router with explicit approval", async () => {
+    const fake = fakeProgressionChoiceContext("culture");
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "progression.culture.choice.request",
+      input: progressionCultureInput,
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved culture choice",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-progression-culture-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "progression.culture.choice.request",
+      correlationId: "controller-progression-culture-1",
+      output: {
+        playerId: 0,
+        node: 27_001,
+        notificationId,
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "turn-unblocked",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }, { timeoutMs: 1_000 }]);
+    expect(fake.calls.technology).toEqual([]);
+    expect(fake.calls.culture).toEqual([{
+      input: {
+        playerId: 0,
+        node: 27_001,
+        notificationId,
+      },
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved culture choice",
+      },
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("controller approved culture choice");
+    expect(serialized).not.toContain("SET_CULTURE_TREE_NODE");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -982,6 +1138,55 @@ describe("Civ7 controller bridge ingress", () => {
         },
         controllerProof: controllerMutationProof(),
       },
+      {
+        procedureKey: "progression.technology.choice.request",
+        input: progressionTechnologyInput,
+      },
+      {
+        procedureKey: "progression.technology.choice.request",
+        input: progressionTechnologyInput,
+        approval: controllerApproval(),
+      },
+      {
+        procedureKey: "progression.technology.choice.request",
+        input: {
+          ...progressionTechnologyInput,
+          rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "progression.technology.choice.request",
+        input: progressionTechnologyInput,
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "progression.technology.choice.request",
+        input: progressionTechnologyInput,
+        approval: {
+          source: "controller-runtime",
+          approved: true,
+          reason: "controller approved technology choice",
+          command: "Game.PlayerOperations.sendRequest(...)",
+        },
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "progression.culture.choice.request",
+        input: progressionCultureInput,
+      },
+      {
+        procedureKey: "progression.culture.choice.request",
+        input: {
+          ...progressionCultureInput,
+          rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
     ];
 
     for (const request of invalidRequests) {
@@ -1006,7 +1211,7 @@ describe("Civ7 controller bridge ingress", () => {
     const fake = fakeContext(playableStatusResult());
 
     const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "progression.technology.choice.request",
+      procedureKey: "progression.legacy.choice.request",
       input: { playerId: 0, node: 123 },
     }, {
       createContext: () => fake.context,
@@ -1463,6 +1668,74 @@ function fakeDiplomacyResponseContext(): {
   };
 }
 
+function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technology"): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    technology: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+    culture: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    technology: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+    culture: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  } = {
+    status: [],
+    views: [],
+    technology: [],
+    culture: [],
+  };
+  const views = [
+    progressionNotificationView(kind),
+    progressionCleanNotificationView(),
+  ];
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return views.shift() ?? progressionCleanNotificationView();
+        },
+        requestCiv7TechnologyChoiceCloseout: async (input, options, approval) => {
+          calls.technology.push({ input, options, approval });
+          return progressionCloseoutResult("technology");
+        },
+        requestCiv7CultureChoiceCloseout: async (input, options, approval) => {
+          calls.culture.push({ input, options, approval });
+          return progressionCloseoutResult("culture");
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
 function controllerApproval(): Record<string, unknown> {
   return {
     source: "controller-runtime",
@@ -1593,6 +1866,64 @@ function cleanNotificationViewResult(): any {
       nextDecision: null,
       decisionQueue: [],
     },
+  };
+}
+
+function progressionNotificationView(kind: "technology" | "culture"): any {
+  const typeName = kind === "technology"
+    ? "NOTIFICATION_CHOOSE_TECH"
+    : "NOTIFICATION_CHOOSE_CULTURE_NODE";
+  const details = kind === "technology"
+    ? {
+        kind: "technology-choice-options",
+        currentResearching: { ok: true, value: 10 },
+        targetNode: { ok: true, value: 20 },
+      }
+    : {
+        kind: "culture-choice-options",
+        currentResearching: { ok: true, value: 30 },
+        targetNode: { ok: true, value: 40 },
+      };
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    schemaVersion: "civ7-play-notifications.v1",
+    localPlayerId: 0,
+    turn: { ok: true, value: 12 },
+    turnDate: { ok: true, value: "3400 BCE" },
+    canEndTurn: { ok: true, value: false },
+    blocker: { ok: true, value: 1 },
+    firstReadyUnitId: { ok: true, value: null },
+    selectedUnitId: { ok: true, value: null },
+    selectedCityId: { ok: true, value: null },
+    blockingNotificationId: { ok: true, value: notificationId },
+    notifications: [{
+      id: notificationId,
+      typeName,
+      summary: typeName,
+      isEndTurnBlocking: true,
+      details,
+    }],
+  };
+}
+
+function progressionCleanNotificationView(): any {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    schemaVersion: "civ7-play-notifications.v1",
+    localPlayerId: 0,
+    turn: { ok: true, value: 12 },
+    turnDate: { ok: true, value: "3400 BCE" },
+    canEndTurn: { ok: true, value: true },
+    blocker: { ok: true, value: 0 },
+    firstReadyUnitId: { ok: true, value: null },
+    selectedUnitId: { ok: true, value: null },
+    selectedCityId: { ok: true, value: null },
+    blockingNotificationId: { ok: true, value: null },
+    notifications: [],
   };
 }
 
@@ -1920,5 +2251,30 @@ function diplomacyResponseResult(): any {
       classification: "diplomacy-blocker-cleared",
       reason: "test diplomacy-blocker-cleared",
     },
+  };
+}
+
+function progressionCloseoutResult(kind: "technology" | "culture"): any {
+  const operationType = kind === "technology"
+    ? "SET_TECH_TREE_NODE"
+    : "SET_CULTURE_TREE_NODE";
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    command: {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "65535", name: "App UI" },
+      output: [`CMD:65535:${operationType}`],
+    },
+    payload: {
+      localPlayerId: 0,
+      playerId: 0,
+      node: kind === "technology" ? 18_001 : 27_001,
+      rawCommand: "Game.PlayerOperations.sendRequest(...)",
+      sent: true,
+    },
+    sent: true,
   };
 }
