@@ -464,6 +464,14 @@ adding more read-only facade shells.
     client, preserve raw command/session/tuner endpoint rejection, and keep
     mutation allowlists, local-player/hotseat proof, runtime proof, Civ7
     UIScript/modinfo packaging, and full `7.3` implementation pending.
+  - [x] 7.3.5 Allowlist the first controller-ingress mutation,
+    `notifications.dismiss.request`, only behind a closed serialized
+    controller approval/proof envelope. Require controller-runtime approval
+    metadata, game-controller-ready lifecycle evidence,
+    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
+    evidence before context construction and native router dispatch; keep
+    additional mutation allowlists, UIScript/modinfo packaging, runtime proof,
+    and full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -498,6 +506,10 @@ adding more read-only facade shells.
 - [x] 8.11 Run focused controller-ingress/intelligence-bridge tests, package
   check/build, strict OpenSpec validates, and diff hygiene for the
   `attention.current` controller ingress allowlist slice.
+- [x] 8.31 Run focused controller-ingress, notification-dismissal, and
+  intelligence-bridge tests, control-oRPC check/build, strict OpenSpec
+  validates, and diff hygiene for the first controller mutation ingress
+  allowlist slice.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

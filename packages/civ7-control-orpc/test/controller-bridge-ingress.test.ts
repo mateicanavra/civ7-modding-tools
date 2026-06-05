@@ -9,6 +9,8 @@ import {
   type Civ7ControlOrpcPlayableStatusResult,
 } from "../src/index";
 
+const notificationId = { owner: 0, id: 113, type: 20 };
+
 describe("Civ7 controller bridge ingress", () => {
   test("invokes allowlisted readiness.current through the in-process router", async () => {
     const fake = fakeContext(playableStatusResult());
@@ -119,6 +121,79 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted notifications.dismiss.request through the in-process router with explicit approval", async () => {
+    const fake = fakeNotificationDismissContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "notifications.dismiss.request",
+      input: { notificationId },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved notification dismissal",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-notification-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "notifications.dismiss.request",
+      correlationId: "controller-notification-1",
+      output: {
+        notificationId,
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "notification-disappeared",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.dismissal).toEqual([{
+      input: { notificationId },
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved notification dismissal",
+      },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "notifications.dismiss.request",
+      input: { notificationId },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved notification dismissal",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-notification-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("controller approved notification dismissal");
+    expect(serialized).not.toContain("NotificationModel.manager.dismiss");
+    expect(serialized).not.toContain("Game.Notifications.dismiss");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -134,6 +209,69 @@ describe("Civ7 controller bridge ingress", () => {
       { procedureKey: "attention.current", input: {}, rawCommand: "Game.turn" },
       { procedureKey: "attention.current", input: { rawCommand: "Game.turn" } },
       { procedureKey: "attention.current", input: {}, approval: { approved: true } },
+      { procedureKey: "notifications.dismiss.request", input: { notificationId } },
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+        host: "127.0.0.1",
+      },
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId, rawCommand: "Game.Notifications.dismiss(...)" },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        approval: {
+          source: "controller-runtime",
+          approved: true,
+          reason: "controller approved dismissal",
+          command: "Game.Notifications.dismiss(...)",
+        },
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        approval: { approved: true, reason: "controller approved dismissal" },
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        approval: controllerApproval(),
+      },
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        approval: controllerApproval(),
+        controllerProof: {
+          ...controllerMutationProof(),
+          lifecycle: { source: "controller-runtime", status: "loading" },
+        },
+      },
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        approval: controllerApproval(),
+        controllerProof: {
+          ...controllerMutationProof(),
+          localPlayer: { source: "input.playerId", playerId: 0 },
+        },
+      },
+      {
+        procedureKey: "notifications.dismiss.request",
+        input: { notificationId },
+        approval: controllerApproval(),
+        controllerProof: {
+          ...controllerMutationProof(),
+          hotseat: { source: "controller-runtime", status: "unknown" },
+        },
+      },
     ];
 
     for (const request of invalidRequests) {
@@ -176,6 +314,39 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls).toEqual([]);
+  });
+
+  test("keeps mutation approval middleware authoritative after envelope validation", async () => {
+    const fake = fakeNotificationDismissContext();
+
+    const response = await invokeCiv7ControllerBridgeRequest({
+      procedureKey: "notifications.dismiss.request",
+      input: { notificationId },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "   ",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-notification-approval-1",
+    }, {
+      createContext: () => fake.context,
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toEqual({
+      ok: false,
+      correlationId: "controller-notification-approval-1",
+      error: {
+        code: "MUTATION_APPROVAL_REQUIRED",
+        message: "Explicit mutation approval is required.",
+        reason: "procedure-failed",
+      },
+    });
+    expect(fake.calls).toEqual({
+      status: [],
+      dismissal: [],
+    });
   });
 
   test("keeps raw direct-control failure details out of bridge failures", async () => {
@@ -277,6 +448,73 @@ function fakeAttentionContext(unitId: { owner: number; id: number; type: number 
   };
 }
 
+function fakeNotificationDismissContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    dismissal: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    dismissal: Array<{
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  } = {
+    status: [],
+    dismissal: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7NotificationDismissal: async (input, options, approval) => {
+          calls.dismissal.push({ input, options, approval });
+          return notificationDismissalResult("notification-disappeared");
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
+function controllerApproval(): Record<string, unknown> {
+  return {
+    source: "controller-runtime",
+    approved: true,
+    reason: "controller approved dismissal",
+  };
+}
+
+function controllerMutationProof(): Record<string, unknown> {
+  return {
+    lifecycle: {
+      source: "controller-runtime",
+      status: "game-controller-ready",
+    },
+    localPlayer: {
+      source: "GameContext.localPlayerID",
+      playerId: 0,
+    },
+    hotseat: {
+      source: "controller-runtime",
+      status: "single-local-player",
+    },
+  };
+}
+
 function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
   return {
     host: "127.0.0.1",
@@ -307,6 +545,65 @@ function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
       },
     },
     errors: ["raw Tuner detail"],
+  };
+}
+
+function notificationDismissalResult(classification: string): any {
+  const before = notificationSummary();
+  const after = notificationSummary({ exists: false });
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    notificationId,
+    before,
+    after,
+    canDismiss: true,
+    sent: true,
+    result: {
+      notificationTrainManager: {
+        ok: true,
+        attempted: true,
+        available: true,
+        path: "NotificationModel.manager.dismiss",
+      },
+    },
+    closeoutPath: "NotificationModel.manager.dismiss",
+    verificationAttempts: [before, after],
+    verified: true,
+    postcondition: {
+      classification,
+      reason: `test ${classification}`,
+    },
+    notes: ["fixture"],
+  };
+}
+
+function notificationSummary(overrides: Record<string, unknown> = {}): any {
+  return {
+    id: notificationId,
+    exists: true,
+    type: 2_091_697_919,
+    typeName: "NOTIFICATION_WONDER_COMPLETED",
+    summary: "Wonder Completed",
+    message: "Wonder Completed",
+    target: { owner: -1, id: -1, type: 0 },
+    location: { x: -9999, y: -9999 },
+    canUserDismiss: true,
+    expired: false,
+    dismissed: false,
+    blocksTurnAdvancement: { ok: true, value: true },
+    endTurnBlockingType: { ok: true, value: 2_091_697_919 },
+    isEndTurnBlocking: { ok: true, value: true },
+    engineQueueCount: { ok: true, value: 1 },
+    engineQueueContains: { ok: true, value: true },
+    engineQueueFirstId: { ok: true, value: notificationId },
+    isEngineQueueFront: { ok: true, value: true },
+    notificationTrainCount: { ok: true, value: 1 },
+    notificationTrainContains: { ok: true, value: true },
+    notificationTrainFirstId: { ok: true, value: notificationId },
+    isNotificationTrainFront: { ok: true, value: true },
+    ...overrides,
   };
 }
 

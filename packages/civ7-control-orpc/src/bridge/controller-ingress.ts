@@ -10,9 +10,56 @@ import {
   Civ7AttentionCurrentResultSchema,
 } from "../modules/attention/contract";
 import {
+  Civ7NotificationDismissInputSchema,
+  Civ7NotificationDismissalResultSchema,
+} from "../modules/notifications/contract";
+import {
   Civ7ReadinessCurrentInputSchema,
   Civ7ReadinessCurrentResultSchema,
 } from "../modules/readiness/contract";
+
+export const Civ7ControllerBridgeApprovalSchema = Type.Object(
+  {
+    source: Type.Literal("controller-runtime"),
+    approved: Type.Literal(true),
+    reason: Type.String({ minLength: 1 }),
+    disposableSession: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeApproval = Static<
+  typeof Civ7ControllerBridgeApprovalSchema
+>;
+
+export const Civ7ControllerBridgeMutationProofSchema = Type.Object(
+  {
+    lifecycle: Type.Object(
+      {
+        source: Type.Literal("controller-runtime"),
+        status: Type.Literal("game-controller-ready"),
+      },
+      { additionalProperties: false },
+    ),
+    localPlayer: Type.Object(
+      {
+        source: Type.Literal("GameContext.localPlayerID"),
+        playerId: Type.Integer({ minimum: 0, maximum: 255 }),
+      },
+      { additionalProperties: false },
+    ),
+    hotseat: Type.Object(
+      {
+        source: Type.Literal("controller-runtime"),
+        status: Type.Literal("single-local-player"),
+      },
+      { additionalProperties: false },
+    ),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeMutationProof = Static<
+  typeof Civ7ControllerBridgeMutationProofSchema
+>;
 
 export const Civ7ControllerBridgeReadinessCurrentRequestSchema = Type.Object(
   {
@@ -38,13 +85,29 @@ export type Civ7ControllerBridgeAttentionCurrentRequest = Static<
   typeof Civ7ControllerBridgeAttentionCurrentRequestSchema
 >;
 
+export const Civ7ControllerBridgeNotificationDismissRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("notifications.dismiss.request"),
+    input: Civ7NotificationDismissInputSchema,
+    approval: Civ7ControllerBridgeApprovalSchema,
+    controllerProof: Civ7ControllerBridgeMutationProofSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeNotificationDismissRequest = Static<
+  typeof Civ7ControllerBridgeNotificationDismissRequestSchema
+>;
+
 export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
+  Civ7ControllerBridgeNotificationDismissRequestSchema,
 ]);
 export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeReadinessCurrentRequest
-  | Civ7ControllerBridgeAttentionCurrentRequest;
+  | Civ7ControllerBridgeAttentionCurrentRequest
+  | Civ7ControllerBridgeNotificationDismissRequest;
 
 export const Civ7ControllerBridgeErrorSchema = Type.Object(
   {
@@ -90,13 +153,29 @@ export type Civ7ControllerBridgeAttentionCurrentSuccessResponse = Static<
   typeof Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeNotificationDismissSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("notifications.dismiss.request"),
+      output: Civ7NotificationDismissalResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeNotificationDismissSuccessResponse = Static<
+  typeof Civ7ControllerBridgeNotificationDismissSuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
 ]);
 export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeReadinessCurrentSuccessResponse
-  | Civ7ControllerBridgeAttentionCurrentSuccessResponse;
+  | Civ7ControllerBridgeAttentionCurrentSuccessResponse
+  | Civ7ControllerBridgeNotificationDismissSuccessResponse;
 
 export const Civ7ControllerBridgeFailureResponseSchema = Type.Object(
   {
@@ -162,6 +241,9 @@ export async function invokeCiv7ControllerBridgeRequest(
     const context = await options.createContext(request);
     const client = createCiv7ControlOrpcServerClient({
       ...context,
+      approval: request.procedureKey === "notifications.dismiss.request"
+        ? request.approval
+        : context.approval,
       correlation: request.correlationId == null
         ? context.correlation
         : {
@@ -174,6 +256,18 @@ export async function invokeCiv7ControllerBridgeRequest(
       return {
         ok: true,
         procedureKey: "readiness.current",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "notifications.dismiss.request") {
+      const output = await client.notifications.dismiss.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "notifications.dismiss.request",
         output,
         ...(request.correlationId == null
           ? {}
@@ -202,7 +296,8 @@ function isUnsupportedProcedureRequest(
   if (!("procedureKey" in request)) return false;
   return typeof request.procedureKey === "string"
     && request.procedureKey !== "readiness.current"
-    && request.procedureKey !== "attention.current";
+    && request.procedureKey !== "attention.current"
+    && request.procedureKey !== "notifications.dismiss.request";
 }
 
 function safeBridgeProcedureError(err: unknown): Civ7ControllerBridgeError {

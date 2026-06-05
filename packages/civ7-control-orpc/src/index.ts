@@ -1,9 +1,13 @@
 export { createCiv7ControlOrpcServerClient } from "./client";
 export {
+  Civ7ControllerBridgeApprovalSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
   Civ7ControllerBridgeErrorSchema,
   Civ7ControllerBridgeFailureResponseSchema,
+  Civ7ControllerBridgeMutationProofSchema,
+  Civ7ControllerBridgeNotificationDismissRequestSchema,
+  Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeRequestSchema,
@@ -13,12 +17,16 @@ export {
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
 export type {
+  Civ7ControllerBridgeApproval,
   Civ7ControllerBridgeAttentionCurrentRequest,
   Civ7ControllerBridgeAttentionCurrentSuccessResponse,
   Civ7ControllerBridgeContextFactory,
   Civ7ControllerBridgeError,
   Civ7ControllerBridgeFailureResponse,
   Civ7ControllerBridgeIngress,
+  Civ7ControllerBridgeMutationProof,
+  Civ7ControllerBridgeNotificationDismissRequest,
+  Civ7ControllerBridgeNotificationDismissSuccessResponse,
   Civ7ControllerBridgeReadinessCurrentRequest,
   Civ7ControllerBridgeReadinessCurrentSuccessResponse,
   Civ7ControllerBridgeRequest,
