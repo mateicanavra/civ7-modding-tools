@@ -255,6 +255,27 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI build-production send uses native city procedure
+- **WHEN** `game play build-production --send` requests an approved city
+  production choice
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+  and approval reason
+- **AND** the send path calls the in-process `city.production.choice.request`
+  server-side client under the `city` router
+- **AND** the procedure's approval, readiness, direct-control production
+  validator, production postcondition projection, and no-repeat policy remain
+  authoritative for the send
+- **AND** the normal JSON result is the semantic city production choice
+  procedure projection without raw command/session/state/Tuner details,
+  UI-closeout payloads, send results, before/after runtime probes, or legacy
+  `verified`
+- **AND** the read-only `game play build-production` validation path remains
+  direct-control operation validation until a separate accepted service read
+  exists
+- **AND** `game play build-unit` remains outside this slice until a separate
+  caller migration reconciles that convenience command
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: In-game controller bridge preflight is recorded
 - **WHEN** the in-game controller bridge is planned before source
   implementation
