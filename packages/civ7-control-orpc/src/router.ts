@@ -9,6 +9,7 @@ import { decisionsRouter } from "./modules/decisions/router";
 import { notificationsRouter } from "./modules/notifications/router";
 import { readinessRouter } from "./modules/readiness/router";
 import { strategyRouter } from "./modules/strategy/router";
+import { turnRouter } from "./modules/turn/router";
 import { unitRouter } from "./modules/unit/router";
 
 export const Civ7ControlOrpcRouter: Router<
@@ -21,5 +22,6 @@ export const Civ7ControlOrpcRouter: Router<
   notifications: notificationsRouter,
   readiness: readinessRouter,
   strategy: strategyRouter,
+  turn: turnRouter,
   unit: unitRouter,
 });

@@ -24,6 +24,10 @@ import {
   type Civ7StrategyContract as Civ7StrategyContractType,
 } from "./modules/strategy/contract";
 import {
+  Civ7TurnContract,
+  type Civ7TurnContract as Civ7TurnContractType,
+} from "./modules/turn/contract";
+import {
   Civ7UnitContract,
   type Civ7UnitContract as Civ7UnitContractType,
 } from "./modules/unit/contract";
@@ -35,6 +39,7 @@ export type Civ7ControlOrpcContract = Readonly<{
   notifications: Civ7NotificationsContractType;
   readiness: Civ7ReadinessContractType;
   strategy: Civ7StrategyContractType;
+  turn: Civ7TurnContractType;
   unit: Civ7UnitContractType;
 }>;
 
@@ -46,5 +51,6 @@ export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
     notifications: Civ7NotificationsContract,
     readiness: Civ7ReadinessContract,
     strategy: Civ7StrategyContract,
+    turn: Civ7TurnContract,
     unit: Civ7UnitContract,
   });

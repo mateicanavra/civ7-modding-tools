@@ -395,10 +395,24 @@ modules before broad implementation.
   service code inferring from legacy `verified`
 - **AND** turn-complete-sent and already-complete paths remain no-repeat
   guarded until fresh turn/attention evidence is read
-- **AND** native turn completion procedure exposure remains pending until the
-  caller-facing contract, semantic projection, approval/readiness policy, and
-  runtime proof boundary are explicitly accepted
 - **AND** local postcondition tests do not claim live Civ7 runtime proof
+
+#### Scenario: Turn completion request procedure is implemented
+- **WHEN** `turn.complete.request` requests an approved turn-completion send
+- **THEN** it is offered under the semantic `turn` router
+- **AND** it checks context-owned mutation approval and playable readiness
+  before invoking direct-control runtime authority
+- **AND** the procedure consumes the direct-control turn-completion runtime
+  port and turn-completion proof helper rather than inferring from legacy
+  `verified`
+- **AND** normal input is empty and endpoint, session, state, raw command, and
+  approval fields remain context-owned
+- **AND** normal output projects before/after turn facts, postcondition
+  summary, request status, and next steps without raw command/session/tuner
+  details
+- **AND** turn-complete-sent, already-complete, no-state-change, missing, and
+  pending-runtime-proof paths remain no-repeat guarded
+- **AND** local procedure tests do not claim live Civ7 runtime proof
 
 #### Scenario: Data or runtime access is needed
 - **WHEN** a procedure needs data-layer or runtime access beyond pure input

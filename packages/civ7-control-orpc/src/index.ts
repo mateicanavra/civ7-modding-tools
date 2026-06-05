@@ -65,6 +65,8 @@ export {
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
   Civ7StrategyFrontSummaryUnavailableError,
   Civ7StrategyFrontSummaryUnavailableErrorDataSchema,
+  Civ7TurnCompletionUnavailableError,
+  Civ7TurnCompletionUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
@@ -83,6 +85,7 @@ export {
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
+  type Civ7TurnCompletionUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
 } from "./errors";
 export {
@@ -281,6 +284,28 @@ export type {
 } from "./modules/strategy/contract";
 export { strategyRouter } from "./modules/strategy/router";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
+export {
+  Civ7TurnCompletionContract,
+  Civ7TurnCompletionInputSchema,
+  Civ7TurnCompletionInputStandardSchema,
+  Civ7TurnCompletionNextStepSchema,
+  Civ7TurnCompletionPostconditionClassificationSchema,
+  Civ7TurnCompletionPostconditionSummarySchema,
+  Civ7TurnCompletionProbeSummarySchema,
+  Civ7TurnCompletionProofOutcomeSchema,
+  Civ7TurnCompletionRequestStatusSchema,
+  Civ7TurnCompletionResultSchema,
+  Civ7TurnCompletionResultStandardSchema,
+  Civ7TurnContract,
+} from "./modules/turn/contract";
+export type {
+  Civ7TurnCompletionContract as Civ7TurnCompletionContractType,
+  Civ7TurnCompletionInput,
+  Civ7TurnCompletionResult,
+  Civ7TurnContract as Civ7TurnContractType,
+} from "./modules/turn/contract";
+export { turnRouter } from "./modules/turn/router";
+export { turnCompleteRequestProcedure } from "./modules/turn/procedures/complete-request";
 export {
   Civ7UnitContract,
   Civ7UnitTargetActionContract,

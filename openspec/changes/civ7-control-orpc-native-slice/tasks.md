@@ -180,6 +180,12 @@ adding more read-only facade shells.
     owns caller-facing input, semantic evidence/proof projection, raw-output
     exclusion, and no-repeat next steps; broad decisions catalogs, runtime
     proof, and parent Task 5.x/6.x acceptance remain out of scope.
+  - [x] 5.4.15 Record `turn.complete.request` as a service-owned turn
+    mutation boundary over the direct-control turn completion runtime port and
+    turn-completion proof helper. The service owns the empty caller-facing
+    input, semantic before/after proof projection, raw-output exclusion, and
+    no-repeat next steps; CLI end-turn migration, runtime proof, and parent
+    Task 5.x/6.x acceptance remain out of scope.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -239,6 +245,11 @@ adding more read-only facade shells.
     notification read failures as sent-unverified pending runtime proof with
     no-repeat next steps, instead of surfacing a generic unavailable error after
     mutation authority may have been used.
+  - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
+    mutation procedure that composes approval, playable readiness,
+    direct-control turn-completion send authority, and source-owned
+    turn-completion proof classification into semantic output without exposing
+    raw command/session/Tuner details or claiming runtime/live proof.
 
 ## 6. Native Policy Layering
 
@@ -277,6 +288,9 @@ adding more read-only facade shells.
     postcondition/proof middleware pending.
   - [x] 6.2.8 Reuse shared native approval middleware for
     `decisions.progression.choice.request` while keeping validator-first and
+    postcondition/proof middleware pending.
+  - [x] 6.2.9 Reuse shared native approval middleware for
+    `turn.complete.request` while keeping validator-first and
     postcondition/proof middleware pending.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
@@ -321,6 +335,10 @@ adding more read-only facade shells.
     postconditions and explicit pending-proof boundaries derive normal
     postcondition summaries, request status, and no-repeat next steps without
     accepting shared validator/postcondition middleware.
+  - [x] 6.3.11 Compose `turn.complete.request` through direct-control
+    turn-completion runtime authority and source-owned turn-completion
+    proof/no-repeat semantics; keep live runtime proof and shared
+    validator/postcondition middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -356,6 +374,10 @@ adding more read-only facade shells.
     `decisions.progression.choice.request` direct-control runtime-port
     failures while keeping raw direct-control cause, command, session, payload,
     and App UI closeout details out of public error data.
+  - [x] 6.4.10 Use native effect-orpc tagged error constructors for
+    `turn.complete.request` direct-control runtime-port failures while keeping
+    raw direct-control cause, command, session, state, and Tuner details out of
+    public error data.
 
 ## 7. Edge Adapters
 
@@ -474,3 +496,6 @@ adding more read-only facade shells.
 - [x] 8.23 Run focused turn-completion proof-policy tests, direct-control
   package test/check/build, relevant OpenSpec strict validates, and diff
   hygiene for the turn-completion proof/no-repeat ownership slice.
+- [x] 8.24 Run focused control-oRPC turn-completion procedure tests,
+  control-oRPC package test/check/build, relevant OpenSpec strict validates,
+  and diff hygiene for the native turn completion procedure slice.

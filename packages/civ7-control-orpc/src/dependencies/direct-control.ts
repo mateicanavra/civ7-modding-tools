@@ -6,6 +6,7 @@ import {
   getCiv7ReadyUnitView,
   getCiv7TargetCandidates,
   getCiv7TurnCompletionStatus,
+  sendCiv7TurnComplete,
   requestCiv7DiplomacyResponse,
   requestCiv7CultureChoiceCloseout,
   requestCiv7NarrativeChoice,
@@ -44,6 +45,7 @@ import {
   type Civ7TargetCandidatesInput,
   type Civ7TechnologyChoiceCloseoutInput,
   type Civ7TechnologyChoiceCloseoutResult,
+  type Civ7TurnCompletionActionResult,
   type Civ7UnitTargetActionInput,
   type PlayNotificationViewOptions,
 } from "@civ7/direct-control";
@@ -58,6 +60,8 @@ export type Civ7ControlOrpcCultureChoiceCloseoutResult =
 export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
 export type Civ7ControlOrpcTechnologyChoiceCloseoutResult =
   Civ7TechnologyChoiceCloseoutResult;
+export type Civ7ControlOrpcTurnCompletionActionResult =
+  Civ7TurnCompletionActionResult;
 type Civ7ControlOrpcPopulationPlacementRuntimeResult =
   Civ7PopulationPlacementProofSource & Readonly<{
     before: Readonly<{ valid: boolean }>;
@@ -137,6 +141,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     options: Civ7DirectControlOptions | undefined,
     approval: Civ7ActionApproval,
   ): Promise<Civ7ControlOrpcUnitTargetActionResult>;
+  requestCiv7TurnComplete(
+    options: Civ7DirectControlOptions | undefined,
+    approval: Civ7ActionApproval,
+  ): Promise<Civ7ControlOrpcTurnCompletionActionResult>;
   getCiv7PlayableStatus(
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcPlayableStatusResult>;
@@ -194,6 +202,8 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7UnitTargetAction(input, options, approval) as Promise<
       Civ7ControlOrpcUnitTargetActionResult
     >,
+  requestCiv7TurnComplete: async (options, approval) =>
+    sendCiv7TurnComplete(options, approval),
   getCiv7PlayableStatus: async (options) =>
     getCiv7PlayableStatus(options) as Promise<
       Civ7ControlOrpcPlayableStatusResult
