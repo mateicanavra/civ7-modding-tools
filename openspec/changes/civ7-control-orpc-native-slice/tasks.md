@@ -504,6 +504,15 @@ adding more read-only facade shells.
     evidence before context construction and native router dispatch; keep
     further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
     full `7.3` implementation pending.
+  - [x] 7.3.9 Allowlist `city.population.place.request` through the same
+    closed controller approval/proof envelope. Require controller-runtime
+    approval metadata, game-controller-ready lifecycle evidence,
+    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
+    evidence before context construction and native router dispatch; validate
+    the existing semantic assign-worker/expand-city input shape, keep raw
+    player-operation/city-command internals and approval reason out of bridge
+    output, and keep further mutation allowlists, UIScript/modinfo packaging,
+    runtime proof, and full `7.3` implementation pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -560,6 +569,12 @@ adding more read-only facade shells.
   tests, control-oRPC package test/check/build, strict OpenSpec validates, and
   diff hygiene for the controller city production choice ingress allowlist
   slice.
+- [x] 8.37 Run focused controller-ingress and population-placement procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates, and
+  diff hygiene for the controller city population placement ingress allowlist
+  slice. These are local package proofs only and do not claim Civ7
+  UIScript/modinfo packaging, live runtime proof, play-thread action, or full
+  `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

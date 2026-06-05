@@ -14,6 +14,7 @@ const unitId = { owner: 0, id: 458_752, type: 26 };
 const target = { x: 22, y: 31 };
 const cityId = { owner: 0, id: 65_536, type: 1 };
 const productionArgs = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
+const workerLocation = 2543;
 
 describe("Civ7 controller bridge ingress", () => {
   test("invokes allowlisted readiness.current through the in-process router", async () => {
@@ -418,6 +419,93 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted city.population.place.request through the in-process router with explicit approval", async () => {
+    const fake = fakePopulationPlacementContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "city.population.place.request",
+      input: {
+        mode: "assign-worker",
+        playerId: 0,
+        location: workerLocation,
+      },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved population placement",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-population-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "city.population.place.request",
+      correlationId: "controller-population-1",
+      output: {
+        placement: {
+          mode: "assign-worker",
+          playerId: 0,
+          location: workerLocation,
+        },
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "population-ready-cleared",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.population).toEqual([{
+      method: "requestCiv7AssignWorkerPlacement",
+      input: { playerId: 0, location: workerLocation },
+      options: { timeoutMs: 1_000 },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved population placement",
+      },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "city.population.place.request",
+      input: {
+        mode: "assign-worker",
+        playerId: 0,
+        location: workerLocation,
+      },
+      approval: {
+        source: "controller-runtime",
+        approved: true,
+        reason: "controller approved population placement",
+      },
+      controllerProof: controllerMutationProof(),
+      correlationId: "controller-population-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"approval\"");
+    expect(serialized).not.toContain("controller approved population placement");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+    expect(serialized).not.toContain("Game.CityCommands.sendRequest");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -593,6 +681,60 @@ describe("Civ7 controller bridge ingress", () => {
         },
         controllerProof: controllerMutationProof(),
       },
+      {
+        procedureKey: "city.population.place.request",
+        input: {
+          mode: "assign-worker",
+          playerId: 0,
+          location: workerLocation,
+        },
+      },
+      {
+        procedureKey: "city.population.place.request",
+        input: {
+          mode: "assign-worker",
+          playerId: 0,
+          location: workerLocation,
+        },
+        approval: controllerApproval(),
+      },
+      {
+        procedureKey: "city.population.place.request",
+        input: {
+          mode: "assign-worker",
+          playerId: 0,
+          location: workerLocation,
+          rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+      },
+      {
+        procedureKey: "city.population.place.request",
+        input: {
+          mode: "expand-city",
+          cityId,
+          destination: target,
+        },
+        approval: controllerApproval(),
+        controllerProof: controllerMutationProof(),
+        state: { name: "App UI" },
+      },
+      {
+        procedureKey: "city.population.place.request",
+        input: {
+          mode: "assign-worker",
+          playerId: 0,
+          location: workerLocation,
+        },
+        approval: {
+          source: "controller-runtime",
+          approved: true,
+          reason: "controller approved population placement",
+          command: "Game.PlayerOperations.sendRequest(...)",
+        },
+        controllerProof: controllerMutationProof(),
+      },
     ];
 
     for (const request of invalidRequests) {
@@ -617,12 +759,8 @@ describe("Civ7 controller bridge ingress", () => {
     const fake = fakeContext(playableStatusResult());
 
     const response = await invokeCiv7ControllerBridgeRequest({
-      procedureKey: "city.population.place.request",
-      input: {
-        mode: "assign-worker",
-        playerId: 0,
-        location: 6,
-      },
+      procedureKey: "narrative.choice.request",
+      input: { playerId: 0, choiceId: 1 },
     }, {
       createContext: () => fake.context,
     });
@@ -930,6 +1068,64 @@ function fakeProductionChoiceContext(): {
         requestCiv7ProductionChoice: async (input, options, approval) => {
           calls.production.push({ input, options, approval });
           return productionChoiceResult();
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
+function fakePopulationPlacementContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    population: Array<{
+      method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: Civ7ControlOrpcContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    population: Array<{
+      method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
+      input: unknown;
+      options: unknown;
+      approval: unknown;
+    }>;
+  } = {
+    status: [],
+    population: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7AssignWorkerPlacement: async (input, options, approval) => {
+          calls.population.push({
+            method: "requestCiv7AssignWorkerPlacement",
+            input,
+            options,
+            approval,
+          });
+          return populationPlacementResult("assign-worker");
+        },
+        requestCiv7ExpandCityPlacement: async (input, options, approval) => {
+          calls.population.push({
+            method: "requestCiv7ExpandCityPlacement",
+            input,
+            options,
+            approval,
+          });
+          return populationPlacementResult("expand-city");
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -1248,6 +1444,77 @@ function productionSnapshot(label: "before" | "after") {
       value: {
         matchesCity: label === "before",
       },
+    },
+  };
+}
+
+function populationPlacementResult(mode: "assign-worker" | "expand-city"): any {
+  const family = mode === "expand-city" ? "city-command" : "player-operation";
+  const operationType = mode === "expand-city" ? "EXPAND" : "ASSIGN_WORKER";
+  const placementTarget = mode === "expand-city" ? { cityId } : { playerId: 0 };
+  const args = mode === "expand-city"
+    ? { X: target.x, Y: target.y }
+    : { Location: workerLocation, Amount: 1 };
+
+  return {
+    before: populationPlacementValidationResult(
+      family,
+      operationType,
+      placementTarget,
+      args,
+    ),
+    command: {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "65535", name: "App UI" },
+      output: [
+        JSON.stringify({
+          rawCommand: mode === "expand-city"
+            ? "Game.CityCommands.sendRequest(...)"
+            : "Game.PlayerOperations.sendRequest(...)",
+        }),
+      ],
+    },
+    after: populationPlacementValidationResult(
+      family,
+      operationType,
+      placementTarget,
+      args,
+    ),
+    sent: true,
+    verified: true,
+    populationPostcondition: {
+      family,
+      operationType,
+      classification: "population-ready-cleared",
+      readyCleared: true,
+      placementStateChanged: true,
+      reason: "test population-ready-cleared",
+    },
+  };
+}
+
+function populationPlacementValidationResult(
+  family: "city-command" | "player-operation",
+  operationType: "EXPAND" | "ASSIGN_WORKER",
+  placementTarget: { cityId: typeof cityId } | { playerId: number },
+  args: Record<string, number>,
+) {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    family,
+    operationType,
+    enumValue: operationType,
+    target: placementTarget,
+    args,
+    valid: true,
+    result: {
+      raw: "validation-result",
+      command: family === "city-command"
+        ? "Game.CityCommands.canStart(...)"
+        : "Game.PlayerOperations.canStart(...)",
     },
   };
 }
