@@ -141,6 +141,10 @@ adding more read-only facade shells.
     facade and facade type available for edge-adapter context construction, but
     leave raw result envelopes internal to service dependencies/tests or owned
     by `@civ7/direct-control`.
+  - [x] 5.4.8 Split the live direct-control facade and facade type out of the
+    root `@civ7/control-orpc` service entrypoint and into explicit
+    `@civ7/control-orpc/runtime` context-construction exports for CLI and
+    Studio edge adapters.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -365,3 +369,6 @@ adding more read-only facade shells.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
+- [x] 8.13 Run control-oRPC package test/check/build, affected CLI/Studio
+  checks/tests, strict OpenSpec validates, root facade-export scan, and diff
+  hygiene for the explicit runtime entrypoint split.

@@ -1,10 +1,12 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import {
   Civ7ControlOrpcRouter,
-  liveCiv7ControlOrpcDirectControlFacade,
   type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcDirectControlFacade,
 } from "@civ7/control-orpc";
+import {
+  liveCiv7ControlOrpcDirectControlFacade,
+  type Civ7ControlOrpcDirectControlFacade,
+} from "@civ7/control-orpc/runtime";
 import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "@civ7/direct-control";
 import { RPCHandler } from "@orpc/server/node";
 

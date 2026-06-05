@@ -20,13 +20,24 @@ errors, and server-side callers.
 - **WHEN** `@civ7/control-orpc` publishes its root entrypoint
 - **THEN** root exports include service contracts, routers, server-side clients,
   bridge ingress/bindings, semantic procedure input/output schemas, typed
-  errors, and the context/facade types needed by edge adapters
+  errors, and the context type needed by native callers
 - **AND** root exports do not publish direct-control runtime-port result
   aliases such as playable-status, notification, ready-actor, production,
   target-action, or closeout request result envelopes
 - **AND** direct-control runtime result shapes remain internal service
   dependency/test details or are imported from `@civ7/direct-control` when a
   low-level runtime fixture needs the owning type
+
+#### Scenario: Runtime facade entrypoint is needed by edge adapters
+- **WHEN** CLI, Studio, or controller edge adapters need to construct a native
+  control-oRPC context with the live direct-control runtime facade
+- **THEN** they import the live facade and facade type from an explicit
+  `@civ7/control-orpc/runtime` entrypoint
+- **AND** the root `@civ7/control-orpc` entrypoint remains focused on
+  caller-facing service contracts, routers, clients, bridge ingress/bindings,
+  typed errors, and semantic procedure schemas/results
+- **AND** the runtime entrypoint does not expose raw command/session/tuner
+  payloads or make direct-control result envelopes normal service output
 
 #### Scenario: Strategy planning view is added
 - **WHEN** a strategy planning procedure is implemented

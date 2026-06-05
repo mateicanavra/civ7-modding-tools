@@ -35,9 +35,11 @@ This slice removes root exports for raw direct-control runtime result aliases:
 
 The root entrypoint continues to export semantic control-oRPC contracts,
 routers, procedure schemas/results, bridge ingress/bindings, tagged errors,
-server-side clients, `Civ7ControlOrpcContext`,
-`Civ7ControlOrpcDirectControlFacade`, and
-`liveCiv7ControlOrpcDirectControlFacade`.
+server-side clients, and `Civ7ControlOrpcContext`.
+
+Follow-up stack work moved `Civ7ControlOrpcDirectControlFacade` and
+`liveCiv7ControlOrpcDirectControlFacade` behind the explicit
+`@civ7/control-orpc/runtime` entrypoint for edge-adapter context construction.
 
 The Studio RPCLink test now imports its fake runtime playable-status fixture
 type from `@civ7/direct-control`, the package that owns that low-level shape,

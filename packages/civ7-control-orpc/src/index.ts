@@ -39,10 +39,6 @@ export { civ7ControlOrpcContractBase } from "./contract-base";
 export { Civ7ControlOrpcContract } from "./contract";
 export type { Civ7ControlOrpcContext } from "./context";
 export {
-  liveCiv7ControlOrpcDirectControlFacade,
-  type Civ7ControlOrpcDirectControlFacade,
-} from "./dependencies/direct-control";
-export {
   Civ7AttentionCurrentUnavailableError,
   Civ7AttentionCurrentUnavailableErrorDataSchema,
   Civ7CorrelationIdInvalidError,
