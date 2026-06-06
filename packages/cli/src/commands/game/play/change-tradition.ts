@@ -1,9 +1,10 @@
 import { Command, Flags } from '@oclif/core';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
   buildDirectControlOptions,
   emitPlayResult,
   executePlayOperationSequence,
-  sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
@@ -18,8 +19,8 @@ export default class GamePlayChangeTradition extends Command {
 
   static examples = [
     '<%= config.bin %> game play change-tradition --player-id 0 --tradition-type 2057145683 --action 1318334332 --json',
-    '<%= config.bin %> game play change-tradition --player-id 0 --tradition-type -331546976 --action -1326475004 --send --json',
-    '<%= config.bin %> game play change-tradition --player-id 0 --tradition-type -331546976 --action -1326475004 --send --closeout --json',
+    '<%= config.bin %> game play change-tradition --tradition-type -331546976 --action -1326475004 --send --json',
+    '<%= config.bin %> game play change-tradition --tradition-type -331546976 --action -1326475004 --send --closeout --json',
   ];
 
   static flags = {
@@ -30,8 +31,7 @@ export default class GamePlayChangeTradition extends Command {
       description: 'Civ7 tuner socket port',
     }),
     'player-id': Flags.integer({
-      description: 'Player id',
-      required: true,
+      description: 'Player id for read-only validation; send mode uses live local-player evidence',
     }),
     'tradition-type': Flags.integer({
       description: 'TraditionType id from live traditions UI/GameInfo',
@@ -60,7 +60,36 @@ export default class GamePlayChangeTradition extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayChangeTradition);    const input = {
+    const { flags } = await this.parse(GamePlayChangeTradition);
+    const options = buildDirectControlOptions(flags);
+    if (flags.send) {
+      const client = createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      });
+      const change = await client.progression.tradition.change.request({
+        traditionType: flags['tradition-type'],
+        action: flags.action,
+      });
+      if (flags.closeout) {
+        const review = change.status === 'not-sent'
+          ? null
+          : await client.progression.tradition.review.request({});
+        emitPlayResult(this.log.bind(this), flags.json, progressionPlayerChoiceWorkflow([
+          { label: 'change tradition', result: change },
+          ...(review === null ? [] : [{ label: 'close tradition review', result: review }]),
+        ]));
+        return;
+      }
+
+      emitPlayResult(this.log.bind(this), flags.json, change);
+      return;
+    }
+
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play change-tradition requires --player-id unless --send is used');
+    }
+    const input = {
       operationType: CHANGE_TRADITION,
       playerId: flags['player-id'],
       args: {
@@ -68,7 +97,6 @@ export default class GamePlayChangeTradition extends Command {
         Action: flags.action,
       },
     };
-    const options = buildDirectControlOptions(flags);
     if (flags.closeout) {
       const result = await executePlayOperationSequence([
         {
@@ -91,10 +119,31 @@ export default class GamePlayChangeTradition extends Command {
       return;
     }
 
-    const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options)
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
+}
+
+function progressionPlayerChoiceWorkflow(
+  steps: Array<{ label: string; result: unknown }>,
+) {
+  return {
+    mode: 'send',
+    stepCount: steps.length,
+    status: steps.some((step) =>
+      typeof step.result === 'object'
+      && step.result !== null
+      && 'status' in step.result
+      && step.result.status === 'sent-unverified'
+    )
+      ? 'sent-unverified'
+      : 'not-sent',
+    steps,
+    nextSteps: [{
+      kind: 'do-not-repeat',
+      source: 'progression.tradition.change.request',
+      label: 'Do not repeat this tradition workflow until fresh attention evidence is read.',
+    }],
+  };
 }

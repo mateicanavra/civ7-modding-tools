@@ -725,6 +725,28 @@ export {
   getCiv7TraditionsView,
 } from "./play/progression/reads.js";
 export type {
+  Civ7AttributePurchaseInput,
+  Civ7AttributeReviewInput,
+  Civ7ProgressionPlayerChoiceInput,
+  Civ7ProgressionPlayerChoiceKind,
+  Civ7ProgressionPlayerChoicePostcondition,
+  Civ7ProgressionPlayerChoicePostconditionClassification,
+  Civ7ProgressionPlayerChoiceResult,
+  Civ7TraditionChangeInput,
+  Civ7TraditionReviewInput,
+} from "./play/progression/player-choice-request";
+export {
+  requestCiv7AttributePurchase,
+  requestCiv7AttributeReviewCloseout,
+  requestCiv7ProgressionPlayerChoice,
+  requestCiv7TraditionChange,
+  requestCiv7TraditionReviewCloseout,
+} from "./play/progression/player-choice-request";
+export {
+  progressionPlayerChoiceProofOutcome,
+  progressionPlayerChoiceProofPostcondition,
+} from "./proof/progression-player-choice-proof-policy";
+export type {
   Civ7ProgressionTargetInput,
   Civ7ProgressionTargetKind,
   Civ7ProgressionTargetPostcondition,

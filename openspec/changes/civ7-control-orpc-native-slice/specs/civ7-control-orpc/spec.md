@@ -19,8 +19,11 @@ errors, and server-side callers.
 #### Scenario: Package root exposes service-owned surface
 - **WHEN** `@civ7/control-orpc` publishes its root entrypoint
 - **THEN** root exports include service contracts, routers, server-side clients,
-  bridge ingress/bindings, semantic procedure input/output schemas, typed
-  errors, and the context type needed by native callers
+  bridge ingress/bindings, typed errors, and the context type needed by
+  native callers
+- **AND** procedure input/output schemas and their Standard Schema adapters
+  live as contract-owned implementation details consumed through the aggregate
+  `Civ7ControlOrpcContract`, not as caller utility exports
 - **AND** root exports do not publish direct-control runtime-port result
   aliases such as playable-status, notification, ready-actor, production,
   target-action, or closeout request result envelopes
@@ -35,7 +38,7 @@ errors, and server-side callers.
   `@civ7/control-orpc/runtime` entrypoint
 - **AND** the root `@civ7/control-orpc` entrypoint remains focused on
   caller-facing service contracts, routers, clients, bridge ingress/bindings,
-  typed errors, and semantic procedure schemas/results
+  typed errors, and aggregate contract access
 - **AND** the runtime entrypoint does not expose raw command/session/tuner
   payloads or make direct-control result envelopes normal service output
 
@@ -170,6 +173,32 @@ errors, and server-side callers.
   live government or celebration blocker cleared
 - **AND** direct-control remains the low-level runtime/proof owner for
   player-operation government-domain sends, command serialization, validator
+  output, and no-repeat proof facts consumed by the procedures
+
+#### Scenario: Progression player-choice service contracts are offered
+- **WHEN** `progression.attribute.purchase.request`,
+  `progression.attribute.review.request`,
+  `progression.tradition.change.request`, and
+  `progression.tradition.review.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the contract-local input, output,
+  postcondition, and next-step schemas for those service procedures under the
+  `progression` router
+- **AND** the new public inputs omit caller `playerId`; purchase input admits
+  only an attribute node, tradition change input admits only tradition type and
+  action, and review inputs are closed empty objects
+- **AND** the procedures read current local-player evidence before send and
+  do not treat caller-provided player ID as mutation authority
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, and legacy `verified` remain
+  excluded from procedure input and normal output
+- **AND** sent attribute/tradition player-choice results remain
+  pending-runtime-proof and no-repeat guarded until a future source-owned
+  progression read/postcondition proves the live review state changed
+- **AND** these new per-leaf input/result schemas and Standard Schema adapters
+  stay private to the contract module and are not exported as caller utilities;
+  callers use the aggregate contract/router/server client
+- **AND** direct-control remains the low-level runtime/proof owner for
+  player-operation attribute/tradition sends, command serialization, validator
   output, and no-repeat proof facts consumed by the procedures
 
 #### Scenario: Service contract ownership is guarded
@@ -513,6 +542,31 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   or celebration blocker cleared
 - **AND** the read-only validation and option-read paths remain direct-control
   owned until separate accepted service reads exist
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI attribute/tradition player-choice sends use native progression procedures
+- **WHEN** `game play buy-attribute --send`,
+  `game play consider-attributes --send`,
+  `game play change-tradition --send`, or
+  `game play consider-traditions --send` requests an attribute/tradition
+  progression mutation
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send paths call the in-process progression player-choice
+  server-side client leaves under the `progression` router
+- **AND** send mode does not accept or pass caller `--player-id`; the
+  procedure's readiness, fresh local-player read, direct-control
+  player-operation runtime port, proof projection, and no-repeat policy remain
+  authoritative for the send
+- **AND** the normal JSON result is the semantic progression player-choice
+  procedure projection without raw command/session/state/Tuner details,
+  generic operation type or args fields, direct-control operation envelopes,
+  or legacy `verified`
+- **AND** `--closeout` workflows compose the relevant native purchase/change
+  leaf with its matching native review leaf instead of falling back to raw
+  direct-control send branches
+- **AND** read-only validation paths continue to require `--player-id` and
+  remain direct-control player-operation validation until separate accepted
+  service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: In-game controller bridge preflight is recorded

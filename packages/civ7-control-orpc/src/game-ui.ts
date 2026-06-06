@@ -298,6 +298,10 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiCultureChoiceCloseout(input, target),
     requestCiv7TechnologyTarget: unsupported,
     requestCiv7CultureTarget: unsupported,
+    requestCiv7AttributePurchase: unsupported,
+    requestCiv7AttributeReviewCloseout: unsupported,
+    requestCiv7TraditionChange: unsupported,
+    requestCiv7TraditionReviewCloseout: unsupported,
     requestCiv7AssignWorkerPlacement: async (input) =>
       await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) =>

@@ -276,6 +276,20 @@ adding more read-only facade shells.
     output, and keep sent government-domain choices
     pending-runtime-proof/no-repeat guarded until a future source-owned read
     proves the live government or celebration blocker cleared.
+  - [x] 5.5.13.4 Seed `progression.attribute.purchase.request`,
+    `progression.attribute.review.request`,
+    `progression.tradition.change.request`, and
+    `progression.tradition.review.request` as native service-owned
+    progression player-choice leaves. Keep attribute versus tradition and
+    purchase/change versus review in the domain procedure path, omit caller
+    `playerId` from the new public inputs, read current local-player evidence
+    before send, use direct-control only as the low-level player-operation
+    runtime/proof port, omit raw operation envelopes and legacy `verified`
+    from normal output, and keep sent player-choice results
+    pending-runtime-proof/no-repeat guarded until a future source-owned
+    progression read proves the live review state changed. Keep per-leaf
+    input/result schemas and Standard Schema adapters contract-local rather
+    than exporting them from the package root.
   - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
     mutation procedure that composes playable readiness,
     direct-control turn-completion send authority, and source-owned
@@ -522,6 +536,18 @@ adding more read-only facade shells.
     option reads and player-operation validation for read-only mode, and keep
     sent government-domain results pending-runtime-proof/no-repeat guarded
     until a real post-read owner proves the live blocker cleared.
+  - [x] 7.1.9.3 Route `civ7 game play buy-attribute --send`,
+    `civ7 game play consider-attributes --send`,
+    `civ7 game play change-tradition --send`, and
+    `civ7 game play consider-traditions --send` through the in-process
+    progression player-choice server-side clients under the `progression`
+    router. Keep endpoint flags as context construction, emit semantic
+    progression player-choice output, omit caller `--player-id` from send
+    mode and use fresh local-player evidence instead, preserve direct-control
+    player-operation validation for read-only mode, remove dead raw
+    `sendPlayOperation` fallback branches from migrated commands, and keep
+    sent player-choice results pending-runtime-proof/no-repeat guarded until a
+    real post-read owner proves the live review state changed.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1027,6 +1053,15 @@ adding more read-only facade shells.
   deployed Civ7 runtime proof, play-thread action, transport expansion, a
   government read service, controller ingress, or parent Task 5.x/6.x/7.x
   acceptance.
+- [x] 8.60.3 Run focused direct-control progression player-choice request
+  tests, focused control-oRPC progression player-choice procedure tests,
+  focused CLI attribute/tradition send tests, direct-control and
+  control-oRPC check/build/package gates, `check:cli`, `test:cli:play`,
+  relevant OpenSpec strict validates, and diff hygiene for the CLI
+  attribute/tradition send migration slice. These are local CLI and package
+  proofs only and do not claim deployed Civ7 runtime proof, play-thread
+  action, transport expansion, a progression read service, controller ingress,
+  public package-root schema exports, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

@@ -61,6 +61,11 @@
       "import": "./dist/proof/population-placement-proof-policy.js",
       "require": "./dist/proof/population-placement-proof-policy.cjs"
     },
+    "./proof/progression-player-choice-proof-policy": {
+      "types": "./dist/proof/progression-player-choice-proof-policy.d.ts",
+      "import": "./dist/proof/progression-player-choice-proof-policy.js",
+      "require": "./dist/proof/progression-player-choice-proof-policy.cjs"
+    },
     "./proof/progression-target-proof-policy": {
       "types": "./dist/proof/progression-target-proof-policy.d.ts",
       "import": "./dist/proof/progression-target-proof-policy.js",

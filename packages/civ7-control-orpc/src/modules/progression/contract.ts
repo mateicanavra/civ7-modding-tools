@@ -30,6 +30,35 @@ export type Civ7ProgressionTargetInput = Static<
   typeof Civ7ProgressionTargetInputSchema
 >;
 
+const Civ7ProgressionAttributePurchaseInputSchema = Type.Object(
+  {
+    node: Type.Integer(),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionAttributePurchaseInput = Static<
+  typeof Civ7ProgressionAttributePurchaseInputSchema
+>;
+
+const Civ7ProgressionPlayerReviewInputSchema = Type.Object(
+  {},
+  { additionalProperties: false },
+);
+export type Civ7ProgressionPlayerReviewInput = Static<
+  typeof Civ7ProgressionPlayerReviewInputSchema
+>;
+
+const Civ7ProgressionTraditionChangeInputSchema = Type.Object(
+  {
+    traditionType: Type.Integer(),
+    action: Type.Integer(),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTraditionChangeInput = Static<
+  typeof Civ7ProgressionTraditionChangeInputSchema
+>;
+
 export const Civ7ProgressionChoicePostconditionClassificationSchema =
   Type.Union([
     Type.Literal("not-sent"),
@@ -247,10 +276,159 @@ export type Civ7ProgressionCultureTargetResult = Static<
   typeof Civ7ProgressionCultureTargetResultSchema
 >;
 
+const Civ7ProgressionPlayerChoicePostconditionClassificationSchema =
+  Type.Union([
+    Type.Literal("not-sent"),
+    Type.Literal("pending-runtime-proof"),
+    Type.Literal("missing-postcondition"),
+  ]);
+
+const Civ7ProgressionPlayerChoiceProofOutcomeSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("unknown"),
+]);
+
+const Civ7ProgressionPlayerChoiceRequestStatusSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("sent-unverified"),
+]);
+
+const Civ7ProgressionPlayerChoiceValidationSummarySchema = Type.Object(
+  {
+    beforeValid: Type.Boolean(),
+    afterValid: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionPlayerChoicePostconditionSummarySchema = Type.Object(
+  {
+    classification: Civ7ProgressionPlayerChoicePostconditionClassificationSchema,
+    reason: Type.String(),
+    outcome: Civ7ProgressionPlayerChoiceProofOutcomeSchema,
+    confidence: Type.Union([
+      Type.Literal("unverified"),
+      Type.Literal("pending-runtime-proof"),
+    ]),
+    confirmed: Type.Boolean(),
+    noRepeatAfterUnverified: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionAttributePurchaseNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-progression-attribute"),
+    ]),
+    source: Type.Literal("progression.attribute.purchase.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionAttributeReviewNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-progression-attribute"),
+    ]),
+    source: Type.Literal("progression.attribute.review.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionTraditionChangeNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-progression-tradition"),
+    ]),
+    source: Type.Literal("progression.tradition.change.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionTraditionReviewNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-progression-tradition"),
+    ]),
+    source: Type.Literal("progression.tradition.review.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionPlayerChoiceResultBaseSchema = {
+  playerId: Type.Integer({ minimum: 0 }),
+  sent: Type.Boolean(),
+  status: Civ7ProgressionPlayerChoiceRequestStatusSchema,
+  validation: Civ7ProgressionPlayerChoiceValidationSummarySchema,
+  postcondition: Civ7ProgressionPlayerChoicePostconditionSummarySchema,
+} as const;
+
+const Civ7ProgressionAttributePurchaseResultSchema = Type.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    node: Type.Integer(),
+    nextSteps: Type.Array(Civ7ProgressionAttributePurchaseNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionAttributePurchaseResult = Static<
+  typeof Civ7ProgressionAttributePurchaseResultSchema
+>;
+
+const Civ7ProgressionAttributeReviewResultSchema = Type.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    nextSteps: Type.Array(Civ7ProgressionAttributeReviewNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionAttributeReviewResult = Static<
+  typeof Civ7ProgressionAttributeReviewResultSchema
+>;
+
+const Civ7ProgressionTraditionChangeResultSchema = Type.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    traditionType: Type.Integer(),
+    action: Type.Integer(),
+    nextSteps: Type.Array(Civ7ProgressionTraditionChangeNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTraditionChangeResult = Static<
+  typeof Civ7ProgressionTraditionChangeResultSchema
+>;
+
+const Civ7ProgressionTraditionReviewResultSchema = Type.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    nextSteps: Type.Array(Civ7ProgressionTraditionReviewNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTraditionReviewResult = Static<
+  typeof Civ7ProgressionTraditionReviewResultSchema
+>;
+
 export const Civ7ProgressionChoiceInputStandardSchema =
   toStandardSchema(Civ7ProgressionChoiceInputSchema);
 export const Civ7ProgressionTargetInputStandardSchema =
   toStandardSchema(Civ7ProgressionTargetInputSchema);
+const Civ7ProgressionAttributePurchaseInputStandardSchema =
+  toStandardSchema(Civ7ProgressionAttributePurchaseInputSchema);
+const Civ7ProgressionPlayerReviewInputStandardSchema =
+  toStandardSchema(Civ7ProgressionPlayerReviewInputSchema);
+const Civ7ProgressionTraditionChangeInputStandardSchema =
+  toStandardSchema(Civ7ProgressionTraditionChangeInputSchema);
 export const Civ7ProgressionTechnologyChoiceResultStandardSchema =
   toStandardSchema(Civ7ProgressionTechnologyChoiceResultSchema);
 export const Civ7ProgressionCultureChoiceResultStandardSchema =
@@ -259,6 +437,14 @@ export const Civ7ProgressionTechnologyTargetResultStandardSchema =
   toStandardSchema(Civ7ProgressionTechnologyTargetResultSchema);
 export const Civ7ProgressionCultureTargetResultStandardSchema =
   toStandardSchema(Civ7ProgressionCultureTargetResultSchema);
+const Civ7ProgressionAttributePurchaseResultStandardSchema =
+  toStandardSchema(Civ7ProgressionAttributePurchaseResultSchema);
+const Civ7ProgressionAttributeReviewResultStandardSchema =
+  toStandardSchema(Civ7ProgressionAttributeReviewResultSchema);
+const Civ7ProgressionTraditionChangeResultStandardSchema =
+  toStandardSchema(Civ7ProgressionTraditionChangeResultSchema);
+const Civ7ProgressionTraditionReviewResultStandardSchema =
+  toStandardSchema(Civ7ProgressionTraditionReviewResultSchema);
 
 export type Civ7ProgressionTechnologyChoiceContract = ContractProcedure<
   typeof Civ7ProgressionChoiceInputStandardSchema,
@@ -332,6 +518,78 @@ export const Civ7ProgressionCultureTargetContract:
       risk: "mutation",
     });
 
+type Civ7ProgressionAttributePurchaseContract = ContractProcedure<
+  typeof Civ7ProgressionAttributePurchaseInputStandardSchema,
+  typeof Civ7ProgressionAttributePurchaseResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7ProgressionAttributePurchaseContract:
+  Civ7ProgressionAttributePurchaseContract = civ7ControlOrpcContractBase
+    .input(Civ7ProgressionAttributePurchaseInputStandardSchema)
+    .output(Civ7ProgressionAttributePurchaseResultStandardSchema)
+    .meta({
+      family: "progression",
+      procedureKey: "progression.attribute.purchase.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
+type Civ7ProgressionAttributeReviewContract = ContractProcedure<
+  typeof Civ7ProgressionPlayerReviewInputStandardSchema,
+  typeof Civ7ProgressionAttributeReviewResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7ProgressionAttributeReviewContract:
+  Civ7ProgressionAttributeReviewContract = civ7ControlOrpcContractBase
+    .input(Civ7ProgressionPlayerReviewInputStandardSchema)
+    .output(Civ7ProgressionAttributeReviewResultStandardSchema)
+    .meta({
+      family: "progression",
+      procedureKey: "progression.attribute.review.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
+type Civ7ProgressionTraditionChangeContract = ContractProcedure<
+  typeof Civ7ProgressionTraditionChangeInputStandardSchema,
+  typeof Civ7ProgressionTraditionChangeResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7ProgressionTraditionChangeContract:
+  Civ7ProgressionTraditionChangeContract = civ7ControlOrpcContractBase
+    .input(Civ7ProgressionTraditionChangeInputStandardSchema)
+    .output(Civ7ProgressionTraditionChangeResultStandardSchema)
+    .meta({
+      family: "progression",
+      procedureKey: "progression.tradition.change.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
+type Civ7ProgressionTraditionReviewContract = ContractProcedure<
+  typeof Civ7ProgressionPlayerReviewInputStandardSchema,
+  typeof Civ7ProgressionTraditionReviewResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7ProgressionTraditionReviewContract:
+  Civ7ProgressionTraditionReviewContract = civ7ControlOrpcContractBase
+    .input(Civ7ProgressionPlayerReviewInputStandardSchema)
+    .output(Civ7ProgressionTraditionReviewResultStandardSchema)
+    .meta({
+      family: "progression",
+      procedureKey: "progression.tradition.review.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
 export type Civ7ProgressionContract = Readonly<{
   technology: Readonly<{
     choice: Readonly<{
@@ -347,6 +605,22 @@ export type Civ7ProgressionContract = Readonly<{
     }>;
     target: Readonly<{
       request: Civ7ProgressionCultureTargetContract;
+    }>;
+  }>;
+  attribute: Readonly<{
+    purchase: Readonly<{
+      request: Civ7ProgressionAttributePurchaseContract;
+    }>;
+    review: Readonly<{
+      request: Civ7ProgressionAttributeReviewContract;
+    }>;
+  }>;
+  tradition: Readonly<{
+    change: Readonly<{
+      request: Civ7ProgressionTraditionChangeContract;
+    }>;
+    review: Readonly<{
+      request: Civ7ProgressionTraditionReviewContract;
     }>;
   }>;
 }>;
@@ -366,6 +640,22 @@ export const Civ7ProgressionContract: Civ7ProgressionContract = {
     },
     target: {
       request: Civ7ProgressionCultureTargetContract,
+    },
+  },
+  attribute: {
+    purchase: {
+      request: Civ7ProgressionAttributePurchaseContract,
+    },
+    review: {
+      request: Civ7ProgressionAttributeReviewContract,
+    },
+  },
+  tradition: {
+    change: {
+      request: Civ7ProgressionTraditionChangeContract,
+    },
+    review: {
+      request: Civ7ProgressionTraditionReviewContract,
     },
   },
 };

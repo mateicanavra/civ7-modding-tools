@@ -6,6 +6,8 @@ import {
   getCiv7ReadyUnitView,
   getCiv7TargetCandidates,
   getCiv7TurnCompletionStatus,
+  requestCiv7AttributePurchase,
+  requestCiv7AttributeReviewCloseout,
   requestCiv7TurnComplete,
   requestCiv7DiplomacyResponse,
   requestCiv7FirstMeetResponse,
@@ -19,11 +21,15 @@ import {
   requestCiv7ProductionChoice,
   requestCiv7TechnologyChoiceCloseout,
   requestCiv7TechnologyTarget,
+  requestCiv7TraditionChange,
+  requestCiv7TraditionReviewCloseout,
   requestCiv7UnitCommand,
   requestCiv7UnitTargetAction,
   requestCiv7CultureTarget,
   type Civ7DirectControlOptions,
   Civ7BattlefieldScanResultSchema,
+  type Civ7AttributePurchaseInput,
+  type Civ7AttributeReviewInput,
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
   type Civ7FirstMeetResponseInput,
@@ -57,6 +63,9 @@ import {
   type Civ7TechnologyChoiceCloseoutResult,
   type Civ7ProgressionTargetInput,
   type Civ7ProgressionTargetResult,
+  type Civ7ProgressionPlayerChoiceResult,
+  type Civ7TraditionChangeInput,
+  type Civ7TraditionReviewInput,
   type Civ7TurnCompletionRequestResult,
   type Civ7UnitTargetActionInput,
   type PlayNotificationViewOptions,
@@ -83,6 +92,8 @@ export type Civ7ControlOrpcTechnologyChoiceCloseoutResult =
   Civ7TechnologyChoiceCloseoutResult;
 export type Civ7ControlOrpcProgressionTargetResult =
   Civ7ProgressionTargetResult;
+export type Civ7ControlOrpcProgressionPlayerChoiceResult =
+  Civ7ProgressionPlayerChoiceResult;
 export type Civ7ControlOrpcTurnCompletionRequestResult =
   Civ7TurnCompletionRequestResult;
 type Civ7ControlOrpcPopulationPlacementRuntimeResult =
@@ -171,6 +182,22 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Omit<Civ7ProgressionTargetInput, "kind">,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcProgressionTargetResult>;
+  requestCiv7AttributePurchase(
+    input: Omit<Civ7AttributePurchaseInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
+  requestCiv7AttributeReviewCloseout(
+    input: Omit<Civ7AttributeReviewInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
+  requestCiv7TraditionChange(
+    input: Omit<Civ7TraditionChangeInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
+  requestCiv7TraditionReviewCloseout(
+    input: Omit<Civ7TraditionReviewInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
   requestCiv7AssignWorkerPlacement(
     input: Civ7ControlOrpcAssignWorkerPlacementInput,
     options: Civ7DirectControlOptions | undefined,
@@ -249,6 +276,14 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7TechnologyTarget(input, options),
   requestCiv7CultureTarget: async (input, options) =>
     requestCiv7CultureTarget(input, options),
+  requestCiv7AttributePurchase: async (input, options) =>
+    requestCiv7AttributePurchase(input, options),
+  requestCiv7AttributeReviewCloseout: async (input, options) =>
+    requestCiv7AttributeReviewCloseout(input, options),
+  requestCiv7TraditionChange: async (input, options) =>
+    requestCiv7TraditionChange(input, options),
+  requestCiv7TraditionReviewCloseout: async (input, options) =>
+    requestCiv7TraditionReviewCloseout(input, options),
   requestCiv7AssignWorkerPlacement: async (input, options) =>
     requestCiv7PlayerOperation({
       playerId: input.playerId,
