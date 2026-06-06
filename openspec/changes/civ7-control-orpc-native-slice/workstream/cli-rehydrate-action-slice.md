@@ -22,6 +22,9 @@ responsible for exact flag combinations.
 
 - Rehydrate `commonActions` now emit semantic `kind`, `parameters`, `readOnly`,
   and `sendsMutation` descriptors instead of `cli` command recipes.
+- HUD decision common actions are route/inspect guidance: they remain
+  `readOnly: true` and `sendsMutation: false` until the agent chooses a
+  specialized validated action.
 - The text-mode output prints the semantic action kind instead of a command
   recipe.
 - This slice does not change direct-control notification/ready-unit reads,
@@ -35,6 +38,8 @@ responsible for exact flag combinations.
 
 - `bun run --cwd packages/cli test -- game.play.rehydrate.test.ts`
 - `bun run check:cli`
+- Focused HUD-decision fixture proving rehydrate does not emit mutation-sending
+  guidance for generic decision routing.
 - Strict OpenSpec validates for `civ7-control-orpc-native-slice` and
   `civ7-support-direct-control-modularization`.
 - Rehydrate common-action command-recipe output scan over changed CLI
