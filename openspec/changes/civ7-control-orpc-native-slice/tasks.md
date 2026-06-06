@@ -53,7 +53,7 @@
   in-process server-side client proof.
 - [x] 4.10 Freeze additional facade-only read wrapper expansion in the
   workstream authority.
-- [ ] 4.11 Replace transitional facade-only read wrappers with native
+- [x] 4.11 Replace transitional facade-only read wrappers with native
   service-owned procedure implementations or explicitly burn them down.
   - [x] 4.11.1 Burn down the transitional `unit.ready.view` control-oRPC
     facade leaf after `attention.current` became the service-owned ready-unit
@@ -396,7 +396,7 @@ adding more read-only facade shells.
     unverified or pending-runtime-proof outputs that would appear repeat-safe.
     Keep validator-first middleware, telemetry sinks, runtime proof, and
     parent Task 6.x acceptance pending.
-- [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
+- [x] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
     historical `runtime.playable.status`, `notifications.view`, and
