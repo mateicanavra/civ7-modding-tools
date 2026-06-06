@@ -209,19 +209,26 @@ describe('game play narrative commands', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         result: {
+          surface: string;
           enabledOptionCount: number;
           disabledOptionCount: number;
           omitted: Array<{ path: string; reason: string }>;
           surfaces: Array<{
             kind: string;
             targetStoryId: { owner: number; id: number; type: number } | null;
-            enabledOptions: Array<{ targetType: string; name: string; chooseCli: string | null; validateCli: string | null }>;
+            enabledOptions: Array<{
+              targetType: string;
+              name: string;
+              nextAction: { kind: string; parameters: { targetType: string; action: number }; sendsMutation: boolean };
+              validationAction: { kind: string; parameters: { targetType: string; action: number }; readOnly: boolean };
+            }>;
             options?: unknown;
             disabledOptions?: unknown;
           }>;
           details?: unknown;
         };
       };
+      expect(payload.result.surface).toBe('narrative-choice-options');
       expect(payload.result.enabledOptionCount).toBe(1);
       expect(payload.result.disabledOptionCount).toBe(0);
       expect(payload.result.details).toBeUndefined();
@@ -230,8 +237,17 @@ describe('game play narrative commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       expect(payload.result.surfaces[0].targetStoryId).toEqual({ owner: 0, id: 45, type: 35 });
       expect(payload.result.surfaces[0].enabledOptions[0].targetType).toBe('CLOSE');
-      expect(payload.result.surfaces[0].enabledOptions[0].chooseCli).toContain('game play choose-narrative --target-type CLOSE');
-      expect(payload.result.surfaces[0].enabledOptions[0].validateCli).toContain('--action -1326475004 --json');
+      expect(payload.result.surfaces[0].enabledOptions[0].nextAction).toMatchObject({
+        kind: 'choose-narrative',
+        parameters: { targetType: 'CLOSE', action: -1326475004 },
+        sendsMutation: true,
+      });
+      expect(payload.result.surfaces[0].enabledOptions[0].validationAction).toMatchObject({
+        kind: 'validate-narrative-choice',
+        parameters: { targetType: 'CLOSE', action: -1326475004 },
+        readOnly: true,
+      });
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].storyLinks');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -266,8 +282,13 @@ describe('game play narrative commands', () => {
             classification: string;
             targetStoryId: unknown;
             enabledOptions: unknown[];
-            dismissalDiagnosticCli: string | null;
-            unprovenDismissalCli: string | null;
+            dismissalDiagnosticAction: { kind: string; parameters: { target: { owner: number; id: number; type: number } }; readOnly: boolean } | null;
+            unprovenDismissalAction: {
+              kind: string;
+              parameters: { target: { owner: number; id: number; type: number } };
+              sendsMutation: boolean;
+              proofBoundary?: string;
+            } | null;
           }>;
         };
       };
@@ -275,12 +296,18 @@ describe('game play narrative commands', () => {
       expect(payload.result.surfaces[0].classification).toBe('narrative-choice-no-pending-story');
       expect(payload.result.surfaces[0].targetStoryId).toBeNull();
       expect(payload.result.surfaces[0].enabledOptions).toEqual([]);
-      expect(payload.result.surfaces[0].dismissalDiagnosticCli).toBe(
-        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --json',
-      );
-      expect(payload.result.surfaces[0].unprovenDismissalCli).toBe(
-        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --send',
-      );
+      expect(payload.result.surfaces[0].dismissalDiagnosticAction).toMatchObject({
+        kind: 'inspect-notification-dismissal',
+        parameters: { target: { owner: 0, id: 5, type: 20 } },
+        readOnly: true,
+      });
+      expect(payload.result.surfaces[0].unprovenDismissalAction).toMatchObject({
+        kind: 'dismiss-notification',
+        parameters: { target: { owner: 0, id: 5, type: 20 } },
+        sendsMutation: true,
+        proofBoundary: 'unproven-dismissal',
+      });
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       log.mockRestore();
@@ -313,8 +340,12 @@ describe('game play narrative commands', () => {
             classification: string;
             targetStoryId: unknown;
             visiblePanelTargetStoryId: { owner: number; id: number; type: number } | null;
-            enabledOptions: Array<{ targetType: string; target: { owner: number; id: number; type: number }; chooseCli: string | null }>;
-            dismissalDiagnosticCli: string | null;
+            enabledOptions: Array<{
+              targetType: string;
+              target: { owner: number; id: number; type: number };
+              nextAction: { kind: string; parameters: { target: { owner: number; id: number; type: number } }; sendsMutation: boolean };
+            }>;
+            dismissalDiagnosticAction: unknown;
           }>;
         };
       };
@@ -326,8 +357,13 @@ describe('game play narrative commands', () => {
         'DISCOVERY_14001B',
         'DISCOVERY_14001C',
       ]);
-      expect(payload.result.surfaces[0].enabledOptions[0].chooseCli).toContain("--target '{\"owner\":0,\"id\":25,\"type\":35}'");
-      expect(payload.result.surfaces[0].dismissalDiagnosticCli).toBeNull();
+      expect(payload.result.surfaces[0].enabledOptions[0].nextAction).toMatchObject({
+        kind: 'choose-narrative',
+        parameters: { target: { owner: 0, id: 25, type: 35 } },
+        sendsMutation: true,
+      });
+      expect(payload.result.surfaces[0].dismissalDiagnosticAction).toBeNull();
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       log.mockRestore();

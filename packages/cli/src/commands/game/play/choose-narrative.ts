@@ -11,6 +11,23 @@ import {
 
 const CHOOSE_NARRATIVE_STORY_DIRECTION = 'CHOOSE_NARRATIVE_STORY_DIRECTION';
 
+type NarrativeOptionAction = {
+  kind: 'choose-narrative' | 'validate-narrative-choice';
+  label: string;
+  parameters: Record<string, unknown>;
+  readOnly: boolean;
+  sendsMutation: boolean;
+};
+
+type NarrativeDismissalAction = {
+  kind: 'inspect-notification-dismissal' | 'dismiss-notification';
+  label: string;
+  parameters: Record<string, unknown>;
+  readOnly: boolean;
+  sendsMutation: boolean;
+  proofBoundary?: 'unproven-dismissal';
+};
+
 export default class GamePlayChooseNarrative extends Command {
   static id = 'game play choose-narrative';
   static summary = 'Validate or choose a narrative story direction';
@@ -69,18 +86,18 @@ export default class GamePlayChooseNarrative extends Command {
       const details = narrativeChoiceDetails(view);
       const surfaces = details.map(compactNarrativeChoiceSurface);
       emitPlayResult(this.log.bind(this), flags.json, {
-        command: 'game play choose-narrative --options',
+        surface: 'narrative-choice-options',
         surfaces,
         enabledOptionCount: surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0),
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use game play notifications --json for raw option and validation evidence' },
+          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
           { path: 'details[].disabledOptions', reason: 'disabled narrative buttons are counted here; use notifications --json when disabled-option evidence matters' },
           { path: 'details[].storyLinks', reason: 'official story-link rows are summarized per enabled row' },
         ],
         notes: [
           'Options come from the live notification HUD materializer, which mirrors official narrative popup buttons and validates CHOOSE_NARRATIVE_STORY_DIRECTION through PlayerOperations.',
-          'Use a returned enabled option cli as the single caller-level narrative choice.',
+          'Action guidance is semantic; command help owns exact flag combinations.',
         ],
       });
       return;
@@ -158,8 +175,8 @@ function compactNarrativeChoiceSurface(details: Record<string, unknown>): {
   enabledOptions: Array<Record<string, unknown>>;
   enabledOptionCount: number;
   disabledOptionCount: number;
-  dismissalDiagnosticCli: unknown;
-  unprovenDismissalCli: unknown;
+  dismissalDiagnosticAction: NarrativeDismissalAction | null;
+  unprovenDismissalAction: NarrativeDismissalAction | null;
   notes: unknown;
 } {
   const visiblePanel = probeValue(details.visiblePanel);
@@ -179,9 +196,11 @@ function compactNarrativeChoiceSurface(details: Record<string, unknown>): {
       reward: option.reward,
       imperative: option.imperative,
       cost: option.cost,
-      chooseCli: option.cli,
-      validateCli: option.validateCli,
+      nextAction: narrativeOptionAction('choose-narrative', option),
+      validationAction: narrativeOptionAction('validate-narrative-choice', option),
     }));
+  const notificationId = details.notificationId ?? null;
+  const hasDismissalFallback = enabledOptions.length === 0 && notificationId !== null;
   return {
     kind: 'narrative-choice-options',
     classification: details.classification ?? null,
@@ -196,9 +215,50 @@ function compactNarrativeChoiceSurface(details: Record<string, unknown>): {
     enabledOptions,
     enabledOptionCount: enabledOptions.length,
     disabledOptionCount: asArray(details.disabledOptions).length,
-    dismissalDiagnosticCli: typeof details.dismissalDiagnosticCli === 'string' ? details.dismissalDiagnosticCli : null,
-    unprovenDismissalCli: typeof details.unprovenDismissalCli === 'string' ? details.unprovenDismissalCli : null,
+    dismissalDiagnosticAction: hasDismissalFallback
+      ? narrativeDismissalAction('inspect-notification-dismissal', notificationId)
+      : null,
+    unprovenDismissalAction: hasDismissalFallback
+      ? narrativeDismissalAction('dismiss-notification', notificationId)
+      : null,
     notes: asArray(details.notes),
+  };
+}
+
+function narrativeOptionAction(
+  kind: NarrativeOptionAction['kind'],
+  option: Record<string, unknown>,
+): NarrativeOptionAction {
+  const readOnly = kind === 'validate-narrative-choice';
+  return {
+    kind,
+    label: readOnly
+      ? 'Validate this narrative choice before sending.'
+      : 'Choose this narrative option after reviewing validation evidence.',
+    parameters: {
+      targetType: option.targetType,
+      target: option.target,
+      action: option.action,
+    },
+    readOnly,
+    sendsMutation: !readOnly,
+  };
+}
+
+function narrativeDismissalAction(
+  kind: NarrativeDismissalAction['kind'],
+  target: unknown,
+): NarrativeDismissalAction {
+  const readOnly = kind === 'inspect-notification-dismissal';
+  return {
+    kind,
+    label: readOnly
+      ? 'Inspect dismissal evidence for this notification.'
+      : 'Dismiss only after reviewing dismissal evidence.',
+    parameters: { target },
+    readOnly,
+    sendsMutation: !readOnly,
+    ...(readOnly ? {} : { proofBoundary: 'unproven-dismissal' as const }),
   };
 }
 
