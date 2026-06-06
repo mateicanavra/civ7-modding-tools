@@ -162,6 +162,23 @@ describe('game play notifications command', () => {
     }
   });
 
+  test('renders text action guidance without command recipes', async () => {
+    const { writes, server } = await runNotificationHudText('stale-diplomacy');
+    try {
+      const output = writes.join('\n');
+      expect(output).toContain('Decision HUD');
+      expect(output).toContain('action: diplomacy-response');
+      expect(output).toContain('operation: player-operation RESPOND_DIPLOMATIC_ACTION');
+      expect(output).not.toContain('shortcut:');
+      expect(output).not.toContain('  cli:');
+      expect(output).not.toContain('game play ');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('classifies invalid-target diplomatic agenda notices as informational closeouts', async () => {
     const { payload, server } = await runNotificationHud('diplomatic-report');
     try {
@@ -260,6 +277,30 @@ async function runNotificationHud(mode: NotificationHudMode = 'default') {
 
   return {
     payload,
+    server,
+  };
+}
+
+async function runNotificationHudText(mode: NotificationHudMode = 'default') {
+  const server = await startNotificationHudTunerServer(mode);
+  const writes: string[] = [];
+  const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+    if (message) writes.push(message);
+  });
+  try {
+    const { port } = server.address();
+    await GamePlayNotifications.run([
+      '--host',
+      '127.0.0.1',
+      '--port',
+      String(port),
+    ]);
+  } finally {
+    log.mockRestore();
+  }
+
+  return {
+    writes,
     server,
   };
 }
