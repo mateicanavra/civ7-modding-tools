@@ -284,6 +284,26 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   caller migration reconciles that convenience command
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI population placement sends use native city procedure
+- **WHEN** `game play assign-worker --send` or `game play expand-city --send`
+  requests city population placement
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process `city.population.place.request`
+  server-side client under the `city` router
+- **AND** the procedure's readiness, direct-control population placement
+  runtime ports, population postcondition projection, and no-repeat policy
+  remain authoritative for the send
+- **AND** the normal JSON result is the semantic city population placement
+  procedure projection without raw command/session/state/Tuner details, send
+  results, before/after population postcondition envelopes, direct-control
+  operation envelopes, or legacy `verified`
+- **AND** the read-only validation paths remain direct-control operation
+  validation until a separate accepted service read exists
+- **AND** `assign-worker --send` is bounded to the source-owned one-worker
+  placement atom rather than silently treating `--amount` as repeated send
+  authority
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: CLI diplomacy response send uses native diplomacy procedure
 - **WHEN** `game play respond-diplomacy --send` requests a diplomacy response
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags

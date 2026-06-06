@@ -439,6 +439,14 @@ adding more read-only facade shells.
     `--player-id` as send authority, preserve the existing direct-control
     `--options` and player-operation validation paths for read-only mode, and
     keep live runtime proof pending.
+  - [x] 7.1.8 Route `civ7 game play assign-worker --send` and
+    `civ7 game play expand-city --send` through the in-process
+    `city.population.place.request` server-side client under the `city` router.
+    Keep endpoint flags as context construction, emit the semantic city
+    population placement projection for send output, preserve the existing
+    direct-control validation paths for read-only mode, bound assign-worker send
+    mode to the source-owned one-worker placement atom, and keep live runtime
+    proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -914,6 +922,12 @@ adding more read-only facade shells.
   controller-context supported-procedure dispatch gate. These are local package
   and bundle proofs only and do not claim deployed Civ7 runtime proof,
   play-thread action, transport expansion, or full `7.3` acceptance.
+- [x] 8.59 Run focused CLI population placement tests, `check:cli`,
+  `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for the
+  CLI assign-worker and expand-city send migration slice. These are local CLI
+  and package proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, a population read service, or parent
+  Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
