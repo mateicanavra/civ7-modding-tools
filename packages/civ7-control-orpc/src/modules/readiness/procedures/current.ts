@@ -90,12 +90,12 @@ function readinessCapability(
 
   switch (status.readiness) {
     case "app-ui-game":
-      if (supportsAttentionCurrent(context)) {
+      if (supportedReadProcedures(context).length > 0) {
         return {
           canObserve: true,
           canMutate: false,
           reason:
-            "The game UI controller can read supported attention; broad runtime mutation remains unavailable.",
+            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
         };
       }
       return {
@@ -145,6 +145,13 @@ function readinessNextSteps(
       label: "Read current attention before choosing support actions.",
     }];
   }
+  if (status.readiness === "app-ui-game" && supportsStrategyFront(context)) {
+    return [{
+      kind: "read-strategy-front",
+      source: "readiness.current",
+      label: "Read strategy front summary before choosing tactical support actions.",
+    }];
+  }
 
   switch (status.readiness) {
     case "app-ui-game":
@@ -182,8 +189,15 @@ function readinessNextSteps(
 }
 
 function supportsAttentionCurrent(context: Civ7ControlOrpcContext): boolean {
-  return context.controller?.supportedReadProcedures?.includes("attention.current")
-    === true;
+  return supportedReadProcedures(context).includes("attention.current");
+}
+
+function supportsStrategyFront(context: Civ7ControlOrpcContext): boolean {
+  return supportedReadProcedures(context).includes("strategy.frontSummary");
+}
+
+function supportedReadProcedures(context: Civ7ControlOrpcContext): readonly string[] {
+  return context.controller?.supportedReadProcedures ?? [];
 }
 
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | null {

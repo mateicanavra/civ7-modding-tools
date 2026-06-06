@@ -607,15 +607,15 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   ambient `Game.Notifications`, `NotificationModel`, `GameContext`, and
   notification queue evidence without tuner socket/session command
   serialization
-- **AND** broad `readiness.current` observe/mutate capability remains
-  conservative until game UI read/attention and mutation surfaces are actually
-  implemented
+- **AND** broad `readiness.current` mutation capability remains conservative
+  until game UI mutation surfaces are actually implemented
 - **AND** native mutation readiness admits only the explicitly context-listed
   `notifications.dismiss.request` game-UI mutation while other mutation ports
   remain bounded as unsupported
 - **AND** `readiness.current` exposes the same context-listed controller
-  support as bounded procedure capability facts without changing broad
-  `canObserve` or `canMutate` readiness
+  support as bounded procedure capability facts; read support may set
+  `canObserve`, but mutation support MUST NOT set `canMutate` unless the
+  runtime readiness source proves mutation capability
 - **AND** normal bridge success output remains the semantic notification
   dismissal result and omits raw route internals, host, port,
   state, command, rawCommand, session, and tuner payloads
@@ -867,6 +867,10 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `strategy.frontSummary` is listed as a supported game-UI read only
   when controller proof and the required ambient owner, unit, city, and map
   APIs are present
+- **AND** `readiness.current` reports observation capability for a controller
+  context that lists `strategy.frontSummary` as a supported read, keeps
+  `canMutate: false`, and recommends `read-strategy-front` when
+  `attention.current` is not supported
 - **AND** bridge ingress allowlists the semantic `strategy.frontSummary`
   procedure only, not raw `targetCandidates`, `battlefieldScan`, or generic
   tactical catalog leaves

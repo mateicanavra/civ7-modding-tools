@@ -694,6 +694,13 @@ adding more read-only facade shells.
     omission; keep target-action send authority, generic strategy catalogs,
     hostile/enemy/opponent/threat/war/ally/suzerain labels, deployed Civ7
     proof, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.26 Repair `readiness.current` supported-read projection after
+    `strategy.frontSummary`: let any context-listed game-UI read procedure set
+    observe capability without implying mutation capability, keep
+    `attention.current` as the preferred read next step when available, and
+    recommend `read-strategy-front` when strategy is the only supported read.
+    Keep deployed Civ7 proof, transport expansion, broad read catalogs, mutation
+    capability, play-thread action, and full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -870,6 +877,13 @@ adding more read-only facade shells.
   are local package and bundle proofs only and do not claim deployed Civ7
   runtime proof, play-thread action, target-action send authority, relationship
   labels beyond official evidence, generic strategy catalogs, or full `7.3`
+  acceptance.
+- [x] 8.56 Run focused readiness/current, game-ui controller, and controller
+  ingress tests plus control-oRPC test/check/build, controller mod
+  test/check/build with bundle scan, strict OpenSpec validates, and diff hygiene
+  for the supported-read readiness projection repair. These are local package
+  and bundle proofs only and do not claim deployed Civ7 runtime proof,
+  transport expansion, mutation capability, play-thread action, or full `7.3`
   acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the

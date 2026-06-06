@@ -78,7 +78,7 @@ describe("Civ7 game UI controller bootstrap", () => {
           canObserve: true,
           canMutate: false,
           reason:
-            "The game UI controller can read supported attention; broad runtime mutation remains unavailable.",
+            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
         },
         controller: {
           supportedProcedures: [
@@ -265,6 +265,12 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(readiness).toMatchObject({
       ok: true,
       output: {
+        capability: {
+          canObserve: true,
+          canMutate: false,
+          reason:
+            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+        },
         controller: {
           supportedProcedures: expect.arrayContaining([
             {
@@ -511,6 +517,12 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(readiness).toMatchObject({
       ok: true,
       output: {
+        capability: {
+          canObserve: true,
+          canMutate: false,
+          reason:
+            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+        },
         controller: {
           supportedProcedures: expect.arrayContaining([
             {
@@ -816,6 +828,12 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(readiness).toMatchObject({
       ok: true,
       output: {
+        capability: {
+          canObserve: true,
+          canMutate: false,
+          reason:
+            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+        },
         controller: {
           supportedProcedures: expect.arrayContaining([
             {
@@ -1375,6 +1393,12 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(readiness).toMatchObject({
       ok: true,
       output: {
+        capability: {
+          canObserve: true,
+          canMutate: false,
+          reason:
+            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+        },
         controller: {
           supportedProcedures: expect.arrayContaining([
             {
@@ -1383,6 +1407,11 @@ describe("Civ7 game UI controller bootstrap", () => {
             },
           ]),
         },
+        nextSteps: [{
+          kind: "read-strategy-front",
+          source: "readiness.current",
+          label: "Read strategy front summary before choosing tactical support actions.",
+        }],
       },
     });
 

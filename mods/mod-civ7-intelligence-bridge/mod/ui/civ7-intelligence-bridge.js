@@ -27178,7 +27178,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-KYB3KRNH.js
+// ../../packages/civ7-control-orpc/dist/chunk-UH7TVMR5.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -29154,6 +29154,7 @@ var Civ7ReadinessNextStepSchema = typebox_exports.Object(
   {
     kind: typebox_exports.Union([
       typebox_exports.Literal("read-attention"),
+      typebox_exports.Literal("read-strategy-front"),
       typebox_exports.Literal("restore-tuner"),
       typebox_exports.Literal("begin-game"),
       typebox_exports.Literal("wait-loading"),
@@ -30808,11 +30809,11 @@ function readinessCapability(status, context5) {
   }
   switch (status.readiness) {
     case "app-ui-game":
-      if (supportsAttentionCurrent(context5)) {
+      if (supportedReadProcedures(context5).length > 0) {
         return {
           canObserve: true,
           canMutate: false,
-          reason: "The game UI controller can read supported attention; broad runtime mutation remains unavailable."
+          reason: "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable."
         };
       }
       return {
@@ -30855,6 +30856,13 @@ function readinessNextSteps(status, context5) {
       label: "Read current attention before choosing support actions."
     }];
   }
+  if (status.readiness === "app-ui-game" && supportsStrategyFront(context5)) {
+    return [{
+      kind: "read-strategy-front",
+      source: "readiness.current",
+      label: "Read strategy front summary before choosing tactical support actions."
+    }];
+  }
   switch (status.readiness) {
     case "app-ui-game":
       return [{
@@ -30890,7 +30898,13 @@ function readinessNextSteps(status, context5) {
   }
 }
 function supportsAttentionCurrent(context5) {
-  return context5.controller?.supportedReadProcedures?.includes("attention.current") === true;
+  return supportedReadProcedures(context5).includes("attention.current");
+}
+function supportsStrategyFront(context5) {
+  return supportedReadProcedures(context5).includes("strategy.frontSummary");
+}
+function supportedReadProcedures(context5) {
+  return context5.controller?.supportedReadProcedures ?? [];
 }
 function probeValue32(probe10) {
   return probe10.ok ? probe10.value : null;

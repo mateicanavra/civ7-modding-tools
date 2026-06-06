@@ -172,7 +172,7 @@ describe("readiness.current control-oRPC procedure", () => {
         canObserve: true,
         canMutate: false,
         reason:
-          "The game UI controller can read supported attention; broad runtime mutation remains unavailable.",
+          "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
       },
       controller: {
         supportedProcedures: [
@@ -191,6 +191,47 @@ describe("readiness.current control-oRPC procedure", () => {
         source: "readiness.current",
       }],
     });
+  });
+
+  test("recommends strategy front when it is the supported controller read", async () => {
+    const fake = fakeContext(playableStatusResult({
+      playable: false,
+      readiness: "app-ui-game",
+      tunerReady: null,
+    }), {
+      controller: {
+        supportedReadProcedures: ["strategy.frontSummary"],
+      },
+    });
+
+    const result = await call(Civ7ControlOrpcRouter.readiness.current, {}, {
+      context: fake.context,
+    });
+
+    expect(result).toMatchObject({
+      playable: false,
+      readiness: "app-ui-game",
+      capability: {
+        canObserve: true,
+        canMutate: false,
+        reason:
+          "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+      },
+      controller: {
+        supportedProcedures: [{
+          procedureKey: "strategy.frontSummary",
+          risk: "read-only",
+        }],
+      },
+      nextSteps: [{
+        kind: "read-strategy-front",
+        source: "readiness.current",
+        label: "Read strategy front summary before choosing tactical support actions.",
+      }],
+    });
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain(
+      "read-attention",
+    );
   });
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
