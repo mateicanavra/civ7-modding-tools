@@ -243,9 +243,6 @@ function traditionsViewResult(
     available: [available],
     recentUnlocks: [available],
     traditions: [active, available],
-    recommendedCli: [
-      `game play change-tradition --player-id 0 --tradition-type 90243567 --action ${activate}`,
-    ],
     hiddenInfoPolicy: "player-culture-runtime",
     notes: [
       "Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.",
@@ -285,7 +282,6 @@ function tradition(input: Readonly<{
         Action: input.action.action,
       },
       validation: probe({ Success: true }),
-      cli: `game play change-tradition --player-id 0 --tradition-type ${input.id} --action ${input.action.action}`,
     }],
   };
 }

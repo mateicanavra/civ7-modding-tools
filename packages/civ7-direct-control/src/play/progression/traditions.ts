@@ -36,7 +36,6 @@ export function traditionsViewSource(): string {
           operationType: "CHANGE_TRADITION",
           args,
           validation,
-          cli: "game play change-tradition --player-id " + playerId + " --tradition-type " + traditionId + " --action " + action,
         };
       };
       const summarize = (id) => {

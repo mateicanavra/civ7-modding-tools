@@ -102,8 +102,9 @@ describe("Civ7 traditions-view procedure descriptor", () => {
     expect(result.output).toEqual(traditionsViewResult());
     expect(result.output.active[0].actionHints[0]).toMatchObject({
       operationType: "CHANGE_TRADITION",
-      cli: "game play change-tradition --player-id 0 --tradition-type 101 --action 2",
+      args: { TraditionType: 101, Action: 2 },
     });
+    expect(JSON.stringify(result.output)).not.toContain("game play change-tradition");
     expect(result.output.notes.join("\n")).toContain("Read-only traditions view");
     expect(result.diagnostics).toMatchObject({
       procedureKey: "strategy.traditions.view",
@@ -270,7 +271,6 @@ function traditionSummary(input: {
         operationType: "CHANGE_TRADITION" as const,
         args: { TraditionType: input.id, Action: input.action },
         validation: { ok: true as const, value: { Success: true } },
-        cli: `game play change-tradition --player-id 0 --tradition-type ${input.id} --action ${input.action}`,
       },
     ],
   };

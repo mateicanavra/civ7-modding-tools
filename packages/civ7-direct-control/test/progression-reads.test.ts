@@ -44,6 +44,20 @@ describe("progression read surfaces", () => {
     })).toBe(false);
     expect(Value.Check(Civ7TraditionsViewResultSchema, {
       ...result,
+      active: [
+        {
+          ...result.active[0],
+          actionHints: [
+            {
+              ...result.active[0].actionHints[0],
+              cli: "game play change-tradition --send",
+            },
+          ],
+        },
+      ],
+    })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewResultSchema, {
+      ...result,
       hiddenInfoPolicy: "raw-debug-output",
     })).toBe(false);
     expect(Value.Check(Civ7TraditionsViewResultSchema, {
@@ -134,6 +148,8 @@ describe("progression read surfaces", () => {
         hiddenInfoPolicy: "player-culture-runtime",
       });
       expect("recommendedCli" in view).toBe(false);
+      expect(JSON.stringify(view.active)).not.toContain("game play change-tradition");
+      expect(JSON.stringify(view.available)).not.toContain("game play change-tradition");
       expect(view.notes.join("\n")).toContain("Read-only traditions view");
       expect(view.notes.join("\n")).toContain("does not send CHANGE_TRADITION");
       expect(view.notes.join("\n")).not.toContain("game play change-tradition");
@@ -386,7 +402,6 @@ function traditionSummary(input: {
         operationType: "CHANGE_TRADITION",
         args: { TraditionType: input.id, Action: input.action },
         validation: input.validation,
-        cli: `game play change-tradition --player-id 0 --tradition-type ${input.id} --action ${input.action}`,
       },
     ],
   };

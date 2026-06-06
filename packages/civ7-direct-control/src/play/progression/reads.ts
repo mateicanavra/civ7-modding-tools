@@ -40,7 +40,6 @@ export const Civ7TraditionActionSchema = Type.Object({
     Action: Type.Union([Type.Number(), Type.Null()]),
   }, { additionalProperties: false }),
   validation: Civ7RuntimeProbeSchema(Type.Unknown()),
-  cli: Type.String(),
 }, { additionalProperties: false });
 
 export type Civ7TraditionAction = Readonly<{
@@ -52,7 +51,6 @@ export type Civ7TraditionAction = Readonly<{
     Action: number | null;
   }>;
   validation: Civ7RuntimeProbe<unknown>;
-  cli: string;
 }>;
 
 export const Civ7TraditionSummarySchema = Type.Object({
