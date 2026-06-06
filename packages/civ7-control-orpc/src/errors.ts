@@ -238,6 +238,31 @@ export class Civ7ProgressionChoiceUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7ProgressionTargetUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("progression.technology.target.request"),
+      Type.Literal("progression.culture.target.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTargetUnavailableErrorData = Static<
+  typeof Civ7ProgressionTargetUnavailableErrorDataSchema
+>;
+
+export class Civ7ProgressionTargetUnavailableError extends ORPCTaggedError(
+  "Civ7ProgressionTargetUnavailableError",
+  {
+    code: "PROGRESSION_TARGET_UNAVAILABLE",
+    message: "Direct-control progression target request failed.",
+    schema: toStandardSchema(Civ7ProgressionTargetUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7TurnCompletionUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("turn.complete.request"),
@@ -415,6 +440,7 @@ export const civ7ControlOrpcErrorMap = {
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
+  PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,

@@ -704,7 +704,23 @@ export {
 export {
   getCiv7ProgressDashboard,
   getCiv7TraditionsView,
-};
+} from "./play/progression/reads.js";
+export type {
+  Civ7ProgressionTargetInput,
+  Civ7ProgressionTargetKind,
+  Civ7ProgressionTargetPostcondition,
+  Civ7ProgressionTargetPostconditionClassification,
+  Civ7ProgressionTargetResult,
+} from "./play/progression/target-request.js";
+export {
+  requestCiv7CultureTarget,
+  requestCiv7ProgressionTarget,
+  requestCiv7TechnologyTarget,
+} from "./play/progression/target-request.js";
+export {
+  progressionTargetProofOutcome,
+  progressionTargetProofPostcondition,
+} from "./proof/progression-target-proof-policy.js";
 export {
   callCiv7TraditionsViewProcedure,
   Civ7TraditionsViewProcedureDescriptor,

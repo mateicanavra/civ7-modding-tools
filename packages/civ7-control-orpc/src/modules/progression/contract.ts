@@ -19,6 +19,17 @@ export type Civ7ProgressionChoiceInput = Static<
   typeof Civ7ProgressionChoiceInputSchema
 >;
 
+export const Civ7ProgressionTargetInputSchema = Type.Object(
+  {
+    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
+    node: Type.Integer(),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTargetInput = Static<
+  typeof Civ7ProgressionTargetInputSchema
+>;
+
 export const Civ7ProgressionChoicePostconditionClassificationSchema =
   Type.Union([
     Type.Literal("not-sent"),
@@ -140,12 +151,114 @@ export type Civ7ProgressionCultureChoiceResult = Static<
   typeof Civ7ProgressionCultureChoiceResultSchema
 >;
 
+export const Civ7ProgressionTargetPostconditionClassificationSchema =
+  Type.Union([
+    Type.Literal("not-sent"),
+    Type.Literal("pending-runtime-proof"),
+    Type.Literal("missing-postcondition"),
+  ]);
+
+export const Civ7ProgressionTargetProofOutcomeSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("unknown"),
+]);
+
+export const Civ7ProgressionTargetRequestStatusSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("sent-unverified"),
+]);
+
+export const Civ7ProgressionTargetValidationSummarySchema = Type.Object(
+  {
+    beforeValid: Type.Boolean(),
+    afterValid: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+
+export const Civ7ProgressionTargetPostconditionSummarySchema = Type.Object(
+  {
+    classification: Civ7ProgressionTargetPostconditionClassificationSchema,
+    reason: Type.String(),
+    outcome: Civ7ProgressionTargetProofOutcomeSchema,
+    confidence: Type.Union([
+      Type.Literal("unverified"),
+      Type.Literal("pending-runtime-proof"),
+    ]),
+    confirmed: Type.Boolean(),
+    noRepeatAfterUnverified: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+
+export const Civ7ProgressionTechnologyTargetNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-progression-target"),
+    ]),
+    source: Type.Literal("progression.technology.target.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+export const Civ7ProgressionCultureTargetNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-progression-target"),
+    ]),
+    source: Type.Literal("progression.culture.target.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+export const Civ7ProgressionTechnologyTargetResultSchema = Type.Object(
+  {
+    playerId: Type.Integer({ minimum: 0 }),
+    node: Type.Integer(),
+    sent: Type.Boolean(),
+    status: Civ7ProgressionTargetRequestStatusSchema,
+    validation: Civ7ProgressionTargetValidationSummarySchema,
+    postcondition: Civ7ProgressionTargetPostconditionSummarySchema,
+    nextSteps: Type.Array(Civ7ProgressionTechnologyTargetNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTechnologyTargetResult = Static<
+  typeof Civ7ProgressionTechnologyTargetResultSchema
+>;
+
+export const Civ7ProgressionCultureTargetResultSchema = Type.Object(
+  {
+    playerId: Type.Integer({ minimum: 0 }),
+    node: Type.Integer(),
+    sent: Type.Boolean(),
+    status: Civ7ProgressionTargetRequestStatusSchema,
+    validation: Civ7ProgressionTargetValidationSummarySchema,
+    postcondition: Civ7ProgressionTargetPostconditionSummarySchema,
+    nextSteps: Type.Array(Civ7ProgressionCultureTargetNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionCultureTargetResult = Static<
+  typeof Civ7ProgressionCultureTargetResultSchema
+>;
+
 export const Civ7ProgressionChoiceInputStandardSchema =
   toStandardSchema(Civ7ProgressionChoiceInputSchema);
+export const Civ7ProgressionTargetInputStandardSchema =
+  toStandardSchema(Civ7ProgressionTargetInputSchema);
 export const Civ7ProgressionTechnologyChoiceResultStandardSchema =
   toStandardSchema(Civ7ProgressionTechnologyChoiceResultSchema);
 export const Civ7ProgressionCultureChoiceResultStandardSchema =
   toStandardSchema(Civ7ProgressionCultureChoiceResultSchema);
+export const Civ7ProgressionTechnologyTargetResultStandardSchema =
+  toStandardSchema(Civ7ProgressionTechnologyTargetResultSchema);
+export const Civ7ProgressionCultureTargetResultStandardSchema =
+  toStandardSchema(Civ7ProgressionCultureTargetResultSchema);
 
 export type Civ7ProgressionTechnologyChoiceContract = ContractProcedure<
   typeof Civ7ProgressionChoiceInputStandardSchema,
@@ -183,15 +296,57 @@ export const Civ7ProgressionCultureChoiceContract:
       risk: "mutation",
     });
 
+export type Civ7ProgressionTechnologyTargetContract = ContractProcedure<
+  typeof Civ7ProgressionTargetInputStandardSchema,
+  typeof Civ7ProgressionTechnologyTargetResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+export const Civ7ProgressionTechnologyTargetContract:
+  Civ7ProgressionTechnologyTargetContract = civ7ControlOrpcContractBase
+    .input(Civ7ProgressionTargetInputStandardSchema)
+    .output(Civ7ProgressionTechnologyTargetResultStandardSchema)
+    .meta({
+      family: "progression",
+      procedureKey: "progression.technology.target.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
+export type Civ7ProgressionCultureTargetContract = ContractProcedure<
+  typeof Civ7ProgressionTargetInputStandardSchema,
+  typeof Civ7ProgressionCultureTargetResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+export const Civ7ProgressionCultureTargetContract:
+  Civ7ProgressionCultureTargetContract = civ7ControlOrpcContractBase
+    .input(Civ7ProgressionTargetInputStandardSchema)
+    .output(Civ7ProgressionCultureTargetResultStandardSchema)
+    .meta({
+      family: "progression",
+      procedureKey: "progression.culture.target.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
 export type Civ7ProgressionContract = Readonly<{
   technology: Readonly<{
     choice: Readonly<{
       request: Civ7ProgressionTechnologyChoiceContract;
     }>;
+    target: Readonly<{
+      request: Civ7ProgressionTechnologyTargetContract;
+    }>;
   }>;
   culture: Readonly<{
     choice: Readonly<{
       request: Civ7ProgressionCultureChoiceContract;
+    }>;
+    target: Readonly<{
+      request: Civ7ProgressionCultureTargetContract;
     }>;
   }>;
 }>;
@@ -201,10 +356,16 @@ export const Civ7ProgressionContract: Civ7ProgressionContract = {
     choice: {
       request: Civ7ProgressionTechnologyChoiceContract,
     },
+    target: {
+      request: Civ7ProgressionTechnologyTargetContract,
+    },
   },
   culture: {
     choice: {
       request: Civ7ProgressionCultureChoiceContract,
+    },
+    target: {
+      request: Civ7ProgressionCultureTargetContract,
     },
   },
 };

@@ -259,6 +259,14 @@ adding more read-only facade shells.
     direct-control technology/culture closeout ports. Keep caller `playerId` as
     validation/context input, not controller/runtime send authority, and keep
     progression bridge allowlisting pending.
+  - [x] 5.5.13.2 Seed `progression.technology.target.request` and
+    `progression.culture.target.request` as native service-owned progression
+    target-setting leaves. Keep technology versus culture in the domain
+    procedure path, read current local-player evidence before send, use
+    direct-control only as the low-level player-operation runtime/proof port,
+    omit raw operation envelopes and legacy `verified` from normal output, and
+    keep sent target results pending-runtime-proof/no-repeat guarded until a
+    future source-owned progression read proves target state changed.
   - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
     mutation procedure that composes playable readiness,
     direct-control turn-completion send authority, and source-owned
@@ -485,6 +493,16 @@ adding more read-only facade shells.
     send authority, preserve existing direct-control option reads and dry-run
     validation paths, retire caller-visible `--closeout` workflow guidance, and
     keep live runtime proof pending.
+  - [x] 7.1.9.1 Route `civ7 game play set-tech-target --send` and
+    `civ7 game play set-culture-target --send` through the in-process
+    `progression.technology.target.request` and
+    `progression.culture.target.request` server-side clients under the
+    `progression` router. Keep endpoint flags as context construction, emit
+    semantic progression target output, use fresh local-player evidence rather
+    than treating `--player-id` as send authority, preserve direct-control
+    player-operation validation for read-only mode, and keep sent target
+    results pending-runtime-proof/no-repeat guarded until a real post-read
+    owner proves target state changed.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -972,6 +990,15 @@ adding more read-only facade shells.
   send migration slice. These are local CLI and package proofs only and do not
   claim deployed Civ7 runtime proof, play-thread action, transport expansion,
   a progression read service, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.1 Run focused direct-control progression target request tests,
+  focused control-oRPC progression target procedure tests, focused CLI
+  technology/culture target send tests, direct-control and control-oRPC
+  check/build/package gates, `check:cli`, `test:cli:play`, relevant OpenSpec
+  strict validates, and diff hygiene for the CLI progression target send
+  migration slice. These are local CLI and package proofs only and do not claim
+  deployed Civ7 runtime proof, play-thread action, transport expansion, a
+  progression read service, controller ingress, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

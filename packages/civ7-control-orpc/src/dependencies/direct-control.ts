@@ -16,8 +16,10 @@ import {
   requestCiv7PlayerOperation,
   requestCiv7ProductionChoice,
   requestCiv7TechnologyChoiceCloseout,
+  requestCiv7TechnologyTarget,
   requestCiv7UnitCommand,
   requestCiv7UnitTargetAction,
+  requestCiv7CultureTarget,
   type Civ7DirectControlOptions,
   Civ7BattlefieldScanResultSchema,
   type Civ7DiplomacyResponseInput,
@@ -48,6 +50,8 @@ import {
   type Civ7TargetCandidatesInput,
   type Civ7TechnologyChoiceCloseoutInput,
   type Civ7TechnologyChoiceCloseoutResult,
+  type Civ7ProgressionTargetInput,
+  type Civ7ProgressionTargetResult,
   type Civ7TurnCompletionRequestResult,
   type Civ7UnitTargetActionInput,
   type PlayNotificationViewOptions,
@@ -70,6 +74,8 @@ export type Civ7ControlOrpcCultureChoiceCloseoutResult =
 export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
 export type Civ7ControlOrpcTechnologyChoiceCloseoutResult =
   Civ7TechnologyChoiceCloseoutResult;
+export type Civ7ControlOrpcProgressionTargetResult =
+  Civ7ProgressionTargetResult;
 export type Civ7ControlOrpcTurnCompletionRequestResult =
   Civ7TurnCompletionRequestResult;
 type Civ7ControlOrpcPopulationPlacementRuntimeResult =
@@ -142,6 +148,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7CultureChoiceCloseoutInput,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcCultureChoiceCloseoutResult>;
+  requestCiv7TechnologyTarget(
+    input: Omit<Civ7ProgressionTargetInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionTargetResult>;
+  requestCiv7CultureTarget(
+    input: Omit<Civ7ProgressionTargetInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionTargetResult>;
   requestCiv7AssignWorkerPlacement(
     input: Civ7ControlOrpcAssignWorkerPlacementInput,
     options: Civ7DirectControlOptions | undefined,
@@ -212,6 +226,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7TechnologyChoiceCloseout(input, options),
   requestCiv7CultureChoiceCloseout: async (input, options) =>
     requestCiv7CultureChoiceCloseout(input, options),
+  requestCiv7TechnologyTarget: async (input, options) =>
+    requestCiv7TechnologyTarget(input, options),
+  requestCiv7CultureTarget: async (input, options) =>
+    requestCiv7CultureTarget(input, options),
   requestCiv7AssignWorkerPlacement: async (input, options) =>
     requestCiv7PlayerOperation({
       playerId: input.playerId,

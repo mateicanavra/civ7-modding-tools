@@ -56,6 +56,11 @@
       "import": "./dist/proof/population-placement-proof-policy.js",
       "require": "./dist/proof/population-placement-proof-policy.cjs"
     },
+    "./proof/progression-target-proof-policy": {
+      "types": "./dist/proof/progression-target-proof-policy.d.ts",
+      "import": "./dist/proof/progression-target-proof-policy.js",
+      "require": "./dist/proof/progression-target-proof-policy.cjs"
+    },
     "./proof/turn-completion-proof-policy": {
       "types": "./dist/proof/turn-completion-proof-policy.d.ts",
       "import": "./dist/proof/turn-completion-proof-policy.js",

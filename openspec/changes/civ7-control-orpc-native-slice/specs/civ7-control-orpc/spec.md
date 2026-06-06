@@ -131,6 +131,26 @@ errors, and server-side callers.
   closeout sends, command serialization, notification postcondition
   classifiers, and no-repeat proof semantics consumed by the procedure
 
+#### Scenario: Progression target service contract is offered
+- **WHEN** `progression.technology.target.request` and
+  `progression.culture.target.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the input, output, postcondition, and next-step
+  schemas for those service procedures under the `progression` router
+- **AND** the input admits only player ID and node ID, with technology versus
+  culture expressed by the domain procedure path rather than a generic
+  operation root or operation enum input
+- **AND** the procedure reads current local-player evidence before send and
+  does not treat caller-provided player ID as mutation authority by itself
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, and legacy `verified` remain
+  excluded from procedure input and normal output
+- **AND** sent target-setting results remain pending-runtime-proof and
+  no-repeat guarded until a future source-owned progression read/postcondition
+  proves the live target state changed
+- **AND** direct-control remains the low-level runtime/proof owner for
+  player-operation target sends, command serialization, validator output, and
+  no-repeat proof facts consumed by the procedures
+
 #### Scenario: Service contract ownership is guarded
 - **WHEN** control-oRPC service contracts are checked
 - **THEN** package verification fails if module contract files import
@@ -424,6 +444,31 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   validation until separate accepted service reads exist
 - **AND** caller-visible `--closeout` workflow guidance is retired because send
   mode uses the native service closeout workflow
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI progression target sends use native progression procedures
+- **WHEN** `game play set-tech-target --send` or
+  `game play set-culture-target --send` requests a technology or culture
+  target-setting mutation
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process
+  `progression.technology.target.request` or
+  `progression.culture.target.request` server-side client under the
+  `progression` router
+- **AND** the procedure's readiness, fresh local-player read,
+  direct-control progression target runtime port, target proof projection, and
+  no-repeat policy remain authoritative for the send
+- **AND** the send result uses live local-player evidence rather than treating
+  caller validation `--player-id` as send authority
+- **AND** the normal JSON result is the semantic progression target procedure
+  projection without raw command/session/state/Tuner details, generic
+  operation type or args fields, direct-control operation envelopes, or legacy
+  `verified`
+- **AND** sent target-setting results remain `sent-unverified` with
+  do-not-repeat next steps because local tests do not prove the live
+  progression target changed
+- **AND** the read-only validation paths remain direct-control
+  player-operation validation until separate accepted service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: In-game controller bridge preflight is recorded
