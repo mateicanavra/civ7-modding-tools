@@ -49,12 +49,21 @@ describe('game play culture commands', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         result: {
+          surface: string;
           enabledOptionCount: number;
           disabledOptionCount: number;
           omitted: Array<{ path: string; reason: string }>;
           surfaces: Array<{
             kind: string;
-            enabledOptions: Array<{ nodeType: number; name: string; chooseCli: string | null; turns: number | null; cost: number | null }>;
+            enabledOptions: Array<{
+              nodeType: number;
+              name: string;
+              nextAction: { kind: string; parameters: { node: number }; sendsMutation: boolean };
+              targetAction: { kind: string; parameters: { node: number }; sendsMutation: boolean };
+              validationAction: { kind: string; parameters: { node: number }; readOnly: boolean };
+              turns: number | null;
+              cost: number | null;
+            }>;
             options?: unknown;
             disabledOptions?: unknown;
           }>;
@@ -62,6 +71,7 @@ describe('game play culture commands', () => {
         };
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
+      expect(payload.result.surface).toBe('culture-choice-options');
       expect(payload.result.enabledOptionCount).toBe(2);
       expect(payload.result.disabledOptionCount).toBe(1);
       expect(payload.result.details).toBeUndefined();
@@ -70,11 +80,24 @@ describe('game play culture commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       const ekklesia = payload.result.surfaces[0].enabledOptions.find((option) => option.nodeType === -869902342);
       expect(ekklesia?.name).toBe('Ekklesia');
-      expect(ekklesia?.chooseCli).toContain('game play choose-culture --node -869902342 --send');
-      expect(ekklesia?.chooseCli).not.toContain('--player-id');
-      expect(ekklesia?.chooseCli).not.toContain('--closeout');
+      expect(ekklesia?.nextAction).toMatchObject({
+        kind: 'choose-culture',
+        parameters: { node: -869902342 },
+        sendsMutation: true,
+      });
+      expect(ekklesia?.targetAction).toMatchObject({
+        kind: 'target-culture',
+        parameters: { node: -869902342 },
+        sendsMutation: true,
+      });
+      expect(ekklesia?.validationAction).toMatchObject({
+        kind: 'validate-culture-choice',
+        parameters: { node: -869902342 },
+        readOnly: true,
+      });
       expect(ekklesia?.turns).toBe(4);
       expect(ekklesia?.cost).toBe(105);
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);

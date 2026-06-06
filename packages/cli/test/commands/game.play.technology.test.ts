@@ -49,12 +49,21 @@ describe('game play technology commands', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         result: {
+          surface: string;
           enabledOptionCount: number;
           disabledOptionCount: number;
           omitted: Array<{ path: string; reason: string }>;
           surfaces: Array<{
             kind: string;
-            enabledOptions: Array<{ nodeType: number; name: string; chooseCli: string | null; turns: number | null; cost: number | null }>;
+            enabledOptions: Array<{
+              nodeType: number;
+              name: string;
+              nextAction: { kind: string; parameters: { node: number }; sendsMutation: boolean };
+              targetAction: { kind: string; parameters: { node: number }; sendsMutation: boolean };
+              validationAction: { kind: string; parameters: { node: number }; readOnly: boolean };
+              turns: number | null;
+              cost: number | null;
+            }>;
             options?: unknown;
             disabledOptions?: unknown;
           }>;
@@ -62,6 +71,7 @@ describe('game play technology commands', () => {
         };
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
+      expect(payload.result.surface).toBe('technology-choice-options');
       expect(payload.result.enabledOptionCount).toBe(2);
       expect(payload.result.disabledOptionCount).toBe(1);
       expect(payload.result.details).toBeUndefined();
@@ -70,11 +80,24 @@ describe('game play technology commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       const masonry = payload.result.surfaces[0].enabledOptions.find((option) => option.nodeType === -1255676052);
       expect(masonry?.name).toBe('Masonry');
-      expect(masonry?.chooseCli).toContain('game play choose-tech --node -1255676052 --send');
-      expect(masonry?.chooseCli).not.toContain('--player-id');
-      expect(masonry?.chooseCli).not.toContain('--closeout');
+      expect(masonry?.nextAction).toMatchObject({
+        kind: 'choose-technology',
+        parameters: { node: -1255676052 },
+        sendsMutation: true,
+      });
+      expect(masonry?.targetAction).toMatchObject({
+        kind: 'target-technology',
+        parameters: { node: -1255676052 },
+        sendsMutation: true,
+      });
+      expect(masonry?.validationAction).toMatchObject({
+        kind: 'validate-technology-choice',
+        parameters: { node: -1255676052 },
+        readOnly: true,
+      });
       expect(masonry?.turns).toBe(2);
       expect(masonry?.cost).toBe(137);
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
