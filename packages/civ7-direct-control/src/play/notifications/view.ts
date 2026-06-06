@@ -39,7 +39,6 @@ export type Civ7PlayDecisionInputContract = Static<typeof Civ7PlayDecisionInputS
 
 export const Civ7PlayDecisionActionSchema = Type.Object({
   label: Type.Optional(Type.String()),
-  cli: Type.Optional(Type.String()),
   operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
   operationType: Type.Optional(Type.String()),
   argsShape: Type.Optional(Type.String()),
@@ -155,7 +154,6 @@ export type Civ7PlayDecisionInput = Readonly<{
 
 export type Civ7PlayDecisionAction = Readonly<{
   label: string;
-  cli?: string;
   operationFamily?: Civ7OperationFamily | "app-ui-action";
   operationType?: string;
   argsShape?: string;
@@ -383,9 +381,8 @@ export function playNotificationViewSource(): string {
     };
     const requiredInput = (name, source, note) => ({ name, source, required: true, note });
     const optionalInput = (name, source, note) => ({ name, source, required: false, note });
-    const action = (label, cli, operationFamily, operationType, argsShape, when) => ({
+    const action = (label, operationFamily, operationType, argsShape, when) => ({
       label,
-      cli,
       operationFamily,
       operationType,
       argsShape,
@@ -1347,8 +1344,8 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live tech chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
-            action("choose tech", "game play choose-tech --node <node> --send", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
-            action("set tech target", "game play set-tech-target --node <node> --send", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
+            action("choose tech", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
+            action("set tech target", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
           ["Read the live tech node id before sending; choose-tech send mode mirrors the chooser by clearing the temporary target internally."],
         );
@@ -1363,9 +1360,9 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live culture chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
-            action("choose culture and close chooser", "game play choose-culture --node <node> --send", "sequence", "SET_CULTURE_TREE_NODE then SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start culture and close the chooser surface"),
-            action("read culture options", "game play choose-culture --options --json", undefined, undefined, "enabled culture nodes", "before choosing a culture node"),
-            action("set culture target", "game play set-culture-target --node <node> --send", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
+            action("choose culture and close chooser", "sequence", "SET_CULTURE_TREE_NODE then SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start culture and close the chooser surface"),
+            action("read culture options", undefined, undefined, "enabled culture nodes", "before choosing a culture node"),
+            action("set culture target", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
           ["Read options from the live culture chooser before sending; send mode also clears the temporary culture target as one caller-level selection."],
         );
@@ -1380,8 +1377,8 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("GovernmentType", "live government picker option", "Use the government index from choose-government --options, not the visible row position.")],
           [
-            action("read government options", "game play choose-government --options --json", undefined, undefined, "enabled starting governments", "before choosing a government"),
-            action("choose government", "game play choose-government --government-type <government-type> --action <action> --send", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
+            action("read government options", undefined, undefined, "enabled starting governments", "before choosing a government"),
+            action("choose government", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
           ],
           ["Read options from the live government picker before sending; the option surface includes celebration effects for context."],
         );
@@ -1396,8 +1393,8 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.")],
           [
-            action("read celebration options", "game play choose-celebration --options --json", undefined, undefined, "enabled celebration choices", "before choosing a celebration"),
-            action("choose celebration", "game play choose-celebration --golden-age-type <golden-age-type> --send", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
+            action("read celebration options", undefined, undefined, "enabled celebration choices", "before choosing a celebration"),
+            action("choose celebration", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
           ],
           ["Read options from the live celebration chooser before sending; this blocker is not dismissible and should not use notification dismissal."],
         );
@@ -1415,9 +1412,9 @@ export function playNotificationViewSource(): string {
             optionalInput("City", "notification target or selected city", "Needed when the branch is city expansion rather than worker reassignment."),
           ],
           [
-            action("read city placement candidates", "game play ready-city --compact --json", "read-only", "ready-city population placement packet", "workable plots and expansion candidates", "before choosing assign-worker or expand-city"),
-            action("assign worker to proven plot", "game play assign-worker --location <plot-index> --send", "player-operation", "ASSIGN_WORKER", "{ Location, Amount: 1 }", "when the chosen tile is already workable"),
-            action("expand city", "game play expand-city --city-id '<city-id>' --x <x> --y <y> --send", "city-command", "EXPAND", "{ X, Y }", "when the chosen tile is an expansion purchase"),
+            action("read city placement candidates", "read-only", "ready-city population placement packet", "workable plots and expansion candidates", "before choosing assign-worker or expand-city"),
+            action("assign worker to proven plot", "player-operation", "ASSIGN_WORKER", "{ Location, Amount: 1 }", "when the chosen tile is already workable"),
+            action("expand city", "city-command", "EXPAND", "{ X, Y }", "when the chosen tile is an expansion purchase"),
           ],
           ["The notification opens acquire-tile mode; the clicked plot determines whether worker assignment or expansion fires. Re-read candidates before choosing either branch."],
         );
@@ -1435,7 +1432,7 @@ export function playNotificationViewSource(): string {
             requiredInput("Available resources and settlement slots", "resource allocation UI or future dedicated read", "Do not dismiss this blocker as an informational report until assignment/closeout behavior is proven."),
           ],
           [
-            action("inspect materialized notifications", "game play notifications --json", undefined, undefined, undefined, "before deciding whether a resource-assignment shortcut exists"),
+            action("inspect materialized notifications", undefined, undefined, undefined, "before deciding whether a resource-assignment shortcut exists"),
           ],
           ["NOTIFICATION_ASSIGN_NEW_RESOURCES opens the official resource allocation screen. No validator-backed resource assignment shortcut is proven yet, so treat this as a real decision surface."],
         );
@@ -1454,8 +1451,8 @@ export function playNotificationViewSource(): string {
             requiredInput("ProjectType", "live town focus option", "Paired project enum for the selected focus."),
           ],
           [
-            action("set town focus", "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send", "city-command", "CHANGE_GROWTH_MODE", "{ Type, ProjectType, City }", "when the selected focus should be applied"),
-            action("close town project review", "game play consider-town-project --city-id '<city-id>' --send", "city-operation", "CONSIDER_TOWN_PROJECT", "{}", "after the focus has already been set and the UI still needs closeout"),
+            action("set town focus", "city-command", "CHANGE_GROWTH_MODE", "{ Type, ProjectType, City }", "when the selected focus should be applied"),
+            action("close town project review", "city-operation", "CONSIDER_TOWN_PROJECT", "{}", "after the focus has already been set and the UI still needs closeout"),
           ],
           ["Town focus is not city-operation BUILD; set the focus first, then close the review if the UI still requires it."],
         );
@@ -1474,10 +1471,10 @@ export function playNotificationViewSource(): string {
             optionalInput("Placement plot", "validator Plots or placement UI", "Required for constructibles when validation returns placement plots; send X/Y with the ConstructibleType."),
           ],
           [
-            action("read production candidates", "game play ready-city --compact --json", "read-only", "ready-city production candidate packet", "city summary and validated production candidates", "before choosing a production item"),
-            action("build unit production", "game play build-production --city-id '<city-id>' --unit-type <unit-type> --send", "city-operation", "BUILD", "{ UnitType }", "when the live choice is a unit"),
-            action("place constructible production", "game play build-production --city-id '<city-id>' --constructible-type <constructible-type> --x <x> --y <y> --send", "city-operation", "BUILD", "{ ConstructibleType, X, Y }", "when validator or placement UI returns legal placement plots"),
-            action("build city project", "game play build-production --city-id '<city-id>' --project-type <project-type> --send", "city-operation", "BUILD", "{ ProjectType }", "when the live choice is an ordinary city project, not town focus"),
+            action("read production candidates", "read-only", "ready-city production candidate packet", "city summary and validated production candidates", "before choosing a production item"),
+            action("build unit production", "city-operation", "BUILD", "{ UnitType }", "when the live choice is a unit"),
+            action("place constructible production", "city-operation", "BUILD", "{ ConstructibleType, X, Y }", "when validator or placement UI returns legal placement plots"),
+            action("build city project", "city-operation", "BUILD", "{ ProjectType }", "when the live choice is an ordinary city project, not town focus"),
           ],
           ["Use live chooser data to decide the item kind; constructible placement needs X/Y when the validator returns legal plots."],
         );
@@ -1496,7 +1493,7 @@ export function playNotificationViewSource(): string {
             requiredInput("Type", "chosen first-meet greeting", "Use the first-meet response enum from the live UI, not ordinary Support/Accept/Reject diplomacy response enums."),
           ],
           [
-            action("send neutral first-meet greeting", "game play respond-first-meet --met-player-id <other-player-id> --response neutral --send", "player-operation", "RESPOND_DIPLOMATIC_FIRST_MEET", "{ Player1, Player2, Type }", "after validating the greeting options from the live first-meet UI"),
+            action("send neutral first-meet greeting", "player-operation", "RESPOND_DIPLOMATIC_FIRST_MEET", "{ Player1, Player2, Type }", "after validating the greeting options from the live first-meet UI"),
           ],
           ["First-meet greetings are real player operations, not notification dismissals. Neutral is the conservative default when Influence cost or strategic payoff is not proven."],
         );
@@ -1514,7 +1511,7 @@ export function playNotificationViewSource(): string {
             requiredInput("Type", "chosen diplomatic response", "Use one enabled response option returned in notification details; do not infer enum values from stale notes."),
           ],
           [
-            action("choose diplomacy response and close blocker", "game play respond-diplomacy --action-id <action-id> --response-type <response-type> --notification-id '<notification-id>' --send", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after choosing one enabled response option from notification details"),
+            action("choose diplomacy response and close blocker", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after choosing one enabled response option from notification details"),
           ],
           ["Use the enabled option list from the live notification details; send mode follows the official local-player response panel path and verifies notification/turn closeout."],
         );
@@ -1529,7 +1526,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action response id.")],
           [
-            action("dismiss reviewed diplomatic completion", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports a completed low-severity diplomatic action"),
+            action("dismiss reviewed diplomatic completion", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports a completed low-severity diplomatic action"),
           ],
           ["The official notification train does not register a specialized handler for NOTIFICATION_DIPLOMATIC_ACTION_LOW; it falls through to the default notification handler, so closeout is App UI dismissal after review."],
         );
@@ -1545,7 +1542,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic response id.")],
           [
-            action("dismiss reviewed diplomatic action report", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the event data/location and confirming getResponseDataForUI exposes no enabled response option"),
+            action("dismiss reviewed diplomatic action report", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the event data/location and confirming getResponseDataForUI exposes no enabled response option"),
           ],
           ["NOTIFICATION_DIPLOMATIC_ACTION can point at a real diplomatic event id, but empty/no-enabled getResponseDataForUI options make it a reviewed report closeout rather than RESPOND_DIPLOMATIC_ACTION."],
         );
@@ -1565,7 +1562,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action response id.")],
           [
-            action("dismiss reviewed diplomatic relationship notice", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the relationship/agenda context and confirming the notification target is not a valid diplomatic action id"),
+            action("dismiss reviewed diplomatic relationship notice", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the relationship/agenda context and confirming the notification target is not a valid diplomatic action id"),
           ],
           ["Agenda and relationship reports can arrive as NOTIFICATION_DIPLOMATIC_ACTION with an invalid target. Review the report for strategy, then use App UI dismissal; do not send RESPOND_DIPLOMATIC_ACTION without a valid action id."],
         );
@@ -1589,7 +1586,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
-            action("dismiss reviewed notification", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the reported attack/disaster location and confirming no specialized decision surface is required"),
+            action("dismiss reviewed notification", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the reported attack/disaster location and confirming no specialized decision surface is required"),
           ],
           ["Unit combat and natural-disaster report notifications use the default notification handler; activation looks at the reported plot when present, while closeout is App UI dismissal after the report is reviewed."],
         );
@@ -1604,7 +1601,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
-            action("dismiss reviewed notification", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports completed/failed wonder information"),
+            action("dismiss reviewed notification", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports completed/failed wonder information"),
           ],
           ["Wonder completed/failed uses the default notification handler; the live target may be invalid, so activation only looks at a plot when one exists."],
         );
@@ -1619,8 +1616,8 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
-            action("dismiss reviewed legacy completion report", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the completed legacy/triumph report for score context"),
-            action("read current legacy progress", "game play progress-dashboard --compact --json", "read-only", "progress-dashboard", "legacy path scores and age progress", "when the report should be compared with local-player progress before dismissal"),
+            action("dismiss reviewed legacy completion report", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the completed legacy/triumph report for score context"),
+            action("read current legacy progress", "read-only", "progress-dashboard", "legacy path scores and age progress", "when the report should be compared with local-player progress before dismissal"),
           ],
           ["Runtime NOTIFICATION_LEGACY_COMPLETED reports completed legacy/triumph context. No specialized operation surface is proven; review the score context, then close through App UI dismissal when canUserDismiss is true."],
         );
@@ -1635,7 +1632,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action id.")],
           [
-            action("dismiss reviewed grievance notice", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification reports grievance/influence information and exposes no response operation"),
+            action("dismiss reviewed grievance notice", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification reports grievance/influence information and exposes no response operation"),
           ],
           ["Grievance-against-you reports can block the UI queue but are not RESPOND_DIPLOMATIC_ACTION choices; review the summary for strategic context, then use App UI dismissal if canUserDismiss is true."],
         );
@@ -1654,8 +1651,8 @@ export function playNotificationViewSource(): string {
             requiredInput("Action", "story option activation", "Official narrative UI sends PlayerOperationParameters.Activate."),
           ],
           [
-            action("read narrative options", "game play choose-narrative --options --json", undefined, undefined, "enabled narrative buttons", "before choosing a narrative branch or closeout"),
-            action("send narrative choice", "game play choose-narrative --target-type <target-type> --target '<target>' --action <action> --send", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after choosing one enabled narrative option from the live story UI"),
+            action("read narrative options", undefined, undefined, "enabled narrative buttons", "before choosing a narrative branch or closeout"),
+            action("send narrative choice", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after choosing one enabled narrative option from the live story UI"),
           ],
           ["Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately."],
         );
@@ -1673,9 +1670,9 @@ export function playNotificationViewSource(): string {
             requiredInput("Action", "live tradition action", "Use the activate/deactivate action enum from the tradition UI."),
           ],
           [
-            action("read tradition options", "game play traditions --compact --json", "read-only", "Players.Culture tradition slot/candidate packet", "active and available traditions with action templates", "before choosing a tradition activation or deactivation"),
-            action("change tradition", "game play change-tradition --tradition-type <tradition-type> --action <action> --send", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when one selected tradition operation should be sent"),
-            action("close tradition review", "game play consider-traditions --send", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),
+            action("read tradition options", "read-only", "Players.Culture tradition slot/candidate packet", "active and available traditions with action templates", "before choosing a tradition activation or deactivation"),
+            action("change tradition", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when one selected tradition operation should be sent"),
+            action("close tradition review", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),
           ],
           [
             "Full slots may need deactivate, re-read, then activate.",
@@ -1693,8 +1690,8 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live attribute tree node", "Use the buyable attribute node id from the runtime tree.")],
           [
-            action("buy attribute node", "game play buy-attribute --node <node> --send", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when one selected attribute purchase should be sent"),
-            action("close attribute review", "game play consider-attributes --send", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "after no attribute purchase is needed or after buying"),
+            action("buy attribute node", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when one selected attribute purchase should be sent"),
+            action("close attribute review", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "after no attribute purchase is needed or after buying"),
           ],
           ["Use --closeout when one caller action should buy the node and clear the review surface."],
         );
@@ -1709,7 +1706,7 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("Target", "notification ComponentID", "Use the notification id itself as Target.")],
           [
-            action("mark advisor warning viewed", "game play advisor-warning --target '<notification-id>' --send", "player-operation", "VIEWED_ADVISOR_WARNING", "{ Target: notificationComponentId }", "when the warning has been inspected"),
+            action("mark advisor warning viewed", "player-operation", "VIEWED_ADVISOR_WARNING", "{ Target: notificationComponentId }", "when the warning has been inspected"),
           ],
           ["Do not use raw notification dismissal for advisor blockers."],
         );
@@ -1727,9 +1724,9 @@ export function playNotificationViewSource(): string {
             optionalInput("Target plot", "map coordinates", "Needed for move, attack, and other plot-target actions."),
           ],
           [
-            action("read ready-unit view", "game play ready-unit --json", undefined, undefined, "selected/first ready unit, legal operations, nearby occupied plots", "before choosing a unit operation"),
-            action("resolve plot target", "game play unit-target --unit-id '<unit-id>' --x <x> --y <y>", "unit-operation", undefined, "official right-click action order", "when choosing a move or attack target"),
-            action("validate generic unit operation", "game play operation --family unit --type <operation> --unit-id '<unit-id>' --args '<args>'", "unit-operation", "<operation>", "operation-specific args", "when the operation is not covered by a named shortcut"),
+            action("read ready-unit view", undefined, undefined, "selected/first ready unit, legal operations, nearby occupied plots", "before choosing a unit operation"),
+            action("resolve plot target", "unit-operation", undefined, "official right-click action order", "when choosing a move or attack target"),
+            action("validate generic unit operation", "unit-operation", "<operation>", "operation-specific args", "when the operation is not covered by a named shortcut"),
           ],
           [
             "Read the selected or first ready unit before choosing skip, automate, move, or promote.",
@@ -1746,8 +1743,8 @@ export function playNotificationViewSource(): string {
         "heuristic",
         [requiredInput("Notification handler evidence", "official UI handler or live runtime surface", "Unclassified notifications need handler inspection before sending operations.")],
         [
-          action("inspect materialized notifications", "game play notifications --json", undefined, undefined, undefined, "before deciding whether this is a real blocker"),
-          action("validate generic operation", "game play operation --family <family> --type <type> --args '<args>'", undefined, undefined, "operation-specific args", "only after the official handler or live UI proves the operation"),
+          action("inspect materialized notifications", undefined, undefined, undefined, "before deciding whether this is a real blocker"),
+          action("validate generic operation", undefined, undefined, "operation-specific args", "only after the official handler or live UI proves the operation"),
         ],
         ["No specialized shortcut is known; inspect official UI handler or use validate-only generic operation."],
       );
