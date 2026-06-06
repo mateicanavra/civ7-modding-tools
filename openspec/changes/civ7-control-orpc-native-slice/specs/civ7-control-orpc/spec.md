@@ -269,6 +269,25 @@ errors, and server-side callers.
   support, transport expansion, and parent Task 5.x/6.x/7.x acceptance remain
   pending
 
+#### Scenario: World plot and grid service reads are added
+- **WHEN** `world.plot.read` and `world.grid.read` expose bounded map
+  diagnostics under the `world` router
+- **THEN** control-oRPC owns the contract-local caller input, normal output
+  projection, source-status wording, and tagged error boundary
+- **AND** direct-control remains only the low-level plot snapshot and map grid
+  runtime read port that can execute bounded Tuner map probes
+- **AND** normal output omits raw host, port, state, session, command,
+  rawCommand, Tuner payloads, direct-control runtime envelopes, actor
+  catalogs, and relationship labels
+- **AND** the procedures reject endpoint/session/state/raw command fields from
+  caller input before invoking the direct-control facade
+- **AND** game-UI controller context does not advertise these reads as
+  supported until a separate game-resident map evidence path exists
+- **AND** local package tests prove only service projection and fake runtime
+  behavior; deployed Civ7 runtime proof, controller bridge allowlisting,
+  transport expansion, broad world/actor catalog support, and parent
+  Task 5.x/6.x/7.x acceptance remain pending
+
 #### Scenario: CLI map summary uses current world service projection
 - **WHEN** `game map --summary` reads current world/map facts
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
@@ -278,9 +297,18 @@ errors, and server-side callers.
   without raw host, port, state, session, command, rawCommand, Tuner payloads,
   raw App UI snapshot envelopes, direct-control summary envelopes, actor
   catalogs, or relationship labels
-- **AND** `game map --plot` and `game map --bounds` remain bounded
-  direct-control map diagnostics until separate accepted world/map read
-  service leaves exist
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI map plot and bounds use world service projection
+- **WHEN** `game map --plot` and `game map --bounds` read bounded map facts
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** plot mode calls the in-process `world.plot.read` server-side client
+  under the `world` router
+- **AND** bounds mode calls the in-process `world.grid.read` server-side
+  client under the `world` router
+- **AND** normal JSON results are semantic world plot/grid projections without
+  raw host, port, state, session, command, rawCommand, Tuner payloads,
+  direct-control runtime envelopes, actor catalogs, or relationship labels
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: Transitional facade-only procedure remains

@@ -591,14 +591,124 @@ describe('game direct-control commands', () => {
     }
   });
 
-  test('reads bounded map and GameInfo surfaces', async () => {
+  test('routes plot map reads through the world service projection', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameMap.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameMap.run(['--host', '127.0.0.1', '--port', String(port), '--plot', '3,4', '--player-id', '0', '--json']);
-      await GameGameInfo.run(['Resources', '--host', '127.0.0.1', '--port', String(port), '--limit', '2', '--json']);
 
       expect(server.received.some((message) => message.includes('readPlotSnapshot'))).toBe(true);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sourceStatus: { plot: string };
+          plot: {
+            location: { x: number; y: number; index: number };
+            hiddenInfoPolicy: string;
+            facts: Record<string, { ok: boolean; value?: unknown; error?: string }>;
+            summary: { factCount: number; probeErrorCount: number };
+          };
+        };
+      };
+      expect(payload).toMatchObject({
+        ok: true,
+        result: {
+          sourceStatus: { plot: 'read' },
+          plot: {
+            location: { x: 3, y: 4, index: 339 },
+            hiddenInfoPolicy: 'visibility-filtered',
+            facts: {
+              terrain: { ok: true, value: 4 },
+              resource: { ok: true, value: -1 },
+            },
+            summary: { factCount: 4, probeErrorCount: 0 },
+          },
+        },
+      });
+      const serialized = JSON.stringify(payload);
+      expect(serialized).not.toContain('"host"');
+      expect(serialized).not.toContain('"port"');
+      expect(serialized).not.toContain('"state"');
+      expect(serialized).not.toContain('rawCommand');
+      expect(serialized).not.toContain('enemy');
+      expect(serialized).not.toContain('hostile');
+      expect(serialized).not.toContain('opponent');
+      expect(serialized).not.toContain('threat');
+      expect(serialized).not.toContain('war');
+      expect(serialized).not.toContain('ally');
+      expect(serialized).not.toContain('suzerain');
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('routes bounded grid map reads through the world service projection', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameMap.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GameMap.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--bounds',
+        '0,0,2,1',
+        '--fields',
+        'terrain',
+        '--max-plots',
+        '1',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('locationsFromBounds'))).toBe(true);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sourceStatus: { grid: string; map: string };
+          bounds: { x: number; y: number; width: number; height: number };
+          plotCount: number;
+          omitted: number;
+          plots: Array<unknown>;
+        };
+      };
+      expect(payload).toMatchObject({
+        ok: true,
+        result: {
+          sourceStatus: { grid: 'read-with-omissions', map: 'read' },
+          bounds: { x: 0, y: 0, width: 2, height: 1 },
+          plotCount: 2,
+          omitted: 1,
+          map: { width: 84, height: 54 },
+          summary: { returnedPlotCount: 1, probeErrorCount: 0 },
+        },
+      });
+      expect(payload.result.plots).toHaveLength(1);
+      const serialized = JSON.stringify(payload);
+      expect(serialized).not.toContain('"host"');
+      expect(serialized).not.toContain('"port"');
+      expect(serialized).not.toContain('"state"');
+      expect(serialized).not.toContain('rawCommand');
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('reads GameInfo surfaces as debug projection', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GameGameInfo.run(['Resources', '--host', '127.0.0.1', '--port', String(port), '--limit', '2', '--json']);
+
       expect(server.received.some((message) => message.includes('GameInfo[input.table]'))).toBe(true);
     } finally {
       await server.close();
@@ -835,6 +945,29 @@ async function startTunerServer() {
                 aliveIds: { ok: true, value: [0] },
                 aliveHumanIds: { ok: true, value: [0] },
                 autoplayActive: { ok: true, value: false },
+              }),
+            ])
+          );
+        } else if (frame.message.includes('locationsFromBounds')) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                bounds: { x: 0, y: 0, width: 2, height: 1 },
+                fields: ['terrain'],
+                plotCount: 2,
+                omitted: 1,
+                hiddenInfoPolicy: 'not-player-scoped',
+                map: {
+                  width: { ok: true, value: 84 },
+                  height: { ok: true, value: 54 },
+                },
+                plots: [{
+                  location: { x: 0, y: 0, index: { ok: true, value: 0 } },
+                  hiddenInfoPolicy: 'not-player-scoped',
+                  facts: {
+                    terrain: { ok: true, value: 4 },
+                  },
+                }],
               }),
             ])
           );

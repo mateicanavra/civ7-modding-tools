@@ -136,6 +136,7 @@ export type {
 export { civ7ControlOrpcContractBase } from "./contract-base";
 export { Civ7ControlOrpcContract } from "./contract";
 export type { Civ7ControlOrpcContext } from "./context";
+export type { Civ7WorldPlotField } from "./modules/world/contract";
 export {
   Civ7AttentionCurrentUnavailableError,
   Civ7AttentionCurrentUnavailableErrorDataSchema,
@@ -181,6 +182,8 @@ export {
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   Civ7WorldCurrentUnavailableError,
   Civ7WorldCurrentUnavailableErrorDataSchema,
+  Civ7WorldReadUnavailableError,
+  Civ7WorldReadUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
   type Civ7AttentionCurrentUnavailableErrorData,
   type Civ7ControlOrpcErrorMap,
@@ -206,6 +209,7 @@ export {
   type Civ7UnitRequestUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
   type Civ7WorldCurrentUnavailableErrorData,
+  type Civ7WorldReadUnavailableErrorData,
 } from "./errors";
 export {
   Civ7ControlOrpcCorrelationIdSchema,

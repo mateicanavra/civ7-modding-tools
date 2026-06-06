@@ -1,13 +1,13 @@
 import { Command, Flags } from '@oclif/core';
 import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import type { Civ7WorldPlotField } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
-import { getCiv7MapGrid, getCiv7PlotSnapshot, type Civ7PlotSnapshotField } from '@civ7/direct-control';
 
 export default class GameMap extends Command {
   static id = 'game map';
   static summary = 'Read Civ7 current world and bounded map state';
   static description =
-    'Reads the service-owned current world summary through control-oRPC, or one plot/grid through bounded direct-control map diagnostics.';
+    'Reads service-owned current world, plot, or bounded grid views through control-oRPC.';
 
   static examples = [
     '<%= config.bin %> game map --summary --json',
@@ -64,27 +64,27 @@ export default class GameMap extends Command {
     };
     const fields = parseFields(flags.fields);
     const playerId = flags['player-id'];
+    const client = createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      endpointDefaults: options,
+    });
     let result: unknown;
     if (flags.bounds) {
-      result = await getCiv7MapGrid({
+      result = await client.world.grid({
         bounds: parseBounds(flags.bounds),
         fields,
         playerId,
         includeHidden: flags['include-hidden'],
         maxPlots: flags['max-plots'],
-      }, options);
+      });
     } else if (flags.plot) {
-      result = await getCiv7PlotSnapshot({
-        ...parseLocation(flags.plot),
+      result = await client.world.plot({
+        location: parseLocation(flags.plot),
         fields,
         playerId,
         includeHidden: flags['include-hidden'],
-      }, options);
-    } else {
-      const client = createCiv7ControlOrpcServerClient({
-        directControl: liveCiv7ControlOrpcDirectControlFacade,
-        endpointDefaults: options,
       });
+    } else {
       result = await client.world.current({});
     }
 
@@ -97,8 +97,8 @@ export default class GameMap extends Command {
   }
 }
 
-function parseFields(value: string | undefined): Civ7PlotSnapshotField[] {
-  return (value?.split(',').map((field) => field.trim()).filter(Boolean) as Civ7PlotSnapshotField[] | undefined)
+function parseFields(value: string | undefined): Civ7WorldPlotField[] {
+  return (value?.split(',').map((field) => field.trim()).filter(Boolean) as Civ7WorldPlotField[] | undefined)
     ?? ['terrain', 'biome', 'feature', 'resource', 'owner', 'visibility', 'areaRegion'];
 }
 

@@ -2,6 +2,8 @@ import {
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
   getCiv7BattlefieldScan,
+  getCiv7MapGrid,
+  getCiv7PlotSnapshot,
   getCiv7ReadyCityView,
   getCiv7ReadyUnitView,
   getCiv7TargetCandidates,
@@ -41,6 +43,8 @@ import {
   type Civ7CultureChoiceCloseoutResult,
   type Civ7GovernmentChoiceInput,
   type Civ7GovernmentDomainChoiceResult,
+  type Civ7MapGridInput,
+  type Civ7MapGridResult,
   type Civ7NarrativeChoiceInput,
   type Civ7NarrativeChoiceResult,
   Civ7PlayNotificationViewResultSchema,
@@ -56,6 +60,8 @@ import {
   type Civ7NotificationDismissalResult,
   type Civ7OperationRequestResult,
   type Civ7PlayNotificationViewResult,
+  type Civ7PlotSnapshotInput,
+  type Civ7PlotSnapshotResult,
   type Civ7PopulationPlacementProofSource,
   type Civ7ProductionChoiceInput,
   type Civ7ReadyCityViewInput,
@@ -125,6 +131,8 @@ export type Civ7ControlOrpcPlayNotificationViewResult =
 export type Civ7ControlOrpcBattlefieldScanResult = Static<
   typeof Civ7BattlefieldScanResultSchema
 >;
+export type Civ7ControlOrpcPlotSnapshotResult = Civ7PlotSnapshotResult;
+export type Civ7ControlOrpcMapGridResult = Civ7MapGridResult;
 export type Civ7ControlOrpcReadyUnitViewResult = Static<
   typeof Civ7ReadyUnitViewResultSchema
 >;
@@ -244,6 +252,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7BattlefieldScanInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcBattlefieldScanResult>;
+  getCiv7PlotSnapshot(
+    input: Civ7PlotSnapshotInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcPlotSnapshotResult>;
+  getCiv7MapGrid(
+    input: Civ7MapGridInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcMapGridResult>;
   getCiv7ReadyUnitView(
     input?: Civ7ReadyUnitViewInput,
     options?: Civ7DirectControlOptions,
@@ -345,6 +361,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     getCiv7BattlefieldScan(input, options) as Promise<
       Civ7ControlOrpcBattlefieldScanResult
     >,
+  getCiv7PlotSnapshot: async (input, options) =>
+    getCiv7PlotSnapshot(input, options),
+  getCiv7MapGrid: async (input, options) =>
+    getCiv7MapGrid(input, options),
   getCiv7ReadyUnitView: async (input, options) =>
     getCiv7ReadyUnitView(input, options) as Promise<
       Civ7ControlOrpcReadyUnitViewResult

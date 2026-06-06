@@ -100,6 +100,31 @@ export class Civ7WorldCurrentUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7WorldReadUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("world.plot.read"),
+      Type.Literal("world.grid.read"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7WorldReadUnavailableErrorData = Static<
+  typeof Civ7WorldReadUnavailableErrorDataSchema
+>;
+
+export class Civ7WorldReadUnavailableError extends ORPCTaggedError(
+  "Civ7WorldReadUnavailableError",
+  {
+    code: "WORLD_READ_UNAVAILABLE",
+    message: "World map read failed.",
+    schema: toStandardSchema(Civ7WorldReadUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -553,6 +578,7 @@ export const civ7ControlOrpcErrorMap = {
   UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
   WORLD_CURRENT_UNAVAILABLE: Civ7WorldCurrentUnavailableError,
+  WORLD_READ_UNAVAILABLE: Civ7WorldReadUnavailableError,
 } satisfies EffectErrorMap;
 
 export type Civ7ControlOrpcEffectErrorMap = typeof civ7ControlOrpcErrorMap;

@@ -315,6 +315,13 @@ adding more read-only facade shells.
     the playable/App UI snapshot without calling direct-control summary
     wrappers, exposing actor catalogs, inferring relationship labels, or
     claiming runtime/live proof.
+  - [x] 5.5.16 Seed `world.plot.read` and `world.grid.read` as native
+    service-owned world procedures over bounded direct-control plot snapshot
+    and map grid runtime read ports. Keep caller input/output schemas
+    contract-local, strip raw host/port/state/session/Tuner envelopes from
+    normal output, reject endpoint/session/raw command fields before facade
+    execution, and keep game-UI/controller allowlisting, runtime proof, broad
+    actor catalog support, and parent Task 5.x/6.x/7.x acceptance pending.
 
 ## 6. Native Policy Layering
 
@@ -583,6 +590,13 @@ adding more read-only facade shells.
     omit raw host/port/state/session/Tuner payloads from normal summary JSON,
     and leave plot/grid reads on bounded direct-control diagnostics until
     separate accepted world/map read service leaves exist.
+  - [x] 7.1.9.6 Route `civ7 game map --plot` and `civ7 game map --bounds`
+    through the in-process `world.plot.read` and `world.grid.read`
+    server-side clients under the `world` router. Keep endpoint flags as
+    context construction, emit semantic bounded map projections, omit raw
+    host/port/state/session/Tuner payloads and direct-control envelopes from
+    normal JSON, keep GameInfo/debug reads separate, and avoid controller,
+    transport, relationship-label, or runtime-proof claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1288,6 +1302,15 @@ adding more read-only facade shells.
   play-thread action, transport expansion, plot/grid service migration,
   revived summary wrappers, relationship labels, or parent Task 5.x/6.x/7.x
   acceptance.
+- [x] 8.60.14 Run focused world plot/grid procedure tests, control-oRPC
+  package check/build, focused CLI map command tests, CLI check, relevant
+  OpenSpec strict validates, private procedure-schema export scan,
+  active approval/caller-permission scan, and diff hygiene for the
+  `world.plot.read`/`world.grid.read` service leaves and `game map`
+  plot/bounds migration. This is local package/CLI service proof only and does
+  not claim deployed Civ7 runtime proof, play-thread action, controller bridge
+  allowlisting, transport expansion, broad actor catalog support, relationship
+  labels, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

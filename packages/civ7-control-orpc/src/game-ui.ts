@@ -373,6 +373,8 @@ function createCiv7GameUiDirectControlFacade(
       }, target),
     getCiv7BattlefieldScan: async (input) =>
       await getCiv7GameUiBattlefieldScan(input, target),
+    getCiv7PlotSnapshot: unsupported,
+    getCiv7MapGrid: unsupported,
     getCiv7ReadyUnitView: async (input) =>
       await getCiv7GameUiReadyUnitView(input, target),
     getCiv7ReadyCityView: async (input) =>
