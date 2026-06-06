@@ -2,15 +2,20 @@ import {
   notificationDismissalPostcondition,
   notificationDismissalPostconditionConfirmed,
 } from "@civ7/direct-control/play/notifications/postconditions";
-import type {
-  Civ7NotificationDismissalResult,
-  Civ7NotificationDismissalSummary,
-  Civ7NotificationDismissInput,
-} from "@civ7/direct-control";
 
+import type {
+  Civ7ControlOrpcNotificationDismissalResult,
+} from "./dependencies/direct-control";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 
 type Civ7ComponentId = Civ7ControlOrpcComponentId;
+type Civ7NotificationDismissInput = Readonly<{
+  notificationId: Civ7ComponentId;
+}>;
+type Civ7NotificationDismissalResult =
+  Civ7ControlOrpcNotificationDismissalResult;
+type Civ7NotificationDismissalSummary =
+  Civ7NotificationDismissalResult["before"];
 type Civ7RuntimeProbe<T> = Readonly<
   | { ok: true; value: T }
   | { ok: false; error: string }
