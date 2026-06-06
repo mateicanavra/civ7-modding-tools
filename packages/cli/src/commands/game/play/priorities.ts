@@ -1,20 +1,34 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  createCiv7ControlOrpcServerClient,
-  type Civ7AttentionPrioritiesResult,
-} from '@civ7/control-orpc';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { createSemanticCliEnvelope, type SemanticCliEnvelope } from '../../../game-play/semantic-envelope';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
-type PriorityItem = Civ7AttentionPrioritiesResult['priorities'][number] & {
+type PrioritiesServiceResult = Awaited<
+  ReturnType<
+    ReturnType<typeof createCiv7ControlOrpcServerClient>['attention']['priorities']
+  >
+>;
+type PriorityNextStep = {
+  kind: string;
+  label: string;
+  parameters: Record<string, unknown>;
+};
+type PriorityBaseItem = {
+  priority: number;
+  kind: string;
+  summary: string;
+  reason: string;
+  blocking: boolean;
+  nextStep?: PriorityNextStep | null;
+};
+type PriorityItem = PriorityBaseItem & {
   nextAction?: PriorityActionDescriptor;
 };
-type PriorityView = Omit<Civ7AttentionPrioritiesResult, 'priorities'> & {
+type PriorityView = Omit<PrioritiesServiceResult, 'priorities'> & {
   priorities: PriorityItem[];
   cliNotes: string[];
 };
-type PriorityNextStep = NonNullable<Civ7AttentionPrioritiesResult['priorities'][number]['nextStep']>;
 type PriorityActionDescriptor = {
   kind: PriorityNextStep['kind'];
   label: string;
@@ -110,10 +124,10 @@ export default class GamePlayPriorities extends Command {
   }
 }
 
-function buildCliPriorityView(result: Civ7AttentionPrioritiesResult): PriorityView {
+function buildCliPriorityView(result: PrioritiesServiceResult): PriorityView {
   return {
     ...result,
-    priorities: result.priorities.map((item) => ({
+    priorities: result.priorities.map((item: PriorityBaseItem) => ({
       ...item,
       nextAction: actionForPriority(item),
     })),
@@ -234,7 +248,7 @@ function buildCompactView(view: PriorityView): {
   };
 }
 
-function actionForPriority(item: Civ7AttentionPrioritiesResult['priorities'][number]): PriorityActionDescriptor | undefined {
+function actionForPriority(item: PriorityBaseItem): PriorityActionDescriptor | undefined {
   const step = item.nextStep;
   if (step == null) return undefined;
   const sendsMutation = ['send-turn-complete', 'end-turn'].includes(step.kind);

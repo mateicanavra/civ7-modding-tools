@@ -1,7 +1,11 @@
 import { Command, Flags } from '@oclif/core';
 import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
-import type { Civ7WorldPlotField } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
+
+type Civ7WorldGridInput = Parameters<
+  ReturnType<typeof createCiv7ControlOrpcServerClient>['world']['grid']
+>[0];
+type Civ7WorldPlotField = NonNullable<Civ7WorldGridInput['fields']>[number];
 
 export default class GameMap extends Command {
   static id = 'game map';

@@ -1,6 +1,7 @@
 # Raw Root Type Export Burn-Down Slice
 
-Status: implemented local package/API hygiene slice.
+Status: implemented local package/API hygiene slice; extended by the procedure
+surface pruning follow-up.
 Date: 2026-06-05.
 
 ## Purpose
@@ -17,13 +18,31 @@ advertised as package root API.
 
 ## Write Set
 
+Initial raw runtime-port export burn-down:
+
 - `packages/civ7-control-orpc/src/index.ts`
 - `apps/mapgen-studio/test/runInGame/civ7ControlOrpcClient.test.ts`
 - this OpenSpec record, `tasks.md`, and `specs/civ7-control-orpc/spec.md`
 
+Procedure surface pruning follow-up:
+
+- `packages/civ7-control-orpc/src/index.ts`
+- `packages/civ7-control-orpc/test/turn-completion-procedure.test.ts`
+- `packages/cli/src/commands/game/map.ts`
+- `packages/cli/src/commands/game/play/civilian-route-triage.ts`
+- `packages/cli/src/commands/game/play/formation-snapshot.ts`
+- `packages/cli/src/commands/game/play/front-summary.ts`
+- `packages/cli/src/commands/game/play/notification-queue.ts`
+- `packages/cli/src/commands/game/play/priorities.ts`
+- `packages/cli/src/commands/game/play/progress-dashboard.ts`
+- `packages/cli/src/commands/game/play/traditions.ts`
+- `openspec/changes/civ7-control-orpc-native-slice/tasks.md`
+- this OpenSpec record
+
 ## Behavior Boundary
 
-This slice removes root exports for raw direct-control runtime result aliases:
+The first slice removed root exports for raw direct-control runtime result
+aliases:
 
 - playable status;
 - play notification view;
@@ -33,9 +52,14 @@ This slice removes root exports for raw direct-control runtime result aliases:
 - notification dismissal;
 - unit target action.
 
-The root entrypoint continues to export semantic control-oRPC contracts,
-routers, procedure schemas/results, bridge ingress/bindings, tagged errors,
-server-side clients, and `Civ7ControlOrpcContext`.
+The follow-up slice removes package-root exports of module-level contracts,
+routers, procedure implementations, and per-procedure input/result DTO aliases.
+The caller-facing service surface is now the aggregate
+`Civ7ControlOrpcContract`, aggregate `Civ7ControlOrpcRouter`, server-side
+client factory, typed context, tagged errors, primitives, and serialized
+controller bridge envelope schemas/types. Contract-local schemas remain inside
+their contract modules; callers that need local view types derive them from the
+typed client method they are calling.
 
 Follow-up stack work moved `Civ7ControlOrpcDirectControlFacade` and
 `liveCiv7ControlOrpcDirectControlFacade` behind the explicit
@@ -52,7 +76,8 @@ instead of from the control-oRPC root.
 - no removal of the context facade type needed by edge adapters;
 - no transport, CLI, Studio behavior, controller bridge, or runtime proof
   change;
-- no broad package export redesign;
+- no direct import/export of per-procedure input/result schemas from the package
+  root;
 - no Task 5.x/6.x/7.x parent acceptance.
 
 ## Proof Collected
@@ -67,6 +92,20 @@ instead of from the control-oRPC root.
 - `git diff --check`
 
 These are local package/API and OpenSpec proofs only.
+
+Additional proof collected for the procedure surface pruning follow-up:
+
+- `bun run --cwd packages/cli test -- game/play/priorities.test.ts game.play.progression-read.test.ts game.play.tactical-read.test.ts`
+- `bun run --cwd packages/civ7-control-orpc check`
+- `bun run --cwd packages/civ7-control-orpc build`
+- `bun run check:cli`
+- root export scan showing no module-level contracts, routers, procedure
+  implementations, per-procedure input/result DTO aliases, or
+  `Civ7WorldPlotField` exported from `packages/civ7-control-orpc/src/index.ts`
+- CLI import scan showing root consumers use the aggregate client/router/context
+  surface and derive procedure result/view helper types locally
+- `bun run openspec validate civ7-control-orpc-native-slice --strict`
+- `git diff --check`
 
 ## Residual Risk
 

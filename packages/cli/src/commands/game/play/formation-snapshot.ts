@@ -1,16 +1,18 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  createCiv7ControlOrpcServerClient,
-  type Civ7StrategyFormationSnapshotResult,
-} from '@civ7/control-orpc';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
-type FormationNextStep = Civ7StrategyFormationSnapshotResult['nextSteps'][number];
+type FormationSnapshotServiceResult = Awaited<
+  ReturnType<
+    ReturnType<typeof createCiv7ControlOrpcServerClient>['strategy']['formationSnapshot']
+  >
+>;
+type FormationNextStep = FormationSnapshotServiceResult['nextSteps'][number];
 type FormationSnapshotCliView =
-  Omit<Civ7StrategyFormationSnapshotResult, 'formation'> & {
-    formation: Omit<Civ7StrategyFormationSnapshotResult['formation'], 'nextSteps'> & {
-      nextSteps: Civ7StrategyFormationSnapshotResult['formation']['nextSteps'];
+  Omit<FormationSnapshotServiceResult, 'formation'> & {
+    formation: Omit<FormationSnapshotServiceResult['formation'], 'nextSteps'> & {
+      nextSteps: FormationSnapshotServiceResult['formation']['nextSteps'];
       nextInspections: string[];
     };
   };
@@ -115,7 +117,7 @@ export default class GamePlayFormationSnapshot extends Command {
 }
 
 function formationCliView(
-  result: Civ7StrategyFormationSnapshotResult,
+  result: FormationSnapshotServiceResult,
 ): FormationSnapshotCliView {
   return {
     ...result,

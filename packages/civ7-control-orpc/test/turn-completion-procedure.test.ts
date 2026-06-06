@@ -8,10 +8,15 @@ import {
   Civ7TurnCompletionUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
-  type Civ7TurnCompletionResult,
 } from "../src/index";
 import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../src/dependencies/direct-control";
 import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+
+type TurnCompletionServiceResult = Awaited<
+  ReturnType<
+    ReturnType<typeof createCiv7ControlOrpcServerClient>["turn"]["complete"]["request"]
+  >
+>;
 
 const Civ7TurnCompletionInputSchema = typeboxInputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.turn.complete.request,
@@ -283,7 +288,7 @@ describe("turn.complete.request control-oRPC procedure", () => {
 });
 
 function expectPublicResultOmitsRawRuntimeDetails(
-  result: Civ7TurnCompletionResult,
+  result: TurnCompletionServiceResult,
 ): void {
   const serialized = JSON.stringify(result);
   expect(serialized).not.toContain("\"host\"");

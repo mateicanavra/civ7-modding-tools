@@ -1,14 +1,16 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  createCiv7ControlOrpcServerClient,
-  type Civ7StrategyCivilianRouteTriageResult,
-} from '@civ7/control-orpc';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
-type TriageNextStep = Civ7StrategyCivilianRouteTriageResult['nextSteps'][number];
-type CivilianRouteTriageCliView = Omit<Civ7StrategyCivilianRouteTriageResult, 'triage'> & {
-  triage: Civ7StrategyCivilianRouteTriageResult['triage'] & {
+type CivilianRouteTriageServiceResult = Awaited<
+  ReturnType<
+    ReturnType<typeof createCiv7ControlOrpcServerClient>['strategy']['civilianRouteTriage']
+  >
+>;
+type TriageNextStep = Readonly<{ kind: string; label: string }>;
+type CivilianRouteTriageCliView = Omit<CivilianRouteTriageServiceResult, 'triage'> & {
+  triage: CivilianRouteTriageServiceResult['triage'] & {
     nextInspections: string[];
   };
 };
@@ -131,15 +133,15 @@ export default class GamePlayCivilianRouteTriage extends Command {
 }
 
 function buildCliView(
-  result: Civ7StrategyCivilianRouteTriageResult,
+  result: CivilianRouteTriageServiceResult,
 ): CivilianRouteTriageCliView {
   return {
     ...result,
     triage: {
       ...result.triage,
       nextInspections: result.nextSteps
-        .map(nextInspectionLabel)
-        .filter((item): item is string => item != null),
+        .map((step: TriageNextStep) => nextInspectionLabel(step))
+        .filter((item: string | null): item is string => item != null),
     },
   };
 }

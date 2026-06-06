@@ -1,11 +1,13 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  createCiv7ControlOrpcServerClient,
-  type Civ7ProgressionTraditionsResult,
-} from '@civ7/control-orpc';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
+type TraditionsServiceResult = Awaited<
+  ReturnType<
+    ReturnType<typeof createCiv7ControlOrpcServerClient>['progression']['traditions']['current']
+  >
+>;
 type CompactTraditionAction = {
   kind: string;
   label: string;
@@ -15,6 +17,33 @@ type CompactTraditionAction = {
   sendsMutation: boolean;
   closeout: boolean;
 };
+type CompactTraditionRow = Record<string, unknown> & {
+  validationSuccess: boolean | null;
+  nextAction: CompactTraditionAction | null;
+};
+type TraditionAction = Readonly<{
+  kind: string;
+  action: number | null;
+  validationSuccess: boolean | null;
+  parameters: Readonly<{
+    traditionType: unknown;
+    action: unknown;
+  }>;
+}>;
+type TraditionRow = Readonly<{
+  id: number;
+  type: string | null;
+  name: string | null;
+  description: string | null;
+  ageType: unknown;
+  cultureSlotType: unknown;
+  traitType: unknown;
+  isCrisis: unknown;
+  active: unknown;
+  unlocked: unknown;
+  recentUnlock: unknown;
+  actions: ReadonlyArray<TraditionAction>;
+}>;
 
 export default class GamePlayTraditions extends Command {
   static id = 'game play traditions';
@@ -84,7 +113,7 @@ export default class GamePlayTraditions extends Command {
   }
 }
 
-function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
+function buildCompactTraditionsView(view: TraditionsServiceResult): {
   ok: true;
   contractVersion: 'play-agent-v0';
   surface: 'traditions';
@@ -94,26 +123,26 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
   government: unknown;
   slots: unknown;
   actions: unknown;
-  active: Array<Record<string, unknown>>;
-  available: Array<Record<string, unknown>>;
-  recentUnlocks: Array<Record<string, unknown>>;
+  active: CompactTraditionRow[];
+  available: CompactTraditionRow[];
+  recentUnlocks: CompactTraditionRow[];
   enabledAvailableCount: number;
   disabledAvailableCount: number;
   recommendedActions: CompactTraditionAction[];
-  nextSteps: Civ7ProgressionTraditionsResult['nextSteps'];
+  nextSteps: TraditionsServiceResult['nextSteps'];
   omitted: Array<{ path: string; reason: string }>;
   hiddenInfoPolicy: unknown;
   notes: ReadonlyArray<string>;
 } {
-  const active = view.active.map((tradition) =>
+  const active = view.active.map((tradition: TraditionRow) =>
     compactTraditionRow(tradition, {
       sendCloseout: false,
     }));
-  const available = view.available.map((tradition) =>
+  const available = view.available.map((tradition: TraditionRow) =>
     compactTraditionRow(tradition, {
       sendCloseout: true,
     }));
-  const recentUnlocks = view.recentUnlocks.map((tradition) =>
+  const recentUnlocks = view.recentUnlocks.map((tradition: TraditionRow) =>
     compactTraditionRow(tradition, {
       sendCloseout: true,
     }));
@@ -130,12 +159,12 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
     active,
     available,
     recentUnlocks,
-    enabledAvailableCount: available.filter((tradition) => tradition.validationSuccess === true).length,
-    disabledAvailableCount: available.filter((tradition) => tradition.validationSuccess !== true).length,
+    enabledAvailableCount: available.filter((tradition: CompactTraditionRow) => tradition.validationSuccess === true).length,
+    disabledAvailableCount: available.filter((tradition: CompactTraditionRow) => tradition.validationSuccess !== true).length,
     recommendedActions: available
-      .map((tradition) => tradition.nextAction)
-      .filter((action): action is CompactTraditionAction => action != null)
-      .filter((action) => action.sendsMutation && action.validationSuccess === true),
+      .map((tradition: CompactTraditionRow) => tradition.nextAction)
+      .filter((action: CompactTraditionAction | null): action is CompactTraditionAction => action != null)
+      .filter((action: CompactTraditionAction) => action.sendsMutation && action.validationSuccess === true),
     nextSteps: view.nextSteps,
     omitted: view.omitted,
     hiddenInfoPolicy: view.hiddenInfoPolicy,
@@ -147,9 +176,9 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
 }
 
 function compactTraditionRow(
-  tradition: Civ7ProgressionTraditionsResult['traditions'][number],
+  tradition: TraditionRow,
   options: { sendCloseout: boolean },
-): Record<string, unknown> {
+): CompactTraditionRow {
   const action = tradition.actions[0];
   const nextAction = action
     ? compactTraditionAction(action, options.sendCloseout)
@@ -173,7 +202,7 @@ function compactTraditionRow(
 }
 
 function compactTraditionAction(
-  action: Civ7ProgressionTraditionsResult['traditions'][number]['actions'][number],
+  action: TraditionAction,
   closeout: boolean,
 ): CompactTraditionAction {
   return {

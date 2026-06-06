@@ -1,10 +1,15 @@
 import { Command, Flags } from '@oclif/core';
 import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
-import type { Civ7StrategyFrontSummaryResult } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions, resolveCoordinateFlags } from '../../../utils/game-play-shared';
 
 type Location = Readonly<{ x: number; y: number }>;
+type FrontSummaryServiceResult = Awaited<
+  ReturnType<
+    ReturnType<typeof createCiv7ControlOrpcServerClient>['strategy']['frontSummary']
+  >
+>;
+type FrontInspectionStep = Readonly<{ label: string }>;
 
 export default class GamePlayFrontSummary extends Command {
   static id = 'game play front-summary';
@@ -185,6 +190,6 @@ function resolveFrontTarget(flags: {
   }) ?? null;
 }
 
-function frontInspectionLabels(result: Civ7StrategyFrontSummaryResult): string[] {
-  return result.front.nextInspections.map((step) => step.label);
+function frontInspectionLabels(result: FrontSummaryServiceResult): string[] {
+  return result.front.nextInspections.map((step: FrontInspectionStep) => step.label);
 }

@@ -1080,6 +1080,18 @@ adding more read-only facade shells.
     bridge, deployed Civ7 proof, relationship authority, and parent Task
     5.x/6.x/7.x acceptance unchanged; caller-provided approval remains retired
     and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.47 Prune `@civ7/control-orpc` package-root exports of
+    module-level contracts, routers, procedure implementations, per-procedure
+    input/result DTO aliases, and `Civ7WorldPlotField`. Keep the aggregate
+    `Civ7ControlOrpcContract`, aggregate router, server-side client, context,
+    tagged errors, primitives, and bridge ingress envelope as the public
+    surface. CLI callers derive local helper/view types from the client method
+    they call or from small local structural rows instead of importing
+    procedure DTO aliases. Keep procedure contracts, normal outputs, parser
+    flags, runtime behavior, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2265,6 +2277,15 @@ adding more read-only facade shells.
   transport/controller scope, relationship authority, or parent Task 5.x/6.x/
   7.x acceptance; caller-provided approval remains retired and no
   approval-reason mechanic is introduced.
+- [x] 8.60.61 Run focused CLI read/compact tests, control-oRPC check/build,
+  CLI check, strict OpenSpec validate, root export scan, CLI import scan, and
+  diff hygiene for the control-oRPC package-root procedure surface pruning.
+  This is local API/declaration hygiene proof only; it does not change
+  procedure contracts, normal outputs, parser flags, runtime behavior,
+  deployed Civ7 runtime behavior, play-thread state, transport/controller
+  scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package
   check/build, strict OpenSpec validates, game-UI attention `cli`/command
   recipe scans, active approval/caller-permission scan, relationship-label
