@@ -10,9 +10,9 @@ through the package-local controller ingress without turning the bridge into a
 generic mutation dispatcher or reintroducing the generic decisions root.
 
 The serialized bridge envelope stays closed. Procedure input reuses the
-existing diplomacy-response procedure input schema is
-controller-runtime metadata, and mutation dispatch requires controller proof
-metadata before context construction and native router dispatch.
+existing diplomacy-response procedure input schema, controller-runtime metadata
+is context-owned, and mutation dispatch requires controller proof metadata
+before context construction and native router dispatch.
 
 ## Write Set
 
@@ -28,7 +28,8 @@ The controller ingress now:
   procedure key;
 - validates the existing semantic diplomacy response input shape: `playerId`,
   `actionId`, `responseType`, and optional `notificationId`;
-- requires closed controller-runtime context metadata with a non-empty reason;
+- requires closed controller lifecycle, local-player, and hotseat proof
+  metadata without accepting caller-provided mutation metadata fields;
 - requires closed controller lifecycle proof for game-controller-ready lifecycle,
   `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;

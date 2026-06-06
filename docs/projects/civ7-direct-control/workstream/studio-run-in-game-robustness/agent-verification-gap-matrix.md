@@ -506,7 +506,7 @@ bun run verify:studio-run-in-game:live -- \
   --poll-interval-ms 2000
 ```
 
-Mutating live proof from running game with explicit exit approval:
+Mutating live proof from running game with explicit destructive-exit boundary:
 
 ```bash
 bun run verify:studio-run-in-game:live -- \

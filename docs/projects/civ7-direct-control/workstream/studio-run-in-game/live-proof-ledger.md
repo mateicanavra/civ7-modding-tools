@@ -48,7 +48,7 @@ this ledger for observations that depend on a running Civ7 instance.
   - `bun run verify:studio-run-in-game:live -- --mutate --map-script '{swooper-maps}/maps/swooper-earthlike.js' --map-size MAPSIZE_STANDARD --seed 753190005 --game-seed 753190000 --from-running-game exit-to-shell --timeout-ms 10000 --wait-timeout-ms 180000 --poll-interval-ms 2000`
   - Studio endpoint probe: `POST /api/civ7/run-in-game` on the durable
     `swooper-earthlike` config with seed `753190006`.
-- Mode: read-only, then approved mutating setup/start, then Studio endpoint.
+- Mode: read-only, then bounded mutating setup/start, then Studio endpoint.
 - Mutation attempted: true.
 - Evidence:
   - Read-only health saw App UI `65535` and Tuner `1` on `127.0.0.1:4318`;

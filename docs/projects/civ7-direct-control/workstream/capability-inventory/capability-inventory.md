@@ -102,7 +102,7 @@ failures and with before/after or postcondition evidence.
 | `canStartUnitOperation(...)` | Tuner | Read-only validator first, then optional mutating counterpart. |
 | `requestUnitOperation(...)` | Tuner | Requires prior `canStart` result or explicit `force`. |
 | `canStartCityOperation(...)` / `requestCityOperation(...)` | Tuner | Same validator-first split. |
-| `canStartPlayerOperation(...)` / `requestPlayerOperation(...)` | Tuner | High blast radius; approval-friendly output. |
+| `canStartPlayerOperation(...)` / `requestPlayerOperation(...)` | Tuner | High blast radius; proof/no-repeat-friendly output. |
 
 ## Keep Raw For Now
 
@@ -142,15 +142,15 @@ Highest-value direct-control additions for this repo:
 ## AI / LLM Play Feasibility
 
 Direct-control can support an assistant that observes, summarizes, plans, and
-executes approved actions. It cannot yet safely support a fully autonomous Civ7
-player.
+executes validator/proof-bounded actions. It cannot yet safely support a fully
+autonomous Civ7 player.
 
 | Tier | Status | Description |
 |---|---|---|
 | Developer status assistant | ready | Health, states, restart/begin, snapshots, root inspection. |
 | Map/Studio automation assistant | ready/near-term | Restart loops, map summaries, proof logs, runtime comparison. |
 | Supervised gameplay advisor | feasible next | Read map/player/unit/city state and propose actions. |
-| Supervised command executor | feasible after validators | Execute one approved validated action at a time. |
+| Supervised command executor | feasible after validators | Execute one validated, postcondition-bounded action at a time. |
 | Bounded autoplay runner | feasible after wrapper | Run AI/autoplay N turns and report status. |
 | Autonomous playable agent | not ready | Missing full state model, end-turn path, action schemas, event feedback, and safety policy. |
 

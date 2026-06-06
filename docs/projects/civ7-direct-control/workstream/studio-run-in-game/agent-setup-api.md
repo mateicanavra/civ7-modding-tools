@@ -175,7 +175,7 @@ type Civ7SetupSnapshot = Readonly<{
 
 ### `prepareCiv7SinglePlayerSetup`
 
-- [inferred] Add an approved App UI mutation wrapper:
+- [inferred] Add a proof-bounded App UI mutation wrapper:
 
 ```ts
 type Civ7SinglePlayerSetupInput = Readonly<{
@@ -190,7 +190,6 @@ type Civ7SinglePlayerSetupInput = Readonly<{
 async function prepareCiv7SinglePlayerSetup(
   input: Civ7SinglePlayerSetupInput,
   options: Civ7DirectControlOptions,
-  approval: Civ7ActionApproval,
 ): Promise<Civ7PreparedSetupResult>;
 ```
 
@@ -211,8 +210,8 @@ async function prepareCiv7SinglePlayerSetup(
 
 ### `startPreparedCiv7SinglePlayerGame`
 
-- [inferred] Add an approved App UI mutation wrapper after the start primitive is
-  live-proven:
+- [inferred] Add a proof-bounded App UI mutation wrapper after the start
+  primitive is live-proven:
 
 ```ts
 async function startPreparedCiv7SinglePlayerGame(
@@ -223,7 +222,6 @@ async function startPreparedCiv7SinglePlayerGame(
     pollIntervalMs?: number;
   }>,
   options: Civ7DirectControlOptions,
-  approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerStartResult>;
 ```
 
@@ -249,7 +247,6 @@ async function runCiv7SinglePlayerFromSetup(
     waitForTuner?: boolean;
   }>,
   options: Civ7DirectControlOptions,
-  approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult>;
 ```
 
@@ -267,8 +264,9 @@ async function runCiv7SinglePlayerFromSetup(
 - [inferred] `prepareCiv7SinglePlayerSetup` should require shell by default.
   Error: `setup-phase-invalid` with observed phase and snapshot.
 - [inferred] `runCiv7SinglePlayerFromSetup` may accept
-  `fromRunningGame: "exit-to-shell"` only with explicit approval. Error:
-  `setup-requires-shell` when running-game exit is not approved.
+  `fromRunningGame: "exit-to-shell"` only as an explicit destructive recovery
+  mode with disposable-session boundaries. Error: `setup-requires-shell` when
+  running-game exit is not permitted by the operation contract.
 - [inferred] If `GameSetup`, `Configuration`, `Network`, `UI`, or `Database` is
   missing from App UI, error `setup-api-unavailable`.
 - [inferred] If `Map`, `MapSize`, or `MapRandomSeed` is missing, hidden,
@@ -296,8 +294,8 @@ async function runCiv7SinglePlayerFromSetup(
   `GameSetup.MapSize = MAPSIZE_STANDARD`, `GameSetup.MapRandomSeed =
   -1317491365`, and `GameplayMap.getRandomSeed() = -1317491365`.
 - [unresolved] Mutating proof step 1: from a disposable running game, call the
-  future direct-control shell guard with approval and verify App UI reaches
-  shell/main menu without relying on Studio raw JS.
+  future direct-control shell guard and verify App UI reaches shell/main menu
+  without relying on Studio raw JS.
 - [unresolved] Mutating proof step 2: from shell, snapshot `GameSetup`
   parameters and selected map domain before writes.
 - [unresolved] Mutating proof step 3: apply `Map`, `MapSize`, and
@@ -363,8 +361,8 @@ async function runCiv7SinglePlayerFromSetup(
   deploy can restart a prior setup and look successful unless setup readback,
   seed, map row, and config hash are tied to the request.
 - [P2][inferred] Shell exit from an existing game is destructive to that game
-  session. It needs explicit approval/disposable-session language in the wrapper
-  result and Studio UI.
+  session. It needs explicit destructive-action and disposable-session language
+  in the wrapper result and Studio UI.
 
 ## Concrete Next Steps
 
@@ -381,8 +379,9 @@ async function runCiv7SinglePlayerFromSetup(
 5. [inferred] Run a mutating disposable proof for from-running-game shell return
    if Studio needs that path in v1; otherwise reject running-game phase for the
    first wrapper slice.
-6. [inferred] Add `prepareCiv7SinglePlayerSetup` with approval, bounded parameter
-   ids, revision/readback verification, and no Studio raw JS surface.
+6. [inferred] Add `prepareCiv7SinglePlayerSetup` with bounded parameter ids,
+   revision/readback verification, postcondition/no-repeat evidence, and no
+   Studio raw JS surface.
 7. [inferred] Add `startPreparedCiv7SinglePlayerGame` with expected setup
    validation before start and seed/dimensions validation after start.
 8. [inferred] Only then expose a Studio Run in Game endpoint that accepts

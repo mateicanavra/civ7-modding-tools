@@ -27,7 +27,8 @@ dispatch.
 The controller ingress now:
 
 - accepts `notifications.dismiss.request` as the only mutation procedure key;
-- requires closed controller-runtime context metadata with a non-empty reason;
+- requires closed controller lifecycle, local-player, and hotseat proof
+  metadata without accepting caller-provided mutation metadata fields;
 - requires closed controller lifecycle proof for game-controller-ready lifecycle,
   `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;

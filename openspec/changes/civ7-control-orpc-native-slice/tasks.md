@@ -291,6 +291,10 @@ adding more read-only facade shells.
   - [x] 6.2.3 Keep mutation requests semantic and closed against endpoint,
     session, state, raw command, and caller-supplied controller proof fields
     after approval removal.
+  - [x] 6.2.4 Retire stale active approval/reason guidance from older
+    controller ingress records, Studio Run-in-Game planning docs, and
+    capability-inventory docs. Historical/superseded review evidence may remain
+    only when it clearly says the old caller-approval mechanic is retired.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
   - [x] 6.3.1 Compose `city.production.choice.request` through the
@@ -722,6 +726,11 @@ adding more read-only facade shells.
   the game-resident turn-completion runtime port. These are local package and
   bundle proofs only and do not claim deployed Civ7 runtime proof, play-thread
   action, other game-UI mutation ports, or full `7.3` acceptance.
+- [x] 8.48 Run active-doc approval/reason scans, strict OpenSpec validates, and
+  diff hygiene for the approval-removal guidance cleanup. This is a docs/spec
+  authority cleanup only and does not claim source behavior changes, deployed
+  Civ7 runtime proof, play-thread action, or full parent Task 6.x/7.3
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

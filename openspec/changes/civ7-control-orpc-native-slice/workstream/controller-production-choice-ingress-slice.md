@@ -10,8 +10,8 @@ through the package-local controller ingress without turning the bridge into a
 generic mutation dispatcher.
 
 The serialized bridge envelope stays closed. Procedure input reuses the
-existing city-production-choice schema is controller-runtime
-metadata, and mutation dispatch requires controller lifecycle proof before
+existing city-production-choice schema, controller-runtime metadata is
+context-owned, and mutation dispatch requires controller lifecycle proof before
 context construction and native router dispatch.
 
 ## Write Set
@@ -26,7 +26,8 @@ The controller ingress now:
 
 - accepts `city.production.choice.request` as an additional allowlisted
   mutation procedure key;
-- requires closed controller-runtime context metadata with a non-empty reason;
+- requires closed controller lifecycle, local-player, and hotseat proof
+  metadata without accepting caller-provided mutation metadata fields;
 - requires closed controller lifecycle proof for game-controller-ready lifecycle,
   `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;

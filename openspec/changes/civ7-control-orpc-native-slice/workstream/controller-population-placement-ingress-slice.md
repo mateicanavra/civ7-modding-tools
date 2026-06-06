@@ -11,8 +11,8 @@ generic mutation dispatcher or exposing raw player-operation/city-command
 authority.
 
 The serialized bridge envelope stays closed. Procedure input reuses the
-existing population-placement procedure input schema is
-controller-runtime metadata, and mutation dispatch requires controller proof
+existing population-placement procedure input schema, controller-runtime
+metadata is context-owned, and mutation dispatch requires controller proof
 metadata before context construction and native router dispatch.
 
 ## Write Set
@@ -29,7 +29,8 @@ The controller ingress now:
   mutation procedure key;
 - validates the existing semantic population-placement input shape:
   `assign-worker` or `expand-city`;
-- requires closed controller-runtime context metadata with a non-empty reason;
+- requires closed controller lifecycle, local-player, and hotseat proof
+  metadata without accepting caller-provided mutation metadata fields;
 - requires closed controller lifecycle proof for game-controller-ready lifecycle,
   `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;
