@@ -39,6 +39,11 @@ import {
   requestCiv7GameUiNarrativeChoice,
   type Civ7GameUiNarrativeTarget,
 } from "./game-ui-narrative";
+import {
+  civ7GameUiDiplomacyResponseAvailable,
+  requestCiv7GameUiDiplomacyResponse,
+  type Civ7GameUiDiplomacyTarget,
+} from "./game-ui-diplomacy";
 import type {
   Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcPlayableStatusResult,
@@ -76,6 +81,9 @@ export type Civ7GameUiRuntimeTarget = {
     sendTurnComplete?: () => unknown;
   };
   Game?: Civ7GameUiProductionTarget["Game"] & {
+    Diplomacy?: Civ7GameUiDiplomacyTarget["Game"] extends infer Game
+      ? Game extends { Diplomacy?: infer Diplomacy } ? Diplomacy : never
+      : never;
     CityCommands?: Civ7GameUiPopulationTarget["Game"] extends infer Game
       ? Game extends { CityCommands?: infer Commands } ? Commands : never
       : never;
@@ -108,10 +116,13 @@ export type Civ7GameUiRuntimeTarget = {
   CityCommandTypes?: Civ7GameUiPopulationTarget["CityCommandTypes"];
   PlayerOperationTypes?: Civ7GameUiPopulationTarget["PlayerOperationTypes"]
     & Civ7GameUiProgressionTarget["PlayerOperationTypes"]
-    & Civ7GameUiNarrativeTarget["PlayerOperationTypes"];
+    & Civ7GameUiNarrativeTarget["PlayerOperationTypes"]
+    & Civ7GameUiDiplomacyTarget["PlayerOperationTypes"];
   ProgressionTreeNodeTypes?:
     Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
   NarrativePopupManager?: Civ7GameUiNarrativeTarget["NarrativePopupManager"];
+  DiplomacyManager?: Civ7GameUiDiplomacyTarget["DiplomacyManager"];
+  LeaderModelManager?: Civ7GameUiDiplomacyTarget["LeaderModelManager"];
   document?: Civ7GameUiNarrativeTarget["document"];
   Autoplay?: {
     isActive?: boolean;
@@ -149,7 +160,8 @@ export type Civ7GameUiRuntimeTarget = {
       : never;
   };
   Cities?: Civ7GameUiProductionTarget["Cities"];
-  InterfaceMode?: Civ7GameUiProductionTarget["InterfaceMode"];
+  InterfaceMode?: Civ7GameUiProductionTarget["InterfaceMode"]
+    & Civ7GameUiDiplomacyTarget["InterfaceMode"];
   PlotCursor?: Civ7GameUiProductionTarget["PlotCursor"];
   Configuration?: {
     getGame?: () => { skipStartButton?: boolean };
@@ -213,7 +225,8 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: async (input) =>
       await requestCiv7GameUiNarrativeChoice(input, target),
-    requestCiv7DiplomacyResponse: unsupported,
+    requestCiv7DiplomacyResponse: async (input) =>
+      await requestCiv7GameUiDiplomacyResponse(input, target),
     requestCiv7TechnologyChoiceCloseout: async (input) =>
       await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) =>
@@ -299,6 +312,9 @@ function gameUiSupportedMutationProcedures(
   }
   if (civ7GameUiNarrativeChoiceAvailable(target)) {
     supported.push("narrative.choice.request");
+  }
+  if (civ7GameUiDiplomacyResponseAvailable(target)) {
+    supported.push("diplomacy.response.request");
   }
   return supported;
 }

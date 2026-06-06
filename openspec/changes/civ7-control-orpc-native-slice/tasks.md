@@ -653,6 +653,20 @@ adding more read-only facade shells.
     postcondition paths; keep raw game-UI function names,
     command/session/state details, deployed Civ7 proof, play-thread action,
     diplomacy/unit runtime ports, and full `7.3` acceptance pending.
+  - [x] 7.3.23 Add a game-resident diplomacy-response runtime dependency for
+    `diplomacy.response.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest`,
+    `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, diplomacy notification
+    activation/blocking/read APIs, optional `DiplomacyManager`/leader UI
+    closeout evidence, and controller-owned local-player proof through the
+    existing service-owned diplomacy procedure; advertise the mutation only
+    when those exact game UI APIs and controller proof exist; derive send
+    player from `GameContext.localPlayerID` rather than caller `playerId`;
+    preserve validator-blocked not-sent and no-repeat proof output for sticky
+    blockers, validation-only changes, failed/missing blocker evidence, and
+    missing postcondition paths; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    unit runtime ports, and full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -808,6 +822,13 @@ adding more read-only facade shells.
   These are local package and bundle proofs only and do not claim deployed Civ7
   runtime proof, play-thread action, diplomacy/unit runtime ports, or full
   `7.3` acceptance.
+- [x] 8.53 Run focused game-ui controller, diplomacy-response procedure, and
+  controller-ingress tests plus control-oRPC check/build/test, controller mod
+  package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident diplomacy-response runtime dependency.
+  These are local package and bundle proofs only and do not claim deployed Civ7
+  runtime proof, play-thread action, unit runtime ports, or full `7.3`
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

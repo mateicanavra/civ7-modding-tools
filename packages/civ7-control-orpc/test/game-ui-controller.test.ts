@@ -11,6 +11,8 @@ describe("Civ7 game UI controller bootstrap", () => {
   const cityId = { owner: 0, id: 65_536, type: 1 };
   const productionArgs = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
   const populationDestination = { x: 22, y: 31 };
+  const diplomacyActionId = 8_821;
+  const diplomacyResponseType = -1_713_616_684;
 
   test("installs the intelligence bridge with a game UI readiness context", async () => {
     const target = gameUiTarget();
@@ -1152,6 +1154,213 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(sendCalls).toEqual([]);
   });
 
+  test("executes diplomacy response through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED",
+      notificationTarget: { owner: 0, id: diplomacyActionId, type: 20 },
+      diplomacyResponse: {
+        clearBlockerOnSend: true,
+        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-diplomacy-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "diplomacy.response.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "diplomacy.response.request",
+      input: {
+        playerId: 2,
+        actionId: diplomacyActionId,
+        responseType: diplomacyResponseType,
+        notificationId,
+      },
+      correlationId: "game-ui-diplomacy-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "diplomacy.response.request",
+      correlationId: "game-ui-diplomacy-1",
+      output: {
+        playerId: 0,
+        actionId: diplomacyActionId,
+        responseType: diplomacyResponseType,
+        notificationId,
+        sent: true,
+        status: "sent-confirmed",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "diplomacy-blocker-cleared",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+        nextSteps: [{
+          kind: "refresh-attention",
+          source: "diplomacy.response.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{
+      playerId: 0,
+      args: {
+        ID: diplomacyActionId,
+        Type: diplomacyResponseType,
+      },
+    }]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("RESPOND_DIPLOMATIC_ACTION");
+    expect(serialized).not.toContain("sendRequest");
+    expect(serialized).not.toContain("DiplomacyManager");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+  });
+
+  test("keeps sticky game UI diplomacy responses no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED",
+      notificationTarget: { owner: 0, id: diplomacyActionId, type: 20 },
+      diplomacyResponse: {
+        clearBlockerOnSend: false,
+        blockerReadFailsAfterSend: true,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "diplomacy.response.request",
+      input: {
+        playerId: 0,
+        actionId: diplomacyActionId,
+        responseType: diplomacyResponseType,
+        notificationId,
+      },
+      correlationId: "game-ui-diplomacy-sticky-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        playerId: 0,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "no-state-change",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "diplomacy.response.request",
+        }],
+      },
+    });
+  });
+
+  test("keeps game UI diplomacy validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED",
+      notificationTarget: { owner: 0, id: diplomacyActionId, type: 20 },
+      diplomacyResponse: {
+        canRespond: false,
+        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "diplomacy.response.request",
+      input: {
+        playerId: 0,
+        actionId: diplomacyActionId,
+        responseType: diplomacyResponseType,
+        notificationId,
+      },
+      correlationId: "game-ui-diplomacy-blocked-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: false,
+        status: "not-sent",
+        validation: {
+          beforeValid: false,
+          afterValid: false,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "inspect-diplomacy-response",
+          source: "diplomacy.response.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("does not advertise game UI diplomacy without notification blocking APIs", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED",
+      notificationTarget: { owner: 0, id: diplomacyActionId, type: 20 },
+      diplomacyResponse: {},
+    });
+    const game = target.Game;
+    if (game?.Notifications != null) {
+      game.Notifications.getEndTurnBlockingType = undefined;
+    }
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "diplomacy.response.request",
+      input: {
+        playerId: 0,
+        actionId: diplomacyActionId,
+        responseType: diplomacyResponseType,
+      },
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      error: {
+        code: "MUTATION_READINESS_REQUIRED",
+        message: "Playable Civ7 readiness is required before mutation.",
+        reason: "procedure-failed",
+      },
+    });
+  });
+
   test("keeps blocked game UI turn completion semantic and no-repeat guarded", async () => {
     const sendCalls: string[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -1687,6 +1896,18 @@ function gameUiNotificationTarget(
         }>,
       ) => void;
     };
+    diplomacyResponse?: {
+      canRespond?: boolean;
+      clearBlockerOnSend?: boolean;
+      blockerReadFailsAfterSend?: boolean;
+      onSend?: (
+        playerId: number,
+        args: Readonly<{
+          ID: number;
+          Type: number;
+        }>,
+      ) => void;
+    };
   }> = {},
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
@@ -1734,6 +1955,11 @@ function gameUiNotificationTarget(
         : {
             CHOOSE_NARRATIVE_STORY_DIRECTION:
               "CHOOSE_NARRATIVE_STORY_DIRECTION",
+          }),
+      ...(options.diplomacyResponse == null
+        ? {}
+        : {
+            RESPOND_DIPLOMATIC_ACTION: "RESPOND_DIPLOMATIC_ACTION",
           }),
     },
     ProgressionTreeNodeTypes: options.progressionChoice == null
@@ -1860,6 +2086,7 @@ function gameUiNotificationTarget(
       PlayerOperations: options.populationPlacement == null
           && options.progressionChoice == null
           && options.narrativeChoice == null
+          && options.diplomacyResponse == null
         ? undefined
         : {
             canStart: (_playerId, operationType) => ({
@@ -1867,6 +2094,8 @@ function gameUiNotificationTarget(
                 ? options.populationPlacement?.canAssignWorker ?? true
                 : operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION"
                 ? options.narrativeChoice?.canChoose ?? true
+                : operationType === "RESPOND_DIPLOMATIC_ACTION"
+                ? options.diplomacyResponse?.canRespond ?? true
                 : String(operationType).includes("TARGET")
                 ? options.progressionChoice?.canClearTarget ?? true
                 : options.progressionChoice?.canChoose ?? true,
@@ -1886,6 +2115,17 @@ function gameUiNotificationTarget(
                   },
                 );
                 if (options.narrativeChoice?.clearBlockerOnSend === true) {
+                  exists = false;
+                }
+              } else if (operationType === "RESPOND_DIPLOMATIC_ACTION") {
+                options.diplomacyResponse?.onSend?.(
+                  _playerId,
+                  args as {
+                    ID: number;
+                    Type: number;
+                  },
+                );
+                if (options.diplomacyResponse?.clearBlockerOnSend === true) {
                   exists = false;
                 }
               } else {
@@ -1914,6 +2154,9 @@ function gameUiNotificationTarget(
           ) {
             throw new Error("production blocker read failed");
           }
+          if (options.diplomacyResponse?.blockerReadFailsAfterSend === true) {
+            throw new Error("diplomacy blocker read failed");
+          }
           return blocksTurnAdvancement ? notificationId.type : 0;
         },
         findEndTurnBlocking: () =>
@@ -1921,7 +2164,32 @@ function gameUiNotificationTarget(
         getIdsForPlayer: () =>
           exists ? [notificationId, ...(options.extraIds ?? [])] : [],
       },
+      Diplomacy: options.diplomacyResponse == null
+        ? undefined
+        : {
+            getResponseDataForUI: (actionId: number) => ({ actionID: actionId }),
+            getDiplomaticEventData: (actionId: number) => ({ actionID: actionId }),
+          },
     },
+    DiplomacyManager: options.diplomacyResponse == null
+      ? undefined
+      : {
+          currentProjectReactionData: null,
+          currentProjectReactionRequest: null,
+          selectedActionID: null,
+          isShowing: () => true,
+          addCurrentDiplomacyProject(project) {
+            this.currentProjectReactionData = project as { actionID?: unknown };
+          },
+          closeCurrentDiplomacyProject: () => true,
+          hide: () => true,
+        },
+    InterfaceMode: options.diplomacyResponse == null
+      ? undefined
+      : { getCurrent: () => "DIPLOMACY" },
+    LeaderModelManager: options.diplomacyResponse == null
+      ? undefined
+      : { beginAcknowledgePlayerSequence: () => true },
     Players: {
       ...target.Players,
       get: (playerId) =>

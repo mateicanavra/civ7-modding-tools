@@ -794,6 +794,36 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   diplomacy/unit runtime ports, play-thread action, and full `7.3`
   implementation remain pending
 
+#### Scenario: Game UI controller supports diplomacy response
+- **WHEN** the game-scoped controller context exposes ambient diplomacy
+  response APIs for `Game.PlayerOperations.canStart/sendRequest`,
+  `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, diplomacy notification
+  activation/blocking/read APIs, optional `DiplomacyManager`/leader UI
+  closeout evidence, and controller-owned local-player proof
+- **THEN** the context may execute the service-owned
+  `diplomacy.response.request` procedure through the existing in-process
+  router and native readiness/proof middleware
+- **AND** `diplomacy.response.request` is listed as a supported game-UI
+  mutation only when controller proof and the required ambient validation,
+  send, notification, and blocker-read APIs are present
+- **AND** caller `playerId` remains validation/input context while the runtime
+  send player is derived from controller-owned `GameContext.localPlayerID`
+- **AND** validator-blocked diplomacy responses project semantic `not-sent`
+  output and do not call the send API
+- **AND** sent responses preserve source-owned diplomacy proof semantics:
+  blocker-cleared, turn-unblocked, or confirmed blocking-notification change
+  evidence can confirm the request, while sticky blockers, validation-only
+  changes, failed/missing blocker evidence, no-state-change, and missing
+  postcondition paths remain no-repeat guarded
+- **AND** normal bridge success output remains the semantic diplomacy-response
+  result and omits host, port, state, command, rawCommand, session, tuner
+  payloads, UI closeout internals, raw game-UI function names,
+  direct-control socket details, and raw `RESPOND_DIPLOMATIC_ACTION`
+  operation names
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, unit runtime ports,
+  play-thread action, and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control
