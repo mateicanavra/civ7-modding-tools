@@ -896,12 +896,14 @@ adding more read-only facade shells.
     approval remains retired and no approval-reason mechanic is introduced.
   - [x] 7.1.9.25 Simplify `civ7 game play ready-city --compact` action guidance
     so compact JSON emits semantic row `nextAction` descriptors and top-level
-    `nextAction` instead of direct-control `cli`/`cliHints` command strings.
-    Keep command help responsible for exact flag combinations, and keep
-    direct-control ready-city source behavior, parser flags, runtime reads,
-    controller bridge, deployed Civ7 proof, relationship authority, and parent
-    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
-    retired and no approval-reason mechanic is introduced.
+    send-ready `nextAction` instead of direct-control `cli`/`cliHints` command
+    strings, with validation-failed production rows limited to read-only
+    validation guidance. Keep command help responsible for exact flag
+    combinations, and keep direct-control ready-city source behavior, parser
+    flags, runtime reads, controller bridge, deployed Civ7 proof, relationship
+    authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
   - [x] 7.1.9.26 Simplify `civ7 game play choose-tech --options` and
     `choose-culture --options` action guidance so option JSON emits semantic
     `nextAction`, `targetAction`, and `validationAction` descriptors instead of
@@ -1915,13 +1917,14 @@ adding more read-only facade shells.
   introduced.
 - [x] 8.60.38 Run focused CLI ready-city tests, `check:cli`, strict OpenSpec
   validates, compact ready-city command-recipe output scan, active
-  approval/caller-permission scan, relationship-label safety scan, and diff
-  hygiene for the compact ready-city action guidance simplification. This is
-  local CLI/OpenSpec proof only; it does not change direct-control ready-city
-  source behavior, runtime read behavior, parser flags, deployed Civ7 runtime
-  behavior, play-thread state, transport/controller scope, relationship
-  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
-  remains retired and no approval-reason mechanic is introduced.
+  approval/caller-permission scan, relationship-label safety scan, validation-
+  failed production action falsifier, and diff hygiene for the compact
+  ready-city action guidance simplification. This is local CLI/OpenSpec proof
+  only; it does not change direct-control ready-city source behavior, runtime
+  read behavior, parser flags, deployed Civ7 runtime behavior, play-thread
+  state, transport/controller scope, relationship authority, or parent Task
+  5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
 - [x] 8.60.39 Run focused CLI technology/culture option tests, `check:cli`,
   strict OpenSpec validates, technology/culture options command-recipe output
   scan, active approval/caller-permission scan, relationship-label safety scan,

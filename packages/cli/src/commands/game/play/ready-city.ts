@@ -11,8 +11,8 @@ type ReadyCityActionDescriptor = {
   kind: string;
   label: string;
   parameters: Record<string, unknown>;
-  readOnly: false;
-  sendsMutation: true;
+  readOnly: boolean;
+  sendsMutation: boolean;
 };
 
 export default class GamePlayReadyCity extends Command {
@@ -213,6 +213,21 @@ function compactExpansionCandidates(values: ReadonlyArray<Record<string, unknown
 }
 
 function productionAction(candidate: Record<string, unknown>): ReadyCityActionDescriptor {
+  if (candidate.valid !== true) {
+    return {
+      kind: 'validate-production',
+      label: 'Review this production candidate validation before considering a send.',
+      parameters: {
+        candidateKind: candidate.kind,
+        type: candidate.type,
+        typeName: candidate.typeName,
+        valid: candidate.valid ?? null,
+      },
+      readOnly: true,
+      sendsMutation: false,
+    };
+  }
+
   return {
     kind: 'choose-production',
     label: 'Choose this production candidate after reviewing placement and validation evidence.',
@@ -268,7 +283,9 @@ function probeArray(probe: Probe<unknown> | null | undefined): Array<Record<stri
 
 function actionField(value: Record<string, unknown> | undefined): ReadyCityActionDescriptor | null {
   const action = value?.nextAction;
-  return action && typeof action === 'object' ? action as ReadyCityActionDescriptor : null;
+  if (!action || typeof action !== 'object') return null;
+  const descriptor = action as ReadyCityActionDescriptor;
+  return descriptor.sendsMutation === true ? descriptor : null;
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {
