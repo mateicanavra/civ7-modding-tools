@@ -109,6 +109,29 @@ export const Civ7CityPopulationPlacementInputStandardSchema = toStandardSchema(
   Civ7CityPopulationPlacementInputSchema,
 );
 
+const Civ7CityTownFocusChangeInputSchema = Type.Object(
+  {
+    cityId: Civ7ControlOrpcComponentIdSchema,
+    growthType: Type.Integer(),
+    projectType: Type.Integer(),
+    city: Type.Optional(Type.Integer()),
+  },
+  { additionalProperties: false },
+);
+export type Civ7CityTownFocusChangeInput = Static<
+  typeof Civ7CityTownFocusChangeInputSchema
+>;
+
+const Civ7CityTownFocusReviewInputSchema = Type.Object(
+  {
+    cityId: Civ7ControlOrpcComponentIdSchema,
+  },
+  { additionalProperties: false },
+);
+export type Civ7CityTownFocusReviewInput = Static<
+  typeof Civ7CityTownFocusReviewInputSchema
+>;
+
 export const Civ7CityPopulationPlacementModeSchema = Type.Union([
   Type.Literal("assign-worker"),
   Type.Literal("expand-city"),
@@ -301,6 +324,118 @@ export const Civ7CityProductionChoiceResultStandardSchema = toStandardSchema(
   Civ7CityProductionChoiceResultSchema,
 );
 
+const Civ7CityTownFocusPostconditionClassificationSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("pending-runtime-proof"),
+  Type.Literal("missing-postcondition"),
+]);
+
+const Civ7CityTownFocusProofOutcomeSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("unknown"),
+]);
+
+const Civ7CityTownFocusRequestStatusSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("sent-unverified"),
+]);
+
+const Civ7CityTownFocusValidationSummarySchema = Type.Object(
+  {
+    beforeValid: Type.Boolean(),
+    afterValid: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7CityTownFocusPostconditionSummarySchema = Type.Object(
+  {
+    classification: Civ7CityTownFocusPostconditionClassificationSchema,
+    reason: Type.String(),
+    outcome: Civ7CityTownFocusProofOutcomeSchema,
+    confidence: Type.Union([
+      Type.Literal("unverified"),
+      Type.Literal("pending-runtime-proof"),
+    ]),
+    confirmed: Type.Boolean(),
+    noRepeatAfterUnverified: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7CityTownFocusChangeNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-town-focus"),
+    ]),
+    source: Type.Literal("city.townFocus.change.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7CityTownFocusReviewNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-town-focus"),
+    ]),
+    source: Type.Literal("city.townFocus.review.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7CityTownFocusResultBaseSchema = {
+  cityId: Civ7ControlOrpcComponentIdSchema,
+  sent: Type.Boolean(),
+  status: Civ7CityTownFocusRequestStatusSchema,
+  validation: Civ7CityTownFocusValidationSummarySchema,
+  postcondition: Civ7CityTownFocusPostconditionSummarySchema,
+} as const;
+
+const Civ7CityTownFocusChangeResultSchema = Type.Object(
+  {
+    ...Civ7CityTownFocusResultBaseSchema,
+    growthType: Type.Integer(),
+    projectType: Type.Integer(),
+    city: Type.Integer(),
+    nextSteps: Type.Array(Civ7CityTownFocusChangeNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7CityTownFocusChangeResult = Static<
+  typeof Civ7CityTownFocusChangeResultSchema
+>;
+
+const Civ7CityTownFocusReviewResultSchema = Type.Object(
+  {
+    ...Civ7CityTownFocusResultBaseSchema,
+    nextSteps: Type.Array(Civ7CityTownFocusReviewNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7CityTownFocusReviewResult = Static<
+  typeof Civ7CityTownFocusReviewResultSchema
+>;
+
+const Civ7CityTownFocusChangeInputStandardSchema = toStandardSchema(
+  Civ7CityTownFocusChangeInputSchema,
+);
+
+const Civ7CityTownFocusReviewInputStandardSchema = toStandardSchema(
+  Civ7CityTownFocusReviewInputSchema,
+);
+
+const Civ7CityTownFocusChangeResultStandardSchema = toStandardSchema(
+  Civ7CityTownFocusChangeResultSchema,
+);
+
+const Civ7CityTownFocusReviewResultStandardSchema = toStandardSchema(
+  Civ7CityTownFocusReviewResultSchema,
+);
+
 export type Civ7CityPopulationPlacementContract = ContractProcedure<
   typeof Civ7CityPopulationPlacementInputStandardSchema,
   typeof Civ7CityPopulationPlacementResultStandardSchema,
@@ -337,6 +472,42 @@ export const Civ7CityProductionChoiceContract: Civ7CityProductionChoiceContract 
       risk: "mutation",
     });
 
+type Civ7CityTownFocusChangeContract = ContractProcedure<
+  typeof Civ7CityTownFocusChangeInputStandardSchema,
+  typeof Civ7CityTownFocusChangeResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7CityTownFocusChangeContract: Civ7CityTownFocusChangeContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7CityTownFocusChangeInputStandardSchema)
+    .output(Civ7CityTownFocusChangeResultStandardSchema)
+    .meta({
+      family: "city",
+      procedureKey: "city.townFocus.change.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
+type Civ7CityTownFocusReviewContract = ContractProcedure<
+  typeof Civ7CityTownFocusReviewInputStandardSchema,
+  typeof Civ7CityTownFocusReviewResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7CityTownFocusReviewContract: Civ7CityTownFocusReviewContract =
+  civ7ControlOrpcContractBase
+    .input(Civ7CityTownFocusReviewInputStandardSchema)
+    .output(Civ7CityTownFocusReviewResultStandardSchema)
+    .meta({
+      family: "city",
+      procedureKey: "city.townFocus.review.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
 export type Civ7CityContract = Readonly<{
   population: Readonly<{
     place: Readonly<{
@@ -346,6 +517,14 @@ export type Civ7CityContract = Readonly<{
   production: Readonly<{
     choice: Readonly<{
       request: Civ7CityProductionChoiceContract;
+    }>;
+  }>;
+  townFocus: Readonly<{
+    change: Readonly<{
+      request: Civ7CityTownFocusChangeContract;
+    }>;
+    review: Readonly<{
+      request: Civ7CityTownFocusReviewContract;
     }>;
   }>;
 }>;
@@ -359,6 +538,14 @@ export const Civ7CityContract: Civ7CityContract = {
   production: {
     choice: {
       request: Civ7CityProductionChoiceContract,
+    },
+  },
+  townFocus: {
+    change: {
+      request: Civ7CityTownFocusChangeContract,
+    },
+    review: {
+      request: Civ7CityTownFocusReviewContract,
     },
   },
 };

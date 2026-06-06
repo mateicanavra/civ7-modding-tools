@@ -219,6 +219,14 @@ adding more read-only facade shells.
     semantic native unit procedure leaves over the low-level direct-control
     unit-command runtime port; do not add `operations` or `unit.command`
     public roots.
+  - [x] 5.5.6.2 Seed `city.townFocus.change.request` and
+    `city.townFocus.review.request` as semantic native city procedure leaves
+    over the low-level direct-control city-command/city-operation runtime
+    ports. Keep town focus under the `city` domain router, omit raw operation
+    type/args and legacy `verified` from normal output, keep sent town-focus
+    results pending-runtime-proof/no-repeat guarded, and keep per-leaf
+    input/result schemas plus Standard Schema adapters contract-local rather
+    than exported caller utilities.
   - [x] 5.5.7 Seed `readiness.current` as a native service-owned procedure
     that projects direct-control playable status into safe readiness,
     capability, source-summary, and next-step output without exposing raw
@@ -548,6 +556,15 @@ adding more read-only facade shells.
     `sendPlayOperation` fallback branches from migrated commands, and keep
     sent player-choice results pending-runtime-proof/no-repeat guarded until a
     real post-read owner proves the live review state changed.
+  - [x] 7.1.9.4 Route `civ7 game play set-town-focus --send` and
+    `civ7 game play consider-town-project --send` through the in-process
+    city town-focus server-side clients under the `city` router. Keep endpoint
+    flags as context construction, emit semantic city town-focus output,
+    preserve direct-control city-command/city-operation validation for
+    read-only mode, remove raw `sendPlayOperation` fallback branches from the
+    migrated commands, and keep sent town-focus results
+    pending-runtime-proof/no-repeat guarded until a real city-read owner proves
+    town project review state changed.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1062,6 +1079,15 @@ adding more read-only facade shells.
   proofs only and do not claim deployed Civ7 runtime proof, play-thread
   action, transport expansion, a progression read service, controller ingress,
   public package-root schema exports, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.4 Run focused direct-control town-focus request tests, focused
+  control-oRPC city town-focus procedure tests, focused CLI town-focus send
+  tests, direct-control and control-oRPC check/build/package gates,
+  `check:cli`, `test:cli:play`, relevant OpenSpec strict validates, and diff
+  hygiene for the CLI town-focus send migration slice. These are local CLI and
+  package proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, a city read service, controller or
+  game-UI town-focus runtime, public package-root schema exports, or parent
+  Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

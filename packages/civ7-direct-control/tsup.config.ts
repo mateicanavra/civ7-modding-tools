@@ -15,6 +15,7 @@ export default defineConfig({
     "src/proof/progression-player-choice-proof-policy.ts",
     "src/proof/progression-target-proof-policy.ts",
     "src/proof/turn-completion-proof-policy.ts",
+    "src/proof/town-focus-proof-policy.ts",
     "src/proof/unit-target-proof-policy.ts",
   ],
   format: ["esm", "cjs"],

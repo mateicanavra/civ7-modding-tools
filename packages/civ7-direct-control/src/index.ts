@@ -1195,6 +1195,28 @@ export {
   Civ7ProductionChoiceResultSchema,
   requestCiv7ProductionChoice,
 } from "./play/operations/production-choice.js";
+export type {
+  Civ7TownFocusChangeInput,
+  Civ7TownFocusPostcondition,
+  Civ7TownFocusPostconditionClassification,
+  Civ7TownFocusRequestInput,
+  Civ7TownFocusRequestKind,
+  Civ7TownFocusRequestResult,
+  Civ7TownFocusReviewInput,
+} from "./play/city/town-focus-request.js";
+export {
+  requestCiv7TownFocus,
+  requestCiv7TownFocusChange,
+  requestCiv7TownFocusReviewCloseout,
+} from "./play/city/town-focus-request.js";
+export {
+  townFocusProofOutcome,
+  townFocusProofPostcondition,
+} from "./proof/town-focus-proof-policy.js";
+export type {
+  Civ7TownFocusProofOutcome,
+  Civ7TownFocusProofPostcondition,
+} from "./proof/town-focus-proof-policy.js";
 export {
   productionChoicePostconditionConfirmed,
   productionChoicePostconditionOutcome,

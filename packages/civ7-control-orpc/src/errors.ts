@@ -440,6 +440,31 @@ export class Civ7ProductionChoiceUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7TownFocusUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("city.townFocus.change.request"),
+      Type.Literal("city.townFocus.review.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7TownFocusUnavailableErrorData = Static<
+  typeof Civ7TownFocusUnavailableErrorDataSchema
+>;
+
+export class Civ7TownFocusUnavailableError extends ORPCTaggedError(
+  "Civ7TownFocusUnavailableError",
+  {
+    code: "TOWN_FOCUS_UNAVAILABLE",
+    message: "Direct-control town focus request failed.",
+    schema: toStandardSchema(Civ7TownFocusUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7PopulationPlacementUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.population.place.request"),
@@ -501,6 +526,7 @@ export const civ7ControlOrpcErrorMap = {
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
+  TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
   UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,

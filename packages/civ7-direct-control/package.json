@@ -76,6 +76,11 @@
       "import": "./dist/proof/turn-completion-proof-policy.js",
       "require": "./dist/proof/turn-completion-proof-policy.cjs"
     },
+    "./proof/town-focus-proof-policy": {
+      "types": "./dist/proof/town-focus-proof-policy.d.ts",
+      "import": "./dist/proof/town-focus-proof-policy.js",
+      "require": "./dist/proof/town-focus-proof-policy.cjs"
+    },
     "./proof/unit-target-proof-policy": {
       "types": "./dist/proof/unit-target-proof-policy.d.ts",
       "import": "./dist/proof/unit-target-proof-policy.js",

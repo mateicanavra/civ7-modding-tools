@@ -21,6 +21,8 @@ import {
   requestCiv7ProductionChoice,
   requestCiv7TechnologyChoiceCloseout,
   requestCiv7TechnologyTarget,
+  requestCiv7TownFocusChange,
+  requestCiv7TownFocusReviewCloseout,
   requestCiv7TraditionChange,
   requestCiv7TraditionReviewCloseout,
   requestCiv7UnitCommand,
@@ -61,6 +63,9 @@ import {
   type Civ7TargetCandidatesInput,
   type Civ7TechnologyChoiceCloseoutInput,
   type Civ7TechnologyChoiceCloseoutResult,
+  type Civ7TownFocusChangeInput,
+  type Civ7TownFocusRequestResult,
+  type Civ7TownFocusReviewInput,
   type Civ7ProgressionTargetInput,
   type Civ7ProgressionTargetResult,
   type Civ7ProgressionPlayerChoiceResult,
@@ -198,6 +203,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Omit<Civ7TraditionReviewInput, "kind">,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
+  requestCiv7TownFocusChange(
+    input: Omit<Civ7TownFocusChangeInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7TownFocusRequestResult>;
+  requestCiv7TownFocusReviewCloseout(
+    input: Omit<Civ7TownFocusReviewInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7TownFocusRequestResult>;
   requestCiv7AssignWorkerPlacement(
     input: Civ7ControlOrpcAssignWorkerPlacementInput,
     options: Civ7DirectControlOptions | undefined,
@@ -284,6 +297,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7TraditionChange(input, options),
   requestCiv7TraditionReviewCloseout: async (input, options) =>
     requestCiv7TraditionReviewCloseout(input, options),
+  requestCiv7TownFocusChange: async (input, options) =>
+    requestCiv7TownFocusChange(input, options),
+  requestCiv7TownFocusReviewCloseout: async (input, options) =>
+    requestCiv7TownFocusReviewCloseout(input, options),
   requestCiv7AssignWorkerPlacement: async (input, options) =>
     requestCiv7PlayerOperation({
       playerId: input.playerId,
