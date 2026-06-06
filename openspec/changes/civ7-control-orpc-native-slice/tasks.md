@@ -846,6 +846,14 @@ adding more read-only facade shells.
     service contract, CLI parser behavior, runtime reads, controller bridge,
     approval/reason mechanics, deployed Civ7 proof, and parent
     Task 5.x/6.x/7.x acceptance unchanged.
+  - [x] 7.1.9.19 Simplify `civ7 game play civilian-route-triage` follow-up
+    suggestions so CLI JSON/human output presents the service's semantic
+    next-step labels instead of expanding each descriptor into a literal
+    command-and-flag recipe. Keep command help responsible for exhaustive
+    interface detail, and keep service behavior, parser flags, runtime reads,
+    controller bridge, deployed Civ7 proof, and parent Task 5.x/6.x/7.x
+    acceptance unchanged; caller-provided approval remains retired and no
+    approval-reason mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1743,6 +1751,14 @@ adding more read-only facade shells.
   CLI parser behavior, deployed Civ7 runtime behavior, play-thread state,
   approval/reason mechanics, transport/controller scope, or parent
   Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.32 Run focused CLI tactical-read tests, `check:cli`, strict
+  OpenSpec validates, civilian-route command-recipe output scan, active
+  approval/caller-permission scan, and diff hygiene for the civilian-route
+  follow-up simplification. This is local CLI/OpenSpec proof only; it does not
+  change service behavior or contracts, parser flags, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, or parent
+  Task 5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

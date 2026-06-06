@@ -29,7 +29,8 @@ describe('game play tactical read commands', () => {
       expect(payload.view.origin).toEqual({ x: 15, y: 23 });
       expect(payload.view.destination).toEqual({ x: 20, y: 20 });
       expect(payload.view.triage.status).toMatch(/hold|reroute|proceed|inspect/);
-      expect(payload.view.triage.nextInspections.some((item) => item.includes('unit-target'))).toBe(true);
+      expect(payload.view.triage.nextInspections.some((item) => item.includes('unit action validation'))).toBe(true);
+      expect(JSON.stringify(payload.view.triage.nextInspections)).not.toContain('game play ');
       expect(payload.view.triage.reasons.length).toBeGreaterThan(0);
       expectPositiveRelationshipLabels(payload.view.triage.reasons);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
