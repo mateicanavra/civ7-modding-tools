@@ -46,7 +46,6 @@ export const Civ7TraditionsViewProcedureDescriptor = createCiv7ProcedureCoreDesc
     "available",
     "recentUnlocks",
     "traditions",
-    "recommendedCli",
     "hiddenInfoPolicy",
     "notes",
   ],

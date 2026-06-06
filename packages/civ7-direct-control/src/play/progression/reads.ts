@@ -118,7 +118,6 @@ export const Civ7TraditionsViewResultSchema = Type.Object({
   available: Type.Array(Civ7TraditionSummarySchema),
   recentUnlocks: Type.Array(Civ7TraditionSummarySchema),
   traditions: Type.Array(Civ7TraditionSummarySchema),
-  recommendedCli: Type.Array(Type.String()),
   hiddenInfoPolicy: Type.Literal("player-culture-runtime"),
   notes: Type.Array(Type.String()),
 }, { additionalProperties: false });
@@ -152,7 +151,6 @@ export type Civ7TraditionsViewResult = Readonly<{
   available: ReadonlyArray<Civ7TraditionSummary>;
   recentUnlocks: ReadonlyArray<Civ7TraditionSummary>;
   traditions: ReadonlyArray<Civ7TraditionSummary>;
-  recommendedCli: ReadonlyArray<string>;
   hiddenInfoPolicy: "player-culture-runtime";
   notes: ReadonlyArray<string>;
 }>;

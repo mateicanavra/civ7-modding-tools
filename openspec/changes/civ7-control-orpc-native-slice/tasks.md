@@ -971,6 +971,13 @@ adding more read-only facade shells.
     proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
     unchanged; caller-provided approval remains retired and no approval-reason
     mechanic is introduced.
+  - [x] 7.1.9.34 Remove the aggregate direct-control traditions
+    `recommendedCli` field now that `progression.traditions.current` owns the
+    semantic action projection. Keep tradition action parameters, validation
+    evidence, parser flags, runtime behavior, controller bridge, deployed Civ7
+    proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
+    unchanged; caller-provided approval remains retired and no approval-reason
+    mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2018,6 +2025,16 @@ adding more read-only facade shells.
   safety scan, and diff hygiene for the first-meet recommendation field
   removal. This is local source/CLI/OpenSpec proof only; it does not change
   option data, validation evidence, parser flags, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.48 Run focused direct-control progression read/procedure tests,
+  direct-control check/build, focused CLI progression-read tests, strict
+  OpenSpec validates, direct-control traditions `recommendedCli` source/test
+  scan, active approval/caller-permission scan, relationship-label safety scan,
+  and diff hygiene for the aggregate traditions recommendation field removal.
+  This is local source/CLI/OpenSpec proof only; it does not change action
+  parameters, validation evidence, parser flags, deployed Civ7 runtime
   behavior, play-thread state, transport/controller scope, relationship
   authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
   remains retired and no approval-reason mechanic is introduced.

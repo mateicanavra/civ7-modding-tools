@@ -235,13 +235,10 @@ function traditionsViewResult() {
         recentUnlock: true,
       }),
     ],
-    recommendedCli: [
-      "game play change-tradition --player-id 0 --tradition-type 202 --action 1",
-    ],
     hiddenInfoPolicy: "player-culture-runtime" as const,
     notes: [
       "Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.",
-      "Use the exact TraditionType and Action values from actionHints, then validate with game play change-tradition before sending.",
+      "Use the exact TraditionType and Action values from actionHints, then validate the selected change before sending.",
     ],
   };
 }
