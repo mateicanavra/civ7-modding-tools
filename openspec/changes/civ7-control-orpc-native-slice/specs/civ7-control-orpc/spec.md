@@ -357,6 +357,28 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   separate first-meet service procedure exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI first-meet response send uses native diplomacy first-meet procedure
+- **WHEN** `game play respond-first-meet --send` requests a first-meet diplomacy greeting
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process
+  `diplomacy.firstMeet.response.request` server-side client under the
+  `diplomacy` router
+- **AND** the procedure's readiness, direct-control first-meet response proof
+  port, first-meet notification postcondition projection, and no-repeat policy
+  remain authoritative for the send
+- **AND** the procedure keeps first-meet `{ Player1, Player2, Type }` behavior
+  distinct from ordinary `diplomacy.response.request` closeout semantics
+- **AND** the normal JSON result is the semantic first-meet response procedure
+  projection without raw command/session/state/Tuner details,
+  direct-control operation envelopes, before/after notification snapshots, or
+  legacy `verified`
+- **AND** sticky or unmatched first-meet blocker evidence remains
+  sent-unverified and no-repeat guarded
+- **AND** the read-only `game play respond-first-meet` validation path remains
+  direct-control player-operation validation until a separate accepted service
+  read exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: CLI narrative choice send uses native narrative procedure
 - **WHEN** `game play choose-narrative --send` requests a narrative story direction choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags

@@ -445,6 +445,13 @@ adding more read-only facade shells.
     player-operation validation path for read-only mode, leave
     `game play respond-first-meet` outside this slice, and keep live runtime
     proof pending.
+  - [x] 7.1.6.1 Route `civ7 game play respond-first-meet --send` through the
+    in-process `diplomacy.firstMeet.response.request` server-side client under
+    the `diplomacy` router. Keep endpoint flags as context construction, emit
+    semantic first-meet response projection for send output, preserve the
+    existing direct-control player-operation validation path for read-only
+    mode, keep first-meet `{ Player1, Player2, Type }` proof distinct from
+    ordinary diplomacy-response closeout, and keep live runtime proof pending.
   - [x] 7.1.7 Route `civ7 game play choose-narrative --send` through the
     in-process `narrative.choice.request` server-side client under
     the `narrative` router. Keep endpoint flags as context
@@ -1034,6 +1041,11 @@ adding more read-only facade shells.
 - [x] 8.29 Run focused CLI diplomacy response tests, `check:cli`,
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI diplomacy response send migration slice.
+- [x] 8.29.1 Run focused direct-control first-meet proof tests, focused
+  control-oRPC first-meet procedure tests, focused CLI first-meet tests,
+  `check:cli`, `test:cli:play`, relevant OpenSpec strict validates, package
+  checks/builds, and diff hygiene for the CLI first-meet response send
+  migration slice.
 - [x] 8.30 Run focused direct-control narrative request, control-oRPC
   narrative, CLI narrative tests, `check:cli`, `test:cli:play`,
   relevant OpenSpec strict validates, and diff hygiene for the CLI narrative

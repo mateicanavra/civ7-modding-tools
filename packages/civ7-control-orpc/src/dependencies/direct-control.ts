@@ -8,6 +8,7 @@ import {
   getCiv7TurnCompletionStatus,
   requestCiv7TurnComplete,
   requestCiv7DiplomacyResponse,
+  requestCiv7FirstMeetResponse,
   requestCiv7CultureChoiceCloseout,
   requestCiv7NarrativeChoice,
   requestCiv7NotificationDismissal,
@@ -21,6 +22,8 @@ import {
   Civ7BattlefieldScanResultSchema,
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
+  type Civ7FirstMeetResponseInput,
+  type Civ7FirstMeetResponseResult,
   type Civ7CultureChoiceCloseoutInput,
   type Civ7CultureChoiceCloseoutResult,
   type Civ7NarrativeChoiceInput,
@@ -60,6 +63,8 @@ export type Civ7ControlOrpcNotificationDismissalResult =
   Civ7NotificationDismissalResult;
 export type Civ7ControlOrpcDiplomacyResponseResult =
   Civ7DiplomacyResponseResult;
+export type Civ7ControlOrpcFirstMeetResponseResult =
+  Civ7FirstMeetResponseResult;
 export type Civ7ControlOrpcCultureChoiceCloseoutResult =
   Civ7CultureChoiceCloseoutResult;
 export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
@@ -125,6 +130,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7DiplomacyResponseInput,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcDiplomacyResponseResult>;
+  requestCiv7FirstMeetResponse(
+    input: Civ7FirstMeetResponseInput,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcFirstMeetResponseResult>;
   requestCiv7TechnologyChoiceCloseout(
     input: Civ7TechnologyChoiceCloseoutInput,
     options: Civ7DirectControlOptions | undefined,
@@ -197,6 +206,8 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7NarrativeChoice(input, options),
   requestCiv7DiplomacyResponse: async (input, options) =>
     requestCiv7DiplomacyResponse(input, options),
+  requestCiv7FirstMeetResponse: async (input, options) =>
+    requestCiv7FirstMeetResponse(input, options),
   requestCiv7TechnologyChoiceCloseout: async (input, options) =>
     requestCiv7TechnologyChoiceCloseout(input, options),
   requestCiv7CultureChoiceCloseout: async (input, options) =>

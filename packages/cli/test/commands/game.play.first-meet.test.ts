@@ -56,16 +56,26 @@ describe('game play first-meet diplomacy command', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string; verified: boolean };
-        };
+        result: FirstMeetResponseSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.postcondition.verified).toBe(true);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.playerId).toBe(0);
+      expect(payload.result.metPlayerId).toBe(2);
+      expect(payload.result.responseType).toBe(673478009);
+      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
       expect(payload.result.postcondition.classification).toBe('first-meet-cleared');
+      expect(payload.result.postcondition).toMatchObject({
+        outcome: 'cleared',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'refresh-attention',
+        source: 'diplomacy.firstMeet.response.request',
+      });
+      expectSemanticFirstMeetResponseOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('RESPOND_DIPLOMATIC_FIRST_MEET'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -102,17 +112,19 @@ describe('game play first-meet diplomacy command', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string; verified: boolean; reason: string };
-        };
+        result: FirstMeetResponseSendResult;
       };
       expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.postcondition.verified).toBe(false);
+      expect(payload.result.status).toBe('sent-unverified');
       expect(payload.result.postcondition.classification).toBe('first-meet-sticky-blocker');
+      expect(payload.result.postcondition.confirmed).toBe(false);
+      expect(payload.result.postcondition.noRepeatAfterUnverified).toBe(true);
       expect(payload.result.postcondition.reason).toContain('same first-meet notification still blocks');
+      expect(payload.result.nextSteps).toEqual([{
+        kind: 'do-not-repeat',
+        source: 'diplomacy.firstMeet.response.request',
+        label: 'Do not repeat this first-meet response until fresh attention and first-meet evidence is read.',
+      }]);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
     } finally {
       log.mockRestore();
@@ -128,6 +140,39 @@ type CommandClass = {
   prototype: { log(message?: string): void };
 };
 
+type FirstMeetResponseSendResult = {
+  playerId: number;
+  metPlayerId: number;
+  responseType: number;
+  sent: boolean;
+  status: string;
+  validation: { beforeValid: boolean; afterValid: boolean };
+  postcondition: {
+    classification: string;
+    reason: string;
+    outcome: string;
+    confidence: string;
+    confirmed: boolean;
+    noRepeatAfterUnverified: boolean;
+  };
+  nextSteps: Array<{ kind: string; source: string; label: string }>;
+};
+
+function expectSemanticFirstMeetResponseOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"payload"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
+  expect(serialized).not.toContain('Game.PlayerOperations');
+}
+
 async function runCommand(command: CommandClass, args: string[]) {
   const log = vi.spyOn(command.prototype, 'log').mockImplementation(() => {});
   try {
@@ -141,6 +186,12 @@ async function startFirstMeetTunerServer(options: { firstMeetMode?: 'cleared' | 
   let firstMeetSent = false;
   return startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
       if (message.includes('readPlayNotifications')) {
         const mode = firstMeetSent && (options.firstMeetMode ?? 'cleared') === 'cleared' ? 'ready-unit' : 'first-meet';
         return [JSON.stringify(firstMeetNotificationView(mode))];
@@ -172,6 +223,84 @@ async function startFirstMeetTunerServer(options: { firstMeetMode?: 'cleared' | 
       return undefined;
     },
   });
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 1,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '4000 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 1 },
+    turnDate: { ok: true, value: '4000 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
+  };
 }
 
 function firstMeetNotificationView(mode: 'first-meet' | 'ready-unit') {

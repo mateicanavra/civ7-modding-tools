@@ -87,6 +87,8 @@ export {
   Civ7CorrelationIdInvalidErrorDataSchema,
   Civ7DiplomacyResponseUnavailableError,
   Civ7DiplomacyResponseUnavailableErrorDataSchema,
+  Civ7FirstMeetResponseUnavailableError,
+  Civ7FirstMeetResponseUnavailableErrorDataSchema,
   Civ7MutationProofBoundaryInvalidError,
   Civ7MutationProofBoundaryInvalidErrorDataSchema,
   Civ7MutationReadinessRequiredError,
@@ -119,6 +121,7 @@ export {
   type Civ7ControlOrpcEffectErrorMap,
   type Civ7CorrelationIdInvalidErrorData,
   type Civ7DiplomacyResponseUnavailableErrorData,
+  type Civ7FirstMeetResponseUnavailableErrorData,
   type Civ7MutationProofBoundaryInvalidErrorData,
   type Civ7MutationReadinessRequiredErrorData,
   type Civ7MutationReadinessUnavailableErrorData,
@@ -234,6 +237,17 @@ export { narrativeRouter } from "./modules/narrative/router";
 export { narrativeChoiceRequestProcedure } from "./modules/narrative/procedures/choice-request";
 export {
   Civ7DiplomacyContract,
+  Civ7FirstMeetResponseContract,
+  Civ7FirstMeetResponseInputSchema,
+  Civ7FirstMeetResponseInputStandardSchema,
+  Civ7FirstMeetResponseNextStepSchema,
+  Civ7FirstMeetResponsePostconditionClassificationSchema,
+  Civ7FirstMeetResponsePostconditionSummarySchema,
+  Civ7FirstMeetResponseProofOutcomeSchema,
+  Civ7FirstMeetResponseRequestStatusSchema,
+  Civ7FirstMeetResponseResultSchema,
+  Civ7FirstMeetResponseResultStandardSchema,
+  Civ7FirstMeetResponseValidationSummarySchema,
   Civ7DiplomacyResponseContract,
   Civ7DiplomacyResponseInputSchema,
   Civ7DiplomacyResponseInputStandardSchema,
@@ -248,11 +262,15 @@ export {
 } from "./modules/diplomacy/contract";
 export type {
   Civ7DiplomacyContract as Civ7DiplomacyContractType,
+  Civ7FirstMeetResponseContract as Civ7FirstMeetResponseContractType,
+  Civ7FirstMeetResponseInput,
+  Civ7FirstMeetResponseResult,
   Civ7DiplomacyResponseContract as Civ7DiplomacyResponseContractType,
   Civ7DiplomacyResponseInput,
   Civ7DiplomacyResponseResult,
 } from "./modules/diplomacy/contract";
 export { diplomacyRouter } from "./modules/diplomacy/router";
+export { firstMeetResponseRequestProcedure } from "./modules/diplomacy/procedures/first-meet-response-request";
 export { diplomacyResponseRequestProcedure } from "./modules/diplomacy/procedures/response-request";
 export {
   Civ7ProgressionChoiceEvidenceSummarySchema,

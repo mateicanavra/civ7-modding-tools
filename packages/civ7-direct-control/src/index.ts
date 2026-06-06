@@ -1169,6 +1169,19 @@ export {
   diplomacyResponseProofPostcondition,
 } from "./proof/diplomacy-response-proof-policy.js";
 export type {
+  Civ7FirstMeetResponseInput,
+  Civ7FirstMeetResponseResult,
+} from "./play/operations/first-meet-request";
+export { requestCiv7FirstMeetResponse } from "./play/operations/first-meet-request";
+export type {
+  Civ7FirstMeetResponsePostcondition,
+  Civ7FirstMeetResponsePostconditionClassification,
+} from "./play/operations/first-meet-postconditions";
+export {
+  firstMeetResponseProofOutcome,
+  firstMeetResponseProofPostcondition,
+} from "./proof/first-meet-response-proof-policy";
+export type {
   Civ7NarrativeChoiceCommandPayload,
   Civ7NarrativeChoiceInput,
   Civ7NarrativeChoiceResult,

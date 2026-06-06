@@ -191,6 +191,28 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7FirstMeetResponseUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("diplomacy.firstMeet.response.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7FirstMeetResponseUnavailableErrorData = Static<
+  typeof Civ7FirstMeetResponseUnavailableErrorDataSchema
+>;
+
+export class Civ7FirstMeetResponseUnavailableError extends ORPCTaggedError(
+  "Civ7FirstMeetResponseUnavailableError",
+  {
+    code: "FIRST_MEET_RESPONSE_UNAVAILABLE",
+    message: "Direct-control first-meet response request failed.",
+    schema: toStandardSchema(Civ7FirstMeetResponseUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7ProgressionChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
@@ -385,6 +407,7 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
+  FIRST_MEET_RESPONSE_UNAVAILABLE: Civ7FirstMeetResponseUnavailableError,
   MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,

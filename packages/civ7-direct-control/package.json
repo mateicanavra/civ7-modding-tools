@@ -36,6 +36,11 @@
       "import": "./dist/proof/diplomacy-response-proof-policy.js",
       "require": "./dist/proof/diplomacy-response-proof-policy.cjs"
     },
+    "./proof/first-meet-response-proof-policy": {
+      "types": "./dist/proof/first-meet-response-proof-policy.d.ts",
+      "import": "./dist/proof/first-meet-response-proof-policy.js",
+      "require": "./dist/proof/first-meet-response-proof-policy.cjs"
+    },
     "./proof/narrative-choice-proof-policy": {
       "types": "./dist/proof/narrative-choice-proof-policy.d.ts",
       "import": "./dist/proof/narrative-choice-proof-policy.js",

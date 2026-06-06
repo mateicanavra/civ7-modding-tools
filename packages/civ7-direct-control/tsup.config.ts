@@ -7,6 +7,7 @@ export default defineConfig({
     "src/play/operations/production-choice-proof.ts",
     "src/play/progression/choice-postconditions.ts",
     "src/proof/diplomacy-response-proof-policy.ts",
+    "src/proof/first-meet-response-proof-policy.ts",
     "src/proof/narrative-choice-proof-policy.ts",
     "src/proof/notification-dismissal-proof-policy.ts",
     "src/proof/population-placement-proof-policy.ts",
