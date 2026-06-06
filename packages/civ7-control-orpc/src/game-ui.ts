@@ -23,6 +23,12 @@ import {
   type Civ7GameUiProductionTarget,
 } from "./game-ui-production";
 import {
+  civ7GameUiProgressionChoiceAvailable,
+  requestCiv7GameUiCultureChoiceCloseout,
+  requestCiv7GameUiTechnologyChoiceCloseout,
+  type Civ7GameUiProgressionTarget,
+} from "./game-ui-progression";
+import {
   civ7GameUiPopulationPlacementAvailable,
   requestCiv7GameUiAssignWorkerPlacement,
   requestCiv7GameUiExpandCityPlacement,
@@ -71,6 +77,9 @@ export type Civ7GameUiRuntimeTarget = {
     PlayerOperations?: Civ7GameUiPopulationTarget["Game"] extends infer Game
       ? Game extends { PlayerOperations?: infer Operations } ? Operations : never
       : never;
+    ProgressionTrees?: Civ7GameUiProgressionTarget["Game"] extends infer Game
+      ? Game extends { ProgressionTrees?: infer Trees } ? Trees : never
+      : never;
     turn?: number;
     age?: number;
     maxTurns?: number;
@@ -82,7 +91,10 @@ export type Civ7GameUiRuntimeTarget = {
   CityOperationsParametersValues?:
     Civ7GameUiProductionTarget["CityOperationsParametersValues"];
   CityCommandTypes?: Civ7GameUiPopulationTarget["CityCommandTypes"];
-  PlayerOperationTypes?: Civ7GameUiPopulationTarget["PlayerOperationTypes"];
+  PlayerOperationTypes?: Civ7GameUiPopulationTarget["PlayerOperationTypes"]
+    & Civ7GameUiProgressionTarget["PlayerOperationTypes"];
+  ProgressionTreeNodeTypes?:
+    Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
   Autoplay?: {
     isActive?: boolean;
     turns?: number;
@@ -183,8 +195,10 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: unsupported,
     requestCiv7DiplomacyResponse: unsupported,
-    requestCiv7TechnologyChoiceCloseout: unsupported,
-    requestCiv7CultureChoiceCloseout: unsupported,
+    requestCiv7TechnologyChoiceCloseout: async (input) =>
+      await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
+    requestCiv7CultureChoiceCloseout: async (input) =>
+      await requestCiv7GameUiCultureChoiceCloseout(input, target),
     requestCiv7AssignWorkerPlacement: async (input) =>
       await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) =>
@@ -257,6 +271,12 @@ function gameUiSupportedMutationProcedures(
   }
   if (gameUiTurnCompletionAvailable(target)) {
     supported.push("turn.complete.request");
+  }
+  if (civ7GameUiProgressionChoiceAvailable(target)) {
+    supported.push(
+      "progression.technology.choice.request",
+      "progression.culture.choice.request",
+    );
   }
   return supported;
 }

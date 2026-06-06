@@ -9,6 +9,9 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
+      "game-ui": [
+        "./dist/game-ui.d.ts"
+      ],
       "runtime": [
         "./dist/runtime.d.ts"
       ],

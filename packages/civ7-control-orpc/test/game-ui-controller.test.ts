@@ -792,6 +792,187 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
+  test("executes technology progression choice through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_CHOOSE_TECH",
+      progressionChoice: {
+        kind: "technology",
+        clearBlockerOnSend: true,
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-progression-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "progression.technology.choice.request",
+              risk: "mutation",
+            },
+            {
+              procedureKey: "progression.culture.choice.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "progression.technology.choice.request",
+      input: {
+        playerId: 2,
+        node: 18_001,
+        notificationId,
+      },
+      correlationId: "game-ui-progression-tech-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "progression.technology.choice.request",
+      correlationId: "game-ui-progression-tech-1",
+      output: {
+        playerId: 0,
+        node: 18_001,
+        notificationId,
+        sent: true,
+        status: "sent-confirmed",
+        evidence: {
+          beforeBlockerPresent: true,
+          afterReadStatus: "read",
+          afterBlockerPresent: false,
+        },
+        postcondition: {
+          classification: "technology-choice-cleared",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+        nextSteps: [{
+          kind: "refresh-attention",
+          source: "progression.technology.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([
+      {
+        operationType: "SET_TECH_TREE_NODE",
+        args: { ProgressionTreeNodeType: 18_001 },
+      },
+      {
+        operationType: "SET_TECH_TREE_TARGET_NODE",
+        args: { ProgressionTreeNodeType: -1 },
+      },
+    ]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("SET_TECH_TREE_NODE");
+    expect(serialized).not.toContain("SET_TECH_TREE_TARGET_NODE");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+  });
+
+  test("keeps sticky game UI culture progression choices no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_CHOOSE_CULTURE_NODE",
+      progressionChoice: {
+        kind: "culture",
+        clearBlockerOnSend: false,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "progression.culture.choice.request",
+      input: {
+        playerId: 0,
+        node: 27_001,
+        notificationId,
+      },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        playerId: 0,
+        sent: true,
+        status: "sent-unverified",
+        evidence: {
+          beforeBlockerPresent: true,
+          afterReadStatus: "read",
+          afterBlockerPresent: true,
+        },
+        postcondition: {
+          classification: "culture-choice-sticky-blocker",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "progression.culture.choice.request",
+        }],
+      },
+    });
+  });
+
+  test("keeps game UI progression validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_CHOOSE_TECH",
+      progressionChoice: {
+        kind: "technology",
+        canChoose: false,
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "progression.technology.choice.request",
+      input: {
+        playerId: 0,
+        node: 18_001,
+        notificationId,
+      },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: false,
+        status: "not-sent",
+        evidence: {
+          beforeBlockerPresent: true,
+          afterReadStatus: "skipped-not-sent",
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "inspect-progression-choice",
+          source: "progression.technology.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
   test("keeps blocked game UI turn completion semantic and no-repeat guarded", async () => {
     const sendCalls: string[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -1278,6 +1459,7 @@ function gameUiNotificationTarget(
     firstReadyUnitId?: { owner: number; id: number; type: number };
     selectedCityId?: { owner: number; id: number; type: number };
     notificationTarget?: { owner: number; id: number; type: number };
+    notificationTypeName?: string;
     canEndTurn?: boolean;
     turnCompletion?: {
       initiallySent?: boolean;
@@ -1304,6 +1486,16 @@ function gameUiNotificationTarget(
       onAssignWorkerSend?: (args: Readonly<Record<string, number>>) => void;
       onExpandCitySend?: (args: Readonly<Record<string, number>>) => void;
     };
+    progressionChoice?: {
+      kind: "technology" | "culture";
+      canChoose?: boolean;
+      canClearTarget?: boolean;
+      clearBlockerOnSend?: boolean;
+      onSend?: (
+        operationType: string,
+        args: Readonly<Record<string, number>>,
+      ) => void;
+    };
   }> = {},
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
@@ -1311,6 +1503,7 @@ function gameUiNotificationTarget(
   let turnCompletionSent = options.turnCompletion?.initiallySent ?? false;
   let productionSent = false;
   let populationSent = false;
+  let progressionSent = false;
   let selectedCityCleared = false;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
@@ -1333,9 +1526,22 @@ function gameUiNotificationTarget(
     CityCommandTypes: options.populationPlacement == null
       ? undefined
       : { EXPAND: "EXPAND" },
-    PlayerOperationTypes: options.populationPlacement == null
+    PlayerOperationTypes: {
+      ...(options.populationPlacement == null
+        ? {}
+        : { ASSIGN_WORKER: "ASSIGN_WORKER" }),
+      ...(options.progressionChoice == null
+        ? {}
+        : {
+            SET_TECH_TREE_NODE: "SET_TECH_TREE_NODE",
+            SET_TECH_TREE_TARGET_NODE: "SET_TECH_TREE_TARGET_NODE",
+            SET_CULTURE_TREE_NODE: "SET_CULTURE_TREE_NODE",
+            SET_CULTURE_TREE_TARGET_NODE: "SET_CULTURE_TREE_TARGET_NODE",
+          }),
+    },
+    ProgressionTreeNodeTypes: options.progressionChoice == null
       ? undefined
-      : { ASSIGN_WORKER: "ASSIGN_WORKER" },
+      : { NO_NODE: -1 },
     Cities: options.productionChoice == null && options.populationPlacement == null
       ? undefined
       : {
@@ -1418,6 +1624,16 @@ function gameUiNotificationTarget(
     canEndTurn: () => options.canEndTurn ?? false,
     Game: {
       ...target.Game,
+      ProgressionTrees: options.progressionChoice == null
+        ? undefined
+        : {
+            getTree: () => ({
+              activeNodeIndex: 0,
+              nodes: [{
+                nodeType: progressionSent ? 27_001 : 26_000,
+              }],
+            }),
+          },
       CityCommands: options.populationPlacement == null
         ? undefined
         : {
@@ -1445,24 +1661,40 @@ function gameUiNotificationTarget(
             },
           },
       PlayerOperations: options.populationPlacement == null
+          && options.progressionChoice == null
         ? undefined
         : {
-            canStart: () => ({
-              Success: options.populationPlacement?.canAssignWorker ?? true,
+            canStart: (_playerId, operationType) => ({
+              Success: operationType === "ASSIGN_WORKER"
+                ? options.populationPlacement?.canAssignWorker ?? true
+                : String(operationType).includes("TARGET")
+                ? options.progressionChoice?.canClearTarget ?? true
+                : options.progressionChoice?.canChoose ?? true,
             }),
             sendRequest: (_playerId, _operationType, args) => {
-              options.populationPlacement?.onAssignWorkerSend?.(args);
-              populationSent = true;
+              const operationType = String(_operationType);
+              if (operationType === "ASSIGN_WORKER") {
+                options.populationPlacement?.onAssignWorkerSend?.(args);
+                populationSent = true;
+              } else {
+                options.progressionChoice?.onSend?.(operationType, args);
+                progressionSent = true;
+                if (options.progressionChoice?.clearBlockerOnSend === true) {
+                  exists = false;
+                }
+              }
               return true;
             },
           },
       Notifications: {
         find: () => exists ? notification : null,
         getType: () => notificationId.type,
-        getTypeName: () => "NOTIFICATION_WONDER_COMPLETED",
+        getTypeName: () =>
+          options.notificationTypeName ?? "NOTIFICATION_WONDER_COMPLETED",
         getSummary: () => "Wonder Completed",
         getMessage: () => "Wonder Completed",
         getBlocksTurnAdvancement: () => blocksTurnAdvancement,
+        activate: () => true,
         getEndTurnBlockingType: () => {
           if (
             productionSent
@@ -1485,6 +1717,18 @@ function gameUiNotificationTarget(
           ? {
             Cities: {
               getCityIds: () => [options.populationPlacement?.cityId],
+            },
+          }
+          : playerId === 0 && options.progressionChoice != null
+          ? {
+            Techs: {
+              getResearching: () => progressionSent ? 18_001 : 17_000,
+              getTargetNode: () => progressionSent ? -1 : 18_001,
+            },
+            Culture: {
+              getActiveTree: () => 1,
+              getTargetNode: () => progressionSent ? -1 : 27_001,
+              getAllAvailableNodeTypes: () => [27_001],
             },
           }
           : null,

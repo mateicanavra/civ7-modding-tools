@@ -26845,8 +26845,8 @@ function notificationDismissalPostconditionReason(classification) {
       return "The dismissal was sent, but notification identity evidence did not confirm disappearance, queue removal, or front movement.";
   }
 }
-function probeValue2(probe5) {
-  return probe5.ok ? probe5.value : void 0;
+function probeValue2(probe6) {
+  return probe6.ok ? probe6.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZXTU55QH.js
@@ -27003,8 +27003,8 @@ function progressionChoiceDetailsChanged(left3, right3) {
 }
 function probeValue(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe5 = value2;
-    return probe5.ok === true ? probe5.value ?? null : null;
+    const probe6 = value2;
+    return probe6.ok === true ? probe6.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -27118,8 +27118,8 @@ function turnCompletionNoRepeatAfterUnverified(classification) {
       return true;
   }
 }
-function probeValue3(probe5) {
-  return probe5.ok ? probe5.value : void 0;
+function probeValue3(probe6) {
+  return probe6.ok ? probe6.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZGRAA6DD.js
@@ -29999,11 +29999,11 @@ function skippedSourceStatus(playableStatus) {
     readyCity: skipped
   };
 }
-function probeValue4(probe5) {
-  if (probe5 == null || typeof probe5 !== "object") return null;
-  if (!("ok" in probe5) || probe5.ok !== true) return null;
-  if (!("value" in probe5)) return null;
-  return probe5.value;
+function probeValue4(probe6) {
+  if (probe6 == null || typeof probe6 !== "object") return null;
+  if (!("ok" in probe6) || probe6.ok !== true) return null;
+  if (!("value" in probe6)) return null;
+  return probe6.value;
 }
 function componentIdFromUnknown(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
@@ -30724,8 +30724,8 @@ function booleanProbeValue(value2) {
 }
 function probeValue22(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe5 = value2;
-    return probe5.ok === true ? probe5.value ?? null : null;
+    const probe6 = value2;
+    return probe6.ok === true ? probe6.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -30892,8 +30892,8 @@ function readinessNextSteps(status, context5) {
 function supportsAttentionCurrent(context5) {
   return context5.controller?.supportedReadProcedures?.includes("attention.current") === true;
 }
-function probeValue32(probe5) {
-  return probe5.ok ? probe5.value : null;
+function probeValue32(probe6) {
+  return probe6.ok ? probe6.value : null;
 }
 var readinessRouter = {
   current: readinessCurrentProcedure
@@ -31188,13 +31188,13 @@ function turnCompletionProbeSummary(status) {
     firstReadyUnitId: probeValue42(status.firstReadyUnitId)
   };
 }
-function blockerValue(probe5) {
-  const value2 = probeValue42(probe5);
+function blockerValue(probe6) {
+  const value2 = probeValue42(probe6);
   if (typeof value2 === "number" || typeof value2 === "string") return value2;
   return null;
 }
-function probeValue42(probe5) {
-  return probe5.ok ? probe5.value : null;
+function probeValue42(probe6) {
+  return probe6.ok ? probe6.value : null;
 }
 var turnRouter = {
   complete: {
@@ -32372,8 +32372,8 @@ function ok(value2) {
 function gameUiTurnCompletionAllowed(status) {
   return probeValue5(status.canEndTurn) === true && probeValue5(status.hasSentTurnComplete) !== true;
 }
-function probeValue5(probe5) {
-  return probe5.ok ? probe5.value : void 0;
+function probeValue5(probe6) {
+  return probe6.ok ? probe6.value : void 0;
 }
 function isPresent2(value2) {
   return value2 != null;
@@ -32680,8 +32680,8 @@ function probe22(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue23(probe5) {
-  return probe5?.ok ? probe5.value : void 0;
+function probeValue23(probe6) {
+  return probe6?.ok ? probe6.value : void 0;
 }
 function stableJson2(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -32690,6 +32690,206 @@ function stableJson2(value2) {
   return `{${Object.keys(record).sort().map(
     (key) => `${JSON.stringify(key)}:${stableJson2(record[key])}`
   ).join(",")}}`;
+}
+function civ7GameUiProgressionChoiceAvailable(target) {
+  return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.SET_TECH_TREE_NODE !== void 0 && target.PlayerOperationTypes.SET_TECH_TREE_TARGET_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== void 0 && typeof target.ProgressionTreeNodeTypes?.NO_NODE === "number" && typeof target.Game?.Notifications?.activate === "function" && typeof target.Game.Notifications.getIdsForPlayer === "function" && typeof target.Game.Notifications.getType === "function" && typeof target.Game.Notifications.getTypeName === "function" && typeof target.Game.Notifications.find === "function" && typeof target.Players?.get === "function";
+}
+async function requestCiv7GameUiTechnologyChoiceCloseout(input, target = globalThis) {
+  return gameUiProgressionChoiceCloseout(
+    "technology",
+    input,
+    target
+  );
+}
+async function requestCiv7GameUiCultureChoiceCloseout(input, target = globalThis) {
+  return gameUiProgressionChoiceCloseout(
+    "culture",
+    input,
+    target
+  );
+}
+function gameUiProgressionChoiceCloseout(kind, input, target) {
+  if (!Number.isInteger(input.node)) {
+    throw new Error("Progression choice node must be an integer.");
+  }
+  const policy = progressionPolicy(kind, target);
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const playerId = typeof localPlayerId === "number" ? localPlayerId : input.playerId;
+  const selectedNotification = toComponentId3(input.notificationId) ?? currentProgressionNotification(kind, playerId, target);
+  const beforeProgression = readProgressionState(kind, playerId, target);
+  const activationResult = probe3(
+    () => selectedNotification == null ? null : target.Game?.Notifications?.activate?.(selectedNotification)
+  );
+  const chooseArgs = { ProgressionTreeNodeType: input.node };
+  const clearArgs = { ProgressionTreeNodeType: target.ProgressionTreeNodeTypes?.NO_NODE ?? -1 };
+  const canChoose = probe3(
+    () => target.Game?.PlayerOperations?.canStart?.(
+      playerId,
+      policy.chooseOperation,
+      chooseArgs,
+      false
+    )
+  );
+  const chooseResult = canChoose.ok && successFromCanStart2(canChoose.value) ? probe3(
+    () => target.Game?.PlayerOperations?.sendRequest?.(
+      playerId,
+      policy.chooseOperation,
+      chooseArgs
+    )
+  ) : skippedProbe(`${policy.chooseLabel} did not validate`);
+  const chooseSent = chooseResult.ok === true && chooseResult.value !== false;
+  const canClearTarget = chooseSent ? probe3(
+    () => target.Game?.PlayerOperations?.canStart?.(
+      playerId,
+      policy.clearOperation,
+      clearArgs,
+      false
+    )
+  ) : skippedProbe(`${policy.clearLabel} skipped because ${policy.chooseLabel} did not send`);
+  const clearTargetResult = chooseSent && canClearTarget.ok && successFromCanStart2(canClearTarget.value) ? probe3(
+    () => target.Game?.PlayerOperations?.sendRequest?.(
+      playerId,
+      policy.clearOperation,
+      clearArgs
+    )
+  ) : skippedProbe(`${policy.clearLabel} did not validate`);
+  const sent = chooseResult.ok === true && clearTargetResult.ok === true && chooseResult.value !== false && clearTargetResult.value !== false;
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    command: {
+      host: "game-ui",
+      port: 0,
+      state: { id: "game-ui", name: "Game UI" },
+      output: []
+    },
+    payload: {
+      localPlayerId,
+      playerId,
+      node: input.node,
+      notificationId: selectedNotification,
+      beforeProgression,
+      activationResult,
+      canChoose,
+      chooseResult,
+      canClearTarget,
+      clearTargetResult,
+      afterProgression: readProgressionState(kind, playerId, target),
+      sent,
+      notes: [
+        "Game UI progression choice closeout used ambient PlayerOperations validation/send evidence inside the controller context.",
+        "The service procedure must re-read attention state before treating a sent closeout as confirmed."
+      ]
+    },
+    sent
+  };
+}
+function progressionPolicy(kind, target) {
+  if (kind === "technology") {
+    return {
+      token: "CHOOSE_TECH",
+      chooseOperation: target.PlayerOperationTypes?.SET_TECH_TREE_NODE,
+      clearOperation: target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE,
+      chooseLabel: "SET_TECH_TREE_NODE",
+      clearLabel: "SET_TECH_TREE_TARGET_NODE"
+    };
+  }
+  return {
+    token: "CHOOSE_CULTURE",
+    chooseOperation: target.PlayerOperationTypes?.SET_CULTURE_TREE_NODE,
+    clearOperation: target.PlayerOperationTypes?.SET_CULTURE_TREE_TARGET_NODE,
+    chooseLabel: "SET_CULTURE_TREE_NODE",
+    clearLabel: "SET_CULTURE_TREE_TARGET_NODE"
+  };
+}
+function currentProgressionNotification(kind, playerId, target) {
+  const token = progressionPolicy(kind, target).token;
+  const ids3 = safeValue3(
+    () => target.Game?.Notifications?.getIdsForPlayer?.(playerId),
+    []
+  );
+  if (!Array.isArray(ids3)) return null;
+  for (const rawId of ids3) {
+    const id = toComponentId3(rawId);
+    if (id == null) continue;
+    const type = safeValue3(() => target.Game?.Notifications?.getType?.(id), null);
+    const typeName = safeValue3(
+      () => target.Game?.Notifications?.getTypeName?.(type),
+      null
+    );
+    if (String(typeName ?? "").toUpperCase().includes(token)) return id;
+  }
+  return null;
+}
+function readProgressionState(kind, playerId, target) {
+  return kind === "technology" ? {
+    currentResearching: probe3(
+      () => playerRecord(playerId, target)?.Techs?.getResearching?.() ?? null
+    ),
+    targetNode: probe3(
+      () => playerRecord(playerId, target)?.Techs?.getTargetNode?.() ?? null
+    )
+  } : {
+    currentResearching: probe3(() => {
+      const culture = playerRecord(playerId, target)?.Culture;
+      const activeTree = culture?.getActiveTree?.();
+      if (activeTree == null) return null;
+      const tree = target.Game?.ProgressionTrees?.getTree?.(playerId, activeTree);
+      const activeNodeIndex = tree?.activeNodeIndex;
+      if (typeof activeNodeIndex !== "number" || activeNodeIndex < 0) {
+        return null;
+      }
+      const nodes = tree?.nodes;
+      return Array.isArray(nodes) ? nodes[activeNodeIndex]?.nodeType ?? null : null;
+    }),
+    targetNode: probe3(
+      () => playerRecord(playerId, target)?.Culture?.getTargetNode?.() ?? null
+    ),
+    availableNodeTypes: probe3(
+      () => playerRecord(playerId, target)?.Culture?.getAllAvailableNodeTypes?.() ?? []
+    )
+  };
+}
+function playerRecord(playerId, target) {
+  const player = safeValue3(() => target.Players?.get?.(playerId), null);
+  return player != null && typeof player === "object" ? player : null;
+}
+function successFromCanStart2(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function toComponentId3(value2) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const record = value2;
+  if (typeof record.owner !== "number" || typeof record.id !== "number") {
+    return null;
+  }
+  return typeof record.type === "number" ? { owner: record.owner, id: record.id, type: record.type } : { owner: record.owner, id: record.id };
+}
+function skippedProbe(reason) {
+  return { ok: false, error: reason };
+}
+function safeValue3(fn2, fallback) {
+  try {
+    return fn2() ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+function probe3(fn2) {
+  try {
+    return { ok: true, value: fn2() };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
 }
 function civ7GameUiPopulationPlacementAvailable(target) {
   return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.ASSIGN_WORKER !== void 0 && typeof target.Game?.CityCommands?.canStart === "function" && typeof target.Game.CityCommands.sendRequest === "function" && target.CityCommandTypes?.EXPAND !== void 0 && typeof target.Players?.get === "function" && typeof target.Cities?.get === "function";
@@ -32724,7 +32924,7 @@ async function requestCiv7GameUiAssignWorkerPlacement(input, target = globalThis
       sendResult: void 0
     });
   }
-  const sendResult = probe3(
+  const sendResult = probe4(
     () => target.Game?.PlayerOperations?.sendRequest?.(
       input.playerId,
       target.PlayerOperationTypes?.ASSIGN_WORKER,
@@ -32775,7 +32975,7 @@ function gameUiPlayerOperationLocalPlayerMismatch(playerId, localPlayerId, args2
   };
 }
 async function requestCiv7GameUiExpandCityPlacement(input, target = globalThis) {
-  const cityId = toComponentId3(input.cityId);
+  const cityId = toComponentId4(input.cityId);
   if (cityId == null) {
     throw new Error("Population placement cityId must be a ComponentID.");
   }
@@ -32806,7 +33006,7 @@ async function requestCiv7GameUiExpandCityPlacement(input, target = globalThis) 
       sendResult: void 0
     });
   }
-  const sendResult = probe3(
+  const sendResult = probe4(
     () => target.Game?.CityCommands?.sendRequest?.(
       cityId,
       target.CityCommandTypes?.EXPAND,
@@ -32899,7 +33099,7 @@ function gameUiPopulationPostcondition(input) {
   };
 }
 function gameUiPlayerOperationValidation(playerId, operationType, enumValue, args2, target) {
-  const result = safeValue3(
+  const result = safeValue4(
     () => target.Game?.PlayerOperations?.canStart?.(
       playerId,
       enumValue,
@@ -32917,12 +33117,12 @@ function gameUiPlayerOperationValidation(playerId, operationType, enumValue, arg
     enumValue,
     target: { playerId },
     args: args2,
-    valid: successFromCanStart2(result),
+    valid: successFromCanStart3(result),
     result
   };
 }
 function gameUiCityCommandValidation(cityId, operationType, enumValue, args2, target) {
-  const result = safeValue3(
+  const result = safeValue4(
     () => target.Game?.CityCommands?.canStart?.(
       cityId,
       enumValue,
@@ -32940,14 +33140,14 @@ function gameUiCityCommandValidation(cityId, operationType, enumValue, args2, ta
     enumValue,
     target: { cityId },
     args: args2,
-    valid: successFromCanStart2(result),
+    valid: successFromCanStart3(result),
     result
   };
 }
 function gameUiPopulationSnapshot(cityId, target) {
-  const city = safeValue3(() => target.Cities?.get?.(cityId), null);
+  const city = safeValue4(() => target.Cities?.get?.(cityId), null);
   const placementInfo = cityPlacementInfo(city);
-  const expansion = probe3(
+  const expansion = probe4(
     () => target.Game?.CityCommands?.canStart?.(
       cityId,
       target.CityCommandTypes?.EXPAND,
@@ -32957,16 +33157,16 @@ function gameUiPopulationSnapshot(cityId, target) {
   );
   return {
     cityId,
-    city: probe3(() => citySummary(cityId, city)),
-    isReadyToPlacePopulation: probe3(() => cityReadyToPlacePopulation(city)),
-    cityWorkerCap: probe3(() => cityWorkerCap(city)),
-    workablePlotIndexes: probe3(
+    city: probe4(() => citySummary(cityId, city)),
+    isReadyToPlacePopulation: probe4(() => cityReadyToPlacePopulation(city)),
+    cityWorkerCap: probe4(() => cityWorkerCap(city)),
+    workablePlotIndexes: probe4(
       () => placementInfo.filter((info) => !info.isBlocked).map((info) => info.plotIndex)
     ),
-    blockedPlotIndexes: probe3(
+    blockedPlotIndexes: probe4(
       () => placementInfo.filter((info) => info.isBlocked).map((info) => info.plotIndex)
     ),
-    expansionPlotIndexes: probe3(
+    expansionPlotIndexes: probe4(
       () => expansion.ok && expansion.value != null && typeof expansion.value === "object" && Array.isArray(expansion.value.Plots) ? expansion.value.Plots : []
     )
   };
@@ -32974,9 +33174,9 @@ function gameUiPopulationSnapshot(cityId, target) {
 function readyPopulationCityId(target) {
   const localPlayerId = target.GameContext?.localPlayerID;
   if (typeof localPlayerId !== "number") return null;
-  const player = safeValue3(() => target.Players?.get?.(localPlayerId), null);
+  const player = safeValue4(() => target.Players?.get?.(localPlayerId), null);
   if (player == null || typeof player !== "object") return null;
-  const cityIds = safeValue3(() => {
+  const cityIds = safeValue4(() => {
     const cities = player.Cities;
     if (cities == null || typeof cities !== "object") return [];
     const getCityIds = cities.getCityIds;
@@ -32984,9 +33184,9 @@ function readyPopulationCityId(target) {
   }, []);
   if (!Array.isArray(cityIds)) return null;
   for (const rawCityId of cityIds) {
-    const cityId = toComponentId3(rawCityId);
+    const cityId = toComponentId4(rawCityId);
     if (cityId == null) continue;
-    const city = safeValue3(() => target.Cities?.get?.(cityId), null);
+    const city = safeValue4(() => target.Cities?.get?.(cityId), null);
     if (cityReadyToPlacePopulation(city) === true) return cityId;
   }
   return null;
@@ -32996,7 +33196,7 @@ function citySummary(cityId, city) {
   const record = city;
   return {
     id: cityId,
-    observedCityId: toComponentId3(record.id ?? record.ID ?? record.CityId),
+    observedCityId: toComponentId4(record.id ?? record.ID ?? record.CityId),
     population: record.population ?? record.Population ?? null,
     isTown: record.isTown ?? null,
     location: record.location ?? record.Location ?? null
@@ -33058,7 +33258,7 @@ function populationReadyCleared(before2, after3) {
 function populationSnapshotChanged(before2, after3) {
   return stableJson22(probeValue33(before2.city)) !== stableJson22(probeValue33(after3.city)) || stableJson22(probeValue33(before2.isReadyToPlacePopulation)) !== stableJson22(probeValue33(after3.isReadyToPlacePopulation)) || stableJson22(probeValue33(before2.cityWorkerCap)) !== stableJson22(probeValue33(after3.cityWorkerCap)) || stableJson22(probeValue33(before2.workablePlotIndexes)) !== stableJson22(probeValue33(after3.workablePlotIndexes)) || stableJson22(probeValue33(before2.blockedPlotIndexes)) !== stableJson22(probeValue33(after3.blockedPlotIndexes)) || stableJson22(probeValue33(before2.expansionPlotIndexes)) !== stableJson22(probeValue33(after3.expansionPlotIndexes));
 }
-function successFromCanStart2(result) {
+function successFromCanStart3(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -33069,7 +33269,7 @@ function successFromCanStart2(result) {
   }
   return Boolean(result);
 }
-function toComponentId3(value2) {
+function toComponentId4(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   const owner = numericField(record, "owner", "Owner");
@@ -33083,22 +33283,22 @@ function numericField(record, lower, upper) {
   if (typeof record[upper] === "number") return record[upper];
   return null;
 }
-function safeValue3(fn2, fallback) {
+function safeValue4(fn2, fallback) {
   try {
     return fn2() ?? fallback;
   } catch {
     return fallback;
   }
 }
-function probe3(fn2) {
+function probe4(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue33(probe5) {
-  return probe5?.ok ? probe5.value : void 0;
+function probeValue33(probe6) {
+  return probe6?.ok ? probe6.value : void 0;
 }
 function stableJson22(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -33142,8 +33342,8 @@ function createCiv7GameUiDirectControlFacade(target) {
     requestCiv7NotificationDismissal: async (input) => await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: unsupported,
     requestCiv7DiplomacyResponse: unsupported,
-    requestCiv7TechnologyChoiceCloseout: unsupported,
-    requestCiv7CultureChoiceCloseout: unsupported,
+    requestCiv7TechnologyChoiceCloseout: async (input) => await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
+    requestCiv7CultureChoiceCloseout: async (input) => await requestCiv7GameUiCultureChoiceCloseout(input, target),
     requestCiv7AssignWorkerPlacement: async (input) => await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) => await requestCiv7GameUiExpandCityPlacement(input, target),
     requestCiv7UnitTargetAction: unsupported,
@@ -33195,6 +33395,12 @@ function gameUiSupportedMutationProcedures(target) {
   if (gameUiTurnCompletionAvailable(target)) {
     supported2.push("turn.complete.request");
   }
+  if (civ7GameUiProgressionChoiceAvailable(target)) {
+    supported2.push(
+      "progression.technology.choice.request",
+      "progression.culture.choice.request"
+    );
+  }
   return supported2;
 }
 function gameUiSupportedReadProcedures(target) {
@@ -33218,13 +33424,13 @@ function gameUiSnapshot(target) {
   return {
     network: {
       isInSession: ok2(Boolean(target.Network?.isInSession)),
-      numPlayers: probe4(() => target.Network?.getNumPlayers?.() ?? 0),
-      hostPlayerId: probe4(() => target.Network?.getHostPlayerId?.() ?? -1),
-      isConnectedToNetwork: probe4(
+      numPlayers: probe5(() => target.Network?.getNumPlayers?.() ?? 0),
+      hostPlayerId: probe5(() => target.Network?.getHostPlayerId?.() ?? -1),
+      isConnectedToNetwork: probe5(
         () => target.Network?.isConnectedToNetwork?.() ?? false
       ),
-      isAuthenticated: probe4(() => target.Network?.isAuthenticated?.() ?? false),
-      isLoggedIn: probe4(() => target.Network?.isLoggedIn?.() ?? false)
+      isAuthenticated: probe5(() => target.Network?.isAuthenticated?.() ?? false),
+      isLoggedIn: probe5(() => target.Network?.isLoggedIn?.() ?? false)
     },
     autoplay: {
       isActive: target.Autoplay?.isActive ?? false,
@@ -33238,18 +33444,18 @@ function gameUiSnapshot(target) {
       turn: target.Game?.turn ?? -1,
       age: target.Game?.age ?? -1,
       maxTurns: target.Game?.maxTurns ?? 0,
-      turnDate: probe4(() => target.Game?.getTurnDate?.() ?? ""),
-      hash: probe4(() => target.Game?.getHash?.() ?? 0)
+      turnDate: probe5(() => target.Game?.getTurnDate?.() ?? ""),
+      hash: probe5(() => target.Game?.getHash?.() ?? 0)
     },
     ui: {
-      inGame: probe4(() => target.UI?.isInGame?.() ?? false),
-      inShell: probe4(() => target.UI?.isInShell?.() ?? false),
-      inLoading: probe4(() => target.UI?.isInLoading?.() ?? false),
-      loadingState: probe4(() => target.UI?.getGameLoadingState?.() ?? -1),
+      inGame: probe5(() => target.UI?.isInGame?.() ?? false),
+      inShell: probe5(() => target.UI?.isInShell?.() ?? false),
+      inLoading: probe5(() => target.UI?.isInLoading?.() ?? false),
+      loadingState: probe5(() => target.UI?.getGameLoadingState?.() ?? -1),
       loadingStateName: loadingStateName(target),
       canBeginGame: canBeginGame(target),
       canNotifyUIReady: typeof target.UI?.notifyUIReady,
-      skipStartButton: probe4(
+      skipStartButton: probe5(
         () => target.Configuration?.getGame?.().skipStartButton ?? false
       ),
       automationActive: ok2(false)
@@ -33257,27 +33463,27 @@ function gameUiSnapshot(target) {
     gameContext: {
       localPlayerID: target.GameContext?.localPlayerID ?? -1,
       localObserverID: target.GameContext?.localObserverID ?? -1,
-      hasRequestedPause: probe4(
+      hasRequestedPause: probe5(
         () => target.GameContext?.hasRequestedPause?.() ?? false
       )
     },
     players: {
       maxPlayers: target.Players?.maxPlayers ?? 0,
-      aliveIds: probe4(() => target.Players?.getAliveIds?.() ?? []),
-      aliveHumanIds: probe4(() => target.Players?.getAliveHumanIds?.() ?? []),
-      numAliveHumans: probe4(() => target.Players?.getNumAliveHumans?.() ?? 0)
+      aliveIds: probe5(() => target.Players?.getAliveIds?.() ?? []),
+      aliveHumanIds: probe5(() => target.Players?.getAliveHumanIds?.() ?? []),
+      numAliveHumans: probe5(() => target.Players?.getNumAliveHumans?.() ?? 0)
     },
     map: {
-      width: probe4(() => target.GameplayMap?.getGridWidth?.() ?? 0),
-      height: probe4(() => target.GameplayMap?.getGridHeight?.() ?? 0),
-      plotCount: probe4(() => target.GameplayMap?.getPlotCount?.() ?? 0),
-      mapSize: probe4(() => target.GameplayMap?.getMapSize?.() ?? 0),
-      randomSeed: probe4(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
+      width: probe5(() => target.GameplayMap?.getGridWidth?.() ?? 0),
+      height: probe5(() => target.GameplayMap?.getGridHeight?.() ?? 0),
+      plotCount: probe5(() => target.GameplayMap?.getPlotCount?.() ?? 0),
+      mapSize: probe5(() => target.GameplayMap?.getMapSize?.() ?? 0),
+      randomSeed: probe5(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
     }
   };
 }
 function gameUiControllerMutationProof(target) {
-  if (probeValue43(probe4(() => target.UI?.isInGame?.() ?? false)) !== true) {
+  if (probeValue43(probe5(() => target.UI?.isInGame?.() ?? false)) !== true) {
     return null;
   }
   const localPlayerId = target.GameContext?.localPlayerID;
@@ -33299,18 +33505,18 @@ function gameUiControllerMutationProof(target) {
   };
 }
 function isSingleLocalHuman(target, localPlayerId) {
-  const aliveHumanIds = probe4(() => target.Players?.getAliveHumanIds?.());
+  const aliveHumanIds = probe5(() => target.Players?.getAliveHumanIds?.());
   if (aliveHumanIds.ok && Array.isArray(aliveHumanIds.value)) {
     return aliveHumanIds.value.length === 1 && aliveHumanIds.value[0] === localPlayerId;
   }
-  const aliveHumanCount = probe4(() => target.Players?.getNumAliveHumans?.());
+  const aliveHumanCount = probe5(() => target.Players?.getNumAliveHumans?.());
   return aliveHumanCount.ok && aliveHumanCount.value === 1;
 }
 function isControllerPlayerId(playerId) {
   return typeof playerId === "number" && Number.isInteger(playerId) && playerId >= 0 && playerId <= 255;
 }
 function canBeginGame(target) {
-  return probe4(() => {
+  return probe5(() => {
     const loadingState = target.UI?.getGameLoadingState?.();
     if (loadingState == null) return false;
     const states = target.UIGameLoadingState ?? {};
@@ -33324,7 +33530,7 @@ function loadingStateName(target) {
     ([, value2]) => value2 === loadingState
   )?.[0] ?? null;
 }
-function probe4(fn2) {
+function probe5(fn2) {
   try {
     return ok2(fn2());
   } catch (err) {
@@ -33334,8 +33540,8 @@ function probe4(fn2) {
 function ok2(value2) {
   return { ok: true, value: value2 };
 }
-function probeValue43(probe5) {
-  return probe5.ok ? probe5.value : void 0;
+function probeValue43(probe6) {
+  return probe6.ok ? probe6.value : void 0;
 }
 
 // src/ui/civ7-intelligence-bridge.ts

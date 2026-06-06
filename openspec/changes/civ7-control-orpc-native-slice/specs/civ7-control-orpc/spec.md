@@ -733,6 +733,37 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   runtime behavior only; deployed Civ7 runtime proof, other mutation ports,
   play-thread action, and full `7.3` implementation remain pending
 
+#### Scenario: Game UI controller supports progression choices
+- **WHEN** the game-scoped controller context exposes ambient progression
+  choice APIs for `Game.PlayerOperations.canStart/sendRequest`, technology and
+  culture progression operation enums, `ProgressionTreeNodeTypes.NO_NODE`,
+  notification activation/read APIs, player progression state reads, and
+  controller-owned local-player proof
+- **THEN** the context may execute the service-owned
+  `progression.technology.choice.request` and
+  `progression.culture.choice.request` procedures through the existing
+  in-process router and native readiness/proof middleware
+- **AND** progression choice procedures are listed as supported game-UI
+  mutations only when controller proof and the required ambient validation,
+  send, notification, and player progression APIs are present
+- **AND** caller `playerId` remains validation/input context while the runtime
+  send player is derived from controller-owned `GameContext.localPlayerID` and
+  the pre-read local-player notification evidence
+- **AND** validator-blocked progression choices project semantic `not-sent`
+  output, do not call the choose send API, and do not clear the target node
+  after a failed choose validation
+- **AND** sent choices require the service procedure to re-read attention before
+  projecting confirmed completion; sticky blockers, state-changed blockers,
+  failed post-reads, and pending runtime proof remain no-repeat guarded
+- **AND** normal bridge success output remains the semantic progression-choice
+  result and omits host, port, state, command, rawCommand, session, tuner
+  payloads, raw game-UI function names, direct-control socket details, and raw
+  `SET_*_TREE_*` operation names
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof,
+  narrative/diplomacy/unit runtime ports, play-thread action, and full `7.3`
+  implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control
