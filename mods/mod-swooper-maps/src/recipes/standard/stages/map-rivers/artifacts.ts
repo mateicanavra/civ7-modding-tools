@@ -20,17 +20,76 @@ const MapRiversEngineProjectionArtifactSchema = Type.Object(
     riverMismatchCount: Type.Integer({
       minimum: 0,
       description:
-        "Count of hydrography riverClass>0 tiles that did not project to navigable-river terrain in engine snapshot.",
+        "Count of tiles where projected navigable-river terrain and engine readback diverged.",
+    }),
+    selectedRiverRejectedCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of MapGen-selected navigable-river terrain tiles that were not navigable rivers after engine validation.",
+    }),
+    extraEngineRiverCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of navigable-river terrain tiles present in engine readback that were not selected by MapGen's river projection policy.",
     }),
   },
   {
     additionalProperties: false,
     description:
-      "Observed map-rivers engine projection state, used to diagnose Hydrology river intent vs engine readback.",
+      "Observed map-rivers engine projection state, used to diagnose MapGen navigable-river terrain vs engine readback.",
+  }
+);
+
+const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
+  {
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    riverMask: TypedArraySchemas.u8({
+      description:
+        "MapGen-authored navigable-river terrain mask selected by the projection policy (1=navigable river terrain).",
+    }),
+    selectedTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of MapGen-selected navigable-river terrain tiles.",
+    }),
+    eligibleTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of projectable Hydrology river tiles considered by the policy.",
+    }),
+    candidateEndpointCount: Type.Integer({
+      minimum: 0,
+      description: "Count of river endpoints available for trunk selection.",
+    }),
+    selectedChainCount: Type.Integer({
+      minimum: 0,
+      description: "Count of selected navigable-river chains.",
+    }),
+    targetTileCount: Type.Integer({
+      minimum: 0,
+      description: "Policy target count for navigable-river terrain tiles.",
+    }),
+    minLength: Type.Integer({
+      minimum: 1,
+      description: "Minimum selected navigable-river chain length.",
+    }),
+    maxLength: Type.Integer({
+      minimum: 1,
+      description: "Maximum selected navigable-river chain length.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "MapGen-authored navigable river projection. Downstream ecology consumes this policy artifact; engine readback remains diagnostic.",
   }
 );
 
 export const mapRiversArtifacts = {
+  projectedNavigableRivers: defineArtifact({
+    name: "projectedNavigableRivers",
+    id: "artifact:map.rivers.projectedNavigableRivers",
+    schema: MapRiversProjectedNavigableRiversArtifactSchema,
+  }),
   /**
    * River readback is separate from lake readback because Civ7 models rivers
    * after elevation, while lakes are static water terrain before elevation.

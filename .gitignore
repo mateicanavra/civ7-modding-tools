@@ -36,6 +36,10 @@ apps/playground/example-generated-mod/
 mods/mod-swooper-civ-dacia/mod/
 mods/mod-swooper-maps/mod/maps/
 
+# MapGen Studio live-run config. This is written by Studio for ad hoc launches
+# and must not become a shipped built-in map preset.
+mods/mod-swooper-maps/src/maps/configs/studio-current.config.json
+
 
 # OS/system files
 .DS_Store

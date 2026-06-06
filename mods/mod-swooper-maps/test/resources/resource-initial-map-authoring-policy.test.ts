@@ -1,9 +1,10 @@
-import { describe, expect, it } from "bun:test";
+import { afterEach, describe, expect, it } from "bun:test";
 
 import {
   DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS,
   DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
   filterInitialMapResourceTypeIds,
+  filterResourceCandidatesForAge,
   getInitialMapResourcePolicyForStaticSlot,
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
@@ -11,9 +12,41 @@ import {
   INITIAL_MAP_RESOURCE_TYPE_IDS,
   INITIAL_MAP_RESOURCE_TYPES,
   OFFICIAL_RESOURCE_CORPUS,
+  resolveActiveResourceAge,
 } from "../../src/domain/resources/index.js";
 
+type RuntimeGlobals = typeof globalThis & {
+  Game?: { age?: unknown };
+  GameInfo?: { Ages?: { lookup?: (age: number) => { AgeType?: unknown } | null } };
+};
+
+const runtime = globalThis as RuntimeGlobals;
+const originalGame = runtime.Game;
+const originalGameInfo = runtime.GameInfo;
+
+function restoreRuntimeGlobals(): void {
+  if (originalGame === undefined) delete runtime.Game;
+  else runtime.Game = originalGame;
+  if (originalGameInfo === undefined) delete runtime.GameInfo;
+  else runtime.GameInfo = originalGameInfo;
+}
+
+function expectedStaticSlotsForAge(age: string): number[] {
+  return OFFICIAL_RESOURCE_CORPUS
+    .filter(
+      (entry) =>
+        entry.validAges.includes(age as never) &&
+        entry.placeability.status === "placeable" &&
+        entry.strategyRequired.status === "required"
+    )
+    .map((entry) => entry.staticResourceRowSlot);
+}
+
 describe("initial map resource authoring policy", () => {
+  afterEach(() => {
+    restoreRuntimeGlobals();
+  });
+
   it("derives complete initial-map eligibility from the official resource corpus", () => {
     expect(INITIAL_MAP_RESOURCE_AUTHORING_AGE).toBe("AGE_ANTIQUITY");
     expect(INITIAL_MAP_RESOURCE_AUTHORING_POLICY).toHaveLength(OFFICIAL_RESOURCE_CORPUS.length);
@@ -83,5 +116,20 @@ describe("initial map resource authoring policy", () => {
       INITIAL_MAP_RESOURCE_TYPE_IDS
     );
     expect(filterInitialMapResourceTypeIds([38, 4, 36, -1, 40, 4, 99], -1)).toEqual([4]);
+  });
+
+  it("uses the runtime Civ7 age when available", () => {
+    runtime.Game = { age: 1234 };
+    runtime.GameInfo = { Ages: { lookup: () => ({ AgeType: "AGE_MODERN" }) } };
+
+    const allStaticSlots = OFFICIAL_RESOURCE_CORPUS.map((entry) => entry.staticResourceRowSlot);
+    const filtered = filterResourceCandidatesForAge(allStaticSlots, resolveActiveResourceAge());
+
+    expect(resolveActiveResourceAge()).toBe("AGE_MODERN");
+    expect(filtered).toEqual(expectedStaticSlotsForAge("AGE_MODERN"));
+    expect(filtered).not.toContain(18); // RESOURCE_HIDES, Antiquity-only
+    expect(filtered).not.toContain(21); // RESOURCE_SALT, Antiquity-only
+    expect(filtered).toContain(36); // RESOURCE_COAL, Modern-only
+    expect(filtered).toContain(38); // RESOURCE_OIL, Modern-only
   });
 });

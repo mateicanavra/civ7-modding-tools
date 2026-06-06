@@ -13,7 +13,7 @@ function loadEarthlikeConfig(): StandardRecipeConfig {
 }
 
 describe("pipeline: earthlike mountain ranges", () => {
-  it("produces long connected mountain spines instead of only local peak clusters", { timeout: 30_000 }, () => {
+  it("produces long orogenic regions with internal passes and valleys", { timeout: 30_000 }, () => {
     const config = loadEarthlikeConfig();
     const seeds = [1018, 2024, 5050] as const;
 
@@ -29,8 +29,38 @@ describe("pipeline: earthlike mountain ranges", () => {
 
     for (const sample of stats) {
       expect(sample.plannedMountainTiles).toBeGreaterThan(0);
-      expect(sample.plannedLargestMountainComponentDiameter).toBeGreaterThanOrEqual(30);
-      expect(sample.plannedLargestMountainComponentSize).toBeGreaterThanOrEqual(30);
+      expect(
+        sample.plannedLargestMountainRegionComponentDiameter,
+        `${sample.label} mountain region length`
+      ).toBeGreaterThanOrEqual(38);
+      expect(
+        sample.plannedLargestMountainRegionComponentSize,
+        `${sample.label} mountain region footprint`
+      ).toBeGreaterThanOrEqual(450);
+      expect(
+        sample.plannedMountainRegionNonMountainShare,
+        `${sample.label} internal non-mountain terrain`
+      ).toBeGreaterThanOrEqual(0.65);
+      expect(
+        sample.plannedMountainRegionFlatInteriorShare,
+        `${sample.label} internal valleys/passages`
+      ).toBeGreaterThanOrEqual(0.35);
+      expect(
+        sample.plannedLargestMountainRegionFlatPocketSize,
+        `${sample.label} settlement-scale interior pocket`
+      ).toBeGreaterThanOrEqual(100);
+      expect(
+        sample.plannedMountainRegionMountainShare,
+        `${sample.label} peak density inside region`
+      ).toBeLessThanOrEqual(0.38);
+      expect(
+        sample.plannedMountainRegionFoothillShare + sample.plannedMountainRegionRoughLandShare,
+        `${sample.label} rough shoulder mix`
+      ).toBeGreaterThanOrEqual(0.25);
+      expect(
+        sample.plannedLargestMountainComponentDiameter,
+        `${sample.label} peak spine still has scale`
+      ).toBeGreaterThanOrEqual(25);
     }
   });
 });

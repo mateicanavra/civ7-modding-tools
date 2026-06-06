@@ -16,10 +16,6 @@ import { buildTestDeps } from "../support/step-deps.js";
  * so the test proves mismatch accounting remains diagnostic and downstream.
  */
 class RuntimeLakeValidationAdapter extends MockAdapter {
-  override modelRivers(): void {
-    // Keep this scenario focused on lake projection/validation behavior.
-  }
-
   override validateAndFixTerrain(): void {
     if (this.getTerrainType(1, 1) === COAST_TERRAIN) {
       this.setTerrainType(1, 1, FLAT_TERRAIN);
@@ -65,6 +61,15 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       landMask: new Uint8Array(size).fill(1),
       bathymetry: new Int16Array(size),
     });
+    context.artifacts.set("artifact:morphology.mountains", {
+      mountainMask: new Uint8Array(size),
+      hillMask: new Uint8Array(size),
+      foothillMask: new Uint8Array(size),
+      roughLandMask: new Uint8Array(size),
+      orogenyPotential: new Uint8Array(size),
+      fracturePotential: new Uint8Array(size),
+      roughnessPotential: new Uint8Array(size),
+    });
     context.artifacts.set("artifact:hydrology.hydrography", {
       runoff: new Float32Array(size),
       discharge: new Float32Array(size),
@@ -84,7 +89,7 @@ describe("map-hydrology/lakes runtime fill drift", () => {
     lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes));
     plotRivers.run(
       context as any,
-      { minLength: 5, maxLength: 15 },
+      { minLength: 1, maxLength: 5 },
       {} as any,
       buildTestDeps(plotRivers)
     );

@@ -9,17 +9,17 @@ const knobsSchema = Type.Object(
   },
   {
     description:
-      "Map-rivers knobs. These tune engine river projection after elevation is finalized.",
+      "Map-rivers knobs. These tune MapGen-owned navigable river projection after elevation is finalized.",
   }
 );
 
 /**
- * Engine river materialization stage.
+ * Navigable river materialization stage.
  *
- * River modeling is separated from static lake projection because Civ7 models
- * navigable rivers after elevation is built. Keeping that lifecycle boundary
- * explicit prevents future projection fixes from running river effects against
- * stale elevation or half-projected water.
+ * River materialization is separated from static lake projection because
+ * navigable rivers need the finalized elevation and water surface. MapGen owns
+ * the river terrain selection; Civ7 is used only for terrain validation, cache
+ * refresh, and naming at this boundary.
  */
 export default createStage({
   id: "map-rivers",

@@ -41,11 +41,11 @@ const stages = [
   hydrologyClimateRefine,
   ecologyPedology,
   ecologyBiomes,
-  ecologyFeatures,
   mapMorphology,
   mapHydrology,
   mapElevation,
   mapRivers,
+  ecologyFeatures,
   mapEcology,
   placement,
 ] as const;

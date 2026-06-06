@@ -2,6 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import { mapHydrologyArtifacts } from "../artifacts.js";
 
 /**
@@ -33,7 +34,7 @@ const LakesStepContract = defineStep({
     MAP_PROJECTION_EFFECT_TAGS.map.hydrologyLakesParityCaptured,
   ],
   artifacts: {
-    requires: [hydrologyHydrographyArtifacts.lakePlan],
+    requires: [hydrologyHydrographyArtifacts.lakePlan, morphologyArtifacts.mountains],
     provides: [
       mapHydrologyArtifacts.engineProjectionLakes,
       mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot,

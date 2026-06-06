@@ -19,6 +19,13 @@ const PlanRoughLandsContract = defineOp({
     mountainMask: TypedArraySchemas.u8({
       description: "Mask (1/0): mountain tiles to exclude from rough-land hills.",
     }),
+    mountainRegionMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): mountain-region footprint used to score internal highlands, passes, and valley margins.",
+    }),
+    mountainRegionIdByTile: TypedArraySchemas.i32({
+      description: "Per-tile mountain-region id (-1 outside mountain-region footprint).",
+    }),
     foothillMask: TypedArraySchemas.u8({
       description: "Mask (1/0): ridge-skirt hill tiles to exclude from rough-land hills.",
     }),

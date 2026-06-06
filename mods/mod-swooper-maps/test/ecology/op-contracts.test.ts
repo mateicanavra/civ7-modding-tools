@@ -185,6 +185,7 @@ describe("ecology op contract surfaces", () => {
         width,
         height,
         riverClass: new Uint8Array(size),
+        navigableRiverMask: new Uint8Array(size),
         landMask: new Uint8Array(size).fill(1),
         elevation: new Int16Array(size).fill(40),
         seaLevel: 0,
@@ -205,6 +206,40 @@ describe("ecology op contract surfaces", () => {
     expect(result.hydromorphicMask.length).toBe(size);
     expect(result.wellDrainedMask.length).toBe(size);
     expect(result.isolatedWaterPointMask.length).toBe(size);
+  });
+
+  it("computeFeatureSubstrate uses projected navigable river truth", () => {
+    const width = 3;
+    const height = 3;
+    const size = width * height;
+    const riverClass = new Uint8Array(size);
+    const navigableRiverMask = new Uint8Array(size);
+    riverClass[1] = 2;
+    navigableRiverMask[4] = 1;
+
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.computeFeatureSubstrate, {
+      strategy: "default",
+      config: {},
+    });
+
+    const result = ecology.ops.computeFeatureSubstrate.run(
+      {
+        width,
+        height,
+        riverClass,
+        navigableRiverMask,
+        landMask: new Uint8Array(size).fill(1),
+        elevation: new Int16Array(size).fill(40),
+        seaLevel: 0,
+        discharge: new Float32Array(size).fill(100),
+        sinkMask: new Uint8Array(size),
+      },
+      selection
+    );
+
+    expect(result.navigableRiverMask[1]).toBe(0);
+    expect(result.navigableRiverMask[4]).toBe(1);
+    expect(result.nearRiverMask[1]).toBe(1);
   });
 
   it("classifyBiomes validates output", () => {
@@ -408,6 +443,8 @@ describe("ecology op contract surfaces", () => {
       const surfaceTemperatureCold = new Float32Array(size).fill(12);
       const bathymetry = new Int16Array(size).fill(-120);
       const shelfMask = new Uint8Array(size).fill(1);
+      const openOceanMask = new Uint8Array(size).fill(1);
+      const lakeMask = new Uint8Array(size).fill(1);
       const coastalWater = new Uint8Array(size).fill(1);
       const distanceToCoast = new Uint16Array(size).fill(1);
       const isolatedCoastalWater = new Uint8Array(size).fill(0);
@@ -422,6 +459,7 @@ describe("ecology op contract surfaces", () => {
             landMask,
             surfaceTemperature: surfaceTemperatureWarm,
             bathymetry,
+            lakeMask,
             shelfMask,
             coastalWater,
             distanceToCoast,
@@ -449,6 +487,7 @@ describe("ecology op contract surfaces", () => {
             surfaceTemperature: surfaceTemperatureWarm,
             bathymetry,
             shelfMask,
+            openOceanMask,
             coastalWater: isolatedCoastalWater,
             distanceToCoast: isolatedDistanceToCoast,
           },
@@ -461,6 +500,7 @@ describe("ecology op contract surfaces", () => {
             landMask,
             surfaceTemperature: surfaceTemperatureWarm,
             bathymetry,
+            lakeMask,
             shelfMask,
             coastalWater,
             distanceToCoast,
@@ -562,6 +602,7 @@ describe("ecology op contract surfaces", () => {
         scoreColdReef01: new Float32Array(size).fill(1),
         scoreAtoll01: new Float32Array(size).fill(1),
         scoreLotus01: new Float32Array(size).fill(1),
+        lakeMask: new Uint8Array(size).fill(1),
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },
@@ -587,6 +628,7 @@ describe("ecology op contract surfaces", () => {
         scoreColdReef01: new Float32Array(size).fill(1),
         scoreAtoll01: new Float32Array(size).fill(1),
         scoreLotus01: new Float32Array(size).fill(1),
+        lakeMask: new Uint8Array(size).fill(1),
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },

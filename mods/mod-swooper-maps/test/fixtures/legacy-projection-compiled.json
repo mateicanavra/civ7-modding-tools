@@ -1,25 +1,5 @@
 {
   "shattered-ring": {
-    "map-morphology": {
-      "plot-coasts": {},
-      "plot-continents": {},
-      "plot-mountains": {},
-      "plot-volcanoes": {}
-    },
-    "map-hydrology": {
-      "lakes": {
-        "projectionReadback": true
-      }
-    },
-    "map-elevation": {
-      "build-elevation": {}
-    },
-    "map-rivers": {
-      "plot-rivers": {
-        "maxLength": 12,
-        "minLength": 3
-      }
-    },
     "map-ecology": {
       "features-apply": {
         "apply": {
@@ -43,29 +23,29 @@
         }
       },
       "plot-effects": {}
+    },
+    "map-elevation": {
+      "build-elevation": {}
+    },
+    "map-hydrology": {
+      "lakes": {
+        "projectionReadback": true
+      }
+    },
+    "map-morphology": {
+      "plot-coasts": {},
+      "plot-continents": {},
+      "plot-mountains": {},
+      "plot-volcanoes": {}
+    },
+    "map-rivers": {
+      "plot-rivers": {
+        "maxLength": 15,
+        "minLength": 5
+      }
     }
   },
   "sundered-archipelago": {
-    "map-morphology": {
-      "plot-coasts": {},
-      "plot-continents": {},
-      "plot-mountains": {},
-      "plot-volcanoes": {}
-    },
-    "map-hydrology": {
-      "lakes": {
-        "projectionReadback": true
-      }
-    },
-    "map-elevation": {
-      "build-elevation": {}
-    },
-    "map-rivers": {
-      "plot-rivers": {
-        "maxLength": 12,
-        "minLength": 3
-      }
-    },
     "map-ecology": {
       "features-apply": {
         "apply": {
@@ -89,29 +69,29 @@
         }
       },
       "plot-effects": {}
+    },
+    "map-elevation": {
+      "build-elevation": {}
+    },
+    "map-hydrology": {
+      "lakes": {
+        "projectionReadback": true
+      }
+    },
+    "map-morphology": {
+      "plot-coasts": {},
+      "plot-continents": {},
+      "plot-mountains": {},
+      "plot-volcanoes": {}
+    },
+    "map-rivers": {
+      "plot-rivers": {
+        "maxLength": 15,
+        "minLength": 5
+      }
     }
   },
   "swooper-desert-mountains": {
-    "map-morphology": {
-      "plot-coasts": {},
-      "plot-continents": {},
-      "plot-mountains": {},
-      "plot-volcanoes": {}
-    },
-    "map-hydrology": {
-      "lakes": {
-        "projectionReadback": true
-      }
-    },
-    "map-elevation": {
-      "build-elevation": {}
-    },
-    "map-rivers": {
-      "plot-rivers": {
-        "maxLength": 18,
-        "minLength": 7
-      }
-    },
     "map-ecology": {
       "features-apply": {
         "apply": {
@@ -135,29 +115,29 @@
         }
       },
       "plot-effects": {}
+    },
+    "map-elevation": {
+      "build-elevation": {}
+    },
+    "map-hydrology": {
+      "lakes": {
+        "projectionReadback": true
+      }
+    },
+    "map-morphology": {
+      "plot-coasts": {},
+      "plot-continents": {},
+      "plot-mountains": {},
+      "plot-volcanoes": {}
+    },
+    "map-rivers": {
+      "plot-rivers": {
+        "maxLength": 15,
+        "minLength": 5
+      }
     }
   },
   "swooper-earthlike": {
-    "map-morphology": {
-      "plot-coasts": {},
-      "plot-continents": {},
-      "plot-mountains": {},
-      "plot-volcanoes": {}
-    },
-    "map-hydrology": {
-      "lakes": {
-        "projectionReadback": true
-      }
-    },
-    "map-elevation": {
-      "build-elevation": {}
-    },
-    "map-rivers": {
-      "plot-rivers": {
-        "maxLength": 12,
-        "minLength": 3
-      }
-    },
     "map-ecology": {
       "features-apply": {
         "apply": {
@@ -181,6 +161,26 @@
         }
       },
       "plot-effects": {}
+    },
+    "map-elevation": {
+      "build-elevation": {}
+    },
+    "map-hydrology": {
+      "lakes": {
+        "projectionReadback": true
+      }
+    },
+    "map-morphology": {
+      "plot-coasts": {},
+      "plot-continents": {},
+      "plot-mountains": {},
+      "plot-volcanoes": {}
+    },
+    "map-rivers": {
+      "plot-rivers": {
+        "maxLength": 15,
+        "minLength": 5
+      }
     }
   }
 }

@@ -35,6 +35,17 @@ export type WorldBalanceStats = Readonly<{
   plannedMountainComponentCount: number;
   plannedLargestMountainComponentSize: number;
   plannedLargestMountainComponentDiameter: number;
+  plannedMountainRegionTiles: number;
+  plannedMountainRegionShareOfPreLakeLand: number;
+  plannedMountainRegionComponentCount: number;
+  plannedLargestMountainRegionComponentSize: number;
+  plannedLargestMountainRegionComponentDiameter: number;
+  plannedMountainRegionMountainShare: number;
+  plannedMountainRegionFoothillShare: number;
+  plannedMountainRegionRoughLandShare: number;
+  plannedMountainRegionNonMountainShare: number;
+  plannedMountainRegionFlatInteriorShare: number;
+  plannedLargestMountainRegionFlatPocketSize: number;
   plannedHillTiles: number;
   plannedHillShareOfPreLakeLand: number;
   plannedHillComponentCount: number;
@@ -130,10 +141,13 @@ export type WorldBalanceStats = Readonly<{
   resourceAssignmentMinSpacingTiles: number;
   resourceAssignmentSpacingBlockedCount: number;
   resourceLegalCandidateResourceTypeCount: number;
+  resourceConstrainedCandidateResourceTypeCount: number;
   resourceUniquePlannedTypes: number;
   resourceUniquePlacedTypes: number;
   resourcePlacedCountMinByType: number;
   resourcePlacedCountMaxByType: number;
+  resourceFeasiblePlacedCountMinByType: number;
+  resourceFeasiblePlacedCountMaxByType: number;
   resourcePlannedNearestNeighborMin: number;
   resourcePlannedNearestNeighborP10: number;
   resourcePlannedNearestNeighborMedian: number;
@@ -327,6 +341,63 @@ function computeMaskComponents(mask: Uint8Array, width: number, height: number):
     singleTileCount,
     largestComponentSize,
     largestComponentDiameter,
+  };
+}
+
+function computeMountainRegionMetrics(args: {
+  landMask: Uint8Array;
+  mountainRegionMask: Uint8Array;
+  mountainMask: Uint8Array;
+  foothillMask: Uint8Array;
+  roughLandMask: Uint8Array;
+  hillMask: Uint8Array;
+  width: number;
+  height: number;
+}): {
+  tiles: number;
+  componentCount: number;
+  largestComponentSize: number;
+  largestComponentDiameter: number;
+  mountainShare: number;
+  foothillShare: number;
+  roughLandShare: number;
+  nonMountainShare: number;
+  flatInteriorShare: number;
+  largestFlatPocketSize: number;
+} {
+  const size = Math.max(0, args.width * args.height);
+  const flatInteriorMask = new Uint8Array(size);
+  let tiles = 0;
+  let mountainTiles = 0;
+  let foothillTiles = 0;
+  let roughLandTiles = 0;
+  let flatInteriorTiles = 0;
+
+  for (let i = 0; i < size; i++) {
+    if (args.landMask[i] !== 1 || args.mountainRegionMask[i] !== 1) continue;
+    tiles += 1;
+    if (args.mountainMask[i] === 1) mountainTiles += 1;
+    if (args.foothillMask[i] === 1) foothillTiles += 1;
+    if (args.roughLandMask[i] === 1) roughLandTiles += 1;
+    if (args.mountainMask[i] !== 1 && args.hillMask[i] !== 1) {
+      flatInteriorTiles += 1;
+      flatInteriorMask[i] = 1;
+    }
+  }
+
+  const regionComponents = computeMaskComponents(args.mountainRegionMask, args.width, args.height);
+  const flatInteriorComponents = computeMaskComponents(flatInteriorMask, args.width, args.height);
+  return {
+    tiles,
+    componentCount: regionComponents.componentCount,
+    largestComponentSize: regionComponents.largestComponentSize,
+    largestComponentDiameter: regionComponents.largestComponentDiameter,
+    mountainShare: shareOf(mountainTiles, tiles),
+    foothillShare: shareOf(foothillTiles, tiles),
+    roughLandShare: shareOf(roughLandTiles, tiles),
+    nonMountainShare: tiles === 0 ? 0 : 1 - mountainTiles / tiles,
+    flatInteriorShare: shareOf(flatInteriorTiles, tiles),
+    largestFlatPocketSize: flatInteriorComponents.largestComponentSize,
   };
 }
 
@@ -530,12 +601,16 @@ export function collectWorldBalanceStats(args: Readonly<{
       const terrain = adapter.getTerrainType(x, y);
       const biome = adapter.getBiomeType(x, y);
       const isWater = adapter.isWater(x, y);
-      const expectedTerrain = adapter.getTerrainTypeIndex(legality.terrain);
-      const expectedBiome = adapter.getBiomeGlobal(legality.biome);
-      const waterExpected = legality.terrain === "TERRAIN_COAST" || legality.terrain === "TERRAIN_OCEAN";
+      const expectedTerrains = legality.terrains.map((terrainName) =>
+        adapter.getTerrainTypeIndex(terrainName)
+      );
+      const expectedBiomes = legality.biomes.map((biomeName) => adapter.getBiomeGlobal(biomeName));
+      const waterExpected = legality.terrains.some(
+        (terrainName) => terrainName === "TERRAIN_COAST" || terrainName === "TERRAIN_OCEAN"
+      );
       return (
-        terrain === expectedTerrain &&
-        biome === expectedBiome &&
+        expectedTerrains.includes(terrain) &&
+        expectedBiomes.includes(biome) &&
         (waterExpected ? isWater : !isWater)
       );
     },
@@ -550,6 +625,8 @@ export function collectWorldBalanceStats(args: Readonly<{
   const mountains = context.artifacts.get(morphologyArtifacts.mountains.id) as
     | {
         mountainMask?: Uint8Array;
+        mountainRegionMask?: Uint8Array;
+        mountainRegionIdByTile?: Int32Array;
         hillMask?: Uint8Array;
         foothillMask?: Uint8Array;
         roughLandMask?: Uint8Array;
@@ -596,6 +673,13 @@ export function collectWorldBalanceStats(args: Readonly<{
           reassignedCount?: number;
           unassignedPreferredCount?: number;
           legalCandidateResourceTypes?: readonly number[];
+          byPreferredResource?: ReadonlyArray<
+            Readonly<{
+              resourceType?: number;
+              legalPlotCount?: number;
+              assignedCount?: number;
+            }>
+          >;
         };
         outcomes?: ReadonlyArray<
           Readonly<{
@@ -621,6 +705,8 @@ export function collectWorldBalanceStats(args: Readonly<{
   }
   if (
     !(mountains?.mountainMask instanceof Uint8Array) ||
+    !(mountains.mountainRegionMask instanceof Uint8Array) ||
+    !(mountains.mountainRegionIdByTile instanceof Int32Array) ||
     !(mountains.hillMask instanceof Uint8Array) ||
     !(mountains.foothillMask instanceof Uint8Array) ||
     !(mountains.roughLandMask instanceof Uint8Array) ||
@@ -677,6 +763,24 @@ export function collectWorldBalanceStats(args: Readonly<{
   const resourcePlacedCounts = resourceOutcomeCountsByResource
     .filter((entry) => entry.placedCount > 0)
     .map((entry) => entry.placedCount);
+  const resourceAssignmentRows = resourcePlacement.assignment?.byPreferredResource ?? [];
+  const resourceTargetMinByType =
+    (resourcePlacement.assignment?.legalCandidateResourceTypes?.length ?? 0) === 0
+      ? 0
+      : Math.floor(
+          Math.max(0, resourcePlacement.summary?.placedCount ?? 0) /
+            Math.max(1, resourcePlacement.assignment?.legalCandidateResourceTypes?.length ?? 0)
+        );
+  const resourceFeasibleAssignmentRows = resourceAssignmentRows.filter(
+    (entry) =>
+      Number.isFinite(entry.assignedCount) &&
+      Number.isFinite(entry.legalPlotCount) &&
+      Math.trunc(entry.legalPlotCount as number) >= resourceTargetMinByType &&
+      Math.trunc(entry.assignedCount as number) >= resourceTargetMinByType
+  );
+  const resourceFeasiblePlacedCounts = resourceFeasibleAssignmentRows.map((entry) =>
+    Math.max(0, Math.trunc(entry.assignedCount as number))
+  );
 
   let waterTiles = 0;
   let postProjectionLandTiles = 0;
@@ -771,13 +875,16 @@ export function collectWorldBalanceStats(args: Readonly<{
         featureCounts[key] += 1;
         const legality = getEngineFeatureLegality(key);
         if (legality) {
-          const expectedTerrain = adapter.getTerrainTypeIndex(legality.terrain);
-          const expectedBiome = adapter.getBiomeGlobal(legality.biome);
-          const expectedWater =
-            legality.terrain === "TERRAIN_COAST" || legality.terrain === "TERRAIN_OCEAN";
+          const expectedTerrains = legality.terrains.map((terrainName) =>
+            adapter.getTerrainTypeIndex(terrainName)
+          );
+          const expectedBiomes = legality.biomes.map((biomeName) => adapter.getBiomeGlobal(biomeName));
+          const expectedWater = legality.terrains.some(
+            (terrainName) => terrainName === "TERRAIN_COAST" || terrainName === "TERRAIN_OCEAN"
+          );
           if (
-            terrain !== expectedTerrain ||
-            adapter.getBiomeType(x, y) !== expectedBiome ||
+            !expectedTerrains.includes(terrain) ||
+            !expectedBiomes.includes(adapter.getBiomeType(x, y)) ||
             (expectedWater ? !isWater : isWater)
           ) {
             invalidFeatureSurfaceCount += 1;
@@ -832,6 +939,16 @@ export function collectWorldBalanceStats(args: Readonly<{
   const preLakeLandTiles = countMask(topography.landMask);
   const plannedMountainTiles = countMask(mountains.mountainMask);
   const plannedMountainComponents = computeMaskComponents(mountains.mountainMask, width, height);
+  const plannedMountainRegionMetrics = computeMountainRegionMetrics({
+    landMask: topography.landMask,
+    mountainRegionMask: mountains.mountainRegionMask,
+    mountainMask: mountains.mountainMask,
+    foothillMask: mountains.foothillMask,
+    roughLandMask: mountains.roughLandMask,
+    hillMask: mountains.hillMask,
+    width,
+    height,
+  });
   const finalMountainComponents = computeMaskComponents(finalMountainMask, width, height);
   const plannedHillTiles = countMask(mountains.hillMask);
   const plannedFoothillTiles = countMask(mountains.foothillMask);
@@ -890,6 +1007,32 @@ export function collectWorldBalanceStats(args: Readonly<{
     plannedMountainComponentCount: plannedMountainComponents.componentCount,
     plannedLargestMountainComponentSize: plannedMountainComponents.largestComponentSize,
     plannedLargestMountainComponentDiameter: plannedMountainComponents.largestComponentDiameter,
+    plannedMountainRegionTiles: plannedMountainRegionMetrics.tiles,
+    plannedMountainRegionShareOfPreLakeLand: shareOf(
+      plannedMountainRegionMetrics.tiles,
+      preLakeLandTiles
+    ),
+    plannedMountainRegionComponentCount: plannedMountainRegionMetrics.componentCount,
+    plannedLargestMountainRegionComponentSize: plannedMountainRegionMetrics.largestComponentSize,
+    plannedLargestMountainRegionComponentDiameter:
+      plannedMountainRegionMetrics.largestComponentDiameter,
+    plannedMountainRegionMountainShare: roundMetric(
+      plannedMountainRegionMetrics.mountainShare
+    ),
+    plannedMountainRegionFoothillShare: roundMetric(
+      plannedMountainRegionMetrics.foothillShare
+    ),
+    plannedMountainRegionRoughLandShare: roundMetric(
+      plannedMountainRegionMetrics.roughLandShare
+    ),
+    plannedMountainRegionNonMountainShare: roundMetric(
+      plannedMountainRegionMetrics.nonMountainShare
+    ),
+    plannedMountainRegionFlatInteriorShare: roundMetric(
+      plannedMountainRegionMetrics.flatInteriorShare
+    ),
+    plannedLargestMountainRegionFlatPocketSize:
+      plannedMountainRegionMetrics.largestFlatPocketSize,
     plannedHillTiles,
     plannedHillShareOfPreLakeLand: shareOf(plannedHillTiles, preLakeLandTiles),
     plannedHillComponentCount: plannedHillComponents.componentCount,
@@ -1019,12 +1162,23 @@ export function collectWorldBalanceStats(args: Readonly<{
     ),
     resourceLegalCandidateResourceTypeCount:
       resourcePlacement.assignment?.legalCandidateResourceTypes?.length ?? 0,
+    resourceConstrainedCandidateResourceTypeCount: resourceAssignmentRows.filter(
+      (entry) =>
+        Number.isFinite(entry.legalPlotCount) &&
+        Math.trunc(entry.legalPlotCount as number) > 0 &&
+        Number.isFinite(entry.assignedCount) &&
+        Math.trunc(entry.assignedCount as number) < resourceTargetMinByType
+    ).length,
     resourceUniquePlannedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.plannedCount > 0)
       .length,
     resourceUniquePlacedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.placedCount > 0)
       .length,
     resourcePlacedCountMinByType: resourcePlacedCounts.length === 0 ? 0 : Math.min(...resourcePlacedCounts),
     resourcePlacedCountMaxByType: resourcePlacedCounts.length === 0 ? 0 : Math.max(...resourcePlacedCounts),
+    resourceFeasiblePlacedCountMinByType:
+      resourceFeasiblePlacedCounts.length === 0 ? 0 : Math.min(...resourceFeasiblePlacedCounts),
+    resourceFeasiblePlacedCountMaxByType:
+      resourceFeasiblePlacedCounts.length === 0 ? 0 : Math.max(...resourceFeasiblePlacedCounts),
     resourcePlannedNearestNeighborMin: resourcePlannedNearestNeighbor.min,
     resourcePlannedNearestNeighborP10: resourcePlannedNearestNeighbor.p10,
     resourcePlannedNearestNeighborMedian: resourcePlannedNearestNeighbor.median,

@@ -237,6 +237,7 @@ const ResourcePlacementSummarySchema = Type.Object(
 const ResourceAssignmentResourceSummarySchema = Type.Object(
   {
     resourceType: Type.Integer(),
+    legalPlotCount: Type.Integer({ minimum: 0 }),
     plannedCount: Type.Integer({ minimum: 0 }),
     assignedCount: Type.Integer({ minimum: 0 }),
     reassignedOutCount: Type.Integer({ minimum: 0 }),

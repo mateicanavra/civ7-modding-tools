@@ -16,6 +16,8 @@ function createInput(width: number, height: number) {
     height,
     landMask: new Uint8Array(size).fill(1),
     mountainMask: new Uint8Array(size),
+    mountainRegionMask: new Uint8Array(size),
+    mountainRegionIdByTile: new Int32Array(size).fill(-1),
     foothillMask: new Uint8Array(size),
     elevation: new Int16Array(size).fill(30),
     seaLevel: 0,

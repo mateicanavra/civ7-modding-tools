@@ -141,6 +141,7 @@ const ECOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "icePlanning",
     "reefPlanning",
     "wetlandPlanning",
+    "floodplainPlanning",
     "vegetationPlanning",
     "plotEffectScoring",
     "plotEffectCoverage",
@@ -158,6 +159,7 @@ const ECOLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
   "ecology-biomes": ["biomes"],
   "ecology-features": [
     "score-layers",
+    "plan-floodplains",
     "plan-ice",
     "plan-reefs",
     "plan-wetlands",
@@ -194,7 +196,6 @@ const PLACEMENT_PUBLIC_KEYS = [
   "knobs",
   "naturalWonders",
   "discoveries",
-  "floodplains",
   "resources",
   "starts",
 ] as const;
@@ -757,7 +758,7 @@ describe("Shipped map configs", () => {
       swooperEarthlikeConfig.config
     ) as any;
 
-    expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("coastal-shelf");
+    expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("orogeny-boosted");
     expect(compiled["ecology-pedology"]["resource-basins"].plan.strategy).toBe("mixed");
     expect(compiled["ecology-pedology"]["resource-basins"].score.strategy).toBe("default");
     expect(compiled["ecology-biomes"].biomes.classify.strategy).toBe("default");
@@ -813,7 +814,7 @@ describe("Shipped map configs", () => {
     expect(compiled["map-morphology"]["plot-volcanoes"]).toEqual({});
     expect(compiled["map-hydrology"].lakes.projectionReadback).toBe(true);
     expect(compiled["map-elevation"]["build-elevation"]).toEqual({});
-    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 3, maxLength: 12 });
+    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
     expect(compiled["map-ecology"]["plot-biomes"].bindings.tropicalSeasonal).toBe("BIOME_PLAINS");
     expect(compiled["map-ecology"]["plot-biomes"].bindings.marine).toBe("BIOME_MARINE");
     expect(compiled["map-ecology"]["features-apply"].apply).toEqual({
@@ -864,13 +865,9 @@ describe("Shipped map configs", () => {
       strategy: "default",
       config: { densityPer100Tiles: 3, minSpacingTiles: 3 },
     });
-    expect(compiled.placement["derive-placement-inputs"].floodplains).toEqual({
-      strategy: "default",
-      config: { minLength: 4, maxLength: 10 },
-    });
     expect(compiled.placement["derive-placement-inputs"].resources.strategy).toBe("default");
     expect(compiled.placement["derive-placement-inputs"].resources.config).toEqual({
-      densityPer100Tiles: 9,
+      densityPer100Tiles: 10,
       minSpacingTiles: 2,
       maxPlacementsPerResourceShare: 0.3,
     });
@@ -1110,7 +1107,7 @@ describe("Shipped map configs", () => {
               strategy: "default",
               config: {
                 candidateResourceTypes: [1, 2, 3],
-                densityPer100Tiles: 9,
+                densityPer100Tiles: 10,
               },
             },
             starts: {

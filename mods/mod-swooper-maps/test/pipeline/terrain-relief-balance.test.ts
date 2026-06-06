@@ -55,6 +55,22 @@ describe("terrain relief balance", () => {
       ).toBeLessThanOrEqual(40);
       expect(stats.finalHillShareOfPreLakeLand, `${stats.label} final hills`).toBeGreaterThanOrEqual(0.08);
       expect(stats.finalFlatShareOfPreLakeLand, `${stats.label} final flats`).toBeLessThanOrEqual(0.85);
+      expect(
+        stats.plannedLargestMountainRegionComponentDiameter,
+        `${stats.label} largest mountain-region length`
+      ).toBeGreaterThanOrEqual(30);
+      expect(
+        stats.plannedMountainRegionNonMountainShare,
+        `${stats.label} non-mountain region interior`
+      ).toBeGreaterThanOrEqual(0.65);
+      expect(
+        stats.plannedMountainRegionFlatInteriorShare,
+        `${stats.label} flat region passages`
+      ).toBeGreaterThanOrEqual(0.35);
+      expect(
+        stats.plannedLargestMountainRegionFlatPocketSize,
+        `${stats.label} region pocket size`
+      ).toBeGreaterThanOrEqual(50);
     }
   });
 });

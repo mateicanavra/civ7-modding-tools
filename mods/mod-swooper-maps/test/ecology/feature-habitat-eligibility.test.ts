@@ -14,6 +14,8 @@ describe("ecology feature habitat eligibility", () => {
     const shallow = new Int16Array(size).fill(-10);
     const coldReefDepth = new Int16Array(size).fill(-300);
     const shelfMask = new Uint8Array([1, 0, 1, 1]);
+    const openOceanMask = new Uint8Array([0, 1, 0, 0]);
+    const lakeMask = new Uint8Array([1, 0, 0, 0]);
     const coastalWater = new Uint8Array([1, 0, 1, 1]);
     const distanceToCoast = new Uint16Array([1, 5, 1, 1]);
 
@@ -22,11 +24,31 @@ describe("ecology feature habitat eligibility", () => {
       normalizeOpSelectionOrThrow(ecology.ops.scoreReef, { strategy: "default", config: {} })
     ).score01;
     const atoll = ecology.ops.scoreReefAtoll.run(
-      { width, height, landMask, surfaceTemperature: warm, bathymetry: shallow, shelfMask, coastalWater, distanceToCoast },
+      {
+        width,
+        height,
+        landMask,
+        surfaceTemperature: warm,
+        bathymetry: shallow,
+        shelfMask,
+        openOceanMask,
+        coastalWater,
+        distanceToCoast,
+      },
       normalizeOpSelectionOrThrow(ecology.ops.scoreReefAtoll, { strategy: "default", config: {} })
     ).score01;
     const lotus = ecology.ops.scoreReefLotus.run(
-      { width, height, landMask, surfaceTemperature: warm, bathymetry: shallow, shelfMask, coastalWater, distanceToCoast },
+      {
+        width,
+        height,
+        landMask,
+        surfaceTemperature: warm,
+        bathymetry: shallow,
+        lakeMask,
+        shelfMask,
+        coastalWater,
+        distanceToCoast,
+      },
       normalizeOpSelectionOrThrow(ecology.ops.scoreReefLotus, { strategy: "default", config: {} })
     ).score01;
     const coldReef = ecology.ops.scoreColdReef.run(

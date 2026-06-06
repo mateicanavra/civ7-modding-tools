@@ -6,9 +6,12 @@ import {
 } from "@mapgen/domain/morphology/config.js";
 import {
   IslandsConfigSchema,
-  MountainsConfigSchema,
   VolcanoesConfigSchema,
 } from "@mapgen/domain/morphology/ops";
+import {
+  MountainRangesPublicSchema,
+  resolveMountainRangesPublicConfig,
+} from "./mountain-ranges-public-config.js";
 
 /**
  * Morphology-features owns landform intent before map projection. Volcanism
@@ -30,7 +33,7 @@ const knobsSchema = Type.Object(
 const publicSchema = Type.Object(
   {
     islandChains: Type.Optional(IslandsConfigSchema),
-    mountainRanges: Type.Optional(MountainsConfigSchema),
+    mountainRanges: Type.Optional(MountainRangesPublicSchema),
     volcanoes: Type.Optional(VolcanoesConfigSchema),
   },
   {
@@ -49,20 +52,23 @@ export default createStage({
   knobsSchema,
   public: publicSchema,
   steps: [islands, mountains, volcanoes, landmasses],
-  compile: ({ config }: { config: Record<string, unknown> }) => ({
-    islands: {
-      islands: defaultEnvelope({ islands: config.islandChains ?? {} }),
-    },
-    mountains: {
-      ridges: defaultEnvelope(config.mountainRanges),
-      foothills: defaultEnvelope(config.mountainRanges),
-      roughLands: defaultEnvelope(config.mountainRanges),
-    },
-    volcanoes: {
-      volcanoes: defaultEnvelope(config.volcanoes),
-    },
-    landmasses: {
-      landmasses: defaultEnvelope({}),
-    },
-  }),
+  compile: ({ config }: { config: Record<string, unknown> }) => {
+    const mountainRanges = resolveMountainRangesPublicConfig(config.mountainRanges);
+    return {
+      islands: {
+        islands: defaultEnvelope({ islands: config.islandChains ?? {} }),
+      },
+      mountains: {
+        ridges: defaultEnvelope(mountainRanges),
+        foothills: defaultEnvelope(mountainRanges),
+        roughLands: defaultEnvelope(mountainRanges),
+      },
+      volcanoes: {
+        volcanoes: defaultEnvelope(config.volcanoes),
+      },
+      landmasses: {
+        landmasses: defaultEnvelope({}),
+      },
+    };
+  },
 } as const);

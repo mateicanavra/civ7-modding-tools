@@ -88,12 +88,15 @@ describe("map stamping contract guardrails", () => {
     const lakes = indexOfStep("map-hydrology", "lakes");
     const elevation = indexOfStep("map-elevation", "build-elevation");
     const rivers = indexOfStep("map-rivers", "plot-rivers");
+    const ecologyScoring = indexOfStep("ecology-features", "score-layers");
 
     expect(lakes).toBeGreaterThan(-1);
     expect(elevation).toBeGreaterThan(-1);
     expect(rivers).toBeGreaterThan(-1);
+    expect(ecologyScoring).toBeGreaterThan(-1);
     expect(lakes).toBeLessThan(elevation);
     expect(elevation).toBeLessThan(rivers);
+    expect(rivers).toBeLessThan(ecologyScoring);
   });
 
   it("keeps deterministic lake projection on the stampLakes adapter capability", () => {

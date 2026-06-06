@@ -151,7 +151,6 @@ export default createStep(MountainsStepContract, {
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
         beltAge: beltDrivers.beltAge,
-        beltMask: beltDrivers.beltMask,
         fractalMountain,
       },
       config.ridges
@@ -162,6 +161,8 @@ export default createStep(MountainsStepContract, {
         height,
         landMask: topography.landMask,
         mountainMask: ridges.mountainMask,
+        mountainRegionMask: ridges.mountainRegionMask,
+        mountainRegionIdByTile: ridges.mountainRegionIdByTile,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,
@@ -180,6 +181,8 @@ export default createStep(MountainsStepContract, {
         height,
         landMask: topography.landMask,
         mountainMask: ridges.mountainMask,
+        mountainRegionMask: ridges.mountainRegionMask,
+        mountainRegionIdByTile: ridges.mountainRegionIdByTile,
         foothillMask: foothills.hillMask,
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
@@ -206,6 +209,8 @@ export default createStep(MountainsStepContract, {
 
     const plan = {
       mountainMask: ridges.mountainMask,
+      mountainRegionMask: ridges.mountainRegionMask,
+      mountainRegionIdByTile: ridges.mountainRegionIdByTile,
       hillMask,
       foothillMask: foothills.hillMask,
       roughLandMask: roughLands.hillMask,
@@ -241,6 +246,18 @@ export default createStep(MountainsStepContract, {
       values: plan.hillMask,
       meta: defineVizMeta("morphology.mountains.hillMask", {
         label: "Hill Mask (Planned)",
+        group: GROUP_MORPHOLOGY_FEATURES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.mountains.mountainRegionMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: plan.mountainRegionMask,
+      meta: defineVizMeta("morphology.mountains.mountainRegionMask", {
+        label: "Mountain Region Footprint (Planned)",
         group: GROUP_MORPHOLOGY_FEATURES,
         visibility: "debug",
       }),

@@ -7,6 +7,8 @@ import { deriveRecipeConfigSchema, deriveStageAuthoringModel } from "@swooper/ma
 import { validateCanonicalMapConfig, type ValidatedMapConfig } from "../../src/maps/configs/canonical.js";
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
+const TRANSIENT_STUDIO_CONFIGS = new Set(["studio-current.config.json"]);
+
 const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
   foundation: [
     "knobs",
@@ -64,6 +66,10 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "resourceBasinScoring",
   ],
   "ecology-biomes": ["knobs", "biomeClassification"],
+  "map-morphology": ["knobs"],
+  "map-hydrology": ["knobs"],
+  "map-elevation": ["knobs"],
+  "map-rivers": ["knobs", "riverProjection"],
   "ecology-features": [
     "knobs",
     "substrateScoring",
@@ -77,10 +83,6 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "plotEffectScoring",
     "plotEffectCoverage",
   ],
-  "map-morphology": ["knobs"],
-  "map-hydrology": ["knobs"],
-  "map-elevation": ["knobs"],
-  "map-rivers": ["knobs", "riverProjection"],
   "map-ecology": ["knobs", "biomeBindings"],
   placement: ["knobs", "naturalWonders", "discoveries", "floodplains", "resources"],
 };
@@ -217,6 +219,7 @@ describe("standard authoring surface guardrails", () => {
     const generatedDir = join(import.meta.dir, "../../src/maps/generated");
     const configIds = readdirSync(configsDir)
       .filter((entry) => entry.endsWith(".config.json"))
+      .filter((entry) => !TRANSIENT_STUDIO_CONFIGS.has(entry))
       .map((entry) => entry.replace(/\.config\.json$/, ""))
       .sort();
     const generatedIds = readdirSync(generatedDir)

@@ -38,6 +38,7 @@ describe("ecology feature planner policies", () => {
         scoreColdReef01: f32(size, weakPositive),
         scoreAtoll01: f32(size, weakPositive),
         scoreLotus01: f32(size, weakPositive),
+        lakeMask: new Uint8Array(size),
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },

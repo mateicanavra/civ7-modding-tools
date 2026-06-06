@@ -7,7 +7,8 @@ import { placementArtifacts } from "../../artifacts.js";
  * Natural wonders are a placement product boundary, not a maintenance helper.
  *
  * The upstream planner owns intent and this step owns the materialized Civ7
- * effect: every planned wonder must stamp successfully or placement aborts.
+ * effect. It publishes reconciliation evidence for target shortfalls and
+ * adapter rejections instead of letting optional wonder misses abort the map.
  */
 const PlaceNaturalWondersStepContract = defineStep({
   id: "place-natural-wonders",

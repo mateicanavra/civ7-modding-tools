@@ -43,7 +43,7 @@ export type ResourceExpectationEvidence = {
 };
 
 export type ResourceInitialMapAuthoringPolicyRef = {
-  readonly authoringAge: "AGE_ANTIQUITY";
+  readonly authoringAge: OfficialAgeType;
   readonly status: InitialMapResourceAuthoringStatus;
   readonly rationale: string;
 };

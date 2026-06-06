@@ -15,6 +15,8 @@ type RoughLandInputs = Readonly<{
   size: number;
   landMask: Uint8Array;
   mountainMask: Uint8Array;
+  mountainRegionMask: Uint8Array;
+  mountainRegionIdByTile: Int32Array;
   foothillMask: Uint8Array;
   elevation: Int16Array;
   boundaryCloseness: Uint8Array;
@@ -41,6 +43,8 @@ function validateRoughLandInputs(input: PlanRoughLandsTypes["input"]): RoughLand
 
   const landMask = input.landMask as Uint8Array;
   const mountainMask = input.mountainMask as Uint8Array;
+  const mountainRegionMask = input.mountainRegionMask as Uint8Array;
+  const mountainRegionIdByTile = input.mountainRegionIdByTile as Int32Array;
   const foothillMask = input.foothillMask as Uint8Array;
   const elevation = input.elevation as Int16Array;
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;
@@ -58,6 +62,8 @@ function validateRoughLandInputs(input: PlanRoughLandsTypes["input"]): RoughLand
   if (
     landMask.length !== size ||
     mountainMask.length !== size ||
+    mountainRegionMask.length !== size ||
+    mountainRegionIdByTile.length !== size ||
     foothillMask.length !== size ||
     elevation.length !== size ||
     boundaryCloseness.length !== size ||
@@ -79,6 +85,8 @@ function validateRoughLandInputs(input: PlanRoughLandsTypes["input"]): RoughLand
     size,
     landMask,
     mountainMask,
+    mountainRegionMask,
+    mountainRegionIdByTile,
     foothillMask,
     elevation,
     boundaryCloseness,
@@ -159,6 +167,8 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       size,
       landMask,
       mountainMask,
+      mountainRegionMask,
+      mountainRegionIdByTile,
       foothillMask,
       elevation,
       boundaryCloseness,
@@ -178,6 +188,7 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
     const hillMask = new Uint8Array(size);
     const roughnessPotential = new Uint8Array(size);
     const roughScoreByTile = new Float32Array(size);
+    const roughLandMaxFraction = Math.max(0, Math.min(1, config.roughLandMaxFraction));
 
     let landCount = 0;
     let mountainCount = 0;
@@ -197,6 +208,8 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       if (mountainMask[i] === 1 || foothillMask[i] === 1) continue;
 
       const boundary = boundaryType[i] ?? BOUNDARY_TYPE.none;
+      const insideMountainRegion =
+        mountainRegionMask[i] === 1 && (mountainRegionIdByTile[i] ?? -1) >= 0;
       const boundaryNorm = (boundaryCloseness[i] ?? 0) / 255;
       const uplift = (upliftPotential[i] ?? 0) / 255;
       const rift = (riftPotential[i] ?? 0) / 255;
@@ -245,6 +258,11 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
           : boundary === BOUNDARY_TYPE.divergent
             ? rift
             : stress);
+      const orographicBasinMargin =
+        insideMountainRegion
+          ? (0.18 + flowRelief * 0.22 + localRelief * 0.2 + thinSediment * 0.18) *
+            (0.45 + fractal * 0.55)
+          : 0;
       const localReliefSupport = clamp01(localRelief * 1.2 + escarpment * 0.8 + basinMargin * 0.5);
       const activeDeformationSupport = clamp01(
         boundaryShoulder * 0.85 + riftShoulder * 0.65 + stress * (boundary === BOUNDARY_TYPE.transform ? 0.45 : 0.15)
@@ -262,6 +280,7 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
           escarpment * 0.85 +
           basinMargin * 0.4 +
           boundaryShoulder * 0.45 +
+          orographicBasinMargin * 0.55 +
           dissectedUplandSupport * 0.8) *
           Math.max(0, config.tectonicIntensity) *
           (0.45 + fractal * 0.65)
@@ -275,6 +294,7 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
         riftShoulder > 0.12 ||
         escarpment > 0.12 ||
         basinMargin > 0.06 ||
+        orographicBasinMargin > 0.12 ||
         (dissectedUplandSupport > 0.08 &&
           fractal > 0.48 &&
           (localReliefSupport > 0.08 || activeDeformationSupport > 0.12 || flowRelief > 0.25));
@@ -285,16 +305,13 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       if (hasCausalSupport && textureGate && score >= threshold) candidates.push(i);
     }
 
-    const hillBudgetRaw =
-      Math.floor(
-        landCount *
-          Math.max(0, Math.min(1, config.hillMaxFraction)) *
-          (1 - Math.max(0, Math.min(1, config.foothillHillBudgetShare)))
-      ) | 0;
+    const hillBudgetRaw = Math.floor(landCount * Math.max(0, Math.min(1, config.hillMaxFraction))) | 0;
+    const roughLandBudgetRaw =
+      roughLandMaxFraction > 0 ? Math.floor(landCount * roughLandMaxFraction) | 0 : hillBudgetRaw;
     const hillCapacity = Math.max(0, landCount - mountainCount - foothillCount) | 0;
     const roughTarget = Math.max(
       0,
-      Math.min(candidates.length, hillCapacity, hillBudgetRaw)
+      Math.min(candidates.length, hillCapacity, hillBudgetRaw - foothillCount, roughLandBudgetRaw)
     ) | 0;
 
     candidates.sort((a, b) => {

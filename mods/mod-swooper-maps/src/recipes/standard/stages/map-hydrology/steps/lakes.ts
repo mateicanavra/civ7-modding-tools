@@ -19,7 +19,9 @@ export default createStep(LakesStepContract, {
   ),
   run: (context, config, _ops, deps) => {
     const lakePlan = deps.artifacts.lakePlan.read(context);
+    const mountains = deps.artifacts.mountains.read(context);
     const { width, height } = context.dimensions;
+    const size = Math.max(0, width * height);
 
     // Map-stage visualization: planned lakes are Hydrology truth. This step only materializes and reads back.
     context.viz?.dumpGrid(context.trace, {
@@ -36,9 +38,20 @@ export default createStep(LakesStepContract, {
       }),
     });
 
+    const projectionLakeMask = new Uint8Array(size);
+    let morphologyProtectedLakeTileCount = 0;
+    for (let i = 0; i < size; i++) {
+      if (lakePlan.lakeMask[i] !== 1) continue;
+      if (mountains.mountainMask[i] === 1) {
+        morphologyProtectedLakeTileCount += 1;
+        continue;
+      }
+      projectionLakeMask[i] = 1;
+    }
+
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so this stage records projection evidence without owning Civ7 terrain APIs.
-    const projection = context.adapter.stampLakes(width, height, lakePlan.lakeMask);
+    const projection = context.adapter.stampLakes(width, height, projectionLakeMask);
     const physics = context.buffers.heightfield;
     const engineAfter = snapshotEngineHeightfield(context);
     if (engineAfter) {
@@ -46,7 +59,7 @@ export default createStep(LakesStepContract, {
         width,
         height,
         lakeMask: projection.stampedLakeMask,
-        plannedLakeMask: projection.plannedLakeMask,
+        plannedLakeMask: lakePlan.lakeMask,
         engineWaterMask: projection.engineWaterMask,
         engineLakeMask: projection.engineLakeMask,
         engineTerrain: projection.engineTerrain,
@@ -58,6 +71,7 @@ export default createStep(LakesStepContract, {
         sinkMismatchCount: projection.rejectedLakeTileCount,
         nonLakeTileCount: projection.nonLakeTileCount,
         terrainMismatchTileCount: projection.terrainMismatchTileCount,
+        morphologyProtectedLakeTileCount,
       });
 
       deps.artifacts.hydrologyLakesEngineTerrainSnapshot.publish(context, {
@@ -71,9 +85,11 @@ export default createStep(LakesStepContract, {
 
       context.trace.event(() => ({
         type: "map.hydrology.lakes.parity",
-        plannedLakeTileCount: projection.plannedLakeTileCount,
+        plannedLakeTileCount: lakePlan.plannedLakeTileCount,
+        projectedCandidateLakeTileCount: projection.plannedLakeTileCount,
         stampedLakeTileCount: projection.stampedLakeTileCount,
         rejectedLakeTileCount: projection.rejectedLakeTileCount,
+        morphologyProtectedLakeTileCount,
         nonLakeTileCount: projection.nonLakeTileCount,
         terrainMismatchTileCount: projection.terrainMismatchTileCount,
         rejectedLakeShare: Number(

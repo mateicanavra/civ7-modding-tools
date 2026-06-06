@@ -1,5 +1,14 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
+import { ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
+import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
+import {
+  WATER_CLASS_COAST,
+  WATER_CLASS_LAND,
+  WATER_CLASS_OCEAN,
+  applyCiv7CoastClassificationPolicy,
+} from "@civ7/map-policy";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import {
@@ -9,6 +18,51 @@ import {
 import ScoreLayersStepContract from "./contract.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
+const MINOR_FLOODPLAIN_DISCHARGE_NORMALIZER = 1000;
+const FLOODPLAIN_RELIEF_NORMALIZER_M = 260;
+const FLOODPLAIN_PATCH_NOISE_SCALE = 0.11;
+
+function clamp01(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(1, value));
+}
+
+function maxAdjacentNavigableDischarge(
+  tileIndex: number,
+  width: number,
+  height: number,
+  navigableRiverMask: Uint8Array,
+  discharge: Float32Array,
+): number {
+  const y = (tileIndex / width) | 0;
+  const x = tileIndex - y * width;
+  let max = 0;
+  for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
+    if ((navigableRiverMask[neighbor] ?? 0) !== 1) continue;
+    max = Math.max(max, discharge[neighbor] ?? 0);
+  }
+  return max;
+}
+
+function localReliefM(
+  tileIndex: number,
+  width: number,
+  height: number,
+  landMask: Uint8Array,
+  elevation: Int16Array,
+): number {
+  if (landMask[tileIndex] !== 1) return Number.POSITIVE_INFINITY;
+  const y = (tileIndex / width) | 0;
+  const x = tileIndex - y * width;
+  const here = elevation[tileIndex] ?? 0;
+  let relief = 0;
+  forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+    const neighbor = ny * width + nx;
+    if (landMask[neighbor] !== 1) return;
+    relief = Math.max(relief, Math.abs(here - (elevation[neighbor] ?? 0)));
+  });
+  return relief;
+}
 
 export default createStep(ScoreLayersStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase], {
@@ -26,12 +80,33 @@ export default createStep(ScoreLayersStepContract, {
     const coastline = deps.artifacts.coastlineMetrics.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
+    const riverProjection = deps.artifacts.projectedNavigableRivers.read(context);
+    const mountains = deps.artifacts.mountains.read(context);
+    const volcanoes = deps.artifacts.volcanoes.read(context);
 
     const { width, height } = context.dimensions;
     const size = Math.max(0, (width | 0) * (height | 0));
     const ecologyLandMask = new Uint8Array(size);
+    const baseWaterClass = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       ecologyLandMask[i] = topography.landMask[i] === 1 && lakePlan.lakeMask[i] !== 1 ? 1 : 0;
+      const isLand = topography.landMask[i] === 1;
+      const isCoast =
+        !isLand && (coastline.coastalWater[i] === 1 || coastline.shelfMask[i] === 1);
+      baseWaterClass[i] = isLand
+        ? WATER_CLASS_LAND
+        : isCoast
+          ? WATER_CLASS_COAST
+          : WATER_CLASS_OCEAN;
+    }
+    const projectedWaterClass = applyCiv7CoastClassificationPolicy({
+      width,
+      height,
+      waterClass: baseWaterClass,
+    }).waterClass;
+    const openOceanMask = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      openOceanMask[i] = projectedWaterClass[i] === WATER_CLASS_OCEAN ? 1 : 0;
     }
 
     // Ecology features consume post-Hydrology lake truth, not just Morphology's
@@ -78,6 +153,7 @@ export default createStep(ScoreLayersStepContract, {
         width,
         height,
         riverClass: hydrography.riverClass,
+        navigableRiverMask: riverProjection.riverMask,
         landMask: ecologyLandMask,
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
@@ -192,6 +268,7 @@ export default createStep(ScoreLayersStepContract, {
         surfaceTemperature: classification.surfaceTemperature,
         bathymetry: topography.bathymetry,
         shelfMask: coastline.shelfMask,
+        openOceanMask,
         coastalWater: coastline.coastalWater,
         distanceToCoast: coastline.distanceToCoast,
       },
@@ -205,6 +282,7 @@ export default createStep(ScoreLayersStepContract, {
         landMask: topography.landMask,
         surfaceTemperature: classification.surfaceTemperature,
         bathymetry: topography.bathymetry,
+        lakeMask: lakePlan.lakeMask,
         shelfMask: coastline.shelfMask,
         coastalWater: coastline.coastalWater,
         distanceToCoast: coastline.distanceToCoast,
@@ -224,6 +302,101 @@ export default createStep(ScoreLayersStepContract, {
       config.scoreIce
     ).score01;
 
+    const floodplainScores = {
+      FEATURE_DESERT_FLOODPLAIN_MINOR: new Float32Array(size),
+      FEATURE_DESERT_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
+      FEATURE_GRASSLAND_FLOODPLAIN_MINOR: new Float32Array(size),
+      FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
+      FEATURE_PLAINS_FLOODPLAIN_MINOR: new Float32Array(size),
+      FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
+      FEATURE_TROPICAL_FLOODPLAIN_MINOR: new Float32Array(size),
+      FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
+      FEATURE_TUNDRA_FLOODPLAIN_MINOR: new Float32Array(size),
+      FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
+    } as const;
+    const floodplainNoise = new PerlinNoise(
+      ctxStepSeed(context, ScoreLayersStepContract.id, "ecology/floodplain-alluvial-patches")
+    );
+
+    for (let i = 0; i < size; i++) {
+      if (
+        ecologyLandMask[i] !== 1 ||
+        lakePlan.lakeMask[i] === 1 ||
+        mountains.mountainMask[i] === 1 ||
+        mountains.hillMask[i] === 1 ||
+        volcanoes.volcanoMask[i] === 1
+      ) {
+        continue;
+      }
+
+      const isFloodplainSubstrate = featureSubstrate.floodplainMask[i] === 1;
+      const isNavigableFloodplain = isFloodplainSubstrate && featureSubstrate.navigableRiverMask[i] === 1;
+      const adjacentNavigableDischarge = maxAdjacentNavigableDischarge(
+        i,
+        width,
+        height,
+        featureSubstrate.navigableRiverMask,
+        hydrography.discharge,
+      );
+      const isMinorFloodplain =
+        isFloodplainSubstrate && !isNavigableFloodplain && adjacentNavigableDischarge > 0;
+      if (!isMinorFloodplain && !isNavigableFloodplain) continue;
+
+      const dischargeScore = isNavigableFloodplain
+        ? 1
+        : clamp01(adjacentNavigableDischarge / MINOR_FLOODPLAIN_DISCHARGE_NORMALIZER);
+      const y = (i / width) | 0;
+      const x = i - y * width;
+      const reliefScore = 1 - clamp01(
+        localReliefM(i, width, height, ecologyLandMask, topography.elevation) /
+          FLOODPLAIN_RELIEF_NORMALIZER_M
+      );
+      const fertilityScore = clamp01(pedology.fertility[i] ?? 0);
+      const patchScore = clamp01(
+        (floodplainNoise.noise2D(
+          x * FLOODPLAIN_PATCH_NOISE_SCALE,
+          y * FLOODPLAIN_PATCH_NOISE_SCALE
+        ) +
+          1) /
+          2
+      );
+      const score =
+        dischargeScore *
+        (0.35 + reliefScore * 0.65) *
+        (0.55 + fertilityScore * 0.45) *
+        (0.3 + patchScore * 0.7);
+      switch (classification.biomeIndex[i]) {
+        case BIOME_SYMBOL_TO_INDEX.desert:
+          (isNavigableFloodplain
+            ? floodplainScores.FEATURE_DESERT_FLOODPLAIN_NAVIGABLE
+            : floodplainScores.FEATURE_DESERT_FLOODPLAIN_MINOR)[i] = score;
+          break;
+        case BIOME_SYMBOL_TO_INDEX.temperateHumid:
+          (isNavigableFloodplain
+            ? floodplainScores.FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE
+            : floodplainScores.FEATURE_GRASSLAND_FLOODPLAIN_MINOR)[i] = score;
+          break;
+        case BIOME_SYMBOL_TO_INDEX.temperateDry:
+        case BIOME_SYMBOL_TO_INDEX.tropicalSeasonal:
+          (isNavigableFloodplain
+            ? floodplainScores.FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE
+            : floodplainScores.FEATURE_PLAINS_FLOODPLAIN_MINOR)[i] = score;
+          break;
+        case BIOME_SYMBOL_TO_INDEX.tropicalRainforest:
+          (isNavigableFloodplain
+            ? floodplainScores.FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE
+            : floodplainScores.FEATURE_TROPICAL_FLOODPLAIN_MINOR)[i] = score;
+          break;
+        case BIOME_SYMBOL_TO_INDEX.snow:
+        case BIOME_SYMBOL_TO_INDEX.tundra:
+        case BIOME_SYMBOL_TO_INDEX.boreal:
+          (isNavigableFloodplain
+            ? floodplainScores.FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE
+            : floodplainScores.FEATURE_TUNDRA_FLOODPLAIN_MINOR)[i] = score;
+          break;
+      }
+    }
+
     const layers = {
       FEATURE_FOREST: forestScore,
       FEATURE_RAINFOREST: rainforestScore,
@@ -235,6 +408,7 @@ export default createStep(ScoreLayersStepContract, {
       FEATURE_MANGROVE: mangroveScore,
       FEATURE_OASIS: oasisScore,
       FEATURE_WATERING_HOLE: wateringHoleScore,
+      ...floodplainScores,
       FEATURE_REEF: reefScore,
       FEATURE_COLD_REEF: coldReefScore,
       FEATURE_ATOLL: atollScore,
@@ -263,10 +437,7 @@ export default createStep(ScoreLayersStepContract, {
     const featureIndex = new Uint16Array(size);
     const reserved = new Uint8Array(size);
 
-    for (let i = 0; i < size; i++) {
-      const navigableRiver = featureSubstrate.navigableRiverMask[i] === 1;
-      reserved[i] = navigableRiver ? 1 : 0;
-    }
+    reserved.fill(0);
 
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "ecology.occupancy.base.reserved",

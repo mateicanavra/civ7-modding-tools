@@ -33,16 +33,17 @@ const PlanRidgesContract = defineOp({
     beltAge: TypedArraySchemas.u8({
       description: "Normalized belt age proxy per tile (0..255). 0=youngest, 255=oldest.",
     }),
-    beltMask: Type.Optional(
-      TypedArraySchemas.u8({
-        description:
-          "Optional tectonic belt seed/corridor mask per tile (1/0), used to trace long range-region axes.",
-      })
-    ),
     fractalMountain: TypedArraySchemas.i16({ description: "Fractal noise for mountain scores." }),
   }),
   output: Type.Object({
     mountainMask: TypedArraySchemas.u8({ description: "Mask (1/0): mountain tiles." }),
+    mountainRegionMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): tectonically supported mountain-region footprint, including peaks, passes, valleys, foothills, and internal rough terrain.",
+    }),
+    mountainRegionIdByTile: TypedArraySchemas.i32({
+      description: "Per-tile mountain-region id (-1 outside mountain-region footprint).",
+    }),
     orogenyPotential: TypedArraySchemas.u8({
       description:
         "Orogeny potential per tile (0..255). Diagnostic driver surface (physics-gated).",

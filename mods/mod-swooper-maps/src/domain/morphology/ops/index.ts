@@ -54,3 +54,5 @@ export {
   planRoughLands,
   planVolcanoes,
 };
+
+export type { MountainsConfig } from "./mountains-shared/config.js";

@@ -21,6 +21,7 @@ export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
         { label: "scoreColdReef01", arr: input.scoreColdReef01 as Float32Array },
         { label: "scoreAtoll01", arr: input.scoreAtoll01 as Float32Array },
         { label: "scoreLotus01", arr: input.scoreLotus01 as Float32Array },
+        { label: "lakeMask", arr: input.lakeMask as Uint8Array },
         { label: "featureIndex", arr: input.featureIndex as Uint16Array },
         { label: "reserved", arr: input.reserved as Uint8Array },
       ],
@@ -36,7 +37,7 @@ export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
       const reef = input.scoreReef01[i] ?? 0;
       const coldReef = input.scoreColdReef01[i] ?? 0;
       const atoll = input.scoreAtoll01[i] ?? 0;
-      const lotus = input.scoreLotus01[i] ?? 0;
+      const lotus = input.lakeMask[i] === 1 ? (input.scoreLotus01[i] ?? 0) : 0;
 
       const reefConfidence01 = confidenceFromScore01(reef);
       const coldReefConfidence01 = confidenceFromScore01(coldReef);

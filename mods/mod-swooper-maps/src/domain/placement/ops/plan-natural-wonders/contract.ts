@@ -12,10 +12,36 @@ const PlanNaturalWondersContract = defineOp({
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
     riverClass: TypedArraySchemas.u8({ description: "Hydrology river class per tile (0=none,1=minor,2=major)." }),
     lakeMask: TypedArraySchemas.u8({ description: "Hydrology lake mask per tile (1=lake, 0=non-lake)." }),
+    coastTerrainType: Type.Integer({ minimum: 0 }),
+    mountainTerrainType: Type.Integer({ minimum: 0 }),
+    iceFeatureType: Type.Integer({ minimum: 0 }),
+    terrainType: TypedArraySchemas.u8({ description: "Current engine terrain type per tile." }),
+    biomeType: TypedArraySchemas.u8({ description: "Current engine biome type per tile." }),
+    featureType: TypedArraySchemas.i16({ description: "Current engine feature type per tile." }),
+    noFeatureType: Type.Integer({ description: "Engine sentinel for an unoccupied feature slot." }),
+    naturalWonderBlockedMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): tile terrain/placement is protected by static map policy and must not host natural-wonder placement.",
+    }),
     featureCatalog: Type.Array(
       Type.Object({
         featureType: Type.Integer({ minimum: 0 }),
         direction: Type.Integer(),
+        validTerrainTypes: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
+        validBiomeTypes: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
+        minimumElevation: Type.Optional(Type.Number()),
+        noLake: Type.Optional(Type.Boolean()),
+        placementClass: Type.Optional(Type.String()),
+        naturalWonderTiles: Type.Optional(Type.Integer({ minimum: 1 })),
+        featureTags: Type.Optional(Type.Array(Type.String())),
+        footprintOffsets: Type.Optional(
+          Type.Array(
+            Type.Object({
+              dx: Type.Integer(),
+              dy: Type.Integer(),
+            })
+          )
+        ),
       })
     ),
   }),
