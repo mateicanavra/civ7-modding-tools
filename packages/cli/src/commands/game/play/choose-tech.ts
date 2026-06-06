@@ -83,12 +83,12 @@ export default class GamePlayChooseTech extends Command {
         enabledOptionCount,
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
-          { path: 'details[].disabledOptions', reason: 'disabled nodes are counted here; use notifications --json when disabled-node evidence matters' },
-          { path: 'details[].techTrees', reason: 'tree proof is summarized per enabled row' },
+          { path: 'details[].options', reason: 'enabled rows carry semantic node fields and validation descriptors' },
+          { path: 'details[].disabledOptions', reason: 'disabled nodes are counted but kept out of the send-ready action surface' },
+          { path: 'details[].techTrees', reason: 'tree proof is summarized on enabled rows' },
         ],
         notes: [
-          'Options come from the live notification HUD materializer, which validates SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE through official PlayerOperations checks.',
+          'Rows come from live HUD choices with official technology validation evidence.',
         ],
       });
       return;
@@ -190,10 +190,10 @@ function progressionOptionAction(
   return {
     kind,
     label: kind === 'choose-technology'
-      ? 'Choose this technology after reviewing validation evidence.'
+      ? 'Choose technology.'
       : kind === 'target-technology'
-        ? 'Set this technology as the current target.'
-        : 'Validate this technology choice before sending.',
+        ? 'Set technology target.'
+        : 'Validate technology choice.',
     parameters: {
       node: option.nodeType,
       nodeTypeName: option.nodeTypeName,

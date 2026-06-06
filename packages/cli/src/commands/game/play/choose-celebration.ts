@@ -75,12 +75,12 @@ export default class GamePlayChooseCelebration extends Command {
         enabledOptionCount: surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0),
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
-          { path: 'details[].disabledOptions', reason: 'disabled choices are counted here; use notifications --json when disabled-choice evidence matters' },
-          { path: 'details[].choices', reason: 'official chooser source choices are summarized per enabled row' },
+          { path: 'details[].options', reason: 'enabled rows carry semantic celebration fields and validation descriptors' },
+          { path: 'details[].disabledOptions', reason: 'disabled choices are counted but kept out of the send-ready action surface' },
+          { path: 'details[].choices', reason: 'official chooser choices are summarized on enabled rows' },
         ],
         notes: [
-          'Options come from the live notification HUD materializer, which mirrors the official celebration chooser and validates CHOOSE_GOLDEN_AGE through PlayerOperations.',
+          'Rows come from live HUD choices with official celebration validation evidence.',
         ],
       });
       return;
@@ -173,8 +173,8 @@ function celebrationOptionAction(
   return {
     kind,
     label: readOnly
-      ? 'Validate this celebration choice before sending.'
-      : 'Choose this celebration after reviewing validation evidence.',
+      ? 'Validate celebration choice.'
+      : 'Choose celebration.',
     parameters: {
       goldenAgeType: option.goldenAgeType,
       goldenAgeTypeName: option.goldenAgeTypeName,

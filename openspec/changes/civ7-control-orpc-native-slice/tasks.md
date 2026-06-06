@@ -1046,6 +1046,14 @@ adding more read-only facade shells.
     Civ7 proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
     unchanged; caller-provided approval remains retired and no approval-reason
     mechanic is introduced.
+  - [x] 7.1.9.43 Simplify choice-option action labels and omitted reasons for
+    technology, culture, government, celebration, and narrative option JSON so
+    rows expose minimal semantic chooser/validation descriptors instead of
+    procedural send instructions or alternate command-surface directions. Keep
+    option sources, parser flags, runtime behavior, service contracts/routers,
+    controller bridge, deployed Civ7 proof, relationship authority, and parent
+    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
+    retired and no approval-reason mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2186,6 +2194,16 @@ adding more read-only facade shells.
   parser flags, direct-control/runtime behavior, service contracts, deployed
   Civ7 runtime behavior, play-thread state, transport/controller scope,
   relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.57 Run focused CLI technology, culture, celebration/government, and
+  narrative option tests, CLI check, strict OpenSpec validates, option guidance
+  interface-instruction absence scan, active approval/caller-permission scan,
+  relationship-label safety scan, and diff hygiene for the choice-option
+  guidance simplification. This is local CLI/OpenSpec proof only; it does not
+  change parser flags, direct-control/runtime behavior, service contracts,
+  deployed Civ7 runtime behavior, play-thread state, transport/controller
+  scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
   caller-provided approval remains retired and no approval-reason mechanic is
   introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package

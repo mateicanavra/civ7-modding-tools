@@ -80,12 +80,12 @@ export default class GamePlayChooseCulture extends Command {
         enabledOptionCount: surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0),
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
-          { path: 'details[].disabledOptions', reason: 'disabled nodes are counted here; use notifications --json when disabled-node evidence matters' },
-          { path: 'details[].availableNodeTypes', reason: 'official culture chooser source nodes are summarized per enabled row' },
+          { path: 'details[].options', reason: 'enabled rows carry semantic node fields and validation descriptors' },
+          { path: 'details[].disabledOptions', reason: 'disabled nodes are counted but kept out of the send-ready action surface' },
+          { path: 'details[].availableNodeTypes', reason: 'official culture chooser nodes are summarized on enabled rows' },
         ],
         notes: [
-          'Options come from the live notification HUD materializer, which validates SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE through official PlayerOperations checks.',
+          'Rows come from live HUD choices with official culture validation evidence.',
         ],
       });
       return;
@@ -199,10 +199,10 @@ function progressionOptionAction(
   return {
     kind,
     label: kind === 'choose-culture'
-      ? 'Choose this culture node after reviewing validation evidence.'
+      ? 'Choose culture node.'
       : kind === 'target-culture'
-        ? 'Set this culture node as the current target.'
-        : 'Validate this culture choice before sending.',
+        ? 'Set culture target.'
+        : 'Validate culture choice.',
     parameters: {
       node: option.nodeType,
       nodeTypeName: option.nodeTypeName,

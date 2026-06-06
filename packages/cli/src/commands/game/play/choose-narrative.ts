@@ -91,12 +91,12 @@ export default class GamePlayChooseNarrative extends Command {
         enabledOptionCount: surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0),
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
-          { path: 'details[].disabledOptions', reason: 'disabled narrative buttons are counted here; use notifications --json when disabled-option evidence matters' },
-          { path: 'details[].storyLinks', reason: 'official story-link rows are summarized per enabled row' },
+          { path: 'details[].options', reason: 'enabled rows carry semantic narrative fields and validation descriptors' },
+          { path: 'details[].disabledOptions', reason: 'disabled narrative buttons are counted but kept out of the send-ready action surface' },
+          { path: 'details[].storyLinks', reason: 'official story-link rows are summarized on enabled rows' },
         ],
         notes: [
-          'Options come from the live notification HUD materializer, which mirrors official narrative popup buttons and validates CHOOSE_NARRATIVE_STORY_DIRECTION through PlayerOperations.',
+          'Rows come from live HUD choices with official narrative validation evidence.',
         ],
       });
       return;
@@ -232,8 +232,8 @@ function narrativeOptionAction(
   return {
     kind,
     label: readOnly
-      ? 'Validate this narrative choice before sending.'
-      : 'Choose this narrative option after reviewing validation evidence.',
+      ? 'Validate narrative choice.'
+      : 'Choose narrative option.',
     parameters: {
       targetType: option.targetType,
       target: option.target,
@@ -252,8 +252,8 @@ function narrativeDismissalAction(
   return {
     kind,
     label: readOnly
-      ? 'Inspect dismissal evidence for this notification.'
-      : 'Dismiss only after reviewing dismissal evidence.',
+      ? 'Inspect dismissal evidence.'
+      : 'Dismiss notification.',
     parameters: { target },
     readOnly,
     sendsMutation: !readOnly,

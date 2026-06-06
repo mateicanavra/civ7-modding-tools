@@ -58,9 +58,9 @@ describe('game play culture commands', () => {
             enabledOptions: Array<{
               nodeType: number;
               name: string;
-              nextAction: { kind: string; parameters: { node: number }; sendsMutation: boolean };
-              targetAction: { kind: string; parameters: { node: number }; sendsMutation: boolean };
-              validationAction: { kind: string; parameters: { node: number }; readOnly: boolean };
+              nextAction: { kind: string; label: string; parameters: { node: number }; sendsMutation: boolean };
+              targetAction: { kind: string; label: string; parameters: { node: number }; sendsMutation: boolean };
+              validationAction: { kind: string; label: string; parameters: { node: number }; readOnly: boolean };
               turns: number | null;
               cost: number | null;
             }>;
@@ -82,22 +82,26 @@ describe('game play culture commands', () => {
       expect(ekklesia?.name).toBe('Ekklesia');
       expect(ekklesia?.nextAction).toMatchObject({
         kind: 'choose-culture',
+        label: 'Choose culture node.',
         parameters: { node: -869902342 },
         sendsMutation: true,
       });
       expect(ekklesia?.targetAction).toMatchObject({
         kind: 'target-culture',
+        label: 'Set culture target.',
         parameters: { node: -869902342 },
         sendsMutation: true,
       });
       expect(ekklesia?.validationAction).toMatchObject({
         kind: 'validate-culture-choice',
+        label: 'Validate culture choice.',
         parameters: { node: -869902342 },
         readOnly: true,
       });
       expect(ekklesia?.turns).toBe(4);
       expect(ekklesia?.cost).toBe(105);
       expect(JSON.stringify(payload)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toMatch(/before sending|after reviewing validation evidence|use full notification JSON|notifications --json/i);
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -639,7 +643,7 @@ function playNotificationView(mode: 'culture-choice' | 'ready-unit', cultureStat
       },
     ],
     confidence: 'live-proof',
-    notes: ['Read options from the live culture chooser before sending; do not infer node ids from examples.'],
+    notes: ['Read live culture chooser options; do not infer node ids from examples.'],
   };
   const notificationId = { owner: 0, id: 62, type: 20 };
   const optionRows = [
