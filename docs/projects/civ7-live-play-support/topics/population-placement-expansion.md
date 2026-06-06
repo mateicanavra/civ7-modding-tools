@@ -68,10 +68,10 @@ civ7 game play expand-city \
   --json
 ```
 
-Both shortcuts validate by default. Add `--send --reason '<why this tile is the
-right live choice>'` only after the live candidate still matches the current
-city state. Sent results now include `populationPostcondition`, which reports
-whether `Growth.isReadyToPlacePopulation` cleared and whether the city
+Both shortcuts validate by default. Add `--send` only after the live candidate
+still matches the current city state. Sent results now include
+`populationPostcondition`, which reports whether
+`Growth.isReadyToPlacePopulation` cleared and whether the city
 population-placement snapshot changed.
 
 ## Live Proof

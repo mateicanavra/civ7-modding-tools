@@ -51,7 +51,7 @@ Use a phase-locked loop:
 
 1. Preflight HUD/read.
 2. Validate the operation or shortcut.
-3. Send with `--send --reason`.
+3. Send once with `--send`.
 4. Re-read immediately.
 
 If any step crosses the stale threshold, discard the previous tactical plan and

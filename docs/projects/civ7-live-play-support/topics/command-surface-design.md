@@ -11,9 +11,9 @@ grammar that keeps current commands compatible while adding aliases and nested
 subcommands around the domain model the play agent already uses.
 
 The consumer is an AI play agent under turn pressure. It needs to discover the
-next decision, preview legal choices, check validators, send approved actions,
-and send the chosen action without remembering raw Civ7 operation-family names,
-manual closeout steps, or component-ID repair tricks.
+next decision, preview legal choices, check validators, send proof-bounded
+actions, and send the chosen action without remembering raw Civ7
+operation-family names, manual closeout steps, or component-ID repair tricks.
 
 For live play, command examples should use `civ7 game ...`. Worktree-local
 `bun packages/cli/bin/run.js` calls are package-development tools, not the
@@ -42,7 +42,7 @@ The stable phase vocabulary is:
 - `show`: compact current state;
 - `targets` or `preview`: read-only choices and projected effects;
 - `check`: validator/preflight without mutation;
-- `send`: approved mutation with reason and postcondition;
+- `send`: explicit mutation with validator, postcondition, and no-repeat proof;
 - `operation`: generic escape hatch for raw Civ7 operation families;
 - `debug`/`raw`: expansion modes, not default play surfaces.
 

@@ -38,7 +38,7 @@ runtime proof that does not run as part of default CI.
 - **AND** no setup/start mutation is attempted
 
 #### Scenario: Developer explicitly runs setup/start proof
-- **WHEN** a developer runs the live proof command with mutation approval flags
+- **WHEN** a developer runs the live proof command with explicit setup/start flags
 - **THEN** the command requires map script, map size, and setup seed inputs
 - **AND** it calls `@civ7/direct-control` setup/start wrappers rather than raw
   socket commands

@@ -219,7 +219,7 @@ Norms:
   positions.
 - Distinguish current-node operations from full-tree target-node operations.
 - Use `--closeout` on selected tradition and attribute changes when the caller
-  wants one approved workflow to apply the selection and clear the review
+  wants one validated workflow to apply the selection and clear the review
   surface.
 - Send target-node closeout only when the live UI path or postcondition requires
   it.
@@ -264,7 +264,7 @@ Norms:
   placement UI returns legal plots.
 - Town focus is not ordinary production; it uses `CHANGE_GROWTH_MODE`.
 - Use `game play set-town-focus --send --closeout` when the caller wants one
-  approved workflow to apply the selected focus and clear `CONSIDER_TOWN_PROJECT`.
+  validated workflow to apply the selected focus and clear `CONSIDER_TOWN_PROJECT`.
 - `NEW_POPULATION` opens acquire-tile mode. Worker assignment uses
   `ASSIGN_WORKER { Location, Amount: 1 }` for already-workable plots; expansion
   purchase uses city-command `EXPAND { X, Y }` for expansion plots.

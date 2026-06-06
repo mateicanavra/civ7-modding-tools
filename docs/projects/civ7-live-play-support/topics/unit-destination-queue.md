@@ -73,8 +73,7 @@ path:
 game play set-unit-destination \
   --unit-id '<unit-id>' \
   --destination 30,24 \
-  --send \
-  --reason '<why this destination is strategically correct now>'
+  --send
 ```
 
 Likely implementation: validate and send `unit-operation MOVE_TO` with
@@ -97,7 +96,7 @@ Use a low-risk local unit with a destination beyond current movement range:
 
 1. Read `unit-destination` and `unit-move-preview`.
 2. Validate `MOVE_TO` for a far reachable/pathable destination.
-3. Send once with approval.
+3. Send once after fresh validation.
 4. Poll unit state, ready queue, `Units.getQueuedOperationDestination`, and
    `Units.getPathTo` for the requested destination.
 5. End turn only after noting whether the queue persists and whether the unit

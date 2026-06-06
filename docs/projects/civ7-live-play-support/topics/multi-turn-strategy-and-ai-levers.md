@@ -134,8 +134,8 @@ send.
 Native autoplay should be treated as a turn-runner. Official UI automation uses
 `Autoplay.setTurns`, `setReturnAsPlayer`, `setObserveAsPlayer`, `setPause`, and
 `setActive`, and the game exposes `AutoplayStarted` and `AutoplayEnded` events.
-The local CLI wraps this through `game autoplay` with explicit approval and
-state verification.
+The local CLI wraps this through `game autoplay` with explicit bounded
+start/stop options and state verification.
 
 Use autoplay for:
 

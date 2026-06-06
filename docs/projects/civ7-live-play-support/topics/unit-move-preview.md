@@ -54,8 +54,7 @@ civ7 game play set-unit-destination \
   --unit-id '{"owner":0,"id":65536,"type":26}' \
   --x 30 \
   --y 24 \
-  --send \
-  --reason "move toward the Napoleon front while avoiding the exposed city edge"
+  --send
 ```
 
 The read lens should expose `queuedDestination` and, when a unit has one, a

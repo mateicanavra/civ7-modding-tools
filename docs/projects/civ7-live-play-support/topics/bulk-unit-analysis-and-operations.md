@@ -49,7 +49,7 @@ Bulk operations should compose existing n=1 validators and requesters:
 
 ```ts
 planCiv7UnitOperationBatch(input)
-requestCiv7UnitOperationBatch(input, approval)
+requestCiv7UnitOperationBatch(input)
 ```
 
 The batch input should be ordered. Each entry needs an id, unit id, family,
@@ -61,7 +61,8 @@ Policy defaults:
 - execution revalidates immediately before each send;
 - default stop policy is validation, send, or postcondition failure;
 - no rollback promise;
-- mixed or high-risk batches require per-op approval or a signed plan id;
+- mixed or high-risk batches require per-op validation/postcondition proof or a
+  source-owned plan id;
 - active blockers are refused unless the caller explicitly routes a known
   notification workflow.
 

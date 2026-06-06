@@ -107,7 +107,6 @@ civ7 game play build-production \
   --x 22 \
   --y 31 \
   --send \
-  --reason "place Ancient Walls on the validated plot" \
   --json
 ```
 

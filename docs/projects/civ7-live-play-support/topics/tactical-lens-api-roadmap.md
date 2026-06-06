@@ -136,7 +136,8 @@ bounded read, explicit hidden-info policy, proof label, and no mutation.
 ## Design Norms
 
 - Default to read-only outputs. Any mutation belongs in existing
-  validator-backed command families with explicit `--send` and approval reason.
+  validator-backed command families with explicit `--send`,
+  postcondition/no-repeat proof, and fresh source evidence.
 - Keep every scan bounded: radius, bounds, max plots, max entities, and omitted
   counts should be visible.
 - Label hidden information. Prefer player-visible mode for play support and

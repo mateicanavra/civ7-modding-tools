@@ -82,7 +82,7 @@ For queue management, use `game play notification-queue --json` before manually
 walking several notifications. It can schedule reviewed informational closeout
 candidates, known operation-family items, and ready-unit inspections, but it
 does not bulk-dismiss or send operations. Use
-`game play dismiss-notification-queue --send --reason <reason>` when the queue
+`game play dismiss-notification-queue --send` when the queue
 contains eligible informational App UI closeout candidates that have been
 reviewed at the needed tactical/strategic level.
 
@@ -243,8 +243,7 @@ correct closeout path narrow:
 ```bash
 civ7 game play dismiss-notification \
   --target '{"owner":0,"id":522,"type":20}' \
-  --send \
-  --reason 'reviewed completed Cultural Exchange with Lafayette'
+  --send
 ```
 
 Use the current notification id from a fresh HUD read; the example id is

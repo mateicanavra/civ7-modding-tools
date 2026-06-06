@@ -59,14 +59,13 @@ civ7 game play choose-celebration \
   --json
 ```
 
-Send only after re-reading the live choices and choosing a reason:
+Send only after re-reading the live choices and confirming the validated option:
 
 ```bash
 civ7 game play choose-celebration \
   --player-id 0 \
   --golden-age-type -340825966 \
   --send \
-  --reason "choose live validated culture celebration" \
   --json
 ```
 

@@ -192,7 +192,6 @@ close-control path is the route under test:
 civ7 game play dismiss-notification \
   --target '{"owner":0,"id":337,"type":20}' \
   --send \
-  --reason "reviewed unit-attacked notice after resolving unit readiness" \
   --json
 ```
 
