@@ -388,7 +388,7 @@ function battlefieldNextSteps(
     {
       kind: "validate-unit-action",
       source: "strategy.battlefieldScan",
-      label: "Use unit action validation before any movement or target send.",
+      label: "Use unit action validation before moving or targeting.",
       parameters: point.location ? { location: point.location } : {},
     },
   ];
@@ -429,7 +429,7 @@ function targetCandidateNextSteps(
     {
       kind: "validate-unit-action",
       source: "strategy.targetCandidates",
-      label: "Use unit action validation before any movement or target send.",
+      label: "Use unit action validation before moving or targeting.",
       parameters: candidate.approach.targetLocation
         ? { target: candidate.approach.targetLocation }
         : {},
@@ -468,7 +468,7 @@ function destinationNextSteps(
     {
       kind: "validate-unit-action",
       source: "strategy.destinationAnalysis",
-      label: "Use unit action validation before any movement or target send.",
+      label: "Use unit action validation before moving or targeting.",
       parameters: { origin: input.origin ?? undefined, destination: input.destination },
     },
   ];

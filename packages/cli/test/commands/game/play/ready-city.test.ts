@@ -164,7 +164,7 @@ describe('game play ready-city command', () => {
       const payload = JSON.parse(writes.join('')) as {
         productionCandidates: Array<{
           valid: boolean;
-          nextAction: { kind: string; readOnly: boolean; sendsMutation: boolean };
+          nextAction: { kind: string; label: string; readOnly: boolean; sendsMutation: boolean };
         }>;
         populationPlacement: {
           workablePlots: Array<unknown>;
@@ -177,6 +177,7 @@ describe('game play ready-city command', () => {
         valid: false,
         nextAction: {
           kind: 'validate-production',
+          label: 'Review this production candidate validation before treating it as actionable.',
           readOnly: true,
           sendsMutation: false,
         },
@@ -185,6 +186,7 @@ describe('game play ready-city command', () => {
       expect(payload.populationPlacement?.expansionCandidates).toEqual([]);
       expect(payload.nextAction).toBeNull();
       expect(JSON.stringify(payload)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toMatch(/considering a send|before any send|send-ready/i);
       expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {

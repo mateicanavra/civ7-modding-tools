@@ -1072,6 +1072,14 @@ adding more read-only facade shells.
     relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
     caller-provided approval remains retired and no approval-reason mechanic is
     introduced.
+  - [x] 7.1.9.46 Simplify remaining strategy, ready-city, and ready-unit
+    action labels/notes so public planning output says validation or action
+    path semantics without "target send", "unit send", "considering a send",
+    or embedded `game play unit-target` command syntax. Keep runtime reads,
+    mutation behavior, parser flags, service contracts/routers, controller
+    bridge, deployed Civ7 proof, relationship authority, and parent Task
+    5.x/6.x/7.x acceptance unchanged; caller-provided approval remains retired
+    and no approval-reason mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2246,6 +2254,16 @@ adding more read-only facade shells.
   behavior, procedure contracts, deployed Civ7 runtime behavior, play-thread
   state, transport/controller scope, relationship authority, or parent Task
   5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
+- [x] 8.60.60 Run focused strategy/ready-city/ready-unit/direct-control tests,
+  direct-control and control-oRPC package checks/builds, CLI check, strict
+  OpenSpec validates, remaining public-output phrase scan, active approval/
+  caller-permission scan, relationship-label safety scan, and diff hygiene for
+  the strategy/ready action-label cleanup. This is local package/CLI/OpenSpec
+  proof only; it does not change parser flags, direct-control runtime behavior,
+  procedure contracts, deployed Civ7 runtime behavior, play-thread state,
+  transport/controller scope, relationship authority, or parent Task 5.x/6.x/
+  7.x acceptance; caller-provided approval remains retired and no
   approval-reason mechanic is introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package
   check/build, strict OpenSpec validates, game-UI attention `cli`/command

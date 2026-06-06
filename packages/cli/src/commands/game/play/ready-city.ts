@@ -216,7 +216,7 @@ function productionAction(candidate: Record<string, unknown>): ReadyCityActionDe
   if (candidate.valid !== true) {
     return {
       kind: 'validate-production',
-      label: 'Review this production candidate validation before considering a send.',
+      label: 'Review this production candidate validation before treating it as actionable.',
       parameters: {
         candidateKind: candidate.kind,
         type: candidate.type,

@@ -207,6 +207,6 @@ function readyUnitView() {
       },
     },
     nearby: { ok: true, value: [] },
-    notes: ['Read-only ready-unit view. Use operation validation before any send.'],
+    notes: ['Read-only ready-unit view. Use operation validation before mutation.'],
   };
 }
