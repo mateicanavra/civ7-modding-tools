@@ -22,6 +22,12 @@ import {
   requestCiv7GameUiProductionChoice,
   type Civ7GameUiProductionTarget,
 } from "./game-ui-production";
+import {
+  civ7GameUiPopulationPlacementAvailable,
+  requestCiv7GameUiAssignWorkerPlacement,
+  requestCiv7GameUiExpandCityPlacement,
+  type Civ7GameUiPopulationTarget,
+} from "./game-ui-population";
 import type {
   Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcPlayableStatusResult,
@@ -59,6 +65,12 @@ export type Civ7GameUiRuntimeTarget = {
     sendTurnComplete?: () => unknown;
   };
   Game?: Civ7GameUiProductionTarget["Game"] & {
+    CityCommands?: Civ7GameUiPopulationTarget["Game"] extends infer Game
+      ? Game extends { CityCommands?: infer Commands } ? Commands : never
+      : never;
+    PlayerOperations?: Civ7GameUiPopulationTarget["Game"] extends infer Game
+      ? Game extends { PlayerOperations?: infer Operations } ? Operations : never
+      : never;
     turn?: number;
     age?: number;
     maxTurns?: number;
@@ -69,6 +81,8 @@ export type Civ7GameUiRuntimeTarget = {
   CityOperationTypes?: Civ7GameUiProductionTarget["CityOperationTypes"];
   CityOperationsParametersValues?:
     Civ7GameUiProductionTarget["CityOperationsParametersValues"];
+  CityCommandTypes?: Civ7GameUiPopulationTarget["CityCommandTypes"];
+  PlayerOperationTypes?: Civ7GameUiPopulationTarget["PlayerOperationTypes"];
   Autoplay?: {
     isActive?: boolean;
     turns?: number;
@@ -87,6 +101,9 @@ export type Civ7GameUiRuntimeTarget = {
   };
   Players?: {
     maxPlayers?: number;
+    get?: Civ7GameUiPopulationTarget["Players"] extends infer Players
+      ? Players extends { get?: infer Fn } ? Fn : never
+      : never;
     getAliveIds?: () => number[];
     getAliveHumanIds?: () => number[];
     getNumAliveHumans?: () => number;
@@ -168,8 +185,10 @@ function createCiv7GameUiDirectControlFacade(
     requestCiv7DiplomacyResponse: unsupported,
     requestCiv7TechnologyChoiceCloseout: unsupported,
     requestCiv7CultureChoiceCloseout: unsupported,
-    requestCiv7AssignWorkerPlacement: unsupported,
-    requestCiv7ExpandCityPlacement: unsupported,
+    requestCiv7AssignWorkerPlacement: async (input) =>
+      await requestCiv7GameUiAssignWorkerPlacement(input, target),
+    requestCiv7ExpandCityPlacement: async (input) =>
+      await requestCiv7GameUiExpandCityPlacement(input, target),
     requestCiv7UnitTargetAction: unsupported,
     requestCiv7TurnComplete: async () =>
       await requestCiv7GameUiTurnComplete(target),
@@ -232,6 +251,9 @@ function gameUiSupportedMutationProcedures(
   }
   if (civ7GameUiProductionChoiceAvailable(target)) {
     supported.push("city.production.choice.request");
+  }
+  if (civ7GameUiPopulationPlacementAvailable(target)) {
+    supported.push("city.population.place.request");
   }
   if (gameUiTurnCompletionAvailable(target)) {
     supported.push("turn.complete.request");

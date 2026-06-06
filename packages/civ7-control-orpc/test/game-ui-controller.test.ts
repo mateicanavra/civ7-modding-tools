@@ -10,6 +10,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   const notificationId = { owner: 0, id: 113, type: 20 };
   const cityId = { owner: 0, id: 65_536, type: 1 };
   const productionArgs = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
+  const populationDestination = { x: 22, y: 31 };
 
   test("installs the intelligence bridge with a game UI readiness context", async () => {
     const target = gameUiTarget();
@@ -482,6 +483,311 @@ describe("Civ7 game UI controller bootstrap", () => {
           productionStateChanged: false,
           blockerStillLive: true,
         },
+      },
+    });
+  });
+
+  test("executes assign-worker population placement through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      populationPlacement: {
+        cityId,
+        readyBefore: true,
+        clearReadyOnSend: true,
+        onAssignWorkerSend: (args) => sendCalls.push(args),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-population-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "city.population.place.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.population.place.request",
+      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+      correlationId: "game-ui-population-assign-worker-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "city.population.place.request",
+      correlationId: "game-ui-population-assign-worker-1",
+      output: {
+        placement: {
+          mode: "assign-worker",
+          playerId: 0,
+          location: 2543,
+        },
+        sent: true,
+        status: "sent-confirmed",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "population-ready-cleared",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+          readyCleared: true,
+        },
+        nextSteps: [{
+          kind: "refresh-attention",
+          source: "city.population.place.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{ Location: 2543, Amount: 1 }]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("Game.PlayerOperations");
+    expect(serialized).not.toContain("sendRequest");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+  });
+
+  test("executes expand-city population placement through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      populationPlacement: {
+        cityId,
+        readyBefore: true,
+        clearReadyOnSend: true,
+        onExpandCitySend: (args) => sendCalls.push(args),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.population.place.request",
+      input: {
+        mode: "expand-city",
+        cityId,
+        destination: populationDestination,
+      },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        placement: {
+          mode: "expand-city",
+          cityId,
+          destination: populationDestination,
+        },
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "population-ready-cleared",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+          readyCleared: true,
+        },
+      },
+    });
+    expect(sendCalls).toEqual([{ X: populationDestination.x, Y: populationDestination.y }]);
+  });
+
+  test("keeps game UI population validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      populationPlacement: {
+        cityId,
+        canAssignWorker: false,
+        readyBefore: true,
+        onAssignWorkerSend: (args) => sendCalls.push(args),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.population.place.request",
+      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: false,
+        status: "not-sent",
+        validation: {
+          beforeValid: false,
+          afterValid: false,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "inspect-population-placement",
+          source: "city.population.place.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("blocks game UI assign-worker sends for non-local players", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      populationPlacement: {
+        cityId,
+        readyBefore: true,
+        clearReadyOnSend: true,
+        onAssignWorkerSend: (args) => sendCalls.push(args),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.population.place.request",
+      input: { mode: "assign-worker", playerId: 2, location: 2543 },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        placement: {
+          mode: "assign-worker",
+          playerId: 2,
+          location: 2543,
+        },
+        sent: false,
+        status: "not-sent",
+        validation: {
+          beforeValid: false,
+          afterValid: false,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("keeps unchanged game UI population placements no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      populationPlacement: {
+        cityId,
+        readyBefore: true,
+        clearReadyOnSend: false,
+        changePlacementStateOnSend: false,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.population.place.request",
+      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "no-state-change",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+          readyCleared: false,
+          placementStateChanged: false,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "city.population.place.request",
+        }],
+      },
+    });
+  });
+
+  test("keeps failed game UI population snapshot reads no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      populationPlacement: {
+        cityId,
+        readyBefore: true,
+        clearReadyOnSend: true,
+        cityReadFailsAfterSend: true,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.population.place.request",
+      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-guarded",
+        postcondition: {
+          classification: "placement-state-changed",
+          confidence: "confirmed",
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "city.population.place.request",
+        }],
+      },
+    });
+  });
+
+  test("keeps missing game UI population ready-city evidence no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      populationPlacement: {
+        cityId,
+        readyBefore: false,
+        clearReadyOnSend: true,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.population.place.request",
+      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "missing-postcondition",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "city.population.place.request",
+        }],
       },
     });
   });
@@ -987,12 +1293,24 @@ function gameUiNotificationTarget(
       clearSelectedCityOnSend?: boolean;
       onSend?: (args: Readonly<Record<string, number>>) => void;
     };
+    populationPlacement?: {
+      cityId: { owner: number; id: number; type: number };
+      canAssignWorker?: boolean;
+      canExpandCity?: boolean;
+      readyBefore?: boolean;
+      clearReadyOnSend?: boolean;
+      changePlacementStateOnSend?: boolean;
+      cityReadFailsAfterSend?: boolean;
+      onAssignWorkerSend?: (args: Readonly<Record<string, number>>) => void;
+      onExpandCitySend?: (args: Readonly<Record<string, number>>) => void;
+    };
   }> = {},
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
   let exists = true;
   let turnCompletionSent = options.turnCompletion?.initiallySent ?? false;
   let productionSent = false;
+  let populationSent = false;
   let selectedCityCleared = false;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
@@ -1012,7 +1330,13 @@ function gameUiNotificationTarget(
     CityOperationTypes: options.productionChoice == null
       ? undefined
       : { BUILD: "BUILD" },
-    Cities: options.productionChoice == null
+    CityCommandTypes: options.populationPlacement == null
+      ? undefined
+      : { EXPAND: "EXPAND" },
+    PlayerOperationTypes: options.populationPlacement == null
+      ? undefined
+      : { ASSIGN_WORKER: "ASSIGN_WORKER" },
+    Cities: options.productionChoice == null && options.populationPlacement == null
       ? undefined
       : {
           get: (id) =>
@@ -1027,6 +1351,41 @@ function gameUiNotificationTarget(
                       : 1,
                 },
               }
+              : componentIdEqual(id, options.populationPlacement?.cityId)
+              ? (() => {
+                if (
+                  populationSent
+                  && options.populationPlacement?.cityReadFailsAfterSend === true
+                ) {
+                  throw new Error("population city read failed");
+                }
+                return {
+                id: options.populationPlacement?.cityId,
+                isTown: false,
+                population: populationSent
+                    && options.populationPlacement?.changePlacementStateOnSend !== false
+                  ? 4
+                  : 3,
+                Growth: {
+                  isReadyToPlacePopulation:
+                    options.populationPlacement?.readyBefore === true
+                    && !(
+                      populationSent
+                      && options.populationPlacement?.clearReadyOnSend === true
+                    ),
+                },
+                Workers: {
+                  getCityWorkerCap: () => populationSent
+                      && options.populationPlacement?.changePlacementStateOnSend !== false
+                    ? 5
+                    : 4,
+                  GetAllPlacementInfo: () => [{
+                    PlotIndex: 2543,
+                    IsBlocked: false,
+                  }],
+                },
+              };
+              })()
               : null,
         },
     UI: {
@@ -1059,6 +1418,19 @@ function gameUiNotificationTarget(
     canEndTurn: () => options.canEndTurn ?? false,
     Game: {
       ...target.Game,
+      CityCommands: options.populationPlacement == null
+        ? undefined
+        : {
+            canStart: () => ({
+              Success: options.populationPlacement?.canExpandCity ?? true,
+              Plots: [2543],
+            }),
+            sendRequest: (_cityId, _commandType, args) => {
+              options.populationPlacement?.onExpandCitySend?.(args);
+              populationSent = true;
+              return true;
+            },
+          },
       CityOperations: options.productionChoice == null
         ? undefined
         : {
@@ -1069,6 +1441,18 @@ function gameUiNotificationTarget(
               if (options.productionChoice?.clearBlockerOnSend === true) {
                 exists = false;
               }
+              return true;
+            },
+          },
+      PlayerOperations: options.populationPlacement == null
+        ? undefined
+        : {
+            canStart: () => ({
+              Success: options.populationPlacement?.canAssignWorker ?? true,
+            }),
+            sendRequest: (_playerId, _operationType, args) => {
+              options.populationPlacement?.onAssignWorkerSend?.(args);
+              populationSent = true;
               return true;
             },
           },
@@ -1093,6 +1477,17 @@ function gameUiNotificationTarget(
         getIdsForPlayer: () =>
           exists ? [notificationId, ...(options.extraIds ?? [])] : [],
       },
+    },
+    Players: {
+      ...target.Players,
+      get: (playerId) =>
+        playerId === 0 && options.populationPlacement != null
+          ? {
+            Cities: {
+              getCityIds: () => [options.populationPlacement?.cityId],
+            },
+          }
+          : null,
     },
     NotificationModel: {
       QueryBy: { Priority: 2 },

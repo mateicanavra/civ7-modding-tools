@@ -701,6 +701,38 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   runtime behavior only; deployed Civ7 runtime proof, other city mutation
   ports, play-thread action, and full `7.3` implementation remain pending
 
+#### Scenario: Game UI controller supports population placement
+- **WHEN** the game-scoped controller context exposes ambient population
+  placement APIs for `Game.PlayerOperations.canStart/sendRequest`,
+  `PlayerOperationTypes.ASSIGN_WORKER`, `Game.CityCommands.canStart/sendRequest`,
+  `CityCommandTypes.EXPAND`, player city lists, city readiness, worker
+  placement, and expansion evidence
+- **THEN** the context may execute the service-owned
+  `city.population.place.request` procedure through the existing in-process
+  router and native readiness/proof middleware
+- **AND** `city.population.place.request` is listed as a supported game-UI
+  mutation only when controller proof and the required ambient validation,
+  send, player, city, and postcondition-read APIs are present
+- **AND** assign-worker input remains semantic `{ playerId, location }` while
+  expand-city input remains semantic `{ cityId, destination }`; raw operation
+  types and raw command/session fields are not accepted as bridge input
+- **AND** assign-worker sends require the caller `playerId` to match
+  controller-owned `GameContext.localPlayerID` evidence before any
+  `PlayerOperations.sendRequest` call
+- **AND** validator-blocked population placements project semantic `not-sent`
+  output and do not call the send API
+- **AND** `population-ready-cleared` requires pre-send city readiness evidence
+  and post-send evidence that readiness cleared
+- **AND** no-state-change, validation-only changes, missing ready-city evidence,
+  failed population state reads, missing postcondition snapshots, and unchanged
+  placement snapshots remain unconfirmed or no-repeat guarded
+- **AND** normal bridge success output remains the semantic population-placement
+  result and omits host, port, state, command, rawCommand, session, tuner
+  payloads, raw game-UI function names, and direct-control socket details
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, other mutation ports,
+  play-thread action, and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control
