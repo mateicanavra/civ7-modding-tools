@@ -10,8 +10,8 @@ Route `civ7 game play formation-snapshot` through the native in-process
 `strategy.formationSnapshot` server-side client. The control-oRPC service owns
 formation posture composition over current notification, ready-unit, and
 battlefield evidence. The CLI remains an edge adapter that builds endpoint
-context and maps semantic next-step descriptors into command suggestions for
-CLI presentation only.
+context and presents semantic next-step descriptors without making CLI command
+syntax part of the formation JSON contract.
 
 ## Write Set
 
@@ -36,8 +36,9 @@ CLI presentation only.
 - Procedure input/output schemas stay contract-local; callers use the aggregate
   contract/router/server client rather than per-procedure schema exports.
 - Service output does not contain literal `game play ...` CLI command strings.
-- The CLI may still present command suggestions, but that translation is a CLI
-  presentation concern and not part of the native service contract.
+- `civ7 game play formation-snapshot` presents service next-step labels as
+  concise follow-up guidance; command help remains the source for exhaustive
+  flag/interface detail.
 - Controller bridge allowlisting and game-resident formation support remain
   pending.
 - Battlefield evidence is planning context only. Owner mismatch, proximity,

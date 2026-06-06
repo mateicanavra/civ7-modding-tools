@@ -177,7 +177,8 @@ describe('game play tactical read commands', () => {
         ...payload.view.formation.reasons,
         ...payload.view.formation.nextInspections,
       ]);
-      expect(payload.view.formation.nextInspections).toContain('game play civilian-route-triage --x 16 --y 18 --json');
+      expect(payload.view.formation.nextInspections).toContain('Inspect route options for the civilian before moving.');
+      expect(JSON.stringify(payload.view.formation.nextInspections)).not.toContain('game play ');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
       expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
