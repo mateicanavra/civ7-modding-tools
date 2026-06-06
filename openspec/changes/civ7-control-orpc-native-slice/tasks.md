@@ -1054,6 +1054,14 @@ adding more read-only facade shells.
     controller bridge, deployed Civ7 proof, relationship authority, and parent
     Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
     retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.44 Simplify `notifications.queue.current` service guidance so
+    queue notes, guardrails, and next-step labels describe semantic current
+    domain evidence, item-scoped dismissal, and validation boundaries instead
+    of referring to specialized commands or "before sending" command-surface
+    wording. Keep procedure contracts, parser flags, runtime reads/mutations,
+    controller bridge, deployed Civ7 proof, relationship authority, and parent
+    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
+    retired and no approval-reason mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2206,6 +2214,16 @@ adding more read-only facade shells.
   scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
   caller-provided approval remains retired and no approval-reason mechanic is
   introduced.
+- [x] 8.60.58 Run focused control-oRPC notification queue procedure test, CLI
+  notification queue adapter test, control-oRPC package check/build, CLI
+  check, strict OpenSpec validates, service guidance phrase scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the notification queue service guidance cleanup. This is local
+  package/CLI/OpenSpec proof only; it does not change parser flags,
+  direct-control/runtime behavior, procedure contracts, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package
   check/build, strict OpenSpec validates, game-UI attention `cli`/command
   recipe scans, active approval/caller-permission scan, relationship-label

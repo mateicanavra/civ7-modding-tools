@@ -473,6 +473,7 @@ function expectSafeQueueOutput(output: unknown): void {
   expect(serialized).not.toContain("rawCommand");
   expect(serialized).not.toContain("Game.Notifications.dismiss(");
   expect(serialized).not.toContain("game play");
+  expect(serialized).not.toMatch(/specialized .*command|before sending|before any send/i);
   expect(serialized).not.toContain("approval");
   expect(serialized).not.toContain("approvalReason");
 }

@@ -31,6 +31,7 @@ describe('game play notification queue command', () => {
       expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(false);
       expect(payload.view.notes.join('\n')).toContain('summary and context review');
       expect(payload.view.notes.join('\n')).not.toMatch(/\breason\b/i);
+      expect(JSON.stringify(payload.view)).not.toMatch(/specialized .*command|before sending|before any send/i);
     } finally {
       await server.close();
     }
@@ -44,7 +45,7 @@ describe('game play notification queue command', () => {
       expect(step.disposition).toBe('operate-with-live-inputs');
       expect(step.nextStep).toMatchObject({
         kind: 'validate-operation',
-        label: 'Read the specialized current surface and validator evidence before any send.',
+        label: 'Read current domain evidence and validation before mutating.',
       });
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
