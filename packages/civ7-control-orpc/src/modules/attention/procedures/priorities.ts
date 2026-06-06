@@ -309,7 +309,7 @@ function priorityItems(input: Readonly<{
       priority: 10,
       kind: "clean-read",
       summary: "no HUD, ready-unit, ready-city, or battlefield priority surfaced",
-      reason: "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before sending.",
+      reason: "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before mutation.",
       blocking: false,
       nextStep: {
         kind: "end-turn",
@@ -484,7 +484,7 @@ function staleUnitCommandPriority(
     return {
       kind: "hud:unit-command",
       summary: "COMMAND_UNITS closeout candidate needs validator-backed review",
-      reason: "Official command-units evidence exposes an enabled unit command candidate; validate it before any send.",
+      reason: "Official command-units evidence exposes an enabled unit command candidate; validate it before mutation.",
       nextStep: {
         kind: "validate-unit-command",
         source: "notification",

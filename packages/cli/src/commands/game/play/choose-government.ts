@@ -79,7 +79,7 @@ export default class GamePlayChooseGovernment extends Command {
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
           { path: 'details[].options', reason: 'enabled rows carry semantic government fields and validation descriptors' },
-          { path: 'details[].disabledOptions', reason: 'disabled governments are counted but kept out of the send-ready action surface' },
+          { path: 'details[].disabledOptions', reason: 'disabled governments are counted but kept out of mutation action recommendations' },
         ],
         notes: [
           'Rows come from live HUD choices with official government validation evidence.',

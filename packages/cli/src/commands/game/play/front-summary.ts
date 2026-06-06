@@ -144,7 +144,7 @@ export default class GamePlayFrontSummary extends Command {
       },
       notes: [
         ...result.notes,
-        'Use this to pick the next inspection, then validate concrete unit actions before sending.',
+        'Use this to pick the next inspection, then validate concrete unit actions before mutation.',
       ],
     };
 

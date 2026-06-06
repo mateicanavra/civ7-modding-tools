@@ -262,7 +262,7 @@ function movementValidationDescriptor(
   if (!unitId || !destination) return null;
   return {
     kind: 'validate-unit-action',
-    label: `validate unit action at (${destination.x},${destination.y}) before sending`,
+    label: `Validate unit action at (${destination.x},${destination.y}).`,
     unitId,
     destination,
     sendReady: false,

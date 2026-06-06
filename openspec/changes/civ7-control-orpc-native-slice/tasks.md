@@ -1062,6 +1062,16 @@ adding more read-only facade shells.
     controller bridge, deployed Civ7 proof, relationship authority, and parent
     Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
     retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.45 Simplify remaining service and CLI mutation guidance wording
+    so action labels, notes, priority reasons, and omitted reasons describe
+    semantic validation/mutation boundaries instead of "before sending" or
+    "send-ready" phrasing. Preserve validator-first compact traditions
+    semantics: disabled or validation-failed traditions stay read-only and
+    outside `recommendedActions`. Keep procedure contracts, parser flags,
+    runtime reads/mutations, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2224,6 +2234,19 @@ adding more read-only facade shells.
   behavior, play-thread state, transport/controller scope, relationship
   authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
   remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.59 Run focused control-oRPC attention/progression tests, focused
+  CLI priorities/unit-move/front-summary/rehydrate/progression-read/choice
+  tests, control-oRPC package check/build, CLI check, strict OpenSpec
+  validates, remaining guidance phrase scan, active approval/caller-permission
+  scan, relationship-label safety scan, and diff hygiene for the remaining
+  service/CLI mutation guidance cleanup. Include the compact traditions
+  disabled-row falsifier proving validation-failed traditions are read-only and
+  omitted from send-oriented `recommendedActions`. This is local package/CLI/
+  OpenSpec proof only; it does not change parser flags, direct-control/runtime
+  behavior, procedure contracts, deployed Civ7 runtime behavior, play-thread
+  state, transport/controller scope, relationship authority, or parent Task
+  5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package
   check/build, strict OpenSpec validates, game-UI attention `cli`/command
   recipe scans, active approval/caller-permission scan, relationship-label

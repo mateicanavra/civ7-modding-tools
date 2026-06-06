@@ -84,7 +84,7 @@ export default class GamePlayChooseTech extends Command {
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
           { path: 'details[].options', reason: 'enabled rows carry semantic node fields and validation descriptors' },
-          { path: 'details[].disabledOptions', reason: 'disabled nodes are counted but kept out of the send-ready action surface' },
+          { path: 'details[].disabledOptions', reason: 'disabled nodes are counted but kept out of mutation action recommendations' },
           { path: 'details[].techTrees', reason: 'tree proof is summarized on enabled rows' },
         ],
         notes: [

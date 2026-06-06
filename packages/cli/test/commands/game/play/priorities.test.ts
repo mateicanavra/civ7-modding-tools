@@ -111,12 +111,13 @@ describe('game play priorities command', () => {
       expect(top.kind).toBe('clean-read');
       expect(top.nextAction).toMatchObject({ kind: 'end-turn', sendsMutation: true });
       expect(payload.nextAction).toEqual(top.nextAction);
-      expect(top.reason).toContain('rechecks blockers before sending');
+      expect(top.reason).toContain('rechecks blockers before mutation');
       expect(payload.semanticEnvelope.blockers).toEqual([]);
       expect(payload.semanticEnvelope.actions[0]).toMatchObject({
         kind: top.nextAction?.kind,
         sendsMutation: true,
       });
+      expect(JSON.stringify(payload)).not.toMatch(/before sending|before any send|send-ready/i);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendTurnComplete'))).toBe(false);
     } finally {
@@ -823,7 +824,7 @@ function readyUnitView() {
     ],
     promotionReadiness: { ok: true, value: { canPromote: false } },
     nearby: { ok: true, value: [] },
-    notes: ['Read-only ready-unit view. Use operation validation before any send.'],
+    notes: ['Read-only ready-unit view. Use operation validation before mutation.'],
   };
 }
 

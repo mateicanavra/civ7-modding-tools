@@ -76,7 +76,7 @@ export default class GamePlayChooseCelebration extends Command {
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
           { path: 'details[].options', reason: 'enabled rows carry semantic celebration fields and validation descriptors' },
-          { path: 'details[].disabledOptions', reason: 'disabled choices are counted but kept out of the send-ready action surface' },
+          { path: 'details[].disabledOptions', reason: 'disabled choices are counted but kept out of mutation action recommendations' },
           { path: 'details[].choices', reason: 'official chooser choices are summarized on enabled rows' },
         ],
         notes: [

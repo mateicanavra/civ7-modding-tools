@@ -182,7 +182,7 @@ function compactTraditionAction(
       ? action.kind === 'activate'
         ? 'Activate this tradition.'
         : 'Deactivate this tradition.'
-      : 'Review validation before treating this tradition as send-ready.',
+      : 'Review validation before treating this tradition as a mutation action.',
     parameters: {
       traditionType: action.parameters.traditionType,
       action: action.parameters.action,

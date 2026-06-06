@@ -176,7 +176,7 @@ function buildSnapshot(input: Readonly<{
     notes: [
       'This snapshot is live runtime evidence, not a local SQLite/catalog read.',
       'After a restart or reconnect, prefer this snapshot over pre-restart turn, unit, and blocker assumptions.',
-      'Use SQLite/resource catalogs for names and definitions; use live validators before any send.',
+      'Use SQLite/resource catalogs for names and definitions; use live validators before mutation.',
     ],
   };
 }

@@ -186,7 +186,7 @@ export async function getCiv7GameUiReadyUnitView(
     notes: [
       "Game UI controller attention adapter treats UI.Player.getFirstReadyUnit as ready-unit evidence.",
       "Requested and selected unit ids are carried only as hints; they are not ready-unit proof.",
-      "Operation lists remain empty in game UI scope; use validator-backed mutation procedures before any send.",
+      "Operation lists remain empty in game UI scope; validator-backed mutation procedures own action execution.",
     ],
   };
 }
@@ -220,7 +220,7 @@ export async function getCiv7GameUiReadyCityView(
     notes: [
       "Game UI controller attention adapter treats end-turn-blocking notification target or population-ready city evidence as ready-city evidence.",
       "Requested, selected, and unrelated notification-target city ids are hints only; they are not ready-city proof.",
-      "Production and city-operation candidates remain empty in game UI scope; use validator-backed mutation procedures before any send.",
+      "Production and city-operation candidates remain empty in game UI scope; validator-backed mutation procedures own action execution.",
     ],
   };
 }

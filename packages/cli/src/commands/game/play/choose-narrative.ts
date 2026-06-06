@@ -92,7 +92,7 @@ export default class GamePlayChooseNarrative extends Command {
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
           { path: 'details[].options', reason: 'enabled rows carry semantic narrative fields and validation descriptors' },
-          { path: 'details[].disabledOptions', reason: 'disabled narrative buttons are counted but kept out of the send-ready action surface' },
+          { path: 'details[].disabledOptions', reason: 'disabled narrative buttons are counted but kept out of mutation action recommendations' },
           { path: 'details[].storyLinks', reason: 'official story-link rows are summarized on enabled rows' },
         ],
         notes: [
