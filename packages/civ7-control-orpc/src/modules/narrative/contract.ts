@@ -7,7 +7,7 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7NarrativeChoiceInputSchema = Type.Object(
+const Civ7NarrativeChoiceInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     targetType: Type.String({ minLength: 1 }),
@@ -80,7 +80,7 @@ export const Civ7NarrativeChoiceNextStepSchema = Type.Object(
   },
   { additionalProperties: false },
 );
-export const Civ7NarrativeChoiceResultSchema = Type.Object(
+const Civ7NarrativeChoiceResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     targetType: Type.String(),
@@ -98,9 +98,9 @@ export type Civ7NarrativeChoiceResult = Static<
   typeof Civ7NarrativeChoiceResultSchema
 >;
 
-export const Civ7NarrativeChoiceInputStandardSchema =
+const Civ7NarrativeChoiceInputStandardSchema =
   toStandardSchema(Civ7NarrativeChoiceInputSchema);
-export const Civ7NarrativeChoiceResultStandardSchema =
+const Civ7NarrativeChoiceResultStandardSchema =
   toStandardSchema(Civ7NarrativeChoiceResultSchema);
 export type Civ7NarrativeChoiceContract = ContractProcedure<
   typeof Civ7NarrativeChoiceInputStandardSchema,

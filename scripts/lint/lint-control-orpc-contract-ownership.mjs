@@ -12,7 +12,10 @@ const contractRoot = join(
 
 const contractFiles = collectContractFiles(contractRoot);
 const violations = [];
+const contractSchemaExportViolations = [];
 const publicSurfaceViolations = [];
+const procedureSchemaExportPattern =
+  /^export\s+const\s+(Civ7[A-Za-z0-9]+(?:Input|Result|Output)Schema|Civ7[A-Za-z0-9]+StandardSchema)\b/;
 
 for (const file of contractFiles) {
   const source = readFileSync(file, "utf8");
@@ -23,6 +26,14 @@ for (const file of contractFiles) {
         path: relative(repoRoot, file),
         line: index + 1,
         text: line.trim(),
+      });
+    }
+    const procedureSchemaExport = line.match(procedureSchemaExportPattern);
+    if (procedureSchemaExport) {
+      contractSchemaExportViolations.push({
+        path: relative(repoRoot, file),
+        line: index + 1,
+        symbol: procedureSchemaExport[1],
       });
     }
   });
@@ -69,6 +80,19 @@ if (violations.length > 0) {
   }
   console.error(
     "Move caller-facing contract schemas into packages/civ7-control-orpc, or keep direct-control imports in runtime/proof procedures instead.",
+  );
+  process.exit(1);
+}
+
+if (contractSchemaExportViolations.length > 0) {
+  console.error("control-oRPC module contract schema guard failed:");
+  for (const violation of contractSchemaExportViolations) {
+    console.error(
+      `- ${violation.path}:${violation.line} exports procedure schema ${violation.symbol}`,
+    );
+  }
+  console.error(
+    "Keep procedure input/result/output schemas and Standard Schema wrappers private to their contract module; expose the aggregate contract, DTO types, and real entity/bridge schemas instead.",
   );
   process.exit(1);
 }

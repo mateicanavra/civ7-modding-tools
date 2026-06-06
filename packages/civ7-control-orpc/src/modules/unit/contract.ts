@@ -10,7 +10,7 @@ import {
 } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7UnitTargetActionInputSchema = Type.Object(
+const Civ7UnitTargetActionInputSchema = Type.Object(
   {
     unitId: Civ7ControlOrpcComponentIdSchema,
     x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
@@ -22,7 +22,7 @@ export type Civ7UnitTargetActionInput = Static<
   typeof Civ7UnitTargetActionInputSchema
 >;
 
-export const Civ7UnitTargetActionInputStandardSchema = toStandardSchema(
+const Civ7UnitTargetActionInputStandardSchema = toStandardSchema(
   Civ7UnitTargetActionInputSchema,
 );
 
@@ -116,7 +116,7 @@ export const Civ7UnitTargetActionNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7UnitTargetActionResultSchema = Type.Object(
+const Civ7UnitTargetActionResultSchema = Type.Object(
   {
     unitId: Civ7ControlOrpcComponentIdSchema,
     target: Civ7ControlOrpcMapLocationSchema,
@@ -132,11 +132,11 @@ export type Civ7UnitTargetActionResult = Static<
   typeof Civ7UnitTargetActionResultSchema
 >;
 
-export const Civ7UnitTargetActionResultStandardSchema = toStandardSchema(
+const Civ7UnitTargetActionResultStandardSchema = toStandardSchema(
   Civ7UnitTargetActionResultSchema,
 );
 
-export const Civ7UnitUpgradeInputSchema = Type.Object(
+const Civ7UnitUpgradeInputSchema = Type.Object(
   {
     unitId: Civ7ControlOrpcComponentIdSchema,
   },
@@ -144,11 +144,11 @@ export const Civ7UnitUpgradeInputSchema = Type.Object(
 );
 export type Civ7UnitUpgradeInput = Static<typeof Civ7UnitUpgradeInputSchema>;
 
-export const Civ7UnitUpgradeInputStandardSchema = toStandardSchema(
+const Civ7UnitUpgradeInputStandardSchema = toStandardSchema(
   Civ7UnitUpgradeInputSchema,
 );
 
-export const Civ7UnitResettleInputSchema = Type.Object(
+const Civ7UnitResettleInputSchema = Type.Object(
   {
     unitId: Civ7ControlOrpcComponentIdSchema,
     destination: Civ7ControlOrpcMapLocationSchema,
@@ -157,7 +157,7 @@ export const Civ7UnitResettleInputSchema = Type.Object(
 );
 export type Civ7UnitResettleInput = Static<typeof Civ7UnitResettleInputSchema>;
 
-export const Civ7UnitResettleInputStandardSchema = toStandardSchema(
+const Civ7UnitResettleInputStandardSchema = toStandardSchema(
   Civ7UnitResettleInputSchema,
 );
 
@@ -245,7 +245,7 @@ export const Civ7UnitCommandNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7UnitCommandResultSchema = Type.Object(
+const Civ7UnitCommandResultSchema = Type.Object(
   {
     action: Civ7UnitCommandSummarySchema,
     sent: Type.Boolean(),
@@ -258,7 +258,7 @@ export const Civ7UnitCommandResultSchema = Type.Object(
 );
 export type Civ7UnitCommandResult = Static<typeof Civ7UnitCommandResultSchema>;
 
-export const Civ7UnitCommandResultStandardSchema = toStandardSchema(
+const Civ7UnitCommandResultStandardSchema = toStandardSchema(
   Civ7UnitCommandResultSchema,
 );
 

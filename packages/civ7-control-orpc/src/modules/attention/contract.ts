@@ -12,7 +12,7 @@ const NullableComponentIdSchema = Type.Union([
   Type.Null(),
 ]);
 
-export const Civ7AttentionCurrentInputSchema = Type.Object(
+const Civ7AttentionCurrentInputSchema = Type.Object(
   {
     maxNotifications: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
   },
@@ -105,7 +105,7 @@ export const Civ7AttentionNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7AttentionCurrentResultSchema = Type.Object(
+const Civ7AttentionCurrentResultSchema = Type.Object(
   {
     playable: Type.Boolean(),
     readiness: Type.String(),
@@ -143,10 +143,10 @@ export type Civ7AttentionCurrentResult = Static<
   typeof Civ7AttentionCurrentResultSchema
 >;
 
-export const Civ7AttentionCurrentInputStandardSchema = toStandardSchema(
+const Civ7AttentionCurrentInputStandardSchema = toStandardSchema(
   Civ7AttentionCurrentInputSchema,
 );
-export const Civ7AttentionCurrentResultStandardSchema = toStandardSchema(
+const Civ7AttentionCurrentResultStandardSchema = toStandardSchema(
   Civ7AttentionCurrentResultSchema,
 );
 

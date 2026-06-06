@@ -68,7 +68,7 @@ const Civ7CityProductionChoiceArgsSchema = Type.Unsafe<
   ],
 });
 
-export const Civ7CityProductionChoiceInputSchema = Type.Object(
+const Civ7CityProductionChoiceInputSchema = Type.Object(
   {
     cityId: Civ7ControlOrpcComponentIdSchema,
     args: Civ7CityProductionChoiceArgsSchema,
@@ -79,11 +79,11 @@ export type Civ7CityProductionChoiceInput = Static<
   typeof Civ7CityProductionChoiceInputSchema
 >;
 
-export const Civ7CityProductionChoiceInputStandardSchema = toStandardSchema(
+const Civ7CityProductionChoiceInputStandardSchema = toStandardSchema(
   Civ7CityProductionChoiceInputSchema,
 );
 
-export const Civ7CityPopulationPlacementInputSchema = Type.Union([
+const Civ7CityPopulationPlacementInputSchema = Type.Union([
   Type.Object(
     {
       mode: Type.Literal("assign-worker"),
@@ -105,11 +105,11 @@ export type Civ7CityPopulationPlacementInput = Static<
   typeof Civ7CityPopulationPlacementInputSchema
 >;
 
-export const Civ7CityPopulationPlacementInputStandardSchema = toStandardSchema(
+const Civ7CityPopulationPlacementInputStandardSchema = toStandardSchema(
   Civ7CityPopulationPlacementInputSchema,
 );
 
-export const Civ7CityTownFocusChangeInputSchema = Type.Object(
+const Civ7CityTownFocusChangeInputSchema = Type.Object(
   {
     cityId: Civ7ControlOrpcComponentIdSchema,
     growthType: Type.Integer(),
@@ -122,7 +122,7 @@ export type Civ7CityTownFocusChangeInput = Static<
   typeof Civ7CityTownFocusChangeInputSchema
 >;
 
-export const Civ7CityTownFocusReviewInputSchema = Type.Object(
+const Civ7CityTownFocusReviewInputSchema = Type.Object(
   {
     cityId: Civ7ControlOrpcComponentIdSchema,
   },
@@ -221,7 +221,7 @@ export const Civ7CityPopulationPlacementNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7CityPopulationPlacementResultSchema = Type.Object(
+const Civ7CityPopulationPlacementResultSchema = Type.Object(
   {
     placement: Civ7CityPopulationPlacementSummarySchema,
     sent: Type.Boolean(),
@@ -236,7 +236,7 @@ export type Civ7CityPopulationPlacementResult = Static<
   typeof Civ7CityPopulationPlacementResultSchema
 >;
 
-export const Civ7CityPopulationPlacementResultStandardSchema =
+const Civ7CityPopulationPlacementResultStandardSchema =
   toStandardSchema(Civ7CityPopulationPlacementResultSchema);
 
 export const Civ7CityProductionChoiceProofOutcomeSchema = Type.Union([
@@ -304,7 +304,7 @@ export const Civ7CityProductionChoiceNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7CityProductionChoiceResultSchema = Type.Object(
+const Civ7CityProductionChoiceResultSchema = Type.Object(
   {
     cityId: Civ7ControlOrpcComponentIdSchema,
     args: Type.Record(Type.String(), Type.Number()),
@@ -320,7 +320,7 @@ export type Civ7CityProductionChoiceResult = Static<
   typeof Civ7CityProductionChoiceResultSchema
 >;
 
-export const Civ7CityProductionChoiceResultStandardSchema = toStandardSchema(
+const Civ7CityProductionChoiceResultStandardSchema = toStandardSchema(
   Civ7CityProductionChoiceResultSchema,
 );
 
@@ -395,7 +395,7 @@ const Civ7CityTownFocusResultBaseSchema = {
   postcondition: Civ7CityTownFocusPostconditionSummarySchema,
 } as const;
 
-export const Civ7CityTownFocusChangeResultSchema = Type.Object(
+const Civ7CityTownFocusChangeResultSchema = Type.Object(
   {
     ...Civ7CityTownFocusResultBaseSchema,
     growthType: Type.Integer(),
@@ -409,7 +409,7 @@ export type Civ7CityTownFocusChangeResult = Static<
   typeof Civ7CityTownFocusChangeResultSchema
 >;
 
-export const Civ7CityTownFocusReviewResultSchema = Type.Object(
+const Civ7CityTownFocusReviewResultSchema = Type.Object(
   {
     ...Civ7CityTownFocusResultBaseSchema,
     nextSteps: Type.Array(Civ7CityTownFocusReviewNextStepSchema),

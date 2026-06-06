@@ -7,7 +7,7 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7TurnCompletionInputSchema = Type.Object(
+const Civ7TurnCompletionInputSchema = Type.Object(
   {},
   { additionalProperties: false },
 );
@@ -15,7 +15,7 @@ export type Civ7TurnCompletionInput = Static<
   typeof Civ7TurnCompletionInputSchema
 >;
 
-export const Civ7TurnCompletionInputStandardSchema = toStandardSchema(
+const Civ7TurnCompletionInputStandardSchema = toStandardSchema(
   Civ7TurnCompletionInputSchema,
 );
 
@@ -90,7 +90,7 @@ export const Civ7TurnCompletionNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7TurnCompletionResultSchema = Type.Object(
+const Civ7TurnCompletionResultSchema = Type.Object(
   {
     sent: Type.Boolean(),
     status: Civ7TurnCompletionRequestStatusSchema,
@@ -105,7 +105,7 @@ export type Civ7TurnCompletionResult = Static<
   typeof Civ7TurnCompletionResultSchema
 >;
 
-export const Civ7TurnCompletionResultStandardSchema = toStandardSchema(
+const Civ7TurnCompletionResultStandardSchema = toStandardSchema(
   Civ7TurnCompletionResultSchema,
 );
 

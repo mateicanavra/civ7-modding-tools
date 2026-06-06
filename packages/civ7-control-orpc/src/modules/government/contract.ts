@@ -6,7 +6,7 @@ import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7GovernmentChoiceInputSchema = Type.Object(
+const Civ7GovernmentChoiceInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     governmentType: Type.Integer(),
@@ -18,7 +18,7 @@ export type Civ7GovernmentChoiceInput = Static<
   typeof Civ7GovernmentChoiceInputSchema
 >;
 
-export const Civ7GovernmentCelebrationChoiceInputSchema = Type.Object(
+const Civ7GovernmentCelebrationChoiceInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     goldenAgeType: Type.Integer(),
@@ -93,7 +93,7 @@ export const Civ7GovernmentCelebrationChoiceNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7GovernmentChoiceResultSchema = Type.Object(
+const Civ7GovernmentChoiceResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     governmentType: Type.Integer(),
@@ -110,7 +110,7 @@ export type Civ7GovernmentChoiceResult = Static<
   typeof Civ7GovernmentChoiceResultSchema
 >;
 
-export const Civ7GovernmentCelebrationChoiceResultSchema = Type.Object(
+const Civ7GovernmentCelebrationChoiceResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     goldenAgeType: Type.Integer(),
@@ -126,13 +126,13 @@ export type Civ7GovernmentCelebrationChoiceResult = Static<
   typeof Civ7GovernmentCelebrationChoiceResultSchema
 >;
 
-export const Civ7GovernmentChoiceInputStandardSchema =
+const Civ7GovernmentChoiceInputStandardSchema =
   toStandardSchema(Civ7GovernmentChoiceInputSchema);
-export const Civ7GovernmentCelebrationChoiceInputStandardSchema =
+const Civ7GovernmentCelebrationChoiceInputStandardSchema =
   toStandardSchema(Civ7GovernmentCelebrationChoiceInputSchema);
-export const Civ7GovernmentChoiceResultStandardSchema =
+const Civ7GovernmentChoiceResultStandardSchema =
   toStandardSchema(Civ7GovernmentChoiceResultSchema);
-export const Civ7GovernmentCelebrationChoiceResultStandardSchema =
+const Civ7GovernmentCelebrationChoiceResultStandardSchema =
   toStandardSchema(Civ7GovernmentCelebrationChoiceResultSchema);
 
 export type Civ7GovernmentChoiceContract = ContractProcedure<

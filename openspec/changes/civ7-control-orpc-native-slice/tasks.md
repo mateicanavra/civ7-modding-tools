@@ -1138,6 +1138,14 @@ adding more read-only facade shells.
   generated-bundle proofs only and do not claim deployed Civ7 runtime proof,
   play-thread action, transport expansion, a progression read service, public
   package-root procedure schema exports, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.7 Run control-oRPC package test/check/build, strict OpenSpec
+  validates, private procedure-schema export scans, and diff hygiene for the
+  contract schema ownership cleanup. Procedure input/result TypeBox schemas and
+  their Standard Schema wrappers remain private to the module contract files;
+  callers keep the aggregate contract object, typed DTOs, and closed bridge
+  envelopes. This is a public-surface hygiene proof only and does not claim
+  deployed Civ7 runtime proof, play-thread action, transport expansion,
+  behavior changes, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

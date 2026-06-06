@@ -7,7 +7,7 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7ProgressionChoiceInputSchema = Type.Object(
+const Civ7ProgressionChoiceInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     node: Type.Integer(),
@@ -19,7 +19,7 @@ export type Civ7ProgressionChoiceInput = Static<
   typeof Civ7ProgressionChoiceInputSchema
 >;
 
-export const Civ7ProgressionTargetInputSchema = Type.Object(
+const Civ7ProgressionTargetInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     node: Type.Integer(),
@@ -146,7 +146,7 @@ export const Civ7ProgressionCultureChoiceNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7ProgressionTechnologyChoiceResultSchema = Type.Object(
+const Civ7ProgressionTechnologyChoiceResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     node: Type.Integer(),
@@ -163,7 +163,7 @@ export type Civ7ProgressionTechnologyChoiceResult = Static<
   typeof Civ7ProgressionTechnologyChoiceResultSchema
 >;
 
-export const Civ7ProgressionCultureChoiceResultSchema = Type.Object(
+const Civ7ProgressionCultureChoiceResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     node: Type.Integer(),
@@ -244,7 +244,7 @@ export const Civ7ProgressionCultureTargetNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7ProgressionTechnologyTargetResultSchema = Type.Object(
+const Civ7ProgressionTechnologyTargetResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     node: Type.Integer(),
@@ -260,7 +260,7 @@ export type Civ7ProgressionTechnologyTargetResult = Static<
   typeof Civ7ProgressionTechnologyTargetResultSchema
 >;
 
-export const Civ7ProgressionCultureTargetResultSchema = Type.Object(
+const Civ7ProgressionCultureTargetResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     node: Type.Integer(),
@@ -419,9 +419,9 @@ export type Civ7ProgressionTraditionReviewResult = Static<
   typeof Civ7ProgressionTraditionReviewResultSchema
 >;
 
-export const Civ7ProgressionChoiceInputStandardSchema =
+const Civ7ProgressionChoiceInputStandardSchema =
   toStandardSchema(Civ7ProgressionChoiceInputSchema);
-export const Civ7ProgressionTargetInputStandardSchema =
+const Civ7ProgressionTargetInputStandardSchema =
   toStandardSchema(Civ7ProgressionTargetInputSchema);
 const Civ7ProgressionAttributePurchaseInputStandardSchema =
   toStandardSchema(Civ7ProgressionAttributePurchaseInputSchema);
@@ -429,13 +429,13 @@ const Civ7ProgressionPlayerReviewInputStandardSchema =
   toStandardSchema(Civ7ProgressionPlayerReviewInputSchema);
 const Civ7ProgressionTraditionChangeInputStandardSchema =
   toStandardSchema(Civ7ProgressionTraditionChangeInputSchema);
-export const Civ7ProgressionTechnologyChoiceResultStandardSchema =
+const Civ7ProgressionTechnologyChoiceResultStandardSchema =
   toStandardSchema(Civ7ProgressionTechnologyChoiceResultSchema);
-export const Civ7ProgressionCultureChoiceResultStandardSchema =
+const Civ7ProgressionCultureChoiceResultStandardSchema =
   toStandardSchema(Civ7ProgressionCultureChoiceResultSchema);
-export const Civ7ProgressionTechnologyTargetResultStandardSchema =
+const Civ7ProgressionTechnologyTargetResultStandardSchema =
   toStandardSchema(Civ7ProgressionTechnologyTargetResultSchema);
-export const Civ7ProgressionCultureTargetResultStandardSchema =
+const Civ7ProgressionCultureTargetResultStandardSchema =
   toStandardSchema(Civ7ProgressionCultureTargetResultSchema);
 const Civ7ProgressionAttributePurchaseResultStandardSchema =
   toStandardSchema(Civ7ProgressionAttributePurchaseResultSchema);

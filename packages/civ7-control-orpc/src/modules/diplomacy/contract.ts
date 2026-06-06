@@ -7,7 +7,7 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7DiplomacyResponseInputSchema = Type.Object(
+const Civ7DiplomacyResponseInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     actionId: Type.Integer(),
@@ -84,7 +84,7 @@ export const Civ7DiplomacyResponseNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7DiplomacyResponseResultSchema = Type.Object(
+const Civ7DiplomacyResponseResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     actionId: Type.Integer(),
@@ -102,7 +102,7 @@ export type Civ7DiplomacyResponseResult = Static<
   typeof Civ7DiplomacyResponseResultSchema
 >;
 
-export const Civ7FirstMeetResponseInputSchema = Type.Object(
+const Civ7FirstMeetResponseInputSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     metPlayerId: Type.Integer({ minimum: 0, maximum: 1024 }),
@@ -175,7 +175,7 @@ export const Civ7FirstMeetResponseNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7FirstMeetResponseResultSchema = Type.Object(
+const Civ7FirstMeetResponseResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     metPlayerId: Type.Integer({ minimum: 0 }),
@@ -192,16 +192,16 @@ export type Civ7FirstMeetResponseResult = Static<
   typeof Civ7FirstMeetResponseResultSchema
 >;
 
-export const Civ7DiplomacyResponseInputStandardSchema = toStandardSchema(
+const Civ7DiplomacyResponseInputStandardSchema = toStandardSchema(
   Civ7DiplomacyResponseInputSchema,
 );
-export const Civ7DiplomacyResponseResultStandardSchema = toStandardSchema(
+const Civ7DiplomacyResponseResultStandardSchema = toStandardSchema(
   Civ7DiplomacyResponseResultSchema,
 );
-export const Civ7FirstMeetResponseInputStandardSchema = toStandardSchema(
+const Civ7FirstMeetResponseInputStandardSchema = toStandardSchema(
   Civ7FirstMeetResponseInputSchema,
 );
-export const Civ7FirstMeetResponseResultStandardSchema = toStandardSchema(
+const Civ7FirstMeetResponseResultStandardSchema = toStandardSchema(
   Civ7FirstMeetResponseResultSchema,
 );
 
