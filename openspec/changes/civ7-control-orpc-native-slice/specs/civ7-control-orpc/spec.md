@@ -183,12 +183,12 @@ errors, and server-side callers.
   `government.celebration.choice.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, and next-step
   schemas for those service procedures under the `government` router
-- **AND** the input admits only player ID plus government type/action or player
-  ID plus golden-age type, with government versus celebration expressed by the
-  domain procedure path rather than a generic operation root or operation enum
-  input
+- **AND** the input omits caller player ID and admits only government
+  type/action or golden-age type, with government versus celebration expressed
+  by the domain procedure path rather than a generic operation root or
+  operation enum input
 - **AND** the procedure reads current local-player evidence before send and
-  does not treat caller-provided player ID as mutation authority by itself
+  does not treat caller-provided player ID as mutation authority
 - **AND** endpoint, session, state, raw command, generic operation type, raw
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output

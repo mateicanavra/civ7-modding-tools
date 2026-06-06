@@ -139,12 +139,10 @@ const firstMeetInput = {
   responseType: 673_478_009,
 };
 const governmentInput = {
-  playerId: 2,
   governmentType: 0,
   action: -1_326_475_004,
 };
 const celebrationInput = {
-  playerId: 2,
   goldenAgeType: -340_825_966,
 };
 const progressionTechnologyInput = {

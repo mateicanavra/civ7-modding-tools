@@ -15,13 +15,11 @@ import type {
 } from "../src/dependencies/direct-control";
 
 const governmentInput = {
-  playerId: 2,
   governmentType: 0,
   action: -1_326_475_004,
 } as const;
 
 const celebrationInput = {
-  playerId: 2,
   goldenAgeType: -340_825_966,
 } as const;
 
@@ -171,6 +169,7 @@ describe("government choice control-oRPC procedures", () => {
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
     const invalidInputs = [
+      { ...governmentInput, playerId: 2 },
       { ...governmentInput, host: "127.0.0.1" },
       { ...governmentInput, port: 4318 },
       { ...governmentInput, state: { role: "tuner" } },
@@ -199,6 +198,7 @@ describe("government choice control-oRPC procedures", () => {
     }
 
     const celebrationInvalidInputs = [
+      { ...celebrationInput, playerId: 2 },
       { ...celebrationInput, host: "127.0.0.1" },
       { ...celebrationInput, command: "Game.PlayerOperations.sendRequest" },
       { ...celebrationInput, operationType: "CHOOSE_GOLDEN_AGE" },

@@ -8,7 +8,6 @@ import { toStandardSchema } from "../../typebox-standard-schema";
 
 const Civ7GovernmentChoiceInputSchema = Type.Object(
   {
-    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     governmentType: Type.Integer(),
     action: Type.Optional(Type.Integer()),
   },
@@ -20,7 +19,6 @@ export type Civ7GovernmentChoiceInput = Static<
 
 const Civ7GovernmentCelebrationChoiceInputSchema = Type.Object(
   {
-    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     goldenAgeType: Type.Integer(),
   },
   { additionalProperties: false },

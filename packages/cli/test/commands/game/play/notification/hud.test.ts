@@ -84,7 +84,7 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Cultural Celebration', 'Wonder Production Celebration']);
       const culture = details?.enabledOptions.find((option) => option.goldenAgeType === -340825966);
       expect(culture?.validation.value?.Success).toBe(true);
-      expect(culture?.cli).toContain('game play choose-celebration --player-id 0 --golden-age-type -340825966 --send');
+      expect(culture?.cli).toContain('game play choose-celebration --golden-age-type -340825966 --send');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -103,7 +103,7 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name)).toEqual(['Classical Republic', 'Despotism', 'Oligarchy']);
       const republic = details?.enabledOptions.find((option) => option.governmentType === 0);
       expect(republic?.validation.value?.Success).toBe(true);
-      expect(republic?.cli).toContain('game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send');
+      expect(republic?.cli).toContain('game play choose-government --government-type 0 --action -1326475004 --send');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -498,13 +498,13 @@ function celebrationChoiceHudView() {
       {
         goldenAgeType: -340825966,
         name: 'Cultural Celebration',
-        cli: "game play choose-celebration --player-id 0 --golden-age-type -340825966 --send",
+        cli: "game play choose-celebration --golden-age-type -340825966 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         goldenAgeType: 1923496232,
         name: 'Wonder Production Celebration',
-        cli: "game play choose-celebration --player-id 0 --golden-age-type 1923496232 --send",
+        cli: "game play choose-celebration --golden-age-type 1923496232 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -543,19 +543,19 @@ function governmentChoiceHudView() {
       {
         governmentType: 0,
         name: 'Classical Republic',
-        cli: "game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send",
+        cli: "game play choose-government --government-type 0 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         governmentType: 1,
         name: 'Despotism',
-        cli: "game play choose-government --player-id 0 --government-type 1 --action -1326475004 --send",
+        cli: "game play choose-government --government-type 1 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         governmentType: 2,
         name: 'Oligarchy',
-        cli: "game play choose-government --player-id 0 --government-type 2 --action -1326475004 --send",
+        cli: "game play choose-government --government-type 2 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],

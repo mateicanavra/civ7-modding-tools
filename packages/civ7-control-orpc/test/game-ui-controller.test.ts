@@ -2531,7 +2531,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "government.choice.request",
       input: {
-        playerId: 2,
         governmentType,
         action: governmentAction,
       },
@@ -2595,7 +2594,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "government.choice.request",
       input: {
-        playerId: 2,
         governmentType,
         action: governmentAction,
       },
@@ -2641,7 +2639,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "government.celebration.choice.request",
       input: {
-        playerId: 2,
         goldenAgeType,
       },
       correlationId: "game-ui-celebration-choice-1",

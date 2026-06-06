@@ -351,10 +351,11 @@ adding more read-only facade shells.
   - [x] 5.5.13.3 Seed `government.choice.request` and
     `government.celebration.choice.request` as native service-owned
     government-domain mutation leaves. Keep government versus celebration in
-    the domain procedure path, read current local-player evidence before send,
-    use direct-control only as the low-level player-operation runtime/proof
-    port, omit raw operation envelopes and legacy `verified` from normal
-    output, and keep sent government-domain choices
+    the domain procedure path, omit caller `playerId` from public send inputs,
+    read current local-player evidence before send, use direct-control only as
+    the low-level player-operation runtime/proof port, omit raw operation
+    envelopes and legacy `verified` from normal output, and keep sent
+    government-domain choices
     pending-runtime-proof/no-repeat guarded until a future source-owned read
     proves the live government or celebration blocker cleared.
   - [x] 5.5.13.4 Seed `progression.attribute.purchase.request`,
@@ -684,10 +685,11 @@ adding more read-only facade shells.
     `government.celebration.choice.request` server-side clients under the
     `government` router. Keep endpoint flags as context construction, emit
     semantic government-domain output, use fresh local-player evidence rather
-    than treating `--player-id` as send authority, preserve direct-control
-    option reads and player-operation validation for read-only mode, and keep
-    sent government-domain results pending-runtime-proof/no-repeat guarded
-    until a real post-read owner proves the live blocker cleared.
+    than treating `--player-id` as send authority, omit caller `--player-id`
+    from send mode, preserve direct-control option reads and player-operation
+    validation for read-only mode, and keep sent government-domain results
+    pending-runtime-proof/no-repeat guarded until a real post-read owner proves
+    the live blocker cleared.
   - [x] 7.1.9.3 Route `civ7 game play buy-attribute --send`,
     `civ7 game play consider-attributes --send`,
     `civ7 game play change-tradition --send`, and

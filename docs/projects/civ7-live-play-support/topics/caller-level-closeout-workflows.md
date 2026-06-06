@@ -51,7 +51,7 @@ Use these when the selected action should be handled as one native workflow:
   `NOTIFICATION_CHOOSE_CULTURE_NODE` when present, send
   `SET_CULTURE_TREE_NODE`, clear with `SET_CULTURE_TREE_TARGET_NODE`, then
   re-read the live culture-choice notification postcondition.
-- `game play choose-government --player-id <id> --government-type <government-type> --action <activate> --send`
+- `game play choose-government --government-type <government-type> --action <activate> --send`
   sends `CHANGE_GOVERNMENT` with the exact government/action pair returned by
   `choose-government --options`.
 - `game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout`

@@ -868,8 +868,7 @@ export function playNotificationViewSource(): string {
           disabled: !enabled,
           validation,
           cli: enabled && args
-            ? "game play choose-celebration --player-id " + String(localPlayerId)
-              + " --golden-age-type " + String(args.GoldenAgeType)
+            ? "game play choose-celebration --golden-age-type " + String(args.GoldenAgeType)
               + " --send"
             : null,
           validateCli: args
@@ -961,8 +960,7 @@ export function playNotificationViewSource(): string {
           disabled: !enabled,
           validation,
           cli: enabled && governmentIndex != null && activate != null
-            ? "game play choose-government --player-id " + String(localPlayerId)
-              + " --government-type " + String(governmentIndex)
+            ? "game play choose-government --government-type " + String(governmentIndex)
               + " --action " + String(activate)
               + " --send"
             : null,
@@ -1395,7 +1393,7 @@ export function playNotificationViewSource(): string {
           [requiredInput("GovernmentType", "live government picker option", "Use the government index from choose-government --options, not the visible row position.")],
           [
             action("read government options", "game play choose-government --options --json", undefined, undefined, "enabled starting governments with validation and ready send templates", "before choosing a government"),
-            action("choose government", "game play choose-government --player-id <id> --government-type <government-type> --action <action> --send", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
+            action("choose government", "game play choose-government --government-type <government-type> --action <action> --send", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
           ],
           ["Read options from the live government picker before sending; the option surface includes celebration effects for context."],
         );
@@ -1411,7 +1409,7 @@ export function playNotificationViewSource(): string {
           [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.")],
           [
             action("read celebration options", "game play choose-celebration --options --json", undefined, undefined, "enabled celebration choices with validation and ready send templates", "before choosing a celebration"),
-            action("choose celebration", "game play choose-celebration --player-id <id> --golden-age-type <golden-age-type> --send", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
+            action("choose celebration", "game play choose-celebration --golden-age-type <golden-age-type> --send", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
           ],
           ["Read options from the live celebration chooser before sending; this blocker is not dismissible and should not use notification dismissal."],
         );
