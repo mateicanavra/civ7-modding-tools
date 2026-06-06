@@ -1674,6 +1674,17 @@ adding more read-only facade shells.
   package/CLI proof only and does not claim deployed Civ7 runtime proof,
   play-thread action, transport expansion, approval/reason mechanics,
   diplomacy/narrative catalog support, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.27 Run focused population placement procedure/controller/game-UI
+  tests, focused CLI population placement and ready-city tests,
+  direct-control ready-city/notification-view proof, control-oRPC package
+  test/check/build, direct-control check/build, CLI play/check/build gates,
+  strict OpenSpec validates, private procedure-schema export scan, stale
+  assign-worker send-mode `--player-id` scan, active approval/caller-permission
+  scan, generated bundle scan, and diff hygiene for the population placement
+  player-input cleanup. This is local package/CLI/controller-bundle proof only
+  and does not claim deployed Civ7 runtime proof, play-thread action,
+  transport expansion, approval/reason mechanics, city catalog support, or
+  parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

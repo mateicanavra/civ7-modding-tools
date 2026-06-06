@@ -801,7 +801,7 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     const response = await bridge.invoke({
       procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+      input: { mode: "assign-worker", location: 2543 },
       correlationId: "game-ui-population-assign-worker-1",
     });
 
@@ -901,7 +901,7 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     const response = await bridge.invoke({
       procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+      input: { mode: "assign-worker", location: 2543 },
     });
 
     expect(response).toMatchObject({
@@ -927,7 +927,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(sendCalls).toEqual([]);
   });
 
-  test("blocks game UI assign-worker sends for non-local players", async () => {
+  test("rejects caller player ids on game UI assign-worker bridge input", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       populationPlacement: {
@@ -944,25 +944,12 @@ describe("Civ7 game UI controller bootstrap", () => {
       input: { mode: "assign-worker", playerId: 2, location: 2543 },
     });
 
-    expect(response).toMatchObject({
-      ok: true,
-      output: {
-        placement: {
-          mode: "assign-worker",
-          playerId: 2,
-          location: 2543,
-        },
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+    expect(response).toEqual({
+      ok: false,
+      error: {
+        code: "BRIDGE_BAD_REQUEST",
+        message: "Civ7 controller bridge request envelope is invalid.",
+        reason: "invalid-envelope",
       },
     });
     expect(sendCalls).toEqual([]);
@@ -981,7 +968,7 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     const response = await bridge.invoke({
       procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+      input: { mode: "assign-worker", location: 2543 },
     });
 
     expect(response).toMatchObject({
@@ -1018,7 +1005,7 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     const response = await bridge.invoke({
       procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+      input: { mode: "assign-worker", location: 2543 },
     });
 
     expect(response).toMatchObject({
@@ -1051,7 +1038,7 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     const response = await bridge.invoke({
       procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", playerId: 0, location: 2543 },
+      input: { mode: "assign-worker", location: 2543 },
     });
 
     expect(response).toMatchObject({

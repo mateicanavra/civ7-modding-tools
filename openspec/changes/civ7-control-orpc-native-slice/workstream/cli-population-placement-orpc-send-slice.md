@@ -14,13 +14,19 @@ classification.
 The read-only `game play assign-worker` and `game play expand-city` paths remain
 direct-control operation validation. `assign-worker --send` is bounded to the
 source-owned one-worker placement atom rather than treating `--amount` as
-repeated-send authority.
+repeated-send authority, and send mode omits caller `--player-id` while the
+service reads live local-player notification evidence.
 
 ## Write Set
 
 - `packages/cli/src/commands/game/play/assign-worker.ts`
 - `packages/cli/src/commands/game/play/expand-city.ts`
 - `packages/cli/test/commands/game.play.population-placement.test.ts`
+- `packages/civ7-direct-control/src/play/notifications/view.ts`
+- `packages/civ7-direct-control/src/play/ready/city.ts`
+- `packages/civ7-direct-control/test/ready-city-view.test.ts`
+- `packages/civ7-direct-control/test/ready-city-procedure.test.ts`
+- `packages/cli/test/commands/game/play/ready-city.test.ts`
 - This OpenSpec scenario/task/workstream record
 
 ## Boundary
@@ -32,6 +38,9 @@ repeated-send authority.
   legacy `verified` in normal send output.
 - No population read procedure, repeated-worker send loop, broad city operation
   catalog, or generic operation tunnel in this slice.
+- No caller `--player-id` send authority for assign-worker; dry-run validation
+  may remain player-scoped because it intentionally calls direct-control
+  validation.
 - No play-thread wake and no live-game/runtime proof claim.
 - No parent Task 5.x/6.x/7.x acceptance by implication.
 
@@ -46,5 +55,8 @@ repeated-send authority.
 - The focused CLI proof also rejects `assign-worker --send --amount` values
   outside the source-owned one-worker atom instead of silently ignoring or
   repeating the requested worker count.
+- Focused procedure and CLI proof rejects caller `playerId` on assign-worker
+  service input, reads local-player evidence for send mode, and keeps ready-city
+  and notification send hints playerless.
 - Closure still requires `check:cli`, `test:cli:play`, relevant strict
   OpenSpec validates, diff hygiene, and a durable Graphite commit.

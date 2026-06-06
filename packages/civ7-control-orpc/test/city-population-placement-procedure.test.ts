@@ -23,7 +23,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
 
     const result = await call(
       Civ7ControlOrpcRouter.city.population.place.request,
-      { mode: "assign-worker", playerId: 0, location: 2543 },
+      { mode: "assign-worker", location: 2543 },
       { context: fake.context },
     );
 
@@ -62,10 +62,51 @@ describe("city.population.place.request control-oRPC procedure", () => {
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("\"command\"");
     expect(serialized).not.toContain("\"verified\"");
-    expect(fake.calls).toEqual([{
+    expect(fake.calls).toEqual([
+      {
+        method: "getCiv7PlayNotificationView",
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
+      },
+      {
+        method: "requestCiv7AssignWorkerPlacement",
+        input: {
+          playerId: 0,
+          location: 2543,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
+      },
+    ]);
+  });
+
+  test("uses live local-player evidence instead of caller player input for assign-worker sends", async () => {
+    const fake = fakeContext(
+      operationRequestResult("population-ready-cleared", "assign-worker"),
+      { localPlayerId: 2 },
+    );
+
+    const result = await call(
+      Civ7ControlOrpcRouter.city.population.place.request,
+      { mode: "assign-worker", location: 2543 },
+      { context: fake.context },
+    );
+
+    expect(result.placement).toEqual({
+      mode: "assign-worker",
+      playerId: 2,
+      location: 2543,
+    });
+    expect(fake.calls).toContainEqual({
       method: "requestCiv7AssignWorkerPlacement",
       input: {
-        playerId: 0,
+        playerId: 2,
         location: 2543,
       },
       options: {
@@ -73,7 +114,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-    }]);
+    });
   });
 
   test("maps expand-city placement to the semantic population runtime port through the server-side router client", async () => {
@@ -117,7 +158,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
 
     const result = await call(
       Civ7ControlOrpcRouter.city.population.place.request,
-      { mode: "assign-worker", playerId: 0, location: 2543 },
+      { mode: "assign-worker", location: 2543 },
       { context: fake.context },
     );
 
@@ -154,7 +195,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
 
       const result = await call(
         Civ7ControlOrpcRouter.city.population.place.request,
-        { mode: "assign-worker", playerId: 0, location: 2543 },
+        { mode: "assign-worker", location: 2543 },
         { context: fake.context },
       );
 
@@ -184,7 +225,7 @@ describe("city.population.place.request control-oRPC procedure", () => {
 
     const result = await call(
       Civ7ControlOrpcRouter.city.population.place.request,
-      { mode: "assign-worker", playerId: 0, location: 2543 },
+      { mode: "assign-worker", location: 2543 },
       { context: fake.context },
     );
 
@@ -210,35 +251,31 @@ describe("city.population.place.request control-oRPC procedure", () => {
 
   test("keeps endpoint, session, operation, and raw command fields out of procedure input", async () => {
     const invalidInputs = [
-      { mode: "assign-worker", playerId: 0, location: 2543, host: "127.0.0.1" },
-      { mode: "assign-worker", playerId: 0, location: 2543, port: 4318 },
-      { mode: "assign-worker", playerId: 0, location: 2543, stateName: "App UI" },
+      { mode: "assign-worker", location: 2543, host: "127.0.0.1" },
+      { mode: "assign-worker", location: 2543, port: 4318 },
+      { mode: "assign-worker", location: 2543, stateName: "App UI" },
       {
         mode: "assign-worker",
-        playerId: 0,
         location: 2543,
         session: { state: "App UI" },
       },
       {
         mode: "assign-worker",
-        playerId: 0,
         location: 2543,
         operationType: "ASSIGN_WORKER",
       },
       {
         mode: "assign-worker",
-        playerId: 0,
         location: 2543,
         args: { Location: 2543, Amount: 1 },
       },
       {
         mode: "assign-worker",
-        playerId: 0,
         location: 2543,
         rawCommand: "Game.PlayerOperations.sendRequest(...)",
       },
-      { mode: "assign-worker", playerId: -1, location: 2543 },
-      { mode: "assign-worker", playerId: 0, location: 2543.5 },
+      { mode: "assign-worker", playerId: 2, location: 2543 },
+      { mode: "assign-worker", location: 2543.5 },
       { mode: "expand-city", cityId, destination: { x: 1.5, y: 19 } },
       { mode: "expand-city", cityId, destination: { x: 16, y: -1 } },
     ];
@@ -267,7 +304,6 @@ describe("city.population.place.request control-oRPC procedure", () => {
     await expect(
       call(Civ7ControlOrpcRouter.city.population.place.request, {
         mode: "assign-worker",
-        playerId: 0,
         location: 2543,
       }, { context: fake.context }),
     ).rejects.toMatchObject({
@@ -282,7 +318,6 @@ describe("city.population.place.request control-oRPC procedure", () => {
     try {
       await call(Civ7ControlOrpcRouter.city.population.place.request, {
         mode: "assign-worker",
-        playerId: 0,
         location: 2543,
       }, { context: fake.context });
     } catch (err) {
@@ -316,18 +351,25 @@ describe("city.population.place.request control-oRPC procedure", () => {
 function fakeContext(
   resultOrError: PopulationPlacementRuntimeResult | Error,
   options: {
+    localPlayerId?: number;
   } = {},
 ): {
   context: Civ7ControlOrpcContext;
   calls: Array<{
-    method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
-    input: unknown;
+    method:
+      | "getCiv7PlayNotificationView"
+      | "requestCiv7AssignWorkerPlacement"
+      | "requestCiv7ExpandCityPlacement";
+    input?: unknown;
     options: unknown;
   }>;
 } {
   const calls: Array<{
-    method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
-    input: unknown;
+    method:
+      | "getCiv7PlayNotificationView"
+      | "requestCiv7AssignWorkerPlacement"
+      | "requestCiv7ExpandCityPlacement";
+    input?: unknown;
     options: unknown;
   }> = [];
 
@@ -343,6 +385,13 @@ function fakeContext(
           playable: true,
           readiness: "tuner-ready",
         }),
+        getCiv7PlayNotificationView: async (endpointDefaults) => {
+          calls.push({
+            method: "getCiv7PlayNotificationView",
+            options: endpointDefaults,
+          });
+          return { localPlayerId: options.localPlayerId ?? 0 };
+        },
         requestCiv7AssignWorkerPlacement: async (input, endpointDefaults) => {
           calls.push({
             method: "requestCiv7AssignWorkerPlacement",

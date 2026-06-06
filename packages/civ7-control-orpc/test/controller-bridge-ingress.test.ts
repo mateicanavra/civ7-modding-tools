@@ -970,7 +970,6 @@ describe("Civ7 controller bridge ingress", () => {
       procedureKey: "city.population.place.request",
       input: {
         mode: "assign-worker",
-        playerId: 0,
         location: workerLocation,
       },
       correlationId: "controller-population-1",
@@ -997,6 +996,7 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.population).toEqual([{
       method: "requestCiv7AssignWorkerPlacement",
       input: { playerId: 0, location: workerLocation },
@@ -1006,7 +1006,6 @@ describe("Civ7 controller bridge ingress", () => {
       procedureKey: "city.population.place.request",
       input: {
         mode: "assign-worker",
-        playerId: 0,
         location: workerLocation,
       },
       correlationId: "controller-population-1",
@@ -1764,6 +1763,13 @@ describe("Civ7 controller bridge ingress", () => {
           mode: "assign-worker",
           playerId: 0,
           location: workerLocation,
+        },
+      },
+      {
+        procedureKey: "city.population.place.request",
+        input: {
+          mode: "assign-worker",
+          location: workerLocation,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
       },
@@ -2470,6 +2476,7 @@ function fakeProductionChoiceContext(): {
 function fakePopulationPlacementContext(): {
   calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     population: Array<{
       method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
       input: unknown;
@@ -2481,6 +2488,7 @@ function fakePopulationPlacementContext(): {
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     population: Array<{
       method: "requestCiv7AssignWorkerPlacement" | "requestCiv7ExpandCityPlacement";
       input: unknown;
@@ -2488,6 +2496,7 @@ function fakePopulationPlacementContext(): {
     }>;
   } = {
     status: [],
+    views: [],
     population: [],
   };
   return {
@@ -2503,6 +2512,10 @@ function fakePopulationPlacementContext(): {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
           return playableStatusResult();
+        },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return cleanNotificationViewResult();
         },
         requestCiv7AssignWorkerPlacement: async (input, options) => {
           calls.population.push({

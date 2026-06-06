@@ -19,6 +19,9 @@ type Civ7ControlOrpcPopulationPlacementRuntimeResult = Awaited<
     Civ7ControlOrpcContext["directControl"]["requestCiv7AssignWorkerPlacement"]
   >
 >;
+type Civ7CityPopulationPlacementRuntimeInput =
+  | Readonly<{ mode: "assign-worker"; playerId: number; location: number }>
+  | Extract<Civ7CityPopulationPlacementInput, { mode: "expand-city" }>;
 
 export const cityPopulationPlaceRequestProcedure =
   civ7ControlOrpcMutationProcedure(
@@ -30,22 +33,29 @@ export const cityPopulationPlaceRequestProcedure =
   }) {
     return yield* Effect.tryPromise({
       try: async () => {
-        const result = input.mode === "assign-worker"
+        const runtimeInput = input.mode === "assign-worker"
+          ? {
+              mode: "assign-worker",
+              playerId: await readLocalPlayerId(context),
+              location: input.location,
+            } as const
+          : input;
+        const result = runtimeInput.mode === "assign-worker"
           ? await context.directControl.requestCiv7AssignWorkerPlacement(
             {
-              playerId: input.playerId,
-              location: input.location,
+              playerId: runtimeInput.playerId,
+              location: runtimeInput.location,
             },
             context.endpointDefaults,
           )
           : await context.directControl.requestCiv7ExpandCityPlacement(
             {
-              cityId: input.cityId,
-              destination: input.destination,
+              cityId: runtimeInput.cityId,
+              destination: runtimeInput.destination,
             },
             context.endpointDefaults,
           );
-        return cityPopulationPlacementResult(input, result);
+        return cityPopulationPlacementResult(runtimeInput, result);
       },
       catch: () =>
         errors.POPULATION_PLACEMENT_UNAVAILABLE({
@@ -59,7 +69,7 @@ export const cityPopulationPlaceRequestProcedure =
   });
 
 function cityPopulationPlacementResult(
-  input: Civ7CityPopulationPlacementInput,
+  input: Civ7CityPopulationPlacementRuntimeInput,
   result: Civ7ControlOrpcPopulationPlacementRuntimeResult,
 ): Civ7CityPopulationPlacementResult {
   const postcondition = cityPopulationPlacementPostconditionSummary(result);
@@ -89,7 +99,7 @@ function cityPopulationPlacementResult(
 }
 
 function cityPopulationPlacementSummary(
-  input: Civ7CityPopulationPlacementInput,
+  input: Civ7CityPopulationPlacementRuntimeInput,
 ): Civ7CityPopulationPlacementResult["placement"] {
   if (input.mode === "assign-worker") {
     return {
@@ -107,6 +117,15 @@ function cityPopulationPlacementSummary(
       y: input.destination.y,
     },
   };
+}
+
+async function readLocalPlayerId(
+  context: Civ7ControlOrpcContext,
+): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(
+    context.endpointDefaults,
+  );
+  return view.localPlayerId;
 }
 
 function cityPopulationPlacementPostconditionSummary(

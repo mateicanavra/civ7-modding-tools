@@ -17,7 +17,7 @@ export default class GamePlayAssignWorker extends Command {
 
   static examples = [
     '<%= config.bin %> game play assign-worker --player-id 0 --location 2543 --json',
-    '<%= config.bin %> game play assign-worker --player-id 0 --location 2543 --send --json',
+    '<%= config.bin %> game play assign-worker --location 2543 --send --json',
   ];
 
   static flags = {
@@ -28,8 +28,7 @@ export default class GamePlayAssignWorker extends Command {
       description: 'Civ7 tuner socket port',
     }),
     'player-id': Flags.integer({
-      description: 'Player id',
-      required: true,
+      description: 'Player id for dry-run validation; send mode reads local player evidence from live notifications',
     }),
     location: Flags.integer({
       description: 'Plot index/location selected for worker placement',
@@ -55,6 +54,27 @@ export default class GamePlayAssignWorker extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayAssignWorker);
+    const options = buildDirectControlOptions(flags);
+    if (flags.send && flags.amount !== 1) {
+      throw new Error('game play assign-worker --send supports the source-owned one-worker placement atom; omit --amount or use --amount 1');
+    }
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).city.population.place.request({
+        mode: 'assign-worker',
+        location: flags.location,
+      });
+
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play assign-worker requires --player-id for dry-run validation');
+    }
+
     const input = {
       operationType: ASSIGN_WORKER,
       playerId: flags['player-id'],
@@ -63,20 +83,7 @@ export default class GamePlayAssignWorker extends Command {
         Amount: flags.amount,
       },
     };
-    const options = buildDirectControlOptions(flags);
-    if (flags.send && flags.amount !== 1) {
-      throw new Error('game play assign-worker --send supports the source-owned one-worker placement atom; omit --amount or use --amount 1');
-    }
-    const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
-          endpointDefaults: options,
-        }).city.population.place.request({
-          mode: 'assign-worker',
-          playerId: input.playerId,
-          location: flags.location,
-        })
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

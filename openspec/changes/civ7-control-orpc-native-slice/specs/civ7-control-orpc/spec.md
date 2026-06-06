@@ -716,6 +716,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `assign-worker --send` is bounded to the source-owned one-worker
   placement atom rather than silently treating `--amount` as repeated send
   authority
+- **AND** `assign-worker --send` omits caller `--player-id`; the procedure
+  reads live local-player notification evidence and passes that value to the
+  low-level direct-control assign-worker runtime port
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI town-focus sends use native city procedures
@@ -1308,12 +1311,13 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `city.population.place.request` is listed as a supported game-UI
   mutation only when controller proof and the required ambient validation,
   send, player, city, and postcondition-read APIs are present
-- **AND** assign-worker input remains semantic `{ playerId, location }` while
-  expand-city input remains semantic `{ cityId, destination }`; raw operation
-  types and raw command/session fields are not accepted as bridge input
-- **AND** assign-worker sends require the caller `playerId` to match
-  controller-owned `GameContext.localPlayerID` evidence before any
-  `PlayerOperations.sendRequest` call
+- **AND** assign-worker input remains semantic `{ location }` while expand-city
+  input remains semantic `{ cityId, destination }`; caller `playerId`, raw
+  operation types, and raw command/session fields are not accepted as bridge
+  input
+- **AND** assign-worker sends use controller-owned `GameContext.localPlayerID`
+  evidence through the service context before any `PlayerOperations.sendRequest`
+  call
 - **AND** validator-blocked population placements project semantic `not-sent`
   output and do not call the send API
 - **AND** `population-ready-cleared` requires pre-send city readiness evidence

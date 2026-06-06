@@ -28,7 +28,8 @@ The controller ingress now:
 - accepts `city.population.place.request` as an additional allowlisted
   mutation procedure key;
 - validates the existing semantic population-placement input shape:
-  `assign-worker` or `expand-city`;
+  `assign-worker` with `location` or `expand-city` with `cityId` and
+  `destination`;
 - requires closed controller lifecycle, local-player, and hotseat proof
   metadata without accepting caller-provided mutation metadata fields;
 - requires closed controller lifecycle proof for game-controller-ready lifecycle,
@@ -42,6 +43,9 @@ The controller ingress now:
   authoritative;
 - delegates to
   `createCiv7ControlOrpcServerClient(context).city.population.place.request(...)`;
+- rejects caller `playerId` on the assign-worker bridge input before context
+  construction or router dispatch; the service uses controller/local-player
+  evidence from context instead;
 - returns the existing semantic population placement procedure output;
 - rejects raw host, port, session, state, command, rawCommand, generic
   `operationType`, raw operation `args`, and raw direct-control
