@@ -100,6 +100,33 @@ export class Civ7StrategyFrontSummaryUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7StrategyTacticalReadUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("strategy.targetCandidates"),
+      Type.Literal("strategy.destinationAnalysis"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7StrategyTacticalReadUnavailableErrorData = Static<
+  typeof Civ7StrategyTacticalReadUnavailableErrorDataSchema
+>;
+
+export class Civ7StrategyTacticalReadUnavailableError extends ORPCTaggedError(
+  "Civ7StrategyTacticalReadUnavailableError",
+  {
+    code: "STRATEGY_TACTICAL_READ_UNAVAILABLE",
+    message: "Strategy tactical read failed.",
+    schema: toStandardSchema(
+      Civ7StrategyTacticalReadUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
 export const Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema =
   Type.Object(
     {
@@ -755,6 +782,7 @@ export const civ7ControlOrpcErrorMap = {
   STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE:
     Civ7StrategyFormationSnapshotUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
+  STRATEGY_TACTICAL_READ_UNAVAILABLE: Civ7StrategyTacticalReadUnavailableError,
   TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
   UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,

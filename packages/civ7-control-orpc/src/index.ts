@@ -190,6 +190,8 @@ export {
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
   Civ7StrategyCivilianRouteTriageUnavailableError,
   Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema,
+  Civ7StrategyTacticalReadUnavailableError,
+  Civ7StrategyTacticalReadUnavailableErrorDataSchema,
   Civ7StrategyFormationSnapshotUnavailableError,
   Civ7StrategyFormationSnapshotUnavailableErrorDataSchema,
   Civ7StrategyFrontSummaryUnavailableError,
@@ -231,6 +233,7 @@ export {
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7StrategyCivilianRouteTriageUnavailableErrorData,
+  type Civ7StrategyTacticalReadUnavailableErrorData,
   type Civ7StrategyFormationSnapshotUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
   type Civ7TownFocusUnavailableErrorData,
@@ -431,25 +434,37 @@ export { readinessCurrentProcedure } from "./modules/readiness/procedures/curren
 export {
   Civ7StrategyCivilianRouteTriageContract,
   Civ7StrategyContract,
+  Civ7StrategyDestinationAnalysisContract,
   Civ7StrategyFormationSnapshotContract,
   Civ7StrategyFrontSummaryContract,
+  Civ7StrategyTargetCandidatesContract,
 } from "./modules/strategy/contract";
 export type {
   Civ7StrategyCivilianRouteTriageContract as Civ7StrategyCivilianRouteTriageContractType,
   Civ7StrategyCivilianRouteTriageInput,
   Civ7StrategyCivilianRouteTriageResult,
   Civ7StrategyContract as Civ7StrategyContractType,
+  Civ7StrategyDestinationAnalysisContract as Civ7StrategyDestinationAnalysisContractType,
+  Civ7StrategyDestinationAnalysisInput,
+  Civ7StrategyDestinationAnalysisResult,
   Civ7StrategyFormationSnapshotContract as Civ7StrategyFormationSnapshotContractType,
   Civ7StrategyFormationSnapshotInput,
   Civ7StrategyFormationSnapshotResult,
   Civ7StrategyFrontSummaryContract as Civ7StrategyFrontSummaryContractType,
   Civ7StrategyFrontSummaryInput,
   Civ7StrategyFrontSummaryResult,
+  Civ7StrategyTargetCandidatesContract as Civ7StrategyTargetCandidatesContractType,
+  Civ7StrategyTargetCandidatesInput,
+  Civ7StrategyTargetCandidatesResult,
 } from "./modules/strategy/contract";
 export { strategyRouter } from "./modules/strategy/router";
 export { strategyCivilianRouteTriageProcedure } from "./modules/strategy/procedures/civilian-route-triage";
 export { strategyFormationSnapshotProcedure } from "./modules/strategy/procedures/formation-snapshot";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
+export {
+  strategyDestinationAnalysisProcedure,
+  strategyTargetCandidatesProcedure,
+} from "./modules/strategy/procedures/tactical-reads";
 export {
   Civ7TurnCompletionContract,
   Civ7TurnContract,

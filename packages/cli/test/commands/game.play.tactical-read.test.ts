@@ -52,16 +52,19 @@ describe('game play tactical read commands', () => {
         ok: true;
         view: {
           candidates: Array<{
-            cities: unknown[];
+            nearestCityLocation: { x: number; y: number } | null;
             approach: { routeKind: string; waterSampleCount: number; landSampleCount: number };
           }>;
+          omitted: Array<{ path: string; reason: string }>;
         };
       };
 
-      expect(payload.view.candidates[0]?.cities).toHaveLength(2);
+      expect(payload.view.candidates[0]?.nearestCityLocation).toEqual({ x: 13, y: 17 });
       expect(payload.view.candidates[0]?.approach.routeKind).toBe('land');
       expect(payload.view.candidates[0]?.approach.waterSampleCount).toBe(0);
       expect(payload.view.candidates[0]?.approach.landSampleCount).toBeGreaterThan(0);
+      expect(payload.view.omitted.map((item) => item.path)).toContain('candidate.cities');
+      expect(JSON.stringify(payload.view)).not.toContain('"nearbyUnits":[');
       expect(server.received.some((message) => message.includes('readTargetCandidates'))).toBe(true);
       expect(server.received.some((message) => message.includes('"origins":[{"x":18,"y":20}]'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
@@ -120,6 +123,7 @@ describe('game play tactical read commands', () => {
         ok: true;
         view: {
           pointsOfInterest: Array<{ summary?: string; kind?: string }>;
+          omitted: Array<{ path: string; reason: string }>;
         };
       };
 
@@ -212,6 +216,12 @@ describe('game play tactical read commands', () => {
         unprovenLabel: 'relationship-unproven',
       });
       expectPositiveRelationshipLabels(payload.view.pointsOfInterest.map((item) => `${item.kind ?? ''}: ${item.summary ?? ''}`));
+      expect(payload.view.omitted.map((item) => item.path)).toEqual(expect.arrayContaining([
+        'corridor.sampledPlots',
+        'destinationPressure.units',
+        'destinationPressure.cities',
+      ]));
+      expect(JSON.stringify(payload.view)).not.toContain('"sampledPlots":[');
       expect(server.received.some((message) => message.includes('readDestinationAnalysis'))).toBe(true);
       expect(server.received.some((message) => message.includes('relationshipLabelPolicy: scan.relationshipLabelPolicy'))).toBe(true);
       expect(server.received.some((message) => message.includes('"origin":{"x":20,"y":14}'))).toBe(true);
@@ -259,11 +269,11 @@ async function startTacticalReadTunerServer(): Promise<FakeTunerServer> {
       if (message.includes('readTargetCandidates')) {
         return [JSON.stringify(targetCandidatesView())];
       }
-      if (message.includes('readBattlefieldScan')) {
-        return [JSON.stringify(battlefieldScanView())];
-      }
       if (message.includes('readDestinationAnalysis')) {
         return [JSON.stringify(destinationAnalysisView())];
+      }
+      if (message.includes('readBattlefieldScan')) {
+        return [JSON.stringify(battlefieldScanView())];
       }
       return undefined;
     },

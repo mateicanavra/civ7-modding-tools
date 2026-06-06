@@ -1706,6 +1706,36 @@ boundaries.
   rawCommand, direct-control runtime envelopes, approval/reason mechanics, or
   transport details as normal traditions output
 
+#### Scenario: Strategy tactical read services are implemented
+- **WHEN** a caller reads target candidates or destination analysis
+- **THEN** the reads are offered under the semantic `strategy` router as
+  `strategy.targetCandidates` and `strategy.destinationAnalysis`
+- **AND** they consume direct-control tactical runtime/read ports as low-level
+  App UI evidence rather than exposing direct-control result envelopes
+- **AND** the service procedures own bounded planning summaries, semantic
+  next-step descriptors, omitted-detail policy, and relationship-safe wording
+- **AND** caller-facing input accepts only tactical read selection fields such
+  as player id, origins, destination, radii, and bounds, while endpoint,
+  session, state, raw command, rawCommand, transport, and approval/reason
+  fields remain outside procedure input
+- **AND** normal service output omits raw host, port, state, session, command,
+  rawCommand, raw city/unit/plot samples, and direct-control runtime envelopes
+- **AND** normal output uses `relationship-unproven`/official-proof-neutral
+  wording and does not infer official diplomatic labels from owner mismatch,
+  proximity, contact, ranking, or action legality
+- **AND** local procedure tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI tactical reads use native strategy services
+- **WHEN** `civ7 game play target-candidates` or
+  `civ7 game play destination-analysis` reads tactical planning evidence
+- **THEN** the CLI calls the in-process `strategy.targetCandidates` or
+  `strategy.destinationAnalysis` server-side client
+- **AND** normal JSON uses the service-owned semantic strategy projection
+  rather than a CLI-owned direct-control runtime projection
+- **AND** the CLI does not expose raw host, port, state, session, command,
+  rawCommand, direct-control runtime envelopes, approval/reason mechanics, raw
+  city/unit/plot samples, or transport details as normal tactical-read output
+
 #### Scenario: Local procedure test passes
 - **WHEN** a local fake-context procedure test passes
 - **THEN** it may prove contract/middleware/projection behavior

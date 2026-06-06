@@ -1,5 +1,6 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7DestinationAnalysis } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions, resolveCoordinateFlags } from '../../../utils/game-play-shared';
 
 export default class GamePlayDestinationAnalysis extends Command {
@@ -100,7 +101,10 @@ export default class GamePlayDestinationAnalysis extends Command {
       required: true,
     });
     if (!destination) throw new Error('provide --destination or --to-x and --to-y');
-    const view = await getCiv7DestinationAnalysis({
+    const view = await createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      endpointDefaults: buildDirectControlOptions(flags),
+    }).strategy.destinationAnalysis({
       playerId: flags['player-id'],
       origin,
       destination,
@@ -109,7 +113,7 @@ export default class GamePlayDestinationAnalysis extends Command {
       maxPlayers: flags['max-players'],
       maxUnits: flags['max-units'],
       maxCities: flags['max-cities'],
-    }, buildDirectControlOptions(flags));
+    });
 
     if (flags.json) {
       this.log(JSON.stringify({ ok: true, view }));

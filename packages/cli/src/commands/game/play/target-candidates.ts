@@ -1,12 +1,13 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7TargetCandidates } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions, resolveCoordinateFlags } from '../../../utils/game-play-shared';
 
 export default class GamePlayTargetCandidates extends Command {
   static id = 'game play target-candidates';
   static summary = 'Read strategic target candidates from live city and unit summaries';
   static description =
-    'Returns a read-only shortlist of other-owner contacts ranked from a supplied siege/formation origin. It is planning support, not relationship, movement, diplomacy, or war authority.';
+    'Returns a read-only shortlist of other-owner contacts ranked from a supplied siege/formation origin. It is planning support, not relationship, movement, diplomacy, or action authority.';
 
   static examples = [
     '<%= config.bin %> game play target-candidates --json',
@@ -68,13 +69,16 @@ export default class GamePlayTargetCandidates extends Command {
       pairFlag: 'origin',
     });
     const origins = origin ? [origin] : undefined;
-    const view = await getCiv7TargetCandidates({
+    const view = await createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      endpointDefaults: buildDirectControlOptions(flags),
+    }).strategy.targetCandidates({
       playerId: flags['player-id'],
       origins,
       maxCandidates: flags['max-candidates'],
       maxPlayers: flags['max-players'],
       unitRadius: flags['unit-radius'],
-    }, buildDirectControlOptions(flags));
+    });
 
     if (flags.json) {
       this.log(JSON.stringify({ ok: true, view }));
@@ -85,18 +89,12 @@ export default class GamePlayTargetCandidates extends Command {
     this.log(`Hidden info policy: ${view.hiddenInfoPolicy}`);
     for (const candidate of view.candidates) {
       this.log(`- owner ${candidate.owner}: distance=${candidate.nearestDistance ?? '<unknown>'}; cities=${candidate.cityCount}; units=${candidate.unitCount}; nearby=${candidate.nearbyUnitCount}; strength=${candidate.apparentStrength}`);
-      this.log(`  civ=${formatProbe(candidate.civilizationName)} leader=${formatProbe(candidate.leaderName)} route=${candidate.approach.routeHint} kind=${candidate.approach.routeKind ?? '<unknown>'}`);
-      this.log(`  nearest=${formatValue(candidate.nearestCity)}`);
-      this.log(`  settlements=${formatValue(candidate.cities)}`);
+      this.log(`  civ=${candidate.civilizationName ?? '<unknown>'} leader=${candidate.leaderName ?? '<unknown>'} route=${candidate.approach.routeHint} kind=${candidate.approach.routeKind ?? '<unknown>'}`);
+      this.log(`  nearest=${formatValue(candidate.nearestCityLocation)}`);
       if (candidate.reasons.length > 0) this.log(`  reasons=${candidate.reasons.join('; ')}`);
     }
     for (const note of view.notes) this.log(`Note: ${note}`);
   }
-}
-
-function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {
-  if (!probe.ok) return `<error: ${probe.error}>`;
-  return formatValue(probe.value);
 }
 
 function formatValue(value: unknown): string {
