@@ -41,6 +41,11 @@
       "import": "./dist/proof/first-meet-response-proof-policy.js",
       "require": "./dist/proof/first-meet-response-proof-policy.cjs"
     },
+    "./proof/government-choice-proof-policy": {
+      "types": "./dist/proof/government-choice-proof-policy.d.ts",
+      "import": "./dist/proof/government-choice-proof-policy.js",
+      "require": "./dist/proof/government-choice-proof-policy.cjs"
+    },
     "./proof/narrative-choice-proof-policy": {
       "types": "./dist/proof/narrative-choice-proof-policy.d.ts",
       "import": "./dist/proof/narrative-choice-proof-policy.js",

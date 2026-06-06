@@ -290,6 +290,8 @@ function createCiv7GameUiDirectControlFacade(
     requestCiv7DiplomacyResponse: async (input) =>
       await requestCiv7GameUiDiplomacyResponse(input, target),
     requestCiv7FirstMeetResponse: unsupported,
+    requestCiv7GovernmentChoice: unsupported,
+    requestCiv7CelebrationChoice: unsupported,
     requestCiv7TechnologyChoiceCloseout: async (input) =>
       await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) =>

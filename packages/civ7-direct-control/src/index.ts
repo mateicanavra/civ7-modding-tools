@@ -679,6 +679,25 @@ export {
 } from "./play/unit-summary-procedure.js";
 export type { Civ7UnitSummaryProcedureCallOptions } from "./play/unit-summary-procedure.js";
 export type {
+  Civ7CelebrationChoiceInput,
+  Civ7GovernmentChoiceInput,
+  Civ7GovernmentChoiceKind,
+  Civ7GovernmentChoicePostcondition,
+  Civ7GovernmentChoicePostconditionClassification,
+  Civ7GovernmentDomainChoiceInput,
+  Civ7GovernmentDomainChoiceResult,
+} from "./play/government/choice-request";
+export {
+  CIV7_GOVERNMENT_ACTIVATE_ACTION,
+  requestCiv7CelebrationChoice,
+  requestCiv7GovernmentChoice,
+  requestCiv7GovernmentDomainChoice,
+} from "./play/government/choice-request";
+export {
+  governmentChoiceProofOutcome,
+  governmentChoiceProofPostcondition,
+} from "./proof/government-choice-proof-policy";
+export type {
   Civ7ProgressDashboardInput,
   Civ7ProgressDashboardLegacyPath,
   Civ7ProgressDashboardResult,

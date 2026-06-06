@@ -29,6 +29,64 @@ describe('game play celebration and government commands', () => {
     }
   });
 
+  test('routes celebration sends through government oRPC with local-player evidence', async () => {
+    const server = await startCelebrationGovernmentTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseCelebration.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseCelebration.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '2',
+        '--golden-age-type',
+        '-340825966',
+        '--send',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: GovernmentChoiceSendResult;
+      };
+      expect(payload.result).toMatchObject({
+        playerId: 0,
+        goldenAgeType: -340825966,
+        sent: true,
+        status: 'sent-unverified',
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: 'pending-runtime-proof',
+          outcome: 'unknown',
+          confidence: 'pending-runtime-proof',
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'government.celebration.choice.request',
+      });
+      expectSemanticGovernmentChoiceOmitsRawRuntimeDetails(payload.result);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('CHOOSE_GOLDEN_AGE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"playerId":0'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"playerId":2'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('reads celebration choice options without requiring a golden age type', async () => {
     const server = await startCelebrationGovernmentTunerServer({ playNotificationMode: 'celebration-choice' });
     const writes: string[] = [];
@@ -107,6 +165,65 @@ describe('game play celebration and government commands', () => {
     }
   });
 
+  test('routes government sends through government oRPC with local-player evidence', async () => {
+    const server = await startCelebrationGovernmentTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseGovernment.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseGovernment.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '2',
+        '--government-type',
+        '0',
+        '--send',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: GovernmentChoiceSendResult;
+      };
+      expect(payload.result).toMatchObject({
+        playerId: 0,
+        governmentType: 0,
+        action: -1326475004,
+        sent: true,
+        status: 'sent-unverified',
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: 'pending-runtime-proof',
+          outcome: 'unknown',
+          confidence: 'pending-runtime-proof',
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'government.choice.request',
+      });
+      expectSemanticGovernmentChoiceOmitsRawRuntimeDetails(payload.result);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('CHANGE_GOVERNMENT'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"playerId":0'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"playerId":2'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('reads government choice options without requiring a government type', async () => {
     const server = await startCelebrationGovernmentTunerServer({ playNotificationMode: 'government-choice' });
     const writes: string[] = [];
@@ -163,6 +280,31 @@ describe('game play celebration and government commands', () => {
 
 type CelebrationGovernmentTunerServer = FakeTunerServer;
 
+type GovernmentChoiceSendResult = {
+  playerId: number;
+  governmentType?: number;
+  action?: number;
+  goldenAgeType?: number;
+  sent: boolean;
+  status: string;
+  validation: {
+    beforeValid: boolean;
+    afterValid: boolean;
+  };
+  postcondition: {
+    classification: string;
+    outcome: string;
+    confidence: string;
+    confirmed: boolean;
+    noRepeatAfterUnverified: boolean;
+  };
+  nextSteps: Array<{
+    kind: string;
+    source: string;
+    label: string;
+  }>;
+};
+
 type CommandClass = {
   run(args: string[]): Promise<unknown>;
   prototype: { log(message?: string): void };
@@ -182,15 +324,41 @@ async function startCelebrationGovernmentTunerServer(options: {
 } = {}): Promise<CelebrationGovernmentTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
       if (message.includes('return JSON.stringify(validateOperation')) {
         return [JSON.stringify(operationValidation(message))];
       }
       if (message.includes('readPlayNotifications')) {
         return [JSON.stringify(playNotificationView(options.playNotificationMode ?? 'celebration-choice'))];
       }
+      if (message.includes('return JSON.stringify(sendOperation')) {
+        return [JSON.stringify({ sent: true })];
+      }
       return undefined;
     },
   });
+}
+
+function expectSemanticGovernmentChoiceOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operation"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
+  expect(serialized).not.toContain('Game.PlayerOperations');
+  expect(serialized).not.toContain('CHANGE_GOVERNMENT');
+  expect(serialized).not.toContain('CHOOSE_GOLDEN_AGE');
 }
 
 function operationValidation(message: string) {
@@ -218,6 +386,44 @@ function operationTypeFromMessage(message: string) {
 function operationArgs(operationType: string) {
   if (operationType === 'CHANGE_GOVERNMENT') return { GovernmentType: 0, Action: -1326475004 };
   return { GoldenAgeType: -340825966 };
+}
+
+function appUiSnapshot() {
+  return {
+    state: { id: '65535', name: 'App UI' },
+    schemaVersion: 'civ7-app-ui-snapshot.v1',
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      canBeginGame: { ok: true, value: false },
+    },
+    errors: [],
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      hasGame: true,
+      hasPlayers: true,
+      hasGameInfo: true,
+      hasUI: true,
+      hasNetwork: true,
+      hasGameplayMap: true,
+      hasPlayerOperations: true,
+      hasUnitCommands: true,
+      hasCityCommands: true,
+      gridWidth: { ok: true, value: 80 },
+    },
+  };
 }
 
 function playNotificationView(mode: 'celebration-choice' | 'government-choice') {

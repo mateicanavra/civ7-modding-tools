@@ -9,7 +9,9 @@ import {
   requestCiv7TurnComplete,
   requestCiv7DiplomacyResponse,
   requestCiv7FirstMeetResponse,
+  requestCiv7CelebrationChoice,
   requestCiv7CultureChoiceCloseout,
+  requestCiv7GovernmentChoice,
   requestCiv7NarrativeChoice,
   requestCiv7NotificationDismissal,
   requestCiv7CityCommand,
@@ -26,8 +28,11 @@ import {
   type Civ7DiplomacyResponseResult,
   type Civ7FirstMeetResponseInput,
   type Civ7FirstMeetResponseResult,
+  type Civ7CelebrationChoiceInput,
   type Civ7CultureChoiceCloseoutInput,
   type Civ7CultureChoiceCloseoutResult,
+  type Civ7GovernmentChoiceInput,
+  type Civ7GovernmentDomainChoiceResult,
   type Civ7NarrativeChoiceInput,
   type Civ7NarrativeChoiceResult,
   Civ7PlayNotificationViewResultSchema,
@@ -69,6 +74,8 @@ export type Civ7ControlOrpcDiplomacyResponseResult =
   Civ7DiplomacyResponseResult;
 export type Civ7ControlOrpcFirstMeetResponseResult =
   Civ7FirstMeetResponseResult;
+export type Civ7ControlOrpcGovernmentChoiceResult =
+  Civ7GovernmentDomainChoiceResult;
 export type Civ7ControlOrpcCultureChoiceCloseoutResult =
   Civ7CultureChoiceCloseoutResult;
 export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
@@ -140,6 +147,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7FirstMeetResponseInput,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcFirstMeetResponseResult>;
+  requestCiv7GovernmentChoice(
+    input: Omit<Civ7GovernmentChoiceInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcGovernmentChoiceResult>;
+  requestCiv7CelebrationChoice(
+    input: Omit<Civ7CelebrationChoiceInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcGovernmentChoiceResult>;
   requestCiv7TechnologyChoiceCloseout(
     input: Civ7TechnologyChoiceCloseoutInput,
     options: Civ7DirectControlOptions | undefined,
@@ -222,6 +237,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7DiplomacyResponse(input, options),
   requestCiv7FirstMeetResponse: async (input, options) =>
     requestCiv7FirstMeetResponse(input, options),
+  requestCiv7GovernmentChoice: async (input, options) =>
+    requestCiv7GovernmentChoice(input, options),
+  requestCiv7CelebrationChoice: async (input, options) =>
+    requestCiv7CelebrationChoice(input, options),
   requestCiv7TechnologyChoiceCloseout: async (input, options) =>
     requestCiv7TechnologyChoiceCloseout(input, options),
   requestCiv7CultureChoiceCloseout: async (input, options) =>

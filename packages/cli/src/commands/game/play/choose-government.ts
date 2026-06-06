@@ -1,9 +1,10 @@
 import { Command, Flags } from '@oclif/core';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { getCiv7PlayNotificationView } from '@civ7/direct-control';
 import {
   buildDirectControlOptions,
   emitPlayResult,
-  sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
@@ -84,7 +85,8 @@ export default class GamePlayChooseGovernment extends Command {
     }
     if (typeof flags['government-type'] !== 'number') {
       throw new Error('game play choose-government requires --government-type unless --options is used');
-    }    const input = {
+    }
+    const input = {
       operationType: CHANGE_GOVERNMENT,
       playerId: flags['player-id'],
       args: {
@@ -93,7 +95,14 @@ export default class GamePlayChooseGovernment extends Command {
       },
     };
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options)
+      ? await createCiv7ControlOrpcServerClient({
+          directControl: liveCiv7ControlOrpcDirectControlFacade,
+          endpointDefaults: options,
+        }).government.choice.request({
+          playerId: flags['player-id'],
+          governmentType: flags['government-type'],
+          ...(flags.action === undefined ? {} : { action: flags.action }),
+        })
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

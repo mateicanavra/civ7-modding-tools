@@ -89,6 +89,8 @@ export {
   Civ7DiplomacyResponseUnavailableErrorDataSchema,
   Civ7FirstMeetResponseUnavailableError,
   Civ7FirstMeetResponseUnavailableErrorDataSchema,
+  Civ7GovernmentChoiceUnavailableError,
+  Civ7GovernmentChoiceUnavailableErrorDataSchema,
   Civ7MutationProofBoundaryInvalidError,
   Civ7MutationProofBoundaryInvalidErrorDataSchema,
   Civ7MutationReadinessRequiredError,
@@ -124,6 +126,7 @@ export {
   type Civ7CorrelationIdInvalidErrorData,
   type Civ7DiplomacyResponseUnavailableErrorData,
   type Civ7FirstMeetResponseUnavailableErrorData,
+  type Civ7GovernmentChoiceUnavailableErrorData,
   type Civ7MutationProofBoundaryInvalidErrorData,
   type Civ7MutationReadinessRequiredErrorData,
   type Civ7MutationReadinessUnavailableErrorData,
@@ -275,6 +278,40 @@ export type {
 export { diplomacyRouter } from "./modules/diplomacy/router";
 export { firstMeetResponseRequestProcedure } from "./modules/diplomacy/procedures/first-meet-response-request";
 export { diplomacyResponseRequestProcedure } from "./modules/diplomacy/procedures/response-request";
+export {
+  Civ7GovernmentCelebrationChoiceContract,
+  Civ7GovernmentCelebrationChoiceInputSchema,
+  Civ7GovernmentCelebrationChoiceInputStandardSchema,
+  Civ7GovernmentCelebrationChoiceNextStepSchema,
+  Civ7GovernmentCelebrationChoiceResultSchema,
+  Civ7GovernmentCelebrationChoiceResultStandardSchema,
+  Civ7GovernmentChoiceContract,
+  Civ7GovernmentChoiceInputSchema,
+  Civ7GovernmentChoiceInputStandardSchema,
+  Civ7GovernmentChoiceNextStepSchema,
+  Civ7GovernmentChoicePostconditionClassificationSchema,
+  Civ7GovernmentChoicePostconditionSummarySchema,
+  Civ7GovernmentChoiceProofOutcomeSchema,
+  Civ7GovernmentChoiceRequestStatusSchema,
+  Civ7GovernmentChoiceResultSchema,
+  Civ7GovernmentChoiceResultStandardSchema,
+  Civ7GovernmentChoiceValidationSummarySchema,
+  Civ7GovernmentContract,
+} from "./modules/government/contract";
+export type {
+  Civ7GovernmentCelebrationChoiceContract as Civ7GovernmentCelebrationChoiceContractType,
+  Civ7GovernmentCelebrationChoiceInput,
+  Civ7GovernmentCelebrationChoiceResult,
+  Civ7GovernmentChoiceContract as Civ7GovernmentChoiceContractType,
+  Civ7GovernmentChoiceInput,
+  Civ7GovernmentChoiceResult,
+  Civ7GovernmentContract as Civ7GovernmentContractType,
+} from "./modules/government/contract";
+export { governmentRouter } from "./modules/government/router";
+export {
+  governmentCelebrationChoiceRequestProcedure,
+  governmentChoiceRequestProcedure,
+} from "./modules/government/procedures/choice-request";
 export {
   Civ7ProgressionChoiceEvidenceSummarySchema,
   Civ7ProgressionChoiceInputSchema,

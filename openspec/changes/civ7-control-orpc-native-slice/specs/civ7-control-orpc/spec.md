@@ -151,6 +151,27 @@ errors, and server-side callers.
   player-operation target sends, command serialization, validator output, and
   no-repeat proof facts consumed by the procedures
 
+#### Scenario: Government-domain choice service contract is offered
+- **WHEN** `government.choice.request` and
+  `government.celebration.choice.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the input, output, postcondition, and next-step
+  schemas for those service procedures under the `government` router
+- **AND** the input admits only player ID plus government type/action or player
+  ID plus golden-age type, with government versus celebration expressed by the
+  domain procedure path rather than a generic operation root or operation enum
+  input
+- **AND** the procedure reads current local-player evidence before send and
+  does not treat caller-provided player ID as mutation authority by itself
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, and legacy `verified` remain
+  excluded from procedure input and normal output
+- **AND** sent government-domain choices remain pending-runtime-proof and
+  no-repeat guarded until a future source-owned read/postcondition proves the
+  live government or celebration blocker cleared
+- **AND** direct-control remains the low-level runtime/proof owner for
+  player-operation government-domain sends, command serialization, validator
+  output, and no-repeat proof facts consumed by the procedures
+
 #### Scenario: Service contract ownership is guarded
 - **WHEN** control-oRPC service contracts are checked
 - **THEN** package verification fails if module contract files import
@@ -469,6 +490,29 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   progression target changed
 - **AND** the read-only validation paths remain direct-control
   player-operation validation until separate accepted service reads exist
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI government-domain sends use native government procedures
+- **WHEN** `game play choose-government --send` or
+  `game play choose-celebration --send` requests a government-domain mutation
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process `government.choice.request` or
+  `government.celebration.choice.request` server-side client under the
+  `government` router
+- **AND** the procedure's readiness, fresh local-player read,
+  direct-control government-domain runtime port, proof projection, and
+  no-repeat policy remain authoritative for the send
+- **AND** the send result uses live local-player evidence rather than treating
+  caller validation `--player-id` as send authority
+- **AND** the normal JSON result is the semantic government-domain procedure
+  projection without raw command/session/state/Tuner details, generic
+  operation type or args fields, direct-control operation envelopes, or legacy
+  `verified`
+- **AND** sent government-domain choices remain `sent-unverified` with
+  do-not-repeat next steps because local tests do not prove the live government
+  or celebration blocker cleared
+- **AND** the read-only validation and option-read paths remain direct-control
+  owned until separate accepted service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: In-game controller bridge preflight is recorded

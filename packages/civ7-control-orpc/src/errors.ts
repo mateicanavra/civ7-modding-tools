@@ -213,6 +213,31 @@ export class Civ7FirstMeetResponseUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7GovernmentChoiceUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("government.choice.request"),
+      Type.Literal("government.celebration.choice.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7GovernmentChoiceUnavailableErrorData = Static<
+  typeof Civ7GovernmentChoiceUnavailableErrorDataSchema
+>;
+
+export class Civ7GovernmentChoiceUnavailableError extends ORPCTaggedError(
+  "Civ7GovernmentChoiceUnavailableError",
+  {
+    code: "GOVERNMENT_CHOICE_UNAVAILABLE",
+    message: "Direct-control government-domain choice request failed.",
+    schema: toStandardSchema(Civ7GovernmentChoiceUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7ProgressionChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
@@ -433,6 +458,7 @@ export const civ7ControlOrpcErrorMap = {
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   FIRST_MEET_RESPONSE_UNAVAILABLE: Civ7FirstMeetResponseUnavailableError,
+  GOVERNMENT_CHOICE_UNAVAILABLE: Civ7GovernmentChoiceUnavailableError,
   MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,

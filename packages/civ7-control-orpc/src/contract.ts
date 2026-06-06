@@ -12,6 +12,10 @@ import {
   type Civ7DiplomacyContract as Civ7DiplomacyContractType,
 } from "./modules/diplomacy/contract";
 import {
+  Civ7GovernmentContract,
+  type Civ7GovernmentContract as Civ7GovernmentContractType,
+} from "./modules/government/contract";
+import {
   Civ7NarrativeContract,
   type Civ7NarrativeContract as Civ7NarrativeContractType,
 } from "./modules/narrative/contract";
@@ -44,6 +48,7 @@ export type Civ7ControlOrpcContract = Readonly<{
   attention: Civ7AttentionContractType;
   city: Civ7CityContractType;
   diplomacy: Civ7DiplomacyContractType;
+  government: Civ7GovernmentContractType;
   narrative: Civ7NarrativeContractType;
   notifications: Civ7NotificationsContractType;
   progression: Civ7ProgressionContractType;
@@ -58,6 +63,7 @@ export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
     attention: Civ7AttentionContract,
     city: Civ7CityContract,
     diplomacy: Civ7DiplomacyContract,
+    government: Civ7GovernmentContract,
     narrative: Civ7NarrativeContract,
     notifications: Civ7NotificationsContract,
     progression: Civ7ProgressionContract,
