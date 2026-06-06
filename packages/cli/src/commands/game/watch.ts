@@ -142,7 +142,6 @@ export default class GameWatch extends Command {
         mode: flags['human-aware'] ? 'human-turn-watch' : 'watch',
         risk: 'read',
         wrapper: buildWrapper(flags, firstReadyUnitId),
-        cli: buildCliShape(flags),
         stateRole: 'app-ui',
         timeoutMs: flags['timeout-ms'],
         startedAt,
@@ -194,7 +193,6 @@ export default class GameWatch extends Command {
         mode: flags['human-aware'] ? 'human-turn-watch' : 'watch',
         risk: 'read',
         wrapper: 'getCiv7PlayNotificationView',
-        cli: buildCliShape(flags),
         stateRole: 'app-ui',
         timeoutMs: flags['timeout-ms'],
         startedAt,
@@ -247,7 +245,6 @@ type WatchObservation = Readonly<{
   mode: 'human-turn-watch' | 'watch';
   risk: 'read';
   wrapper: string;
-  cli: string;
   stateRole: 'app-ui';
   timeoutMs: number;
   startedAt: string;
@@ -301,20 +298,6 @@ function buildWrapper(flags: WatchFlags, firstReadyUnitId: unknown): string {
   if (flags['include-ready-unit'] && firstReadyUnitId) wrappers.push('getCiv7ReadyUnitView');
   if (flags['include-ready-city']) wrappers.push('getCiv7ReadyCityView');
   return wrappers.join('+');
-}
-
-function buildCliShape(flags: WatchFlags): string {
-  const parts = [
-    'game watch',
-    `--count ${flags.count}`,
-    `--interval-ms ${flags['interval-ms']}`,
-    flags.artifact ? `--artifact ${flags.artifact}` : '',
-    flags['include-ready-unit'] ? '--include-ready-unit' : '',
-    flags['include-ready-city'] ? '--include-ready-city' : '',
-    flags.jsonl ? '--jsonl' : '',
-    flags.json ? '--json' : '',
-  ].filter(Boolean);
-  return parts.join(' ');
 }
 
 async function appendObservation(path: string, observation: WatchObservation): Promise<void> {

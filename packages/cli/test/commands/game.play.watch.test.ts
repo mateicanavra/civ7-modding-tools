@@ -47,6 +47,8 @@ describe('game watch command', () => {
       expect(observations[0].schema).toBe('civ7-watcher-observation.v1');
       expect(observations[0].mode).toBe('human-turn-watch');
       expect(observations[0].wrapper).toBe('getCiv7PlayNotificationView+getCiv7ReadyUnitView+getCiv7ReadyCityView');
+      expect(observations[0]).not.toHaveProperty('cli');
+      expect(JSON.stringify(observations[0])).not.toContain('game watch');
       expect(observations[0].ok).toBe(true);
       expect(observations[0].firstReadyUnitId).toEqual({ owner: 0, id: 458752, type: 26 });
       expect(observations[0].readyUnit).not.toBeNull();
@@ -91,6 +93,8 @@ describe('game watch command', () => {
         ok: true,
         stateRole: 'app-ui',
       });
+      expect(JSON.parse(lines[0])).not.toHaveProperty('cli');
+      expect(lines[0]).not.toContain('game watch');
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
       await rm(tempDir, { force: true, recursive: true });
