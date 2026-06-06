@@ -471,9 +471,6 @@ export function playNotificationViewSource(): string {
         otherPlayer,
         responses,
         recommendedResponse: "neutral",
-        recommendedCli: player2 == null
-          ? null
-          : "game play respond-first-meet --met-player-id " + String(player2) + " --response neutral --send",
         note: "Neutral is the conservative default when Influence cost or payoff is not proven.",
       };
     };

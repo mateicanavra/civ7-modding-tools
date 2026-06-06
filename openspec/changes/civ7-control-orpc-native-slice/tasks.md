@@ -963,6 +963,14 @@ adding more read-only facade shells.
     controller bridge, deployed Civ7 proof, relationship authority, and parent
     Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
     retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.33 Remove the first-meet notification `recommendedCli` command
+    recipe from direct-control notification details while preserving semantic
+    `recommendedResponse` guidance. Remove the now-unused CLI helper that read
+    `recommendedCli` from decision details. Keep option data, validation
+    evidence, parser flags, runtime behavior, controller bridge, deployed Civ7
+    proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
+    unchanged; caller-provided approval remains retired and no approval-reason
+    mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2003,6 +2011,16 @@ adding more read-only facade shells.
   transport/controller scope, relationship authority, or parent Task
   5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
   approval-reason mechanic is introduced.
+- [x] 8.60.47 Run focused direct-control notification view tests,
+  direct-control check/build, `check:cli`, strict OpenSpec validates,
+  first-meet notification-details `recommendedCli` absence scan over changed
+  source/test/dist, active approval/caller-permission scan, relationship-label
+  safety scan, and diff hygiene for the first-meet recommendation field
+  removal. This is local source/CLI/OpenSpec proof only; it does not change
+  option data, validation evidence, parser flags, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package
   check/build, strict OpenSpec validates, game-UI attention `cli`/command
   recipe scans, active approval/caller-permission scan, relationship-label

@@ -96,6 +96,7 @@ describe("getCiv7PlayNotificationView", () => {
       expect(notificationRead).not.toContain("Use a returned enabled option's cli");
       expect(notificationRead).not.toContain("Use an enabled option's cli");
       expect(notificationRead).not.toContain("use validateCli");
+      expect(notificationRead).not.toContain("recommendedCli");
       expect(notificationRead).not.toContain("validate diplomacy response");
       expect(notificationRead).not.toContain("validate narrative choice");
       expect(notificationRead).not.toContain("validate city expansion");
