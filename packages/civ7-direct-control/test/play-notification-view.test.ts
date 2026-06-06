@@ -80,10 +80,28 @@ describe("getCiv7PlayNotificationView", () => {
       expect(notificationRead).toContain("game play buy-attribute --node <node> --send");
       expect(notificationRead).toContain("game play consider-traditions --send");
       expect(notificationRead).toContain("game play consider-attributes --send");
+      expect(notificationRead).toContain("game play expand-city --city-id '<city-id>' --x <x> --y <y> --send");
+      expect(notificationRead).toContain("game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send");
+      expect(notificationRead).toContain("game play consider-town-project --city-id '<city-id>' --send");
+      expect(notificationRead).toContain("game play build-production --city-id '<city-id>' --unit-type <unit-type> --send");
+      expect(notificationRead).toContain("game play build-production --city-id '<city-id>' --project-type <project-type> --send");
+      expect(notificationRead).toContain("game play advisor-warning --target '<notification-id>' --send");
       expect(notificationRead).not.toContain("game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action> --send");
       expect(notificationRead).not.toContain("game play buy-attribute --player-id <id> --node <node> --send");
+      expect(notificationRead).not.toContain("game play advisor-warning --player-id <id> --target '<notification-id>'");
+      expect(notificationRead).not.toContain("set town focus and close review");
+      expect(notificationRead).not.toContain("close reviewed town project");
+      expect(notificationRead).not.toContain("validate tech choice");
+      expect(notificationRead).not.toContain("validate culture choice");
+      expect(notificationRead).not.toContain("validate diplomacy response");
+      expect(notificationRead).not.toContain("validate narrative choice");
+      expect(notificationRead).not.toContain("validate city expansion");
+      expect(notificationRead).not.toContain("validate production");
+      expect(notificationRead).not.toContain("validate city project production");
       expect(notificationRead).not.toContain("validate tradition change");
       expect(notificationRead).not.toContain("validate attribute purchase");
+      expect(notificationRead).not.toContain("when only validation");
+      expect(notificationRead).not.toContain("with validation and ready send templates");
     } finally {
       await server.close();
     }
@@ -149,13 +167,13 @@ function playNotificationView() {
       commonActions: [
         {
           label: "Set town focus",
-          cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
-          when: "after choosing a live town focus option",
+          cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send",
+          when: "when the selected focus should be applied",
         },
       ],
       confidence: "live-proof" as const,
       notes: [
-        "Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface.",
+        "Town focus is not city-operation BUILD; set the focus first, then close the review if the UI still requires it.",
       ],
     },
   };

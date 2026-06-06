@@ -829,6 +829,12 @@ adding more read-only facade shells.
     direct-control envelopes from normal JSON, and avoid controller bridge,
     transport, action-send, approval/reason mechanics, or runtime-proof
     claims.
+  - [x] 7.1.9.16 Simplify notification action directions so common actions
+    carry semantic next-move guidance instead of repeating dry-run validation
+    and single-flag send variants. Keep named blocker recommendations
+    send-oriented where a semantic send surface exists, leave generic fallback
+    validation paths for operation families without named shortcuts, and keep
+    command help responsible for exhaustive flag/interface detail.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1700,6 +1706,14 @@ adding more read-only facade shells.
   Civ7 runtime proof, play-thread action, transport expansion,
   approval/reason mechanics, broader progression catalog support, or parent
   Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.29 Run focused direct-control notification-view proof,
+  direct-control check/build, strict OpenSpec validates, stale validation-only
+  action hint scan, active approval/caller-permission scan, and diff hygiene
+  for the notification action direction simplification. This is local
+  source/test proof only and does not change CLI parser behavior, oRPC
+  contracts, controller bridge surfaces, deployed Civ7 runtime behavior,
+  play-thread state, approval/reason mechanics, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
