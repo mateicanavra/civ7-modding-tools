@@ -6,6 +6,9 @@ import {
   progressionDashboardCurrentProcedure,
 } from "./procedures/dashboard-current";
 import {
+  progressionTraditionsCurrentProcedure,
+} from "./procedures/traditions-current";
+import {
   progressionAttributePurchaseRequestProcedure,
   progressionAttributeReviewRequestProcedure,
   progressionTraditionChangeRequestProcedure,
@@ -19,6 +22,9 @@ import {
 export const progressionRouter = {
   dashboard: {
     current: progressionDashboardCurrentProcedure,
+  },
+  traditions: {
+    current: progressionTraditionsCurrentProcedure,
   },
   technology: {
     choice: {

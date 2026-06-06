@@ -1,5 +1,9 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7TraditionsView } from '@civ7/direct-control';
+import {
+  createCiv7ControlOrpcServerClient,
+  type Civ7ProgressionTraditionsResult,
+} from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
 export default class GamePlayTraditions extends Command {
@@ -39,9 +43,12 @@ export default class GamePlayTraditions extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayTraditions);
-    const view = await getCiv7TraditionsView({
+    const view = await createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      endpointDefaults: buildDirectControlOptions(flags),
+    }).progression.traditions.current({
       playerId: flags['player-id'],
-    }, buildDirectControlOptions(flags));
+    });
 
     if (flags.json) {
       this.log(JSON.stringify(flags.compact ? buildCompactTraditionsView(view) : { ok: true, view }));
@@ -62,12 +69,12 @@ export default class GamePlayTraditions extends Command {
       this.log('Available:');
       for (const tradition of view.available) this.log(`- ${formatTradition(tradition)}`);
     }
-    for (const command of view.recommendedCli) this.log(`Next: ${command}`);
+    for (const step of view.nextSteps) this.log(`Next: ${step.label}`);
     for (const note of view.notes) this.log(`Note: ${note}`);
   }
 }
 
-function buildCompactTraditionsView(view: Awaited<ReturnType<typeof getCiv7TraditionsView>>): {
+function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
   ok: true;
   contractVersion: 'play-agent-v0';
   command: 'game play traditions';
@@ -83,13 +90,26 @@ function buildCompactTraditionsView(view: Awaited<ReturnType<typeof getCiv7Tradi
   enabledAvailableCount: number;
   disabledAvailableCount: number;
   recommendedCli: ReadonlyArray<string>;
+  nextSteps: Civ7ProgressionTraditionsResult['nextSteps'];
   omitted: Array<{ path: string; reason: string }>;
   hiddenInfoPolicy: unknown;
   notes: ReadonlyArray<string>;
 } {
-  const active = view.active.map((tradition) => compactTraditionRow(tradition, { sendCloseout: false }));
-  const available = view.available.map((tradition) => compactTraditionRow(tradition, { sendCloseout: true }));
-  const recentUnlocks = view.recentUnlocks.map((tradition) => compactTraditionRow(tradition, { sendCloseout: true }));
+  const active = view.active.map((tradition) =>
+    compactTraditionRow(tradition, {
+      playerId: view.playerId,
+      sendCloseout: false,
+    }));
+  const available = view.available.map((tradition) =>
+    compactTraditionRow(tradition, {
+      playerId: view.playerId,
+      sendCloseout: true,
+    }));
+  const recentUnlocks = view.recentUnlocks.map((tradition) =>
+    compactTraditionRow(tradition, {
+      playerId: view.playerId,
+      sendCloseout: true,
+    }));
   return {
     ok: true,
     contractVersion: 'play-agent-v0',
@@ -105,12 +125,11 @@ function buildCompactTraditionsView(view: Awaited<ReturnType<typeof getCiv7Tradi
     recentUnlocks,
     enabledAvailableCount: available.filter((tradition) => tradition.validationSuccess === true).length,
     disabledAvailableCount: available.filter((tradition) => tradition.validationSuccess !== true).length,
-    recommendedCli: view.recommendedCli,
-    omitted: [
-      { path: 'view.traditions', reason: 'use game play traditions --json for the full active/unlocked/recent tradition packet' },
-      { path: 'tradition.actionHints[].validation', reason: 'compact rows expose validationSuccess only; use the full packet for raw validation evidence' },
-      { path: 'tradition.description', reason: 'compact rows keep names and action templates; use the full packet for localized descriptions' },
-    ],
+    recommendedCli: available
+      .map((tradition) => tradition.validateCli)
+      .filter((command): command is string => Boolean(command)),
+    nextSteps: view.nextSteps,
+    omitted: view.omitted,
     hiddenInfoPolicy: view.hiddenInfoPolicy,
     notes: [
       'Read-only compact tradition option surface. It does not choose or send CHANGE_TRADITION.',
@@ -121,12 +140,20 @@ function buildCompactTraditionsView(view: Awaited<ReturnType<typeof getCiv7Tradi
 }
 
 function compactTraditionRow(
-  tradition: Awaited<ReturnType<typeof getCiv7TraditionsView>>['traditions'][number],
-  options: { sendCloseout: boolean },
+  tradition: Civ7ProgressionTraditionsResult['traditions'][number],
+  options: { playerId: number; sendCloseout: boolean },
 ): Record<string, unknown> {
-  const action = tradition.actionHints[0];
-  const validationSuccess = action?.validation?.ok === true
-    && (action.validation.value as { Success?: unknown } | undefined)?.Success === true;
+  const action = tradition.actions[0];
+  const sendCli = action
+    ? traditionChangeCli(action.parameters.traditionType, action.parameters.action)
+    : null;
+  const validateCli = action
+    ? traditionValidationCli(
+        options.playerId,
+        action.parameters.traditionType,
+        action.parameters.action,
+      )
+    : null;
   return {
     id: tradition.id,
     type: tradition.type,
@@ -140,12 +167,11 @@ function compactTraditionRow(
     recentUnlock: tradition.recentUnlock,
     actionKind: action?.kind ?? null,
     action: action?.action ?? null,
-    operationType: action?.operationType ?? null,
-    validationSuccess,
-    validateCli: action?.cli ? `${action.cli} --json` : null,
-    sendCli: action?.cli ? `${action.cli} --send` : null,
-    sendCloseoutCli: options.sendCloseout && action?.cli
-      ? `${action.cli} --send --closeout`
+    validationSuccess: action?.validationSuccess ?? null,
+    validateCli: validateCli ? `${validateCli} --json` : null,
+    sendCli: sendCli ? `${sendCli} --send` : null,
+    sendCloseoutCli: options.sendCloseout && sendCli
+      ? `${sendCli} --send --closeout`
       : null,
   };
 }
@@ -155,10 +181,10 @@ function formatTradition(tradition: {
   type: string | null;
   name: string | null;
   description: string | null;
-  actionHints: ReadonlyArray<{ kind: string; action: number | null; validation: { ok: boolean; value?: unknown; error?: string } }>;
+  actions: ReadonlyArray<{ kind: string; action: number | null; validationSuccess: boolean | null }>;
 }): string {
-  const action = tradition.actionHints[0];
-  const validation = action ? formatValidation(action.validation) : 'no action';
+  const action = tradition.actions[0];
+  const validation = action ? String(action.validationSuccess) : 'no action';
   return `${tradition.name ?? tradition.type ?? tradition.id} (${tradition.id}) ${action?.kind ?? ''}=${action?.action ?? '<none>'}; validation=${validation}${tradition.description ? `; ${tradition.description}` : ''}`;
 }
 
@@ -167,11 +193,19 @@ function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: stri
   return String(probe.value);
 }
 
-function formatValidation(validation: { ok: boolean; value?: unknown; error?: string }): string {
-  if (!validation.ok) return `<error: ${validation.error ?? 'unknown'}>`;
-  const value = validation.value;
-  if (value && typeof value === 'object' && 'Success' in value) {
-    return String((value as { Success?: unknown }).Success);
-  }
-  return JSON.stringify(value);
+function traditionChangeCli(
+  traditionType: number,
+  action: number | null,
+): string | null {
+  if (action == null) return null;
+  return `game play change-tradition --tradition-type ${traditionType} --action ${action}`;
+}
+
+function traditionValidationCli(
+  playerId: number,
+  traditionType: number,
+  action: number | null,
+): string | null {
+  if (action == null) return null;
+  return `game play change-tradition --player-id ${playerId} --tradition-type ${traditionType} --action ${action}`;
 }

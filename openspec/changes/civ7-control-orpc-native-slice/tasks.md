@@ -247,6 +247,14 @@ adding more read-only facade shells.
     UI evidence source. Keep CLI command strings caller-local, keep contract
     schemas private, and avoid runtime proof, controller bridge, transport,
     broad progression catalogs, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.24 Record `progression.traditions.current` as a service-owned
+    traditions decision-read boundary over the direct-control traditions
+    runtime port. The service owns semantic tradition action descriptors,
+    validation-success projection, omitted CLI/runtime evidence policy, and
+    next-step descriptors; direct-control remains the low-level App UI/Culture
+    evidence source. Keep CLI command strings caller-local, keep contract
+    schemas private, and avoid runtime proof, controller bridge, transport,
+    broad progression catalogs, or parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -420,6 +428,14 @@ adding more read-only facade shells.
     runtime port into caller-neutral semantic output. Keep input/output schemas
     contract-local, omit raw host/port/state/session/command evidence, keep
     service next steps as descriptors rather than CLI command strings, leave
+    game-UI/controller support unsupported, and keep runtime proof, transport
+    expansion, broad read-wrapper revival, approval/reason mechanics, and
+    parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.23 Seed `progression.traditions.current` as a native service-owned
+    progression read that composes the direct-control traditions runtime port
+    into caller-neutral semantic action descriptors. Keep input/output schemas
+    contract-local, omit raw host/port/state/session/command evidence, omit
+    direct-control CLI recommendation fields and `actionHints[].cli`, leave
     game-UI/controller support unsupported, and keep runtime proof, transport
     expansion, broad read-wrapper revival, approval/reason mechanics, and
     parent Task 5.x/6.x/7.x acceptance pending.
@@ -767,6 +783,14 @@ adding more read-only facade shells.
     direct-control runtime envelopes from normal JSON, and avoid controller
     bridge, transport, broad read-wrapper revival, approval/reason mechanics,
     or runtime-proof claims.
+  - [x] 7.1.9.14 Route `civ7 game play traditions` through the in-process
+    `progression.traditions.current` server-side client under the
+    `progression` router. Move the traditions option projection out of the CLI
+    into the native service, keep CLI command strings mapped only in CLI
+    presentation, omit direct-control `recommendedCli` / `actionHints[].cli`,
+    raw host/port/state/session/Tuner payloads, and runtime envelopes from
+    normal JSON, and avoid controller bridge, transport, broad read-wrapper
+    revival, approval/reason mechanics, or runtime-proof claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1575,6 +1599,17 @@ adding more read-only facade shells.
   play-thread action, controller bridge, transport expansion, broad
   read-wrapper revival, approval/reason mechanics, raw runtime output, or
   parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.23 Run focused progression traditions procedure tests, focused CLI
+  progression-read tests, control-oRPC package test/check/build, CLI
+  play/check gates, strict OpenSpec validates, private procedure-schema export
+  scan, active approval/caller-permission scan, service-output CLI-string
+  scan, raw runtime output scan, and diff hygiene for the
+  `progression.traditions.current` service-composition expansion and `game
+  play traditions` in-process oRPC caller migration. This is local package/CLI
+  proof only and does not claim deployed Civ7 runtime proof, play-thread
+  action, controller bridge, transport expansion, broad read-wrapper revival,
+  approval/reason mechanics, raw runtime output, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

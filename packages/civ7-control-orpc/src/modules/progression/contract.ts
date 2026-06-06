@@ -58,6 +58,16 @@ export type Civ7ProgressionDashboardInput = Static<
   typeof Civ7ProgressionDashboardInputSchema
 >;
 
+const Civ7ProgressionTraditionsInputSchema = Type.Object(
+  {
+    playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTraditionsInput = Static<
+  typeof Civ7ProgressionTraditionsInputSchema
+>;
+
 const Civ7ProgressionTraditionChangeInputSchema = Type.Object(
   {
     traditionType: Type.Integer(),
@@ -557,6 +567,142 @@ export type Civ7ProgressionDashboardResult = Static<
   typeof Civ7ProgressionDashboardResultSchema
 >;
 
+const Civ7ProgressionTraditionActionDescriptorSchema = Type.Object(
+  {
+    kind: Type.Union([Type.Literal("activate"), Type.Literal("deactivate")]),
+    action: Type.Union([Type.Number(), Type.Null()]),
+    validationSuccess: Type.Union([Type.Boolean(), Type.Null()]),
+    parameters: Type.Object(
+      {
+        traditionType: Type.Number(),
+        action: Type.Union([Type.Number(), Type.Null()]),
+      },
+      { additionalProperties: false },
+    ),
+    nextSteps: Type.Array(Type.Object(
+      {
+        kind: Type.Union([
+          Type.Literal("validate-tradition-change"),
+          Type.Literal("request-tradition-change"),
+        ]),
+        source: Type.Literal("progression.traditions.current"),
+        label: Type.String(),
+        parameters: Type.Object(
+          {
+            traditionType: Type.Number(),
+            action: Type.Union([Type.Number(), Type.Null()]),
+          },
+          { additionalProperties: false },
+        ),
+      },
+      { additionalProperties: false },
+    )),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionTraditionRowSchema = Type.Object(
+  {
+    id: Type.Number(),
+    type: Type.Union([Type.String(), Type.Null()]),
+    name: Type.Union([Type.String(), Type.Null()]),
+    description: Type.Union([Type.String(), Type.Null()]),
+    ageType: Type.Union([Type.String(), Type.Null()]),
+    cultureSlotType: Type.Union([Type.String(), Type.Null()]),
+    traitType: Type.Union([Type.String(), Type.Null()]),
+    isCrisis: Type.Boolean(),
+    active: Type.Boolean(),
+    unlocked: Type.Boolean(),
+    recentUnlock: Type.Boolean(),
+    actions: Type.Array(Civ7ProgressionTraditionActionDescriptorSchema),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionTraditionsNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("inspect-tradition-change"),
+      Type.Literal("free-policy-slot"),
+      Type.Literal("observe"),
+    ]),
+    source: Type.Literal("progression.traditions.current"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7ProgressionTraditionsResultSchema = Type.Object(
+  {
+    playerId: Type.Integer({ minimum: 0 }),
+    sourceStatus: Type.Object(
+      {
+        traditions: Type.Literal("read"),
+      },
+      { additionalProperties: false },
+    ),
+    hiddenInfoPolicy: Type.Literal("player-culture-runtime"),
+    summary: Type.Object(
+      {
+        activeCount: Type.Integer({ minimum: 0 }),
+        availableCount: Type.Integer({ minimum: 0 }),
+        recentUnlockCount: Type.Integer({ minimum: 0 }),
+        openSlotCount: Type.Integer({ minimum: 0 }),
+        enabledAvailableCount: Type.Integer({ minimum: 0 }),
+        disabledAvailableCount: Type.Integer({ minimum: 0 }),
+        nextStepCount: Type.Integer({ minimum: 0 }),
+      },
+      { additionalProperties: false },
+    ),
+    turn: Civ7ProgressionDashboardProbeSchema,
+    turnDate: Civ7ProgressionDashboardProbeSchema,
+    governmentType: Civ7ProgressionDashboardProbeSchema,
+    government: Type.Object(
+      {
+        type: Type.Union([Type.String(), Type.Null()]),
+        name: Type.Union([Type.String(), Type.Null()]),
+      },
+      { additionalProperties: false },
+    ),
+    slots: Type.Object(
+      {
+        total: Civ7ProgressionDashboardProbeSchema,
+        normal: Civ7ProgressionDashboardProbeSchema,
+        crisis: Civ7ProgressionDashboardProbeSchema,
+        active: Type.Integer({ minimum: 0 }),
+        unlocked: Type.Integer({ minimum: 0 }),
+        available: Type.Integer({ minimum: 0 }),
+        open: Type.Integer({ minimum: 0 }),
+      },
+      { additionalProperties: false },
+    ),
+    actions: Type.Object(
+      {
+        activate: Type.Union([Type.Number(), Type.Null()]),
+        deactivate: Type.Union([Type.Number(), Type.Null()]),
+      },
+      { additionalProperties: false },
+    ),
+    active: Type.Array(Civ7ProgressionTraditionRowSchema),
+    available: Type.Array(Civ7ProgressionTraditionRowSchema),
+    recentUnlocks: Type.Array(Civ7ProgressionTraditionRowSchema),
+    traditions: Type.Array(Civ7ProgressionTraditionRowSchema),
+    omitted: Type.Array(Type.Object(
+      {
+        path: Type.String(),
+        reason: Type.String(),
+      },
+      { additionalProperties: false },
+    )),
+    notes: Type.Array(Type.String()),
+    nextSteps: Type.Array(Civ7ProgressionTraditionsNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTraditionsResult = Static<
+  typeof Civ7ProgressionTraditionsResultSchema
+>;
+
 const Civ7ProgressionChoiceInputStandardSchema =
   toStandardSchema(Civ7ProgressionChoiceInputSchema);
 const Civ7ProgressionTargetInputStandardSchema =
@@ -567,6 +713,8 @@ const Civ7ProgressionPlayerReviewInputStandardSchema =
   toStandardSchema(Civ7ProgressionPlayerReviewInputSchema);
 const Civ7ProgressionDashboardInputStandardSchema =
   toStandardSchema(Civ7ProgressionDashboardInputSchema);
+const Civ7ProgressionTraditionsInputStandardSchema =
+  toStandardSchema(Civ7ProgressionTraditionsInputSchema);
 const Civ7ProgressionTraditionChangeInputStandardSchema =
   toStandardSchema(Civ7ProgressionTraditionChangeInputSchema);
 const Civ7ProgressionTechnologyChoiceResultStandardSchema =
@@ -587,6 +735,8 @@ const Civ7ProgressionTraditionReviewResultStandardSchema =
   toStandardSchema(Civ7ProgressionTraditionReviewResultSchema);
 const Civ7ProgressionDashboardResultStandardSchema =
   toStandardSchema(Civ7ProgressionDashboardResultSchema);
+const Civ7ProgressionTraditionsResultStandardSchema =
+  toStandardSchema(Civ7ProgressionTraditionsResultSchema);
 
 export type Civ7ProgressionTechnologyChoiceContract = ContractProcedure<
   typeof Civ7ProgressionChoiceInputStandardSchema,
@@ -750,9 +900,30 @@ const Civ7ProgressionDashboardContract:
       risk: "read-only",
     });
 
+type Civ7ProgressionTraditionsContract = ContractProcedure<
+  typeof Civ7ProgressionTraditionsInputStandardSchema,
+  typeof Civ7ProgressionTraditionsResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7ProgressionTraditionsContract:
+  Civ7ProgressionTraditionsContract = civ7ControlOrpcContractBase
+    .input(Civ7ProgressionTraditionsInputStandardSchema)
+    .output(Civ7ProgressionTraditionsResultStandardSchema)
+    .meta({
+      family: "progression",
+      procedureKey: "progression.traditions.current",
+      proofBoundary: "local-package-test",
+      risk: "read-only",
+    });
+
 export type Civ7ProgressionContract = Readonly<{
   dashboard: Readonly<{
     current: Civ7ProgressionDashboardContract;
+  }>;
+  traditions: Readonly<{
+    current: Civ7ProgressionTraditionsContract;
   }>;
   technology: Readonly<{
     choice: Readonly<{
@@ -791,6 +962,9 @@ export type Civ7ProgressionContract = Readonly<{
 export const Civ7ProgressionContract: Civ7ProgressionContract = {
   dashboard: {
     current: Civ7ProgressionDashboardContract,
+  },
+  traditions: {
+    current: Civ7ProgressionTraditionsContract,
   },
   technology: {
     choice: {

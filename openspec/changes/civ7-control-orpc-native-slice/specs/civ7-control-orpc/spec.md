@@ -1677,6 +1677,35 @@ boundaries.
   rawCommand, direct-control runtime envelopes, approval/reason mechanics, or
   transport details as normal progress-dashboard output
 
+#### Scenario: Progression traditions service is implemented
+- **WHEN** a caller reads `progression.traditions.current`
+- **THEN** it is offered under the semantic `progression` router
+- **AND** it consumes the direct-control traditions runtime port as low-level
+  App UI/Culture evidence
+- **AND** the service procedure owns tradition option projection, semantic
+  action descriptors, validation-success projection, omitted-detail policy,
+  and next-step descriptors
+- **AND** caller-facing input accepts only traditions read selection fields
+  such as optional player id, while endpoint, session, state, raw command,
+  rawCommand, transport, and approval/reason fields remain outside procedure
+  input
+- **AND** normal service output omits raw host, port, state, session, command,
+  rawCommand, direct-control `recommendedCli`, `actionHints[].cli`, runtime
+  envelopes, and CLI command strings
+- **AND** local procedure tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI traditions view uses native progression service
+- **WHEN** `civ7 game play traditions` reads current traditions
+- **THEN** the CLI calls the in-process
+  `progression.traditions.current` server-side client
+- **AND** normal JSON uses the service-owned semantic traditions projection
+  rather than a CLI-owned runtime projection
+- **AND** any CLI command-string presentation is mapped at the CLI edge from
+  semantic action descriptors, not embedded in the service contract
+- **AND** the CLI does not expose raw host, port, state, session, command,
+  rawCommand, direct-control runtime envelopes, approval/reason mechanics, or
+  transport details as normal traditions output
+
 #### Scenario: Local procedure test passes
 - **WHEN** a local fake-context procedure test passes
 - **THEN** it may prove contract/middleware/projection behavior

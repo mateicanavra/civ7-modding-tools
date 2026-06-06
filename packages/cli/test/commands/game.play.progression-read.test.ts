@@ -33,8 +33,8 @@ describe('game play progression reads', () => {
           slots: { active: number; available: number };
           actions: { activate: number; deactivate: number };
           active: Array<{ id: number; name: string }>;
-          available: Array<{ id: number; actionHints: Array<{ cli: string }> }>;
-          recommendedCli: string[];
+          available: Array<{ id: number; actions: Array<{ kind: string; parameters: { traditionType: number; action: number } }> }>;
+          recommendedCli?: unknown;
         };
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
@@ -43,8 +43,15 @@ describe('game play progression reads', () => {
       expect(payload.view.actions.activate).toBe(-1326475004);
       expect(payload.view.actions.deactivate).toBe(1318334332);
       expect(payload.view.active[0].name).toBe('Honor');
-      expect(payload.view.available[0].actionHints[0].cli).toContain('game play change-tradition');
-      expect(payload.view.recommendedCli[0]).toContain('--tradition-type 90243567');
+      expect(payload.view.available[0].actions[0]).toMatchObject({
+        kind: 'activate',
+        parameters: {
+          traditionType: 90243567,
+          action: -1326475004,
+        },
+      });
+      expect(payload.view.recommendedCli).toBeUndefined();
+      expect(JSON.stringify(payload.view)).not.toContain('game play change-tradition');
       expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
     } finally {
       await server.close();
@@ -94,10 +101,11 @@ describe('game play progression reads', () => {
         validationSuccess: true,
       });
       expect(payload.available[0].validateCli).toContain('game play change-tradition --player-id 0 --tradition-type 90243567 --action -1326475004 --json');
-      expect(payload.available[0].sendCloseoutCli).toContain('game play change-tradition --player-id 0 --tradition-type 90243567 --action -1326475004 --send --closeout');
+      expect(payload.available[0].sendCloseoutCli).toContain('game play change-tradition --tradition-type 90243567 --action -1326475004 --send --closeout');
       expect(payload.enabledAvailableCount).toBe(1);
       expect(payload.disabledAvailableCount).toBe(0);
-      expect(payload.omitted.map((item) => item.path)).toContain('view.traditions');
+      expect(payload.omitted.map((item) => item.path)).toContain('directControl.cliCommandSuggestions');
+      expect(payload.omitted.map((item) => item.path)).toContain('tradition.actionHints[].cli');
       expect(payload.omitted.map((item) => item.path)).toContain('tradition.actionHints[].validation');
       expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);

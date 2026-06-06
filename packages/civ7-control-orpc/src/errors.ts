@@ -458,6 +458,30 @@ export class Civ7ProgressionDashboardUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7ProgressionTraditionsUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("progression.traditions.current"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTraditionsUnavailableErrorData = Static<
+  typeof Civ7ProgressionTraditionsUnavailableErrorDataSchema
+>;
+
+export class Civ7ProgressionTraditionsUnavailableError extends ORPCTaggedError(
+  "Civ7ProgressionTraditionsUnavailableError",
+  {
+    code: "PROGRESSION_TRADITIONS_UNAVAILABLE",
+    message: "Direct-control progression traditions read failed.",
+    schema: toStandardSchema(
+      Civ7ProgressionTraditionsUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
 export const Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema =
   Type.Object(
     {
@@ -721,6 +745,7 @@ export const civ7ControlOrpcErrorMap = {
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
   PROGRESSION_DASHBOARD_UNAVAILABLE: Civ7ProgressionDashboardUnavailableError,
+  PROGRESSION_TRADITIONS_UNAVAILABLE: Civ7ProgressionTraditionsUnavailableError,
   PROGRESSION_PLAYER_CHOICE_UNAVAILABLE: Civ7ProgressionPlayerChoiceUnavailableError,
   PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
