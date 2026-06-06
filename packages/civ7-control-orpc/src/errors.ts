@@ -56,6 +56,28 @@ export class Civ7AttentionCurrentUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7AttentionPrioritiesUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("attention.priorities"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7AttentionPrioritiesUnavailableErrorData = Static<
+  typeof Civ7AttentionPrioritiesUnavailableErrorDataSchema
+>;
+
+export class Civ7AttentionPrioritiesUnavailableError extends ORPCTaggedError(
+  "Civ7AttentionPrioritiesUnavailableError",
+  {
+    code: "ATTENTION_PRIORITIES_UNAVAILABLE",
+    message: "Attention priorities view failed.",
+    schema: toStandardSchema(Civ7AttentionPrioritiesUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7StrategyFrontSummaryUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("strategy.frontSummary"),
@@ -557,6 +579,7 @@ export class Civ7CorrelationIdInvalidError extends ORPCTaggedError(
 
 export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
+  ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   FIRST_MEET_RESPONSE_UNAVAILABLE: Civ7FirstMeetResponseUnavailableError,

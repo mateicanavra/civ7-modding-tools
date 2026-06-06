@@ -35,11 +35,10 @@ describe('game play priorities command', () => {
     try {
       const view = payload.view as {
         priorities: Array<{ kind: string }>;
-        readyUnit: { legalOperationScope: string; legalNoTargetOperationCount: number } | null;
+        readyUnit: { legalOperationCount: number } | null;
         battlefield: { pointsOfInterest: unknown[] } | null;
       };
-      expect(view.readyUnit?.legalOperationScope).toBe('no-target');
-      expect(view.readyUnit?.legalNoTargetOperationCount).toBeGreaterThan(0);
+      expect(view.readyUnit?.legalOperationCount).toBeGreaterThan(0);
       expect(view.battlefield?.pointsOfInterest.length).toBeGreaterThan(0);
       expect(view.priorities.some((item) => item.kind === 'ready-unit')).toBe(true);
       expect(view.priorities.some((item) => item.kind.startsWith('battlefield:'))).toBe(true);
@@ -56,11 +55,11 @@ describe('game play priorities command', () => {
     const { payload, server } = await runPriorities('runtime-error', { compact: false });
     try {
       const view = payload.view as {
-        priorities: Array<{ kind: string; command?: string; evidence?: Array<{ field: string; error: string }> }>;
+        priorities: Array<{ kind: string; command?: string; evidenceLabels?: string[] }>;
       };
       const runtimeError = view.priorities.find((item) => item.kind === 'runtime-state-error');
       expect(runtimeError?.command).toContain('game play rehydrate --json');
-      expect(runtimeError?.evidence?.some((item) => item.field === 'blocker' && item.error.includes('Game is not defined'))).toBe(true);
+      expect(runtimeError?.evidenceLabels?.some((item) => item === 'probe-error:blocker')).toBe(true);
       expect(view.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -76,7 +75,7 @@ describe('game play priorities command', () => {
       expect(payload.summary).toContain('runtime-state-error');
       expect(payload.next).toContain('game play rehydrate --json');
       expect(payload.warnings.join(' ')).toContain('Core HUD probes failed');
-      expect(payload.omitted.some((item) => item.path === 'priorities[].evidence')).toBe(true);
+      expect(payload.omitted.some((item) => item.path === 'priorities[].evidenceLabels')).toBe(true);
       expect(payload.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
       expect(payload.priorities.every((item) => item.evidence === undefined)).toBe(true);
       expect(Object.keys(payload.semanticEnvelope)).toEqual(SEMANTIC_CLI_ENVELOPE_SLOTS);
@@ -136,7 +135,7 @@ describe('game play priorities command', () => {
       expect(top.command).toContain('game play operation --family unit --type SKIP_TURN');
       expect(top.command).toContain("--unit-id '{\"owner\":0,\"id\":196609,\"type\":26}'");
       expect(payload.next).toBe(top.command);
-      expect(top.reason).toContain('validator-backed operation candidate');
+      expect(top.reason).toContain('enabled unit command candidate');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -149,9 +148,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:first-meet-diplomacy');
-      expect(top.command).toBe('game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral');
+      expect(top.command).toBe('game play respond-first-meet --json');
       expect(payload.next).toBe(top.command);
-      expect(top.reason).toContain('validator-backed operation candidate');
+      expect(top.reason).toContain('validator-backed player-operation');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -424,7 +423,14 @@ async function startPrioritiesTunerServer(mode: PriorityHudMode): Promise<FakeTu
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes('readPlayNotifications')) return [JSON.stringify(priorityHudView(mode))];
-      if (message.includes('readReadyUnitView')) return [JSON.stringify(readyUnitView())];
+      if (message.includes('Network.isInSession')) return [JSON.stringify(appUiSnapshot())];
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
+      if (message.includes('hasSentTurnComplete')) return [JSON.stringify(turnCompletionStatus(mode))];
+      if (message.includes('readReadyUnitView')) {
+        return [JSON.stringify(mode === 'clean-read' ? noReadyUnitView() : readyUnitView())];
+      }
       if (message.includes('readReadyCityView')) {
         return [JSON.stringify(mode === 'clean-read' ? noReadyCityView() : readyCityView())];
       }
@@ -787,6 +793,21 @@ function readyUnitView() {
   };
 }
 
+function noReadyUnitView() {
+  return {
+    ...readyUnitView(),
+    requestedUnitId: null,
+    selectedUnitId: { ok: true, value: null },
+    firstReadyUnitId: { ok: true, value: null },
+    unitId: null,
+    unit: { ok: true, value: null },
+    legalOperations: [],
+    promotionReadiness: { ok: true, value: null },
+    nearby: { ok: true, value: [] },
+    notes: ['No ready unit in clean-read fixture.'],
+  };
+}
+
 function readyCityView() {
   const cityId = { owner: 0, id: 131073, type: 1 };
   return {
@@ -825,6 +846,104 @@ function noReadyCityView() {
     townFocusOptions: { ok: true, value: [] },
     populationPlacement: { ok: true, value: null },
     notes: ['No ready city in clean-read fixture.'],
+  };
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 80,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '2025 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 80 },
+    turnDate: { ok: true, value: '2025 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
+  };
+}
+
+function turnCompletionStatus(mode: PriorityHudMode) {
+  const clean = mode === 'clean-read';
+  const pending = mode === 'stale-unit-command-pending';
+  return {
+    host: '127.0.0.1',
+    port: 0,
+    state: { id: '65535', name: 'App UI', role: 'app-ui' },
+    localPlayerId: 0,
+    turn: { ok: true, value: 80 },
+    turnDate: { ok: true, value: '2025 BCE' },
+    hasSentTurnComplete: { ok: true, value: pending },
+    canEndTurn: { ok: true, value: clean || mode === 'stale-unit-command-disabled' },
+    blocker: { ok: true, value: clean ? 0 : 1 },
+    firstReadyUnitId: {
+      ok: true,
+      value: mode === 'ready-unit' ? { owner: 0, id: 458752, type: 26 } : null,
+    },
   };
 }
 

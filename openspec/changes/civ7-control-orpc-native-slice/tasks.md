@@ -200,6 +200,13 @@ adding more read-only facade shells.
     low-level playable/App UI snapshot port. This does not revive
     `map.summary.read`, `player.summary.read`, `unit.summary.read`, or
     `city.summary.read`.
+  - [x] 5.4.18 Record `attention.priorities` as a service-owned priority
+    dashboard over playable status, notification, turn-completion,
+    ready-unit/city, and optional battlefield runtime/read ports. The service
+    owns priority ranking, source status, semantic next-step descriptors,
+    raw-output exclusion, and the no-CLI-string contract boundary;
+    battlefield remains planning evidence only, with no send authority,
+    runtime proof, or parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -325,6 +332,14 @@ adding more read-only facade shells.
     normal output, reject endpoint/session/raw command fields before facade
     execution, and keep game-UI/controller allowlisting, runtime proof, broad
     actor catalog support, and parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.17 Seed `attention.priorities` as a native service-owned
+    attention procedure that composes playable status, notification,
+    turn-completion, ready-unit/city, and optional battlefield evidence into a
+    semantic priority dashboard. Keep caller input/output schemas
+    contract-local, keep CLI command suggestions out of service output, keep
+    battlefield evidence relationship-safe and read-only, and keep runtime
+    proof, action-send authority, transport expansion, and parent Task
+    5.x/6.x/7.x acceptance pending.
 
 ## 6. Native Policy Layering
 
@@ -606,6 +621,16 @@ adding more read-only facade shells.
     into the service procedure, keep endpoint flags as context construction,
     keep CLI command-string suggestions as CLI presentation only, emit
     relationship-safe semantic planning output, omit raw
+    host/port/state/session/Tuner payloads and direct-control envelopes from
+    normal JSON, and avoid transport, relationship-label, action-send, or
+    runtime-proof claims.
+  - [x] 7.1.9.8 Route `civ7 game play priorities` through the in-process
+    `attention.priorities` server-side client under the `attention` router.
+    Move priority ranking, source-status, current-HUD/ready-actor/optional
+    battlefield composition, and semantic next-step descriptors into the
+    service procedure. Keep endpoint flags as context construction, keep CLI
+    command-string suggestions as CLI presentation only, emit
+    relationship-safe read-only attention output, omit raw
     host/port/state/session/Tuner payloads and direct-control envelopes from
     normal JSON, and avoid transport, relationship-label, action-send, or
     runtime-proof claims.
@@ -1351,6 +1376,15 @@ adding more read-only facade shells.
   approval/caller-permission scan, service-output CLI-string scan, and diff
   hygiene for the `strategy.frontSummary` service-composition expansion and
   `game play front-summary` in-process oRPC caller migration. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, relationship labels beyond official
+  evidence, action-send authority, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.17 Run focused attention-priorities and CLI priorities tests plus
+  control-oRPC package test/check/build, CLI play/check gates, strict
+  OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, service-output CLI-string scan, and diff
+  hygiene for the `attention.priorities` service-composition expansion and
+  `game play priorities` in-process oRPC caller migration. This is local
   package/CLI proof only and does not claim deployed Civ7 runtime proof,
   play-thread action, transport expansion, relationship labels beyond official
   evidence, action-send authority, or parent Task 5.x/6.x/7.x acceptance.

@@ -148,6 +148,8 @@ export type { Civ7WorldPlotField } from "./modules/world/contract";
 export {
   Civ7AttentionCurrentUnavailableError,
   Civ7AttentionCurrentUnavailableErrorDataSchema,
+  Civ7AttentionPrioritiesUnavailableError,
+  Civ7AttentionPrioritiesUnavailableErrorDataSchema,
   Civ7CorrelationIdInvalidError,
   Civ7CorrelationIdInvalidErrorDataSchema,
   Civ7DiplomacyResponseUnavailableError,
@@ -194,6 +196,7 @@ export {
   Civ7WorldReadUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
   type Civ7AttentionCurrentUnavailableErrorData,
+  type Civ7AttentionPrioritiesUnavailableErrorData,
   type Civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcEffectErrorMap,
   type Civ7CorrelationIdInvalidErrorData,
@@ -244,15 +247,20 @@ export { Civ7ControlOrpcRouter } from "./router";
 export {
   Civ7AttentionContract,
   Civ7AttentionCurrentContract,
+  Civ7AttentionPrioritiesContract,
 } from "./modules/attention/contract";
 export type {
   Civ7AttentionContract as Civ7AttentionContractType,
   Civ7AttentionCurrentContract as Civ7AttentionCurrentContractType,
   Civ7AttentionCurrentInput,
   Civ7AttentionCurrentResult,
+  Civ7AttentionPrioritiesContract as Civ7AttentionPrioritiesContractType,
+  Civ7AttentionPrioritiesInput,
+  Civ7AttentionPrioritiesResult,
 } from "./modules/attention/contract";
 export { attentionRouter } from "./modules/attention/router";
 export { attentionCurrentProcedure } from "./modules/attention/procedures/current";
+export { attentionPrioritiesProcedure } from "./modules/attention/procedures/priorities";
 export {
   Civ7WorldContract,
   Civ7WorldCurrentContract,

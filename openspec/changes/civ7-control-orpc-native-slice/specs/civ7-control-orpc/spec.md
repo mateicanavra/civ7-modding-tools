@@ -246,6 +246,31 @@ errors, and server-side callers.
   relationship-unproven semantics unless official relationship, team, war, or
   suzerain evidence proves stronger labels
 
+#### Scenario: Attention priorities service view is added
+- **WHEN** `attention.priorities` exposes a caller-facing priority dashboard
+  under the `attention` router
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedure, priority ranking, source-status projection, semantic
+  next-step descriptors, and normal output wording
+- **AND** the input is closed and admits only priority-read options such as
+  notification count, ready-unit bounds, and optional battlefield read bounds;
+  it does not accept endpoint, session, state, host, port, command, rawCommand,
+  transport, or send-operation fields
+- **AND** the procedure composes playable status, notification, turn-completion,
+  ready-unit/city, and optional battlefield runtime/read evidence from context
+  dependencies rather than adding same-shaped direct-control facade wrappers
+- **AND** normal service output emits semantic priority and next-step
+  descriptors rather than literal CLI `game play ...` command strings
+- **AND** battlefield evidence remains read-only planning context and must not
+  be treated as relationship status, action authority, target-send authority,
+  or hostile/enemy/opponent/threat/war/ally/suzerain proof
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, action-send authority,
+  transport expansion, controller allowlisting, and parent Task 5.x/6.x/7.x
+  acceptance remain pending
+
 #### Scenario: Current world service view is added
 - **WHEN** `world.current` exposes a caller-facing current-world read
 - **THEN** control-oRPC owns the contract-local input/output schemas, native
@@ -309,6 +334,23 @@ errors, and server-side callers.
 - **AND** normal JSON results are semantic world plot/grid projections without
   raw host, port, state, session, command, rawCommand, Tuner payloads,
   direct-control runtime envelopes, actor catalogs, or relationship labels
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI priorities uses attention service projection
+- **WHEN** `game play priorities` reads the current priority dashboard
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the priorities path calls the in-process `attention.priorities`
+  server-side client under the `attention` router
+- **AND** priority ranking, source-status, current-HUD, ready-actor, and
+  optional battlefield composition come from the service procedure
+- **AND** the CLI maps semantic next-step descriptors into command suggestions
+  in CLI output only; native service output remains caller-neutral and does not
+  contain literal CLI `game play ...` command strings
+- **AND** the normal JSON result omits raw host, port, state, session, command,
+  rawCommand, Tuner payloads, direct-control runtime envelopes, and transport
+  details
+- **AND** battlefield evidence remains relationship-safe read-only planning
+  context and does not authorize sends or hostile/enemy/opponent/threat labels
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: Transitional facade-only procedure remains
