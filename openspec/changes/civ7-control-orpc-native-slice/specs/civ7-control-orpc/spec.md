@@ -163,11 +163,11 @@ errors, and server-side callers.
   `progression.culture.target.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, and next-step
   schemas for those service procedures under the `progression` router
-- **AND** the input admits only player ID and node ID, with technology versus
+- **AND** the input admits only node ID, with technology versus
   culture expressed by the domain procedure path rather than a generic
   operation root or operation enum input
 - **AND** the procedure reads current local-player evidence before send and
-  does not treat caller-provided player ID as mutation authority by itself
+  does not admit caller-provided player ID as mutation authority
 - **AND** endpoint, session, state, raw command, generic operation type, raw
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output
@@ -842,8 +842,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the procedure's readiness, fresh local-player read,
   direct-control progression target runtime port, target proof projection, and
   no-repeat policy remain authoritative for the send
-- **AND** the send result uses live local-player evidence rather than treating
-  caller validation `--player-id` as send authority
+- **AND** the send path omits caller `--player-id` and the result uses live
+  local-player evidence rather than caller-provided player identity
 - **AND** the normal JSON result is the semantic progression target procedure
   projection without raw command/session/state/Tuner details, generic
   operation type or args fields, direct-control operation envelopes, or legacy

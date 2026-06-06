@@ -1525,7 +1525,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "progression.technology.target.request",
       input: {
-        playerId: 2,
         node: 18_001,
       },
       correlationId: "game-ui-progression-target-1",

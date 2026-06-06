@@ -156,7 +156,6 @@ const progressionCultureInput = {
   notificationId,
 };
 const progressionTargetInput = {
-  playerId: 2,
   node: 18_001,
 };
 const attributePurchaseInput = {
@@ -1893,6 +1892,13 @@ describe("Civ7 controller bridge ingress", () => {
         input: {
           ...progressionCultureInput,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "progression.technology.target.request",
+        input: {
+          ...progressionTargetInput,
+          playerId: 2,
         },
       },
       {

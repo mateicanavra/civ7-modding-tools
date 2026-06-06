@@ -685,8 +685,7 @@ export function playNotificationViewSource(): string {
             validateCli: "game play choose-tech --player-id " + String(localPlayerId)
               + " --node " + String(numericNodeType) + " --json",
             targetCli: targetEnabled
-              ? "game play set-tech-target --player-id " + String(localPlayerId)
-                + " --node " + String(numericNodeType)
+              ? "game play set-tech-target --node " + String(numericNodeType)
                 + " --send"
               : null,
           });
@@ -796,8 +795,7 @@ export function playNotificationViewSource(): string {
           validateCli: "game play choose-culture --player-id " + String(localPlayerId)
             + " --node " + String(numericNodeType) + " --json",
           targetCli: targetEnabled
-            ? "game play set-culture-target --player-id " + String(localPlayerId)
-              + " --node " + String(numericNodeType)
+            ? "game play set-culture-target --node " + String(numericNodeType)
               + " --send"
             : null,
         });
@@ -1359,7 +1357,7 @@ export function playNotificationViewSource(): string {
           [
             action("choose tech", "game play choose-tech --player-id <id> --node <node> --send", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
             action("validate tech choice", "game play choose-tech --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
-            action("set tech target", "game play set-tech-target --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
+            action("set tech target", "game play set-tech-target --node <node> --send", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
           ["Read the live tech node id before sending; choose-tech send mode mirrors the chooser by clearing the temporary target internally."],
         );
@@ -1377,7 +1375,7 @@ export function playNotificationViewSource(): string {
             action("choose culture and close chooser", "game play choose-culture --player-id <id> --node <node> --send --closeout", "sequence", "SET_CULTURE_TREE_NODE then SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start culture and close the chooser surface"),
             action("read culture options", "game play choose-culture --options --json", undefined, undefined, "enabled culture nodes with validation and ready send templates", "before choosing a culture node"),
             action("validate culture choice", "game play choose-culture --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
-            action("set culture target", "game play set-culture-target --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
+            action("set culture target", "game play set-culture-target --node <node> --send", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
           ["Read options from the live culture chooser before sending; some UI paths also set the culture target node, so use --closeout for one caller-level selection."],
         );

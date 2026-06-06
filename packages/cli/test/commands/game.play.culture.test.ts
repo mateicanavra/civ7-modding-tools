@@ -97,8 +97,6 @@ describe('game play culture commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '2',
         '--node',
         '-1677668973',
         '--send',
@@ -657,7 +655,7 @@ function playNotificationView(mode: 'culture-choice' | 'ready-unit', cultureStat
       : null,
     validateCli: `game play choose-culture --player-id 0 --node ${row.nodeType} --json`,
     targetCli: row.enabled
-      ? `game play set-culture-target --player-id 0 --node ${row.nodeType} --send`
+      ? `game play set-culture-target --node ${row.nodeType} --send`
       : null,
   }));
   const details = {

@@ -343,8 +343,9 @@ adding more read-only facade shells.
   - [x] 5.5.13.2 Seed `progression.technology.target.request` and
     `progression.culture.target.request` as native service-owned progression
     target-setting leaves. Keep technology versus culture in the domain
-    procedure path, read current local-player evidence before send, use
-    direct-control only as the low-level player-operation runtime/proof port,
+    procedure path, omit caller `playerId` from public send inputs, read
+    current local-player evidence before send, use direct-control only as the
+    low-level player-operation runtime/proof port,
     omit raw operation envelopes and legacy `verified` from normal output, and
     keep sent target results pending-runtime-proof/no-repeat guarded until a
     future source-owned progression read proves target state changed.
@@ -674,8 +675,8 @@ adding more read-only facade shells.
     `progression.technology.target.request` and
     `progression.culture.target.request` server-side clients under the
     `progression` router. Keep endpoint flags as context construction, emit
-    semantic progression target output, use fresh local-player evidence rather
-    than treating `--player-id` as send authority, preserve direct-control
+    semantic progression target output, omit caller `--player-id` from send
+    mode, use fresh local-player evidence, preserve direct-control
     player-operation validation for read-only mode, and keep sent target
     results pending-runtime-proof/no-repeat guarded until a real post-read
     owner proves target state changed.
@@ -1422,7 +1423,7 @@ adding more read-only facade shells.
   focused control-oRPC progression target procedure tests, focused CLI
   technology/culture target send tests, direct-control and control-oRPC
   check/build/package gates, `check:cli`, `test:cli:play`, relevant OpenSpec
-  strict validates, and diff hygiene for the CLI progression target send
+  strict validates, stale send-player scans, and diff hygiene for the CLI progression target send
   migration slice. These are local CLI and package proofs only and do not claim
   deployed Civ7 runtime proof, play-thread action, transport expansion, a
   progression read service, controller ingress, or parent Task 5.x/6.x/7.x

@@ -121,8 +121,6 @@ describe('game play technology commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '2',
         '--node',
         '-1255676052',
         '--send',
@@ -672,7 +670,7 @@ function playNotificationView(mode: 'tech-choice' | 'ready-unit', technologyStat
       : null,
     validateCli: `game play choose-tech --player-id 0 --node ${row.nodeType} --json`,
     targetCli: row.enabled
-      ? `game play set-tech-target --player-id 0 --node ${row.nodeType} --send`
+      ? `game play set-tech-target --node ${row.nodeType} --send`
       : null,
   }));
   const details = {

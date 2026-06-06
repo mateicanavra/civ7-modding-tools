@@ -22,6 +22,7 @@ state changes.
 ## Write Set
 
 - `packages/civ7-direct-control/src/play/progression/target-request.ts`
+- `packages/civ7-direct-control/src/play/notifications/view.ts`
 - `packages/civ7-direct-control/src/proof/progression-target-proof-policy.ts`
 - `packages/civ7-direct-control/src/index.ts`
 - `packages/civ7-direct-control/package.json`
@@ -33,12 +34,16 @@ state changes.
 - `packages/civ7-control-orpc/src/modules/progression/contract.ts`
 - `packages/civ7-control-orpc/src/modules/progression/router.ts`
 - `packages/civ7-control-orpc/src/modules/progression/procedures/target-request.ts`
+- `packages/civ7-control-orpc/test/controller-bridge-ingress.test.ts`
+- `packages/civ7-control-orpc/test/game-ui-controller.test.ts`
 - `packages/civ7-control-orpc/test/progression-target-procedure.test.ts`
 - `packages/cli/src/commands/game/play/set-tech-target.ts`
 - `packages/cli/src/commands/game/play/set-culture-target.ts`
 - `packages/cli/test/commands/game.play.technology.test.ts`
 - `packages/cli/test/commands/game.play.culture.test.ts`
-- This OpenSpec scenario/task/workstream record
+- `openspec/changes/civ7-control-orpc-native-slice/specs/civ7-control-orpc/spec.md`
+- `openspec/changes/civ7-control-orpc-native-slice/tasks.md`
+- This OpenSpec workstream record
 
 ## Boundary
 
@@ -53,6 +58,10 @@ state changes.
   output.
 - No progression read service or target-state postcondition owner in this
   slice.
+- Public `progression.technology.target.request` and
+  `progression.culture.target.request` send inputs omit caller `playerId`.
+  Dry-run CLI validation remains player-scoped because it still calls the
+  low-level direct-control player-operation validator.
 - No play-thread wake and no live-game/runtime proof claim.
 - No controller ingress or parent Task 5.x/6.x/7.x acceptance by implication.
 
@@ -62,12 +71,13 @@ state changes.
   operation mapping, validator-blocked `not-sent`, and pending-runtime/no-repeat
   proof classification.
 - Focused control-oRPC target procedure proof covers native progression domain
-  leaves, fresh local-player evidence before send, caller `playerId` not
-  becoming send authority, raw input rejection, safe tagged error projection,
+  leaves, fresh local-player evidence before send, caller `playerId` rejection
+  from public input, raw input rejection, safe tagged error projection,
   semantic output closure, and sent target results staying no-repeat guarded.
 - Focused CLI technology/culture tests cover `set-tech-target --send` and
-  `set-culture-target --send` through the in-process service client path,
-  semantic output, local-player substitution, and raw runtime/detail omission.
+  `set-culture-target --send` through the in-process service client path
+  without caller `--player-id`, semantic output, local-player substitution, and
+  raw runtime/detail omission.
 - Closure proof collected: focused direct-control request test,
   direct-control check/build, focused and full control-oRPC package tests,
   control-oRPC check/build, focused CLI technology/culture tests,

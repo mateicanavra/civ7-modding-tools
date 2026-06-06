@@ -17,7 +17,7 @@ export default class GamePlaySetCultureTarget extends Command {
 
   static examples = [
     '<%= config.bin %> game play set-culture-target --player-id 0 --node -1677668973 --json',
-    '<%= config.bin %> game play set-culture-target --player-id 0 --node -1677668973 --send --json',
+    '<%= config.bin %> game play set-culture-target --node -1677668973 --send --json',
   ];
 
   static flags = {
@@ -28,8 +28,7 @@ export default class GamePlaySetCultureTarget extends Command {
       description: 'Civ7 tuner socket port',
     }),
     'player-id': Flags.integer({
-      description: 'Player id',
-      required: true,
+      description: 'Player id for read-only validation; send mode uses live local-player evidence',
     }),
     node: Flags.integer({
       description: 'ProgressionTreeNodeType id from live GameInfo/progression tree reads',
@@ -51,6 +50,22 @@ export default class GamePlaySetCultureTarget extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlaySetCultureTarget);
+    const options = buildDirectControlOptions(flags);
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).progression.culture.target.request({
+        node: flags.node,
+      });
+
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play set-culture-target requires --player-id unless --send is used');
+    }
     const input = {
       operationType: SET_CULTURE_TREE_TARGET_NODE,
       playerId: flags['player-id'],
@@ -58,16 +73,7 @@ export default class GamePlaySetCultureTarget extends Command {
         ProgressionTreeNodeType: flags.node,
       },
     };
-    const options = buildDirectControlOptions(flags);
-    const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
-          endpointDefaults: options,
-        }).progression.culture.target.request({
-          playerId: flags['player-id'],
-          node: flags.node,
-        })
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

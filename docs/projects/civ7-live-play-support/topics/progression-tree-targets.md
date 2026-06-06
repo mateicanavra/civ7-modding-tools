@@ -126,7 +126,6 @@ Set only the culture target when the primary choice was already applied:
 
 ```bash
 civ7 game play set-culture-target \
-  --player-id 0 \
   --node -1677668973 \
   --send \
   --json
@@ -134,5 +133,6 @@ civ7 game play set-culture-target \
 
 The same distinction applies to technology with `game play choose-tech --send`
 for the complete App UI-owner chooser workflow and `game play set-tech-target`
-for deliberate full-tree target planning. Its JSON also reports `operationSent`
-separately from final `verified:true`.
+for deliberate full-tree target planning. Send mode reads the live local player
+before invoking the guarded target request; dry-run validation remains the
+player-scoped path.

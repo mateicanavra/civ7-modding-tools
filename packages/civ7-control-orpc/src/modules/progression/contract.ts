@@ -21,7 +21,6 @@ export type Civ7ProgressionChoiceInput = Static<
 
 const Civ7ProgressionTargetInputSchema = Type.Object(
   {
-    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     node: Type.Integer(),
   },
   { additionalProperties: false },

@@ -17,7 +17,7 @@ export default class GamePlaySetTechTarget extends Command {
 
   static examples = [
     '<%= config.bin %> game play set-tech-target --player-id 0 --node -1255676052 --json',
-    '<%= config.bin %> game play set-tech-target --player-id 0 --node -1255676052 --send --json',
+    '<%= config.bin %> game play set-tech-target --node -1255676052 --send --json',
   ];
 
   static flags = {
@@ -28,8 +28,7 @@ export default class GamePlaySetTechTarget extends Command {
       description: 'Civ7 tuner socket port',
     }),
     'player-id': Flags.integer({
-      description: 'Player id',
-      required: true,
+      description: 'Player id for read-only validation; send mode uses live local-player evidence',
     }),
     node: Flags.integer({
       description: 'ProgressionTreeNodeType id from live GameInfo/progression tree reads',
@@ -51,6 +50,22 @@ export default class GamePlaySetTechTarget extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlaySetTechTarget);
+    const options = buildDirectControlOptions(flags);
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).progression.technology.target.request({
+        node: flags.node,
+      });
+
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+
+    if (typeof flags['player-id'] !== 'number') {
+      throw new Error('game play set-tech-target requires --player-id unless --send is used');
+    }
     const input = {
       operationType: SET_TECH_TREE_TARGET_NODE,
       playerId: flags['player-id'],
@@ -58,16 +73,7 @@ export default class GamePlaySetTechTarget extends Command {
         ProgressionTreeNodeType: flags.node,
       },
     };
-    const options = buildDirectControlOptions(flags);
-    const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
-          endpointDefaults: options,
-        }).progression.technology.target.request({
-          playerId: flags['player-id'],
-          node: flags.node,
-        })
-      : await validatePlayOperation('player-operation', input, options);
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

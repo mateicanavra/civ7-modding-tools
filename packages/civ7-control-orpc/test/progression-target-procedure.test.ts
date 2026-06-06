@@ -15,12 +15,10 @@ import type {
 } from "../src/dependencies/direct-control";
 
 const technologyInput = {
-  playerId: 2,
   node: 18_001,
 } as const;
 
 const cultureInput = {
-  playerId: 2,
   node: 27_001,
 } as const;
 
@@ -167,6 +165,7 @@ describe("progression target control-oRPC procedures", () => {
 
   test("keeps endpoint/session/state/raw command fields out of procedure input", async () => {
     const invalidInputs = [
+      { ...technologyInput, playerId: 2 },
       { ...technologyInput, host: "127.0.0.1" },
       { ...technologyInput, port: 4318 },
       { ...technologyInput, state: { role: "tuner" } },
