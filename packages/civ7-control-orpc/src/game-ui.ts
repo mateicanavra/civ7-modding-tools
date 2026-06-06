@@ -299,6 +299,7 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiExpandCityPlacement(input, target),
     requestCiv7UnitTargetAction: async (input) =>
       await requestCiv7GameUiUnitTargetAction(input, target),
+    requestCiv7UnitCommand: unsupported,
     requestCiv7TurnComplete: async () =>
       await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),

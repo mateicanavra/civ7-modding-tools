@@ -1,9 +1,10 @@
 import { Command, Flags } from '@oclif/core';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
@@ -13,7 +14,7 @@ export default class GamePlayUpgradeUnit extends Command {
   static id = 'game play upgrade-unit';
   static summary = 'Validate or send a unit upgrade command';
   static description =
-    'Wraps unit-command UNITCOMMAND_UPGRADE for a unit whose live action panel/ready-unit validator exposes an eligible upgrade.';
+    'Validates unit-command UNITCOMMAND_UPGRADE, or sends unit upgrade through the native unit upgrade procedure when --send is explicit.';
 
   static examples = [
     '<%= config.bin %> game play upgrade-unit --unit-id \'{"owner":0,"id":1769488,"type":26}\' --json',
@@ -46,14 +47,20 @@ export default class GamePlayUpgradeUnit extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayUpgradeUnit);    const input = {
+    const { flags } = await this.parse(GamePlayUpgradeUnit);
+    const input = {
       operationType: UPGRADE,
       unitId: parseComponentId(flags['unit-id'], 'unit-id'),
       args: {},
     };
     const options = buildDirectControlOptions(flags);
     const result = flags.send
-      ? await sendPlayOperation('unit-command', input, options)
+      ? await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).unit.upgrade.request({
+        unitId: input.unitId,
+      })
       : await validatePlayOperation('unit-command', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

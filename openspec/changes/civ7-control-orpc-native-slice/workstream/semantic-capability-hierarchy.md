@@ -136,6 +136,7 @@ entry family.
 Source evidence:
 
 - unit target action under `unit`;
+- unit upgrade and resettle under `unit`;
 - notification dismissal under the notification/attention mutation domain;
 - setup/restart/begin actions;
 - autoplay actions;
@@ -184,6 +185,7 @@ Service ownership:
 | `unit.summary.read`, `city.summary.read`, `player.summary.read` | burned down as public oRPC wrappers; future `world` service must decompose lower-level runtime/probe resources or move semantic summary behavior into control-oRPC |
 | `unit.move.preview` | `world` read plus future unit validation evidence |
 | `unit.target.action.request` | `unit` |
+| `unit.upgrade.request`, `unit.resettle.request` | `unit` |
 | `city.production.choice.request` | `city` |
 | `progression.technology.choice.request`, `progression.culture.choice.request` | `progression` |
 | `narrative.choice.request` | `narrative` |

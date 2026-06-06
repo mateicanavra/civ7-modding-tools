@@ -15,6 +15,7 @@ import {
   requestCiv7PlayerOperation,
   requestCiv7ProductionChoice,
   requestCiv7TechnologyChoiceCloseout,
+  requestCiv7UnitCommand,
   requestCiv7UnitTargetAction,
   type Civ7DirectControlOptions,
   Civ7BattlefieldScanResultSchema,
@@ -35,6 +36,7 @@ import {
   type Civ7BattlefieldScanInput,
   type Civ7NotificationDismissInput,
   type Civ7NotificationDismissalResult,
+  type Civ7OperationRequestResult,
   type Civ7PlayNotificationViewResult,
   type Civ7PopulationPlacementProofSource,
   type Civ7ProductionChoiceInput,
@@ -104,6 +106,7 @@ export type Civ7ControlOrpcTurnCompletionStatusResult = Static<
 export type Civ7ControlOrpcUnitTargetActionResult = Static<
   typeof Civ7UnitTargetActionResultSchema
 >;
+type Civ7ControlOrpcUnitCommandRuntimeResult = Civ7OperationRequestResult;
 
 export type Civ7ControlOrpcDirectControlFacade = Readonly<{
   requestCiv7ProductionChoice(
@@ -142,6 +145,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7UnitTargetActionInput,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcUnitTargetActionResult>;
+  requestCiv7UnitCommand(
+    input: Readonly<{
+      unitId: Civ7ControlOrpcComponentId;
+      operationType: string;
+      args?: Readonly<Record<string, number>>;
+    }>,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcUnitCommandRuntimeResult>;
   requestCiv7TurnComplete(
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcTurnCompletionRequestResult>;
@@ -215,6 +226,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
   requestCiv7UnitTargetAction: async (input, options) =>
     requestCiv7UnitTargetAction(input, options) as Promise<
       Civ7ControlOrpcUnitTargetActionResult
+    >,
+  requestCiv7UnitCommand: async (input, options) =>
+    requestCiv7UnitCommand(input, options) as Promise<
+      Civ7ControlOrpcUnitCommandRuntimeResult
     >,
   requestCiv7TurnComplete: async (options) =>
     requestCiv7TurnComplete(options),

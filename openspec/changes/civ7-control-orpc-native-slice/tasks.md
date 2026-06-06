@@ -215,6 +215,10 @@ adding more read-only facade shells.
     procedure leaf that owns the semantic assign-worker versus expand-city
     caller shape over direct-control player-operation/city-command runtime
     ports; do not add a generic operation catalog.
+  - [x] 5.5.6.1 Seed `unit.upgrade.request` and `unit.resettle.request` as
+    semantic native unit procedure leaves over the low-level direct-control
+    unit-command runtime port; do not add `operations` or `unit.command`
+    public roots.
   - [x] 5.5.7 Seed `readiness.current` as a native service-owned procedure
     that projects direct-control playable status into safe readiness,
     capability, source-summary, and next-step output without exposing raw
@@ -313,6 +317,10 @@ adding more read-only facade shells.
     direct-control validator-first player-operation/city-command runtime ports
     and project source-owned population-placement proof/no-repeat semantics
     into normal output; keep shared validator/postcondition middleware pending.
+  - [x] 6.3.4.1 Compose `unit.upgrade.request` and `unit.resettle.request`
+    through the direct-control validator-first unit-command runtime port and
+    project source-owned unit postcondition/no-repeat semantics into normal
+    output; keep broader unit command catalogs pending.
   - [x] 6.3.5 Compose `narrative.choice.request` through the
     direct-control narrative request runtime port and project source-owned
     narrative proof/no-repeat semantics into normal output; keep shared
@@ -452,6 +460,13 @@ adding more read-only facade shells.
     population placement projection for send output, preserve the existing
     direct-control validation paths for read-only mode, bound assign-worker send
     mode to the source-owned one-worker placement atom, and keep live runtime
+    proof pending.
+  - [x] 7.1.9 Route `civ7 game play upgrade-unit --send` and
+    `civ7 game play resettle-unit --send` through the in-process
+    `unit.upgrade.request` and `unit.resettle.request` server-side clients
+    under the `unit` router. Keep endpoint flags as context construction, emit
+    semantic unit request projections, preserve the existing direct-control
+    unit-command validation paths for read-only mode, and keep live runtime
     proof pending.
   - [x] 7.1.9 Route `civ7 game play choose-tech --send` and
     `civ7 game play choose-culture --send` through the in-process
@@ -1012,6 +1027,10 @@ adding more read-only facade shells.
 - [x] 8.28.1 Run focused CLI production tests, `check:cli`, `test:cli:play`,
   relevant OpenSpec strict validates, and diff hygiene for the folded
   build-unit intent under the current build-production command.
+- [x] 8.28.2 Run focused unit request procedure tests, focused CLI operation
+  wrapper tests, `check:cli`, `test:cli:play`, relevant OpenSpec strict
+  validates, and diff hygiene for the CLI unit upgrade/resettle send migration
+  slice.
 - [x] 8.29 Run focused CLI diplomacy response tests, `check:cli`,
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI diplomacy response send migration slice.

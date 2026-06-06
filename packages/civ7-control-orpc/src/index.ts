@@ -109,6 +109,8 @@ export {
   Civ7StrategyFrontSummaryUnavailableErrorDataSchema,
   Civ7TurnCompletionUnavailableError,
   Civ7TurnCompletionUnavailableErrorDataSchema,
+  Civ7UnitRequestUnavailableError,
+  Civ7UnitRequestUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
@@ -128,6 +130,7 @@ export {
   type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
   type Civ7TurnCompletionUnavailableErrorData,
+  type Civ7UnitRequestUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
 } from "./errors";
 export {
@@ -374,6 +377,18 @@ export { turnRouter } from "./modules/turn/router";
 export { turnCompleteRequestProcedure } from "./modules/turn/procedures/complete-request";
 export {
   Civ7UnitContract,
+  Civ7UnitCommandNextStepSchema,
+  Civ7UnitCommandPostconditionClassificationSchema,
+  Civ7UnitCommandPostconditionSummarySchema,
+  Civ7UnitCommandProofOutcomeSchema,
+  Civ7UnitCommandRequestStatusSchema,
+  Civ7UnitCommandResultSchema,
+  Civ7UnitCommandResultStandardSchema,
+  Civ7UnitCommandSummarySchema,
+  Civ7UnitCommandValidationSummarySchema,
+  Civ7UnitResettleContract,
+  Civ7UnitResettleInputSchema,
+  Civ7UnitResettleInputStandardSchema,
   Civ7UnitTargetActionContract,
   Civ7UnitTargetActionFamilySchema,
   Civ7UnitTargetActionInputSchema,
@@ -387,13 +402,25 @@ export {
   Civ7UnitTargetActionSelectedSummarySchema,
   Civ7UnitTargetActionValidationSummarySchema,
   Civ7UnitTargetActionVerificationClassificationSchema,
+  Civ7UnitUpgradeContract,
+  Civ7UnitUpgradeInputSchema,
+  Civ7UnitUpgradeInputStandardSchema,
 } from "./modules/unit/contract";
 export type {
   Civ7UnitContract as Civ7UnitContractType,
+  Civ7UnitCommandResult,
+  Civ7UnitResettleContract as Civ7UnitResettleContractType,
+  Civ7UnitResettleInput,
   Civ7UnitTargetActionContract as Civ7UnitTargetActionContractType,
   Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResult,
+  Civ7UnitUpgradeContract as Civ7UnitUpgradeContractType,
+  Civ7UnitUpgradeInput,
 } from "./modules/unit/contract";
 export { unitRouter } from "./modules/unit/router";
+export {
+  unitResettleRequestProcedure,
+  unitUpgradeRequestProcedure,
+} from "./modules/unit/procedures/command-request";
 export { unitTargetActionRequestProcedure } from "./modules/unit/procedures/target-action-request";
 export { toStandardSchema } from "./typebox-standard-schema";

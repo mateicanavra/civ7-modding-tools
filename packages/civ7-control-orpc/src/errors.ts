@@ -122,6 +122,31 @@ export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7UnitRequestUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("unit.upgrade.request"),
+      Type.Literal("unit.resettle.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7UnitRequestUnavailableErrorData = Static<
+  typeof Civ7UnitRequestUnavailableErrorDataSchema
+>;
+
+export class Civ7UnitRequestUnavailableError extends ORPCTaggedError(
+  "Civ7UnitRequestUnavailableError",
+  {
+    code: "UNIT_REQUEST_UNAVAILABLE",
+    message: "Direct-control unit request failed.",
+    schema: toStandardSchema(Civ7UnitRequestUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("narrative.choice.request"),
@@ -371,6 +396,7 @@ export const civ7ControlOrpcErrorMap = {
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
+  UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
 } satisfies EffectErrorMap;
 

@@ -100,6 +100,20 @@ errors, and server-side callers.
   sends, validators, source verification classification, and no-repeat proof
   semantics consumed by the procedure
 
+#### Scenario: Unit upgrade and resettle service contracts are offered
+- **WHEN** `unit.upgrade.request` and `unit.resettle.request` expose their
+  caller-facing contracts
+- **THEN** control-oRPC owns the semantic input and normal postcondition
+  summary schemas for those service procedures under the `unit` router
+- **AND** upgrade input admits only a unit ID, while resettle input admits only
+  a unit ID plus bounded integer destination coordinates
+- **AND** endpoint, session, state, raw command, and low-level operation enum
+  fields remain excluded from procedure input and normal output
+- **AND** direct-control remains the low-level runtime/proof owner for
+  `UNITCOMMAND_UPGRADE` and `UNITCOMMAND_RESETTLE` validation, send execution,
+  source postcondition classification, and no-repeat proof evidence consumed by
+  the procedures
+
 #### Scenario: Progression choice service contract is offered
 - **WHEN** `progression.technology.choice.request` and
   `progression.culture.choice.request` expose their caller-facing contracts
@@ -263,6 +277,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the read-only `game play unit-target` planning path remains a
   direct-control unit target action read until a separate accepted service read
   exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI unit upgrade and resettle sends use native unit procedures
+- **WHEN** `game play upgrade-unit --send` or `game play resettle-unit --send`
+  requests a unit command
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send paths call the in-process `unit.upgrade.request` or
+  `unit.resettle.request` server-side clients under the `unit` router
+- **AND** the procedures' readiness, direct-control unit-command validators,
+  unit postcondition projection, and no-repeat policy remain authoritative for
+  the sends
+- **AND** the normal JSON result is the semantic unit request procedure
+  projection without raw command/session/state/Tuner details, direct-control
+  before/after envelopes, low-level operation enum fields, send results, or
+  legacy `verified`
+- **AND** the read-only validation paths remain direct-control
+  `unit-command` validation until separate accepted service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI production sends use native city procedure
