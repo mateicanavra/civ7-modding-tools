@@ -79,3 +79,16 @@
 - Branches with active PR/Graphite ownership should be deleted only after their
   semantic deltas are committed here and the current stack is submitted or
   merged, to avoid removing review references before replacement is durable.
+
+## Cleanup Actions
+
+- Removed the stale local predecessor worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-swooper-earthlike-tuning`.
+- Deleted the local Graphite branch/ref for
+  `codex/swooper-earthlike-post-foundation-tuning` after semantic recovery was
+  committed here.
+- Left remote PR `#1421` and remote branch
+  `origin/codex/swooper-earthlike-post-foundation-tuning` intact as the only
+  published review reference until this replacement stack is submitted or
+  merged. That remote should not be merged as-is; it is superseded by this
+  recovery stack but remains a non-local fallback/reference.
