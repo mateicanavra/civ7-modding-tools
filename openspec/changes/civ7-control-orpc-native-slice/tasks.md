@@ -885,6 +885,15 @@ adding more read-only facade shells.
     relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
     caller-provided approval remains retired and no approval-reason mechanic is
     introduced.
+  - [x] 7.1.9.24 Simplify `civ7 game play traditions --compact` action guidance
+    so compact JSON emits semantic row `nextAction` and `recommendedActions`
+    descriptors instead of `change-tradition` command strings, with
+    `recommendedActions` limited to validation-success options. Keep command
+    help responsible for exact flag combinations, and keep service behavior,
+    parser flags, runtime reads, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1825,6 +1834,17 @@ adding more read-only facade shells.
   change service behavior or contracts, runtime read behavior, parser flags,
   deployed Civ7 runtime behavior, play-thread state, transport/controller
   scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.37 Run focused CLI progression-read tests, `check:cli`, strict
+  OpenSpec validates, compact traditions command-recipe output scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene, including a validation-failed tradition falsifier for
+  `recommendedActions`, for the compact traditions action guidance
+  simplification. This is local CLI/OpenSpec proof only; it does not change
+  service behavior or contracts, runtime read behavior, parser flags, deployed
+  Civ7 runtime behavior, play-thread state, transport/controller scope,
+  relationship authority, or parent Task 5.x/6.x/7.x acceptance;
   caller-provided approval remains retired and no approval-reason mechanic is
   introduced.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
