@@ -712,12 +712,12 @@ adding more read-only facade shells.
     sent player-choice results pending-runtime-proof/no-repeat guarded until a
     real post-read owner proves the live review state changed.
   - [x] 7.1.9.3.1 Remove stale caller `--player-id` from progression
-    player-choice notification send hints. Keep dry-run validation hints
-    player-scoped, but make tradition/attribute send and closeout workflow
-    recommendations match the playerless native oRPC send surfaces. Prove the
+    player-choice notification send hints. Keep action directions focused on
+    the semantic send moves and minimal closeout sequencing context, not every
+    validation/flag variant. Dry-run validation remains available through the
+    CLI interface, but it is not repeated as a notification action. Prove the
     generated notification-view source omits `--player-id` from send
-    templates while preserving validation templates and live runtime proof
-    pending.
+    templates and live runtime proof pending.
   - [x] 7.1.9.4 Route `civ7 game play set-town-focus --send` and
     `civ7 game play consider-town-project --send` through the in-process
     city town-focus server-side clients under the `city` router. Keep endpoint

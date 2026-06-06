@@ -1682,13 +1682,13 @@ export function playNotificationViewSource(): string {
           ],
           [
             action("read tradition options", "game play traditions --compact --json", "read-only", "Players.Culture tradition slot/candidate packet", "active and available traditions with action templates", "before choosing a tradition activation or deactivation"),
-            action("change tradition and close review", "game play change-tradition --tradition-type <tradition-type> --action <action> --send --closeout", "sequence", "CHANGE_TRADITION then CONSIDER_ASSIGN_TRADITIONS", "{ TraditionType, Action } then {}", "when a specific tradition slot change should be applied and the blocker closed as one caller workflow"),
             action("change tradition", "game play change-tradition --tradition-type <tradition-type> --action <action> --send", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when one selected tradition operation should be sent"),
-            action("validate tradition change", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action>", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when dry-run validation is wanted before sending"),
             action("close tradition review", "game play consider-traditions --send", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),
-            action("validate tradition review closeout", "game play consider-traditions --player-id <id>", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "when dry-run closeout validation is wanted before sending"),
           ],
-          ["Full slots may need deactivate, activate, then closeout; use --closeout on the final selected change when one caller action should clear the review surface."],
+          [
+            "Full slots may need deactivate, re-read, then activate.",
+            "Use --closeout on the selected change only when the same move should also clear the review surface.",
+          ],
         );
       }
       if (stringIncludes(haystack, "ATTRIBUTE")) {
@@ -1701,11 +1701,8 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live attribute tree node", "Use the buyable attribute node id from the runtime tree.")],
           [
-            action("buy attribute and close review", "game play buy-attribute --node <node> --send --closeout", "sequence", "BUY_ATTRIBUTE_TREE_NODE then CONSIDER_ASSIGN_ATTRIBUTE", "{ ProgressionTreeNodeType } then {}", "when a buyable node should be purchased and the blocker closed as one caller workflow"),
             action("buy attribute node", "game play buy-attribute --node <node> --send", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when one selected attribute purchase should be sent"),
-            action("validate attribute purchase", "game play buy-attribute --player-id <id> --node <node>", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when dry-run validation is wanted before sending"),
             action("close attribute review", "game play consider-attributes --send", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "after no attribute purchase is needed or after buying"),
-            action("validate attribute review closeout", "game play consider-attributes --player-id <id>", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "when dry-run closeout validation is wanted before sending"),
           ],
           ["Use --closeout when one caller action should buy the node and clear the review surface."],
         );

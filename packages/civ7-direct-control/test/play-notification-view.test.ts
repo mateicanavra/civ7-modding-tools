@@ -76,14 +76,14 @@ describe("getCiv7PlayNotificationView", () => {
       const notificationRead = server.received.find((message) => message.includes("readPlayNotifications")) ?? "";
       expect(notificationRead).toContain("CHOOSE_AUTO_NARRATIVE_STORY_DIRECTION");
       expect(notificationRead).toContain("getFirstPendingDiscoveryLastMetID");
-      expect(notificationRead).toContain("game play change-tradition --tradition-type <tradition-type> --action <action> --send --closeout");
-      expect(notificationRead).toContain("game play buy-attribute --node <node> --send --closeout");
+      expect(notificationRead).toContain("game play change-tradition --tradition-type <tradition-type> --action <action> --send");
+      expect(notificationRead).toContain("game play buy-attribute --node <node> --send");
       expect(notificationRead).toContain("game play consider-traditions --send");
       expect(notificationRead).toContain("game play consider-attributes --send");
-      expect(notificationRead).toContain("game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action>");
-      expect(notificationRead).toContain("game play buy-attribute --player-id <id> --node <node>");
       expect(notificationRead).not.toContain("game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action> --send");
       expect(notificationRead).not.toContain("game play buy-attribute --player-id <id> --node <node> --send");
+      expect(notificationRead).not.toContain("validate tradition change");
+      expect(notificationRead).not.toContain("validate attribute purchase");
     } finally {
       await server.close();
     }

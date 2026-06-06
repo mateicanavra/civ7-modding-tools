@@ -6,12 +6,13 @@ Implemented local source, test, and OpenSpec proof slice.
 
 ## Purpose
 
-Remove stale caller `--player-id` guidance from progression player-choice
-notification send recommendations. Native progression player-choice send
-surfaces already derive local-player evidence inside the
-`progression.attribute.*` and `progression.tradition.*` service procedures.
-Notification action hints should not teach callers to pass a player id for
-those mutation sends.
+Remove stale caller `--player-id` guidance and repeated flag variants from
+progression player-choice notification send recommendations. Native
+progression player-choice send surfaces already derive local-player evidence
+inside the `progression.attribute.*` and `progression.tradition.*` service
+procedures. Notification action hints should describe the semantic next move
+with minimal differentiating context, not restate every validation and closeout
+command combination.
 
 ## Write Set
 
@@ -22,10 +23,12 @@ those mutation sends.
 
 ## Boundary
 
-- Progression tradition/attribute send and send-closeout notification action
-  hints are playerless.
-- Dry-run validation hints remain player-scoped because direct-control
-  validation still needs a player id.
+- Progression tradition/attribute notification action hints are playerless for
+  mutation sends.
+- Action directions avoid separate entries for dry-run validation variants and
+  closeout flag variants.
+- Dry-run validation remains available through CLI command help and existing
+  direct-control validation paths.
 - No oRPC contract, router, middleware, bridge, CLI parser, generated bundle,
   direct-control runtime behavior, approval/reason mechanic, play-thread
   action, runtime/live proof claim, or parent Task 5.x/6.x/7.x acceptance is
