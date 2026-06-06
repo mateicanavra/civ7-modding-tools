@@ -943,6 +943,15 @@ adding more read-only facade shells.
     behavior, controller bridge, deployed Civ7 proof, relationship authority,
     and parent Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval
     remains retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.31 Simplify `civ7 game play notifications --json` action
+    guidance so the normal JSON view omits direct-control `cli` command recipe
+    fields while preserving semantic categories, operation families,
+    operation types, required inputs, common actions, option data, validation
+    evidence, and notes. Keep direct-control notification materialization,
+    parser flags, runtime behavior, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1953,6 +1962,16 @@ adding more read-only facade shells.
   scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
   caller-provided approval remains retired and no approval-reason mechanic is
   introduced.
+- [x] 8.60.44 Run focused CLI notification HUD tests, `check:cli`, strict
+  OpenSpec validates, notifications JSON command-recipe output scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the notifications JSON action guidance simplification. This is
+  local CLI/OpenSpec proof only; it does not change service behavior or
+  contracts, direct-control notification materialization, runtime read
+  behavior, parser flags, deployed Civ7 runtime behavior, play-thread state,
+  transport/controller scope, relationship authority, or parent Task 5.x/6.x/7.x
+  acceptance; caller-provided approval remains retired and no approval-reason
+  mechanic is introduced.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

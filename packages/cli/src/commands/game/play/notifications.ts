@@ -47,7 +47,7 @@ export default class GamePlayNotifications extends Command {
     });
 
     if (flags.json) {
-      this.log(JSON.stringify({ ok: true, view }));
+      this.log(JSON.stringify({ ok: true, view: projectNotificationJsonView(view) }));
       return;
     }
 
@@ -96,6 +96,18 @@ export default class GamePlayNotifications extends Command {
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {
   if (!probe.ok) return `<error: ${probe.error}>`;
   return formatValue(probe.value);
+}
+
+function projectNotificationJsonView(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(projectNotificationJsonView);
+  if (!value || typeof value !== 'object') return value;
+
+  const output: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (key === 'cli') continue;
+    output[key] = projectNotificationJsonView(item);
+  }
+  return output;
 }
 
 function formatValue(value: unknown): string {

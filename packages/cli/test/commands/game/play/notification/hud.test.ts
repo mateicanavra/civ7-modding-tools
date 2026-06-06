@@ -24,10 +24,10 @@ describe('game play notifications command', () => {
       expect(details?.actionId).toBe(8);
       expect(details?.options.map((option) => option.title)).toEqual(['Support', 'Accept', 'Reject']);
       expect(details?.disabledOptions[0].responseType).toBe(-1907089594);
-      expect(details?.disabledOptions[0].cli).toBeNull();
+      expect(details?.disabledOptions[0]).not.toHaveProperty('cli');
       expect(details?.enabledOptions.map((option) => option.responseType)).toEqual([926305338, -1200641623]);
-      expect(details?.enabledOptions[0].cli).toContain('game play respond-diplomacy --action-id 8 --response-type 926305338');
-      expect(details?.enabledOptions[0].cli).toContain("--notification-id '{\"owner\":0,\"id\":19,\"type\":20}'");
+      expect(details?.enabledOptions[0]).toMatchObject({ responseType: 926305338, title: 'Accept' });
+      expect(details?.enabledOptions[0]).not.toHaveProperty('cli');
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
     } finally {
@@ -43,11 +43,10 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Masonry', 'Sailing']);
       const masonry = details?.enabledOptions.find((option) => option.nodeType === -1255676052);
       expect(masonry?.chooseValidation.value?.Success).toBe(true);
-      expect(masonry?.cli).toContain('game play choose-tech --node -1255676052 --send');
-      expect(masonry?.cli).not.toContain('--player-id');
-      expect(masonry?.cli).not.toContain('--closeout');
+      expect(masonry).toMatchObject({ nodeType: -1255676052, name: 'Masonry' });
+      expect(masonry).not.toHaveProperty('cli');
       expect(details?.disabledOptions[0].name).toBe('Agriculture');
-      expect(details?.disabledOptions[0].cli).toBeNull();
+      expect(details?.disabledOptions[0]).not.toHaveProperty('cli');
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
     } finally {
@@ -65,11 +64,10 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Discipline', 'Ekklesia']);
       const ekklesia = details?.enabledOptions.find((option) => option.nodeType === -869902342);
       expect(ekklesia?.chooseValidation.value?.Success).toBe(true);
-      expect(ekklesia?.cli).toContain('game play choose-culture --node -869902342 --send');
-      expect(ekklesia?.cli).not.toContain('--closeout');
-      expect(ekklesia?.cli).not.toContain('--player-id');
+      expect(ekklesia).toMatchObject({ nodeType: -869902342, name: 'Ekklesia' });
+      expect(ekklesia).not.toHaveProperty('cli');
       expect(details?.disabledOptions[0].name).toBe('Mysticism');
-      expect(details?.disabledOptions[0].cli).toBeNull();
+      expect(details?.disabledOptions[0]).not.toHaveProperty('cli');
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
     } finally {
@@ -87,7 +85,8 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Cultural Celebration', 'Wonder Production Celebration']);
       const culture = details?.enabledOptions.find((option) => option.goldenAgeType === -340825966);
       expect(culture?.validation.value?.Success).toBe(true);
-      expect(culture?.cli).toContain('game play choose-celebration --golden-age-type -340825966 --send');
+      expect(culture).toMatchObject({ goldenAgeType: -340825966, name: 'Cultural Celebration' });
+      expect(culture).not.toHaveProperty('cli');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -106,7 +105,8 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name)).toEqual(['Classical Republic', 'Despotism', 'Oligarchy']);
       const republic = details?.enabledOptions.find((option) => option.governmentType === 0);
       expect(republic?.validation.value?.Success).toBe(true);
-      expect(republic?.cli).toContain('game play choose-government --government-type 0 --action -1326475004 --send');
+      expect(republic).toMatchObject({ governmentType: 0, name: 'Classical Republic' });
+      expect(republic).not.toHaveProperty('cli');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -126,7 +126,7 @@ describe('game play notifications command', () => {
       expect(details?.storyLinks.value).toEqual([]);
       expect(details?.enabledOptions[0].targetType).toBe('CLOSE');
       expect(details?.enabledOptions[0].validation.value?.Success).toBe(true);
-      expect(details?.enabledOptions[0].cli).toContain('game play choose-narrative --target-type CLOSE');
+      expect(details?.enabledOptions[0]).not.toHaveProperty('cli');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -144,8 +144,7 @@ describe('game play notifications command', () => {
       expect(details?.enabledCloseoutCandidates).toHaveLength(1);
       expect(details?.enabledCloseoutCandidates[0].unitId).toEqual({ owner: 0, id: 196609, type: 26 });
       expect(details?.enabledCloseoutCandidates[0].operationType).toBe('SKIP_TURN');
-      expect(details?.enabledCloseoutCandidates[0].cli).toContain('game play operation --family unit --type SKIP_TURN');
-      expect(details?.enabledCloseoutCandidates[0].cli).toContain("--unit-id '{\"owner\":0,\"id\":196609,\"type\":26}'");
+      expect(details?.enabledCloseoutCandidates[0]).not.toHaveProperty('cli');
       expect(payload.view.hud.nextDecision.details).toBeDefined();
     } finally {
       await server.close();
@@ -185,7 +184,7 @@ describe('game play notifications command', () => {
       expect(payload.view.hud.nextDecision.category).toBe('informational-notification');
       expect(payload.view.hud.nextDecision.operationFamily).toBe('app-ui-action');
       expect(payload.view.hud.nextDecision.operationType).toBe('Game.Notifications.dismiss');
-      expect(payload.view.hud.nextDecision.cli).toBe('game play dismiss-notification');
+      expect(payload.view.hud.nextDecision).not.toHaveProperty('cli');
       expect(payload.view.hud.nextDecision.notes.join(' ')).toContain('do not send RESPOND_DIPLOMATIC_ACTION');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -206,7 +205,7 @@ describe('game play notifications command', () => {
       expect(payload.view.hud.nextDecision.category).toBe('informational-notification');
       expect(payload.view.hud.nextDecision.operationFamily).toBe('app-ui-action');
       expect(payload.view.hud.nextDecision.operationType).toBe('Game.Notifications.dismiss');
-      expect(payload.view.hud.nextDecision.cli).toBe('game play dismiss-notification');
+      expect(payload.view.hud.nextDecision).not.toHaveProperty('cli');
       expect(payload.view.hud.nextDecision.notes.join(' ')).toContain('real diplomatic event id');
       expect(payload.view.hud.nextDecision.notes.join(' ')).toContain('reviewed report closeout');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -254,10 +253,10 @@ async function runNotificationHud(mode: NotificationHudMode = 'default') {
           choices?: { ok: boolean; value?: string[] };
           startingGovernments?: { ok: boolean; value?: Array<{ GovernmentType: number }> };
           action?: number;
-          options?: Array<{ title?: string; responseType?: number; enabled?: boolean; disabled?: boolean; cli: string | null }>;
+          options?: Array<{ title?: string; responseType?: number; enabled?: boolean; disabled?: boolean }>;
           enabledOptions?: Array<Record<string, unknown>>;
           disabledOptions?: Array<Record<string, unknown>>;
-          enabledCloseoutCandidates?: Array<{ unitId: { owner: number; id: number; type: number }; operationType: string; cli: string | null }>;
+          enabledCloseoutCandidates?: Array<{ unitId: { owner: number; id: number; type: number }; operationType: string }>;
           staleReadyPointerSuspected?: boolean;
         };
       }>;
@@ -266,7 +265,6 @@ async function runNotificationHud(mode: NotificationHudMode = 'default') {
           category: string;
           operationFamily?: string;
           operationType?: string;
-          cli?: string | null;
           notes: string[];
           details?: unknown;
         };
@@ -274,6 +272,8 @@ async function runNotificationHud(mode: NotificationHudMode = 'default') {
     };
   };
   expectNormalPlayPayloadToOmitDebugInternals(payload);
+  expect(JSON.stringify(payload.view)).not.toContain('"cli"');
+  expect(JSON.stringify(payload.view)).not.toContain('game play ');
 
   return {
     payload,
