@@ -577,6 +577,12 @@ adding more read-only facade shells.
     migrated commands, and keep sent town-focus results
     pending-runtime-proof/no-repeat guarded until a real city-read owner proves
     town project review state changed.
+  - [x] 7.1.9.5 Route `civ7 game map --summary` through the in-process
+    `world.current` server-side client under the `world` router. Keep endpoint
+    flags as context construction, emit the semantic current-world projection,
+    omit raw host/port/state/session/Tuner payloads from normal summary JSON,
+    and leave plot/grid reads on bounded direct-control diagnostics until
+    separate accepted world/map read service leaves exist.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1274,6 +1280,13 @@ adding more read-only facade shells.
   deployed Civ7 runtime proof, play-thread action, transport expansion,
   revived summary wrappers, actor catalog support, relationship labels, public
   package-root procedure schema exports, or parent Task 5.x/6.x/7.x
+  acceptance.
+- [x] 8.60.13 Run focused CLI map summary proof, full CLI test, CLI check,
+  relevant OpenSpec strict validates, and diff hygiene for the
+  `game map --summary` migration to `world.current`. This is local
+  CLI/service proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, plot/grid service migration,
+  revived summary wrappers, relationship labels, or parent Task 5.x/6.x/7.x
   acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the

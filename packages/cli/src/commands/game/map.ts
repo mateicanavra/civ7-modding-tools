@@ -1,11 +1,13 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7MapGrid, getCiv7MapSummary, getCiv7PlotSnapshot, type Civ7PlotSnapshotField } from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
+import { getCiv7MapGrid, getCiv7PlotSnapshot, type Civ7PlotSnapshotField } from '@civ7/direct-control';
 
 export default class GameMap extends Command {
   static id = 'game map';
-  static summary = 'Read bounded Civ7 map state through direct control';
+  static summary = 'Read Civ7 current world and bounded map state';
   static description =
-    'Reads map summary, one plot, or a bounded plot grid through @civ7/direct-control.';
+    'Reads the service-owned current world summary through control-oRPC, or one plot/grid through bounded direct-control map diagnostics.';
 
   static examples = [
     '<%= config.bin %> game map --summary --json',
@@ -21,7 +23,7 @@ export default class GameMap extends Command {
       description: 'Civ7 tuner socket port',
     }),
     summary: Flags.boolean({
-      description: 'Read the map summary',
+      description: 'Read the current world summary',
       default: false,
     }),
     plot: Flags.string({
@@ -79,10 +81,11 @@ export default class GameMap extends Command {
         includeHidden: flags['include-hidden'],
       }, options);
     } else {
-      result = await getCiv7MapSummary({
-        ...options,
-        includeAreaRegionCounts: flags.summary,
+      const client = createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
       });
+      result = await client.world.current({});
     }
 
     if (flags.json) {

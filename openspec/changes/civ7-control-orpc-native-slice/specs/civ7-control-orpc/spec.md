@@ -269,6 +269,20 @@ errors, and server-side callers.
   support, transport expansion, and parent Task 5.x/6.x/7.x acceptance remain
   pending
 
+#### Scenario: CLI map summary uses current world service projection
+- **WHEN** `game map --summary` reads current world/map facts
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the summary path calls the in-process `world.current` server-side
+  client under the `world` router
+- **AND** the normal JSON result is the semantic current-world projection
+  without raw host, port, state, session, command, rawCommand, Tuner payloads,
+  raw App UI snapshot envelopes, direct-control summary envelopes, actor
+  catalogs, or relationship labels
+- **AND** `game map --plot` and `game map --bounds` remain bounded
+  direct-control map diagnostics until separate accepted world/map read
+  service leaves exist
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: Transitional facade-only procedure remains
 - **WHEN** a current facade-only read leaf is retained while the native service
   shape is being corrected

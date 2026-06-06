@@ -605,6 +605,76 @@ describe('game direct-control commands', () => {
     }
   });
 
+  test('routes map summary through the current world service projection', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameMap.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GameMap.run(['--host', '127.0.0.1', '--port', String(port), '--summary', '--json']);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          readiness: string;
+          sourceStatus: Record<string, string>;
+          map: Record<string, unknown>;
+          players: Record<string, unknown>;
+          nextSteps: Array<Record<string, unknown>>;
+        };
+      };
+      expect(payload).toMatchObject({
+        ok: true,
+        result: {
+          readiness: 'tuner-ready',
+          sourceStatus: {
+            playableStatus: 'read',
+            game: 'read',
+            map: 'read',
+            players: 'read',
+          },
+          map: {
+            width: 84,
+            height: 54,
+            plotCount: 4536,
+          },
+          players: {
+            maxPlayers: 64,
+            alivePlayerIds: [0],
+            aliveHumanIds: [0],
+            aliveHumanCount: 1,
+          },
+          nextSteps: [
+            {
+              kind: 'read-attention',
+              source: 'world.current',
+            },
+          ],
+        },
+      });
+      expect(server.received.some((message) => message.includes('Network.isInSession'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readPlotSnapshot'))).toBe(false);
+      const serialized = JSON.stringify(payload);
+      expect(serialized).not.toContain('"host"');
+      expect(serialized).not.toContain('"port"');
+      expect(serialized).not.toContain('"state"');
+      expect(serialized).not.toContain('"session"');
+      expect(serialized).not.toContain('rawCommand');
+      expect(serialized).not.toContain('enemy');
+      expect(serialized).not.toContain('hostile');
+      expect(serialized).not.toContain('opponent');
+      expect(serialized).not.toContain('threat');
+      expect(serialized).not.toContain('war');
+      expect(serialized).not.toContain('ally');
+      expect(serialized).not.toContain('suzerain');
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('samples loaded AI levers through bounded GameInfo reads', async () => {
     const server = await startTunerServer();
     try {
