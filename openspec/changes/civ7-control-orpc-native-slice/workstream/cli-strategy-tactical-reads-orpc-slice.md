@@ -6,7 +6,7 @@ Local control-oRPC, CLI, and OpenSpec closure proof collected.
 
 ## Purpose
 
-Route `civ7 game play target-candidates` and
+Route `civ7 game play battlefield-scan`, `civ7 game play target-candidates`, and
 `civ7 game play destination-analysis` through native in-process strategy
 service procedures instead of letting the CLI expose direct-control tactical
 read envelopes.
@@ -24,6 +24,7 @@ low-level App UI tactical runtime evidence source.
 - `packages/civ7-control-orpc/src/modules/strategy/procedures/tactical-reads.ts`
 - `packages/civ7-control-orpc/src/modules/strategy/router.ts`
 - `packages/civ7-control-orpc/test/strategy-tactical-reads-procedure.test.ts`
+- `packages/cli/src/commands/game/play/battlefield-scan.ts`
 - `packages/cli/src/commands/game/play/destination-analysis.ts`
 - `packages/cli/src/commands/game/play/target-candidates.ts`
 - `packages/cli/test/commands/game.play.tactical-read.test.ts`
@@ -33,9 +34,9 @@ low-level App UI tactical runtime evidence source.
 
 ## Boundary
 
-- `strategy.targetCandidates` and `strategy.destinationAnalysis` are
-  strategy-domain read-only planning services, not a broad tactical catalog or
-  operation/send surface.
+- `strategy.battlefieldScan`, `strategy.targetCandidates`, and
+  `strategy.destinationAnalysis` are strategy-domain read-only planning
+  services, not a broad tactical catalog or operation/send surface.
 - The service result projects bounded counts, locations, route hints,
   relationship-unproven owner evidence, omitted-detail records, and semantic
   next-step descriptors. Raw direct-control city/unit/plot samples remain out
@@ -52,9 +53,9 @@ low-level App UI tactical runtime evidence source.
 
 - `bun run --cwd packages/civ7-control-orpc test test/strategy-tactical-reads-procedure.test.ts`
 - `bun run --cwd packages/civ7-control-orpc check`
+- `bun run --cwd packages/civ7-control-orpc build`
 - `bun run --cwd packages/cli test -- game.play.tactical-read.test.ts`
 - `bun run --cwd packages/civ7-control-orpc test`
-- `bun run --cwd packages/civ7-control-orpc build`
 - `bun run check:cli`
 - `bun run test:cli:play`
 - `bun run openspec -- validate civ7-control-orpc-native-slice --strict`

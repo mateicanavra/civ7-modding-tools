@@ -9,11 +9,96 @@ import {
   type Civ7ControlOrpcContext,
 } from "../src/index";
 import type {
+  Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcDestinationAnalysisResult,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "../src/dependencies/direct-control";
 
 describe("strategy tactical read control-oRPC procedures", () => {
+  test("projects battlefield scan into bounded owner and point summaries", async () => {
+    const fake = fakeContext();
+
+    const result = await call(Civ7ControlOrpcRouter.strategy.battlefieldScan, {
+      playerId: 0,
+      origins: [{ x: 17, y: 20 }],
+      radius: 8,
+      maxPlayers: 12,
+      maxUnits: 80,
+      maxCities: 32,
+    }, { context: fake.context });
+
+    expect(fake.calls.battlefieldScan).toEqual([{
+      input: {
+        playerId: 0,
+        origins: [{ x: 17, y: 20 }],
+        radius: 8,
+        maxPlayers: 12,
+        maxUnits: 80,
+        maxCities: 32,
+      },
+      options: { host: "127.0.0.1", port: 4318, timeoutMs: 1_000 },
+    }]);
+    expect(result).toMatchObject({
+      playerId: 0,
+      localPlayerId: 0,
+      origins: [{ x: 17, y: 20 }],
+      radius: 8,
+      relationshipLabelPolicy: {
+        relationshipSource: "not-classified",
+        relationshipProof: "none",
+        unprovenLabel: "relationship-unproven",
+      },
+      summary: {
+        unitCount: 3,
+        cityCount: 1,
+        observedOwnerCount: 2,
+        pointOfInterestCount: 2,
+        apparentStrengthTotal: 30.6,
+      },
+    });
+    expect(result.owners).toEqual([
+      {
+        owner: 0,
+        relationship: "self",
+        relationshipProof: "self",
+        unitCount: 2,
+        cityCount: 0,
+        apparentStrength: 10.6,
+        nearestDistance: 0,
+        roles: { ranged: 1, civilian: 1 },
+      },
+      {
+        owner: 9,
+        relationship: "relationship-unproven",
+        relationshipProof: "none",
+        unitCount: 1,
+        cityCount: 1,
+        apparentStrength: 20,
+        nearestDistance: 4,
+        roles: { melee: 1 },
+      },
+    ]);
+    expect(result.pointsOfInterest[0]).toMatchObject({
+      kind: "civilian-risk",
+      severity: "high",
+      location: { x: 16, y: 18 },
+    });
+    expect(result.nextSteps.map((step) => step.kind)).toEqual([
+      "inspect-battlefield-point",
+      "read-visibility",
+      "validate-unit-action",
+    ]);
+
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"units\":[");
+    expect(serialized).not.toContain("\"cities\":[");
+    expect(serialized).not.toContain("rawCommand");
+    expectNoRelationshipOverclaim(serialized);
+  });
+
   test("projects target candidates into neutral service output without raw runtime samples", async () => {
     const fake = fakeContext();
 
@@ -162,6 +247,11 @@ describe("strategy tactical read control-oRPC procedures", () => {
     for (const input of invalidInputs) {
       const fake = fakeContext();
       await expect(
+        call(Civ7ControlOrpcRouter.strategy.battlefieldScan, input as never, {
+          context: fake.context,
+        }),
+      ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+      await expect(
         call(Civ7ControlOrpcRouter.strategy.targetCandidates, input as never, {
           context: fake.context,
         }),
@@ -173,6 +263,7 @@ describe("strategy tactical read control-oRPC procedures", () => {
         } as never, { context: fake.context }),
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(fake.calls).toEqual({
+        battlefieldScan: [],
         targetCandidates: [],
         destinationAnalysis: [],
       });
@@ -182,6 +273,11 @@ describe("strategy tactical read control-oRPC procedures", () => {
   test("maps raw-command-bearing read failures to bounded tagged errors", async () => {
     const context: Civ7ControlOrpcContext = {
       directControl: {
+        getCiv7BattlefieldScan: async () => {
+          throw new Error(
+            "Timed out waiting for Civ7 tuner response to CMD:0:Game.turn",
+          );
+        },
         getCiv7TargetCandidates: async () => {
           throw new Error(
             "Timed out waiting for Civ7 tuner response to CMD:1:Game.turn",
@@ -195,6 +291,16 @@ describe("strategy tactical read control-oRPC procedures", () => {
       } as Civ7ControlOrpcContext["directControl"],
     };
 
+    await expect(
+      call(Civ7ControlOrpcRouter.strategy.battlefieldScan, {}, { context }),
+    ).rejects.toMatchObject({
+      code: "STRATEGY_TACTICAL_READ_UNAVAILABLE",
+      status: 503,
+      data: {
+        procedureKey: "strategy.battlefieldScan",
+        source: "direct-control-facade",
+      },
+    });
     await expect(
       call(Civ7ControlOrpcRouter.strategy.targetCandidates, {}, { context }),
     ).rejects.toMatchObject({
@@ -230,6 +336,14 @@ describe("strategy tactical read control-oRPC procedures", () => {
   });
 
   test("publishes contract-first strategy tactical read leaves", () => {
+    expect(Civ7ControlOrpcContract.strategy.battlefieldScan["~orpc"]).toMatchObject({
+      meta: {
+        family: "strategy",
+        procedureKey: "strategy.battlefieldScan",
+        proofBoundary: "local-package-test",
+        risk: "read-only",
+      },
+    });
     expect(Civ7ControlOrpcContract.strategy.targetCandidates["~orpc"]).toMatchObject({
       meta: {
         family: "strategy",
@@ -246,10 +360,11 @@ describe("strategy tactical read control-oRPC procedures", () => {
         risk: "read-only",
       },
     });
+    expect(Civ7ControlOrpcRouter.strategy).toHaveProperty("battlefieldScan");
     expect(Civ7ControlOrpcRouter.strategy).toHaveProperty("targetCandidates");
     expect(Civ7ControlOrpcRouter.strategy).toHaveProperty("destinationAnalysis");
     expect(
-      Civ7ControlOrpcContract.strategy.targetCandidates["~orpc"].errorMap,
+      Civ7ControlOrpcContract.strategy.battlefieldScan["~orpc"].errorMap,
     ).toHaveProperty("STRATEGY_TACTICAL_READ_UNAVAILABLE");
     expect(Civ7StrategyTacticalReadUnavailableError.code).toBe(
       "STRATEGY_TACTICAL_READ_UNAVAILABLE",
@@ -259,6 +374,10 @@ describe("strategy tactical read control-oRPC procedures", () => {
 
 function fakeContext(): {
   calls: {
+    battlefieldScan: Array<Readonly<{
+      input: unknown;
+      options: Civ7ControlOrpcContext["endpointDefaults"];
+    }>>;
     targetCandidates: Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
@@ -271,6 +390,10 @@ function fakeContext(): {
   context: Civ7ControlOrpcContext;
 } {
   const calls = {
+    battlefieldScan: [] as Array<Readonly<{
+      input: unknown;
+      options: Civ7ControlOrpcContext["endpointDefaults"];
+    }>>,
     targetCandidates: [] as Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
@@ -285,6 +408,10 @@ function fakeContext(): {
     context: {
       endpointDefaults: { host: "127.0.0.1", port: 4318, timeoutMs: 1_000 },
       directControl: {
+        getCiv7BattlefieldScan: async (input, options) => {
+          calls.battlefieldScan.push({ input, options });
+          return battlefieldScanResult();
+        },
         getCiv7TargetCandidates: async (input, options) => {
           calls.targetCandidates.push({ input, options });
           return targetCandidatesResult();
@@ -296,6 +423,102 @@ function fakeContext(): {
       } as Civ7ControlOrpcContext["directControl"],
     },
   };
+}
+
+function battlefieldScanResult(): Civ7ControlOrpcBattlefieldScanResult {
+  const friendlyUnit = {
+    owner: 0,
+    relationshipProof: "self",
+    relationshipLabel: "friendly",
+    role: "ranged",
+    location: { x: 17, y: 20 },
+    distance: 0,
+    strength: 9.6,
+  };
+  const civilianUnit = {
+    owner: 0,
+    relationshipProof: "self",
+    relationshipLabel: "friendly",
+    role: "civilian",
+    location: { x: 16, y: 18 },
+    distance: 1,
+    strength: 1,
+  };
+  const otherOwnerUnit = {
+    owner: 9,
+    relationshipProof: "none",
+    relationshipLabel: "relationship-unproven",
+    role: "melee",
+    location: { x: 13, y: 17 },
+    distance: 4,
+    strength: 20,
+  };
+  const city = {
+    owner: 9,
+    relationshipProof: "none",
+    relationshipLabel: "relationship-unproven",
+    location: { x: 13, y: 17 },
+    distance: 4,
+  };
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    localPlayerId: 0,
+    playerId: 0,
+    origins: [{ x: 17, y: 20 }],
+    radius: 8,
+    hiddenInfoPolicy: "runtime-debug-summary",
+    relationshipLabelPolicy: {
+      relationshipSource: "not-classified",
+      relationshipProof: "none",
+      unprovenLabel: "relationship-unproven",
+      guidance: "neutral",
+    },
+    units: [friendlyUnit, civilianUnit, otherOwnerUnit],
+    cities: [city],
+    owners: [
+      {
+        owner: 0,
+        relationshipProof: "self",
+        relationshipLabel: "friendly",
+        unitCount: 2,
+        cityCount: 0,
+        roles: { ranged: 1, civilian: 1 },
+        apparentStrength: 10.6,
+        nearestUnit: { distance: 0 },
+        nearestCity: null,
+      },
+      {
+        owner: 9,
+        relationshipProof: "none",
+        relationshipLabel: "relationship-unproven",
+        unitCount: 1,
+        cityCount: 1,
+        roles: { melee: 1 },
+        apparentStrength: 20,
+        nearestUnit: { distance: 4 },
+        nearestCity: { distance: 4 },
+      },
+    ],
+    pointsOfInterest: [
+      {
+        kind: "civilian-risk",
+        severity: "high",
+        location: civilianUnit.location,
+        summary: "friendly civilian has other-owner contact within 4 tiles",
+        units: [civilianUnit],
+      },
+      {
+        kind: "city-front",
+        severity: "medium",
+        location: city.location,
+        summary: "nearest relationship-unproven city in scan radius",
+        cities: [city],
+      },
+    ],
+    notes: ["Read-only battlefield lens."],
+  } as Civ7ControlOrpcBattlefieldScanResult;
 }
 
 function targetCandidatesResult(): Civ7ControlOrpcTargetCandidatesResult {

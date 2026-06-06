@@ -1,17 +1,44 @@
 import { Effect } from "effect";
 
 import type {
+  Civ7ControlOrpcBattlefieldScanResult,
   Civ7ControlOrpcDestinationAnalysisResult,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
+  Civ7StrategyBattlefieldScanResult,
   Civ7StrategyDestinationAnalysisResult,
   Civ7StrategyTargetCandidatesResult,
 } from "../contract";
 
 type MapLocation = Readonly<{ x: number; y: number }>;
+
+export const strategyBattlefieldScanProcedure =
+  civ7ControlOrpcImplementer.strategy.battlefieldScan.effect(function* ({
+    context,
+    errors,
+    input,
+  }) {
+    return yield* Effect.tryPromise({
+      try: async () => {
+        const result = await context.directControl.getCiv7BattlefieldScan(
+          input,
+          context.endpointDefaults,
+        );
+        return battlefieldScanResult(result);
+      },
+      catch: () =>
+        errors.STRATEGY_TACTICAL_READ_UNAVAILABLE({
+          data: {
+            procedureKey: "strategy.battlefieldScan",
+            source: "direct-control-facade",
+            ...civ7ControlOrpcErrorCorrelationData(context),
+          },
+        }),
+    });
+  });
 
 export const strategyTargetCandidatesProcedure =
   civ7ControlOrpcImplementer.strategy.targetCandidates.effect(function* ({
@@ -62,6 +89,99 @@ export const strategyDestinationAnalysisProcedure =
         }),
     });
   });
+
+function battlefieldScanResult(
+  result: Civ7ControlOrpcBattlefieldScanResult,
+): Civ7StrategyBattlefieldScanResult {
+  const owners = asArray(result.owners).map((owner) => {
+    const record = asRecord(owner);
+    const relationshipProof = record?.relationshipProof === "self"
+      ? "self" as const
+      : "none" as const;
+    return {
+      owner: numberFromUnknown(record?.owner),
+      relationship: relationshipProof === "self"
+        ? "self" as const
+        : "relationship-unproven" as const,
+      relationshipProof,
+      unitCount: numberFromUnknown(record?.unitCount),
+      cityCount: numberFromUnknown(record?.cityCount),
+      apparentStrength: numberFromUnknown(record?.apparentStrength),
+      nearestDistance: nearestOwnerDistance(record),
+      roles: integerRecord(record?.roles),
+    };
+  });
+  const pointsOfInterest = asArray(result.pointsOfInterest).map((point) => {
+    const record = asRecord(point);
+    return {
+      kind: String(record?.kind ?? "unknown"),
+      severity: String(record?.severity ?? "unknown"),
+      location: locationFromUnknown(record?.location),
+      summary: normalizeRelationshipSummary(String(record?.summary ?? "")),
+    };
+  });
+  const nextSteps = battlefieldNextSteps({
+    origins: result.origins,
+    pointsOfInterest,
+  });
+  return {
+    playerId: result.playerId,
+    localPlayerId: result.localPlayerId,
+    origins: result.origins,
+    radius: result.radius,
+    hiddenInfoPolicy: result.hiddenInfoPolicy,
+    relationshipLabelPolicy: {
+      relationshipSource: "not-classified",
+      relationshipProof: "none",
+      unprovenLabel: "relationship-unproven",
+      guidance: "Battlefield scan is planning evidence only. Owner contact, proximity, role heuristics, and apparent strength do not prove official diplomatic status.",
+    },
+    summary: {
+      unitCount: asArray(result.units).length,
+      cityCount: asArray(result.cities).length,
+      observedOwnerCount: owners.length,
+      pointOfInterestCount: pointsOfInterest.length,
+      apparentStrengthTotal: owners.reduce(
+        (total, owner) => total + owner.apparentStrength,
+        0,
+      ),
+      nextStepCount: nextSteps.length,
+    },
+    owners,
+    pointsOfInterest,
+    omitted: [
+      {
+        path: "directControl.host",
+        reason: "endpoint context is not normal service output",
+      },
+      {
+        path: "directControl.state",
+        reason: "runtime state selection is context/debug owned",
+      },
+      {
+        path: "units",
+        reason: "raw unit samples stay behind bounded owner and point summaries",
+      },
+      {
+        path: "cities",
+        reason: "raw city samples stay behind bounded owner and point summaries",
+      },
+      {
+        path: "point.units",
+        reason: "raw point unit samples stay behind bounded point summaries",
+      },
+      {
+        path: "point.cities",
+        reason: "raw point city samples stay behind bounded point summaries",
+      },
+    ],
+    notes: [
+      ...result.notes.map(normalizeRelationshipSummary),
+      "Use visibility reads and validator-backed unit action procedures before any mutation.",
+    ],
+    nextSteps,
+  };
+}
 
 function targetCandidatesResult(
   result: Civ7ControlOrpcTargetCandidatesResult,
@@ -233,6 +353,47 @@ function destinationAnalysisResult(
   };
 }
 
+function battlefieldNextSteps(
+  input: Readonly<{
+    origins: ReadonlyArray<MapLocation>;
+    pointsOfInterest: Civ7StrategyBattlefieldScanResult["pointsOfInterest"];
+  }>,
+): Civ7StrategyBattlefieldScanResult["nextSteps"] {
+  const point = input.pointsOfInterest[0];
+  const origin = input.origins[0];
+  if (point == null) {
+    return [{
+      kind: "observe",
+      source: "strategy.battlefieldScan",
+      label: "No battlefield points found; refresh attention or narrow scan origins.",
+      parameters: origin ? { origin } : {},
+    }];
+  }
+  return [
+    {
+      kind: "inspect-battlefield-point",
+      source: "strategy.battlefieldScan",
+      label: `Inspect ${point.kind} battlefield point before choosing a unit action.`,
+      parameters: {
+        ...(origin ? { origin } : {}),
+        ...(point.location ? { location: point.location } : {}),
+      },
+    },
+    {
+      kind: "read-visibility",
+      source: "strategy.battlefieldScan",
+      label: "Read visibility/map evidence before promoting battlefield contact into an action.",
+      parameters: point.location ? { location: point.location } : {},
+    },
+    {
+      kind: "validate-unit-action",
+      source: "strategy.battlefieldScan",
+      label: "Use unit action validation before any movement or target send.",
+      parameters: point.location ? { location: point.location } : {},
+    },
+  ];
+}
+
 function targetCandidateNextSteps(
   candidates: Civ7StrategyTargetCandidatesResult["candidates"],
 ): Civ7StrategyTargetCandidatesResult["nextSteps"] {
@@ -330,6 +491,31 @@ function probeValue<T extends "string" | "boolean">(
   const record = asRecord(probe);
   if (record?.ok !== true || typeof record.value !== type) return null as never;
   return record.value as never;
+}
+
+function nearestOwnerDistance(owner: Record<string, unknown> | null): number | null {
+  const distances = [
+    distanceFromUnknown(owner?.nearestUnit),
+    distanceFromUnknown(owner?.nearestCity),
+  ].filter((distance): distance is number => distance != null);
+  if (distances.length === 0) return null;
+  return Math.min(...distances);
+}
+
+function distanceFromUnknown(value: unknown): number | null {
+  const record = asRecord(value);
+  return nullableNumber(record?.distance);
+}
+
+function integerRecord(value: unknown): Record<string, number> {
+  const record = asRecord(value);
+  if (record == null) return {};
+  const out: Record<string, number> = {};
+  for (const [key, candidate] of Object.entries(record)) {
+    const value = numberFromUnknown(candidate);
+    if (value > 0) out[key] = Math.trunc(value);
+  }
+  return out;
 }
 
 function locationFromUnknown(value: unknown): MapLocation | null {

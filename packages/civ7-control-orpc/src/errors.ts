@@ -103,6 +103,7 @@ export class Civ7StrategyFrontSummaryUnavailableError extends ORPCTaggedError(
 export const Civ7StrategyTacticalReadUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
+      Type.Literal("strategy.battlefieldScan"),
       Type.Literal("strategy.targetCandidates"),
       Type.Literal("strategy.destinationAnalysis"),
     ]),

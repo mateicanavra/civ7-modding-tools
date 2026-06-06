@@ -133,13 +133,14 @@ adding more read-only facade shells.
     relationship-unproven policy; CLI command strings stay caller-local; no
     strategy catalog, action authority, runtime proof, or parent Task 5.x/6.x
     acceptance.
-  - [x] 5.4.4.1 Record `strategy.targetCandidates` and
-    `strategy.destinationAnalysis` as service-owned tactical read projections
-    over direct-control target-candidate and destination-analysis runtime/read
-    ports. The service owns bounded planning summaries, semantic next-step
-    descriptors, raw sample omission, and relationship-unproven policy; CLI
-    command strings stay caller-local; no strategy catalog, controller bridge,
-    action authority, runtime proof, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.4.1 Record `strategy.battlefieldScan`,
+    `strategy.targetCandidates`, and `strategy.destinationAnalysis` as
+    service-owned tactical read projections over direct-control battlefield,
+    target-candidate, and destination-analysis runtime/read ports. The service
+    owns bounded planning summaries, semantic next-step descriptors, raw
+    sample omission, and relationship-unproven policy; CLI command strings stay
+    caller-local; no strategy catalog, controller bridge, action authority,
+    runtime proof, or parent Task 5.x/6.x acceptance.
   - [x] 5.4.5 Record `narrative.choice.request` as a service-owned
     narrative boundary over direct-control narrative runtime, validator, and
     proof ports. The service owns the caller-facing semantic choice shape,
@@ -798,16 +799,18 @@ adding more read-only facade shells.
     raw host/port/state/session/Tuner payloads, and runtime envelopes from
     normal JSON, and avoid controller bridge, transport, broad read-wrapper
     revival, approval/reason mechanics, or runtime-proof claims.
-  - [x] 7.1.9.15 Route `civ7 game play target-candidates` and
+  - [x] 7.1.9.15 Route `civ7 game play battlefield-scan`,
+    `civ7 game play target-candidates`, and
     `civ7 game play destination-analysis` through the in-process
-    `strategy.targetCandidates` and `strategy.destinationAnalysis`
-    server-side clients under the `strategy` router. Move bounded target and
-    destination planning projection out of the CLI, keep endpoint flags as
-    context construction, emit relationship-safe semantic planning output,
-    omit raw host/port/state/session/Tuner payloads, raw city/unit/plot
-    samples, and direct-control envelopes from normal JSON, and avoid
-    controller bridge, transport, action-send, approval/reason mechanics, or
-    runtime-proof claims.
+    `strategy.battlefieldScan`, `strategy.targetCandidates`, and
+    `strategy.destinationAnalysis` server-side clients under the `strategy`
+    router. Move bounded battlefield, target, and destination planning
+    projection out of the CLI, keep endpoint flags as context construction,
+    emit relationship-safe semantic planning output, omit raw
+    host/port/state/session/Tuner payloads, raw city/unit/plot samples, and
+    direct-control envelopes from normal JSON, and avoid controller bridge,
+    transport, action-send, approval/reason mechanics, or runtime-proof
+    claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1631,14 +1634,15 @@ adding more read-only facade shells.
   tactical-read tests, control-oRPC package test/check/build, CLI play/check
   gates, strict OpenSpec validates, private procedure-schema export scan,
   active approval/caller-permission scan, service-output CLI-string scan, raw
-  runtime output scan, and diff hygiene for the `strategy.targetCandidates`
-  and `strategy.destinationAnalysis` service projections and
-  `game play target-candidates` / `destination-analysis` in-process oRPC
-  caller migration. This is local package/CLI proof only and does not claim
-  deployed Civ7 runtime proof, play-thread action, controller bridge,
-  transport expansion, broad strategy catalog support, relationship labels
-  beyond official evidence, approval/reason mechanics, raw runtime output, or
-  parent Task 5.x/6.x/7.x acceptance.
+  runtime output scan, and diff hygiene for the `strategy.battlefieldScan`,
+  `strategy.targetCandidates`, and `strategy.destinationAnalysis` service
+  projections and `game play battlefield-scan` / `target-candidates` /
+  `destination-analysis` in-process oRPC caller migration. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, controller bridge, transport expansion, broad strategy
+  catalog support, relationship labels beyond official evidence,
+  approval/reason mechanics, raw runtime output, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

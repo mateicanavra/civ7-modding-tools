@@ -1707,9 +1707,11 @@ boundaries.
   transport details as normal traditions output
 
 #### Scenario: Strategy tactical read services are implemented
-- **WHEN** a caller reads target candidates or destination analysis
+- **WHEN** a caller reads battlefield scan, target candidates, or destination
+  analysis
 - **THEN** the reads are offered under the semantic `strategy` router as
-  `strategy.targetCandidates` and `strategy.destinationAnalysis`
+  `strategy.battlefieldScan`, `strategy.targetCandidates`, and
+  `strategy.destinationAnalysis`
 - **AND** they consume direct-control tactical runtime/read ports as low-level
   App UI evidence rather than exposing direct-control result envelopes
 - **AND** the service procedures own bounded planning summaries, semantic
@@ -1726,10 +1728,12 @@ boundaries.
 - **AND** local procedure tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI tactical reads use native strategy services
-- **WHEN** `civ7 game play target-candidates` or
+- **WHEN** `civ7 game play battlefield-scan`,
+  `civ7 game play target-candidates`, or
   `civ7 game play destination-analysis` reads tactical planning evidence
-- **THEN** the CLI calls the in-process `strategy.targetCandidates` or
-  `strategy.destinationAnalysis` server-side client
+- **THEN** the CLI calls the in-process `strategy.battlefieldScan`,
+  `strategy.targetCandidates`, or `strategy.destinationAnalysis` server-side
+  client
 - **AND** normal JSON uses the service-owned semantic strategy projection
   rather than a CLI-owned direct-control runtime projection
 - **AND** the CLI does not expose raw host, port, state, session, command,

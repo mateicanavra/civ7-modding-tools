@@ -432,6 +432,7 @@ export type {
 export { readinessRouter } from "./modules/readiness/router";
 export { readinessCurrentProcedure } from "./modules/readiness/procedures/current";
 export {
+  Civ7StrategyBattlefieldScanContract,
   Civ7StrategyCivilianRouteTriageContract,
   Civ7StrategyContract,
   Civ7StrategyDestinationAnalysisContract,
@@ -440,6 +441,9 @@ export {
   Civ7StrategyTargetCandidatesContract,
 } from "./modules/strategy/contract";
 export type {
+  Civ7StrategyBattlefieldScanContract as Civ7StrategyBattlefieldScanContractType,
+  Civ7StrategyBattlefieldScanInput,
+  Civ7StrategyBattlefieldScanResult,
   Civ7StrategyCivilianRouteTriageContract as Civ7StrategyCivilianRouteTriageContractType,
   Civ7StrategyCivilianRouteTriageInput,
   Civ7StrategyCivilianRouteTriageResult,
@@ -462,6 +466,7 @@ export { strategyCivilianRouteTriageProcedure } from "./modules/strategy/procedu
 export { strategyFormationSnapshotProcedure } from "./modules/strategy/procedures/formation-snapshot";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
 export {
+  strategyBattlefieldScanProcedure,
   strategyDestinationAnalysisProcedure,
   strategyTargetCandidatesProcedure,
 } from "./modules/strategy/procedures/tactical-reads";
