@@ -137,11 +137,13 @@ describe('game play progression reads', () => {
         name: 'Discipline',
         validationSuccess: false,
         nextAction: {
-          kind: 'activate',
+          kind: 'validate-tradition-change',
           validationSuccess: false,
-          sendsMutation: true,
+          readOnly: true,
+          sendsMutation: false,
         },
       });
+      expect(payload.recommendedActions.every((action) => action.kind !== 'validate-tradition-change')).toBe(true);
       expect(JSON.stringify(payload.recommendedActions)).not.toContain('111222333');
       expect(JSON.stringify(payload)).not.toContain('game play change-tradition');
       expect(payload.enabledAvailableCount).toBe(1);

@@ -11,8 +11,8 @@ type CompactTraditionAction = {
   label: string;
   parameters: Record<string, unknown>;
   validationSuccess: boolean | null;
-  readOnly: false;
-  sendsMutation: true;
+  readOnly: boolean;
+  sendsMutation: boolean;
   closeout: boolean;
 };
 
@@ -135,7 +135,7 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
     recommendedActions: available
       .map((tradition) => tradition.nextAction)
       .filter((action): action is CompactTraditionAction => action != null)
-      .filter((action) => action.validationSuccess === true),
+      .filter((action) => action.sendsMutation && action.validationSuccess === true),
     nextSteps: view.nextSteps,
     omitted: view.omitted,
     hiddenInfoPolicy: view.hiddenInfoPolicy,
@@ -178,17 +178,19 @@ function compactTraditionAction(
   closeout: boolean,
 ): CompactTraditionAction {
   return {
-    kind: action.kind,
-    label: action.kind === 'activate'
-      ? 'Activate this tradition after reviewing the validation result.'
-      : 'Deactivate this tradition after reviewing the validation result.',
+    kind: action.validationSuccess === true ? action.kind : 'validate-tradition-change',
+    label: action.validationSuccess === true
+      ? action.kind === 'activate'
+        ? 'Activate this tradition.'
+        : 'Deactivate this tradition.'
+      : 'Review validation before treating this tradition as send-ready.',
     parameters: {
       traditionType: action.parameters.traditionType,
       action: action.parameters.action,
     },
     validationSuccess: action.validationSuccess,
-    readOnly: false,
-    sendsMutation: true,
+    readOnly: action.validationSuccess !== true,
+    sendsMutation: action.validationSuccess === true,
     closeout,
   };
 }

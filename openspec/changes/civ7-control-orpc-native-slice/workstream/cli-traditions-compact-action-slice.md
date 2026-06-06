@@ -20,9 +20,10 @@ recipes. Command help remains responsible for exact flag combinations.
 
 ## Boundary
 
-- `traditions --compact` now emits `surface: "traditions"`, row-level
-  `nextAction` descriptors, and validation-success-only `recommendedActions`
-  for enabled available traditions.
+- `traditions --compact` now emits `surface: "traditions"` and row-level
+  `nextAction` descriptors. Validation-success options may expose send-oriented
+  actions; failed/null validation rows stay read-only validation guidance and do
+  not enter `recommendedActions`.
 - Compact output no longer emits `validateCli`, `sendCli`, `sendCloseoutCli`,
   `recommendedCli`, or `game play change-tradition ...` command recipes.
 - This slice does not change `progression.traditions.current` service behavior,
@@ -36,8 +37,9 @@ recipes. Command help remains responsible for exact flag combinations.
 
 - `bun run --cwd packages/cli test -- game.play.progression-read.test.ts`
 - `bun run check:cli`
-- Focused validation-failed tradition fixture proving disabled options do not
-  appear in send-oriented `recommendedActions`.
+- Focused validation-failed tradition fixture proving disabled options remain
+  read-only row guidance and do not appear in send-oriented
+  `recommendedActions`.
 - Strict OpenSpec validates for `civ7-control-orpc-native-slice` and
   `civ7-support-direct-control-modularization`.
 - Compact traditions command-recipe output scan over changed CLI source/test.
