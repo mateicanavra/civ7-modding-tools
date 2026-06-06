@@ -877,6 +877,14 @@ adding more read-only facade shells.
     contracts, controller bridge, deployed Civ7 proof, relationship authority,
     and parent Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval
     remains retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.23 Simplify `civ7 game play priorities --compact` and
+    `progress-dashboard --compact` action guidance so compact JSON emits
+    semantic `nextAction` descriptors instead of command strings. Keep command
+    help responsible for exact flag combinations, and keep service behavior,
+    parser flags, runtime reads, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1809,6 +1817,16 @@ adding more read-only facade shells.
   transport/controller scope, relationship authority, or parent
   Task 5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
   approval-reason mechanic is introduced.
+- [x] 8.60.36 Run focused CLI priorities, progress-dashboard, and semantic
+  envelope tests, `check:cli`, strict OpenSpec validates, compact command-recipe
+  output scan, active approval/caller-permission scan, relationship-label
+  safety scan, and diff hygiene for the compact priority/progression action
+  guidance simplification. This is local CLI/OpenSpec proof only; it does not
+  change service behavior or contracts, runtime read behavior, parser flags,
+  deployed Civ7 runtime behavior, play-thread state, transport/controller
+  scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

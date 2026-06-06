@@ -31,7 +31,7 @@ export type SemanticCliEnvelope = {
   decisions: unknown[];
   actions: unknown[];
   result: Record<string, unknown> | null;
-  nextSteps: string[];
+  nextSteps: unknown[];
   evidence: Array<Record<string, unknown>>;
   notes: string[];
 };

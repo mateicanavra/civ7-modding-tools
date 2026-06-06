@@ -136,13 +136,13 @@ describe('game play progression reads', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         contractVersion: string;
-        command: string;
+        surface: string;
         summary: string;
         age: { ageType: string; ageProgressPercent: number };
         legacyPaths: Array<{ classType: string; score: number; finalRequiredPathPoints: number; progressPercent: number; nextMilestone: string }>;
         triumphs: { count: number };
         proof: { sources: string[] };
-        next: string | null;
+        nextAction: { kind: string; label: string } | null;
         nextSteps: Array<{ kind: string; label: string }>;
         warnings: string[];
         omitted: Array<{ path: string }>;
@@ -150,7 +150,7 @@ describe('game play progression reads', () => {
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.contractVersion).toBe('play-agent-v0');
-      expect(payload.command).toBe('game play progress-dashboard');
+      expect(payload.surface).toBe('progress-dashboard');
       expect(payload.summary).toContain('AGE_ANTIQUITY progress');
       expect(payload.age.ageType).toBe('AGE_ANTIQUITY');
       expect(payload.age.ageProgressPercent).toBe(2.1);
@@ -159,9 +159,10 @@ describe('game play progression reads', () => {
       expect(payload.legacyPaths.find((path) => path.classType === 'science')?.progressPercent).toBe(10);
       expect(payload.triumphs.count).toBe(0);
       expect(payload.proof.sources).toContain('player.LegacyPaths.getScore');
-      expect(payload.next).toBe('game play priorities --compact --json');
+      expect(payload.nextAction).toMatchObject({ kind: 'read-attention-priorities' });
       expect(payload.nextSteps[0].kind).toBe('read-attention-priorities');
       expect(JSON.stringify(payload.nextSteps)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.warnings.join(' ')).toContain('VictoryManager is module-local');
       expect(payload.omitted.some((item) => item.path === 'dashboard.legacyPaths[].milestones')).toBe(true);
       expect(payload.view).toBeUndefined();

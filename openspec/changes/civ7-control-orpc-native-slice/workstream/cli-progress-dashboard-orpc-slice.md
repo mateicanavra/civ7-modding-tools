@@ -35,8 +35,8 @@ low-level App UI runtime progress evidence source.
 
 - `progression.dashboard.current` is a progression-domain read, not a broad
   read-wrapper catalog or `operations` root.
-- The service result uses semantic next-step descriptors. CLI command strings
-  remain caller-local presentation mapping in `packages/cli`.
+- The service and compact CLI result use semantic next-step descriptors.
+  Command help remains the place for exact flag combinations.
 - Normal service and CLI JSON omit raw host, port, state, session, command,
   rawCommand, direct-control runtime envelopes, approval/reason mechanics, and
   transport details.

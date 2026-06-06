@@ -8,11 +8,19 @@ import { createSemanticCliEnvelope, type SemanticCliEnvelope } from '../../../ga
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
 type PriorityItem = Civ7AttentionPrioritiesResult['priorities'][number] & {
-  command?: string;
+  nextAction?: PriorityActionDescriptor;
 };
 type PriorityView = Omit<Civ7AttentionPrioritiesResult, 'priorities'> & {
   priorities: PriorityItem[];
   cliNotes: string[];
+};
+type PriorityNextStep = NonNullable<Civ7AttentionPrioritiesResult['priorities'][number]['nextStep']>;
+type PriorityActionDescriptor = {
+  kind: PriorityNextStep['kind'];
+  label: string;
+  parameters: PriorityNextStep['parameters'];
+  readOnly: boolean;
+  sendsMutation: boolean;
 };
 
 export default class GamePlayPriorities extends Command {
@@ -97,7 +105,7 @@ export default class GamePlayPriorities extends Command {
     for (const item of view.priorities) {
       this.log(`- [${item.priority}] ${item.kind}: ${item.summary}`);
       this.log(`  why: ${item.reason}`);
-      if (item.command) this.log(`  next: ${item.command}`);
+      if (item.nextAction) this.log(`  next: ${item.nextAction.label}`);
     }
   }
 }
@@ -107,11 +115,11 @@ function buildCliPriorityView(result: Civ7AttentionPrioritiesResult): PriorityVi
     ...result,
     priorities: result.priorities.map((item) => ({
       ...item,
-      command: commandForPriority(item),
+      nextAction: actionForPriority(item),
     })),
     cliNotes: [
       'Read-only priority dashboard; it does not send operations or choose strategy.',
-      'Command suggestions are CLI presentation derived from service next-step descriptors.',
+      'Action guidance is semantic; command help owns exact flag combinations.',
       'Battlefield scan distances are planning heuristics and may include debug-visible entities unless paired with visibility reads.',
     ],
   };
@@ -120,12 +128,12 @@ function buildCliPriorityView(result: Civ7AttentionPrioritiesResult): PriorityVi
 function buildCompactView(view: PriorityView): {
   ok: true;
   contractVersion: 'play-agent-v0';
-  command: 'game play priorities';
+  surface: 'priorities';
   summary: string;
   decisionHud: Record<string, unknown>;
-  priorities: Array<Pick<PriorityItem, 'priority' | 'kind' | 'summary' | 'reason' | 'command'>>;
+  priorities: Array<Pick<PriorityItem, 'priority' | 'kind' | 'summary' | 'reason' | 'nextAction'>>;
   semanticEnvelope: SemanticCliEnvelope;
-  next: string | null;
+  nextAction: PriorityActionDescriptor | null;
   warnings: string[];
   omitted: Array<{ path: string; reason: string }>;
   hiddenInfoPolicy: unknown;
@@ -140,12 +148,12 @@ function buildCompactView(view: PriorityView): {
       ? 'Battlefield scan is read-only planning evidence; validate and postcondition-check any mutation separately.'
       : null,
   ].filter((warning): warning is string => Boolean(warning));
-  const compactPriorities = view.priorities.slice(0, 6).map(({ priority, kind, summary, reason, command }) => ({
+  const compactPriorities = view.priorities.slice(0, 6).map(({ priority, kind, summary, reason, nextAction }) => ({
     priority,
     kind,
     summary,
     reason,
-    command,
+    nextAction,
   }));
   const decisionHud = {
     playable: view.playable,
@@ -159,11 +167,11 @@ function buildCompactView(view: PriorityView): {
     readyCity: view.readyCity,
     battlefieldPoiCount: view.battlefield?.pointOfInterestCount ?? 0,
   };
-  const next = top?.command ?? null;
+  const nextAction = top?.nextAction ?? null;
   const semanticBlockers = view.priorities.filter((item) => item.blocking).slice(0, 6);
   const semanticEnvelope = createSemanticCliEnvelope({
     scope: {
-      surface: 'game play priorities',
+      surface: 'priorities',
       playerScope: 'local-player',
       localPlayerId: view.localPlayerId,
     },
@@ -174,18 +182,16 @@ function buildCompactView(view: PriorityView): {
       summary,
       reason,
     })),
-    decisions: compactPriorities.map(({ kind, summary, command }) => ({
+    decisions: compactPriorities.map(({ kind, summary, nextAction }) => ({
       kind,
       summary,
-      command: command ?? null,
+      nextAction: nextAction ?? null,
     })),
-    actions: compactPriorities.flatMap(({ kind, command }) =>
-      command
+    actions: compactPriorities.flatMap(({ kind, nextAction }) =>
+      nextAction
         ? [{
             family: kind,
-            command,
-            readOnly: !command.includes('--send'),
-            sendsMutation: command.includes('--send'),
+            ...nextAction,
           }]
         : [],
     ),
@@ -194,11 +200,11 @@ function buildCompactView(view: PriorityView): {
       sent: false,
       classification: 'not-sent',
     },
-    nextSteps: next ? [next] : [],
+    nextSteps: nextAction ? [nextAction] : [],
     evidence: [{
       label: 'control-orpc-priorities-compact',
       proofClass: 'local-cli-output',
-      command: 'game play priorities --compact --json',
+      surface: 'priorities',
     }],
     notes: [
       'Read-only compact priorities semantic envelope; it does not prove live mutation behavior.',
@@ -209,19 +215,19 @@ function buildCompactView(view: PriorityView): {
   return {
     ok: true,
     contractVersion: 'play-agent-v0',
-    command: 'game play priorities',
+    surface: 'priorities',
     summary: top
       ? `${top.kind}: ${top.summary}`
       : 'no priorities surfaced',
     decisionHud,
     priorities: compactPriorities,
     semanticEnvelope,
-    next,
+    nextAction,
     warnings,
     omitted: [
       { path: 'view.notes', reason: 'use --json without --compact for full service notes' },
-      { path: 'view.readyUnit', reason: 'use --json without --compact or game play ready-unit --json for ready-unit detail' },
-      { path: 'view.readyCity', reason: 'use --json without --compact or game play ready-city --json for ready-city detail' },
+      { path: 'view.readyUnit', reason: 'use full JSON for ready-unit detail' },
+      { path: 'view.readyCity', reason: 'use full JSON for ready-city detail' },
       { path: 'view.battlefield.pointsOfInterest', reason: 'use --json without --compact or a tactical lens command for battlefield point detail' },
       { path: 'priorities[].evidenceLabels', reason: 'use --json without --compact for bounded service evidence labels' },
     ],
@@ -229,69 +235,16 @@ function buildCompactView(view: PriorityView): {
   };
 }
 
-function commandForPriority(item: Civ7AttentionPrioritiesResult['priorities'][number]): string | undefined {
+function actionForPriority(item: Civ7AttentionPrioritiesResult['priorities'][number]): PriorityActionDescriptor | undefined {
   const step = item.nextStep;
   if (step == null) return undefined;
-  const params = step.parameters;
-  switch (step.kind) {
-    case 'restore-readiness':
-    case 'observe':
-      return 'game play rehydrate --json; game watch --count 1 --include-ready-unit --include-ready-city --jsonl';
-    case 'inspect-ready-unit':
-    case 'validate-unit-target':
-      return "game play ready-unit --json; game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json";
-    case 'inspect-ready-city':
-      return item.kind.startsWith('hud:')
-        ? 'game play ready-city --compact --json'
-        : 'game play ready-city --json';
-    case 'inspect-progression':
-      return progressionCommand(params.category);
-    case 'inspect-decision':
-      return decisionCommand(params.category);
-    case 'inspect-notification':
-      return params.componentId == null
-        ? 'game play dismiss-notification --json'
-        : params.category === 'narrative-choice'
-          ? `game play dismiss-notification --target '${JSON.stringify(params.componentId)}' --json`
-          : `game play dismiss-notification --target '${JSON.stringify(params.componentId)}' --send`;
-    case 'validate-unit-command':
-      return params.unitId != null && params.operationType != null
-        ? `game play operation --family unit --type ${params.operationType} --unit-id '${JSON.stringify(params.unitId)}' --send`
-        : 'game play operation --family unit --json';
-    case 'send-turn-complete':
-    case 'end-turn':
-      return 'game play end-turn --send --json';
-    case 'observe-turn-advance':
-      return 'game watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl';
-    case 'inspect-battlefield-point':
-      return battlefieldCommand(params.location, item.kind);
-  }
-}
-
-function progressionCommand(category: unknown): string {
-  if (category === 'technology-choice') return 'game play choose-tech --options --json';
-  if (category === 'culture-choice') return 'game play choose-culture --options --json';
-  if (category === 'tradition-review') return 'game play traditions --compact --json';
-  return 'game play priorities --compact --json';
-}
-
-function decisionCommand(category: unknown): string {
-  if (category === 'celebration-choice') return 'game play choose-celebration --options --json';
-  if (category === 'government-choice') return 'game play choose-government --options --json';
-  if (category === 'narrative-choice') return 'game play choose-narrative --options --json';
-  if (category === 'first-meet-diplomacy') return 'game play respond-first-meet --json';
-  return 'game play priorities --compact --json';
-}
-
-function battlefieldCommand(
-  location: Readonly<{ x: number; y: number }> | undefined,
-  kind: string,
-): string {
-  if (location == null) return 'game play battlefield-scan --x <front-x> --y <front-y> --json';
-  if (kind === 'battlefield:city-front') {
-    return `game play destination-analysis --to-x ${location.x} --to-y ${location.y} --json`;
-  }
-  return `game play battlefield-scan --x ${location.x} --y ${location.y} --json`;
+  return {
+    kind: step.kind,
+    label: step.label,
+    parameters: step.parameters,
+    readOnly: !['send-turn-complete', 'end-turn', 'validate-unit-command'].includes(step.kind),
+    sendsMutation: ['send-turn-complete', 'end-turn', 'validate-unit-command'].includes(step.kind),
+  };
 }
 
 function formatValue(value: unknown): string {

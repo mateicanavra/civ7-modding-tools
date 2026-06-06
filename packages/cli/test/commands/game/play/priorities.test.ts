@@ -29,6 +29,14 @@ type PriorityHudMode =
   | 'unit-lost-report'
   | 'diplomatic-action-report';
 
+type CompactPriorityAction = {
+  kind: string;
+  label: string;
+  readOnly: boolean;
+  sendsMutation: boolean;
+  parameters?: Record<string, unknown>;
+};
+
 describe('game play priorities command', () => {
   test('reads play priorities without sending operations', async () => {
     const { payload, server } = await runPriorities('ready-unit', { compact: false, battlefield: true });
@@ -55,10 +63,10 @@ describe('game play priorities command', () => {
     const { payload, server } = await runPriorities('runtime-error', { compact: false });
     try {
       const view = payload.view as {
-        priorities: Array<{ kind: string; command?: string; evidenceLabels?: string[] }>;
+        priorities: Array<{ kind: string; nextAction?: CompactPriorityAction; evidenceLabels?: string[] }>;
       };
       const runtimeError = view.priorities.find((item) => item.kind === 'runtime-state-error');
-      expect(runtimeError?.command).toContain('game play rehydrate --json');
+      expect(runtimeError?.nextAction).toMatchObject({ kind: 'observe', readOnly: true, sendsMutation: false });
       expect(runtimeError?.evidenceLabels?.some((item) => item === 'probe-error:blocker')).toBe(true);
       expect(view.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -71,17 +79,18 @@ describe('game play priorities command', () => {
     const { payload, server } = await runPriorities('runtime-error');
     try {
       expect(payload.contractVersion).toBe('play-agent-v0');
-      expect(payload.command).toBe('game play priorities');
+      expect(payload.surface).toBe('priorities');
       expect(payload.summary).toContain('runtime-state-error');
-      expect(payload.next).toContain('game play rehydrate --json');
+      expect(payload.nextAction).toMatchObject({ kind: 'observe', readOnly: true, sendsMutation: false });
       expect(payload.warnings.join(' ')).toContain('Core HUD probes failed');
       expect(payload.omitted.some((item) => item.path === 'priorities[].evidenceLabels')).toBe(true);
       expect(payload.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
       expect(payload.priorities.every((item) => item.evidence === undefined)).toBe(true);
       expect(Object.keys(payload.semanticEnvelope)).toEqual(SEMANTIC_CLI_ENVELOPE_SLOTS);
       expect(payload.semanticEnvelope.version).toBe(SEMANTIC_CLI_ENVELOPE_VERSION);
-      expect(payload.semanticEnvelope.nextSteps).toEqual([payload.next]);
-      expect(payload.semanticEnvelope.actions[0]?.command).toBe(payload.next);
+      expect(payload.semanticEnvelope.nextSteps).toEqual([payload.nextAction]);
+      expect(payload.semanticEnvelope.actions[0]).toMatchObject(payload.nextAction ?? {});
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.semanticEnvelope.result).toMatchObject({
         status: 'read-only',
         sent: false,
@@ -100,11 +109,12 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('clean-read');
-      expect(top.command).toContain('game play end-turn --send');      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'end-turn', sendsMutation: true });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(top.reason).toContain('rechecks blockers before sending');
       expect(payload.semanticEnvelope.blockers).toEqual([]);
       expect(payload.semanticEnvelope.actions[0]).toMatchObject({
-        command: top.command,
+        kind: top.nextAction?.kind,
         sendsMutation: true,
       });
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -132,9 +142,12 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:unit-command');
-      expect(top.command).toContain('game play operation --family unit --type SKIP_TURN');
-      expect(top.command).toContain("--unit-id '{\"owner\":0,\"id\":196609,\"type\":26}'");
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'validate-unit-command', sendsMutation: true });
+      expect(top.nextAction?.parameters).toMatchObject({
+        operationType: 'SKIP_TURN',
+        unitId: { owner: 0, id: 196609, type: 26 },
+      });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(top.reason).toContain('enabled unit command candidate');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -148,8 +161,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:first-meet-diplomacy');
-      expect(top.command).toBe('game play respond-first-meet --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-decision', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ category: 'first-meet-diplomacy' });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(top.reason).toContain('validator-backed player-operation');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -162,8 +176,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:technology-choice');
-      expect(top.command).toBe('game play choose-tech --options --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-progression', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ category: 'technology-choice' });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -176,8 +191,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:culture-choice');
-      expect(top.command).toBe('game play choose-culture --options --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-progression', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ category: 'culture-choice' });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -190,8 +206,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:celebration-choice');
-      expect(top.command).toBe('game play choose-celebration --options --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-decision', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ category: 'celebration-choice' });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -204,8 +221,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:government-choice');
-      expect(top.command).toBe('game play choose-government --options --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-decision', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ category: 'government-choice' });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -218,8 +236,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:narrative-choice');
-      expect(top.command).toBe('game play choose-narrative --options --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-decision', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ category: 'narrative-choice' });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -232,8 +251,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:narrative-choice');
-      expect(top.command).toBe('game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-notification', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ componentId: { owner: 0, id: 5, type: 20 } });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -245,8 +265,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:narrative-choice');
-      expect(top.command).toBe('game play choose-narrative --options --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-decision', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ category: 'narrative-choice' });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -258,8 +279,9 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:tradition-review');
-      expect(top.command).toBe('game play traditions --compact --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-progression', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ category: 'tradition-review' });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -272,8 +294,8 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:production-choice');
-      expect(top.command).toBe('game play ready-city --compact --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-ready-city', readOnly: true });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -286,8 +308,8 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:population-placement');
-      expect(top.command).toBe('game play ready-city --compact --json');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-ready-city', readOnly: true });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -295,13 +317,14 @@ describe('game play priorities command', () => {
     }
   });
 
-  test('surfaces exact informational dismissal command in compact priorities', async () => {
+  test('surfaces informational dismissal action in compact priorities', async () => {
     const { payload, server } = await runPriorities('stale-informational');
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:informational-notification');
-      expect(top.command).toContain('game play dismiss-notification');
-      expect(top.command).toContain("--target '{\"owner\":0,\"id\":89,\"type\":20}'");      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-notification', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ componentId: { owner: 0, id: 89, type: 20 } });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(top.reason).toContain('live ComponentID');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -314,9 +337,10 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:informational-notification');
-      expect(top.command).toContain('game play dismiss-notification');
-      expect(top.command).toContain("--target '{\"owner\":0,\"id\":34,\"type\":20}'");      expect(payload.next).toBe(top.command);
-      expect(top.command).not.toMatch(/enemy|hostile|opponent/i);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-notification', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ componentId: { owner: 0, id: 34, type: 20 } });
+      expect(payload.nextAction).toEqual(top.nextAction);
+      expect(JSON.stringify(top.nextAction)).not.toMatch(/enemy|hostile|opponent/i);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -328,11 +352,12 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:informational-notification');
-      expect(top.command).toContain('game play dismiss-notification');
-      expect(top.command).toContain("--target '{\"owner\":0,\"id\":118,\"type\":20}'");      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'inspect-notification', readOnly: true });
+      expect(top.nextAction?.parameters).toMatchObject({ componentId: { owner: 0, id: 118, type: 20 } });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(top.reason).toContain('live ComponentID');
-      expect(top.command).not.toContain('respond-diplomacy');
-      expect(payload.next).not.toContain('respond-diplomacy');
+      expect(JSON.stringify(top.nextAction)).not.toContain('respond-diplomacy');
+      expect(JSON.stringify(payload.nextAction)).not.toContain('respond-diplomacy');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -345,8 +370,8 @@ describe('game play priorities command', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:unit-command-stale-expired');
       expect(top.summary).toContain('no ready unit');
-      expect(top.command).toContain('game play end-turn --send');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'send-turn-complete', sendsMutation: true });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(top.reason).toContain('normal end-turn path once');
       expect(JSON.stringify(payload.decisionHud.hasSentTurnComplete)).toContain('false');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -361,8 +386,8 @@ describe('game play priorities command', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:unit-command-stale-expired');
       expect(top.summary).toContain('turn-complete was sent');
-      expect(top.command).toContain('game watch --count 3');
-      expect(payload.next).toBe(top.command);
+      expect(top.nextAction).toMatchObject({ kind: 'observe-turn-advance', readOnly: true });
+      expect(payload.nextAction).toEqual(top.nextAction);
       expect(top.reason).toContain('turn-complete is already sent');
       expect(JSON.stringify(payload.decisionHud.hasSentTurnComplete)).toContain('true');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -378,18 +403,18 @@ async function runPriorities(
 ): Promise<{
   payload: {
     contractVersion?: string;
-    command?: string;
+    surface?: string;
     summary?: string;
-    next?: string | null;
+    nextAction?: CompactPriorityAction | null;
     warnings: string[];
     omitted: Array<{ path: string }>;
-    priorities: Array<{ kind: string; command?: string; reason: string; summary: string; evidence?: unknown }>;
+    priorities: Array<{ kind: string; nextAction?: CompactPriorityAction; reason: string; summary: string; evidence?: unknown }>;
     semanticEnvelope: {
       version: string;
-      actions: Array<{ command?: string }>;
+      actions: CompactPriorityAction[];
       blockers: Array<{ kind: string }>;
       decisions: Array<{ kind: string }>;
-      nextSteps: string[];
+      nextSteps: unknown[];
       result: Record<string, unknown>;
     };
     decisionHud: { hasSentTurnComplete?: unknown };
