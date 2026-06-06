@@ -1,6 +1,7 @@
 import { firstMeetResponseProofPostcondition } from "@civ7/direct-control/proof/first-meet-response-proof-policy";
 import { Effect } from "effect";
 
+import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcFirstMeetResponseResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcMutationProcedure } from "../../../middleware/mutation-procedure";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
@@ -23,11 +24,17 @@ export const firstMeetResponseRequestProcedure =
   }) {
     return yield* Effect.tryPromise({
       try: async () => {
+        const localPlayerId = await readLocalPlayerId(context);
+        const requestInput = {
+          playerId: localPlayerId,
+          metPlayerId: input.metPlayerId,
+          responseType: input.responseType,
+        };
         const result = await context.directControl.requestCiv7FirstMeetResponse(
-          input,
+          requestInput,
           context.endpointDefaults,
         );
-        return firstMeetResponseResult(input, result);
+        return firstMeetResponseResult(requestInput, result);
       },
       catch: () =>
         errors.FIRST_MEET_RESPONSE_UNAVAILABLE({
@@ -39,6 +46,15 @@ export const firstMeetResponseRequestProcedure =
         }),
     });
   });
+
+async function readLocalPlayerId(
+  context: Civ7ControlOrpcContext,
+): Promise<number> {
+  const view = await context.directControl.getCiv7PlayNotificationView(
+    context.endpointDefaults,
+  );
+  return view.localPlayerId;
+}
 
 function firstMeetResponseResult(
   input: Civ7FirstMeetResponseInput,

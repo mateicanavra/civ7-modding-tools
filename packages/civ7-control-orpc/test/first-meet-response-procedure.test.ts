@@ -9,10 +9,13 @@ import {
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcPlayableStatusResult,
 } from "../src/index";
-import type { Civ7ControlOrpcFirstMeetResponseResult } from "../src/dependencies/direct-control";
+import type {
+  Civ7ControlOrpcFirstMeetResponseResult,
+  Civ7ControlOrpcPlayNotificationViewResult,
+} from "../src/dependencies/direct-control";
 
 const firstMeetInput = {
-  playerId: 0,
+  playerId: 2,
   metPlayerId: 2,
   responseType: 673_478_009,
 } as const;
@@ -28,8 +31,13 @@ describe("diplomacy.firstMeet.response.request control-oRPC procedure", () => {
     );
 
     expect(fake.calls.readiness).toHaveLength(1);
+    expect(fake.calls.views).toHaveLength(1);
     expect(fake.calls.request).toEqual([{
-      input: firstMeetInput,
+      input: {
+        playerId: 0,
+        metPlayerId: 2,
+        responseType: 673_478_009,
+      },
       options: {
         host: "127.0.0.1",
         port: 4318,
@@ -247,6 +255,7 @@ function fakeContext(
 ): {
   calls: {
     readiness: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     request: Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
@@ -256,6 +265,7 @@ function fakeContext(
 } {
   const calls = {
     readiness: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
+    views: [] as Array<Civ7ControlOrpcContext["endpointDefaults"]>,
     request: [] as Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
@@ -274,6 +284,12 @@ function fakeContext(
         getCiv7PlayableStatus: async (endpointDefaults) => {
           calls.readiness.push(endpointDefaults);
           return playableStatusResult(options.playable ?? true);
+        },
+        getCiv7PlayNotificationView: async (endpointDefaults) => {
+          calls.views.push(endpointDefaults);
+          return {
+            localPlayerId: 0,
+          } as Civ7ControlOrpcPlayNotificationViewResult;
         },
         requestCiv7FirstMeetResponse: async (input, endpointDefaults) => {
           calls.request.push({ input, options: endpointDefaults });
@@ -295,7 +311,7 @@ function firstMeetResponseResult(
 ): Civ7ControlOrpcFirstMeetResponseResult {
   const sent = options.sent ?? classification !== "not-sent";
   return {
-    playerId: firstMeetInput.playerId,
+    playerId: 0,
     metPlayerId: firstMeetInput.metPlayerId,
     responseType: firstMeetInput.responseType,
     before: {} as Civ7ControlOrpcFirstMeetResponseResult["before"],
