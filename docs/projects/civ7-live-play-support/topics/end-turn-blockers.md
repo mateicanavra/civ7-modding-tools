@@ -94,8 +94,8 @@ Town focus projects are not normal city production. The official production
 chooser checks available town projects by probing
 `CHANGE_GROWTH_MODE { Type: GrowthTypes.PROJECT }`; selecting a focus sends
 `CHANGE_GROWTH_MODE` with the growth type, project type, and numeric city id.
-The play agent should therefore read the live project enum value before sending
-a town-focus shortcut.
+The play agent should therefore read the live project enum value before
+requesting a town-focus mutation.
 
 Ordinary production is still `city-operation BUILD`, but the argument key
 matters. Units use `UnitType`, constructibles use `ConstructibleType`, and

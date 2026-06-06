@@ -130,6 +130,6 @@ proof.
 - Read-only acquire-tile cataloging should expose resettle candidate plots with
   coordinates and district/settlement labels.
 - Upgrade support should expose cost, upgrade target unit, territory/resource
-  requirements, and projected combat change before sending.
+  requirements, and projected combat change before mutation.
 - Post-send polling should report the concrete unit and settlement/treasury
   changes rather than leaving the operator to inspect manually.

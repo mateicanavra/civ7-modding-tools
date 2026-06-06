@@ -140,7 +140,7 @@ Official UI evidence:
   `unit.Experience.canPromote` and `unit.Experience.canEarnPromotion(...)`
   are true, then validates `Game.UnitCommands.canStart(unitId,
   UnitCommandTypes.PROMOTE, { PromotionType, PromotionDisciplineType }, false)`
-  before sending.
+  before mutation.
 
 Live proof on turn 104 showed Turtanu at `(17,22)` with:
 

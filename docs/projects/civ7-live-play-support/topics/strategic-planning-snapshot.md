@@ -192,7 +192,7 @@ its incompleteness until victory and diplomacy subreads are first-class:
   "posture": { "settlements": 3, "settlementCap": 4, "readyUnit": "UNIT_CHARIOT" },
   "comparison": { "metPlayersOnly": true, "rivals": [] },
   "victory": { "enabledPaths": [], "progress": [], "gaps": ["victory runtime read not yet wrapped"] },
-  "notes": ["Advisory only; validate every action before send."]
+  "notes": ["Advisory only; validate every action before mutation."]
 }
 ```
 

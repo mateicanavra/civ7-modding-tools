@@ -83,7 +83,7 @@ For live play:
    live HUD with ready-unit state and compare any expected turn/date/unit.
 2. Use local SQLite copies for enrichment: names, categories, definitions,
    costs, text, and cross-reference joins.
-3. Use validators before sends. A static DB row proves an item exists; it does
+3. Use validators before mutation. A static DB row proves an item exists; it does
    not prove the current player/city/unit can choose it now.
 4. Treat autosaves as forensic evidence until a stable parser and freshness
    contract exist.

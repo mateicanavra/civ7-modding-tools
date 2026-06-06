@@ -217,7 +217,7 @@ function decisionQueueFor(mode: QueueMode) {
         isEndTurnBlocking: true,
         details: {
           kind: 'first-meet-diplomacy',
-          recommendedCli: 'game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral',
+          recommendedResponse: 'neutral',
         },
       }),
     ];

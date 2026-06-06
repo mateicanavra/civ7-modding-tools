@@ -73,7 +73,7 @@ Bulk-dismiss output fields:
   immediate closeout-route return value is route evidence, not proof. Dismissal
   proof comes from repeated identity reads showing the notification disappeared,
   was marked dismissed, left the engine queue or notification train, or moved
-  off a front position it occupied before send.
+  off its prior front position.
 
 ## Norm
 

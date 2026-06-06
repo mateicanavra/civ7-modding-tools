@@ -513,7 +513,7 @@ export function playNotificationViewSource(): string {
         disabledOptions: options.filter((option) => option.disabled),
         notes: [
           "Options mirror Game.Diplomacy.getResponseDataForUI(actionId).responseList and validate through the official local-player RESPOND_DIPLOMATIC_ACTION check.",
-          "Choose one enabled response; send mode performs UI closeout and notification postcondition checks.",
+          "Choose one enabled response; closeout is proven by notification and turn postcondition checks.",
         ],
       };
     };
@@ -678,7 +678,7 @@ export function playNotificationViewSource(): string {
         disabledOptions,
         notes: [
           "Options are read from official progression-tree structures and validated through local-player SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE checks.",
-          "Choose one enabled technology option; the send path clears the chooser target internally.",
+          "Choose one enabled technology option; the chooser workflow clears the target internally.",
         ],
       };
     };
@@ -776,7 +776,7 @@ export function playNotificationViewSource(): string {
         disabledOptions,
         notes: [
           "Options are read from the official culture chooser available-node list and validated through local-player SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE checks.",
-          "Choose one enabled culture option, or inspect validation evidence before sending when strategy is uncertain.",
+          "Choose one enabled culture option, or inspect validation evidence when strategy is uncertain.",
         ],
       };
     };
@@ -1236,7 +1236,7 @@ export function playNotificationViewSource(): string {
             action("choose tech", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
             action("set tech target", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
-          ["Read the live tech node id before sending; choose-tech send mode mirrors the chooser by clearing the temporary target internally."],
+          ["Use the live tech node id; the chooser workflow clears the temporary target internally."],
         );
       }
       if (stringIncludes(haystack, "CHOOSE_CULTURE") || stringIncludes(haystack, "CULTURE_TREE")) {
@@ -1252,7 +1252,7 @@ export function playNotificationViewSource(): string {
             action("read culture options", undefined, undefined, "enabled culture nodes", "before choosing a culture node"),
             action("set culture target", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
-          ["Read options from the live culture chooser before sending; send mode also clears the temporary culture target as one caller-level selection."],
+          ["Use live culture chooser options; the chooser workflow also clears the temporary culture target."],
         );
       }
       if (stringIncludes(haystack, "CHOOSE_GOVERNMENT")) {
@@ -1267,7 +1267,7 @@ export function playNotificationViewSource(): string {
             action("read government options", undefined, undefined, "enabled starting governments", "before choosing a government"),
             action("choose government", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
           ],
-          ["Read options from the live government picker before sending; the option surface includes celebration effects for context."],
+          ["Use live government picker options; the option surface includes celebration effects for context."],
         );
       }
       if (stringIncludes(haystack, "CHOOSE_GOLDEN_AGE")) {
@@ -1282,7 +1282,7 @@ export function playNotificationViewSource(): string {
             action("read celebration options", undefined, undefined, "enabled celebration choices", "before choosing a celebration"),
             action("choose celebration", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
           ],
-          ["Read options from the live celebration chooser before sending; this blocker is not dismissible and should not use notification dismissal."],
+          ["Use live celebration chooser options; this blocker is not dismissible and should not use notification dismissal."],
         );
       }
       if (stringIncludes(haystack, "NEW_POPULATION")) {
@@ -1393,7 +1393,7 @@ export function playNotificationViewSource(): string {
           [
             action("choose diplomacy response and close blocker", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after choosing one enabled response option from notification details"),
           ],
-          ["Use the enabled option list from the live notification details; send mode follows the official local-player response panel path and verifies notification/turn closeout."],
+          ["Use the enabled option list from the live notification details; the response path follows the official local-player panel and verifies notification/turn closeout."],
         );
       }
       if (stringIncludes(haystack, "DIPLOMATIC_ACTION_LOW")) {
@@ -1526,7 +1526,7 @@ export function playNotificationViewSource(): string {
             action("read narrative options", undefined, undefined, "enabled narrative buttons", "before choosing a narrative branch or closeout"),
             action("send narrative choice", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after choosing one enabled narrative option from the live story UI"),
           ],
-          ["Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately."],
+          ["Use the option reader; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately."],
         );
       }
       if (stringIncludes(haystack, "TRADITION")) {
@@ -1608,7 +1608,7 @@ export function playNotificationViewSource(): string {
         undefined,
         undefined,
         "heuristic",
-        [requiredInput("Notification handler evidence", "official UI handler or live runtime surface", "Unclassified notifications need handler inspection before sending operations.")],
+        [requiredInput("Notification handler evidence", "official UI handler or live runtime surface", "Unclassified notifications need handler inspection before choosing an operation.")],
         [
           action("inspect materialized notifications", undefined, undefined, undefined, "before deciding whether this is a real blocker"),
           action("validate generic operation", undefined, undefined, "operation-specific args", "only after the official handler or live UI proves the operation"),

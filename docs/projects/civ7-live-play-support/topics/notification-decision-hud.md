@@ -63,17 +63,17 @@ after any mutation or human input.
 | --- | --- | --- |
 | Technology choice | runtime `ProgressionTreeNodeType` hash from the live tech chooser/tree; use `game play choose-tech --options --json` when the node is not already proven | `game play choose-tech`; `game play set-tech-target` when the full tree targets a node |
 | Culture choice | runtime `ProgressionTreeNodeType` hash from the live culture chooser/tree; use `game play choose-culture --options --json` when the node is not already proven | `game play choose-culture`; `game play set-culture-target` when the full tree targets a node |
-| Population placement | chosen plot `Location` for workable tiles, or city target plus `X`/`Y` for expansion tiles; read `game play ready-city --compact --json` when the exact branch is not already proven | `game play ready-city --compact --json`; then selected `game play assign-worker` or `game play expand-city` template |
+| Population placement | chosen plot `Location` for workable tiles, or city target plus `X`/`Y` for expansion tiles; read `game play ready-city --compact --json` when the exact branch is not already proven | ready-city evidence, then the matching worker-assignment or expansion action |
 | Town focus | city target, growth `Type`, paired `ProjectType` | `game play set-town-focus`; then `game play consider-town-project` if closeout is still needed |
-| Production choice | city target, exactly one build item kind, and placement `X`/`Y` when constructible validation returns legal plots; read `game play ready-city --compact --json` when the item id/placement is not already proven | `game play ready-city --compact --json`; then selected `game play build-production` template |
+| Production choice | city target, exactly one build item kind, and placement `X`/`Y` when constructible validation returns legal plots; read `game play ready-city --compact --json` when the item id/placement is not already proven | ready-city evidence, then the selected production action |
 | Resource assignment | resource allocation screen state, available resources, settlement slots | no proven assignment shortcut yet; inspect the official resource-allocation surface |
 | Diplomacy response | diplomatic action `ID` and chosen response `Type` | `game play respond-diplomacy` |
 | First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play respond-first-meet` |
-| Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | exact `game play dismiss-notification --target ... --send ...` after review |
-| Narrative branch | story `Target`, option `TargetType`, activation `Action`; read `game play choose-narrative --options --json` when the story target or option key is not already proven | `game play choose-narrative --options --json`; then selected `game play choose-narrative` template |
+| Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | reviewed item-scoped dismissal |
+| Narrative branch | story `Target`, option `TargetType`, activation `Action`; read `game play choose-narrative --options --json` when the story target or option key is not already proven | live option evidence, then the selected narrative action |
 | Government choice | live `GovernmentType` and activation `Action` from `game play choose-government --options --json` | `game play choose-government` |
 | Celebration choice | live `GoldenAgeType` hash from `game play choose-celebration --options --json` | `game play choose-celebration` |
-| Tradition review | active/unlocked tradition ids from `game play traditions --compact --json`; chosen `TraditionType` and activate/deactivate `Action` | `game play traditions --compact --json`; then selected `sendCloseoutCli` or `game play change-tradition`; then `game play consider-traditions` |
+| Tradition review | active/unlocked tradition ids from `game play traditions --compact --json`; chosen `TraditionType` and activate/deactivate `Action` | tradition slot evidence, then the selected change or review closeout |
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
 | Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |
 | Unit command | selected or first ready unit; sometimes target plot | `game play ready-unit`, then `game play unit-target` for plot actions or generic unit operation validation |
@@ -118,7 +118,7 @@ Notable handler evidence:
   already visible, the target can also be read from
   `small-narrative-event._component.targetStoryId` and choices from
   `fxs-reward-button[small-narrative-choice-key]`; validate those exact
-  visible-panel args before send. `game play choose-narrative --send` should be
+  visible-panel args before mutation. `game play choose-narrative --send` should be
   treated as the single caller-level action: it sends
   `CHOOSE_NARRATIVE_STORY_DIRECTION` and mirrors the official panel close route
   internally. If a real pending story has no linked choices, the official UI
@@ -146,7 +146,7 @@ Notable handler evidence:
   ordinary `{ ID, Type }` diplomacy response shape. The HUD should expose a
   `details.kind == "first-meet-diplomacy"` payload when the live notification
   carries the met player id, including validated greeting args and a neutral
-  `recommendedCli`.
+  response descriptor.
 - `NOTIFICATION_DIPLOMATIC_ACTION_LOW` reports a completed low-severity
   diplomatic action. The official notification handler file registers
   `NOTIFICATION_DIPLOMATIC_ACTION` and
@@ -197,7 +197,7 @@ links, so the likely operation is acknowledgement:
 }
 ```
 
-Validate before sending because the live pending story target can change:
+Validate against live panel evidence because the pending story target can change:
 
 ```bash
 civ7 game play choose-narrative \
@@ -216,10 +216,10 @@ narrow `NarrativeStory_Links.filter` for that one story type. If both pending-id
 reads are empty, `game play choose-narrative --options --json` should expose a
 visible-panel option surface when the official popup is open. If no visible panel
 target exists either, it should expose a read-only dismissal diagnostic plus an
-unproven send candidate. A visible-panel `chooseCli` is the forward operation;
-the caller should not separately dismiss the narrative notification. Only treat a
-dismissal send as successful if `game play dismiss-notification --send` reports
-`verified:true`.
+unproven narrative action candidate. A visible-panel choice is the forward
+operation; the caller should not separately dismiss the narrative notification.
+Only treat dismissal as successful when the postcondition proves the item left
+the blocking queue.
 
 Production blockers should use the production shortcut before falling back to a
 generic operation. Units use `UnitType`, constructibles use `ConstructibleType`,
