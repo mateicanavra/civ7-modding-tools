@@ -701,6 +701,14 @@ adding more read-only facade shells.
     recommend `read-strategy-front` when strategy is the only supported read.
     Keep deployed Civ7 proof, transport expansion, broad read catalogs, mutation
     capability, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.27 Complete the package-root public export surface for all
+    allowlisted controller bridge request and success response schemas/types:
+    export the existing strategy, city, narrative, diplomacy, unit, and
+    progression bridge envelopes from `@civ7/control-orpc` so controller
+    consumers can import the same closed envelopes the serialized ingress can
+    invoke. Keep dispatch behavior, transport expansion, raw direct-control
+    result aliases, deployed Civ7 proof, play-thread action, and full `7.3`
+    acceptance unchanged.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -885,6 +893,12 @@ adding more read-only facade shells.
   and bundle proofs only and do not claim deployed Civ7 runtime proof,
   transport expansion, mutation capability, play-thread action, or full `7.3`
   acceptance.
+- [x] 8.57 Run focused controller-ingress public export proof plus
+  control-oRPC test/check/build, strict OpenSpec validates, and diff hygiene
+  for the controller bridge package-root public surface repair. These are local
+  package/source proofs only and do not change bridge dispatch behavior, claim
+  deployed Civ7 runtime proof, add transport scope, expose raw direct-control
+  result aliases, or accept full `7.3`.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

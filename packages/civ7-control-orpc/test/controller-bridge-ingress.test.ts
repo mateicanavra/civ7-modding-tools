@@ -2,11 +2,43 @@ import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
 import {
+  Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
+  Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+  Civ7ControllerBridgeCityProductionChoiceRequestSchema,
+  Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeDiplomacyResponseRequestSchema,
+  Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  Civ7ControllerBridgeNarrativeChoiceRequestSchema,
+  Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
+  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
+  Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
   Civ7ControllerBridgeResponseSchema,
+  Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
+  Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
+  Civ7ControllerBridgeUnitTargetActionRequestSchema,
+  Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcPlayableStatusResult,
+  type Civ7ControllerBridgeCityPopulationPlacementRequest,
+  type Civ7ControllerBridgeCityPopulationPlacementSuccessResponse,
+  type Civ7ControllerBridgeCityProductionChoiceRequest,
+  type Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
+  type Civ7ControllerBridgeDiplomacyResponseRequest,
+  type Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
+  type Civ7ControllerBridgeNarrativeChoiceRequest,
+  type Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
+  type Civ7ControllerBridgeProgressionCultureChoiceRequest,
+  type Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse,
+  type Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
+  type Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
+  type Civ7ControllerBridgeStrategyFrontSummaryRequest,
+  type Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
+  type Civ7ControllerBridgeUnitTargetActionRequest,
+  type Civ7ControllerBridgeUnitTargetActionSuccessResponse,
 } from "../src/index";
 
 type TestControllerContext = Civ7ControlOrpcContext & Readonly<{
@@ -43,7 +75,61 @@ const progressionCultureInput = {
   notificationId,
 };
 
+type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
+  Civ7ControllerBridgeStrategyFrontSummaryRequest,
+  Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
+  Civ7ControllerBridgeCityProductionChoiceRequest,
+  Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
+  Civ7ControllerBridgeCityPopulationPlacementRequest,
+  Civ7ControllerBridgeCityPopulationPlacementSuccessResponse,
+  Civ7ControllerBridgeNarrativeChoiceRequest,
+  Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
+  Civ7ControllerBridgeDiplomacyResponseRequest,
+  Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
+  Civ7ControllerBridgeUnitTargetActionRequest,
+  Civ7ControllerBridgeUnitTargetActionSuccessResponse,
+  Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
+  Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
+  Civ7ControllerBridgeProgressionCultureChoiceRequest,
+  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse,
+]>;
+
+const publicControllerBridgeSchemaTypeCoverage = <_T>() => undefined;
+
 describe("Civ7 controller bridge ingress", () => {
+  test("exports every allowlisted controller bridge envelope schema from the package root", () => {
+    const publicSchemas = [
+      Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
+      Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
+      Civ7ControllerBridgeCityProductionChoiceRequestSchema,
+      Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
+      Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
+      Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+      Civ7ControllerBridgeNarrativeChoiceRequestSchema,
+      Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
+      Civ7ControllerBridgeDiplomacyResponseRequestSchema,
+      Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+      Civ7ControllerBridgeUnitTargetActionRequestSchema,
+      Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
+      Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
+      Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
+      Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
+      Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
+    ];
+
+    expect(
+      publicControllerBridgeSchemaTypeCoverage<
+        PublicControllerBridgeSchemaTypeCoverage
+      >(),
+    ).toBeUndefined();
+    for (const schema of publicSchemas) {
+      expect(schema).toEqual(expect.objectContaining({
+        additionalProperties: false,
+        type: "object",
+      }));
+    }
+  });
+
   test("invokes allowlisted readiness.current through the in-process router", async () => {
     const fake = fakeContext(playableStatusResult());
     const ingress = createCiv7ControllerBridgeIngress({
