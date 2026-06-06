@@ -1363,6 +1363,143 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
+  test("reads strategy front summary through game UI service dependency", async () => {
+    const target = gameUiStrategyFrontTarget();
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-strategy-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "strategy.frontSummary",
+              risk: "read-only",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "strategy.frontSummary",
+      input: {
+        playerId: 0,
+        origins: [{ x: 10, y: 20 }],
+        candidateLimit: 3,
+        scanRadius: 6,
+      },
+      correlationId: "game-ui-strategy-front-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "strategy.frontSummary",
+      correlationId: "game-ui-strategy-front-1",
+      output: {
+        playerId: 0,
+        localPlayerId: 0,
+        origins: [{ x: 10, y: 20 }],
+        sourceStatus: {
+          targetCandidates: "read",
+          battlefieldScan: "read",
+        },
+        relationshipLabelPolicy: {
+          relationshipSource: "not-classified",
+          relationshipProof: "none",
+          unprovenLabel: "relationship-unproven",
+        },
+        summary: {
+          targetCandidateCount: 1,
+          pointOfInterestCount: expect.any(Number),
+          observedOwnerCount: 2,
+        },
+        targetCandidates: [{
+          owner: 1,
+          relationship: "relationship-unproven",
+          relationshipProof: "none",
+          nearestDistance: 5,
+          cityCount: 1,
+          unitCount: 1,
+          routeKind: "land",
+        }],
+        observedOwners: expect.arrayContaining([
+          expect.objectContaining({
+            owner: 0,
+            relationship: "self",
+            relationshipProof: "self",
+          }),
+          expect.objectContaining({
+            owner: 1,
+            relationship: "relationship-unproven",
+            relationshipProof: "none",
+          }),
+        ]),
+      },
+    });
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
+      .toContain("inspect-target-candidate");
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("Game.turn");
+    expect(serialized).not.toContain("rawCommand");
+    expect(serialized).not.toContain("Game.UnitOperations");
+    expect(serialized).not.toContain("Game.UnitCommands");
+    expect(serialized).not.toContain("sendRequest");
+    expect(serialized).not.toContain("friendly");
+    expect(serialized).not.toContain("enemy");
+    expect(serialized).not.toContain("hostile");
+    expect(serialized).not.toContain("opponent");
+    expect(serialized).not.toContain("threat");
+    expect(serialized).not.toContain("war");
+    expect(serialized).not.toContain("ally");
+    expect(serialized).not.toContain("suzerain");
+  });
+
+  test("does not advertise game UI strategy front without owner unit APIs", async () => {
+    const target = gameUiStrategyFrontTarget();
+    if (target.Players != null) {
+      target.Players.Units = undefined;
+    }
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+    });
+
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: [],
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "strategy.frontSummary",
+      input: { origins: [{ x: 10, y: 20 }] },
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      error: {
+        code: "STRATEGY_FRONT_SUMMARY_UNAVAILABLE",
+        message: "Strategy front summary failed.",
+        reason: "procedure-failed",
+      },
+    });
+  });
+
   test("executes unit target action through game UI service dependency", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -2080,6 +2217,111 @@ function gameUiTarget(
   };
 }
 
+function gameUiStrategyFrontTarget(): Civ7GameUiRuntimeTarget {
+  const ownUnitId = { owner: 0, id: 501, type: 26 };
+  const otherUnitId = { owner: 1, id: 601, type: 27 };
+  const ownCityId = { owner: 0, id: 701, type: 1 };
+  const otherCityId = { owner: 1, id: 801, type: 1 };
+  const units = new Map([
+    [
+      componentKey(ownUnitId),
+      {
+        id: ownUnitId,
+        owner: 0,
+        type: 26,
+        location: { x: 10, y: 20 },
+        damage: 0,
+      },
+    ],
+    [
+      componentKey(otherUnitId),
+      {
+        id: otherUnitId,
+        owner: 1,
+        type: 27,
+        location: { x: 12, y: 21 },
+        damage: 10,
+      },
+    ],
+  ]);
+  const cities = new Map([
+    [
+      componentKey(ownCityId),
+      {
+        id: ownCityId,
+        owner: 0,
+        name: "Capital",
+        location: { x: 10, y: 20 },
+        population: 4,
+        isTown: false,
+      },
+    ],
+    [
+      componentKey(otherCityId),
+      {
+        id: otherCityId,
+        owner: 1,
+        name: "Unproven City",
+        location: { x: 15, y: 20 },
+        population: 3,
+        isTown: false,
+      },
+    ],
+  ]);
+
+  return gameUiTarget({
+    UI: {
+      ...gameUiTarget().UI,
+      Player: {
+        getFirstReadyUnit: () => ownUnitId,
+        getHeadSelectedUnit: () => null,
+        getHeadSelectedCity: () => null,
+      },
+    },
+    GameInfo: {
+      Units: {
+        lookup: (type) => ({
+          UnitType: type === 26 ? "UNIT_WARRIOR" : "UNIT_ARCHER",
+          Combat: type === 26 ? 12 : 8,
+          RangedCombat: type === 27 ? 10 : 0,
+          Bombard: 0,
+          AntiAirCombat: 0,
+          BaseMoves: 2,
+        }),
+      },
+    },
+    GameplayMap: {
+      ...gameUiTarget().GameplayMap,
+      isWater: () => false,
+    },
+    Players: {
+      ...gameUiTarget().Players,
+      getAliveIds: () => [0, 1],
+      get: (playerId) => ({
+        leaderName: playerId === 0 ? "Local Leader" : "Other Leader",
+        civilizationName: playerId === 0 ? "Local Civilization" : "Other Civilization",
+        isHuman: playerId === 0,
+      }),
+      Units: {
+        get: (playerId) => ({
+          getUnitIds: () => playerId === 0 ? [ownUnitId] : [otherUnitId],
+        }),
+      },
+      Cities: {
+        get: (playerId) => ({
+          getCityIds: () => playerId === 0 ? [ownCityId] : [otherCityId],
+        }),
+      },
+    },
+    Units: {
+      get: (id) => units.get(componentKey(id)),
+    },
+    Cities: {
+      get: (id) => cities.get(componentKey(id)),
+    },
+  });
+}
+
 function gameUiNotificationTarget(
   notificationId: { owner: number; id: number; type: number },
   options: Readonly<{
@@ -2599,4 +2841,10 @@ function componentIdEqual(
   return left?.owner === right?.owner
     && left?.id === right?.id
     && (left?.type ?? null) === (right?.type ?? null);
+}
+
+function componentKey(
+  value: { owner: number; id: number; type?: number } | null | undefined,
+): string {
+  return `${value?.owner}:${value?.id}:${value?.type ?? "none"}`;
 }

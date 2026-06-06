@@ -49,6 +49,12 @@ import {
   requestCiv7GameUiUnitTargetAction,
   type Civ7GameUiUnitTargetActionTarget,
 } from "./game-ui-unit-target";
+import {
+  civ7GameUiStrategyFrontAvailable,
+  getCiv7GameUiBattlefieldScan,
+  getCiv7GameUiTargetCandidates,
+  type Civ7GameUiStrategyFrontTarget,
+} from "./game-ui-strategy-front";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 import type {
   Civ7ControlOrpcDirectControlFacade,
@@ -86,6 +92,7 @@ export type Civ7GameUiRuntimeTarget = {
     hasSentTurnComplete?: () => boolean;
     sendTurnComplete?: () => unknown;
   };
+  GameInfo?: Civ7GameUiStrategyFrontTarget["GameInfo"];
   Game?: Civ7GameUiProductionTarget["Game"] & {
     Diplomacy?: Civ7GameUiDiplomacyTarget["Game"] extends infer Game
       ? Game extends { Diplomacy?: infer Diplomacy } ? Diplomacy : never
@@ -184,6 +191,12 @@ export type Civ7GameUiRuntimeTarget = {
     getAliveIds?: () => number[];
     getAliveHumanIds?: () => number[];
     getNumAliveHumans?: () => number;
+    Cities?: Civ7GameUiStrategyFrontTarget["Players"] extends infer Players
+      ? Players extends { Cities?: infer Cities } ? Cities : never
+      : never;
+    Units?: Civ7GameUiStrategyFrontTarget["Players"] extends infer Players
+      ? Players extends { Units?: infer Units } ? Units : never
+      : never;
   };
   GameplayMap?: {
     getGridWidth?: () => number;
@@ -200,10 +213,15 @@ export type Civ7GameUiRuntimeTarget = {
     getIndexFromXY?: Civ7GameUiUnitTargetActionTarget["GameplayMap"] extends infer Map
       ? Map extends { getIndexFromXY?: infer Fn } ? Fn : never
       : never;
+    isWater?: Civ7GameUiStrategyFrontTarget["GameplayMap"] extends infer Map
+      ? Map extends { isWater?: infer Fn } ? Fn : never
+      : never;
   };
   MapUnits?: Civ7GameUiUnitTargetActionTarget["MapUnits"];
-  Units?: Civ7GameUiUnitTargetActionTarget["Units"];
-  Cities?: Civ7GameUiProductionTarget["Cities"];
+  Units?: Civ7GameUiUnitTargetActionTarget["Units"]
+    & Civ7GameUiStrategyFrontTarget["Units"];
+  Cities?: Civ7GameUiProductionTarget["Cities"]
+    & Civ7GameUiStrategyFrontTarget["Cities"];
   InterfaceMode?: Civ7GameUiProductionTarget["InterfaceMode"]
     & Civ7GameUiDiplomacyTarget["InterfaceMode"];
   PlotCursor?: Civ7GameUiProductionTarget["PlotCursor"];
@@ -288,12 +306,14 @@ function createCiv7GameUiDirectControlFacade(
       await getCiv7GameUiPlayNotificationView({
         maxNotifications: options?.maxNotifications,
       }, target),
-    getCiv7BattlefieldScan: unsupported,
+    getCiv7BattlefieldScan: async (input) =>
+      await getCiv7GameUiBattlefieldScan(input, target),
     getCiv7ReadyUnitView: async (input) =>
       await getCiv7GameUiReadyUnitView(input, target),
     getCiv7ReadyCityView: async (input) =>
       await getCiv7GameUiReadyCityView(input, target),
-    getCiv7TargetCandidates: unsupported,
+    getCiv7TargetCandidates: async (input) =>
+      await getCiv7GameUiTargetCandidates(input, target),
     getCiv7TurnCompletionStatus: async () =>
       await getCiv7GameUiTurnCompletionStatus(target),
   };
@@ -370,13 +390,17 @@ function gameUiSupportedMutationProcedures(
 function gameUiSupportedReadProcedures(
   target: Civ7GameUiRuntimeTarget,
 ): readonly string[] {
-  if (
-    gameUiControllerMutationProof(target) != null
-    && gameUiAttentionReadAvailable(target)
-  ) {
-    return ["attention.current"];
+  if (gameUiControllerMutationProof(target) == null) {
+    return [];
   }
-  return [];
+  const supported: string[] = [];
+  if (gameUiAttentionReadAvailable(target)) {
+    supported.push("attention.current");
+  }
+  if (civ7GameUiStrategyFrontAvailable(target)) {
+    supported.push("strategy.frontSummary");
+  }
+  return supported;
 }
 
 function gameUiNotificationDismissalAvailable(

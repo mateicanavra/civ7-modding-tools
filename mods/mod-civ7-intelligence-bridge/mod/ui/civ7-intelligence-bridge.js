@@ -26845,8 +26845,8 @@ function notificationDismissalPostconditionReason(classification) {
       return "The dismissal was sent, but notification identity evidence did not confirm disappearance, queue removal, or front movement.";
   }
 }
-function probeValue2(probe9) {
-  return probe9.ok ? probe9.value : void 0;
+function probeValue2(probe10) {
+  return probe10.ok ? probe10.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZXTU55QH.js
@@ -27003,8 +27003,8 @@ function progressionChoiceDetailsChanged(left3, right3) {
 }
 function probeValue(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe9 = value2;
-    return probe9.ok === true ? probe9.value ?? null : null;
+    const probe10 = value2;
+    return probe10.ok === true ? probe10.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -27118,8 +27118,8 @@ function turnCompletionNoRepeatAfterUnverified(classification) {
       return true;
   }
 }
-function probeValue3(probe9) {
-  return probe9.ok ? probe9.value : void 0;
+function probeValue3(probe10) {
+  return probe10.ok ? probe10.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZGRAA6DD.js
@@ -27178,7 +27178,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-QX4ZRCXR.js
+// ../../packages/civ7-control-orpc/dist/chunk-KYB3KRNH.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -29999,11 +29999,11 @@ function skippedSourceStatus(playableStatus) {
     readyCity: skipped
   };
 }
-function probeValue4(probe9) {
-  if (probe9 == null || typeof probe9 !== "object") return null;
-  if (!("ok" in probe9) || probe9.ok !== true) return null;
-  if (!("value" in probe9)) return null;
-  return probe9.value;
+function probeValue4(probe10) {
+  if (probe10 == null || typeof probe10 !== "object") return null;
+  if (!("ok" in probe10) || probe10.ok !== true) return null;
+  if (!("value" in probe10)) return null;
+  return probe10.value;
 }
 function componentIdFromUnknown(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
@@ -30724,8 +30724,8 @@ function booleanProbeValue(value2) {
 }
 function probeValue22(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe9 = value2;
-    return probe9.ok === true ? probe9.value ?? null : null;
+    const probe10 = value2;
+    return probe10.ok === true ? probe10.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -30892,8 +30892,8 @@ function readinessNextSteps(status, context5) {
 function supportsAttentionCurrent(context5) {
   return context5.controller?.supportedReadProcedures?.includes("attention.current") === true;
 }
-function probeValue32(probe9) {
-  return probe9.ok ? probe9.value : null;
+function probeValue32(probe10) {
+  return probe10.ok ? probe10.value : null;
 }
 var readinessRouter = {
   current: readinessCurrentProcedure
@@ -30970,7 +30970,7 @@ function strategyFrontSummaryResult({
       reasons: [...candidate2.reasons]
     })
   );
-  const pointsOfInterest = battlefieldScan.pointsOfInterest.map((point) => ({
+  const pointsOfInterest2 = battlefieldScan.pointsOfInterest.map((point) => ({
     kind: point.kind,
     severity: point.severity,
     location: point.location,
@@ -30987,7 +30987,7 @@ function strategyFrontSummaryResult({
   }));
   const nextSteps = strategyNextSteps({
     targetCandidates: targetCandidateSummaries,
-    pointsOfInterest
+    pointsOfInterest: pointsOfInterest2
   });
   return {
     playerId: targetCandidates.playerId,
@@ -31005,12 +31005,12 @@ function strategyFrontSummaryResult({
     },
     summary: {
       targetCandidateCount: targetCandidateSummaries.length,
-      pointOfInterestCount: pointsOfInterest.length,
+      pointOfInterestCount: pointsOfInterest2.length,
       observedOwnerCount: observedOwners.length,
       nextStepCount: nextSteps.length
     },
     targetCandidates: targetCandidateSummaries,
-    pointsOfInterest,
+    pointsOfInterest: pointsOfInterest2,
     observedOwners,
     notes: [
       "Read-only strategy front summary. It does not move, attack, approve sends, or change diplomacy.",
@@ -31024,7 +31024,7 @@ function nearestOwnerDistance(owner) {
   const distances = [
     distanceFromUnknown(owner.nearestUnit),
     distanceFromUnknown(owner.nearestCity)
-  ].filter((distance) => distance != null);
+  ].filter((distance2) => distance2 != null);
   if (distances.length === 0) return null;
   return Math.min(...distances);
 }
@@ -31035,7 +31035,7 @@ function distanceFromUnknown(value2) {
 }
 function strategyNextSteps({
   targetCandidates,
-  pointsOfInterest
+  pointsOfInterest: pointsOfInterest2
 }) {
   const nextSteps = [];
   const candidate2 = targetCandidates[0];
@@ -31046,7 +31046,7 @@ function strategyNextSteps({
       label: `Inspect owner ${candidate2.owner} planning candidate with visibility reads before treating it as actionable.`
     });
   }
-  const point = pointsOfInterest[0];
+  const point = pointsOfInterest2[0];
   if (point != null) {
     nextSteps.push({
       kind: "inspect-battlefield-point",
@@ -31054,7 +31054,7 @@ function strategyNextSteps({
       label: `Inspect ${point.kind} battlefield point before choosing a unit action.`
     });
   }
-  if (targetCandidates.length > 0 || pointsOfInterest.length > 0) {
+  if (targetCandidates.length > 0 || pointsOfInterest2.length > 0) {
     nextSteps.push({
       kind: "read-visibility",
       source: "strategy.frontSummary",
@@ -31188,13 +31188,13 @@ function turnCompletionProbeSummary(status) {
     firstReadyUnitId: probeValue42(status.firstReadyUnitId)
   };
 }
-function blockerValue(probe9) {
-  const value2 = probeValue42(probe9);
+function blockerValue(probe10) {
+  const value2 = probeValue42(probe10);
   if (typeof value2 === "number" || typeof value2 === "string") return value2;
   return null;
 }
-function probeValue42(probe9) {
-  return probe9.ok ? probe9.value : null;
+function probeValue42(probe10) {
+  return probe10.ok ? probe10.value : null;
 }
 var turnRouter = {
   complete: {
@@ -31361,6 +31361,14 @@ var Civ7ControllerBridgeAttentionCurrentRequestSchema = typebox_exports.Object(
   },
   { additionalProperties: false }
 );
+var Civ7ControllerBridgeStrategyFrontSummaryRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("strategy.frontSummary"),
+    input: Civ7StrategyFrontSummaryInputSchema,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ControllerBridgeNotificationDismissRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("notifications.dismiss.request"),
@@ -31436,6 +31444,7 @@ var Civ7ControllerBridgeProgressionCultureChoiceRequestSchema = typebox_exports.
 var Civ7ControllerBridgeRequestSchema = typebox_exports.Union([
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
+  Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
   Civ7ControllerBridgeNotificationDismissRequestSchema,
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
@@ -31472,6 +31481,15 @@ var Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema = typebox_exports.
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("attention.current"),
     output: Civ7AttentionCurrentResultSchema,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("strategy.frontSummary"),
+    output: Civ7StrategyFrontSummaryResultSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31560,6 +31578,7 @@ var Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema = typebox_
 var Civ7ControllerBridgeSuccessResponseSchema = typebox_exports.Union([
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
   Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
@@ -31624,6 +31643,15 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       return {
         ok: true,
         procedureKey: "readiness.current",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "strategy.frontSummary") {
+      const output2 = await client.strategy.frontSummary(request2.input);
+      return {
+        ok: true,
+        procedureKey: "strategy.frontSummary",
         output: output2,
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
@@ -31733,7 +31761,7 @@ function controllerProofFromContext(context5) {
 function isUnsupportedProcedureRequest(request2) {
   if (request2 == null || typeof request2 !== "object") return false;
   if (!("procedureKey" in request2)) return false;
-  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request";
+  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request";
 }
 function isControllerBridgeMutationRequest(request2) {
   return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request";
@@ -32372,8 +32400,8 @@ function ok(value2) {
 function gameUiTurnCompletionAllowed(status) {
   return probeValue5(status.canEndTurn) === true && probeValue5(status.hasSentTurnComplete) !== true;
 }
-function probeValue5(probe9) {
-  return probe9.ok ? probe9.value : void 0;
+function probeValue5(probe10) {
+  return probe10.ok ? probe10.value : void 0;
 }
 function isPresent2(value2) {
   return value2 != null;
@@ -32680,8 +32708,8 @@ function probe22(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue23(probe9) {
-  return probe9?.ok ? probe9.value : void 0;
+function probeValue23(probe10) {
+  return probe10?.ok ? probe10.value : void 0;
 }
 function stableJson2(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -33297,8 +33325,8 @@ function probe4(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue33(probe9) {
-  return probe9?.ok ? probe9.value : void 0;
+function probeValue33(probe10) {
+  return probe10?.ok ? probe10.value : void 0;
 }
 function stableJson22(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -34316,6 +34344,549 @@ function probe7(fn2) {
     return { ok: false, error: String(err) };
   }
 }
+function civ7GameUiStrategyFrontAvailable(target) {
+  return typeof target.GameContext?.localPlayerID === "number" && typeof target.Players?.getAliveIds === "function" && typeof target.Players?.get === "function" && typeof target.Players?.Units?.get === "function" && typeof target.Players?.Cities?.get === "function" && typeof target.Units?.get === "function" && typeof target.Cities?.get === "function";
+}
+async function getCiv7GameUiTargetCandidates(input = {}, target = globalThis) {
+  if (!civ7GameUiStrategyFrontAvailable(target)) {
+    throw new Error("Civ7 game UI strategy front dependency is unavailable.");
+  }
+  const localPlayerId = target.GameContext?.localPlayerID ?? 0;
+  const playerId = input.playerId ?? localPlayerId;
+  const maxCandidates = boundedInteger(input.maxCandidates ?? 8, 1, 64);
+  const maxPlayers = boundedInteger(input.maxPlayers ?? 32, 1, 128);
+  const unitRadius = boundedInteger(input.unitRadius ?? 4, 0, 16);
+  const origins = collectOrigins(input.origins, playerId, target);
+  const candidates = alivePlayerIds(target).filter((owner) => owner !== playerId).slice(0, maxPlayers).map((owner) => targetCandidateFor(owner, { playerId, origins, unitRadius }, target)).filter(
+    (candidate2) => candidate2 != null
+  ).sort((left3, right3) => {
+    const leftDistance = left3.nearestDistance ?? 9999;
+    const rightDistance = right3.nearestDistance ?? 9999;
+    if (leftDistance !== rightDistance) return leftDistance - rightDistance;
+    if (left3.nearbyUnitCount !== right3.nearbyUnitCount) {
+      return left3.nearbyUnitCount - right3.nearbyUnitCount;
+    }
+    return left3.apparentStrength - right3.apparentStrength;
+  }).slice(0, maxCandidates);
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    localPlayerId,
+    playerId,
+    origins,
+    unitRadius,
+    hiddenInfoPolicy: "game-ui-runtime-summary; may include game-resident unit or city summaries until paired with visibility reads",
+    relationshipLabelPolicy,
+    candidates,
+    notes: [
+      "Read-only game UI target-candidate runtime port for strategy.frontSummary.",
+      "Other-owner candidates stay relationship-unproven until official relationship evidence proves more.",
+      "Use unit action validation before any movement or target send."
+    ]
+  };
+}
+async function getCiv7GameUiBattlefieldScan(input = {}, target = globalThis) {
+  if (!civ7GameUiStrategyFrontAvailable(target)) {
+    throw new Error("Civ7 game UI strategy front dependency is unavailable.");
+  }
+  const localPlayerId = target.GameContext?.localPlayerID ?? 0;
+  const playerId = input.playerId ?? localPlayerId;
+  const radius = boundedInteger(input.radius ?? 8, 1, 32);
+  const maxPlayers = boundedInteger(input.maxPlayers ?? 32, 1, 128);
+  const maxUnits = boundedInteger(input.maxUnits ?? 80, 1, 256);
+  const maxCities = boundedInteger(input.maxCities ?? 32, 1, 128);
+  const origins = collectOrigins(input.origins, playerId, target);
+  const units = [];
+  const cities = [];
+  const owners = [];
+  for (const owner of alivePlayerIds(target).slice(0, maxPlayers)) {
+    const ownerUnits = ownerUnitIds(owner, target).map((id) => battlefieldUnit(id, playerId, origins, radius, target)).filter((unit) => unit != null);
+    const ownerCities = ownerCityIds(owner, target).map((id) => battlefieldCity(id, playerId, origins, radius, target)).filter((city) => city != null);
+    if (ownerUnits.length === 0 && ownerCities.length === 0) continue;
+    units.push(...ownerUnits);
+    cities.push(...ownerCities);
+    owners.push(ownerSummary(owner, playerId, ownerUnits, ownerCities));
+  }
+  const limitedUnits = units.sort((left3, right3) => left3.distance - right3.distance || right3.strength - left3.strength).slice(0, maxUnits);
+  const limitedCities = cities.sort((left3, right3) => left3.distance - right3.distance).slice(0, maxCities);
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    localPlayerId,
+    playerId,
+    origins,
+    radius,
+    hiddenInfoPolicy: "game-ui-runtime-summary; may include game-resident unit or city summaries until paired with visibility reads",
+    relationshipLabelPolicy,
+    units: limitedUnits,
+    cities: limitedCities,
+    owners: owners.sort((left3, right3) => {
+      if (left3.stance !== right3.stance) return left3.stance === "friendly" ? -1 : 1;
+      return right3.apparentStrength - left3.apparentStrength;
+    }),
+    pointsOfInterest: pointsOfInterest(playerId, limitedUnits, limitedCities, owners),
+    notes: [
+      "Read-only game UI battlefield runtime port for strategy.frontSummary.",
+      "Owner mismatch is contact evidence, not relationship proof.",
+      "Use unit action validation before any movement or target send."
+    ]
+  };
+}
+var relationshipLabelPolicy = {
+  relationshipSource: "not-classified",
+  relationshipProof: "none",
+  unprovenLabel: "relationship-unproven",
+  guidance: "Game UI tactical reads expose owner ids and proximity only. They do not classify relationship, alliance, neutrality, suzerain, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence."
+};
+function targetCandidateFor(owner, input, target) {
+  const player = target.Players?.get?.(owner);
+  const units = ownerUnitIds(owner, target).map((id) => candidateUnit(id, target)).filter((unit) => unit != null);
+  const cities = ownerCityIds(owner, target).map((id) => candidateCity(id, target)).filter((city) => city != null);
+  if (units.length === 0 && cities.length === 0) return null;
+  const cityTargets = cities.map((city) => ({ city, ...bestDistance(city.location, input.origins) })).sort((left3, right3) => (left3.distance ?? 9999) - (right3.distance ?? 9999));
+  const nearestCity = cityTargets[0] ? {
+    city: cityTargets[0].city,
+    distance: cityTargets[0].distance,
+    nearestOrigin: cityTargets[0].nearestOrigin
+  } : null;
+  const fallbackUnit = nearestCity == null ? nearestUnitTarget(units, input.origins) : null;
+  const selected = nearestCity ?? fallbackUnit;
+  const targetLocation = selected == null ? null : selected.city?.location ?? ("unit" in selected ? selected.unit.location : null);
+  const nearbyUnits = targetLocation == null ? [] : units.filter((unit) => {
+    const value2 = distance(unit.location, targetLocation);
+    return value2 != null && value2 <= input.unitRadius;
+  });
+  const apparentStrength = round1(
+    nearbyUnits.reduce((sum2, unit) => sum2 + unit.strength, 0)
+  );
+  const route = routeApproach(selected?.nearestOrigin ?? null, targetLocation, target);
+  const reasons = [];
+  if (selected?.distance != null) reasons.push(`nearest target distance ${selected.distance}`);
+  if (cities.length === 1) reasons.push("single known city target");
+  if (nearbyUnits.length <= 4) reasons.push("low nearby unit density");
+  if (nearbyUnits.length > 8) reasons.push("high nearby unit density");
+  return {
+    owner,
+    leaderName: probe8(() => readValue(player, ["leaderName", "name"], ["getLeaderName", "getName"])),
+    civilizationName: probe8(
+      () => readValue(player, ["civilizationName", "civilizationType"], [
+        "getCivilizationName",
+        "getCivilizationType"
+      ])
+    ),
+    isHuman: probe8(() => readValue(player, ["isHuman"], ["isHuman"])),
+    cityCount: cities.length,
+    unitCount: units.length,
+    cities: cityTargets.slice(0, 12).map((entry) => ({
+      ...entry.city,
+      distance: entry.distance,
+      nearestOrigin: entry.nearestOrigin,
+      water: plotWater(entry.city.location, target)
+    })),
+    nearestCity: selected?.city ?? null,
+    nearestDistance: selected?.distance ?? null,
+    nearbyUnits: nearbyUnits.slice(0, 12),
+    nearbyUnitCount: nearbyUnits.length,
+    apparentStrength,
+    approach: {
+      nearestOrigin: selected?.nearestOrigin ?? null,
+      targetLocation,
+      directGridDistance: distance(selected?.nearestOrigin ?? null, targetLocation),
+      routeKind: route.routeKind,
+      routeHint: routeHint(selected?.distance ?? null, nearbyUnits.length, cities.length),
+      originWater: route.originWater,
+      targetWater: route.targetWater,
+      waterSampleCount: route.waterSampleCount,
+      landSampleCount: route.landSampleCount,
+      notes: [
+        "Distance is a cheap grid heuristic for target ranking, not a pathfinder result.",
+        "Route kind is sampled from endpoints and a straight grid line; it is not Civ pathfinding.",
+        "Use map/visibility and unit-target validation before moving or attacking."
+      ]
+    },
+    reasons
+  };
+}
+function candidateUnit(id, target) {
+  const unit = target.Units?.get?.(id);
+  if (unit == null || typeof unit !== "object") return null;
+  const record = unit;
+  const location = toLocation(record.location ?? record.getLocation?.());
+  if (location == null) return null;
+  const type = record.type ?? record.getType?.();
+  const typeName = unitTypeName(type, target);
+  return {
+    id: toComponentId8(record.id ?? id) ?? id,
+    owner: Number(record.owner ?? record.player ?? record.getOwner?.()),
+    type,
+    typeName,
+    location,
+    damage: Number(record.damage ?? record.Health?.damage ?? 0),
+    strength: unitStrength(record, typeName, target)
+  };
+}
+function candidateCity(id, target) {
+  const city = target.Cities?.get?.(id);
+  if (city == null || typeof city !== "object") return null;
+  const record = city;
+  const location = toLocation(record.location ?? record.getLocation?.());
+  if (location == null) return null;
+  return {
+    id: toComponentId8(id) ?? id,
+    observedCityId: toComponentId8(record.id),
+    owner: Number(record.owner ?? record.player ?? record.getOwner?.()),
+    name: typeof record.getName === "function" ? record.getName() : record.name ?? null,
+    location,
+    population: record.population ?? null,
+    isTown: record.isTown ?? null
+  };
+}
+function battlefieldUnit(id, playerId, origins, radius, target) {
+  const unit = candidateUnit(id, target);
+  if (unit == null) return null;
+  const proximity = bestDistance(unit.location, origins);
+  if (proximity.distance == null || proximity.distance > radius) return null;
+  return {
+    id: unit.id,
+    owner: unit.owner,
+    stance: unit.owner === playerId ? "friendly" : "other",
+    relationshipProof: unit.owner === playerId ? "self" : "none",
+    relationshipLabel: unit.owner === playerId ? "friendly" : "relationship-unproven",
+    type: unit.type,
+    typeName: unit.typeName,
+    role: roleForUnit(unit.typeName),
+    location: unit.location,
+    distance: proximity.distance,
+    nearestOrigin: proximity.nearestOrigin,
+    damage: unit.damage,
+    wounded: unit.damage > 0,
+    strength: unit.strength,
+    movementMovesRemaining: null,
+    attacksRemaining: null
+  };
+}
+function battlefieldCity(id, playerId, origins, radius, target) {
+  const city = candidateCity(id, target);
+  if (city == null) return null;
+  const proximity = bestDistance(city.location, origins);
+  if (proximity.distance == null || proximity.distance > radius) return null;
+  return {
+    id: city.id,
+    observedCityId: city.observedCityId,
+    owner: city.owner,
+    stance: city.owner === playerId ? "friendly" : "other",
+    relationshipProof: city.owner === playerId ? "self" : "none",
+    relationshipLabel: city.owner === playerId ? "friendly" : "relationship-unproven",
+    name: city.name,
+    location: city.location,
+    distance: proximity.distance,
+    nearestOrigin: proximity.nearestOrigin,
+    population: city.population,
+    isTown: city.isTown
+  };
+}
+function ownerSummary(owner, playerId, units, cities) {
+  const roles = units.reduce((out, unit) => {
+    out[unit.role] = (out[unit.role] ?? 0) + 1;
+    return out;
+  }, {});
+  const nearestUnit = nearestByDistance(units);
+  const nearestCity = nearestByDistance(cities);
+  return {
+    owner,
+    stance: owner === playerId ? "friendly" : "other",
+    relationshipProof: owner === playerId ? "self" : "none",
+    relationshipLabel: owner === playerId ? "friendly" : "relationship-unproven",
+    unitCount: units.length,
+    cityCount: cities.length,
+    roles,
+    apparentStrength: round1(
+      units.reduce((sum2, unit) => sum2 + (Number(unit.strength) || 0), 0)
+    ),
+    nearestUnit,
+    nearestCity
+  };
+}
+function pointsOfInterest(playerId, units, cities, owners) {
+  const points = [];
+  const otherUnits = units.filter((unit) => unit.owner !== playerId);
+  const ownUnits = units.filter((unit) => unit.owner === playerId);
+  const closeOther = otherUnits.filter((unit) => unit.distance <= 3);
+  if (closeOther.length > 0) {
+    points.push({
+      kind: "nearby-other-owners",
+      severity: closeOther.length >= 4 ? "high" : "medium",
+      location: closeOther[0]?.location ?? null,
+      summary: `${closeOther.length} other-owner units within 3 tiles of an origin`,
+      units: closeOther.slice(0, 8)
+    });
+  }
+  const woundedOwn = ownUnits.filter((unit) => unit.wounded).sort((left3, right3) => right3.damage - left3.damage);
+  if (woundedOwn.length > 0) {
+    points.push({
+      kind: "wounded-friendly",
+      severity: woundedOwn[0].damage >= 50 ? "high" : "medium",
+      location: woundedOwn[0].location,
+      summary: "friendly wounded unit near scan origin",
+      units: woundedOwn.slice(0, 6)
+    });
+  }
+  const otherCities = cities.filter((city) => city.owner !== playerId).sort((left3, right3) => left3.distance - right3.distance);
+  if (otherCities.length > 0) {
+    points.push({
+      kind: "city-front",
+      severity: otherCities[0].distance <= 6 ? "medium" : "low",
+      location: otherCities[0].location,
+      summary: "nearest relationship-unproven city in scan radius",
+      cities: otherCities.slice(0, 4)
+    });
+  }
+  const strongestOther = [...owners].filter((entry) => entry.owner !== playerId).sort((left3, right3) => right3.apparentStrength - left3.apparentStrength)[0];
+  if (strongestOther != null && strongestOther.apparentStrength > 0) {
+    const nearestUnit = strongestOther.nearestUnit;
+    const nearestCity = strongestOther.nearestCity;
+    points.push({
+      kind: "owner-pressure",
+      severity: strongestOther.apparentStrength >= 60 ? "high" : "medium",
+      location: nearestUnit?.location ?? nearestCity?.location ?? null,
+      summary: "strongest other-owner pressure in scan radius"
+    });
+  }
+  return points;
+}
+function collectOrigins(requested, playerId, target) {
+  const inputOrigins = requested?.map(toLocation).filter(isLocation) ?? [];
+  if (inputOrigins.length > 0) return inputOrigins.slice(0, 12);
+  const origins = [];
+  for (const getter of [
+    target.UI?.Player?.getFirstReadyUnit,
+    target.UI?.Player?.getHeadSelectedUnit
+  ]) {
+    const id = probe8(() => getter?.()).ok ? getter?.() : null;
+    const unit = toComponentId8(id) == null ? null : target.Units?.get?.(toComponentId8(id));
+    const location = unitLocation(unit);
+    if (location != null) origins.push(location);
+  }
+  for (const cityId of ownerCityIds(playerId, target)) {
+    const city = target.Cities?.get?.(cityId);
+    const location = cityLocation(city);
+    if (location != null) origins.push(location);
+    if (origins.length >= 6) break;
+  }
+  return origins.slice(0, 6);
+}
+function alivePlayerIds(target) {
+  try {
+    return [...target.Players?.getAliveIds?.() ?? []].filter((id) => Number.isInteger(id));
+  } catch {
+    return [];
+  }
+}
+function ownerUnitIds(owner, target) {
+  try {
+    return [...target.Players?.Units?.get?.(owner)?.getUnitIds?.() ?? []].map(toComponentId8).filter((id) => id != null);
+  } catch {
+    return [];
+  }
+}
+function ownerCityIds(owner, target) {
+  try {
+    return [...target.Players?.Cities?.get?.(owner)?.getCityIds?.() ?? []].map(toComponentId8).filter((id) => id != null);
+  } catch {
+    return [];
+  }
+}
+function nearestUnitTarget(units, origins) {
+  return units.reduce((best, unit) => {
+    if (unit == null) return best;
+    const score = bestDistance(unit.location, origins);
+    if (best == null || score.distance != null && (best.distance == null || score.distance < best.distance)) {
+      return { city: null, unit, ...score };
+    }
+    return best;
+  }, null);
+}
+function bestDistance(location, origins) {
+  let best = null;
+  let nearestOrigin = null;
+  for (const origin of origins) {
+    const value2 = distance(location, origin);
+    if (value2 == null) continue;
+    if (best == null || value2 < best) {
+      best = value2;
+      nearestOrigin = origin;
+    }
+  }
+  return { distance: best, nearestOrigin };
+}
+function distance(left3, right3) {
+  if (left3 == null || right3 == null) return null;
+  return Math.max(Math.abs(left3.x - right3.x), Math.abs(left3.y - right3.y));
+}
+function routeApproach(origin, targetLocation, target) {
+  const samples = lineSamples(origin, targetLocation);
+  const waterValues = samples.map((location) => plotWater(location, target)).filter((value2) => value2 != null).map(
+    (value2) => value2.ok === true && typeof value2.value === "boolean" ? value2.value : null
+  ).filter((value2) => value2 != null);
+  const originWater = origin == null ? null : plotWater(origin, target);
+  const targetWater = targetLocation == null ? null : plotWater(targetLocation, target);
+  const originIsWater = booleanProbeValue2(originWater);
+  const targetIsWater = booleanProbeValue2(targetWater);
+  const waterSampleCount = waterValues.filter(Boolean).length;
+  const landSampleCount = waterValues.filter((value2) => value2 === false).length;
+  const routeKind = (() => {
+    if (origin == null || targetLocation == null) return "unknown";
+    if (originIsWater === true && targetIsWater === true) return "sea";
+    if (originIsWater === false && targetIsWater === false && waterSampleCount === 0) return "land";
+    if (originIsWater === false && targetIsWater === false && waterSampleCount > 0) {
+      return "mixed-or-coastal";
+    }
+    if (originIsWater === true || targetIsWater === true) return "coastal-amphibious";
+    return "unknown";
+  })();
+  return {
+    routeKind,
+    originWater,
+    targetWater,
+    waterSampleCount,
+    landSampleCount
+  };
+}
+function lineSamples(from, to) {
+  if (from == null || to == null) return [];
+  const direct = distance(from, to);
+  if (direct == null) return [];
+  const steps = Math.max(1, Math.min(12, direct));
+  const out = [];
+  for (let index2 = 0; index2 <= steps; index2 += 1) {
+    const ratio = index2 / steps;
+    const location = {
+      x: Math.round(from.x + (to.x - from.x) * ratio),
+      y: Math.round(from.y + (to.y - from.y) * ratio)
+    };
+    if (!out.some((item) => item.x === location.x && item.y === location.y)) {
+      out.push(location);
+    }
+  }
+  return out;
+}
+function plotWater(location, target) {
+  return probe8(() => target.GameplayMap?.isWater?.(location.x, location.y) ?? null);
+}
+function booleanProbeValue2(input) {
+  return input?.ok === true && typeof input.value === "boolean" ? input.value : null;
+}
+function routeHint(distanceValue, unitCount, cityCount) {
+  if (distanceValue == null) return "unknown";
+  if (distanceValue <= 6 && unitCount <= 6) return "near-low-density";
+  if (distanceValue <= 10) return "near";
+  if (cityCount > 2 && unitCount > 8) return "major-front";
+  return "longer-approach";
+}
+function roleForUnit(typeName) {
+  const name = String(typeName ?? "").toUpperCase();
+  if (name.includes("SETTLER") || name.includes("MIGRANT") || name.includes("MERCHANT")) {
+    return "civilian";
+  }
+  if (name.includes("COMMANDER") || name.includes("TURTANU")) return "commander";
+  if (name.includes("BALLISTA") || name.includes("CATAPULT") || name.includes("SIEGE")) {
+    return "siege";
+  }
+  if (name.includes("ARCHER") || name.includes("SLINGER") || name.includes("CROSSBOW")) {
+    return "ranged";
+  }
+  if (name.includes("SHIP") || name.includes("GALLEY") || name.includes("NAVAL")) return "naval";
+  if (name.includes("AIR") || name.includes("BOMBER") || name.includes("FIGHTER")) return "air";
+  if (name.includes("WARRIOR") || name.includes("SPEARMAN") || name.includes("INFANTRY") || name.includes("CAVALRY")) {
+    return "melee";
+  }
+  return "unknown";
+}
+function unitStrength(unit, typeName, target) {
+  const definition = unit.type == null ? null : probe8(() => target.GameInfo?.Units?.lookup?.(unit.type)).ok ? target.GameInfo?.Units?.lookup?.(unit.type) : null;
+  const values3 = [
+    Number(definition?.Combat),
+    Number(definition?.RangedCombat),
+    Number(definition?.Bombard),
+    Number(definition?.AntiAirCombat),
+    Number(definition?.BaseMoves)
+  ].filter((value2) => Number.isFinite(value2) && value2 > 0);
+  const fallback = roleForUnit(typeName) === "unknown" ? 1 : 10;
+  const best = values3.length > 0 ? Math.max(...values3) : fallback;
+  const damage = Number(unit.damage ?? unit.Health?.damage ?? 0);
+  return round1(Math.max(0, best * Math.max(0.1, (100 - damage) / 100)));
+}
+function unitTypeName(type, target) {
+  if (type == null) return null;
+  const definition = probe8(() => target.GameInfo?.Units?.lookup?.(type));
+  return definition.ok && definition.value != null && typeof definition.value === "object" ? String(definition.value.UnitType ?? type) : String(type);
+}
+function nearestByDistance(values3) {
+  return values3.reduce(
+    (best, value2) => best == null || (value2.distance ?? 9999) < (best.distance ?? 9999) ? value2 : best,
+    null
+  );
+}
+function unitLocation(value2) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const record = value2;
+  return toLocation(record.location ?? record.getLocation?.());
+}
+function cityLocation(value2) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const record = value2;
+  return toLocation(record.location ?? record.getLocation?.());
+}
+function toLocation(value2) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const record = value2;
+  const x = Number(record.x ?? record.X);
+  const y = Number(record.y ?? record.Y);
+  return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null;
+}
+function isLocation(value2) {
+  return value2 != null;
+}
+function toComponentId8(value2) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const record = value2;
+  const owner = Number(record.owner ?? record.Owner ?? record.player ?? record.Player);
+  const id = Number(record.id ?? record.ID);
+  const type = Number(record.type ?? record.Type);
+  if (!Number.isFinite(owner) || !Number.isFinite(id) || !Number.isFinite(type)) {
+    return null;
+  }
+  return { owner, id, type };
+}
+function readValue(value2, props, methods) {
+  if (value2 == null || typeof value2 !== "object") return void 0;
+  const record = value2;
+  for (const prop of props) {
+    if (record[prop] !== void 0) return record[prop];
+  }
+  for (const method of methods) {
+    if (typeof record[method] === "function") return record[method]();
+  }
+  return void 0;
+}
+function boundedInteger(value2, min3, max5) {
+  if (!Number.isInteger(value2) || value2 < min3 || value2 > max5) {
+    throw new Error(`Expected integer ${min3}..${max5}.`);
+  }
+  return value2;
+}
+function round1(value2) {
+  return Math.round(value2 * 10) / 10;
+}
+function probe8(fn2) {
+  try {
+    return { ok: true, value: fn2() };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
 function installCiv7GameUiIntelligenceBridge(options = {}) {
   const target = options.target ?? globalThis;
   return installCiv7IntelligenceBridge({
@@ -34360,10 +34931,10 @@ function createCiv7GameUiDirectControlFacade(target) {
     getCiv7PlayNotificationView: async (options) => await getCiv7GameUiPlayNotificationView({
       maxNotifications: options?.maxNotifications
     }, target),
-    getCiv7BattlefieldScan: unsupported,
+    getCiv7BattlefieldScan: async (input) => await getCiv7GameUiBattlefieldScan(input, target),
     getCiv7ReadyUnitView: async (input) => await getCiv7GameUiReadyUnitView(input, target),
     getCiv7ReadyCityView: async (input) => await getCiv7GameUiReadyCityView(input, target),
-    getCiv7TargetCandidates: unsupported,
+    getCiv7TargetCandidates: async (input) => await getCiv7GameUiTargetCandidates(input, target),
     getCiv7TurnCompletionStatus: async () => await getCiv7GameUiTurnCompletionStatus(target)
   };
 }
@@ -34421,10 +34992,17 @@ function gameUiSupportedMutationProcedures(target) {
   return supported2;
 }
 function gameUiSupportedReadProcedures(target) {
-  if (gameUiControllerMutationProof(target) != null && gameUiAttentionReadAvailable(target)) {
-    return ["attention.current"];
+  if (gameUiControllerMutationProof(target) == null) {
+    return [];
   }
-  return [];
+  const supported2 = [];
+  if (gameUiAttentionReadAvailable(target)) {
+    supported2.push("attention.current");
+  }
+  if (civ7GameUiStrategyFrontAvailable(target)) {
+    supported2.push("strategy.frontSummary");
+  }
+  return supported2;
 }
 function gameUiNotificationDismissalAvailable(target) {
   const notifications = target.Game?.Notifications;
@@ -34441,13 +35019,13 @@ function gameUiSnapshot(target) {
   return {
     network: {
       isInSession: ok2(Boolean(target.Network?.isInSession)),
-      numPlayers: probe8(() => target.Network?.getNumPlayers?.() ?? 0),
-      hostPlayerId: probe8(() => target.Network?.getHostPlayerId?.() ?? -1),
-      isConnectedToNetwork: probe8(
+      numPlayers: probe9(() => target.Network?.getNumPlayers?.() ?? 0),
+      hostPlayerId: probe9(() => target.Network?.getHostPlayerId?.() ?? -1),
+      isConnectedToNetwork: probe9(
         () => target.Network?.isConnectedToNetwork?.() ?? false
       ),
-      isAuthenticated: probe8(() => target.Network?.isAuthenticated?.() ?? false),
-      isLoggedIn: probe8(() => target.Network?.isLoggedIn?.() ?? false)
+      isAuthenticated: probe9(() => target.Network?.isAuthenticated?.() ?? false),
+      isLoggedIn: probe9(() => target.Network?.isLoggedIn?.() ?? false)
     },
     autoplay: {
       isActive: target.Autoplay?.isActive ?? false,
@@ -34461,18 +35039,18 @@ function gameUiSnapshot(target) {
       turn: target.Game?.turn ?? -1,
       age: target.Game?.age ?? -1,
       maxTurns: target.Game?.maxTurns ?? 0,
-      turnDate: probe8(() => target.Game?.getTurnDate?.() ?? ""),
-      hash: probe8(() => target.Game?.getHash?.() ?? 0)
+      turnDate: probe9(() => target.Game?.getTurnDate?.() ?? ""),
+      hash: probe9(() => target.Game?.getHash?.() ?? 0)
     },
     ui: {
-      inGame: probe8(() => target.UI?.isInGame?.() ?? false),
-      inShell: probe8(() => target.UI?.isInShell?.() ?? false),
-      inLoading: probe8(() => target.UI?.isInLoading?.() ?? false),
-      loadingState: probe8(() => target.UI?.getGameLoadingState?.() ?? -1),
+      inGame: probe9(() => target.UI?.isInGame?.() ?? false),
+      inShell: probe9(() => target.UI?.isInShell?.() ?? false),
+      inLoading: probe9(() => target.UI?.isInLoading?.() ?? false),
+      loadingState: probe9(() => target.UI?.getGameLoadingState?.() ?? -1),
       loadingStateName: loadingStateName(target),
       canBeginGame: canBeginGame(target),
       canNotifyUIReady: typeof target.UI?.notifyUIReady,
-      skipStartButton: probe8(
+      skipStartButton: probe9(
         () => target.Configuration?.getGame?.().skipStartButton ?? false
       ),
       automationActive: ok2(false)
@@ -34480,27 +35058,27 @@ function gameUiSnapshot(target) {
     gameContext: {
       localPlayerID: target.GameContext?.localPlayerID ?? -1,
       localObserverID: target.GameContext?.localObserverID ?? -1,
-      hasRequestedPause: probe8(
+      hasRequestedPause: probe9(
         () => target.GameContext?.hasRequestedPause?.() ?? false
       )
     },
     players: {
       maxPlayers: target.Players?.maxPlayers ?? 0,
-      aliveIds: probe8(() => target.Players?.getAliveIds?.() ?? []),
-      aliveHumanIds: probe8(() => target.Players?.getAliveHumanIds?.() ?? []),
-      numAliveHumans: probe8(() => target.Players?.getNumAliveHumans?.() ?? 0)
+      aliveIds: probe9(() => target.Players?.getAliveIds?.() ?? []),
+      aliveHumanIds: probe9(() => target.Players?.getAliveHumanIds?.() ?? []),
+      numAliveHumans: probe9(() => target.Players?.getNumAliveHumans?.() ?? 0)
     },
     map: {
-      width: probe8(() => target.GameplayMap?.getGridWidth?.() ?? 0),
-      height: probe8(() => target.GameplayMap?.getGridHeight?.() ?? 0),
-      plotCount: probe8(() => target.GameplayMap?.getPlotCount?.() ?? 0),
-      mapSize: probe8(() => target.GameplayMap?.getMapSize?.() ?? 0),
-      randomSeed: probe8(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
+      width: probe9(() => target.GameplayMap?.getGridWidth?.() ?? 0),
+      height: probe9(() => target.GameplayMap?.getGridHeight?.() ?? 0),
+      plotCount: probe9(() => target.GameplayMap?.getPlotCount?.() ?? 0),
+      mapSize: probe9(() => target.GameplayMap?.getMapSize?.() ?? 0),
+      randomSeed: probe9(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
     }
   };
 }
 function gameUiControllerMutationProof(target) {
-  if (probeValue6(probe8(() => target.UI?.isInGame?.() ?? false)) !== true) {
+  if (probeValue6(probe9(() => target.UI?.isInGame?.() ?? false)) !== true) {
     return null;
   }
   const localPlayerId = target.GameContext?.localPlayerID;
@@ -34522,18 +35100,18 @@ function gameUiControllerMutationProof(target) {
   };
 }
 function isSingleLocalHuman(target, localPlayerId) {
-  const aliveHumanIds = probe8(() => target.Players?.getAliveHumanIds?.());
+  const aliveHumanIds = probe9(() => target.Players?.getAliveHumanIds?.());
   if (aliveHumanIds.ok && Array.isArray(aliveHumanIds.value)) {
     return aliveHumanIds.value.length === 1 && aliveHumanIds.value[0] === localPlayerId;
   }
-  const aliveHumanCount = probe8(() => target.Players?.getNumAliveHumans?.());
+  const aliveHumanCount = probe9(() => target.Players?.getNumAliveHumans?.());
   return aliveHumanCount.ok && aliveHumanCount.value === 1;
 }
 function isControllerPlayerId(playerId) {
   return typeof playerId === "number" && Number.isInteger(playerId) && playerId >= 0 && playerId <= 255;
 }
 function canBeginGame(target) {
-  return probe8(() => {
+  return probe9(() => {
     const loadingState = target.UI?.getGameLoadingState?.();
     if (loadingState == null) return false;
     const states = target.UIGameLoadingState ?? {};
@@ -34547,7 +35125,7 @@ function loadingStateName(target) {
     ([, value2]) => value2 === loadingState
   )?.[0] ?? null;
 }
-function probe8(fn2) {
+function probe9(fn2) {
   try {
     return ok2(fn2());
   } catch (err) {
@@ -34557,8 +35135,8 @@ function probe8(fn2) {
 function ok2(value2) {
   return { ok: true, value: value2 };
 }
-function probeValue6(probe9) {
-  return probe9.ok ? probe9.value : void 0;
+function probeValue6(probe10) {
+  return probe10.ok ? probe10.value : void 0;
 }
 
 // src/ui/civ7-intelligence-bridge.ts

@@ -682,6 +682,18 @@ adding more read-only facade shells.
     proof output; keep raw game-UI function names, command/session/state
     details, broad unit-operation catalogs, relationship labels, deployed Civ7
     proof, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.25 Add game-resident tactical read dependencies for
+    `strategy.frontSummary`: expose ambient `Players`, `Players.Units`,
+    `Players.Cities`, `Units`, `Cities`, `GameInfo.Units`, `GameplayMap`, and
+    controller-owned local-player evidence as internal target-candidate and
+    battlefield-scan read ports behind the existing service-owned strategy
+    procedure; allowlist only `strategy.frontSummary` through bridge ingress,
+    not raw `targetCandidates` or `battlefieldScan` leaves; fail closed when
+    required ambient owner/unit/city APIs are missing; preserve
+    relationship-unproven normal output and raw host/port/state/session/command
+    omission; keep target-action send authority, generic strategy catalogs,
+    hostile/enemy/opponent/threat/war/ally/suzerain labels, deployed Civ7
+    proof, play-thread action, and full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -851,6 +863,14 @@ adding more read-only facade shells.
   local package and bundle proofs only and do not claim deployed Civ7 runtime
   proof, play-thread action, broad unit-operation catalog support, or full
   `7.3` acceptance.
+- [x] 8.55 Run focused game-ui controller, strategy-front-summary procedure,
+  and controller-ingress tests plus control-oRPC check/build/test, controller
+  mod package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident strategy front read dependencies. These
+  are local package and bundle proofs only and do not claim deployed Civ7
+  runtime proof, play-thread action, target-action send authority, relationship
+  labels beyond official evidence, generic strategy catalogs, or full `7.3`
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

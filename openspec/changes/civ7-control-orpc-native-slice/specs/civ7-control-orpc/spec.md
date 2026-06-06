@@ -858,6 +858,32 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   catalog support, target-candidate relationship semantics, play-thread action,
   and full `7.3` implementation remain pending
 
+#### Scenario: Game UI controller supports strategy front summary
+- **WHEN** the game-scoped controller context exposes ambient tactical read APIs
+  for `Players`, `Players.Units`, `Players.Cities`, `Units`, `Cities`,
+  `GameInfo.Units`, `GameplayMap`, and controller-owned local-player evidence
+- **THEN** the context may execute the service-owned `strategy.frontSummary`
+  procedure through the existing in-process router
+- **AND** `strategy.frontSummary` is listed as a supported game-UI read only
+  when controller proof and the required ambient owner, unit, city, and map
+  APIs are present
+- **AND** bridge ingress allowlists the semantic `strategy.frontSummary`
+  procedure only, not raw `targetCandidates`, `battlefieldScan`, or generic
+  tactical catalog leaves
+- **AND** the game-UI tactical read dependencies fail closed when required
+  ambient owner/unit/city APIs are missing
+- **AND** normal bridge success output remains the semantic strategy front
+  summary and omits host, port, state, command, rawCommand, session, tuner
+  payloads, raw game-UI function names, direct-control socket details, and raw
+  tactical read-port envelopes
+- **AND** normal output preserves `self` and `relationship-unproven` only; it
+  does not infer hostile, enemy, opponent, threat, war, ally, or suzerain
+  labels from owner mismatch, proximity, contact, ranking, or action legality
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, target-action send
+  authority, broad strategy catalogs, play-thread action, and full `7.3`
+  implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control

@@ -37,6 +37,10 @@ import {
   Civ7ReadinessCurrentResultSchema,
 } from "../modules/readiness/contract";
 import {
+  Civ7StrategyFrontSummaryInputSchema,
+  Civ7StrategyFrontSummaryResultSchema,
+} from "../modules/strategy/contract";
+import {
   Civ7TurnCompletionInputSchema,
   Civ7TurnCompletionResultSchema,
 } from "../modules/turn/contract";
@@ -97,6 +101,19 @@ export const Civ7ControllerBridgeAttentionCurrentRequestSchema = Type.Object(
 );
 export type Civ7ControllerBridgeAttentionCurrentRequest = Static<
   typeof Civ7ControllerBridgeAttentionCurrentRequestSchema
+>;
+
+export const Civ7ControllerBridgeStrategyFrontSummaryRequestSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("strategy.frontSummary"),
+      input: Civ7StrategyFrontSummaryInputSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeStrategyFrontSummaryRequest = Static<
+  typeof Civ7ControllerBridgeStrategyFrontSummaryRequestSchema
 >;
 
 export const Civ7ControllerBridgeNotificationDismissRequestSchema = Type.Object(
@@ -213,6 +230,7 @@ export type Civ7ControllerBridgeProgressionCultureChoiceRequest = Static<
 export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
+  Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
   Civ7ControllerBridgeNotificationDismissRequestSchema,
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
@@ -226,6 +244,7 @@ export const Civ7ControllerBridgeRequestSchema = Type.Union([
 export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeReadinessCurrentRequest
   | Civ7ControllerBridgeAttentionCurrentRequest
+  | Civ7ControllerBridgeStrategyFrontSummaryRequest
   | Civ7ControllerBridgeNotificationDismissRequest
   | Civ7ControllerBridgeTurnCompleteRequest
   | Civ7ControllerBridgeCityProductionChoiceRequest
@@ -278,6 +297,20 @@ export const Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema =
   );
 export type Civ7ControllerBridgeAttentionCurrentSuccessResponse = Static<
   typeof Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("strategy.frontSummary"),
+      output: Civ7StrategyFrontSummaryResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeStrategyFrontSummarySuccessResponse = Static<
+  typeof Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema
 >;
 
 export const Civ7ControllerBridgeNotificationDismissSuccessResponseSchema =
@@ -411,6 +444,7 @@ export type Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse =
 export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
   Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
@@ -424,6 +458,7 @@ export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
 export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeReadinessCurrentSuccessResponse
   | Civ7ControllerBridgeAttentionCurrentSuccessResponse
+  | Civ7ControllerBridgeStrategyFrontSummarySuccessResponse
   | Civ7ControllerBridgeNotificationDismissSuccessResponse
   | Civ7ControllerBridgeTurnCompleteSuccessResponse
   | Civ7ControllerBridgeCityProductionChoiceSuccessResponse
@@ -525,6 +560,18 @@ export async function invokeCiv7ControllerBridgeRequest(
       return {
         ok: true,
         procedureKey: "readiness.current",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "strategy.frontSummary") {
+      const output = await client.strategy.frontSummary(request.input);
+      return {
+        ok: true,
+        procedureKey: "strategy.frontSummary",
         output,
         ...(request.correlationId == null
           ? {}
@@ -675,6 +722,7 @@ function isUnsupportedProcedureRequest(
   return typeof request.procedureKey === "string"
     && request.procedureKey !== "readiness.current"
     && request.procedureKey !== "attention.current"
+    && request.procedureKey !== "strategy.frontSummary"
     && request.procedureKey !== "notifications.dismiss.request"
     && request.procedureKey !== "turn.complete.request"
     && request.procedureKey !== "city.production.choice.request"
