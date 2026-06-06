@@ -271,6 +271,34 @@ errors, and server-side callers.
   transport expansion, controller allowlisting, and parent Task 5.x/6.x/7.x
   acceptance remain pending
 
+#### Scenario: Civilian route triage service view is added
+- **WHEN** `strategy.civilianRouteTriage` exposes a caller-facing civilian
+  route planning view under the `strategy` router
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedure, route status, source-status projection, relationship-safe
+  reasons, semantic next-step descriptors, and normal output wording
+- **AND** the input is closed and admits only route-read options such as player
+  id, origin, destination, settlement count, and bounded battlefield/route scan
+  limits; it does not accept endpoint, session, state, host, port, command,
+  rawCommand, transport, approval, reason, or send-operation fields
+- **AND** the procedure composes notification, ready-unit, settlement
+  recommendation, battlefield-scan, and destination-analysis runtime/read
+  evidence from context dependencies rather than keeping route-status logic in
+  CLI code or adding a same-shaped direct-control facade wrapper
+- **AND** normal service output emits semantic route triage and next-step
+  descriptors rather than literal CLI `game play ...` command strings
+- **AND** settlement, battlefield, and destination evidence remains read-only
+  planning context and must not be treated as relationship status, movement,
+  founding, target-send authority, or hostile/enemy/opponent/threat/war/ally/
+  suzerain proof
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, raw notification details,
+  raw settlement factors, raw unit/city arrays, and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, movement/founding/action-send
+  authority, transport expansion, controller allowlisting, and parent Task
+  5.x/6.x/7.x acceptance remain pending
+
 #### Scenario: Current world service view is added
 - **WHEN** `world.current` exposes a caller-facing current-world read
 - **THEN** control-oRPC owns the contract-local input/output schemas, native
@@ -351,6 +379,27 @@ errors, and server-side callers.
   details
 - **AND** battlefield evidence remains relationship-safe read-only planning
   context and does not authorize sends or hostile/enemy/opponent/threat labels
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI civilian route triage uses strategy service projection
+- **WHEN** `game play civilian-route-triage` reads settlement, route, and
+  battlefield planning evidence
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the route-triage path calls the in-process
+  `strategy.civilianRouteTriage` server-side client under the `strategy`
+  router
+- **AND** route status, source-status, ready-unit origin inference, settlement
+  destination inference, battlefield evidence, and optional destination
+  analysis composition come from the service procedure
+- **AND** the CLI maps semantic next-step descriptors into command suggestions
+  in CLI output only; native service output remains caller-neutral and does not
+  contain literal CLI `game play ...` command strings
+- **AND** the normal JSON result omits raw host, port, state, session, command,
+  rawCommand, Tuner payloads, direct-control runtime envelopes, raw
+  notification details, raw tactical read-port arrays, and transport details
+- **AND** planning evidence remains relationship-safe read-only context and
+  does not authorize movement, founding, sends, or hostile/enemy/opponent/
+  threat labels
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: Transitional facade-only procedure remains

@@ -7,6 +7,7 @@ import {
   getCiv7PlotSnapshot,
   getCiv7ReadyCityView,
   getCiv7ReadyUnitView,
+  getCiv7SettlementRecommendations,
   getCiv7TargetCandidates,
   getCiv7TurnCompletionStatus,
   requestCiv7AttributePurchase,
@@ -69,6 +70,8 @@ import {
   type Civ7ProductionChoiceInput,
   type Civ7ReadyCityViewInput,
   type Civ7ReadyUnitViewInput,
+  type Civ7SettlementRecommendationInput,
+  Civ7SettlementRecommendationResultSchema,
   type Civ7TargetCandidatesInput,
   type Civ7TechnologyChoiceCloseoutInput,
   type Civ7TechnologyChoiceCloseoutResult,
@@ -144,6 +147,9 @@ export type Civ7ControlOrpcReadyUnitViewResult = Static<
 >;
 export type Civ7ControlOrpcReadyCityViewResult = Static<
   typeof Civ7ReadyCityViewResultSchema
+>;
+export type Civ7ControlOrpcSettlementRecommendationsResult = Static<
+  typeof Civ7SettlementRecommendationResultSchema
 >;
 export type Civ7ControlOrpcTargetCandidatesResult = Static<
   typeof Civ7TargetCandidatesResultSchema
@@ -278,6 +284,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7ReadyCityViewInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcReadyCityViewResult>;
+  getCiv7SettlementRecommendations(
+    input?: Civ7SettlementRecommendationInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcSettlementRecommendationsResult>;
   getCiv7TargetCandidates(
     input?: Civ7TargetCandidatesInput,
     options?: Civ7DirectControlOptions,
@@ -386,6 +396,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
   getCiv7ReadyCityView: async (input, options) =>
     getCiv7ReadyCityView(input, options) as Promise<
       Civ7ControlOrpcReadyCityViewResult
+    >,
+  getCiv7SettlementRecommendations: async (input, options) =>
+    getCiv7SettlementRecommendations(input, options) as Promise<
+      Civ7ControlOrpcSettlementRecommendationsResult
     >,
   getCiv7TargetCandidates: async (input, options) =>
     getCiv7TargetCandidates(input, options) as Promise<

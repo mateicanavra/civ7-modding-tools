@@ -100,6 +100,31 @@ export class Civ7StrategyFrontSummaryUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("strategy.civilianRouteTriage"),
+      source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorCorrelationProperties,
+    },
+    { additionalProperties: false },
+  );
+export type Civ7StrategyCivilianRouteTriageUnavailableErrorData = Static<
+  typeof Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema
+>;
+
+export class Civ7StrategyCivilianRouteTriageUnavailableError extends ORPCTaggedError(
+  "Civ7StrategyCivilianRouteTriageUnavailableError",
+  {
+    code: "STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE",
+    message: "Strategy civilian route triage failed.",
+    schema: toStandardSchema(
+      Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
 export const Civ7WorldCurrentUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("world.current"),
@@ -595,6 +620,8 @@ export const civ7ControlOrpcErrorMap = {
   PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
+  STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE:
+    Civ7StrategyCivilianRouteTriageUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
   TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,

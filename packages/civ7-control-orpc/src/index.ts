@@ -180,6 +180,8 @@ export {
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7ReadinessCurrentUnavailableError,
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
+  Civ7StrategyCivilianRouteTriageUnavailableError,
+  Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema,
   Civ7StrategyFrontSummaryUnavailableError,
   Civ7StrategyFrontSummaryUnavailableErrorDataSchema,
   Civ7TownFocusUnavailableError,
@@ -214,6 +216,7 @@ export {
   type Civ7ProgressionTargetUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
+  type Civ7StrategyCivilianRouteTriageUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
   type Civ7TownFocusUnavailableErrorData,
   type Civ7TurnCompletionUnavailableErrorData,
@@ -392,16 +395,21 @@ export type {
 export { readinessRouter } from "./modules/readiness/router";
 export { readinessCurrentProcedure } from "./modules/readiness/procedures/current";
 export {
+  Civ7StrategyCivilianRouteTriageContract,
   Civ7StrategyContract,
   Civ7StrategyFrontSummaryContract,
 } from "./modules/strategy/contract";
 export type {
+  Civ7StrategyCivilianRouteTriageContract as Civ7StrategyCivilianRouteTriageContractType,
+  Civ7StrategyCivilianRouteTriageInput,
+  Civ7StrategyCivilianRouteTriageResult,
   Civ7StrategyContract as Civ7StrategyContractType,
   Civ7StrategyFrontSummaryContract as Civ7StrategyFrontSummaryContractType,
   Civ7StrategyFrontSummaryInput,
   Civ7StrategyFrontSummaryResult,
 } from "./modules/strategy/contract";
 export { strategyRouter } from "./modules/strategy/router";
+export { strategyCivilianRouteTriageProcedure } from "./modules/strategy/procedures/civilian-route-triage";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
 export {
   Civ7TurnCompletionContract,

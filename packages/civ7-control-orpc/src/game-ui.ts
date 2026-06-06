@@ -386,6 +386,9 @@ function createCiv7GameUiDirectControlFacade(
       await getCiv7GameUiReadyUnitView(input, target),
     getCiv7ReadyCityView: async (input) =>
       await getCiv7GameUiReadyCityView(input, target),
+    getCiv7SettlementRecommendations: async () => {
+      throw new Error("game-ui settlement recommendations are not supported");
+    },
     getCiv7TargetCandidates: async (input) =>
       await getCiv7GameUiTargetCandidates(input, target),
     getCiv7TurnCompletionStatus: async () =>

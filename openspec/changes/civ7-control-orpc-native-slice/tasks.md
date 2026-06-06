@@ -207,6 +207,14 @@ adding more read-only facade shells.
     raw-output exclusion, and the no-CLI-string contract boundary;
     battlefield remains planning evidence only, with no send authority,
     runtime proof, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.19 Record `strategy.civilianRouteTriage` as a service-owned
+    civilian route planning composition over notification, ready-unit,
+    settlement recommendation, battlefield-scan, and destination-analysis
+    runtime/read ports. The service owns route status, reasons, source status,
+    semantic next-step descriptors, raw-output exclusion, and
+    relationship-unproven policy; CLI command strings stay caller-local; no
+    movement/founding/action authority, runtime proof, controller bridge, or
+    parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -340,6 +348,14 @@ adding more read-only facade shells.
     battlefield evidence relationship-safe and read-only, and keep runtime
     proof, action-send authority, transport expansion, and parent Task
     5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.18 Seed `strategy.civilianRouteTriage` as a native service-owned
+    strategy procedure that composes current notification, ready-unit,
+    settlement recommendation, battlefield, and destination evidence into a
+    semantic civilian route triage. Keep caller input/output schemas
+    contract-local, keep CLI command suggestions out of service output, keep
+    settlement and battlefield evidence relationship-safe and read-only, and
+    keep runtime proof, movement/founding/action authority, controller bridge,
+    transport expansion, and parent Task 5.x/6.x/7.x acceptance pending.
 
 ## 6. Native Policy Layering
 
@@ -634,6 +650,16 @@ adding more read-only facade shells.
     host/port/state/session/Tuner payloads and direct-control envelopes from
     normal JSON, and avoid transport, relationship-label, action-send, or
     runtime-proof claims.
+  - [x] 7.1.9.9 Route `civ7 game play civilian-route-triage` through the
+    in-process `strategy.civilianRouteTriage` server-side client under the
+    `strategy` router. Move route-status, source-status, settlement,
+    battlefield, destination, and semantic next-step composition into the
+    service procedure. Keep endpoint flags as context construction, keep CLI
+    command-string suggestions as CLI presentation only, emit
+    relationship-safe read-only route planning output, omit raw
+    host/port/state/session/Tuner payloads and direct-control envelopes from
+    normal JSON, and avoid controller bridge, transport, relationship-label,
+    movement/founding/action-send, or runtime-proof claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1388,6 +1414,16 @@ adding more read-only facade shells.
   package/CLI proof only and does not claim deployed Civ7 runtime proof,
   play-thread action, transport expansion, relationship labels beyond official
   evidence, action-send authority, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.18 Run focused strategy-civilian-route-triage and CLI tactical-read
+  tests plus control-oRPC package test/check/build, CLI play/check gates,
+  strict OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, service-output CLI-string scan, and diff
+  hygiene for the `strategy.civilianRouteTriage` service-composition expansion
+  and `game play civilian-route-triage` in-process oRPC caller migration. This
+  is local package/CLI proof only and does not claim deployed Civ7 runtime
+  proof, play-thread action, controller bridge, transport expansion,
+  relationship labels beyond official evidence, movement/founding/action-send
+  authority, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
