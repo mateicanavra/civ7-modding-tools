@@ -33,12 +33,17 @@ type RehydrateSnapshot = Readonly<{
     warnings: ReadonlyArray<string>;
   }>;
   commonActions: ReadonlyArray<{
+    kind: string;
     label: string;
-    cli: string;
+    parameters: Record<string, unknown>;
+    readOnly: boolean;
+    sendsMutation: boolean;
     when: string;
   }>;
   notes: ReadonlyArray<string>;
 }>;
+
+type RehydrateCommonAction = RehydrateSnapshot['commonActions'][number];
 
 export default class GamePlayRehydrate extends Command {
   static id = 'game play rehydrate';
@@ -130,7 +135,7 @@ export default class GamePlayRehydrate extends Command {
       this.log(`Ready-unit view: ${formatValue(readyUnit.unitId)} ${formatProbe(readyUnit.unit)}`);
     }
     this.log('Common actions:');
-    for (const action of snapshot.commonActions) this.log(`- ${action.label}: ${action.cli}`);
+    for (const action of snapshot.commonActions) this.log(`- ${action.label}: ${action.kind}`);
     for (const note of snapshot.notes) this.log(`Note: ${note}`);
   }
 }
@@ -217,30 +222,48 @@ function buildCommonActions(
   notifications: Civ7PlayNotificationViewResult,
   readyUnit: Civ7ReadyUnitViewResult | null,
 ): RehydrateSnapshot['commonActions'] {
-  const actions = [
+  const actions: RehydrateCommonAction[] = [
     {
+      kind: 'refresh-notifications',
       label: 'refresh live blocker HUD',
-      cli: 'game play notifications --json',
+      parameters: { maxNotifications: notifications.limits.maxNotifications },
+      readOnly: true,
+      sendsMutation: false,
       when: 'before acting on any stale watcher or active-agent assumption',
     },
   ];
   if (readyUnit?.unitId) {
     actions.push({
+      kind: 'inspect-ready-unit',
       label: 'inspect current ready unit',
-      cli: `game play ready-unit --unit-id '${JSON.stringify(readyUnit.unitId)}' --json`,
+      parameters: { unitId: readyUnit.unitId },
+      readOnly: true,
+      sendsMutation: false,
       when: 'before choosing movement, attack, fortify, skip, or other unit action',
     });
   } else if (probeValue(notifications.firstReadyUnitId)) {
     actions.push({
+      kind: 'inspect-ready-unit',
       label: 'inspect first ready unit',
-      cli: 'game play ready-unit --json',
+      parameters: {},
+      readOnly: true,
+      sendsMutation: false,
       when: 'before choosing a unit action',
     });
   }
-  if (notifications.hud.nextDecision?.cli) {
+  if (notifications.hud.nextDecision) {
+    const decision = notifications.hud.nextDecision as Record<string, unknown>;
     actions.push({
+      kind: 'handle-hud-decision',
       label: 'handle next HUD decision',
-      cli: notifications.hud.nextDecision.cli,
+      parameters: {
+        category: decision.category,
+        operationFamily: decision.operationFamily,
+        operationType: decision.operationType,
+        target: decision.target,
+      },
+      readOnly: false,
+      sendsMutation: true,
       when: 'after collecting the required inputs named by the HUD decision',
     });
   }

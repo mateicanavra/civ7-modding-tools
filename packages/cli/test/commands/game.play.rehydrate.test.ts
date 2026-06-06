@@ -27,12 +27,31 @@ describe('game play rehydrate command', () => {
         snapshot: {
           readyUnit: unknown;
           continuity: { status: string; warnings: string[] };
+          commonActions: Array<{
+            kind: string;
+            parameters: Record<string, unknown>;
+            readOnly: boolean;
+            sendsMutation: boolean;
+          }>;
         };
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.snapshot.readyUnit).not.toBeNull();
       expect(payload.snapshot.continuity.status).toBe('mismatch');
       expect(payload.snapshot.continuity.warnings[0]).toMatch(/turn mismatch/);
+      expect(payload.snapshot.commonActions).toContainEqual(expect.objectContaining({
+        kind: 'refresh-notifications',
+        parameters: { maxNotifications: 25 },
+        readOnly: true,
+        sendsMutation: false,
+      }));
+      expect(payload.snapshot.commonActions).toContainEqual(expect.objectContaining({
+        kind: 'inspect-ready-unit',
+        parameters: { unitId: { owner: 0, id: 458752, type: 26 } },
+        readOnly: true,
+        sendsMutation: false,
+      }));
+      expect(JSON.stringify(payload.snapshot.commonActions)).not.toContain('game play ');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);

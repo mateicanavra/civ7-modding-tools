@@ -928,6 +928,14 @@ adding more read-only facade shells.
     Civ7 proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
     unchanged; caller-provided approval remains retired and no approval-reason
     mechanic is introduced.
+  - [x] 7.1.9.29 Simplify `civ7 game play rehydrate` common action guidance so
+    restart snapshots emit semantic `commonActions` descriptors instead of
+    `cli` command recipes. Keep command help responsible for exact flag
+    combinations, and keep direct-control notification/ready-unit reads,
+    continuity checks, parser flags, runtime behavior, controller bridge,
+    deployed Civ7 proof, relationship authority, and parent Task 5.x/6.x/7.x
+    acceptance unchanged; caller-provided approval remains retired and no
+    approval-reason mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1919,6 +1927,15 @@ adding more read-only facade shells.
   behavior, play-thread state, transport/controller scope, relationship
   authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
   remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.42 Run focused CLI rehydrate tests, `check:cli`, strict OpenSpec
+  validates, rehydrate common-action command-recipe output scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the rehydrate common action guidance simplification. This is local
+  CLI/OpenSpec proof only; it does not change service behavior or contracts,
+  runtime read behavior, parser flags, deployed Civ7 runtime behavior,
+  play-thread state, transport/controller scope, relationship authority, or
+  parent Task 5.x/6.x/7.x acceptance; caller-provided approval remains retired
+  and no approval-reason mechanic is introduced.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
