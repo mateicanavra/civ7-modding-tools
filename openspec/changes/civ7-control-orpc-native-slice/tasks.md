@@ -603,6 +603,16 @@ adding more read-only facade shells.
     not-sent/no-repeat output for blocked and already-sent paths; keep raw
     game-UI function names, command/session/state details, deployed Civ7
     proof, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.19 Add a game-resident production-choice runtime dependency for
+    `city.production.choice.request`: expose ambient
+    `Game.CityOperations.canStart/sendRequest`, `CityOperationTypes.BUILD`,
+    city, notification-blocker, and selected-city evidence through the
+    existing service-owned city production procedure; advertise the mutation
+    only when those exact game UI APIs and controller proof exist; preserve
+    semantic validator-blocked not-sent and no-repeat proof output; keep raw
+    game-UI function names, command/session/state details, deployed Civ7
+    proof, play-thread action, other city mutation ports, and full `7.3`
+    acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -731,6 +741,12 @@ adding more read-only facade shells.
   authority cleanup only and does not claim source behavior changes, deployed
   Civ7 runtime proof, play-thread action, or full parent Task 6.x/7.3
   acceptance.
+- [x] 8.49 Run focused game-ui controller and city-production-choice procedure
+  tests plus control-oRPC check/build/test, controller mod package check/build/test
+  with bundle scan, strict OpenSpec validates, and diff hygiene for the
+  game-resident production-choice runtime dependency. These are local package
+  and bundle proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, other city mutation ports, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

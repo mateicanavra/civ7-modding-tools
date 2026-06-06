@@ -8,6 +8,8 @@ import {
 
 describe("Civ7 game UI controller bootstrap", () => {
   const notificationId = { owner: 0, id: 113, type: 20 };
+  const cityId = { owner: 0, id: 65_536, type: 1 };
+  const productionArgs = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
 
   test("installs the intelligence bridge with a game UI readiness context", async () => {
     const target = gameUiTarget();
@@ -235,6 +237,253 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain("\"port\"");
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("\"command\"");
+  });
+
+  test("executes production choice through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: cityId,
+      productionChoice: {
+        cityId,
+        canStart: true,
+        clearBlockerOnSend: true,
+        onSend: (args) => sendCalls.push(args),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-production-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "city.production.choice.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.production.choice.request",
+      input: { cityId, args: productionArgs },
+      correlationId: "game-ui-production-choice-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "city.production.choice.request",
+      correlationId: "game-ui-production-choice-1",
+      output: {
+        cityId,
+        args: productionArgs,
+        sent: true,
+        status: "sent-confirmed",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "production-choice-cleared",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+          blockerStillLive: false,
+        },
+        nextSteps: [{
+          kind: "refresh-attention",
+          source: "city.production.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([productionArgs]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("Game.CityOperations");
+    expect(serialized).not.toContain("sendRequest");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+  });
+
+  test("keeps game UI production validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: cityId,
+      productionChoice: {
+        cityId,
+        canStart: false,
+        onSend: (args) => sendCalls.push(args),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.production.choice.request",
+      input: { cityId, args: productionArgs },
+      correlationId: "game-ui-production-blocked-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: false,
+        status: "not-sent",
+        validation: {
+          beforeValid: false,
+          afterValid: false,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "inspect-production",
+          source: "city.production.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("keeps failed game UI production blocker reads no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: cityId,
+      productionChoice: {
+        cityId,
+        canStart: true,
+        blockerReadFailsAfterSend: true,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.production.choice.request",
+      input: { cityId, args: productionArgs },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "production-state-changed-blocker-still-live",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+          blockerStillLive: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "city.production.choice.request",
+        }],
+      },
+    });
+  });
+
+  test("keeps unrelated game UI production blocker evidence guarded", async () => {
+    const otherCityId = { owner: 0, id: 65_537, type: 1 };
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: otherCityId,
+      productionChoice: {
+        cityId,
+        canStart: true,
+        clearBlockerOnSend: true,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.production.choice.request",
+      input: { cityId, args: productionArgs },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "production-state-changed-blocker-still-live",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+          blockerStillLive: true,
+        },
+      },
+    });
+  });
+
+  test("keeps live matching game UI production blockers guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: cityId,
+      productionChoice: {
+        cityId,
+        canStart: true,
+        clearBlockerOnSend: false,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.production.choice.request",
+      input: { cityId, args: productionArgs },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "production-state-changed-blocker-still-live",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+          blockerStillLive: true,
+        },
+      },
+    });
+  });
+
+  test("does not confirm game UI production from selected-city changes alone", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: cityId,
+      selectedCityId: cityId,
+      productionChoice: {
+        cityId,
+        canStart: true,
+        changeProductionStateOnSend: false,
+        clearSelectedCityOnSend: true,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "city.production.choice.request",
+      input: { cityId, args: productionArgs },
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "no-state-change",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+          productionStateChanged: false,
+          blockerStillLive: true,
+        },
+      },
+    });
   });
 
   test("keeps blocked game UI turn completion semantic and no-repeat guarded", async () => {
@@ -729,11 +978,22 @@ function gameUiNotificationTarget(
       onSend?: () => void;
       onDeselect?: () => void;
     };
+    productionChoice?: {
+      cityId: { owner: number; id: number; type: number };
+      canStart?: boolean;
+      clearBlockerOnSend?: boolean;
+      blockerReadFailsAfterSend?: boolean;
+      changeProductionStateOnSend?: boolean;
+      clearSelectedCityOnSend?: boolean;
+      onSend?: (args: Readonly<Record<string, number>>) => void;
+    };
   }> = {},
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
   let exists = true;
   let turnCompletionSent = options.turnCompletion?.initiallySent ?? false;
+  let productionSent = false;
+  let selectedCityCleared = false;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
     Type: notificationId.type,
@@ -749,12 +1009,38 @@ function gameUiNotificationTarget(
 
   return {
     ...target,
+    CityOperationTypes: options.productionChoice == null
+      ? undefined
+      : { BUILD: "BUILD" },
+    Cities: options.productionChoice == null
+      ? undefined
+      : {
+          get: (id) =>
+            componentIdEqual(id, options.productionChoice?.cityId)
+              ? {
+                isTown: false,
+                BuildQueue: {
+                  currentProductionTypeHash:
+                    productionSent
+                      && options.productionChoice?.changeProductionStateOnSend !== false
+                      ? 99
+                      : 1,
+                },
+              }
+              : null,
+        },
     UI: {
       ...target.UI,
       Player: {
         getHeadSelectedUnit: () => options.selectedUnitId ?? null,
         getFirstReadyUnit: () => options.firstReadyUnitId ?? null,
-        getHeadSelectedCity: () => options.selectedCityId ?? null,
+        getHeadSelectedCity: () =>
+          selectedCityCleared ? null : options.selectedCityId ?? null,
+        deselectAllCities: () => {
+          if (options.productionChoice?.clearSelectedCityOnSend === true) {
+            selectedCityCleared = true;
+          }
+        },
         deselectAllUnits: () => options.turnCompletion?.onDeselect?.(),
       },
     },
@@ -773,6 +1059,19 @@ function gameUiNotificationTarget(
     canEndTurn: () => options.canEndTurn ?? false,
     Game: {
       ...target.Game,
+      CityOperations: options.productionChoice == null
+        ? undefined
+        : {
+            canStart: () => ({ Success: options.productionChoice?.canStart ?? true }),
+            sendRequest: (_cityId, _operationType, args) => {
+              options.productionChoice?.onSend?.(args);
+              productionSent = true;
+              if (options.productionChoice?.clearBlockerOnSend === true) {
+                exists = false;
+              }
+              return true;
+            },
+          },
       Notifications: {
         find: () => exists ? notification : null,
         getType: () => notificationId.type,
@@ -780,8 +1079,15 @@ function gameUiNotificationTarget(
         getSummary: () => "Wonder Completed",
         getMessage: () => "Wonder Completed",
         getBlocksTurnAdvancement: () => blocksTurnAdvancement,
-        getEndTurnBlockingType: () =>
-          blocksTurnAdvancement ? notificationId.type : 0,
+        getEndTurnBlockingType: () => {
+          if (
+            productionSent
+            && options.productionChoice?.blockerReadFailsAfterSend === true
+          ) {
+            throw new Error("production blocker read failed");
+          }
+          return blocksTurnAdvancement ? notificationId.type : 0;
+        },
         findEndTurnBlocking: () =>
           exists && blocksTurnAdvancement ? notificationId : null,
         getIdsForPlayer: () =>
@@ -803,4 +1109,13 @@ function gameUiNotificationTarget(
       },
     },
   };
+}
+
+function componentIdEqual(
+  left: { owner: number; id: number; type?: number } | null | undefined,
+  right: { owner: number; id: number; type?: number } | null | undefined,
+): boolean {
+  return left?.owner === right?.owner
+    && left?.id === right?.id
+    && (left?.type ?? null) === (right?.type ?? null);
 }

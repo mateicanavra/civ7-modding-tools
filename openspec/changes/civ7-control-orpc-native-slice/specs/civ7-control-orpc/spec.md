@@ -674,6 +674,33 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   runtime behavior only; deployed Civ7 runtime proof, other game UI mutation
   ports, play-thread action, and full `7.3` implementation remain pending
 
+#### Scenario: Game UI controller supports production choice
+- **WHEN** the game-scoped controller context exposes ambient production-choice
+  APIs for `Game.CityOperations.canStart`, `Game.CityOperations.sendRequest`,
+  `CityOperationTypes.BUILD`, city state, and notification blocker evidence
+- **THEN** the context may execute the service-owned
+  `city.production.choice.request` procedure through the existing in-process
+  router and native readiness/proof middleware
+- **AND** `city.production.choice.request` is listed as a supported game-UI
+  mutation only when controller proof and the required ambient validation,
+  send, and blocker-read APIs are present
+- **AND** validator-blocked production choices project semantic `not-sent`
+  output and do not call the send API
+- **AND** `production-choice-cleared` requires a matching production blocker
+  before the send and post-send evidence that that matching blocker is absent
+  or no longer city-matching
+- **AND** failed, missing, unrelated, or still-live blocker evidence remains
+  unconfirmed and no-repeat guarded unless city/buildQueue/validator evidence
+  proves an accepted production-state outcome
+- **AND** selected-city/interface changes alone do not count as confirmed
+  production-state proof
+- **AND** normal bridge success output remains the semantic production-choice
+  result and omits host, port, state, command, rawCommand, session, tuner
+  payloads, raw game-UI function names, and direct-control socket details
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, other city mutation
+  ports, play-thread action, and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control

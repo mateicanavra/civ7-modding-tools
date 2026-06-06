@@ -17,6 +17,11 @@ import {
   requestCiv7GameUiTurnComplete,
   type Civ7GameUiAttentionTarget,
 } from "./game-ui-attention";
+import {
+  civ7GameUiProductionChoiceAvailable,
+  requestCiv7GameUiProductionChoice,
+  type Civ7GameUiProductionTarget,
+} from "./game-ui-production";
 import type {
   Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcPlayableStatusResult,
@@ -53,7 +58,7 @@ export type Civ7GameUiRuntimeTarget = {
     hasSentTurnComplete?: () => boolean;
     sendTurnComplete?: () => unknown;
   };
-  Game?: {
+  Game?: Civ7GameUiProductionTarget["Game"] & {
     turn?: number;
     age?: number;
     maxTurns?: number;
@@ -61,6 +66,9 @@ export type Civ7GameUiRuntimeTarget = {
     getHash?: () => number;
     Notifications?: Civ7GameUiNotifications;
   };
+  CityOperationTypes?: Civ7GameUiProductionTarget["CityOperationTypes"];
+  CityOperationsParametersValues?:
+    Civ7GameUiProductionTarget["CityOperationsParametersValues"];
   Autoplay?: {
     isActive?: boolean;
     turns?: number;
@@ -89,7 +97,13 @@ export type Civ7GameUiRuntimeTarget = {
     getPlotCount?: () => number;
     getMapSize?: () => number;
     getRandomSeed?: () => number;
+    getLocationFromIndex?: Civ7GameUiProductionTarget["GameplayMap"] extends infer Map
+      ? Map extends { getLocationFromIndex?: infer Fn } ? Fn : never
+      : never;
   };
+  Cities?: Civ7GameUiProductionTarget["Cities"];
+  InterfaceMode?: Civ7GameUiProductionTarget["InterfaceMode"];
+  PlotCursor?: Civ7GameUiProductionTarget["PlotCursor"];
   Configuration?: {
     getGame?: () => { skipStartButton?: boolean };
   };
@@ -146,7 +160,8 @@ function createCiv7GameUiDirectControlFacade(
   };
 
   return {
-    requestCiv7ProductionChoice: unsupported,
+    requestCiv7ProductionChoice: async (input) =>
+      await requestCiv7GameUiProductionChoice(input, target),
     requestCiv7NotificationDismissal: async (input) =>
       await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: unsupported,
@@ -214,6 +229,9 @@ function gameUiSupportedMutationProcedures(
   const supported: string[] = [];
   if (gameUiNotificationDismissalAvailable(target)) {
     supported.push("notifications.dismiss.request");
+  }
+  if (civ7GameUiProductionChoiceAvailable(target)) {
+    supported.push("city.production.choice.request");
   }
   if (gameUiTurnCompletionAvailable(target)) {
     supported.push("turn.complete.request");
