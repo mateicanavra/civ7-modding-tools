@@ -862,6 +862,14 @@ adding more read-only facade shells.
     controller bridge, deployed Civ7 proof, and parent Task 5.x/6.x/7.x
     acceptance unchanged; caller-provided approval remains retired and no
     approval-reason mechanic is introduced.
+  - [x] 7.1.9.21 Simplify `civ7 game play front-summary` follow-up suggestions
+    so CLI JSON/human output presents the service's semantic next-step labels
+    instead of expanding each descriptor into literal command-and-flag recipes.
+    Keep command help responsible for exhaustive interface detail, and keep
+    service behavior, parser flags, runtime reads, controller bridge, deployed
+    Civ7 proof, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1771,6 +1779,15 @@ adding more read-only facade shells.
   OpenSpec validates, formation command-recipe output scan, active
   approval/caller-permission scan, relationship-label safety scan, and diff
   hygiene for the formation follow-up simplification. This is local
+  CLI/OpenSpec proof only; it does not change service behavior or contracts,
+  parser flags, deployed Civ7 runtime behavior, play-thread state,
+  transport/controller scope, relationship authority, or parent
+  Task 5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
+- [x] 8.60.34 Run focused CLI tactical-read tests, `check:cli`, strict
+  OpenSpec validates, front-summary command-recipe output scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the front-summary follow-up simplification. This is local
   CLI/OpenSpec proof only; it does not change service behavior or contracts,
   parser flags, deployed Civ7 runtime behavior, play-thread state,
   transport/controller scope, relationship authority, or parent

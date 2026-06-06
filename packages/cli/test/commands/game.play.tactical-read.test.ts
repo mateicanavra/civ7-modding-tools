@@ -97,7 +97,8 @@ describe('game play tactical read commands', () => {
       expect(payload.view.target).toEqual({ x: 13, y: 17 });
       expect(payload.view.summary.pressure.some((item) => item.source === 'battlefield')).toBe(true);
       expect(payload.view.summary.pressure.some((item) => item.source === 'destination')).toBe(true);
-      expect(payload.view.summary.nextInspections.some((item) => item.includes('unit-target'))).toBe(true);
+      expect(payload.view.summary.nextInspections.some((item) => item.includes('unit action validation'))).toBe(true);
+      expect(JSON.stringify(payload.view.summary.nextInspections)).not.toContain('game play ');
       expectPositiveRelationshipLabels([
         ...payload.view.summary.pressure.map((item) => item.summary ?? ''),
         ...payload.view.summary.risks,
