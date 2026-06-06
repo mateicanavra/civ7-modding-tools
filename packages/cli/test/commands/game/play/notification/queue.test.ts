@@ -27,6 +27,8 @@ describe('game play notification queue command', () => {
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
       expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(false);
+      expect(payload.view.notes.join('\n')).toContain('item-level context');
+      expect(payload.view.notes.join('\n')).not.toMatch(/\breason\b/i);
     } finally {
       await server.close();
     }
@@ -121,6 +123,7 @@ async function runNotificationQueue(mode: QueueMode) {
         safeToBatch: boolean;
         typeName: string | null;
       }>;
+      notes: string[];
     };
   };
   expectNormalPlayPayloadToOmitDebugInternals(payload);
