@@ -13,6 +13,8 @@ describe("Civ7 game UI controller bootstrap", () => {
   const populationDestination = { x: 22, y: 31 };
   const diplomacyActionId = 8_821;
   const diplomacyResponseType = -1_713_616_684;
+  const unitId = { owner: 0, id: 42, type: 1 };
+  const unitTarget = { x: 22, y: 31 };
 
   test("installs the intelligence bridge with a game UI readiness context", async () => {
     const target = gameUiTarget();
@@ -1361,6 +1363,246 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
+  test("executes unit target action through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      unitTargetAction: {
+        unitId,
+        target: unitTarget,
+        onSend: (family, operationType, args) =>
+          sendCalls.push({ family, operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-unit-target-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "unit.target.action.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.target.action.request",
+      input: {
+        unitId,
+        ...unitTarget,
+      },
+      correlationId: "game-ui-unit-target-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "unit.target.action.request",
+      correlationId: "game-ui-unit-target-1",
+      output: {
+        unitId,
+        target: unitTarget,
+        sent: true,
+        status: "sent-confirmed",
+        validation: {
+          selected: {
+            family: "unit-operation",
+            operationType: "MOVE_TO",
+            valid: true,
+            targetInReturnedPlots: true,
+          },
+        },
+        postcondition: {
+          classification: "target-reached",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+          destinationReached: true,
+        },
+        nextSteps: [{
+          kind: "refresh-attention",
+          source: "unit.target.action.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{
+      family: "unit-operation",
+      operationType: "MOVE_TO",
+      args: { X: 22, Y: 31, Modifiers: 3 },
+    }]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("Game.UnitOperations");
+    expect(serialized).not.toContain("Game.UnitCommands");
+    expect(serialized).not.toContain("sendRequest");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"sendResult\"");
+    expect(serialized).not.toContain("\"result\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+  });
+
+  test("blocks game UI unit target sends for non-local unit owners", async () => {
+    const sendCalls: unknown[] = [];
+    const foreignUnitId = { owner: 2, id: 42, type: 1 };
+    const target = gameUiNotificationTarget(notificationId, {
+      unitTargetAction: {
+        unitId: foreignUnitId,
+        target: unitTarget,
+        onSend: (family, operationType, args) =>
+          sendCalls.push({ family, operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.target.action.request",
+      input: {
+        unitId: foreignUnitId,
+        ...unitTarget,
+      },
+      correlationId: "game-ui-unit-target-foreign-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: false,
+        status: "not-sent",
+        validation: {
+          candidateCount: 0,
+          acceptedCandidateCount: 0,
+          selected: null,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("keeps game UI unit target path shortfalls no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      unitTargetAction: {
+        unitId,
+        target: unitTarget,
+        landedLocation: { x: 21, y: 31 },
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.target.action.request",
+      input: {
+        unitId,
+        ...unitTarget,
+      },
+      correlationId: "game-ui-unit-target-shortfall-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-guarded",
+        postcondition: {
+          classification: "path-shortfall",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: true,
+          destinationReached: false,
+          landedLocation: { x: 21, y: 31 },
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "unit.target.action.request",
+        }],
+      },
+    });
+  });
+
+  test("keeps game UI unit target validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      unitTargetAction: {
+        unitId,
+        target: unitTarget,
+        canMoveTo: false,
+        onSend: (family, operationType, args) =>
+          sendCalls.push({ family, operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.target.action.request",
+      input: {
+        unitId,
+        ...unitTarget,
+      },
+      correlationId: "game-ui-unit-target-blocked-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: false,
+        status: "not-sent",
+        validation: {
+          acceptedCandidateCount: 0,
+          selected: null,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("does not advertise game UI unit target without unit command APIs", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      unitTargetAction: {
+        unitId,
+        target: unitTarget,
+      },
+    });
+    if (target.Game != null) {
+      target.Game.UnitCommands = undefined;
+    }
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.target.action.request",
+      input: {
+        unitId,
+        ...unitTarget,
+      },
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      error: {
+        code: "MUTATION_READINESS_REQUIRED",
+        message: "Playable Civ7 readiness is required before mutation.",
+        reason: "procedure-failed",
+      },
+    });
+  });
+
   test("keeps blocked game UI turn completion semantic and no-repeat guarded", async () => {
     const sendCalls: string[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -1908,6 +2150,19 @@ function gameUiNotificationTarget(
         }>,
       ) => void;
     };
+    unitTargetAction?: {
+      unitId: { owner: number; id: number; type: number };
+      target: { x: number; y: number };
+      canMoveTo?: boolean;
+      landedLocation?: { x: number; y: number };
+      moveTargetInReturnedPlots?: boolean;
+      targetUnitsChangeOnSend?: boolean;
+      onSend?: (
+        family: "unit-operation" | "unit-command",
+        operationType: string,
+        args: Readonly<Record<string, number>>,
+      ) => void;
+    };
   }> = {},
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
@@ -1916,6 +2171,7 @@ function gameUiNotificationTarget(
   let productionSent = false;
   let populationSent = false;
   let progressionSent = false;
+  let unitTargetSent = false;
   let selectedCityCleared = false;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
@@ -1938,6 +2194,24 @@ function gameUiNotificationTarget(
     CityCommandTypes: options.populationPlacement == null
       ? undefined
       : { EXPAND: "EXPAND" },
+    UnitCommandTypes: options.unitTargetAction == null
+      ? undefined
+      : { UNITCOMMAND_ARMY_OVERRUN: "UNITCOMMAND_ARMY_OVERRUN" },
+    UnitOperationMoveModifiers: options.unitTargetAction == null
+      ? undefined
+      : {
+          ATTACK: 1,
+          MOVE_IGNORE_UNEXPLORED_DESTINATION: 2,
+        },
+    UnitOperationTypes: options.unitTargetAction == null
+      ? undefined
+      : {
+          UNITOPERATION_NAVAL_ATTACK: "UNITOPERATION_NAVAL_ATTACK",
+          UNITOPERATION_AIR_ATTACK: "UNITOPERATION_AIR_ATTACK",
+          UNITOPERATION_RANGE_ATTACK: "UNITOPERATION_RANGE_ATTACK",
+          UNITOPERATION_SWAP_UNITS: "UNITOPERATION_SWAP_UNITS",
+          MOVE_TO: "MOVE_TO",
+        },
     PlayerOperationTypes: {
       ...(options.populationPlacement == null
         ? {}
@@ -2017,6 +2291,54 @@ function gameUiNotificationTarget(
               })()
               : null,
         },
+    GameplayMap: {
+      ...target.GameplayMap,
+      getIndexFromLocation: (location) => location.x * 1_000 + location.y,
+      getIndexFromXY: (x, y) => x * 1_000 + y,
+    },
+    MapUnits: options.unitTargetAction == null
+      ? undefined
+      : {
+          getUnits: (x, y) =>
+            x === options.unitTargetAction?.target.x
+              && y === options.unitTargetAction.target.y
+              && unitTargetSent
+              && options.unitTargetAction.targetUnitsChangeOnSend === true
+              ? [{ owner: 1, id: 99, type: 1 }]
+              : [],
+        },
+    Units: options.unitTargetAction == null
+      ? undefined
+      : {
+          get: (id) => {
+            if (!componentIdEqual(id, options.unitTargetAction?.unitId)) {
+              return null;
+            }
+            return {
+              id: options.unitTargetAction.unitId,
+              owner: options.unitTargetAction.unitId.owner,
+              type: options.unitTargetAction.unitId.type,
+              location: unitTargetSent
+                ? options.unitTargetAction.landedLocation
+                  ?? options.unitTargetAction.target
+                : { x: 20, y: 31 },
+              Movement: {
+                movementMovesRemaining: unitTargetSent ? 0 : 1,
+                movementTurnsRemaining: 0,
+              },
+              Combat: {
+                attacksRemaining: 1,
+                rangedStrength: 5,
+                bombardStrength: 0,
+                getMeleeStrength: () => 10,
+              },
+              Health: {
+                damage: 0,
+                hitPoints: 100,
+              },
+            };
+          },
+        },
     UI: {
       ...target.UI,
       Player: {
@@ -2080,6 +2402,46 @@ function gameUiNotificationTarget(
               if (options.productionChoice?.clearBlockerOnSend === true) {
                 exists = false;
               }
+              return true;
+            },
+          },
+      UnitCommands: options.unitTargetAction == null
+        ? undefined
+        : {
+            canStart: () => ({ Success: false, Plots: [] }),
+            sendRequest: (_unitId, commandType, args) => {
+              options.unitTargetAction?.onSend?.(
+                "unit-command",
+                String(commandType),
+                args,
+              );
+              unitTargetSent = true;
+              return true;
+            },
+          },
+      UnitOperations: options.unitTargetAction == null
+        ? undefined
+        : {
+            canStart: (_unitId, operationType) => {
+              const isMove = String(operationType) === "MOVE_TO";
+              const targetIndex = options.unitTargetAction == null
+                ? -1
+                : options.unitTargetAction.target.x * 1_000
+                  + options.unitTargetAction.target.y;
+              return {
+                Success: isMove && (options.unitTargetAction?.canMoveTo ?? true),
+                Plots: options.unitTargetAction?.moveTargetInReturnedPlots === false
+                  ? []
+                  : [targetIndex],
+              };
+            },
+            sendRequest: (_unitId, operationType, args) => {
+              options.unitTargetAction?.onSend?.(
+                "unit-operation",
+                String(operationType),
+                args,
+              );
+              unitTargetSent = true;
               return true;
             },
           },

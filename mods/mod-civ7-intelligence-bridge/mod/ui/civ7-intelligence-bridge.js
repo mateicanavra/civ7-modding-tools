@@ -26845,8 +26845,8 @@ function notificationDismissalPostconditionReason(classification) {
       return "The dismissal was sent, but notification identity evidence did not confirm disappearance, queue removal, or front movement.";
   }
 }
-function probeValue2(probe8) {
-  return probe8.ok ? probe8.value : void 0;
+function probeValue2(probe9) {
+  return probe9.ok ? probe9.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZXTU55QH.js
@@ -27003,8 +27003,8 @@ function progressionChoiceDetailsChanged(left3, right3) {
 }
 function probeValue(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe8 = value2;
-    return probe8.ok === true ? probe8.value ?? null : null;
+    const probe9 = value2;
+    return probe9.ok === true ? probe9.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -27118,8 +27118,8 @@ function turnCompletionNoRepeatAfterUnverified(classification) {
       return true;
   }
 }
-function probeValue3(probe8) {
-  return probe8.ok ? probe8.value : void 0;
+function probeValue3(probe9) {
+  return probe9.ok ? probe9.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZGRAA6DD.js
@@ -29999,21 +29999,21 @@ function skippedSourceStatus(playableStatus) {
     readyCity: skipped
   };
 }
-function probeValue4(probe8) {
-  if (probe8 == null || typeof probe8 !== "object") return null;
-  if (!("ok" in probe8) || probe8.ok !== true) return null;
-  if (!("value" in probe8)) return null;
-  return probe8.value;
+function probeValue4(probe9) {
+  if (probe9 == null || typeof probe9 !== "object") return null;
+  if (!("ok" in probe9) || probe9.ok !== true) return null;
+  if (!("value" in probe9)) return null;
+  return probe9.value;
 }
 function componentIdFromUnknown(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
-  const candidate = "cityId" in value2 ? value2.cityId : value2;
-  if (candidate == null || typeof candidate !== "object") return null;
-  if (!("owner" in candidate) || typeof candidate.owner !== "number") return null;
-  if (!("id" in candidate) || typeof candidate.id !== "number") return null;
-  const out = { owner: candidate.owner, id: candidate.id };
-  if ("type" in candidate && typeof candidate.type === "number") {
-    out.type = candidate.type;
+  const candidate2 = "cityId" in value2 ? value2.cityId : value2;
+  if (candidate2 == null || typeof candidate2 !== "object") return null;
+  if (!("owner" in candidate2) || typeof candidate2.owner !== "number") return null;
+  if (!("id" in candidate2) || typeof candidate2.id !== "number") return null;
+  const out = { owner: candidate2.owner, id: candidate2.id };
+  if ("type" in candidate2 && typeof candidate2.type === "number") {
+    out.type = candidate2.type;
   }
   return out;
 }
@@ -30724,8 +30724,8 @@ function booleanProbeValue(value2) {
 }
 function probeValue22(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe8 = value2;
-    return probe8.ok === true ? probe8.value ?? null : null;
+    const probe9 = value2;
+    return probe9.ok === true ? probe9.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -30892,8 +30892,8 @@ function readinessNextSteps(status, context5) {
 function supportsAttentionCurrent(context5) {
   return context5.controller?.supportedReadProcedures?.includes("attention.current") === true;
 }
-function probeValue32(probe8) {
-  return probe8.ok ? probe8.value : null;
+function probeValue32(probe9) {
+  return probe9.ok ? probe9.value : null;
 }
 var readinessRouter = {
   current: readinessCurrentProcedure
@@ -30956,18 +30956,18 @@ function strategyFrontSummaryResult({
   battlefieldScan
 }) {
   const targetCandidateSummaries = targetCandidates.candidates.map(
-    (candidate) => ({
-      owner: candidate.owner,
+    (candidate2) => ({
+      owner: candidate2.owner,
       relationship: "relationship-unproven",
       relationshipProof: "none",
-      nearestDistance: candidate.nearestDistance,
-      cityCount: candidate.cityCount,
-      unitCount: candidate.unitCount,
-      nearbyUnitCount: candidate.nearbyUnitCount,
-      apparentStrength: candidate.apparentStrength,
-      routeKind: candidate.approach.routeKind,
-      routeHint: candidate.approach.routeHint,
-      reasons: [...candidate.reasons]
+      nearestDistance: candidate2.nearestDistance,
+      cityCount: candidate2.cityCount,
+      unitCount: candidate2.unitCount,
+      nearbyUnitCount: candidate2.nearbyUnitCount,
+      apparentStrength: candidate2.apparentStrength,
+      routeKind: candidate2.approach.routeKind,
+      routeHint: candidate2.approach.routeHint,
+      reasons: [...candidate2.reasons]
     })
   );
   const pointsOfInterest = battlefieldScan.pointsOfInterest.map((point) => ({
@@ -31038,12 +31038,12 @@ function strategyNextSteps({
   pointsOfInterest
 }) {
   const nextSteps = [];
-  const candidate = targetCandidates[0];
-  if (candidate != null) {
+  const candidate2 = targetCandidates[0];
+  if (candidate2 != null) {
     nextSteps.push({
       kind: "inspect-target-candidate",
       source: "strategy.frontSummary",
-      label: `Inspect owner ${candidate.owner} planning candidate with visibility reads before treating it as actionable.`
+      label: `Inspect owner ${candidate2.owner} planning candidate with visibility reads before treating it as actionable.`
     });
   }
   const point = pointsOfInterest[0];
@@ -31188,13 +31188,13 @@ function turnCompletionProbeSummary(status) {
     firstReadyUnitId: probeValue42(status.firstReadyUnitId)
   };
 }
-function blockerValue(probe8) {
-  const value2 = probeValue42(probe8);
+function blockerValue(probe9) {
+  const value2 = probeValue42(probe9);
   if (typeof value2 === "number" || typeof value2 === "string") return value2;
   return null;
 }
-function probeValue42(probe8) {
-  return probe8.ok ? probe8.value : null;
+function probeValue42(probe9) {
+  return probe9.ok ? probe9.value : null;
 }
 var turnRouter = {
   complete: {
@@ -31258,8 +31258,8 @@ function unitTargetActionResult(result) {
     })
   };
 }
-function acceptedCandidate(candidate) {
-  return candidate.valid === true && candidate.targetInReturnedPlots !== false;
+function acceptedCandidate(candidate2) {
+  return candidate2.valid === true && candidate2.targetInReturnedPlots !== false;
 }
 function unitTargetActionPostconditionSummary(result) {
   const verification = result.verification;
@@ -32026,11 +32026,11 @@ function notificationTrainQueueIds(target, playerId) {
 }
 function toComponentId(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
-  const candidate = value2;
-  if (typeof candidate.owner !== "number" || typeof candidate.id !== "number") {
+  const candidate2 = value2;
+  if (typeof candidate2.owner !== "number" || typeof candidate2.id !== "number") {
     return null;
   }
-  return typeof candidate.type === "number" ? { owner: candidate.owner, id: candidate.id, type: candidate.type } : { owner: candidate.owner, id: candidate.id };
+  return typeof candidate2.type === "number" ? { owner: candidate2.owner, id: candidate2.id, type: candidate2.type } : { owner: candidate2.owner, id: candidate2.id };
 }
 function componentKey(value2) {
   const id = toComponentId(value2);
@@ -32335,11 +32335,11 @@ function clampMaxNotifications(value2) {
 }
 function toComponentId2(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
-  const candidate = value2;
-  if (typeof candidate.owner !== "number" || typeof candidate.id !== "number") {
+  const candidate2 = value2;
+  if (typeof candidate2.owner !== "number" || typeof candidate2.id !== "number") {
     return null;
   }
-  return typeof candidate.type === "number" ? { owner: candidate.owner, id: candidate.id, type: candidate.type } : { owner: candidate.owner, id: candidate.id };
+  return typeof candidate2.type === "number" ? { owner: candidate2.owner, id: candidate2.id, type: candidate2.type } : { owner: candidate2.owner, id: candidate2.id };
 }
 function notificationValue2(notification, key) {
   if (notification == null || typeof notification !== "object") return null;
@@ -32372,8 +32372,8 @@ function ok(value2) {
 function gameUiTurnCompletionAllowed(status) {
   return probeValue5(status.canEndTurn) === true && probeValue5(status.hasSentTurnComplete) !== true;
 }
-function probeValue5(probe8) {
-  return probe8.ok ? probe8.value : void 0;
+function probeValue5(probe9) {
+  return probe9.ok ? probe9.value : void 0;
 }
 function isPresent2(value2) {
   return value2 != null;
@@ -32657,11 +32657,11 @@ function cityBuildQueue(city) {
 }
 function toComponentId22(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
-  const candidate = value2;
-  if (typeof candidate.owner !== "number" || typeof candidate.id !== "number") {
+  const candidate2 = value2;
+  if (typeof candidate2.owner !== "number" || typeof candidate2.id !== "number") {
     return null;
   }
-  return typeof candidate.type === "number" ? { owner: candidate.owner, id: candidate.id, type: candidate.type } : { owner: candidate.owner, id: candidate.id };
+  return typeof candidate2.type === "number" ? { owner: candidate2.owner, id: candidate2.id, type: candidate2.type } : { owner: candidate2.owner, id: candidate2.id };
 }
 function componentIdEqual(left3, right3) {
   return left3?.owner === right3.owner && left3.id === right3.id && (left3.type ?? null) === (right3.type ?? null);
@@ -32680,8 +32680,8 @@ function probe22(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue23(probe8) {
-  return probe8?.ok ? probe8.value : void 0;
+function probeValue23(probe9) {
+  return probe9?.ok ? probe9.value : void 0;
 }
 function stableJson2(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -33297,8 +33297,8 @@ function probe4(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue33(probe8) {
-  return probe8?.ok ? probe8.value : void 0;
+function probeValue33(probe9) {
+  return probe9?.ok ? probe9.value : void 0;
 }
 function stableJson22(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -33641,12 +33641,12 @@ function successFromCanStart4(result) {
   return Boolean(result);
 }
 function stableJson3(value2) {
-  return JSON.stringify(value2, (_key, candidate) => {
-    if (candidate == null || typeof candidate !== "object" || Array.isArray(candidate)) {
-      return candidate;
+  return JSON.stringify(value2, (_key, candidate2) => {
+    if (candidate2 == null || typeof candidate2 !== "object" || Array.isArray(candidate2)) {
+      return candidate2;
     }
     return Object.fromEntries(
-      Object.entries(candidate).sort(
+      Object.entries(candidate2).sort(
         ([left3], [right3]) => left3.localeCompare(right3)
       )
     );
@@ -33654,8 +33654,8 @@ function stableJson3(value2) {
 }
 function numericField2(value2, field) {
   if (value2 == null || typeof value2 !== "object") return void 0;
-  const candidate = value2[field];
-  return typeof candidate === "number" ? candidate : void 0;
+  const candidate2 = value2[field];
+  return typeof candidate2 === "number" ? candidate2 : void 0;
 }
 function toComponentId5(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
@@ -33985,12 +33985,12 @@ function successFromCanStart5(result) {
   return Boolean(result);
 }
 function stableJson4(value2) {
-  return JSON.stringify(value2, (_key, candidate) => {
-    if (candidate == null || typeof candidate !== "object" || Array.isArray(candidate)) {
-      return candidate;
+  return JSON.stringify(value2, (_key, candidate2) => {
+    if (candidate2 == null || typeof candidate2 !== "object" || Array.isArray(candidate2)) {
+      return candidate2;
     }
     return Object.fromEntries(
-      Object.entries(candidate).sort(
+      Object.entries(candidate2).sort(
         ([left3], [right3]) => left3.localeCompare(right3)
       )
     );
@@ -34022,6 +34022,299 @@ function probe6(fn2) {
 }
 function probeValue52(input) {
   return input.ok ? input.value : void 0;
+}
+function civ7GameUiUnitTargetActionAvailable(target) {
+  return typeof target.Game?.UnitOperations?.canStart === "function" && typeof target.Game.UnitOperations.sendRequest === "function" && typeof target.Game?.UnitCommands?.canStart === "function" && typeof target.Game.UnitCommands.sendRequest === "function" && target.UnitOperationTypes != null && target.UnitCommandTypes != null && typeof target.Units?.get === "function" && typeof target.MapUnits?.getUnits === "function" && (typeof target.GameplayMap?.getIndexFromLocation === "function" || typeof target.GameplayMap?.getIndexFromXY === "function");
+}
+async function requestCiv7GameUiUnitTargetAction(input, target = globalThis) {
+  const beforeUnit = probe7(() => summarizeUnit(input.unitId, target));
+  const beforeTargetUnits = probe7(() => targetUnitsAt(input.x, input.y, target));
+  const targetIndex = targetIndexFor(input.x, input.y, target);
+  const ownerMatchesLocalPlayer = input.unitId.owner === target.GameContext?.localPlayerID;
+  const candidates = ownerMatchesLocalPlayer ? unitTargetCandidates(input, targetIndex, target) : [];
+  const selected = candidates.find(acceptedCandidate2) ?? null;
+  if (!ownerMatchesLocalPlayer || selected == null) {
+    return unitTargetResult({
+      input,
+      targetIndex,
+      beforeUnit,
+      beforeTargetUnits,
+      candidates,
+      selected: null,
+      sent: false,
+      sendResult: void 0,
+      afterUnit: void 0,
+      afterTargetUnits: void 0,
+      verification: {
+        status: "not-sent",
+        classification: "not-sent",
+        unitChanged: false,
+        targetUnitsChanged: false,
+        destinationReached: null,
+        requestedLocation: { x: input.x, y: input.y },
+        landedLocation: locationFromUnitProbe(beforeUnit),
+        source: "immediate",
+        attempts: 0,
+        observedAfterMs: 0,
+        reason: ownerMatchesLocalPlayer ? "No acceptable game UI unit target action candidate validated for the requested tile." : "The requested unit is not owned by GameContext.localPlayerID; game UI controller did not send."
+      }
+    });
+  }
+  const sendResult = probe7(() => sendCandidate(input.unitId, selected, target));
+  const sent = sendResult.ok && sendResult.value !== false;
+  const afterUnit = probe7(() => summarizeUnit(input.unitId, target));
+  const afterTargetUnits = probe7(() => targetUnitsAt(input.x, input.y, target));
+  const verification = unitTargetVerification(
+    input,
+    selected,
+    sent,
+    beforeUnit,
+    beforeTargetUnits,
+    afterUnit,
+    afterTargetUnits
+  );
+  return unitTargetResult({
+    input,
+    targetIndex,
+    beforeUnit,
+    beforeTargetUnits,
+    candidates,
+    selected,
+    sent,
+    sendResult,
+    afterUnit,
+    afterTargetUnits,
+    verification
+  });
+}
+function unitTargetResult(input) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    unitId: input.input.unitId,
+    target: {
+      x: input.input.x,
+      y: input.input.y,
+      index: input.targetIndex
+    },
+    beforeUnit: input.beforeUnit,
+    beforeTargetUnits: input.beforeTargetUnits,
+    candidates: [...input.candidates],
+    selected: input.selected,
+    sent: input.sent,
+    ...input.sendResult === void 0 ? {} : { sendResult: input.sendResult },
+    ...input.afterUnit === void 0 ? {} : { afterUnit: input.afterUnit },
+    ...input.afterTargetUnits === void 0 ? {} : { afterTargetUnits: input.afterTargetUnits },
+    verified: input.verification.status === "verified",
+    verification: input.verification,
+    notes: [
+      "Game UI unit target action uses fixed official right-click candidate ordering: naval, air, ranged, overrun, swap, then MOVE_TO.",
+      "Game UI controller only sends for units owned by GameContext.localPlayerID."
+    ]
+  };
+}
+function unitTargetCandidates(input, targetIndex, target) {
+  const baseArgs = { X: input.x, Y: input.y };
+  const attackArgs = { ...baseArgs, Modifiers: moveModifiers(target) };
+  return [
+    candidate("unit-operation", "UNITOPERATION_NAVAL_ATTACK", attackArgs, input.unitId, targetIndex, target),
+    candidate("unit-operation", "UNITOPERATION_AIR_ATTACK", attackArgs, input.unitId, targetIndex, target),
+    candidate("unit-operation", "UNITOPERATION_RANGE_ATTACK", attackArgs, input.unitId, targetIndex, target),
+    candidate("unit-command", "UNITCOMMAND_ARMY_OVERRUN", baseArgs, input.unitId, targetIndex, target),
+    candidate("unit-operation", "UNITOPERATION_SWAP_UNITS", baseArgs, input.unitId, targetIndex, target),
+    candidate("unit-operation", "MOVE_TO", attackArgs, input.unitId, targetIndex, target)
+  ];
+}
+function candidate(family, operationType, args2, unitId, targetIndex, target) {
+  const router = family === "unit-command" ? target.Game?.UnitCommands : target.Game?.UnitOperations;
+  const enums = family === "unit-command" ? target.UnitCommandTypes : target.UnitOperationTypes;
+  const enumValue = enumValueFor(enums, operationType);
+  const result = probe7(
+    () => router?.canStart?.(unitId, enumValue, args2, false) ?? false
+  );
+  const valid = result.ok && successFromCanStart6(result.value);
+  const targetInReturnedPlots = targetInReturnedPlotsFor(result, targetIndex);
+  return {
+    family,
+    operationType,
+    args: args2,
+    valid,
+    result,
+    targetInReturnedPlots,
+    ...valid && targetInReturnedPlots === false ? { rejectedReason: "target not present in canStart returned Plots" } : {}
+  };
+}
+function sendCandidate(unitId, entry, target) {
+  const router = entry.family === "unit-command" ? target.Game?.UnitCommands : target.Game?.UnitOperations;
+  const enums = entry.family === "unit-command" ? target.UnitCommandTypes : target.UnitOperationTypes;
+  return router?.sendRequest?.(
+    unitId,
+    enumValueFor(enums, entry.operationType),
+    argsRecord(entry.args)
+  );
+}
+function unitTargetVerification(input, selected, sent, beforeUnit, beforeTargetUnits, afterUnit, afterTargetUnits) {
+  if (!sent) {
+    return {
+      status: "not-sent",
+      classification: "not-sent",
+      unitChanged: false,
+      targetUnitsChanged: false,
+      destinationReached: null,
+      requestedLocation: { x: input.x, y: input.y },
+      landedLocation: locationFromUnitProbe(beforeUnit),
+      source: "immediate",
+      attempts: 0,
+      observedAfterMs: 0,
+      reason: "The game UI unit target send did not report a sent result."
+    };
+  }
+  const unitChanged = stableJson5(beforeUnit) !== stableJson5(afterUnit);
+  const targetUnitsChanged = stableJson5(beforeTargetUnits) !== stableJson5(afterTargetUnits);
+  const requestedLocation = { x: input.x, y: input.y };
+  const beforeLocation = locationFromUnitProbe(beforeUnit);
+  const landedLocation = locationFromUnitProbe(afterUnit);
+  const destinationReached = landedLocation ? sameLocation(landedLocation, requestedLocation) : null;
+  const originChanged = beforeLocation && landedLocation ? !sameLocation(beforeLocation, landedLocation) : unitChanged;
+  const classification = !unitChanged && !targetUnitsChanged ? "no-state-change" : selected.operationType === "MOVE_TO" && destinationReached === true ? "target-reached" : selected.operationType === "MOVE_TO" && originChanged && destinationReached === false ? "path-shortfall" : targetUnitsChanged ? "target-state-changed" : "unit-state-changed";
+  return {
+    status: unitChanged || targetUnitsChanged ? "verified" : "no-state-change",
+    classification,
+    unitChanged,
+    targetUnitsChanged,
+    destinationReached,
+    requestedLocation,
+    landedLocation,
+    source: "immediate",
+    attempts: 0,
+    observedAfterMs: 0,
+    reason: unitTargetReason(classification)
+  };
+}
+function unitTargetReason(classification) {
+  switch (classification) {
+    case "target-reached":
+      return "unit reached the requested target tile";
+    case "path-shortfall":
+      return "unit moved, but landed short of the requested target tile; re-read before issuing a follow-up move";
+    case "target-state-changed":
+      return "target-plot unit state changed after send";
+    case "unit-state-changed":
+      return "unit state changed after send";
+    case "no-state-change":
+      return "send returned but unit and target-plot probes did not change; re-read before repeating";
+    case "not-sent":
+      return "no unit target action was sent";
+  }
+}
+function targetIndexFor(x, y, target) {
+  return probe7(
+    () => typeof target.GameplayMap?.getIndexFromLocation === "function" ? target.GameplayMap.getIndexFromLocation({ x, y }) : target.GameplayMap?.getIndexFromXY?.(x, y) ?? -1
+  );
+}
+function summarizeUnit(unitId, target) {
+  const unit = target.Units?.get?.(unitId);
+  if (unit == null || typeof unit !== "object") return null;
+  const record = unit;
+  return {
+    id: toComponentId7(record.id) ?? unitId,
+    owner: record.owner ?? unitId.owner,
+    type: record.type ?? unitId.type ?? null,
+    location: record.location ?? null,
+    movementMovesRemaining: record.Movement?.movementMovesRemaining ?? null,
+    movementTurnsRemaining: record.Movement?.movementTurnsRemaining ?? null,
+    attacksRemaining: record.Combat?.attacksRemaining ?? null,
+    rangedStrength: record.Combat?.rangedStrength ?? null,
+    bombardStrength: record.Combat?.bombardStrength ?? null,
+    meleeStrength: typeof record.Combat?.getMeleeStrength === "function" ? record.Combat.getMeleeStrength(false) : null,
+    damage: record.Health?.damage ?? null,
+    hitPoints: record.Health?.hitPoints ?? null
+  };
+}
+function targetUnitsAt(x, y, target) {
+  const units = target.MapUnits?.getUnits?.(x, y) ?? [];
+  return Array.isArray(units) ? units.map((id) => toComponentId7(id) ?? id) : units;
+}
+function targetInReturnedPlotsFor(result, targetIndex) {
+  if (!result.ok || !targetIndex.ok) return null;
+  const value2 = result.value;
+  if (value2 == null || typeof value2 !== "object") return null;
+  const plots = value2.Plots;
+  return Array.isArray(plots) ? plots.includes(targetIndex.value) : null;
+}
+function moveModifiers(target) {
+  return (target.UnitOperationMoveModifiers?.ATTACK ?? 0) + (target.UnitOperationMoveModifiers?.MOVE_IGNORE_UNEXPLORED_DESTINATION ?? 0);
+}
+function acceptedCandidate2(entry) {
+  return entry.valid === true && entry.targetInReturnedPlots !== false;
+}
+function enumValueFor(enums, operationType) {
+  if (enums == null) return operationType;
+  if (Object.prototype.hasOwnProperty.call(enums, operationType)) {
+    return enums[operationType];
+  }
+  for (const key of [
+    operationType.replace(/^UNITOPERATION_/, ""),
+    operationType.replace(/^UNITCOMMAND_/, "")
+  ]) {
+    if (Object.prototype.hasOwnProperty.call(enums, key)) {
+      return enums[key];
+    }
+  }
+  return operationType;
+}
+function successFromCanStart6(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function argsRecord(value2) {
+  return value2 != null && typeof value2 === "object" ? value2 : {};
+}
+function locationFromUnitProbe(input) {
+  const value2 = input?.ok === true ? input.value : null;
+  if (value2 == null || typeof value2 !== "object") return null;
+  const location = value2.location;
+  if (location == null || typeof location !== "object") return null;
+  const { x, y } = location;
+  return typeof x === "number" && typeof y === "number" ? { x, y } : null;
+}
+function sameLocation(left3, right3) {
+  return left3.x === right3.x && left3.y === right3.y;
+}
+function toComponentId7(value2) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const record = value2;
+  if (typeof record.owner !== "number" || typeof record.id !== "number") {
+    return null;
+  }
+  return typeof record.type === "number" ? { owner: record.owner, id: record.id, type: record.type } : { owner: record.owner, id: record.id };
+}
+function stableJson5(value2) {
+  return JSON.stringify(value2, (_key, candidate2) => {
+    if (candidate2 == null || typeof candidate2 !== "object" || Array.isArray(candidate2)) {
+      return candidate2;
+    }
+    return Object.fromEntries(
+      Object.entries(candidate2).sort(
+        ([left3], [right3]) => left3.localeCompare(right3)
+      )
+    );
+  });
+}
+function probe7(fn2) {
+  try {
+    return { ok: true, value: fn2() };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
 }
 function installCiv7GameUiIntelligenceBridge(options = {}) {
   const target = options.target ?? globalThis;
@@ -34061,7 +34354,7 @@ function createCiv7GameUiDirectControlFacade(target) {
     requestCiv7CultureChoiceCloseout: async (input) => await requestCiv7GameUiCultureChoiceCloseout(input, target),
     requestCiv7AssignWorkerPlacement: async (input) => await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) => await requestCiv7GameUiExpandCityPlacement(input, target),
-    requestCiv7UnitTargetAction: unsupported,
+    requestCiv7UnitTargetAction: async (input) => await requestCiv7GameUiUnitTargetAction(input, target),
     requestCiv7TurnComplete: async () => await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
     getCiv7PlayNotificationView: async (options) => await getCiv7GameUiPlayNotificationView({
@@ -34122,6 +34415,9 @@ function gameUiSupportedMutationProcedures(target) {
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
     supported2.push("diplomacy.response.request");
   }
+  if (civ7GameUiUnitTargetActionAvailable(target)) {
+    supported2.push("unit.target.action.request");
+  }
   return supported2;
 }
 function gameUiSupportedReadProcedures(target) {
@@ -34145,13 +34441,13 @@ function gameUiSnapshot(target) {
   return {
     network: {
       isInSession: ok2(Boolean(target.Network?.isInSession)),
-      numPlayers: probe7(() => target.Network?.getNumPlayers?.() ?? 0),
-      hostPlayerId: probe7(() => target.Network?.getHostPlayerId?.() ?? -1),
-      isConnectedToNetwork: probe7(
+      numPlayers: probe8(() => target.Network?.getNumPlayers?.() ?? 0),
+      hostPlayerId: probe8(() => target.Network?.getHostPlayerId?.() ?? -1),
+      isConnectedToNetwork: probe8(
         () => target.Network?.isConnectedToNetwork?.() ?? false
       ),
-      isAuthenticated: probe7(() => target.Network?.isAuthenticated?.() ?? false),
-      isLoggedIn: probe7(() => target.Network?.isLoggedIn?.() ?? false)
+      isAuthenticated: probe8(() => target.Network?.isAuthenticated?.() ?? false),
+      isLoggedIn: probe8(() => target.Network?.isLoggedIn?.() ?? false)
     },
     autoplay: {
       isActive: target.Autoplay?.isActive ?? false,
@@ -34165,18 +34461,18 @@ function gameUiSnapshot(target) {
       turn: target.Game?.turn ?? -1,
       age: target.Game?.age ?? -1,
       maxTurns: target.Game?.maxTurns ?? 0,
-      turnDate: probe7(() => target.Game?.getTurnDate?.() ?? ""),
-      hash: probe7(() => target.Game?.getHash?.() ?? 0)
+      turnDate: probe8(() => target.Game?.getTurnDate?.() ?? ""),
+      hash: probe8(() => target.Game?.getHash?.() ?? 0)
     },
     ui: {
-      inGame: probe7(() => target.UI?.isInGame?.() ?? false),
-      inShell: probe7(() => target.UI?.isInShell?.() ?? false),
-      inLoading: probe7(() => target.UI?.isInLoading?.() ?? false),
-      loadingState: probe7(() => target.UI?.getGameLoadingState?.() ?? -1),
+      inGame: probe8(() => target.UI?.isInGame?.() ?? false),
+      inShell: probe8(() => target.UI?.isInShell?.() ?? false),
+      inLoading: probe8(() => target.UI?.isInLoading?.() ?? false),
+      loadingState: probe8(() => target.UI?.getGameLoadingState?.() ?? -1),
       loadingStateName: loadingStateName(target),
       canBeginGame: canBeginGame(target),
       canNotifyUIReady: typeof target.UI?.notifyUIReady,
-      skipStartButton: probe7(
+      skipStartButton: probe8(
         () => target.Configuration?.getGame?.().skipStartButton ?? false
       ),
       automationActive: ok2(false)
@@ -34184,27 +34480,27 @@ function gameUiSnapshot(target) {
     gameContext: {
       localPlayerID: target.GameContext?.localPlayerID ?? -1,
       localObserverID: target.GameContext?.localObserverID ?? -1,
-      hasRequestedPause: probe7(
+      hasRequestedPause: probe8(
         () => target.GameContext?.hasRequestedPause?.() ?? false
       )
     },
     players: {
       maxPlayers: target.Players?.maxPlayers ?? 0,
-      aliveIds: probe7(() => target.Players?.getAliveIds?.() ?? []),
-      aliveHumanIds: probe7(() => target.Players?.getAliveHumanIds?.() ?? []),
-      numAliveHumans: probe7(() => target.Players?.getNumAliveHumans?.() ?? 0)
+      aliveIds: probe8(() => target.Players?.getAliveIds?.() ?? []),
+      aliveHumanIds: probe8(() => target.Players?.getAliveHumanIds?.() ?? []),
+      numAliveHumans: probe8(() => target.Players?.getNumAliveHumans?.() ?? 0)
     },
     map: {
-      width: probe7(() => target.GameplayMap?.getGridWidth?.() ?? 0),
-      height: probe7(() => target.GameplayMap?.getGridHeight?.() ?? 0),
-      plotCount: probe7(() => target.GameplayMap?.getPlotCount?.() ?? 0),
-      mapSize: probe7(() => target.GameplayMap?.getMapSize?.() ?? 0),
-      randomSeed: probe7(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
+      width: probe8(() => target.GameplayMap?.getGridWidth?.() ?? 0),
+      height: probe8(() => target.GameplayMap?.getGridHeight?.() ?? 0),
+      plotCount: probe8(() => target.GameplayMap?.getPlotCount?.() ?? 0),
+      mapSize: probe8(() => target.GameplayMap?.getMapSize?.() ?? 0),
+      randomSeed: probe8(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
     }
   };
 }
 function gameUiControllerMutationProof(target) {
-  if (probeValue6(probe7(() => target.UI?.isInGame?.() ?? false)) !== true) {
+  if (probeValue6(probe8(() => target.UI?.isInGame?.() ?? false)) !== true) {
     return null;
   }
   const localPlayerId = target.GameContext?.localPlayerID;
@@ -34226,18 +34522,18 @@ function gameUiControllerMutationProof(target) {
   };
 }
 function isSingleLocalHuman(target, localPlayerId) {
-  const aliveHumanIds = probe7(() => target.Players?.getAliveHumanIds?.());
+  const aliveHumanIds = probe8(() => target.Players?.getAliveHumanIds?.());
   if (aliveHumanIds.ok && Array.isArray(aliveHumanIds.value)) {
     return aliveHumanIds.value.length === 1 && aliveHumanIds.value[0] === localPlayerId;
   }
-  const aliveHumanCount = probe7(() => target.Players?.getNumAliveHumans?.());
+  const aliveHumanCount = probe8(() => target.Players?.getNumAliveHumans?.());
   return aliveHumanCount.ok && aliveHumanCount.value === 1;
 }
 function isControllerPlayerId(playerId) {
   return typeof playerId === "number" && Number.isInteger(playerId) && playerId >= 0 && playerId <= 255;
 }
 function canBeginGame(target) {
-  return probe7(() => {
+  return probe8(() => {
     const loadingState = target.UI?.getGameLoadingState?.();
     if (loadingState == null) return false;
     const states = target.UIGameLoadingState ?? {};
@@ -34251,7 +34547,7 @@ function loadingStateName(target) {
     ([, value2]) => value2 === loadingState
   )?.[0] ?? null;
 }
-function probe7(fn2) {
+function probe8(fn2) {
   try {
     return ok2(fn2());
   } catch (err) {
@@ -34261,8 +34557,8 @@ function probe7(fn2) {
 function ok2(value2) {
   return { ok: true, value: value2 };
 }
-function probeValue6(probe8) {
-  return probe8.ok ? probe8.value : void 0;
+function probeValue6(probe9) {
+  return probe9.ok ? probe9.value : void 0;
 }
 
 // src/ui/civ7-intelligence-bridge.ts

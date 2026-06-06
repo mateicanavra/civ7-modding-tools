@@ -44,6 +44,12 @@ import {
   requestCiv7GameUiDiplomacyResponse,
   type Civ7GameUiDiplomacyTarget,
 } from "./game-ui-diplomacy";
+import {
+  civ7GameUiUnitTargetActionAvailable,
+  requestCiv7GameUiUnitTargetAction,
+  type Civ7GameUiUnitTargetActionTarget,
+} from "./game-ui-unit-target";
+import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 import type {
   Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcPlayableStatusResult,
@@ -100,6 +106,32 @@ export type Civ7GameUiRuntimeTarget = {
         args: unknown,
       ) => unknown;
     };
+    UnitCommands?: {
+      canStart?: (
+        unitId: Civ7ControlOrpcComponentId,
+        operationType: unknown,
+        args: Readonly<Record<string, number>>,
+        queue?: boolean,
+      ) => unknown;
+      sendRequest?: (
+        unitId: Civ7ControlOrpcComponentId,
+        operationType: unknown,
+        args: Readonly<Record<string, number>>,
+      ) => unknown;
+    };
+    UnitOperations?: {
+      canStart?: (
+        unitId: Civ7ControlOrpcComponentId,
+        operationType: unknown,
+        args: Readonly<Record<string, number>>,
+        queue?: boolean,
+      ) => unknown;
+      sendRequest?: (
+        unitId: Civ7ControlOrpcComponentId,
+        operationType: unknown,
+        args: Readonly<Record<string, number>>,
+      ) => unknown;
+    };
     ProgressionTrees?: Civ7GameUiProgressionTarget["Game"] extends infer Game
       ? Game extends { ProgressionTrees?: infer Trees } ? Trees : never
       : never;
@@ -120,6 +152,10 @@ export type Civ7GameUiRuntimeTarget = {
     & Civ7GameUiDiplomacyTarget["PlayerOperationTypes"];
   ProgressionTreeNodeTypes?:
     Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
+  UnitCommandTypes?: Civ7GameUiUnitTargetActionTarget["UnitCommandTypes"];
+  UnitOperationMoveModifiers?:
+    Civ7GameUiUnitTargetActionTarget["UnitOperationMoveModifiers"];
+  UnitOperationTypes?: Civ7GameUiUnitTargetActionTarget["UnitOperationTypes"];
   NarrativePopupManager?: Civ7GameUiNarrativeTarget["NarrativePopupManager"];
   DiplomacyManager?: Civ7GameUiDiplomacyTarget["DiplomacyManager"];
   LeaderModelManager?: Civ7GameUiDiplomacyTarget["LeaderModelManager"];
@@ -158,7 +194,15 @@ export type Civ7GameUiRuntimeTarget = {
     getLocationFromIndex?: Civ7GameUiProductionTarget["GameplayMap"] extends infer Map
       ? Map extends { getLocationFromIndex?: infer Fn } ? Fn : never
       : never;
+    getIndexFromLocation?: Civ7GameUiUnitTargetActionTarget["GameplayMap"] extends infer Map
+      ? Map extends { getIndexFromLocation?: infer Fn } ? Fn : never
+      : never;
+    getIndexFromXY?: Civ7GameUiUnitTargetActionTarget["GameplayMap"] extends infer Map
+      ? Map extends { getIndexFromXY?: infer Fn } ? Fn : never
+      : never;
   };
+  MapUnits?: Civ7GameUiUnitTargetActionTarget["MapUnits"];
+  Units?: Civ7GameUiUnitTargetActionTarget["Units"];
   Cities?: Civ7GameUiProductionTarget["Cities"];
   InterfaceMode?: Civ7GameUiProductionTarget["InterfaceMode"]
     & Civ7GameUiDiplomacyTarget["InterfaceMode"];
@@ -235,7 +279,8 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) =>
       await requestCiv7GameUiExpandCityPlacement(input, target),
-    requestCiv7UnitTargetAction: unsupported,
+    requestCiv7UnitTargetAction: async (input) =>
+      await requestCiv7GameUiUnitTargetAction(input, target),
     requestCiv7TurnComplete: async () =>
       await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
@@ -315,6 +360,9 @@ function gameUiSupportedMutationProcedures(
   }
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
     supported.push("diplomacy.response.request");
+  }
+  if (civ7GameUiUnitTargetActionAvailable(target)) {
+    supported.push("unit.target.action.request");
   }
   return supported;
 }

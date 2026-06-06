@@ -824,6 +824,40 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   runtime behavior only; deployed Civ7 runtime proof, unit runtime ports,
   play-thread action, and full `7.3` implementation remain pending
 
+#### Scenario: Game UI controller supports unit target action
+- **WHEN** the game-scoped controller context exposes ambient unit target APIs
+  for `Game.UnitOperations.canStart/sendRequest`,
+  `Game.UnitCommands.canStart/sendRequest`, `Units.get`, `MapUnits.getUnits`,
+  `GameplayMap` target-index APIs, `UnitOperationTypes`,
+  `UnitCommandTypes`, `UnitOperationMoveModifiers`, and controller-owned
+  local-player proof
+- **THEN** the context may execute the service-owned
+  `unit.target.action.request` procedure through the existing in-process
+  router and native readiness/proof middleware
+- **AND** `unit.target.action.request` is listed as a supported game-UI
+  mutation only when controller proof and the required ambient validation,
+  send, unit, map-unit, and target-index APIs are present
+- **AND** the adapter uses the fixed official right-click candidate ordering:
+  naval attack, air attack, ranged attack, army overrun, swap units, then
+  `MOVE_TO`
+- **AND** the game-UI controller rejects sends unless the requested
+  `unitId.owner` matches controller-owned `GameContext.localPlayerID`
+- **AND** validator-blocked unit target actions project semantic `not-sent`
+  output and do not call the send API
+- **AND** sent unit target actions preserve source-owned unit proof semantics:
+  target reached and target/unit state changes can confirm the request, while
+  path shortfalls, no-state-change, failed validation, missing postcondition,
+  and pending-runtime-proof paths remain no-repeat guarded as required by the
+  unit proof policy
+- **AND** normal bridge success output remains the semantic unit target result
+  and omits host, port, state, command, rawCommand, session, tuner payloads,
+  raw game-UI function names, direct-control socket details, send results, and
+  raw operation result envelopes
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, broad unit-operation
+  catalog support, target-candidate relationship semantics, play-thread action,
+  and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control
