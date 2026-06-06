@@ -500,12 +500,6 @@ export function playNotificationViewSource(): string {
           enabled,
           disabled: !enabled,
           validation,
-          cli: enabled && actionId != null && responseType != null
-            ? "game play respond-diplomacy --action-id " + actionId
-              + " --response-type " + responseType
-              + (notificationId ? " --notification-id '" + JSON.stringify(notificationId) + "'" : "")
-              + " --send"
-            : null,
         };
       });
       return {
@@ -560,12 +554,6 @@ export function playNotificationViewSource(): string {
           enabled,
           disabled: !enabled,
           validation,
-          cli: enabled && actionId != null && responseType != null
-            ? "game play respond-diplomacy --action-id " + actionId
-              + " --response-type " + responseType
-              + (notificationId ? " --notification-id '" + JSON.stringify(notificationId) + "'" : "")
-              + " --send"
-            : null,
         };
       });
       const enabledOptions = options.filter((option) => option.enabled);
@@ -666,16 +654,6 @@ export function playNotificationViewSource(): string {
             disabled: !chooseEnabled,
             chooseValidation,
             targetValidation,
-            cli: chooseEnabled
-              ? "game play choose-tech --node " + String(numericNodeType)
-                + " --send"
-              : null,
-            validateCli: "game play choose-tech --player-id " + String(localPlayerId)
-              + " --node " + String(numericNodeType) + " --json",
-            targetCli: targetEnabled
-              ? "game play set-tech-target --node " + String(numericNodeType)
-                + " --send"
-              : null,
           });
         }
       }
@@ -775,16 +753,6 @@ export function playNotificationViewSource(): string {
           disabled: !chooseEnabled,
           chooseValidation,
           targetValidation,
-          cli: chooseEnabled
-            ? "game play choose-culture --node " + String(numericNodeType)
-              + " --send"
-            : null,
-          validateCli: "game play choose-culture --player-id " + String(localPlayerId)
-            + " --node " + String(numericNodeType) + " --json",
-          targetCli: targetEnabled
-            ? "game play set-culture-target --node " + String(numericNodeType)
-              + " --send"
-            : null,
         });
       }
       const enabledOptions = options.filter((option) => option.chooseEnabled);
@@ -852,15 +820,6 @@ export function playNotificationViewSource(): string {
           enabled,
           disabled: !enabled,
           validation,
-          cli: enabled && args
-            ? "game play choose-celebration --golden-age-type " + String(args.GoldenAgeType)
-              + " --send"
-            : null,
-          validateCli: args
-            ? "game play choose-celebration --player-id " + String(localPlayerId)
-              + " --golden-age-type " + String(args.GoldenAgeType)
-              + " --json"
-            : null,
         });
       }
       const enabledOptions = options.filter((option) => option.enabled);
@@ -944,17 +903,6 @@ export function playNotificationViewSource(): string {
           enabled,
           disabled: !enabled,
           validation,
-          cli: enabled && governmentIndex != null && activate != null
-            ? "game play choose-government --government-type " + String(governmentIndex)
-              + " --action " + String(activate)
-              + " --send"
-            : null,
-          validateCli: governmentIndex != null
-            ? "game play choose-government --player-id " + String(localPlayerId)
-              + " --government-type " + String(governmentIndex)
-              + (activate != null ? " --action " + String(activate) : "")
-              + " --json"
-            : null,
         });
       }
       const enabledOptions = options.filter((option) => option.enabled);
@@ -1061,7 +1009,6 @@ export function playNotificationViewSource(): string {
           && canAfford.value === true
           && validation.ok
           && successFromCanStart(validation.value);
-        const targetJson = target ? JSON.stringify(target) : null;
         options.push({
           targetType: link.ToNarrativeStoryType,
           targetTypeName: toLinkDef.NarrativeStoryType ?? link.ToNarrativeStoryType,
@@ -1077,19 +1024,6 @@ export function playNotificationViewSource(): string {
           enabled,
           disabled: !enabled,
           validation,
-          cli: enabled && targetJson
-            ? "game play choose-narrative --target-type " + String(link.ToNarrativeStoryType)
-              + " --target '" + targetJson + "'"
-              + " --action " + String(activate)
-              + " --send"
-            : null,
-          validateCli: targetJson
-            ? "game play choose-narrative --player-id " + String(localPlayerId)
-              + " --target-type " + String(link.ToNarrativeStoryType)
-              + " --target '" + targetJson + "'"
-              + (activate != null ? " --action " + String(activate) : "")
-              + " --json"
-            : null,
         });
       }
       if (options.length === 0 && target) {
@@ -1103,7 +1037,6 @@ export function playNotificationViewSource(): string {
           ))
           : { ok: false, error: "missing activate action" };
         const enabled = validation.ok && successFromCanStart(validation.value);
-        const targetJson = JSON.stringify(target);
         options.push({
           targetType: "CLOSE",
           targetTypeName: "CLOSE",
@@ -1119,22 +1052,10 @@ export function playNotificationViewSource(): string {
           enabled,
           disabled: !enabled,
           validation,
-          cli: enabled
-            ? "game play choose-narrative --target-type CLOSE"
-              + " --target '" + targetJson + "'"
-              + " --action " + String(activate)
-              + " --send"
-            : null,
-          validateCli: "game play choose-narrative --player-id " + String(localPlayerId)
-            + " --target-type CLOSE"
-            + " --target '" + targetJson + "'"
-            + (activate != null ? " --action " + String(activate) : "")
-            + " --json",
         });
       }
       if (options.length === 0 && visiblePanel.ok && visiblePanel.value?.targetStoryId && Array.isArray(visiblePanel.value.options)) {
         const visibleTarget = visiblePanel.value.targetStoryId;
-        const targetJson = JSON.stringify(visibleTarget);
         for (const visibleOption of visiblePanel.value.options) {
           if (!visibleOption.targetType) continue;
           const args = activate == null ? null : { TargetType: visibleOption.targetType, Target: visibleTarget, Action: activate };
@@ -1163,17 +1084,6 @@ export function playNotificationViewSource(): string {
             enabled,
             disabled: !enabled,
             validation,
-            cli: enabled
-              ? "game play choose-narrative --target-type " + String(visibleOption.targetType)
-                + " --target '" + targetJson + "'"
-                + " --action " + String(activate)
-                + " --send"
-              : null,
-            validateCli: "game play choose-narrative --player-id " + String(localPlayerId)
-              + " --target-type " + String(visibleOption.targetType)
-              + " --target '" + targetJson + "'"
-              + (activate != null ? " --action " + String(activate) : "")
-              + " --json",
           });
         }
       }
@@ -1181,12 +1091,6 @@ export function playNotificationViewSource(): string {
       const disabledOptions = options.filter((option) => option.disabled);
       const notificationTarget = safeNotificationValue(notification, "Target");
       const hasEnabledOptions = enabledOptions.length > 0;
-      const dismissalDiagnosticCli = !hasEnabledOptions && !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
-        ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --json"
-        : null;
-      const unprovenDismissalCli = !hasEnabledOptions && !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
-        ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --send"
-        : null;
       const classification = hasEnabledOptions
         ? "narrative-choice-options"
         : target
@@ -1212,8 +1116,6 @@ export function playNotificationViewSource(): string {
         options,
         enabledOptions,
         disabledOptions,
-        dismissalDiagnosticCli,
-        unprovenDismissalCli,
         notes: [
           "Options mirror the official narrative popup buttons. The notification target can be invalid; the official UI derives the target story from Players.Stories.",
           "Discovery notifications are checked against getFirstPendingDiscoveryLastMetID before the regular pending met story id.",
@@ -1253,11 +1155,6 @@ export function playNotificationViewSource(): string {
           argsShape: "{}",
           enabled,
           validation,
-          cli: enabled
-            ? "game play operation --family unit --type SKIP_TURN --unit-id '"
-              + JSON.stringify(normalizedUnitId)
-              + "' --send"
-            : null,
         };
       }).filter(Boolean);
       const enabledCloseoutCandidates = closeoutCandidates.filter((candidate) => candidate.enabled);
@@ -1275,12 +1172,10 @@ export function playNotificationViewSource(): string {
             turnCompleteAlreadySent
               ? {
                   kind: "wait-for-turn-advance",
-                  cli: "game watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl",
                   proof: "GameContext.hasSentTurnComplete is already true; do not repeat unit operations or turn-complete until a fresh watch shows whether the turn advanced or a new blocker appeared.",
                 }
               : {
                   kind: "send-turn-complete",
-                  cli: "game play end-turn --send --json",
                   proof: "Official COMMAND_UNITS activation selects the next ready unit; selectedUnitId and firstReadyUnitId are null, blocker enum is clean, and no validator-backed SKIP_TURN closeout remains.",
                 },
           ]

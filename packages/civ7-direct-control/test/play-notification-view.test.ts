@@ -141,6 +141,18 @@ describe("getCiv7PlayNotificationView", () => {
       expect(notificationRead).not.toContain("validate attribute purchase");
       expect(notificationRead).not.toContain("when only validation");
       expect(notificationRead).not.toContain("with validation and ready send templates");
+      expect(notificationRead).not.toContain("validateCli");
+      expect(notificationRead).not.toContain("targetCli");
+      expect(notificationRead).not.toContain("dismissalDiagnosticCli");
+      expect(notificationRead).not.toContain("unprovenDismissalCli");
+      expect(notificationRead).not.toContain("game play respond-diplomacy --action-id");
+      expect(notificationRead).not.toContain("game play choose-tech --node");
+      expect(notificationRead).not.toContain("game play choose-culture --node");
+      expect(notificationRead).not.toContain("game play choose-celebration --golden-age-type");
+      expect(notificationRead).not.toContain("game play choose-government --government-type");
+      expect(notificationRead).not.toContain("game play choose-narrative --target-type");
+      expect(notificationRead).not.toContain("game play operation --family unit --type SKIP_TURN");
+      expect(notificationRead).not.toContain("game watch --count 3");
     } finally {
       await server.close();
     }

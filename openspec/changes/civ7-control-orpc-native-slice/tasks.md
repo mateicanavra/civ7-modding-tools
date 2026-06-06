@@ -1004,6 +1004,16 @@ adding more read-only facade shells.
     Civ7 proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
     unchanged; caller-provided approval remains retired and no approval-reason
     mechanic is introduced.
+  - [x] 7.1.9.38 Remove the remaining direct-control notification detail
+    command recipe fields (`cli`, `validateCli`, `targetCli`,
+    `dismissalDiagnosticCli`, `unprovenDismissalCli`) from diplomacy,
+    progression, government, narrative, and unit-command detail rows. Keep
+    option data, validation probes, enabled/disabled classification,
+    postcondition/no-repeat policy, parser flags, CLI semantic projections,
+    control-oRPC contracts/routers, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2095,6 +2105,17 @@ adding more read-only facade shells.
   relationship authority, or parent Task 5.x/6.x/7.x acceptance;
   caller-provided approval remains retired and no approval-reason mechanic is
   introduced.
+- [x] 8.60.52 Run focused direct-control play-notification-view tests,
+  adjacent CLI notification HUD/queue/priorities tests, adjacent control-oRPC
+  notification queue/attention priority tests, direct-control check/build, CLI
+  check, strict OpenSpec validates, notification detail command-recipe source
+  scan, active approval/caller-permission scan, relationship-label safety scan,
+  and diff hygiene for the remaining notification detail command-field removal.
+  This is local source/CLI/oRPC/OpenSpec proof only; it does not change option
+  data, validation probes, parser flags, deployed Civ7 runtime behavior,
+  play-thread state, transport/controller scope, relationship authority, or
+  parent Task 5.x/6.x/7.x acceptance; caller-provided approval remains retired
+  and no approval-reason mechanic is introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package
   check/build, strict OpenSpec validates, game-UI attention `cli`/command
   recipe scans, active approval/caller-permission scan, relationship-label
