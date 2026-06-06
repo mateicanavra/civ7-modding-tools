@@ -1649,6 +1649,34 @@ boundaries.
 - **AND** not-sent, sticky-blocker, state-changed-blocker-still-live, and other
   unverified paths remain no-repeat guarded
 
+#### Scenario: Progression dashboard service is implemented
+- **WHEN** a caller reads `progression.dashboard.current`
+- **THEN** it is offered under the semantic `progression` router
+- **AND** it consumes the direct-control progress dashboard runtime port as
+  low-level App UI evidence
+- **AND** the service procedure owns the summary-first progression projection,
+  compact legacy path calculations, warning policy, omitted-detail policy, and
+  semantic next-step descriptors
+- **AND** caller-facing input accepts only progression dashboard selection
+  fields such as optional player id, while endpoint, session, state, raw
+  command, rawCommand, transport, and approval/reason fields remain outside
+  procedure input
+- **AND** normal service output omits raw host, port, state, session, command,
+  rawCommand, direct-control runtime envelopes, and CLI command strings
+- **AND** local procedure tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI progress dashboard uses native progression service
+- **WHEN** `civ7 game play progress-dashboard` reads current progress
+- **THEN** the CLI calls the in-process
+  `progression.dashboard.current` server-side client
+- **AND** normal JSON uses the service-owned semantic progression dashboard
+  projection rather than a CLI-owned runtime projection
+- **AND** any CLI command-string presentation is mapped at the CLI edge from
+  semantic next-step descriptors, not embedded in the service contract
+- **AND** the CLI does not expose raw host, port, state, session, command,
+  rawCommand, direct-control runtime envelopes, approval/reason mechanics, or
+  transport details as normal progress-dashboard output
+
 #### Scenario: Local procedure test passes
 - **WHEN** a local fake-context procedure test passes
 - **THEN** it may prove contract/middleware/projection behavior

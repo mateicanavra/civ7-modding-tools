@@ -134,6 +134,8 @@ describe('game play progression reads', () => {
         legacyPaths: Array<{ classType: string; score: number; finalRequiredPathPoints: number; progressPercent: number; nextMilestone: string }>;
         triumphs: { count: number };
         proof: { sources: string[] };
+        next: string | null;
+        nextSteps: Array<{ kind: string; label: string }>;
         warnings: string[];
         omitted: Array<{ path: string }>;
         view?: unknown;
@@ -149,8 +151,11 @@ describe('game play progression reads', () => {
       expect(payload.legacyPaths.find((path) => path.classType === 'science')?.progressPercent).toBe(10);
       expect(payload.triumphs.count).toBe(0);
       expect(payload.proof.sources).toContain('player.LegacyPaths.getScore');
+      expect(payload.next).toBe('game play priorities --compact --json');
+      expect(payload.nextSteps[0].kind).toBe('read-attention-priorities');
+      expect(JSON.stringify(payload.nextSteps)).not.toContain('game play ');
       expect(payload.warnings.join(' ')).toContain('VictoryManager is module-local');
-      expect(payload.omitted.some((item) => item.path === 'view.legacyPaths[].milestones')).toBe(true);
+      expect(payload.omitted.some((item) => item.path === 'dashboard.legacyPaths[].milestones')).toBe(true);
       expect(payload.view).toBeUndefined();
       expect(server.received.some((message) => message.includes('readProgressDashboard'))).toBe(true);
       expect(server.received.some((message) => message.includes('getHistoricalLegacyPointCountForTeam'))).toBe(true);

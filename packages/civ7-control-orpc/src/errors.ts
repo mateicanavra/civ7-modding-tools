@@ -434,6 +434,30 @@ export class Civ7ProgressionChoiceUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7ProgressionDashboardUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("progression.dashboard.current"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionDashboardUnavailableErrorData = Static<
+  typeof Civ7ProgressionDashboardUnavailableErrorDataSchema
+>;
+
+export class Civ7ProgressionDashboardUnavailableError extends ORPCTaggedError(
+  "Civ7ProgressionDashboardUnavailableError",
+  {
+    code: "PROGRESSION_DASHBOARD_UNAVAILABLE",
+    message: "Direct-control progression dashboard read failed.",
+    schema: toStandardSchema(
+      Civ7ProgressionDashboardUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
 export const Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema =
   Type.Object(
     {
@@ -696,6 +720,7 @@ export const civ7ControlOrpcErrorMap = {
   NOTIFICATION_QUEUE_UNAVAILABLE: Civ7NotificationQueueUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
+  PROGRESSION_DASHBOARD_UNAVAILABLE: Civ7ProgressionDashboardUnavailableError,
   PROGRESSION_PLAYER_CHOICE_UNAVAILABLE: Civ7ProgressionPlayerChoiceUnavailableError,
   PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,

@@ -1,6 +1,7 @@
 import {
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
+  getCiv7ProgressDashboard,
   getCiv7BattlefieldScan,
   getCiv7DestinationAnalysis,
   getCiv7MapGrid,
@@ -84,6 +85,8 @@ import {
   type Civ7ProgressionTargetInput,
   type Civ7ProgressionTargetResult,
   type Civ7ProgressionPlayerChoiceResult,
+  type Civ7ProgressDashboardInput,
+  type Civ7ProgressDashboardResult,
   type Civ7TraditionChangeInput,
   type Civ7TraditionReviewInput,
   type Civ7TurnCompletionRequestResult,
@@ -116,6 +119,8 @@ export type Civ7ControlOrpcProgressionTargetResult =
   Civ7ProgressionTargetResult;
 export type Civ7ControlOrpcProgressionPlayerChoiceResult =
   Civ7ProgressionPlayerChoiceResult;
+export type Civ7ControlOrpcProgressDashboardResult =
+  Civ7ProgressDashboardResult;
 export type Civ7ControlOrpcTurnCompletionRequestResult =
   Civ7TurnCompletionRequestResult;
 type Civ7ControlOrpcPopulationPlacementRuntimeResult =
@@ -269,6 +274,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
   getCiv7PlayNotificationView(
     options?: PlayNotificationViewOptions,
   ): Promise<Civ7ControlOrpcPlayNotificationViewResult>;
+  getCiv7ProgressDashboard(
+    input?: Civ7ProgressDashboardInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcProgressDashboardResult>;
   getCiv7BattlefieldScan(
     input?: Civ7BattlefieldScanInput,
     options?: Civ7DirectControlOptions,
@@ -388,6 +397,8 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     getCiv7PlayNotificationView(options) as Promise<
       Civ7ControlOrpcPlayNotificationViewResult
     >,
+  getCiv7ProgressDashboard: async (input, options) =>
+    getCiv7ProgressDashboard(input, options),
   getCiv7BattlefieldScan: async (input, options) =>
     getCiv7BattlefieldScan(input, options) as Promise<
       Civ7ControlOrpcBattlefieldScanResult

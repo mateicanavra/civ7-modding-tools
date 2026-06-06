@@ -3,6 +3,9 @@ import {
   progressionTechnologyChoiceRequestProcedure,
 } from "./procedures/choice-request";
 import {
+  progressionDashboardCurrentProcedure,
+} from "./procedures/dashboard-current";
+import {
   progressionAttributePurchaseRequestProcedure,
   progressionAttributeReviewRequestProcedure,
   progressionTraditionChangeRequestProcedure,
@@ -14,6 +17,9 @@ import {
 } from "./procedures/target-request";
 
 export const progressionRouter = {
+  dashboard: {
+    current: progressionDashboardCurrentProcedure,
+  },
   technology: {
     choice: {
       request: progressionTechnologyChoiceRequestProcedure,

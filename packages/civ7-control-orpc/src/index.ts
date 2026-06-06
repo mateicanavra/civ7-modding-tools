@@ -176,6 +176,8 @@ export {
   Civ7PopulationPlacementUnavailableErrorDataSchema,
   Civ7ProgressionChoiceUnavailableError,
   Civ7ProgressionChoiceUnavailableErrorDataSchema,
+  Civ7ProgressionDashboardUnavailableError,
+  Civ7ProgressionDashboardUnavailableErrorDataSchema,
   Civ7ProgressionPlayerChoiceUnavailableError,
   Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema,
   Civ7ProgressionTargetUnavailableError,
@@ -220,6 +222,7 @@ export {
   type Civ7NotificationQueueUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProgressionChoiceUnavailableErrorData,
+  type Civ7ProgressionDashboardUnavailableErrorData,
   type Civ7ProgressionPlayerChoiceUnavailableErrorData,
   type Civ7ProgressionTargetUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
@@ -364,6 +367,8 @@ export type {
   Civ7ProgressionCultureChoiceResult,
   Civ7ProgressionCultureTargetContract as Civ7ProgressionCultureTargetContractType,
   Civ7ProgressionCultureTargetResult,
+  Civ7ProgressionDashboardInput,
+  Civ7ProgressionDashboardResult,
   Civ7ProgressionTechnologyChoiceContract as Civ7ProgressionTechnologyChoiceContractType,
   Civ7ProgressionTechnologyChoiceResult,
   Civ7ProgressionTechnologyTargetContract as Civ7ProgressionTechnologyTargetContractType,
@@ -371,6 +376,7 @@ export type {
   Civ7ProgressionTargetInput,
 } from "./modules/progression/contract";
 export { progressionRouter } from "./modules/progression/router";
+export { progressionDashboardCurrentProcedure } from "./modules/progression/procedures/dashboard-current";
 export {
   progressionCultureChoiceRequestProcedure,
   progressionTechnologyChoiceRequestProcedure,
