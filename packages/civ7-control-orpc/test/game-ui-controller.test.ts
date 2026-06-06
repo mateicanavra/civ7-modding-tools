@@ -973,6 +973,185 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(sendCalls).toEqual([]);
   });
 
+  test("executes narrative choice through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
+      narrativeChoice: {
+        clearBlockerOnSend: true,
+        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-narrative-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "narrative.choice.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "narrative.choice.request",
+      input: {
+        playerId: 2,
+        targetType: "DISCOVERY_STORY",
+        target: notificationId,
+        action: 1,
+      },
+      correlationId: "game-ui-narrative-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "narrative.choice.request",
+      correlationId: "game-ui-narrative-1",
+      output: {
+        playerId: 0,
+        targetType: "DISCOVERY_STORY",
+        target: notificationId,
+        action: 1,
+        sent: true,
+        status: "sent-confirmed",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "narrative-blocker-cleared",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+        nextSteps: [{
+          kind: "refresh-attention",
+          source: "narrative.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{
+      playerId: 0,
+      args: {
+        TargetType: "DISCOVERY_STORY",
+        Target: notificationId,
+        Action: 1,
+      },
+    }]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("CHOOSE_NARRATIVE_STORY_DIRECTION");
+    expect(serialized).not.toContain("sendRequest");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+  });
+
+  test("keeps sticky game UI narrative choices no-repeat guarded", async () => {
+    const target = {
+      ...gameUiNotificationTarget(notificationId, {
+        notificationTypeName: "NOTIFICATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
+        narrativeChoice: {
+          clearBlockerOnSend: false,
+        },
+      }),
+      document: {
+        querySelectorAll: () => {
+          throw new Error("narrative panel read failed");
+        },
+      },
+    };
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "narrative.choice.request",
+      input: {
+        playerId: 0,
+        targetType: "DISCOVERY_STORY",
+        target: notificationId,
+        action: 1,
+      },
+      correlationId: "game-ui-narrative-sticky-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        playerId: 0,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "no-state-change",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "narrative.choice.request",
+        }],
+      },
+    });
+  });
+
+  test("keeps game UI narrative validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
+      narrativeChoice: {
+        canChoose: false,
+        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "narrative.choice.request",
+      input: {
+        playerId: 0,
+        targetType: "DISCOVERY_STORY",
+        target: notificationId,
+        action: 1,
+      },
+      correlationId: "game-ui-narrative-blocked-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: false,
+        status: "not-sent",
+        validation: {
+          beforeValid: false,
+          afterValid: false,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "inspect-narrative-choice",
+          source: "narrative.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
   test("keeps blocked game UI turn completion semantic and no-repeat guarded", async () => {
     const sendCalls: string[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -1496,6 +1675,18 @@ function gameUiNotificationTarget(
         args: Readonly<Record<string, number>>,
       ) => void;
     };
+    narrativeChoice?: {
+      canChoose?: boolean;
+      clearBlockerOnSend?: boolean;
+      onSend?: (
+        playerId: number,
+        args: Readonly<{
+          TargetType: string;
+          Target: { owner: number; id: number; type: number };
+          Action: number;
+        }>,
+      ) => void;
+    };
   }> = {},
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
@@ -1537,6 +1728,12 @@ function gameUiNotificationTarget(
             SET_TECH_TREE_TARGET_NODE: "SET_TECH_TREE_TARGET_NODE",
             SET_CULTURE_TREE_NODE: "SET_CULTURE_TREE_NODE",
             SET_CULTURE_TREE_TARGET_NODE: "SET_CULTURE_TREE_TARGET_NODE",
+          }),
+      ...(options.narrativeChoice == null
+        ? {}
+        : {
+            CHOOSE_NARRATIVE_STORY_DIRECTION:
+              "CHOOSE_NARRATIVE_STORY_DIRECTION",
           }),
     },
     ProgressionTreeNodeTypes: options.progressionChoice == null
@@ -1662,11 +1859,14 @@ function gameUiNotificationTarget(
           },
       PlayerOperations: options.populationPlacement == null
           && options.progressionChoice == null
+          && options.narrativeChoice == null
         ? undefined
         : {
             canStart: (_playerId, operationType) => ({
               Success: operationType === "ASSIGN_WORKER"
                 ? options.populationPlacement?.canAssignWorker ?? true
+                : operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION"
+                ? options.narrativeChoice?.canChoose ?? true
                 : String(operationType).includes("TARGET")
                 ? options.progressionChoice?.canClearTarget ?? true
                 : options.progressionChoice?.canChoose ?? true,
@@ -1676,6 +1876,18 @@ function gameUiNotificationTarget(
               if (operationType === "ASSIGN_WORKER") {
                 options.populationPlacement?.onAssignWorkerSend?.(args);
                 populationSent = true;
+              } else if (operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION") {
+                options.narrativeChoice?.onSend?.(
+                  _playerId,
+                  args as {
+                    TargetType: string;
+                    Target: { owner: number; id: number; type: number };
+                    Action: number;
+                  },
+                );
+                if (options.narrativeChoice?.clearBlockerOnSend === true) {
+                  exists = false;
+                }
               } else {
                 options.progressionChoice?.onSend?.(operationType, args);
                 progressionSent = true;

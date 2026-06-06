@@ -639,6 +639,20 @@ adding more read-only facade shells.
     game-UI function names, command/session/state details, deployed Civ7 proof,
     play-thread action, narrative/diplomacy/unit runtime ports, and full `7.3`
     acceptance pending.
+  - [x] 7.3.22 Add a game-resident narrative-choice runtime dependency for
+    `narrative.choice.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest`,
+    `PlayerOperationTypes.CHOOSE_NARRATIVE_STORY_DIRECTION`, notification
+    activation/read APIs, optional narrative panel/popup evidence, and
+    controller-owned local-player proof through the existing service-owned
+    narrative procedure; advertise the mutation only when those exact game UI
+    APIs and controller proof exist; derive send player from
+    `GameContext.localPlayerID` rather than caller `playerId`; preserve
+    validator-blocked not-sent and no-repeat proof output for sticky blockers,
+    validation-only changes, failed/missing panel evidence, and missing
+    postcondition paths; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    diplomacy/unit runtime ports, and full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -787,6 +801,13 @@ adding more read-only facade shells.
   These are local package and bundle proofs only and do not claim deployed Civ7
   runtime proof, play-thread action, narrative/diplomacy/unit runtime ports, or
   full `7.3` acceptance.
+- [x] 8.52 Run focused game-ui controller, narrative-choice procedure, and
+  controller-ingress tests plus control-oRPC check/build/test, controller mod
+  package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident narrative-choice runtime dependency.
+  These are local package and bundle proofs only and do not claim deployed Civ7
+  runtime proof, play-thread action, diplomacy/unit runtime ports, or full
+  `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

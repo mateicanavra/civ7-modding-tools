@@ -764,6 +764,36 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   narrative/diplomacy/unit runtime ports, play-thread action, and full `7.3`
   implementation remain pending
 
+#### Scenario: Game UI controller supports narrative choice
+- **WHEN** the game-scoped controller context exposes ambient narrative choice
+  APIs for `Game.PlayerOperations.canStart/sendRequest`,
+  `PlayerOperationTypes.CHOOSE_NARRATIVE_STORY_DIRECTION`, notification
+  activation/read APIs, optional narrative panel/popup evidence, and
+  controller-owned local-player proof
+- **THEN** the context may execute the service-owned
+  `narrative.choice.request` procedure through the existing in-process router
+  and native readiness/proof middleware
+- **AND** `narrative.choice.request` is listed as a supported game-UI mutation
+  only when controller proof and the required ambient validation, send, and
+  notification APIs are present
+- **AND** caller `playerId` remains validation/input context while the runtime
+  send player is derived from controller-owned `GameContext.localPlayerID`
+- **AND** validator-blocked narrative choices project semantic `not-sent`
+  output and do not call the send API
+- **AND** sent choices preserve source-owned narrative proof semantics:
+  blocker-cleared, turn-unblocked, or matched panel-cleared evidence can
+  confirm the request, while sticky blockers, validation-only changes,
+  failed/missing panel evidence, no-state-change, and missing postcondition
+  paths remain no-repeat guarded
+- **AND** normal bridge success output remains the semantic narrative-choice
+  result and omits host, port, state, command, rawCommand, session, tuner
+  payloads, raw game-UI function names, direct-control socket details, and raw
+  `CHOOSE_NARRATIVE_STORY_DIRECTION` operation names
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof,
+  diplomacy/unit runtime ports, play-thread action, and full `7.3`
+  implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control

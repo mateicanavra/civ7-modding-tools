@@ -34,6 +34,11 @@ import {
   requestCiv7GameUiExpandCityPlacement,
   type Civ7GameUiPopulationTarget,
 } from "./game-ui-population";
+import {
+  civ7GameUiNarrativeChoiceAvailable,
+  requestCiv7GameUiNarrativeChoice,
+  type Civ7GameUiNarrativeTarget,
+} from "./game-ui-narrative";
 import type {
   Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcPlayableStatusResult,
@@ -74,9 +79,19 @@ export type Civ7GameUiRuntimeTarget = {
     CityCommands?: Civ7GameUiPopulationTarget["Game"] extends infer Game
       ? Game extends { CityCommands?: infer Commands } ? Commands : never
       : never;
-    PlayerOperations?: Civ7GameUiPopulationTarget["Game"] extends infer Game
-      ? Game extends { PlayerOperations?: infer Operations } ? Operations : never
-      : never;
+    PlayerOperations?: {
+      canStart?: (
+        playerId: number,
+        operationType: unknown,
+        args: unknown,
+        queue?: boolean,
+      ) => unknown;
+      sendRequest?: (
+        playerId: number,
+        operationType: unknown,
+        args: unknown,
+      ) => unknown;
+    };
     ProgressionTrees?: Civ7GameUiProgressionTarget["Game"] extends infer Game
       ? Game extends { ProgressionTrees?: infer Trees } ? Trees : never
       : never;
@@ -92,9 +107,12 @@ export type Civ7GameUiRuntimeTarget = {
     Civ7GameUiProductionTarget["CityOperationsParametersValues"];
   CityCommandTypes?: Civ7GameUiPopulationTarget["CityCommandTypes"];
   PlayerOperationTypes?: Civ7GameUiPopulationTarget["PlayerOperationTypes"]
-    & Civ7GameUiProgressionTarget["PlayerOperationTypes"];
+    & Civ7GameUiProgressionTarget["PlayerOperationTypes"]
+    & Civ7GameUiNarrativeTarget["PlayerOperationTypes"];
   ProgressionTreeNodeTypes?:
     Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
+  NarrativePopupManager?: Civ7GameUiNarrativeTarget["NarrativePopupManager"];
+  document?: Civ7GameUiNarrativeTarget["document"];
   Autoplay?: {
     isActive?: boolean;
     turns?: number;
@@ -193,7 +211,8 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiProductionChoice(input, target),
     requestCiv7NotificationDismissal: async (input) =>
       await requestCiv7GameUiNotificationDismissal(input, target),
-    requestCiv7NarrativeChoice: unsupported,
+    requestCiv7NarrativeChoice: async (input) =>
+      await requestCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: unsupported,
     requestCiv7TechnologyChoiceCloseout: async (input) =>
       await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
@@ -277,6 +296,9 @@ function gameUiSupportedMutationProcedures(
       "progression.technology.choice.request",
       "progression.culture.choice.request",
     );
+  }
+  if (civ7GameUiNarrativeChoiceAvailable(target)) {
+    supported.push("narrative.choice.request");
   }
   return supported;
 }
