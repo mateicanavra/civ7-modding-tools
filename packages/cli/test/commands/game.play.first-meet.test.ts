@@ -44,8 +44,6 @@ describe('game play first-meet diplomacy command', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '0',
         '--met-player-id',
         '2',
         '--response',
@@ -98,8 +96,6 @@ describe('game play first-meet diplomacy command', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '0',
         '--met-player-id',
         '2',
         '--response',
@@ -336,7 +332,7 @@ function firstMeetNotificationView(mode: 'first-meet' | 'ready-unit') {
     commonActions: [
       {
         label: 'send neutral first-meet greeting',
-        cli: 'game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral',
+        cli: 'game play respond-first-meet --met-player-id 2 --response neutral --send',
         operationFamily: 'player-operation',
         operationType: 'RESPOND_DIPLOMATIC_FIRST_MEET',
         argsShape: '{ Player1, Player2, Type }',
@@ -357,7 +353,7 @@ function firstMeetNotificationView(mode: 'first-meet' | 'ready-unit') {
         },
       ],
       recommendedResponse: 'neutral',
-      recommendedCli: 'game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral',
+      recommendedCli: 'game play respond-first-meet --met-player-id 2 --response neutral --send',
     },
   };
   const notification = {

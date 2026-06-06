@@ -1807,7 +1807,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "narrative.choice.request",
       input: {
-        playerId: 2,
         targetType: "DISCOVERY_STORY",
         target: notificationId,
         action: 1,
@@ -1880,7 +1879,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "narrative.choice.request",
       input: {
-        playerId: 0,
         targetType: "DISCOVERY_STORY",
         target: notificationId,
         action: 1,
@@ -1922,7 +1920,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "narrative.choice.request",
       input: {
-        playerId: 0,
         targetType: "DISCOVERY_STORY",
         target: notificationId,
         action: 1,
@@ -1987,7 +1984,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "diplomacy.response.request",
       input: {
-        playerId: 2,
         actionId: diplomacyActionId,
         responseType: diplomacyResponseType,
         notificationId,
@@ -2055,7 +2051,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "diplomacy.response.request",
       input: {
-        playerId: 0,
         actionId: diplomacyActionId,
         responseType: diplomacyResponseType,
         notificationId,
@@ -2098,7 +2093,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "diplomacy.response.request",
       input: {
-        playerId: 0,
         actionId: diplomacyActionId,
         responseType: diplomacyResponseType,
         notificationId,
@@ -2144,7 +2138,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "diplomacy.response.request",
       input: {
-        playerId: 0,
         actionId: diplomacyActionId,
         responseType: diplomacyResponseType,
       },
@@ -2350,7 +2343,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "diplomacy.firstMeet.response.request",
       input: {
-        playerId: 2,
         metPlayerId: 2,
         responseType: firstMeetResponseType,
       },
@@ -2418,7 +2410,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "diplomacy.firstMeet.response.request",
       input: {
-        playerId: 2,
         metPlayerId: 2,
         responseType: firstMeetResponseType,
       },
@@ -2464,7 +2455,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "diplomacy.firstMeet.response.request",
       input: {
-        playerId: 2,
         metPlayerId: 2,
         responseType: firstMeetResponseType,
       },

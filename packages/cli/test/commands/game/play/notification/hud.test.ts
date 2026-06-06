@@ -126,7 +126,7 @@ describe('game play notifications command', () => {
       expect(details?.storyLinks.value).toEqual([]);
       expect(details?.enabledOptions[0].targetType).toBe('CLOSE');
       expect(details?.enabledOptions[0].validation.value?.Success).toBe(true);
-      expect(details?.enabledOptions[0].cli).toContain('game play choose-narrative --player-id 0 --target-type CLOSE');
+      expect(details?.enabledOptions[0].cli).toContain('game play choose-narrative --target-type CLOSE');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -596,7 +596,7 @@ function narrativeChoiceHudView() {
     enabledOptions: [
       {
         targetType: 'CLOSE',
-        cli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send",
+        cli: "game play choose-narrative --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],

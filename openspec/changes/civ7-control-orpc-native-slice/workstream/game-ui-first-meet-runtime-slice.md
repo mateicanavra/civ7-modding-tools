@@ -36,8 +36,9 @@ The slice:
 - derives the serialized bridge envelope schemas from the aggregated
   `Civ7ControlOrpcContract` rather than importing a separate procedure-schema
   surface or accepting unknown payloads;
-- routes caller player input through fresh `GameContext.localPlayerID` evidence
-  before ambient send functions are called;
+- omits caller `playerId` from bridge input and routes sends through fresh
+  `GameContext.localPlayerID` evidence before ambient send functions are
+  called;
 - uses strict end-turn-blocking `NOTIFICATION_PLAYER_MET` target evidence for
   `metPlayerId` before treating a cleared first-meet blocker as confirmed;
 - preserves validator-blocked `not-sent` output;

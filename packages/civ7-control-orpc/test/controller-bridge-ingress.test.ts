@@ -122,19 +122,16 @@ const townFocusInput = {
 };
 const narrativeTarget = { owner: 0, id: 7_001, type: 12 };
 const narrativeInput = {
-  playerId: 2,
   targetType: "DISCOVERY_STORY",
   target: narrativeTarget,
   action: 1,
 };
 const diplomacyInput = {
-  playerId: 2,
   actionId: 8_821,
   responseType: -1_713_616_684,
   notificationId,
 };
 const firstMeetInput = {
-  playerId: 2,
   metPlayerId: 2,
   responseType: 673_478_009,
 };
@@ -1174,8 +1171,12 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.narrative).toEqual([{
-      input: narrativeInput,
+      input: {
+        playerId: 0,
+        ...narrativeInput,
+      },
       options: { timeoutMs: 1_000 },
     }]);
     expect(fake.contextRequests).toEqual([{
@@ -1235,8 +1236,12 @@ describe("Civ7 controller bridge ingress", () => {
       },
     });
     expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
     expect(fake.calls.diplomacy).toEqual([{
-      input: diplomacyInput,
+      input: {
+        playerId: 0,
+        ...diplomacyInput,
+      },
       options: { timeoutMs: 1_000 },
     }]);
     expect(fake.contextRequests).toEqual([{
@@ -2584,6 +2589,7 @@ function fakeTownFocusContext(): {
 function fakeNarrativeChoiceContext(): {
   calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     narrative: Array<{
       input: unknown;
       options: unknown;
@@ -2594,12 +2600,14 @@ function fakeNarrativeChoiceContext(): {
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     narrative: Array<{
       input: unknown;
       options: unknown;
     }>;
   } = {
     status: [],
+    views: [],
     narrative: [],
   };
   return {
@@ -2616,6 +2624,10 @@ function fakeNarrativeChoiceContext(): {
           calls.status.push(options);
           return playableStatusResult();
         },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return cleanNotificationViewResult();
+        },
         requestCiv7NarrativeChoice: async (input, options) => {
           calls.narrative.push({ input, options });
           return narrativeChoiceResult();
@@ -2628,6 +2640,7 @@ function fakeNarrativeChoiceContext(): {
 function fakeDiplomacyResponseContext(): {
   calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     diplomacy: Array<{
       input: unknown;
       options: unknown;
@@ -2638,12 +2651,14 @@ function fakeDiplomacyResponseContext(): {
 } {
   const calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
     diplomacy: Array<{
       input: unknown;
       options: unknown;
     }>;
   } = {
     status: [],
+    views: [],
     diplomacy: [],
   };
   return {
@@ -2659,6 +2674,10 @@ function fakeDiplomacyResponseContext(): {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
           return playableStatusResult();
+        },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return cleanNotificationViewResult();
         },
         requestCiv7DiplomacyResponse: async (input, options) => {
           calls.diplomacy.push({ input, options });

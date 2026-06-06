@@ -69,8 +69,6 @@ describe('game play diplomacy response commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '2',
         '--action-id',
         '8',
         '--response-type',

@@ -1147,8 +1147,8 @@ adding more read-only facade shells.
     government procedures; allowlist those leaves through closed controller
     bridge envelopes that derive concrete schemas from the aggregated
     `Civ7ControlOrpcContract`; advertise the mutations only when those exact
-    game UI APIs and controller proof exist; route caller player input through
-    fresh `GameContext.localPlayerID` evidence before send; preserve
+    game UI APIs and controller proof exist; omit caller `playerId` and route
+    sends through fresh `GameContext.localPlayerID` evidence before send; preserve
     validator-blocked not-sent output and pending-runtime-proof/no-repeat
     guarded sent output; keep raw game-UI function names,
     command/session/state details, deployed Civ7 proof, play-thread action,
@@ -1163,7 +1163,7 @@ adding more read-only facade shells.
     allowlist the leaf through a closed controller bridge envelope that
     derives concrete schemas from the aggregated `Civ7ControlOrpcContract`;
     advertise the mutation only when those exact game UI APIs and controller
-    proof exist; route caller player input through fresh
+    proof exist; omit caller `playerId` and route sends through fresh
     `GameContext.localPlayerID` evidence before send; preserve
     validator-blocked not-sent output and keep unmatched/sticky first-meet
     blocker evidence no-repeat guarded; keep raw game-UI function names,
@@ -1664,6 +1664,16 @@ adding more read-only facade shells.
   package/CLI proof only and does not claim deployed Civ7 runtime proof,
   play-thread action, transport expansion, approval/reason mechanics, broad
   progression catalog support, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.26 Run focused narrative/diplomacy procedure/controller/game-UI
+  tests, focused CLI narrative/diplomacy/first-meet/HUD tests, direct-control
+  notification-view proof, control-oRPC package test/check/build,
+  direct-control check/build, CLI play/check/build gates, strict OpenSpec
+  validates, private procedure-schema export scan, stale send-mode
+  `--player-id` scan, active approval/caller-permission scan, and diff hygiene
+  for the narrative/diplomacy player-input cleanup. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, approval/reason mechanics,
+  diplomacy/narrative catalog support, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

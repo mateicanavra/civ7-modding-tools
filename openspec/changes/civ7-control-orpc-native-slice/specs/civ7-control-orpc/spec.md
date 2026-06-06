@@ -749,9 +749,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the procedure's readiness, direct-control diplomacy
   response port, diplomacy postcondition projection, and no-repeat policy
   remain authoritative for the send
-- **AND** the send result uses direct-control source evidence for the acted
-  local player rather than treating the caller validation `--player-id` as send
-  authority
+- **AND** send input omits caller `playerId`; the procedure reads live
+  local-player evidence before invoking the direct-control runtime port
 - **AND** the normal JSON result is the semantic diplomacy response procedure
   projection without raw command/session/state/Tuner details, UI closeout
   payloads, diplomacy state internals, direct-control runtime payloads, or
@@ -1372,8 +1371,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `narrative.choice.request` is listed as a supported game-UI mutation
   only when controller proof and the required ambient validation, send, and
   notification APIs are present
-- **AND** caller `playerId` remains validation/input context while the runtime
-  send player is derived from controller-owned `GameContext.localPlayerID`
+- **AND** caller input omits `playerId`; the runtime send player is derived
+  from controller-owned `GameContext.localPlayerID`
 - **AND** validator-blocked narrative choices project semantic `not-sent`
   output and do not call the send API
 - **AND** sent choices preserve source-owned narrative proof semantics:
@@ -1402,8 +1401,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** `diplomacy.response.request` is listed as a supported game-UI
   mutation only when controller proof and the required ambient validation,
   send, notification, and blocker-read APIs are present
-- **AND** caller `playerId` remains validation/input context while the runtime
-  send player is derived from controller-owned `GameContext.localPlayerID`
+- **AND** caller input omits `playerId`; the runtime send player is derived
+  from controller-owned `GameContext.localPlayerID`
 - **AND** validator-blocked diplomacy responses project semantic `not-sent`
   output and do not call the send API
 - **AND** sent responses preserve source-owned diplomacy proof semantics:
@@ -1612,8 +1611,8 @@ boundaries.
   direct-control runtime authority
 - **AND** it consumes direct-control diplomacy validators and proof helpers as
   runtime/proof ports rather than inferring proof from legacy `verified`
-- **AND** its normal input exposes player, action, response, and optional
-  notification identity rather than direct-control UI toggles
+- **AND** its normal input exposes action, response, and optional notification
+  identity rather than caller player identity or direct-control UI toggles
 - **AND** its normal output projects semantic status, validation summary,
   postcondition summary, and next steps
 - **AND** its normal output uses direct-control source evidence for the acted

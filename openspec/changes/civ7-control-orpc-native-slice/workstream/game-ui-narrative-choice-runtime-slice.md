@@ -33,7 +33,7 @@ notification activation plus `PlayerOperations` validation/send evidence.
 - The game-UI adapter returns the internal runtime-port result shape required
   by the existing service-owned narrative procedure; the procedure still owns
   caller-facing semantic projection and no-repeat next steps.
-- Caller `playerId` is not send authority. The adapter sends with
+- Caller input omits `playerId`. The adapter sends with
   `GameContext.localPlayerID` where present, and the normal result projects
   that acted player evidence.
 - Validator-blocked choices remain semantic `not-sent` results and do not call

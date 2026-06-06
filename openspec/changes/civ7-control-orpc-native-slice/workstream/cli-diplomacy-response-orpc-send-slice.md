@@ -26,9 +26,9 @@ this slice because first-meet handling is a separate diplomacy capability.
 
 ## Boundary
 
-- Send output uses direct-control source evidence for the acted/local player.
-  The caller `--player-id` remains validation input and is not send authority
-  when official UI closeout uses `GameContext.localPlayerID`.
+- Send input omits caller `--player-id`; the service reads live local-player
+  evidence before invoking the direct-control runtime port. The non-send
+  validation path remains player-scoped.
 - No Studio, controller bridge, RPCLink, OpenAPI, or transport work.
 - No direct-control procedure-core scaffolding.
 - No raw command/session/state/Tuner payloads, UI closeout payloads, activation
@@ -45,9 +45,9 @@ this slice because first-meet handling is a separate diplomacy capability.
   request result carries top-level acted/local-player evidence from official
   UI runtime reads: caller validation player `2` still returns and acts as
   local player `0`.
-- Focused control-oRPC diplomacy response tests prove the service projection
-  reports source-owned acted-player evidence from the direct-control result
-  rather than echoing caller validation identity.
+- Focused control-oRPC diplomacy response tests prove the service rejects
+  caller `playerId`, reads local-player evidence before facade execution, and
+  reports source-owned acted-player evidence from the direct-control result.
 - Focused CLI diplomacy response tests prove the accepted
   `respond-diplomacy --send` path reaches the existing direct-control official
   UI closeout runtime command through the in-process service client path,

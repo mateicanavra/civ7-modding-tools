@@ -473,7 +473,7 @@ export function playNotificationViewSource(): string {
         recommendedResponse: "neutral",
         recommendedCli: player2 == null
           ? null
-          : "game play respond-first-meet --player-id " + String(player1) + " --met-player-id " + String(player2) + " --response neutral",
+          : "game play respond-first-meet --met-player-id " + String(player2) + " --response neutral --send",
         note: "Neutral is the conservative default when Influence cost or payoff is not proven.",
       };
     };
@@ -1089,8 +1089,7 @@ export function playNotificationViewSource(): string {
           disabled: !enabled,
           validation,
           cli: enabled && targetJson
-            ? "game play choose-narrative --player-id " + String(localPlayerId)
-              + " --target-type " + String(link.ToNarrativeStoryType)
+            ? "game play choose-narrative --target-type " + String(link.ToNarrativeStoryType)
               + " --target '" + targetJson + "'"
               + " --action " + String(activate)
               + " --send"
@@ -1132,8 +1131,7 @@ export function playNotificationViewSource(): string {
           disabled: !enabled,
           validation,
           cli: enabled
-            ? "game play choose-narrative --player-id " + String(localPlayerId)
-              + " --target-type CLOSE"
+            ? "game play choose-narrative --target-type CLOSE"
               + " --target '" + targetJson + "'"
               + " --action " + String(activate)
               + " --send"
@@ -1177,8 +1175,7 @@ export function playNotificationViewSource(): string {
             disabled: !enabled,
             validation,
             cli: enabled
-              ? "game play choose-narrative --player-id " + String(localPlayerId)
-                + " --target-type " + String(visibleOption.targetType)
+              ? "game play choose-narrative --target-type " + String(visibleOption.targetType)
                 + " --target '" + targetJson + "'"
                 + " --action " + String(activate)
                 + " --send"
@@ -1505,7 +1502,7 @@ export function playNotificationViewSource(): string {
             requiredInput("Type", "chosen first-meet greeting", "Use the first-meet response enum from the live UI, not ordinary Support/Accept/Reject diplomacy response enums."),
           ],
           [
-            action("send neutral first-meet greeting", "game play respond-first-meet --player-id <id> --met-player-id <other-player-id> --response neutral", "player-operation", "RESPOND_DIPLOMATIC_FIRST_MEET", "{ Player1, Player2, Type }", "after validating the greeting options from the live first-meet UI"),
+            action("send neutral first-meet greeting", "game play respond-first-meet --met-player-id <other-player-id> --response neutral --send", "player-operation", "RESPOND_DIPLOMATIC_FIRST_MEET", "{ Player1, Player2, Type }", "after validating the greeting options from the live first-meet UI"),
           ],
           ["First-meet greetings are real player operations, not notification dismissals. Neutral is the conservative default when Influence cost or strategic payoff is not proven."],
         );
@@ -1665,6 +1662,7 @@ export function playNotificationViewSource(): string {
           ],
           [
             action("read narrative options", "game play choose-narrative --options --json", undefined, undefined, "enabled narrative buttons with validation and ready send templates", "before choosing a narrative branch or closeout"),
+            action("send narrative choice", "game play choose-narrative --target-type <target-type> --target '<target>' --action <action> --send", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after choosing one enabled narrative option from the live story UI"),
             action("validate narrative choice", "game play choose-narrative --player-id <id> --target-type <target-type> --target '<target>' --action <action>", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after reading the option key and activation from the story UI"),
           ],
           ["Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately."],

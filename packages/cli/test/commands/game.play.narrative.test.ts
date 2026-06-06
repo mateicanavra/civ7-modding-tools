@@ -46,8 +46,6 @@ describe('game play narrative commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '2',
         '--target-type',
         'DISCOVERY_14001B',
         '--target',
@@ -106,8 +104,6 @@ describe('game play narrative commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '0',
         '--target-type',
         'DISCOVERY_14001C',
         '--target',
@@ -163,8 +159,6 @@ describe('game play narrative commands', () => {
         '127.0.0.1',
         '--port',
         String(port),
-        '--player-id',
-        '0',
         '--target-type',
         'DISCOVERY_14001C',
         '--target',
@@ -236,7 +230,7 @@ describe('game play narrative commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       expect(payload.result.surfaces[0].targetStoryId).toEqual({ owner: 0, id: 45, type: 35 });
       expect(payload.result.surfaces[0].enabledOptions[0].targetType).toBe('CLOSE');
-      expect(payload.result.surfaces[0].enabledOptions[0].chooseCli).toContain('game play choose-narrative --player-id 0 --target-type CLOSE');
+      expect(payload.result.surfaces[0].enabledOptions[0].chooseCli).toContain('game play choose-narrative --target-type CLOSE');
       expect(payload.result.surfaces[0].enabledOptions[0].validateCli).toContain('--action -1326475004 --json');
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].storyLinks');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -589,7 +583,7 @@ function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send",
+      cli: "game play choose-narrative --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send",
       validateCli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --json",
     },
   ];
@@ -612,7 +606,7 @@ function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001B --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send",
+      cli: "game play choose-narrative --target-type DISCOVERY_14001B --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send",
       validateCli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001B --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --json",
     },
     {
@@ -630,7 +624,7 @@ function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001C --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send",
+      cli: "game play choose-narrative --target-type DISCOVERY_14001C --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send",
       validateCli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001C --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --json",
     },
   ];

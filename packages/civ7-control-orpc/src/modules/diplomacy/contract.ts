@@ -9,7 +9,6 @@ import { toStandardSchema } from "../../typebox-standard-schema";
 
 const Civ7DiplomacyResponseInputSchema = Type.Object(
   {
-    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     actionId: Type.Integer(),
     responseType: Type.Integer(),
     notificationId: Type.Optional(Civ7ControlOrpcComponentIdSchema),
@@ -104,7 +103,6 @@ export type Civ7DiplomacyResponseResult = Static<
 
 const Civ7FirstMeetResponseInputSchema = Type.Object(
   {
-    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     metPlayerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     responseType: Type.Integer(),
   },
