@@ -835,6 +835,11 @@ adding more read-only facade shells.
     send-oriented where a semantic send surface exists, leave generic fallback
     validation paths for operation families without named shortcuts, and keep
     command help responsible for exhaustive flag/interface detail.
+  - [x] 7.1.9.17 Simplify `civ7 game play notification-queue` follow-up
+    suggestions by preserving the service-owned semantic `nextStep` objects
+    instead of adding CLI command-string recipes to the queue JSON view. Keep
+    text output concise by printing the semantic next-step label, and keep
+    command help responsible for exhaustive flag/interface detail.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1714,6 +1719,16 @@ adding more read-only facade shells.
   contracts, controller bridge surfaces, deployed Civ7 runtime behavior,
   play-thread state, approval/reason mechanics, or parent Task 5.x/6.x/7.x
   acceptance.
+- [x] 8.60.30 Run focused CLI notification-queue tests, focused control-oRPC
+  notification-queue procedure tests, `check:cli`,
+  `test:cli:play`, control-oRPC check, strict OpenSpec validates, queue
+  command-recipe output scan, active approval/caller-permission scan, and diff
+  hygiene for the notification queue next-action simplification. This is local
+  package/CLI proof for a narrow queue service classifier cleanup plus CLI
+  presentation cleanup; it does not change service contracts, CLI parser
+  behavior, deployed Civ7 runtime behavior, play-thread state,
+  approval/reason mechanics, transport/controller scope, or parent
+  Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

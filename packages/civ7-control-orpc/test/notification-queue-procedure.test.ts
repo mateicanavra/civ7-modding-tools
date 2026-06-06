@@ -70,6 +70,42 @@ describe("notifications.queue control-oRPC procedures", () => {
     expectSafeQueueOutput(result);
   });
 
+  test("does not use legacy cli hints as operation classification evidence", async () => {
+    const fake = fakeContext({
+      notificationView: {
+        ...notificationView(),
+        hud: {
+          nextDecision: null,
+          decisionQueue: [
+            queueItem({
+              notificationId: { owner: 0, id: 116, type: 20 },
+              category: "blocking-notification",
+              typeName: "NOTIFICATION_UNKNOWN_BLOCKER",
+              summary: "Unknown blocker",
+              operationFamily: null,
+              operationType: null,
+              cli: "game play choose-tech --options --json",
+            }),
+          ],
+        },
+      },
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.notifications.queue.current,
+      {},
+      { context: fake.context },
+    );
+
+    expect(result.schedule).toEqual([
+      expect.objectContaining({
+        disposition: "inspect-handler",
+        nextStep: expect.objectContaining({ kind: "inspect-notification" }),
+      }),
+    ]);
+    expectSafeQueueOutput(result);
+  });
+
   test("bulk dismisses only safe informational queue candidates and keeps aggregate no-repeat guarded", async () => {
     const fake = fakeContext({
       dismissalResult: notificationDismissalResult("engine-front-still-live", {
@@ -243,6 +279,7 @@ describe("notifications.queue control-oRPC procedures", () => {
 
 function fakeContext(options: {
   notificationViewError?: Error;
+  notificationView?: Civ7ControlOrpcPlayNotificationViewResult;
   dismissalResult?: Civ7ControlOrpcNotificationDismissalResult;
 } = {}): {
   context: Civ7ControlOrpcContext;
@@ -272,7 +309,7 @@ function fakeContext(options: {
         getCiv7PlayNotificationView: async (input) => {
           calls.notifications.push(input);
           if (options.notificationViewError) throw options.notificationViewError;
-          return notificationView();
+          return options.notificationView ?? notificationView();
         },
         requestCiv7NotificationDismissal: async (input, endpointDefaults) => {
           calls.dismissals.push({ input, options: endpointDefaults });
