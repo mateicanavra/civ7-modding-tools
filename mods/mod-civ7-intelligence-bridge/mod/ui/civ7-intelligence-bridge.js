@@ -27178,7 +27178,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-UH7TVMR5.js
+// ../../packages/civ7-control-orpc/dist/chunk-5FKFXI2S.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -31476,6 +31476,7 @@ var Civ7ControllerBridgeErrorSchema = typebox_exports.Object(
     reason: typebox_exports.Union([
       typebox_exports.Literal("invalid-envelope"),
       typebox_exports.Literal("procedure-not-allowed"),
+      typebox_exports.Literal("procedure-not-supported"),
       typebox_exports.Literal("procedure-failed")
     ])
   },
@@ -31645,6 +31646,13 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         reason: "invalid-envelope"
       }, request2);
     }
+    if (!controllerSupportsRequest(context5, request2)) {
+      return bridgeFailure({
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message: "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported"
+      }, request2);
+    }
     const client = createCiv7ControlOrpcServerClient({
       ...context5,
       correlation: request2.correlationId == null ? context5.correlation : {
@@ -31779,6 +31787,17 @@ function isUnsupportedProcedureRequest(request2) {
 }
 function isControllerBridgeMutationRequest(request2) {
   return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request";
+}
+function controllerSupportsRequest(context5, request2) {
+  if (request2.procedureKey === "readiness.current") return true;
+  if (isControllerBridgeMutationRequest(request2)) {
+    return context5.controller?.supportedMutationProcedures?.includes(
+      request2.procedureKey
+    ) === true;
+  }
+  return context5.controller?.supportedReadProcedures?.includes(
+    request2.procedureKey
+  ) === true;
 }
 function safeBridgeProcedureError(err) {
   if (err instanceof ORPCError && typeof err.code === "string") {

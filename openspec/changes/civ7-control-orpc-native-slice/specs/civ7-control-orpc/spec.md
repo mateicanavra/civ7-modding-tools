@@ -587,6 +587,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** controller context must provide game-controller-ready lifecycle,
   `GameContext.localPlayerID`, and single-local-player/hotseat proof before
   native router dispatch
+- **AND** a globally allowlisted mutation still fails before native router
+  dispatch unless the current controller context lists that exact procedure in
+  `supportedMutationProcedures`
 - **AND** the game-UI adapter derives that proof from ambient `UI`,
   `GameContext`, and `Players` globals when the current game process provides
   bounded single-local-player evidence
@@ -596,6 +599,19 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** local package tests prove only context-owned proof sourcing and
   serialized envelope closure; deployed Civ7 runtime proof, mutation runtime
   support, play-thread action, and full `7.3` implementation remain pending
+
+#### Scenario: Controller bridge dispatch respects supported procedure facts
+- **WHEN** the controller bridge receives a globally allowlisted request
+- **THEN** `readiness.current` may dispatch as the bootstrap readiness
+  procedure
+- **AND** other read procedures must be listed by controller context
+  `supportedReadProcedures` before dispatch
+- **AND** mutation procedures must pass context-owned mutation proof and be
+  listed by controller context `supportedMutationProcedures` before dispatch
+- **AND** an unsupported procedure fails through bounded bridge error output
+  before calling the native router or any direct-control/game-UI runtime port
+- **AND** this gate does not add new procedure allowlist entries, transport
+  scope, raw command/session output, or deployed Civ7 runtime proof claims
 
 #### Scenario: Game UI controller supports notification dismissal
 - **WHEN** the game-scoped controller context exposes notification dismissal

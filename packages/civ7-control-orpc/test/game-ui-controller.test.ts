@@ -152,9 +152,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(response).toEqual({
       ok: false,
       error: {
-        code: "MUTATION_READINESS_REQUIRED",
-        message: "Playable Civ7 readiness is required before mutation.",
-        reason: "procedure-failed",
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
       },
     });
     expect(JSON.stringify(response)).not.toContain("NotificationModel");
@@ -174,9 +175,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(response).toEqual({
       ok: false,
       error: {
-        code: "MUTATION_READINESS_REQUIRED",
-        message: "Playable Civ7 readiness is required before mutation.",
-        reason: "procedure-failed",
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
       },
     });
 
@@ -1374,9 +1376,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(response).toEqual({
       ok: false,
       error: {
-        code: "MUTATION_READINESS_REQUIRED",
-        message: "Playable Civ7 readiness is required before mutation.",
-        reason: "procedure-failed",
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
       },
     });
   });
@@ -1522,9 +1525,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(response).toEqual({
       ok: false,
       error: {
-        code: "STRATEGY_FRONT_SUMMARY_UNAVAILABLE",
-        message: "Strategy front summary failed.",
-        reason: "procedure-failed",
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
       },
     });
   });
@@ -1762,9 +1766,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(response).toEqual({
       ok: false,
       error: {
-        code: "MUTATION_READINESS_REQUIRED",
-        message: "Playable Civ7 readiness is required before mutation.",
-        reason: "procedure-failed",
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
       },
     });
   });

@@ -262,6 +262,7 @@ export const Civ7ControllerBridgeErrorSchema = Type.Object(
     reason: Type.Union([
       Type.Literal("invalid-envelope"),
       Type.Literal("procedure-not-allowed"),
+      Type.Literal("procedure-not-supported"),
       Type.Literal("procedure-failed"),
     ]),
   },
@@ -546,6 +547,14 @@ export async function invokeCiv7ControllerBridgeRequest(
         reason: "invalid-envelope",
       }, request);
     }
+    if (!controllerSupportsRequest(context, request)) {
+      return bridgeFailure({
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
+      }, request);
+    }
     const client = createCiv7ControlOrpcServerClient({
       ...context,
       correlation: request.correlationId == null
@@ -755,6 +764,21 @@ function isControllerBridgeMutationRequest(
     || request.procedureKey === "unit.target.action.request"
     || request.procedureKey === "progression.technology.choice.request"
     || request.procedureKey === "progression.culture.choice.request";
+}
+
+function controllerSupportsRequest(
+  context: Civ7ControllerBridgeContext,
+  request: Civ7ControllerBridgeRequest,
+): boolean {
+  if (request.procedureKey === "readiness.current") return true;
+  if (isControllerBridgeMutationRequest(request)) {
+    return context.controller?.supportedMutationProcedures?.includes(
+      request.procedureKey,
+    ) === true;
+  }
+  return context.controller?.supportedReadProcedures?.includes(
+    request.procedureKey,
+  ) === true;
 }
 
 function safeBridgeProcedureError(err: unknown): Civ7ControllerBridgeError {

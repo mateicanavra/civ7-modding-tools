@@ -709,6 +709,15 @@ adding more read-only facade shells.
     invoke. Keep dispatch behavior, transport expansion, raw direct-control
     result aliases, deployed Civ7 proof, play-thread action, and full `7.3`
     acceptance unchanged.
+  - [x] 7.3.28 Require controller-context supported procedure facts before
+    serialized bridge dispatch: keep `readiness.current` always available,
+    require `supportedReadProcedures` for other reads, require both mutation
+    proof and `supportedMutationProcedures` for mutations, and fail with a
+    bounded bridge error before native router dispatch when the current
+    controller context does not support an otherwise globally allowlisted
+    procedure. Keep the global allowlist, semantic envelopes, no raw
+    command/session output, deployed Civ7 proof, play-thread action, and full
+    `7.3` acceptance unchanged.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -899,6 +908,12 @@ adding more read-only facade shells.
   package/source proofs only and do not change bridge dispatch behavior, claim
   deployed Civ7 runtime proof, add transport scope, expose raw direct-control
   result aliases, or accept full `7.3`.
+- [x] 8.58 Run focused controller-ingress support-gate proof plus
+  control-oRPC test/check/build, controller mod package test/check/build with
+  bundle scan, strict OpenSpec validates, and diff hygiene for the
+  controller-context supported-procedure dispatch gate. These are local package
+  and bundle proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

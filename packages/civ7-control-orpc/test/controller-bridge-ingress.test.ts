@@ -963,6 +963,54 @@ describe("Civ7 controller bridge ingress", () => {
     expect(fake.calls).toEqual([]);
   });
 
+  test("rejects unsupported controller read procedures before dispatch", async () => {
+    const fake = fakeAttentionContext(unitId);
+    const response = await invokeCiv7ControllerBridgeRequest({
+      procedureKey: "strategy.frontSummary",
+      input: {},
+      correlationId: "controller-unsupported-read-1",
+    }, {
+      createContext: () => fake.context,
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      correlationId: "controller-unsupported-read-1",
+      error: {
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
+      },
+    });
+    expect(fake.calls.notifications).toEqual([]);
+    expect(fake.calls.readyUnit).toEqual([]);
+  });
+
+  test("rejects unsupported controller mutation procedures after proof but before dispatch", async () => {
+    const fake = fakeNotificationDismissContext();
+    const response = await invokeCiv7ControllerBridgeRequest({
+      procedureKey: "turn.complete.request",
+      input: {},
+      correlationId: "controller-unsupported-mutation-1",
+    }, {
+      createContext: () => fake.context,
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      correlationId: "controller-unsupported-mutation-1",
+      error: {
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
+      },
+    });
+    expect(fake.calls.status).toEqual([]);
+    expect(fake.calls.dismissal).toEqual([]);
+  });
+
   test("rejects procedures outside the bridge allowlist without dispatch", async () => {
     const fake = fakeContext(playableStatusResult());
 
@@ -1064,6 +1112,9 @@ function fakeAttentionContext(unitId: { owner: number; id: number; type: number 
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedReadProcedures: ["attention.current"],
+      },
       directControl: {
         getCiv7PlayableStatus: async () => playableStatusResult(),
         getCiv7PlayNotificationView: async (options) => {
@@ -1115,6 +1166,9 @@ function fakeNotificationDismissContext(): {
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: ["notifications.dismiss.request"],
+      },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1154,6 +1208,9 @@ function fakeTurnCompleteContext(): {
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: ["turn.complete.request"],
+      },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1195,6 +1252,9 @@ function fakeUnitTargetActionContext(): {
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: ["unit.target.action.request"],
+      },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1236,6 +1296,9 @@ function fakeProductionChoiceContext(): {
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: ["city.production.choice.request"],
+      },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1279,6 +1342,9 @@ function fakePopulationPlacementContext(): {
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: ["city.population.place.request"],
+      },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1332,6 +1398,9 @@ function fakeNarrativeChoiceContext(): {
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: ["narrative.choice.request"],
+      },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1373,6 +1442,9 @@ function fakeDiplomacyResponseContext(): {
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: ["diplomacy.response.request"],
+      },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
@@ -1430,6 +1502,12 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
     context: {
       endpointDefaults: { timeoutMs: 1_000 },
       controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: [
+          "progression.technology.choice.request",
+          "progression.culture.choice.request",
+        ],
+      },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.status.push(options);
