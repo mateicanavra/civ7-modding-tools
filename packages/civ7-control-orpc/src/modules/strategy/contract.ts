@@ -11,9 +11,14 @@ const Civ7StrategyFrontSummaryInputSchema = Type.Object(
   {
     playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
     origins: Type.Optional(Type.Array(Civ7ControlOrpcMapLocationSchema)),
+    target: Type.Optional(Civ7ControlOrpcMapLocationSchema),
     candidateLimit: Type.Optional(Type.Integer({ minimum: 1, maximum: 8 })),
     scanRadius: Type.Optional(Type.Integer({ minimum: 1, maximum: 32 })),
+    corridorRadius: Type.Optional(Type.Integer({ minimum: 0, maximum: 8 })),
+    destinationRadius: Type.Optional(Type.Integer({ minimum: 1, maximum: 16 })),
     maxPlayers: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
+    maxUnits: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
+    maxCities: Type.Optional(Type.Integer({ minimum: 1, maximum: 128 })),
   },
   { additionalProperties: false },
 );
@@ -40,6 +45,10 @@ export const Civ7StrategyFrontSourceStatusSchema = Type.Object(
   {
     targetCandidates: Type.Literal("read"),
     battlefieldScan: Type.Literal("read"),
+    destinationAnalysis: Type.Union([
+      Type.Literal("read"),
+      Type.Literal("skipped-no-target"),
+    ]),
   },
   { additionalProperties: false },
 );
@@ -67,6 +76,24 @@ export const Civ7StrategyFrontPointOfInterestSchema = Type.Object(
     severity: Type.String(),
     location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     summary: Type.String(),
+    source: Type.Union([
+      Type.Literal("battlefield"),
+      Type.Literal("destination"),
+    ]),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7StrategyFrontPressureSchema = Type.Object(
+  {
+    kind: Type.String(),
+    severity: Type.String(),
+    summary: Type.String(),
+    location: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
+    source: Type.Union([
+      Type.Literal("battlefield"),
+      Type.Literal("destination"),
+    ]),
   },
   { additionalProperties: false },
 );
@@ -104,6 +131,7 @@ const Civ7StrategyFrontSummaryResultSchema = Type.Object(
     playerId: Type.Integer({ minimum: 0 }),
     localPlayerId: Type.Integer({ minimum: 0 }),
     origins: Type.Array(Civ7ControlOrpcMapLocationSchema),
+    target: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     sourceStatus: Civ7StrategyFrontSourceStatusSchema,
     relationshipLabelPolicy: Civ7StrategyRelationshipLabelPolicySchema,
     summary: Type.Object(
@@ -112,6 +140,16 @@ const Civ7StrategyFrontSummaryResultSchema = Type.Object(
         pointOfInterestCount: Type.Integer({ minimum: 0 }),
         observedOwnerCount: Type.Integer({ minimum: 0 }),
         nextStepCount: Type.Integer({ minimum: 0 }),
+      },
+      { additionalProperties: false },
+    ),
+    front: Type.Object(
+      {
+        posture: Type.String(),
+        headline: Type.String(),
+        risks: Type.Array(Type.String()),
+        nextInspections: Type.Array(Civ7StrategyFrontSummaryNextStepSchema),
+        pressure: Type.Array(Civ7StrategyFrontPressureSchema),
       },
       { additionalProperties: false },
     ),

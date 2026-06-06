@@ -1,5 +1,6 @@
 import type {
   Civ7ControlOrpcBattlefieldScanResult,
+  Civ7ControlOrpcDestinationAnalysisResult,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "./dependencies/direct-control";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
@@ -196,6 +197,94 @@ export async function getCiv7GameUiBattlefieldScan(
       "Read-only game UI battlefield runtime port for strategy.frontSummary.",
       "Owner mismatch is contact evidence, not relationship proof.",
       "Use unit action validation before any movement or target send.",
+    ],
+  };
+}
+
+export async function getCiv7GameUiDestinationAnalysis(
+  input: Readonly<{
+    playerId?: number;
+    origin?: MapLocation;
+    destination: MapLocation;
+    corridorRadius?: number;
+    destinationRadius?: number;
+    maxPlayers?: number;
+    maxUnits?: number;
+    maxCities?: number;
+  }>,
+  target: Civ7GameUiStrategyFrontTarget =
+    globalThis as Civ7GameUiStrategyFrontTarget,
+): Promise<Civ7ControlOrpcDestinationAnalysisResult> {
+  if (!civ7GameUiStrategyFrontAvailable(target)) {
+    throw new Error("Civ7 game UI strategy front dependency is unavailable.");
+  }
+  const localPlayerId = target.GameContext?.localPlayerID ?? 0;
+  const playerId = input.playerId ?? localPlayerId;
+  const destinationRadius = boundedInteger(input.destinationRadius ?? 4, 1, 16);
+  const corridorRadius = boundedInteger(input.corridorRadius ?? 2, 0, 8);
+  const scan = await getCiv7GameUiBattlefieldScan({
+    playerId,
+    origins: [input.destination],
+    radius: destinationRadius,
+    maxPlayers: input.maxPlayers,
+    maxUnits: input.maxUnits,
+    maxCities: input.maxCities,
+  }, target);
+  const destinationUnits = scan.units.map((unit) => ({
+    ...unit,
+    destinationDistance: unit.distance,
+  }));
+  const destinationCities = scan.cities.map((city) => ({
+    ...city,
+    destinationDistance: city.distance,
+  }));
+
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    localPlayerId,
+    playerId,
+    origin: input.origin ?? null,
+    destination: input.destination,
+    corridorRadius,
+    destinationRadius,
+    hiddenInfoPolicy:
+      "game-ui-runtime-summary; may include game-resident unit or city summaries until paired with visibility reads",
+    relationshipLabelPolicy,
+    corridor: {
+      routeHint: "direct-grid",
+      directGridDistance: input.origin == null
+        ? null
+        : distance(input.origin, input.destination),
+      sampleCount: input.origin == null ? 0 : 2,
+      sampledPlots: input.origin == null
+        ? []
+        : [input.origin, input.destination],
+      units: [],
+      unitCount: 0,
+    },
+    destinationPressure: {
+      units: destinationUnits,
+      unitCount: destinationUnits.length,
+      cities: destinationCities,
+      cityCount: destinationCities.length,
+      apparentOtherStrength: scan.owners
+        .filter((owner) => owner.relationshipProof !== "self")
+        .reduce((sum, owner) => sum + owner.apparentStrength, 0),
+    },
+    pointsOfInterest: scan.pointsOfInterest.map((point) => ({
+      kind: point.kind,
+      severity: point.severity,
+      location: point.location,
+      summary: point.summary,
+      units: destinationUnits,
+      cities: destinationCities,
+    })),
+    notes: [
+      "Read-only game UI destination-analysis runtime port for strategy.frontSummary.",
+      "Owner mismatch and proximity remain relationship-unproven planning evidence.",
+      "Use visibility and validator-backed unit action procedures before any mutation.",
     ],
   };
 }

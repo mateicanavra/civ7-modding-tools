@@ -127,10 +127,12 @@ adding more read-only facade shells.
     summary behavior into the control-oRPC service owner. See
     `workstream/world-runtime-resource-boundary.md`.
   - [x] 5.4.4 Record `strategy.frontSummary` as a service-owned planning
-    composition over target-candidate and battlefield-scan runtime/read ports.
-    The service owns the normal projection, next-step wording, raw-output
-    exclusion, and relationship-unproven policy; no strategy catalog, action
-    authority, runtime proof, or parent Task 5.x/6.x acceptance.
+    composition over target-candidate, battlefield-scan, and optional
+    destination-analysis runtime/read ports. The service owns the normal
+    projection, semantic next-step descriptors, raw-output exclusion, and
+    relationship-unproven policy; CLI command strings stay caller-local; no
+    strategy catalog, action authority, runtime proof, or parent Task 5.x/6.x
+    acceptance.
   - [x] 5.4.5 Record `narrative.choice.request` as a service-owned
     narrative boundary over direct-control narrative runtime, validator, and
     proof ports. The service owns the caller-facing semantic choice shape,
@@ -244,10 +246,11 @@ adding more read-only facade shells.
     postcondition/no-repeat authority procedure-local; shared
     validator/postcondition middleware remains pending.
   - [x] 5.5.9 Seed `strategy.frontSummary` as a native service-owned planning
-    procedure that composes target-candidate and battlefield-scan evidence into
-    neutral front planning output without adding same-shaped read wrappers,
-    operation sends, strategy catalogs, relationship labels beyond official
-    evidence, or runtime/live proof claims.
+    procedure that composes target-candidate, battlefield-scan, and optional
+    destination-analysis evidence into neutral front planning output without
+    adding same-shaped read wrappers, CLI syntax in service output, operation
+    sends, strategy catalogs, relationship labels beyond official evidence, or
+    runtime/live proof claims.
   - [x] 5.5.10 Seed `narrative.choice.request` as a native
     service-owned narrative procedure that composes playable
     readiness, direct-control narrative request authority, and source-owned
@@ -597,6 +600,15 @@ adding more read-only facade shells.
     host/port/state/session/Tuner payloads and direct-control envelopes from
     normal JSON, keep GameInfo/debug reads separate, and avoid controller,
     transport, relationship-label, or runtime-proof claims.
+  - [x] 7.1.9.7 Route `civ7 game play front-summary` through the in-process
+    `strategy.frontSummary` server-side client under the `strategy` router.
+    Move target-candidate, battlefield, and destination-analysis composition
+    into the service procedure, keep endpoint flags as context construction,
+    keep CLI command-string suggestions as CLI presentation only, emit
+    relationship-safe semantic planning output, omit raw
+    host/port/state/session/Tuner payloads and direct-control envelopes from
+    normal JSON, and avoid transport, relationship-label, action-send, or
+    runtime-proof claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -844,10 +856,11 @@ adding more read-only facade shells.
     `strategy.frontSummary`: expose ambient `Players`, `Players.Units`,
     `Players.Cities`, `Units`, `Cities`, `GameInfo.Units`, `GameplayMap`, and
     controller-owned local-player evidence as internal target-candidate and
-    battlefield-scan read ports behind the existing service-owned strategy
-    procedure; allowlist only `strategy.frontSummary` through bridge ingress,
-    not raw `targetCandidates` or `battlefieldScan` leaves; fail closed when
-    required ambient owner/unit/city APIs are missing; preserve
+    battlefield-scan/destination-analysis read ports behind the existing
+    service-owned strategy procedure; allowlist only `strategy.frontSummary`
+    through bridge ingress, not raw `targetCandidates`, `battlefieldScan`, or
+    `destinationAnalysis` leaves; fail closed when required ambient
+    owner/unit/city APIs are missing; preserve
     relationship-unproven normal output and raw host/port/state/session/command
     omission; keep target-action send authority, generic strategy catalogs,
     hostile/enemy/opponent/threat/war/ally/suzerain labels, deployed Civ7
@@ -1332,6 +1345,15 @@ adding more read-only facade shells.
   expansion, broad actor catalog support, relationship labels, public
   package-root procedure schema exports, or parent Task 5.x/6.x/7.x
   acceptance.
+- [x] 8.60.16 Run focused strategy-front-summary and CLI tactical-read tests
+  plus control-oRPC package test/check/build, CLI play/check gates, strict
+  OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, service-output CLI-string scan, and diff
+  hygiene for the `strategy.frontSummary` service-composition expansion and
+  `game play front-summary` in-process oRPC caller migration. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, relationship labels beyond official
+  evidence, action-send authority, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

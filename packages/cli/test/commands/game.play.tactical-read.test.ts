@@ -98,7 +98,7 @@ describe('game play tactical read commands', () => {
         ...payload.view.summary.pressure.map((item) => item.summary ?? ''),
         ...payload.view.summary.risks,
       ]);
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(false);
       expect(server.received.some((message) => message.includes('readTargetCandidates'))).toBe(true);
       expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
       expect(server.received.some((message) => message.includes('readDestinationAnalysis'))).toBe(true);

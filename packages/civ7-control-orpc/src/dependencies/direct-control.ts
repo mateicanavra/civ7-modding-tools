@@ -2,6 +2,7 @@ import {
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
   getCiv7BattlefieldScan,
+  getCiv7DestinationAnalysis,
   getCiv7MapGrid,
   getCiv7PlotSnapshot,
   getCiv7ReadyCityView,
@@ -32,6 +33,7 @@ import {
   requestCiv7CultureTarget,
   type Civ7DirectControlOptions,
   Civ7BattlefieldScanResultSchema,
+  Civ7DestinationAnalysisResultSchema,
   type Civ7AttributePurchaseInput,
   type Civ7AttributeReviewInput,
   type Civ7DiplomacyResponseInput,
@@ -56,6 +58,7 @@ import {
   Civ7TurnCompletionStatusResultSchema,
   Civ7UnitTargetActionResultSchema,
   type Civ7BattlefieldScanInput,
+  type Civ7DestinationAnalysisInput,
   type Civ7NotificationDismissInput,
   type Civ7NotificationDismissalResult,
   type Civ7OperationRequestResult,
@@ -130,6 +133,9 @@ export type Civ7ControlOrpcPlayNotificationViewResult =
   Civ7PlayNotificationViewResult;
 export type Civ7ControlOrpcBattlefieldScanResult = Static<
   typeof Civ7BattlefieldScanResultSchema
+>;
+export type Civ7ControlOrpcDestinationAnalysisResult = Static<
+  typeof Civ7DestinationAnalysisResultSchema
 >;
 export type Civ7ControlOrpcPlotSnapshotResult = Civ7PlotSnapshotResult;
 export type Civ7ControlOrpcMapGridResult = Civ7MapGridResult;
@@ -252,6 +258,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7BattlefieldScanInput,
     options?: Civ7DirectControlOptions,
   ): Promise<Civ7ControlOrpcBattlefieldScanResult>;
+  getCiv7DestinationAnalysis(
+    input: Civ7DestinationAnalysisInput,
+    options?: Civ7DirectControlOptions,
+  ): Promise<Civ7ControlOrpcDestinationAnalysisResult>;
   getCiv7PlotSnapshot(
     input: Civ7PlotSnapshotInput,
     options?: Civ7DirectControlOptions,
@@ -360,6 +370,10 @@ export const liveCiv7ControlOrpcDirectControlFacade:
   getCiv7BattlefieldScan: async (input, options) =>
     getCiv7BattlefieldScan(input, options) as Promise<
       Civ7ControlOrpcBattlefieldScanResult
+    >,
+  getCiv7DestinationAnalysis: async (input, options) =>
+    getCiv7DestinationAnalysis(input, options) as Promise<
+      Civ7ControlOrpcDestinationAnalysisResult
     >,
   getCiv7PlotSnapshot: async (input, options) =>
     getCiv7PlotSnapshot(input, options),

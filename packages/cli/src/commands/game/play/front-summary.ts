@@ -1,31 +1,10 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  getCiv7BattlefieldScan,
-  getCiv7DestinationAnalysis,
-  getCiv7PlayNotificationView,
-  getCiv7ReadyUnitView,
-  getCiv7TargetCandidates,
-} from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import type { Civ7StrategyFrontSummaryResult } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions, resolveCoordinateFlags } from '../../../utils/game-play-shared';
 
 type Location = Readonly<{ x: number; y: number }>;
-
-type FrontPressure = Readonly<{
-  kind: string;
-  severity: string;
-  summary: string;
-  location: Location | null;
-  source: string;
-  evidence: unknown;
-}>;
-
-type FrontSummary = Readonly<{
-  posture: string;
-  headline: string;
-  risks: ReadonlyArray<string>;
-  nextInspections: ReadonlyArray<string>;
-  pressure: ReadonlyArray<FrontPressure>;
-}>;
 
 export default class GamePlayFrontSummary extends Command {
   static id = 'game play front-summary';
@@ -131,10 +110,6 @@ export default class GamePlayFrontSummary extends Command {
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayFrontSummary);
     const options = buildDirectControlOptions(flags);
-    const hud = await getCiv7PlayNotificationView({
-      ...options,
-      maxNotifications: 10,
-    });
     const requestedOrigin = resolveCoordinateFlags({
       x: flags.x,
       y: flags.y,
@@ -143,72 +118,33 @@ export default class GamePlayFrontSummary extends Command {
       yFlag: 'y',
       pairFlag: 'origin',
     }) ?? null;
-    const readyUnitId = probeValue(hud.firstReadyUnitId);
-    const readyUnit = requestedOrigin || !readyUnitId
-      ? null
-      : await getCiv7ReadyUnitView({ unitId: readyUnitId, radius: 2 }, options);
-    const inferredOrigin = requestedOrigin ?? getReadyUnitLocation(readyUnit);
-    const origins = inferredOrigin ? [inferredOrigin] : undefined;
-    const targetCandidates = await getCiv7TargetCandidates({
-      playerId: flags['player-id'],
-      origins,
-      maxCandidates: flags['max-candidates'],
-      maxPlayers: flags['max-players'],
-      unitRadius: flags['unit-radius'],
-    }, options);
     const requestedTarget = resolveFrontTarget(flags);
-    const target = requestedTarget ?? getFirstCandidateCityLocation(targetCandidates.candidates);
-    const battlefield = await getCiv7BattlefieldScan({
+    const client = createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      endpointDefaults: options,
+    });
+    const result = await client.strategy.frontSummary({
       playerId: flags['player-id'],
-      origins,
-      radius: flags.radius,
+      origins: requestedOrigin ? [requestedOrigin] : undefined,
+      target: requestedTarget ?? undefined,
+      candidateLimit: flags['max-candidates'],
+      scanRadius: flags.radius,
+      corridorRadius: flags['corridor-radius'],
+      destinationRadius: flags['destination-radius'],
       maxPlayers: flags['max-players'],
       maxUnits: flags['max-units'],
       maxCities: flags['max-cities'],
-    }, options);
-    const destination = target
-      ? await getCiv7DestinationAnalysis({
-          playerId: flags['player-id'],
-          origin: inferredOrigin ?? undefined,
-          destination: target,
-          corridorRadius: flags['corridor-radius'],
-          destinationRadius: flags['destination-radius'],
-          maxPlayers: flags['max-players'],
-          maxUnits: flags['max-units'],
-          maxCities: flags['max-cities'],
-        }, options)
-      : null;
-    const summary = buildFrontSummary({
-      origin: inferredOrigin,
-      target,
-      targetCandidates,
-      battlefield,
-      destination,
     });
     const view = {
-      localPlayerId: hud.localPlayerId,
-      turn: hud.turn,
-      turnDate: hud.turnDate,
-      blocker: hud.blocker,
-      nextDecision: hud.hud?.nextDecision ?? null,
-      origin: inferredOrigin,
-      target,
-      readyUnit: readyUnit
-        ? {
-            unitId: readyUnit.unitId,
-            unit: readyUnit.unit,
-            legalOperationScope: 'no-target',
-            legalNoTargetOperationCount: readyUnit.legalOperations.length,
-          }
-        : null,
-      targetCandidates,
-      battlefield,
-      destination,
-      summary,
+      ...result,
+      origin: result.origins[0] ?? null,
+      summary: {
+        ...result.front,
+        nextInspections: frontInspectionCommands(result),
+      },
       notes: [
-        'Read-only front summary; it does not move units, attack, declare war, or choose strategy.',
-        'Use this to pick the next inspection, then validate concrete unit actions with game play unit-target or operation.',
-        'Distances and corridors are cheap grid heuristics and may include debug-visible entities until paired with visibility reads.',
+        ...result.notes,
+        'Use this to pick the next inspection, then validate concrete unit actions with game play unit-target.',
       ],
     };
 
@@ -217,131 +153,14 @@ export default class GamePlayFrontSummary extends Command {
       return;
     }
 
-    this.log(summary.headline);
-    this.log(`Posture: ${summary.posture}`);
-    for (const risk of summary.risks) this.log(`Risk: ${risk}`);
-    for (const item of summary.pressure.slice(0, 8)) {
+    this.log(result.front.headline);
+    this.log(`Posture: ${result.front.posture}`);
+    for (const risk of result.front.risks) this.log(`Risk: ${risk}`);
+    for (const item of result.front.pressure.slice(0, 8)) {
       this.log(`- [${item.severity}] ${item.kind}: ${item.summary}`);
     }
-    for (const command of summary.nextInspections) this.log(`Next: ${command}`);
+    for (const command of frontInspectionCommands(result)) this.log(`Next: ${command}`);
   }
-}
-
-function buildFrontSummary(input: {
-  origin: Location | null;
-  target: Location | null;
-  targetCandidates: Awaited<ReturnType<typeof getCiv7TargetCandidates>>;
-  battlefield: Awaited<ReturnType<typeof getCiv7BattlefieldScan>>;
-  destination: Awaited<ReturnType<typeof getCiv7DestinationAnalysis>> | null;
-}): FrontSummary {
-  const candidate = input.targetCandidates.candidates[0];
-  const pressure = [
-    ...frontPressure(input.battlefield.pointsOfInterest, 'battlefield'),
-    ...frontPressure(input.destination?.pointsOfInterest, 'destination'),
-  ].sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
-  const highPressure = pressure.filter((item) => item.severity === 'high');
-  const risks = [
-    ...highPressure.map((item) => item.summary),
-    ...unsupportedDestinationRisks(input.destination),
-  ];
-  const targetLabel = input.target
-    ? `target/front (${input.target.x},${input.target.y})`
-    : 'no target/front selected';
-  const originLabel = input.origin
-    ? `origin (${input.origin.x},${input.origin.y})`
-    : 'inferred runtime origins';
-  const candidateLabel = candidate
-    ? `owner ${candidate.owner}${candidate.nearestCity ? ` near ${formatCity(candidate.nearestCity)}` : ''}`
-    : 'no ranked target candidate';
-  const posture = postureFromPressure(pressure, input.destination);
-  const nextInspections = nextInspectionCommands(input.origin, input.target, pressure);
-  return {
-    posture,
-    headline: `${originLabel} toward ${targetLabel}; leading candidate: ${candidateLabel}`,
-    risks: uniqueStrings(risks).slice(0, 8),
-    nextInspections,
-    pressure,
-  };
-}
-
-function frontPressure(value: unknown, source: string): FrontPressure[] {
-  return asRecords(value).map((point) => {
-    const location = getLocation(point.location);
-    return {
-      kind: String(point.kind ?? 'point-of-interest'),
-      severity: String(point.severity ?? 'medium'),
-      summary: String(point.summary ?? point.kind ?? 'front pressure'),
-      location,
-      source,
-      evidence: point,
-    };
-  });
-}
-
-function unsupportedDestinationRisks(destination: Awaited<ReturnType<typeof getCiv7DestinationAnalysis>> | null): string[] {
-  const destinationPressure = destination?.destinationPressure as { unitCount?: unknown; cityCount?: unknown; apparentOtherStrength?: unknown } | undefined;
-  const risks: string[] = [];
-  if (typeof destinationPressure?.unitCount === 'number' && destinationPressure.unitCount > 0) {
-    risks.push(`${destinationPressure.unitCount} other-owner units near intended front`);
-  }
-  if (typeof destinationPressure?.cityCount === 'number' && destinationPressure.cityCount > 0) {
-    risks.push(`${destinationPressure.cityCount} relationship-unproven cities near intended front`);
-  }
-  if (typeof destinationPressure?.apparentOtherStrength === 'number' && destinationPressure.apparentOtherStrength > 0) {
-    risks.push(`apparent destination pressure ${destinationPressure.apparentOtherStrength}`);
-  }
-  return risks;
-}
-
-function nextInspectionCommands(origin: Location | null, target: Location | null, pressure: ReadonlyArray<FrontPressure>): string[] {
-  const commands: string[] = ['game play priorities --json'];
-  if (origin) commands.push(`game play battlefield-scan --x ${origin.x} --y ${origin.y} --json`);
-  if (origin && target) {
-    commands.push(`game play destination-analysis --from-x ${origin.x} --from-y ${origin.y} --to-x ${target.x} --to-y ${target.y} --json`);
-  }
-  const highestLocated = pressure.find((item) => item.location);
-  if (highestLocated?.location) {
-    commands.push(`game play battlefield-scan --x ${highestLocated.location.x} --y ${highestLocated.location.y} --json`);
-  }
-  commands.push("game play ready-unit --json");
-  commands.push("game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json");
-  return uniqueStrings(commands);
-}
-
-function postureFromPressure(
-  pressure: ReadonlyArray<FrontPressure>,
-  destination: Awaited<ReturnType<typeof getCiv7DestinationAnalysis>> | null,
-): string {
-  if (pressure.some((item) => item.kind === 'civilian-risk' && item.severity === 'high')) return 'screen-civilians-before-advance';
-  if (pressure.some((item) => item.kind === 'nearby-other-owners' && item.severity === 'high')) {
-    return 'stabilize-front-before-committing-siege';
-  }
-  const destinationPressure = destination?.destinationPressure as { unitCount?: unknown; cityCount?: unknown } | undefined;
-  if ((Number(destinationPressure?.unitCount) || 0) > 0 || (Number(destinationPressure?.cityCount) || 0) > 0) {
-    return 'stage-before-entering-target-pressure';
-  }
-  return 'inspect-and-advance-cautiously';
-}
-
-function severityRank(severity: string): number {
-  if (severity === 'high') return 3;
-  if (severity === 'medium') return 2;
-  if (severity === 'low') return 1;
-  return 0;
-}
-
-function getCandidateCityLocation(candidate: unknown): Location | null {
-  const record = asRecord(candidate);
-  const city = asRecord(record?.nearestCity);
-  return getLocation(city?.location);
-}
-
-function getFirstCandidateCityLocation(candidates: ReadonlyArray<unknown>): Location | null {
-  for (const candidate of candidates) {
-    const location = getCandidateCityLocation(candidate);
-    if (location) return location;
-  }
-  return null;
 }
 
 function resolveFrontTarget(flags: {
@@ -366,37 +185,22 @@ function resolveFrontTarget(flags: {
   }) ?? null;
 }
 
-function getReadyUnitLocation(readyUnit: Awaited<ReturnType<typeof getCiv7ReadyUnitView>> | null): Location | null {
-  const unit = readyUnit ? probeValue(readyUnit.unit) as { location?: unknown } | null : null;
-  return getLocation(unit?.location);
-}
-
-function getLocation(value: unknown): Location | null {
-  const location = asRecord(value);
-  return typeof location?.x === 'number' && typeof location.y === 'number'
-    ? { x: location.x, y: location.y }
-    : null;
-}
-
-function formatCity(city: unknown): string {
-  const record = asRecord(city);
-  const name = typeof record?.name === 'string' ? record.name : 'city';
-  const location = getLocation(record?.location);
-  return location ? `${name} (${location.x},${location.y})` : name;
-}
-
-function probeValue<T>(probe: { ok: true; value: T } | { ok: false; error: string } | null | undefined): T | null {
-  return probe?.ok ? probe.value : null;
-}
-
-function asRecords(value: unknown): Array<Record<string, unknown>> {
-  return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => item !== null && typeof item === 'object') : [];
-}
-
-function asRecord(value: unknown): Record<string, unknown> | null {
-  return value !== null && typeof value === 'object' ? value as Record<string, unknown> : null;
-}
-
-function uniqueStrings(values: ReadonlyArray<string>): string[] {
-  return [...new Set(values.filter((value) => value.length > 0))];
+function frontInspectionCommands(result: Civ7StrategyFrontSummaryResult): string[] {
+  const origin = result.origins[0] ?? null;
+  const target = result.target;
+  const commands: string[] = ['game play priorities --json'];
+  if (origin) commands.push(`game play battlefield-scan --x ${origin.x} --y ${origin.y} --json`);
+  if (origin && target) {
+    commands.push(`game play destination-analysis --origin ${origin.x},${origin.y} --destination ${target.x},${target.y} --json`);
+  }
+  const highestLocated = result.front.pressure.find((item) => item.location);
+  if (highestLocated?.location) {
+    commands.push(`game play battlefield-scan --x ${highestLocated.location.x} --y ${highestLocated.location.y} --json`);
+  }
+  if (result.front.nextInspections.some((step) => step.kind === 'observe')) {
+    commands.push('game play attention --json');
+  }
+  commands.push('game play ready-unit --json');
+  commands.push("game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json");
+  return [...new Set(commands)];
 }

@@ -10,6 +10,7 @@ import {
 } from "../src/index";
 import type {
   Civ7ControlOrpcBattlefieldScanResult,
+  Civ7ControlOrpcDestinationAnalysisResult,
   Civ7ControlOrpcTargetCandidatesResult,
 } from "../src/dependencies/direct-control";
 
@@ -18,6 +19,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
     const fake = fakeContext({
       targetCandidates: targetCandidatesResult(),
       battlefieldScan: battlefieldScanResult(),
+      destinationAnalysis: destinationAnalysisResult(),
     });
 
     const result = await call(Civ7ControlOrpcRouter.strategy.frontSummary, {
@@ -26,6 +28,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       candidateLimit: 3,
       scanRadius: 6,
       maxPlayers: 12,
+      target: { x: 15, y: 20 },
     }, {
       context: fake.context,
     });
@@ -60,6 +63,23 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
           timeoutMs: 1_000,
         },
       }],
+      destinationAnalysis: [{
+        input: {
+          playerId: 0,
+          origin: { x: 10, y: 20 },
+          destination: { x: 15, y: 20 },
+          corridorRadius: 2,
+          destinationRadius: 4,
+          maxPlayers: 12,
+          maxUnits: undefined,
+          maxCities: undefined,
+        },
+        options: {
+          host: "127.0.0.1",
+          port: 4318,
+          timeoutMs: 1_000,
+        },
+      }],
     });
     expect(result).toMatchObject({
       playerId: 0,
@@ -68,6 +88,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       sourceStatus: {
         targetCandidates: "read",
         battlefieldScan: "read",
+        destinationAnalysis: "read",
       },
       relationshipLabelPolicy: {
         relationshipSource: "not-classified",
@@ -76,10 +97,11 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       },
       summary: {
         targetCandidateCount: 1,
-        pointOfInterestCount: 1,
+        pointOfInterestCount: 2,
         observedOwnerCount: 2,
         nextStepCount: 4,
       },
+      target: { x: 15, y: 20 },
     });
     expect(result.targetCandidates).toEqual([{
       owner: 1,
@@ -99,7 +121,25 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       severity: "medium",
       location: { x: 11, y: 21 },
       summary: "2 other-owner units within 3 tiles of an origin",
+      source: "battlefield",
+    }, {
+      kind: "destination-contact",
+      severity: "high",
+      location: { x: 15, y: 20 },
+      summary: "destination contact near intended front",
+      source: "destination",
     }]);
+    expect(result.front).toMatchObject({
+      posture: "stage-before-entering-target-contact",
+      headline: "origin (10,20) toward target/front (15,20); leading candidate: owner 1",
+      risks: [
+        "destination contact near intended front",
+        "2 other-owner units near intended front",
+        "1 relationship-unproven cities near intended front",
+        "apparent destination contact 10",
+      ],
+    });
+    expect(JSON.stringify(result.front.nextInspections)).not.toContain("game play");
     expect(result.observedOwners).toEqual([
       {
         owner: 0,
@@ -133,13 +173,13 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("Game.turn");
     expect(serialized).not.toContain("rawCommand");
-    expect(serialized).not.toContain("enemy");
-    expect(serialized).not.toContain("hostile");
-    expect(serialized).not.toContain("opponent");
-    expect(serialized).not.toContain("threat");
-    expect(serialized).not.toContain("war");
-    expect(serialized).not.toContain("ally");
-    expect(serialized).not.toContain("suzerain");
+    expect(serialized).not.toMatch(/\benemy\b/i);
+    expect(serialized).not.toMatch(/\bhostile\b/i);
+    expect(serialized).not.toMatch(/\bopponent\b/i);
+    expect(serialized).not.toMatch(/\bthreat\b/i);
+    expect(serialized).not.toMatch(/\bwar\b/i);
+    expect(serialized).not.toMatch(/\bally\b/i);
+    expect(serialized).not.toMatch(/\bsuzerain\b/i);
   });
 
   test("supports the in-process server-side router client", async () => {
@@ -149,6 +189,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
         owners: [],
         pointsOfInterest: [],
       }),
+      destinationAnalysis: destinationAnalysisResult(),
     });
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
@@ -180,6 +221,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       const fake = fakeContext({
         targetCandidates: targetCandidatesResult(),
         battlefieldScan: battlefieldScanResult(),
+        destinationAnalysis: destinationAnalysisResult(),
       });
 
       await expect(
@@ -190,6 +232,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
       expect(fake.calls).toEqual({
         targetCandidates: [],
         battlefieldScan: [],
+        destinationAnalysis: [],
       });
     }
   });
@@ -203,6 +246,7 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
           );
         },
         getCiv7BattlefieldScan: async () => battlefieldScanResult(),
+        getCiv7DestinationAnalysis: async () => destinationAnalysisResult(),
       } as Civ7ControlOrpcContext["directControl"],
     };
 
@@ -250,6 +294,7 @@ function fakeContext(
   results: Readonly<{
     targetCandidates: Civ7ControlOrpcTargetCandidatesResult;
     battlefieldScan: Civ7ControlOrpcBattlefieldScanResult;
+    destinationAnalysis: Civ7ControlOrpcDestinationAnalysisResult;
   }>,
 ): {
   calls: {
@@ -258,6 +303,10 @@ function fakeContext(
       options: Civ7ControlOrpcContext["endpointDefaults"];
     }>>;
     battlefieldScan: Array<Readonly<{
+      input: unknown;
+      options: Civ7ControlOrpcContext["endpointDefaults"];
+    }>>;
+    destinationAnalysis: Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
     }>>;
@@ -270,6 +319,10 @@ function fakeContext(
       options: Civ7ControlOrpcContext["endpointDefaults"];
     }>>,
     battlefieldScan: [] as Array<Readonly<{
+      input: unknown;
+      options: Civ7ControlOrpcContext["endpointDefaults"];
+    }>>,
+    destinationAnalysis: [] as Array<Readonly<{
       input: unknown;
       options: Civ7ControlOrpcContext["endpointDefaults"];
     }>>,
@@ -291,6 +344,10 @@ function fakeContext(
         getCiv7BattlefieldScan: async (input, options) => {
           calls.battlefieldScan.push({ input, options });
           return results.battlefieldScan;
+        },
+        getCiv7DestinationAnalysis: async (input, options) => {
+          calls.destinationAnalysis.push({ input, options });
+          return results.destinationAnalysis;
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -343,6 +400,52 @@ function targetCandidatesResult(
       reasons: ["nearest target distance 5"],
     }],
     notes: ["Target candidates are planning support."],
+    ...overrides,
+  };
+}
+
+function destinationAnalysisResult(
+  overrides: Partial<Civ7ControlOrpcDestinationAnalysisResult> = {},
+): Civ7ControlOrpcDestinationAnalysisResult {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    localPlayerId: 0,
+    playerId: 0,
+    origin: { x: 10, y: 20 },
+    destination: { x: 15, y: 20 },
+    corridorRadius: 2,
+    destinationRadius: 4,
+    hiddenInfoPolicy: "runtime-debug-summary",
+    relationshipLabelPolicy: {
+      relationshipSource: "not-classified",
+      relationshipProof: "none",
+      unprovenLabel: "relationship-unproven",
+      guidance: "neutral",
+    },
+    corridor: {
+      routeHint: "land",
+      directGridDistance: 5,
+      sampleCount: 2,
+      sampledPlots: [],
+      units: [],
+      unitCount: 0,
+    },
+    destinationPressure: {
+      units: [],
+      unitCount: 2,
+      cities: [],
+      cityCount: 1,
+      apparentOtherStrength: 10,
+    },
+    pointsOfInterest: [{
+      kind: "destination-contact",
+      severity: "high",
+      location: { x: 15, y: 20 },
+      summary: "destination pressure near intended front",
+    }],
+    notes: ["Destination analysis is read-only."],
     ...overrides,
   };
 }

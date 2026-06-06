@@ -1233,7 +1233,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   for `Players`, `Players.Units`, `Players.Cities`, `Units`, `Cities`,
   `GameInfo.Units`, `GameplayMap`, and controller-owned local-player evidence
 - **THEN** the context may execute the service-owned `strategy.frontSummary`
-  procedure through the existing in-process router
+  procedure through the existing in-process router, including target-candidate,
+  battlefield-scan, and destination-analysis composition
 - **AND** `strategy.frontSummary` is listed as a supported game-UI read only
   when controller proof and the required ambient owner, unit, city, and map
   APIs are present
@@ -1242,14 +1243,17 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `canMutate: false`, and recommends `read-strategy-front` when
   `attention.current` is not supported
 - **AND** bridge ingress allowlists the semantic `strategy.frontSummary`
-  procedure only, not raw `targetCandidates`, `battlefieldScan`, or generic
-  tactical catalog leaves
+  procedure only, not raw `targetCandidates`, `battlefieldScan`,
+  `destinationAnalysis`, or generic tactical catalog leaves
 - **AND** the game-UI tactical read dependencies fail closed when required
   ambient owner/unit/city APIs are missing
 - **AND** normal bridge success output remains the semantic strategy front
   summary and omits host, port, state, command, rawCommand, session, tuner
   payloads, raw game-UI function names, direct-control socket details, and raw
   tactical read-port envelopes
+- **AND** normal service and bridge output uses semantic next-step descriptors
+  rather than literal CLI `game play ...` command strings; CLI callers may map
+  descriptors into command suggestions in their own presentation layer
 - **AND** normal output preserves `self` and `relationship-unproven` only; it
   does not infer hostile, enemy, opponent, threat, war, ally, or suzerain
   labels from owner mismatch, proximity, contact, ranking, or action legality

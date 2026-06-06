@@ -135,13 +135,13 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain("\"session\"");
     expect(serialized).not.toContain("rawCommand");
     expect(serialized).not.toContain("Game.");
-    expect(serialized).not.toContain("enemy");
-    expect(serialized).not.toContain("hostile");
-    expect(serialized).not.toContain("opponent");
-    expect(serialized).not.toContain("threat");
-    expect(serialized).not.toContain("war");
-    expect(serialized).not.toContain("ally");
-    expect(serialized).not.toContain("suzerain");
+    expect(serialized).not.toMatch(/\benemy\b/i);
+    expect(serialized).not.toMatch(/\bhostile\b/i);
+    expect(serialized).not.toMatch(/\bopponent\b/i);
+    expect(serialized).not.toMatch(/\bthreat\b/i);
+    expect(serialized).not.toMatch(/\bwar\b/i);
+    expect(serialized).not.toMatch(/\bally\b/i);
+    expect(serialized).not.toMatch(/\bsuzerain\b/i);
   });
 
   test("reads world plot and grid through game UI map service dependencies", async () => {
@@ -232,13 +232,13 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain("rawCommand");
     expect(serialized).not.toContain("Game.");
     expect(serialized).not.toContain("relationship");
-    expect(serialized).not.toContain("enemy");
-    expect(serialized).not.toContain("hostile");
-    expect(serialized).not.toContain("opponent");
-    expect(serialized).not.toContain("threat");
-    expect(serialized).not.toContain("war");
-    expect(serialized).not.toContain("ally");
-    expect(serialized).not.toContain("suzerain");
+    expect(serialized).not.toMatch(/\benemy\b/i);
+    expect(serialized).not.toMatch(/\bhostile\b/i);
+    expect(serialized).not.toMatch(/\bopponent\b/i);
+    expect(serialized).not.toMatch(/\bthreat\b/i);
+    expect(serialized).not.toMatch(/\bwar\b/i);
+    expect(serialized).not.toMatch(/\bally\b/i);
+    expect(serialized).not.toMatch(/\bsuzerain\b/i);
   });
 
   test("does not advertise world plot/grid without plot-level map APIs", async () => {
@@ -2268,13 +2268,13 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain("Game.UnitCommands");
     expect(serialized).not.toContain("sendRequest");
     expect(serialized).not.toContain("friendly");
-    expect(serialized).not.toContain("enemy");
-    expect(serialized).not.toContain("hostile");
-    expect(serialized).not.toContain("opponent");
-    expect(serialized).not.toContain("threat");
-    expect(serialized).not.toContain("war");
-    expect(serialized).not.toContain("ally");
-    expect(serialized).not.toContain("suzerain");
+    expect(serialized).not.toMatch(/\benemy\b/i);
+    expect(serialized).not.toMatch(/\bhostile\b/i);
+    expect(serialized).not.toMatch(/\bopponent\b/i);
+    expect(serialized).not.toMatch(/\bthreat\b/i);
+    expect(serialized).not.toMatch(/\bwar\b/i);
+    expect(serialized).not.toMatch(/\bally\b/i);
+    expect(serialized).not.toMatch(/\bsuzerain\b/i);
   });
 
   test("does not advertise game UI strategy front without owner unit APIs", async () => {

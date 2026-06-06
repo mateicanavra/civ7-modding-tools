@@ -81,6 +81,7 @@ import {
 import {
   civ7GameUiStrategyFrontAvailable,
   getCiv7GameUiBattlefieldScan,
+  getCiv7GameUiDestinationAnalysis,
   getCiv7GameUiTargetCandidates,
   type Civ7GameUiStrategyFrontTarget,
 } from "./game-ui-strategy-front";
@@ -375,6 +376,8 @@ function createCiv7GameUiDirectControlFacade(
       }, target),
     getCiv7BattlefieldScan: async (input) =>
       await getCiv7GameUiBattlefieldScan(input, target),
+    getCiv7DestinationAnalysis: async (input) =>
+      await getCiv7GameUiDestinationAnalysis(input, target),
     getCiv7PlotSnapshot: async (input) =>
       await getCiv7GameUiPlotSnapshot(input, target),
     getCiv7MapGrid: async (input) =>

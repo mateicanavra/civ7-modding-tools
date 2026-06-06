@@ -27242,7 +27242,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-YCGAGJTW.js
+// ../../packages/civ7-control-orpc/dist/chunk-IXBCRY5S.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -30187,9 +30187,14 @@ var Civ7StrategyFrontSummaryInputSchema = typebox_exports.Object(
   {
     playerId: typebox_exports.Optional(typebox_exports.Integer({ minimum: 0, maximum: 1024 })),
     origins: typebox_exports.Optional(typebox_exports.Array(Civ7ControlOrpcMapLocationSchema)),
+    target: typebox_exports.Optional(Civ7ControlOrpcMapLocationSchema),
     candidateLimit: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 8 })),
     scanRadius: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 32 })),
-    maxPlayers: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 128 }))
+    corridorRadius: typebox_exports.Optional(typebox_exports.Integer({ minimum: 0, maximum: 8 })),
+    destinationRadius: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 16 })),
+    maxPlayers: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 128 })),
+    maxUnits: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 256 })),
+    maxCities: typebox_exports.Optional(typebox_exports.Integer({ minimum: 1, maximum: 128 }))
   },
   { additionalProperties: false }
 );
@@ -30209,7 +30214,11 @@ var Civ7StrategyRelationshipLabelPolicySchema = typebox_exports.Object(
 var Civ7StrategyFrontSourceStatusSchema = typebox_exports.Object(
   {
     targetCandidates: typebox_exports.Literal("read"),
-    battlefieldScan: typebox_exports.Literal("read")
+    battlefieldScan: typebox_exports.Literal("read"),
+    destinationAnalysis: typebox_exports.Union([
+      typebox_exports.Literal("read"),
+      typebox_exports.Literal("skipped-no-target")
+    ])
   },
   { additionalProperties: false }
 );
@@ -30234,7 +30243,24 @@ var Civ7StrategyFrontPointOfInterestSchema = typebox_exports.Object(
     kind: typebox_exports.String(),
     severity: typebox_exports.String(),
     location: typebox_exports.Union([Civ7ControlOrpcMapLocationSchema, typebox_exports.Null()]),
-    summary: typebox_exports.String()
+    summary: typebox_exports.String(),
+    source: typebox_exports.Union([
+      typebox_exports.Literal("battlefield"),
+      typebox_exports.Literal("destination")
+    ])
+  },
+  { additionalProperties: false }
+);
+var Civ7StrategyFrontPressureSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.String(),
+    severity: typebox_exports.String(),
+    summary: typebox_exports.String(),
+    location: typebox_exports.Union([Civ7ControlOrpcMapLocationSchema, typebox_exports.Null()]),
+    source: typebox_exports.Union([
+      typebox_exports.Literal("battlefield"),
+      typebox_exports.Literal("destination")
+    ])
   },
   { additionalProperties: false }
 );
@@ -30269,6 +30295,7 @@ var Civ7StrategyFrontSummaryResultSchema = typebox_exports.Object(
     playerId: typebox_exports.Integer({ minimum: 0 }),
     localPlayerId: typebox_exports.Integer({ minimum: 0 }),
     origins: typebox_exports.Array(Civ7ControlOrpcMapLocationSchema),
+    target: typebox_exports.Union([Civ7ControlOrpcMapLocationSchema, typebox_exports.Null()]),
     sourceStatus: Civ7StrategyFrontSourceStatusSchema,
     relationshipLabelPolicy: Civ7StrategyRelationshipLabelPolicySchema,
     summary: typebox_exports.Object(
@@ -30277,6 +30304,16 @@ var Civ7StrategyFrontSummaryResultSchema = typebox_exports.Object(
         pointOfInterestCount: typebox_exports.Integer({ minimum: 0 }),
         observedOwnerCount: typebox_exports.Integer({ minimum: 0 }),
         nextStepCount: typebox_exports.Integer({ minimum: 0 })
+      },
+      { additionalProperties: false }
+    ),
+    front: typebox_exports.Object(
+      {
+        posture: typebox_exports.String(),
+        headline: typebox_exports.String(),
+        risks: typebox_exports.Array(typebox_exports.String()),
+        nextInspections: typebox_exports.Array(Civ7StrategyFrontSummaryNextStepSchema),
+        pressure: typebox_exports.Array(Civ7StrategyFrontPressureSchema)
       },
       { additionalProperties: false }
     ),
@@ -32812,10 +32849,21 @@ var strategyFrontSummaryProcedure = civ7ControlOrpcImplementer.strategy.frontSum
           context5.endpointDefaults
         )
       ]);
+      const target = input.target ?? firstCandidateCityLocation(targetCandidates.candidates);
+      const destinationAnalysis = target == null ? null : await context5.directControl.getCiv7DestinationAnalysis(
+        destinationAnalysisInput({
+          input,
+          target,
+          origin: targetCandidates.origins[0] ?? battlefieldScan.origins[0]
+        }),
+        context5.endpointDefaults
+      );
       return strategyFrontSummaryResult({
         input,
         targetCandidates,
-        battlefieldScan
+        battlefieldScan,
+        destinationAnalysis,
+        target
       });
     },
     catch: () => errors.STRATEGY_FRONT_SUMMARY_UNAVAILABLE({
@@ -32842,13 +32890,31 @@ function battlefieldScanInput(input) {
     origins: input.origins,
     radius: input.scanRadius ?? 8,
     maxPlayers: input.maxPlayers,
-    maxUnits: 48,
-    maxCities: 24
+    maxUnits: input.maxUnits ?? 48,
+    maxCities: input.maxCities ?? 24
+  };
+}
+function destinationAnalysisInput({
+  input,
+  target,
+  origin
+}) {
+  return {
+    playerId: input.playerId,
+    origin,
+    destination: target,
+    corridorRadius: input.corridorRadius ?? 2,
+    destinationRadius: input.destinationRadius ?? 4,
+    maxPlayers: input.maxPlayers,
+    maxUnits: input.maxUnits,
+    maxCities: input.maxCities
   };
 }
 function strategyFrontSummaryResult({
   targetCandidates,
-  battlefieldScan
+  battlefieldScan,
+  destinationAnalysis,
+  target
 }) {
   const targetCandidateSummaries = targetCandidates.candidates.map(
     (candidate2) => ({
@@ -32865,12 +32931,22 @@ function strategyFrontSummaryResult({
       reasons: [...candidate2.reasons]
     })
   );
-  const pointsOfInterest2 = battlefieldScan.pointsOfInterest.map((point) => ({
-    kind: point.kind,
-    severity: point.severity,
-    location: point.location,
-    summary: normalizeRelationshipSummary(point.summary)
-  }));
+  const pointsOfInterest2 = [
+    ...battlefieldScan.pointsOfInterest.map((point) => ({
+      kind: point.kind,
+      severity: point.severity,
+      location: point.location,
+      summary: normalizeRelationshipSummary(point.summary),
+      source: "battlefield"
+    })),
+    ...destinationAnalysis?.pointsOfInterest.map((point) => ({
+      kind: point.kind,
+      severity: point.severity,
+      location: point.location,
+      summary: normalizeRelationshipSummary(point.summary),
+      source: "destination"
+    })) ?? []
+  ];
   const observedOwners = battlefieldScan.owners.map((owner) => ({
     owner: owner.owner,
     relationship: owner.relationshipProof === "self" ? "self" : "relationship-unproven",
@@ -32884,13 +32960,23 @@ function strategyFrontSummaryResult({
     targetCandidates: targetCandidateSummaries,
     pointsOfInterest: pointsOfInterest2
   });
+  const front = strategyFrontView({
+    origins: targetCandidates.origins.length > 0 ? targetCandidates.origins : battlefieldScan.origins,
+    target,
+    targetCandidates: targetCandidateSummaries,
+    pointsOfInterest: pointsOfInterest2,
+    destinationAnalysis,
+    nextSteps
+  });
   return {
     playerId: targetCandidates.playerId,
     localPlayerId: targetCandidates.localPlayerId,
     origins: targetCandidates.origins.length > 0 ? targetCandidates.origins : battlefieldScan.origins,
+    target,
     sourceStatus: {
       targetCandidates: "read",
-      battlefieldScan: "read"
+      battlefieldScan: "read",
+      destinationAnalysis: destinationAnalysis == null ? "skipped-no-target" : "read"
     },
     relationshipLabelPolicy: {
       relationshipSource: "not-classified",
@@ -32904,6 +32990,7 @@ function strategyFrontSummaryResult({
       observedOwnerCount: observedOwners.length,
       nextStepCount: nextSteps.length
     },
+    front,
     targetCandidates: targetCandidateSummaries,
     pointsOfInterest: pointsOfInterest2,
     observedOwners,
@@ -32970,8 +33057,98 @@ function strategyNextSteps({
   }
   return nextSteps;
 }
+function strategyFrontView({
+  origins,
+  target,
+  targetCandidates,
+  pointsOfInterest: pointsOfInterest2,
+  destinationAnalysis,
+  nextSteps
+}) {
+  const pressure = [...pointsOfInterest2].map((point) => ({
+    kind: point.kind,
+    severity: point.severity,
+    summary: point.summary,
+    location: point.location,
+    source: point.source
+  })).sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+  const highPressure = pressure.filter((item) => item.severity === "high");
+  const risks = uniqueStrings([
+    ...highPressure.map((item) => item.summary),
+    ...destinationRisks(destinationAnalysis)
+  ]).slice(0, 8);
+  const origin = origins[0] ?? null;
+  const candidate2 = targetCandidates[0];
+  const targetLabel = target ? `target/front (${target.x},${target.y})` : "no target/front selected";
+  const originLabel = origin ? `origin (${origin.x},${origin.y})` : "inferred runtime origins";
+  const candidateLabel = candidate2 ? `owner ${candidate2.owner}` : "no ranked target candidate";
+  return {
+    posture: postureFromPressure(pressure, destinationAnalysis),
+    headline: `${originLabel} toward ${targetLabel}; leading candidate: ${candidateLabel}`,
+    risks,
+    nextInspections: nextSteps,
+    pressure
+  };
+}
+function destinationRisks(destinationAnalysis) {
+  const pressure = asRecord(destinationAnalysis?.destinationPressure);
+  const risks = [];
+  const unitCount = Number(pressure?.unitCount ?? 0);
+  const cityCount = Number(pressure?.cityCount ?? 0);
+  const apparentOtherStrength = Number(pressure?.apparentOtherStrength ?? 0);
+  if (unitCount > 0) {
+    risks.push(`${unitCount} other-owner units near intended front`);
+  }
+  if (cityCount > 0) {
+    risks.push(`${cityCount} relationship-unproven cities near intended front`);
+  }
+  if (apparentOtherStrength > 0) {
+    risks.push(`apparent destination contact ${apparentOtherStrength}`);
+  }
+  return risks;
+}
+function postureFromPressure(pressure, destinationAnalysis) {
+  if (pressure.some(
+    (item) => item.kind === "civilian-risk" && item.severity === "high"
+  )) return "screen-civilians-before-advance";
+  if (pressure.some(
+    (item) => item.kind === "nearby-other-owners" && item.severity === "high"
+  )) return "stabilize-front-before-committing-siege";
+  const destinationPressure = asRecord(destinationAnalysis?.destinationPressure);
+  if (Number(destinationPressure?.unitCount ?? 0) > 0 || Number(destinationPressure?.cityCount ?? 0) > 0) {
+    return "stage-before-entering-target-contact";
+  }
+  return "inspect-and-advance-cautiously";
+}
+function severityRank(severity) {
+  if (severity === "high") return 3;
+  if (severity === "medium") return 2;
+  if (severity === "low") return 1;
+  return 0;
+}
 function normalizeRelationshipSummary(summary5) {
   return summary5.replace(/\bfriendly\b/gi, "own").replace(/\bpressure\b/gi, "contact").replace(/\bthreat\b/gi, "contact");
+}
+function firstCandidateCityLocation(candidates) {
+  for (const candidate2 of candidates) {
+    if (candidate2.approach.targetLocation != null) {
+      return candidate2.approach.targetLocation;
+    }
+    const cityLocation2 = locationFromUnknown(candidate2.nearestCity);
+    if (cityLocation2 != null) return cityLocation2;
+  }
+  return null;
+}
+function locationFromUnknown(value2) {
+  const record = asRecord(value2);
+  const location = asRecord(record?.location);
+  return typeof location?.x === "number" && typeof location.y === "number" ? { x: location.x, y: location.y } : null;
+}
+function asRecord(value2) {
+  return value2 !== null && typeof value2 === "object" ? value2 : null;
+}
+function uniqueStrings(values3) {
+  return [...new Set(values3.filter((value2) => value2.length > 0))];
 }
 var strategyRouter = {
   frontSummary: strategyFrontSummaryProcedure
@@ -38541,6 +38718,72 @@ async function getCiv7GameUiBattlefieldScan(input = {}, target = globalThis) {
     ]
   };
 }
+async function getCiv7GameUiDestinationAnalysis(input, target = globalThis) {
+  if (!civ7GameUiStrategyFrontAvailable(target)) {
+    throw new Error("Civ7 game UI strategy front dependency is unavailable.");
+  }
+  const localPlayerId = target.GameContext?.localPlayerID ?? 0;
+  const playerId = input.playerId ?? localPlayerId;
+  const destinationRadius = boundedInteger(input.destinationRadius ?? 4, 1, 16);
+  const corridorRadius = boundedInteger(input.corridorRadius ?? 2, 0, 8);
+  const scan = await getCiv7GameUiBattlefieldScan({
+    playerId,
+    origins: [input.destination],
+    radius: destinationRadius,
+    maxPlayers: input.maxPlayers,
+    maxUnits: input.maxUnits,
+    maxCities: input.maxCities
+  }, target);
+  const destinationUnits = scan.units.map((unit) => ({
+    ...unit,
+    destinationDistance: unit.distance
+  }));
+  const destinationCities = scan.cities.map((city) => ({
+    ...city,
+    destinationDistance: city.distance
+  }));
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    localPlayerId,
+    playerId,
+    origin: input.origin ?? null,
+    destination: input.destination,
+    corridorRadius,
+    destinationRadius,
+    hiddenInfoPolicy: "game-ui-runtime-summary; may include game-resident unit or city summaries until paired with visibility reads",
+    relationshipLabelPolicy,
+    corridor: {
+      routeHint: "direct-grid",
+      directGridDistance: input.origin == null ? null : distance(input.origin, input.destination),
+      sampleCount: input.origin == null ? 0 : 2,
+      sampledPlots: input.origin == null ? [] : [input.origin, input.destination],
+      units: [],
+      unitCount: 0
+    },
+    destinationPressure: {
+      units: destinationUnits,
+      unitCount: destinationUnits.length,
+      cities: destinationCities,
+      cityCount: destinationCities.length,
+      apparentOtherStrength: scan.owners.filter((owner) => owner.relationshipProof !== "self").reduce((sum2, owner) => sum2 + owner.apparentStrength, 0)
+    },
+    pointsOfInterest: scan.pointsOfInterest.map((point) => ({
+      kind: point.kind,
+      severity: point.severity,
+      location: point.location,
+      summary: point.summary,
+      units: destinationUnits,
+      cities: destinationCities
+    })),
+    notes: [
+      "Read-only game UI destination-analysis runtime port for strategy.frontSummary.",
+      "Owner mismatch and proximity remain relationship-unproven planning evidence.",
+      "Use visibility and validator-backed unit action procedures before any mutation."
+    ]
+  };
+}
 var relationshipLabelPolicy = {
   relationshipSource: "not-classified",
   relationshipProof: "none",
@@ -39296,6 +39539,7 @@ function createCiv7GameUiDirectControlFacade(target) {
       maxNotifications: options?.maxNotifications
     }, target),
     getCiv7BattlefieldScan: async (input) => await getCiv7GameUiBattlefieldScan(input, target),
+    getCiv7DestinationAnalysis: async (input) => await getCiv7GameUiDestinationAnalysis(input, target),
     getCiv7PlotSnapshot: async (input) => await getCiv7GameUiPlotSnapshot(input, target),
     getCiv7MapGrid: async (input) => await getCiv7GameUiMapGrid(input, target),
     getCiv7ReadyUnitView: async (input) => await getCiv7GameUiReadyUnitView(input, target),
