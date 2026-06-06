@@ -45,7 +45,7 @@ core, action authority, or in-game/runtime proof.
   relationship, team, war, or suzerain evidence proves stronger labels.
 
 The procedure is read-only planning evidence. It does not move units, attack,
-declare war, approve a send, validate a target action, or close a blocker.
+declare war, send actions, validate a target action, or close a blocker.
 
 ## Non-Goals
 

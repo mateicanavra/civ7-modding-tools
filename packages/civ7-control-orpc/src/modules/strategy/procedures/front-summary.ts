@@ -155,7 +155,7 @@ function strategyFrontSummaryResult({
     pointsOfInterest,
     observedOwners,
     notes: [
-      "Read-only strategy front summary. It does not move, attack, approve sends, or change diplomacy.",
+      "Read-only strategy front summary. It does not move, attack, send actions, or change diplomacy.",
       "Use visibility and validator-backed unit action procedures before any mutation.",
       "Relationship labels stay relationship-unproven unless official diplomatic evidence proves more.",
     ],

@@ -4567,4210 +4567,6 @@ __export(typebox_exports, {
   Void: () => Void
 });
 
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/_guard.mjs
-function IsGuardInterface(value2) {
-  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, "check") && guard_exports.HasPropertyKey(value2, "errors") && guard_exports.IsFunction(value2.check) && guard_exports.IsFunction(value2.errors);
-}
-function IsGuard2(value2) {
-  return guard_exports.HasPropertyKey(value2, "~guard") && IsGuardInterface(value2["~guard"]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/_refine.mjs
-function IsRefine2(value2) {
-  return guard_exports.HasPropertyKey(value2, "~refine") && guard_exports.IsArray(value2["~refine"]) && guard_exports.Every(value2["~refine"], 0, (value3) => guard_exports.IsObject(value3) && guard_exports.HasPropertyKey(value3, "refine") && guard_exports.HasPropertyKey(value3, "message") && guard_exports.IsFunction(value3.refine) && guard_exports.IsString(value3.message));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/schema.mjs
-function IsSchemaObject(value2) {
-  return guard_exports.IsObject(value2) && !guard_exports.IsArray(value2);
-}
-function IsBooleanSchema(value2) {
-  return guard_exports.IsBoolean(value2);
-}
-function IsSchema2(value2) {
-  return IsSchemaObject(value2) || IsBooleanSchema(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/additionalItems.mjs
-function IsAdditionalItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "additionalItems") && IsSchema2(schema.additionalItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/additionalProperties.mjs
-function IsAdditionalProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "additionalProperties") && IsSchema2(schema.additionalProperties);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/allOf.mjs
-function IsAllOf(schema) {
-  return guard_exports.HasPropertyKey(schema, "allOf") && guard_exports.IsArray(schema.allOf) && schema.allOf.every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/anchor.mjs
-function IsAnchor(schema) {
-  return guard_exports.HasPropertyKey(schema, "$anchor") && guard_exports.IsString(schema.$anchor);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/anyOf.mjs
-function IsAnyOf(schema) {
-  return guard_exports.HasPropertyKey(schema, "anyOf") && guard_exports.IsArray(schema.anyOf) && schema.anyOf.every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/const.mjs
-function IsConst(value2) {
-  return guard_exports.HasPropertyKey(value2, "const");
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/contains.mjs
-function IsContains(schema) {
-  return guard_exports.HasPropertyKey(schema, "contains") && IsSchema2(schema.contains);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/default.mjs
-function IsDefault(schema) {
-  return guard_exports.HasPropertyKey(schema, "default");
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependencies.mjs
-function IsDependencies(schema) {
-  return guard_exports.HasPropertyKey(schema, "dependencies") && guard_exports.IsObject(schema.dependencies) && Object.values(schema.dependencies).every((value2) => IsSchema2(value2) || guard_exports.IsArray(value2) && value2.every((value3) => guard_exports.IsString(value3)));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependentRequired.mjs
-function IsDependentRequired(schema) {
-  return guard_exports.HasPropertyKey(schema, "dependentRequired") && guard_exports.IsObject(schema.dependentRequired) && Object.values(schema.dependentRequired).every((value2) => guard_exports.IsArray(value2) && value2.every((value3) => guard_exports.IsString(value3)));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependentSchemas.mjs
-function IsDependentSchemas(schema) {
-  return guard_exports.HasPropertyKey(schema, "dependentSchemas") && guard_exports.IsObject(schema.dependentSchemas) && Object.values(schema.dependentSchemas).every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dynamicAnchor.mjs
-function IsDynamicAnchor(schema) {
-  return guard_exports.HasPropertyKey(schema, "$dynamicAnchor") && guard_exports.IsString(schema.$dynamicAnchor);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/else.mjs
-function IsElse(schema) {
-  return guard_exports.HasPropertyKey(schema, "else") && IsSchema2(schema.else);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/enum.mjs
-function IsEnum2(schema) {
-  return guard_exports.HasPropertyKey(schema, "enum") && guard_exports.IsArray(schema.enum);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/exclusiveMaximum.mjs
-function IsExclusiveMaximum(schema) {
-  return guard_exports.HasPropertyKey(schema, "exclusiveMaximum") && (guard_exports.IsNumber(schema.exclusiveMaximum) || guard_exports.IsBigInt(schema.exclusiveMaximum));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/exclusiveMinimum.mjs
-function IsExclusiveMinimum(schema) {
-  return guard_exports.HasPropertyKey(schema, "exclusiveMinimum") && (guard_exports.IsNumber(schema.exclusiveMinimum) || guard_exports.IsBigInt(schema.exclusiveMinimum));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/format.mjs
-function IsFormat(schema) {
-  return guard_exports.HasPropertyKey(schema, "format") && guard_exports.IsString(schema.format);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/id.mjs
-function IsId(schema) {
-  return guard_exports.HasPropertyKey(schema, "$id") && guard_exports.IsString(schema.$id);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/if.mjs
-function IsIf(schema) {
-  return guard_exports.HasPropertyKey(schema, "if") && IsSchema2(schema.if);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/items.mjs
-function IsItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "items") && (IsSchema2(schema.items) || guard_exports.IsArray(schema.items) && schema.items.every((value2) => {
-    return IsSchema2(value2);
-  }));
-}
-function IsItemsSized(schema) {
-  return IsItems(schema) && guard_exports.IsArray(schema.items);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maximum.mjs
-function IsMaximum(schema) {
-  return guard_exports.HasPropertyKey(schema, "maximum") && (guard_exports.IsNumber(schema.maximum) || guard_exports.IsBigInt(schema.maximum));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxContains.mjs
-function IsMaxContains(schema) {
-  return guard_exports.HasPropertyKey(schema, "maxContains") && guard_exports.IsNumber(schema.maxContains);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxItems.mjs
-function IsMaxItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "maxItems") && guard_exports.IsNumber(schema.maxItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxLength.mjs
-function IsMaxLength4(schema) {
-  return guard_exports.HasPropertyKey(schema, "maxLength") && guard_exports.IsNumber(schema.maxLength);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxProperties.mjs
-function IsMaxProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "maxProperties") && guard_exports.IsNumber(schema.maxProperties);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minimum.mjs
-function IsMinimum(schema) {
-  return guard_exports.HasPropertyKey(schema, "minimum") && (guard_exports.IsNumber(schema.minimum) || guard_exports.IsBigInt(schema.minimum));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minContains.mjs
-function IsMinContains(schema) {
-  return guard_exports.HasPropertyKey(schema, "minContains") && guard_exports.IsNumber(schema.minContains);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minItems.mjs
-function IsMinItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "minItems") && guard_exports.IsNumber(schema.minItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minLength.mjs
-function IsMinLength4(schema) {
-  return guard_exports.HasPropertyKey(schema, "minLength") && guard_exports.IsNumber(schema.minLength);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minProperties.mjs
-function IsMinProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "minProperties") && guard_exports.IsNumber(schema.minProperties);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/multipleOf.mjs
-function IsMultipleOf2(schema) {
-  return guard_exports.HasPropertyKey(schema, "multipleOf") && (guard_exports.IsNumber(schema.multipleOf) || guard_exports.IsBigInt(schema.multipleOf));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/not.mjs
-function IsNot(schema) {
-  return guard_exports.HasPropertyKey(schema, "not") && IsSchema2(schema.not);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/oneOf.mjs
-function IsOneOf(schema) {
-  return guard_exports.HasPropertyKey(schema, "oneOf") && guard_exports.IsArray(schema.oneOf) && schema.oneOf.every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/pattern.mjs
-function IsPattern(schema) {
-  return guard_exports.HasPropertyKey(schema, "pattern") && (guard_exports.IsString(schema.pattern) || schema.pattern instanceof RegExp);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/patternProperties.mjs
-function IsPatternProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "patternProperties") && guard_exports.IsObject(schema.patternProperties) && Object.values(schema.patternProperties).every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/prefixItems.mjs
-function IsPrefixItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "prefixItems") && guard_exports.IsArray(schema.prefixItems) && schema.prefixItems.every((schema2) => IsSchema2(schema2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/properties.mjs
-function IsProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "properties") && guard_exports.IsObject(schema.properties) && Object.values(schema.properties).every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/propertyNames.mjs
-function IsPropertyNames(schema) {
-  return guard_exports.HasPropertyKey(schema, "propertyNames") && (guard_exports.IsObject(schema.propertyNames) || IsSchema2(schema.propertyNames));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/recursiveAnchor.mjs
-function IsRecursiveAnchor(schema) {
-  return guard_exports.HasPropertyKey(schema, "$recursiveAnchor") && guard_exports.IsBoolean(schema.$recursiveAnchor);
-}
-function IsRecursiveAnchorTrue(schema) {
-  return IsRecursiveAnchor(schema) && guard_exports.IsEqual(schema.$recursiveAnchor, true);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/recursiveRef.mjs
-function IsRecursiveRef(schema) {
-  return guard_exports.HasPropertyKey(schema, "$recursiveRef") && guard_exports.IsString(schema.$recursiveRef);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/ref.mjs
-function IsRef2(schema) {
-  return guard_exports.HasPropertyKey(schema, "$ref") && guard_exports.IsString(schema.$ref);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/required.mjs
-function IsRequired(schema) {
-  return guard_exports.HasPropertyKey(schema, "required") && guard_exports.IsArray(schema.required) && schema.required.every((value2) => guard_exports.IsString(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/then.mjs
-function IsThen(schema) {
-  return guard_exports.HasPropertyKey(schema, "then") && IsSchema2(schema.then);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/type.mjs
-function IsType(schema) {
-  return guard_exports.HasPropertyKey(schema, "type") && (guard_exports.IsString(schema.type) || guard_exports.IsArray(schema.type) && schema.type.every((value2) => guard_exports.IsString(value2)));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/uniqueItems.mjs
-function IsUniqueItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "uniqueItems") && guard_exports.IsBoolean(schema.uniqueItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/unevaluatedItems.mjs
-function IsUnevaluatedItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "unevaluatedItems") && IsSchema2(schema.unevaluatedItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/unevaluatedProperties.mjs
-function IsUnevaluatedProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "unevaluatedProperties") && IsSchema2(schema.unevaluatedProperties);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_context.mjs
-function HasUnevaluatedFromObject(value2) {
-  return IsUnevaluatedItems(value2) || IsUnevaluatedProperties(value2) || guard_exports.Keys(value2).some((key) => HasUnevaluatedFromUnknown(value2[key]));
-}
-function HasUnevaluatedFromArray(value2) {
-  return value2.some((value3) => HasUnevaluatedFromUnknown(value3));
-}
-function HasUnevaluatedFromUnknown(value2) {
-  return guard_exports.IsArray(value2) ? HasUnevaluatedFromArray(value2) : guard_exports.IsObject(value2) ? HasUnevaluatedFromObject(value2) : false;
-}
-function HasUnevaluated(context5, schema) {
-  return HasUnevaluatedFromUnknown(schema) || guard_exports.Keys(context5).some((key) => HasUnevaluatedFromUnknown(context5[key]));
-}
-var BuildContext = class {
-  constructor(hasUnevaluated) {
-    this.hasUnevaluated = hasUnevaluated;
-  }
-  UseUnevaluated() {
-    return this.hasUnevaluated;
-  }
-  AddIndex(index2) {
-    return emit_exports.Call(emit_exports.Member("context", "AddIndex"), [index2]);
-  }
-  AddKey(key) {
-    return emit_exports.Call(emit_exports.Member("context", "AddKey"), [key]);
-  }
-  Merge(results) {
-    return emit_exports.Call(emit_exports.Member("context", "Merge"), [results]);
-  }
-};
-var CheckContext = class {
-  constructor() {
-    this.indices = /* @__PURE__ */ new Set();
-    this.keys = /* @__PURE__ */ new Set();
-  }
-  AddIndex(index2) {
-    this.indices.add(index2);
-    return true;
-  }
-  AddKey(key) {
-    this.keys.add(key);
-    return true;
-  }
-  GetIndices() {
-    return this.indices;
-  }
-  GetKeys() {
-    return this.keys;
-  }
-  Merge(results) {
-    for (const context5 of results) {
-      context5.indices.forEach((value2) => this.indices.add(value2));
-      context5.keys.forEach((value2) => this.keys.add(value2));
-    }
-    return true;
-  }
-};
-var ErrorContext = class extends CheckContext {
-  constructor(callback) {
-    super();
-    this.callback = callback;
-  }
-  AddError(error) {
-    this.callback(error);
-    return false;
-  }
-};
-var AccumulatedErrorContext = class extends ErrorContext {
-  constructor() {
-    super((error) => this.errors.push(error));
-    this.errors = [];
-  }
-  AddError(error) {
-    this.errors.push(error);
-    return false;
-  }
-  GetErrors() {
-    return this.errors;
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_externals.mjs
-var identifier = "external_";
-var resetCount = 0;
-var state = {
-  identifier: `${identifier}${resetCount}`,
-  variables: []
-};
-function ResetExternal() {
-  state.identifier = `${identifier}${resetCount}`;
-  state.variables = [];
-  resetCount += 1;
-}
-function CreateVariable(value2) {
-  const call2 = `${state.identifier}[${state.variables.length}]`;
-  state.variables.push(value2);
-  return call2;
-}
-function GetExternal() {
-  return state;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_guard.mjs
-function BuildGuard(stack, context5, schema, value2) {
-  return emit_exports.Call(emit_exports.Member(emit_exports.Member(CreateVariable(schema), "~guard"), "check"), [value2]);
-}
-function CheckGuard(stack, context5, schema, value2) {
-  return schema["~guard"].check(value2);
-}
-function ErrorGuard(stack, context5, schemaPath, instancePath, schema, value2) {
-  return schema["~guard"].check(value2) || context5.AddError({
-    keyword: "~guard",
-    schemaPath,
-    instancePath,
-    params: { errors: schema["~guard"].errors(value2) }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_refine.mjs
-function BuildRefine(stack, context5, schema, value2) {
-  const refinements = CreateVariable(schema["~refine"].map((refinement) => refinement));
-  return emit_exports.Every(refinements, emit_exports.Constant(0), ["refinement", "_"], emit_exports.Call(emit_exports.Member("refinement", "refine"), [value2]));
-}
-function CheckRefine(stack, context5, schema, value2) {
-  return guard_exports.Every(schema["~refine"], 0, (refinement, _) => refinement.refine(value2));
-}
-function ErrorRefine(stack, context5, schemaPath, instancePath, schema, value2) {
-  return guard_exports.EveryAll(schema["~refine"], 0, (refinement, index2) => {
-    return refinement.refine(value2) || context5.AddError({
-      keyword: "~refine",
-      schemaPath,
-      instancePath,
-      params: { index: index2, message: refinement.message }
-    });
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_unique.mjs
-var index = 0;
-function Unique() {
-  return `var_${index++}`;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/additionalItems.mjs
-function IsValid(schema) {
-  return IsItems(schema) && guard_exports.IsArray(schema.items);
-}
-function BuildAdditionalItems(stack, context5, schema, value2) {
-  if (!IsValid(schema))
-    return emit_exports.Constant(true);
-  const [item, index2] = [Unique(), Unique()];
-  const isSchema = BuildSchema(stack, context5, schema.additionalItems, item);
-  const isLength = emit_exports.IsLessThan(index2, emit_exports.Constant(schema.items.length));
-  const addIndex = context5.AddIndex(index2);
-  const guarded = context5.UseUnevaluated() ? emit_exports.Or(isLength, emit_exports.And(isSchema, addIndex)) : emit_exports.Or(isLength, isSchema);
-  return emit_exports.Call(emit_exports.Member(value2, "every"), [emit_exports.ArrowFunction([item, index2], guarded)]);
-}
-function CheckAdditionalItems(stack, context5, schema, value2) {
-  if (!IsValid(schema))
-    return true;
-  const isAdditionalItems = value2.every((item, index2) => {
-    return guard_exports.IsLessThan(index2, schema.items.length) || CheckSchema(stack, context5, schema.additionalItems, item) && context5.AddIndex(index2);
-  });
-  return isAdditionalItems;
-}
-function ErrorAdditionalItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  if (!IsValid(schema))
-    return true;
-  const isAdditionalItems = value2.every((item, index2) => {
-    const nextSchemaPath = `${schemaPath}/additionalItems`;
-    const nextInstancePath = `${instancePath}/${index2}`;
-    return guard_exports.IsLessThan(index2, schema.items.length) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema.additionalItems, item) && context5.AddIndex(index2);
-  });
-  return isAdditionalItems;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/additionalProperties.mjs
-function GetPropertyKeyAsPattern(key) {
-  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return `^${escaped}$`;
-}
-function GetPropertiesPattern(schema) {
-  const patterns = [];
-  if (IsPatternProperties(schema))
-    patterns.push(...guard_exports.Keys(schema.patternProperties));
-  if (IsProperties(schema))
-    patterns.push(...guard_exports.Keys(schema.properties).map(GetPropertyKeyAsPattern));
-  return guard_exports.IsEqual(patterns.length, 0) ? "(?!)" : `(${patterns.join("|")})`;
-}
-function CanAdditionalPropertiesFast(context5, schema, value2) {
-  return IsRequired(schema) && IsProperties(schema) && !IsPatternProperties(schema) && guard_exports.IsEqual(schema.additionalProperties, false) && guard_exports.IsEqual(guard_exports.Keys(schema.properties).length, schema.required.length);
-}
-function BuildAdditionalPropertiesFast(context5, schema, value2) {
-  return emit_exports.IsEqual(emit_exports.Member(emit_exports.Call(emit_exports.Member("Object", "getOwnPropertyNames"), [value2]), "length"), emit_exports.Constant(schema.required.length));
-}
-function BuildAdditionalPropertiesStandard(stack, context5, schema, value2) {
-  const [key, _index] = [Unique(), Unique()];
-  const regexp = CreateVariable(new RegExp(GetPropertiesPattern(schema)));
-  const isSchema = BuildSchema(stack, context5, schema.additionalProperties, `${value2}[${key}]`);
-  const isKey = emit_exports.Call(emit_exports.Member(regexp, "test"), [key]);
-  const addKey = context5.AddKey(key);
-  const guarded = context5.UseUnevaluated() ? emit_exports.Or(isKey, emit_exports.And(isSchema, addKey)) : emit_exports.Or(isKey, isSchema);
-  const result = emit_exports.Every(emit_exports.Keys(value2), emit_exports.Constant(0), [key, _index], guarded);
-  return result;
-}
-function BuildAdditionalProperties(stack, context5, schema, value2) {
-  return CanAdditionalPropertiesFast(context5, schema, value2) ? BuildAdditionalPropertiesFast(context5, schema, value2) : BuildAdditionalPropertiesStandard(stack, context5, schema, value2);
-}
-function CheckAdditionalProperties(stack, context5, schema, value2) {
-  const regexp = new RegExp(GetPropertiesPattern(schema));
-  const isAdditionalProperties = guard_exports.Every(guard_exports.Keys(value2), 0, (key, _index) => {
-    return regexp.test(key) || CheckSchema(stack, context5, schema.additionalProperties, value2[key]) && context5.AddKey(key);
-  });
-  return isAdditionalProperties;
-}
-function ErrorAdditionalProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  const regexp = new RegExp(GetPropertiesPattern(schema));
-  const additionalProperties = [];
-  const isAdditionalProperties = guard_exports.EveryAll(guard_exports.Keys(value2), 0, (key, _index) => {
-    const nextSchemaPath = `${schemaPath}/additionalProperties`;
-    const nextInstancePath = `${instancePath}/${key}`;
-    const nextContext = new AccumulatedErrorContext();
-    const isAdditionalProperty = regexp.test(key) || ErrorSchema(stack, nextContext, nextSchemaPath, nextInstancePath, schema.additionalProperties, value2[key]) && context5.AddKey(key);
-    if (!isAdditionalProperty)
-      additionalProperties.push(key);
-    return isAdditionalProperty;
-  });
-  return isAdditionalProperties || context5.AddError({
-    keyword: "additionalProperties",
-    schemaPath,
-    instancePath,
-    params: { additionalProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_reducer.mjs
-function Reducer(stack, context5, schemas, value2, check2) {
-  const results = emit_exports.ConstDeclaration("results", "[]");
-  const context_n = schemas.map((_schema, index2) => emit_exports.ConstDeclaration(`context_${index2}`, emit_exports.New("CheckContext", [])));
-  const condition_n = schemas.map((schema, index2) => emit_exports.ConstDeclaration(`condition_${index2}`, emit_exports.Call(emit_exports.ArrowFunction(["context"], BuildSchema(stack, context5, schema, value2)), [`context_${index2}`])));
-  const checks = schemas.map((_schema, index2) => emit_exports.If(`condition_${index2}`, emit_exports.Call(emit_exports.Member("results", "push"), [`context_${index2}`])));
-  const returns = emit_exports.Return(emit_exports.And(check2, context5.Merge("results")));
-  return emit_exports.Call(emit_exports.ArrowFunction([], emit_exports.Statements([results, ...context_n, ...condition_n, ...checks, returns])), []);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/allOf.mjs
-function BuildAllOfStandard(stack, context5, schema, value2) {
-  return Reducer(stack, context5, schema.allOf, value2, emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(schema.allOf.length)));
-}
-function BuildAllOfFast(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(schema.allOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
-}
-function BuildAllOf(stack, context5, schema, value2) {
-  return context5.UseUnevaluated() ? BuildAllOfStandard(stack, context5, schema, value2) : BuildAllOfFast(stack, context5, schema, value2);
-}
-function CheckAllOf(stack, context5, schema, value2) {
-  const results = schema.allOf.reduce((result, schema2) => {
-    const nextContext = new CheckContext();
-    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
-  }, []);
-  return guard_exports.IsEqual(results.length, schema.allOf.length) && context5.Merge(results);
-}
-function ErrorAllOf(stack, context5, schemaPath, instancePath, schema, value2) {
-  const failedContexts = [];
-  const results = schema.allOf.reduce((result, schema2, index2) => {
-    const nextSchemaPath = `${schemaPath}/allOf/${index2}`;
-    const nextContext = new AccumulatedErrorContext();
-    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
-    if (!isSchema)
-      failedContexts.push(nextContext);
-    return isSchema ? [...result, nextContext] : result;
-  }, []);
-  const isAllOf = guard_exports.IsEqual(results.length, schema.allOf.length) && context5.Merge(results);
-  if (!isAllOf)
-    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
-  return isAllOf;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/anyOf.mjs
-function BuildAnyOfStandard(stack, context5, schema, value2) {
-  return Reducer(stack, context5, schema.anyOf, value2, emit_exports.IsGreaterThan(emit_exports.Member("results", "length"), emit_exports.Constant(0)));
-}
-function BuildAnyOfFast(stack, context5, schema, value2) {
-  return emit_exports.ReduceOr(schema.anyOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
-}
-function BuildAnyOf(stack, context5, schema, value2) {
-  return context5.UseUnevaluated() ? BuildAnyOfStandard(stack, context5, schema, value2) : BuildAnyOfFast(stack, context5, schema, value2);
-}
-function CheckAnyOf(stack, context5, schema, value2) {
-  const results = schema.anyOf.reduce((result, schema2, index2) => {
-    const nextContext = new CheckContext();
-    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
-  }, []);
-  return guard_exports.IsGreaterThan(results.length, 0) && context5.Merge(results);
-}
-function ErrorAnyOf(stack, context5, schemaPath, instancePath, schema, value2) {
-  const failedContexts = [];
-  const results = schema.anyOf.reduce((result, schema2, index2) => {
-    const nextContext = new AccumulatedErrorContext();
-    const nextSchemaPath = `${schemaPath}/anyOf/${index2}`;
-    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
-    if (!isSchema)
-      failedContexts.push(nextContext);
-    return isSchema ? [...result, nextContext] : result;
-  }, []);
-  const isAnyOf = guard_exports.IsGreaterThan(results.length, 0) && context5.Merge(results);
-  if (!isAnyOf)
-    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
-  return isAnyOf || context5.AddError({
-    keyword: "anyOf",
-    schemaPath,
-    instancePath,
-    params: {}
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/boolean.mjs
-function BuildBooleanSchema(stack, context5, schema, value2) {
-  return schema ? emit_exports.Constant(true) : emit_exports.Constant(false);
-}
-function CheckBooleanSchema(stack, context5, schema, value2) {
-  return schema;
-}
-function ErrorBooleanSchema(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckBooleanSchema(stack, context5, schema, value2) || context5.AddError({
-    keyword: "boolean",
-    schemaPath,
-    instancePath,
-    params: {}
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/const.mjs
-function BuildConst(stack, context5, schema, value2) {
-  return guard_exports.IsValueLike(schema.const) ? emit_exports.IsEqual(value2, emit_exports.Constant(schema.const)) : emit_exports.IsDeepEqual(value2, CreateVariable(schema.const));
-}
-function CheckConst(stack, context5, schema, value2) {
-  return guard_exports.IsValueLike(schema.const) ? guard_exports.IsEqual(value2, schema.const) : guard_exports.IsDeepEqual(value2, schema.const);
-}
-function ErrorConst(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckConst(stack, context5, schema, value2) || context5.AddError({
-    keyword: "const",
-    schemaPath,
-    instancePath,
-    params: { allowedValue: schema.const }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/contains.mjs
-function IsValid2(schema) {
-  return !(IsMinContains(schema) && guard_exports.IsEqual(schema.minContains, 0));
-}
-function BuildContains(stack, context5, schema, value2) {
-  if (!IsValid2(schema))
-    return emit_exports.Constant(true);
-  const item = Unique();
-  const isLength = emit_exports.Not(emit_exports.IsEqual(emit_exports.Member(value2, "length"), emit_exports.Constant(0)));
-  const isSome3 = emit_exports.Call(emit_exports.Member(value2, "some"), [emit_exports.ArrowFunction([item], BuildSchema(stack, context5, schema.contains, item))]);
-  return emit_exports.And(isLength, isSome3);
-}
-function CheckContains(stack, context5, schema, value2) {
-  if (!IsValid2(schema))
-    return true;
-  return !guard_exports.IsEqual(value2.length, 0) && value2.some((item) => CheckSchema(stack, context5, schema.contains, item));
-}
-function ErrorContains(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckContains(stack, context5, schema, value2) || context5.AddError({
-    keyword: "contains",
-    schemaPath,
-    instancePath,
-    params: { minContains: 1 }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependencies.mjs
-function BuildDependencies(stack, context5, schema, value2) {
-  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
-  const isEveryDependency = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependencies).map(([key, schema2]) => {
-    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
-    const isSchema = BuildSchema(stack, context5, schema2, value2);
-    const isEveryKey = (schema3) => emit_exports.ReduceAnd(schema3.map((key2) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key2))));
-    return emit_exports.Or(notKey, guard_exports.IsArray(schema2) ? isEveryKey(schema2) : isSchema);
-  }));
-  return emit_exports.Or(isLength, isEveryDependency);
-}
-function CheckDependencies(stack, context5, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependencies), 0, ([key, schema2]) => {
-    return !guard_exports.HasPropertyKey(value2, key) || (guard_exports.IsArray(schema2) ? schema2.every((key2) => guard_exports.HasPropertyKey(value2, key2)) : CheckSchema(stack, context5, schema2, value2));
-  });
-  return isLength || isEvery;
-}
-function ErrorDependencies(stack, context5, schemaPath, instancePath, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.EveryAll(guard_exports.Entries(schema.dependencies), 0, ([key, schema2]) => {
-    const nextSchemaPath = `${schemaPath}/dependencies/${key}`;
-    return !guard_exports.HasPropertyKey(value2, key) || (guard_exports.IsArray(schema2) ? schema2.every((dependency) => guard_exports.HasPropertyKey(value2, dependency) || context5.AddError({
-      keyword: "dependencies",
-      schemaPath,
-      instancePath,
-      params: { property: key, dependencies: schema2 }
-    })) : ErrorSchema(stack, context5, nextSchemaPath, instancePath, schema2, value2));
-  });
-  return isLength || isEvery;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependentRequired.mjs
-function BuildDependentRequired(stack, context5, schema, value2) {
-  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
-  const isEvery = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependentRequired).map(([key, keys5]) => {
-    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
-    const everyKey = emit_exports.ReduceAnd(keys5.map((key2) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key2))));
-    return emit_exports.Or(notKey, everyKey);
-  }));
-  return emit_exports.Or(isLength, isEvery);
-}
-function CheckDependentRequired(stack, context5, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependentRequired), 0, ([key, keys5]) => {
-    return !guard_exports.HasPropertyKey(value2, key) || keys5.every((key2) => guard_exports.HasPropertyKey(value2, key2));
-  });
-  return isLength || isEvery;
-}
-function ErrorDependentRequired(stack, context5, schemaPath, instancePath, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEveryEntry = guard_exports.EveryAll(guard_exports.Entries(schema.dependentRequired), 0, ([key, keys5]) => {
-    return !guard_exports.HasPropertyKey(value2, key) || guard_exports.EveryAll(keys5, 0, (dependency) => guard_exports.HasPropertyKey(value2, dependency) || context5.AddError({
-      keyword: "dependentRequired",
-      schemaPath,
-      instancePath,
-      params: { property: key, dependencies: keys5 }
-    }));
-  });
-  return isLength || isEveryEntry;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependentSchemas.mjs
-function BuildDependentSchemas(stack, context5, schema, value2) {
-  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
-  const isEvery = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependentSchemas).map(([key, schema2]) => {
-    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
-    const isSchema = BuildSchema(stack, context5, schema2, value2);
-    return emit_exports.Or(notKey, isSchema);
-  }));
-  return emit_exports.Or(isLength, isEvery);
-}
-function CheckDependentSchemas(stack, context5, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependentSchemas), 0, ([key, schema2]) => {
-    return !guard_exports.HasPropertyKey(value2, key) || CheckSchema(stack, context5, schema2, value2);
-  });
-  return isLength || isEvery;
-}
-function ErrorDependentSchemas(stack, context5, schemaPath, instancePath, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.EveryAll(guard_exports.Entries(schema.dependentSchemas), 0, ([key, schema2]) => {
-    const nextSchemaPath = `${schemaPath}/dependentSchemas/${key}`;
-    return !guard_exports.HasPropertyKey(value2, key) || ErrorSchema(stack, context5, nextSchemaPath, instancePath, schema2, value2);
-  });
-  return isLength || isEvery;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/enum.mjs
-function BuildEnum(stack, context5, schema, value2) {
-  return emit_exports.ReduceOr(schema.enum.map((option3) => {
-    if (guard_exports.IsValueLike(option3))
-      return emit_exports.IsEqual(value2, emit_exports.Constant(option3));
-    const variable = CreateVariable(option3);
-    return emit_exports.IsDeepEqual(value2, variable);
-  }));
-}
-function CheckEnum(stack, context5, schema, value2) {
-  return schema.enum.some((option3) => guard_exports.IsValueLike(option3) ? guard_exports.IsEqual(value2, option3) : guard_exports.IsDeepEqual(value2, option3));
-}
-function ErrorEnum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckEnum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "enum",
-    schemaPath,
-    instancePath,
-    params: { allowedValues: schema.enum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/exclusiveMaximum.mjs
-function BuildExclusiveMaximum(stack, context5, schema, value2) {
-  return emit_exports.IsLessThan(value2, emit_exports.Constant(schema.exclusiveMaximum));
-}
-function CheckExclusiveMaximum(stack, context5, schema, value2) {
-  return guard_exports.IsLessThan(value2, schema.exclusiveMaximum);
-}
-function ErrorExclusiveMaximum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckExclusiveMaximum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "exclusiveMaximum",
-    schemaPath,
-    instancePath,
-    params: { comparison: "<", limit: schema.exclusiveMaximum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/exclusiveMinimum.mjs
-function BuildExclusiveMinimum(stack, context5, schema, value2) {
-  return emit_exports.IsGreaterThan(value2, emit_exports.Constant(schema.exclusiveMinimum));
-}
-function CheckExclusiveMinimum(stack, context5, schema, value2) {
-  return guard_exports.IsGreaterThan(value2, schema.exclusiveMinimum);
-}
-function ErrorExclusiveMinimum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckExclusiveMinimum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "exclusiveMinimum",
-    schemaPath,
-    instancePath,
-    params: { comparison: ">", limit: schema.exclusiveMinimum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/format.mjs
-var format_exports = {};
-__export(format_exports, {
-  Clear: () => Clear,
-  Entries: () => Entries3,
-  Get: () => Get3,
-  Has: () => Has,
-  IsDate: () => IsDate2,
-  IsDateTime: () => IsDateTime,
-  IsDuration: () => IsDuration,
-  IsEmail: () => IsEmail,
-  IsHostname: () => IsHostname,
-  IsIPv4: () => IsIPv4,
-  IsIPv6: () => IsIPv6,
-  IsIdnEmail: () => IsIdnEmail,
-  IsIdnHostname: () => IsIdnHostname,
-  IsIri: () => IsIri,
-  IsIriReference: () => IsIriReference,
-  IsJsonPointer: () => IsJsonPointer,
-  IsJsonPointerUriFragment: () => IsJsonPointerUriFragment,
-  IsRegex: () => IsRegex,
-  IsRelativeJsonPointer: () => IsRelativeJsonPointer,
-  IsTime: () => IsTime,
-  IsUri: () => IsUri,
-  IsUriReference: () => IsUriReference,
-  IsUriTemplate: () => IsUriTemplate,
-  IsUrl: () => IsUrl,
-  IsUuid: () => IsUuid,
-  Reset: () => Reset2,
-  Set: () => Set3,
-  Test: () => Test
-});
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/date.mjs
-var DAYS = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-var DATE = /^(\d\d\d\d)-(\d\d)-(\d\d)$/;
-function IsLeapYear(year) {
-  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-}
-function IsDate2(value2) {
-  const matches = DATE.exec(value2);
-  if (!matches)
-    return false;
-  const year = +matches[1];
-  const month = +matches[2];
-  const day = +matches[3];
-  return month >= 1 && month <= 12 && day >= 1 && day <= (month === 2 && IsLeapYear(year) ? 29 : DAYS[month]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/time.mjs
-var TIME = /^(\d\d):(\d\d):(\d\d(?:\.\d+)?)(?:Z|([+-])(\d\d):(\d\d))?$/i;
-function IsTime(value2, strictTimeZone = true) {
-  const matches = TIME.exec(value2);
-  if (!matches)
-    return false;
-  const hr = +matches[1];
-  const min3 = +matches[2];
-  const sec = +matches[3];
-  const tzSign = matches[4] === "-" ? -1 : 1;
-  const tzH = +(matches[5] || 0);
-  const tzM = +(matches[6] || 0);
-  if (tzH > 23 || tzM > 59)
-    return false;
-  if (strictTimeZone && !matches[4] && value2.toLowerCase().indexOf("z") === -1) {
-    return false;
-  }
-  if (hr <= 23 && min3 <= 59 && sec < 60)
-    return true;
-  const utcMin = min3 - tzM * tzSign;
-  const utcHr = hr - tzH * tzSign - (utcMin < 0 ? 1 : 0);
-  return (utcHr === 23 || utcHr === -1) && (utcMin === 59 || utcMin === -1) && sec < 61;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/date-time.mjs
-function IsDateTime(value2, strictTimeZone = true) {
-  const dateTime = value2.split(/T/i);
-  return dateTime.length === 2 && IsDate2(dateTime[0]) && IsTime(dateTime[1], strictTimeZone);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/duration.mjs
-var Duration = /^P(?!$)((\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+S)?)?|(\d+W)?)$/;
-function IsDuration(value2) {
-  return Duration.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/email.mjs
-var Email = /^(?!.*\.\.)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/i;
-function IsEmail(value2) {
-  return Email.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/hostname.mjs
-var Hostname = /^(?=.{1,253}\.?$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[-0-9a-z]{0,61}[0-9a-z])?)*\.?$/i;
-function IsHostname(value2) {
-  return Hostname.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/idn-email.mjs
-var IdnEmail = /^(?!.*\.\.)[\p{L}\p{N}!#$%&'*+/=?^_`{|}~-]+(?:\.[\p{L}\p{N}!#$%&'*+/=?^_`{|}~-]+)*@[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?)*$/iu;
-function IsIdnEmail(value2) {
-  return IdnEmail.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/idn-hostname.mjs
-function IsValidAdjacentForKatakanaMiddleDot(char) {
-  const codePoint = char.codePointAt(0);
-  if (codePoint === void 0)
-    return false;
-  return codePoint >= 12352 && codePoint <= 12447 || // Hiragana
-  codePoint >= 12448 && codePoint <= 12543 && codePoint !== 12539 || // Katakana (excluding U+30FB)
-  codePoint >= 19968 && codePoint <= 40959;
-}
-function IsIdnHostname(value2) {
-  if (value2.length === 0)
-    return false;
-  if (value2.includes(" "))
-    return false;
-  const separators = /[\u002E\u3002\uFF0E\uFF61]/g;
-  const normalized = value2.normalize("NFC").replace(separators, ".");
-  if (normalized.length > 253)
-    return false;
-  const labels = normalized.split(".");
-  if (labels.some((label) => label.length === 0))
-    return false;
-  for (const label of labels) {
-    if (label.length > 63)
-      return false;
-    if (label.startsWith("-") || label.endsWith("-"))
-      return false;
-    if (/^xn--/i.test(label)) {
-      const punycodePart = label.slice(4);
-      if (punycodePart.length < 2)
-        return false;
-      if (punycodePart.includes("---"))
-        return false;
-      continue;
-    }
-    if (/[\u302E\u302F\u3031\u3032\u3033\u3034\u3035\u303B\u0640\u07FA]/.test(label)) {
-      return false;
-    }
-    const firstChar = label.charAt(0);
-    if (/[\u0903\u0300\u0488]/.test(firstChar))
-      return false;
-    for (let i = 0; i < label.length; i++) {
-      const char = label.charAt(i);
-      if (char === "\xB7") {
-        if (i === 0 || i === label.length - 1)
-          return false;
-        const prev = label.charAt(i - 1);
-        const next = label.charAt(i + 1);
-        if (!/^[lL]$/.test(prev) || !/^[lL]$/.test(next))
-          return false;
-      }
-      if (char === "\u30FB") {
-        if (label.length === 1)
-          return false;
-        if (i === 0) {
-          const next = label.charAt(i + 1);
-          if (!IsValidAdjacentForKatakanaMiddleDot(next))
-            return false;
-        } else {
-          const prev = label.charAt(i - 1);
-          const next = label.charAt(i + 1);
-          if (!IsValidAdjacentForKatakanaMiddleDot(prev) || !IsValidAdjacentForKatakanaMiddleDot(next)) {
-            return false;
-          }
-        }
-      }
-      if (char === "\u0375") {
-        if (i === label.length - 1)
-          return false;
-        const next = label.charAt(i + 1);
-        if (!/[\u0370-\u03FF]/.test(next))
-          return false;
-      }
-      if (char === "\u05F3" || char === "\u05F4") {
-        if (i === 0)
-          return false;
-        const prev = label.charAt(i - 1);
-        if (!/[\u05D0-\u05EA]/.test(prev))
-          return false;
-      }
-      if (char === "\u200D") {
-        if (i === 0)
-          return false;
-        const prev = label.charAt(i - 1);
-        if (prev !== "\u094D")
-          return false;
-      }
-    }
-    let hasArabicIndic = false;
-    let hasExtendedArabicIndic = false;
-    for (let i = 0; i < label.length; i++) {
-      const char = label.charAt(i);
-      if (/[\u0660-\u0669]/.test(char))
-        hasArabicIndic = true;
-      if (/[\u06F0-\u06F9]/.test(char))
-        hasExtendedArabicIndic = true;
-    }
-    if (hasArabicIndic && hasExtendedArabicIndic)
-      return false;
-  }
-  return true;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/ipv4.mjs
-var IPv4 = /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/;
-function IsIPv4(value2) {
-  return IPv4.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/ipv6.mjs
-var IPv6 = /^((([0-9a-f]{1,4}:){7}([0-9a-f]{1,4}|:))|(([0-9a-f]{1,4}:){6}(:[0-9a-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){5}(((:[0-9a-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){4}(((:[0-9a-f]{1,4}){1,3})|((:[0-9a-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){3}(((:[0-9a-f]{1,4}){1,4})|((:[0-9a-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){2}(((:[0-9a-f]{1,4}){1,5})|((:[0-9a-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){1}(((:[0-9a-f]{1,4}){1,6})|((:[0-9a-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9a-f]{1,4}){1,7})|((:[0-9a-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))$/i;
-function IsIPv6(value2) {
-  return IPv6.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/iri-reference.mjs
-function TryUrl(value2) {
-  try {
-    new URL(value2, "http://example.com");
-    return true;
-  } catch {
-    return false;
-  }
-}
-function IsIriReference(value2) {
-  if (value2.includes(" ")) {
-    return false;
-  }
-  if (value2.includes("\\")) {
-    return false;
-  }
-  if (/[\x00-\x1F\x7F]/.test(value2)) {
-    return false;
-  }
-  if (/%(?![0-9a-fA-F]{2})/.test(value2)) {
-    return false;
-  }
-  if (value2 === "") {
-    return true;
-  }
-  const colonIndex = value2.indexOf(":");
-  const hasValidSchemePrefix = colonIndex > 0 && // Colon must not be at the very beginning (e.g., ":foo")
-  /^[a-zA-Z][a-zA-Z0-9+\-.]*$/.test(value2.substring(0, colonIndex));
-  if (hasValidSchemePrefix) {
-    return TryUrl(value2);
-  } else {
-    const looksLikeMalformedSchemeAndAuthority = value2.match(/^([a-zA-Z][a-zA-Z0-9+\-.]*)(\/\/)/);
-    if (looksLikeMalformedSchemeAndAuthority && colonIndex === -1) {
-      return false;
-    }
-    return TryUrl(value2);
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/iri.mjs
-function IsIri(value2) {
-  try {
-    new URL(value2);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/json-pointer-uri-fragment.mjs
-var JsonPointerUriFragment = /^#(?:\/(?:[a-z0-9_\-.!$&'()*+,;:=@]|%[0-9a-f]{2}|~0|~1)*)*$/i;
-function IsJsonPointerUriFragment(value2) {
-  return JsonPointerUriFragment.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/json-pointer.mjs
-var JsonPointer = /^(?:\/(?:[^~/]|~0|~1)*)*$/;
-function IsJsonPointer(value2) {
-  return JsonPointer.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/regex.mjs
-function IsRegex(value2) {
-  if (value2.length === 0) {
-    return false;
-  }
-  try {
-    new RegExp(value2);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/relative-json-pointer.mjs
-var RelativeJsonPointer = /^(?:0|[1-9][0-9]*)(?:#|(?:\/(?:[^~/]|~0|~1)*)*)$/;
-function IsRelativeJsonPointer(value2) {
-  return RelativeJsonPointer.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri-reference.mjs
-var UriReference = /^(?:(?:[a-z][a-z0-9+\-.]*:)?\/?\/)?(?:[^\\\s#][^\s#]*)?(?:#[^\\\s]*)?$/i;
-function IsUriReference(value2) {
-  return UriReference.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri-template.mjs
-var UriTemplate = /^(?:(?:[^\x00-\x20"'<>%\\^`{|}]|%[0-9a-f]{2})|\{[+#./;?&=,!@|]?(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?(?:,(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?)*\})*$/i;
-function IsUriTemplate(value2) {
-  return UriTemplate.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri.mjs
-var Uri = /^(?:[a-z][a-z0-9+\-.]*:)(?:\/?\/)?[^\s]*$/i;
-function IsUri(value2) {
-  return Uri.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/url.mjs
-var Url = /^(?:https?|ftp):\/\/(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\u{00a1}-\u{ffff}]+-)*[a-z0-9\u{00a1}-\u{ffff}]+)(?:\.(?:[a-z0-9\u{00a1}-\u{ffff}]+-)*[a-z0-9\u{00a1}-\u{ffff}]+)*(?:\.(?:[a-z\u{00a1}-\u{ffff}]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/iu;
-function IsUrl(value2) {
-  return Url.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uuid.mjs
-var Uuid = /^(?:urn:uuid:)?[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
-function IsUuid(value2) {
-  return Uuid.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/_registry.mjs
-var formats = /* @__PURE__ */ new Map();
-function Clear() {
-  formats.clear();
-}
-function Entries3() {
-  return [...formats.entries()];
-}
-function Set3(format4, check2) {
-  formats.set(format4, check2);
-}
-function Has(format4) {
-  return formats.has(format4);
-}
-function Get3(format4) {
-  return formats.get(format4);
-}
-function Test(format4, value2) {
-  return formats.get(format4)?.(value2) ?? true;
-}
-function Reset2() {
-  Clear();
-  formats.set("date-time", IsDateTime);
-  formats.set("date", IsDate2);
-  formats.set("duration", IsDuration);
-  formats.set("email", IsEmail);
-  formats.set("hostname", IsHostname);
-  formats.set("idn-email", IsIdnEmail);
-  formats.set("idn-hostname", IsIdnHostname);
-  formats.set("ipv4", IsIPv4);
-  formats.set("ipv6", IsIPv6);
-  formats.set("iri-reference", IsIriReference);
-  formats.set("iri", IsIri);
-  formats.set("json-pointer-uri-fragment", IsJsonPointerUriFragment);
-  formats.set("json-pointer", IsJsonPointer);
-  formats.set("regex", IsRegex);
-  formats.set("relative-json-pointer", IsRelativeJsonPointer);
-  formats.set("time", IsTime);
-  formats.set("uri-reference", IsUriReference);
-  formats.set("uri-template", IsUriTemplate);
-  formats.set("uri", IsUri);
-  formats.set("url", IsUrl);
-  formats.set("uuid", IsUuid);
-}
-Reset2();
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/format.mjs
-function BuildFormat(stack, context5, schema, value2) {
-  return emit_exports.Call(emit_exports.Member("Format", "Test"), [emit_exports.Constant(schema.format), value2]);
-}
-function CheckFormat(stack, context5, schema, value2) {
-  return format_exports.Test(schema.format, value2);
-}
-function ErrorFormat(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckFormat(stack, context5, schema, value2) || context5.AddError({
-    keyword: "format",
-    schemaPath,
-    instancePath,
-    params: { format: schema.format }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/if.mjs
-function BuildIf(stack, context5, schema, value2) {
-  const thenSchema = IsThen(schema) ? schema.then : true;
-  const elseSchema = IsElse(schema) ? schema.else : true;
-  return emit_exports.Ternary(BuildSchema(stack, context5, schema.if, value2), BuildSchema(stack, context5, thenSchema, value2), BuildSchema(stack, context5, elseSchema, value2));
-}
-function CheckIf(stack, context5, schema, value2) {
-  const thenSchema = IsThen(schema) ? schema.then : true;
-  const elseSchema = IsElse(schema) ? schema.else : true;
-  return CheckSchema(stack, context5, schema.if, value2) ? CheckSchema(stack, context5, thenSchema, value2) : CheckSchema(stack, context5, elseSchema, value2);
-}
-function ErrorIf(stack, context5, schemaPath, instancePath, schema, value2) {
-  const thenSchema = IsThen(schema) ? schema.then : true;
-  const elseSchema = IsElse(schema) ? schema.else : true;
-  const trueContext = new AccumulatedErrorContext();
-  const isIf = ErrorSchema(stack, trueContext, `${schemaPath}/if`, instancePath, schema.if, value2) ? ErrorSchema(stack, trueContext, `${schemaPath}/then`, instancePath, thenSchema, value2) || context5.AddError({
-    keyword: "if",
-    schemaPath,
-    instancePath,
-    params: { failingKeyword: "then" }
-  }) : ErrorSchema(stack, context5, `${schemaPath}/else`, instancePath, elseSchema, value2) || context5.AddError({
-    keyword: "if",
-    schemaPath,
-    instancePath,
-    params: { failingKeyword: "else" }
-  });
-  if (isIf)
-    context5.Merge([trueContext]);
-  return isIf;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/items.mjs
-function BuildItemsSized(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(schema.items.map((schema2, index2) => {
-    const isLength = emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(index2));
-    const isSchema = BuildSchema(stack, context5, schema2, `${value2}[${index2}]`);
-    const addIndex = context5.AddIndex(emit_exports.Constant(index2));
-    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
-    return emit_exports.Or(isLength, guarded);
-  }));
-}
-function CheckItemsSized(stack, context5, schema, value2) {
-  return guard_exports.Every(schema.items, 0, (schema2, index2) => {
-    return guard_exports.IsLessEqualThan(value2.length, index2) || CheckSchema(stack, context5, schema2, value2[index2]) && context5.AddIndex(index2);
-  });
-}
-function ErrorItemsSized(stack, context5, schemaPath, instancePath, schema, value2) {
-  return guard_exports.EveryAll(schema.items, 0, (schema2, index2) => {
-    const nextSchemaPath = `${schemaPath}/items/${index2}`;
-    const nextInstancePath = `${instancePath}/${index2}`;
-    return guard_exports.IsLessEqualThan(value2.length, index2) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[index2]) && context5.AddIndex(index2);
-  });
-}
-function BuildItemsUnsized(stack, context5, schema, value2) {
-  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
-  const isSchema = BuildSchema(stack, context5, schema.items, "element");
-  const addIndex = context5.AddIndex("index");
-  const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
-  return emit_exports.Every(value2, emit_exports.Constant(offset), ["element", "index"], guarded);
-}
-function CheckItemsUnsized(stack, context5, schema, value2) {
-  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
-  return guard_exports.Every(value2, offset, (element, index2) => {
-    return CheckSchema(stack, context5, schema.items, element) && context5.AddIndex(index2);
-  });
-}
-function ErrorItemsUnsized(stack, context5, schemaPath, instancePath, schema, value2) {
-  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
-  return guard_exports.EveryAll(value2, offset, (element, index2) => {
-    const nextSchemaPath = `${schemaPath}/items`;
-    const nextInstancePath = `${instancePath}/${index2}`;
-    return ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema.items, element) && context5.AddIndex(index2);
-  });
-}
-function BuildItems(stack, context5, schema, value2) {
-  return IsItemsSized(schema) ? BuildItemsSized(stack, context5, schema, value2) : BuildItemsUnsized(stack, context5, schema, value2);
-}
-function CheckItems(stack, context5, schema, value2) {
-  return IsItemsSized(schema) ? CheckItemsSized(stack, context5, schema, value2) : CheckItemsUnsized(stack, context5, schema, value2);
-}
-function ErrorItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  return IsItemsSized(schema) ? ErrorItemsSized(stack, context5, schemaPath, instancePath, schema, value2) : ErrorItemsUnsized(stack, context5, schemaPath, instancePath, schema, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxContains.mjs
-function IsValid3(schema) {
-  return IsContains(schema);
-}
-function BuildMaxContains(stack, context5, schema, value2) {
-  if (!IsValid3(schema))
-    return emit_exports.Constant(true);
-  const [result, item] = [Unique(), Unique()];
-  const count = emit_exports.Call(emit_exports.Member(value2, "reduce"), [emit_exports.ArrowFunction([result, item], emit_exports.Ternary(BuildSchema(stack, context5, schema.contains, item), emit_exports.PrefixIncrement(result), result)), emit_exports.Constant(0)]);
-  return emit_exports.IsLessEqualThan(count, emit_exports.Constant(schema.maxContains));
-}
-function CheckMaxContains(stack, context5, schema, value2) {
-  if (!IsValid3(schema))
-    return true;
-  const count = value2.reduce((result, item) => CheckSchema(stack, context5, schema.contains, item) ? ++result : result, 0);
-  return guard_exports.IsLessEqualThan(count, schema.maxContains);
-}
-function ErrorMaxContains(stack, context5, schemaPath, instancePath, schema, value2) {
-  const minContains = IsMinContains(schema) ? schema.minContains : 1;
-  return CheckMaxContains(stack, context5, schema, value2) || context5.AddError({
-    keyword: "contains",
-    schemaPath,
-    instancePath,
-    params: { minContains, maxContains: schema.maxContains }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maximum.mjs
-function BuildMaximum(stack, context5, schema, value2) {
-  return emit_exports.IsLessEqualThan(value2, emit_exports.Constant(schema.maximum));
-}
-function CheckMaximum(stack, context5, schema, value2) {
-  return guard_exports.IsLessEqualThan(value2, schema.maximum);
-}
-function ErrorMaximum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMaximum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "maximum",
-    schemaPath,
-    instancePath,
-    params: { comparison: "<=", limit: schema.maximum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxItems.mjs
-function BuildMaxItems(stack, context5, schema, value2) {
-  return emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(schema.maxItems));
-}
-function CheckMaxItems(stack, context5, schema, value2) {
-  return guard_exports.IsLessEqualThan(value2.length, schema.maxItems);
-}
-function ErrorMaxItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMaxItems(stack, context5, schema, value2) || context5.AddError({
-    keyword: "maxItems",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.maxItems }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxLength.mjs
-function BuildMaxLength(stack, context5, schema, value2) {
-  return emit_exports.IsMaxLength(value2, emit_exports.Constant(schema.maxLength));
-}
-function CheckMaxLength(stack, context5, schema, value2) {
-  return guard_exports.IsMaxLength(value2, schema.maxLength);
-}
-function ErrorMaxLength(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMaxLength(stack, context5, schema, value2) || context5.AddError({
-    keyword: "maxLength",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.maxLength }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxProperties.mjs
-function BuildMaxProperties(stack, context5, schema, value2) {
-  return emit_exports.IsLessEqualThan(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(schema.maxProperties));
-}
-function CheckMaxProperties(stack, context5, schema, value2) {
-  return guard_exports.IsLessEqualThan(guard_exports.Keys(value2).length, schema.maxProperties);
-}
-function ErrorMaxProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMaxProperties(stack, context5, schema, value2) || context5.AddError({
-    keyword: "maxProperties",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.maxProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minContains.mjs
-function IsValid4(schema) {
-  return IsContains(schema);
-}
-function BuildMinContains(stack, context5, schema, value2) {
-  if (!IsValid4(schema))
-    return emit_exports.Constant(true);
-  const [result, item] = [Unique(), Unique()];
-  const count = emit_exports.Call(emit_exports.Member(value2, "reduce"), [emit_exports.ArrowFunction([result, item], emit_exports.Ternary(BuildSchema(stack, context5, schema.contains, item), emit_exports.PrefixIncrement(result), result)), emit_exports.Constant(0)]);
-  return emit_exports.IsGreaterEqualThan(count, emit_exports.Constant(schema.minContains));
-}
-function CheckMinContains(stack, context5, schema, value2) {
-  if (!IsValid4(schema))
-    return true;
-  const count = value2.reduce((result, item) => CheckSchema(stack, context5, schema.contains, item) ? ++result : result, 0);
-  return guard_exports.IsGreaterEqualThan(count, schema.minContains);
-}
-function ErrorMinContains(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinContains(stack, context5, schema, value2) || context5.AddError({
-    keyword: "contains",
-    schemaPath,
-    instancePath,
-    params: { minContains: schema.minContains }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minimum.mjs
-function BuildMinimum(stack, context5, schema, value2) {
-  return emit_exports.IsGreaterEqualThan(value2, emit_exports.Constant(schema.minimum));
-}
-function CheckMinimum(stack, context5, schema, value2) {
-  return guard_exports.IsGreaterEqualThan(value2, schema.minimum);
-}
-function ErrorMinimum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinimum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "minimum",
-    schemaPath,
-    instancePath,
-    params: { comparison: ">=", limit: schema.minimum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minItems.mjs
-function BuildMinItems(stack, context5, schema, value2) {
-  return emit_exports.IsGreaterEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(schema.minItems));
-}
-function CheckMinItems(stack, context5, schema, value2) {
-  return guard_exports.IsGreaterEqualThan(value2.length, schema.minItems);
-}
-function ErrorMinItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinItems(stack, context5, schema, value2) || context5.AddError({
-    keyword: "minItems",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.minItems }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minLength.mjs
-function BuildMinLength(stack, context5, schema, value2) {
-  return emit_exports.IsMinLength(value2, emit_exports.Constant(schema.minLength));
-}
-function CheckMinLength(stack, context5, schema, value2) {
-  return guard_exports.IsMinLength(value2, schema.minLength);
-}
-function ErrorMinLength(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinLength(stack, context5, schema, value2) || context5.AddError({
-    keyword: "minLength",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.minLength }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minProperties.mjs
-function BuildMinProperties(stack, context5, schema, value2) {
-  return emit_exports.IsGreaterEqualThan(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(schema.minProperties));
-}
-function CheckMinProperties(stack, context5, schema, value2) {
-  return guard_exports.IsGreaterEqualThan(guard_exports.Keys(value2).length, schema.minProperties);
-}
-function ErrorMinProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinProperties(stack, context5, schema, value2) || context5.AddError({
-    keyword: "minProperties",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.minProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/multipleOf.mjs
-function BuildMultipleOf(stack, context5, schema, value2) {
-  return emit_exports.MultipleOf(value2, emit_exports.Constant(schema.multipleOf));
-}
-function CheckMultipleOf(stack, context5, schema, value2) {
-  return guard_exports.IsMultipleOf(value2, schema.multipleOf);
-}
-function ErrorMultipleOf(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMultipleOf(stack, context5, schema, value2) || context5.AddError({
-    keyword: "multipleOf",
-    schemaPath,
-    instancePath,
-    params: { multipleOf: schema.multipleOf }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/not.mjs
-function BuildNotUnevaluated(stack, context5, schema, value2) {
-  return Reducer(stack, context5, [schema.not], value2, emit_exports.Not(emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(1))));
-}
-function BuildNotFast(stack, context5, schema, value2) {
-  return emit_exports.Not(BuildSchema(stack, context5, schema.not, value2));
-}
-function BuildNot(stack, context5, schema, value2) {
-  return context5.UseUnevaluated() ? BuildNotUnevaluated(stack, context5, schema, value2) : BuildNotFast(stack, context5, schema, value2);
-}
-function CheckNot(stack, context5, schema, value2) {
-  const nextContext = new CheckContext();
-  const isSchema = !CheckSchema(stack, nextContext, schema.not, value2);
-  const isNot = isSchema && context5.Merge([nextContext]);
-  return isNot;
-}
-function ErrorNot(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckNot(stack, context5, schema, value2) || context5.AddError({
-    keyword: "not",
-    schemaPath,
-    instancePath,
-    params: {}
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/oneOf.mjs
-function BuildOneOfUnevaluated(stack, context5, schema, value2) {
-  return Reducer(stack, context5, schema.oneOf, value2, emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(1)));
-}
-function BuildOneOfFast(stack, context5, schema, value2) {
-  const results = emit_exports.ArrayLiteral(schema.oneOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
-  const count = emit_exports.Call(emit_exports.Member(results, "reduce"), [
-    emit_exports.ArrowFunction(["count", "result"], emit_exports.Ternary(emit_exports.IsEqual("result", emit_exports.Constant(true)), emit_exports.PrefixIncrement("count"), "count")),
-    emit_exports.Constant(0)
-  ]);
-  return emit_exports.IsEqual(count, emit_exports.Constant(1));
-}
-function BuildOneOf(stack, context5, schema, value2) {
-  return context5.UseUnevaluated() ? BuildOneOfUnevaluated(stack, context5, schema, value2) : BuildOneOfFast(stack, context5, schema, value2);
-}
-function CheckOneOf(stack, context5, schema, value2) {
-  const passedContexts = schema.oneOf.reduce((result, schema2) => {
-    const nextContext = new CheckContext();
-    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
-  }, []);
-  return guard_exports.IsEqual(passedContexts.length, 1) && context5.Merge(passedContexts);
-}
-function ErrorOneOf(stack, context5, schemaPath, instancePath, schema, value2) {
-  const failedContexts = [];
-  const passingSchemas = [];
-  const passedContexts = schema.oneOf.reduce((result, schema2, index2) => {
-    const nextContext = new AccumulatedErrorContext();
-    const nextSchemaPath = `${schemaPath}/oneOf/${index2}`;
-    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
-    if (isSchema)
-      passingSchemas.push(index2);
-    if (!isSchema)
-      failedContexts.push(nextContext);
-    return isSchema ? [...result, nextContext] : result;
-  }, []);
-  const isOneOf = guard_exports.IsEqual(passedContexts.length, 1) && context5.Merge(passedContexts);
-  if (!isOneOf && guard_exports.IsEqual(passingSchemas.length, 0))
-    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
-  return isOneOf || context5.AddError({
-    keyword: "oneOf",
-    schemaPath,
-    instancePath,
-    params: { passingSchemas }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/pattern.mjs
-function BuildPattern(stack, context5, schema, value2) {
-  const regexp = CreateVariable(guard_exports.IsString(schema.pattern) ? new RegExp(schema.pattern) : schema.pattern);
-  return emit_exports.Call(emit_exports.Member(regexp, "test"), [value2]);
-}
-function CheckPattern(stack, context5, schema, value2) {
-  const regexp = guard_exports.IsString(schema.pattern) ? new RegExp(schema.pattern) : schema.pattern;
-  return regexp.test(value2);
-}
-function ErrorPattern(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckPattern(stack, context5, schema, value2) || context5.AddError({
-    keyword: "pattern",
-    schemaPath,
-    instancePath,
-    params: { pattern: schema.pattern }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/patternProperties.mjs
-function BuildPatternProperties(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(guard_exports.Entries(schema.patternProperties).map(([pattern, schema2]) => {
-    const [key, prop] = [Unique(), Unique()];
-    const regexp = CreateVariable(new RegExp(pattern));
-    const notKey = emit_exports.Not(emit_exports.Call(emit_exports.Member(regexp, "test"), [key]));
-    const isSchema = BuildSchema(stack, context5, schema2, prop);
-    const addKey = context5.AddKey(key);
-    const guarded = context5.UseUnevaluated() ? emit_exports.Or(notKey, emit_exports.And(isSchema, addKey)) : emit_exports.Or(notKey, isSchema);
-    return emit_exports.Every(emit_exports.Entries(value2), emit_exports.Constant(0), [`[${key}, ${prop}]`, "_"], guarded);
-  }));
-}
-function CheckPatternProperties(stack, context5, schema, value2) {
-  return guard_exports.Every(guard_exports.Entries(schema.patternProperties), 0, ([pattern, schema2]) => {
-    const regexp = new RegExp(pattern);
-    return guard_exports.Every(guard_exports.Entries(value2), 0, ([key, prop]) => {
-      return !regexp.test(key) || CheckSchema(stack, context5, schema2, prop) && context5.AddKey(key);
-    });
-  });
-}
-function ErrorPatternProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  return guard_exports.EveryAll(guard_exports.Entries(schema.patternProperties), 0, ([pattern, schema2]) => {
-    const nextSchemaPath = `${schemaPath}/patternProperties/${pattern}`;
-    const regexp = new RegExp(pattern);
-    return guard_exports.EveryAll(guard_exports.Entries(value2), 0, ([key, value3]) => {
-      const nextInstancePath = `${instancePath}/${key}`;
-      const notKey = !regexp.test(key);
-      return notKey || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value3) && context5.AddKey(key);
-    });
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/prefixItems.mjs
-function BuildPrefixItems(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(schema.prefixItems.map((schema2, index2) => {
-    const isLength = emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(index2));
-    const isSchema = BuildSchema(stack, context5, schema2, `${value2}[${index2}]`);
-    const addIndex = context5.AddIndex(emit_exports.Constant(index2));
-    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
-    return emit_exports.Or(isLength, guarded);
-  }));
-}
-function CheckPrefixItems(stack, context5, schema, value2) {
-  return guard_exports.IsEqual(value2.length, 0) || guard_exports.Every(schema.prefixItems, 0, (schema2, index2) => {
-    return guard_exports.IsLessEqualThan(value2.length, index2) || CheckSchema(stack, context5, schema2, value2[index2]) && context5.AddIndex(index2);
-  });
-}
-function ErrorPrefixItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  return guard_exports.IsEqual(value2.length, 0) || guard_exports.EveryAll(schema.prefixItems, 0, (schema2, index2) => {
-    const nextSchemaPath = `${schemaPath}/prefixItems/${index2}`;
-    const nextInstancePath = `${instancePath}/${index2}`;
-    return guard_exports.IsLessEqualThan(value2.length, index2) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[index2]) && context5.AddIndex(index2);
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_exact_optional.mjs
-function IsExactOptional(required, key) {
-  return required.includes(key) || settings_exports.Get().exactOptionalPropertyTypes;
-}
-function InexactOptionalBuild(value2, key) {
-  return emit_exports.IsUndefined(emit_exports.Member(value2, key));
-}
-function InexactOptionalCheck(value2, key) {
-  return guard_exports.IsUndefined(value2[key]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/properties.mjs
-function BuildProperties(stack, context5, schema, value2) {
-  const required = IsRequired(schema) ? schema.required : [];
-  const everyKey = guard_exports.Entries(schema.properties).map(([key, schema2]) => {
-    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
-    const isSchema = BuildSchema(stack, context5, schema2, emit_exports.Member(value2, key));
-    const addKey = context5.AddKey(emit_exports.Constant(key));
-    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addKey) : isSchema;
-    const isProperty = required.includes(key) ? guarded : emit_exports.Or(notKey, guarded);
-    return IsExactOptional(required, key) ? isProperty : emit_exports.Or(InexactOptionalBuild(value2, key), isProperty);
-  });
-  return emit_exports.ReduceAnd(everyKey);
-}
-function CheckProperties(stack, context5, schema, value2) {
-  const required = IsRequired(schema) ? schema.required : [];
-  const isProperties = guard_exports.Every(guard_exports.Entries(schema.properties), 0, ([key, schema2]) => {
-    const isProperty = !guard_exports.HasPropertyKey(value2, key) || CheckSchema(stack, context5, schema2, value2[key]) && context5.AddKey(key);
-    return IsExactOptional(required, key) ? isProperty : InexactOptionalCheck(value2, key) || isProperty;
-  });
-  return isProperties;
-}
-function ErrorProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  const required = IsRequired(schema) ? schema.required : [];
-  const isProperties = guard_exports.EveryAll(guard_exports.Entries(schema.properties), 0, ([key, schema2]) => {
-    const nextSchemaPath = `${schemaPath}/properties/${key}`;
-    const nextInstancePath = `${instancePath}/${key}`;
-    const isProperty = () => !guard_exports.HasPropertyKey(value2, key) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[key]) && context5.AddKey(key);
-    return IsExactOptional(required, key) ? isProperty() : InexactOptionalCheck(value2, key) || isProperty();
-  });
-  return isProperties;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/propertyNames.mjs
-function BuildPropertyNames(stack, context5, schema, value2) {
-  const [key, _index] = [Unique(), Unique()];
-  return emit_exports.Every(emit_exports.Keys(value2), emit_exports.Constant(0), [key, _index], BuildSchema(stack, context5, schema.propertyNames, key));
-}
-function CheckPropertyNames(stack, context5, schema, value2) {
-  return guard_exports.Every(guard_exports.Keys(value2), 0, (key, _index) => CheckSchema(stack, context5, schema.propertyNames, key));
-}
-function ErrorPropertyNames(stack, context5, schemaPath, instancePath, schema, value2) {
-  const propertyNames = [];
-  const isPropertyNames = guard_exports.EveryAll(guard_exports.Keys(value2), 0, (key, _index) => {
-    const nextInstancePath = `${instancePath}/${key}`;
-    const nextSchemaPath = `${schemaPath}/propertyNames`;
-    const nextContext = new AccumulatedErrorContext();
-    const isPropertyName = ErrorSchema(stack, nextContext, nextSchemaPath, nextInstancePath, schema.propertyNames, key);
-    if (!isPropertyName)
-      propertyNames.push(key);
-    return isPropertyName;
-  });
-  return isPropertyNames || context5.AddError({
-    keyword: "propertyNames",
-    schemaPath,
-    instancePath,
-    params: { propertyNames }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/recursiveRef.mjs
-function BuildRecursiveRef(stack, context5, schema, value2) {
-  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
-  return CreateFunction(stack, context5, target, value2);
-}
-function CheckRecursiveRef(stack, context5, schema, value2) {
-  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
-  return IsSchema2(target) && CheckSchema(stack, context5, target, value2);
-}
-function ErrorRecursiveRef(stack, context5, schemaPath, instancePath, schema, value2) {
-  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
-  return IsSchema2(target) && ErrorSchema(stack, context5, "#", instancePath, target, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/ref.mjs
-function BuildRefStandard(stack, context5, target, value2) {
-  const interior = emit_exports.ArrowFunction(["context", "value"], CreateFunction(stack, context5, target, "value"));
-  const exterior = emit_exports.ArrowFunction(["context", "value"], emit_exports.Statements([
-    emit_exports.ConstDeclaration("nextContext", emit_exports.New("CheckContext", [])),
-    emit_exports.ConstDeclaration("result", emit_exports.Call(interior, ["nextContext", "value"])),
-    emit_exports.If("result", context5.Merge("[nextContext]")),
-    emit_exports.Return("result")
-  ]));
-  return emit_exports.Call(exterior, ["context", value2]);
-}
-function BuildRefFast(stack, context5, target, value2) {
-  return CreateFunction(stack, context5, target, value2);
-}
-function BuildRef(stack, context5, schema, value2) {
-  const target = stack.Ref(schema.$ref) ?? false;
-  return context5.UseUnevaluated() ? BuildRefStandard(stack, context5, target, value2) : BuildRefFast(stack, context5, target, value2);
-}
-function CheckRef(stack, context5, schema, value2) {
-  const target = stack.Ref(schema.$ref) ?? false;
-  const nextContext = new CheckContext();
-  const result = IsSchema2(target) && CheckSchema(stack, nextContext, target, value2);
-  if (result)
-    context5.Merge([nextContext]);
-  return result;
-}
-function ErrorRef(stack, context5, schemaPath, instancePath, schema, value2) {
-  const target = stack.Ref(schema.$ref) ?? false;
-  const nextContext = new AccumulatedErrorContext();
-  const result = IsSchema2(target) && ErrorSchema(stack, nextContext, "#", instancePath, target, value2);
-  if (result)
-    context5.Merge([nextContext]);
-  if (!result)
-    nextContext.GetErrors().forEach((error) => context5.AddError(error));
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/required.mjs
-function BuildRequired(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(schema.required.map((key) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key))));
-}
-function CheckRequired(stack, context5, schema, value2) {
-  return guard_exports.Every(schema.required, 0, (key) => guard_exports.HasPropertyKey(value2, key));
-}
-function ErrorRequired(stack, context5, schemaPath, instancePath, schema, value2) {
-  const requiredProperties = [];
-  const isRequired = guard_exports.EveryAll(schema.required, 0, (key) => {
-    const hasKey = guard_exports.HasPropertyKey(value2, key);
-    if (!hasKey)
-      requiredProperties.push(key);
-    return hasKey;
-  });
-  return isRequired || context5.AddError({
-    keyword: "required",
-    schemaPath,
-    instancePath,
-    params: { requiredProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/type.mjs
-function BuildTypeName(stack, context5, type, value2) {
-  return (
-    // jsonschema
-    guard_exports.IsEqual(type, "object") ? emit_exports.IsObjectNotArray(value2) : guard_exports.IsEqual(type, "array") ? emit_exports.IsArray(value2) : guard_exports.IsEqual(type, "boolean") ? emit_exports.IsBoolean(value2) : guard_exports.IsEqual(type, "integer") ? emit_exports.IsInteger(value2) : guard_exports.IsEqual(type, "number") ? emit_exports.IsNumber(value2) : guard_exports.IsEqual(type, "null") ? emit_exports.IsNull(value2) : guard_exports.IsEqual(type, "string") ? emit_exports.IsString(value2) : (
-      // xschema
-      guard_exports.IsEqual(type, "asyncIterator") ? emit_exports.IsAsyncIterator(value2) : guard_exports.IsEqual(type, "bigint") ? emit_exports.IsBigInt(value2) : guard_exports.IsEqual(type, "constructor") ? emit_exports.IsConstructor(value2) : guard_exports.IsEqual(type, "function") ? emit_exports.IsFunction(value2) : guard_exports.IsEqual(type, "iterator") ? emit_exports.IsIterator(value2) : guard_exports.IsEqual(type, "symbol") ? emit_exports.IsSymbol(value2) : guard_exports.IsEqual(type, "undefined") ? emit_exports.IsUndefined(value2) : guard_exports.IsEqual(type, "void") ? emit_exports.IsUndefined(value2) : emit_exports.Constant(true)
-    )
-  );
-}
-function CheckTypeName(stack, context5, type, schema, value2) {
-  return (
-    // jsonschema
-    guard_exports.IsEqual(type, "object") ? guard_exports.IsObjectNotArray(value2) : guard_exports.IsEqual(type, "array") ? guard_exports.IsArray(value2) : guard_exports.IsEqual(type, "boolean") ? guard_exports.IsBoolean(value2) : guard_exports.IsEqual(type, "integer") ? guard_exports.IsInteger(value2) : guard_exports.IsEqual(type, "number") ? guard_exports.IsNumber(value2) : guard_exports.IsEqual(type, "null") ? guard_exports.IsNull(value2) : guard_exports.IsEqual(type, "string") ? guard_exports.IsString(value2) : (
-      // xschema
-      guard_exports.IsEqual(type, "asyncIterator") ? guard_exports.IsAsyncIterator(value2) : guard_exports.IsEqual(type, "bigint") ? guard_exports.IsBigInt(value2) : guard_exports.IsEqual(type, "constructor") ? guard_exports.IsConstructor(value2) : guard_exports.IsEqual(type, "function") ? guard_exports.IsFunction(value2) : guard_exports.IsEqual(type, "iterator") ? guard_exports.IsIterator(value2) : guard_exports.IsEqual(type, "symbol") ? guard_exports.IsSymbol(value2) : guard_exports.IsEqual(type, "undefined") ? guard_exports.IsUndefined(value2) : guard_exports.IsEqual(type, "void") ? guard_exports.IsUndefined(value2) : true
-    )
-  );
-}
-function BuildTypeNames(stack, context5, typenames, value2) {
-  return emit_exports.ReduceOr(typenames.map((type) => BuildTypeName(stack, context5, type, value2)));
-}
-function CheckTypeNames(stack, context5, types, schema, value2) {
-  return types.some((type) => CheckTypeName(stack, context5, type, schema, value2));
-}
-function BuildType(stack, context5, schema, value2) {
-  return guard_exports.IsArray(schema.type) ? BuildTypeNames(stack, context5, schema.type, value2) : BuildTypeName(stack, context5, schema.type, value2);
-}
-function CheckType(stack, context5, schema, value2) {
-  return guard_exports.IsArray(schema.type) ? CheckTypeNames(stack, context5, schema.type, schema, value2) : CheckTypeName(stack, context5, schema.type, schema, value2);
-}
-function ErrorType(stack, context5, schemaPath, instancePath, schema, value2) {
-  const isType = guard_exports.IsArray(schema.type) ? CheckTypeNames(stack, context5, schema.type, schema, value2) : CheckTypeName(stack, context5, schema.type, schema, value2);
-  return isType || context5.AddError({
-    keyword: "type",
-    schemaPath,
-    instancePath,
-    params: { type: schema.type }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/unevaluatedItems.mjs
-function BuildUnevaluatedItems(stack, context5, schema, value2) {
-  const [index2, item] = [Unique(), Unique()];
-  const indices = emit_exports.Call(emit_exports.Member("context", "GetIndices"), []);
-  const hasIndex = emit_exports.Call(emit_exports.Member("indices", "has"), [index2]);
-  const isSchema = BuildSchema(stack, context5, schema.unevaluatedItems, item);
-  const addIndex = emit_exports.Call(emit_exports.Member("context", "AddIndex"), [index2]);
-  const isEvery = emit_exports.Every(value2, emit_exports.Constant(0), [item, index2], emit_exports.And(emit_exports.Or(hasIndex, isSchema), addIndex));
-  return emit_exports.Call(emit_exports.ArrowFunction(["context"], emit_exports.Statements([
-    emit_exports.ConstDeclaration("indices", indices),
-    emit_exports.Return(isEvery)
-  ])), ["context"]);
-}
-function CheckUnevaluatedItems(stack, context5, schema, value2) {
-  const indices = context5.GetIndices();
-  return guard_exports.Every(value2, 0, (item, index2) => {
-    return (indices.has(index2) || CheckSchema(stack, context5, schema.unevaluatedItems, item)) && context5.AddIndex(index2);
-  });
-}
-function ErrorUnevaluatedItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  const indices = context5.GetIndices();
-  const unevaluatedItems = [];
-  const isUnevaluatedItems = guard_exports.EveryAll(value2, 0, (item, index2) => {
-    const nextContext = new AccumulatedErrorContext();
-    const isEvaluatedItem = (indices.has(index2) || ErrorSchema(stack, nextContext, schemaPath, instancePath, schema.unevaluatedItems, item)) && context5.AddIndex(index2);
-    if (!isEvaluatedItem)
-      unevaluatedItems.push(index2);
-    return isEvaluatedItem;
-  });
-  return isUnevaluatedItems || context5.AddError({
-    keyword: "unevaluatedItems",
-    schemaPath,
-    instancePath,
-    params: { unevaluatedItems }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/unevaluatedProperties.mjs
-function BuildUnevaluatedProperties(stack, context5, schema, value2) {
-  const [key, prop] = [Unique(), Unique()];
-  const keys5 = emit_exports.Call(emit_exports.Member("context", "GetKeys"), []);
-  const hasKey = emit_exports.Call(emit_exports.Member("keys", "has"), [key]);
-  const addKey = emit_exports.Call(emit_exports.Member("context", "AddKey"), [key]);
-  const isSchema = BuildSchema(stack, context5, schema.unevaluatedProperties, prop);
-  const isEvery = emit_exports.Every(emit_exports.Entries(value2), emit_exports.Constant(0), [`[${key}, ${prop}]`, "_"], emit_exports.Or(hasKey, emit_exports.And(isSchema, addKey)));
-  return emit_exports.Call(emit_exports.ArrowFunction(["context"], emit_exports.Statements([
-    emit_exports.ConstDeclaration("keys", keys5),
-    emit_exports.Return(isEvery)
-  ])), ["context"]);
-}
-function CheckUnevaluatedProperties(stack, context5, schema, value2) {
-  const keys5 = context5.GetKeys();
-  return guard_exports.Every(guard_exports.Entries(value2), 0, ([key, prop]) => {
-    return keys5.has(key) || CheckSchema(stack, context5, schema.unevaluatedProperties, prop) && context5.AddKey(key);
-  });
-}
-function ErrorUnevaluatedProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  const keys5 = context5.GetKeys();
-  const unevaluatedProperties = [];
-  const isUnevaluatedProperties = guard_exports.EveryAll(guard_exports.Entries(value2), 0, ([key, prop]) => {
-    const nextContext = new AccumulatedErrorContext();
-    const isEvaluatedProperty = keys5.has(key) || ErrorSchema(stack, nextContext, schemaPath, instancePath, schema.unevaluatedProperties, prop) && context5.AddKey(key);
-    if (!isEvaluatedProperty)
-      unevaluatedProperties.push(key);
-    return isEvaluatedProperty;
-  });
-  return isUnevaluatedProperties || context5.AddError({
-    keyword: "unevaluatedProperties",
-    schemaPath,
-    instancePath,
-    params: { unevaluatedProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/uniqueItems.mjs
-function IsValid5(schema) {
-  return !guard_exports.IsEqual(schema.uniqueItems, false);
-}
-function BuildUniqueItems(stack, context5, schema, value2) {
-  if (!IsValid5(schema))
-    return emit_exports.Constant(true);
-  const set6 = emit_exports.Member(emit_exports.New("Set", [emit_exports.Call(emit_exports.Member(value2, "map"), [emit_exports.Member("Hashing", "Hash")])]), "size");
-  const isLength = emit_exports.Member(value2, "length");
-  return emit_exports.IsEqual(set6, isLength);
-}
-function CheckUniqueItems(stack, context5, schema, value2) {
-  if (!IsValid5(schema))
-    return true;
-  const set6 = new Set(value2.map(hash_exports.Hash)).size;
-  const isLength = value2.length;
-  return guard_exports.IsEqual(set6, isLength);
-}
-function ErrorUniqueItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  if (!IsValid5(schema))
-    return true;
-  const set6 = /* @__PURE__ */ new Set();
-  const duplicateItems = value2.reduce((result, value3, index2) => {
-    const hash2 = hash_exports.Hash(value3);
-    if (set6.has(hash2))
-      return [...result, index2];
-    set6.add(hash2);
-    return result;
-  }, []);
-  const isUniqueItems = guard_exports.IsEqual(duplicateItems.length, 0);
-  return isUniqueItems || context5.AddError({
-    keyword: "uniqueItems",
-    schemaPath,
-    instancePath,
-    params: { duplicateItems }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/schema.mjs
-function HasTypeName(schema, typename) {
-  return IsType(schema) && (guard_exports.IsArray(schema.type) && schema.type.includes(typename) || guard_exports.IsEqual(schema.type, typename));
-}
-function HasObjectType(schema) {
-  return HasTypeName(schema, "object");
-}
-function HasObjectKeywords(schema) {
-  return IsSchemaObject(schema) && (IsAdditionalProperties(schema) || IsDependencies(schema) || IsDependentRequired(schema) || IsDependentSchemas(schema) || IsProperties(schema) || IsPatternProperties(schema) || IsPropertyNames(schema) || IsMinProperties(schema) || IsMaxProperties(schema) || IsRequired(schema) || IsUnevaluatedProperties(schema));
-}
-function HasArrayType(schema) {
-  return HasTypeName(schema, "array");
-}
-function HasArrayKeywords(schema) {
-  return IsSchemaObject(schema) && (IsAdditionalItems(schema) || IsItems(schema) || IsContains(schema) || IsMaxContains(schema) || IsMaxItems(schema) || IsMinContains(schema) || IsMinItems(schema) || IsPrefixItems(schema) || IsUnevaluatedItems(schema) || IsUniqueItems(schema));
-}
-function HasStringType(schema) {
-  return HasTypeName(schema, "string");
-}
-function HasStringKeywords(schema) {
-  return IsSchemaObject(schema) && (IsMinLength4(schema) || IsMaxLength4(schema) || IsFormat(schema) || IsPattern(schema));
-}
-function HasNumberType(schema) {
-  return HasTypeName(schema, "number") || HasTypeName(schema, "bigint");
-}
-function HasNumberKeywords(schema) {
-  return IsSchemaObject(schema) && (IsMinimum(schema) || IsMaximum(schema) || IsExclusiveMaximum(schema) || IsExclusiveMinimum(schema) || IsMultipleOf2(schema));
-}
-function BuildSchema(stack, context5, schema, value2) {
-  stack.Push(schema);
-  const conditions = [];
-  if (IsBooleanSchema(schema))
-    return BuildBooleanSchema(stack, context5, schema, value2);
-  if (IsType(schema))
-    conditions.push(BuildType(stack, context5, schema, value2));
-  if (HasObjectKeywords(schema)) {
-    const constraints = [];
-    if (IsRequired(schema))
-      constraints.push(BuildRequired(stack, context5, schema, value2));
-    if (IsAdditionalProperties(schema))
-      constraints.push(BuildAdditionalProperties(stack, context5, schema, value2));
-    if (IsDependencies(schema))
-      constraints.push(BuildDependencies(stack, context5, schema, value2));
-    if (IsDependentRequired(schema))
-      constraints.push(BuildDependentRequired(stack, context5, schema, value2));
-    if (IsDependentSchemas(schema))
-      constraints.push(BuildDependentSchemas(stack, context5, schema, value2));
-    if (IsPatternProperties(schema))
-      constraints.push(BuildPatternProperties(stack, context5, schema, value2));
-    if (IsProperties(schema))
-      constraints.push(BuildProperties(stack, context5, schema, value2));
-    if (IsPropertyNames(schema))
-      constraints.push(BuildPropertyNames(stack, context5, schema, value2));
-    if (IsMinProperties(schema))
-      constraints.push(BuildMinProperties(stack, context5, schema, value2));
-    if (IsMaxProperties(schema))
-      constraints.push(BuildMaxProperties(stack, context5, schema, value2));
-    const reduced = emit_exports.ReduceAnd(constraints);
-    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsObjectNotArray(value2)), reduced);
-    conditions.push(HasObjectType(schema) ? reduced : guarded);
-  }
-  if (HasArrayKeywords(schema)) {
-    const constraints = [];
-    if (IsAdditionalItems(schema))
-      constraints.push(BuildAdditionalItems(stack, context5, schema, value2));
-    if (IsContains(schema))
-      constraints.push(BuildContains(stack, context5, schema, value2));
-    if (IsItems(schema))
-      constraints.push(BuildItems(stack, context5, schema, value2));
-    if (IsMaxContains(schema))
-      constraints.push(BuildMaxContains(stack, context5, schema, value2));
-    if (IsMaxItems(schema))
-      constraints.push(BuildMaxItems(stack, context5, schema, value2));
-    if (IsMinContains(schema))
-      constraints.push(BuildMinContains(stack, context5, schema, value2));
-    if (IsMinItems(schema))
-      constraints.push(BuildMinItems(stack, context5, schema, value2));
-    if (IsPrefixItems(schema))
-      constraints.push(BuildPrefixItems(stack, context5, schema, value2));
-    if (IsUniqueItems(schema))
-      constraints.push(BuildUniqueItems(stack, context5, schema, value2));
-    const reduced = emit_exports.ReduceAnd(constraints);
-    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsArray(value2)), reduced);
-    conditions.push(HasArrayType(schema) ? reduced : guarded);
-  }
-  if (HasStringKeywords(schema)) {
-    const constraints = [];
-    if (IsFormat(schema))
-      constraints.push(BuildFormat(stack, context5, schema, value2));
-    if (IsMaxLength4(schema))
-      constraints.push(BuildMaxLength(stack, context5, schema, value2));
-    if (IsMinLength4(schema))
-      constraints.push(BuildMinLength(stack, context5, schema, value2));
-    if (IsPattern(schema))
-      constraints.push(BuildPattern(stack, context5, schema, value2));
-    const reduced = emit_exports.ReduceAnd(constraints);
-    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsString(value2)), reduced);
-    conditions.push(HasStringType(schema) ? reduced : guarded);
-  }
-  if (HasNumberKeywords(schema)) {
-    const constraints = [];
-    if (IsExclusiveMaximum(schema))
-      constraints.push(BuildExclusiveMaximum(stack, context5, schema, value2));
-    if (IsExclusiveMinimum(schema))
-      constraints.push(BuildExclusiveMinimum(stack, context5, schema, value2));
-    if (IsMaximum(schema))
-      constraints.push(BuildMaximum(stack, context5, schema, value2));
-    if (IsMinimum(schema))
-      constraints.push(BuildMinimum(stack, context5, schema, value2));
-    if (IsMultipleOf2(schema))
-      constraints.push(BuildMultipleOf(stack, context5, schema, value2));
-    const reduced = emit_exports.ReduceAnd(constraints);
-    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.Or(emit_exports.IsNumber(value2), emit_exports.IsBigInt(value2))), reduced);
-    conditions.push(HasNumberType(schema) ? reduced : guarded);
-  }
-  if (IsRecursiveRef(schema))
-    conditions.push(BuildRecursiveRef(stack, context5, schema, value2));
-  if (IsRef2(schema))
-    conditions.push(BuildRef(stack, context5, schema, value2));
-  if (IsGuard2(schema))
-    conditions.push(BuildGuard(stack, context5, schema, value2));
-  if (IsConst(schema))
-    conditions.push(BuildConst(stack, context5, schema, value2));
-  if (IsEnum2(schema))
-    conditions.push(BuildEnum(stack, context5, schema, value2));
-  if (IsIf(schema))
-    conditions.push(BuildIf(stack, context5, schema, value2));
-  if (IsNot(schema))
-    conditions.push(BuildNot(stack, context5, schema, value2));
-  if (IsAllOf(schema))
-    conditions.push(BuildAllOf(stack, context5, schema, value2));
-  if (IsAnyOf(schema))
-    conditions.push(BuildAnyOf(stack, context5, schema, value2));
-  if (IsOneOf(schema))
-    conditions.push(BuildOneOf(stack, context5, schema, value2));
-  if (IsUnevaluatedItems(schema))
-    conditions.push(emit_exports.Or(emit_exports.Not(emit_exports.IsArray(value2)), BuildUnevaluatedItems(stack, context5, schema, value2)));
-  if (IsUnevaluatedProperties(schema))
-    conditions.push(emit_exports.Or(emit_exports.Not(emit_exports.IsObject(value2)), BuildUnevaluatedProperties(stack, context5, schema, value2)));
-  if (IsRefine2(schema))
-    conditions.push(BuildRefine(stack, context5, schema, value2));
-  const result = emit_exports.ReduceAnd(conditions);
-  stack.Pop(schema);
-  return result;
-}
-function CheckSchema(stack, context5, schema, value2) {
-  stack.Push(schema);
-  const result = IsBooleanSchema(schema) ? CheckBooleanSchema(stack, context5, schema, value2) : (!IsType(schema) || CheckType(stack, context5, schema, value2)) && (!(guard_exports.IsObject(value2) && !guard_exports.IsArray(value2)) || (!IsRequired(schema) || CheckRequired(stack, context5, schema, value2)) && (!IsAdditionalProperties(schema) || CheckAdditionalProperties(stack, context5, schema, value2)) && (!IsDependencies(schema) || CheckDependencies(stack, context5, schema, value2)) && (!IsDependentRequired(schema) || CheckDependentRequired(stack, context5, schema, value2)) && (!IsDependentSchemas(schema) || CheckDependentSchemas(stack, context5, schema, value2)) && (!IsPatternProperties(schema) || CheckPatternProperties(stack, context5, schema, value2)) && (!IsProperties(schema) || CheckProperties(stack, context5, schema, value2)) && (!IsPropertyNames(schema) || CheckPropertyNames(stack, context5, schema, value2)) && (!IsMinProperties(schema) || CheckMinProperties(stack, context5, schema, value2)) && (!IsMaxProperties(schema) || CheckMaxProperties(stack, context5, schema, value2))) && (!guard_exports.IsArray(value2) || (!IsAdditionalItems(schema) || CheckAdditionalItems(stack, context5, schema, value2)) && (!IsContains(schema) || CheckContains(stack, context5, schema, value2)) && (!IsItems(schema) || CheckItems(stack, context5, schema, value2)) && (!IsMaxContains(schema) || CheckMaxContains(stack, context5, schema, value2)) && (!IsMaxItems(schema) || CheckMaxItems(stack, context5, schema, value2)) && (!IsMinContains(schema) || CheckMinContains(stack, context5, schema, value2)) && (!IsMinItems(schema) || CheckMinItems(stack, context5, schema, value2)) && (!IsPrefixItems(schema) || CheckPrefixItems(stack, context5, schema, value2)) && (!IsUniqueItems(schema) || CheckUniqueItems(stack, context5, schema, value2))) && (!guard_exports.IsString(value2) || (!IsFormat(schema) || CheckFormat(stack, context5, schema, value2)) && (!IsMaxLength4(schema) || CheckMaxLength(stack, context5, schema, value2)) && (!IsMinLength4(schema) || CheckMinLength(stack, context5, schema, value2)) && (!IsPattern(schema) || CheckPattern(stack, context5, schema, value2))) && (!(guard_exports.IsNumber(value2) || guard_exports.IsBigInt(value2)) || (!IsExclusiveMaximum(schema) || CheckExclusiveMaximum(stack, context5, schema, value2)) && (!IsExclusiveMinimum(schema) || CheckExclusiveMinimum(stack, context5, schema, value2)) && (!IsMaximum(schema) || CheckMaximum(stack, context5, schema, value2)) && (!IsMinimum(schema) || CheckMinimum(stack, context5, schema, value2)) && (!IsMultipleOf2(schema) || CheckMultipleOf(stack, context5, schema, value2))) && (!IsRecursiveRef(schema) || CheckRecursiveRef(stack, context5, schema, value2)) && (!IsRef2(schema) || CheckRef(stack, context5, schema, value2)) && (!IsGuard2(schema) || CheckGuard(stack, context5, schema, value2)) && (!IsConst(schema) || CheckConst(stack, context5, schema, value2)) && (!IsEnum2(schema) || CheckEnum(stack, context5, schema, value2)) && (!IsIf(schema) || CheckIf(stack, context5, schema, value2)) && (!IsNot(schema) || CheckNot(stack, context5, schema, value2)) && (!IsAllOf(schema) || CheckAllOf(stack, context5, schema, value2)) && (!IsAnyOf(schema) || CheckAnyOf(stack, context5, schema, value2)) && (!IsOneOf(schema) || CheckOneOf(stack, context5, schema, value2)) && (!IsUnevaluatedItems(schema) || (!guard_exports.IsArray(value2) || CheckUnevaluatedItems(stack, context5, schema, value2))) && (!IsUnevaluatedProperties(schema) || (!guard_exports.IsObject(value2) || CheckUnevaluatedProperties(stack, context5, schema, value2))) && (!IsRefine2(schema) || CheckRefine(stack, context5, schema, value2));
-  stack.Pop(schema);
-  return result;
-}
-function ErrorSchema(stack, context5, schemaPath, instancePath, schema, value2) {
-  stack.Push(schema);
-  const result = IsBooleanSchema(schema) ? ErrorBooleanSchema(stack, context5, schemaPath, instancePath, schema, value2) : !!(+(!IsType(schema) || ErrorType(stack, context5, schemaPath, instancePath, schema, value2)) & +(!(guard_exports.IsObject(value2) && !guard_exports.IsArray(value2)) || !!(+(!IsRequired(schema) || ErrorRequired(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAdditionalProperties(schema) || ErrorAdditionalProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependencies(schema) || ErrorDependencies(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependentRequired(schema) || ErrorDependentRequired(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependentSchemas(schema) || ErrorDependentSchemas(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPatternProperties(schema) || ErrorPatternProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsProperties(schema) || ErrorProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPropertyNames(schema) || ErrorPropertyNames(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinProperties(schema) || ErrorMinProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxProperties(schema) || ErrorMaxProperties(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!guard_exports.IsArray(value2) || !!(+(!IsAdditionalItems(schema) || ErrorAdditionalItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsContains(schema) || ErrorContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsItems(schema) || ErrorItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxContains(schema) || ErrorMaxContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxItems(schema) || ErrorMaxItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinContains(schema) || ErrorMinContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinItems(schema) || ErrorMinItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPrefixItems(schema) || ErrorPrefixItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsUniqueItems(schema) || ErrorUniqueItems(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!guard_exports.IsString(value2) || !!(+(!IsFormat(schema) || ErrorFormat(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxLength4(schema) || ErrorMaxLength(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinLength4(schema) || ErrorMinLength(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPattern(schema) || ErrorPattern(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!(guard_exports.IsNumber(value2) || guard_exports.IsBigInt(value2)) || !!(+(!IsExclusiveMaximum(schema) || ErrorExclusiveMaximum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsExclusiveMinimum(schema) || ErrorExclusiveMinimum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaximum(schema) || ErrorMaximum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinimum(schema) || ErrorMinimum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMultipleOf2(schema) || ErrorMultipleOf(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!IsRecursiveRef(schema) || ErrorRecursiveRef(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsRef2(schema) || ErrorRef(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsGuard2(schema) || ErrorGuard(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsConst(schema) || ErrorConst(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsEnum2(schema) || ErrorEnum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsIf(schema) || ErrorIf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsNot(schema) || ErrorNot(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAllOf(schema) || ErrorAllOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAnyOf(schema) || ErrorAnyOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsOneOf(schema) || ErrorOneOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsUnevaluatedItems(schema) || (!guard_exports.IsArray(value2) || ErrorUnevaluatedItems(stack, context5, schemaPath, instancePath, schema, value2))) & +(!IsUnevaluatedProperties(schema) || (!guard_exports.IsObject(value2) || ErrorUnevaluatedProperties(stack, context5, schemaPath, instancePath, schema, value2)))) && (!IsRefine2(schema) || ErrorRefine(stack, context5, schemaPath, instancePath, schema, value2));
-  stack.Pop(schema);
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_functions.mjs
-var functions = /* @__PURE__ */ new Map();
-function CreateCallExpression(context5, schema, hash2, value2) {
-  return context5.UseUnevaluated() ? emit_exports.Call(`check_${hash2}`, ["context", value2]) : emit_exports.Call(`check_${hash2}`, [value2]);
-}
-function CreateFunctionExpression(stack, context5, schema, hash2) {
-  const expression = BuildSchema(stack, context5, schema, "value");
-  return context5.UseUnevaluated() ? emit_exports.ConstDeclaration(`check_${hash2}`, emit_exports.ArrowFunction(["context", "value"], expression)) : emit_exports.ConstDeclaration(`check_${hash2}`, emit_exports.ArrowFunction(["value"], expression));
-}
-function ResetFunctions() {
-  functions.clear();
-}
-function GetFunctions() {
-  return [...functions.values()];
-}
-function CreateFunction(stack, context5, schema, value2) {
-  const hash2 = IsSchemaObject(schema) ? hash_exports.Hash({ __baseURL: stack.BaseURL().href, ...schema }) : hash_exports.Hash(schema);
-  const call2 = CreateCallExpression(context5, schema, hash2, value2);
-  if (functions.has(hash2))
-    return call2;
-  functions.set(hash2, "");
-  functions.set(hash2, CreateFunctionExpression(stack, context5, schema, hash2));
-  return call2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/resolve/resolve.mjs
-var resolve_exports = {};
-__export(resolve_exports, {
-  Ref: () => Ref2
-});
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/pointer/pointer.mjs
-var pointer_exports = {};
-__export(pointer_exports, {
-  Delete: () => Delete,
-  Get: () => Get4,
-  Has: () => Has2,
-  Indices: () => Indices,
-  Set: () => Set4
-});
-function AssertNotRoot(indices) {
-  if (indices.length === 0)
-    throw Error("Cannot set root");
-}
-function AssertCanSet(value2) {
-  if (!guard_exports.IsObject(value2))
-    throw Error("Cannot set value");
-}
-function IsNumericIndex(index2) {
-  return /^(0|[1-9]\d*)$/.test(index2);
-}
-function TakeIndexRight(indices) {
-  return [
-    indices.slice(0, indices.length - 1),
-    indices.slice(indices.length - 1)[0]
-  ];
-}
-function HasIndex(index2, value2) {
-  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, index2);
-}
-function GetIndex(index2, value2) {
-  return guard_exports.IsObject(value2) ? value2[index2] : void 0;
-}
-function GetIndices(indices, value2) {
-  return indices.reduce((value3, index2) => GetIndex(index2, value3), value2);
-}
-function Indices(pointer) {
-  if (guard_exports.IsEqual(pointer.length, 0))
-    return [];
-  const indices = pointer.split("/").map((index2) => index2.replace(/~1/g, "/").replace(/~0/g, "~"));
-  return indices.length > 0 && indices[0] === "" ? indices.slice(1) : indices;
-}
-function Has2(value2, pointer) {
-  let current = value2;
-  return Indices(pointer).every((index2) => {
-    if (!HasIndex(index2, current))
-      return false;
-    current = current[index2];
-    return true;
-  });
-}
-function Get4(value2, pointer) {
-  const indices = Indices(pointer);
-  return GetIndices(indices, value2);
-}
-function Set4(value2, pointer, next) {
-  const indices = Indices(pointer);
-  AssertNotRoot(indices);
-  const [head5, index2] = TakeIndexRight(indices);
-  const parent = GetIndices(head5, value2);
-  AssertCanSet(parent);
-  parent[index2] = next;
-  return value2;
-}
-function Delete(value2, pointer) {
-  const indices = Indices(pointer);
-  AssertNotRoot(indices);
-  const [head5, index2] = TakeIndexRight(indices);
-  const parent = GetIndices(head5, value2);
-  AssertCanSet(parent);
-  if (guard_exports.IsArray(parent) && IsNumericIndex(index2)) {
-    parent.splice(+index2, 1);
-  } else {
-    delete parent[index2];
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/resolve/ref.mjs
-function MatchId(schema, base, ref) {
-  if (schema.$id === ref.hash)
-    return schema;
-  const absoluteId = new URL(schema.$id, base.href);
-  const absoluteRef = new URL(ref.href, base.href);
-  if (guard_exports.IsEqual(absoluteId.pathname, absoluteRef.pathname)) {
-    return ref.hash.startsWith("#") ? MatchHash(schema, base, ref) : schema;
-  }
-  return void 0;
-}
-function MatchAnchor(schema, base, ref) {
-  const absoluteAnchor = new URL(`#${schema.$anchor}`, base.href);
-  const absoluteRef = new URL(ref.href, base.href);
-  if (guard_exports.IsEqual(absoluteAnchor.href, absoluteRef.href))
-    return schema;
-  return void 0;
-}
-function MatchHash(schema, base, ref) {
-  if (ref.href.endsWith("#"))
-    return schema;
-  return ref.hash.startsWith("#") ? pointer_exports.Get(schema, decodeURIComponent(ref.hash.slice(1))) : void 0;
-}
-function Match2(schema, base, ref) {
-  if (IsId(schema)) {
-    const result = MatchId(schema, base, ref);
-    if (!guard_exports.IsUndefined(result))
-      return result;
-  }
-  if (IsAnchor(schema)) {
-    const result = MatchAnchor(schema, base, ref);
-    if (!guard_exports.IsUndefined(result))
-      return result;
-  }
-  return MatchHash(schema, base, ref);
-}
-function FromArray6(schema, base, ref) {
-  return schema.reduce((result, item) => {
-    const match14 = FromValue3(item, base, ref);
-    return !guard_exports.IsUndefined(match14) ? match14 : result;
-  }, void 0);
-}
-function FromObject9(schema, base, ref) {
-  return guard_exports.Keys(schema).reduce((result, key) => {
-    const match14 = FromValue3(schema[key], base, ref);
-    return !guard_exports.IsUndefined(match14) ? match14 : result;
-  }, void 0);
-}
-function FromValue3(schema, base, ref) {
-  base = IsSchemaObject(schema) && IsId(schema) ? new URL(schema.$id, base.href) : base;
-  if (IsSchemaObject(schema)) {
-    const result = Match2(schema, base, ref);
-    if (!guard_exports.IsUndefined(result))
-      return result;
-  }
-  if (guard_exports.IsArray(schema))
-    return FromArray6(schema, base, ref);
-  if (guard_exports.IsObject(schema))
-    return FromObject9(schema, base, ref);
-  return void 0;
-}
-function Ref2(schema, ref) {
-  const defaultBase = new URL("http://unknown");
-  const initialBase = IsId(schema) ? new URL(schema.$id, defaultBase.href) : defaultBase;
-  const initialRef = new URL(ref, initialBase.href);
-  return FromValue3(schema, initialBase, initialRef);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_stack.mjs
-var Stack = class {
-  constructor(context5, schema) {
-    this.context = context5;
-    this.schema = schema;
-    this.ids = [];
-    this.anchors = [];
-    this.recursiveAnchors = [];
-    this.dynamicAnchors = [];
-  }
-  // ----------------------------------------------------------------
-  // Base
-  // ----------------------------------------------------------------
-  BaseURL() {
-    return this.ids.reduce((result, schema) => new URL(schema.$id, result), new URL("http://unknown"));
-  }
-  Base() {
-    return this.ids[this.ids.length - 1] ?? this.schema;
-  }
-  // ----------------------------------------------------------------
-  // Stack
-  // ----------------------------------------------------------------
-  Push(schema) {
-    if (!IsSchemaObject(schema))
-      return;
-    if (IsId(schema))
-      this.ids.push(schema);
-    if (IsAnchor(schema))
-      this.anchors.push(schema);
-    if (IsRecursiveAnchorTrue(schema))
-      this.recursiveAnchors.push(schema);
-    if (IsDynamicAnchor(schema))
-      this.dynamicAnchors.push(schema);
-  }
-  Pop(schema) {
-    if (!IsSchemaObject(schema))
-      return;
-    if (IsId(schema))
-      this.ids.pop();
-    if (IsAnchor(schema))
-      this.anchors.pop();
-    if (IsRecursiveAnchorTrue(schema))
-      this.recursiveAnchors.pop();
-    if (IsDynamicAnchor(schema))
-      this.dynamicAnchors.pop();
-  }
-  // ----------------------------------------------------------------
-  // Ref
-  // ----------------------------------------------------------------
-  FromContext(ref) {
-    return guard_exports.HasPropertyKey(this.context, ref) ? this.context[ref] : void 0;
-  }
-  FromRef(ref) {
-    return !ref.startsWith("#") ? resolve_exports.Ref(this.schema, ref) : resolve_exports.Ref(this.Base(), ref);
-  }
-  Ref(ref) {
-    return this.FromContext(ref) ?? this.FromRef(ref);
-  }
-  // ----------------------------------------------------------------
-  // RecursiveRef
-  // ----------------------------------------------------------------
-  RecursiveRef(recursiveRef) {
-    if (IsRecursiveAnchorTrue(this.Base())) {
-      return resolve_exports.Ref(this.recursiveAnchors[0], recursiveRef);
-    }
-    return resolve_exports.Ref(this.Base(), recursiveRef);
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/build.mjs
-function CreateCode(build3) {
-  const functions2 = build3.Functions().join(";\n");
-  const statements = build3.UseUnevaluated() ? ["const context = new CheckContext({}, {})", `return ${build3.Call()}`] : [`return ${build3.Call()}`];
-  return `${functions2}; return (value) => { ${statements.join("; ")} }`;
-}
-function CreateEvaluatedCheck(build3, code) {
-  const factory = new globalThis.Function("CheckContext", "Guard", "Format", "Hashing", build3.External().identifier, code);
-  return factory(CheckContext, guard_exports, format_exports, hash_exports, build3.External().variables);
-}
-function CreateDynamicCheck(build3) {
-  const stack = new Stack(build3.Context(), build3.Schema());
-  const context5 = new CheckContext();
-  return (value2) => CheckSchema(stack, context5, build3.Schema(), value2);
-}
-function CreateCheck(build3, code) {
-  return environment_exports.CanEvaluate() ? CreateEvaluatedCheck(build3, code) : CreateDynamicCheck(build3);
-}
-var BuildResult = class {
-  constructor(context5, schema, external, functions2, call2, useUnevaluated) {
-    this.context = context5;
-    this.schema = schema;
-    this.external = external;
-    this.functions = functions2;
-    this.call = call2;
-    this.useUnevaluated = useUnevaluated;
-  }
-  /** Returns the Context used for this build */
-  Context() {
-    return this.context;
-  }
-  /** Returns the Schema used for this build */
-  Schema() {
-    return this.schema;
-  }
-  /** Returns true if this build requires a Unevaluated context */
-  UseUnevaluated() {
-    return this.useUnevaluated;
-  }
-  /** Returns external variables */
-  External() {
-    return this.external;
-  }
-  /** Returns check functions */
-  Functions() {
-    return this.functions;
-  }
-  /** Return entry function call. */
-  Call() {
-    return this.call;
-  }
-  /** Evaluates the build into a validation function */
-  Evaluate() {
-    const Code2 = CreateCode(this);
-    const Check3 = CreateCheck(this, Code2);
-    return { IsEvaluated: environment_exports.CanEvaluate(), Code: Code2, Check: Check3 };
-  }
-};
-function Build(...args2) {
-  const [context5, schema] = arguments_exports.Match(args2, {
-    2: (context6, schema2) => [context6, schema2],
-    1: (schema2) => [{}, schema2]
-  });
-  ResetExternal();
-  ResetFunctions();
-  const stack = new Stack(context5, schema);
-  const build3 = new BuildContext(HasUnevaluated(context5, schema));
-  const call2 = CreateFunction(stack, build3, schema, "value");
-  const functions2 = GetFunctions();
-  const externals = GetExternal();
-  return new BuildResult(context5, schema, externals, functions2, call2, build3.UseUnevaluated());
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/check.mjs
-function Check(...args2) {
-  const [context5, schema, value2] = arguments_exports.Match(args2, {
-    3: (context6, schema2, value3) => [context6, schema2, value3],
-    2: (schema2, value3) => [{}, schema2, value3]
-  });
-  const stack = new Stack(context5, schema);
-  const checkContext = new CheckContext();
-  return CheckSchema(stack, checkContext, schema, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/errors.mjs
-function Errors(...args2) {
-  const [context5, schema, value2] = arguments_exports.Match(args2, {
-    3: (context6, schema2, value3) => [context6, schema2, value3],
-    2: (schema2, value3) => [{}, schema2, value3]
-  });
-  const settings2 = settings_exports.Get();
-  const locale2 = Get2();
-  const errors = [];
-  const stack = new Stack(context5, schema);
-  const errorContext = new ErrorContext((error) => {
-    if (guard_exports.IsGreaterEqualThan(errors.length, settings2.maxErrors))
-      return;
-    return errors.push({ ...error, message: locale2(error) });
-  });
-  const result = ErrorSchema(stack, errorContext, "#", "", schema, value2);
-  return [result, errors];
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/check/check.mjs
-function Check2(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return Check(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/errors/errors.mjs
-function Errors2(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  const [_, errors] = Errors(context5, type, value2);
-  return errors;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/assert/assert.mjs
-var AssertError = class extends Error {
-  constructor(source, value2, errors) {
-    super(source);
-    Object.defineProperty(this, "cause", {
-      value: { source, errors, value: value2 },
-      writable: false,
-      configurable: false,
-      enumerable: false
-    });
-  }
-};
-function Assert(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  const check2 = Check2(context5, type, value2);
-  if (!check2)
-    throw new AssertError("Assert", value2, Errors2(context5, type, value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-array.mjs
-function FromArray7(context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  return value2.map((value3) => FromType14(context5, type.items, value3));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-base.mjs
-function FromBase(context5, type, value2) {
-  return type.Clean(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-cyclic.mjs
-function FromCyclic6(context5, type, value2) {
-  return FromType14({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-intersect.mjs
-function EvaluateIntersection(type) {
-  const additionalProperties = guard_exports.HasPropertyKey(type, "unevaluatedProperties") ? { additionalProperties: type.unevaluatedProperties } : {};
-  const evaluated = Evaluate(type);
-  return IsObject3(evaluated) ? Options2(evaluated, additionalProperties) : evaluated;
-}
-function FromIntersect6(context5, type, value2) {
-  const evaluated = EvaluateIntersection(type);
-  return FromType14(context5, evaluated, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/additional.mjs
-function GetAdditionalProperties(type) {
-  const additionalProperties = guard_exports.HasPropertyKey(type, "additionalProperties") ? type.additionalProperties : void 0;
-  return additionalProperties;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-object.mjs
-function FromObject10(context5, type, value2) {
-  if (!guard_exports.IsObject(value2) || guard_exports.IsArray(value2))
-    return value2;
-  const additionalProperties = GetAdditionalProperties(type);
-  for (const key of guard_exports.Keys(value2)) {
-    if (guard_exports.HasPropertyKey(type.properties, key)) {
-      value2[key] = FromType14(context5, type.properties[key], value2[key]);
-      continue;
-    }
-    const unknownCheck = (
-      // 1. additionalProperties: true
-      guard_exports.IsBoolean(additionalProperties) && guard_exports.IsEqual(additionalProperties, true) || IsSchema(additionalProperties) && Check2(context5, additionalProperties, value2[key])
-    );
-    if (unknownCheck) {
-      value2[key] = FromType14(context5, additionalProperties, value2[key]);
-      continue;
-    }
-    delete value2[key];
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-record.mjs
-function FromRecord2(context5, type, value2) {
-  if (!guard_exports.IsObject(value2))
-    return value2;
-  const additionalProperties = GetAdditionalProperties(type);
-  const [recordPattern, recordValue2] = [new RegExp(RecordPattern(type)), RecordValue(type)];
-  for (const key of guard_exports.Keys(value2)) {
-    if (recordPattern.test(key)) {
-      value2[key] = FromType14(context5, recordValue2, value2[key]);
-      continue;
-    }
-    const unknownCheck = (
-      // 1. additionalProperties: true
-      guard_exports.IsBoolean(additionalProperties) && guard_exports.IsEqual(additionalProperties, true) || IsSchema(additionalProperties) && Check2(context5, additionalProperties, value2[key])
-    );
-    if (unknownCheck) {
-      value2[key] = FromType14(context5, additionalProperties, value2[key]);
-      continue;
-    }
-    delete value2[key];
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-ref.mjs
-function FromRef5(context5, type, value2) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType14(context5, context5[type.$ref], value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-tuple.mjs
-function FromTuple5(context5, schema, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  const length2 = Math.min(value2.length, schema.items.length);
-  for (let index2 = 0; index2 < length2; index2++) {
-    value2[index2] = FromType14(context5, schema.items[index2], value2[index2]);
-  }
-  return guard_exports.IsGreaterThan(value2.length, length2) ? value2.slice(0, length2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clone/clone.mjs
-function FromClassInstance(value2) {
-  return value2;
-}
-function FromObjectInstance(value2) {
-  const result = {};
-  for (const key of Object.getOwnPropertyNames(value2)) {
-    result[key] = Clone2(value2[key]);
-  }
-  for (const key of Object.getOwnPropertySymbols(value2)) {
-    result[key] = Clone2(value2[key]);
-  }
-  return result;
-}
-function FromObject11(value2) {
-  return guard_exports.IsClassInstance(value2) ? FromClassInstance(value2) : FromObjectInstance(value2);
-}
-function FromArray8(value2) {
-  return value2.map((element) => Clone2(element));
-}
-function FromTypedArray(value2) {
-  return value2.slice();
-}
-function FromMap(value2) {
-  return new Map(Clone2([...value2.entries()]));
-}
-function FromSet(value2) {
-  return new Set(Clone2([...value2.values()]));
-}
-function FromValue4(value2) {
-  return value2;
-}
-function Clone2(value2) {
-  return globals_exports.IsTypeArray(value2) ? FromTypedArray(value2) : globals_exports.IsMap(value2) ? FromMap(value2) : globals_exports.IsSet(value2) ? FromSet(value2) : guard_exports.IsArray(value2) ? FromArray8(value2) : guard_exports.IsObject(value2) ? FromObject11(value2) : FromValue4(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-union.mjs
-function FromUnion9(context5, type, value2) {
-  for (const schema of type.anyOf) {
-    const clean = FromType14(context5, schema, Clone2(value2));
-    if (Check2(context5, schema, clean))
-      return clean;
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-type.mjs
-function FromType14(context5, type, value2) {
-  return IsArray3(type) ? FromArray7(context5, type, value2) : IsBase(type) ? FromBase(context5, type, value2) : IsCyclic(type) ? FromCyclic6(context5, type, value2) : IsIntersect(type) ? FromIntersect6(context5, type, value2) : IsObject3(type) ? FromObject10(context5, type, value2) : IsRecord(type) ? FromRecord2(context5, type, value2) : IsRef(type) ? FromRef5(context5, type, value2) : IsTuple(type) ? FromTuple5(context5, type, value2) : IsUnion(type) ? FromUnion9(context5, type, value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/clean.mjs
-function Clean(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return FromType14(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-array.mjs
-function FromArray9(context5, type, value2) {
-  return guard_exports.IsArray(value2) ? value2.map((value3) => FromType15(context5, type.items, value3)) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-base.mjs
-function FromBase2(context5, type, value2) {
-  return type.Convert(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try.mjs
-var try_exports = {};
-__export(try_exports, {
-  Fail: () => Fail,
-  IsOk: () => IsOk,
-  Ok: () => Ok,
-  TryBigInt: () => TryBigInt,
-  TryBoolean: () => TryBoolean,
-  TryNull: () => TryNull,
-  TryNumber: () => TryNumber,
-  TryString: () => TryString,
-  TryUndefined: () => TryUndefined
-});
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-result.mjs
-function IsOk(value2) {
-  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, "value");
-}
-function Ok(value2) {
-  return { value: value2 };
-}
-function Fail() {
-  return void 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-bigint.mjs
-function FromBigInt2(value2) {
-  return Ok(value2);
-}
-function FromBoolean2(value2) {
-  return guard_exports.IsEqual(value2, true) ? Ok(BigInt(1)) : Ok(BigInt(0));
-}
-function FromNumber2(value2) {
-  return Ok(BigInt(Math.trunc(value2)));
-}
-function FromNull2(value2) {
-  return Ok(BigInt(0));
-}
-var bigintPattern = /^-?(0|[1-9]\d*)n$/;
-var decimalPattern = /^-?(0|[1-9]\d*)\.\d+$/;
-var integerPattern = /^-?(0|[1-9]\d*)$/;
-function IsStringBigIntLike(value2) {
-  return bigintPattern.test(value2);
-}
-function IsStringDecimalLike(value2) {
-  return decimalPattern.test(value2);
-}
-function IsStringIntegerLike(value2) {
-  return integerPattern.test(value2);
-}
-function FromString2(value2) {
-  const lowercase = value2.toLowerCase();
-  return IsStringBigIntLike(value2) ? Ok(BigInt(value2.slice(0, value2.length - 1))) : IsStringDecimalLike(value2) ? Ok(BigInt(value2.split(".")[0])) : IsStringIntegerLike(value2) ? Ok(BigInt(value2)) : guard_exports.IsEqual(lowercase, "false") ? Ok(BigInt(0)) : guard_exports.IsEqual(lowercase, "true") ? Ok(BigInt(1)) : Fail();
-}
-function FromUndefined2(value2) {
-  return Ok(BigInt(0));
-}
-function TryBigInt(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt2(value2) : guard_exports.IsBoolean(value2) ? FromBoolean2(value2) : guard_exports.IsNumber(value2) ? FromNumber2(value2) : guard_exports.IsNull(value2) ? FromNull2(value2) : guard_exports.IsString(value2) ? FromString2(value2) : guard_exports.IsUndefined(value2) ? FromUndefined2(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-boolean.mjs
-function FromBigInt3(value2) {
-  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(false) : guard_exports.IsEqual(value2, BigInt(1)) ? Ok(true) : Fail();
-}
-function FromBoolean3(value2) {
-  return Ok(value2);
-}
-function FromNumber3(value2) {
-  return guard_exports.IsEqual(value2, 0) ? Ok(false) : guard_exports.IsEqual(value2, 1) ? Ok(true) : Fail();
-}
-function FromNull3(value2) {
-  return Ok(false);
-}
-function FromString3(value2) {
-  return guard_exports.IsEqual(value2.toLowerCase(), "false") ? Ok(false) : guard_exports.IsEqual(value2.toLowerCase(), "true") ? Ok(true) : guard_exports.IsEqual(value2, "0") ? Ok(false) : guard_exports.IsEqual(value2, "1") ? Ok(true) : Fail();
-}
-function FromUndefined3(value2) {
-  return Ok(false);
-}
-function TryBoolean(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt3(value2) : guard_exports.IsBoolean(value2) ? FromBoolean3(value2) : guard_exports.IsNumber(value2) ? FromNumber3(value2) : guard_exports.IsNull(value2) ? FromNull3(value2) : guard_exports.IsString(value2) ? FromString3(value2) : guard_exports.IsUndefined(value2) ? FromUndefined3(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-null.mjs
-function FromBigInt4(value2) {
-  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(null) : Fail();
-}
-function FromBoolean4(value2) {
-  return guard_exports.IsEqual(value2, false) ? Ok(null) : Fail();
-}
-function FromNumber4(value2) {
-  return guard_exports.IsEqual(value2, 0) ? Ok(null) : Fail();
-}
-function FromNull4(value2) {
-  return Ok(null);
-}
-function FromString4(value2) {
-  const lowercase = value2.toLowerCase();
-  const predicate = guard_exports.IsEqual(lowercase, "undefined") || guard_exports.IsEqual(lowercase, "null") || guard_exports.IsEqual(value2, "") || guard_exports.IsEqual(value2, "0");
-  return predicate ? Ok(null) : Fail();
-}
-function FromUndefined4(value2) {
-  return Ok(null);
-}
-function TryNull(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt4(value2) : guard_exports.IsBoolean(value2) ? FromBoolean4(value2) : guard_exports.IsNumber(value2) ? FromNumber4(value2) : guard_exports.IsNull(value2) ? FromNull4(value2) : guard_exports.IsString(value2) ? FromString4(value2) : guard_exports.IsUndefined(value2) ? FromUndefined4(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-number.mjs
-var maxBigInt = BigInt(Number.MAX_SAFE_INTEGER);
-var minBigInt = BigInt(Number.MIN_SAFE_INTEGER);
-function CanBigIntDowncast(value2) {
-  return value2 <= maxBigInt && value2 >= minBigInt;
-}
-function FromBigInt5(value2) {
-  return CanBigIntDowncast(value2) ? Ok(Number(value2)) : Fail();
-}
-function FromBoolean5(value2) {
-  return value2 ? Ok(1) : Ok(0);
-}
-function FromNumber5(value2) {
-  return Ok(value2);
-}
-function FromNull5(value2) {
-  return Ok(0);
-}
-function FromString5(value2) {
-  const coerced = +value2;
-  if (guard_exports.IsNumber(coerced))
-    return Ok(coerced);
-  const lowercase = value2.toLowerCase();
-  if (guard_exports.IsEqual(lowercase, "false"))
-    return Ok(0);
-  if (guard_exports.IsEqual(lowercase, "true"))
-    return Ok(1);
-  const result = TryBigInt(value2);
-  if (IsOk(result))
-    return FromBigInt5(result.value);
-  return Fail();
-}
-function FromUndefined5(value2) {
-  return Ok(0);
-}
-function TryNumber(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt5(value2) : guard_exports.IsBoolean(value2) ? FromBoolean5(value2) : guard_exports.IsNumber(value2) ? FromNumber5(value2) : guard_exports.IsNull(value2) ? FromNull5(value2) : guard_exports.IsString(value2) ? FromString5(value2) : guard_exports.IsUndefined(value2) ? FromUndefined5(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-string.mjs
-function FromBigInt6(value2) {
-  return Ok(value2.toString());
-}
-function FromBoolean6(value2) {
-  return Ok(value2.toString());
-}
-function FromNumber6(value2) {
-  return Ok(value2.toString());
-}
-function FromNull6(value2) {
-  return Ok("null");
-}
-function FromString6(value2) {
-  return Ok(value2);
-}
-function FromUndefined6(value2) {
-  return Ok("");
-}
-function TryString(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt6(value2) : guard_exports.IsBoolean(value2) ? FromBoolean6(value2) : guard_exports.IsNumber(value2) ? FromNumber6(value2) : guard_exports.IsNull(value2) ? FromNull6(value2) : guard_exports.IsString(value2) ? FromString6(value2) : guard_exports.IsUndefined(value2) ? FromUndefined6(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-undefined.mjs
-function FromBigInt7(value2) {
-  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(void 0) : Fail();
-}
-function FromBoolean7(value2) {
-  return guard_exports.IsEqual(value2, false) ? Ok(void 0) : Fail();
-}
-function FromNumber7(value2) {
-  return guard_exports.IsEqual(value2, 0) ? Ok(void 0) : Fail();
-}
-function FromNull7(value2) {
-  return Ok(void 0);
-}
-function FromString7(value2) {
-  const lowercase = value2.toLowerCase();
-  const predicate = guard_exports.IsEqual(lowercase, "undefined") || guard_exports.IsEqual(lowercase, "null") || guard_exports.IsEqual(value2, "") || guard_exports.IsEqual(value2, "0");
-  return predicate ? Ok(void 0) : Fail();
-}
-function FromUndefined7(value2) {
-  return Ok(void 0);
-}
-function TryUndefined(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt7(value2) : guard_exports.IsBoolean(value2) ? FromBoolean7(value2) : guard_exports.IsNumber(value2) ? FromNumber7(value2) : guard_exports.IsNull(value2) ? FromNull7(value2) : guard_exports.IsString(value2) ? FromString7(value2) : guard_exports.IsUndefined(value2) ? FromUndefined7(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-bigint.mjs
-function FromBigInt8(context5, type, value2) {
-  if (guard_exports.IsBigInt(value2))
-    return value2;
-  const result = try_exports.TryBigInt(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-boolean.mjs
-function FromBoolean8(context5, type, value2) {
-  if (guard_exports.IsBoolean(value2))
-    return value2;
-  const result = try_exports.TryBoolean(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-cyclic.mjs
-function FromCyclic7(context5, type, value2) {
-  return FromType15({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-union.mjs
-function FromUnion10(context5, type, value2) {
-  const matched = type.anyOf.some((type2) => Check2(context5, type2, value2));
-  if (matched)
-    return value2;
-  const candidates = type.anyOf.map((type2) => FromType15(context5, type2, Clone2(value2)));
-  const selected = candidates.find((value3) => Check2(context5, type, value3));
-  return guard_exports.IsUndefined(selected) ? value2 : selected;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-enum.mjs
-function FromEnum2(context5, type, value2) {
-  const union8 = EnumToUnion(type);
-  return FromUnion10(context5, union8, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-integer.mjs
-function FromInteger(context5, type, value2) {
-  if (guard_exports.IsInteger(value2))
-    return value2;
-  const result = try_exports.TryNumber(value2);
-  return try_exports.IsOk(result) ? Math.trunc(result.value) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-intersect.mjs
-function FromIntersect7(context5, type, value2) {
-  const evaluatedType = Evaluate(type);
-  return FromType15(context5, evaluatedType, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-literal.mjs
-function FromLiteralBigInt(context5, type, value2) {
-  const result = try_exports.TryBigInt(value2);
-  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
-}
-function FromLiteralBoolean(context5, type, value2) {
-  const result = try_exports.TryBoolean(value2);
-  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
-}
-function FromLiteralNumber(context5, type, value2) {
-  const result = try_exports.TryNumber(value2);
-  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
-}
-function FromLiteralString(context5, type, value2) {
-  const result = try_exports.TryString(value2);
-  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
-}
-function FromLiteral5(context5, type, value2) {
-  if (guard_exports.IsEqual(type.const, value2))
-    return value2;
-  return IsLiteralBigInt(type) ? FromLiteralBigInt(context5, type, value2) : IsLiteralBoolean(type) ? FromLiteralBoolean(context5, type, value2) : IsLiteralNumber(type) ? FromLiteralNumber(context5, type, value2) : IsLiteralString(type) ? FromLiteralString(context5, type, value2) : Unreachable();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-null.mjs
-function FromNull8(context5, type, value2) {
-  if (guard_exports.IsNull(value2))
-    return value2;
-  const result = try_exports.TryNull(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-number.mjs
-function FromNumber8(context5, type, value2) {
-  if (guard_exports.IsNumber(value2))
-    return value2;
-  const result = try_exports.TryNumber(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-additional.mjs
-function FromAdditionalProperties(context5, entries2, additionalProperties, value2) {
-  const keys5 = guard_exports.Keys(value2);
-  for (const [regexp, _] of entries2) {
-    for (const key of keys5) {
-      if (!regexp.test(key)) {
-        value2[key] = FromType15(context5, additionalProperties, value2[key]);
-      }
-    }
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/shared/optional-undefined.mjs
-function IsOptionalUndefined(property, key, value2) {
-  return IsOptional(property) && guard_exports.IsUndefined(value2[key]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-object.mjs
-function FromProperties4(context5, type, value2) {
-  const entries2 = guard_exports.EntriesRegExp(type.properties);
-  const keys5 = guard_exports.Keys(value2);
-  for (const [regexp, property] of entries2) {
-    for (const key of keys5) {
-      if (!regexp.test(key) || IsOptionalUndefined(property, key, value2))
-        continue;
-      value2[key] = FromType15(context5, property, value2[key]);
-    }
-  }
-  return guard_exports.HasPropertyKey(type, "additionalProperties") && guard_exports.IsObject(type.additionalProperties) ? FromAdditionalProperties(context5, entries2, type.additionalProperties, value2) : value2;
-}
-function FromObject12(context5, type, value2) {
-  return guard_exports.IsObjectNotArray(value2) ? FromProperties4(context5, type, value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-record.mjs
-function FromPatternProperties(context5, type, value2) {
-  const entries2 = guard_exports.EntriesRegExp(type.patternProperties);
-  const keys5 = guard_exports.Keys(value2);
-  for (const [regexp, schema] of entries2) {
-    for (const key of keys5) {
-      if (regexp.test(key)) {
-        value2[key] = FromType15(context5, schema, value2[key]);
-      }
-    }
-  }
-  return guard_exports.HasPropertyKey(type, "additionalProperties") && guard_exports.IsObject(type.additionalProperties) ? FromAdditionalProperties(context5, entries2, type.additionalProperties, value2) : value2;
-}
-function FromRecord3(context5, type, value2) {
-  return guard_exports.IsObjectNotArray(value2) ? FromPatternProperties(context5, type, value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-ref.mjs
-function FromRef6(context5, type, value2) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType15(context5, context5[type.$ref], value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-string.mjs
-function FromString8(context5, type, value2) {
-  if (guard_exports.IsString(value2))
-    return value2;
-  const result = try_exports.TryString(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-template-literal.mjs
-function FromTemplateLiteral4(context5, type, value2) {
-  const decoded = TemplateLiteralDecode(type.pattern);
-  return FromType15(context5, decoded, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-tuple.mjs
-function FromTuple6(context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  for (let index2 = 0; index2 < Math.min(type.items.length, value2.length); index2++) {
-    value2[index2] = FromType15(context5, type.items[index2], value2[index2]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-undefined.mjs
-function FromUndefined8(context5, type, value2) {
-  if (guard_exports.IsUndefined(value2))
-    return value2;
-  const result = try_exports.TryUndefined(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-void.mjs
-function FromVoid(context5, type, value2) {
-  if (guard_exports.IsUndefined(value2))
-    return value2;
-  const result = try_exports.TryUndefined(value2);
-  return try_exports.IsOk(result) ? void 0 : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-type.mjs
-function FromType15(context5, type, value2) {
-  return IsArray3(type) ? FromArray9(context5, type, value2) : IsBase(type) ? FromBase2(context5, type, value2) : IsBigInt3(type) ? FromBigInt8(context5, type, value2) : IsBoolean4(type) ? FromBoolean8(context5, type, value2) : IsCyclic(type) ? FromCyclic7(context5, type, value2) : IsEnum(type) ? FromEnum2(context5, type, value2) : IsInteger3(type) ? FromInteger(context5, type, value2) : IsIntersect(type) ? FromIntersect7(context5, type, value2) : IsLiteral(type) ? FromLiteral5(context5, type, value2) : IsNull3(type) ? FromNull8(context5, type, value2) : IsNumber4(type) ? FromNumber8(context5, type, value2) : IsObject3(type) ? FromObject12(context5, type, value2) : IsRecord(type) ? FromRecord3(context5, type, value2) : IsRef(type) ? FromRef6(context5, type, value2) : IsString4(type) ? FromString8(context5, type, value2) : IsTemplateLiteral(type) ? FromTemplateLiteral4(context5, type, value2) : IsTuple(type) ? FromTuple6(context5, type, value2) : IsUndefined3(type) ? FromUndefined8(context5, type, value2) : IsUnion(type) ? FromUnion10(context5, type, value2) : IsVoid(type) ? FromVoid(context5, type, value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/convert.mjs
-function Convert(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return FromType15(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-array.mjs
-function FromArray10(context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  for (let i = 0; i < value2.length; i++) {
-    value2[i] = FromType16(context5, type.items, value2[i]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-base.mjs
-function FromBase3(context5, type, value2) {
-  return type.Default(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-cyclic.mjs
-function FromCyclic8(context5, type, value2) {
-  return FromType16({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-default.mjs
-function FromDefault(type, value2) {
-  if (!guard_exports.IsUndefined(value2))
-    return value2;
-  return guard_exports.IsFunction(type.default) ? type.default() : Clone2(type.default);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-intersect.mjs
-function FromIntersect8(context5, type, value2) {
-  const evaluted = Evaluate(type);
-  return FromType16(context5, evaluted, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-object.mjs
-function FromObject13(context5, type, value2) {
-  if (!guard_exports.IsObject(value2))
-    return value2;
-  const knownPropertyKeys = guard_exports.Keys(type.properties);
-  for (const key of knownPropertyKeys) {
-    const propertyValue = FromType16(context5, type.properties[key], value2[key]);
-    const isUnassignableUndefined = guard_exports.IsUndefined(propertyValue) && (IsOptional(type.properties[key]) || !guard_exports.HasPropertyKey(type.properties[key], "default"));
-    if (isUnassignableUndefined)
-      continue;
-    value2[key] = FromType16(context5, type.properties[key], value2[key]);
-  }
-  if (!IsAdditionalProperties(type) || guard_exports.IsBoolean(type.additionalProperties))
-    return value2;
-  for (const key of guard_exports.Keys(value2)) {
-    if (knownPropertyKeys.includes(key))
-      continue;
-    value2[key] = FromType16(context5, type.additionalProperties, value2[key]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-record.mjs
-function FromRecord4(context5, type, value2) {
-  if (!guard_exports.IsObject(value2))
-    return value2;
-  const [recordKey, recordValue2] = [new RegExp(RecordPattern(type)), RecordValue(type)];
-  for (const key of guard_exports.Keys(value2)) {
-    if (!(recordKey.test(key) && IsDefault(recordValue2)))
-      continue;
-    value2[key] = FromType16(context5, recordValue2, value2[key]);
-  }
-  if (!IsAdditionalProperties(type))
-    return value2;
-  for (const key of guard_exports.Keys(value2)) {
-    if (recordKey.test(key))
-      continue;
-    value2[key] = FromType16(context5, type.additionalProperties, value2[key]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-ref.mjs
-function FromRef7(context5, type, value2) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType16(context5, context5[type.$ref], value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-tuple.mjs
-function FromTuple7(context5, schema, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  const [items, max5] = [schema.items, Math.max(schema.items.length, value2.length)];
-  for (let i = 0; i < max5; i++) {
-    if (i < items.length)
-      value2[i] = FromType16(context5, items[i], value2[i]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-union.mjs
-function FromUnion11(context5, schema, value2) {
-  for (const inner of schema.anyOf) {
-    const result = FromType16(context5, inner, Clone2(value2));
-    if (Check2(context5, inner, result)) {
-      return result;
-    }
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-type.mjs
-function FromType16(context5, type, value2) {
-  const defaulted = IsDefault(type) ? FromDefault(type, value2) : value2;
-  return IsArray3(type) ? FromArray10(context5, type, defaulted) : IsBase(type) ? FromBase3(context5, type, defaulted) : IsCyclic(type) ? FromCyclic8(context5, type, defaulted) : IsIntersect(type) ? FromIntersect8(context5, type, defaulted) : IsObject3(type) ? FromObject13(context5, type, defaulted) : IsRecord(type) ? FromRecord4(context5, type, defaulted) : IsRef(type) ? FromRef7(context5, type, defaulted) : IsTuple(type) ? FromTuple7(context5, type, defaulted) : IsUnion(type) ? FromUnion11(context5, type, defaulted) : defaulted;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/default.mjs
-function Default(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return FromType16(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/pipeline/pipeline.mjs
-function Pipeline(pipeline) {
-  return (...args2) => {
-    const [context5, type, value2] = arguments_exports.Match(args2, {
-      3: (context6, type2, value3) => [context6, type2, value3],
-      2: (type2, value3) => [{}, type2, value3]
-    });
-    return pipeline.reduce((result, func) => func(context5, type, result), value2);
-  };
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/callback.mjs
-function Decode2(context5, type, value2) {
-  return type["~codec"].decode(value2);
-}
-function Encode2(context5, type, value2) {
-  return type["~codec"].encode(value2);
-}
-function Callback(direction, context5, type, value2) {
-  if (!IsCodec(type))
-    return value2;
-  return guard_exports.IsEqual(direction, "Decode") ? Decode2(context5, type, value2) : Encode2(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-array.mjs
-function Decode3(direction, context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return Unreachable();
-  for (let i = 0; i < value2.length; i++) {
-    value2[i] = FromType17(direction, context5, type.items, value2[i]);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode3(direction, context5, type, value2) {
-  const exterior = Callback(direction, context5, type, value2);
-  if (!guard_exports.IsArray(exterior))
-    return exterior;
-  for (let i = 0; i < exterior.length; i++) {
-    exterior[i] = FromType17(direction, context5, type.items, exterior[i]);
-  }
-  return exterior;
-}
-function FromArray11(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode3(direction, context5, type, value2) : Encode3(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-cyclic.mjs
-function FromCyclic9(direction, context5, type, value2) {
-  value2 = FromType17(direction, { ...context5, ...type.$defs }, Ref(type.$ref), value2);
-  return Callback(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-intersect.mjs
-function Decode4(direction, context5, type, value2) {
-  for (const schema of type.allOf) {
-    value2 = FromType17(direction, context5, schema, value2);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode4(direction, context5, type, value2) {
-  let exterior = Callback(direction, context5, type, value2);
-  for (const schema of type.allOf) {
-    exterior = FromType17(direction, context5, schema, exterior);
-  }
-  return exterior;
-}
-function FromIntersect9(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode4(direction, context5, type, value2) : Encode4(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-object.mjs
-function Decode5(direction, context5, type, value2) {
-  if (!guard_exports.IsObjectNotArray(value2))
-    return Unreachable();
-  for (const key of guard_exports.Keys(type.properties)) {
-    if (!guard_exports.HasPropertyKey(value2, key) || IsOptionalUndefined(type.properties[key], key, value2))
-      continue;
-    value2[key] = FromType17(direction, context5, type.properties[key], value2[key]);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode5(direction, context5, type, value2) {
-  const exterior = Callback(direction, context5, type, value2);
-  if (!guard_exports.IsObjectNotArray(exterior))
-    return exterior;
-  for (const key of guard_exports.Keys(type.properties)) {
-    if (!guard_exports.HasPropertyKey(exterior, key) || IsOptionalUndefined(type.properties[key], key, exterior))
-      continue;
-    exterior[key] = FromType17(direction, context5, type.properties[key], exterior[key]);
-  }
-  return exterior;
-}
-function FromObject14(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode5(direction, context5, type, value2) : Encode5(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-record.mjs
-function Decode6(direction, context5, type, value2) {
-  if (!guard_exports.IsObjectNotArray(value2))
-    return Unreachable();
-  const regexp = new RegExp(RecordPattern(type));
-  for (const key of guard_exports.Keys(value2)) {
-    if (!regexp.test(key))
-      Unreachable();
-    value2[key] = FromType17(direction, context5, RecordValue(type), value2[key]);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode6(direction, context5, type, value2) {
-  const exterior = Callback(direction, context5, type, value2);
-  if (!guard_exports.IsObjectNotArray(exterior))
-    return exterior;
-  const regexp = new RegExp(RecordPattern(type));
-  for (const key of guard_exports.Keys(exterior)) {
-    if (!regexp.test(key))
-      continue;
-    exterior[key] = FromType17(direction, context5, RecordValue(type), exterior[key]);
-  }
-  return exterior;
-}
-function FromRecord5(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode6(direction, context5, type, value2) : Encode6(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-ref.mjs
-function FromRef8(direction, context5, type, value2) {
-  value2 = guard_exports.HasPropertyKey(context5, type.$ref) ? FromType17(direction, context5, context5[type.$ref], value2) : value2;
-  return Callback(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-tuple.mjs
-function Decode7(direction, context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return Unreachable();
-  for (let i = 0; i < Math.min(type.items.length, value2.length); i++) {
-    value2[i] = FromType17(direction, context5, type.items[i], value2[i]);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode7(direction, context5, type, value2) {
-  const exterior = Callback(direction, context5, type, value2);
-  if (!guard_exports.IsArray(exterior))
-    return value2;
-  for (let i = 0; i < Math.min(type.items.length, exterior.length); i++) {
-    exterior[i] = FromType17(direction, context5, type.items[i], exterior[i]);
-  }
-  return exterior;
-}
-function FromTuple8(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode7(direction, context5, type, value2) : Encode7(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-union.mjs
-function Decode8(direction, context5, type, value2) {
-  for (const schema of type.anyOf) {
-    if (!Check2(context5, schema, value2))
-      continue;
-    const variant = FromType17(direction, context5, schema, value2);
-    return Callback(direction, context5, type, variant);
-  }
-  return Unreachable();
-}
-function Encode8(direction, context5, type, value2) {
-  let exterior = Callback(direction, context5, type, value2);
-  for (const schema of type.anyOf) {
-    const variant = FromType17(direction, context5, schema, Clone2(exterior));
-    if (!Check2(context5, schema, variant))
-      continue;
-    return variant;
-  }
-  return exterior;
-}
-function FromUnion12(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode8(direction, context5, type, value2) : Encode8(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-type.mjs
-function FromType17(direction, context5, type, value2) {
-  return IsArray3(type) ? FromArray11(direction, context5, type, value2) : IsCyclic(type) ? FromCyclic9(direction, context5, type, value2) : IsIntersect(type) ? FromIntersect9(direction, context5, type, value2) : IsObject3(type) ? FromObject14(direction, context5, type, value2) : IsRecord(type) ? FromRecord5(direction, context5, type, value2) : IsRef(type) ? FromRef8(direction, context5, type, value2) : IsTuple(type) ? FromTuple8(direction, context5, type, value2) : IsUnion(type) ? FromUnion12(direction, context5, type, value2) : Callback(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/decode.mjs
-var DecodeError = class extends AssertError {
-  constructor(value2, errors) {
-    super("Decode", value2, errors);
-  }
-};
-function Assert2(context5, type, value2) {
-  if (!Check2(context5, type, value2))
-    throw new DecodeError(value2, Errors2(context5, type, value2));
-  return value2;
-}
-function DecodeUnsafe(context5, type, value2) {
-  return FromType17("Decode", context5, type, value2);
-}
-var Decoder = Pipeline([
-  (_context, _type, value2) => Clone2(value2),
-  (context5, type, value2) => Default(context5, type, value2),
-  (context5, type, value2) => Convert(context5, type, value2),
-  (context5, type, value2) => Clean(context5, type, value2),
-  (context5, type, value2) => Assert2(context5, type, value2),
-  (context5, type, value2) => DecodeUnsafe(context5, type, value2)
-]);
-function Decode9(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return Decoder(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/encode.mjs
-var EncodeError = class extends AssertError {
-  constructor(value2, errors) {
-    super("Encode", value2, errors);
-  }
-};
-function Assert3(context5, type, value2) {
-  if (!Check2(context5, type, value2))
-    throw new EncodeError(value2, Errors2(context5, type, value2));
-  return value2;
-}
-function EncodeUnsafe(context5, type, value2) {
-  return FromType17("Encode", context5, type, value2);
-}
-var Encoder = Pipeline([
-  (_context, _type, value2) => Clone2(value2),
-  (context5, type, value2) => EncodeUnsafe(context5, type, value2),
-  (context5, type, value2) => Default(context5, type, value2),
-  (context5, type, value2) => Convert(context5, type, value2),
-  (context5, type, value2) => Clean(context5, type, value2),
-  (context5, type, value2) => Assert3(context5, type, value2)
-]);
-function Encode9(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return Encoder(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/has.mjs
-function FromArray12(context5, type) {
-  return IsCodec(type) || FromType18(context5, type.items);
-}
-function FromCyclic10(context5, type) {
-  return IsCodec(type) || FromRef9({ ...context5, ...type.$defs }, Ref(type.$ref));
-}
-function FromIntersect10(context5, type) {
-  return IsCodec(type) || type.allOf.some((type2) => FromType18(context5, type2));
-}
-function FromObject15(context5, type) {
-  return IsCodec(type) || guard_exports.Keys(type.properties).some((key) => {
-    return FromType18(context5, type.properties[key]);
-  });
-}
-function FromRecord6(context5, type) {
-  return IsCodec(type) || FromType18(context5, RecordValue(type));
-}
-function FromRef9(context5, type) {
-  if (visited.has(type.$ref))
-    return false;
-  visited.add(type.$ref);
-  return IsCodec(type) || guard_exports.HasPropertyKey(context5, type.$ref) && FromType18(context5, context5[type.$ref]);
-}
-function FromTuple9(context5, type) {
-  return IsCodec(type) || type.items.some((type2) => FromType18(context5, type2));
-}
-function FromUnion13(context5, type) {
-  return IsCodec(type) || type.anyOf.some((type2) => FromType18(context5, type2));
-}
-function FromType18(context5, type) {
-  return IsArray3(type) ? FromArray12(context5, type) : IsCyclic(type) ? FromCyclic10(context5, type) : IsIntersect(type) ? FromIntersect10(context5, type) : IsObject3(type) ? FromObject15(context5, type) : IsRecord(type) ? FromRecord6(context5, type) : IsRef(type) ? FromRef9(context5, type) : IsTuple(type) ? FromTuple9(context5, type) : IsUnion(type) ? FromUnion13(context5, type) : IsCodec(type);
-}
-var visited = /* @__PURE__ */ new Set();
-function HasCodec(...args2) {
-  const [context5, type] = arguments_exports.Match(args2, {
-    2: (context6, type2) => [context6, type2],
-    1: (type2) => [{}, type2]
-  });
-  visited.clear();
-  return FromType18(context5, type);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/error.mjs
-var CreateError = class extends Error {
-  constructor(type, message) {
-    super(message);
-    this.type = type;
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-default.mjs
-function FromDefault2(context5, schema) {
-  return guard_exports.IsFunction(schema.default) ? schema.default(schema) : guard_exports.IsObject(schema.default) ? Clone2(schema.default) : schema.default;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-array.mjs
-function FromArray13(context5, type) {
-  if (IsUniqueItems(type) && !IsDefault(type))
-    throw new CreateError(type, "Arrays with uniqueItems constraints must specify a default annotation");
-  const length2 = IsMinItems(type) ? type.minItems : 0;
-  return Array.from({ length: length2 }, () => FromType19(context5, type.items));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-async-iterator.mjs
-async function* CreateAsyncIterator() {
-}
-function FromAsyncIterator(context5, type) {
-  return CreateAsyncIterator();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-base.mjs
-function FromBase4(context5, type) {
-  return type.Create();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-bigint.mjs
-function FromBigInt9(context5, type) {
-  return IsExclusiveMinimum(type) ? BigInt(type.exclusiveMinimum) + BigInt(1) : IsMinimum(type) ? BigInt(type.minimum) : BigInt(0);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-boolean.mjs
-function FromBoolean9(context5, type) {
-  return false;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-constructor.mjs
-function FromConstructor2(context5, type) {
-  const instanceType = FromType19(context5, type.instanceType);
-  return class {
-    constructor() {
-      Object.assign(this, instanceType);
-    }
-  };
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-cyclic.mjs
-function FromCyclic11(context5, type) {
-  return FromType19({ ...context5, ...type.$defs }, Ref(type.$ref));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-enum.mjs
-function FromEnum3(context5, type) {
-  return FromType19(context5, EnumToUnion(type));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-function.mjs
-function FromFunction2(context5, type) {
-  const returnType = FromType19(context5, type.returnType);
-  return () => returnType;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-integer.mjs
-function FromInteger2(context5, type) {
-  return IsExclusiveMinimum(type) && guard_exports.IsNumber(type.exclusiveMinimum) ? type.exclusiveMinimum + 1 : IsMinimum(type) ? type.minimum : 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-intersect.mjs
-function FromIntersect11(context5, type) {
-  return FromType19(context5, Evaluate(type));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-iterator.mjs
-function* CreateIterator() {
-}
-function FromIterator(context5, type) {
-  return CreateIterator();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-literal.mjs
-function FromLiteral6(context5, type) {
-  return type.const;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-never.mjs
-function FromNever(context5, type) {
-  throw new CreateError(type, "Cannot create TNever types");
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-null.mjs
-function FromNull9(context5, type) {
-  return null;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-number.mjs
-function FromNumber9(context5, type) {
-  return IsExclusiveMinimum(type) && guard_exports.IsNumber(type.exclusiveMinimum) ? type.exclusiveMinimum + 1 : IsMinimum(type) ? type.minimum : 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-object.mjs
-function FromObject16(context5, type) {
-  const required = guard_exports.IsUndefined(type.required) ? [] : type.required;
-  return required.reduce((result, key) => {
-    return { ...result, [key]: FromType19(context5, type.properties[key]) };
-  }, {});
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-promise.mjs
-function FromPromise(context5, type) {
-  return Promise.resolve(FromType19(context5, type.item));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-record.mjs
-function FromRecord7(context5, type) {
-  if (IsMinProperties(type) && !IsDefault(type))
-    throw new CreateError(type, "Record with the minProperties constraint must have a default annotation");
-  return {};
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-ref.mjs
-function FromRef10(context5, type) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType19(context5, context5[type.$ref]) : (() => {
-    throw new CreateError(type, "Unable to deref Ref");
-  })();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-string.mjs
-function FromString9(context5, type) {
-  const needsDefault = (IsPattern(type) || IsFormat(type)) && !IsDefault(type);
-  if (needsDefault)
-    throw Error("Strings with format or pattern constraints must specify default");
-  const minLength = IsMinLength4(type) ? type.minLength : 0;
-  return "".padEnd(minLength);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-symbol.mjs
-function FromSymbol2(context5, type) {
-  return /* @__PURE__ */ Symbol();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-template-literal.mjs
-function FromTemplateLiteral5(context5, type) {
-  const decoded = TemplateLiteralDecode(type.pattern);
-  if (IsString4(decoded))
-    throw new CreateError(type, "Unable to create TemplateLiteral due to infinite type expansion");
-  return FromType19(context5, decoded);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-tuple.mjs
-function FromTuple10(context5, type) {
-  return Array.from({ length: type.minItems }, (_, i) => FromType19(context5, type.items[i]));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-undefined.mjs
-function FromUndefined9(context5, type) {
-  return void 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-union.mjs
-function FromUnion14(context5, type) {
-  if (guard_exports.IsEqual(type.anyOf.length, 0)) {
-    throw Error("Unable to create Union with no variants");
-  }
-  return FromType19(context5, type.anyOf[0]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-void.mjs
-function FromVoid2(context5, type) {
-  return void 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-type.mjs
-function FromType19(context5, type) {
-  return (
-    // -----------------------------------------------------
-    // Default
-    // -----------------------------------------------------
-    IsDefault(type) ? FromDefault2(context5, type) : (
-      // -----------------------------------------------------
-      // Types
-      // -----------------------------------------------------
-      IsArray3(type) ? FromArray13(context5, type) : IsAsyncIterator3(type) ? FromAsyncIterator(context5, type) : IsBase(type) ? FromBase4(context5, type) : IsBigInt3(type) ? FromBigInt9(context5, type) : IsBoolean4(type) ? FromBoolean9(context5, type) : IsConstructor3(type) ? FromConstructor2(context5, type) : IsCyclic(type) ? FromCyclic11(context5, type) : IsEnum(type) ? FromEnum3(context5, type) : IsFunction3(type) ? FromFunction2(context5, type) : IsInteger3(type) ? FromInteger2(context5, type) : IsIntersect(type) ? FromIntersect11(context5, type) : IsIterator3(type) ? FromIterator(context5, type) : IsLiteral(type) ? FromLiteral6(context5, type) : IsNever(type) ? FromNever(context5, type) : IsNull3(type) ? FromNull9(context5, type) : IsNumber4(type) ? FromNumber9(context5, type) : IsObject3(type) ? FromObject16(context5, type) : IsPromise(type) ? FromPromise(context5, type) : IsRecord(type) ? FromRecord7(context5, type) : IsRef(type) ? FromRef10(context5, type) : IsString4(type) ? FromString9(context5, type) : IsSymbol3(type) ? FromSymbol2(context5, type) : IsTemplateLiteral(type) ? FromTemplateLiteral5(context5, type) : IsTuple(type) ? FromTuple10(context5, type) : IsUndefined3(type) ? FromUndefined9(context5, type) : IsUnion(type) ? FromUnion14(context5, type) : IsVoid(type) ? FromVoid2(context5, type) : void 0
-    )
-  );
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/create.mjs
-function Create2(...args2) {
-  const [context5, type] = arguments_exports.Match(args2, {
-    2: (context6, type2) => [context6, type2],
-    1: (type2) => [{}, type2]
-  });
-  return FromType19(context5, type);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/equal/equal.mjs
-function Equal(left3, right3) {
-  return guard_exports.IsDeepEqual(left3, right3);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/hash/hash.mjs
-function Hash2(value2) {
-  return hash_exports.Hash(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/error.mjs
-var MutateError = class extends Error {
-  constructor(message) {
-    super(message);
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-array.mjs
-function FromArray14(root, path, current, next) {
-  if (!guard_exports.IsArray(current)) {
-    pointer_exports.Set(root, path, Clone2(next));
-  } else {
-    for (let index2 = 0; index2 < next.length; index2++) {
-      FromValue5(root, `${path}/${index2}`, current[index2], next[index2]);
-    }
-    current.splice(next.length);
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-object.mjs
-function FromObject17(root, path, current, next) {
-  if (!guard_exports.IsObjectNotArray(current)) {
-    pointer_exports.Set(root, path, Clone2(next));
-  } else {
-    const currentKeys = guard_exports.Keys(current);
-    const nextKeys = guard_exports.Keys(next);
-    for (const currentKey of currentKeys) {
-      if (!nextKeys.includes(currentKey)) {
-        delete current[currentKey];
-      }
-    }
-    for (const nextKey of nextKeys) {
-      if (!currentKeys.includes(nextKey)) {
-        current[nextKey] = next[nextKey];
-      }
-    }
-    for (const nextKey of nextKeys) {
-      FromValue5(root, `${path}/${nextKey}`, current[nextKey], next[nextKey]);
-    }
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-unknown.mjs
-function FromUnknown2(root, path, current, next) {
-  if (current === next)
-    return;
-  pointer_exports.Set(root, path, next);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-value.mjs
-function FromValue5(root, path, current, next) {
-  if (guard_exports.IsArray(next))
-    return FromArray14(root, path, current, next);
-  if (guard_exports.IsObject(next))
-    return FromObject17(root, path, current, next);
-  return FromUnknown2(root, path, current, next);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/mutate.mjs
-function IsNonMutableValue(value2) {
-  return globals_exports.IsTypeArray(value2) || globals_exports.IsDate(value2) || globals_exports.IsMap(value2) || globals_exports.IsSet(value2) || guard_exports.IsNumber(value2) || guard_exports.IsString(value2) || guard_exports.IsBoolean(value2) || guard_exports.IsSymbol(value2);
-}
-function IsMismatchedValue(left3, right3) {
-  return guard_exports.IsObjectNotArray(left3) && guard_exports.IsArray(right3) || guard_exports.IsArray(left3) && guard_exports.IsObjectNotArray(right3);
-}
-function Mutate(current, next) {
-  if (IsNonMutableValue(current) || IsNonMutableValue(next))
-    throw new MutateError("Only object and array types can be mutated at the root level");
-  if (IsMismatchedValue(current, next))
-    throw new MutateError("Cannot assign due type mismatch of assignable values");
-  FromValue5(current, "", current, next);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/parse/parse.mjs
-var ParseError = class extends AssertError {
-  constructor(value2, errors) {
-    super("Parse", value2, errors);
-  }
-};
-function Assert4(context5, type, value2) {
-  if (!Check2(context5, type, value2))
-    throw new ParseError(value2, Errors2(context5, type, value2));
-  return value2;
-}
-var Parser = Pipeline([
-  (_context, _type, value2) => Clone2(value2),
-  (context5, type, value2) => Default(context5, type, value2),
-  (context5, type, value2) => Convert(context5, type, value2),
-  (context5, type, value2) => Clean(context5, type, value2),
-  (context5, type, value2) => Assert4(context5, type, value2)
-]);
-function Parse(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  const result = Check2(context5, type, value2) ? value2 : Parser(context5, type, value2);
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/diff.mjs
-function CreateUpdate(path, value2) {
-  return { type: "update", path, value: value2 };
-}
-function CreateInsert(path, value2) {
-  return { type: "insert", path, value: value2 };
-}
-function CreateDelete(path) {
-  return { type: "delete", path };
-}
-function AssertCanDiffObject(value2) {
-  if (guard_exports.IsObject(value2) && guard_exports.IsEqual(guard_exports.Symbols(value2).length, 0))
-    return;
-  throw new Error("Cannot create diffs for objects with symbols keys");
-}
-function* FromObject18(path, left3, right3) {
-  if (!guard_exports.IsObject(right3) || guard_exports.IsArray(right3))
-    return yield CreateUpdate(path, right3);
-  AssertCanDiffObject(left3);
-  AssertCanDiffObject(right3);
-  const leftKeys = guard_exports.Keys(left3);
-  const rightKeys = guard_exports.Keys(right3);
-  for (const key of rightKeys) {
-    if (guard_exports.HasPropertyKey(left3, key))
-      continue;
-    yield CreateInsert(`${path}/${key}`, right3[key]);
-  }
-  for (const key of leftKeys) {
-    if (!guard_exports.HasPropertyKey(right3, key))
-      continue;
-    if (Equal(left3, right3))
-      continue;
-    yield* FromValue6(`${path}/${key}`, left3[key], right3[key]);
-  }
-  for (const key of leftKeys) {
-    if (guard_exports.HasPropertyKey(right3, key))
-      continue;
-    yield CreateDelete(`${path}/${key}`);
-  }
-}
-function* FromArray15(path, left3, right3) {
-  if (!guard_exports.IsArray(right3))
-    return yield CreateUpdate(path, right3);
-  for (let i = 0; i < Math.min(left3.length, right3.length); i++) {
-    yield* FromValue6(`${path}/${i}`, left3[i], right3[i]);
-  }
-  for (let i = 0; i < right3.length; i++) {
-    if (i < left3.length)
-      continue;
-    yield CreateInsert(`${path}/${i}`, right3[i]);
-  }
-  for (let i = left3.length - 1; i >= 0; i--) {
-    if (i < right3.length)
-      continue;
-    yield CreateDelete(`${path}/${i}`);
-  }
-}
-function* FromTypedArray2(path, left3, right3) {
-  const typeLeft = globalThis.Object.getPrototypeOf(left3).constructor.name;
-  const typeRight = globalThis.Object.getPrototypeOf(right3).constructor.name;
-  const predicate = globals_exports.IsTypeArray(right3) && guard_exports.IsEqual(left3.length, right3.length) && guard_exports.IsEqual(typeLeft, typeRight);
-  if (predicate) {
-    for (let index2 = 0; index2 < Math.min(left3.length, right3.length); index2++) {
-      yield* FromValue6(`${path}/${index2}`, left3[index2], right3[index2]);
-    }
-  } else {
-    return yield CreateUpdate(path, right3);
-  }
-}
-function* FromUnknown3(path, left3, right3) {
-  if (left3 === right3)
-    return;
-  yield CreateUpdate(path, right3);
-}
-function* FromValue6(path, left3, right3) {
-  return globals_exports.IsTypeArray(left3) ? yield* FromTypedArray2(path, left3, right3) : guard_exports.IsArray(left3) ? yield* FromArray15(path, left3, right3) : guard_exports.IsObject(left3) ? yield* FromObject18(path, left3, right3) : yield* FromUnknown3(path, left3, right3);
-}
-function Diff(current, next) {
-  return [...FromValue6("", current, next)];
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/edit.mjs
-var Insert = _Object_({
-  type: Literal("insert"),
-  path: String2(),
-  value: Unknown()
-});
-var Update2 = Object({
-  type: Literal("update"),
-  path: String2(),
-  value: Unknown()
-});
-var Delete2 = _Object_({
-  type: Literal("delete"),
-  path: String2()
-});
-var Edit = Union([Insert, Update2, Delete2]);
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/patch.mjs
-function IsRoot(edits) {
-  return edits.length > 0 && edits[0].path === "" && edits[0].type === "update";
-}
-function IsEmpty(edits) {
-  return edits.length === 0;
-}
-function Patch(current, edits) {
-  if (IsRoot(edits))
-    return Clone2(edits[0].value);
-  if (IsEmpty(edits))
-    return Clone2(current);
-  const clone2 = Clone2(current);
-  for (const edit of edits) {
-    switch (edit.type) {
-      case "insert": {
-        pointer_exports.Set(clone2, edit.path, edit.value);
-        break;
-      }
-      case "update": {
-        pointer_exports.Set(clone2, edit.path, edit.value);
-        break;
-      }
-      case "delete": {
-        pointer_exports.Delete(clone2, edit.path);
-        break;
-      }
-    }
-  }
-  return clone2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/error.mjs
-var RepairError = class extends Error {
-  constructor(context5, type, value2, message) {
-    super(message);
-    this.context = context5;
-    this.type = type;
-    this.value = value2;
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-array.mjs
-function MakeUnique(values3) {
-  const [hashes, result] = [/* @__PURE__ */ new Set(), []];
-  for (const value2 of values3) {
-    const hash2 = Hash2(value2);
-    if (hashes.has(hash2))
-      continue;
-    hashes.add(hash2);
-    result.push(value2);
-  }
-  return result;
-}
-function FromArray16(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return value2;
-  const created = guard_exports.IsArray(value2) ? value2 : Create2(context5, type);
-  const minimum = IsMinItems(type) && created.length < type.minItems ? [...created, ...Array.from({ length: type.minItems - created.length }, () => Create2(context5, type))] : created;
-  const maximum = IsMaxItems(type) && minimum.length > type.maxItems ? minimum.slice(0, type.maxItems) : minimum;
-  const repaired = maximum.map((value3) => FromType20(context5, type.items, value3));
-  if (!IsUniqueItems(type) || IsUniqueItems(type) && !guard_exports.IsEqual(type.uniqueItems, true))
-    return repaired;
-  const unique = MakeUnique(repaired);
-  if (!Check2(context5, type, unique))
-    throw new RepairError(context5, type, value2, "Failed to repair Array due to uniqueItems constraint");
-  return unique;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-unknown.mjs
-function FromUnknown4(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return value2;
-  const converted = Convert(context5, type, value2);
-  if (Check2(context5, type, converted))
-    return converted;
-  return Create2(context5, type);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-base.mjs
-function FromBase5(context5, type, value2) {
-  return FromUnknown4(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-enum.mjs
-function FromEnum4(context5, type, value2) {
-  const union8 = EnumToUnion(type);
-  return FromType20(context5, union8, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-intersect.mjs
-function FromIntersect12(context5, type, value2) {
-  const evaluated = Evaluate(type);
-  return FromType20(context5, evaluated, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-object.mjs
-function FromObject19(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return value2;
-  if (!guard_exports.IsObjectNotArray(value2))
-    return Create2(context5, type);
-  const required = new Set(guard_exports.IsUndefined(type.required) ? [] : type.required);
-  const result = {};
-  for (const [key, schema] of guard_exports.Entries(type.properties)) {
-    if (!required.has(key) && guard_exports.IsUndefined(value2[key]))
-      continue;
-    result[key] = key in value2 ? FromType20(context5, schema, value2[key]) : Create2(context5, schema);
-  }
-  const evaluatedKeys = guard_exports.Keys(type.properties);
-  if (IsAdditionalProperties(type) && guard_exports.IsObject(type.additionalProperties)) {
-    for (const key of guard_exports.Keys(value2)) {
-      if (evaluatedKeys.includes(key))
-        continue;
-      result[key] = FromType20(context5, type.additionalProperties, value2[key]);
-    }
-  }
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-record.mjs
-function FromRecord8(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return value2;
-  if (guard_exports.IsNull(value2) || !guard_exports.IsObject(value2) || guard_exports.IsArray(value2))
-    return Create2(context5, type);
-  const recordKey = new RegExp(RecordPattern(type));
-  const recordValue2 = RecordValue(type);
-  const evaluatedKeys = /* @__PURE__ */ new Set();
-  const result = {};
-  for (const [key, value_] of guard_exports.Entries(value2)) {
-    if (!recordKey.test(key))
-      continue;
-    result[key] = FromType20(context5, recordValue2, value_);
-    evaluatedKeys.add(key);
-  }
-  if (IsAdditionalProperties(type)) {
-    for (const key of guard_exports.Keys(value2)) {
-      if (evaluatedKeys.has(key))
-        continue;
-      result[key] = FromType20(context5, type.additionalProperties, value2[key]);
-    }
-  }
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-ref.mjs
-function FromRef11(context5, type, value2) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType20(context5, context5[type.$ref], value2) : (() => {
-    throw new RepairError(context5, type, value2, "Unable to de-reference target type");
-  })();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-template-literal.mjs
-function FromTemplateLiteral6(context5, type, value2) {
-  const decoded = TemplateLiteralDecode(type.pattern);
-  return FromType20(context5, decoded, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-tuple.mjs
-function FromTuple11(context5, schema, value2) {
-  if (Check2(context5, schema, value2))
-    return value2;
-  if (!guard_exports.IsArray(value2))
-    return Create2(context5, schema);
-  return schema.items.map((schema2, index2) => FromType20(context5, schema2, value2[index2]));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-union.mjs
-function Deref(context5, type, value2) {
-  return IsRef(type) ? guard_exports.HasPropertyKey(context5, type.$ref) ? Deref(context5, context5[type.$ref], value2) : (() => {
-    throw new RepairError(context5, type, value2, "Unable to Deref target on Union repair");
-  })() : type;
-}
-function ScoreVariant(context5, type, value2) {
-  if (!(IsObject3(type) && guard_exports.IsObject(value2)))
-    return 0;
-  const keys5 = guard_exports.Keys(value2);
-  const entries2 = guard_exports.Entries(type.properties);
-  return entries2.reduce((result, [key, schema]) => {
-    const literal = IsLiteral(schema) && guard_exports.IsEqual(schema.const, value2[key]) ? 100 : 0;
-    const checks = Check2(context5, schema, value2[key]) ? 10 : 0;
-    const exists4 = keys5.includes(key) ? 1 : 0;
-    return result + (literal + checks + exists4);
-  }, 0);
-}
-function SelectVariant(context5, type, value2) {
-  const schemas = type.anyOf.map((schema) => Deref(context5, schema, value2));
-  let [select, best] = [schemas[0], 0];
-  for (const schema of schemas) {
-    const score = ScoreVariant(context5, schema, value2);
-    if (score > best) {
-      select = schema;
-      best = score;
-    }
-  }
-  return select;
-}
-function RepairUnion(context5, type, value2) {
-  const union8 = Union(Flatten(type.anyOf));
-  const schema = SelectVariant(context5, union8, value2);
-  return FromType20(context5, schema, value2);
-}
-function FromUnion15(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return Clone2(value2);
-  if (IsDefault(type))
-    return Create2(context5, type);
-  return RepairUnion(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-type.mjs
-function AssertRepairableValue(context5, type, value2) {
-  const unsupported = globals_exports.IsDate(value2) || globals_exports.IsMap(value2) || globals_exports.IsSet(value2) || globals_exports.IsTypeArray(value2) || guard_exports.IsConstructor(value2) || guard_exports.IsFunction(value2);
-  if (unsupported) {
-    throw new RepairError(context5, type, value2, "Value is not repairable");
-  }
-}
-function AssertRepairableType(context5, type, value2) {
-  const unsupported = IsAsyncIterator3(type) || IsIterator3(type) || IsConstructor3(type) || IsFunction3(type) || IsNever(type) || IsPromise(type);
-  if (unsupported) {
-    throw new RepairError(context5, type, value2, "Type is not repairable");
-  }
-}
-function FinalizeRepair(context5, type, repaired) {
-  return IsRefine(type) ? Check2(context5, type, repaired) ? repaired : Create2(context5, type) : repaired;
-}
-function FromType20(context5, type, value2) {
-  if (IsBase(type)) {
-    const repaired2 = FromBase5(context5, type, value2);
-    return FinalizeRepair(context5, type, repaired2);
-  }
-  AssertRepairableValue(context5, type, value2);
-  AssertRepairableType(context5, type, value2);
-  const repaired = IsArray3(type) ? FromArray16(context5, type, value2) : IsEnum(type) ? FromEnum4(context5, type, value2) : IsIntersect(type) ? FromIntersect12(context5, type, value2) : IsObject3(type) ? FromObject19(context5, type, value2) : IsRecord(type) ? FromRecord8(context5, type, value2) : IsRef(type) ? FromRef11(context5, type, value2) : IsTemplateLiteral(type) ? FromTemplateLiteral6(context5, type, value2) : IsTuple(type) ? FromTuple11(context5, type, value2) : IsUnion(type) ? FromUnion15(context5, type, value2) : FromUnknown4(context5, type, value2);
-  return FinalizeRepair(context5, type, repaired);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/repair.mjs
-function Repair(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  const repaired = FromType20(context5, type, value2);
-  Assert(context5, type, repaired);
-  return repaired;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/value.mjs
-var value_exports = {};
-__export(value_exports, {
-  Assert: () => Assert,
-  Check: () => Check2,
-  Clean: () => Clean,
-  Clone: () => Clone2,
-  Convert: () => Convert,
-  Create: () => Create2,
-  Decode: () => Decode9,
-  Default: () => Default,
-  Diff: () => Diff,
-  Encode: () => Encode9,
-  Equal: () => Equal,
-  Errors: () => Errors2,
-  HasCodec: () => HasCodec,
-  Hash: () => Hash2,
-  Mutate: () => Mutate,
-  Parse: () => Parse,
-  Patch: () => Patch,
-  Pointer: () => pointer_exports,
-  Repair: () => Repair
-});
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/compile/validator.mjs
-var Validator = class _Validator extends Base {
-  /** Constructs a Validator. */
-  constructor(...args2) {
-    super();
-    const matched = arguments_exports.Match(args2, {
-      6: (context5, type, isEvalulated, hasCodec, code, check2) => [context5, type, isEvalulated, hasCodec, code, check2],
-      2: (context5, type) => [context5, type]
-    });
-    if (matched.length === 6) {
-      const [context5, type, isEvaluated, hasCodec, code, check2] = matched;
-      this.context = context5;
-      this.type = type;
-      this.isEvaluated = isEvaluated;
-      this.hasCodec = hasCodec;
-      this.code = code;
-      this.check = check2;
-    } else {
-      const [context5, type] = matched;
-      const result = Build(context5, type).Evaluate();
-      this.hasCodec = HasCodec(context5, type);
-      this.context = context5;
-      this.type = type;
-      this.isEvaluated = result.IsEvaluated;
-      this.code = result.Code;
-      this.check = result.Check;
-    }
-  }
-  // ----------------------------------------------------------------
-  // IsEvaluated
-  // ----------------------------------------------------------------
-  /** Returns true if this validator is using runtime eval optimizations. */
-  IsEvaluated() {
-    return this.isEvaluated;
-  }
-  // ----------------------------------------------------------------
-  // Context | Type
-  // ----------------------------------------------------------------
-  /** Returns the Context for this validator. */
-  Context() {
-    return this.context;
-  }
-  /** Returns the Type for this validator. */
-  Type() {
-    return this.type;
-  }
-  // ----------------------------------------------------------------
-  // Code
-  // ----------------------------------------------------------------
-  /** Returns the generated code for this validator. */
-  Code() {
-    return this.code;
-  }
-  // ----------------------------------------------------------------
-  // Base<...>
-  // ----------------------------------------------------------------
-  /** Checks a value matches the Validator type. */
-  Check(value2) {
-    return this.check(value2);
-  }
-  /** Returns errors for the given value. */
-  Errors(value2) {
-    if (environment_exports.CanEvaluate() && this.check(value2))
-      return [];
-    return Errors2(this.context, this.type, value2);
-  }
-  /** Cleans a value using the Validator type. */
-  Clean(value2) {
-    return Clean(this.context, this.type, value2);
-  }
-  /** Converts a value using the Validator type. */
-  Convert(value2) {
-    return Convert(this.context, this.type, value2);
-  }
-  /** Creates a value using the Validator type. */
-  Create() {
-    return Create2(this.context, this.type);
-  }
-  /** Creates defaults using the Validator type. */
-  Default(value2) {
-    return Default(this.context, this.type, value2);
-  }
-  /** Clones this validator. */
-  Clone() {
-    return new _Validator(this.context, this.type, this.isEvaluated, this.hasCodec, this.code, this.check);
-  }
-  // ----------------------------------------------------------------
-  // Parse | Decode | Encode
-  // ----------------------------------------------------------------
-  /** Parses a value */
-  Parse(value2) {
-    const result = this.Check(value2) ? value2 : Parser(this.context, this.type, value2);
-    return result;
-  }
-  /** Decodes a value */
-  Decode(value2) {
-    const result = this.hasCodec ? Decode9(this.context, this.type, value2) : this.Parse(value2);
-    return result;
-  }
-  /** Encodes a value */
-  Encode(value2) {
-    const result = this.hasCodec ? Encode9(this.context, this.type, value2) : this.Parse(value2);
-    return result;
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/compile/compile.mjs
-function Compile(...args2) {
-  const [context5, type] = arguments_exports.Match(args2, {
-    2: (context6, type2) => [context6, type2],
-    1: (type2) => [{}, type2]
-  });
-  return new Validator(context5, type);
-}
-
 // ../../node_modules/.bun/@orpc+shared@1.14.4/node_modules/@orpc/shared/dist/index.mjs
 function resolveMaybeOptionalOptions(rest) {
   return rest[0] ?? {};
@@ -18484,7 +14280,7 @@ var fiberInterruptAll = (fibers) => suspend2(() => {
   });
   return wait;
 });
-var identifier2 = /* @__PURE__ */ Symbol.for("effect/Micro/identifier");
+var identifier = /* @__PURE__ */ Symbol.for("effect/Micro/identifier");
 var args = /* @__PURE__ */ Symbol.for("effect/Micro/args");
 var evaluate = /* @__PURE__ */ Symbol.for("effect/Micro/evaluate");
 var successCont = /* @__PURE__ */ Symbol.for("effect/Micro/successCont");
@@ -18509,7 +14305,7 @@ var MicroProto = {
   toJSON() {
     return {
       _id: "Micro",
-      op: this[identifier2],
+      op: this[identifier],
       ...args in this ? {
         args: this[args]
       } : void 0
@@ -18527,7 +14323,7 @@ function defaultEvaluate(_fiber) {
 }
 var makePrimitiveProto = (options) => ({
   ...MicroProto,
-  [identifier2]: options.op,
+  [identifier]: options.op,
   [evaluate]: options.eval ?? defaultEvaluate,
   [successCont]: options.contA,
   [failureCont]: options.contE,
@@ -26460,6 +22256,4210 @@ var TypeId16 = TypeId15;
 var isManagedRuntime2 = isManagedRuntime;
 var make40 = make39;
 
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/_guard.mjs
+function IsGuardInterface(value2) {
+  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, "check") && guard_exports.HasPropertyKey(value2, "errors") && guard_exports.IsFunction(value2.check) && guard_exports.IsFunction(value2.errors);
+}
+function IsGuard2(value2) {
+  return guard_exports.HasPropertyKey(value2, "~guard") && IsGuardInterface(value2["~guard"]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/_refine.mjs
+function IsRefine2(value2) {
+  return guard_exports.HasPropertyKey(value2, "~refine") && guard_exports.IsArray(value2["~refine"]) && guard_exports.Every(value2["~refine"], 0, (value3) => guard_exports.IsObject(value3) && guard_exports.HasPropertyKey(value3, "refine") && guard_exports.HasPropertyKey(value3, "message") && guard_exports.IsFunction(value3.refine) && guard_exports.IsString(value3.message));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/schema.mjs
+function IsSchemaObject(value2) {
+  return guard_exports.IsObject(value2) && !guard_exports.IsArray(value2);
+}
+function IsBooleanSchema(value2) {
+  return guard_exports.IsBoolean(value2);
+}
+function IsSchema2(value2) {
+  return IsSchemaObject(value2) || IsBooleanSchema(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/additionalItems.mjs
+function IsAdditionalItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "additionalItems") && IsSchema2(schema.additionalItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/additionalProperties.mjs
+function IsAdditionalProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "additionalProperties") && IsSchema2(schema.additionalProperties);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/allOf.mjs
+function IsAllOf(schema) {
+  return guard_exports.HasPropertyKey(schema, "allOf") && guard_exports.IsArray(schema.allOf) && schema.allOf.every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/anchor.mjs
+function IsAnchor(schema) {
+  return guard_exports.HasPropertyKey(schema, "$anchor") && guard_exports.IsString(schema.$anchor);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/anyOf.mjs
+function IsAnyOf(schema) {
+  return guard_exports.HasPropertyKey(schema, "anyOf") && guard_exports.IsArray(schema.anyOf) && schema.anyOf.every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/const.mjs
+function IsConst(value2) {
+  return guard_exports.HasPropertyKey(value2, "const");
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/contains.mjs
+function IsContains(schema) {
+  return guard_exports.HasPropertyKey(schema, "contains") && IsSchema2(schema.contains);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/default.mjs
+function IsDefault(schema) {
+  return guard_exports.HasPropertyKey(schema, "default");
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependencies.mjs
+function IsDependencies(schema) {
+  return guard_exports.HasPropertyKey(schema, "dependencies") && guard_exports.IsObject(schema.dependencies) && Object.values(schema.dependencies).every((value2) => IsSchema2(value2) || guard_exports.IsArray(value2) && value2.every((value3) => guard_exports.IsString(value3)));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependentRequired.mjs
+function IsDependentRequired(schema) {
+  return guard_exports.HasPropertyKey(schema, "dependentRequired") && guard_exports.IsObject(schema.dependentRequired) && Object.values(schema.dependentRequired).every((value2) => guard_exports.IsArray(value2) && value2.every((value3) => guard_exports.IsString(value3)));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependentSchemas.mjs
+function IsDependentSchemas(schema) {
+  return guard_exports.HasPropertyKey(schema, "dependentSchemas") && guard_exports.IsObject(schema.dependentSchemas) && Object.values(schema.dependentSchemas).every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dynamicAnchor.mjs
+function IsDynamicAnchor(schema) {
+  return guard_exports.HasPropertyKey(schema, "$dynamicAnchor") && guard_exports.IsString(schema.$dynamicAnchor);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/else.mjs
+function IsElse(schema) {
+  return guard_exports.HasPropertyKey(schema, "else") && IsSchema2(schema.else);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/enum.mjs
+function IsEnum2(schema) {
+  return guard_exports.HasPropertyKey(schema, "enum") && guard_exports.IsArray(schema.enum);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/exclusiveMaximum.mjs
+function IsExclusiveMaximum(schema) {
+  return guard_exports.HasPropertyKey(schema, "exclusiveMaximum") && (guard_exports.IsNumber(schema.exclusiveMaximum) || guard_exports.IsBigInt(schema.exclusiveMaximum));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/exclusiveMinimum.mjs
+function IsExclusiveMinimum(schema) {
+  return guard_exports.HasPropertyKey(schema, "exclusiveMinimum") && (guard_exports.IsNumber(schema.exclusiveMinimum) || guard_exports.IsBigInt(schema.exclusiveMinimum));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/format.mjs
+function IsFormat(schema) {
+  return guard_exports.HasPropertyKey(schema, "format") && guard_exports.IsString(schema.format);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/id.mjs
+function IsId(schema) {
+  return guard_exports.HasPropertyKey(schema, "$id") && guard_exports.IsString(schema.$id);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/if.mjs
+function IsIf(schema) {
+  return guard_exports.HasPropertyKey(schema, "if") && IsSchema2(schema.if);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/items.mjs
+function IsItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "items") && (IsSchema2(schema.items) || guard_exports.IsArray(schema.items) && schema.items.every((value2) => {
+    return IsSchema2(value2);
+  }));
+}
+function IsItemsSized(schema) {
+  return IsItems(schema) && guard_exports.IsArray(schema.items);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maximum.mjs
+function IsMaximum(schema) {
+  return guard_exports.HasPropertyKey(schema, "maximum") && (guard_exports.IsNumber(schema.maximum) || guard_exports.IsBigInt(schema.maximum));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxContains.mjs
+function IsMaxContains(schema) {
+  return guard_exports.HasPropertyKey(schema, "maxContains") && guard_exports.IsNumber(schema.maxContains);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxItems.mjs
+function IsMaxItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "maxItems") && guard_exports.IsNumber(schema.maxItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxLength.mjs
+function IsMaxLength4(schema) {
+  return guard_exports.HasPropertyKey(schema, "maxLength") && guard_exports.IsNumber(schema.maxLength);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxProperties.mjs
+function IsMaxProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "maxProperties") && guard_exports.IsNumber(schema.maxProperties);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minimum.mjs
+function IsMinimum(schema) {
+  return guard_exports.HasPropertyKey(schema, "minimum") && (guard_exports.IsNumber(schema.minimum) || guard_exports.IsBigInt(schema.minimum));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minContains.mjs
+function IsMinContains(schema) {
+  return guard_exports.HasPropertyKey(schema, "minContains") && guard_exports.IsNumber(schema.minContains);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minItems.mjs
+function IsMinItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "minItems") && guard_exports.IsNumber(schema.minItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minLength.mjs
+function IsMinLength4(schema) {
+  return guard_exports.HasPropertyKey(schema, "minLength") && guard_exports.IsNumber(schema.minLength);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minProperties.mjs
+function IsMinProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "minProperties") && guard_exports.IsNumber(schema.minProperties);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/multipleOf.mjs
+function IsMultipleOf2(schema) {
+  return guard_exports.HasPropertyKey(schema, "multipleOf") && (guard_exports.IsNumber(schema.multipleOf) || guard_exports.IsBigInt(schema.multipleOf));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/not.mjs
+function IsNot(schema) {
+  return guard_exports.HasPropertyKey(schema, "not") && IsSchema2(schema.not);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/oneOf.mjs
+function IsOneOf(schema) {
+  return guard_exports.HasPropertyKey(schema, "oneOf") && guard_exports.IsArray(schema.oneOf) && schema.oneOf.every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/pattern.mjs
+function IsPattern(schema) {
+  return guard_exports.HasPropertyKey(schema, "pattern") && (guard_exports.IsString(schema.pattern) || schema.pattern instanceof RegExp);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/patternProperties.mjs
+function IsPatternProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "patternProperties") && guard_exports.IsObject(schema.patternProperties) && Object.values(schema.patternProperties).every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/prefixItems.mjs
+function IsPrefixItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "prefixItems") && guard_exports.IsArray(schema.prefixItems) && schema.prefixItems.every((schema2) => IsSchema2(schema2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/properties.mjs
+function IsProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "properties") && guard_exports.IsObject(schema.properties) && Object.values(schema.properties).every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/propertyNames.mjs
+function IsPropertyNames(schema) {
+  return guard_exports.HasPropertyKey(schema, "propertyNames") && (guard_exports.IsObject(schema.propertyNames) || IsSchema2(schema.propertyNames));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/recursiveAnchor.mjs
+function IsRecursiveAnchor(schema) {
+  return guard_exports.HasPropertyKey(schema, "$recursiveAnchor") && guard_exports.IsBoolean(schema.$recursiveAnchor);
+}
+function IsRecursiveAnchorTrue(schema) {
+  return IsRecursiveAnchor(schema) && guard_exports.IsEqual(schema.$recursiveAnchor, true);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/recursiveRef.mjs
+function IsRecursiveRef(schema) {
+  return guard_exports.HasPropertyKey(schema, "$recursiveRef") && guard_exports.IsString(schema.$recursiveRef);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/ref.mjs
+function IsRef2(schema) {
+  return guard_exports.HasPropertyKey(schema, "$ref") && guard_exports.IsString(schema.$ref);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/required.mjs
+function IsRequired(schema) {
+  return guard_exports.HasPropertyKey(schema, "required") && guard_exports.IsArray(schema.required) && schema.required.every((value2) => guard_exports.IsString(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/then.mjs
+function IsThen(schema) {
+  return guard_exports.HasPropertyKey(schema, "then") && IsSchema2(schema.then);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/type.mjs
+function IsType(schema) {
+  return guard_exports.HasPropertyKey(schema, "type") && (guard_exports.IsString(schema.type) || guard_exports.IsArray(schema.type) && schema.type.every((value2) => guard_exports.IsString(value2)));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/uniqueItems.mjs
+function IsUniqueItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "uniqueItems") && guard_exports.IsBoolean(schema.uniqueItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/unevaluatedItems.mjs
+function IsUnevaluatedItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "unevaluatedItems") && IsSchema2(schema.unevaluatedItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/unevaluatedProperties.mjs
+function IsUnevaluatedProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "unevaluatedProperties") && IsSchema2(schema.unevaluatedProperties);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_context.mjs
+function HasUnevaluatedFromObject(value2) {
+  return IsUnevaluatedItems(value2) || IsUnevaluatedProperties(value2) || guard_exports.Keys(value2).some((key) => HasUnevaluatedFromUnknown(value2[key]));
+}
+function HasUnevaluatedFromArray(value2) {
+  return value2.some((value3) => HasUnevaluatedFromUnknown(value3));
+}
+function HasUnevaluatedFromUnknown(value2) {
+  return guard_exports.IsArray(value2) ? HasUnevaluatedFromArray(value2) : guard_exports.IsObject(value2) ? HasUnevaluatedFromObject(value2) : false;
+}
+function HasUnevaluated(context5, schema) {
+  return HasUnevaluatedFromUnknown(schema) || guard_exports.Keys(context5).some((key) => HasUnevaluatedFromUnknown(context5[key]));
+}
+var BuildContext = class {
+  constructor(hasUnevaluated) {
+    this.hasUnevaluated = hasUnevaluated;
+  }
+  UseUnevaluated() {
+    return this.hasUnevaluated;
+  }
+  AddIndex(index2) {
+    return emit_exports.Call(emit_exports.Member("context", "AddIndex"), [index2]);
+  }
+  AddKey(key) {
+    return emit_exports.Call(emit_exports.Member("context", "AddKey"), [key]);
+  }
+  Merge(results) {
+    return emit_exports.Call(emit_exports.Member("context", "Merge"), [results]);
+  }
+};
+var CheckContext = class {
+  constructor() {
+    this.indices = /* @__PURE__ */ new Set();
+    this.keys = /* @__PURE__ */ new Set();
+  }
+  AddIndex(index2) {
+    this.indices.add(index2);
+    return true;
+  }
+  AddKey(key) {
+    this.keys.add(key);
+    return true;
+  }
+  GetIndices() {
+    return this.indices;
+  }
+  GetKeys() {
+    return this.keys;
+  }
+  Merge(results) {
+    for (const context5 of results) {
+      context5.indices.forEach((value2) => this.indices.add(value2));
+      context5.keys.forEach((value2) => this.keys.add(value2));
+    }
+    return true;
+  }
+};
+var ErrorContext = class extends CheckContext {
+  constructor(callback) {
+    super();
+    this.callback = callback;
+  }
+  AddError(error) {
+    this.callback(error);
+    return false;
+  }
+};
+var AccumulatedErrorContext = class extends ErrorContext {
+  constructor() {
+    super((error) => this.errors.push(error));
+    this.errors = [];
+  }
+  AddError(error) {
+    this.errors.push(error);
+    return false;
+  }
+  GetErrors() {
+    return this.errors;
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_externals.mjs
+var identifier2 = "external_";
+var resetCount = 0;
+var state = {
+  identifier: `${identifier2}${resetCount}`,
+  variables: []
+};
+function ResetExternal() {
+  state.identifier = `${identifier2}${resetCount}`;
+  state.variables = [];
+  resetCount += 1;
+}
+function CreateVariable(value2) {
+  const call2 = `${state.identifier}[${state.variables.length}]`;
+  state.variables.push(value2);
+  return call2;
+}
+function GetExternal() {
+  return state;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_guard.mjs
+function BuildGuard(stack, context5, schema, value2) {
+  return emit_exports.Call(emit_exports.Member(emit_exports.Member(CreateVariable(schema), "~guard"), "check"), [value2]);
+}
+function CheckGuard(stack, context5, schema, value2) {
+  return schema["~guard"].check(value2);
+}
+function ErrorGuard(stack, context5, schemaPath, instancePath, schema, value2) {
+  return schema["~guard"].check(value2) || context5.AddError({
+    keyword: "~guard",
+    schemaPath,
+    instancePath,
+    params: { errors: schema["~guard"].errors(value2) }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_refine.mjs
+function BuildRefine(stack, context5, schema, value2) {
+  const refinements = CreateVariable(schema["~refine"].map((refinement) => refinement));
+  return emit_exports.Every(refinements, emit_exports.Constant(0), ["refinement", "_"], emit_exports.Call(emit_exports.Member("refinement", "refine"), [value2]));
+}
+function CheckRefine(stack, context5, schema, value2) {
+  return guard_exports.Every(schema["~refine"], 0, (refinement, _) => refinement.refine(value2));
+}
+function ErrorRefine(stack, context5, schemaPath, instancePath, schema, value2) {
+  return guard_exports.EveryAll(schema["~refine"], 0, (refinement, index2) => {
+    return refinement.refine(value2) || context5.AddError({
+      keyword: "~refine",
+      schemaPath,
+      instancePath,
+      params: { index: index2, message: refinement.message }
+    });
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_unique.mjs
+var index = 0;
+function Unique() {
+  return `var_${index++}`;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/additionalItems.mjs
+function IsValid(schema) {
+  return IsItems(schema) && guard_exports.IsArray(schema.items);
+}
+function BuildAdditionalItems(stack, context5, schema, value2) {
+  if (!IsValid(schema))
+    return emit_exports.Constant(true);
+  const [item, index2] = [Unique(), Unique()];
+  const isSchema = BuildSchema(stack, context5, schema.additionalItems, item);
+  const isLength = emit_exports.IsLessThan(index2, emit_exports.Constant(schema.items.length));
+  const addIndex = context5.AddIndex(index2);
+  const guarded = context5.UseUnevaluated() ? emit_exports.Or(isLength, emit_exports.And(isSchema, addIndex)) : emit_exports.Or(isLength, isSchema);
+  return emit_exports.Call(emit_exports.Member(value2, "every"), [emit_exports.ArrowFunction([item, index2], guarded)]);
+}
+function CheckAdditionalItems(stack, context5, schema, value2) {
+  if (!IsValid(schema))
+    return true;
+  const isAdditionalItems = value2.every((item, index2) => {
+    return guard_exports.IsLessThan(index2, schema.items.length) || CheckSchema(stack, context5, schema.additionalItems, item) && context5.AddIndex(index2);
+  });
+  return isAdditionalItems;
+}
+function ErrorAdditionalItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  if (!IsValid(schema))
+    return true;
+  const isAdditionalItems = value2.every((item, index2) => {
+    const nextSchemaPath = `${schemaPath}/additionalItems`;
+    const nextInstancePath = `${instancePath}/${index2}`;
+    return guard_exports.IsLessThan(index2, schema.items.length) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema.additionalItems, item) && context5.AddIndex(index2);
+  });
+  return isAdditionalItems;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/additionalProperties.mjs
+function GetPropertyKeyAsPattern(key) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return `^${escaped}$`;
+}
+function GetPropertiesPattern(schema) {
+  const patterns = [];
+  if (IsPatternProperties(schema))
+    patterns.push(...guard_exports.Keys(schema.patternProperties));
+  if (IsProperties(schema))
+    patterns.push(...guard_exports.Keys(schema.properties).map(GetPropertyKeyAsPattern));
+  return guard_exports.IsEqual(patterns.length, 0) ? "(?!)" : `(${patterns.join("|")})`;
+}
+function CanAdditionalPropertiesFast(context5, schema, value2) {
+  return IsRequired(schema) && IsProperties(schema) && !IsPatternProperties(schema) && guard_exports.IsEqual(schema.additionalProperties, false) && guard_exports.IsEqual(guard_exports.Keys(schema.properties).length, schema.required.length);
+}
+function BuildAdditionalPropertiesFast(context5, schema, value2) {
+  return emit_exports.IsEqual(emit_exports.Member(emit_exports.Call(emit_exports.Member("Object", "getOwnPropertyNames"), [value2]), "length"), emit_exports.Constant(schema.required.length));
+}
+function BuildAdditionalPropertiesStandard(stack, context5, schema, value2) {
+  const [key, _index] = [Unique(), Unique()];
+  const regexp = CreateVariable(new RegExp(GetPropertiesPattern(schema)));
+  const isSchema = BuildSchema(stack, context5, schema.additionalProperties, `${value2}[${key}]`);
+  const isKey = emit_exports.Call(emit_exports.Member(regexp, "test"), [key]);
+  const addKey = context5.AddKey(key);
+  const guarded = context5.UseUnevaluated() ? emit_exports.Or(isKey, emit_exports.And(isSchema, addKey)) : emit_exports.Or(isKey, isSchema);
+  const result = emit_exports.Every(emit_exports.Keys(value2), emit_exports.Constant(0), [key, _index], guarded);
+  return result;
+}
+function BuildAdditionalProperties(stack, context5, schema, value2) {
+  return CanAdditionalPropertiesFast(context5, schema, value2) ? BuildAdditionalPropertiesFast(context5, schema, value2) : BuildAdditionalPropertiesStandard(stack, context5, schema, value2);
+}
+function CheckAdditionalProperties(stack, context5, schema, value2) {
+  const regexp = new RegExp(GetPropertiesPattern(schema));
+  const isAdditionalProperties = guard_exports.Every(guard_exports.Keys(value2), 0, (key, _index) => {
+    return regexp.test(key) || CheckSchema(stack, context5, schema.additionalProperties, value2[key]) && context5.AddKey(key);
+  });
+  return isAdditionalProperties;
+}
+function ErrorAdditionalProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  const regexp = new RegExp(GetPropertiesPattern(schema));
+  const additionalProperties = [];
+  const isAdditionalProperties = guard_exports.EveryAll(guard_exports.Keys(value2), 0, (key, _index) => {
+    const nextSchemaPath = `${schemaPath}/additionalProperties`;
+    const nextInstancePath = `${instancePath}/${key}`;
+    const nextContext = new AccumulatedErrorContext();
+    const isAdditionalProperty = regexp.test(key) || ErrorSchema(stack, nextContext, nextSchemaPath, nextInstancePath, schema.additionalProperties, value2[key]) && context5.AddKey(key);
+    if (!isAdditionalProperty)
+      additionalProperties.push(key);
+    return isAdditionalProperty;
+  });
+  return isAdditionalProperties || context5.AddError({
+    keyword: "additionalProperties",
+    schemaPath,
+    instancePath,
+    params: { additionalProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_reducer.mjs
+function Reducer(stack, context5, schemas, value2, check2) {
+  const results = emit_exports.ConstDeclaration("results", "[]");
+  const context_n = schemas.map((_schema, index2) => emit_exports.ConstDeclaration(`context_${index2}`, emit_exports.New("CheckContext", [])));
+  const condition_n = schemas.map((schema, index2) => emit_exports.ConstDeclaration(`condition_${index2}`, emit_exports.Call(emit_exports.ArrowFunction(["context"], BuildSchema(stack, context5, schema, value2)), [`context_${index2}`])));
+  const checks = schemas.map((_schema, index2) => emit_exports.If(`condition_${index2}`, emit_exports.Call(emit_exports.Member("results", "push"), [`context_${index2}`])));
+  const returns = emit_exports.Return(emit_exports.And(check2, context5.Merge("results")));
+  return emit_exports.Call(emit_exports.ArrowFunction([], emit_exports.Statements([results, ...context_n, ...condition_n, ...checks, returns])), []);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/allOf.mjs
+function BuildAllOfStandard(stack, context5, schema, value2) {
+  return Reducer(stack, context5, schema.allOf, value2, emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(schema.allOf.length)));
+}
+function BuildAllOfFast(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(schema.allOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
+}
+function BuildAllOf(stack, context5, schema, value2) {
+  return context5.UseUnevaluated() ? BuildAllOfStandard(stack, context5, schema, value2) : BuildAllOfFast(stack, context5, schema, value2);
+}
+function CheckAllOf(stack, context5, schema, value2) {
+  const results = schema.allOf.reduce((result, schema2) => {
+    const nextContext = new CheckContext();
+    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
+  }, []);
+  return guard_exports.IsEqual(results.length, schema.allOf.length) && context5.Merge(results);
+}
+function ErrorAllOf(stack, context5, schemaPath, instancePath, schema, value2) {
+  const failedContexts = [];
+  const results = schema.allOf.reduce((result, schema2, index2) => {
+    const nextSchemaPath = `${schemaPath}/allOf/${index2}`;
+    const nextContext = new AccumulatedErrorContext();
+    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
+    if (!isSchema)
+      failedContexts.push(nextContext);
+    return isSchema ? [...result, nextContext] : result;
+  }, []);
+  const isAllOf = guard_exports.IsEqual(results.length, schema.allOf.length) && context5.Merge(results);
+  if (!isAllOf)
+    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
+  return isAllOf;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/anyOf.mjs
+function BuildAnyOfStandard(stack, context5, schema, value2) {
+  return Reducer(stack, context5, schema.anyOf, value2, emit_exports.IsGreaterThan(emit_exports.Member("results", "length"), emit_exports.Constant(0)));
+}
+function BuildAnyOfFast(stack, context5, schema, value2) {
+  return emit_exports.ReduceOr(schema.anyOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
+}
+function BuildAnyOf(stack, context5, schema, value2) {
+  return context5.UseUnevaluated() ? BuildAnyOfStandard(stack, context5, schema, value2) : BuildAnyOfFast(stack, context5, schema, value2);
+}
+function CheckAnyOf(stack, context5, schema, value2) {
+  const results = schema.anyOf.reduce((result, schema2, index2) => {
+    const nextContext = new CheckContext();
+    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
+  }, []);
+  return guard_exports.IsGreaterThan(results.length, 0) && context5.Merge(results);
+}
+function ErrorAnyOf(stack, context5, schemaPath, instancePath, schema, value2) {
+  const failedContexts = [];
+  const results = schema.anyOf.reduce((result, schema2, index2) => {
+    const nextContext = new AccumulatedErrorContext();
+    const nextSchemaPath = `${schemaPath}/anyOf/${index2}`;
+    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
+    if (!isSchema)
+      failedContexts.push(nextContext);
+    return isSchema ? [...result, nextContext] : result;
+  }, []);
+  const isAnyOf = guard_exports.IsGreaterThan(results.length, 0) && context5.Merge(results);
+  if (!isAnyOf)
+    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
+  return isAnyOf || context5.AddError({
+    keyword: "anyOf",
+    schemaPath,
+    instancePath,
+    params: {}
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/boolean.mjs
+function BuildBooleanSchema(stack, context5, schema, value2) {
+  return schema ? emit_exports.Constant(true) : emit_exports.Constant(false);
+}
+function CheckBooleanSchema(stack, context5, schema, value2) {
+  return schema;
+}
+function ErrorBooleanSchema(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckBooleanSchema(stack, context5, schema, value2) || context5.AddError({
+    keyword: "boolean",
+    schemaPath,
+    instancePath,
+    params: {}
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/const.mjs
+function BuildConst(stack, context5, schema, value2) {
+  return guard_exports.IsValueLike(schema.const) ? emit_exports.IsEqual(value2, emit_exports.Constant(schema.const)) : emit_exports.IsDeepEqual(value2, CreateVariable(schema.const));
+}
+function CheckConst(stack, context5, schema, value2) {
+  return guard_exports.IsValueLike(schema.const) ? guard_exports.IsEqual(value2, schema.const) : guard_exports.IsDeepEqual(value2, schema.const);
+}
+function ErrorConst(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckConst(stack, context5, schema, value2) || context5.AddError({
+    keyword: "const",
+    schemaPath,
+    instancePath,
+    params: { allowedValue: schema.const }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/contains.mjs
+function IsValid2(schema) {
+  return !(IsMinContains(schema) && guard_exports.IsEqual(schema.minContains, 0));
+}
+function BuildContains(stack, context5, schema, value2) {
+  if (!IsValid2(schema))
+    return emit_exports.Constant(true);
+  const item = Unique();
+  const isLength = emit_exports.Not(emit_exports.IsEqual(emit_exports.Member(value2, "length"), emit_exports.Constant(0)));
+  const isSome3 = emit_exports.Call(emit_exports.Member(value2, "some"), [emit_exports.ArrowFunction([item], BuildSchema(stack, context5, schema.contains, item))]);
+  return emit_exports.And(isLength, isSome3);
+}
+function CheckContains(stack, context5, schema, value2) {
+  if (!IsValid2(schema))
+    return true;
+  return !guard_exports.IsEqual(value2.length, 0) && value2.some((item) => CheckSchema(stack, context5, schema.contains, item));
+}
+function ErrorContains(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckContains(stack, context5, schema, value2) || context5.AddError({
+    keyword: "contains",
+    schemaPath,
+    instancePath,
+    params: { minContains: 1 }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependencies.mjs
+function BuildDependencies(stack, context5, schema, value2) {
+  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
+  const isEveryDependency = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependencies).map(([key, schema2]) => {
+    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
+    const isSchema = BuildSchema(stack, context5, schema2, value2);
+    const isEveryKey = (schema3) => emit_exports.ReduceAnd(schema3.map((key2) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key2))));
+    return emit_exports.Or(notKey, guard_exports.IsArray(schema2) ? isEveryKey(schema2) : isSchema);
+  }));
+  return emit_exports.Or(isLength, isEveryDependency);
+}
+function CheckDependencies(stack, context5, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependencies), 0, ([key, schema2]) => {
+    return !guard_exports.HasPropertyKey(value2, key) || (guard_exports.IsArray(schema2) ? schema2.every((key2) => guard_exports.HasPropertyKey(value2, key2)) : CheckSchema(stack, context5, schema2, value2));
+  });
+  return isLength || isEvery;
+}
+function ErrorDependencies(stack, context5, schemaPath, instancePath, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.EveryAll(guard_exports.Entries(schema.dependencies), 0, ([key, schema2]) => {
+    const nextSchemaPath = `${schemaPath}/dependencies/${key}`;
+    return !guard_exports.HasPropertyKey(value2, key) || (guard_exports.IsArray(schema2) ? schema2.every((dependency) => guard_exports.HasPropertyKey(value2, dependency) || context5.AddError({
+      keyword: "dependencies",
+      schemaPath,
+      instancePath,
+      params: { property: key, dependencies: schema2 }
+    })) : ErrorSchema(stack, context5, nextSchemaPath, instancePath, schema2, value2));
+  });
+  return isLength || isEvery;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependentRequired.mjs
+function BuildDependentRequired(stack, context5, schema, value2) {
+  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
+  const isEvery = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependentRequired).map(([key, keys5]) => {
+    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
+    const everyKey = emit_exports.ReduceAnd(keys5.map((key2) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key2))));
+    return emit_exports.Or(notKey, everyKey);
+  }));
+  return emit_exports.Or(isLength, isEvery);
+}
+function CheckDependentRequired(stack, context5, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependentRequired), 0, ([key, keys5]) => {
+    return !guard_exports.HasPropertyKey(value2, key) || keys5.every((key2) => guard_exports.HasPropertyKey(value2, key2));
+  });
+  return isLength || isEvery;
+}
+function ErrorDependentRequired(stack, context5, schemaPath, instancePath, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEveryEntry = guard_exports.EveryAll(guard_exports.Entries(schema.dependentRequired), 0, ([key, keys5]) => {
+    return !guard_exports.HasPropertyKey(value2, key) || guard_exports.EveryAll(keys5, 0, (dependency) => guard_exports.HasPropertyKey(value2, dependency) || context5.AddError({
+      keyword: "dependentRequired",
+      schemaPath,
+      instancePath,
+      params: { property: key, dependencies: keys5 }
+    }));
+  });
+  return isLength || isEveryEntry;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependentSchemas.mjs
+function BuildDependentSchemas(stack, context5, schema, value2) {
+  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
+  const isEvery = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependentSchemas).map(([key, schema2]) => {
+    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
+    const isSchema = BuildSchema(stack, context5, schema2, value2);
+    return emit_exports.Or(notKey, isSchema);
+  }));
+  return emit_exports.Or(isLength, isEvery);
+}
+function CheckDependentSchemas(stack, context5, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependentSchemas), 0, ([key, schema2]) => {
+    return !guard_exports.HasPropertyKey(value2, key) || CheckSchema(stack, context5, schema2, value2);
+  });
+  return isLength || isEvery;
+}
+function ErrorDependentSchemas(stack, context5, schemaPath, instancePath, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.EveryAll(guard_exports.Entries(schema.dependentSchemas), 0, ([key, schema2]) => {
+    const nextSchemaPath = `${schemaPath}/dependentSchemas/${key}`;
+    return !guard_exports.HasPropertyKey(value2, key) || ErrorSchema(stack, context5, nextSchemaPath, instancePath, schema2, value2);
+  });
+  return isLength || isEvery;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/enum.mjs
+function BuildEnum(stack, context5, schema, value2) {
+  return emit_exports.ReduceOr(schema.enum.map((option3) => {
+    if (guard_exports.IsValueLike(option3))
+      return emit_exports.IsEqual(value2, emit_exports.Constant(option3));
+    const variable = CreateVariable(option3);
+    return emit_exports.IsDeepEqual(value2, variable);
+  }));
+}
+function CheckEnum(stack, context5, schema, value2) {
+  return schema.enum.some((option3) => guard_exports.IsValueLike(option3) ? guard_exports.IsEqual(value2, option3) : guard_exports.IsDeepEqual(value2, option3));
+}
+function ErrorEnum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckEnum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "enum",
+    schemaPath,
+    instancePath,
+    params: { allowedValues: schema.enum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/exclusiveMaximum.mjs
+function BuildExclusiveMaximum(stack, context5, schema, value2) {
+  return emit_exports.IsLessThan(value2, emit_exports.Constant(schema.exclusiveMaximum));
+}
+function CheckExclusiveMaximum(stack, context5, schema, value2) {
+  return guard_exports.IsLessThan(value2, schema.exclusiveMaximum);
+}
+function ErrorExclusiveMaximum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckExclusiveMaximum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "exclusiveMaximum",
+    schemaPath,
+    instancePath,
+    params: { comparison: "<", limit: schema.exclusiveMaximum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/exclusiveMinimum.mjs
+function BuildExclusiveMinimum(stack, context5, schema, value2) {
+  return emit_exports.IsGreaterThan(value2, emit_exports.Constant(schema.exclusiveMinimum));
+}
+function CheckExclusiveMinimum(stack, context5, schema, value2) {
+  return guard_exports.IsGreaterThan(value2, schema.exclusiveMinimum);
+}
+function ErrorExclusiveMinimum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckExclusiveMinimum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "exclusiveMinimum",
+    schemaPath,
+    instancePath,
+    params: { comparison: ">", limit: schema.exclusiveMinimum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/format.mjs
+var format_exports = {};
+__export(format_exports, {
+  Clear: () => Clear,
+  Entries: () => Entries3,
+  Get: () => Get3,
+  Has: () => Has,
+  IsDate: () => IsDate2,
+  IsDateTime: () => IsDateTime,
+  IsDuration: () => IsDuration,
+  IsEmail: () => IsEmail,
+  IsHostname: () => IsHostname,
+  IsIPv4: () => IsIPv4,
+  IsIPv6: () => IsIPv6,
+  IsIdnEmail: () => IsIdnEmail,
+  IsIdnHostname: () => IsIdnHostname,
+  IsIri: () => IsIri,
+  IsIriReference: () => IsIriReference,
+  IsJsonPointer: () => IsJsonPointer,
+  IsJsonPointerUriFragment: () => IsJsonPointerUriFragment,
+  IsRegex: () => IsRegex,
+  IsRelativeJsonPointer: () => IsRelativeJsonPointer,
+  IsTime: () => IsTime,
+  IsUri: () => IsUri,
+  IsUriReference: () => IsUriReference,
+  IsUriTemplate: () => IsUriTemplate,
+  IsUrl: () => IsUrl,
+  IsUuid: () => IsUuid,
+  Reset: () => Reset2,
+  Set: () => Set3,
+  Test: () => Test
+});
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/date.mjs
+var DAYS = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+var DATE = /^(\d\d\d\d)-(\d\d)-(\d\d)$/;
+function IsLeapYear(year) {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+function IsDate2(value2) {
+  const matches = DATE.exec(value2);
+  if (!matches)
+    return false;
+  const year = +matches[1];
+  const month = +matches[2];
+  const day = +matches[3];
+  return month >= 1 && month <= 12 && day >= 1 && day <= (month === 2 && IsLeapYear(year) ? 29 : DAYS[month]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/time.mjs
+var TIME = /^(\d\d):(\d\d):(\d\d(?:\.\d+)?)(?:Z|([+-])(\d\d):(\d\d))?$/i;
+function IsTime(value2, strictTimeZone = true) {
+  const matches = TIME.exec(value2);
+  if (!matches)
+    return false;
+  const hr = +matches[1];
+  const min3 = +matches[2];
+  const sec = +matches[3];
+  const tzSign = matches[4] === "-" ? -1 : 1;
+  const tzH = +(matches[5] || 0);
+  const tzM = +(matches[6] || 0);
+  if (tzH > 23 || tzM > 59)
+    return false;
+  if (strictTimeZone && !matches[4] && value2.toLowerCase().indexOf("z") === -1) {
+    return false;
+  }
+  if (hr <= 23 && min3 <= 59 && sec < 60)
+    return true;
+  const utcMin = min3 - tzM * tzSign;
+  const utcHr = hr - tzH * tzSign - (utcMin < 0 ? 1 : 0);
+  return (utcHr === 23 || utcHr === -1) && (utcMin === 59 || utcMin === -1) && sec < 61;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/date-time.mjs
+function IsDateTime(value2, strictTimeZone = true) {
+  const dateTime = value2.split(/T/i);
+  return dateTime.length === 2 && IsDate2(dateTime[0]) && IsTime(dateTime[1], strictTimeZone);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/duration.mjs
+var Duration = /^P(?!$)((\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+S)?)?|(\d+W)?)$/;
+function IsDuration(value2) {
+  return Duration.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/email.mjs
+var Email = /^(?!.*\.\.)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/i;
+function IsEmail(value2) {
+  return Email.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/hostname.mjs
+var Hostname = /^(?=.{1,253}\.?$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[-0-9a-z]{0,61}[0-9a-z])?)*\.?$/i;
+function IsHostname(value2) {
+  return Hostname.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/idn-email.mjs
+var IdnEmail = /^(?!.*\.\.)[\p{L}\p{N}!#$%&'*+/=?^_`{|}~-]+(?:\.[\p{L}\p{N}!#$%&'*+/=?^_`{|}~-]+)*@[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?)*$/iu;
+function IsIdnEmail(value2) {
+  return IdnEmail.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/idn-hostname.mjs
+function IsValidAdjacentForKatakanaMiddleDot(char) {
+  const codePoint = char.codePointAt(0);
+  if (codePoint === void 0)
+    return false;
+  return codePoint >= 12352 && codePoint <= 12447 || // Hiragana
+  codePoint >= 12448 && codePoint <= 12543 && codePoint !== 12539 || // Katakana (excluding U+30FB)
+  codePoint >= 19968 && codePoint <= 40959;
+}
+function IsIdnHostname(value2) {
+  if (value2.length === 0)
+    return false;
+  if (value2.includes(" "))
+    return false;
+  const separators = /[\u002E\u3002\uFF0E\uFF61]/g;
+  const normalized = value2.normalize("NFC").replace(separators, ".");
+  if (normalized.length > 253)
+    return false;
+  const labels = normalized.split(".");
+  if (labels.some((label) => label.length === 0))
+    return false;
+  for (const label of labels) {
+    if (label.length > 63)
+      return false;
+    if (label.startsWith("-") || label.endsWith("-"))
+      return false;
+    if (/^xn--/i.test(label)) {
+      const punycodePart = label.slice(4);
+      if (punycodePart.length < 2)
+        return false;
+      if (punycodePart.includes("---"))
+        return false;
+      continue;
+    }
+    if (/[\u302E\u302F\u3031\u3032\u3033\u3034\u3035\u303B\u0640\u07FA]/.test(label)) {
+      return false;
+    }
+    const firstChar = label.charAt(0);
+    if (/[\u0903\u0300\u0488]/.test(firstChar))
+      return false;
+    for (let i = 0; i < label.length; i++) {
+      const char = label.charAt(i);
+      if (char === "\xB7") {
+        if (i === 0 || i === label.length - 1)
+          return false;
+        const prev = label.charAt(i - 1);
+        const next = label.charAt(i + 1);
+        if (!/^[lL]$/.test(prev) || !/^[lL]$/.test(next))
+          return false;
+      }
+      if (char === "\u30FB") {
+        if (label.length === 1)
+          return false;
+        if (i === 0) {
+          const next = label.charAt(i + 1);
+          if (!IsValidAdjacentForKatakanaMiddleDot(next))
+            return false;
+        } else {
+          const prev = label.charAt(i - 1);
+          const next = label.charAt(i + 1);
+          if (!IsValidAdjacentForKatakanaMiddleDot(prev) || !IsValidAdjacentForKatakanaMiddleDot(next)) {
+            return false;
+          }
+        }
+      }
+      if (char === "\u0375") {
+        if (i === label.length - 1)
+          return false;
+        const next = label.charAt(i + 1);
+        if (!/[\u0370-\u03FF]/.test(next))
+          return false;
+      }
+      if (char === "\u05F3" || char === "\u05F4") {
+        if (i === 0)
+          return false;
+        const prev = label.charAt(i - 1);
+        if (!/[\u05D0-\u05EA]/.test(prev))
+          return false;
+      }
+      if (char === "\u200D") {
+        if (i === 0)
+          return false;
+        const prev = label.charAt(i - 1);
+        if (prev !== "\u094D")
+          return false;
+      }
+    }
+    let hasArabicIndic = false;
+    let hasExtendedArabicIndic = false;
+    for (let i = 0; i < label.length; i++) {
+      const char = label.charAt(i);
+      if (/[\u0660-\u0669]/.test(char))
+        hasArabicIndic = true;
+      if (/[\u06F0-\u06F9]/.test(char))
+        hasExtendedArabicIndic = true;
+    }
+    if (hasArabicIndic && hasExtendedArabicIndic)
+      return false;
+  }
+  return true;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/ipv4.mjs
+var IPv4 = /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/;
+function IsIPv4(value2) {
+  return IPv4.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/ipv6.mjs
+var IPv6 = /^((([0-9a-f]{1,4}:){7}([0-9a-f]{1,4}|:))|(([0-9a-f]{1,4}:){6}(:[0-9a-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){5}(((:[0-9a-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){4}(((:[0-9a-f]{1,4}){1,3})|((:[0-9a-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){3}(((:[0-9a-f]{1,4}){1,4})|((:[0-9a-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){2}(((:[0-9a-f]{1,4}){1,5})|((:[0-9a-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){1}(((:[0-9a-f]{1,4}){1,6})|((:[0-9a-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9a-f]{1,4}){1,7})|((:[0-9a-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))$/i;
+function IsIPv6(value2) {
+  return IPv6.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/iri-reference.mjs
+function TryUrl(value2) {
+  try {
+    new URL(value2, "http://example.com");
+    return true;
+  } catch {
+    return false;
+  }
+}
+function IsIriReference(value2) {
+  if (value2.includes(" ")) {
+    return false;
+  }
+  if (value2.includes("\\")) {
+    return false;
+  }
+  if (/[\x00-\x1F\x7F]/.test(value2)) {
+    return false;
+  }
+  if (/%(?![0-9a-fA-F]{2})/.test(value2)) {
+    return false;
+  }
+  if (value2 === "") {
+    return true;
+  }
+  const colonIndex = value2.indexOf(":");
+  const hasValidSchemePrefix = colonIndex > 0 && // Colon must not be at the very beginning (e.g., ":foo")
+  /^[a-zA-Z][a-zA-Z0-9+\-.]*$/.test(value2.substring(0, colonIndex));
+  if (hasValidSchemePrefix) {
+    return TryUrl(value2);
+  } else {
+    const looksLikeMalformedSchemeAndAuthority = value2.match(/^([a-zA-Z][a-zA-Z0-9+\-.]*)(\/\/)/);
+    if (looksLikeMalformedSchemeAndAuthority && colonIndex === -1) {
+      return false;
+    }
+    return TryUrl(value2);
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/iri.mjs
+function IsIri(value2) {
+  try {
+    new URL(value2);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/json-pointer-uri-fragment.mjs
+var JsonPointerUriFragment = /^#(?:\/(?:[a-z0-9_\-.!$&'()*+,;:=@]|%[0-9a-f]{2}|~0|~1)*)*$/i;
+function IsJsonPointerUriFragment(value2) {
+  return JsonPointerUriFragment.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/json-pointer.mjs
+var JsonPointer = /^(?:\/(?:[^~/]|~0|~1)*)*$/;
+function IsJsonPointer(value2) {
+  return JsonPointer.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/regex.mjs
+function IsRegex(value2) {
+  if (value2.length === 0) {
+    return false;
+  }
+  try {
+    new RegExp(value2);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/relative-json-pointer.mjs
+var RelativeJsonPointer = /^(?:0|[1-9][0-9]*)(?:#|(?:\/(?:[^~/]|~0|~1)*)*)$/;
+function IsRelativeJsonPointer(value2) {
+  return RelativeJsonPointer.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri-reference.mjs
+var UriReference = /^(?:(?:[a-z][a-z0-9+\-.]*:)?\/?\/)?(?:[^\\\s#][^\s#]*)?(?:#[^\\\s]*)?$/i;
+function IsUriReference(value2) {
+  return UriReference.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri-template.mjs
+var UriTemplate = /^(?:(?:[^\x00-\x20"'<>%\\^`{|}]|%[0-9a-f]{2})|\{[+#./;?&=,!@|]?(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?(?:,(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?)*\})*$/i;
+function IsUriTemplate(value2) {
+  return UriTemplate.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri.mjs
+var Uri = /^(?:[a-z][a-z0-9+\-.]*:)(?:\/?\/)?[^\s]*$/i;
+function IsUri(value2) {
+  return Uri.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/url.mjs
+var Url = /^(?:https?|ftp):\/\/(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\u{00a1}-\u{ffff}]+-)*[a-z0-9\u{00a1}-\u{ffff}]+)(?:\.(?:[a-z0-9\u{00a1}-\u{ffff}]+-)*[a-z0-9\u{00a1}-\u{ffff}]+)*(?:\.(?:[a-z\u{00a1}-\u{ffff}]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/iu;
+function IsUrl(value2) {
+  return Url.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uuid.mjs
+var Uuid = /^(?:urn:uuid:)?[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+function IsUuid(value2) {
+  return Uuid.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/_registry.mjs
+var formats = /* @__PURE__ */ new Map();
+function Clear() {
+  formats.clear();
+}
+function Entries3() {
+  return [...formats.entries()];
+}
+function Set3(format4, check2) {
+  formats.set(format4, check2);
+}
+function Has(format4) {
+  return formats.has(format4);
+}
+function Get3(format4) {
+  return formats.get(format4);
+}
+function Test(format4, value2) {
+  return formats.get(format4)?.(value2) ?? true;
+}
+function Reset2() {
+  Clear();
+  formats.set("date-time", IsDateTime);
+  formats.set("date", IsDate2);
+  formats.set("duration", IsDuration);
+  formats.set("email", IsEmail);
+  formats.set("hostname", IsHostname);
+  formats.set("idn-email", IsIdnEmail);
+  formats.set("idn-hostname", IsIdnHostname);
+  formats.set("ipv4", IsIPv4);
+  formats.set("ipv6", IsIPv6);
+  formats.set("iri-reference", IsIriReference);
+  formats.set("iri", IsIri);
+  formats.set("json-pointer-uri-fragment", IsJsonPointerUriFragment);
+  formats.set("json-pointer", IsJsonPointer);
+  formats.set("regex", IsRegex);
+  formats.set("relative-json-pointer", IsRelativeJsonPointer);
+  formats.set("time", IsTime);
+  formats.set("uri-reference", IsUriReference);
+  formats.set("uri-template", IsUriTemplate);
+  formats.set("uri", IsUri);
+  formats.set("url", IsUrl);
+  formats.set("uuid", IsUuid);
+}
+Reset2();
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/format.mjs
+function BuildFormat(stack, context5, schema, value2) {
+  return emit_exports.Call(emit_exports.Member("Format", "Test"), [emit_exports.Constant(schema.format), value2]);
+}
+function CheckFormat(stack, context5, schema, value2) {
+  return format_exports.Test(schema.format, value2);
+}
+function ErrorFormat(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckFormat(stack, context5, schema, value2) || context5.AddError({
+    keyword: "format",
+    schemaPath,
+    instancePath,
+    params: { format: schema.format }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/if.mjs
+function BuildIf(stack, context5, schema, value2) {
+  const thenSchema = IsThen(schema) ? schema.then : true;
+  const elseSchema = IsElse(schema) ? schema.else : true;
+  return emit_exports.Ternary(BuildSchema(stack, context5, schema.if, value2), BuildSchema(stack, context5, thenSchema, value2), BuildSchema(stack, context5, elseSchema, value2));
+}
+function CheckIf(stack, context5, schema, value2) {
+  const thenSchema = IsThen(schema) ? schema.then : true;
+  const elseSchema = IsElse(schema) ? schema.else : true;
+  return CheckSchema(stack, context5, schema.if, value2) ? CheckSchema(stack, context5, thenSchema, value2) : CheckSchema(stack, context5, elseSchema, value2);
+}
+function ErrorIf(stack, context5, schemaPath, instancePath, schema, value2) {
+  const thenSchema = IsThen(schema) ? schema.then : true;
+  const elseSchema = IsElse(schema) ? schema.else : true;
+  const trueContext = new AccumulatedErrorContext();
+  const isIf = ErrorSchema(stack, trueContext, `${schemaPath}/if`, instancePath, schema.if, value2) ? ErrorSchema(stack, trueContext, `${schemaPath}/then`, instancePath, thenSchema, value2) || context5.AddError({
+    keyword: "if",
+    schemaPath,
+    instancePath,
+    params: { failingKeyword: "then" }
+  }) : ErrorSchema(stack, context5, `${schemaPath}/else`, instancePath, elseSchema, value2) || context5.AddError({
+    keyword: "if",
+    schemaPath,
+    instancePath,
+    params: { failingKeyword: "else" }
+  });
+  if (isIf)
+    context5.Merge([trueContext]);
+  return isIf;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/items.mjs
+function BuildItemsSized(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(schema.items.map((schema2, index2) => {
+    const isLength = emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(index2));
+    const isSchema = BuildSchema(stack, context5, schema2, `${value2}[${index2}]`);
+    const addIndex = context5.AddIndex(emit_exports.Constant(index2));
+    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
+    return emit_exports.Or(isLength, guarded);
+  }));
+}
+function CheckItemsSized(stack, context5, schema, value2) {
+  return guard_exports.Every(schema.items, 0, (schema2, index2) => {
+    return guard_exports.IsLessEqualThan(value2.length, index2) || CheckSchema(stack, context5, schema2, value2[index2]) && context5.AddIndex(index2);
+  });
+}
+function ErrorItemsSized(stack, context5, schemaPath, instancePath, schema, value2) {
+  return guard_exports.EveryAll(schema.items, 0, (schema2, index2) => {
+    const nextSchemaPath = `${schemaPath}/items/${index2}`;
+    const nextInstancePath = `${instancePath}/${index2}`;
+    return guard_exports.IsLessEqualThan(value2.length, index2) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[index2]) && context5.AddIndex(index2);
+  });
+}
+function BuildItemsUnsized(stack, context5, schema, value2) {
+  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
+  const isSchema = BuildSchema(stack, context5, schema.items, "element");
+  const addIndex = context5.AddIndex("index");
+  const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
+  return emit_exports.Every(value2, emit_exports.Constant(offset), ["element", "index"], guarded);
+}
+function CheckItemsUnsized(stack, context5, schema, value2) {
+  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
+  return guard_exports.Every(value2, offset, (element, index2) => {
+    return CheckSchema(stack, context5, schema.items, element) && context5.AddIndex(index2);
+  });
+}
+function ErrorItemsUnsized(stack, context5, schemaPath, instancePath, schema, value2) {
+  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
+  return guard_exports.EveryAll(value2, offset, (element, index2) => {
+    const nextSchemaPath = `${schemaPath}/items`;
+    const nextInstancePath = `${instancePath}/${index2}`;
+    return ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema.items, element) && context5.AddIndex(index2);
+  });
+}
+function BuildItems(stack, context5, schema, value2) {
+  return IsItemsSized(schema) ? BuildItemsSized(stack, context5, schema, value2) : BuildItemsUnsized(stack, context5, schema, value2);
+}
+function CheckItems(stack, context5, schema, value2) {
+  return IsItemsSized(schema) ? CheckItemsSized(stack, context5, schema, value2) : CheckItemsUnsized(stack, context5, schema, value2);
+}
+function ErrorItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  return IsItemsSized(schema) ? ErrorItemsSized(stack, context5, schemaPath, instancePath, schema, value2) : ErrorItemsUnsized(stack, context5, schemaPath, instancePath, schema, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxContains.mjs
+function IsValid3(schema) {
+  return IsContains(schema);
+}
+function BuildMaxContains(stack, context5, schema, value2) {
+  if (!IsValid3(schema))
+    return emit_exports.Constant(true);
+  const [result, item] = [Unique(), Unique()];
+  const count = emit_exports.Call(emit_exports.Member(value2, "reduce"), [emit_exports.ArrowFunction([result, item], emit_exports.Ternary(BuildSchema(stack, context5, schema.contains, item), emit_exports.PrefixIncrement(result), result)), emit_exports.Constant(0)]);
+  return emit_exports.IsLessEqualThan(count, emit_exports.Constant(schema.maxContains));
+}
+function CheckMaxContains(stack, context5, schema, value2) {
+  if (!IsValid3(schema))
+    return true;
+  const count = value2.reduce((result, item) => CheckSchema(stack, context5, schema.contains, item) ? ++result : result, 0);
+  return guard_exports.IsLessEqualThan(count, schema.maxContains);
+}
+function ErrorMaxContains(stack, context5, schemaPath, instancePath, schema, value2) {
+  const minContains = IsMinContains(schema) ? schema.minContains : 1;
+  return CheckMaxContains(stack, context5, schema, value2) || context5.AddError({
+    keyword: "contains",
+    schemaPath,
+    instancePath,
+    params: { minContains, maxContains: schema.maxContains }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maximum.mjs
+function BuildMaximum(stack, context5, schema, value2) {
+  return emit_exports.IsLessEqualThan(value2, emit_exports.Constant(schema.maximum));
+}
+function CheckMaximum(stack, context5, schema, value2) {
+  return guard_exports.IsLessEqualThan(value2, schema.maximum);
+}
+function ErrorMaximum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMaximum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "maximum",
+    schemaPath,
+    instancePath,
+    params: { comparison: "<=", limit: schema.maximum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxItems.mjs
+function BuildMaxItems(stack, context5, schema, value2) {
+  return emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(schema.maxItems));
+}
+function CheckMaxItems(stack, context5, schema, value2) {
+  return guard_exports.IsLessEqualThan(value2.length, schema.maxItems);
+}
+function ErrorMaxItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMaxItems(stack, context5, schema, value2) || context5.AddError({
+    keyword: "maxItems",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.maxItems }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxLength.mjs
+function BuildMaxLength(stack, context5, schema, value2) {
+  return emit_exports.IsMaxLength(value2, emit_exports.Constant(schema.maxLength));
+}
+function CheckMaxLength(stack, context5, schema, value2) {
+  return guard_exports.IsMaxLength(value2, schema.maxLength);
+}
+function ErrorMaxLength(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMaxLength(stack, context5, schema, value2) || context5.AddError({
+    keyword: "maxLength",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.maxLength }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxProperties.mjs
+function BuildMaxProperties(stack, context5, schema, value2) {
+  return emit_exports.IsLessEqualThan(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(schema.maxProperties));
+}
+function CheckMaxProperties(stack, context5, schema, value2) {
+  return guard_exports.IsLessEqualThan(guard_exports.Keys(value2).length, schema.maxProperties);
+}
+function ErrorMaxProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMaxProperties(stack, context5, schema, value2) || context5.AddError({
+    keyword: "maxProperties",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.maxProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minContains.mjs
+function IsValid4(schema) {
+  return IsContains(schema);
+}
+function BuildMinContains(stack, context5, schema, value2) {
+  if (!IsValid4(schema))
+    return emit_exports.Constant(true);
+  const [result, item] = [Unique(), Unique()];
+  const count = emit_exports.Call(emit_exports.Member(value2, "reduce"), [emit_exports.ArrowFunction([result, item], emit_exports.Ternary(BuildSchema(stack, context5, schema.contains, item), emit_exports.PrefixIncrement(result), result)), emit_exports.Constant(0)]);
+  return emit_exports.IsGreaterEqualThan(count, emit_exports.Constant(schema.minContains));
+}
+function CheckMinContains(stack, context5, schema, value2) {
+  if (!IsValid4(schema))
+    return true;
+  const count = value2.reduce((result, item) => CheckSchema(stack, context5, schema.contains, item) ? ++result : result, 0);
+  return guard_exports.IsGreaterEqualThan(count, schema.minContains);
+}
+function ErrorMinContains(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinContains(stack, context5, schema, value2) || context5.AddError({
+    keyword: "contains",
+    schemaPath,
+    instancePath,
+    params: { minContains: schema.minContains }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minimum.mjs
+function BuildMinimum(stack, context5, schema, value2) {
+  return emit_exports.IsGreaterEqualThan(value2, emit_exports.Constant(schema.minimum));
+}
+function CheckMinimum(stack, context5, schema, value2) {
+  return guard_exports.IsGreaterEqualThan(value2, schema.minimum);
+}
+function ErrorMinimum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinimum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "minimum",
+    schemaPath,
+    instancePath,
+    params: { comparison: ">=", limit: schema.minimum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minItems.mjs
+function BuildMinItems(stack, context5, schema, value2) {
+  return emit_exports.IsGreaterEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(schema.minItems));
+}
+function CheckMinItems(stack, context5, schema, value2) {
+  return guard_exports.IsGreaterEqualThan(value2.length, schema.minItems);
+}
+function ErrorMinItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinItems(stack, context5, schema, value2) || context5.AddError({
+    keyword: "minItems",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.minItems }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minLength.mjs
+function BuildMinLength(stack, context5, schema, value2) {
+  return emit_exports.IsMinLength(value2, emit_exports.Constant(schema.minLength));
+}
+function CheckMinLength(stack, context5, schema, value2) {
+  return guard_exports.IsMinLength(value2, schema.minLength);
+}
+function ErrorMinLength(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinLength(stack, context5, schema, value2) || context5.AddError({
+    keyword: "minLength",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.minLength }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minProperties.mjs
+function BuildMinProperties(stack, context5, schema, value2) {
+  return emit_exports.IsGreaterEqualThan(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(schema.minProperties));
+}
+function CheckMinProperties(stack, context5, schema, value2) {
+  return guard_exports.IsGreaterEqualThan(guard_exports.Keys(value2).length, schema.minProperties);
+}
+function ErrorMinProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinProperties(stack, context5, schema, value2) || context5.AddError({
+    keyword: "minProperties",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.minProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/multipleOf.mjs
+function BuildMultipleOf(stack, context5, schema, value2) {
+  return emit_exports.MultipleOf(value2, emit_exports.Constant(schema.multipleOf));
+}
+function CheckMultipleOf(stack, context5, schema, value2) {
+  return guard_exports.IsMultipleOf(value2, schema.multipleOf);
+}
+function ErrorMultipleOf(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMultipleOf(stack, context5, schema, value2) || context5.AddError({
+    keyword: "multipleOf",
+    schemaPath,
+    instancePath,
+    params: { multipleOf: schema.multipleOf }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/not.mjs
+function BuildNotUnevaluated(stack, context5, schema, value2) {
+  return Reducer(stack, context5, [schema.not], value2, emit_exports.Not(emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(1))));
+}
+function BuildNotFast(stack, context5, schema, value2) {
+  return emit_exports.Not(BuildSchema(stack, context5, schema.not, value2));
+}
+function BuildNot(stack, context5, schema, value2) {
+  return context5.UseUnevaluated() ? BuildNotUnevaluated(stack, context5, schema, value2) : BuildNotFast(stack, context5, schema, value2);
+}
+function CheckNot(stack, context5, schema, value2) {
+  const nextContext = new CheckContext();
+  const isSchema = !CheckSchema(stack, nextContext, schema.not, value2);
+  const isNot = isSchema && context5.Merge([nextContext]);
+  return isNot;
+}
+function ErrorNot(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckNot(stack, context5, schema, value2) || context5.AddError({
+    keyword: "not",
+    schemaPath,
+    instancePath,
+    params: {}
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/oneOf.mjs
+function BuildOneOfUnevaluated(stack, context5, schema, value2) {
+  return Reducer(stack, context5, schema.oneOf, value2, emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(1)));
+}
+function BuildOneOfFast(stack, context5, schema, value2) {
+  const results = emit_exports.ArrayLiteral(schema.oneOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
+  const count = emit_exports.Call(emit_exports.Member(results, "reduce"), [
+    emit_exports.ArrowFunction(["count", "result"], emit_exports.Ternary(emit_exports.IsEqual("result", emit_exports.Constant(true)), emit_exports.PrefixIncrement("count"), "count")),
+    emit_exports.Constant(0)
+  ]);
+  return emit_exports.IsEqual(count, emit_exports.Constant(1));
+}
+function BuildOneOf(stack, context5, schema, value2) {
+  return context5.UseUnevaluated() ? BuildOneOfUnevaluated(stack, context5, schema, value2) : BuildOneOfFast(stack, context5, schema, value2);
+}
+function CheckOneOf(stack, context5, schema, value2) {
+  const passedContexts = schema.oneOf.reduce((result, schema2) => {
+    const nextContext = new CheckContext();
+    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
+  }, []);
+  return guard_exports.IsEqual(passedContexts.length, 1) && context5.Merge(passedContexts);
+}
+function ErrorOneOf(stack, context5, schemaPath, instancePath, schema, value2) {
+  const failedContexts = [];
+  const passingSchemas = [];
+  const passedContexts = schema.oneOf.reduce((result, schema2, index2) => {
+    const nextContext = new AccumulatedErrorContext();
+    const nextSchemaPath = `${schemaPath}/oneOf/${index2}`;
+    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
+    if (isSchema)
+      passingSchemas.push(index2);
+    if (!isSchema)
+      failedContexts.push(nextContext);
+    return isSchema ? [...result, nextContext] : result;
+  }, []);
+  const isOneOf = guard_exports.IsEqual(passedContexts.length, 1) && context5.Merge(passedContexts);
+  if (!isOneOf && guard_exports.IsEqual(passingSchemas.length, 0))
+    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
+  return isOneOf || context5.AddError({
+    keyword: "oneOf",
+    schemaPath,
+    instancePath,
+    params: { passingSchemas }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/pattern.mjs
+function BuildPattern(stack, context5, schema, value2) {
+  const regexp = CreateVariable(guard_exports.IsString(schema.pattern) ? new RegExp(schema.pattern) : schema.pattern);
+  return emit_exports.Call(emit_exports.Member(regexp, "test"), [value2]);
+}
+function CheckPattern(stack, context5, schema, value2) {
+  const regexp = guard_exports.IsString(schema.pattern) ? new RegExp(schema.pattern) : schema.pattern;
+  return regexp.test(value2);
+}
+function ErrorPattern(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckPattern(stack, context5, schema, value2) || context5.AddError({
+    keyword: "pattern",
+    schemaPath,
+    instancePath,
+    params: { pattern: schema.pattern }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/patternProperties.mjs
+function BuildPatternProperties(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(guard_exports.Entries(schema.patternProperties).map(([pattern, schema2]) => {
+    const [key, prop] = [Unique(), Unique()];
+    const regexp = CreateVariable(new RegExp(pattern));
+    const notKey = emit_exports.Not(emit_exports.Call(emit_exports.Member(regexp, "test"), [key]));
+    const isSchema = BuildSchema(stack, context5, schema2, prop);
+    const addKey = context5.AddKey(key);
+    const guarded = context5.UseUnevaluated() ? emit_exports.Or(notKey, emit_exports.And(isSchema, addKey)) : emit_exports.Or(notKey, isSchema);
+    return emit_exports.Every(emit_exports.Entries(value2), emit_exports.Constant(0), [`[${key}, ${prop}]`, "_"], guarded);
+  }));
+}
+function CheckPatternProperties(stack, context5, schema, value2) {
+  return guard_exports.Every(guard_exports.Entries(schema.patternProperties), 0, ([pattern, schema2]) => {
+    const regexp = new RegExp(pattern);
+    return guard_exports.Every(guard_exports.Entries(value2), 0, ([key, prop]) => {
+      return !regexp.test(key) || CheckSchema(stack, context5, schema2, prop) && context5.AddKey(key);
+    });
+  });
+}
+function ErrorPatternProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  return guard_exports.EveryAll(guard_exports.Entries(schema.patternProperties), 0, ([pattern, schema2]) => {
+    const nextSchemaPath = `${schemaPath}/patternProperties/${pattern}`;
+    const regexp = new RegExp(pattern);
+    return guard_exports.EveryAll(guard_exports.Entries(value2), 0, ([key, value3]) => {
+      const nextInstancePath = `${instancePath}/${key}`;
+      const notKey = !regexp.test(key);
+      return notKey || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value3) && context5.AddKey(key);
+    });
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/prefixItems.mjs
+function BuildPrefixItems(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(schema.prefixItems.map((schema2, index2) => {
+    const isLength = emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(index2));
+    const isSchema = BuildSchema(stack, context5, schema2, `${value2}[${index2}]`);
+    const addIndex = context5.AddIndex(emit_exports.Constant(index2));
+    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
+    return emit_exports.Or(isLength, guarded);
+  }));
+}
+function CheckPrefixItems(stack, context5, schema, value2) {
+  return guard_exports.IsEqual(value2.length, 0) || guard_exports.Every(schema.prefixItems, 0, (schema2, index2) => {
+    return guard_exports.IsLessEqualThan(value2.length, index2) || CheckSchema(stack, context5, schema2, value2[index2]) && context5.AddIndex(index2);
+  });
+}
+function ErrorPrefixItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  return guard_exports.IsEqual(value2.length, 0) || guard_exports.EveryAll(schema.prefixItems, 0, (schema2, index2) => {
+    const nextSchemaPath = `${schemaPath}/prefixItems/${index2}`;
+    const nextInstancePath = `${instancePath}/${index2}`;
+    return guard_exports.IsLessEqualThan(value2.length, index2) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[index2]) && context5.AddIndex(index2);
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_exact_optional.mjs
+function IsExactOptional(required, key) {
+  return required.includes(key) || settings_exports.Get().exactOptionalPropertyTypes;
+}
+function InexactOptionalBuild(value2, key) {
+  return emit_exports.IsUndefined(emit_exports.Member(value2, key));
+}
+function InexactOptionalCheck(value2, key) {
+  return guard_exports.IsUndefined(value2[key]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/properties.mjs
+function BuildProperties(stack, context5, schema, value2) {
+  const required = IsRequired(schema) ? schema.required : [];
+  const everyKey = guard_exports.Entries(schema.properties).map(([key, schema2]) => {
+    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
+    const isSchema = BuildSchema(stack, context5, schema2, emit_exports.Member(value2, key));
+    const addKey = context5.AddKey(emit_exports.Constant(key));
+    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addKey) : isSchema;
+    const isProperty = required.includes(key) ? guarded : emit_exports.Or(notKey, guarded);
+    return IsExactOptional(required, key) ? isProperty : emit_exports.Or(InexactOptionalBuild(value2, key), isProperty);
+  });
+  return emit_exports.ReduceAnd(everyKey);
+}
+function CheckProperties(stack, context5, schema, value2) {
+  const required = IsRequired(schema) ? schema.required : [];
+  const isProperties = guard_exports.Every(guard_exports.Entries(schema.properties), 0, ([key, schema2]) => {
+    const isProperty = !guard_exports.HasPropertyKey(value2, key) || CheckSchema(stack, context5, schema2, value2[key]) && context5.AddKey(key);
+    return IsExactOptional(required, key) ? isProperty : InexactOptionalCheck(value2, key) || isProperty;
+  });
+  return isProperties;
+}
+function ErrorProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  const required = IsRequired(schema) ? schema.required : [];
+  const isProperties = guard_exports.EveryAll(guard_exports.Entries(schema.properties), 0, ([key, schema2]) => {
+    const nextSchemaPath = `${schemaPath}/properties/${key}`;
+    const nextInstancePath = `${instancePath}/${key}`;
+    const isProperty = () => !guard_exports.HasPropertyKey(value2, key) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[key]) && context5.AddKey(key);
+    return IsExactOptional(required, key) ? isProperty() : InexactOptionalCheck(value2, key) || isProperty();
+  });
+  return isProperties;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/propertyNames.mjs
+function BuildPropertyNames(stack, context5, schema, value2) {
+  const [key, _index] = [Unique(), Unique()];
+  return emit_exports.Every(emit_exports.Keys(value2), emit_exports.Constant(0), [key, _index], BuildSchema(stack, context5, schema.propertyNames, key));
+}
+function CheckPropertyNames(stack, context5, schema, value2) {
+  return guard_exports.Every(guard_exports.Keys(value2), 0, (key, _index) => CheckSchema(stack, context5, schema.propertyNames, key));
+}
+function ErrorPropertyNames(stack, context5, schemaPath, instancePath, schema, value2) {
+  const propertyNames = [];
+  const isPropertyNames = guard_exports.EveryAll(guard_exports.Keys(value2), 0, (key, _index) => {
+    const nextInstancePath = `${instancePath}/${key}`;
+    const nextSchemaPath = `${schemaPath}/propertyNames`;
+    const nextContext = new AccumulatedErrorContext();
+    const isPropertyName = ErrorSchema(stack, nextContext, nextSchemaPath, nextInstancePath, schema.propertyNames, key);
+    if (!isPropertyName)
+      propertyNames.push(key);
+    return isPropertyName;
+  });
+  return isPropertyNames || context5.AddError({
+    keyword: "propertyNames",
+    schemaPath,
+    instancePath,
+    params: { propertyNames }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/recursiveRef.mjs
+function BuildRecursiveRef(stack, context5, schema, value2) {
+  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
+  return CreateFunction(stack, context5, target, value2);
+}
+function CheckRecursiveRef(stack, context5, schema, value2) {
+  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
+  return IsSchema2(target) && CheckSchema(stack, context5, target, value2);
+}
+function ErrorRecursiveRef(stack, context5, schemaPath, instancePath, schema, value2) {
+  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
+  return IsSchema2(target) && ErrorSchema(stack, context5, "#", instancePath, target, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/ref.mjs
+function BuildRefStandard(stack, context5, target, value2) {
+  const interior = emit_exports.ArrowFunction(["context", "value"], CreateFunction(stack, context5, target, "value"));
+  const exterior = emit_exports.ArrowFunction(["context", "value"], emit_exports.Statements([
+    emit_exports.ConstDeclaration("nextContext", emit_exports.New("CheckContext", [])),
+    emit_exports.ConstDeclaration("result", emit_exports.Call(interior, ["nextContext", "value"])),
+    emit_exports.If("result", context5.Merge("[nextContext]")),
+    emit_exports.Return("result")
+  ]));
+  return emit_exports.Call(exterior, ["context", value2]);
+}
+function BuildRefFast(stack, context5, target, value2) {
+  return CreateFunction(stack, context5, target, value2);
+}
+function BuildRef(stack, context5, schema, value2) {
+  const target = stack.Ref(schema.$ref) ?? false;
+  return context5.UseUnevaluated() ? BuildRefStandard(stack, context5, target, value2) : BuildRefFast(stack, context5, target, value2);
+}
+function CheckRef(stack, context5, schema, value2) {
+  const target = stack.Ref(schema.$ref) ?? false;
+  const nextContext = new CheckContext();
+  const result = IsSchema2(target) && CheckSchema(stack, nextContext, target, value2);
+  if (result)
+    context5.Merge([nextContext]);
+  return result;
+}
+function ErrorRef(stack, context5, schemaPath, instancePath, schema, value2) {
+  const target = stack.Ref(schema.$ref) ?? false;
+  const nextContext = new AccumulatedErrorContext();
+  const result = IsSchema2(target) && ErrorSchema(stack, nextContext, "#", instancePath, target, value2);
+  if (result)
+    context5.Merge([nextContext]);
+  if (!result)
+    nextContext.GetErrors().forEach((error) => context5.AddError(error));
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/required.mjs
+function BuildRequired(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(schema.required.map((key) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key))));
+}
+function CheckRequired(stack, context5, schema, value2) {
+  return guard_exports.Every(schema.required, 0, (key) => guard_exports.HasPropertyKey(value2, key));
+}
+function ErrorRequired(stack, context5, schemaPath, instancePath, schema, value2) {
+  const requiredProperties = [];
+  const isRequired = guard_exports.EveryAll(schema.required, 0, (key) => {
+    const hasKey = guard_exports.HasPropertyKey(value2, key);
+    if (!hasKey)
+      requiredProperties.push(key);
+    return hasKey;
+  });
+  return isRequired || context5.AddError({
+    keyword: "required",
+    schemaPath,
+    instancePath,
+    params: { requiredProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/type.mjs
+function BuildTypeName(stack, context5, type, value2) {
+  return (
+    // jsonschema
+    guard_exports.IsEqual(type, "object") ? emit_exports.IsObjectNotArray(value2) : guard_exports.IsEqual(type, "array") ? emit_exports.IsArray(value2) : guard_exports.IsEqual(type, "boolean") ? emit_exports.IsBoolean(value2) : guard_exports.IsEqual(type, "integer") ? emit_exports.IsInteger(value2) : guard_exports.IsEqual(type, "number") ? emit_exports.IsNumber(value2) : guard_exports.IsEqual(type, "null") ? emit_exports.IsNull(value2) : guard_exports.IsEqual(type, "string") ? emit_exports.IsString(value2) : (
+      // xschema
+      guard_exports.IsEqual(type, "asyncIterator") ? emit_exports.IsAsyncIterator(value2) : guard_exports.IsEqual(type, "bigint") ? emit_exports.IsBigInt(value2) : guard_exports.IsEqual(type, "constructor") ? emit_exports.IsConstructor(value2) : guard_exports.IsEqual(type, "function") ? emit_exports.IsFunction(value2) : guard_exports.IsEqual(type, "iterator") ? emit_exports.IsIterator(value2) : guard_exports.IsEqual(type, "symbol") ? emit_exports.IsSymbol(value2) : guard_exports.IsEqual(type, "undefined") ? emit_exports.IsUndefined(value2) : guard_exports.IsEqual(type, "void") ? emit_exports.IsUndefined(value2) : emit_exports.Constant(true)
+    )
+  );
+}
+function CheckTypeName(stack, context5, type, schema, value2) {
+  return (
+    // jsonschema
+    guard_exports.IsEqual(type, "object") ? guard_exports.IsObjectNotArray(value2) : guard_exports.IsEqual(type, "array") ? guard_exports.IsArray(value2) : guard_exports.IsEqual(type, "boolean") ? guard_exports.IsBoolean(value2) : guard_exports.IsEqual(type, "integer") ? guard_exports.IsInteger(value2) : guard_exports.IsEqual(type, "number") ? guard_exports.IsNumber(value2) : guard_exports.IsEqual(type, "null") ? guard_exports.IsNull(value2) : guard_exports.IsEqual(type, "string") ? guard_exports.IsString(value2) : (
+      // xschema
+      guard_exports.IsEqual(type, "asyncIterator") ? guard_exports.IsAsyncIterator(value2) : guard_exports.IsEqual(type, "bigint") ? guard_exports.IsBigInt(value2) : guard_exports.IsEqual(type, "constructor") ? guard_exports.IsConstructor(value2) : guard_exports.IsEqual(type, "function") ? guard_exports.IsFunction(value2) : guard_exports.IsEqual(type, "iterator") ? guard_exports.IsIterator(value2) : guard_exports.IsEqual(type, "symbol") ? guard_exports.IsSymbol(value2) : guard_exports.IsEqual(type, "undefined") ? guard_exports.IsUndefined(value2) : guard_exports.IsEqual(type, "void") ? guard_exports.IsUndefined(value2) : true
+    )
+  );
+}
+function BuildTypeNames(stack, context5, typenames, value2) {
+  return emit_exports.ReduceOr(typenames.map((type) => BuildTypeName(stack, context5, type, value2)));
+}
+function CheckTypeNames(stack, context5, types, schema, value2) {
+  return types.some((type) => CheckTypeName(stack, context5, type, schema, value2));
+}
+function BuildType(stack, context5, schema, value2) {
+  return guard_exports.IsArray(schema.type) ? BuildTypeNames(stack, context5, schema.type, value2) : BuildTypeName(stack, context5, schema.type, value2);
+}
+function CheckType(stack, context5, schema, value2) {
+  return guard_exports.IsArray(schema.type) ? CheckTypeNames(stack, context5, schema.type, schema, value2) : CheckTypeName(stack, context5, schema.type, schema, value2);
+}
+function ErrorType(stack, context5, schemaPath, instancePath, schema, value2) {
+  const isType = guard_exports.IsArray(schema.type) ? CheckTypeNames(stack, context5, schema.type, schema, value2) : CheckTypeName(stack, context5, schema.type, schema, value2);
+  return isType || context5.AddError({
+    keyword: "type",
+    schemaPath,
+    instancePath,
+    params: { type: schema.type }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/unevaluatedItems.mjs
+function BuildUnevaluatedItems(stack, context5, schema, value2) {
+  const [index2, item] = [Unique(), Unique()];
+  const indices = emit_exports.Call(emit_exports.Member("context", "GetIndices"), []);
+  const hasIndex = emit_exports.Call(emit_exports.Member("indices", "has"), [index2]);
+  const isSchema = BuildSchema(stack, context5, schema.unevaluatedItems, item);
+  const addIndex = emit_exports.Call(emit_exports.Member("context", "AddIndex"), [index2]);
+  const isEvery = emit_exports.Every(value2, emit_exports.Constant(0), [item, index2], emit_exports.And(emit_exports.Or(hasIndex, isSchema), addIndex));
+  return emit_exports.Call(emit_exports.ArrowFunction(["context"], emit_exports.Statements([
+    emit_exports.ConstDeclaration("indices", indices),
+    emit_exports.Return(isEvery)
+  ])), ["context"]);
+}
+function CheckUnevaluatedItems(stack, context5, schema, value2) {
+  const indices = context5.GetIndices();
+  return guard_exports.Every(value2, 0, (item, index2) => {
+    return (indices.has(index2) || CheckSchema(stack, context5, schema.unevaluatedItems, item)) && context5.AddIndex(index2);
+  });
+}
+function ErrorUnevaluatedItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  const indices = context5.GetIndices();
+  const unevaluatedItems = [];
+  const isUnevaluatedItems = guard_exports.EveryAll(value2, 0, (item, index2) => {
+    const nextContext = new AccumulatedErrorContext();
+    const isEvaluatedItem = (indices.has(index2) || ErrorSchema(stack, nextContext, schemaPath, instancePath, schema.unevaluatedItems, item)) && context5.AddIndex(index2);
+    if (!isEvaluatedItem)
+      unevaluatedItems.push(index2);
+    return isEvaluatedItem;
+  });
+  return isUnevaluatedItems || context5.AddError({
+    keyword: "unevaluatedItems",
+    schemaPath,
+    instancePath,
+    params: { unevaluatedItems }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/unevaluatedProperties.mjs
+function BuildUnevaluatedProperties(stack, context5, schema, value2) {
+  const [key, prop] = [Unique(), Unique()];
+  const keys5 = emit_exports.Call(emit_exports.Member("context", "GetKeys"), []);
+  const hasKey = emit_exports.Call(emit_exports.Member("keys", "has"), [key]);
+  const addKey = emit_exports.Call(emit_exports.Member("context", "AddKey"), [key]);
+  const isSchema = BuildSchema(stack, context5, schema.unevaluatedProperties, prop);
+  const isEvery = emit_exports.Every(emit_exports.Entries(value2), emit_exports.Constant(0), [`[${key}, ${prop}]`, "_"], emit_exports.Or(hasKey, emit_exports.And(isSchema, addKey)));
+  return emit_exports.Call(emit_exports.ArrowFunction(["context"], emit_exports.Statements([
+    emit_exports.ConstDeclaration("keys", keys5),
+    emit_exports.Return(isEvery)
+  ])), ["context"]);
+}
+function CheckUnevaluatedProperties(stack, context5, schema, value2) {
+  const keys5 = context5.GetKeys();
+  return guard_exports.Every(guard_exports.Entries(value2), 0, ([key, prop]) => {
+    return keys5.has(key) || CheckSchema(stack, context5, schema.unevaluatedProperties, prop) && context5.AddKey(key);
+  });
+}
+function ErrorUnevaluatedProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  const keys5 = context5.GetKeys();
+  const unevaluatedProperties = [];
+  const isUnevaluatedProperties = guard_exports.EveryAll(guard_exports.Entries(value2), 0, ([key, prop]) => {
+    const nextContext = new AccumulatedErrorContext();
+    const isEvaluatedProperty = keys5.has(key) || ErrorSchema(stack, nextContext, schemaPath, instancePath, schema.unevaluatedProperties, prop) && context5.AddKey(key);
+    if (!isEvaluatedProperty)
+      unevaluatedProperties.push(key);
+    return isEvaluatedProperty;
+  });
+  return isUnevaluatedProperties || context5.AddError({
+    keyword: "unevaluatedProperties",
+    schemaPath,
+    instancePath,
+    params: { unevaluatedProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/uniqueItems.mjs
+function IsValid5(schema) {
+  return !guard_exports.IsEqual(schema.uniqueItems, false);
+}
+function BuildUniqueItems(stack, context5, schema, value2) {
+  if (!IsValid5(schema))
+    return emit_exports.Constant(true);
+  const set6 = emit_exports.Member(emit_exports.New("Set", [emit_exports.Call(emit_exports.Member(value2, "map"), [emit_exports.Member("Hashing", "Hash")])]), "size");
+  const isLength = emit_exports.Member(value2, "length");
+  return emit_exports.IsEqual(set6, isLength);
+}
+function CheckUniqueItems(stack, context5, schema, value2) {
+  if (!IsValid5(schema))
+    return true;
+  const set6 = new Set(value2.map(hash_exports.Hash)).size;
+  const isLength = value2.length;
+  return guard_exports.IsEqual(set6, isLength);
+}
+function ErrorUniqueItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  if (!IsValid5(schema))
+    return true;
+  const set6 = /* @__PURE__ */ new Set();
+  const duplicateItems = value2.reduce((result, value3, index2) => {
+    const hash2 = hash_exports.Hash(value3);
+    if (set6.has(hash2))
+      return [...result, index2];
+    set6.add(hash2);
+    return result;
+  }, []);
+  const isUniqueItems = guard_exports.IsEqual(duplicateItems.length, 0);
+  return isUniqueItems || context5.AddError({
+    keyword: "uniqueItems",
+    schemaPath,
+    instancePath,
+    params: { duplicateItems }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/schema.mjs
+function HasTypeName(schema, typename) {
+  return IsType(schema) && (guard_exports.IsArray(schema.type) && schema.type.includes(typename) || guard_exports.IsEqual(schema.type, typename));
+}
+function HasObjectType(schema) {
+  return HasTypeName(schema, "object");
+}
+function HasObjectKeywords(schema) {
+  return IsSchemaObject(schema) && (IsAdditionalProperties(schema) || IsDependencies(schema) || IsDependentRequired(schema) || IsDependentSchemas(schema) || IsProperties(schema) || IsPatternProperties(schema) || IsPropertyNames(schema) || IsMinProperties(schema) || IsMaxProperties(schema) || IsRequired(schema) || IsUnevaluatedProperties(schema));
+}
+function HasArrayType(schema) {
+  return HasTypeName(schema, "array");
+}
+function HasArrayKeywords(schema) {
+  return IsSchemaObject(schema) && (IsAdditionalItems(schema) || IsItems(schema) || IsContains(schema) || IsMaxContains(schema) || IsMaxItems(schema) || IsMinContains(schema) || IsMinItems(schema) || IsPrefixItems(schema) || IsUnevaluatedItems(schema) || IsUniqueItems(schema));
+}
+function HasStringType(schema) {
+  return HasTypeName(schema, "string");
+}
+function HasStringKeywords(schema) {
+  return IsSchemaObject(schema) && (IsMinLength4(schema) || IsMaxLength4(schema) || IsFormat(schema) || IsPattern(schema));
+}
+function HasNumberType(schema) {
+  return HasTypeName(schema, "number") || HasTypeName(schema, "bigint");
+}
+function HasNumberKeywords(schema) {
+  return IsSchemaObject(schema) && (IsMinimum(schema) || IsMaximum(schema) || IsExclusiveMaximum(schema) || IsExclusiveMinimum(schema) || IsMultipleOf2(schema));
+}
+function BuildSchema(stack, context5, schema, value2) {
+  stack.Push(schema);
+  const conditions = [];
+  if (IsBooleanSchema(schema))
+    return BuildBooleanSchema(stack, context5, schema, value2);
+  if (IsType(schema))
+    conditions.push(BuildType(stack, context5, schema, value2));
+  if (HasObjectKeywords(schema)) {
+    const constraints = [];
+    if (IsRequired(schema))
+      constraints.push(BuildRequired(stack, context5, schema, value2));
+    if (IsAdditionalProperties(schema))
+      constraints.push(BuildAdditionalProperties(stack, context5, schema, value2));
+    if (IsDependencies(schema))
+      constraints.push(BuildDependencies(stack, context5, schema, value2));
+    if (IsDependentRequired(schema))
+      constraints.push(BuildDependentRequired(stack, context5, schema, value2));
+    if (IsDependentSchemas(schema))
+      constraints.push(BuildDependentSchemas(stack, context5, schema, value2));
+    if (IsPatternProperties(schema))
+      constraints.push(BuildPatternProperties(stack, context5, schema, value2));
+    if (IsProperties(schema))
+      constraints.push(BuildProperties(stack, context5, schema, value2));
+    if (IsPropertyNames(schema))
+      constraints.push(BuildPropertyNames(stack, context5, schema, value2));
+    if (IsMinProperties(schema))
+      constraints.push(BuildMinProperties(stack, context5, schema, value2));
+    if (IsMaxProperties(schema))
+      constraints.push(BuildMaxProperties(stack, context5, schema, value2));
+    const reduced = emit_exports.ReduceAnd(constraints);
+    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsObjectNotArray(value2)), reduced);
+    conditions.push(HasObjectType(schema) ? reduced : guarded);
+  }
+  if (HasArrayKeywords(schema)) {
+    const constraints = [];
+    if (IsAdditionalItems(schema))
+      constraints.push(BuildAdditionalItems(stack, context5, schema, value2));
+    if (IsContains(schema))
+      constraints.push(BuildContains(stack, context5, schema, value2));
+    if (IsItems(schema))
+      constraints.push(BuildItems(stack, context5, schema, value2));
+    if (IsMaxContains(schema))
+      constraints.push(BuildMaxContains(stack, context5, schema, value2));
+    if (IsMaxItems(schema))
+      constraints.push(BuildMaxItems(stack, context5, schema, value2));
+    if (IsMinContains(schema))
+      constraints.push(BuildMinContains(stack, context5, schema, value2));
+    if (IsMinItems(schema))
+      constraints.push(BuildMinItems(stack, context5, schema, value2));
+    if (IsPrefixItems(schema))
+      constraints.push(BuildPrefixItems(stack, context5, schema, value2));
+    if (IsUniqueItems(schema))
+      constraints.push(BuildUniqueItems(stack, context5, schema, value2));
+    const reduced = emit_exports.ReduceAnd(constraints);
+    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsArray(value2)), reduced);
+    conditions.push(HasArrayType(schema) ? reduced : guarded);
+  }
+  if (HasStringKeywords(schema)) {
+    const constraints = [];
+    if (IsFormat(schema))
+      constraints.push(BuildFormat(stack, context5, schema, value2));
+    if (IsMaxLength4(schema))
+      constraints.push(BuildMaxLength(stack, context5, schema, value2));
+    if (IsMinLength4(schema))
+      constraints.push(BuildMinLength(stack, context5, schema, value2));
+    if (IsPattern(schema))
+      constraints.push(BuildPattern(stack, context5, schema, value2));
+    const reduced = emit_exports.ReduceAnd(constraints);
+    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsString(value2)), reduced);
+    conditions.push(HasStringType(schema) ? reduced : guarded);
+  }
+  if (HasNumberKeywords(schema)) {
+    const constraints = [];
+    if (IsExclusiveMaximum(schema))
+      constraints.push(BuildExclusiveMaximum(stack, context5, schema, value2));
+    if (IsExclusiveMinimum(schema))
+      constraints.push(BuildExclusiveMinimum(stack, context5, schema, value2));
+    if (IsMaximum(schema))
+      constraints.push(BuildMaximum(stack, context5, schema, value2));
+    if (IsMinimum(schema))
+      constraints.push(BuildMinimum(stack, context5, schema, value2));
+    if (IsMultipleOf2(schema))
+      constraints.push(BuildMultipleOf(stack, context5, schema, value2));
+    const reduced = emit_exports.ReduceAnd(constraints);
+    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.Or(emit_exports.IsNumber(value2), emit_exports.IsBigInt(value2))), reduced);
+    conditions.push(HasNumberType(schema) ? reduced : guarded);
+  }
+  if (IsRecursiveRef(schema))
+    conditions.push(BuildRecursiveRef(stack, context5, schema, value2));
+  if (IsRef2(schema))
+    conditions.push(BuildRef(stack, context5, schema, value2));
+  if (IsGuard2(schema))
+    conditions.push(BuildGuard(stack, context5, schema, value2));
+  if (IsConst(schema))
+    conditions.push(BuildConst(stack, context5, schema, value2));
+  if (IsEnum2(schema))
+    conditions.push(BuildEnum(stack, context5, schema, value2));
+  if (IsIf(schema))
+    conditions.push(BuildIf(stack, context5, schema, value2));
+  if (IsNot(schema))
+    conditions.push(BuildNot(stack, context5, schema, value2));
+  if (IsAllOf(schema))
+    conditions.push(BuildAllOf(stack, context5, schema, value2));
+  if (IsAnyOf(schema))
+    conditions.push(BuildAnyOf(stack, context5, schema, value2));
+  if (IsOneOf(schema))
+    conditions.push(BuildOneOf(stack, context5, schema, value2));
+  if (IsUnevaluatedItems(schema))
+    conditions.push(emit_exports.Or(emit_exports.Not(emit_exports.IsArray(value2)), BuildUnevaluatedItems(stack, context5, schema, value2)));
+  if (IsUnevaluatedProperties(schema))
+    conditions.push(emit_exports.Or(emit_exports.Not(emit_exports.IsObject(value2)), BuildUnevaluatedProperties(stack, context5, schema, value2)));
+  if (IsRefine2(schema))
+    conditions.push(BuildRefine(stack, context5, schema, value2));
+  const result = emit_exports.ReduceAnd(conditions);
+  stack.Pop(schema);
+  return result;
+}
+function CheckSchema(stack, context5, schema, value2) {
+  stack.Push(schema);
+  const result = IsBooleanSchema(schema) ? CheckBooleanSchema(stack, context5, schema, value2) : (!IsType(schema) || CheckType(stack, context5, schema, value2)) && (!(guard_exports.IsObject(value2) && !guard_exports.IsArray(value2)) || (!IsRequired(schema) || CheckRequired(stack, context5, schema, value2)) && (!IsAdditionalProperties(schema) || CheckAdditionalProperties(stack, context5, schema, value2)) && (!IsDependencies(schema) || CheckDependencies(stack, context5, schema, value2)) && (!IsDependentRequired(schema) || CheckDependentRequired(stack, context5, schema, value2)) && (!IsDependentSchemas(schema) || CheckDependentSchemas(stack, context5, schema, value2)) && (!IsPatternProperties(schema) || CheckPatternProperties(stack, context5, schema, value2)) && (!IsProperties(schema) || CheckProperties(stack, context5, schema, value2)) && (!IsPropertyNames(schema) || CheckPropertyNames(stack, context5, schema, value2)) && (!IsMinProperties(schema) || CheckMinProperties(stack, context5, schema, value2)) && (!IsMaxProperties(schema) || CheckMaxProperties(stack, context5, schema, value2))) && (!guard_exports.IsArray(value2) || (!IsAdditionalItems(schema) || CheckAdditionalItems(stack, context5, schema, value2)) && (!IsContains(schema) || CheckContains(stack, context5, schema, value2)) && (!IsItems(schema) || CheckItems(stack, context5, schema, value2)) && (!IsMaxContains(schema) || CheckMaxContains(stack, context5, schema, value2)) && (!IsMaxItems(schema) || CheckMaxItems(stack, context5, schema, value2)) && (!IsMinContains(schema) || CheckMinContains(stack, context5, schema, value2)) && (!IsMinItems(schema) || CheckMinItems(stack, context5, schema, value2)) && (!IsPrefixItems(schema) || CheckPrefixItems(stack, context5, schema, value2)) && (!IsUniqueItems(schema) || CheckUniqueItems(stack, context5, schema, value2))) && (!guard_exports.IsString(value2) || (!IsFormat(schema) || CheckFormat(stack, context5, schema, value2)) && (!IsMaxLength4(schema) || CheckMaxLength(stack, context5, schema, value2)) && (!IsMinLength4(schema) || CheckMinLength(stack, context5, schema, value2)) && (!IsPattern(schema) || CheckPattern(stack, context5, schema, value2))) && (!(guard_exports.IsNumber(value2) || guard_exports.IsBigInt(value2)) || (!IsExclusiveMaximum(schema) || CheckExclusiveMaximum(stack, context5, schema, value2)) && (!IsExclusiveMinimum(schema) || CheckExclusiveMinimum(stack, context5, schema, value2)) && (!IsMaximum(schema) || CheckMaximum(stack, context5, schema, value2)) && (!IsMinimum(schema) || CheckMinimum(stack, context5, schema, value2)) && (!IsMultipleOf2(schema) || CheckMultipleOf(stack, context5, schema, value2))) && (!IsRecursiveRef(schema) || CheckRecursiveRef(stack, context5, schema, value2)) && (!IsRef2(schema) || CheckRef(stack, context5, schema, value2)) && (!IsGuard2(schema) || CheckGuard(stack, context5, schema, value2)) && (!IsConst(schema) || CheckConst(stack, context5, schema, value2)) && (!IsEnum2(schema) || CheckEnum(stack, context5, schema, value2)) && (!IsIf(schema) || CheckIf(stack, context5, schema, value2)) && (!IsNot(schema) || CheckNot(stack, context5, schema, value2)) && (!IsAllOf(schema) || CheckAllOf(stack, context5, schema, value2)) && (!IsAnyOf(schema) || CheckAnyOf(stack, context5, schema, value2)) && (!IsOneOf(schema) || CheckOneOf(stack, context5, schema, value2)) && (!IsUnevaluatedItems(schema) || (!guard_exports.IsArray(value2) || CheckUnevaluatedItems(stack, context5, schema, value2))) && (!IsUnevaluatedProperties(schema) || (!guard_exports.IsObject(value2) || CheckUnevaluatedProperties(stack, context5, schema, value2))) && (!IsRefine2(schema) || CheckRefine(stack, context5, schema, value2));
+  stack.Pop(schema);
+  return result;
+}
+function ErrorSchema(stack, context5, schemaPath, instancePath, schema, value2) {
+  stack.Push(schema);
+  const result = IsBooleanSchema(schema) ? ErrorBooleanSchema(stack, context5, schemaPath, instancePath, schema, value2) : !!(+(!IsType(schema) || ErrorType(stack, context5, schemaPath, instancePath, schema, value2)) & +(!(guard_exports.IsObject(value2) && !guard_exports.IsArray(value2)) || !!(+(!IsRequired(schema) || ErrorRequired(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAdditionalProperties(schema) || ErrorAdditionalProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependencies(schema) || ErrorDependencies(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependentRequired(schema) || ErrorDependentRequired(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependentSchemas(schema) || ErrorDependentSchemas(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPatternProperties(schema) || ErrorPatternProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsProperties(schema) || ErrorProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPropertyNames(schema) || ErrorPropertyNames(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinProperties(schema) || ErrorMinProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxProperties(schema) || ErrorMaxProperties(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!guard_exports.IsArray(value2) || !!(+(!IsAdditionalItems(schema) || ErrorAdditionalItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsContains(schema) || ErrorContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsItems(schema) || ErrorItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxContains(schema) || ErrorMaxContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxItems(schema) || ErrorMaxItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinContains(schema) || ErrorMinContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinItems(schema) || ErrorMinItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPrefixItems(schema) || ErrorPrefixItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsUniqueItems(schema) || ErrorUniqueItems(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!guard_exports.IsString(value2) || !!(+(!IsFormat(schema) || ErrorFormat(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxLength4(schema) || ErrorMaxLength(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinLength4(schema) || ErrorMinLength(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPattern(schema) || ErrorPattern(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!(guard_exports.IsNumber(value2) || guard_exports.IsBigInt(value2)) || !!(+(!IsExclusiveMaximum(schema) || ErrorExclusiveMaximum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsExclusiveMinimum(schema) || ErrorExclusiveMinimum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaximum(schema) || ErrorMaximum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinimum(schema) || ErrorMinimum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMultipleOf2(schema) || ErrorMultipleOf(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!IsRecursiveRef(schema) || ErrorRecursiveRef(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsRef2(schema) || ErrorRef(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsGuard2(schema) || ErrorGuard(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsConst(schema) || ErrorConst(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsEnum2(schema) || ErrorEnum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsIf(schema) || ErrorIf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsNot(schema) || ErrorNot(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAllOf(schema) || ErrorAllOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAnyOf(schema) || ErrorAnyOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsOneOf(schema) || ErrorOneOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsUnevaluatedItems(schema) || (!guard_exports.IsArray(value2) || ErrorUnevaluatedItems(stack, context5, schemaPath, instancePath, schema, value2))) & +(!IsUnevaluatedProperties(schema) || (!guard_exports.IsObject(value2) || ErrorUnevaluatedProperties(stack, context5, schemaPath, instancePath, schema, value2)))) && (!IsRefine2(schema) || ErrorRefine(stack, context5, schemaPath, instancePath, schema, value2));
+  stack.Pop(schema);
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_functions.mjs
+var functions = /* @__PURE__ */ new Map();
+function CreateCallExpression(context5, schema, hash2, value2) {
+  return context5.UseUnevaluated() ? emit_exports.Call(`check_${hash2}`, ["context", value2]) : emit_exports.Call(`check_${hash2}`, [value2]);
+}
+function CreateFunctionExpression(stack, context5, schema, hash2) {
+  const expression = BuildSchema(stack, context5, schema, "value");
+  return context5.UseUnevaluated() ? emit_exports.ConstDeclaration(`check_${hash2}`, emit_exports.ArrowFunction(["context", "value"], expression)) : emit_exports.ConstDeclaration(`check_${hash2}`, emit_exports.ArrowFunction(["value"], expression));
+}
+function ResetFunctions() {
+  functions.clear();
+}
+function GetFunctions() {
+  return [...functions.values()];
+}
+function CreateFunction(stack, context5, schema, value2) {
+  const hash2 = IsSchemaObject(schema) ? hash_exports.Hash({ __baseURL: stack.BaseURL().href, ...schema }) : hash_exports.Hash(schema);
+  const call2 = CreateCallExpression(context5, schema, hash2, value2);
+  if (functions.has(hash2))
+    return call2;
+  functions.set(hash2, "");
+  functions.set(hash2, CreateFunctionExpression(stack, context5, schema, hash2));
+  return call2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/resolve/resolve.mjs
+var resolve_exports = {};
+__export(resolve_exports, {
+  Ref: () => Ref2
+});
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/pointer/pointer.mjs
+var pointer_exports = {};
+__export(pointer_exports, {
+  Delete: () => Delete,
+  Get: () => Get4,
+  Has: () => Has2,
+  Indices: () => Indices,
+  Set: () => Set4
+});
+function AssertNotRoot(indices) {
+  if (indices.length === 0)
+    throw Error("Cannot set root");
+}
+function AssertCanSet(value2) {
+  if (!guard_exports.IsObject(value2))
+    throw Error("Cannot set value");
+}
+function IsNumericIndex(index2) {
+  return /^(0|[1-9]\d*)$/.test(index2);
+}
+function TakeIndexRight(indices) {
+  return [
+    indices.slice(0, indices.length - 1),
+    indices.slice(indices.length - 1)[0]
+  ];
+}
+function HasIndex(index2, value2) {
+  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, index2);
+}
+function GetIndex(index2, value2) {
+  return guard_exports.IsObject(value2) ? value2[index2] : void 0;
+}
+function GetIndices(indices, value2) {
+  return indices.reduce((value3, index2) => GetIndex(index2, value3), value2);
+}
+function Indices(pointer) {
+  if (guard_exports.IsEqual(pointer.length, 0))
+    return [];
+  const indices = pointer.split("/").map((index2) => index2.replace(/~1/g, "/").replace(/~0/g, "~"));
+  return indices.length > 0 && indices[0] === "" ? indices.slice(1) : indices;
+}
+function Has2(value2, pointer) {
+  let current = value2;
+  return Indices(pointer).every((index2) => {
+    if (!HasIndex(index2, current))
+      return false;
+    current = current[index2];
+    return true;
+  });
+}
+function Get4(value2, pointer) {
+  const indices = Indices(pointer);
+  return GetIndices(indices, value2);
+}
+function Set4(value2, pointer, next) {
+  const indices = Indices(pointer);
+  AssertNotRoot(indices);
+  const [head5, index2] = TakeIndexRight(indices);
+  const parent = GetIndices(head5, value2);
+  AssertCanSet(parent);
+  parent[index2] = next;
+  return value2;
+}
+function Delete(value2, pointer) {
+  const indices = Indices(pointer);
+  AssertNotRoot(indices);
+  const [head5, index2] = TakeIndexRight(indices);
+  const parent = GetIndices(head5, value2);
+  AssertCanSet(parent);
+  if (guard_exports.IsArray(parent) && IsNumericIndex(index2)) {
+    parent.splice(+index2, 1);
+  } else {
+    delete parent[index2];
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/resolve/ref.mjs
+function MatchId(schema, base, ref) {
+  if (schema.$id === ref.hash)
+    return schema;
+  const absoluteId = new URL(schema.$id, base.href);
+  const absoluteRef = new URL(ref.href, base.href);
+  if (guard_exports.IsEqual(absoluteId.pathname, absoluteRef.pathname)) {
+    return ref.hash.startsWith("#") ? MatchHash(schema, base, ref) : schema;
+  }
+  return void 0;
+}
+function MatchAnchor(schema, base, ref) {
+  const absoluteAnchor = new URL(`#${schema.$anchor}`, base.href);
+  const absoluteRef = new URL(ref.href, base.href);
+  if (guard_exports.IsEqual(absoluteAnchor.href, absoluteRef.href))
+    return schema;
+  return void 0;
+}
+function MatchHash(schema, base, ref) {
+  if (ref.href.endsWith("#"))
+    return schema;
+  return ref.hash.startsWith("#") ? pointer_exports.Get(schema, decodeURIComponent(ref.hash.slice(1))) : void 0;
+}
+function Match2(schema, base, ref) {
+  if (IsId(schema)) {
+    const result = MatchId(schema, base, ref);
+    if (!guard_exports.IsUndefined(result))
+      return result;
+  }
+  if (IsAnchor(schema)) {
+    const result = MatchAnchor(schema, base, ref);
+    if (!guard_exports.IsUndefined(result))
+      return result;
+  }
+  return MatchHash(schema, base, ref);
+}
+function FromArray6(schema, base, ref) {
+  return schema.reduce((result, item) => {
+    const match14 = FromValue3(item, base, ref);
+    return !guard_exports.IsUndefined(match14) ? match14 : result;
+  }, void 0);
+}
+function FromObject9(schema, base, ref) {
+  return guard_exports.Keys(schema).reduce((result, key) => {
+    const match14 = FromValue3(schema[key], base, ref);
+    return !guard_exports.IsUndefined(match14) ? match14 : result;
+  }, void 0);
+}
+function FromValue3(schema, base, ref) {
+  base = IsSchemaObject(schema) && IsId(schema) ? new URL(schema.$id, base.href) : base;
+  if (IsSchemaObject(schema)) {
+    const result = Match2(schema, base, ref);
+    if (!guard_exports.IsUndefined(result))
+      return result;
+  }
+  if (guard_exports.IsArray(schema))
+    return FromArray6(schema, base, ref);
+  if (guard_exports.IsObject(schema))
+    return FromObject9(schema, base, ref);
+  return void 0;
+}
+function Ref2(schema, ref) {
+  const defaultBase = new URL("http://unknown");
+  const initialBase = IsId(schema) ? new URL(schema.$id, defaultBase.href) : defaultBase;
+  const initialRef = new URL(ref, initialBase.href);
+  return FromValue3(schema, initialBase, initialRef);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_stack.mjs
+var Stack = class {
+  constructor(context5, schema) {
+    this.context = context5;
+    this.schema = schema;
+    this.ids = [];
+    this.anchors = [];
+    this.recursiveAnchors = [];
+    this.dynamicAnchors = [];
+  }
+  // ----------------------------------------------------------------
+  // Base
+  // ----------------------------------------------------------------
+  BaseURL() {
+    return this.ids.reduce((result, schema) => new URL(schema.$id, result), new URL("http://unknown"));
+  }
+  Base() {
+    return this.ids[this.ids.length - 1] ?? this.schema;
+  }
+  // ----------------------------------------------------------------
+  // Stack
+  // ----------------------------------------------------------------
+  Push(schema) {
+    if (!IsSchemaObject(schema))
+      return;
+    if (IsId(schema))
+      this.ids.push(schema);
+    if (IsAnchor(schema))
+      this.anchors.push(schema);
+    if (IsRecursiveAnchorTrue(schema))
+      this.recursiveAnchors.push(schema);
+    if (IsDynamicAnchor(schema))
+      this.dynamicAnchors.push(schema);
+  }
+  Pop(schema) {
+    if (!IsSchemaObject(schema))
+      return;
+    if (IsId(schema))
+      this.ids.pop();
+    if (IsAnchor(schema))
+      this.anchors.pop();
+    if (IsRecursiveAnchorTrue(schema))
+      this.recursiveAnchors.pop();
+    if (IsDynamicAnchor(schema))
+      this.dynamicAnchors.pop();
+  }
+  // ----------------------------------------------------------------
+  // Ref
+  // ----------------------------------------------------------------
+  FromContext(ref) {
+    return guard_exports.HasPropertyKey(this.context, ref) ? this.context[ref] : void 0;
+  }
+  FromRef(ref) {
+    return !ref.startsWith("#") ? resolve_exports.Ref(this.schema, ref) : resolve_exports.Ref(this.Base(), ref);
+  }
+  Ref(ref) {
+    return this.FromContext(ref) ?? this.FromRef(ref);
+  }
+  // ----------------------------------------------------------------
+  // RecursiveRef
+  // ----------------------------------------------------------------
+  RecursiveRef(recursiveRef) {
+    if (IsRecursiveAnchorTrue(this.Base())) {
+      return resolve_exports.Ref(this.recursiveAnchors[0], recursiveRef);
+    }
+    return resolve_exports.Ref(this.Base(), recursiveRef);
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/build.mjs
+function CreateCode(build3) {
+  const functions2 = build3.Functions().join(";\n");
+  const statements = build3.UseUnevaluated() ? ["const context = new CheckContext({}, {})", `return ${build3.Call()}`] : [`return ${build3.Call()}`];
+  return `${functions2}; return (value) => { ${statements.join("; ")} }`;
+}
+function CreateEvaluatedCheck(build3, code) {
+  const factory = new globalThis.Function("CheckContext", "Guard", "Format", "Hashing", build3.External().identifier, code);
+  return factory(CheckContext, guard_exports, format_exports, hash_exports, build3.External().variables);
+}
+function CreateDynamicCheck(build3) {
+  const stack = new Stack(build3.Context(), build3.Schema());
+  const context5 = new CheckContext();
+  return (value2) => CheckSchema(stack, context5, build3.Schema(), value2);
+}
+function CreateCheck(build3, code) {
+  return environment_exports.CanEvaluate() ? CreateEvaluatedCheck(build3, code) : CreateDynamicCheck(build3);
+}
+var BuildResult = class {
+  constructor(context5, schema, external, functions2, call2, useUnevaluated) {
+    this.context = context5;
+    this.schema = schema;
+    this.external = external;
+    this.functions = functions2;
+    this.call = call2;
+    this.useUnevaluated = useUnevaluated;
+  }
+  /** Returns the Context used for this build */
+  Context() {
+    return this.context;
+  }
+  /** Returns the Schema used for this build */
+  Schema() {
+    return this.schema;
+  }
+  /** Returns true if this build requires a Unevaluated context */
+  UseUnevaluated() {
+    return this.useUnevaluated;
+  }
+  /** Returns external variables */
+  External() {
+    return this.external;
+  }
+  /** Returns check functions */
+  Functions() {
+    return this.functions;
+  }
+  /** Return entry function call. */
+  Call() {
+    return this.call;
+  }
+  /** Evaluates the build into a validation function */
+  Evaluate() {
+    const Code2 = CreateCode(this);
+    const Check3 = CreateCheck(this, Code2);
+    return { IsEvaluated: environment_exports.CanEvaluate(), Code: Code2, Check: Check3 };
+  }
+};
+function Build(...args2) {
+  const [context5, schema] = arguments_exports.Match(args2, {
+    2: (context6, schema2) => [context6, schema2],
+    1: (schema2) => [{}, schema2]
+  });
+  ResetExternal();
+  ResetFunctions();
+  const stack = new Stack(context5, schema);
+  const build3 = new BuildContext(HasUnevaluated(context5, schema));
+  const call2 = CreateFunction(stack, build3, schema, "value");
+  const functions2 = GetFunctions();
+  const externals = GetExternal();
+  return new BuildResult(context5, schema, externals, functions2, call2, build3.UseUnevaluated());
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/check.mjs
+function Check(...args2) {
+  const [context5, schema, value2] = arguments_exports.Match(args2, {
+    3: (context6, schema2, value3) => [context6, schema2, value3],
+    2: (schema2, value3) => [{}, schema2, value3]
+  });
+  const stack = new Stack(context5, schema);
+  const checkContext = new CheckContext();
+  return CheckSchema(stack, checkContext, schema, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/errors.mjs
+function Errors(...args2) {
+  const [context5, schema, value2] = arguments_exports.Match(args2, {
+    3: (context6, schema2, value3) => [context6, schema2, value3],
+    2: (schema2, value3) => [{}, schema2, value3]
+  });
+  const settings2 = settings_exports.Get();
+  const locale2 = Get2();
+  const errors = [];
+  const stack = new Stack(context5, schema);
+  const errorContext = new ErrorContext((error) => {
+    if (guard_exports.IsGreaterEqualThan(errors.length, settings2.maxErrors))
+      return;
+    return errors.push({ ...error, message: locale2(error) });
+  });
+  const result = ErrorSchema(stack, errorContext, "#", "", schema, value2);
+  return [result, errors];
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/check/check.mjs
+function Check2(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return Check(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/errors/errors.mjs
+function Errors2(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  const [_, errors] = Errors(context5, type, value2);
+  return errors;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/assert/assert.mjs
+var AssertError = class extends Error {
+  constructor(source, value2, errors) {
+    super(source);
+    Object.defineProperty(this, "cause", {
+      value: { source, errors, value: value2 },
+      writable: false,
+      configurable: false,
+      enumerable: false
+    });
+  }
+};
+function Assert(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  const check2 = Check2(context5, type, value2);
+  if (!check2)
+    throw new AssertError("Assert", value2, Errors2(context5, type, value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-array.mjs
+function FromArray7(context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  return value2.map((value3) => FromType14(context5, type.items, value3));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-base.mjs
+function FromBase(context5, type, value2) {
+  return type.Clean(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-cyclic.mjs
+function FromCyclic6(context5, type, value2) {
+  return FromType14({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-intersect.mjs
+function EvaluateIntersection(type) {
+  const additionalProperties = guard_exports.HasPropertyKey(type, "unevaluatedProperties") ? { additionalProperties: type.unevaluatedProperties } : {};
+  const evaluated = Evaluate(type);
+  return IsObject3(evaluated) ? Options2(evaluated, additionalProperties) : evaluated;
+}
+function FromIntersect6(context5, type, value2) {
+  const evaluated = EvaluateIntersection(type);
+  return FromType14(context5, evaluated, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/additional.mjs
+function GetAdditionalProperties(type) {
+  const additionalProperties = guard_exports.HasPropertyKey(type, "additionalProperties") ? type.additionalProperties : void 0;
+  return additionalProperties;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-object.mjs
+function FromObject10(context5, type, value2) {
+  if (!guard_exports.IsObject(value2) || guard_exports.IsArray(value2))
+    return value2;
+  const additionalProperties = GetAdditionalProperties(type);
+  for (const key of guard_exports.Keys(value2)) {
+    if (guard_exports.HasPropertyKey(type.properties, key)) {
+      value2[key] = FromType14(context5, type.properties[key], value2[key]);
+      continue;
+    }
+    const unknownCheck = (
+      // 1. additionalProperties: true
+      guard_exports.IsBoolean(additionalProperties) && guard_exports.IsEqual(additionalProperties, true) || IsSchema(additionalProperties) && Check2(context5, additionalProperties, value2[key])
+    );
+    if (unknownCheck) {
+      value2[key] = FromType14(context5, additionalProperties, value2[key]);
+      continue;
+    }
+    delete value2[key];
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-record.mjs
+function FromRecord2(context5, type, value2) {
+  if (!guard_exports.IsObject(value2))
+    return value2;
+  const additionalProperties = GetAdditionalProperties(type);
+  const [recordPattern, recordValue2] = [new RegExp(RecordPattern(type)), RecordValue(type)];
+  for (const key of guard_exports.Keys(value2)) {
+    if (recordPattern.test(key)) {
+      value2[key] = FromType14(context5, recordValue2, value2[key]);
+      continue;
+    }
+    const unknownCheck = (
+      // 1. additionalProperties: true
+      guard_exports.IsBoolean(additionalProperties) && guard_exports.IsEqual(additionalProperties, true) || IsSchema(additionalProperties) && Check2(context5, additionalProperties, value2[key])
+    );
+    if (unknownCheck) {
+      value2[key] = FromType14(context5, additionalProperties, value2[key]);
+      continue;
+    }
+    delete value2[key];
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-ref.mjs
+function FromRef5(context5, type, value2) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType14(context5, context5[type.$ref], value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-tuple.mjs
+function FromTuple5(context5, schema, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  const length2 = Math.min(value2.length, schema.items.length);
+  for (let index2 = 0; index2 < length2; index2++) {
+    value2[index2] = FromType14(context5, schema.items[index2], value2[index2]);
+  }
+  return guard_exports.IsGreaterThan(value2.length, length2) ? value2.slice(0, length2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clone/clone.mjs
+function FromClassInstance(value2) {
+  return value2;
+}
+function FromObjectInstance(value2) {
+  const result = {};
+  for (const key of Object.getOwnPropertyNames(value2)) {
+    result[key] = Clone2(value2[key]);
+  }
+  for (const key of Object.getOwnPropertySymbols(value2)) {
+    result[key] = Clone2(value2[key]);
+  }
+  return result;
+}
+function FromObject11(value2) {
+  return guard_exports.IsClassInstance(value2) ? FromClassInstance(value2) : FromObjectInstance(value2);
+}
+function FromArray8(value2) {
+  return value2.map((element) => Clone2(element));
+}
+function FromTypedArray(value2) {
+  return value2.slice();
+}
+function FromMap(value2) {
+  return new Map(Clone2([...value2.entries()]));
+}
+function FromSet(value2) {
+  return new Set(Clone2([...value2.values()]));
+}
+function FromValue4(value2) {
+  return value2;
+}
+function Clone2(value2) {
+  return globals_exports.IsTypeArray(value2) ? FromTypedArray(value2) : globals_exports.IsMap(value2) ? FromMap(value2) : globals_exports.IsSet(value2) ? FromSet(value2) : guard_exports.IsArray(value2) ? FromArray8(value2) : guard_exports.IsObject(value2) ? FromObject11(value2) : FromValue4(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-union.mjs
+function FromUnion9(context5, type, value2) {
+  for (const schema of type.anyOf) {
+    const clean = FromType14(context5, schema, Clone2(value2));
+    if (Check2(context5, schema, clean))
+      return clean;
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-type.mjs
+function FromType14(context5, type, value2) {
+  return IsArray3(type) ? FromArray7(context5, type, value2) : IsBase(type) ? FromBase(context5, type, value2) : IsCyclic(type) ? FromCyclic6(context5, type, value2) : IsIntersect(type) ? FromIntersect6(context5, type, value2) : IsObject3(type) ? FromObject10(context5, type, value2) : IsRecord(type) ? FromRecord2(context5, type, value2) : IsRef(type) ? FromRef5(context5, type, value2) : IsTuple(type) ? FromTuple5(context5, type, value2) : IsUnion(type) ? FromUnion9(context5, type, value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/clean.mjs
+function Clean(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return FromType14(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-array.mjs
+function FromArray9(context5, type, value2) {
+  return guard_exports.IsArray(value2) ? value2.map((value3) => FromType15(context5, type.items, value3)) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-base.mjs
+function FromBase2(context5, type, value2) {
+  return type.Convert(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try.mjs
+var try_exports = {};
+__export(try_exports, {
+  Fail: () => Fail,
+  IsOk: () => IsOk,
+  Ok: () => Ok,
+  TryBigInt: () => TryBigInt,
+  TryBoolean: () => TryBoolean,
+  TryNull: () => TryNull,
+  TryNumber: () => TryNumber,
+  TryString: () => TryString,
+  TryUndefined: () => TryUndefined
+});
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-result.mjs
+function IsOk(value2) {
+  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, "value");
+}
+function Ok(value2) {
+  return { value: value2 };
+}
+function Fail() {
+  return void 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-bigint.mjs
+function FromBigInt2(value2) {
+  return Ok(value2);
+}
+function FromBoolean2(value2) {
+  return guard_exports.IsEqual(value2, true) ? Ok(BigInt(1)) : Ok(BigInt(0));
+}
+function FromNumber2(value2) {
+  return Ok(BigInt(Math.trunc(value2)));
+}
+function FromNull2(value2) {
+  return Ok(BigInt(0));
+}
+var bigintPattern = /^-?(0|[1-9]\d*)n$/;
+var decimalPattern = /^-?(0|[1-9]\d*)\.\d+$/;
+var integerPattern = /^-?(0|[1-9]\d*)$/;
+function IsStringBigIntLike(value2) {
+  return bigintPattern.test(value2);
+}
+function IsStringDecimalLike(value2) {
+  return decimalPattern.test(value2);
+}
+function IsStringIntegerLike(value2) {
+  return integerPattern.test(value2);
+}
+function FromString2(value2) {
+  const lowercase = value2.toLowerCase();
+  return IsStringBigIntLike(value2) ? Ok(BigInt(value2.slice(0, value2.length - 1))) : IsStringDecimalLike(value2) ? Ok(BigInt(value2.split(".")[0])) : IsStringIntegerLike(value2) ? Ok(BigInt(value2)) : guard_exports.IsEqual(lowercase, "false") ? Ok(BigInt(0)) : guard_exports.IsEqual(lowercase, "true") ? Ok(BigInt(1)) : Fail();
+}
+function FromUndefined2(value2) {
+  return Ok(BigInt(0));
+}
+function TryBigInt(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt2(value2) : guard_exports.IsBoolean(value2) ? FromBoolean2(value2) : guard_exports.IsNumber(value2) ? FromNumber2(value2) : guard_exports.IsNull(value2) ? FromNull2(value2) : guard_exports.IsString(value2) ? FromString2(value2) : guard_exports.IsUndefined(value2) ? FromUndefined2(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-boolean.mjs
+function FromBigInt3(value2) {
+  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(false) : guard_exports.IsEqual(value2, BigInt(1)) ? Ok(true) : Fail();
+}
+function FromBoolean3(value2) {
+  return Ok(value2);
+}
+function FromNumber3(value2) {
+  return guard_exports.IsEqual(value2, 0) ? Ok(false) : guard_exports.IsEqual(value2, 1) ? Ok(true) : Fail();
+}
+function FromNull3(value2) {
+  return Ok(false);
+}
+function FromString3(value2) {
+  return guard_exports.IsEqual(value2.toLowerCase(), "false") ? Ok(false) : guard_exports.IsEqual(value2.toLowerCase(), "true") ? Ok(true) : guard_exports.IsEqual(value2, "0") ? Ok(false) : guard_exports.IsEqual(value2, "1") ? Ok(true) : Fail();
+}
+function FromUndefined3(value2) {
+  return Ok(false);
+}
+function TryBoolean(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt3(value2) : guard_exports.IsBoolean(value2) ? FromBoolean3(value2) : guard_exports.IsNumber(value2) ? FromNumber3(value2) : guard_exports.IsNull(value2) ? FromNull3(value2) : guard_exports.IsString(value2) ? FromString3(value2) : guard_exports.IsUndefined(value2) ? FromUndefined3(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-null.mjs
+function FromBigInt4(value2) {
+  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(null) : Fail();
+}
+function FromBoolean4(value2) {
+  return guard_exports.IsEqual(value2, false) ? Ok(null) : Fail();
+}
+function FromNumber4(value2) {
+  return guard_exports.IsEqual(value2, 0) ? Ok(null) : Fail();
+}
+function FromNull4(value2) {
+  return Ok(null);
+}
+function FromString4(value2) {
+  const lowercase = value2.toLowerCase();
+  const predicate = guard_exports.IsEqual(lowercase, "undefined") || guard_exports.IsEqual(lowercase, "null") || guard_exports.IsEqual(value2, "") || guard_exports.IsEqual(value2, "0");
+  return predicate ? Ok(null) : Fail();
+}
+function FromUndefined4(value2) {
+  return Ok(null);
+}
+function TryNull(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt4(value2) : guard_exports.IsBoolean(value2) ? FromBoolean4(value2) : guard_exports.IsNumber(value2) ? FromNumber4(value2) : guard_exports.IsNull(value2) ? FromNull4(value2) : guard_exports.IsString(value2) ? FromString4(value2) : guard_exports.IsUndefined(value2) ? FromUndefined4(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-number.mjs
+var maxBigInt = BigInt(Number.MAX_SAFE_INTEGER);
+var minBigInt = BigInt(Number.MIN_SAFE_INTEGER);
+function CanBigIntDowncast(value2) {
+  return value2 <= maxBigInt && value2 >= minBigInt;
+}
+function FromBigInt5(value2) {
+  return CanBigIntDowncast(value2) ? Ok(Number(value2)) : Fail();
+}
+function FromBoolean5(value2) {
+  return value2 ? Ok(1) : Ok(0);
+}
+function FromNumber5(value2) {
+  return Ok(value2);
+}
+function FromNull5(value2) {
+  return Ok(0);
+}
+function FromString5(value2) {
+  const coerced = +value2;
+  if (guard_exports.IsNumber(coerced))
+    return Ok(coerced);
+  const lowercase = value2.toLowerCase();
+  if (guard_exports.IsEqual(lowercase, "false"))
+    return Ok(0);
+  if (guard_exports.IsEqual(lowercase, "true"))
+    return Ok(1);
+  const result = TryBigInt(value2);
+  if (IsOk(result))
+    return FromBigInt5(result.value);
+  return Fail();
+}
+function FromUndefined5(value2) {
+  return Ok(0);
+}
+function TryNumber(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt5(value2) : guard_exports.IsBoolean(value2) ? FromBoolean5(value2) : guard_exports.IsNumber(value2) ? FromNumber5(value2) : guard_exports.IsNull(value2) ? FromNull5(value2) : guard_exports.IsString(value2) ? FromString5(value2) : guard_exports.IsUndefined(value2) ? FromUndefined5(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-string.mjs
+function FromBigInt6(value2) {
+  return Ok(value2.toString());
+}
+function FromBoolean6(value2) {
+  return Ok(value2.toString());
+}
+function FromNumber6(value2) {
+  return Ok(value2.toString());
+}
+function FromNull6(value2) {
+  return Ok("null");
+}
+function FromString6(value2) {
+  return Ok(value2);
+}
+function FromUndefined6(value2) {
+  return Ok("");
+}
+function TryString(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt6(value2) : guard_exports.IsBoolean(value2) ? FromBoolean6(value2) : guard_exports.IsNumber(value2) ? FromNumber6(value2) : guard_exports.IsNull(value2) ? FromNull6(value2) : guard_exports.IsString(value2) ? FromString6(value2) : guard_exports.IsUndefined(value2) ? FromUndefined6(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-undefined.mjs
+function FromBigInt7(value2) {
+  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(void 0) : Fail();
+}
+function FromBoolean7(value2) {
+  return guard_exports.IsEqual(value2, false) ? Ok(void 0) : Fail();
+}
+function FromNumber7(value2) {
+  return guard_exports.IsEqual(value2, 0) ? Ok(void 0) : Fail();
+}
+function FromNull7(value2) {
+  return Ok(void 0);
+}
+function FromString7(value2) {
+  const lowercase = value2.toLowerCase();
+  const predicate = guard_exports.IsEqual(lowercase, "undefined") || guard_exports.IsEqual(lowercase, "null") || guard_exports.IsEqual(value2, "") || guard_exports.IsEqual(value2, "0");
+  return predicate ? Ok(void 0) : Fail();
+}
+function FromUndefined7(value2) {
+  return Ok(void 0);
+}
+function TryUndefined(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt7(value2) : guard_exports.IsBoolean(value2) ? FromBoolean7(value2) : guard_exports.IsNumber(value2) ? FromNumber7(value2) : guard_exports.IsNull(value2) ? FromNull7(value2) : guard_exports.IsString(value2) ? FromString7(value2) : guard_exports.IsUndefined(value2) ? FromUndefined7(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-bigint.mjs
+function FromBigInt8(context5, type, value2) {
+  if (guard_exports.IsBigInt(value2))
+    return value2;
+  const result = try_exports.TryBigInt(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-boolean.mjs
+function FromBoolean8(context5, type, value2) {
+  if (guard_exports.IsBoolean(value2))
+    return value2;
+  const result = try_exports.TryBoolean(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-cyclic.mjs
+function FromCyclic7(context5, type, value2) {
+  return FromType15({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-union.mjs
+function FromUnion10(context5, type, value2) {
+  const matched = type.anyOf.some((type2) => Check2(context5, type2, value2));
+  if (matched)
+    return value2;
+  const candidates = type.anyOf.map((type2) => FromType15(context5, type2, Clone2(value2)));
+  const selected = candidates.find((value3) => Check2(context5, type, value3));
+  return guard_exports.IsUndefined(selected) ? value2 : selected;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-enum.mjs
+function FromEnum2(context5, type, value2) {
+  const union8 = EnumToUnion(type);
+  return FromUnion10(context5, union8, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-integer.mjs
+function FromInteger(context5, type, value2) {
+  if (guard_exports.IsInteger(value2))
+    return value2;
+  const result = try_exports.TryNumber(value2);
+  return try_exports.IsOk(result) ? Math.trunc(result.value) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-intersect.mjs
+function FromIntersect7(context5, type, value2) {
+  const evaluatedType = Evaluate(type);
+  return FromType15(context5, evaluatedType, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-literal.mjs
+function FromLiteralBigInt(context5, type, value2) {
+  const result = try_exports.TryBigInt(value2);
+  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
+}
+function FromLiteralBoolean(context5, type, value2) {
+  const result = try_exports.TryBoolean(value2);
+  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
+}
+function FromLiteralNumber(context5, type, value2) {
+  const result = try_exports.TryNumber(value2);
+  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
+}
+function FromLiteralString(context5, type, value2) {
+  const result = try_exports.TryString(value2);
+  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
+}
+function FromLiteral5(context5, type, value2) {
+  if (guard_exports.IsEqual(type.const, value2))
+    return value2;
+  return IsLiteralBigInt(type) ? FromLiteralBigInt(context5, type, value2) : IsLiteralBoolean(type) ? FromLiteralBoolean(context5, type, value2) : IsLiteralNumber(type) ? FromLiteralNumber(context5, type, value2) : IsLiteralString(type) ? FromLiteralString(context5, type, value2) : Unreachable();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-null.mjs
+function FromNull8(context5, type, value2) {
+  if (guard_exports.IsNull(value2))
+    return value2;
+  const result = try_exports.TryNull(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-number.mjs
+function FromNumber8(context5, type, value2) {
+  if (guard_exports.IsNumber(value2))
+    return value2;
+  const result = try_exports.TryNumber(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-additional.mjs
+function FromAdditionalProperties(context5, entries2, additionalProperties, value2) {
+  const keys5 = guard_exports.Keys(value2);
+  for (const [regexp, _] of entries2) {
+    for (const key of keys5) {
+      if (!regexp.test(key)) {
+        value2[key] = FromType15(context5, additionalProperties, value2[key]);
+      }
+    }
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/shared/optional-undefined.mjs
+function IsOptionalUndefined(property, key, value2) {
+  return IsOptional(property) && guard_exports.IsUndefined(value2[key]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-object.mjs
+function FromProperties4(context5, type, value2) {
+  const entries2 = guard_exports.EntriesRegExp(type.properties);
+  const keys5 = guard_exports.Keys(value2);
+  for (const [regexp, property] of entries2) {
+    for (const key of keys5) {
+      if (!regexp.test(key) || IsOptionalUndefined(property, key, value2))
+        continue;
+      value2[key] = FromType15(context5, property, value2[key]);
+    }
+  }
+  return guard_exports.HasPropertyKey(type, "additionalProperties") && guard_exports.IsObject(type.additionalProperties) ? FromAdditionalProperties(context5, entries2, type.additionalProperties, value2) : value2;
+}
+function FromObject12(context5, type, value2) {
+  return guard_exports.IsObjectNotArray(value2) ? FromProperties4(context5, type, value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-record.mjs
+function FromPatternProperties(context5, type, value2) {
+  const entries2 = guard_exports.EntriesRegExp(type.patternProperties);
+  const keys5 = guard_exports.Keys(value2);
+  for (const [regexp, schema] of entries2) {
+    for (const key of keys5) {
+      if (regexp.test(key)) {
+        value2[key] = FromType15(context5, schema, value2[key]);
+      }
+    }
+  }
+  return guard_exports.HasPropertyKey(type, "additionalProperties") && guard_exports.IsObject(type.additionalProperties) ? FromAdditionalProperties(context5, entries2, type.additionalProperties, value2) : value2;
+}
+function FromRecord3(context5, type, value2) {
+  return guard_exports.IsObjectNotArray(value2) ? FromPatternProperties(context5, type, value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-ref.mjs
+function FromRef6(context5, type, value2) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType15(context5, context5[type.$ref], value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-string.mjs
+function FromString8(context5, type, value2) {
+  if (guard_exports.IsString(value2))
+    return value2;
+  const result = try_exports.TryString(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-template-literal.mjs
+function FromTemplateLiteral4(context5, type, value2) {
+  const decoded = TemplateLiteralDecode(type.pattern);
+  return FromType15(context5, decoded, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-tuple.mjs
+function FromTuple6(context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  for (let index2 = 0; index2 < Math.min(type.items.length, value2.length); index2++) {
+    value2[index2] = FromType15(context5, type.items[index2], value2[index2]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-undefined.mjs
+function FromUndefined8(context5, type, value2) {
+  if (guard_exports.IsUndefined(value2))
+    return value2;
+  const result = try_exports.TryUndefined(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-void.mjs
+function FromVoid(context5, type, value2) {
+  if (guard_exports.IsUndefined(value2))
+    return value2;
+  const result = try_exports.TryUndefined(value2);
+  return try_exports.IsOk(result) ? void 0 : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-type.mjs
+function FromType15(context5, type, value2) {
+  return IsArray3(type) ? FromArray9(context5, type, value2) : IsBase(type) ? FromBase2(context5, type, value2) : IsBigInt3(type) ? FromBigInt8(context5, type, value2) : IsBoolean4(type) ? FromBoolean8(context5, type, value2) : IsCyclic(type) ? FromCyclic7(context5, type, value2) : IsEnum(type) ? FromEnum2(context5, type, value2) : IsInteger3(type) ? FromInteger(context5, type, value2) : IsIntersect(type) ? FromIntersect7(context5, type, value2) : IsLiteral(type) ? FromLiteral5(context5, type, value2) : IsNull3(type) ? FromNull8(context5, type, value2) : IsNumber4(type) ? FromNumber8(context5, type, value2) : IsObject3(type) ? FromObject12(context5, type, value2) : IsRecord(type) ? FromRecord3(context5, type, value2) : IsRef(type) ? FromRef6(context5, type, value2) : IsString4(type) ? FromString8(context5, type, value2) : IsTemplateLiteral(type) ? FromTemplateLiteral4(context5, type, value2) : IsTuple(type) ? FromTuple6(context5, type, value2) : IsUndefined3(type) ? FromUndefined8(context5, type, value2) : IsUnion(type) ? FromUnion10(context5, type, value2) : IsVoid(type) ? FromVoid(context5, type, value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/convert.mjs
+function Convert(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return FromType15(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-array.mjs
+function FromArray10(context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  for (let i = 0; i < value2.length; i++) {
+    value2[i] = FromType16(context5, type.items, value2[i]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-base.mjs
+function FromBase3(context5, type, value2) {
+  return type.Default(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-cyclic.mjs
+function FromCyclic8(context5, type, value2) {
+  return FromType16({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-default.mjs
+function FromDefault(type, value2) {
+  if (!guard_exports.IsUndefined(value2))
+    return value2;
+  return guard_exports.IsFunction(type.default) ? type.default() : Clone2(type.default);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-intersect.mjs
+function FromIntersect8(context5, type, value2) {
+  const evaluted = Evaluate(type);
+  return FromType16(context5, evaluted, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-object.mjs
+function FromObject13(context5, type, value2) {
+  if (!guard_exports.IsObject(value2))
+    return value2;
+  const knownPropertyKeys = guard_exports.Keys(type.properties);
+  for (const key of knownPropertyKeys) {
+    const propertyValue = FromType16(context5, type.properties[key], value2[key]);
+    const isUnassignableUndefined = guard_exports.IsUndefined(propertyValue) && (IsOptional(type.properties[key]) || !guard_exports.HasPropertyKey(type.properties[key], "default"));
+    if (isUnassignableUndefined)
+      continue;
+    value2[key] = FromType16(context5, type.properties[key], value2[key]);
+  }
+  if (!IsAdditionalProperties(type) || guard_exports.IsBoolean(type.additionalProperties))
+    return value2;
+  for (const key of guard_exports.Keys(value2)) {
+    if (knownPropertyKeys.includes(key))
+      continue;
+    value2[key] = FromType16(context5, type.additionalProperties, value2[key]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-record.mjs
+function FromRecord4(context5, type, value2) {
+  if (!guard_exports.IsObject(value2))
+    return value2;
+  const [recordKey, recordValue2] = [new RegExp(RecordPattern(type)), RecordValue(type)];
+  for (const key of guard_exports.Keys(value2)) {
+    if (!(recordKey.test(key) && IsDefault(recordValue2)))
+      continue;
+    value2[key] = FromType16(context5, recordValue2, value2[key]);
+  }
+  if (!IsAdditionalProperties(type))
+    return value2;
+  for (const key of guard_exports.Keys(value2)) {
+    if (recordKey.test(key))
+      continue;
+    value2[key] = FromType16(context5, type.additionalProperties, value2[key]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-ref.mjs
+function FromRef7(context5, type, value2) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType16(context5, context5[type.$ref], value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-tuple.mjs
+function FromTuple7(context5, schema, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  const [items, max5] = [schema.items, Math.max(schema.items.length, value2.length)];
+  for (let i = 0; i < max5; i++) {
+    if (i < items.length)
+      value2[i] = FromType16(context5, items[i], value2[i]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-union.mjs
+function FromUnion11(context5, schema, value2) {
+  for (const inner of schema.anyOf) {
+    const result = FromType16(context5, inner, Clone2(value2));
+    if (Check2(context5, inner, result)) {
+      return result;
+    }
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-type.mjs
+function FromType16(context5, type, value2) {
+  const defaulted = IsDefault(type) ? FromDefault(type, value2) : value2;
+  return IsArray3(type) ? FromArray10(context5, type, defaulted) : IsBase(type) ? FromBase3(context5, type, defaulted) : IsCyclic(type) ? FromCyclic8(context5, type, defaulted) : IsIntersect(type) ? FromIntersect8(context5, type, defaulted) : IsObject3(type) ? FromObject13(context5, type, defaulted) : IsRecord(type) ? FromRecord4(context5, type, defaulted) : IsRef(type) ? FromRef7(context5, type, defaulted) : IsTuple(type) ? FromTuple7(context5, type, defaulted) : IsUnion(type) ? FromUnion11(context5, type, defaulted) : defaulted;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/default.mjs
+function Default(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return FromType16(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/pipeline/pipeline.mjs
+function Pipeline(pipeline) {
+  return (...args2) => {
+    const [context5, type, value2] = arguments_exports.Match(args2, {
+      3: (context6, type2, value3) => [context6, type2, value3],
+      2: (type2, value3) => [{}, type2, value3]
+    });
+    return pipeline.reduce((result, func) => func(context5, type, result), value2);
+  };
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/callback.mjs
+function Decode2(context5, type, value2) {
+  return type["~codec"].decode(value2);
+}
+function Encode2(context5, type, value2) {
+  return type["~codec"].encode(value2);
+}
+function Callback(direction, context5, type, value2) {
+  if (!IsCodec(type))
+    return value2;
+  return guard_exports.IsEqual(direction, "Decode") ? Decode2(context5, type, value2) : Encode2(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-array.mjs
+function Decode3(direction, context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return Unreachable();
+  for (let i = 0; i < value2.length; i++) {
+    value2[i] = FromType17(direction, context5, type.items, value2[i]);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode3(direction, context5, type, value2) {
+  const exterior = Callback(direction, context5, type, value2);
+  if (!guard_exports.IsArray(exterior))
+    return exterior;
+  for (let i = 0; i < exterior.length; i++) {
+    exterior[i] = FromType17(direction, context5, type.items, exterior[i]);
+  }
+  return exterior;
+}
+function FromArray11(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode3(direction, context5, type, value2) : Encode3(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-cyclic.mjs
+function FromCyclic9(direction, context5, type, value2) {
+  value2 = FromType17(direction, { ...context5, ...type.$defs }, Ref(type.$ref), value2);
+  return Callback(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-intersect.mjs
+function Decode4(direction, context5, type, value2) {
+  for (const schema of type.allOf) {
+    value2 = FromType17(direction, context5, schema, value2);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode4(direction, context5, type, value2) {
+  let exterior = Callback(direction, context5, type, value2);
+  for (const schema of type.allOf) {
+    exterior = FromType17(direction, context5, schema, exterior);
+  }
+  return exterior;
+}
+function FromIntersect9(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode4(direction, context5, type, value2) : Encode4(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-object.mjs
+function Decode5(direction, context5, type, value2) {
+  if (!guard_exports.IsObjectNotArray(value2))
+    return Unreachable();
+  for (const key of guard_exports.Keys(type.properties)) {
+    if (!guard_exports.HasPropertyKey(value2, key) || IsOptionalUndefined(type.properties[key], key, value2))
+      continue;
+    value2[key] = FromType17(direction, context5, type.properties[key], value2[key]);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode5(direction, context5, type, value2) {
+  const exterior = Callback(direction, context5, type, value2);
+  if (!guard_exports.IsObjectNotArray(exterior))
+    return exterior;
+  for (const key of guard_exports.Keys(type.properties)) {
+    if (!guard_exports.HasPropertyKey(exterior, key) || IsOptionalUndefined(type.properties[key], key, exterior))
+      continue;
+    exterior[key] = FromType17(direction, context5, type.properties[key], exterior[key]);
+  }
+  return exterior;
+}
+function FromObject14(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode5(direction, context5, type, value2) : Encode5(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-record.mjs
+function Decode6(direction, context5, type, value2) {
+  if (!guard_exports.IsObjectNotArray(value2))
+    return Unreachable();
+  const regexp = new RegExp(RecordPattern(type));
+  for (const key of guard_exports.Keys(value2)) {
+    if (!regexp.test(key))
+      Unreachable();
+    value2[key] = FromType17(direction, context5, RecordValue(type), value2[key]);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode6(direction, context5, type, value2) {
+  const exterior = Callback(direction, context5, type, value2);
+  if (!guard_exports.IsObjectNotArray(exterior))
+    return exterior;
+  const regexp = new RegExp(RecordPattern(type));
+  for (const key of guard_exports.Keys(exterior)) {
+    if (!regexp.test(key))
+      continue;
+    exterior[key] = FromType17(direction, context5, RecordValue(type), exterior[key]);
+  }
+  return exterior;
+}
+function FromRecord5(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode6(direction, context5, type, value2) : Encode6(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-ref.mjs
+function FromRef8(direction, context5, type, value2) {
+  value2 = guard_exports.HasPropertyKey(context5, type.$ref) ? FromType17(direction, context5, context5[type.$ref], value2) : value2;
+  return Callback(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-tuple.mjs
+function Decode7(direction, context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return Unreachable();
+  for (let i = 0; i < Math.min(type.items.length, value2.length); i++) {
+    value2[i] = FromType17(direction, context5, type.items[i], value2[i]);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode7(direction, context5, type, value2) {
+  const exterior = Callback(direction, context5, type, value2);
+  if (!guard_exports.IsArray(exterior))
+    return value2;
+  for (let i = 0; i < Math.min(type.items.length, exterior.length); i++) {
+    exterior[i] = FromType17(direction, context5, type.items[i], exterior[i]);
+  }
+  return exterior;
+}
+function FromTuple8(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode7(direction, context5, type, value2) : Encode7(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-union.mjs
+function Decode8(direction, context5, type, value2) {
+  for (const schema of type.anyOf) {
+    if (!Check2(context5, schema, value2))
+      continue;
+    const variant = FromType17(direction, context5, schema, value2);
+    return Callback(direction, context5, type, variant);
+  }
+  return Unreachable();
+}
+function Encode8(direction, context5, type, value2) {
+  let exterior = Callback(direction, context5, type, value2);
+  for (const schema of type.anyOf) {
+    const variant = FromType17(direction, context5, schema, Clone2(exterior));
+    if (!Check2(context5, schema, variant))
+      continue;
+    return variant;
+  }
+  return exterior;
+}
+function FromUnion12(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode8(direction, context5, type, value2) : Encode8(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-type.mjs
+function FromType17(direction, context5, type, value2) {
+  return IsArray3(type) ? FromArray11(direction, context5, type, value2) : IsCyclic(type) ? FromCyclic9(direction, context5, type, value2) : IsIntersect(type) ? FromIntersect9(direction, context5, type, value2) : IsObject3(type) ? FromObject14(direction, context5, type, value2) : IsRecord(type) ? FromRecord5(direction, context5, type, value2) : IsRef(type) ? FromRef8(direction, context5, type, value2) : IsTuple(type) ? FromTuple8(direction, context5, type, value2) : IsUnion(type) ? FromUnion12(direction, context5, type, value2) : Callback(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/decode.mjs
+var DecodeError = class extends AssertError {
+  constructor(value2, errors) {
+    super("Decode", value2, errors);
+  }
+};
+function Assert2(context5, type, value2) {
+  if (!Check2(context5, type, value2))
+    throw new DecodeError(value2, Errors2(context5, type, value2));
+  return value2;
+}
+function DecodeUnsafe(context5, type, value2) {
+  return FromType17("Decode", context5, type, value2);
+}
+var Decoder = Pipeline([
+  (_context, _type, value2) => Clone2(value2),
+  (context5, type, value2) => Default(context5, type, value2),
+  (context5, type, value2) => Convert(context5, type, value2),
+  (context5, type, value2) => Clean(context5, type, value2),
+  (context5, type, value2) => Assert2(context5, type, value2),
+  (context5, type, value2) => DecodeUnsafe(context5, type, value2)
+]);
+function Decode9(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return Decoder(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/encode.mjs
+var EncodeError = class extends AssertError {
+  constructor(value2, errors) {
+    super("Encode", value2, errors);
+  }
+};
+function Assert3(context5, type, value2) {
+  if (!Check2(context5, type, value2))
+    throw new EncodeError(value2, Errors2(context5, type, value2));
+  return value2;
+}
+function EncodeUnsafe(context5, type, value2) {
+  return FromType17("Encode", context5, type, value2);
+}
+var Encoder = Pipeline([
+  (_context, _type, value2) => Clone2(value2),
+  (context5, type, value2) => EncodeUnsafe(context5, type, value2),
+  (context5, type, value2) => Default(context5, type, value2),
+  (context5, type, value2) => Convert(context5, type, value2),
+  (context5, type, value2) => Clean(context5, type, value2),
+  (context5, type, value2) => Assert3(context5, type, value2)
+]);
+function Encode9(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return Encoder(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/has.mjs
+function FromArray12(context5, type) {
+  return IsCodec(type) || FromType18(context5, type.items);
+}
+function FromCyclic10(context5, type) {
+  return IsCodec(type) || FromRef9({ ...context5, ...type.$defs }, Ref(type.$ref));
+}
+function FromIntersect10(context5, type) {
+  return IsCodec(type) || type.allOf.some((type2) => FromType18(context5, type2));
+}
+function FromObject15(context5, type) {
+  return IsCodec(type) || guard_exports.Keys(type.properties).some((key) => {
+    return FromType18(context5, type.properties[key]);
+  });
+}
+function FromRecord6(context5, type) {
+  return IsCodec(type) || FromType18(context5, RecordValue(type));
+}
+function FromRef9(context5, type) {
+  if (visited.has(type.$ref))
+    return false;
+  visited.add(type.$ref);
+  return IsCodec(type) || guard_exports.HasPropertyKey(context5, type.$ref) && FromType18(context5, context5[type.$ref]);
+}
+function FromTuple9(context5, type) {
+  return IsCodec(type) || type.items.some((type2) => FromType18(context5, type2));
+}
+function FromUnion13(context5, type) {
+  return IsCodec(type) || type.anyOf.some((type2) => FromType18(context5, type2));
+}
+function FromType18(context5, type) {
+  return IsArray3(type) ? FromArray12(context5, type) : IsCyclic(type) ? FromCyclic10(context5, type) : IsIntersect(type) ? FromIntersect10(context5, type) : IsObject3(type) ? FromObject15(context5, type) : IsRecord(type) ? FromRecord6(context5, type) : IsRef(type) ? FromRef9(context5, type) : IsTuple(type) ? FromTuple9(context5, type) : IsUnion(type) ? FromUnion13(context5, type) : IsCodec(type);
+}
+var visited = /* @__PURE__ */ new Set();
+function HasCodec(...args2) {
+  const [context5, type] = arguments_exports.Match(args2, {
+    2: (context6, type2) => [context6, type2],
+    1: (type2) => [{}, type2]
+  });
+  visited.clear();
+  return FromType18(context5, type);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/error.mjs
+var CreateError = class extends Error {
+  constructor(type, message) {
+    super(message);
+    this.type = type;
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-default.mjs
+function FromDefault2(context5, schema) {
+  return guard_exports.IsFunction(schema.default) ? schema.default(schema) : guard_exports.IsObject(schema.default) ? Clone2(schema.default) : schema.default;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-array.mjs
+function FromArray13(context5, type) {
+  if (IsUniqueItems(type) && !IsDefault(type))
+    throw new CreateError(type, "Arrays with uniqueItems constraints must specify a default annotation");
+  const length2 = IsMinItems(type) ? type.minItems : 0;
+  return Array.from({ length: length2 }, () => FromType19(context5, type.items));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-async-iterator.mjs
+async function* CreateAsyncIterator() {
+}
+function FromAsyncIterator(context5, type) {
+  return CreateAsyncIterator();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-base.mjs
+function FromBase4(context5, type) {
+  return type.Create();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-bigint.mjs
+function FromBigInt9(context5, type) {
+  return IsExclusiveMinimum(type) ? BigInt(type.exclusiveMinimum) + BigInt(1) : IsMinimum(type) ? BigInt(type.minimum) : BigInt(0);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-boolean.mjs
+function FromBoolean9(context5, type) {
+  return false;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-constructor.mjs
+function FromConstructor2(context5, type) {
+  const instanceType = FromType19(context5, type.instanceType);
+  return class {
+    constructor() {
+      Object.assign(this, instanceType);
+    }
+  };
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-cyclic.mjs
+function FromCyclic11(context5, type) {
+  return FromType19({ ...context5, ...type.$defs }, Ref(type.$ref));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-enum.mjs
+function FromEnum3(context5, type) {
+  return FromType19(context5, EnumToUnion(type));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-function.mjs
+function FromFunction2(context5, type) {
+  const returnType = FromType19(context5, type.returnType);
+  return () => returnType;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-integer.mjs
+function FromInteger2(context5, type) {
+  return IsExclusiveMinimum(type) && guard_exports.IsNumber(type.exclusiveMinimum) ? type.exclusiveMinimum + 1 : IsMinimum(type) ? type.minimum : 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-intersect.mjs
+function FromIntersect11(context5, type) {
+  return FromType19(context5, Evaluate(type));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-iterator.mjs
+function* CreateIterator() {
+}
+function FromIterator(context5, type) {
+  return CreateIterator();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-literal.mjs
+function FromLiteral6(context5, type) {
+  return type.const;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-never.mjs
+function FromNever(context5, type) {
+  throw new CreateError(type, "Cannot create TNever types");
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-null.mjs
+function FromNull9(context5, type) {
+  return null;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-number.mjs
+function FromNumber9(context5, type) {
+  return IsExclusiveMinimum(type) && guard_exports.IsNumber(type.exclusiveMinimum) ? type.exclusiveMinimum + 1 : IsMinimum(type) ? type.minimum : 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-object.mjs
+function FromObject16(context5, type) {
+  const required = guard_exports.IsUndefined(type.required) ? [] : type.required;
+  return required.reduce((result, key) => {
+    return { ...result, [key]: FromType19(context5, type.properties[key]) };
+  }, {});
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-promise.mjs
+function FromPromise(context5, type) {
+  return Promise.resolve(FromType19(context5, type.item));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-record.mjs
+function FromRecord7(context5, type) {
+  if (IsMinProperties(type) && !IsDefault(type))
+    throw new CreateError(type, "Record with the minProperties constraint must have a default annotation");
+  return {};
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-ref.mjs
+function FromRef10(context5, type) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType19(context5, context5[type.$ref]) : (() => {
+    throw new CreateError(type, "Unable to deref Ref");
+  })();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-string.mjs
+function FromString9(context5, type) {
+  const needsDefault = (IsPattern(type) || IsFormat(type)) && !IsDefault(type);
+  if (needsDefault)
+    throw Error("Strings with format or pattern constraints must specify default");
+  const minLength = IsMinLength4(type) ? type.minLength : 0;
+  return "".padEnd(minLength);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-symbol.mjs
+function FromSymbol2(context5, type) {
+  return /* @__PURE__ */ Symbol();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-template-literal.mjs
+function FromTemplateLiteral5(context5, type) {
+  const decoded = TemplateLiteralDecode(type.pattern);
+  if (IsString4(decoded))
+    throw new CreateError(type, "Unable to create TemplateLiteral due to infinite type expansion");
+  return FromType19(context5, decoded);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-tuple.mjs
+function FromTuple10(context5, type) {
+  return Array.from({ length: type.minItems }, (_, i) => FromType19(context5, type.items[i]));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-undefined.mjs
+function FromUndefined9(context5, type) {
+  return void 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-union.mjs
+function FromUnion14(context5, type) {
+  if (guard_exports.IsEqual(type.anyOf.length, 0)) {
+    throw Error("Unable to create Union with no variants");
+  }
+  return FromType19(context5, type.anyOf[0]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-void.mjs
+function FromVoid2(context5, type) {
+  return void 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-type.mjs
+function FromType19(context5, type) {
+  return (
+    // -----------------------------------------------------
+    // Default
+    // -----------------------------------------------------
+    IsDefault(type) ? FromDefault2(context5, type) : (
+      // -----------------------------------------------------
+      // Types
+      // -----------------------------------------------------
+      IsArray3(type) ? FromArray13(context5, type) : IsAsyncIterator3(type) ? FromAsyncIterator(context5, type) : IsBase(type) ? FromBase4(context5, type) : IsBigInt3(type) ? FromBigInt9(context5, type) : IsBoolean4(type) ? FromBoolean9(context5, type) : IsConstructor3(type) ? FromConstructor2(context5, type) : IsCyclic(type) ? FromCyclic11(context5, type) : IsEnum(type) ? FromEnum3(context5, type) : IsFunction3(type) ? FromFunction2(context5, type) : IsInteger3(type) ? FromInteger2(context5, type) : IsIntersect(type) ? FromIntersect11(context5, type) : IsIterator3(type) ? FromIterator(context5, type) : IsLiteral(type) ? FromLiteral6(context5, type) : IsNever(type) ? FromNever(context5, type) : IsNull3(type) ? FromNull9(context5, type) : IsNumber4(type) ? FromNumber9(context5, type) : IsObject3(type) ? FromObject16(context5, type) : IsPromise(type) ? FromPromise(context5, type) : IsRecord(type) ? FromRecord7(context5, type) : IsRef(type) ? FromRef10(context5, type) : IsString4(type) ? FromString9(context5, type) : IsSymbol3(type) ? FromSymbol2(context5, type) : IsTemplateLiteral(type) ? FromTemplateLiteral5(context5, type) : IsTuple(type) ? FromTuple10(context5, type) : IsUndefined3(type) ? FromUndefined9(context5, type) : IsUnion(type) ? FromUnion14(context5, type) : IsVoid(type) ? FromVoid2(context5, type) : void 0
+    )
+  );
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/create.mjs
+function Create2(...args2) {
+  const [context5, type] = arguments_exports.Match(args2, {
+    2: (context6, type2) => [context6, type2],
+    1: (type2) => [{}, type2]
+  });
+  return FromType19(context5, type);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/equal/equal.mjs
+function Equal(left3, right3) {
+  return guard_exports.IsDeepEqual(left3, right3);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/hash/hash.mjs
+function Hash2(value2) {
+  return hash_exports.Hash(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/error.mjs
+var MutateError = class extends Error {
+  constructor(message) {
+    super(message);
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-array.mjs
+function FromArray14(root, path, current, next) {
+  if (!guard_exports.IsArray(current)) {
+    pointer_exports.Set(root, path, Clone2(next));
+  } else {
+    for (let index2 = 0; index2 < next.length; index2++) {
+      FromValue5(root, `${path}/${index2}`, current[index2], next[index2]);
+    }
+    current.splice(next.length);
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-object.mjs
+function FromObject17(root, path, current, next) {
+  if (!guard_exports.IsObjectNotArray(current)) {
+    pointer_exports.Set(root, path, Clone2(next));
+  } else {
+    const currentKeys = guard_exports.Keys(current);
+    const nextKeys = guard_exports.Keys(next);
+    for (const currentKey of currentKeys) {
+      if (!nextKeys.includes(currentKey)) {
+        delete current[currentKey];
+      }
+    }
+    for (const nextKey of nextKeys) {
+      if (!currentKeys.includes(nextKey)) {
+        current[nextKey] = next[nextKey];
+      }
+    }
+    for (const nextKey of nextKeys) {
+      FromValue5(root, `${path}/${nextKey}`, current[nextKey], next[nextKey]);
+    }
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-unknown.mjs
+function FromUnknown2(root, path, current, next) {
+  if (current === next)
+    return;
+  pointer_exports.Set(root, path, next);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-value.mjs
+function FromValue5(root, path, current, next) {
+  if (guard_exports.IsArray(next))
+    return FromArray14(root, path, current, next);
+  if (guard_exports.IsObject(next))
+    return FromObject17(root, path, current, next);
+  return FromUnknown2(root, path, current, next);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/mutate.mjs
+function IsNonMutableValue(value2) {
+  return globals_exports.IsTypeArray(value2) || globals_exports.IsDate(value2) || globals_exports.IsMap(value2) || globals_exports.IsSet(value2) || guard_exports.IsNumber(value2) || guard_exports.IsString(value2) || guard_exports.IsBoolean(value2) || guard_exports.IsSymbol(value2);
+}
+function IsMismatchedValue(left3, right3) {
+  return guard_exports.IsObjectNotArray(left3) && guard_exports.IsArray(right3) || guard_exports.IsArray(left3) && guard_exports.IsObjectNotArray(right3);
+}
+function Mutate(current, next) {
+  if (IsNonMutableValue(current) || IsNonMutableValue(next))
+    throw new MutateError("Only object and array types can be mutated at the root level");
+  if (IsMismatchedValue(current, next))
+    throw new MutateError("Cannot assign due type mismatch of assignable values");
+  FromValue5(current, "", current, next);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/parse/parse.mjs
+var ParseError = class extends AssertError {
+  constructor(value2, errors) {
+    super("Parse", value2, errors);
+  }
+};
+function Assert4(context5, type, value2) {
+  if (!Check2(context5, type, value2))
+    throw new ParseError(value2, Errors2(context5, type, value2));
+  return value2;
+}
+var Parser = Pipeline([
+  (_context, _type, value2) => Clone2(value2),
+  (context5, type, value2) => Default(context5, type, value2),
+  (context5, type, value2) => Convert(context5, type, value2),
+  (context5, type, value2) => Clean(context5, type, value2),
+  (context5, type, value2) => Assert4(context5, type, value2)
+]);
+function Parse(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  const result = Check2(context5, type, value2) ? value2 : Parser(context5, type, value2);
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/diff.mjs
+function CreateUpdate(path, value2) {
+  return { type: "update", path, value: value2 };
+}
+function CreateInsert(path, value2) {
+  return { type: "insert", path, value: value2 };
+}
+function CreateDelete(path) {
+  return { type: "delete", path };
+}
+function AssertCanDiffObject(value2) {
+  if (guard_exports.IsObject(value2) && guard_exports.IsEqual(guard_exports.Symbols(value2).length, 0))
+    return;
+  throw new Error("Cannot create diffs for objects with symbols keys");
+}
+function* FromObject18(path, left3, right3) {
+  if (!guard_exports.IsObject(right3) || guard_exports.IsArray(right3))
+    return yield CreateUpdate(path, right3);
+  AssertCanDiffObject(left3);
+  AssertCanDiffObject(right3);
+  const leftKeys = guard_exports.Keys(left3);
+  const rightKeys = guard_exports.Keys(right3);
+  for (const key of rightKeys) {
+    if (guard_exports.HasPropertyKey(left3, key))
+      continue;
+    yield CreateInsert(`${path}/${key}`, right3[key]);
+  }
+  for (const key of leftKeys) {
+    if (!guard_exports.HasPropertyKey(right3, key))
+      continue;
+    if (Equal(left3, right3))
+      continue;
+    yield* FromValue6(`${path}/${key}`, left3[key], right3[key]);
+  }
+  for (const key of leftKeys) {
+    if (guard_exports.HasPropertyKey(right3, key))
+      continue;
+    yield CreateDelete(`${path}/${key}`);
+  }
+}
+function* FromArray15(path, left3, right3) {
+  if (!guard_exports.IsArray(right3))
+    return yield CreateUpdate(path, right3);
+  for (let i = 0; i < Math.min(left3.length, right3.length); i++) {
+    yield* FromValue6(`${path}/${i}`, left3[i], right3[i]);
+  }
+  for (let i = 0; i < right3.length; i++) {
+    if (i < left3.length)
+      continue;
+    yield CreateInsert(`${path}/${i}`, right3[i]);
+  }
+  for (let i = left3.length - 1; i >= 0; i--) {
+    if (i < right3.length)
+      continue;
+    yield CreateDelete(`${path}/${i}`);
+  }
+}
+function* FromTypedArray2(path, left3, right3) {
+  const typeLeft = globalThis.Object.getPrototypeOf(left3).constructor.name;
+  const typeRight = globalThis.Object.getPrototypeOf(right3).constructor.name;
+  const predicate = globals_exports.IsTypeArray(right3) && guard_exports.IsEqual(left3.length, right3.length) && guard_exports.IsEqual(typeLeft, typeRight);
+  if (predicate) {
+    for (let index2 = 0; index2 < Math.min(left3.length, right3.length); index2++) {
+      yield* FromValue6(`${path}/${index2}`, left3[index2], right3[index2]);
+    }
+  } else {
+    return yield CreateUpdate(path, right3);
+  }
+}
+function* FromUnknown3(path, left3, right3) {
+  if (left3 === right3)
+    return;
+  yield CreateUpdate(path, right3);
+}
+function* FromValue6(path, left3, right3) {
+  return globals_exports.IsTypeArray(left3) ? yield* FromTypedArray2(path, left3, right3) : guard_exports.IsArray(left3) ? yield* FromArray15(path, left3, right3) : guard_exports.IsObject(left3) ? yield* FromObject18(path, left3, right3) : yield* FromUnknown3(path, left3, right3);
+}
+function Diff(current, next) {
+  return [...FromValue6("", current, next)];
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/edit.mjs
+var Insert = _Object_({
+  type: Literal("insert"),
+  path: String2(),
+  value: Unknown()
+});
+var Update2 = Object({
+  type: Literal("update"),
+  path: String2(),
+  value: Unknown()
+});
+var Delete2 = _Object_({
+  type: Literal("delete"),
+  path: String2()
+});
+var Edit = Union([Insert, Update2, Delete2]);
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/patch.mjs
+function IsRoot(edits) {
+  return edits.length > 0 && edits[0].path === "" && edits[0].type === "update";
+}
+function IsEmpty(edits) {
+  return edits.length === 0;
+}
+function Patch(current, edits) {
+  if (IsRoot(edits))
+    return Clone2(edits[0].value);
+  if (IsEmpty(edits))
+    return Clone2(current);
+  const clone2 = Clone2(current);
+  for (const edit of edits) {
+    switch (edit.type) {
+      case "insert": {
+        pointer_exports.Set(clone2, edit.path, edit.value);
+        break;
+      }
+      case "update": {
+        pointer_exports.Set(clone2, edit.path, edit.value);
+        break;
+      }
+      case "delete": {
+        pointer_exports.Delete(clone2, edit.path);
+        break;
+      }
+    }
+  }
+  return clone2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/error.mjs
+var RepairError = class extends Error {
+  constructor(context5, type, value2, message) {
+    super(message);
+    this.context = context5;
+    this.type = type;
+    this.value = value2;
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-array.mjs
+function MakeUnique(values3) {
+  const [hashes, result] = [/* @__PURE__ */ new Set(), []];
+  for (const value2 of values3) {
+    const hash2 = Hash2(value2);
+    if (hashes.has(hash2))
+      continue;
+    hashes.add(hash2);
+    result.push(value2);
+  }
+  return result;
+}
+function FromArray16(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return value2;
+  const created = guard_exports.IsArray(value2) ? value2 : Create2(context5, type);
+  const minimum = IsMinItems(type) && created.length < type.minItems ? [...created, ...Array.from({ length: type.minItems - created.length }, () => Create2(context5, type))] : created;
+  const maximum = IsMaxItems(type) && minimum.length > type.maxItems ? minimum.slice(0, type.maxItems) : minimum;
+  const repaired = maximum.map((value3) => FromType20(context5, type.items, value3));
+  if (!IsUniqueItems(type) || IsUniqueItems(type) && !guard_exports.IsEqual(type.uniqueItems, true))
+    return repaired;
+  const unique = MakeUnique(repaired);
+  if (!Check2(context5, type, unique))
+    throw new RepairError(context5, type, value2, "Failed to repair Array due to uniqueItems constraint");
+  return unique;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-unknown.mjs
+function FromUnknown4(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return value2;
+  const converted = Convert(context5, type, value2);
+  if (Check2(context5, type, converted))
+    return converted;
+  return Create2(context5, type);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-base.mjs
+function FromBase5(context5, type, value2) {
+  return FromUnknown4(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-enum.mjs
+function FromEnum4(context5, type, value2) {
+  const union8 = EnumToUnion(type);
+  return FromType20(context5, union8, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-intersect.mjs
+function FromIntersect12(context5, type, value2) {
+  const evaluated = Evaluate(type);
+  return FromType20(context5, evaluated, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-object.mjs
+function FromObject19(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return value2;
+  if (!guard_exports.IsObjectNotArray(value2))
+    return Create2(context5, type);
+  const required = new Set(guard_exports.IsUndefined(type.required) ? [] : type.required);
+  const result = {};
+  for (const [key, schema] of guard_exports.Entries(type.properties)) {
+    if (!required.has(key) && guard_exports.IsUndefined(value2[key]))
+      continue;
+    result[key] = key in value2 ? FromType20(context5, schema, value2[key]) : Create2(context5, schema);
+  }
+  const evaluatedKeys = guard_exports.Keys(type.properties);
+  if (IsAdditionalProperties(type) && guard_exports.IsObject(type.additionalProperties)) {
+    for (const key of guard_exports.Keys(value2)) {
+      if (evaluatedKeys.includes(key))
+        continue;
+      result[key] = FromType20(context5, type.additionalProperties, value2[key]);
+    }
+  }
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-record.mjs
+function FromRecord8(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return value2;
+  if (guard_exports.IsNull(value2) || !guard_exports.IsObject(value2) || guard_exports.IsArray(value2))
+    return Create2(context5, type);
+  const recordKey = new RegExp(RecordPattern(type));
+  const recordValue2 = RecordValue(type);
+  const evaluatedKeys = /* @__PURE__ */ new Set();
+  const result = {};
+  for (const [key, value_] of guard_exports.Entries(value2)) {
+    if (!recordKey.test(key))
+      continue;
+    result[key] = FromType20(context5, recordValue2, value_);
+    evaluatedKeys.add(key);
+  }
+  if (IsAdditionalProperties(type)) {
+    for (const key of guard_exports.Keys(value2)) {
+      if (evaluatedKeys.has(key))
+        continue;
+      result[key] = FromType20(context5, type.additionalProperties, value2[key]);
+    }
+  }
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-ref.mjs
+function FromRef11(context5, type, value2) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType20(context5, context5[type.$ref], value2) : (() => {
+    throw new RepairError(context5, type, value2, "Unable to de-reference target type");
+  })();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-template-literal.mjs
+function FromTemplateLiteral6(context5, type, value2) {
+  const decoded = TemplateLiteralDecode(type.pattern);
+  return FromType20(context5, decoded, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-tuple.mjs
+function FromTuple11(context5, schema, value2) {
+  if (Check2(context5, schema, value2))
+    return value2;
+  if (!guard_exports.IsArray(value2))
+    return Create2(context5, schema);
+  return schema.items.map((schema2, index2) => FromType20(context5, schema2, value2[index2]));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-union.mjs
+function Deref(context5, type, value2) {
+  return IsRef(type) ? guard_exports.HasPropertyKey(context5, type.$ref) ? Deref(context5, context5[type.$ref], value2) : (() => {
+    throw new RepairError(context5, type, value2, "Unable to Deref target on Union repair");
+  })() : type;
+}
+function ScoreVariant(context5, type, value2) {
+  if (!(IsObject3(type) && guard_exports.IsObject(value2)))
+    return 0;
+  const keys5 = guard_exports.Keys(value2);
+  const entries2 = guard_exports.Entries(type.properties);
+  return entries2.reduce((result, [key, schema]) => {
+    const literal = IsLiteral(schema) && guard_exports.IsEqual(schema.const, value2[key]) ? 100 : 0;
+    const checks = Check2(context5, schema, value2[key]) ? 10 : 0;
+    const exists4 = keys5.includes(key) ? 1 : 0;
+    return result + (literal + checks + exists4);
+  }, 0);
+}
+function SelectVariant(context5, type, value2) {
+  const schemas = type.anyOf.map((schema) => Deref(context5, schema, value2));
+  let [select, best] = [schemas[0], 0];
+  for (const schema of schemas) {
+    const score = ScoreVariant(context5, schema, value2);
+    if (score > best) {
+      select = schema;
+      best = score;
+    }
+  }
+  return select;
+}
+function RepairUnion(context5, type, value2) {
+  const union8 = Union(Flatten(type.anyOf));
+  const schema = SelectVariant(context5, union8, value2);
+  return FromType20(context5, schema, value2);
+}
+function FromUnion15(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return Clone2(value2);
+  if (IsDefault(type))
+    return Create2(context5, type);
+  return RepairUnion(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-type.mjs
+function AssertRepairableValue(context5, type, value2) {
+  const unsupported = globals_exports.IsDate(value2) || globals_exports.IsMap(value2) || globals_exports.IsSet(value2) || globals_exports.IsTypeArray(value2) || guard_exports.IsConstructor(value2) || guard_exports.IsFunction(value2);
+  if (unsupported) {
+    throw new RepairError(context5, type, value2, "Value is not repairable");
+  }
+}
+function AssertRepairableType(context5, type, value2) {
+  const unsupported = IsAsyncIterator3(type) || IsIterator3(type) || IsConstructor3(type) || IsFunction3(type) || IsNever(type) || IsPromise(type);
+  if (unsupported) {
+    throw new RepairError(context5, type, value2, "Type is not repairable");
+  }
+}
+function FinalizeRepair(context5, type, repaired) {
+  return IsRefine(type) ? Check2(context5, type, repaired) ? repaired : Create2(context5, type) : repaired;
+}
+function FromType20(context5, type, value2) {
+  if (IsBase(type)) {
+    const repaired2 = FromBase5(context5, type, value2);
+    return FinalizeRepair(context5, type, repaired2);
+  }
+  AssertRepairableValue(context5, type, value2);
+  AssertRepairableType(context5, type, value2);
+  const repaired = IsArray3(type) ? FromArray16(context5, type, value2) : IsEnum(type) ? FromEnum4(context5, type, value2) : IsIntersect(type) ? FromIntersect12(context5, type, value2) : IsObject3(type) ? FromObject19(context5, type, value2) : IsRecord(type) ? FromRecord8(context5, type, value2) : IsRef(type) ? FromRef11(context5, type, value2) : IsTemplateLiteral(type) ? FromTemplateLiteral6(context5, type, value2) : IsTuple(type) ? FromTuple11(context5, type, value2) : IsUnion(type) ? FromUnion15(context5, type, value2) : FromUnknown4(context5, type, value2);
+  return FinalizeRepair(context5, type, repaired);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/repair.mjs
+function Repair(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  const repaired = FromType20(context5, type, value2);
+  Assert(context5, type, repaired);
+  return repaired;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/value.mjs
+var value_exports = {};
+__export(value_exports, {
+  Assert: () => Assert,
+  Check: () => Check2,
+  Clean: () => Clean,
+  Clone: () => Clone2,
+  Convert: () => Convert,
+  Create: () => Create2,
+  Decode: () => Decode9,
+  Default: () => Default,
+  Diff: () => Diff,
+  Encode: () => Encode9,
+  Equal: () => Equal,
+  Errors: () => Errors2,
+  HasCodec: () => HasCodec,
+  Hash: () => Hash2,
+  Mutate: () => Mutate,
+  Parse: () => Parse,
+  Patch: () => Patch,
+  Pointer: () => pointer_exports,
+  Repair: () => Repair
+});
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/compile/validator.mjs
+var Validator = class _Validator extends Base {
+  /** Constructs a Validator. */
+  constructor(...args2) {
+    super();
+    const matched = arguments_exports.Match(args2, {
+      6: (context5, type, isEvalulated, hasCodec, code, check2) => [context5, type, isEvalulated, hasCodec, code, check2],
+      2: (context5, type) => [context5, type]
+    });
+    if (matched.length === 6) {
+      const [context5, type, isEvaluated, hasCodec, code, check2] = matched;
+      this.context = context5;
+      this.type = type;
+      this.isEvaluated = isEvaluated;
+      this.hasCodec = hasCodec;
+      this.code = code;
+      this.check = check2;
+    } else {
+      const [context5, type] = matched;
+      const result = Build(context5, type).Evaluate();
+      this.hasCodec = HasCodec(context5, type);
+      this.context = context5;
+      this.type = type;
+      this.isEvaluated = result.IsEvaluated;
+      this.code = result.Code;
+      this.check = result.Check;
+    }
+  }
+  // ----------------------------------------------------------------
+  // IsEvaluated
+  // ----------------------------------------------------------------
+  /** Returns true if this validator is using runtime eval optimizations. */
+  IsEvaluated() {
+    return this.isEvaluated;
+  }
+  // ----------------------------------------------------------------
+  // Context | Type
+  // ----------------------------------------------------------------
+  /** Returns the Context for this validator. */
+  Context() {
+    return this.context;
+  }
+  /** Returns the Type for this validator. */
+  Type() {
+    return this.type;
+  }
+  // ----------------------------------------------------------------
+  // Code
+  // ----------------------------------------------------------------
+  /** Returns the generated code for this validator. */
+  Code() {
+    return this.code;
+  }
+  // ----------------------------------------------------------------
+  // Base<...>
+  // ----------------------------------------------------------------
+  /** Checks a value matches the Validator type. */
+  Check(value2) {
+    return this.check(value2);
+  }
+  /** Returns errors for the given value. */
+  Errors(value2) {
+    if (environment_exports.CanEvaluate() && this.check(value2))
+      return [];
+    return Errors2(this.context, this.type, value2);
+  }
+  /** Cleans a value using the Validator type. */
+  Clean(value2) {
+    return Clean(this.context, this.type, value2);
+  }
+  /** Converts a value using the Validator type. */
+  Convert(value2) {
+    return Convert(this.context, this.type, value2);
+  }
+  /** Creates a value using the Validator type. */
+  Create() {
+    return Create2(this.context, this.type);
+  }
+  /** Creates defaults using the Validator type. */
+  Default(value2) {
+    return Default(this.context, this.type, value2);
+  }
+  /** Clones this validator. */
+  Clone() {
+    return new _Validator(this.context, this.type, this.isEvaluated, this.hasCodec, this.code, this.check);
+  }
+  // ----------------------------------------------------------------
+  // Parse | Decode | Encode
+  // ----------------------------------------------------------------
+  /** Parses a value */
+  Parse(value2) {
+    const result = this.Check(value2) ? value2 : Parser(this.context, this.type, value2);
+    return result;
+  }
+  /** Decodes a value */
+  Decode(value2) {
+    const result = this.hasCodec ? Decode9(this.context, this.type, value2) : this.Parse(value2);
+    return result;
+  }
+  /** Encodes a value */
+  Encode(value2) {
+    const result = this.hasCodec ? Encode9(this.context, this.type, value2) : this.Parse(value2);
+    return result;
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/compile/compile.mjs
+function Compile(...args2) {
+  const [context5, type] = arguments_exports.Match(args2, {
+    2: (context6, type2) => [context6, type2],
+    1: (type2) => [{}, type2]
+  });
+  return new Validator(context5, type);
+}
+
 // ../../packages/civ7-direct-control/dist/chunk-TIGRIXS6.js
 function productionChoicePostconditionConfirmed(classification) {
   switch (classification) {
@@ -27263,7 +27263,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-XTKZVMAL.js
+// ../../packages/civ7-control-orpc/dist/chunk-K6WJEDJ3.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -27273,60 +27273,6 @@ function isCiv7ControlOrpcCorrelationId(correlationId) {
 function civ7ControlOrpcErrorCorrelationData(context5) {
   const correlationId = context5.correlation?.correlationId;
   return isCiv7ControlOrpcCorrelationId(correlationId) ? { correlationId } : {};
-}
-var TYPEBOX_SCHEMA = /* @__PURE__ */ Symbol.for("@civ7/control-orpc/typebox-schema");
-function toStandardSchema(schema) {
-  const validator = Compile(schema);
-  const standardSchema = {
-    "~standard": {
-      version: 1,
-      vendor: "typebox",
-      validate(value2) {
-        if (validator.Check(value2)) {
-          return { value: value2 };
-        }
-        return {
-          issues: [...validator.Errors(value2)].map((error) => ({
-            message: error.message,
-            path: pathSegments(error.instancePath)
-          }))
-        };
-      }
-    }
-  };
-  Object.defineProperty(standardSchema, TYPEBOX_SCHEMA, {
-    value: schema
-  });
-  return standardSchema;
-}
-function typeboxInputSchemaFromContractProcedure(procedure) {
-  return typeboxSchemaFromStandard(
-    procedure["~orpc"].inputSchema,
-    "input"
-  );
-}
-function typeboxOutputSchemaFromContractProcedure(procedure) {
-  return typeboxSchemaFromStandard(
-    procedure["~orpc"].outputSchema,
-    "output"
-  );
-}
-function typeboxSchemaFromStandard(value2, label) {
-  const schema = value2?.[TYPEBOX_SCHEMA];
-  if (schema == null) {
-    throw new Error(`Civ7 control-oRPC contract ${label} schema is not TypeBox-backed.`);
-  }
-  return schema;
-}
-function pathSegments(path) {
-  if (path.length === 0) {
-    return [];
-  }
-  return path.split("/").slice(1).map((segment) => ({ key: pathKey(segment) }));
-}
-function pathKey(segment) {
-  const decoded = segment.replace(/~1/g, "/").replace(/~0/g, "~");
-  return /^\d+$/.test(decoded) ? Number(decoded) : decoded;
 }
 function composeSurfaceProxy(surface, target) {
   return new Proxy(target, {
@@ -28141,6 +28087,60 @@ function implementEffect(contract, runtime4) {
     implement(contract),
     runtime4
   );
+}
+var TYPEBOX_SCHEMA = /* @__PURE__ */ Symbol.for("@civ7/control-orpc/typebox-schema");
+function toStandardSchema(schema) {
+  const validator = Compile(schema);
+  const standardSchema = {
+    "~standard": {
+      version: 1,
+      vendor: "typebox",
+      validate(value2) {
+        if (validator.Check(value2)) {
+          return { value: value2 };
+        }
+        return {
+          issues: [...validator.Errors(value2)].map((error) => ({
+            message: error.message,
+            path: pathSegments(error.instancePath)
+          }))
+        };
+      }
+    }
+  };
+  Object.defineProperty(standardSchema, TYPEBOX_SCHEMA, {
+    value: schema
+  });
+  return standardSchema;
+}
+function typeboxInputSchemaFromContractProcedure(procedure) {
+  return typeboxSchemaFromStandard(
+    procedure["~orpc"].inputSchema,
+    "input"
+  );
+}
+function typeboxOutputSchemaFromContractProcedure(procedure) {
+  return typeboxSchemaFromStandard(
+    procedure["~orpc"].outputSchema,
+    "output"
+  );
+}
+function typeboxSchemaFromStandard(value2, label) {
+  const schema = value2?.[TYPEBOX_SCHEMA];
+  if (schema == null) {
+    throw new Error(`Civ7 control-oRPC contract ${label} schema is not TypeBox-backed.`);
+  }
+  return schema;
+}
+function pathSegments(path) {
+  if (path.length === 0) {
+    return [];
+  }
+  return path.split("/").slice(1).map((segment) => ({ key: pathKey(segment) }));
+}
+function pathKey(segment) {
+  const decoded = segment.replace(/~1/g, "/").replace(/~0/g, "~");
+  return /^\d+$/.test(decoded) ? Number(decoded) : decoded;
 }
 var Civ7ControlOrpcErrorCorrelationProperties = {
   correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
@@ -31472,11 +31472,17 @@ var firstMeetResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
 }) {
   return yield* Effect_exports.tryPromise({
     try: async () => {
+      const localPlayerId = await readLocalPlayerId(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        metPlayerId: input.metPlayerId,
+        responseType: input.responseType
+      };
       const result = await context5.directControl.requestCiv7FirstMeetResponse(
-        input,
+        requestInput,
         context5.endpointDefaults
       );
-      return firstMeetResponseResult(input, result);
+      return firstMeetResponseResult(requestInput, result);
     },
     catch: () => errors.FIRST_MEET_RESPONSE_UNAVAILABLE({
       data: {
@@ -31487,6 +31493,12 @@ var firstMeetResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
     })
   });
 });
+async function readLocalPlayerId(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
 function firstMeetResponseResult(input, result) {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
@@ -31588,7 +31600,7 @@ var governmentChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
   const source = "government.choice.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId(context5);
+      const localPlayerId = await readLocalPlayerId2(context5);
       const requestInput = {
         playerId: localPlayerId,
         governmentType: input.governmentType,
@@ -31619,7 +31631,7 @@ var governmentCelebrationChoiceRequestProcedure = civ7ControlOrpcMutationProcedu
   const source = "government.celebration.choice.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId(context5);
+      const localPlayerId = await readLocalPlayerId2(context5);
       const requestInput = {
         playerId: localPlayerId,
         goldenAgeType: input.goldenAgeType
@@ -31639,7 +31651,7 @@ var governmentCelebrationChoiceRequestProcedure = civ7ControlOrpcMutationProcedu
     })
   });
 });
-async function readLocalPlayerId(context5) {
+async function readLocalPlayerId2(context5) {
   const view = await context5.directControl.getCiv7PlayNotificationView(
     context5.endpointDefaults
   );
@@ -32011,7 +32023,7 @@ var progressionTechnologyTargetRequestProcedure = civ7ControlOrpcMutationProcedu
   const source = "progression.technology.target.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId2(context5);
+      const localPlayerId = await readLocalPlayerId3(context5);
       const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
       const result = await requestProgressionTarget(kind, requestInput, context5);
       return progressionTargetResult(source, requestInput, result);
@@ -32036,7 +32048,7 @@ var progressionCultureTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
   const source = "progression.culture.target.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId2(context5);
+      const localPlayerId = await readLocalPlayerId3(context5);
       const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
       const result = await requestProgressionTarget(kind, requestInput, context5);
       return progressionTargetResult(source, requestInput, result);
@@ -32050,7 +32062,7 @@ var progressionCultureTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
     })
   });
 });
-async function readLocalPlayerId2(context5) {
+async function readLocalPlayerId3(context5) {
   const view = await context5.directControl.getCiv7PlayNotificationView(
     context5.endpointDefaults
   );
@@ -32111,7 +32123,7 @@ var progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProced
   const source = "progression.attribute.purchase.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId3(context5);
+      const localPlayerId = await readLocalPlayerId4(context5);
       const requestInput = {
         playerId: localPlayerId,
         node: input.node
@@ -32140,7 +32152,7 @@ var progressionAttributeReviewRequestProcedure = civ7ControlOrpcMutationProcedur
   const source = "progression.attribute.review.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId3(context5);
+      const localPlayerId = await readLocalPlayerId4(context5);
       const requestInput = { playerId: localPlayerId };
       const result = await context5.directControl.requestCiv7AttributeReviewCloseout(
         requestInput,
@@ -32167,7 +32179,7 @@ var progressionTraditionChangeRequestProcedure = civ7ControlOrpcMutationProcedur
   const source = "progression.tradition.change.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId3(context5);
+      const localPlayerId = await readLocalPlayerId4(context5);
       const requestInput = {
         playerId: localPlayerId,
         traditionType: input.traditionType,
@@ -32197,7 +32209,7 @@ var progressionTraditionReviewRequestProcedure = civ7ControlOrpcMutationProcedur
   const source = "progression.tradition.review.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId3(context5);
+      const localPlayerId = await readLocalPlayerId4(context5);
       const requestInput = { playerId: localPlayerId };
       const result = await context5.directControl.requestCiv7TraditionReviewCloseout(
         requestInput,
@@ -32214,7 +32226,7 @@ var progressionTraditionReviewRequestProcedure = civ7ControlOrpcMutationProcedur
     })
   });
 });
-async function readLocalPlayerId3(context5) {
+async function readLocalPlayerId4(context5) {
   const view = await context5.directControl.getCiv7PlayNotificationView(
     context5.endpointDefaults
   );
@@ -32585,7 +32597,7 @@ function strategyFrontSummaryResult({
     pointsOfInterest: pointsOfInterest2,
     observedOwners,
     notes: [
-      "Read-only strategy front summary. It does not move, attack, approve sends, or change diplomacy.",
+      "Read-only strategy front summary. It does not move, attack, send actions, or change diplomacy.",
       "Use visibility and validator-backed unit action procedures before any mutation.",
       "Relationship labels stay relationship-unproven unless official diplomatic evidence proves more."
     ],
