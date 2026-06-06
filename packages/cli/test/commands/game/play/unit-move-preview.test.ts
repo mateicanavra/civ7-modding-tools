@@ -3,6 +3,13 @@ import GamePlayUnitMovePreview from '../../../../src/commands/game/play/unit-mov
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
 import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
+type CompactNextAction = {
+  kind: string;
+  label: string;
+  destination: { x: number; y: number };
+  sendReady: boolean;
+};
+
 describe('game play unit-move-preview command', () => {
   test('reads official unit move preview with neutral relationship policy', async () => {
     const server = await startUnitMovePreviewTunerServer();
@@ -74,25 +81,25 @@ describe('game play unit-move-preview command', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         contractVersion: string;
-        command: string;
+        surface: string;
         summary: string;
         requestedDestination: { x: number; y: number };
         queuedDestination: { x: number; y: number } | null;
         reach: { movementPlotCount: number; targetPlotCount: number };
         candidates: {
-          reachableMovement: Array<{ x: number; y: number; currentLocation: boolean; validateCli: string | null }>;
-          reachableTargets: Array<{ x: number; y: number; validateCli: string | null }>;
+          reachableMovement: Array<{ x: number; y: number; currentLocation: boolean; nextAction: CompactNextAction | null }>;
+          reachableTargets: Array<{ x: number; y: number; nextAction: CompactNextAction | null }>;
           limit: number;
         };
         paths: { requested: { plotCount?: number } | null; queued: { plotCount?: number } | null };
-        next: string | null;
+        nextAction: CompactNextAction | null;
         warnings: string[];
         relationshipProof: string;
         omitted: Array<{ path: string }>;
         view?: unknown;
       };
       expect(payload.contractVersion).toBe('play-agent-v0');
-      expect(payload.command).toBe('game play unit-move-preview');
+      expect(payload.surface).toBe('unit-move-preview');
       expect(payload.summary).toContain('UNIT_GALLEY');
       expect(payload.requestedDestination).toEqual({ x: 25, y: 35 });
       expect(payload.queuedDestination).toEqual({ x: 25, y: 35 });
@@ -100,11 +107,21 @@ describe('game play unit-move-preview command', () => {
       expect(payload.reach.targetPlotCount).toBeGreaterThanOrEqual(0);
       expect(payload.candidates.limit).toBe(12);
       expect(payload.candidates.reachableMovement[0]).toMatchObject({ x: 25, y: 35, currentLocation: false });
-      expect(payload.candidates.reachableMovement[0].validateCli).toContain("game play unit-target --unit-id '{\"owner\":0,\"id\":65536,\"type\":26}' --x 25 --y 35 --json");
+      expect(payload.candidates.reachableMovement[0].nextAction).toMatchObject({
+        kind: 'validate-unit-action',
+        destination: { x: 25, y: 35 },
+        sendReady: false,
+      });
       expect(payload.candidates.reachableTargets[0]).toMatchObject({ x: 26, y: 35 });
       expect(payload.paths.requested?.plotCount).toBeGreaterThan(0);
       expect(payload.paths.queued?.plotCount).toBeGreaterThan(0);
-      expect(payload.next).toContain('game play unit-target');
+      expect(payload.nextAction).toMatchObject({
+        kind: 'validate-unit-action',
+        label: 'validate unit action at (25,35) before sending',
+        destination: { x: 25, y: 35 },
+        sendReady: false,
+      });
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.relationshipProof).toBe('none');
       expect(payload.warnings.join(' ')).toContain('does not classify other-owner relationships');
       expect(payload.omitted.some((item) => item.path === 'view.reachableMovement')).toBe(true);
