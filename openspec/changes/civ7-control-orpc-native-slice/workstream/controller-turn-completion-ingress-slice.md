@@ -28,7 +28,6 @@ The controller ingress now:
 
 - accepts `turn.complete.request` as the second explicit mutation procedure
   key after notification dismissal;
-- requires closed controller-runtime context metadata with a non-empty reason;
 - requires closed controller lifecycle proof for game-controller-ready lifecycle,
   `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;

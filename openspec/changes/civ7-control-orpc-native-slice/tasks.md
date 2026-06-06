@@ -591,6 +591,14 @@ adding more read-only facade shells.
     so partial reads do not imply no blockers. Keep other game-UI read/mutation
     ports, deployed Civ7 proof, play-thread action, and full `7.3`
     implementation pending.
+  - [x] 7.3.18 Add a game-resident turn-completion runtime port for
+    `turn.complete.request`: expose ambient `GameContext.sendTurnComplete`,
+    `hasSentTurnComplete`, `canEndTurn`, turn, blocker, and first-ready-unit
+    evidence through the existing service-owned turn procedure; require an
+    actual send function before reporting `sent: true`; preserve semantic
+    not-sent/no-repeat output for blocked and already-sent paths; keep raw
+    game-UI function names, command/session/state details, deployed Civ7
+    proof, play-thread action, and full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -707,6 +715,13 @@ adding more read-only facade shells.
   UI attention read adapter. These are local package and bundle proofs only and
   do not claim deployed Civ7 runtime proof, full attention source coverage,
   play-thread action, other game-UI source adapters, or full `7.3` acceptance.
+- [x] 8.47 Run focused game-ui controller and turn-completion procedure tests,
+  control-oRPC package check/build/test, controller mod package check/build/test
+  with bundle scan, generated direct-control/control-oRPC artifact
+  approval-token absence scan, strict OpenSpec validates, and diff hygiene for
+  the game-resident turn-completion runtime port. These are local package and
+  bundle proofs only and do not claim deployed Civ7 runtime proof, play-thread
+  action, other game-UI mutation ports, or full `7.3` acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

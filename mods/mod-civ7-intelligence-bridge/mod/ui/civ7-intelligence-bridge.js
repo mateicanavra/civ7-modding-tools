@@ -27178,7 +27178,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-3ACVXNZZ.js
+// ../../packages/civ7-control-orpc/dist/chunk-QX4ZRCXR.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -28241,6 +28241,32 @@ var Civ7MutationReadinessUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7MutationProofBoundaryInvalidErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.String(),
+    source: typebox_exports.Literal("mutation-proof-boundary"),
+    risk: typebox_exports.Literal("mutation"),
+    reason: typebox_exports.Union([
+      typebox_exports.Literal("missing-postcondition"),
+      typebox_exports.Literal("missing-no-repeat-boundary"),
+      typebox_exports.Literal("unverified-repeat-safe"),
+      typebox_exports.Literal("sent-unverified-without-do-not-repeat"),
+      typebox_exports.Literal("sent-guarded-without-do-not-repeat")
+    ]),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7MutationProofBoundaryInvalidError = class extends ORPCTaggedError(
+  "Civ7MutationProofBoundaryInvalidError",
+  {
+    code: "MUTATION_PROOF_BOUNDARY_INVALID",
+    message: "Mutation output violated the proof/no-repeat boundary.",
+    schema: toStandardSchema(Civ7MutationProofBoundaryInvalidErrorDataSchema),
+    status: 500
+  }
+) {
+};
 var Civ7ProductionChoiceUnavailableErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.production.choice.request"),
@@ -28298,6 +28324,7 @@ var civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
+  MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
@@ -30000,6 +30027,48 @@ function civ7MutationProcedureKey(meta, path) {
   if (path.length > 0) return path.join(".");
   return "unknown-procedure";
 }
+var civ7MutationProofBoundaryMiddleware = civ7ControlOrpcImplementer.middleware(async ({ context: context5, errors, next, path, procedure }) => {
+  const result = await next();
+  const violation = civ7MutationProofBoundaryViolation(result.output);
+  if (violation == null) return result;
+  throw errors.MUTATION_PROOF_BOUNDARY_INVALID({
+    data: {
+      procedureKey: civ7MutationProcedureKey(procedure["~orpc"].meta, path),
+      source: "mutation-proof-boundary",
+      risk: "mutation",
+      reason: violation,
+      ...civ7ControlOrpcErrorCorrelationData(context5)
+    }
+  });
+});
+function civ7MutationProofBoundaryViolation(output) {
+  if (!isRecord2(output)) return "missing-postcondition";
+  const postcondition = output.postcondition;
+  if (!isRecord2(postcondition)) return "missing-postcondition";
+  const noRepeatAfterUnverified = postcondition.noRepeatAfterUnverified;
+  if (typeof noRepeatAfterUnverified !== "boolean") {
+    return "missing-no-repeat-boundary";
+  }
+  const confidence = postcondition.confidence;
+  const status = output.status;
+  if ((confidence === "unverified" || confidence === "pending-runtime-proof") && !noRepeatAfterUnverified) {
+    return "unverified-repeat-safe";
+  }
+  if (status === "sent-unverified" && !hasDoNotRepeatNextStep(output)) {
+    return "sent-unverified-without-do-not-repeat";
+  }
+  if (status === "sent-guarded" && !hasDoNotRepeatNextStep(output)) {
+    return "sent-guarded-without-do-not-repeat";
+  }
+  return null;
+}
+function hasDoNotRepeatNextStep(output) {
+  const nextSteps = output.nextSteps;
+  return Array.isArray(nextSteps) && nextSteps.some((step4) => isRecord2(step4) && step4.kind === "do-not-repeat");
+}
+function isRecord2(value2) {
+  return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
+}
 var civ7MutationReadinessMiddleware = civ7ControlOrpcImplementer.middleware(async ({ context: context5, errors, next, path, procedure }) => {
   const procedureKey = civ7MutationProcedureKey(procedure["~orpc"].meta, path);
   const status = await context5.directControl.getCiv7PlayableStatus(
@@ -30029,7 +30098,7 @@ var civ7MutationReadinessMiddleware = civ7ControlOrpcImplementer.middleware(asyn
   return next();
 });
 function civ7ControlOrpcMutationProcedure(procedure) {
-  return procedure.use(civ7MutationReadinessMiddleware);
+  return procedure.use(civ7MutationReadinessMiddleware).use(civ7MutationProofBoundaryMiddleware);
 }
 function civ7MutationRequestStatus(input) {
   if (!input.sent) return "not-sent";

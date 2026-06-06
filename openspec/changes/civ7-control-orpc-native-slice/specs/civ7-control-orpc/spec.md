@@ -653,6 +653,27 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   runtime behavior only; deployed Civ7 runtime proof, broader read/mutation
   ports, play-thread action, and full `7.3` implementation remain pending
 
+#### Scenario: Game UI controller supports turn completion
+- **WHEN** the game-scoped controller context exposes ambient turn-completion
+  APIs for `GameContext.hasSentTurnComplete`,
+  `GameContext.sendTurnComplete`, `canEndTurn`, turn, blocker, and
+  first-ready-unit evidence
+- **THEN** the context may execute the service-owned
+  `turn.complete.request` procedure through the existing in-process router and
+  native readiness/proof middleware
+- **AND** `turn.complete.request` is listed as a supported game-UI mutation only
+  when controller proof and the required ambient send/read APIs are present
+- **AND** the game UI adapter requires an actual `sendTurnComplete` function
+  before any result can report `sent: true`
+- **AND** blocked, already-sent, or missing-send-capability paths project
+  semantic `not-sent` output with inspect and `do-not-repeat` next steps
+- **AND** normal bridge success output remains the semantic turn-completion
+  result and omits host, port, state, command, rawCommand, session, tuner
+  payloads, raw game-UI function names, and direct-control socket details
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, other game UI mutation
+  ports, play-thread action, and full `7.3` implementation remain pending
+
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 
 Mutation-capable control procedures SHALL preserve direct-control

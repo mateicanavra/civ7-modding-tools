@@ -79,7 +79,7 @@ runtime proof.
 - `bun run --cwd mods/mod-civ7-intelligence-bridge check`
 - `bun run --cwd mods/mod-civ7-intelligence-bridge build`
 - `bun run --cwd mods/mod-civ7-intelligence-bridge test`
-- bundle scan over `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js` for Node built-ins, direct-control package-root/socket runtime code, raw command/session strings, and RPC transport symbols
+- bundle scan over `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js` for Node built-ins, direct-control package-root/socket runtime code, raw command/session strings, RPC transport symbols, and retired approval tokens
 - `bun run openspec -- validate civ7-control-orpc-native-slice --strict`
 - `bun run openspec -- validate civ7-support-direct-control-modularization --strict`
 - `git diff --check`
