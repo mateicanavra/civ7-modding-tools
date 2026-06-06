@@ -119,7 +119,6 @@ function buildCliPriorityView(result: Civ7AttentionPrioritiesResult): PriorityVi
     })),
     cliNotes: [
       'Read-only priority dashboard; it does not send operations or choose strategy.',
-      'Action guidance is semantic; command help owns exact flag combinations.',
       'Battlefield scan distances are planning heuristics and may include debug-visible entities unless paired with visibility reads.',
     ],
   };

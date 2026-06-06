@@ -1031,6 +1031,13 @@ adding more read-only facade shells.
     relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
     caller-provided approval remains retired and no approval-reason mechanic is
     introduced.
+  - [x] 7.1.9.41 Remove repeated compact-output meta notes that explain command
+    help owns exact flag combinations. Keep the actual semantic action
+    descriptors, domain/proof notes, parser flags, runtime behavior,
+    control-oRPC contracts/routers, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2152,6 +2159,15 @@ adding more read-only facade shells.
   direct-control runtime behavior, artifact append behavior, deployed Civ7
   runtime behavior, play-thread state, transport/controller scope,
   relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.55 Run focused compact-output CLI tests, CLI check, strict OpenSpec
+  validates, compact meta-note absence scan, active approval/caller-permission
+  scan, relationship-label safety scan, and diff hygiene for the compact
+  action meta-note cleanup. This is local CLI/OpenSpec proof only; it does not
+  change parser flags, direct-control/runtime behavior, service contracts,
+  deployed Civ7 runtime behavior, play-thread state, transport/controller
+  scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
   caller-provided approval remains retired and no approval-reason mechanic is
   introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package

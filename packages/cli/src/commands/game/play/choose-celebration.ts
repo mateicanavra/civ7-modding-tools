@@ -81,7 +81,6 @@ export default class GamePlayChooseCelebration extends Command {
         ],
         notes: [
           'Options come from the live notification HUD materializer, which mirrors the official celebration chooser and validates CHOOSE_GOLDEN_AGE through PlayerOperations.',
-          'Action guidance is semantic; command help owns exact flag combinations.',
         ],
       });
       return;

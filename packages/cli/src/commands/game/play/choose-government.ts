@@ -83,7 +83,6 @@ export default class GamePlayChooseGovernment extends Command {
         ],
         notes: [
           'Options come from the live notification HUD materializer, which mirrors the official government picker and validates CHANGE_GOVERNMENT through PlayerOperations.',
-          'Action guidance is semantic; command help owns exact flag combinations.',
         ],
       });
       return;

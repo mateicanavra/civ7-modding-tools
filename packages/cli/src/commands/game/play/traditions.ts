@@ -141,7 +141,6 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
     hiddenInfoPolicy: view.hiddenInfoPolicy,
     notes: [
       'Read-only compact tradition option surface. It does not choose or send CHANGE_TRADITION.',
-      'Action guidance is semantic; command help owns exact flag combinations.',
       'If slots are full, deactivate an active tradition first, re-read, then activate the selected available tradition.',
     ],
   };

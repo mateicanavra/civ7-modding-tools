@@ -89,7 +89,6 @@ export default class GamePlayChooseTech extends Command {
         ],
         notes: [
           'Options come from the live notification HUD materializer, which validates SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE through official PlayerOperations checks.',
-          'Action guidance is semantic; command help owns exact flag combinations.',
         ],
       });
       return;

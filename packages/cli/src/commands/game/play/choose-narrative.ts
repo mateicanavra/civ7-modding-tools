@@ -97,7 +97,6 @@ export default class GamePlayChooseNarrative extends Command {
         ],
         notes: [
           'Options come from the live notification HUD materializer, which mirrors official narrative popup buttons and validates CHOOSE_NARRATIVE_STORY_DIRECTION through PlayerOperations.',
-          'Action guidance is semantic; command help owns exact flag combinations.',
         ],
       });
       return;
