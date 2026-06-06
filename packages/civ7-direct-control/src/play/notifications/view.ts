@@ -530,7 +530,7 @@ export function playNotificationViewSource(): string {
         disabledOptions: options.filter((option) => option.disabled),
         notes: [
           "Options mirror Game.Diplomacy.getResponseDataForUI(actionId).responseList and validate through the official local-player RESPOND_DIPLOMATIC_ACTION check.",
-          "Use a returned enabled option's cli as the single caller-level response; send mode performs UI closeout and notification postcondition checks.",
+          "Choose one enabled response; send mode performs UI closeout and notification postcondition checks.",
         ],
       };
     };
@@ -711,7 +711,7 @@ export function playNotificationViewSource(): string {
         disabledOptions,
         notes: [
           "Options are read from official progression-tree structures and validated through local-player SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE checks.",
-          "Use an enabled option's cli for one caller-level technology selection; choose-tech send mode clears the chooser target internally.",
+          "Choose one enabled technology option; the send path clears the chooser target internally.",
         ],
       };
     };
@@ -819,7 +819,7 @@ export function playNotificationViewSource(): string {
         disabledOptions,
         notes: [
           "Options are read from the official culture chooser available-node list and validated through local-player SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE checks.",
-          "Use an enabled option's cli for one caller-level chooser closeout workflow; use validateCli when strategy needs inspection before sending.",
+          "Choose one enabled culture option, or inspect validation evidence before sending when strategy is uncertain.",
         ],
       };
     };
