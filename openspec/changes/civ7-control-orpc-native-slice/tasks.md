@@ -215,6 +215,13 @@ adding more read-only facade shells.
     relationship-unproven policy; CLI command strings stay caller-local; no
     movement/founding/action authority, runtime proof, controller bridge, or
     parent Task 5.x/6.x acceptance.
+  - [x] 5.4.20 Record `strategy.formationSnapshot` as a service-owned
+    formation planning composition over notification, ready-unit, and
+    battlefield-scan runtime/read ports. The service owns formation posture,
+    source status, safe unit/contact projections, semantic next-step
+    descriptors, raw-output exclusion, and relationship-unproven policy; CLI
+    command strings stay caller-local; no movement/action authority, runtime
+    proof, controller bridge, or parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -356,6 +363,14 @@ adding more read-only facade shells.
     settlement and battlefield evidence relationship-safe and read-only, and
     keep runtime proof, movement/founding/action authority, controller bridge,
     transport expansion, and parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.19 Seed `strategy.formationSnapshot` as a native service-owned
+    strategy procedure that composes current notification, ready-unit, and
+    battlefield evidence into a semantic formation posture view. Keep caller
+    input/output schemas contract-local, keep CLI command suggestions out of
+    service output, keep battlefield evidence relationship-safe and read-only,
+    omit raw ready-unit operation/evidence payloads, and keep runtime proof,
+    movement/action authority, controller bridge, transport expansion, and
+    parent Task 5.x/6.x/7.x acceptance pending.
 
 ## 6. Native Policy Layering
 
@@ -660,6 +675,17 @@ adding more read-only facade shells.
     host/port/state/session/Tuner payloads and direct-control envelopes from
     normal JSON, and avoid controller bridge, transport, relationship-label,
     movement/founding/action-send, or runtime-proof claims.
+  - [x] 7.1.9.10 Route `civ7 game play formation-snapshot` through the
+    in-process `strategy.formationSnapshot` server-side client under the
+    `strategy` router. Move formation posture, source status, ready-unit,
+    battlefield, contact grouping, and semantic next-step composition into the
+    service procedure. Keep endpoint flags as context construction, keep CLI
+    command-string suggestions as CLI presentation only, emit
+    relationship-safe read-only formation output, omit raw
+    host/port/state/session/Tuner payloads, direct-control envelopes, raw
+    ready-unit operation payloads, and raw battlefield unit evidence from
+    normal JSON, and avoid controller bridge, transport, relationship-label,
+    movement/action-send, or runtime-proof claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1424,6 +1450,16 @@ adding more read-only facade shells.
   proof, play-thread action, controller bridge, transport expansion,
   relationship labels beyond official evidence, movement/founding/action-send
   authority, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.19 Run focused strategy-formation-snapshot and CLI tactical-read
+  tests plus control-oRPC package test/check/build, CLI play/check gates,
+  strict OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, service-output CLI-string scan, and diff
+  hygiene for the `strategy.formationSnapshot` service-composition expansion
+  and `game play formation-snapshot` in-process oRPC caller migration. This is
+  local package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, controller bridge, transport expansion, relationship
+  labels beyond official evidence, movement/action-send authority, or parent
+  Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

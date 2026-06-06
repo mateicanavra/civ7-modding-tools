@@ -125,6 +125,31 @@ export class Civ7StrategyCivilianRouteTriageUnavailableError extends ORPCTaggedE
   },
 ) {}
 
+export const Civ7StrategyFormationSnapshotUnavailableErrorDataSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("strategy.formationSnapshot"),
+      source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorCorrelationProperties,
+    },
+    { additionalProperties: false },
+  );
+export type Civ7StrategyFormationSnapshotUnavailableErrorData = Static<
+  typeof Civ7StrategyFormationSnapshotUnavailableErrorDataSchema
+>;
+
+export class Civ7StrategyFormationSnapshotUnavailableError extends ORPCTaggedError(
+  "Civ7StrategyFormationSnapshotUnavailableError",
+  {
+    code: "STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE",
+    message: "Strategy formation snapshot failed.",
+    schema: toStandardSchema(
+      Civ7StrategyFormationSnapshotUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
 export const Civ7WorldCurrentUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("world.current"),
@@ -622,6 +647,8 @@ export const civ7ControlOrpcErrorMap = {
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE:
     Civ7StrategyCivilianRouteTriageUnavailableError,
+  STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE:
+    Civ7StrategyFormationSnapshotUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
   TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,

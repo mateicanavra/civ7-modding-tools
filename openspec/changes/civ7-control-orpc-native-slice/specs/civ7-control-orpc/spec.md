@@ -299,6 +299,36 @@ errors, and server-side callers.
   authority, transport expansion, controller allowlisting, and parent Task
   5.x/6.x/7.x acceptance remain pending
 
+#### Scenario: Formation snapshot service view is added
+- **WHEN** `strategy.formationSnapshot` exposes a caller-facing formation
+  planning view under the `strategy` router
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedure, formation posture, source-status projection,
+  relationship-safe reasons, semantic next-step descriptors, and normal output
+  wording
+- **AND** the input is closed and admits only formation-read options such as
+  player id, origin, radius, screen radius, contact radius, and bounded
+  battlefield scan limits; it does not accept endpoint, session, state, host,
+  port, command, rawCommand, transport, approval, reason, or send-operation
+  fields
+- **AND** the procedure composes notification, ready-unit, and battlefield-scan
+  runtime/read evidence from context dependencies rather than keeping
+  formation posture logic in CLI code or adding a same-shaped direct-control
+  facade wrapper
+- **AND** normal service output emits semantic formation next-step descriptors
+  rather than literal CLI `game play ...` command strings
+- **AND** ready-unit and battlefield evidence remains read-only planning
+  context and must not be treated as relationship status, movement, target-send
+  authority, or hostile/enemy/opponent/threat/war/ally/suzerain proof
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, raw notification details,
+  raw ready-unit operations, raw unit evidence payloads, raw unit/city arrays,
+  and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, movement/action-send
+  authority, transport expansion, controller allowlisting, and parent Task
+  5.x/6.x/7.x acceptance remain pending
+
 #### Scenario: Current world service view is added
 - **WHEN** `world.current` exposes a caller-facing current-world read
 - **THEN** control-oRPC owns the contract-local input/output schemas, native

@@ -182,6 +182,8 @@ export {
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
   Civ7StrategyCivilianRouteTriageUnavailableError,
   Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema,
+  Civ7StrategyFormationSnapshotUnavailableError,
+  Civ7StrategyFormationSnapshotUnavailableErrorDataSchema,
   Civ7StrategyFrontSummaryUnavailableError,
   Civ7StrategyFrontSummaryUnavailableErrorDataSchema,
   Civ7TownFocusUnavailableError,
@@ -217,6 +219,7 @@ export {
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7StrategyCivilianRouteTriageUnavailableErrorData,
+  type Civ7StrategyFormationSnapshotUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
   type Civ7TownFocusUnavailableErrorData,
   type Civ7TurnCompletionUnavailableErrorData,
@@ -397,6 +400,7 @@ export { readinessCurrentProcedure } from "./modules/readiness/procedures/curren
 export {
   Civ7StrategyCivilianRouteTriageContract,
   Civ7StrategyContract,
+  Civ7StrategyFormationSnapshotContract,
   Civ7StrategyFrontSummaryContract,
 } from "./modules/strategy/contract";
 export type {
@@ -404,12 +408,16 @@ export type {
   Civ7StrategyCivilianRouteTriageInput,
   Civ7StrategyCivilianRouteTriageResult,
   Civ7StrategyContract as Civ7StrategyContractType,
+  Civ7StrategyFormationSnapshotContract as Civ7StrategyFormationSnapshotContractType,
+  Civ7StrategyFormationSnapshotInput,
+  Civ7StrategyFormationSnapshotResult,
   Civ7StrategyFrontSummaryContract as Civ7StrategyFrontSummaryContractType,
   Civ7StrategyFrontSummaryInput,
   Civ7StrategyFrontSummaryResult,
 } from "./modules/strategy/contract";
 export { strategyRouter } from "./modules/strategy/router";
 export { strategyCivilianRouteTriageProcedure } from "./modules/strategy/procedures/civilian-route-triage";
+export { strategyFormationSnapshotProcedure } from "./modules/strategy/procedures/formation-snapshot";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
 export {
   Civ7TurnCompletionContract,
