@@ -711,6 +711,13 @@ adding more read-only facade shells.
     `sendPlayOperation` fallback branches from migrated commands, and keep
     sent player-choice results pending-runtime-proof/no-repeat guarded until a
     real post-read owner proves the live review state changed.
+  - [x] 7.1.9.3.1 Remove stale caller `--player-id` from progression
+    player-choice notification send hints. Keep dry-run validation hints
+    player-scoped, but make tradition/attribute send and closeout workflow
+    recommendations match the playerless native oRPC send surfaces. Prove the
+    generated notification-view source omits `--player-id` from send
+    templates while preserving validation templates and live runtime proof
+    pending.
   - [x] 7.1.9.4 Route `civ7 game play set-town-focus --send` and
     `civ7 game play consider-town-project --send` through the in-process
     city town-focus server-side clients under the `city` router. Keep endpoint
@@ -1685,6 +1692,14 @@ adding more read-only facade shells.
   and does not claim deployed Civ7 runtime proof, play-thread action,
   transport expansion, approval/reason mechanics, city catalog support, or
   parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.28 Run focused direct-control notification-view proof,
+  direct-control check/build, strict OpenSpec validates, stale progression
+  send-hint `--player-id` scan, active approval/caller-permission scan, and
+  diff hygiene for the progression player-choice notification send-hint
+  cleanup. This is local source/test proof only and does not claim deployed
+  Civ7 runtime proof, play-thread action, transport expansion,
+  approval/reason mechanics, broader progression catalog support, or parent
+  Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
