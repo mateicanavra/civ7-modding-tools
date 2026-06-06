@@ -26881,8 +26881,8 @@ function notificationDismissalPostconditionReason(classification) {
       return "The dismissal was sent, but notification identity evidence did not confirm disappearance, queue removal, or front movement.";
   }
 }
-function probeValue2(probe11) {
-  return probe11.ok ? probe11.value : void 0;
+function probeValue2(probe12) {
+  return probe12.ok ? probe12.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-DO73ZQ4V.js
@@ -27039,8 +27039,8 @@ function progressionChoiceDetailsChanged(left3, right3) {
 }
 function probeValue(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe11 = value2;
-    return probe11.ok === true ? probe11.value ?? null : null;
+    const probe12 = value2;
+    return probe12.ok === true ? probe12.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -27182,8 +27182,8 @@ function turnCompletionNoRepeatAfterUnverified(classification) {
       return true;
   }
 }
-function probeValue3(probe11) {
-  return probe11.ok ? probe11.value : void 0;
+function probeValue3(probe12) {
+  return probe12.ok ? probe12.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZGRAA6DD.js
@@ -27242,7 +27242,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-A2NSLF4R.js
+// ../../packages/civ7-control-orpc/dist/chunk-BUWO4IXU.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -30979,11 +30979,11 @@ function skippedSourceStatus(playableStatus) {
     readyCity: skipped
   };
 }
-function probeValue4(probe11) {
-  if (probe11 == null || typeof probe11 !== "object") return null;
-  if (!("ok" in probe11) || probe11.ok !== true) return null;
-  if (!("value" in probe11)) return null;
-  return probe11.value;
+function probeValue4(probe12) {
+  if (probe12 == null || typeof probe12 !== "object") return null;
+  if (!("ok" in probe12) || probe12.ok !== true) return null;
+  if (!("value" in probe12)) return null;
+  return probe12.value;
 }
 function componentIdFromUnknown(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
@@ -31986,8 +31986,8 @@ function booleanProbeValue(value2) {
 }
 function probeValue22(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe11 = value2;
-    return probe11.ok === true ? probe11.value ?? null : null;
+    const probe12 = value2;
+    return probe12.ok === true ? probe12.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -32455,8 +32455,8 @@ function supportsStrategyFront(context5) {
 function supportedReadProcedures(context5) {
   return context5.controller?.supportedReadProcedures ?? [];
 }
-function probeValue32(probe11) {
-  return probe11.ok ? probe11.value : null;
+function probeValue32(probe12) {
+  return probe12.ok ? probe12.value : null;
 }
 var readinessRouter = {
   current: readinessCurrentProcedure
@@ -32751,13 +32751,13 @@ function turnCompletionProbeSummary(status) {
     firstReadyUnitId: probeValue42(status.firstReadyUnitId)
   };
 }
-function blockerValue(probe11) {
-  const value2 = probeValue42(probe11);
+function blockerValue(probe12) {
+  const value2 = probeValue42(probe12);
   if (typeof value2 === "number" || typeof value2 === "string") return value2;
   return null;
 }
-function probeValue42(probe11) {
-  return probe11.ok ? probe11.value : null;
+function probeValue42(probe12) {
+  return probe12.ok ? probe12.value : null;
 }
 var turnRouter = {
   complete: {
@@ -33110,6 +33110,12 @@ var Civ7DiplomacyResponseInputSchema2 = typeboxInputSchemaFromContractProcedure(
 var Civ7DiplomacyResponseResultSchema2 = typeboxOutputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.diplomacy.response.request
 );
+var Civ7FirstMeetResponseInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.diplomacy.firstMeet.response.request
+);
+var Civ7FirstMeetResponseResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.diplomacy.firstMeet.response.request
+);
 var Civ7GovernmentChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.government.choice.request
 );
@@ -33281,6 +33287,14 @@ var Civ7ControllerBridgeDiplomacyResponseRequestSchema = typebox_exports.Object(
   },
   { additionalProperties: false }
 );
+var Civ7ControllerBridgeFirstMeetResponseRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("diplomacy.firstMeet.response.request"),
+    input: Civ7FirstMeetResponseInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ControllerBridgeGovernmentChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("government.choice.request"),
@@ -33381,6 +33395,7 @@ var Civ7ControllerBridgeRequestSchema = typebox_exports.Union([
   Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
+  Civ7ControllerBridgeFirstMeetResponseRequestSchema,
   Civ7ControllerBridgeGovernmentChoiceRequestSchema,
   Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
@@ -33505,6 +33520,15 @@ var Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema = typebox_exports
   },
   { additionalProperties: false }
 );
+var Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("diplomacy.firstMeet.response.request"),
+    output: Civ7FirstMeetResponseResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema = typebox_exports.Object(
   {
     ok: typebox_exports.Literal(true),
@@ -33616,6 +33640,7 @@ var Civ7ControllerBridgeSuccessResponseSchema = typebox_exports.Union([
   Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema,
   Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
   Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
@@ -33779,6 +33804,17 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
     }
+    if (request2.procedureKey === "diplomacy.firstMeet.response.request") {
+      const output2 = await client.diplomacy.firstMeet.response.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "diplomacy.firstMeet.response.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
     if (request2.procedureKey === "government.choice.request") {
       const output2 = await client.government.choice.request(validatedInput);
       return {
@@ -33916,10 +33952,10 @@ function controllerProofFromContext(context5) {
 function isUnsupportedProcedureRequest(request2) {
   if (request2 == null || typeof request2 !== "object") return false;
   if (!("procedureKey" in request2)) return false;
-  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "government.choice.request" && request2.procedureKey !== "government.celebration.choice.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request" && request2.procedureKey !== "progression.technology.target.request" && request2.procedureKey !== "progression.culture.target.request" && request2.procedureKey !== "progression.attribute.purchase.request" && request2.procedureKey !== "progression.attribute.review.request" && request2.procedureKey !== "progression.tradition.change.request" && request2.procedureKey !== "progression.tradition.review.request";
+  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "diplomacy.firstMeet.response.request" && request2.procedureKey !== "government.choice.request" && request2.procedureKey !== "government.celebration.choice.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request" && request2.procedureKey !== "progression.technology.target.request" && request2.procedureKey !== "progression.culture.target.request" && request2.procedureKey !== "progression.attribute.purchase.request" && request2.procedureKey !== "progression.attribute.review.request" && request2.procedureKey !== "progression.tradition.change.request" && request2.procedureKey !== "progression.tradition.review.request";
 }
 function isControllerBridgeMutationRequest(request2) {
-  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "government.choice.request" || request2.procedureKey === "government.celebration.choice.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request" || request2.procedureKey === "progression.technology.target.request" || request2.procedureKey === "progression.culture.target.request" || request2.procedureKey === "progression.attribute.purchase.request" || request2.procedureKey === "progression.attribute.review.request" || request2.procedureKey === "progression.tradition.change.request" || request2.procedureKey === "progression.tradition.review.request";
+  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "diplomacy.firstMeet.response.request" || request2.procedureKey === "government.choice.request" || request2.procedureKey === "government.celebration.choice.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request" || request2.procedureKey === "progression.technology.target.request" || request2.procedureKey === "progression.culture.target.request" || request2.procedureKey === "progression.attribute.purchase.request" || request2.procedureKey === "progression.attribute.review.request" || request2.procedureKey === "progression.tradition.change.request" || request2.procedureKey === "progression.tradition.review.request";
 }
 function controllerSupportsRequest(context5, request2) {
   if (request2.procedureKey === "readiness.current") return true;
@@ -33982,8 +34018,8 @@ async function requestCiv7GameUiNotificationDismissal(input, target = globalThis
     target
   );
 }
-function notificationDismissalResult2(notificationId, options, target) {
-  const before2 = summarizeNotification(notificationId, target);
+function notificationDismissalResult2(notificationId2, options, target) {
+  const before2 = summarizeNotification(notificationId2, target);
   const noneBlocker = target.EndTurnBlockingTypes?.NONE ?? 0;
   const blockerType = before2.endTurnBlockingType.ok ? before2.endTurnBlockingType.value : null;
   const canUseExpiredPanelCloseControl = before2.exists === true && before2.expired === true && blockerType === noneBlocker;
@@ -33999,7 +34035,7 @@ function notificationDismissalResult2(notificationId, options, target) {
       host: "game-ui",
       port: 0,
       state: { id: "game-ui", name: "Game UI" },
-      notificationId,
+      notificationId: notificationId2,
       before: before2,
       after: options.send ? before2 : null,
       canDismiss,
@@ -34013,13 +34049,13 @@ function notificationDismissalResult2(notificationId, options, target) {
       ])
     });
   }
-  const managerResult = notificationTrainManagerDismiss(notificationId, target);
+  const managerResult = notificationTrainManagerDismiss(notificationId2, target);
   const panelCloseControlResult = panelCloseControlDismiss(
-    notificationId,
+    notificationId2,
     before2,
     target
   );
-  const after3 = summarizeNotification(notificationId, target);
+  const after3 = summarizeNotification(notificationId2, target);
   const closeoutPath = [managerResult, panelCloseControlResult].filter((value2) => value2.attempted && value2.path).map((value2) => value2.path).join("+") || null;
   const result = {
     notificationTrainManager: managerResult,
@@ -34034,7 +34070,7 @@ function notificationDismissalResult2(notificationId, options, target) {
     host: "game-ui",
     port: 0,
     state: { id: "game-ui", name: "Game UI" },
-    notificationId,
+    notificationId: notificationId2,
     before: before2,
     after: after3,
     canDismiss,
@@ -34122,7 +34158,7 @@ function summarizeNotification(id, target) {
     )
   };
 }
-function notificationTrainManagerDismiss(notificationId, target) {
+function notificationTrainManagerDismiss(notificationId2, target) {
   const manager = target.NotificationModel?.manager;
   if (!manager) {
     return {
@@ -34135,13 +34171,13 @@ function notificationTrainManagerDismiss(notificationId, target) {
   if (typeof manager.dismiss === "function") {
     return callDismiss(
       "NotificationModel.manager.dismiss",
-      () => manager.dismiss?.(notificationId)
+      () => manager.dismiss?.(notificationId2)
     );
   }
   if (typeof manager.onDismiss === "function") {
     return callDismiss(
       "NotificationModel.manager.onDismiss",
-      () => manager.onDismiss?.(notificationId)
+      () => manager.onDismiss?.(notificationId2)
     );
   }
   return {
@@ -34151,7 +34187,7 @@ function notificationTrainManagerDismiss(notificationId, target) {
     reason: "NotificationModel.manager exposes no dismiss/onDismiss function"
   };
 }
-function panelCloseControlDismiss(notificationId, before2, target) {
+function panelCloseControlDismiss(notificationId2, before2, target) {
   const dismiss = target.Game?.Notifications?.dismiss;
   if (typeof dismiss !== "function") {
     return {
@@ -34172,7 +34208,7 @@ function panelCloseControlDismiss(notificationId, before2, target) {
       reason: "official panel close control does not dismiss the active end-turn blocker"
     };
   }
-  return callDismiss("Game.Notifications.dismiss", () => dismiss(notificationId));
+  return callDismiss("Game.Notifications.dismiss", () => dismiss(notificationId2));
 }
 function callDismiss(path, fn2) {
   try {
@@ -34570,8 +34606,8 @@ function ok(value2) {
 function gameUiTurnCompletionAllowed(status) {
   return probeValue5(status.canEndTurn) === true && probeValue5(status.hasSentTurnComplete) !== true;
 }
-function probeValue5(probe11) {
-  return probe11.ok ? probe11.value : void 0;
+function probeValue5(probe12) {
+  return probe12.ok ? probe12.value : void 0;
 }
 function isPresent2(value2) {
   return value2 != null;
@@ -34692,13 +34728,13 @@ function gameUiProductionSnapshot(cityId, target) {
   );
   const blockingNotification = probe3(() => {
     const blockerValue2 = blocker.ok ? blocker.value : null;
-    const notificationId = target.Game?.Notifications?.findEndTurnBlocking?.(
+    const notificationId2 = target.Game?.Notifications?.findEndTurnBlocking?.(
       localPlayerId,
       blockerValue2
     ) ?? null;
-    const notification = notificationId == null ? null : target.Game?.Notifications?.find?.(notificationId) ?? null;
+    const notification = notificationId2 == null ? null : target.Game?.Notifications?.find?.(notificationId2) ?? null;
     return {
-      notificationId,
+      notificationId: notificationId2,
       matchesCity: notificationMatchesCity(notification, cityId)
     };
   });
@@ -34878,8 +34914,8 @@ function probe3(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue23(probe11) {
-  return probe11?.ok ? probe11.value : void 0;
+function probeValue23(probe12) {
+  return probe12?.ok ? probe12.value : void 0;
 }
 function stableJson2(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -35938,8 +35974,8 @@ function probe5(fn2) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue33(probe11) {
-  return probe11?.ok ? probe11.value : void 0;
+function probeValue33(probe12) {
+  return probe12?.ok ? probe12.value : void 0;
 }
 function stableJson22(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -35978,9 +36014,9 @@ async function requestCiv7GameUiNarrativeChoice(input, target = globalThis) {
       payload: void 0
     });
   }
-  const notificationId = currentNarrativeNotification(playerId, target);
+  const notificationId2 = currentNarrativeNotification(playerId, target);
   const activationResult = probe6(
-    () => notificationId == null ? null : target.Game?.Notifications?.activate?.(notificationId)
+    () => notificationId2 == null ? null : target.Game?.Notifications?.activate?.(notificationId2)
   );
   const sendResult = probe6(
     () => target.Game?.PlayerOperations?.sendRequest?.(
@@ -36358,9 +36394,9 @@ async function requestCiv7GameUiDiplomacyResponse(input, target = globalThis) {
     });
   }
   const discoveredNotification = currentDiplomacyNotification(input, playerId, target);
-  const notificationId = toComponentId8(input.notificationId) ?? (discoveredNotification.ok ? discoveredNotification.value : null);
+  const notificationId2 = toComponentId8(input.notificationId) ?? (discoveredNotification.ok ? discoveredNotification.value : null);
   const activationResult = activateDiplomacyNotification(
-    notificationId,
+    notificationId2,
     input.actionId,
     target
   );
@@ -36394,7 +36430,7 @@ async function requestCiv7GameUiDiplomacyResponse(input, target = globalThis) {
       actionId: input.actionId,
       responseType: input.responseType,
       args: args2,
-      notificationId,
+      notificationId: notificationId2,
       discoveredNotification,
       activated: activationResult.ok === true && activationResult.value?.activated === true,
       activationResult,
@@ -36535,22 +36571,22 @@ function currentDiplomacyNotification(input, playerId, target) {
       playerId,
       blockerType
     );
-    const notificationId = toComponentId8(id);
-    if (notificationId == null) return null;
-    const notification = target.Game?.Notifications?.find?.(notificationId);
-    const type = target.Game?.Notifications?.getType?.(notificationId) ?? recordValue(notification, "Type");
+    const notificationId2 = toComponentId8(id);
+    if (notificationId2 == null) return null;
+    const notification = target.Game?.Notifications?.find?.(notificationId2);
+    const type = target.Game?.Notifications?.getType?.(notificationId2) ?? recordValue(notification, "Type");
     const typeName = target.Game?.Notifications?.getTypeName?.(type);
     const notificationTarget = recordValue(notification, "Target");
     const actionMatches = recordValue(notificationTarget, "id") === input.actionId;
-    return typeName === "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED" && actionMatches ? notificationId : null;
+    return typeName === "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED" && actionMatches ? notificationId2 : null;
   });
 }
-function activateDiplomacyNotification(notificationId, actionId, target) {
-  if (notificationId == null) {
+function activateDiplomacyNotification(notificationId2, actionId, target) {
+  if (notificationId2 == null) {
     return skippedProbe3("diplomacy notificationId not found");
   }
   return probe7(() => {
-    const notification = target.Game?.Notifications?.find?.(notificationId);
+    const notification = target.Game?.Notifications?.find?.(notificationId2);
     if (notification == null) return { found: false };
     const notificationTarget = recordValue(notification, "Target");
     if (recordValue(notificationTarget, "id") == null) {
@@ -36576,7 +36612,7 @@ function activateDiplomacyNotification(notificationId, actionId, target) {
       activated: true,
       currentProjectReactionDataActionID: manager.currentProjectReactionData?.actionID ?? null,
       currentProjectReactionRequestActionID: manager.currentProjectReactionRequest?.actionID ?? null,
-      notificationActivation: target.Game?.Notifications?.activate?.(notificationId)
+      notificationActivation: target.Game?.Notifications?.activate?.(notificationId2)
     };
   });
 }
@@ -36664,6 +36700,216 @@ function probe7(fn2) {
 function probeValue52(input) {
   return input.ok ? input.value : void 0;
 }
+function civ7GameUiFirstMeetResponseAvailable(target) {
+  return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET !== void 0 && typeof target.GameContext?.localPlayerID === "number" && typeof target.Game?.Notifications?.activate === "function" && typeof target.Game.Notifications.getIdsForPlayer === "function" && typeof target.Game.Notifications.getType === "function" && typeof target.Game.Notifications.getTypeName === "function" && typeof target.Game.Notifications.find === "function" && typeof target.Game.Notifications.getBlocksTurnAdvancement === "function";
+}
+async function requestCiv7GameUiFirstMeetResponse(input, target = globalThis) {
+  const args2 = {
+    Player1: input.playerId,
+    Player2: input.metPlayerId,
+    Type: input.responseType
+  };
+  const before2 = await getCiv7GameUiPlayNotificationView({}, target);
+  const beforeValidation = input.playerId === target.GameContext?.localPlayerID ? gameUiFirstMeetValidation(input.playerId, args2, target) : gameUiFirstMeetValidationBlocked(
+    input.playerId,
+    args2,
+    "GameContext.localPlayerID does not match the requested first-meet player."
+  );
+  if (!beforeValidation.valid) {
+    return firstMeetResponseResult2({
+      input,
+      before: before2,
+      beforeValidation,
+      after: before2,
+      afterValidation: beforeValidation,
+      sent: false
+    });
+  }
+  const notificationId2 = currentFirstMeetNotification(input.metPlayerId, before2);
+  if (notificationId2 != null) {
+    probe8(() => target.Game?.Notifications?.activate?.(notificationId2));
+  }
+  const sendResult = probe8(
+    () => target.Game?.PlayerOperations?.sendRequest?.(
+      input.playerId,
+      target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET,
+      args2
+    )
+  );
+  const sent = sendResult.ok && sendResult.value !== false;
+  const after3 = await getCiv7GameUiPlayNotificationView({}, target);
+  const afterValidation = gameUiFirstMeetValidation(input.playerId, args2, target);
+  return firstMeetResponseResult2({
+    input,
+    before: before2,
+    beforeValidation,
+    after: after3,
+    afterValidation,
+    sent
+  });
+}
+function firstMeetResponseResult2(input) {
+  const postcondition = gameUiFirstMeetPostcondition(
+    input.sent,
+    input.before,
+    input.after,
+    input.input.metPlayerId
+  );
+  return {
+    playerId: input.input.playerId,
+    metPlayerId: input.input.metPlayerId,
+    responseType: input.input.responseType,
+    before: input.before,
+    operation: {
+      before: input.beforeValidation,
+      ...input.sent ? {
+        command: {
+          host: "game-ui",
+          port: 0,
+          state: { id: "game-ui", name: "Game UI" },
+          output: ["game-ui-first-meet-response-requested"]
+        }
+      } : {},
+      after: input.afterValidation,
+      sent: input.sent,
+      verified: firstMeetResponseVerified(postcondition)
+    },
+    after: input.after,
+    beforeValidation: input.beforeValidation,
+    afterValidation: input.afterValidation,
+    sent: input.sent,
+    verified: firstMeetResponseVerified(postcondition),
+    postcondition
+  };
+}
+function gameUiFirstMeetValidation(playerId, args2, target) {
+  const result = probe8(
+    () => target.Game?.PlayerOperations?.canStart?.(
+      playerId,
+      target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET,
+      args2,
+      false
+    )
+  );
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
+    enumValue: target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET,
+    target: { playerId },
+    args: args2,
+    valid: result.ok && successFromCanStart7(result.value),
+    result
+  };
+}
+function gameUiFirstMeetValidationBlocked(playerId, args2, reason) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
+    enumValue: "RESPOND_DIPLOMATIC_FIRST_MEET",
+    target: { playerId },
+    args: args2,
+    valid: false,
+    result: {
+      ok: false,
+      reason,
+      playerId
+    }
+  };
+}
+function gameUiFirstMeetPostcondition(sent, before2, after3, metPlayerId) {
+  const classification = classifyGameUiFirstMeetPostcondition(
+    sent,
+    before2,
+    after3,
+    metPlayerId
+  );
+  return {
+    classification,
+    reason: firstMeetResponsePostconditionReason(classification)
+  };
+}
+function classifyGameUiFirstMeetPostcondition(sent, before2, after3, metPlayerId) {
+  if (!sent) return "not-sent";
+  if (probeValue6(after3.canEndTurn) === true) return "turn-unblocked";
+  const beforeBlocker = findFirstMeetNotification(before2, metPlayerId);
+  if (!beforeBlocker) return "first-meet-blocker-unmatched";
+  const afterBlocker = findFirstMeetNotification(after3, metPlayerId);
+  if (!afterBlocker) return "first-meet-cleared";
+  if (!componentIdEqual4(notificationId(beforeBlocker), notificationId(afterBlocker))) {
+    return "first-meet-blocker-transitioned";
+  }
+  return "first-meet-sticky-blocker";
+}
+function firstMeetResponsePostconditionReason(classification) {
+  switch (classification) {
+    case "not-sent":
+      return "The first-meet response was not sent, so no postcondition can be verified.";
+    case "turn-unblocked":
+      return "The first-meet response left the turn unblocked.";
+    case "first-meet-cleared":
+      return "The matching first-meet notification is no longer end-turn-blocking.";
+    case "first-meet-blocker-transitioned":
+      return "A matching first-meet blocker changed identity after the response but still blocks turn flow.";
+    case "first-meet-sticky-blocker":
+      return "The first-meet operation returned, but the same first-meet notification still blocks turn flow.";
+    case "first-meet-blocker-unmatched":
+      return "No matching end-turn-blocking first-meet notification was captured before the send.";
+  }
+}
+function currentFirstMeetNotification(metPlayerId, view) {
+  return notificationId(findFirstMeetNotification(view, metPlayerId));
+}
+function findFirstMeetNotification(view, metPlayerId) {
+  return view.notifications.find((notification) => {
+    const typeName = String(notification.typeName ?? "").toUpperCase();
+    if (notification.isEndTurnBlocking !== true || !typeName.includes("PLAYER_MET")) {
+      return false;
+    }
+    const target = notification.target;
+    return recordNumber(target, "owner") === metPlayerId || recordNumber(target, "id") === metPlayerId;
+  });
+}
+function firstMeetResponseVerified(postcondition) {
+  return postcondition.classification === "turn-unblocked" || postcondition.classification === "first-meet-cleared";
+}
+function notificationId(notification) {
+  return notification?.id ?? null;
+}
+function componentIdEqual4(left3, right3) {
+  return left3?.owner === right3?.owner && left3?.id === right3?.id && (left3?.type ?? null) === (right3?.type ?? null);
+}
+function recordNumber(value2, key) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const candidate2 = value2[key];
+  return typeof candidate2 === "number" ? candidate2 : null;
+}
+function successFromCanStart7(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function probe8(fn2) {
+  try {
+    return { ok: true, value: fn2() };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+function probeValue6(input) {
+  return input.ok ? input.value : void 0;
+}
 var CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION = -1326475004;
 function civ7GameUiGovernmentAvailable(target) {
   return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.CHANGE_GOVERNMENT !== void 0 && target.PlayerOperationTypes.CHOOSE_GOLDEN_AGE !== void 0 && typeof target.GameContext?.localPlayerID === "number";
@@ -36740,7 +36986,7 @@ function gameUiGovernmentValidation(input, target) {
     enumValue: input.enumValue,
     playerId: input.playerId,
     args: input.args,
-    valid: successFromCanStart7(result),
+    valid: successFromCanStart8(result),
     result
   });
 }
@@ -36799,7 +37045,7 @@ function governmentPostcondition(sent, kind) {
     reason: `The ${kind} choice request was sent through the game UI controller, but local package tests do not prove live government-domain state changed; read fresh attention before another request.`
   };
 }
-function successFromCanStart7(result) {
+function successFromCanStart8(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -36821,8 +37067,8 @@ function civ7GameUiUnitTargetActionAvailable(target) {
   return typeof target.Game?.UnitOperations?.canStart === "function" && typeof target.Game.UnitOperations.sendRequest === "function" && typeof target.Game?.UnitCommands?.canStart === "function" && typeof target.Game.UnitCommands.sendRequest === "function" && target.UnitOperationTypes != null && target.UnitCommandTypes != null && typeof target.Units?.get === "function" && typeof target.MapUnits?.getUnits === "function" && (typeof target.GameplayMap?.getIndexFromLocation === "function" || typeof target.GameplayMap?.getIndexFromXY === "function");
 }
 async function requestCiv7GameUiUnitTargetAction(input, target = globalThis) {
-  const beforeUnit = probe8(() => summarizeUnit(input.unitId, target));
-  const beforeTargetUnits = probe8(() => targetUnitsAt(input.x, input.y, target));
+  const beforeUnit = probe9(() => summarizeUnit(input.unitId, target));
+  const beforeTargetUnits = probe9(() => targetUnitsAt(input.x, input.y, target));
   const targetIndex = targetIndexFor(input.x, input.y, target);
   const ownerMatchesLocalPlayer = input.unitId.owner === target.GameContext?.localPlayerID;
   const candidates = ownerMatchesLocalPlayer ? unitTargetCandidates(input, targetIndex, target) : [];
@@ -36854,10 +37100,10 @@ async function requestCiv7GameUiUnitTargetAction(input, target = globalThis) {
       }
     });
   }
-  const sendResult = probe8(() => sendCandidate(input.unitId, selected, target));
+  const sendResult = probe9(() => sendCandidate(input.unitId, selected, target));
   const sent = sendResult.ok && sendResult.value !== false;
-  const afterUnit = probe8(() => summarizeUnit(input.unitId, target));
-  const afterTargetUnits = probe8(() => targetUnitsAt(input.x, input.y, target));
+  const afterUnit = probe9(() => summarizeUnit(input.unitId, target));
+  const afterTargetUnits = probe9(() => targetUnitsAt(input.x, input.y, target));
   const verification = unitTargetVerification(
     input,
     selected,
@@ -36924,10 +37170,10 @@ function candidate(family, operationType, args2, unitId, targetIndex, target) {
   const router = family === "unit-command" ? target.Game?.UnitCommands : target.Game?.UnitOperations;
   const enums = family === "unit-command" ? target.UnitCommandTypes : target.UnitOperationTypes;
   const enumValue = enumValueFor(enums, operationType);
-  const result = probe8(
+  const result = probe9(
     () => router?.canStart?.(unitId, enumValue, args2, false) ?? false
   );
-  const valid = result.ok && successFromCanStart8(result.value);
+  const valid = result.ok && successFromCanStart9(result.value);
   const targetInReturnedPlots = targetInReturnedPlotsFor(result, targetIndex);
   return {
     family,
@@ -37003,7 +37249,7 @@ function unitTargetReason(classification) {
   }
 }
 function targetIndexFor(x, y, target) {
-  return probe8(
+  return probe9(
     () => typeof target.GameplayMap?.getIndexFromLocation === "function" ? target.GameplayMap.getIndexFromLocation({ x, y }) : target.GameplayMap?.getIndexFromXY?.(x, y) ?? -1
   );
 }
@@ -37058,7 +37304,7 @@ function enumValueFor(enums, operationType) {
   }
   return operationType;
 }
-function successFromCanStart8(result) {
+function successFromCanStart9(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -37103,7 +37349,7 @@ function stableJson5(value2) {
     );
   });
 }
-function probe8(fn2) {
+function probe9(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
@@ -37235,14 +37481,14 @@ function targetCandidateFor(owner, input, target) {
   if (nearbyUnits.length > 8) reasons.push("high nearby unit density");
   return {
     owner,
-    leaderName: probe9(() => readValue(player, ["leaderName", "name"], ["getLeaderName", "getName"])),
-    civilizationName: probe9(
+    leaderName: probe10(() => readValue(player, ["leaderName", "name"], ["getLeaderName", "getName"])),
+    civilizationName: probe10(
       () => readValue(player, ["civilizationName", "civilizationType"], [
         "getCivilizationName",
         "getCivilizationType"
       ])
     ),
-    isHuman: probe9(() => readValue(player, ["isHuman"], ["isHuman"])),
+    isHuman: probe10(() => readValue(player, ["isHuman"], ["isHuman"])),
     cityCount: cities.length,
     unitCount: units.length,
     cities: cityTargets.slice(0, 12).map((entry) => ({
@@ -37430,7 +37676,7 @@ function collectOrigins(requested, playerId, target) {
     target.UI?.Player?.getFirstReadyUnit,
     target.UI?.Player?.getHeadSelectedUnit
   ]) {
-    const id = probe9(() => getter?.()).ok ? getter?.() : null;
+    const id = probe10(() => getter?.()).ok ? getter?.() : null;
     const unit = toComponentId10(id) == null ? null : target.Units?.get?.(toComponentId10(id));
     const location = unitLocation(unit);
     if (location != null) origins.push(location);
@@ -37539,7 +37785,7 @@ function lineSamples(from, to) {
   return out;
 }
 function plotWater(location, target) {
-  return probe9(() => target.GameplayMap?.isWater?.(location.x, location.y) ?? null);
+  return probe10(() => target.GameplayMap?.isWater?.(location.x, location.y) ?? null);
 }
 function booleanProbeValue2(input) {
   return input?.ok === true && typeof input.value === "boolean" ? input.value : null;
@@ -37571,7 +37817,7 @@ function roleForUnit(typeName) {
   return "unknown";
 }
 function unitStrength(unit, typeName, target) {
-  const definition = unit.type == null ? null : probe9(() => target.GameInfo?.Units?.lookup?.(unit.type)).ok ? target.GameInfo?.Units?.lookup?.(unit.type) : null;
+  const definition = unit.type == null ? null : probe10(() => target.GameInfo?.Units?.lookup?.(unit.type)).ok ? target.GameInfo?.Units?.lookup?.(unit.type) : null;
   const values3 = [
     Number(definition?.Combat),
     Number(definition?.RangedCombat),
@@ -37586,7 +37832,7 @@ function unitStrength(unit, typeName, target) {
 }
 function unitTypeName(type, target) {
   if (type == null) return null;
-  const definition = probe9(() => target.GameInfo?.Units?.lookup?.(type));
+  const definition = probe10(() => target.GameInfo?.Units?.lookup?.(type));
   return definition.ok && definition.value != null && typeof definition.value === "object" ? String(definition.value.UnitType ?? type) : String(type);
 }
 function nearestByDistance(values3) {
@@ -37646,7 +37892,7 @@ function boundedInteger(value2, min3, max5) {
 function round1(value2) {
   return Math.round(value2 * 10) / 10;
 }
-function probe9(fn2) {
+function probe10(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
@@ -37687,7 +37933,7 @@ function createCiv7GameUiDirectControlFacade(target) {
     requestCiv7NotificationDismissal: async (input) => await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: async (input) => await requestCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) => await requestCiv7GameUiDiplomacyResponse(input, target),
-    requestCiv7FirstMeetResponse: unsupported,
+    requestCiv7FirstMeetResponse: async (input) => await requestCiv7GameUiFirstMeetResponse(input, target),
     requestCiv7GovernmentChoice: async (input) => await requestCiv7GameUiGovernmentChoice(input, target),
     requestCiv7CelebrationChoice: async (input) => await requestCiv7GameUiCelebrationChoice(input, target),
     requestCiv7TechnologyChoiceCloseout: async (input) => await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
@@ -37718,10 +37964,10 @@ function createCiv7GameUiDirectControlFacade(target) {
 }
 function gameUiPlayableStatus(target) {
   const snapshot = gameUiSnapshot(target);
-  const inGame = probeValue6(snapshot.ui.inGame) === true;
-  const inShell = probeValue6(snapshot.ui.inShell) === true;
-  const inLoading = probeValue6(snapshot.ui.inLoading) === true;
-  const canBegin = probeValue6(snapshot.ui.canBeginGame) === true;
+  const inGame = probeValue7(snapshot.ui.inGame) === true;
+  const inShell = probeValue7(snapshot.ui.inShell) === true;
+  const inLoading = probeValue7(snapshot.ui.inLoading) === true;
+  const canBegin = probeValue7(snapshot.ui.canBeginGame) === true;
   const readiness = inGame ? "app-ui-game" : canBegin ? "begin-ready" : inLoading ? "loading" : inShell ? "shell" : "unavailable";
   return {
     host: "game-ui",
@@ -37780,6 +38026,9 @@ function gameUiSupportedMutationProcedures(target) {
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
     supported2.push("diplomacy.response.request");
   }
+  if (civ7GameUiFirstMeetResponseAvailable(target)) {
+    supported2.push("diplomacy.firstMeet.response.request");
+  }
   if (civ7GameUiGovernmentAvailable(target)) {
     supported2.push(
       "government.choice.request",
@@ -37819,13 +38068,13 @@ function gameUiSnapshot(target) {
   return {
     network: {
       isInSession: ok2(Boolean(target.Network?.isInSession)),
-      numPlayers: probe10(() => target.Network?.getNumPlayers?.() ?? 0),
-      hostPlayerId: probe10(() => target.Network?.getHostPlayerId?.() ?? -1),
-      isConnectedToNetwork: probe10(
+      numPlayers: probe11(() => target.Network?.getNumPlayers?.() ?? 0),
+      hostPlayerId: probe11(() => target.Network?.getHostPlayerId?.() ?? -1),
+      isConnectedToNetwork: probe11(
         () => target.Network?.isConnectedToNetwork?.() ?? false
       ),
-      isAuthenticated: probe10(() => target.Network?.isAuthenticated?.() ?? false),
-      isLoggedIn: probe10(() => target.Network?.isLoggedIn?.() ?? false)
+      isAuthenticated: probe11(() => target.Network?.isAuthenticated?.() ?? false),
+      isLoggedIn: probe11(() => target.Network?.isLoggedIn?.() ?? false)
     },
     autoplay: {
       isActive: target.Autoplay?.isActive ?? false,
@@ -37839,18 +38088,18 @@ function gameUiSnapshot(target) {
       turn: target.Game?.turn ?? -1,
       age: target.Game?.age ?? -1,
       maxTurns: target.Game?.maxTurns ?? 0,
-      turnDate: probe10(() => target.Game?.getTurnDate?.() ?? ""),
-      hash: probe10(() => target.Game?.getHash?.() ?? 0)
+      turnDate: probe11(() => target.Game?.getTurnDate?.() ?? ""),
+      hash: probe11(() => target.Game?.getHash?.() ?? 0)
     },
     ui: {
-      inGame: probe10(() => target.UI?.isInGame?.() ?? false),
-      inShell: probe10(() => target.UI?.isInShell?.() ?? false),
-      inLoading: probe10(() => target.UI?.isInLoading?.() ?? false),
-      loadingState: probe10(() => target.UI?.getGameLoadingState?.() ?? -1),
+      inGame: probe11(() => target.UI?.isInGame?.() ?? false),
+      inShell: probe11(() => target.UI?.isInShell?.() ?? false),
+      inLoading: probe11(() => target.UI?.isInLoading?.() ?? false),
+      loadingState: probe11(() => target.UI?.getGameLoadingState?.() ?? -1),
       loadingStateName: loadingStateName(target),
       canBeginGame: canBeginGame(target),
       canNotifyUIReady: typeof target.UI?.notifyUIReady,
-      skipStartButton: probe10(
+      skipStartButton: probe11(
         () => target.Configuration?.getGame?.().skipStartButton ?? false
       ),
       automationActive: ok2(false)
@@ -37858,27 +38107,27 @@ function gameUiSnapshot(target) {
     gameContext: {
       localPlayerID: target.GameContext?.localPlayerID ?? -1,
       localObserverID: target.GameContext?.localObserverID ?? -1,
-      hasRequestedPause: probe10(
+      hasRequestedPause: probe11(
         () => target.GameContext?.hasRequestedPause?.() ?? false
       )
     },
     players: {
       maxPlayers: target.Players?.maxPlayers ?? 0,
-      aliveIds: probe10(() => target.Players?.getAliveIds?.() ?? []),
-      aliveHumanIds: probe10(() => target.Players?.getAliveHumanIds?.() ?? []),
-      numAliveHumans: probe10(() => target.Players?.getNumAliveHumans?.() ?? 0)
+      aliveIds: probe11(() => target.Players?.getAliveIds?.() ?? []),
+      aliveHumanIds: probe11(() => target.Players?.getAliveHumanIds?.() ?? []),
+      numAliveHumans: probe11(() => target.Players?.getNumAliveHumans?.() ?? 0)
     },
     map: {
-      width: probe10(() => target.GameplayMap?.getGridWidth?.() ?? 0),
-      height: probe10(() => target.GameplayMap?.getGridHeight?.() ?? 0),
-      plotCount: probe10(() => target.GameplayMap?.getPlotCount?.() ?? 0),
-      mapSize: probe10(() => target.GameplayMap?.getMapSize?.() ?? 0),
-      randomSeed: probe10(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
+      width: probe11(() => target.GameplayMap?.getGridWidth?.() ?? 0),
+      height: probe11(() => target.GameplayMap?.getGridHeight?.() ?? 0),
+      plotCount: probe11(() => target.GameplayMap?.getPlotCount?.() ?? 0),
+      mapSize: probe11(() => target.GameplayMap?.getMapSize?.() ?? 0),
+      randomSeed: probe11(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
     }
   };
 }
 function gameUiControllerMutationProof(target) {
-  if (probeValue6(probe10(() => target.UI?.isInGame?.() ?? false)) !== true) {
+  if (probeValue7(probe11(() => target.UI?.isInGame?.() ?? false)) !== true) {
     return null;
   }
   const localPlayerId = target.GameContext?.localPlayerID;
@@ -37900,18 +38149,18 @@ function gameUiControllerMutationProof(target) {
   };
 }
 function isSingleLocalHuman(target, localPlayerId) {
-  const aliveHumanIds = probe10(() => target.Players?.getAliveHumanIds?.());
+  const aliveHumanIds = probe11(() => target.Players?.getAliveHumanIds?.());
   if (aliveHumanIds.ok && Array.isArray(aliveHumanIds.value)) {
     return aliveHumanIds.value.length === 1 && aliveHumanIds.value[0] === localPlayerId;
   }
-  const aliveHumanCount = probe10(() => target.Players?.getNumAliveHumans?.());
+  const aliveHumanCount = probe11(() => target.Players?.getNumAliveHumans?.());
   return aliveHumanCount.ok && aliveHumanCount.value === 1;
 }
 function isControllerPlayerId(playerId) {
   return typeof playerId === "number" && Number.isInteger(playerId) && playerId >= 0 && playerId <= 255;
 }
 function canBeginGame(target) {
-  return probe10(() => {
+  return probe11(() => {
     const loadingState = target.UI?.getGameLoadingState?.();
     if (loadingState == null) return false;
     const states = target.UIGameLoadingState ?? {};
@@ -37925,7 +38174,7 @@ function loadingStateName(target) {
     ([, value2]) => value2 === loadingState
   )?.[0] ?? null;
 }
-function probe10(fn2) {
+function probe11(fn2) {
   try {
     return ok2(fn2());
   } catch (err) {
@@ -37935,8 +38184,8 @@ function probe10(fn2) {
 function ok2(value2) {
   return { ok: true, value: value2 };
 }
-function probeValue6(probe11) {
-  return probe11.ok ? probe11.value : void 0;
+function probeValue7(probe12) {
+  return probe12.ok ? probe12.value : void 0;
 }
 
 // src/ui/civ7-intelligence-bridge.ts

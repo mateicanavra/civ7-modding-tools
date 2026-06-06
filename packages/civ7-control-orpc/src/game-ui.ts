@@ -58,6 +58,11 @@ import {
   type Civ7GameUiDiplomacyTarget,
 } from "./game-ui-diplomacy";
 import {
+  civ7GameUiFirstMeetResponseAvailable,
+  requestCiv7GameUiFirstMeetResponse,
+  type Civ7GameUiFirstMeetTarget,
+} from "./game-ui-first-meet";
+import {
   civ7GameUiGovernmentAvailable,
   requestCiv7GameUiCelebrationChoice,
   requestCiv7GameUiGovernmentChoice,
@@ -184,6 +189,7 @@ export type Civ7GameUiRuntimeTarget = {
     & Civ7GameUiProgressionTarget["PlayerOperationTypes"]
     & Civ7GameUiNarrativeTarget["PlayerOperationTypes"]
     & Civ7GameUiDiplomacyTarget["PlayerOperationTypes"]
+    & Civ7GameUiFirstMeetTarget["PlayerOperationTypes"]
     & Civ7GameUiGovernmentTarget["PlayerOperationTypes"];
   ProgressionTreeNodeTypes?:
     Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
@@ -317,7 +323,8 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) =>
       await requestCiv7GameUiDiplomacyResponse(input, target),
-    requestCiv7FirstMeetResponse: unsupported,
+    requestCiv7FirstMeetResponse: async (input) =>
+      await requestCiv7GameUiFirstMeetResponse(input, target),
     requestCiv7GovernmentChoice: async (input) =>
       await requestCiv7GameUiGovernmentChoice(input, target),
     requestCiv7CelebrationChoice: async (input) =>
@@ -446,6 +453,9 @@ function gameUiSupportedMutationProcedures(
   }
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
     supported.push("diplomacy.response.request");
+  }
+  if (civ7GameUiFirstMeetResponseAvailable(target)) {
+    supported.push("diplomacy.firstMeet.response.request");
   }
   if (civ7GameUiGovernmentAvailable(target)) {
     supported.push(

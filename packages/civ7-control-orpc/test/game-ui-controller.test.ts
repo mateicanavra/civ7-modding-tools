@@ -20,6 +20,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   const traditionAction = -1_326_475_004;
   const diplomacyActionId = 8_821;
   const diplomacyResponseType = -1_713_616_684;
+  const firstMeetResponseType = 673_478_009;
   const governmentType = 0;
   const governmentAction = -1_326_475_004;
   const goldenAgeType = -340_825_966;
@@ -2061,6 +2062,181 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
+  test("executes first-meet response through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_PLAYER_MET",
+      notificationTarget: { owner: 2, id: 2, type: 0 },
+      firstMeetResponse: {
+        canRespond: true,
+        clearBlockerOnSend: true,
+        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-first-meet-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "diplomacy.firstMeet.response.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "diplomacy.firstMeet.response.request",
+      input: {
+        playerId: 2,
+        metPlayerId: 2,
+        responseType: firstMeetResponseType,
+      },
+      correlationId: "game-ui-first-meet-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "diplomacy.firstMeet.response.request",
+      correlationId: "game-ui-first-meet-1",
+      output: {
+        playerId: 0,
+        metPlayerId: 2,
+        responseType: firstMeetResponseType,
+        sent: true,
+        status: "sent-confirmed",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "first-meet-cleared",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+        nextSteps: [{
+          kind: "refresh-attention",
+          source: "diplomacy.firstMeet.response.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{
+      playerId: 0,
+      args: {
+        Player1: 0,
+        Player2: 2,
+        Type: firstMeetResponseType,
+      },
+    }]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("Game.PlayerOperations");
+    expect(serialized).not.toContain("sendRequest");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"operation\"");
+    expect(serialized).not.toContain("\"verified\"");
+  });
+
+  test("keeps game UI first-meet validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_PLAYER_MET",
+      notificationTarget: { owner: 2, id: 2, type: 0 },
+      firstMeetResponse: {
+        canRespond: false,
+        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "diplomacy.firstMeet.response.request",
+      input: {
+        playerId: 2,
+        metPlayerId: 2,
+        responseType: firstMeetResponseType,
+      },
+      correlationId: "game-ui-first-meet-blocked-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        playerId: 0,
+        sent: false,
+        status: "not-sent",
+        validation: {
+          beforeValid: false,
+          afterValid: false,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "inspect-first-meet-response",
+          source: "diplomacy.firstMeet.response.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("keeps unmatched game UI first-meet blockers no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationTypeName: "NOTIFICATION_PLAYER_MET",
+      notificationTarget: { owner: 5, id: 5, type: 0 },
+      firstMeetResponse: {
+        canRespond: true,
+        clearBlockerOnSend: false,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "diplomacy.firstMeet.response.request",
+      input: {
+        playerId: 2,
+        metPlayerId: 2,
+        responseType: firstMeetResponseType,
+      },
+      correlationId: "game-ui-first-meet-unmatched-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "first-meet-blocker-unmatched",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "diplomacy.firstMeet.response.request",
+        }],
+      },
+    });
+  });
+
   test("executes government choice through game UI service dependency", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -3157,6 +3333,18 @@ function gameUiNotificationTarget(
         }>,
       ) => void;
     };
+    firstMeetResponse?: {
+      canRespond?: boolean;
+      clearBlockerOnSend?: boolean;
+      onSend?: (
+        playerId: number,
+        args: Readonly<{
+          Player1: number;
+          Player2: number;
+          Type: number;
+        }>,
+      ) => void;
+    };
     governmentChoice?: {
       canChange?: boolean;
       canCelebrate?: boolean;
@@ -3270,6 +3458,12 @@ function gameUiNotificationTarget(
         ? {}
         : {
             RESPOND_DIPLOMATIC_ACTION: "RESPOND_DIPLOMATIC_ACTION",
+          }),
+      ...(options.firstMeetResponse == null
+        ? {}
+        : {
+            RESPOND_DIPLOMATIC_FIRST_MEET:
+              "RESPOND_DIPLOMATIC_FIRST_MEET",
           }),
       ...(options.governmentChoice == null
         ? {}
@@ -3506,6 +3700,7 @@ function gameUiNotificationTarget(
           && options.progressionRequest == null
           && options.narrativeChoice == null
           && options.diplomacyResponse == null
+          && options.firstMeetResponse == null
           && options.governmentChoice == null
         ? undefined
         : {
@@ -3516,6 +3711,8 @@ function gameUiNotificationTarget(
                 ? options.narrativeChoice?.canChoose ?? true
                 : operationType === "RESPOND_DIPLOMATIC_ACTION"
                 ? options.diplomacyResponse?.canRespond ?? true
+                : operationType === "RESPOND_DIPLOMATIC_FIRST_MEET"
+                ? options.firstMeetResponse?.canRespond ?? true
                 : operationType === "CHANGE_GOVERNMENT"
                 ? options.governmentChoice?.canChange ?? true
                 : operationType === "CHOOSE_GOLDEN_AGE"
@@ -3562,6 +3759,18 @@ function gameUiNotificationTarget(
                   },
                 );
                 if (options.diplomacyResponse?.clearBlockerOnSend === true) {
+                  exists = false;
+                }
+              } else if (operationType === "RESPOND_DIPLOMATIC_FIRST_MEET") {
+                options.firstMeetResponse?.onSend?.(
+                  _playerId,
+                  args as {
+                    Player1: number;
+                    Player2: number;
+                    Type: number;
+                  },
+                );
+                if (options.firstMeetResponse?.clearBlockerOnSend === true) {
                   exists = false;
                 }
               } else if (

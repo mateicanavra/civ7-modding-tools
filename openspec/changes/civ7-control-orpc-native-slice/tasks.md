@@ -896,6 +896,22 @@ adding more read-only facade shells.
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
+  - [x] 7.3.32 Add game-resident first-meet response runtime dependency for
+    `diplomacy.firstMeet.response.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest`, exact
+    `PlayerOperationTypes.RESPOND_DIPLOMATIC_FIRST_MEET` enum facts,
+    controller-owned local-player proof, and strict first-meet notification
+    target evidence through the existing service-owned diplomacy procedure;
+    allowlist the leaf through a closed controller bridge envelope that
+    derives concrete schemas from the aggregated `Civ7ControlOrpcContract`;
+    advertise the mutation only when those exact game UI APIs and controller
+    proof exist; route caller player input through fresh
+    `GameContext.localPlayerID` evidence before send; preserve
+    validator-blocked not-sent output and keep unmatched/sticky first-meet
+    blocker evidence no-repeat guarded; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    transport expansion, public package-root procedure schema exports, and
+    full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1172,6 +1188,15 @@ adding more read-only facade shells.
   play-thread action, transport expansion, a government read service, public
   package-root procedure schema exports, or parent Task 5.x/6.x/7.x
   acceptance.
+- [x] 8.60.9 Run focused game-ui controller, first-meet response procedure, and
+  controller-ingress tests plus control-oRPC package test/check/build,
+  controller mod package test/check/build with bundle scan, strict OpenSpec
+  validates, private procedure-schema export scans, and diff hygiene for the
+  game-resident first-meet response runtime dependency and controller bridge
+  allowlist slice. These are local package and generated-bundle proofs only
+  and do not claim deployed Civ7 runtime proof, play-thread action, transport
+  expansion, a diplomacy read service, public package-root procedure schema
+  exports, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

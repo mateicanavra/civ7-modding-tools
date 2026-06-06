@@ -12,6 +12,8 @@ import {
   Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  Civ7ControllerBridgeFirstMeetResponseRequestSchema,
+  Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema,
   Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
   Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
   Civ7ControllerBridgeGovernmentChoiceRequestSchema,
@@ -53,6 +55,8 @@ import {
   type Civ7ControllerBridgeCityTownFocusReviewSuccessResponse,
   type Civ7ControllerBridgeDiplomacyResponseRequest,
   type Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
+  type Civ7ControllerBridgeFirstMeetResponseRequest,
+  type Civ7ControllerBridgeFirstMeetResponseSuccessResponse,
   type Civ7ControllerBridgeGovernmentCelebrationChoiceRequest,
   type Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse,
   type Civ7ControllerBridgeGovernmentChoiceRequest,
@@ -109,6 +113,11 @@ const diplomacyInput = {
   responseType: -1_713_616_684,
   notificationId,
 };
+const firstMeetInput = {
+  playerId: 2,
+  metPlayerId: 2,
+  responseType: 673_478_009,
+};
 const governmentInput = {
   playerId: 2,
   governmentType: 0,
@@ -155,6 +164,8 @@ type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
   Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
   Civ7ControllerBridgeDiplomacyResponseRequest,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
+  Civ7ControllerBridgeFirstMeetResponseRequest,
+  Civ7ControllerBridgeFirstMeetResponseSuccessResponse,
   Civ7ControllerBridgeGovernmentChoiceRequest,
   Civ7ControllerBridgeGovernmentChoiceSuccessResponse,
   Civ7ControllerBridgeGovernmentCelebrationChoiceRequest,
@@ -198,6 +209,8 @@ describe("Civ7 controller bridge ingress", () => {
       Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
       Civ7ControllerBridgeDiplomacyResponseRequestSchema,
       Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+      Civ7ControllerBridgeFirstMeetResponseRequestSchema,
+      Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema,
       Civ7ControllerBridgeGovernmentChoiceRequestSchema,
       Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
       Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
@@ -867,6 +880,71 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted diplomacy.firstMeet.response.request through the in-process router with controller proof", async () => {
+    const fake = fakeFirstMeetResponseContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "diplomacy.firstMeet.response.request",
+      input: firstMeetInput,
+      correlationId: "controller-first-meet-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "diplomacy.firstMeet.response.request",
+      correlationId: "controller-first-meet-1",
+      output: {
+        playerId: 0,
+        metPlayerId: 2,
+        responseType: 673_478_009,
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "first-meet-cleared",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.firstMeet).toEqual([{
+      input: {
+        playerId: 0,
+        metPlayerId: 2,
+        responseType: 673_478_009,
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "diplomacy.firstMeet.response.request",
+      input: firstMeetInput,
+      correlationId: "controller-first-meet-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain("RESPOND_DIPLOMATIC_FIRST_MEET");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
   test("invokes allowlisted government.choice.request through the in-process router with controller proof", async () => {
     const fake = fakeGovernmentChoiceContext();
     const ingress = createCiv7ControllerBridgeIngress({
@@ -1329,6 +1407,25 @@ describe("Civ7 controller bridge ingress", () => {
       {
         procedureKey: "diplomacy.response.request",
         input: diplomacyInput,
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "diplomacy.firstMeet.response.request",
+        input: {
+          ...firstMeetInput,
+          rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "diplomacy.firstMeet.response.request",
+        input: {
+          ...firstMeetInput,
+          args: { Player1: 0, Player2: 2, Type: 673_478_009 },
+        },
+      },
+      {
+        procedureKey: "diplomacy.firstMeet.response.request",
+        input: firstMeetInput,
         session: { state: "App UI" },
       },
       {
@@ -2012,6 +2109,57 @@ function fakeDiplomacyResponseContext(): {
         requestCiv7DiplomacyResponse: async (input, options) => {
           calls.diplomacy.push({ input, options });
           return diplomacyResponseResult();
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
+function fakeFirstMeetResponseContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    firstMeet: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: TestControllerContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    firstMeet: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+  } = {
+    status: [],
+    views: [],
+    firstMeet: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: ["diplomacy.firstMeet.response.request"],
+      },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return cleanNotificationViewResult();
+        },
+        requestCiv7FirstMeetResponse: async (input, options) => {
+          calls.firstMeet.push({ input, options });
+          return firstMeetResponseResult("first-meet-cleared");
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -2827,6 +2975,66 @@ function diplomacyResponseResult(): any {
     postcondition: {
       classification: "diplomacy-blocker-cleared",
       reason: "test diplomacy-blocker-cleared",
+    },
+  };
+}
+
+function firstMeetResponseResult(classification: string): any {
+  return {
+    playerId: 0,
+    metPlayerId: 2,
+    responseType: 673_478_009,
+    before: {},
+    beforeValidation: {
+      valid: true,
+      result: {
+        command: "Game.PlayerOperations.canStart(...)",
+      },
+    },
+    operation: {
+      before: {
+        valid: true,
+        result: {
+          command: "Game.PlayerOperations.canStart(...)",
+        },
+      },
+      command: {
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "65535", name: "App UI" },
+        output: ["CMD:65535:Game.PlayerOperations.sendRequest(...)"],
+      },
+      after: {
+        valid: false,
+        result: {
+          command: "Game.PlayerOperations.canStart(...)",
+        },
+      },
+      sent: true,
+      verified: true,
+    },
+    command: {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "65535", name: "App UI" },
+      output: ["CMD:65535:Game.PlayerOperations.sendRequest(...)"],
+    },
+    payload: {
+      sent: true,
+      rawCommand: "Game.PlayerOperations.sendRequest(...)",
+    },
+    after: {},
+    afterValidation: {
+      valid: false,
+      result: {
+        command: "Game.PlayerOperations.canStart(...)",
+      },
+    },
+    sent: true,
+    verified: true,
+    postcondition: {
+      classification,
+      reason: `test ${classification}`,
     },
   };
 }

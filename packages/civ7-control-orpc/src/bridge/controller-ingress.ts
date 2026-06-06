@@ -87,6 +87,14 @@ const Civ7DiplomacyResponseResultSchema =
   typeboxOutputSchemaFromContractProcedure(
     Civ7ControlOrpcContract.diplomacy.response.request,
   );
+const Civ7FirstMeetResponseInputSchema =
+  typeboxInputSchemaFromContractProcedure(
+    Civ7ControlOrpcContract.diplomacy.firstMeet.response.request,
+  );
+const Civ7FirstMeetResponseResultSchema =
+  typeboxOutputSchemaFromContractProcedure(
+    Civ7ControlOrpcContract.diplomacy.firstMeet.response.request,
+  );
 const Civ7GovernmentChoiceInputSchema = typeboxInputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.government.choice.request,
 );
@@ -322,6 +330,18 @@ export type Civ7ControllerBridgeDiplomacyResponseRequest = Static<
   typeof Civ7ControllerBridgeDiplomacyResponseRequestSchema
 >;
 
+export const Civ7ControllerBridgeFirstMeetResponseRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("diplomacy.firstMeet.response.request"),
+    input: Civ7FirstMeetResponseInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeFirstMeetResponseRequest = Static<
+  typeof Civ7ControllerBridgeFirstMeetResponseRequestSchema
+>;
+
 export const Civ7ControllerBridgeGovernmentChoiceRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("government.choice.request"),
@@ -475,6 +495,7 @@ export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
+  Civ7ControllerBridgeFirstMeetResponseRequestSchema,
   Civ7ControllerBridgeGovernmentChoiceRequestSchema,
   Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
@@ -499,6 +520,7 @@ export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeCityTownFocusReviewRequest
   | Civ7ControllerBridgeNarrativeChoiceRequest
   | Civ7ControllerBridgeDiplomacyResponseRequest
+  | Civ7ControllerBridgeFirstMeetResponseRequest
   | Civ7ControllerBridgeGovernmentChoiceRequest
   | Civ7ControllerBridgeGovernmentCelebrationChoiceRequest
   | Civ7ControllerBridgeUnitTargetActionRequest
@@ -682,6 +704,20 @@ export type Civ7ControllerBridgeDiplomacyResponseSuccessResponse = Static<
   typeof Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("diplomacy.firstMeet.response.request"),
+      output: Civ7FirstMeetResponseResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeFirstMeetResponseSuccessResponse = Static<
+  typeof Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema =
   Type.Object(
     {
@@ -857,6 +893,7 @@ export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema,
   Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
   Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
@@ -881,6 +918,7 @@ export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeCityTownFocusReviewSuccessResponse
   | Civ7ControllerBridgeNarrativeChoiceSuccessResponse
   | Civ7ControllerBridgeDiplomacyResponseSuccessResponse
+  | Civ7ControllerBridgeFirstMeetResponseSuccessResponse
   | Civ7ControllerBridgeGovernmentChoiceSuccessResponse
   | Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse
   | Civ7ControllerBridgeUnitTargetActionSuccessResponse
@@ -1112,6 +1150,20 @@ export async function invokeCiv7ControllerBridgeRequest(
       };
     }
 
+    if (request.procedureKey === "diplomacy.firstMeet.response.request") {
+      const output = await client.diplomacy.firstMeet.response.request(
+        validatedInput,
+      );
+      return {
+        ok: true,
+        procedureKey: "diplomacy.firstMeet.response.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
     if (request.procedureKey === "government.choice.request") {
       const output = await client.government.choice.request(validatedInput);
       return {
@@ -1302,6 +1354,7 @@ function isUnsupportedProcedureRequest(
     && request.procedureKey !== "city.townFocus.review.request"
     && request.procedureKey !== "narrative.choice.request"
     && request.procedureKey !== "diplomacy.response.request"
+    && request.procedureKey !== "diplomacy.firstMeet.response.request"
     && request.procedureKey !== "government.choice.request"
     && request.procedureKey !== "government.celebration.choice.request"
     && request.procedureKey !== "unit.target.action.request"
@@ -1326,6 +1379,7 @@ function isControllerBridgeMutationRequest(
   | Civ7ControllerBridgeCityTownFocusReviewRequest
   | Civ7ControllerBridgeNarrativeChoiceRequest
   | Civ7ControllerBridgeDiplomacyResponseRequest
+  | Civ7ControllerBridgeFirstMeetResponseRequest
   | Civ7ControllerBridgeGovernmentChoiceRequest
   | Civ7ControllerBridgeGovernmentCelebrationChoiceRequest
   | Civ7ControllerBridgeUnitTargetActionRequest
@@ -1345,6 +1399,7 @@ function isControllerBridgeMutationRequest(
     || request.procedureKey === "city.townFocus.review.request"
     || request.procedureKey === "narrative.choice.request"
     || request.procedureKey === "diplomacy.response.request"
+    || request.procedureKey === "diplomacy.firstMeet.response.request"
     || request.procedureKey === "government.choice.request"
     || request.procedureKey === "government.celebration.choice.request"
     || request.procedureKey === "unit.target.action.request"
