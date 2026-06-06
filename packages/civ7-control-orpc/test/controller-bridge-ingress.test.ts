@@ -16,8 +16,20 @@ import {
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
   Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionCultureTargetRequestSchema,
+  Civ7ControllerBridgeProgressionCultureTargetSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionAttributePurchaseRequestSchema,
+  Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionAttributeReviewRequestSchema,
+  Civ7ControllerBridgeProgressionAttributeReviewSuccessResponseSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTechnologyTargetRequestSchema,
+  Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTraditionChangeRequestSchema,
+  Civ7ControllerBridgeProgressionTraditionChangeSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTraditionReviewRequestSchema,
+  Civ7ControllerBridgeProgressionTraditionReviewSuccessResponseSchema,
   Civ7ControllerBridgeResponseSchema,
   Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
   Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
@@ -41,8 +53,20 @@ import {
   type Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
   type Civ7ControllerBridgeProgressionCultureChoiceRequest,
   type Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse,
+  type Civ7ControllerBridgeProgressionCultureTargetRequest,
+  type Civ7ControllerBridgeProgressionCultureTargetSuccessResponse,
+  type Civ7ControllerBridgeProgressionAttributePurchaseRequest,
+  type Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponse,
+  type Civ7ControllerBridgeProgressionAttributeReviewRequest,
+  type Civ7ControllerBridgeProgressionAttributeReviewSuccessResponse,
   type Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
   type Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
+  type Civ7ControllerBridgeProgressionTechnologyTargetRequest,
+  type Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponse,
+  type Civ7ControllerBridgeProgressionTraditionChangeRequest,
+  type Civ7ControllerBridgeProgressionTraditionChangeSuccessResponse,
+  type Civ7ControllerBridgeProgressionTraditionReviewRequest,
+  type Civ7ControllerBridgeProgressionTraditionReviewSuccessResponse,
   type Civ7ControllerBridgeStrategyFrontSummaryRequest,
   type Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
   type Civ7ControllerBridgeUnitTargetActionRequest,
@@ -87,6 +111,17 @@ const progressionCultureInput = {
   node: 27_001,
   notificationId,
 };
+const progressionTargetInput = {
+  playerId: 2,
+  node: 18_001,
+};
+const attributePurchaseInput = {
+  node: 20,
+};
+const traditionChangeInput = {
+  traditionType: -331_546_976,
+  action: -1_326_475_004,
+};
 
 type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
   Civ7ControllerBridgeStrategyFrontSummaryRequest,
@@ -109,6 +144,18 @@ type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
   Civ7ControllerBridgeProgressionCultureChoiceRequest,
   Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse,
+  Civ7ControllerBridgeProgressionTechnologyTargetRequest,
+  Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponse,
+  Civ7ControllerBridgeProgressionCultureTargetRequest,
+  Civ7ControllerBridgeProgressionCultureTargetSuccessResponse,
+  Civ7ControllerBridgeProgressionAttributePurchaseRequest,
+  Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponse,
+  Civ7ControllerBridgeProgressionAttributeReviewRequest,
+  Civ7ControllerBridgeProgressionAttributeReviewSuccessResponse,
+  Civ7ControllerBridgeProgressionTraditionChangeRequest,
+  Civ7ControllerBridgeProgressionTraditionChangeSuccessResponse,
+  Civ7ControllerBridgeProgressionTraditionReviewRequest,
+  Civ7ControllerBridgeProgressionTraditionReviewSuccessResponse,
 ]>;
 
 const publicControllerBridgeSchemaTypeCoverage = <_T>() => undefined;
@@ -136,6 +183,18 @@ describe("Civ7 controller bridge ingress", () => {
       Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
       Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
       Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
+      Civ7ControllerBridgeProgressionTechnologyTargetRequestSchema,
+      Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponseSchema,
+      Civ7ControllerBridgeProgressionCultureTargetRequestSchema,
+      Civ7ControllerBridgeProgressionCultureTargetSuccessResponseSchema,
+      Civ7ControllerBridgeProgressionAttributePurchaseRequestSchema,
+      Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponseSchema,
+      Civ7ControllerBridgeProgressionAttributeReviewRequestSchema,
+      Civ7ControllerBridgeProgressionAttributeReviewSuccessResponseSchema,
+      Civ7ControllerBridgeProgressionTraditionChangeRequestSchema,
+      Civ7ControllerBridgeProgressionTraditionChangeSuccessResponseSchema,
+      Civ7ControllerBridgeProgressionTraditionReviewRequestSchema,
+      Civ7ControllerBridgeProgressionTraditionReviewSuccessResponseSchema,
     ];
 
     expect(
@@ -905,6 +964,104 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted progression technology target through the in-process router with controller proof", async () => {
+    const fake = fakeProgressionChoiceContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "progression.technology.target.request",
+      input: progressionTargetInput,
+      correlationId: "controller-progression-target-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "progression.technology.target.request",
+      correlationId: "controller-progression-target-1",
+      output: {
+        playerId: 0,
+        node: 18_001,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(fake.calls.technologyTarget).toEqual([{
+      input: {
+        playerId: 0,
+        node: 18_001,
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"operation\"");
+    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain("SET_TECH_TREE_TARGET_NODE");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+  });
+
+  test("invokes allowlisted progression attribute purchase through the in-process router with controller proof", async () => {
+    const fake = fakeProgressionChoiceContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "progression.attribute.purchase.request",
+      input: attributePurchaseInput,
+      correlationId: "controller-attribute-purchase-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "progression.attribute.purchase.request",
+      correlationId: "controller-attribute-purchase-1",
+      output: {
+        playerId: 0,
+        node: 20,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(fake.calls.attributePurchase).toEqual([{
+      input: {
+        playerId: 0,
+        node: 20,
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"operation\"");
+    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain("BUY_ATTRIBUTE_TREE_NODE");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+  });
+
   test("rejects raw command, session, endpoint, and state envelope fields", async () => {
     const invalidRequests = [
       { procedureKey: "readiness.current", input: {}, host: "127.0.0.1" },
@@ -1068,6 +1225,40 @@ describe("Civ7 controller bridge ingress", () => {
           ...progressionCultureInput,
           rawCommand: "Game.PlayerOperations.sendRequest(...)",
         },
+      },
+      {
+        procedureKey: "progression.technology.target.request",
+        input: {
+          ...progressionTargetInput,
+          rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "progression.culture.target.request",
+        input: progressionTargetInput,
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "progression.attribute.purchase.request",
+        input: {
+          ...attributePurchaseInput,
+          command: "Game.PlayerOperations.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "progression.attribute.review.request",
+        input: { rawCommand: "Game.PlayerOperations.sendRequest(...)" },
+      },
+      {
+        procedureKey: "progression.tradition.change.request",
+        input: {
+          ...traditionChangeInput,
+          operation: { type: "CHANGE_TRADITION" },
+        },
+      },
+      {
+        procedureKey: "progression.tradition.review.request",
+        input: { args: {} },
       },
     ];
 
@@ -1682,6 +1873,30 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
       input: unknown;
       options: unknown;
     }>;
+    technologyTarget: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    cultureTarget: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    attributePurchase: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    attributeReview: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    traditionChange: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    traditionReview: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
   };
   contextRequests: unknown[];
   context: TestControllerContext;
@@ -1697,11 +1912,41 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
       input: unknown;
       options: unknown;
     }>;
+    technologyTarget: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    cultureTarget: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    attributePurchase: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    attributeReview: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    traditionChange: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    traditionReview: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
   } = {
     status: [],
     views: [],
     technology: [],
     culture: [],
+    technologyTarget: [],
+    cultureTarget: [],
+    attributePurchase: [],
+    attributeReview: [],
+    traditionChange: [],
+    traditionReview: [],
   };
   const views = [
     progressionNotificationView(kind),
@@ -1717,6 +1962,12 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
         supportedMutationProcedures: [
           "progression.technology.choice.request",
           "progression.culture.choice.request",
+          "progression.technology.target.request",
+          "progression.culture.target.request",
+          "progression.attribute.purchase.request",
+          "progression.attribute.review.request",
+          "progression.tradition.change.request",
+          "progression.tradition.review.request",
         ],
       },
       directControl: {
@@ -1735,6 +1986,30 @@ function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technolo
         requestCiv7CultureChoiceCloseout: async (input, options) => {
           calls.culture.push({ input, options });
           return progressionCloseoutResult("culture");
+        },
+        requestCiv7TechnologyTarget: async (input, options) => {
+          calls.technologyTarget.push({ input, options });
+          return progressionTargetResult("technology");
+        },
+        requestCiv7CultureTarget: async (input, options) => {
+          calls.cultureTarget.push({ input, options });
+          return progressionTargetResult("culture");
+        },
+        requestCiv7AttributePurchase: async (input, options) => {
+          calls.attributePurchase.push({ input, options });
+          return progressionPlayerChoiceResult("attribute-purchase");
+        },
+        requestCiv7AttributeReviewCloseout: async (input, options) => {
+          calls.attributeReview.push({ input, options });
+          return progressionPlayerChoiceResult("attribute-review");
+        },
+        requestCiv7TraditionChange: async (input, options) => {
+          calls.traditionChange.push({ input, options });
+          return progressionPlayerChoiceResult("tradition-change");
+        },
+        requestCiv7TraditionReviewCloseout: async (input, options) => {
+          calls.traditionReview.push({ input, options });
+          return progressionPlayerChoiceResult("tradition-review");
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -2353,5 +2628,102 @@ function progressionCloseoutResult(kind: "technology" | "culture"): any {
       sent: true,
     },
     sent: true,
+  };
+}
+
+function progressionTargetResult(kind: "technology" | "culture"): any {
+  const node = kind === "technology" ? 18_001 : 27_001;
+  const operationType = kind === "technology"
+    ? "SET_TECH_TREE_TARGET_NODE"
+    : "SET_CULTURE_TREE_TARGET_NODE";
+  return {
+    kind,
+    playerId: 0,
+    node,
+    operation: {
+      before: progressionValidation(operationType, node),
+      after: progressionValidation(operationType, node),
+      sent: true,
+      verified: true,
+    },
+    beforeValidation: progressionValidation(operationType, node),
+    afterValidation: progressionValidation(operationType, node),
+    sent: true,
+    verified: false,
+    postcondition: {
+      classification: "pending-runtime-proof",
+      reason: `${kind} target pending runtime proof`,
+    },
+  };
+}
+
+function progressionPlayerChoiceResult(
+  kind:
+    | "attribute-purchase"
+    | "attribute-review"
+    | "tradition-change"
+    | "tradition-review",
+): any {
+  const operationType = kind === "attribute-purchase"
+    ? "BUY_ATTRIBUTE_TREE_NODE"
+    : kind === "attribute-review"
+    ? "CONSIDER_ASSIGN_ATTRIBUTE"
+    : kind === "tradition-change"
+    ? "CHANGE_TRADITION"
+    : "CONSIDER_ASSIGN_TRADITIONS";
+  const args = kind === "attribute-purchase"
+    ? { ProgressionTreeNodeType: 20 }
+    : kind === "tradition-change"
+    ? {
+        TraditionType: -331_546_976,
+        Action: -1_326_475_004,
+      }
+    : {};
+  return {
+    kind,
+    playerId: 0,
+    ...(kind === "attribute-purchase" ? { node: 20 } : {}),
+    ...(kind === "tradition-change"
+      ? {
+          traditionType: -331_546_976,
+          action: -1_326_475_004,
+        }
+      : {}),
+    operation: {
+      before: progressionValidation(operationType, 20, args),
+      after: progressionValidation(operationType, 20, args),
+      sent: true,
+      verified: true,
+    },
+    beforeValidation: progressionValidation(operationType, 20, args),
+    afterValidation: progressionValidation(operationType, 20, args),
+    sent: true,
+    verified: false,
+    postcondition: {
+      classification: "pending-runtime-proof",
+      reason: `${kind} pending runtime proof`,
+    },
+  };
+}
+
+function progressionValidation(
+  operationType: string,
+  node: number,
+  args: Readonly<Record<string, number>> = { ProgressionTreeNodeType: node },
+): any {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    family: "player-operation",
+    operationType,
+    enumValue: operationType,
+    target: { playerId: 0 },
+    args,
+    valid: true,
+    result: {
+      command: `Game.PlayerOperations.canStart(${operationType})`,
+      rawCommand: "Game.PlayerOperations.sendRequest(...)",
+    },
   };
 }

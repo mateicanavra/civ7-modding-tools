@@ -30,8 +30,15 @@ import {
 } from "./game-ui-town-focus";
 import {
   civ7GameUiProgressionChoiceAvailable,
+  civ7GameUiProgressionRequestAvailable,
+  requestCiv7GameUiAttributePurchase,
+  requestCiv7GameUiAttributeReviewCloseout,
   requestCiv7GameUiCultureChoiceCloseout,
+  requestCiv7GameUiCultureTarget,
   requestCiv7GameUiTechnologyChoiceCloseout,
+  requestCiv7GameUiTechnologyTarget,
+  requestCiv7GameUiTraditionChange,
+  requestCiv7GameUiTraditionReviewCloseout,
   type Civ7GameUiProgressionTarget,
 } from "./game-ui-progression";
 import {
@@ -310,12 +317,18 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) =>
       await requestCiv7GameUiCultureChoiceCloseout(input, target),
-    requestCiv7TechnologyTarget: unsupported,
-    requestCiv7CultureTarget: unsupported,
-    requestCiv7AttributePurchase: unsupported,
-    requestCiv7AttributeReviewCloseout: unsupported,
-    requestCiv7TraditionChange: unsupported,
-    requestCiv7TraditionReviewCloseout: unsupported,
+    requestCiv7TechnologyTarget: async (input) =>
+      await requestCiv7GameUiTechnologyTarget(input, target),
+    requestCiv7CultureTarget: async (input) =>
+      await requestCiv7GameUiCultureTarget(input, target),
+    requestCiv7AttributePurchase: async (input) =>
+      await requestCiv7GameUiAttributePurchase(input, target),
+    requestCiv7AttributeReviewCloseout: async (input) =>
+      await requestCiv7GameUiAttributeReviewCloseout(input, target),
+    requestCiv7TraditionChange: async (input) =>
+      await requestCiv7GameUiTraditionChange(input, target),
+    requestCiv7TraditionReviewCloseout: async (input) =>
+      await requestCiv7GameUiTraditionReviewCloseout(input, target),
     requestCiv7TownFocusChange: async (input) =>
       await requestCiv7GameUiTownFocusChange(input, target),
     requestCiv7TownFocusReviewCloseout: async (input) =>
@@ -407,6 +420,16 @@ function gameUiSupportedMutationProcedures(
     supported.push(
       "progression.technology.choice.request",
       "progression.culture.choice.request",
+    );
+  }
+  if (civ7GameUiProgressionRequestAvailable(target)) {
+    supported.push(
+      "progression.technology.target.request",
+      "progression.culture.target.request",
+      "progression.attribute.purchase.request",
+      "progression.attribute.review.request",
+      "progression.tradition.change.request",
+      "progression.tradition.review.request",
     );
   }
   if (civ7GameUiNarrativeChoiceAvailable(target)) {

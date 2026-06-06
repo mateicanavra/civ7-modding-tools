@@ -27263,7 +27263,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-ATHCF6HK.js
+// ../../packages/civ7-control-orpc/dist/chunk-XTKZVMAL.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -27274,9 +27274,10 @@ function civ7ControlOrpcErrorCorrelationData(context5) {
   const correlationId = context5.correlation?.correlationId;
   return isCiv7ControlOrpcCorrelationId(correlationId) ? { correlationId } : {};
 }
+var TYPEBOX_SCHEMA = /* @__PURE__ */ Symbol.for("@civ7/control-orpc/typebox-schema");
 function toStandardSchema(schema) {
   const validator = Compile(schema);
-  return {
+  const standardSchema = {
     "~standard": {
       version: 1,
       vendor: "typebox",
@@ -27293,6 +27294,29 @@ function toStandardSchema(schema) {
       }
     }
   };
+  Object.defineProperty(standardSchema, TYPEBOX_SCHEMA, {
+    value: schema
+  });
+  return standardSchema;
+}
+function typeboxInputSchemaFromContractProcedure(procedure) {
+  return typeboxSchemaFromStandard(
+    procedure["~orpc"].inputSchema,
+    "input"
+  );
+}
+function typeboxOutputSchemaFromContractProcedure(procedure) {
+  return typeboxSchemaFromStandard(
+    procedure["~orpc"].outputSchema,
+    "output"
+  );
+}
+function typeboxSchemaFromStandard(value2, label) {
+  const schema = value2?.[TYPEBOX_SCHEMA];
+  if (schema == null) {
+    throw new Error(`Civ7 control-oRPC contract ${label} schema is not TypeBox-backed.`);
+  }
+  return schema;
 }
 function pathSegments(path) {
   if (path.length === 0) {
@@ -33029,6 +33053,117 @@ var Civ7ControlOrpcRouter = civ7ControlOrpcImplementer.router({
 function createCiv7ControlOrpcServerClient(context5) {
   return createRouterClient(Civ7ControlOrpcRouter, { context: context5 });
 }
+var Civ7ReadinessCurrentInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.readiness.current
+);
+var Civ7ReadinessCurrentResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.readiness.current
+);
+var Civ7AttentionCurrentInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.attention.current
+);
+var Civ7AttentionCurrentResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.attention.current
+);
+var Civ7StrategyFrontSummaryInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.strategy.frontSummary
+);
+var Civ7StrategyFrontSummaryResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.strategy.frontSummary
+);
+var Civ7NotificationDismissInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.notifications.dismiss.request
+);
+var Civ7NotificationDismissalResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.notifications.dismiss.request
+);
+var Civ7TurnCompletionInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.turn.complete.request
+);
+var Civ7TurnCompletionResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.turn.complete.request
+);
+var Civ7CityProductionChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.production.choice.request
+);
+var Civ7CityProductionChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.production.choice.request
+);
+var Civ7CityPopulationPlacementInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.population.place.request
+);
+var Civ7CityPopulationPlacementResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.population.place.request
+);
+var Civ7CityTownFocusChangeInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.townFocus.change.request
+);
+var Civ7CityTownFocusChangeResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.townFocus.change.request
+);
+var Civ7CityTownFocusReviewInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.townFocus.review.request
+);
+var Civ7CityTownFocusReviewResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.townFocus.review.request
+);
+var Civ7NarrativeChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.narrative.choice.request
+);
+var Civ7NarrativeChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.narrative.choice.request
+);
+var Civ7DiplomacyResponseInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.diplomacy.response.request
+);
+var Civ7DiplomacyResponseResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.diplomacy.response.request
+);
+var Civ7UnitTargetActionInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.target.action.request
+);
+var Civ7UnitTargetActionResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.target.action.request
+);
+var Civ7ProgressionChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.technology.choice.request
+);
+var Civ7ProgressionTargetInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.technology.target.request
+);
+var Civ7ProgressionTechnologyChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.technology.choice.request
+);
+var Civ7ProgressionCultureChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.culture.choice.request
+);
+var Civ7ProgressionTechnologyTargetResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.technology.target.request
+);
+var Civ7ProgressionCultureTargetResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.culture.target.request
+);
+var Civ7ProgressionAttributePurchaseInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.attribute.purchase.request
+);
+var Civ7ProgressionAttributePurchaseResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.attribute.purchase.request
+);
+var Civ7ProgressionPlayerReviewInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.attribute.review.request
+);
+var Civ7ProgressionAttributeReviewResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.attribute.review.request
+);
+var Civ7ProgressionTraditionChangeInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.tradition.change.request
+);
+var Civ7ProgressionTraditionChangeResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.tradition.change.request
+);
+var Civ7ProgressionTraditionReviewResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.tradition.review.request
+);
 var Civ7ControllerBridgeMutationProofSchema = typebox_exports.Object(
   {
     lifecycle: typebox_exports.Object(
@@ -33058,7 +33193,7 @@ var Civ7ControllerBridgeMutationProofSchema = typebox_exports.Object(
 var Civ7ControllerBridgeReadinessCurrentRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("readiness.current"),
-    input: Civ7ReadinessCurrentInputSchema,
+    input: Civ7ReadinessCurrentInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33066,7 +33201,7 @@ var Civ7ControllerBridgeReadinessCurrentRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeAttentionCurrentRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("attention.current"),
-    input: Civ7AttentionCurrentInputSchema,
+    input: Civ7AttentionCurrentInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33074,7 +33209,7 @@ var Civ7ControllerBridgeAttentionCurrentRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeStrategyFrontSummaryRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("strategy.frontSummary"),
-    input: Civ7StrategyFrontSummaryInputSchema,
+    input: Civ7StrategyFrontSummaryInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33082,7 +33217,7 @@ var Civ7ControllerBridgeStrategyFrontSummaryRequestSchema = typebox_exports.Obje
 var Civ7ControllerBridgeNotificationDismissRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("notifications.dismiss.request"),
-    input: Civ7NotificationDismissInputSchema,
+    input: Civ7NotificationDismissInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33090,7 +33225,7 @@ var Civ7ControllerBridgeNotificationDismissRequestSchema = typebox_exports.Objec
 var Civ7ControllerBridgeTurnCompleteRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("turn.complete.request"),
-    input: Civ7TurnCompletionInputSchema,
+    input: Civ7TurnCompletionInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33098,7 +33233,7 @@ var Civ7ControllerBridgeTurnCompleteRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeCityProductionChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.production.choice.request"),
-    input: Civ7CityProductionChoiceInputSchema,
+    input: Civ7CityProductionChoiceInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33106,7 +33241,7 @@ var Civ7ControllerBridgeCityProductionChoiceRequestSchema = typebox_exports.Obje
 var Civ7ControllerBridgeCityPopulationPlacementRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.population.place.request"),
-    input: Civ7CityPopulationPlacementInputSchema,
+    input: Civ7CityPopulationPlacementInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33114,7 +33249,7 @@ var Civ7ControllerBridgeCityPopulationPlacementRequestSchema = typebox_exports.O
 var Civ7ControllerBridgeCityTownFocusChangeRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.townFocus.change.request"),
-    input: Civ7CityTownFocusChangeInputSchema,
+    input: Civ7CityTownFocusChangeInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33122,7 +33257,7 @@ var Civ7ControllerBridgeCityTownFocusChangeRequestSchema = typebox_exports.Objec
 var Civ7ControllerBridgeCityTownFocusReviewRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.townFocus.review.request"),
-    input: Civ7CityTownFocusReviewInputSchema,
+    input: Civ7CityTownFocusReviewInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33130,7 +33265,7 @@ var Civ7ControllerBridgeCityTownFocusReviewRequestSchema = typebox_exports.Objec
 var Civ7ControllerBridgeNarrativeChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("narrative.choice.request"),
-    input: Civ7NarrativeChoiceInputSchema,
+    input: Civ7NarrativeChoiceInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33138,7 +33273,7 @@ var Civ7ControllerBridgeNarrativeChoiceRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeDiplomacyResponseRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("diplomacy.response.request"),
-    input: Civ7DiplomacyResponseInputSchema,
+    input: Civ7DiplomacyResponseInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33146,7 +33281,7 @@ var Civ7ControllerBridgeDiplomacyResponseRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeUnitTargetActionRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("unit.target.action.request"),
-    input: Civ7UnitTargetActionInputSchema,
+    input: Civ7UnitTargetActionInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33154,7 +33289,7 @@ var Civ7ControllerBridgeUnitTargetActionRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("progression.technology.choice.request"),
-    input: Civ7ProgressionChoiceInputSchema,
+    input: Civ7ProgressionChoiceInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33162,7 +33297,55 @@ var Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema = typebox_expor
 var Civ7ControllerBridgeProgressionCultureChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("progression.culture.choice.request"),
-    input: Civ7ProgressionChoiceInputSchema,
+    input: Civ7ProgressionChoiceInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTechnologyTargetRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.technology.target.request"),
+    input: Civ7ProgressionTargetInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionCultureTargetRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.culture.target.request"),
+    input: Civ7ProgressionTargetInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionAttributePurchaseRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.attribute.purchase.request"),
+    input: Civ7ProgressionAttributePurchaseInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionAttributeReviewRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.attribute.review.request"),
+    input: Civ7ProgressionPlayerReviewInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTraditionChangeRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.tradition.change.request"),
+    input: Civ7ProgressionTraditionChangeInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTraditionReviewRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.tradition.review.request"),
+    input: Civ7ProgressionPlayerReviewInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33181,7 +33364,13 @@ var Civ7ControllerBridgeRequestSchema = typebox_exports.Union([
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
-  Civ7ControllerBridgeProgressionCultureChoiceRequestSchema
+  Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
+  Civ7ControllerBridgeProgressionTechnologyTargetRequestSchema,
+  Civ7ControllerBridgeProgressionCultureTargetRequestSchema,
+  Civ7ControllerBridgeProgressionAttributePurchaseRequestSchema,
+  Civ7ControllerBridgeProgressionAttributeReviewRequestSchema,
+  Civ7ControllerBridgeProgressionTraditionChangeRequestSchema,
+  Civ7ControllerBridgeProgressionTraditionReviewRequestSchema
 ]);
 var Civ7ControllerBridgeErrorSchema = typebox_exports.Object(
   {
@@ -33200,7 +33389,7 @@ var Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema = typebox_exports.
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("readiness.current"),
-    output: Civ7ReadinessCurrentResultSchema,
+    output: Civ7ReadinessCurrentResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33209,7 +33398,7 @@ var Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema = typebox_exports.
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("attention.current"),
-    output: Civ7AttentionCurrentResultSchema,
+    output: Civ7AttentionCurrentResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33218,7 +33407,7 @@ var Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema = typebox_expo
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("strategy.frontSummary"),
-    output: Civ7StrategyFrontSummaryResultSchema,
+    output: Civ7StrategyFrontSummaryResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33227,7 +33416,7 @@ var Civ7ControllerBridgeNotificationDismissSuccessResponseSchema = typebox_expor
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("notifications.dismiss.request"),
-    output: Civ7NotificationDismissalResultSchema,
+    output: Civ7NotificationDismissalResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33236,7 +33425,7 @@ var Civ7ControllerBridgeTurnCompleteSuccessResponseSchema = typebox_exports.Obje
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("turn.complete.request"),
-    output: Civ7TurnCompletionResultSchema,
+    output: Civ7TurnCompletionResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33245,7 +33434,7 @@ var Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema = typebox_expo
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("city.production.choice.request"),
-    output: Civ7CityProductionChoiceResultSchema,
+    output: Civ7CityProductionChoiceResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33254,7 +33443,7 @@ var Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema = typebox_e
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("city.population.place.request"),
-    output: Civ7CityPopulationPlacementResultSchema,
+    output: Civ7CityPopulationPlacementResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33263,7 +33452,7 @@ var Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema = typebox_expor
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("city.townFocus.change.request"),
-    output: Civ7CityTownFocusChangeResultSchema,
+    output: Civ7CityTownFocusChangeResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33272,7 +33461,7 @@ var Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema = typebox_expor
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("city.townFocus.review.request"),
-    output: Civ7CityTownFocusReviewResultSchema,
+    output: Civ7CityTownFocusReviewResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33281,7 +33470,7 @@ var Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema = typebox_exports.O
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("narrative.choice.request"),
-    output: Civ7NarrativeChoiceResultSchema,
+    output: Civ7NarrativeChoiceResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33290,7 +33479,7 @@ var Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema = typebox_exports
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("diplomacy.response.request"),
-    output: Civ7DiplomacyResponseResultSchema,
+    output: Civ7DiplomacyResponseResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33299,7 +33488,7 @@ var Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema = typebox_exports.
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("unit.target.action.request"),
-    output: Civ7UnitTargetActionResultSchema,
+    output: Civ7UnitTargetActionResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33308,7 +33497,7 @@ var Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema = typeb
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("progression.technology.choice.request"),
-    output: Civ7ProgressionTechnologyChoiceResultSchema,
+    output: Civ7ProgressionTechnologyChoiceResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33317,7 +33506,61 @@ var Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema = typebox_
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("progression.culture.choice.request"),
-    output: Civ7ProgressionCultureChoiceResultSchema,
+    output: Civ7ProgressionCultureChoiceResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.technology.target.request"),
+    output: Civ7ProgressionTechnologyTargetResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionCultureTargetSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.culture.target.request"),
+    output: Civ7ProgressionCultureTargetResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.attribute.purchase.request"),
+    output: Civ7ProgressionAttributePurchaseResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionAttributeReviewSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.attribute.review.request"),
+    output: Civ7ProgressionAttributeReviewResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTraditionChangeSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.tradition.change.request"),
+    output: Civ7ProgressionTraditionChangeResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTraditionReviewSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.tradition.review.request"),
+    output: Civ7ProgressionTraditionReviewResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -33336,7 +33579,13 @@ var Civ7ControllerBridgeSuccessResponseSchema = typebox_exports.Union([
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
-  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema
+  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionCultureTargetSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionAttributeReviewSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTraditionChangeSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTraditionReviewSuccessResponseSchema
 ]);
 var Civ7ControllerBridgeFailureResponseSchema = typebox_exports.Object(
   {
@@ -33394,8 +33643,9 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         correlationId: request2.correlationId
       }
     });
+    const validatedInput = request2.input;
     if (request2.procedureKey === "readiness.current") {
-      const output2 = await client.readiness.current(request2.input);
+      const output2 = await client.readiness.current(validatedInput);
       return {
         ok: true,
         procedureKey: "readiness.current",
@@ -33404,7 +33654,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "strategy.frontSummary") {
-      const output2 = await client.strategy.frontSummary(request2.input);
+      const output2 = await client.strategy.frontSummary(validatedInput);
       return {
         ok: true,
         procedureKey: "strategy.frontSummary",
@@ -33413,7 +33663,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "notifications.dismiss.request") {
-      const output2 = await client.notifications.dismiss.request(request2.input);
+      const output2 = await client.notifications.dismiss.request(validatedInput);
       return {
         ok: true,
         procedureKey: "notifications.dismiss.request",
@@ -33422,7 +33672,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "turn.complete.request") {
-      const output2 = await client.turn.complete.request(request2.input);
+      const output2 = await client.turn.complete.request(validatedInput);
       return {
         ok: true,
         procedureKey: "turn.complete.request",
@@ -33431,7 +33681,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "city.production.choice.request") {
-      const output2 = await client.city.production.choice.request(request2.input);
+      const output2 = await client.city.production.choice.request(validatedInput);
       return {
         ok: true,
         procedureKey: "city.production.choice.request",
@@ -33440,7 +33690,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "city.population.place.request") {
-      const output2 = await client.city.population.place.request(request2.input);
+      const output2 = await client.city.population.place.request(validatedInput);
       return {
         ok: true,
         procedureKey: "city.population.place.request",
@@ -33450,7 +33700,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
     }
     if (request2.procedureKey === "city.townFocus.change.request") {
       const output2 = await client.city.townFocus.change.request(
-        request2.input
+        validatedInput
       );
       return {
         ok: true,
@@ -33461,7 +33711,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
     }
     if (request2.procedureKey === "city.townFocus.review.request") {
       const output2 = await client.city.townFocus.review.request(
-        request2.input
+        validatedInput
       );
       return {
         ok: true,
@@ -33471,7 +33721,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "narrative.choice.request") {
-      const output2 = await client.narrative.choice.request(request2.input);
+      const output2 = await client.narrative.choice.request(validatedInput);
       return {
         ok: true,
         procedureKey: "narrative.choice.request",
@@ -33480,7 +33730,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "diplomacy.response.request") {
-      const output2 = await client.diplomacy.response.request(request2.input);
+      const output2 = await client.diplomacy.response.request(validatedInput);
       return {
         ok: true,
         procedureKey: "diplomacy.response.request",
@@ -33489,7 +33739,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "unit.target.action.request") {
-      const output2 = await client.unit.target.action.request(request2.input);
+      const output2 = await client.unit.target.action.request(validatedInput);
       return {
         ok: true,
         procedureKey: "unit.target.action.request",
@@ -33499,7 +33749,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
     }
     if (request2.procedureKey === "progression.technology.choice.request") {
       const output2 = await client.progression.technology.choice.request(
-        request2.input
+        validatedInput
       );
       return {
         ok: true,
@@ -33510,7 +33760,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
     }
     if (request2.procedureKey === "progression.culture.choice.request") {
       const output2 = await client.progression.culture.choice.request(
-        request2.input
+        validatedInput
       );
       return {
         ok: true,
@@ -33519,7 +33769,73 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
     }
-    const output = await client.attention.current(request2.input);
+    if (request2.procedureKey === "progression.technology.target.request") {
+      const output2 = await client.progression.technology.target.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.technology.target.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.culture.target.request") {
+      const output2 = await client.progression.culture.target.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.culture.target.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.attribute.purchase.request") {
+      const output2 = await client.progression.attribute.purchase.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.attribute.purchase.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.attribute.review.request") {
+      const output2 = await client.progression.attribute.review.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.attribute.review.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.tradition.change.request") {
+      const output2 = await client.progression.tradition.change.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.tradition.change.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.tradition.review.request") {
+      const output2 = await client.progression.tradition.review.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.tradition.review.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    const output = await client.attention.current(validatedInput);
     return {
       ok: true,
       procedureKey: "attention.current",
@@ -33539,10 +33855,10 @@ function controllerProofFromContext(context5) {
 function isUnsupportedProcedureRequest(request2) {
   if (request2 == null || typeof request2 !== "object") return false;
   if (!("procedureKey" in request2)) return false;
-  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request";
+  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request" && request2.procedureKey !== "progression.technology.target.request" && request2.procedureKey !== "progression.culture.target.request" && request2.procedureKey !== "progression.attribute.purchase.request" && request2.procedureKey !== "progression.attribute.review.request" && request2.procedureKey !== "progression.tradition.change.request" && request2.procedureKey !== "progression.tradition.review.request";
 }
 function isControllerBridgeMutationRequest(request2) {
-  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request";
+  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request" || request2.procedureKey === "progression.technology.target.request" || request2.procedureKey === "progression.culture.target.request" || request2.procedureKey === "progression.attribute.purchase.request" || request2.procedureKey === "progression.attribute.review.request" || request2.procedureKey === "progression.tradition.change.request" || request2.procedureKey === "progression.tradition.review.request";
 }
 function controllerSupportsRequest(context5, request2) {
   if (request2.procedureKey === "readiness.current") return true;
@@ -34735,6 +35051,9 @@ function safeValue3(fn2, fallback) {
 function civ7GameUiProgressionChoiceAvailable(target) {
   return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.SET_TECH_TREE_NODE !== void 0 && target.PlayerOperationTypes.SET_TECH_TREE_TARGET_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== void 0 && typeof target.ProgressionTreeNodeTypes?.NO_NODE === "number" && typeof target.Game?.Notifications?.activate === "function" && typeof target.Game.Notifications.getIdsForPlayer === "function" && typeof target.Game.Notifications.getType === "function" && typeof target.Game.Notifications.getTypeName === "function" && typeof target.Game.Notifications.find === "function" && typeof target.Players?.get === "function";
 }
+function civ7GameUiProgressionRequestAvailable(target) {
+  return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== void 0 && target.PlayerOperationTypes.BUY_ATTRIBUTE_TREE_NODE !== void 0 && target.PlayerOperationTypes.CONSIDER_ASSIGN_ATTRIBUTE !== void 0 && target.PlayerOperationTypes.CHANGE_TRADITION !== void 0 && target.PlayerOperationTypes.CONSIDER_ASSIGN_TRADITIONS !== void 0 && typeof target.Game?.Notifications?.getIdsForPlayer === "function" && typeof target.Game.Notifications.find === "function" && typeof target.Game.Notifications.getType === "function" && typeof target.Game.Notifications.getTypeName === "function" && typeof target.GameContext?.localPlayerID === "number";
+}
 async function requestCiv7GameUiTechnologyChoiceCloseout(input, target = globalThis) {
   return gameUiProgressionChoiceCloseout(
     "technology",
@@ -34748,6 +35067,24 @@ async function requestCiv7GameUiCultureChoiceCloseout(input, target = globalThis
     input,
     target
   );
+}
+async function requestCiv7GameUiTechnologyTarget(input, target = globalThis) {
+  return gameUiProgressionTarget("technology", input, target);
+}
+async function requestCiv7GameUiCultureTarget(input, target = globalThis) {
+  return gameUiProgressionTarget("culture", input, target);
+}
+async function requestCiv7GameUiAttributePurchase(input, target = globalThis) {
+  return gameUiProgressionPlayerChoice("attribute-purchase", input, target);
+}
+async function requestCiv7GameUiAttributeReviewCloseout(input, target = globalThis) {
+  return gameUiProgressionPlayerChoice("attribute-review", input, target);
+}
+async function requestCiv7GameUiTraditionChange(input, target = globalThis) {
+  return gameUiProgressionPlayerChoice("tradition-change", input, target);
+}
+async function requestCiv7GameUiTraditionReviewCloseout(input, target = globalThis) {
+  return gameUiProgressionPlayerChoice("tradition-review", input, target);
 }
 function gameUiProgressionChoiceCloseout(kind, input, target) {
   if (!Number.isInteger(input.node)) {
@@ -34824,6 +35161,204 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
       ]
     },
     sent
+  };
+}
+function gameUiProgressionTarget(kind, input, target) {
+  if (!Number.isInteger(input.node)) {
+    throw new Error("Progression target node must be an integer.");
+  }
+  const request2 = progressionRuntimeRequest({
+    playerId: input.playerId,
+    operationType: kind === "technology" ? "SET_TECH_TREE_TARGET_NODE" : "SET_CULTURE_TREE_TARGET_NODE",
+    operationValue: kind === "technology" ? target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE : target.PlayerOperationTypes?.SET_CULTURE_TREE_TARGET_NODE,
+    args: { ProgressionTreeNodeType: input.node },
+    target
+  });
+  return {
+    kind,
+    playerId: input.playerId,
+    node: input.node,
+    operation: request2.operation,
+    beforeValidation: request2.before,
+    afterValidation: request2.after,
+    sent: request2.sent,
+    verified: false,
+    postcondition: progressionRuntimePostcondition(request2.sent, `${kind} target`)
+  };
+}
+function gameUiProgressionPlayerChoice(kind, input, target) {
+  const policy = progressionPlayerChoicePolicy(kind, input, target);
+  const request2 = progressionRuntimeRequest({
+    playerId: input.playerId,
+    operationType: policy.operationType,
+    operationValue: policy.operationValue,
+    args: policy.args,
+    target
+  });
+  const common = {
+    playerId: input.playerId,
+    operation: request2.operation,
+    beforeValidation: request2.before,
+    afterValidation: request2.after,
+    sent: request2.sent,
+    verified: false,
+    postcondition: progressionRuntimePostcondition(request2.sent, kind)
+  };
+  if (kind === "attribute-purchase") {
+    return {
+      ...common,
+      kind,
+      node: policy.node
+    };
+  }
+  if (kind === "tradition-change") {
+    return {
+      ...common,
+      kind,
+      traditionType: policy.traditionType,
+      action: policy.action
+    };
+  }
+  return {
+    ...common,
+    kind
+  };
+}
+function progressionPlayerChoicePolicy(kind, input, target) {
+  if (kind === "attribute-purchase") {
+    if (typeof input.node !== "number" || !Number.isInteger(input.node)) {
+      throw new Error("Progression attribute node must be an integer.");
+    }
+    const node = input.node;
+    return {
+      operationType: "BUY_ATTRIBUTE_TREE_NODE",
+      operationValue: target.PlayerOperationTypes?.BUY_ATTRIBUTE_TREE_NODE,
+      args: { ProgressionTreeNodeType: node },
+      node
+    };
+  }
+  if (kind === "attribute-review") {
+    return {
+      operationType: "CONSIDER_ASSIGN_ATTRIBUTE",
+      operationValue: target.PlayerOperationTypes?.CONSIDER_ASSIGN_ATTRIBUTE,
+      args: {}
+    };
+  }
+  if (kind === "tradition-change") {
+    if (typeof input.traditionType !== "number" || !Number.isInteger(input.traditionType)) {
+      throw new Error("Progression traditionType must be an integer.");
+    }
+    if (typeof input.action !== "number" || !Number.isInteger(input.action)) {
+      throw new Error("Progression tradition action must be an integer.");
+    }
+    const traditionType = input.traditionType;
+    const action = input.action;
+    return {
+      operationType: "CHANGE_TRADITION",
+      operationValue: target.PlayerOperationTypes?.CHANGE_TRADITION,
+      args: {
+        TraditionType: traditionType,
+        Action: action
+      },
+      traditionType,
+      action
+    };
+  }
+  return {
+    operationType: "CONSIDER_ASSIGN_TRADITIONS",
+    operationValue: target.PlayerOperationTypes?.CONSIDER_ASSIGN_TRADITIONS,
+    args: {}
+  };
+}
+function progressionRuntimeRequest(input) {
+  const localPlayerId = input.target.GameContext?.localPlayerID;
+  const before2 = localPlayerId === input.playerId ? gameUiProgressionValidation(input) : gameUiProgressionLocalPlayerMismatch(input, localPlayerId);
+  if (!before2.valid) {
+    return {
+      before: before2,
+      after: before2,
+      operation: {
+        before: before2,
+        after: before2,
+        sent: false,
+        verified: false
+      },
+      sent: false
+    };
+  }
+  const sendRequest = input.target.Game?.PlayerOperations?.sendRequest;
+  const sendResult = typeof sendRequest === "function" ? probe3(
+    () => sendRequest(
+      input.playerId,
+      input.operationValue,
+      input.args
+    )
+  ) : { ok: false, error: "PlayerOperations.sendRequest is unavailable" };
+  const sent = sendResult.ok === true && sendResult.value !== false;
+  const after3 = gameUiProgressionValidation(input);
+  return {
+    before: before2,
+    after: after3,
+    operation: {
+      before: before2,
+      after: after3,
+      sent,
+      verified: false
+    },
+    sent
+  };
+}
+function gameUiProgressionValidation(input) {
+  const result = probe3(
+    () => input.target.Game?.PlayerOperations?.canStart?.(
+      input.playerId,
+      input.operationValue,
+      input.args,
+      false
+    )
+  );
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: input.operationType,
+    enumValue: input.operationValue,
+    target: { playerId: input.playerId },
+    args: input.args,
+    valid: result.ok === true && successFromCanStart3(result.value),
+    result
+  };
+}
+function gameUiProgressionLocalPlayerMismatch(input, localPlayerId) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: input.operationType,
+    enumValue: input.operationValue,
+    target: { playerId: input.playerId },
+    args: input.args,
+    valid: false,
+    result: {
+      ok: false,
+      reason: "local-player-mismatch",
+      inputPlayerId: input.playerId,
+      localPlayerId: localPlayerId ?? null
+    }
+  };
+}
+function progressionRuntimePostcondition(sent, label) {
+  if (!sent) {
+    return {
+      classification: "not-sent",
+      reason: `The ${label} request did not validate, so no progression operation was sent.`
+    };
+  }
+  return {
+    classification: "pending-runtime-proof",
+    reason: `The ${label} request was sent through the game UI controller, but local package tests do not prove live progression state changed; read fresh attention/progression evidence before another request.`
   };
 }
 function progressionPolicy(kind, target) {
@@ -36939,12 +37474,12 @@ function createCiv7GameUiDirectControlFacade(target) {
     requestCiv7CelebrationChoice: unsupported,
     requestCiv7TechnologyChoiceCloseout: async (input) => await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) => await requestCiv7GameUiCultureChoiceCloseout(input, target),
-    requestCiv7TechnologyTarget: unsupported,
-    requestCiv7CultureTarget: unsupported,
-    requestCiv7AttributePurchase: unsupported,
-    requestCiv7AttributeReviewCloseout: unsupported,
-    requestCiv7TraditionChange: unsupported,
-    requestCiv7TraditionReviewCloseout: unsupported,
+    requestCiv7TechnologyTarget: async (input) => await requestCiv7GameUiTechnologyTarget(input, target),
+    requestCiv7CultureTarget: async (input) => await requestCiv7GameUiCultureTarget(input, target),
+    requestCiv7AttributePurchase: async (input) => await requestCiv7GameUiAttributePurchase(input, target),
+    requestCiv7AttributeReviewCloseout: async (input) => await requestCiv7GameUiAttributeReviewCloseout(input, target),
+    requestCiv7TraditionChange: async (input) => await requestCiv7GameUiTraditionChange(input, target),
+    requestCiv7TraditionReviewCloseout: async (input) => await requestCiv7GameUiTraditionReviewCloseout(input, target),
     requestCiv7TownFocusChange: async (input) => await requestCiv7GameUiTownFocusChange(input, target),
     requestCiv7TownFocusReviewCloseout: async (input) => await requestCiv7GameUiTownFocusReviewCloseout(input, target),
     requestCiv7AssignWorkerPlacement: async (input) => await requestCiv7GameUiAssignWorkerPlacement(input, target),
@@ -37009,6 +37544,16 @@ function gameUiSupportedMutationProcedures(target) {
     supported2.push(
       "progression.technology.choice.request",
       "progression.culture.choice.request"
+    );
+  }
+  if (civ7GameUiProgressionRequestAvailable(target)) {
+    supported2.push(
+      "progression.technology.target.request",
+      "progression.culture.target.request",
+      "progression.attribute.purchase.request",
+      "progression.attribute.review.request",
+      "progression.tradition.change.request",
+      "progression.tradition.review.request"
     );
   }
   if (civ7GameUiNarrativeChoiceAvailable(target)) {

@@ -859,6 +859,26 @@ adding more read-only facade shells.
     details, deployed Civ7 proof, play-thread action, transport expansion,
     public package-root procedure schema exports, and full `7.3` acceptance
     pending.
+  - [x] 7.3.30 Add game-resident progression request runtime dependencies for
+    `progression.technology.target.request`,
+    `progression.culture.target.request`,
+    `progression.attribute.purchase.request`,
+    `progression.attribute.review.request`,
+    `progression.tradition.change.request`, and
+    `progression.tradition.review.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest`, the exact progression
+    player-operation enums, and controller-owned local-player proof through
+    the existing service-owned progression procedures; allowlist those leaves
+    through closed controller bridge envelopes that derive concrete schemas
+    from the aggregated `Civ7ControlOrpcContract`; advertise the mutations
+    only when those exact game UI APIs and controller proof exist; reject
+    direct adapter sends when requested player does not match
+    `GameContext.localPlayerID`; preserve
+    validator-blocked not-sent output and pending-runtime-proof/no-repeat
+    guarded sent output; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    transport expansion, public package-root procedure schema exports, and
+    full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1110,6 +1130,14 @@ adding more read-only facade shells.
   deployed Civ7 runtime proof, play-thread action, transport expansion, a city
   read service, public package-root procedure schema exports, or parent Task
   5.x/6.x/7.x acceptance.
+- [x] 8.60.6 Run focused game-ui controller and controller-ingress tests plus
+  control-oRPC package test/check/build, controller mod package
+  test/check/build with bundle scan, strict OpenSpec validates, and diff
+  hygiene for the game-resident progression target/player-choice runtime
+  dependency and controller bridge allowlist slice. These are local package and
+  generated-bundle proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, a progression read service, public
+  package-root procedure schema exports, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

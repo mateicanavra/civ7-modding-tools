@@ -5,6 +5,7 @@ import {
   installCiv7GameUiIntelligenceBridge,
   type Civ7GameUiRuntimeTarget,
 } from "../src/game-ui";
+import { requestCiv7GameUiTechnologyTarget } from "../src/game-ui-progression";
 import { requestCiv7GameUiTownFocusChange } from "../src/game-ui-town-focus";
 
 describe("Civ7 game UI controller bootstrap", () => {
@@ -14,6 +15,9 @@ describe("Civ7 game UI controller bootstrap", () => {
   const populationDestination = { x: 22, y: 31 };
   const townFocusGrowthType = -284_569_333;
   const townFocusProjectType = -548_685_232;
+  const attributeNode = 20;
+  const traditionType = -331_546_976;
+  const traditionAction = -1_326_475_004;
   const diplomacyActionId = 8_821;
   const diplomacyResponseType = -1_713_616_684;
   const unitId = { owner: 0, id: 42, type: 1 };
@@ -1229,6 +1233,293 @@ describe("Civ7 game UI controller bootstrap", () => {
       },
     });
     expect(sendCalls).toEqual([]);
+  });
+
+  test("executes progression targets through game UI service dependencies", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      progressionRequest: {
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "progression.technology.target.request",
+              risk: "mutation",
+            },
+            {
+              procedureKey: "progression.culture.target.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "progression.technology.target.request",
+      input: {
+        playerId: 2,
+        node: 18_001,
+      },
+      correlationId: "game-ui-progression-target-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "progression.technology.target.request",
+      correlationId: "game-ui-progression-target-1",
+      output: {
+        playerId: 0,
+        node: 18_001,
+        sent: true,
+        status: "sent-unverified",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confidence: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "progression.technology.target.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{
+      operationType: "SET_TECH_TREE_TARGET_NODE",
+      args: { ProgressionTreeNodeType: 18_001 },
+    }]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("SET_TECH_TREE_TARGET_NODE");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"operation\"");
+    expect(serialized).not.toContain("\"verified\"");
+  });
+
+  test("does not advertise progression requests without local-player notification evidence", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      progressionRequest: {},
+    });
+    if (target.Game?.Notifications != null) {
+      target.Game.Notifications.getIdsForPlayer = undefined;
+    }
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+    });
+
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.not.arrayContaining([
+            expect.objectContaining({
+              procedureKey: "progression.technology.target.request",
+            }),
+            expect.objectContaining({
+              procedureKey: "progression.attribute.purchase.request",
+            }),
+          ]),
+        },
+      },
+    });
+  });
+
+  test("executes progression attribute and tradition requests through game UI service dependencies", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      progressionRequest: {
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const attribute = await bridge.invoke({
+      procedureKey: "progression.attribute.purchase.request",
+      input: { node: attributeNode },
+      correlationId: "game-ui-attribute-purchase-1",
+    });
+    const tradition = await bridge.invoke({
+      procedureKey: "progression.tradition.change.request",
+      input: {
+        traditionType,
+        action: traditionAction,
+      },
+      correlationId: "game-ui-tradition-change-1",
+    });
+
+    expect(attribute).toMatchObject({
+      ok: true,
+      procedureKey: "progression.attribute.purchase.request",
+      output: {
+        playerId: 0,
+        node: attributeNode,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(tradition).toMatchObject({
+      ok: true,
+      procedureKey: "progression.tradition.change.request",
+      output: {
+        playerId: 0,
+        traditionType,
+        action: traditionAction,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(sendCalls).toEqual([
+      {
+        operationType: "BUY_ATTRIBUTE_TREE_NODE",
+        args: { ProgressionTreeNodeType: attributeNode },
+      },
+      {
+        operationType: "CHANGE_TRADITION",
+        args: {
+          TraditionType: traditionType,
+          Action: traditionAction,
+        },
+      },
+    ]);
+    const serialized = JSON.stringify({ attribute, tradition });
+    expect(serialized).not.toContain("BUY_ATTRIBUTE_TREE_NODE");
+    expect(serialized).not.toContain("CHANGE_TRADITION");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"operation\"");
+    expect(serialized).not.toContain("\"verified\"");
+  });
+
+  test("keeps game UI progression review validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      progressionRequest: {
+        canAttributeReview: false,
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "progression.attribute.review.request",
+      input: {},
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        playerId: 0,
+        sent: false,
+        status: "not-sent",
+        validation: {
+          beforeValid: false,
+          afterValid: false,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "inspect-progression-attribute",
+          source: "progression.attribute.review.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("blocks game UI progression sends for non-local players", async () => {
+    const sendCalls: unknown[] = [];
+    const result = await requestCiv7GameUiTechnologyTarget(
+      {
+        playerId: 2,
+        node: 18_001,
+      },
+      {
+        GameContext: { localPlayerID: 0 },
+        PlayerOperationTypes: {
+          SET_TECH_TREE_TARGET_NODE: "SET_TECH_TREE_TARGET_NODE",
+        },
+        Game: {
+          PlayerOperations: {
+            canStart: () => ({ Success: true }),
+            sendRequest: (_playerId, operationType, args) => {
+              sendCalls.push({ operationType, args });
+              return true;
+            },
+          },
+        },
+      },
+    );
+
+    expect(result).toMatchObject({
+      playerId: 2,
+      sent: false,
+      beforeValidation: { valid: false },
+      afterValidation: { valid: false },
+      postcondition: { classification: "not-sent" },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("keeps partial game UI progression targets from reporting sent", async () => {
+    const result = await requestCiv7GameUiTechnologyTarget(
+      {
+        playerId: 0,
+        node: 18_001,
+      },
+      {
+        GameContext: { localPlayerID: 0 },
+        PlayerOperationTypes: {
+          SET_TECH_TREE_TARGET_NODE: "SET_TECH_TREE_TARGET_NODE",
+        },
+        Game: {
+          PlayerOperations: {
+            canStart: () => ({ Success: true }),
+          },
+        },
+      },
+    );
+
+    expect(result).toMatchObject({
+      playerId: 0,
+      sent: false,
+      beforeValidation: { valid: true },
+      afterValidation: { valid: true },
+      postcondition: { classification: "not-sent" },
+    });
   });
 
   test("executes narrative choice through game UI service dependency", async () => {
@@ -2642,6 +2933,18 @@ function gameUiNotificationTarget(
         args: Readonly<Record<string, number>>,
       ) => void;
     };
+    progressionRequest?: {
+      canTechnologyTarget?: boolean;
+      canCultureTarget?: boolean;
+      canAttributePurchase?: boolean;
+      canAttributeReview?: boolean;
+      canTraditionChange?: boolean;
+      canTraditionReview?: boolean;
+      onSend?: (
+        operationType: string,
+        args: Readonly<Record<string, number>>,
+      ) => void;
+    };
     narrativeChoice?: {
       canChoose?: boolean;
       clearBlockerOnSend?: boolean;
@@ -2749,6 +3052,16 @@ function gameUiNotificationTarget(
             SET_TECH_TREE_TARGET_NODE: "SET_TECH_TREE_TARGET_NODE",
             SET_CULTURE_TREE_NODE: "SET_CULTURE_TREE_NODE",
             SET_CULTURE_TREE_TARGET_NODE: "SET_CULTURE_TREE_TARGET_NODE",
+          }),
+      ...(options.progressionRequest == null
+        ? {}
+        : {
+            SET_TECH_TREE_TARGET_NODE: "SET_TECH_TREE_TARGET_NODE",
+            SET_CULTURE_TREE_TARGET_NODE: "SET_CULTURE_TREE_TARGET_NODE",
+            BUY_ATTRIBUTE_TREE_NODE: "BUY_ATTRIBUTE_TREE_NODE",
+            CONSIDER_ASSIGN_ATTRIBUTE: "CONSIDER_ASSIGN_ATTRIBUTE",
+            CHANGE_TRADITION: "CHANGE_TRADITION",
+            CONSIDER_ASSIGN_TRADITIONS: "CONSIDER_ASSIGN_TRADITIONS",
           }),
       ...(options.narrativeChoice == null
         ? {}
@@ -2987,6 +3300,7 @@ function gameUiNotificationTarget(
           },
       PlayerOperations: options.populationPlacement == null
           && options.progressionChoice == null
+          && options.progressionRequest == null
           && options.narrativeChoice == null
           && options.diplomacyResponse == null
         ? undefined
@@ -2999,7 +3313,19 @@ function gameUiNotificationTarget(
                 : operationType === "RESPOND_DIPLOMATIC_ACTION"
                 ? options.diplomacyResponse?.canRespond ?? true
                 : String(operationType).includes("TARGET")
-                ? options.progressionChoice?.canClearTarget ?? true
+                ? progressionTargetCanStart(
+                  String(operationType),
+                  options.progressionRequest,
+                  options.progressionChoice,
+                )
+                : operationType === "BUY_ATTRIBUTE_TREE_NODE"
+                ? options.progressionRequest?.canAttributePurchase ?? true
+                : operationType === "CONSIDER_ASSIGN_ATTRIBUTE"
+                ? options.progressionRequest?.canAttributeReview ?? true
+                : operationType === "CHANGE_TRADITION"
+                ? options.progressionRequest?.canTraditionChange ?? true
+                : operationType === "CONSIDER_ASSIGN_TRADITIONS"
+                ? options.progressionRequest?.canTraditionReview ?? true
                 : options.progressionChoice?.canChoose ?? true,
             }),
             sendRequest: (_playerId, _operationType, args) => {
@@ -3031,7 +3357,11 @@ function gameUiNotificationTarget(
                   exists = false;
                 }
               } else {
-                options.progressionChoice?.onSend?.(operationType, args);
+                if (options.progressionRequest != null) {
+                  options.progressionRequest.onSend?.(operationType, args);
+                } else {
+                  options.progressionChoice?.onSend?.(operationType, args);
+                }
                 progressionSent = true;
                 if (options.progressionChoice?.clearBlockerOnSend === true) {
                   exists = false;
@@ -3101,7 +3431,10 @@ function gameUiNotificationTarget(
               getCityIds: () => [options.populationPlacement?.cityId],
             },
           }
-          : playerId === 0 && options.progressionChoice != null
+          : playerId === 0 && (
+            options.progressionChoice != null
+            || options.progressionRequest != null
+          )
           ? {
             Techs: {
               getResearching: () => progressionSent ? 18_001 : 17_000,
@@ -3130,6 +3463,29 @@ function gameUiNotificationTarget(
       },
     },
   };
+}
+
+function progressionTargetCanStart(
+  operationType: string,
+  progressionRequest: Readonly<{
+    canTechnologyTarget?: boolean;
+    canCultureTarget?: boolean;
+  }> | undefined,
+  progressionChoice: Readonly<{
+    canClearTarget?: boolean;
+  }> | undefined,
+): boolean {
+  if (operationType === "SET_TECH_TREE_TARGET_NODE") {
+    return progressionRequest?.canTechnologyTarget
+      ?? progressionChoice?.canClearTarget
+      ?? true;
+  }
+  if (operationType === "SET_CULTURE_TREE_TARGET_NODE") {
+    return progressionRequest?.canCultureTarget
+      ?? progressionChoice?.canClearTarget
+      ?? true;
+  }
+  return progressionChoice?.canClearTarget ?? true;
 }
 
 function componentIdEqual(
