@@ -10,6 +10,14 @@ import {
 
 const CHANGE_GOVERNMENT = 'CHANGE_GOVERNMENT';
 
+type GovernmentOptionAction = {
+  kind: 'choose-government' | 'validate-government-choice';
+  label: string;
+  parameters: Record<string, unknown>;
+  readOnly: boolean;
+  sendsMutation: boolean;
+};
+
 export default class GamePlayChooseGovernment extends Command {
   static id = 'game play choose-government';
   static summary = 'Validate or choose a government';
@@ -65,17 +73,17 @@ export default class GamePlayChooseGovernment extends Command {
       const details = governmentChoiceDetails(view);
       const surfaces = details.map(compactGovernmentChoiceSurface);
       emitPlayResult(this.log.bind(this), flags.json, {
-        command: 'game play choose-government --options',
+        surface: 'government-choice-options',
         surfaces,
         enabledOptionCount: surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0),
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use game play notifications --json for raw option and validation evidence' },
+          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
           { path: 'details[].disabledOptions', reason: 'disabled governments are counted here; use notifications --json when disabled-option evidence matters' },
         ],
         notes: [
           'Options come from the live notification HUD materializer, which mirrors the official government picker and validates CHANGE_GOVERNMENT through PlayerOperations.',
-          'Use a returned enabled option cli as the single caller-level government choice.',
+          'Action guidance is semantic; command help owns exact flag combinations.',
         ],
       });
       return;
@@ -148,8 +156,8 @@ function compactGovernmentChoiceSurface(details: Record<string, unknown>): {
       description: option.description,
       action: option.action,
       celebrationOptions: option.celebrationOptions,
-      chooseCli: governmentChoiceSendCli(option),
-      validateCli: option.validateCli,
+      nextAction: governmentOptionAction('choose-government', option),
+      validationAction: governmentOptionAction('validate-government-choice', option),
     }));
   return {
     kind: 'government-choice-options',
@@ -163,10 +171,24 @@ function compactGovernmentChoiceSurface(details: Record<string, unknown>): {
   };
 }
 
-function governmentChoiceSendCli(option: Record<string, unknown>): string | null {
-  if (typeof option.governmentType !== 'number') return null;
-  const action = typeof option.action === 'number' ? ` --action ${option.action}` : '';
-  return `game play choose-government --government-type ${option.governmentType}${action} --send`;
+function governmentOptionAction(
+  kind: GovernmentOptionAction['kind'],
+  option: Record<string, unknown>,
+): GovernmentOptionAction {
+  const readOnly = kind === 'validate-government-choice';
+  return {
+    kind,
+    label: readOnly
+      ? 'Validate this government choice before sending.'
+      : 'Choose this government after reviewing validation evidence.',
+    parameters: {
+      governmentType: option.governmentType,
+      governmentTypeName: option.governmentTypeName,
+      action: option.action,
+    },
+    readOnly,
+    sendsMutation: !readOnly,
+  };
 }
 
 function asArray(value: unknown): unknown[] {

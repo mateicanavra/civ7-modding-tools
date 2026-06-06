@@ -10,6 +10,14 @@ import {
 
 const CHOOSE_GOLDEN_AGE = 'CHOOSE_GOLDEN_AGE';
 
+type CelebrationOptionAction = {
+  kind: 'choose-celebration' | 'validate-celebration-choice';
+  label: string;
+  parameters: Record<string, unknown>;
+  readOnly: boolean;
+  sendsMutation: boolean;
+};
+
 export default class GamePlayChooseCelebration extends Command {
   static id = 'game play choose-celebration';
   static summary = 'Validate or choose a celebration bonus';
@@ -62,18 +70,18 @@ export default class GamePlayChooseCelebration extends Command {
       const details = celebrationChoiceDetails(view);
       const surfaces = details.map(compactCelebrationChoiceSurface);
       emitPlayResult(this.log.bind(this), flags.json, {
-        command: 'game play choose-celebration --options',
+        surface: 'celebration-choice-options',
         surfaces,
         enabledOptionCount: surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0),
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use game play notifications --json for raw option and validation evidence' },
+          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
           { path: 'details[].disabledOptions', reason: 'disabled choices are counted here; use notifications --json when disabled-choice evidence matters' },
           { path: 'details[].choices', reason: 'official chooser source choices are summarized per enabled row' },
         ],
         notes: [
           'Options come from the live notification HUD materializer, which mirrors the official celebration chooser and validates CHOOSE_GOLDEN_AGE through PlayerOperations.',
-          'Use a returned enabled option cli as the single caller-level celebration choice.',
+          'Action guidance is semantic; command help owns exact flag combinations.',
         ],
       });
       return;
@@ -143,8 +151,8 @@ function compactCelebrationChoiceSurface(details: Record<string, unknown>): {
       name: option.name,
       description: option.description,
       duration: option.duration,
-      chooseCli: celebrationChoiceSendCli(option),
-      validateCli: option.validateCli,
+      nextAction: celebrationOptionAction('choose-celebration', option),
+      validationAction: celebrationOptionAction('validate-celebration-choice', option),
     }));
   return {
     kind: 'celebration-choice-options',
@@ -158,9 +166,23 @@ function compactCelebrationChoiceSurface(details: Record<string, unknown>): {
   };
 }
 
-function celebrationChoiceSendCli(option: Record<string, unknown>): string | null {
-  if (typeof option.goldenAgeType !== 'number') return null;
-  return `game play choose-celebration --golden-age-type ${option.goldenAgeType} --send`;
+function celebrationOptionAction(
+  kind: CelebrationOptionAction['kind'],
+  option: Record<string, unknown>,
+): CelebrationOptionAction {
+  const readOnly = kind === 'validate-celebration-choice';
+  return {
+    kind,
+    label: readOnly
+      ? 'Validate this celebration choice before sending.'
+      : 'Choose this celebration after reviewing validation evidence.',
+    parameters: {
+      goldenAgeType: option.goldenAgeType,
+      goldenAgeTypeName: option.goldenAgeTypeName,
+    },
+    readOnly,
+    sendsMutation: !readOnly,
+  };
 }
 
 function asArray(value: unknown): unknown[] {
