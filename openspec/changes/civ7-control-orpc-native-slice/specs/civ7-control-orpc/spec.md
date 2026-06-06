@@ -329,6 +329,38 @@ errors, and server-side callers.
   authority, transport expansion, controller allowlisting, and parent Task
   5.x/6.x/7.x acceptance remain pending
 
+#### Scenario: Notification queue service views are added
+- **WHEN** `notifications.queue.current` and
+  `notifications.queue.dismiss.request` expose caller-facing notification queue
+  surfaces under the `notifications` router
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedures, queue disposition, informational dismissal eligibility,
+  exclusion reasons, aggregate proof/no-repeat projection, semantic next-step
+  descriptors, and normal output wording
+- **AND** inputs are closed and admit only bounded queue-read and selected
+  bulk-dismissal options such as max notification count, max dismissal count,
+  and explicit send intent; they do not accept endpoint, session, state, host,
+  port, command, rawCommand, transport, approval, reason, raw operation, or
+  caller-supplied proof fields
+- **AND** the read procedure composes notification HUD decision queue evidence
+  from context dependencies rather than keeping queue scheduling behavior in
+  CLI code or exposing raw notification details as the service contract
+- **AND** the dismissal request procedure passes native mutation readiness and
+  proof/no-repeat middleware, invokes only item-scoped notification dismissal
+  runtime ports for eligible informational candidates, excludes operation-
+  bearing and unclassified notifications, and keeps aggregate unverified sends
+  do-not-repeat guarded
+- **AND** normal service output emits semantic notification next-step
+  descriptors rather than literal CLI `game play ...` command strings
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, raw App UI closeout
+  internals, legacy `verified`, approval/reason mechanics, raw operation
+  payloads, and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, controller bridge
+  allowlisting, transport expansion, broad operation catalog support, and
+  parent Task 5.x/6.x/7.x acceptance remain pending
+
 #### Scenario: Current world service view is added
 - **WHEN** `world.current` exposes a caller-facing current-world read
 - **THEN** control-oRPC owns the contract-local input/output schemas, native
@@ -409,6 +441,29 @@ errors, and server-side callers.
   details
 - **AND** battlefield evidence remains relationship-safe read-only planning
   context and does not authorize sends or hostile/enemy/opponent/threat labels
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI notification queue commands use notifications service projection
+- **WHEN** `game play notification-queue` schedules current notification work
+  or `game play dismiss-notification-queue` dry-runs or sends reviewed
+  informational closeouts
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the queue scheduler calls the in-process
+  `notifications.queue.current` server-side client under the `notifications`
+  router
+- **AND** the queue closeout command calls the in-process
+  `notifications.queue.dismiss.request` server-side client under the
+  `notifications` router
+- **AND** queue disposition, eligibility/exclusion policy, readiness-gated
+  aggregate dismissal, and proof/no-repeat projection come from the service
+  procedures
+- **AND** the CLI maps semantic next-step descriptors into command suggestions
+  in CLI output only; native service output remains caller-neutral and does not
+  contain literal CLI `game play ...` command strings
+- **AND** the normal JSON result omits raw host, port, state, session, command,
+  rawCommand, Tuner payloads, direct-control runtime envelopes, raw App UI
+  closeout internals, legacy `verified`, approval/reason mechanics, and
+  transport details
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI civilian route triage uses strategy service projection

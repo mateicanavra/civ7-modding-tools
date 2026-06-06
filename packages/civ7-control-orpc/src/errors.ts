@@ -219,6 +219,31 @@ export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7NotificationQueueUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("notifications.queue.current"),
+      Type.Literal("notifications.queue.dismiss.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7NotificationQueueUnavailableErrorData = Static<
+  typeof Civ7NotificationQueueUnavailableErrorDataSchema
+>;
+
+export class Civ7NotificationQueueUnavailableError extends ORPCTaggedError(
+  "Civ7NotificationQueueUnavailableError",
+  {
+    code: "NOTIFICATION_QUEUE_UNAVAILABLE",
+    message: "Notification queue service failed.",
+    schema: toStandardSchema(Civ7NotificationQueueUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7UnitTargetActionUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.target.action.request"),
@@ -639,6 +664,7 @@ export const civ7ControlOrpcErrorMap = {
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
+  NOTIFICATION_QUEUE_UNAVAILABLE: Civ7NotificationQueueUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
   PROGRESSION_PLAYER_CHOICE_UNAVAILABLE: Civ7ProgressionPlayerChoiceUnavailableError,

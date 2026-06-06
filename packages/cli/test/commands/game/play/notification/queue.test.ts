@@ -27,7 +27,7 @@ describe('game play notification queue command', () => {
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
       expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(false);
-      expect(payload.view.notes.join('\n')).toContain('item-level context');
+      expect(payload.view.notes.join('\n')).toContain('summary and context review');
       expect(payload.view.notes.join('\n')).not.toMatch(/\breason\b/i);
     } finally {
       await server.close();
@@ -40,7 +40,7 @@ describe('game play notification queue command', () => {
       const step = payload.view.schedule[0];
       expect(step.category).toBe('first-meet-diplomacy');
       expect(step.disposition).toBe('operate-with-live-inputs');
-      expect(step.command).toBe('game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral');
+      expect(step.command).toBe('game play respond-first-meet --json');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();

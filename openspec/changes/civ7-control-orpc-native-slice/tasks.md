@@ -222,6 +222,15 @@ adding more read-only facade shells.
     descriptors, raw-output exclusion, and relationship-unproven policy; CLI
     command strings stay caller-local; no movement/action authority, runtime
     proof, controller bridge, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.21 Record `notifications.queue.current` and
+    `notifications.queue.dismiss.request` as service-owned notification queue
+    scheduling and guarded informational-closeout boundaries over
+    notification HUD reads and item-scoped notification dismissal runtime/proof
+    ports. The service owns queue disposition, eligibility/exclusion reasons,
+    semantic next-step descriptors, aggregate proof/no-repeat projection, raw
+    output exclusion, and the no-CLI-string contract boundary; no broad
+    operation catalog, approval/reason mechanic, runtime proof, controller
+    bridge, or parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -370,6 +379,16 @@ adding more read-only facade shells.
     service output, keep battlefield evidence relationship-safe and read-only,
     omit raw ready-unit operation/evidence payloads, and keep runtime proof,
     movement/action authority, controller bridge, transport expansion, and
+    parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.20 Seed `notifications.queue.current` and
+    `notifications.queue.dismiss.request` as native service-owned notification
+    queue procedures that compose current notification HUD evidence, item
+    eligibility/exclusion policy, readiness-gated notification dismissal
+    runtime ports, and aggregate proof/no-repeat projection into semantic queue
+    output. Keep caller input/output schemas contract-local, keep CLI command
+    suggestions out of service output, omit raw App UI closeout internals and
+    legacy `verified`, and keep runtime proof, controller bridge, transport
+    expansion, broad operation catalog support, approval/reason mechanics, and
     parent Task 5.x/6.x/7.x acceptance pending.
 
 ## 6. Native Policy Layering
@@ -686,6 +705,18 @@ adding more read-only facade shells.
     ready-unit operation payloads, and raw battlefield unit evidence from
     normal JSON, and avoid controller bridge, transport, relationship-label,
     movement/action-send, or runtime-proof claims.
+  - [x] 7.1.9.11 Route `civ7 game play notification-queue` and
+    `civ7 game play dismiss-notification-queue` through the in-process
+    `notifications.queue.current` and `notifications.queue.dismiss.request`
+    server-side clients under the `notifications` router. Move queue
+    disposition, informational dismissal eligibility, exclusion reasons,
+    readiness-gated aggregate dismissal, and proof/no-repeat projection into
+    the service procedures. Keep endpoint flags as context construction, keep
+    CLI command-string suggestions as CLI presentation only, omit raw
+    host/port/state/session/Tuner payloads, direct-control envelopes, legacy
+    `verified`, and raw App UI dismissal internals from normal JSON, and avoid
+    controller bridge, transport, broad operation catalogs, approval/reason
+    mechanics, or runtime-proof claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1460,6 +1491,17 @@ adding more read-only facade shells.
   play-thread action, controller bridge, transport expansion, relationship
   labels beyond official evidence, movement/action-send authority, or parent
   Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.20 Run focused notification-queue procedure tests and CLI
+  notification queue tests plus control-oRPC package test/check/build, CLI
+  play/check gates, strict OpenSpec validates, private procedure-schema export
+  scan, active approval/caller-permission scan, service-output CLI-string
+  scan, and diff hygiene for the `notifications.queue.*` service-composition
+  expansion and `game play notification-queue` / `dismiss-notification-queue`
+  in-process oRPC caller migration. This is local package/CLI proof only and
+  does not claim deployed Civ7 runtime proof, play-thread action, controller
+  bridge, transport expansion, broad operation catalog support, approval/reason
+  mechanics, raw App UI closeout output, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
