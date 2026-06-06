@@ -987,6 +987,15 @@ adding more read-only facade shells.
     bridge, deployed Civ7 proof, relationship authority, and parent
     Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
     retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.36 Remove the top-level direct-control notification
+    `decision.cli` command summary so notification decisions expose semantic
+    category, operation family/type, required inputs, common actions, notes,
+    and confidence rather than a caller command recipe. Keep detail-level
+    option compatibility fields, direct-control notification materialization,
+    parser flags, runtime behavior, control-oRPC contracts/routers, controller
+    bridge, deployed Civ7 proof, relationship authority, and parent
+    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
+    retired and no approval-reason mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2055,6 +2064,17 @@ adding more read-only facade shells.
   proof only; it does not change the legacy `decision.cli` summary field,
   per-option compatibility fields, parser flags, deployed Civ7 runtime
   behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.50 Run focused direct-control play-notification-view tests,
+  adjacent CLI notification HUD/priorities tests, control-oRPC notification
+  queue tests, direct-control check/build, CLI check, strict OpenSpec
+  validates, top-level notification decision `cli` source/test scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the direct-control notification decision command-summary
+  removal. This is local source/CLI/oRPC/OpenSpec proof only; it does not
+  change detail-level option compatibility fields, parser flags, deployed Civ7
+  runtime behavior, play-thread state, transport/controller scope, relationship
   authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
   remains retired and no approval-reason mechanic is introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package

@@ -51,7 +51,6 @@ export const Civ7PlayDecisionHintSchema = Type.Object({
   operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
   operationType: Type.Optional(Type.String()),
   argsShape: Type.Optional(Type.String()),
-  cli: Type.Optional(Type.String()),
   requiredInputs: Type.Array(Civ7PlayDecisionInputSchema),
   commonActions: Type.Array(Civ7PlayDecisionActionSchema),
   confidence: Type.Union([
@@ -95,7 +94,6 @@ export const Civ7PlayDecisionQueueItemSchema = Type.Object({
   operationFamily: Type.Optional(Civ7PlayOperationFamilySchema),
   operationType: Type.Optional(Type.String()),
   argsShape: Type.Optional(Type.String()),
-  cli: Type.Optional(Type.String()),
   requiredInputs: Type.Array(Civ7PlayDecisionInputSchema),
   commonActions: Type.Array(Civ7PlayDecisionActionSchema),
   notes: Type.Array(Type.String()),
@@ -138,7 +136,6 @@ export type Civ7PlayDecisionHint = Readonly<{
   operationFamily?: Civ7OperationFamily | "app-ui-action";
   operationType?: string;
   argsShape?: string;
-  cli?: string;
   requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
   commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
   confidence: "live-proof" | "official-ui" | "heuristic";
@@ -191,7 +188,6 @@ export type Civ7PlayDecisionQueueItem = Readonly<{
   operationFamily?: Civ7OperationFamily | "app-ui-action";
   operationType?: string;
   argsShape?: string;
-  cli?: string;
   requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
   commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
   notes: ReadonlyArray<string>;
@@ -388,12 +384,11 @@ export function playNotificationViewSource(): string {
       argsShape,
       when,
     });
-    const hint = (category, operationFamily, operationType, argsShape, cli, confidence, requiredInputs, commonActions, notes) => ({
+    const hint = (category, operationFamily, operationType, argsShape, confidence, requiredInputs, commonActions, notes) => ({
       category,
       operationFamily,
       operationType,
       argsShape,
-      cli,
       requiredInputs,
       commonActions,
       confidence,
@@ -1340,7 +1335,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "SET_TECH_TREE_NODE",
           "{ ProgressionTreeNodeType }",
-          "game play choose-tech",
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live tech chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
@@ -1356,7 +1350,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "SET_CULTURE_TREE_NODE",
           "{ ProgressionTreeNodeType }",
-          "game play choose-culture",
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live culture chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
@@ -1373,7 +1366,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "CHANGE_GOVERNMENT",
           "{ GovernmentType, Action: Activate }",
-          "game play choose-government",
           "official-ui",
           [requiredInput("GovernmentType", "live government picker option", "Use the government index from choose-government --options, not the visible row position.")],
           [
@@ -1389,7 +1381,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "CHOOSE_GOLDEN_AGE",
           "{ GoldenAgeType }",
-          "game play choose-celebration",
           "official-ui",
           [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.")],
           [
@@ -1405,7 +1396,6 @@ export function playNotificationViewSource(): string {
           undefined,
           undefined,
           "ASSIGN_WORKER { Location, Amount: 1 } or city-command EXPAND placement args",
-          "game play ready-city",
           "official-ui",
           [
             requiredInput("Location", "chosen plot", "The plot choice determines worker assignment vs expansion."),
@@ -1425,7 +1415,6 @@ export function playNotificationViewSource(): string {
           undefined,
           undefined,
           "screen-resource-allocation",
-          undefined,
           "official-ui",
           [
             requiredInput("Resource allocation screen", "official notification handler", "The handler opens screen-resource-allocation; current wrapper support is inspection-only."),
@@ -1443,7 +1432,6 @@ export function playNotificationViewSource(): string {
           "city-command",
           "CHANGE_GROWTH_MODE",
           "{ Type, ProjectType, City }",
-          "game play set-town-focus",
           "live-proof",
           [
             requiredInput("City", "notification target or selected city", "Use the city ComponentID, not only the numeric city id, for the CLI shortcut."),
@@ -1463,7 +1451,6 @@ export function playNotificationViewSource(): string {
           "city-operation",
           "BUILD",
           "{ UnitType } or { ConstructibleType, X?, Y? } or { ProjectType }",
-          "game play ready-city",
           "live-proof",
           [
             requiredInput("City", "notification target or selected city", "Production choices are city-scoped."),
@@ -1485,7 +1472,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "RESPOND_DIPLOMATIC_FIRST_MEET",
           "{ Player1, Player2, Type }",
-          "game play respond-first-meet",
           "live-proof",
           [
             requiredInput("Player1", "local player evidence", "Send mode derives this from the current local-player context."),
@@ -1504,7 +1490,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "RESPOND_DIPLOMATIC_ACTION",
           "{ ID, Type }",
-          "game play respond-diplomacy",
           "live-proof",
           [
             requiredInput("ID", "live diplomatic action", "This is the diplomatic action id, not the notification ComponentID."),
@@ -1522,7 +1507,6 @@ export function playNotificationViewSource(): string {
           "app-ui-action",
           "Game.Notifications.dismiss",
           "{ notificationId }",
-          "game play dismiss-notification",
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action response id.")],
           [
@@ -1538,7 +1522,6 @@ export function playNotificationViewSource(): string {
           "app-ui-action",
           "Game.Notifications.dismiss",
           "{ notificationId }",
-          "game play dismiss-notification",
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic response id.")],
           [
@@ -1558,7 +1541,6 @@ export function playNotificationViewSource(): string {
           "app-ui-action",
           "Game.Notifications.dismiss",
           "{ notificationId }",
-          "game play dismiss-notification",
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action response id.")],
           [
@@ -1582,7 +1564,6 @@ export function playNotificationViewSource(): string {
           "app-ui-action",
           "Game.Notifications.dismiss",
           "{ notificationId }",
-          "game play dismiss-notification",
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
@@ -1597,7 +1578,6 @@ export function playNotificationViewSource(): string {
           "app-ui-action",
           "Game.Notifications.dismiss",
           "{ notificationId }",
-          "game play dismiss-notification",
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
@@ -1612,7 +1592,6 @@ export function playNotificationViewSource(): string {
           "app-ui-action",
           "Game.Notifications.dismiss",
           "{ notificationId }",
-          "game play dismiss-notification",
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
@@ -1628,7 +1607,6 @@ export function playNotificationViewSource(): string {
           "app-ui-action",
           "Game.Notifications.dismiss",
           "{ notificationId }",
-          "game play dismiss-notification",
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action id.")],
           [
@@ -1643,7 +1621,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "CHOOSE_NARRATIVE_STORY_DIRECTION",
           "{ TargetType, Target, Action }",
-          "game play choose-narrative",
           "live-proof",
           [
             requiredInput("Target", "notification target or story UI targetStoryId", "Usually the story ComponentID from the notification target."),
@@ -1663,7 +1640,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "CHANGE_TRADITION",
           "{ TraditionType, Action } then CONSIDER_ASSIGN_TRADITIONS {}",
-          "game play traditions",
           "live-proof",
           [
             requiredInput("TraditionType", "live tradition chooser", "Pick the tradition enum that is being activated or deactivated."),
@@ -1686,7 +1662,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "BUY_ATTRIBUTE_TREE_NODE",
           "{ ProgressionTreeNodeType } then CONSIDER_ASSIGN_ATTRIBUTE {}",
-          "game play buy-attribute",
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live attribute tree node", "Use the buyable attribute node id from the runtime tree.")],
           [
@@ -1702,7 +1677,6 @@ export function playNotificationViewSource(): string {
           "player-operation",
           "VIEWED_ADVISOR_WARNING",
           "{ Target: notificationComponentId }",
-          "game play advisor-warning",
           "live-proof",
           [requiredInput("Target", "notification ComponentID", "Use the notification id itself as Target.")],
           [
@@ -1717,7 +1691,6 @@ export function playNotificationViewSource(): string {
           "unit-operation",
           "SKIP_TURN",
           "selected/ready unit id plus operation-specific args",
-          "game play operation --family unit",
           "heuristic",
           [
             requiredInput("Unit", "selectedUnitId, firstReadyUnitId, or unit-command-reconciliation details", "Use the ready unit when present; if the ready pointer is stale, use a validator-backed reconciliation candidate."),
@@ -1736,7 +1709,6 @@ export function playNotificationViewSource(): string {
       }
       return hint(
         isBlocking ? "blocking-notification" : "notification",
-        undefined,
         undefined,
         undefined,
         undefined,
@@ -1840,7 +1812,6 @@ export function playNotificationViewSource(): string {
         operationFamily: notification.decision.operationFamily,
         operationType: notification.decision.operationType,
         argsShape: notification.decision.argsShape,
-        cli: notification.decision.cli,
         requiredInputs: notification.decision.requiredInputs,
         commonActions: notification.decision.commonActions,
         notes: notification.decision.notes,

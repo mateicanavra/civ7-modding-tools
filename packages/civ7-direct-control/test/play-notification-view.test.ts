@@ -76,6 +76,26 @@ describe("getCiv7PlayNotificationView", () => {
         ...view,
         rawCommand: "readPlayNotifications()",
       })).toBe(false);
+      expect(Value.Check(Civ7PlayNotificationViewResultSchema, {
+        ...view,
+        notifications: [{
+          ...view.notifications[0],
+          decision: {
+            ...view.notifications[0]?.decision,
+            cli: "game play ready-city --json",
+          },
+        }],
+      })).toBe(false);
+      expect(Value.Check(Civ7PlayNotificationViewResultSchema, {
+        ...view,
+        hud: {
+          ...view.hud,
+          nextDecision: {
+            ...view.hud.nextDecision,
+            cli: "game play ready-city --json",
+          },
+        },
+      })).toBe(false);
       expect(view.decisions.some((decision) => decision.category === "town-focus")).toBe(true);
       expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(true);
       const notificationRead = server.received.find((message) => message.includes("readPlayNotifications")) ?? "";

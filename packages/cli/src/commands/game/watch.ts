@@ -293,7 +293,6 @@ function summarizeNextDecision(decision: Record<string, unknown> | null): Record
     summary: decision.summary ?? null,
     operationFamily: decision.operationFamily ?? null,
     operationType: decision.operationType ?? null,
-    cli: decision.cli ?? null,
   };
 }
 
