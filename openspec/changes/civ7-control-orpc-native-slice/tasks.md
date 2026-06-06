@@ -447,6 +447,16 @@ adding more read-only facade shells.
     direct-control validation paths for read-only mode, bound assign-worker send
     mode to the source-owned one-worker placement atom, and keep live runtime
     proof pending.
+  - [x] 7.1.9 Route `civ7 game play choose-tech --send` and
+    `civ7 game play choose-culture --send` through the in-process
+    `progression.technology.choice.request` and
+    `progression.culture.choice.request` server-side clients under the
+    `progression` router. Keep endpoint flags as context construction, emit
+    semantic progression choice projection for send output with live
+    notification local-player evidence rather than treating `--player-id` as
+    send authority, preserve existing direct-control option reads and dry-run
+    validation paths, retire caller-visible `--closeout` workflow guidance, and
+    keep live runtime proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -928,6 +938,12 @@ adding more read-only facade shells.
   and package proofs only and do not claim deployed Civ7 runtime proof,
   play-thread action, transport expansion, a population read service, or parent
   Task 5.x/6.x/7.x acceptance.
+- [x] 8.60 Run focused CLI progression choice tests, `check:cli`,
+  `test:cli:play`, focused control-oRPC progression procedure tests, relevant
+  OpenSpec strict validates, and diff hygiene for the CLI technology/culture
+  send migration slice. These are local CLI and package proofs only and do not
+  claim deployed Civ7 runtime proof, play-thread action, transport expansion,
+  a progression read service, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

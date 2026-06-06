@@ -1,33 +1,25 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  cultureChoicePostcondition,
-  findCultureChoiceNotification,
-  getCiv7PlayNotificationView,
-  requestCiv7CultureChoiceCloseout,
-} from '@civ7/direct-control';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
+import { getCiv7PlayNotificationView } from '@civ7/direct-control';
 import {
   buildDirectControlOptions,
   emitPlayResult,
-  executePlayOperationSequence,
-  sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
 const SET_CULTURE_TREE_NODE = 'SET_CULTURE_TREE_NODE';
-const SET_CULTURE_TREE_TARGET_NODE = 'SET_CULTURE_TREE_TARGET_NODE';
-const PROGRESSION_TREE_NO_NODE = -1;
 
 export default class GamePlayChooseCulture extends Command {
   static id = 'game play choose-culture';
   static summary = 'Validate or choose a culture tree node';
   static description =
-    'Wraps player-operation SET_CULTURE_TREE_NODE with the official ProgressionTreeNodeType argument.';
+    'Validates culture choices as player operations, or sends them through the native control-oRPC progression procedure when --send is explicit.';
 
   static examples = [
     '<%= config.bin %> game play choose-culture --options --json',
     '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --json',
     '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --send --json',
-    '<%= config.bin %> game play choose-culture --player-id 0 --node -1677668973 --send --closeout --json',
   ];
 
   static flags = {
@@ -52,8 +44,9 @@ export default class GamePlayChooseCulture extends Command {
       default: false,
     }),
     closeout: Flags.boolean({
-      description: 'Also clear the chooser target node as part of the same caller-level workflow',
+      description: 'Compatibility no-op; send mode already clears the chooser target as one caller-level workflow',
       default: false,
+      hidden: true,
     }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
@@ -95,60 +88,22 @@ export default class GamePlayChooseCulture extends Command {
     }
     if (typeof flags.node !== 'number') {
       throw new Error('game play choose-culture requires --node unless --options is used');
-    }    const input = {
+    }
+    const input = {
       operationType: SET_CULTURE_TREE_NODE,
       playerId: flags['player-id'],
       args: {
         ProgressionTreeNodeType: flags.node,
       },
     };
-    if (flags.closeout) {
-      const before = flags.send ? await getCiv7PlayNotificationView(options) : null;
-      const result = flags.send
-        ? await cultureChoiceAppUiCloseoutResult({
+    const result = flags.send
+      ? await createCiv7ControlOrpcServerClient({
+          directControl: liveCiv7ControlOrpcDirectControlFacade,
+          endpointDefaults: options,
+        }).progression.culture.choice.request({
           playerId: flags['player-id'],
           node: flags.node,
-          notificationId: before ? findCultureChoiceNotification(before)?.id : undefined,
-        }, options)
-        : await executePlayOperationSequence([
-          {
-            label: 'choose culture node',
-            family: 'player-operation',
-            input,
-          },
-          {
-            label: 'clear culture chooser target',
-            family: 'player-operation',
-            input: {
-              operationType: SET_CULTURE_TREE_TARGET_NODE,
-              playerId: flags['player-id'],
-              args: {
-                ProgressionTreeNodeType: PROGRESSION_TREE_NO_NODE,
-              },
-            },
-          },
-        ], options, { send: flags.send });
-
-      if (flags.send && before) {
-        const after = await waitForCultureChoicePostcondition(before, options);
-        const postcondition = cultureChoicePostcondition(before, after);
-        const operationSent = closeoutOperationSent(result);
-        emitPlayResult(this.log.bind(this), flags.json, {
-          ...result,
-          verified: operationSent && postcondition.verified,
-          before,
-          after,
-          postcondition,
-        });
-        return;
-      }
-
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-
-    const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options)
+        })
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
@@ -199,7 +154,7 @@ function compactCultureChoiceSurface(details: Record<string, unknown>): {
       maxDepth: option.maxDepth,
       turns: probeValue(option.turns),
       cost: probeValue(option.cost),
-      chooseCli: option.cli,
+      chooseCli: normalizeCultureChoiceCli(option.cli),
       targetCli: option.targetCli,
       validateCli: option.validateCli,
     }));
@@ -227,75 +182,8 @@ function probeValue(value: unknown): unknown {
   return value ?? null;
 }
 
-async function cultureChoiceAppUiCloseoutResult(
-  input: { playerId: number; node: number; notificationId?: unknown },
-  options: ReturnType<typeof buildDirectControlOptions>,
-) {
-  const result = await requestCiv7CultureChoiceCloseout({
-    playerId: input.playerId,
-    node: input.node,
-    notificationId: isComponentId(input.notificationId) ? input.notificationId : undefined,
-  }, options);
-  const payload = isRecord(result.payload) ? result.payload : {};
-  return {
-    mode: 'send',
-    stepCount: 2,
-    operationSent: result.sent,
-    steps: [
-      {
-        label: 'choose culture node',
-        family: 'player-operation',
-        operationType: SET_CULTURE_TREE_NODE,
-        result: {
-          canStart: payload.canChoose ?? null,
-          send: payload.chooseResult ?? null,
-        },
-      },
-      {
-        label: 'clear culture chooser target',
-        family: 'player-operation',
-        operationType: SET_CULTURE_TREE_TARGET_NODE,
-        result: {
-          canStart: payload.canClearTarget ?? null,
-          send: payload.clearTargetResult ?? null,
-        },
-      },
-    ],
-    appUiCloseout: result,
-    notes: [
-      'Executed in App UI as the culture chooser owner: optional notification activation, culture node choice, then target-node closeout.',
-      'Postcondition verification still comes from the caller-level notification re-read.',
-    ],
-  };
-}
-
-async function waitForCultureChoicePostcondition(
-  before: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-  options: ReturnType<typeof buildDirectControlOptions>,
-): Promise<Awaited<ReturnType<typeof getCiv7PlayNotificationView>>> {
-  const startedAt = Date.now();
-  const timeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
-  let last = await getCiv7PlayNotificationView(options);
-  while (Date.now() - startedAt <= timeoutMs) {
-    const postcondition = cultureChoicePostcondition(before, last);
-    if (postcondition.classification !== 'culture-choice-sticky-blocker') return last;
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    last = await getCiv7PlayNotificationView(options);
-  }
-  return last;
-}
-
-function isComponentId(value: unknown): value is { owner: number; id: number; type?: number } {
-  return isRecord(value)
-    && typeof value.owner === 'number'
-    && typeof value.id === 'number'
-    && (value.type === undefined || typeof value.type === 'number');
-}
-
-function closeoutOperationSent(value: unknown): boolean {
-  return isRecord(value) && value.operationSent === true;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+function normalizeCultureChoiceCli(value: unknown): unknown {
+  return typeof value === 'string'
+    ? value.replace(/\s+--closeout\b/g, '')
+    : value;
 }

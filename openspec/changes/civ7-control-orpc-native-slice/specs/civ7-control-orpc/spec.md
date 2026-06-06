@@ -350,6 +350,30 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   player-operation validation until a separate accepted service read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI progression choice sends use native progression procedures
+- **WHEN** `game play choose-tech --send` or `game play choose-culture --send`
+  requests a technology or culture choice
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process
+  `progression.technology.choice.request` or
+  `progression.culture.choice.request` server-side client under the
+  `progression` router
+- **AND** the procedure's readiness, before/after notification reads,
+  direct-control progression closeout port, progression postcondition
+  projection, and no-repeat policy remain authoritative for the send
+- **AND** the send result uses live notification local-player evidence rather
+  than treating caller validation `--player-id` as send authority
+- **AND** the normal JSON result is the semantic progression choice procedure
+  projection without raw command/session/state/Tuner details, App UI closeout
+  payloads, direct-control runtime payloads, before/after notification views, or
+  legacy `verified`
+- **AND** the `--options` paths remain direct-control notification option reads
+  and the read-only validation paths remain direct-control player-operation
+  validation until separate accepted service reads exist
+- **AND** caller-visible `--closeout` workflow guidance is retired because send
+  mode uses the native service closeout workflow
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: In-game controller bridge preflight is recorded
 - **WHEN** the in-game controller bridge is planned before source
   implementation
