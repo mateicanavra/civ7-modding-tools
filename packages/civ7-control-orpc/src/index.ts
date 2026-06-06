@@ -205,10 +205,6 @@ export { Civ7ControlOrpcRouter } from "./router";
 export {
   Civ7AttentionContract,
   Civ7AttentionCurrentContract,
-  Civ7AttentionCurrentInputSchema,
-  Civ7AttentionCurrentInputStandardSchema,
-  Civ7AttentionCurrentResultSchema,
-  Civ7AttentionCurrentResultStandardSchema,
 } from "./modules/attention/contract";
 export type {
   Civ7AttentionContract as Civ7AttentionContractType,
@@ -221,29 +217,7 @@ export { attentionCurrentProcedure } from "./modules/attention/procedures/curren
 export {
   Civ7CityContract,
   Civ7CityPopulationPlacementContract,
-  Civ7CityPopulationPlacementInputSchema,
-  Civ7CityPopulationPlacementInputStandardSchema,
-  Civ7CityPopulationPlacementModeSchema,
-  Civ7CityPopulationPlacementNextStepSchema,
-  Civ7CityPopulationPlacementPostconditionClassificationSchema,
-  Civ7CityPopulationPlacementPostconditionSummarySchema,
-  Civ7CityPopulationPlacementProofOutcomeSchema,
-  Civ7CityPopulationPlacementRequestStatusSchema,
-  Civ7CityPopulationPlacementResultSchema,
-  Civ7CityPopulationPlacementResultStandardSchema,
-  Civ7CityPopulationPlacementSummarySchema,
-  Civ7CityPopulationPlacementValidationSummarySchema,
   Civ7CityProductionChoiceContract,
-  Civ7CityProductionChoiceInputSchema,
-  Civ7CityProductionChoiceInputStandardSchema,
-  Civ7CityProductionChoiceNextStepSchema,
-  Civ7CityProductionChoicePostconditionClassificationSchema,
-  Civ7CityProductionChoicePostconditionSummarySchema,
-  Civ7CityProductionChoiceProofOutcomeSchema,
-  Civ7CityProductionChoiceRequestStatusSchema,
-  Civ7CityProductionChoiceResultSchema,
-  Civ7CityProductionChoiceResultStandardSchema,
-  Civ7CityProductionChoiceValidationSummarySchema,
 } from "./modules/city/contract";
 export type {
   Civ7CityContract as Civ7CityContractType,
@@ -260,16 +234,6 @@ export { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/
 export {
   Civ7NarrativeContract,
   Civ7NarrativeChoiceContract,
-  Civ7NarrativeChoiceInputSchema,
-  Civ7NarrativeChoiceInputStandardSchema,
-  Civ7NarrativeChoiceNextStepSchema,
-  Civ7NarrativeChoicePostconditionClassificationSchema,
-  Civ7NarrativeChoicePostconditionSummarySchema,
-  Civ7NarrativeChoiceProofOutcomeSchema,
-  Civ7NarrativeChoiceRequestStatusSchema,
-  Civ7NarrativeChoiceResultSchema,
-  Civ7NarrativeChoiceResultStandardSchema,
-  Civ7NarrativeChoiceValidationSummarySchema,
 } from "./modules/narrative/contract";
 export type {
   Civ7NarrativeContract as Civ7NarrativeContractType,
@@ -282,27 +246,7 @@ export { narrativeChoiceRequestProcedure } from "./modules/narrative/procedures/
 export {
   Civ7DiplomacyContract,
   Civ7FirstMeetResponseContract,
-  Civ7FirstMeetResponseInputSchema,
-  Civ7FirstMeetResponseInputStandardSchema,
-  Civ7FirstMeetResponseNextStepSchema,
-  Civ7FirstMeetResponsePostconditionClassificationSchema,
-  Civ7FirstMeetResponsePostconditionSummarySchema,
-  Civ7FirstMeetResponseProofOutcomeSchema,
-  Civ7FirstMeetResponseRequestStatusSchema,
-  Civ7FirstMeetResponseResultSchema,
-  Civ7FirstMeetResponseResultStandardSchema,
-  Civ7FirstMeetResponseValidationSummarySchema,
   Civ7DiplomacyResponseContract,
-  Civ7DiplomacyResponseInputSchema,
-  Civ7DiplomacyResponseInputStandardSchema,
-  Civ7DiplomacyResponseNextStepSchema,
-  Civ7DiplomacyResponsePostconditionClassificationSchema,
-  Civ7DiplomacyResponsePostconditionSummarySchema,
-  Civ7DiplomacyResponseProofOutcomeSchema,
-  Civ7DiplomacyResponseRequestStatusSchema,
-  Civ7DiplomacyResponseResultSchema,
-  Civ7DiplomacyResponseResultStandardSchema,
-  Civ7DiplomacyResponseValidationSummarySchema,
 } from "./modules/diplomacy/contract";
 export type {
   Civ7DiplomacyContract as Civ7DiplomacyContractType,
@@ -318,22 +262,7 @@ export { firstMeetResponseRequestProcedure } from "./modules/diplomacy/procedure
 export { diplomacyResponseRequestProcedure } from "./modules/diplomacy/procedures/response-request";
 export {
   Civ7GovernmentCelebrationChoiceContract,
-  Civ7GovernmentCelebrationChoiceInputSchema,
-  Civ7GovernmentCelebrationChoiceInputStandardSchema,
-  Civ7GovernmentCelebrationChoiceNextStepSchema,
-  Civ7GovernmentCelebrationChoiceResultSchema,
-  Civ7GovernmentCelebrationChoiceResultStandardSchema,
   Civ7GovernmentChoiceContract,
-  Civ7GovernmentChoiceInputSchema,
-  Civ7GovernmentChoiceInputStandardSchema,
-  Civ7GovernmentChoiceNextStepSchema,
-  Civ7GovernmentChoicePostconditionClassificationSchema,
-  Civ7GovernmentChoicePostconditionSummarySchema,
-  Civ7GovernmentChoiceProofOutcomeSchema,
-  Civ7GovernmentChoiceRequestStatusSchema,
-  Civ7GovernmentChoiceResultSchema,
-  Civ7GovernmentChoiceResultStandardSchema,
-  Civ7GovernmentChoiceValidationSummarySchema,
   Civ7GovernmentContract,
 } from "./modules/government/contract";
 export type {
@@ -351,37 +280,11 @@ export {
   governmentChoiceRequestProcedure,
 } from "./modules/government/procedures/choice-request";
 export {
-  Civ7ProgressionChoiceEvidenceSummarySchema,
-  Civ7ProgressionChoiceInputSchema,
-  Civ7ProgressionChoiceInputStandardSchema,
-  Civ7ProgressionChoicePostconditionClassificationSchema,
-  Civ7ProgressionChoicePostconditionSummarySchema,
-  Civ7ProgressionChoiceProofOutcomeSchema,
-  Civ7ProgressionChoiceRequestStatusSchema,
   Civ7ProgressionContract,
   Civ7ProgressionCultureChoiceContract,
-  Civ7ProgressionCultureChoiceNextStepSchema,
-  Civ7ProgressionCultureChoiceResultSchema,
-  Civ7ProgressionCultureChoiceResultStandardSchema,
   Civ7ProgressionCultureTargetContract,
-  Civ7ProgressionCultureTargetNextStepSchema,
-  Civ7ProgressionCultureTargetResultSchema,
-  Civ7ProgressionCultureTargetResultStandardSchema,
   Civ7ProgressionTechnologyChoiceContract,
-  Civ7ProgressionTechnologyChoiceNextStepSchema,
-  Civ7ProgressionTechnologyChoiceResultSchema,
-  Civ7ProgressionTechnologyChoiceResultStandardSchema,
   Civ7ProgressionTechnologyTargetContract,
-  Civ7ProgressionTechnologyTargetNextStepSchema,
-  Civ7ProgressionTechnologyTargetResultSchema,
-  Civ7ProgressionTechnologyTargetResultStandardSchema,
-  Civ7ProgressionTargetInputSchema,
-  Civ7ProgressionTargetInputStandardSchema,
-  Civ7ProgressionTargetPostconditionClassificationSchema,
-  Civ7ProgressionTargetPostconditionSummarySchema,
-  Civ7ProgressionTargetProofOutcomeSchema,
-  Civ7ProgressionTargetRequestStatusSchema,
-  Civ7ProgressionTargetValidationSummarySchema,
 } from "./modules/progression/contract";
 export type {
   Civ7ProgressionChoiceInput,
@@ -407,17 +310,7 @@ export {
 } from "./modules/progression/procedures/target-request";
 export {
   Civ7NotificationsContract,
-  Civ7NotificationDismissInputSchema,
   Civ7NotificationDismissalContract,
-  Civ7NotificationDismissInputStandardSchema,
-  Civ7NotificationDismissalNextStepSchema,
-  Civ7NotificationDismissalPostconditionClassificationSchema,
-  Civ7NotificationDismissalPostconditionSummarySchema,
-  Civ7NotificationDismissalProofOutcomeSchema,
-  Civ7NotificationDismissalRequestStatusSchema,
-  Civ7NotificationDismissalResultSchema,
-  Civ7NotificationDismissalResultStandardSchema,
-  Civ7NotificationDismissalValidationSummarySchema,
 } from "./modules/notifications/contract";
 export type {
   Civ7NotificationDismissalContract as Civ7NotificationDismissalContractType,
@@ -428,19 +321,8 @@ export type {
 export { notificationsRouter } from "./modules/notifications/router";
 export { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
 export {
-  Civ7ReadinessCapabilitySchema,
   Civ7ReadinessContract,
-  Civ7ReadinessControllerProcedureRiskSchema,
-  Civ7ReadinessControllerProcedureSchema,
-  Civ7ReadinessControllerSummarySchema,
   Civ7ReadinessCurrentContract,
-  Civ7ReadinessCurrentInputSchema,
-  Civ7ReadinessCurrentInputStandardSchema,
-  Civ7ReadinessCurrentResultSchema,
-  Civ7ReadinessCurrentResultStandardSchema,
-  Civ7ReadinessLevelSchema,
-  Civ7ReadinessNextStepSchema,
-  Civ7ReadinessSourceSummarySchema,
 } from "./modules/readiness/contract";
 export type {
   Civ7ReadinessContract as Civ7ReadinessContractType,
@@ -453,17 +335,6 @@ export { readinessCurrentProcedure } from "./modules/readiness/procedures/curren
 export {
   Civ7StrategyContract,
   Civ7StrategyFrontSummaryContract,
-  Civ7StrategyFrontSummaryInputSchema,
-  Civ7StrategyFrontSummaryInputStandardSchema,
-  Civ7StrategyFrontSummaryNextStepSchema,
-  Civ7StrategyFrontPointOfInterestSchema,
-  Civ7StrategyFrontSummaryResultSchema,
-  Civ7StrategyFrontSummaryResultStandardSchema,
-  Civ7StrategyFrontSourceStatusSchema,
-  Civ7StrategyFrontTargetCandidateSchema,
-  Civ7StrategyObservedOwnerSchema,
-  Civ7StrategyRelationshipClassificationSchema,
-  Civ7StrategyRelationshipLabelPolicySchema,
 } from "./modules/strategy/contract";
 export type {
   Civ7StrategyContract as Civ7StrategyContractType,
@@ -475,16 +346,6 @@ export { strategyRouter } from "./modules/strategy/router";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
 export {
   Civ7TurnCompletionContract,
-  Civ7TurnCompletionInputSchema,
-  Civ7TurnCompletionInputStandardSchema,
-  Civ7TurnCompletionNextStepSchema,
-  Civ7TurnCompletionPostconditionClassificationSchema,
-  Civ7TurnCompletionPostconditionSummarySchema,
-  Civ7TurnCompletionProbeSummarySchema,
-  Civ7TurnCompletionProofOutcomeSchema,
-  Civ7TurnCompletionRequestStatusSchema,
-  Civ7TurnCompletionResultSchema,
-  Civ7TurnCompletionResultStandardSchema,
   Civ7TurnContract,
 } from "./modules/turn/contract";
 export type {
@@ -497,34 +358,9 @@ export { turnRouter } from "./modules/turn/router";
 export { turnCompleteRequestProcedure } from "./modules/turn/procedures/complete-request";
 export {
   Civ7UnitContract,
-  Civ7UnitCommandNextStepSchema,
-  Civ7UnitCommandPostconditionClassificationSchema,
-  Civ7UnitCommandPostconditionSummarySchema,
-  Civ7UnitCommandProofOutcomeSchema,
-  Civ7UnitCommandRequestStatusSchema,
-  Civ7UnitCommandResultSchema,
-  Civ7UnitCommandResultStandardSchema,
-  Civ7UnitCommandSummarySchema,
-  Civ7UnitCommandValidationSummarySchema,
   Civ7UnitResettleContract,
-  Civ7UnitResettleInputSchema,
-  Civ7UnitResettleInputStandardSchema,
   Civ7UnitTargetActionContract,
-  Civ7UnitTargetActionFamilySchema,
-  Civ7UnitTargetActionInputSchema,
-  Civ7UnitTargetActionInputStandardSchema,
-  Civ7UnitTargetActionNextStepSchema,
-  Civ7UnitTargetActionPostconditionSummarySchema,
-  Civ7UnitTargetActionProofOutcomeSchema,
-  Civ7UnitTargetActionRequestStatusSchema,
-  Civ7UnitTargetActionResultSchema,
-  Civ7UnitTargetActionResultStandardSchema,
-  Civ7UnitTargetActionSelectedSummarySchema,
-  Civ7UnitTargetActionValidationSummarySchema,
-  Civ7UnitTargetActionVerificationClassificationSchema,
   Civ7UnitUpgradeContract,
-  Civ7UnitUpgradeInputSchema,
-  Civ7UnitUpgradeInputStandardSchema,
 } from "./modules/unit/contract";
 export type {
   Civ7UnitContract as Civ7UnitContractType,
@@ -543,4 +379,3 @@ export {
   unitUpgradeRequestProcedure,
 } from "./modules/unit/procedures/command-request";
 export { unitTargetActionRequestProcedure } from "./modules/unit/procedures/target-action-request";
-export { toStandardSchema } from "./typebox-standard-schema";

@@ -5,15 +5,19 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  Civ7UnitTargetActionInputSchema,
   Civ7UnitTargetActionUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcUnitTargetActionResult,
 } from "../src/index";
+import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const unitId = { owner: 0, id: 42, type: 1 };
 const target = { x: 22, y: 31 };
+const Civ7UnitTargetActionInputSchema =
+  typeboxInputSchemaFromContractProcedure(
+    Civ7ControlOrpcContract.unit.target.action.request,
+  );
 
 describe("unit.target.action.request control-oRPC procedure", () => {
   test("owns the caller-facing unit target action contract without raw fields", () => {
