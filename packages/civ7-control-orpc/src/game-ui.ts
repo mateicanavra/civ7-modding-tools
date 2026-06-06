@@ -58,6 +58,12 @@ import {
   type Civ7GameUiDiplomacyTarget,
 } from "./game-ui-diplomacy";
 import {
+  civ7GameUiGovernmentAvailable,
+  requestCiv7GameUiCelebrationChoice,
+  requestCiv7GameUiGovernmentChoice,
+  type Civ7GameUiGovernmentTarget,
+} from "./game-ui-government";
+import {
   civ7GameUiUnitTargetActionAvailable,
   requestCiv7GameUiUnitTargetAction,
   type Civ7GameUiUnitTargetActionTarget,
@@ -177,7 +183,8 @@ export type Civ7GameUiRuntimeTarget = {
   PlayerOperationTypes?: Civ7GameUiPopulationTarget["PlayerOperationTypes"]
     & Civ7GameUiProgressionTarget["PlayerOperationTypes"]
     & Civ7GameUiNarrativeTarget["PlayerOperationTypes"]
-    & Civ7GameUiDiplomacyTarget["PlayerOperationTypes"];
+    & Civ7GameUiDiplomacyTarget["PlayerOperationTypes"]
+    & Civ7GameUiGovernmentTarget["PlayerOperationTypes"];
   ProgressionTreeNodeTypes?:
     Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
   UnitCommandTypes?: Civ7GameUiUnitTargetActionTarget["UnitCommandTypes"];
@@ -311,8 +318,10 @@ function createCiv7GameUiDirectControlFacade(
     requestCiv7DiplomacyResponse: async (input) =>
       await requestCiv7GameUiDiplomacyResponse(input, target),
     requestCiv7FirstMeetResponse: unsupported,
-    requestCiv7GovernmentChoice: unsupported,
-    requestCiv7CelebrationChoice: unsupported,
+    requestCiv7GovernmentChoice: async (input) =>
+      await requestCiv7GameUiGovernmentChoice(input, target),
+    requestCiv7CelebrationChoice: async (input) =>
+      await requestCiv7GameUiCelebrationChoice(input, target),
     requestCiv7TechnologyChoiceCloseout: async (input) =>
       await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) =>
@@ -437,6 +446,12 @@ function gameUiSupportedMutationProcedures(
   }
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
     supported.push("diplomacy.response.request");
+  }
+  if (civ7GameUiGovernmentAvailable(target)) {
+    supported.push(
+      "government.choice.request",
+      "government.celebration.choice.request",
+    );
   }
   if (civ7GameUiUnitTargetActionAvailable(target)) {
     supported.push("unit.target.action.request");

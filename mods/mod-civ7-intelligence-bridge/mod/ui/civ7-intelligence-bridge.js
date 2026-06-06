@@ -27242,7 +27242,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-K6WJEDJ3.js
+// ../../packages/civ7-control-orpc/dist/chunk-A2NSLF4R.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -33110,6 +33110,18 @@ var Civ7DiplomacyResponseInputSchema2 = typeboxInputSchemaFromContractProcedure(
 var Civ7DiplomacyResponseResultSchema2 = typeboxOutputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.diplomacy.response.request
 );
+var Civ7GovernmentChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.choice.request
+);
+var Civ7GovernmentChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.choice.request
+);
+var Civ7GovernmentCelebrationChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.celebration.choice.request
+);
+var Civ7GovernmentCelebrationChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.celebration.choice.request
+);
 var Civ7UnitTargetActionInputSchema2 = typeboxInputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.unit.target.action.request
 );
@@ -33269,6 +33281,22 @@ var Civ7ControllerBridgeDiplomacyResponseRequestSchema = typebox_exports.Object(
   },
   { additionalProperties: false }
 );
+var Civ7ControllerBridgeGovernmentChoiceRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("government.choice.request"),
+    input: Civ7GovernmentChoiceInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("government.celebration.choice.request"),
+    input: Civ7GovernmentCelebrationChoiceInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ControllerBridgeUnitTargetActionRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("unit.target.action.request"),
@@ -33353,6 +33381,8 @@ var Civ7ControllerBridgeRequestSchema = typebox_exports.Union([
   Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
+  Civ7ControllerBridgeGovernmentChoiceRequestSchema,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
   Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
@@ -33475,6 +33505,24 @@ var Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema = typebox_exports
   },
   { additionalProperties: false }
 );
+var Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("government.choice.request"),
+    output: Civ7GovernmentChoiceResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("government.celebration.choice.request"),
+    output: Civ7GovernmentCelebrationChoiceResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema = typebox_exports.Object(
   {
     ok: typebox_exports.Literal(true),
@@ -33568,6 +33616,8 @@ var Civ7ControllerBridgeSuccessResponseSchema = typebox_exports.Union([
   Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
   Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
@@ -33729,6 +33779,26 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
     }
+    if (request2.procedureKey === "government.choice.request") {
+      const output2 = await client.government.choice.request(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "government.choice.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "government.celebration.choice.request") {
+      const output2 = await client.government.celebration.choice.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "government.celebration.choice.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
     if (request2.procedureKey === "unit.target.action.request") {
       const output2 = await client.unit.target.action.request(validatedInput);
       return {
@@ -33846,10 +33916,10 @@ function controllerProofFromContext(context5) {
 function isUnsupportedProcedureRequest(request2) {
   if (request2 == null || typeof request2 !== "object") return false;
   if (!("procedureKey" in request2)) return false;
-  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request" && request2.procedureKey !== "progression.technology.target.request" && request2.procedureKey !== "progression.culture.target.request" && request2.procedureKey !== "progression.attribute.purchase.request" && request2.procedureKey !== "progression.attribute.review.request" && request2.procedureKey !== "progression.tradition.change.request" && request2.procedureKey !== "progression.tradition.review.request";
+  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "government.choice.request" && request2.procedureKey !== "government.celebration.choice.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request" && request2.procedureKey !== "progression.technology.target.request" && request2.procedureKey !== "progression.culture.target.request" && request2.procedureKey !== "progression.attribute.purchase.request" && request2.procedureKey !== "progression.attribute.review.request" && request2.procedureKey !== "progression.tradition.change.request" && request2.procedureKey !== "progression.tradition.review.request";
 }
 function isControllerBridgeMutationRequest(request2) {
-  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request" || request2.procedureKey === "progression.technology.target.request" || request2.procedureKey === "progression.culture.target.request" || request2.procedureKey === "progression.attribute.purchase.request" || request2.procedureKey === "progression.attribute.review.request" || request2.procedureKey === "progression.tradition.change.request" || request2.procedureKey === "progression.tradition.review.request";
+  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "government.choice.request" || request2.procedureKey === "government.celebration.choice.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request" || request2.procedureKey === "progression.technology.target.request" || request2.procedureKey === "progression.culture.target.request" || request2.procedureKey === "progression.attribute.purchase.request" || request2.procedureKey === "progression.attribute.review.request" || request2.procedureKey === "progression.tradition.change.request" || request2.procedureKey === "progression.tradition.review.request";
 }
 function controllerSupportsRequest(context5, request2) {
   if (request2.procedureKey === "readiness.current") return true;
@@ -36594,6 +36664,159 @@ function probe7(fn2) {
 function probeValue52(input) {
   return input.ok ? input.value : void 0;
 }
+var CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION = -1326475004;
+function civ7GameUiGovernmentAvailable(target) {
+  return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.CHANGE_GOVERNMENT !== void 0 && target.PlayerOperationTypes.CHOOSE_GOLDEN_AGE !== void 0 && typeof target.GameContext?.localPlayerID === "number";
+}
+async function requestCiv7GameUiGovernmentChoice(input, target = globalThis) {
+  const action = input.action ?? CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION;
+  const args2 = {
+    GovernmentType: input.governmentType,
+    Action: action
+  };
+  return gameUiGovernmentChoice({
+    kind: "government",
+    playerId: input.playerId,
+    operationType: "CHANGE_GOVERNMENT",
+    enumValue: target.PlayerOperationTypes?.CHANGE_GOVERNMENT,
+    args: args2,
+    governmentType: input.governmentType,
+    action
+  }, target);
+}
+async function requestCiv7GameUiCelebrationChoice(input, target = globalThis) {
+  const args2 = { GoldenAgeType: input.goldenAgeType };
+  return gameUiGovernmentChoice({
+    kind: "celebration",
+    playerId: input.playerId,
+    operationType: "CHOOSE_GOLDEN_AGE",
+    enumValue: target.PlayerOperationTypes?.CHOOSE_GOLDEN_AGE,
+    args: args2,
+    goldenAgeType: input.goldenAgeType
+  }, target);
+}
+function gameUiGovernmentChoice(input, target) {
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const before2 = input.playerId === localPlayerId ? gameUiGovernmentValidation(input, target) : governmentValidation({
+    operationType: input.operationType,
+    enumValue: input.enumValue,
+    playerId: input.playerId,
+    args: input.args,
+    valid: false,
+    result: {
+      ok: false,
+      reason: "player-id-mismatch",
+      inputPlayerId: input.playerId,
+      localPlayerId: localPlayerId ?? null
+    }
+  });
+  if (!before2.valid) {
+    return governmentResult({ ...input, before: before2, after: before2, sent: false });
+  }
+  const sendResult = safeValue8(
+    () => target.Game?.PlayerOperations?.sendRequest?.(
+      input.playerId,
+      input.enumValue,
+      input.args
+    ),
+    false
+  );
+  const sent = sendResult !== false;
+  const after3 = gameUiGovernmentValidation(input, target);
+  return governmentResult({ ...input, before: before2, after: after3, sent });
+}
+function gameUiGovernmentValidation(input, target) {
+  const result = safeValue8(
+    () => target.Game?.PlayerOperations?.canStart?.(
+      input.playerId,
+      input.enumValue,
+      input.args,
+      false
+    ),
+    null
+  );
+  return governmentValidation({
+    operationType: input.operationType,
+    enumValue: input.enumValue,
+    playerId: input.playerId,
+    args: input.args,
+    valid: successFromCanStart7(result),
+    result
+  });
+}
+function governmentValidation(input) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: input.operationType,
+    enumValue: input.enumValue,
+    target: { playerId: input.playerId },
+    args: input.args,
+    valid: input.valid,
+    result: input.result
+  };
+}
+function governmentResult(input) {
+  const common = {
+    playerId: input.playerId,
+    operation: {
+      before: input.before,
+      after: input.after,
+      sent: input.sent,
+      verified: false
+    },
+    beforeValidation: input.before,
+    afterValidation: input.after,
+    sent: input.sent,
+    verified: false,
+    postcondition: governmentPostcondition(input.sent, input.kind)
+  };
+  if (input.kind === "government") {
+    return {
+      ...common,
+      kind: "government",
+      governmentType: input.governmentType,
+      action: input.action
+    };
+  }
+  return {
+    ...common,
+    kind: "celebration",
+    goldenAgeType: input.goldenAgeType
+  };
+}
+function governmentPostcondition(sent, kind) {
+  if (!sent) {
+    return {
+      classification: "not-sent",
+      reason: `The ${kind} choice request did not validate, so no government-domain choice was sent.`
+    };
+  }
+  return {
+    classification: "pending-runtime-proof",
+    reason: `The ${kind} choice request was sent through the game UI controller, but local package tests do not prove live government-domain state changed; read fresh attention before another request.`
+  };
+}
+function successFromCanStart7(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function safeValue8(fn2, fallback) {
+  try {
+    return fn2();
+  } catch {
+    return fallback;
+  }
+}
 function civ7GameUiUnitTargetActionAvailable(target) {
   return typeof target.Game?.UnitOperations?.canStart === "function" && typeof target.Game.UnitOperations.sendRequest === "function" && typeof target.Game?.UnitCommands?.canStart === "function" && typeof target.Game.UnitCommands.sendRequest === "function" && target.UnitOperationTypes != null && target.UnitCommandTypes != null && typeof target.Units?.get === "function" && typeof target.MapUnits?.getUnits === "function" && (typeof target.GameplayMap?.getIndexFromLocation === "function" || typeof target.GameplayMap?.getIndexFromXY === "function");
 }
@@ -36704,7 +36927,7 @@ function candidate(family, operationType, args2, unitId, targetIndex, target) {
   const result = probe8(
     () => router?.canStart?.(unitId, enumValue, args2, false) ?? false
   );
-  const valid = result.ok && successFromCanStart7(result.value);
+  const valid = result.ok && successFromCanStart8(result.value);
   const targetInReturnedPlots = targetInReturnedPlotsFor(result, targetIndex);
   return {
     family,
@@ -36835,7 +37058,7 @@ function enumValueFor(enums, operationType) {
   }
   return operationType;
 }
-function successFromCanStart7(result) {
+function successFromCanStart8(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -37465,8 +37688,8 @@ function createCiv7GameUiDirectControlFacade(target) {
     requestCiv7NarrativeChoice: async (input) => await requestCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) => await requestCiv7GameUiDiplomacyResponse(input, target),
     requestCiv7FirstMeetResponse: unsupported,
-    requestCiv7GovernmentChoice: unsupported,
-    requestCiv7CelebrationChoice: unsupported,
+    requestCiv7GovernmentChoice: async (input) => await requestCiv7GameUiGovernmentChoice(input, target),
+    requestCiv7CelebrationChoice: async (input) => await requestCiv7GameUiCelebrationChoice(input, target),
     requestCiv7TechnologyChoiceCloseout: async (input) => await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) => await requestCiv7GameUiCultureChoiceCloseout(input, target),
     requestCiv7TechnologyTarget: async (input) => await requestCiv7GameUiTechnologyTarget(input, target),
@@ -37556,6 +37779,12 @@ function gameUiSupportedMutationProcedures(target) {
   }
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
     supported2.push("diplomacy.response.request");
+  }
+  if (civ7GameUiGovernmentAvailable(target)) {
+    supported2.push(
+      "government.choice.request",
+      "government.celebration.choice.request"
+    );
   }
   if (civ7GameUiUnitTargetActionAvailable(target)) {
     supported2.push("unit.target.action.request");

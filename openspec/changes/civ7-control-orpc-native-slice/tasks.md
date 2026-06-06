@@ -879,6 +879,23 @@ adding more read-only facade shells.
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
+  - [x] 7.3.31 Add game-resident government-domain runtime dependencies for
+    `government.choice.request` and
+    `government.celebration.choice.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest`, exact
+    `PlayerOperationTypes.CHANGE_GOVERNMENT` and
+    `PlayerOperationTypes.CHOOSE_GOLDEN_AGE` enum facts, and
+    controller-owned local-player proof through the existing service-owned
+    government procedures; allowlist those leaves through closed controller
+    bridge envelopes that derive concrete schemas from the aggregated
+    `Civ7ControlOrpcContract`; advertise the mutations only when those exact
+    game UI APIs and controller proof exist; route caller player input through
+    fresh `GameContext.localPlayerID` evidence before send; preserve
+    validator-blocked not-sent output and pending-runtime-proof/no-repeat
+    guarded sent output; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    transport expansion, public package-root procedure schema exports, and
+    full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1146,6 +1163,15 @@ adding more read-only facade shells.
   envelopes. This is a public-surface hygiene proof only and does not claim
   deployed Civ7 runtime proof, play-thread action, transport expansion,
   behavior changes, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.8 Run focused game-ui controller and controller-ingress tests plus
+  control-oRPC package test/check/build, controller mod package
+  test/check/build with bundle scan, strict OpenSpec validates, and diff
+  hygiene for the game-resident government-domain runtime dependency and
+  controller bridge allowlist slice. These are local package and
+  generated-bundle proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, a government read service, public
+  package-root procedure schema exports, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

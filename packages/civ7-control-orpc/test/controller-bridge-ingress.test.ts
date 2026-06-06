@@ -12,6 +12,10 @@ import {
   Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeGovernmentChoiceRequestSchema,
+  Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
@@ -49,6 +53,10 @@ import {
   type Civ7ControllerBridgeCityTownFocusReviewSuccessResponse,
   type Civ7ControllerBridgeDiplomacyResponseRequest,
   type Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
+  type Civ7ControllerBridgeGovernmentCelebrationChoiceRequest,
+  type Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse,
+  type Civ7ControllerBridgeGovernmentChoiceRequest,
+  type Civ7ControllerBridgeGovernmentChoiceSuccessResponse,
   type Civ7ControllerBridgeNarrativeChoiceRequest,
   type Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
   type Civ7ControllerBridgeProgressionCultureChoiceRequest,
@@ -101,6 +109,15 @@ const diplomacyInput = {
   responseType: -1_713_616_684,
   notificationId,
 };
+const governmentInput = {
+  playerId: 2,
+  governmentType: 0,
+  action: -1_326_475_004,
+};
+const celebrationInput = {
+  playerId: 2,
+  goldenAgeType: -340_825_966,
+};
 const progressionTechnologyInput = {
   playerId: 2,
   node: 18_001,
@@ -138,6 +155,10 @@ type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
   Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
   Civ7ControllerBridgeDiplomacyResponseRequest,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
+  Civ7ControllerBridgeGovernmentChoiceRequest,
+  Civ7ControllerBridgeGovernmentChoiceSuccessResponse,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceRequest,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse,
   Civ7ControllerBridgeUnitTargetActionRequest,
   Civ7ControllerBridgeUnitTargetActionSuccessResponse,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
@@ -177,6 +198,10 @@ describe("Civ7 controller bridge ingress", () => {
       Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
       Civ7ControllerBridgeDiplomacyResponseRequestSchema,
       Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+      Civ7ControllerBridgeGovernmentChoiceRequestSchema,
+      Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
+      Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
+      Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
       Civ7ControllerBridgeUnitTargetActionRequestSchema,
       Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
       Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
@@ -842,6 +867,105 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted government.choice.request through the in-process router with controller proof", async () => {
+    const fake = fakeGovernmentChoiceContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "government.choice.request",
+      input: governmentInput,
+      correlationId: "controller-government-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "government.choice.request",
+      correlationId: "controller-government-1",
+      output: {
+        playerId: 0,
+        governmentType: 0,
+        action: -1_326_475_004,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.views).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.government).toEqual([{
+      input: {
+        playerId: 0,
+        governmentType: 0,
+        action: -1_326_475_004,
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+    expect(fake.calls.celebration).toEqual([]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain("Game.PlayerOperations.sendRequest");
+  });
+
+  test("invokes allowlisted government.celebration.choice.request through the in-process router with controller proof", async () => {
+    const fake = fakeGovernmentChoiceContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "government.celebration.choice.request",
+      input: celebrationInput,
+      correlationId: "controller-celebration-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "government.celebration.choice.request",
+      correlationId: "controller-celebration-1",
+      output: {
+        playerId: 0,
+        goldenAgeType: -340_825_966,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(fake.calls.celebration).toEqual([{
+      input: {
+        playerId: 0,
+        goldenAgeType: -340_825_966,
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+    expect(fake.calls.government).toEqual([]);
+  });
+
   test("invokes allowlisted progression technology choice through the in-process router with controller proof", async () => {
     const fake = fakeProgressionChoiceContext();
     const ingress = createCiv7ControllerBridgeIngress({
@@ -1206,6 +1330,39 @@ describe("Civ7 controller bridge ingress", () => {
         procedureKey: "diplomacy.response.request",
         input: diplomacyInput,
         session: { state: "App UI" },
+      },
+      {
+        procedureKey: "government.choice.request",
+        input: {
+          ...governmentInput,
+          rawCommand: "Game.PlayerOperations.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "government.choice.request",
+        input: {
+          ...governmentInput,
+          args: { GovernmentType: 0, Action: -1_326_475_004 },
+        },
+      },
+      {
+        procedureKey: "government.choice.request",
+        input: governmentInput,
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "government.celebration.choice.request",
+        input: {
+          ...celebrationInput,
+          command: "Game.PlayerOperations.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "government.celebration.choice.request",
+        input: {
+          ...celebrationInput,
+          operationType: "CHOOSE_GOLDEN_AGE",
+        },
       },
       {
         procedureKey: "progression.technology.choice.request",
@@ -1861,6 +2018,73 @@ function fakeDiplomacyResponseContext(): {
   };
 }
 
+function fakeGovernmentChoiceContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    government: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    celebration: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: TestControllerContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    views: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    government: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+    celebration: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+  } = {
+    status: [],
+    views: [],
+    government: [],
+    celebration: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: [
+          "government.choice.request",
+          "government.celebration.choice.request",
+        ],
+      },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        getCiv7PlayNotificationView: async (options) => {
+          calls.views.push(options);
+          return cleanNotificationViewResult();
+        },
+        requestCiv7GovernmentChoice: async (input, options) => {
+          calls.government.push({ input, options });
+          return governmentChoiceResult("government");
+        },
+        requestCiv7CelebrationChoice: async (input, options) => {
+          calls.celebration.push({ input, options });
+          return governmentChoiceResult("celebration");
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
 function fakeProgressionChoiceContext(kind: "technology" | "culture" = "technology"): {
   calls: {
     status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
@@ -2127,6 +2351,7 @@ function notificationSummary(overrides: Record<string, unknown> = {}): any {
 
 function cleanNotificationViewResult(): any {
   return {
+    localPlayerId: 0,
     turn: { ok: true, value: 12 },
     turnDate: { ok: true, value: "3400 BCE" },
     canEndTurn: { ok: true, value: false },
@@ -2602,6 +2827,56 @@ function diplomacyResponseResult(): any {
     postcondition: {
       classification: "diplomacy-blocker-cleared",
       reason: "test diplomacy-blocker-cleared",
+    },
+  };
+}
+
+function governmentChoiceResult(kind: "government" | "celebration"): any {
+  const operationType = kind === "government"
+    ? "CHANGE_GOVERNMENT"
+    : "CHOOSE_GOLDEN_AGE";
+  const args = kind === "government"
+    ? { GovernmentType: 0, Action: -1_326_475_004 }
+    : { GoldenAgeType: -340_825_966 };
+  return {
+    playerId: 0,
+    kind,
+    ...(kind === "government"
+      ? { governmentType: 0, action: -1_326_475_004 }
+      : { goldenAgeType: -340_825_966 }),
+    before: {},
+    beforeValidation: {
+      valid: true,
+      operationType,
+      args,
+      result: {
+        command: "Game.PlayerOperations.canStart(...)",
+      },
+    },
+    command: {
+      host: "127.0.0.1",
+      port: 4318,
+      state: { id: "65535", name: "App UI" },
+      output: ["CMD:65535:Game.PlayerOperations.sendRequest(...)"],
+    },
+    payload: {
+      sent: true,
+      rawCommand: "Game.PlayerOperations.sendRequest(...)",
+    },
+    after: {},
+    afterValidation: {
+      valid: true,
+      operationType,
+      args,
+      result: {
+        command: "Game.PlayerOperations.canStart(...)",
+      },
+    },
+    sent: true,
+    verified: true,
+    postcondition: {
+      classification: "pending-runtime-proof",
+      reason: "test government choice pending runtime proof",
     },
   };
 }

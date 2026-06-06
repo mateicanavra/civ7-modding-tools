@@ -87,6 +87,21 @@ const Civ7DiplomacyResponseResultSchema =
   typeboxOutputSchemaFromContractProcedure(
     Civ7ControlOrpcContract.diplomacy.response.request,
   );
+const Civ7GovernmentChoiceInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.choice.request,
+);
+const Civ7GovernmentChoiceResultSchema =
+  typeboxOutputSchemaFromContractProcedure(
+    Civ7ControlOrpcContract.government.choice.request,
+  );
+const Civ7GovernmentCelebrationChoiceInputSchema =
+  typeboxInputSchemaFromContractProcedure(
+    Civ7ControlOrpcContract.government.celebration.choice.request,
+  );
+const Civ7GovernmentCelebrationChoiceResultSchema =
+  typeboxOutputSchemaFromContractProcedure(
+    Civ7ControlOrpcContract.government.celebration.choice.request,
+  );
 const Civ7UnitTargetActionInputSchema = typeboxInputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.unit.target.action.request,
 );
@@ -307,6 +322,31 @@ export type Civ7ControllerBridgeDiplomacyResponseRequest = Static<
   typeof Civ7ControllerBridgeDiplomacyResponseRequestSchema
 >;
 
+export const Civ7ControllerBridgeGovernmentChoiceRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("government.choice.request"),
+    input: Civ7GovernmentChoiceInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeGovernmentChoiceRequest = Static<
+  typeof Civ7ControllerBridgeGovernmentChoiceRequestSchema
+>;
+
+export const Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("government.celebration.choice.request"),
+      input: Civ7GovernmentCelebrationChoiceInputSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeGovernmentCelebrationChoiceRequest = Static<
+  typeof Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema
+>;
+
 export const Civ7ControllerBridgeUnitTargetActionRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.target.action.request"),
@@ -435,6 +475,8 @@ export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
+  Civ7ControllerBridgeGovernmentChoiceRequestSchema,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
   Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
@@ -457,6 +499,8 @@ export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeCityTownFocusReviewRequest
   | Civ7ControllerBridgeNarrativeChoiceRequest
   | Civ7ControllerBridgeDiplomacyResponseRequest
+  | Civ7ControllerBridgeGovernmentChoiceRequest
+  | Civ7ControllerBridgeGovernmentCelebrationChoiceRequest
   | Civ7ControllerBridgeUnitTargetActionRequest
   | Civ7ControllerBridgeProgressionTechnologyChoiceRequest
   | Civ7ControllerBridgeProgressionCultureChoiceRequest
@@ -638,6 +682,35 @@ export type Civ7ControllerBridgeDiplomacyResponseSuccessResponse = Static<
   typeof Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("government.choice.request"),
+      output: Civ7GovernmentChoiceResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeGovernmentChoiceSuccessResponse = Static<
+  typeof Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("government.celebration.choice.request"),
+      output: Civ7GovernmentCelebrationChoiceResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse =
+  Static<
+    typeof Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema
+  >;
+
 export const Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema =
   Type.Object(
     {
@@ -784,6 +857,8 @@ export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
   Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
@@ -806,6 +881,8 @@ export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeCityTownFocusReviewSuccessResponse
   | Civ7ControllerBridgeNarrativeChoiceSuccessResponse
   | Civ7ControllerBridgeDiplomacyResponseSuccessResponse
+  | Civ7ControllerBridgeGovernmentChoiceSuccessResponse
+  | Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse
   | Civ7ControllerBridgeUnitTargetActionSuccessResponse
   | Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse
   | Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse
@@ -1035,6 +1112,32 @@ export async function invokeCiv7ControllerBridgeRequest(
       };
     }
 
+    if (request.procedureKey === "government.choice.request") {
+      const output = await client.government.choice.request(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "government.choice.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "government.celebration.choice.request") {
+      const output = await client.government.celebration.choice.request(
+        validatedInput,
+      );
+      return {
+        ok: true,
+        procedureKey: "government.celebration.choice.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
     if (request.procedureKey === "unit.target.action.request") {
       const output = await client.unit.target.action.request(validatedInput);
       return {
@@ -1199,6 +1302,8 @@ function isUnsupportedProcedureRequest(
     && request.procedureKey !== "city.townFocus.review.request"
     && request.procedureKey !== "narrative.choice.request"
     && request.procedureKey !== "diplomacy.response.request"
+    && request.procedureKey !== "government.choice.request"
+    && request.procedureKey !== "government.celebration.choice.request"
     && request.procedureKey !== "unit.target.action.request"
     && request.procedureKey !== "progression.technology.choice.request"
     && request.procedureKey !== "progression.culture.choice.request"
@@ -1221,6 +1326,8 @@ function isControllerBridgeMutationRequest(
   | Civ7ControllerBridgeCityTownFocusReviewRequest
   | Civ7ControllerBridgeNarrativeChoiceRequest
   | Civ7ControllerBridgeDiplomacyResponseRequest
+  | Civ7ControllerBridgeGovernmentChoiceRequest
+  | Civ7ControllerBridgeGovernmentCelebrationChoiceRequest
   | Civ7ControllerBridgeUnitTargetActionRequest
   | Civ7ControllerBridgeProgressionTechnologyChoiceRequest
   | Civ7ControllerBridgeProgressionCultureChoiceRequest
@@ -1238,6 +1345,8 @@ function isControllerBridgeMutationRequest(
     || request.procedureKey === "city.townFocus.review.request"
     || request.procedureKey === "narrative.choice.request"
     || request.procedureKey === "diplomacy.response.request"
+    || request.procedureKey === "government.choice.request"
+    || request.procedureKey === "government.celebration.choice.request"
     || request.procedureKey === "unit.target.action.request"
     || request.procedureKey === "progression.technology.choice.request"
     || request.procedureKey === "progression.culture.choice.request"

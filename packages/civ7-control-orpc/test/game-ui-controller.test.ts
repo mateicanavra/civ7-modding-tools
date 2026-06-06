@@ -20,6 +20,9 @@ describe("Civ7 game UI controller bootstrap", () => {
   const traditionAction = -1_326_475_004;
   const diplomacyActionId = 8_821;
   const diplomacyResponseType = -1_713_616_684;
+  const governmentType = 0;
+  const governmentAction = -1_326_475_004;
+  const goldenAgeType = -340_825_966;
   const unitId = { owner: 0, id: 42, type: 1 };
   const unitTarget = { x: 22, y: 31 };
 
@@ -2058,6 +2061,191 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
+  test("executes government choice through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      governmentChoice: {
+        canChange: true,
+        onSend: (playerId, operationType, args) =>
+          sendCalls.push({ playerId, operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-government-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "government.choice.request",
+              risk: "mutation",
+            },
+            {
+              procedureKey: "government.celebration.choice.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "government.choice.request",
+      input: {
+        playerId: 2,
+        governmentType,
+        action: governmentAction,
+      },
+      correlationId: "game-ui-government-choice-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "government.choice.request",
+      correlationId: "game-ui-government-choice-1",
+      output: {
+        playerId: 0,
+        governmentType,
+        action: governmentAction,
+        sent: true,
+        status: "sent-unverified",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confidence: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "government.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{
+      playerId: 0,
+      operationType: "CHANGE_GOVERNMENT",
+      args: { GovernmentType: governmentType, Action: governmentAction },
+    }]);
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("Game.PlayerOperations");
+    expect(serialized).not.toContain("sendRequest");
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"payload\"");
+    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain("\"result\"");
+  });
+
+  test("keeps game UI government validator blocks semantic and not sent", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      governmentChoice: {
+        canChange: false,
+        onSend: (playerId, operationType, args) =>
+          sendCalls.push({ playerId, operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "government.choice.request",
+      input: {
+        playerId: 2,
+        governmentType,
+        action: governmentAction,
+      },
+      correlationId: "game-ui-government-blocked-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        playerId: 0,
+        sent: false,
+        status: "not-sent",
+        validation: {
+          beforeValid: false,
+          afterValid: false,
+        },
+        postcondition: {
+          classification: "not-sent",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "inspect-government-choice",
+          source: "government.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("executes celebration choice through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      governmentChoice: {
+        canCelebrate: true,
+        onSend: (playerId, operationType, args) =>
+          sendCalls.push({ playerId, operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "government.celebration.choice.request",
+      input: {
+        playerId: 2,
+        goldenAgeType,
+      },
+      correlationId: "game-ui-celebration-choice-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "government.celebration.choice.request",
+      correlationId: "game-ui-celebration-choice-1",
+      output: {
+        playerId: 0,
+        goldenAgeType,
+        sent: true,
+        status: "sent-unverified",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confidence: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "government.celebration.choice.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{
+      playerId: 0,
+      operationType: "CHOOSE_GOLDEN_AGE",
+      args: { GoldenAgeType: goldenAgeType },
+    }]);
+  });
+
   test("executes unit target action through game UI service dependency", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -2969,6 +3157,15 @@ function gameUiNotificationTarget(
         }>,
       ) => void;
     };
+    governmentChoice?: {
+      canChange?: boolean;
+      canCelebrate?: boolean;
+      onSend?: (
+        playerId: number,
+        operationType: string,
+        args: Readonly<Record<string, number>>,
+      ) => void;
+    };
     unitTargetAction?: {
       unitId: { owner: number; id: number; type: number };
       target: { x: number; y: number };
@@ -3073,6 +3270,12 @@ function gameUiNotificationTarget(
         ? {}
         : {
             RESPOND_DIPLOMATIC_ACTION: "RESPOND_DIPLOMATIC_ACTION",
+          }),
+      ...(options.governmentChoice == null
+        ? {}
+        : {
+            CHANGE_GOVERNMENT: "CHANGE_GOVERNMENT",
+            CHOOSE_GOLDEN_AGE: "CHOOSE_GOLDEN_AGE",
           }),
     },
     ProgressionTreeNodeTypes: options.progressionChoice == null
@@ -3303,6 +3506,7 @@ function gameUiNotificationTarget(
           && options.progressionRequest == null
           && options.narrativeChoice == null
           && options.diplomacyResponse == null
+          && options.governmentChoice == null
         ? undefined
         : {
             canStart: (_playerId, operationType) => ({
@@ -3312,6 +3516,10 @@ function gameUiNotificationTarget(
                 ? options.narrativeChoice?.canChoose ?? true
                 : operationType === "RESPOND_DIPLOMATIC_ACTION"
                 ? options.diplomacyResponse?.canRespond ?? true
+                : operationType === "CHANGE_GOVERNMENT"
+                ? options.governmentChoice?.canChange ?? true
+                : operationType === "CHOOSE_GOLDEN_AGE"
+                ? options.governmentChoice?.canCelebrate ?? true
                 : String(operationType).includes("TARGET")
                 ? progressionTargetCanStart(
                   String(operationType),
@@ -3356,6 +3564,15 @@ function gameUiNotificationTarget(
                 if (options.diplomacyResponse?.clearBlockerOnSend === true) {
                   exists = false;
                 }
+              } else if (
+                operationType === "CHANGE_GOVERNMENT"
+                || operationType === "CHOOSE_GOLDEN_AGE"
+              ) {
+                options.governmentChoice?.onSend?.(
+                  _playerId,
+                  operationType,
+                  args,
+                );
               } else {
                 if (options.progressionRequest != null) {
                   options.progressionRequest.onSend?.(operationType, args);
