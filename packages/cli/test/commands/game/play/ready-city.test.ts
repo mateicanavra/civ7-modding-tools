@@ -43,7 +43,7 @@ describe('game play ready-city command', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         contractVersion: string;
-        command: string;
+        surface: string;
         summary: string;
         city: { name: string; buildQueue: unknown };
         productionCandidates: Array<{
@@ -56,26 +56,29 @@ describe('game play ready-city command', () => {
           baseYieldSummary: { YIELD_PRODUCTION: number };
           valid: boolean;
           placementPlots: Array<{ x: number; y: number }>;
-          cli: string;
+          nextAction: { kind: string; parameters: Record<string, unknown>; sendsMutation: boolean };
         }>;
         populationPlacement: {
           yieldTypeOrder: string[];
-          workablePlots: Array<{ yieldDelta: { YIELD_HAPPINESS: number; happiness?: number }; cli: string }>;
+          workablePlots: Array<{
+            yieldDelta: { YIELD_HAPPINESS: number; happiness?: number };
+            nextAction: { kind: string; parameters: { location: number; x: number; y: number }; sendsMutation: boolean };
+          }>;
           expansionCandidates: Array<{
             constructibleName: string;
             yieldSource: string;
             yieldSummary: { YIELD_FOOD: number; YIELD_PRODUCTION: number; food?: number };
             terrainName: string;
-            cli: string;
+            nextAction: { kind: string; parameters: { x: number; y: number }; sendsMutation: boolean };
           }>;
         };
-        next: string;
+        nextAction: { kind: string; parameters: { location: number }; sendsMutation: boolean };
         warnings: string[];
         omitted: Array<{ path: string }>;
         view?: unknown;
       };
       expect(payload.contractVersion).toBe('play-agent-v0');
-      expect(payload.command).toBe('game play ready-city');
+      expect(payload.surface).toBe('ready-city');
       expect(payload.summary).toContain('Dur-Sharrukin');
       expect(payload.productionCandidates[0]).toMatchObject({
         kind: 'constructible',
@@ -91,17 +94,43 @@ describe('game play ready-city command', () => {
         valid: true,
       });
       expect(payload.productionCandidates[0].placementPlots[0]).toMatchObject({ x: 22, y: 31 });
-      expect(payload.productionCandidates[0].cli).toContain('game play build-production');
+      expect(payload.productionCandidates[0].nextAction).toMatchObject({
+        kind: 'choose-production',
+        sendsMutation: true,
+      });
       expect(payload.populationPlacement.yieldTypeOrder).toContain('YIELD_DIPLOMACY');
       expect(payload.populationPlacement.workablePlots[0].yieldDelta.YIELD_HAPPINESS).toBe(2);
       expect(payload.populationPlacement.workablePlots[0].yieldDelta.happiness).toBeUndefined();
-      expect(payload.populationPlacement.workablePlots[0].cli).toContain('assign-worker');
+      expect(payload.populationPlacement.workablePlots[0].nextAction).toMatchObject({
+        kind: 'assign-worker',
+        parameters: {
+          location: 1457,
+          x: 22,
+          y: 31,
+        },
+        sendsMutation: true,
+      });
       expect(payload.populationPlacement.expansionCandidates[0].constructibleName).toBe('Walls');
       expect(payload.populationPlacement.expansionCandidates[0].yieldSource).toBe('GameplayMap.getYieldsWithCity(plotIndex, cityId)');
       expect(payload.populationPlacement.expansionCandidates[0].yieldSummary).toMatchObject({ YIELD_FOOD: 2, YIELD_PRODUCTION: 1 });
       expect(payload.populationPlacement.expansionCandidates[0].yieldSummary.food).toBeUndefined();
       expect(payload.populationPlacement.expansionCandidates[0].terrainName).toBe('Grassland');
-      expect(payload.next).toContain('assign-worker');
+      expect(payload.populationPlacement.expansionCandidates[0].nextAction).toMatchObject({
+        kind: 'expand-city',
+        parameters: {
+          x: 23,
+          y: 31,
+        },
+        sendsMutation: true,
+      });
+      expect(payload.nextAction).toMatchObject({
+        kind: 'assign-worker',
+        parameters: {
+          location: 1457,
+        },
+        sendsMutation: true,
+      });
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.warnings.join(' ')).toContain('Read-only city dashboard');
       expect(payload.omitted.some((item) => item.path === 'view.productionCandidates[].result')).toBe(true);
       expect(payload.omitted.some((item) => item.path === 'view.populationPlacement.allPlacementInfo')).toBe(true);
