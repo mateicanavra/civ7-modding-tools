@@ -19,9 +19,9 @@ Civ selected the requested map row, map size, and setup seed.
 ## What Changes
 
 - Add App UI setup snapshot and frontend map-row verification wrappers.
-- Add approved setup mutation wrappers for map script, map size, map seed, and
+- Add explicit setup mutation wrappers for map script, map size, map seed, and
   bounded setup options.
-- Add approved start/orchestration wrappers that verify expected setup before
+- Add start/orchestration wrappers that verify expected setup before
   start and Tuner/runtime postconditions after start.
 - Keep setup/start command strings private to `@civ7/direct-control`.
 - Add no-replay failure behavior for setup/start mutations.

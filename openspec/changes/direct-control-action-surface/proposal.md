@@ -17,8 +17,8 @@ not raw JavaScript snippets or hidden fallbacks.
 ## What Changes
 
 - Add explicit mutating wrappers for restart/begin, autoplay, reveal/explore,
-  turn-complete where available, operation validators, and approved operation
-  request execution.
+  turn-complete where available, operation validators, and validator-first
+  operation request execution.
 - Require validator-first contracts and before/after proof for mutations.
 - Prevent automatic mutation replay after socket failure.
 
@@ -29,7 +29,7 @@ not raw JavaScript snippets or hidden fallbacks.
 
 ## Enables Parallel Work
 
-- Approved autoplay smoke tests, either native unbounded or turn-bounded.
+- Autoplay smoke tests, either native unbounded or turn-bounded.
 - Supervised gameplay command execution.
 - LLM-agent action proposals with validator proof.
 
@@ -49,8 +49,8 @@ not raw JavaScript snippets or hidden fallbacks.
 
 - A required action cannot be performed directly from App UI or Tuner.
 - Operation validation results cannot be observed or serialized reliably.
-- The required proof would mutate an unsafe non-disposable session without user
-  permission.
+- The required proof would mutate an unsafe non-disposable session without
+  explicit disposable-session proof.
 
 ## Consumer Impact
 

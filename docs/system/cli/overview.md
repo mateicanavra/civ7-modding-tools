@@ -76,7 +76,7 @@ This document tracks completed work and upcoming enhancements for the CLI and XM
   - `civ7 game map` reads map summaries, individual plot snapshots, and bounded
     map grids through package-owned wrappers.
   - `civ7 game visibility` reads player visibility and gates disposable debug
-    reveal behind explicit approval flags.
+    reveal behind explicit mutation flags and proof output.
   - `civ7 game gameinfo` reads bounded `GameInfo` rows without arbitrary SQL.
   - `civ7 game autoplay` wraps native Autoplay status/configure/start/stop.
   - `civ7 game operation` validates and optionally sends Unit/City/Player

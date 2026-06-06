@@ -33,7 +33,7 @@ result, request output, and postcondition snapshot where one is available.
 
 ## Selected Safe Gameplay/Debug Actions
 
-The first approved actions are explicit autoplay, reveal/explore for developer
+The first explicit actions are autoplay, reveal/explore for developer
 visibility debugging, turn complete/unready, and generic operation validators.
 Generic request wrappers exist but classify high-risk operation types and
 require the caller to pass the exact operation family, target id, operation

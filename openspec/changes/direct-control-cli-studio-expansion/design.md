@@ -14,7 +14,7 @@ Add or extend `civ7 game` commands so developers can:
 - reveal/explore map for a player with explicit mutation warning in command
   naming/help;
 - validate unit/city/player operations;
-- request approved operations through validator-first package wrappers;
+- request operations through validator-first package wrappers;
 - generate/print capability catalog snapshots.
 
 ## Studio Shape
