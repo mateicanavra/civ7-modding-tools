@@ -939,9 +939,13 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** first-ready-unit evidence may project as ready-unit source coverage,
   but selected-unit ids are only hints and MUST NOT become ready-unit blockers
 - **AND** ready-city source reads remain `skipped-unsupported` in game UI
-  context until an official ready-city source exists; selected-city ids and
-  notification target ids are only hints and MUST NOT become ready-city
-  blockers
+  context when official ready-city source evidence is absent
+- **AND** the game UI controller adapter MAY project ready-city source coverage
+  from official evidence only: an end-turn-blocking notification target that
+  resolves to a city, or local-player `Players.Cities` plus
+  `Cities.get(...).Growth.isReadyToPlacePopulation` evidence
+- **AND** selected-city ids, requested city ids, and unrelated notification
+  target ids are only hints and MUST NOT become ready-city blockers
 - **AND** `attention.current` does not recommend `end-turn` without ready actor
   source coverage
 - **AND** truncated notification coverage is marked in the controller read

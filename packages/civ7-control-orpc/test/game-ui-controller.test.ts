@@ -3137,6 +3137,105 @@ describe("Civ7 game UI controller bootstrap", () => {
       .not.toContain("end-turn");
   });
 
+  test("uses blocking notification target city evidence as ready city source", async () => {
+    const cityId = { owner: 0, id: 704, type: 1 };
+    const target = gameUiNotificationTarget(notificationId, {
+      blocksTurnAdvancement: true,
+      notificationTarget: cityId,
+      readyCity: { cityId },
+      canEndTurn: true,
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "attention.current",
+      input: {},
+      correlationId: "game-ui-attention-blocking-city-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sourceStatus: {
+          readyUnit: "read",
+          readyCity: "read",
+        },
+        summary: {
+          blockerCount: 2,
+          readyActorCount: 1,
+        },
+        blockers: expect.arrayContaining([
+          expect.objectContaining({
+            source: "ready-city",
+            componentId: cityId,
+            evidence: ["game-ui-ready-city-source"],
+          }),
+        ]),
+        readyActors: [{
+          kind: "city",
+          componentId: cityId,
+          operationCount: 0,
+          evidence: ["game-ui-ready-city-source"],
+        }],
+        nextSteps: expect.arrayContaining([
+          expect.objectContaining({
+            kind: "act-ready-city",
+            source: "ready-city",
+          }),
+        ]),
+      },
+    });
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
+      .not.toContain("end-turn");
+  });
+
+  test("uses population-ready city evidence as ready city source", async () => {
+    const cityId = { owner: 0, id: 705, type: 1 };
+    const target = gameUiNotificationTarget(notificationId, {
+      blocksTurnAdvancement: false,
+      readyCity: { cityId, populationReady: true },
+      canEndTurn: true,
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "attention.current",
+      input: {},
+      correlationId: "game-ui-attention-population-city-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sourceStatus: {
+          readyUnit: "read",
+          readyCity: "read",
+        },
+        summary: {
+          blockerCount: 1,
+          readyActorCount: 1,
+        },
+        blockers: [{
+          source: "ready-city",
+          componentId: cityId,
+          evidence: ["game-ui-ready-city-source"],
+        }],
+        readyActors: [{
+          kind: "city",
+          componentId: cityId,
+          operationCount: 0,
+          evidence: ["game-ui-ready-city-source"],
+        }],
+        nextSteps: [{
+          kind: "act-ready-city",
+          source: "ready-city",
+        }],
+      },
+    });
+    expect(response.ok && response.output.nextSteps.map((step) => step.kind))
+      .not.toContain("end-turn");
+  });
+
   test("treats truncated game UI notification coverage as incomplete attention evidence", async () => {
     const target = gameUiNotificationTarget(notificationId, {
       blocksTurnAdvancement: false,
@@ -3454,6 +3553,10 @@ function gameUiNotificationTarget(
     notificationTarget?: { owner: number; id: number; type: number };
     notificationTypeName?: string;
     canEndTurn?: boolean;
+    readyCity?: {
+      cityId: { owner: number; id: number; type: number };
+      populationReady?: boolean;
+    };
     turnCompletion?: {
       initiallySent?: boolean;
       onSend?: () => void;
@@ -3698,7 +3801,9 @@ function gameUiNotificationTarget(
     ProgressionTreeNodeTypes: options.progressionChoice == null
       ? undefined
       : { NO_NODE: -1 },
-    Cities: options.productionChoice == null && options.populationPlacement == null
+    Cities: options.productionChoice == null
+        && options.populationPlacement == null
+        && options.readyCity == null
       ? undefined
       : {
           get: (id) =>
@@ -3748,6 +3853,16 @@ function gameUiNotificationTarget(
                 },
               };
               })()
+              : componentIdEqual(id, options.readyCity?.cityId)
+              ? {
+                id: options.readyCity?.cityId,
+                isTown: false,
+                population: 3,
+                Growth: {
+                  isReadyToPlacePopulation:
+                    options.readyCity?.populationReady === true,
+                },
+              }
               : null,
         },
     GameplayMap: {
@@ -4137,6 +4252,16 @@ function gameUiNotificationTarget(
       : { beginAcknowledgePlayerSequence: () => true },
     Players: {
       ...target.Players,
+      Cities: options.readyCity == null
+        ? target.Players?.Cities
+        : {
+            get: (playerId: number) => ({
+              getCityIds: () =>
+                playerId === target.GameContext?.localPlayerID
+                  ? [options.readyCity?.cityId]
+                  : [],
+            }),
+          },
       get: (playerId) =>
         playerId === 0 && options.populationPlacement != null
           ? {

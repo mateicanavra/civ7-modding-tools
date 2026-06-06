@@ -435,7 +435,9 @@ function sourceReadStatus(
       ? "read"
       : "skipped-unsupported";
   }
-  return "skipped-unsupported";
+  const readyCityId = result.cityId
+    ?? probeValue<Civ7ComponentId>(result.blockingCityId);
+  return readyCityId == null ? "skipped-unsupported" : "read";
 }
 
 function canRecommendEndTurn(

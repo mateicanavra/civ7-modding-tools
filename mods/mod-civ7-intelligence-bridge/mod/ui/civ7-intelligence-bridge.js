@@ -27242,7 +27242,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-XAMKWLBN.js
+// ../../packages/civ7-control-orpc/dist/chunk-CR22UR4G.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -30954,7 +30954,8 @@ function sourceReadStatus(attempted, result) {
   if ("unitId" in result) {
     return result.firstReadyUnitId.ok === true ? "read" : "skipped-unsupported";
   }
-  return "skipped-unsupported";
+  const readyCityId = result.cityId ?? probeValue4(result.blockingCityId);
+  return readyCityId == null ? "skipped-unsupported" : "read";
 }
 function canRecommendEndTurn(turnCompletion) {
   if (probeValue4(turnCompletion?.canEndTurn) !== true) return false;
@@ -34469,27 +34470,30 @@ async function getCiv7GameUiReadyUnitView(input = {}, target = globalThis) {
   };
 }
 async function getCiv7GameUiReadyCityView(input = {}, target = globalThis) {
+  const localPlayerId = target.GameContext?.localPlayerID ?? -1;
   const selectedCityId = probe2(
     () => toComponentId2(target.UI?.Player?.getHeadSelectedCity?.())
   );
   const requestedCityId = toComponentId2(input.cityId);
+  const blockingCityId = gameUiReadyCityId(target, localPlayerId);
+  const cityId = blockingCityId.ok ? blockingCityId.value : null;
   return {
     host: "game-ui",
     port: 0,
     state: { id: "game-ui", name: "Game UI" },
-    localPlayerId: target.GameContext?.localPlayerID ?? -1,
+    localPlayerId,
     requestedCityId,
     selectedCityId,
-    blockingCityId: ok(null),
-    cityId: null,
-    city: ok(null),
+    blockingCityId,
+    cityId,
+    city: probe2(() => cityId == null ? null : target.Cities?.get?.(cityId) ?? null),
     legalOperations: [],
     productionCandidates: ok([]),
     townFocusOptions: ok([]),
     populationPlacement: ok(null),
     notes: [
-      "Game UI controller attention adapter does not have official ready-city evidence yet.",
-      "Requested, selected, and notification-target city ids are hints only; they are not ready-city proof.",
+      "Game UI controller attention adapter treats end-turn-blocking notification target or population-ready city evidence as ready-city evidence.",
+      "Requested, selected, and unrelated notification-target city ids are hints only; they are not ready-city proof.",
       "Production and city-operation candidates remain empty in game UI scope; use validator-backed mutation procedures before any send."
     ]
   };
@@ -34629,6 +34633,40 @@ function gameUiEndTurnBlocker(target, playerId) {
   return probe2(
     () => target.Game?.Notifications?.getEndTurnBlockingType?.(playerId) ?? null
   );
+}
+function gameUiReadyCityId(target, playerId) {
+  return probe2(() => {
+    const blockerCityId = gameUiBlockingNotificationCityId(target, playerId);
+    if (blockerCityId != null) return blockerCityId;
+    return gameUiPopulationReadyCityId(target, playerId);
+  });
+}
+function gameUiBlockingNotificationCityId(target, playerId) {
+  const notifications = target.Game?.Notifications;
+  const blockerType = notifications?.getEndTurnBlockingType?.(playerId);
+  const blockerId = notifications?.findEndTurnBlocking?.(playerId, blockerType);
+  const blocker = blockerId == null ? null : notifications?.find?.(blockerId);
+  const targetId = toComponentId2(notificationValue2(blocker, "Target"));
+  if (targetId == null) return null;
+  return target.Cities?.get?.(targetId) == null ? null : targetId;
+}
+function gameUiPopulationReadyCityId(target, playerId) {
+  const cities = target.Players?.Cities?.get?.(playerId);
+  const cityIds = readCityIds(cities);
+  for (const cityId of cityIds) {
+    const city = target.Cities?.get?.(cityId);
+    if (city == null || typeof city !== "object") continue;
+    const growth = city.Growth;
+    if (growth?.isReadyToPlacePopulation === true) return cityId;
+  }
+  return null;
+}
+function readCityIds(value2) {
+  if (value2 == null || typeof value2 !== "object") return [];
+  const candidate2 = value2;
+  const ids3 = safeValue2(() => candidate2.getCityIds?.(), []);
+  if (!Array.isArray(ids3)) return [];
+  return ids3.map(toComponentId2).filter(isPresent2);
 }
 function clampMaxNotifications(value2) {
   if (value2 == null) return 25;

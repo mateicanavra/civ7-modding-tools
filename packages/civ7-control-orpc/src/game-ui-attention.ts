@@ -42,6 +42,11 @@ export type Civ7GameUiAttentionTarget = Readonly<{
       ) => Civ7ControlOrpcComponentId | null;
     };
   };
+  Players?: {
+    Cities?: {
+      get?: (playerId: number) => unknown;
+    };
+  };
   UI?: {
     Player?: {
       getHeadSelectedUnit?: () => unknown;
@@ -190,28 +195,31 @@ export async function getCiv7GameUiReadyCityView(
   input: Civ7GameUiReadyCityOptions = {},
   target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget,
 ): Promise<Civ7ControlOrpcReadyCityViewResult> {
+  const localPlayerId = target.GameContext?.localPlayerID ?? -1;
   const selectedCityId = probe(() =>
     toComponentId(target.UI?.Player?.getHeadSelectedCity?.())
   );
   const requestedCityId = toComponentId(input.cityId);
+  const blockingCityId = gameUiReadyCityId(target, localPlayerId);
+  const cityId = blockingCityId.ok ? blockingCityId.value : null;
 
   return {
     host: "game-ui",
     port: 0,
     state: { id: "game-ui", name: "Game UI" },
-    localPlayerId: target.GameContext?.localPlayerID ?? -1,
+    localPlayerId,
     requestedCityId,
     selectedCityId,
-    blockingCityId: ok(null),
-    cityId: null,
-    city: ok(null),
+    blockingCityId,
+    cityId,
+    city: probe(() => cityId == null ? null : target.Cities?.get?.(cityId) ?? null),
     legalOperations: [],
     productionCandidates: ok([]),
     townFocusOptions: ok([]),
     populationPlacement: ok(null),
     notes: [
-      "Game UI controller attention adapter does not have official ready-city evidence yet.",
-      "Requested, selected, and notification-target city ids are hints only; they are not ready-city proof.",
+      "Game UI controller attention adapter treats end-turn-blocking notification target or population-ready city evidence as ready-city evidence.",
+      "Requested, selected, and unrelated notification-target city ids are hints only; they are not ready-city proof.",
       "Production and city-operation candidates remain empty in game UI scope; use validator-backed mutation procedures before any send.",
     ],
   };
@@ -407,6 +415,54 @@ function gameUiEndTurnBlocker(
   return probe(() =>
     target.Game?.Notifications?.getEndTurnBlockingType?.(playerId) ?? null
   );
+}
+
+function gameUiReadyCityId(
+  target: Civ7GameUiAttentionTarget,
+  playerId: number,
+): RuntimeProbe<Civ7ControlOrpcComponentId | null> {
+  return probe(() => {
+    const blockerCityId = gameUiBlockingNotificationCityId(target, playerId);
+    if (blockerCityId != null) return blockerCityId;
+    return gameUiPopulationReadyCityId(target, playerId);
+  });
+}
+
+function gameUiBlockingNotificationCityId(
+  target: Civ7GameUiAttentionTarget,
+  playerId: number,
+): Civ7ControlOrpcComponentId | null {
+  const notifications = target.Game?.Notifications;
+  const blockerType = notifications?.getEndTurnBlockingType?.(playerId);
+  const blockerId = notifications?.findEndTurnBlocking?.(playerId, blockerType);
+  const blocker = blockerId == null ? null : notifications?.find?.(blockerId);
+  const targetId = toComponentId(notificationValue(blocker, "Target"));
+  if (targetId == null) return null;
+  return target.Cities?.get?.(targetId) == null ? null : targetId;
+}
+
+function gameUiPopulationReadyCityId(
+  target: Civ7GameUiAttentionTarget,
+  playerId: number,
+): Civ7ControlOrpcComponentId | null {
+  const cities = target.Players?.Cities?.get?.(playerId);
+  const cityIds = readCityIds(cities);
+  for (const cityId of cityIds) {
+    const city = target.Cities?.get?.(cityId);
+    if (city == null || typeof city !== "object") continue;
+    const growth = (city as { Growth?: { isReadyToPlacePopulation?: unknown } })
+      .Growth;
+    if (growth?.isReadyToPlacePopulation === true) return cityId;
+  }
+  return null;
+}
+
+function readCityIds(value: unknown): Civ7ControlOrpcComponentId[] {
+  if (value == null || typeof value !== "object") return [];
+  const candidate = value as { getCityIds?: () => unknown };
+  const ids = safeValue(() => candidate.getCityIds?.(), []);
+  if (!Array.isArray(ids)) return [];
+  return ids.map(toComponentId).filter(isPresent);
 }
 
 function clampMaxNotifications(value: number | undefined): number {
