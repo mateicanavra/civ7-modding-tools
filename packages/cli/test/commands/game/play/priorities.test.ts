@@ -137,17 +137,26 @@ describe('game play priorities command', () => {
     }
   });
 
-  test('surfaces unit-command reconciliation command in compact priorities', async () => {
+  test('surfaces unit-command reconciliation validation in compact priorities', async () => {
     const { payload, server } = await runPriorities('stale-unit-command');
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:unit-command');
-      expect(top.nextAction).toMatchObject({ kind: 'validate-unit-command', sendsMutation: true });
+      expect(top.nextAction).toMatchObject({
+        kind: 'validate-unit-command',
+        readOnly: true,
+        sendsMutation: false,
+      });
       expect(top.nextAction?.parameters).toMatchObject({
         operationType: 'SKIP_TURN',
         unitId: { owner: 0, id: 196609, type: 26 },
       });
       expect(payload.nextAction).toEqual(top.nextAction);
+      expect(payload.semanticEnvelope.actions[0]).toMatchObject({
+        kind: 'validate-unit-command',
+        readOnly: true,
+        sendsMutation: false,
+      });
       expect(top.reason).toContain('enabled unit command candidate');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);

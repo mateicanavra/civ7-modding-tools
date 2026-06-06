@@ -238,12 +238,13 @@ function buildCompactView(view: PriorityView): {
 function actionForPriority(item: Civ7AttentionPrioritiesResult['priorities'][number]): PriorityActionDescriptor | undefined {
   const step = item.nextStep;
   if (step == null) return undefined;
+  const sendsMutation = ['send-turn-complete', 'end-turn'].includes(step.kind);
   return {
     kind: step.kind,
     label: step.label,
     parameters: step.parameters,
-    readOnly: !['send-turn-complete', 'end-turn', 'validate-unit-command'].includes(step.kind),
-    sendsMutation: ['send-turn-complete', 'end-turn', 'validate-unit-command'].includes(step.kind),
+    readOnly: !sendsMutation,
+    sendsMutation,
   };
 }
 
