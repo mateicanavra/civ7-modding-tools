@@ -1038,6 +1038,14 @@ adding more read-only facade shells.
     relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
     caller-provided approval remains retired and no approval-reason mechanic is
     introduced.
+  - [x] 7.1.9.42 Simplify compact omission reasons for ready-city,
+    unit-move-preview, and priorities so omitted metadata describes the
+    semantic evidence boundary instead of telling callers which JSON/compact
+    flags to use. Keep omitted paths, action descriptors, parser flags,
+    runtime behavior, service contracts/routers, controller bridge, deployed
+    Civ7 proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
+    unchanged; caller-provided approval remains retired and no approval-reason
+    mechanic is introduced.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -2168,6 +2176,16 @@ adding more read-only facade shells.
   change parser flags, direct-control/runtime behavior, service contracts,
   deployed Civ7 runtime behavior, play-thread state, transport/controller
   scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.56 Run focused CLI ready-city, unit-move-preview, and priorities
+  compact tests, CLI check, strict OpenSpec validates, compact omission
+  interface-instruction absence scan, active approval/caller-permission scan,
+  relationship-label safety scan, and diff hygiene for the compact omission
+  reason cleanup. This is local CLI/OpenSpec proof only; it does not change
+  parser flags, direct-control/runtime behavior, service contracts, deployed
+  Civ7 runtime behavior, play-thread state, transport/controller scope,
+  relationship authority, or parent Task 5.x/6.x/7.x acceptance;
   caller-provided approval remains retired and no approval-reason mechanic is
   introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package

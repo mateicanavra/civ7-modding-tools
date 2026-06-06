@@ -137,10 +137,10 @@ function buildCompactView(view: ReadyCityView): {
       'Expansion candidate plot yields are map yield facts plus constructible context, not a post-send yield guarantee.',
     ],
     omitted: [
-      { path: 'view.productionCandidates[].result', reason: 'compact rows expose valid/action/template fields; use --json without --compact for raw BUILD validation payloads' },
-      { path: 'view.townFocusOptions', reason: 'use --json without --compact for all town focus options' },
-      { path: 'view.populationPlacement.allPlacementInfo', reason: 'use --json without --compact for raw placement info' },
-      { path: 'view.legalOperations[].result', reason: 'use --json without --compact for raw validation payloads' },
+      { path: 'view.productionCandidates[].result', reason: 'compact rows expose valid/action/template fields; raw BUILD validation payloads are omitted' },
+      { path: 'view.townFocusOptions', reason: 'compact output keeps town-focus counts and selected actions, not the full option catalog' },
+      { path: 'view.populationPlacement.allPlacementInfo', reason: 'compact output keeps placement candidates and yield deltas, not raw placement internals' },
+      { path: 'view.legalOperations[].result', reason: 'compact output keeps validity and semantic actions, not raw validation payloads' },
     ],
   };
 }

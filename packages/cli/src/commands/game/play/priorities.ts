@@ -224,11 +224,11 @@ function buildCompactView(view: PriorityView): {
     nextAction,
     warnings,
     omitted: [
-      { path: 'view.notes', reason: 'use --json without --compact for full service notes' },
-      { path: 'view.readyUnit', reason: 'use full JSON for ready-unit detail' },
-      { path: 'view.readyCity', reason: 'use full JSON for ready-city detail' },
-      { path: 'view.battlefield.pointsOfInterest', reason: 'use --json without --compact or a tactical lens command for battlefield point detail' },
-      { path: 'priorities[].evidenceLabels', reason: 'use --json without --compact for bounded service evidence labels' },
+      { path: 'view.notes', reason: 'compact output keeps priority notes out of the main action surface' },
+      { path: 'view.readyUnit', reason: 'compact output keeps ready-unit detail summarized by priority rows' },
+      { path: 'view.readyCity', reason: 'compact output keeps ready-city detail summarized by priority rows' },
+      { path: 'view.battlefield.pointsOfInterest', reason: 'compact output keeps battlefield detail summarized by priority rows' },
+      { path: 'priorities[].evidenceLabels', reason: 'compact output omits bounded service evidence labels' },
     ],
     hiddenInfoPolicy: view.battlefield?.hiddenInfoPolicy ?? 'not-expanded',
   };
