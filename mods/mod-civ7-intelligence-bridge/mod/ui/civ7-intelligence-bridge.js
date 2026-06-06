@@ -26562,6 +26562,49 @@ function populationPlacementProofNoRepeatAfterConfirmed(classification) {
   return classification === "placement-state-changed";
 }
 
+// ../../packages/civ7-direct-control/dist/chunk-SBJ4NEBA.js
+function townFocusProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: townFocusProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function townFocusProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
+}
+
+// ../../packages/civ7-direct-control/dist/chunk-NRZVGPXC.js
+function firstMeetResponseProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: firstMeetResponseProofOutcome(result.postcondition),
+    confidence: firstMeetResponseProofConfirmed(result.postcondition) ? "confirmed" : "unverified",
+    noRepeatAfterUnverified: !firstMeetResponseProofConfirmed(result.postcondition)
+  };
+}
+function firstMeetResponseProofOutcome(postcondition) {
+  switch (postcondition.classification) {
+    case "turn-unblocked":
+    case "first-meet-cleared":
+      return "cleared";
+    case "first-meet-blocker-transitioned":
+      return "state-changed";
+    case "first-meet-sticky-blocker":
+      return "still-blocked";
+    case "not-sent":
+      return "not-sent";
+    case "first-meet-blocker-unmatched":
+      return "unknown";
+  }
+}
+function firstMeetResponseProofConfirmed(postcondition) {
+  return postcondition.classification === "turn-unblocked" || postcondition.classification === "first-meet-cleared";
+}
+
 // ../../packages/civ7-direct-control/dist/chunk-B2HNLYNP.js
 function diplomacyResponseProofPostcondition(result, proofBoundary) {
   if (!result.sent && !result.postcondition) return void 0;
@@ -26626,6 +26669,20 @@ function diplomacyResponseProofOutcome(classification) {
     case "no-state-change":
       return "no-state-change";
   }
+}
+
+// ../../packages/civ7-direct-control/dist/chunk-FFKDRHLA.js
+function governmentChoiceProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: governmentChoiceProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function governmentChoiceProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-U2GTLZMO.js
@@ -27027,6 +27084,34 @@ function isRecord(value2) {
   return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
 }
 
+// ../../packages/civ7-direct-control/dist/chunk-35BKMMLH.js
+function progressionTargetProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: progressionTargetProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function progressionTargetProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
+}
+
+// ../../packages/civ7-direct-control/dist/chunk-H6VSHXDZ.js
+function progressionPlayerChoiceProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: progressionPlayerChoiceProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function progressionPlayerChoiceProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
+}
+
 // ../../packages/civ7-direct-control/dist/chunk-CVJ5ZYJP.js
 function turnCompletionProofPostcondition(result, proofBoundary) {
   const classification = turnCompletionPostconditionClassification(result);
@@ -27178,7 +27263,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-5FKFXI2S.js
+// ../../packages/civ7-control-orpc/dist/chunk-ATHCF6HK.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -28126,6 +28211,27 @@ var Civ7UnitTargetActionUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7UnitRequestUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("unit.upgrade.request"),
+      typebox_exports.Literal("unit.resettle.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitRequestUnavailableError = class extends ORPCTaggedError(
+  "Civ7UnitRequestUnavailableError",
+  {
+    code: "UNIT_REQUEST_UNAVAILABLE",
+    message: "Direct-control unit request failed.",
+    schema: toStandardSchema(Civ7UnitRequestUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
 var Civ7NarrativeChoiceUnavailableErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("narrative.choice.request"),
@@ -28162,6 +28268,45 @@ var Civ7DiplomacyResponseUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7FirstMeetResponseUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("diplomacy.firstMeet.response.request"),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponseUnavailableError = class extends ORPCTaggedError(
+  "Civ7FirstMeetResponseUnavailableError",
+  {
+    code: "FIRST_MEET_RESPONSE_UNAVAILABLE",
+    message: "Direct-control first-meet response request failed.",
+    schema: toStandardSchema(Civ7FirstMeetResponseUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
+var Civ7GovernmentChoiceUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("government.choice.request"),
+      typebox_exports.Literal("government.celebration.choice.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoiceUnavailableError = class extends ORPCTaggedError(
+  "Civ7GovernmentChoiceUnavailableError",
+  {
+    code: "GOVERNMENT_CHOICE_UNAVAILABLE",
+    message: "Direct-control government-domain choice request failed.",
+    schema: toStandardSchema(Civ7GovernmentChoiceUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
 var Civ7ProgressionChoiceUnavailableErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Union([
@@ -28179,6 +28324,52 @@ var Civ7ProgressionChoiceUnavailableError = class extends ORPCTaggedError(
     code: "PROGRESSION_CHOICE_UNAVAILABLE",
     message: "Direct-control progression choice request failed.",
     schema: toStandardSchema(Civ7ProgressionChoiceUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
+var Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("progression.attribute.purchase.request"),
+      typebox_exports.Literal("progression.attribute.review.request"),
+      typebox_exports.Literal("progression.tradition.change.request"),
+      typebox_exports.Literal("progression.tradition.review.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerChoiceUnavailableError = class extends ORPCTaggedError(
+  "Civ7ProgressionPlayerChoiceUnavailableError",
+  {
+    code: "PROGRESSION_PLAYER_CHOICE_UNAVAILABLE",
+    message: "Direct-control progression player-choice request failed.",
+    schema: toStandardSchema(
+      Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema
+    ),
+    status: 503
+  }
+) {
+};
+var Civ7ProgressionTargetUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("progression.technology.target.request"),
+      typebox_exports.Literal("progression.culture.target.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTargetUnavailableError = class extends ORPCTaggedError(
+  "Civ7ProgressionTargetUnavailableError",
+  {
+    code: "PROGRESSION_TARGET_UNAVAILABLE",
+    message: "Direct-control progression target request failed.",
+    schema: toStandardSchema(Civ7ProgressionTargetUnavailableErrorDataSchema),
     status: 503
   }
 ) {
@@ -28285,6 +28476,27 @@ var Civ7ProductionChoiceUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7TownFocusUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("city.townFocus.change.request"),
+      typebox_exports.Literal("city.townFocus.review.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7TownFocusUnavailableError = class extends ORPCTaggedError(
+  "Civ7TownFocusUnavailableError",
+  {
+    code: "TOWN_FOCUS_UNAVAILABLE",
+    message: "Direct-control town focus request failed.",
+    schema: toStandardSchema(Civ7TownFocusUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
 var Civ7PopulationPlacementUnavailableErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.population.place.request"),
@@ -28324,6 +28536,8 @@ var civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
+  FIRST_MEET_RESPONSE_UNAVAILABLE: Civ7FirstMeetResponseUnavailableError,
+  GOVERNMENT_CHOICE_UNAVAILABLE: Civ7GovernmentChoiceUnavailableError,
   MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
@@ -28331,10 +28545,14 @@ var civ7ControlOrpcErrorMap = {
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
+  PROGRESSION_PLAYER_CHOICE_UNAVAILABLE: Civ7ProgressionPlayerChoiceUnavailableError,
+  PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
+  TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
+  UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError
 };
 var civ7ControlOrpcContractBase = eoc.$meta({}).errors(civ7ControlOrpcErrorMap);
@@ -28575,6 +28793,21 @@ var Civ7CityPopulationPlacementInputSchema = typebox_exports.Union([
 var Civ7CityPopulationPlacementInputStandardSchema = toStandardSchema(
   Civ7CityPopulationPlacementInputSchema
 );
+var Civ7CityTownFocusChangeInputSchema = typebox_exports.Object(
+  {
+    cityId: Civ7ControlOrpcComponentIdSchema,
+    growthType: typebox_exports.Integer(),
+    projectType: typebox_exports.Integer(),
+    city: typebox_exports.Optional(typebox_exports.Integer())
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusReviewInputSchema = typebox_exports.Object(
+  {
+    cityId: Civ7ControlOrpcComponentIdSchema
+  },
+  { additionalProperties: false }
+);
 var Civ7CityPopulationPlacementModeSchema = typebox_exports.Union([
   typebox_exports.Literal("assign-worker"),
   typebox_exports.Literal("expand-city")
@@ -28739,6 +28972,98 @@ var Civ7CityProductionChoiceResultSchema = typebox_exports.Object(
 var Civ7CityProductionChoiceResultStandardSchema = toStandardSchema(
   Civ7CityProductionChoiceResultSchema
 );
+var Civ7CityTownFocusPostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("pending-runtime-proof"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7CityTownFocusProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7CityTownFocusRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7CityTownFocusValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusPostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7CityTownFocusPostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7CityTownFocusProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("unverified"),
+      typebox_exports.Literal("pending-runtime-proof")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusChangeNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-town-focus")
+    ]),
+    source: typebox_exports.Literal("city.townFocus.change.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusReviewNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-town-focus")
+    ]),
+    source: typebox_exports.Literal("city.townFocus.review.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusResultBaseSchema = {
+  cityId: Civ7ControlOrpcComponentIdSchema,
+  sent: typebox_exports.Boolean(),
+  status: Civ7CityTownFocusRequestStatusSchema,
+  validation: Civ7CityTownFocusValidationSummarySchema,
+  postcondition: Civ7CityTownFocusPostconditionSummarySchema
+};
+var Civ7CityTownFocusChangeResultSchema = typebox_exports.Object(
+  {
+    ...Civ7CityTownFocusResultBaseSchema,
+    growthType: typebox_exports.Integer(),
+    projectType: typebox_exports.Integer(),
+    city: typebox_exports.Integer(),
+    nextSteps: typebox_exports.Array(Civ7CityTownFocusChangeNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusReviewResultSchema = typebox_exports.Object(
+  {
+    ...Civ7CityTownFocusResultBaseSchema,
+    nextSteps: typebox_exports.Array(Civ7CityTownFocusReviewNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusChangeInputStandardSchema = toStandardSchema(
+  Civ7CityTownFocusChangeInputSchema
+);
+var Civ7CityTownFocusReviewInputStandardSchema = toStandardSchema(
+  Civ7CityTownFocusReviewInputSchema
+);
+var Civ7CityTownFocusChangeResultStandardSchema = toStandardSchema(
+  Civ7CityTownFocusChangeResultSchema
+);
+var Civ7CityTownFocusReviewResultStandardSchema = toStandardSchema(
+  Civ7CityTownFocusReviewResultSchema
+);
 var Civ7CityPopulationPlacementContract = civ7ControlOrpcContractBase.input(Civ7CityPopulationPlacementInputStandardSchema).output(Civ7CityPopulationPlacementResultStandardSchema).meta({
   family: "city",
   procedureKey: "city.population.place.request",
@@ -28751,6 +29076,18 @@ var Civ7CityProductionChoiceContract = civ7ControlOrpcContractBase.input(Civ7Cit
   proofBoundary: "local-package-test",
   risk: "mutation"
 });
+var Civ7CityTownFocusChangeContract = civ7ControlOrpcContractBase.input(Civ7CityTownFocusChangeInputStandardSchema).output(Civ7CityTownFocusChangeResultStandardSchema).meta({
+  family: "city",
+  procedureKey: "city.townFocus.change.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7CityTownFocusReviewContract = civ7ControlOrpcContractBase.input(Civ7CityTownFocusReviewInputStandardSchema).output(Civ7CityTownFocusReviewResultStandardSchema).meta({
+  family: "city",
+  procedureKey: "city.townFocus.review.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
 var Civ7CityContract = {
   population: {
     place: {
@@ -28760,6 +29097,14 @@ var Civ7CityContract = {
   production: {
     choice: {
       request: Civ7CityProductionChoiceContract
+    }
+  },
+  townFocus: {
+    change: {
+      request: Civ7CityTownFocusChangeContract
+    },
+    review: {
+      request: Civ7CityTownFocusReviewContract
     }
   }
 };
@@ -28843,11 +29188,92 @@ var Civ7DiplomacyResponseResultSchema = typebox_exports.Object(
   },
   { additionalProperties: false }
 );
+var Civ7FirstMeetResponseInputSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    metPlayerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    responseType: typebox_exports.Integer()
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponsePostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("turn-unblocked"),
+  typebox_exports.Literal("first-meet-cleared"),
+  typebox_exports.Literal("first-meet-blocker-transitioned"),
+  typebox_exports.Literal("first-meet-sticky-blocker"),
+  typebox_exports.Literal("first-meet-blocker-unmatched"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7FirstMeetResponseProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("cleared"),
+  typebox_exports.Literal("state-changed"),
+  typebox_exports.Literal("still-blocked"),
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7FirstMeetResponseRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-confirmed"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7FirstMeetResponseValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponsePostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7FirstMeetResponsePostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7FirstMeetResponseProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("confirmed"),
+      typebox_exports.Literal("unverified")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponseNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("refresh-attention"),
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-first-meet-response")
+    ]),
+    source: typebox_exports.Literal("diplomacy.firstMeet.response.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponseResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    metPlayerId: typebox_exports.Integer({ minimum: 0 }),
+    responseType: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7FirstMeetResponseRequestStatusSchema,
+    validation: Civ7FirstMeetResponseValidationSummarySchema,
+    postcondition: Civ7FirstMeetResponsePostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7FirstMeetResponseNextStepSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7DiplomacyResponseInputStandardSchema = toStandardSchema(
   Civ7DiplomacyResponseInputSchema
 );
 var Civ7DiplomacyResponseResultStandardSchema = toStandardSchema(
   Civ7DiplomacyResponseResultSchema
+);
+var Civ7FirstMeetResponseInputStandardSchema = toStandardSchema(
+  Civ7FirstMeetResponseInputSchema
+);
+var Civ7FirstMeetResponseResultStandardSchema = toStandardSchema(
+  Civ7FirstMeetResponseResultSchema
 );
 var Civ7DiplomacyResponseContract = civ7ControlOrpcContractBase.input(Civ7DiplomacyResponseInputStandardSchema).output(Civ7DiplomacyResponseResultStandardSchema).meta({
   family: "diplomacy",
@@ -28855,9 +29281,142 @@ var Civ7DiplomacyResponseContract = civ7ControlOrpcContractBase.input(Civ7Diplom
   proofBoundary: "local-package-test",
   risk: "mutation"
 });
+var Civ7FirstMeetResponseContract = civ7ControlOrpcContractBase.input(Civ7FirstMeetResponseInputStandardSchema).output(Civ7FirstMeetResponseResultStandardSchema).meta({
+  family: "diplomacy",
+  procedureKey: "diplomacy.firstMeet.response.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
 var Civ7DiplomacyContract = {
+  firstMeet: {
+    response: {
+      request: Civ7FirstMeetResponseContract
+    }
+  },
   response: {
     request: Civ7DiplomacyResponseContract
+  }
+};
+var Civ7GovernmentChoiceInputSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    governmentType: typebox_exports.Integer(),
+    action: typebox_exports.Optional(typebox_exports.Integer())
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentCelebrationChoiceInputSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    goldenAgeType: typebox_exports.Integer()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoicePostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("pending-runtime-proof"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7GovernmentChoiceProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7GovernmentChoiceRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7GovernmentChoiceValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoicePostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7GovernmentChoicePostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7GovernmentChoiceProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("unverified"),
+      typebox_exports.Literal("pending-runtime-proof")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoiceNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-government-choice")
+    ]),
+    source: typebox_exports.Literal("government.choice.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentCelebrationChoiceNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-government-choice")
+    ]),
+    source: typebox_exports.Literal("government.celebration.choice.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoiceResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    governmentType: typebox_exports.Integer(),
+    action: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7GovernmentChoiceRequestStatusSchema,
+    validation: Civ7GovernmentChoiceValidationSummarySchema,
+    postcondition: Civ7GovernmentChoicePostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7GovernmentChoiceNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentCelebrationChoiceResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    goldenAgeType: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7GovernmentChoiceRequestStatusSchema,
+    validation: Civ7GovernmentChoiceValidationSummarySchema,
+    postcondition: Civ7GovernmentChoicePostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7GovernmentCelebrationChoiceNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoiceInputStandardSchema = toStandardSchema(Civ7GovernmentChoiceInputSchema);
+var Civ7GovernmentCelebrationChoiceInputStandardSchema = toStandardSchema(Civ7GovernmentCelebrationChoiceInputSchema);
+var Civ7GovernmentChoiceResultStandardSchema = toStandardSchema(Civ7GovernmentChoiceResultSchema);
+var Civ7GovernmentCelebrationChoiceResultStandardSchema = toStandardSchema(Civ7GovernmentCelebrationChoiceResultSchema);
+var Civ7GovernmentChoiceContract = civ7ControlOrpcContractBase.input(Civ7GovernmentChoiceInputStandardSchema).output(Civ7GovernmentChoiceResultStandardSchema).meta({
+  family: "government",
+  procedureKey: "government.choice.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7GovernmentCelebrationChoiceContract = civ7ControlOrpcContractBase.input(Civ7GovernmentCelebrationChoiceInputStandardSchema).output(Civ7GovernmentCelebrationChoiceResultStandardSchema).meta({
+  family: "government",
+  procedureKey: "government.celebration.choice.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7GovernmentContract = {
+  choice: {
+    request: Civ7GovernmentChoiceContract
+  },
+  celebration: {
+    choice: {
+      request: Civ7GovernmentCelebrationChoiceContract
+    }
   }
 };
 var Civ7NarrativeChoiceInputSchema = typebox_exports.Object(
@@ -28958,6 +29517,30 @@ var Civ7ProgressionChoiceInputSchema = typebox_exports.Object(
     playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
     node: typebox_exports.Integer(),
     notificationId: typebox_exports.Optional(Civ7ControlOrpcComponentIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTargetInputSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    node: typebox_exports.Integer()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionAttributePurchaseInputSchema = typebox_exports.Object(
+  {
+    node: typebox_exports.Integer()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerReviewInputSchema = typebox_exports.Object(
+  {},
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionChangeInputSchema = typebox_exports.Object(
+  {
+    traditionType: typebox_exports.Integer(),
+    action: typebox_exports.Integer()
   },
   { additionalProperties: false }
 );
@@ -29066,9 +29649,215 @@ var Civ7ProgressionCultureChoiceResultSchema = typebox_exports.Object(
   },
   { additionalProperties: false }
 );
+var Civ7ProgressionTargetPostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("pending-runtime-proof"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7ProgressionTargetProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7ProgressionTargetRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7ProgressionTargetValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTargetPostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7ProgressionTargetPostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7ProgressionTargetProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("unverified"),
+      typebox_exports.Literal("pending-runtime-proof")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTechnologyTargetNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-target")
+    ]),
+    source: typebox_exports.Literal("progression.technology.target.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionCultureTargetNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-target")
+    ]),
+    source: typebox_exports.Literal("progression.culture.target.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTechnologyTargetResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    node: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7ProgressionTargetRequestStatusSchema,
+    validation: Civ7ProgressionTargetValidationSummarySchema,
+    postcondition: Civ7ProgressionTargetPostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7ProgressionTechnologyTargetNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionCultureTargetResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    node: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7ProgressionTargetRequestStatusSchema,
+    validation: Civ7ProgressionTargetValidationSummarySchema,
+    postcondition: Civ7ProgressionTargetPostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7ProgressionCultureTargetNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerChoicePostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("pending-runtime-proof"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7ProgressionPlayerChoiceProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7ProgressionPlayerChoiceRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7ProgressionPlayerChoiceValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerChoicePostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7ProgressionPlayerChoicePostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7ProgressionPlayerChoiceProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("unverified"),
+      typebox_exports.Literal("pending-runtime-proof")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionAttributePurchaseNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-attribute")
+    ]),
+    source: typebox_exports.Literal("progression.attribute.purchase.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionAttributeReviewNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-attribute")
+    ]),
+    source: typebox_exports.Literal("progression.attribute.review.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionChangeNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-tradition")
+    ]),
+    source: typebox_exports.Literal("progression.tradition.change.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionReviewNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-tradition")
+    ]),
+    source: typebox_exports.Literal("progression.tradition.review.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerChoiceResultBaseSchema = {
+  playerId: typebox_exports.Integer({ minimum: 0 }),
+  sent: typebox_exports.Boolean(),
+  status: Civ7ProgressionPlayerChoiceRequestStatusSchema,
+  validation: Civ7ProgressionPlayerChoiceValidationSummarySchema,
+  postcondition: Civ7ProgressionPlayerChoicePostconditionSummarySchema
+};
+var Civ7ProgressionAttributePurchaseResultSchema = typebox_exports.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    node: typebox_exports.Integer(),
+    nextSteps: typebox_exports.Array(Civ7ProgressionAttributePurchaseNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionAttributeReviewResultSchema = typebox_exports.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    nextSteps: typebox_exports.Array(Civ7ProgressionAttributeReviewNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionChangeResultSchema = typebox_exports.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    traditionType: typebox_exports.Integer(),
+    action: typebox_exports.Integer(),
+    nextSteps: typebox_exports.Array(Civ7ProgressionTraditionChangeNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionReviewResultSchema = typebox_exports.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    nextSteps: typebox_exports.Array(Civ7ProgressionTraditionReviewNextStepSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ProgressionChoiceInputStandardSchema = toStandardSchema(Civ7ProgressionChoiceInputSchema);
+var Civ7ProgressionTargetInputStandardSchema = toStandardSchema(Civ7ProgressionTargetInputSchema);
+var Civ7ProgressionAttributePurchaseInputStandardSchema = toStandardSchema(Civ7ProgressionAttributePurchaseInputSchema);
+var Civ7ProgressionPlayerReviewInputStandardSchema = toStandardSchema(Civ7ProgressionPlayerReviewInputSchema);
+var Civ7ProgressionTraditionChangeInputStandardSchema = toStandardSchema(Civ7ProgressionTraditionChangeInputSchema);
 var Civ7ProgressionTechnologyChoiceResultStandardSchema = toStandardSchema(Civ7ProgressionTechnologyChoiceResultSchema);
 var Civ7ProgressionCultureChoiceResultStandardSchema = toStandardSchema(Civ7ProgressionCultureChoiceResultSchema);
+var Civ7ProgressionTechnologyTargetResultStandardSchema = toStandardSchema(Civ7ProgressionTechnologyTargetResultSchema);
+var Civ7ProgressionCultureTargetResultStandardSchema = toStandardSchema(Civ7ProgressionCultureTargetResultSchema);
+var Civ7ProgressionAttributePurchaseResultStandardSchema = toStandardSchema(Civ7ProgressionAttributePurchaseResultSchema);
+var Civ7ProgressionAttributeReviewResultStandardSchema = toStandardSchema(Civ7ProgressionAttributeReviewResultSchema);
+var Civ7ProgressionTraditionChangeResultStandardSchema = toStandardSchema(Civ7ProgressionTraditionChangeResultSchema);
+var Civ7ProgressionTraditionReviewResultStandardSchema = toStandardSchema(Civ7ProgressionTraditionReviewResultSchema);
 var Civ7ProgressionTechnologyChoiceContract = civ7ControlOrpcContractBase.input(Civ7ProgressionChoiceInputStandardSchema).output(Civ7ProgressionTechnologyChoiceResultStandardSchema).meta({
   family: "progression",
   procedureKey: "progression.technology.choice.request",
@@ -29081,15 +29870,73 @@ var Civ7ProgressionCultureChoiceContract = civ7ControlOrpcContractBase.input(Civ
   proofBoundary: "local-package-test",
   risk: "mutation"
 });
+var Civ7ProgressionTechnologyTargetContract = civ7ControlOrpcContractBase.input(Civ7ProgressionTargetInputStandardSchema).output(Civ7ProgressionTechnologyTargetResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.technology.target.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionCultureTargetContract = civ7ControlOrpcContractBase.input(Civ7ProgressionTargetInputStandardSchema).output(Civ7ProgressionCultureTargetResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.culture.target.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionAttributePurchaseContract = civ7ControlOrpcContractBase.input(Civ7ProgressionAttributePurchaseInputStandardSchema).output(Civ7ProgressionAttributePurchaseResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.attribute.purchase.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionAttributeReviewContract = civ7ControlOrpcContractBase.input(Civ7ProgressionPlayerReviewInputStandardSchema).output(Civ7ProgressionAttributeReviewResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.attribute.review.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionTraditionChangeContract = civ7ControlOrpcContractBase.input(Civ7ProgressionTraditionChangeInputStandardSchema).output(Civ7ProgressionTraditionChangeResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.tradition.change.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionTraditionReviewContract = civ7ControlOrpcContractBase.input(Civ7ProgressionPlayerReviewInputStandardSchema).output(Civ7ProgressionTraditionReviewResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.tradition.review.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
 var Civ7ProgressionContract = {
   technology: {
     choice: {
       request: Civ7ProgressionTechnologyChoiceContract
+    },
+    target: {
+      request: Civ7ProgressionTechnologyTargetContract
     }
   },
   culture: {
     choice: {
       request: Civ7ProgressionCultureChoiceContract
+    },
+    target: {
+      request: Civ7ProgressionCultureTargetContract
+    }
+  },
+  attribute: {
+    purchase: {
+      request: Civ7ProgressionAttributePurchaseContract
+    },
+    review: {
+      request: Civ7ProgressionAttributeReviewContract
+    }
+  },
+  tradition: {
+    change: {
+      request: Civ7ProgressionTraditionChangeContract
+    },
+    review: {
+      request: Civ7ProgressionTraditionReviewContract
     }
   }
 };
@@ -29615,23 +30462,152 @@ var Civ7UnitTargetActionResultSchema = typebox_exports.Object(
 var Civ7UnitTargetActionResultStandardSchema = toStandardSchema(
   Civ7UnitTargetActionResultSchema
 );
+var Civ7UnitUpgradeInputSchema = typebox_exports.Object(
+  {
+    unitId: Civ7ControlOrpcComponentIdSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitUpgradeInputStandardSchema = toStandardSchema(
+  Civ7UnitUpgradeInputSchema
+);
+var Civ7UnitResettleInputSchema = typebox_exports.Object(
+  {
+    unitId: Civ7ControlOrpcComponentIdSchema,
+    destination: Civ7ControlOrpcMapLocationSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitResettleInputStandardSchema = toStandardSchema(
+  Civ7UnitResettleInputSchema
+);
+var Civ7UnitCommandPostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("queue-advanced"),
+  typebox_exports.Literal("selected-unit-changed"),
+  typebox_exports.Literal("activity-changed"),
+  typebox_exports.Literal("unit-state-changed"),
+  typebox_exports.Literal("blocker-changed"),
+  typebox_exports.Literal("validation-changed"),
+  typebox_exports.Literal("no-state-change"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7UnitCommandProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("cleared"),
+  typebox_exports.Literal("state-changed"),
+  typebox_exports.Literal("no-state-change"),
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7UnitCommandRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-confirmed"),
+  typebox_exports.Literal("sent-guarded"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7UnitCommandSummarySchema = typebox_exports.Union([
+  typebox_exports.Object(
+    {
+      kind: typebox_exports.Literal("upgrade"),
+      unitId: Civ7ControlOrpcComponentIdSchema
+    },
+    { additionalProperties: false }
+  ),
+  typebox_exports.Object(
+    {
+      kind: typebox_exports.Literal("resettle"),
+      unitId: Civ7ControlOrpcComponentIdSchema,
+      destination: Civ7ControlOrpcMapLocationSchema
+    },
+    { additionalProperties: false }
+  )
+]);
+var Civ7UnitCommandValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitCommandPostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7UnitCommandPostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7UnitCommandProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("confirmed"),
+      typebox_exports.Literal("unverified")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitCommandNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("refresh-attention"),
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-unit-command")
+    ]),
+    source: typebox_exports.Union([
+      typebox_exports.Literal("unit.upgrade.request"),
+      typebox_exports.Literal("unit.resettle.request")
+    ]),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitCommandResultSchema = typebox_exports.Object(
+  {
+    action: Civ7UnitCommandSummarySchema,
+    sent: typebox_exports.Boolean(),
+    status: Civ7UnitCommandRequestStatusSchema,
+    validation: Civ7UnitCommandValidationSummarySchema,
+    postcondition: Civ7UnitCommandPostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7UnitCommandNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitCommandResultStandardSchema = toStandardSchema(
+  Civ7UnitCommandResultSchema
+);
 var Civ7UnitTargetActionContract = civ7ControlOrpcContractBase.input(Civ7UnitTargetActionInputStandardSchema).output(Civ7UnitTargetActionResultStandardSchema).meta({
   family: "unit",
   procedureKey: "unit.target.action.request",
   proofBoundary: "local-package-test",
   risk: "mutation"
 });
+var Civ7UnitUpgradeContract = civ7ControlOrpcContractBase.input(Civ7UnitUpgradeInputStandardSchema).output(Civ7UnitCommandResultStandardSchema).meta({
+  family: "unit",
+  procedureKey: "unit.upgrade.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7UnitResettleContract = civ7ControlOrpcContractBase.input(Civ7UnitResettleInputStandardSchema).output(Civ7UnitCommandResultStandardSchema).meta({
+  family: "unit",
+  procedureKey: "unit.resettle.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
 var Civ7UnitContract = {
+  resettle: {
+    request: Civ7UnitResettleContract
+  },
   target: {
     action: {
       request: Civ7UnitTargetActionContract
     }
+  },
+  upgrade: {
+    request: Civ7UnitUpgradeContract
   }
 };
 var Civ7ControlOrpcContract = civ7ControlOrpcContractBase.router({
   attention: Civ7AttentionContract,
   city: Civ7CityContract,
   diplomacy: Civ7DiplomacyContract,
+  government: Civ7GovernmentContract,
   narrative: Civ7NarrativeContract,
   notifications: Civ7NotificationsContract,
   progression: Civ7ProgressionContract,
@@ -30355,6 +31331,94 @@ function cityPopulationPlacementPostconditionSummary(result) {
     placementStateChanged: sourcePostcondition?.placementStateChanged ?? null
   };
 }
+var cityTownFocusChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.city.townFocus.change.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "city.townFocus.change.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const result = await context5.directControl.requestCiv7TownFocusChange(
+        input,
+        context5.endpointDefaults
+      );
+      return townFocusResult(source, input, result);
+    },
+    catch: () => errors.TOWN_FOCUS_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var cityTownFocusReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.city.townFocus.review.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "city.townFocus.review.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const result = await context5.directControl.requestCiv7TownFocusReviewCloseout(
+        input,
+        context5.endpointDefaults
+      );
+      return townFocusResult(source, input, result);
+    },
+    catch: () => errors.TOWN_FOCUS_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+function townFocusResult(source, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: townFocusProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The town focus result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source,
+    inspectKind: "inspect-town-focus",
+    inspectLabel: "Inspect current ready-city town focus evidence before attempting another town focus request.",
+    doNotRepeatLabel: "Do not repeat this town focus request until fresh city readiness evidence is read."
+  });
+  const base = {
+    cityId: result.cityId,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+  if (source === "city.townFocus.change.request" && result.kind === "town-focus-change" && "growthType" in input) {
+    return {
+      ...base,
+      growthType: result.growthType,
+      projectType: result.projectType,
+      city: result.city
+    };
+  }
+  if (source === "city.townFocus.review.request") {
+    return base;
+  }
+  throw new Error("invalid town focus projection");
+}
 var cityRouter = {
   population: {
     place: {
@@ -30365,8 +31429,68 @@ var cityRouter = {
     choice: {
       request: cityProductionChoiceRequestProcedure
     }
+  },
+  townFocus: {
+    change: {
+      request: cityTownFocusChangeRequestProcedure
+    },
+    review: {
+      request: cityTownFocusReviewRequestProcedure
+    }
   }
 };
+var firstMeetResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.diplomacy.firstMeet.response.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const result = await context5.directControl.requestCiv7FirstMeetResponse(
+        input,
+        context5.endpointDefaults
+      );
+      return firstMeetResponseResult(input, result);
+    },
+    catch: () => errors.FIRST_MEET_RESPONSE_UNAVAILABLE({
+      data: {
+        procedureKey: "diplomacy.firstMeet.response.request",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+function firstMeetResponseResult(input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: firstMeetResponseProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The first-meet response result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source: "diplomacy.firstMeet.response.request",
+    inspectKind: "inspect-first-meet-response",
+    inspectLabel: "Inspect current attention and first-meet diplomacy state before attempting another first-meet response.",
+    doNotRepeatLabel: "Do not repeat this first-meet response until fresh attention and first-meet evidence is read."
+  });
+  return {
+    playerId: result.playerId,
+    metPlayerId: result.metPlayerId,
+    responseType: input.responseType,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+}
 var diplomacyResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.diplomacy.response.request
 ).effect(function* ({
@@ -30421,8 +31545,130 @@ function diplomacyResponseResult(input, result) {
   };
 }
 var diplomacyRouter = {
+  firstMeet: {
+    response: {
+      request: firstMeetResponseRequestProcedure
+    }
+  },
   response: {
     request: diplomacyResponseRequestProcedure
+  }
+};
+var governmentChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.government.choice.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "government.choice.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        governmentType: input.governmentType,
+        ...input.action === void 0 ? {} : { action: input.action }
+      };
+      const result = await context5.directControl.requestCiv7GovernmentChoice(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return governmentChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.GOVERNMENT_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var governmentCelebrationChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.government.celebration.choice.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "government.celebration.choice.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        goldenAgeType: input.goldenAgeType
+      };
+      const result = await context5.directControl.requestCiv7CelebrationChoice(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return governmentChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.GOVERNMENT_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+async function readLocalPlayerId(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
+function governmentChoiceResult(source, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: governmentChoiceProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The government-domain choice result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source,
+    inspectKind: "inspect-government-choice",
+    inspectLabel: "Inspect current government or celebration choice state before attempting another request.",
+    doNotRepeatLabel: "Do not repeat this government-domain choice request until fresh attention evidence is read."
+  });
+  const base = {
+    playerId: result.playerId,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+  if (source === "government.choice.request" && "governmentType" in input && result.kind === "government") {
+    return {
+      ...base,
+      governmentType: result.governmentType,
+      action: result.action
+    };
+  }
+  if ("goldenAgeType" in input && result.kind === "celebration") {
+    return {
+      ...base,
+      goldenAgeType: result.goldenAgeType
+    };
+  }
+  throw new Error("invalid government-domain choice projection");
+}
+var governmentRouter = {
+  choice: {
+    request: governmentChoiceRequestProcedure
+  },
+  celebration: {
+    choice: {
+      request: governmentCelebrationChoiceRequestProcedure
+    }
   }
 };
 var narrativeChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
@@ -30730,15 +31976,303 @@ function probeValue22(value2) {
   }
   return value2 ?? null;
 }
+var progressionTechnologyTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.technology.target.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const kind = "technology";
+  const source = "progression.technology.target.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId2(context5);
+      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
+      const result = await requestProgressionTarget(kind, requestInput, context5);
+      return progressionTargetResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_TARGET_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionCultureTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.culture.target.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const kind = "culture";
+  const source = "progression.culture.target.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId2(context5);
+      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
+      const result = await requestProgressionTarget(kind, requestInput, context5);
+      return progressionTargetResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_TARGET_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+async function readLocalPlayerId2(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
+function progressionTargetRuntimeInput(input, localPlayerId) {
+  return {
+    playerId: localPlayerId,
+    node: input.node
+  };
+}
+async function requestProgressionTarget(kind, input, context5) {
+  if (kind === "technology") {
+    return context5.directControl.requestCiv7TechnologyTarget(
+      input,
+      context5.endpointDefaults
+    );
+  }
+  return context5.directControl.requestCiv7CultureTarget(
+    input,
+    context5.endpointDefaults
+  );
+}
+function progressionTargetResult(source, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: progressionTargetProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The progression target request result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source,
+    inspectKind: "inspect-progression-target",
+    inspectLabel: "Inspect current progression target state before attempting another target request.",
+    doNotRepeatLabel: "Do not repeat this progression target request until fresh progression target evidence is read."
+  });
+  return {
+    playerId: result.playerId,
+    node: input.node,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+}
+var progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.attribute.purchase.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "progression.attribute.purchase.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId3(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        node: input.node
+      };
+      const result = await context5.directControl.requestCiv7AttributePurchase(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionAttributeReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.attribute.review.request
+).effect(function* ({
+  context: context5,
+  errors
+}) {
+  const source = "progression.attribute.review.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId3(context5);
+      const requestInput = { playerId: localPlayerId };
+      const result = await context5.directControl.requestCiv7AttributeReviewCloseout(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionTraditionChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.tradition.change.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "progression.tradition.change.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId3(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        traditionType: input.traditionType,
+        action: input.action
+      };
+      const result = await context5.directControl.requestCiv7TraditionChange(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionTraditionReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.tradition.review.request
+).effect(function* ({
+  context: context5,
+  errors
+}) {
+  const source = "progression.tradition.review.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId3(context5);
+      const requestInput = { playerId: localPlayerId };
+      const result = await context5.directControl.requestCiv7TraditionReviewCloseout(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+async function readLocalPlayerId3(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
+function progressionPlayerChoiceResult(source, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: progressionPlayerChoiceProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The progression player-choice result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source,
+    inspectKind: source.includes("attribute") ? "inspect-progression-attribute" : "inspect-progression-tradition",
+    inspectLabel: source.includes("attribute") ? "Inspect current attribute review state before attempting another request." : "Inspect current tradition review state before attempting another request.",
+    doNotRepeatLabel: "Do not repeat this progression player-choice request until fresh attention evidence is read."
+  });
+  const base = {
+    playerId: result.playerId,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+  if (source === "progression.attribute.purchase.request" && "node" in input && result.kind === "attribute-purchase") {
+    return {
+      ...base,
+      node: result.node
+    };
+  }
+  if (source === "progression.attribute.review.request") {
+    return base;
+  }
+  if (source === "progression.tradition.change.request" && "traditionType" in input && result.kind === "tradition-change") {
+    return {
+      ...base,
+      traditionType: result.traditionType,
+      action: result.action
+    };
+  }
+  if (source === "progression.tradition.review.request") {
+    return base;
+  }
+  throw new Error("invalid progression player-choice projection");
+}
 var progressionRouter = {
   technology: {
     choice: {
       request: progressionTechnologyChoiceRequestProcedure
+    },
+    target: {
+      request: progressionTechnologyTargetRequestProcedure
     }
   },
   culture: {
     choice: {
       request: progressionCultureChoiceRequestProcedure
+    },
+    target: {
+      request: progressionCultureTargetRequestProcedure
+    }
+  },
+  attribute: {
+    purchase: {
+      request: progressionAttributePurchaseRequestProcedure
+    },
+    review: {
+      request: progressionAttributeReviewRequestProcedure
+    }
+  },
+  tradition: {
+    change: {
+      request: progressionTraditionChangeRequestProcedure
+    },
+    review: {
+      request: progressionTraditionReviewRequestProcedure
     }
   }
 };
@@ -31215,6 +32749,161 @@ var turnRouter = {
     request: turnCompleteRequestProcedure
   }
 };
+var unitUpgradeRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.unit.upgrade.request
+).effect(function* ({ context: context5, errors, input }) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const procedureInput = {
+        mode: "upgrade",
+        ...input
+      };
+      const result = await context5.directControl.requestCiv7UnitCommand(
+        unitCommandRuntimeRequest(procedureInput),
+        context5.endpointDefaults
+      );
+      return unitCommandResult(
+        procedureInput,
+        result,
+        "unit.upgrade.request"
+      );
+    },
+    catch: () => errors.UNIT_REQUEST_UNAVAILABLE({
+      data: {
+        procedureKey: "unit.upgrade.request",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var unitResettleRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.unit.resettle.request
+).effect(function* ({ context: context5, errors, input }) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const procedureInput = {
+        mode: "resettle",
+        ...input
+      };
+      const result = await context5.directControl.requestCiv7UnitCommand(
+        unitCommandRuntimeRequest(procedureInput),
+        context5.endpointDefaults
+      );
+      return unitCommandResult(
+        procedureInput,
+        result,
+        "unit.resettle.request"
+      );
+    },
+    catch: () => errors.UNIT_REQUEST_UNAVAILABLE({
+      data: {
+        procedureKey: "unit.resettle.request",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+function unitCommandRuntimeRequest(input) {
+  if (input.mode === "upgrade") {
+    return {
+      unitId: input.unitId,
+      operationType: "UNITCOMMAND_UPGRADE",
+      args: {}
+    };
+  }
+  return {
+    unitId: input.unitId,
+    operationType: "UNITCOMMAND_RESETTLE",
+    args: {
+      X: input.destination.x,
+      Y: input.destination.y
+    }
+  };
+}
+function unitCommandResult(input, result, procedureKey) {
+  const postcondition = unitCommandPostconditionSummary(result);
+  const status = civ7MutationRequestStatus({
+    sent: result.sent,
+    postcondition
+  });
+  return {
+    action: unitCommandSummary(input),
+    sent: result.sent,
+    status,
+    validation: {
+      beforeValid: result.before.valid,
+      afterValid: result.after.valid
+    },
+    postcondition,
+    nextSteps: civ7MutationNextSteps({
+      status,
+      postcondition,
+      source: procedureKey,
+      inspectKind: "inspect-unit-command",
+      inspectLabel: "Inspect ready-unit and unit command evidence before attempting another unit command request.",
+      doNotRepeatLabel: "Do not repeat this unit command until fresh unit readiness and postcondition evidence is read."
+    })
+  };
+}
+function unitCommandSummary(input) {
+  if (input.mode === "upgrade") {
+    return {
+      kind: "upgrade",
+      unitId: input.unitId
+    };
+  }
+  return {
+    kind: "resettle",
+    unitId: input.unitId,
+    destination: {
+      x: input.destination.x,
+      y: input.destination.y
+    }
+  };
+}
+function unitCommandPostconditionSummary(result) {
+  const source = result.postcondition;
+  if (source == null) {
+    return {
+      classification: "missing-postcondition",
+      reason: "The unit command request did not include source-owned unit postcondition evidence.",
+      outcome: "unknown",
+      confidence: "unverified",
+      confirmed: false,
+      noRepeatAfterUnverified: true
+    };
+  }
+  const guarded = source.classification === "not-sent" || source.classification === "no-state-change" || source.classification === "validation-changed";
+  const confidence = guarded ? "unverified" : "confirmed";
+  return {
+    classification: source.classification,
+    reason: source.reason,
+    outcome: unitCommandProofOutcome(source.classification),
+    confidence,
+    confirmed: confidence === "confirmed",
+    noRepeatAfterUnverified: guarded
+  };
+}
+function unitCommandProofOutcome(classification) {
+  switch (classification) {
+    case "not-sent":
+      return "not-sent";
+    case "no-state-change":
+      return "no-state-change";
+    case "missing-postcondition":
+      return "unknown";
+    case "queue-advanced":
+      return "cleared";
+    case "selected-unit-changed":
+    case "activity-changed":
+    case "unit-state-changed":
+    case "blocker-changed":
+    case "validation-changed":
+      return "state-changed";
+  }
+}
 var unitTargetActionRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.unit.target.action.request
 ).effect(function* ({
@@ -31312,16 +33001,23 @@ function unitTargetActionPostconditionSummary(result) {
   };
 }
 var unitRouter = {
+  resettle: {
+    request: unitResettleRequestProcedure
+  },
   target: {
     action: {
       request: unitTargetActionRequestProcedure
     }
+  },
+  upgrade: {
+    request: unitUpgradeRequestProcedure
   }
 };
 var Civ7ControlOrpcRouter = civ7ControlOrpcImplementer.router({
   attention: attentionRouter,
   city: cityRouter,
   diplomacy: diplomacyRouter,
+  government: governmentRouter,
   narrative: narrativeRouter,
   notifications: notificationsRouter,
   progression: progressionRouter,
@@ -31415,6 +33111,22 @@ var Civ7ControllerBridgeCityPopulationPlacementRequestSchema = typebox_exports.O
   },
   { additionalProperties: false }
 );
+var Civ7ControllerBridgeCityTownFocusChangeRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("city.townFocus.change.request"),
+    input: Civ7CityTownFocusChangeInputSchema,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeCityTownFocusReviewRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("city.townFocus.review.request"),
+    input: Civ7CityTownFocusReviewInputSchema,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ControllerBridgeNarrativeChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("narrative.choice.request"),
@@ -31463,6 +33175,8 @@ var Civ7ControllerBridgeRequestSchema = typebox_exports.Union([
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
   Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
+  Civ7ControllerBridgeCityTownFocusChangeRequestSchema,
+  Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
@@ -31545,6 +33259,24 @@ var Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema = typebox_e
   },
   { additionalProperties: false }
 );
+var Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("city.townFocus.change.request"),
+    output: Civ7CityTownFocusChangeResultSchema,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("city.townFocus.review.request"),
+    output: Civ7CityTownFocusReviewResultSchema,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema = typebox_exports.Object(
   {
     ok: typebox_exports.Literal(true),
@@ -31598,6 +33330,8 @@ var Civ7ControllerBridgeSuccessResponseSchema = typebox_exports.Union([
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
   Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+  Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema,
+  Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
@@ -31714,6 +33448,28 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
     }
+    if (request2.procedureKey === "city.townFocus.change.request") {
+      const output2 = await client.city.townFocus.change.request(
+        request2.input
+      );
+      return {
+        ok: true,
+        procedureKey: "city.townFocus.change.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "city.townFocus.review.request") {
+      const output2 = await client.city.townFocus.review.request(
+        request2.input
+      );
+      return {
+        ok: true,
+        procedureKey: "city.townFocus.review.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
     if (request2.procedureKey === "narrative.choice.request") {
       const output2 = await client.narrative.choice.request(request2.input);
       return {
@@ -31783,10 +33539,10 @@ function controllerProofFromContext(context5) {
 function isUnsupportedProcedureRequest(request2) {
   if (request2 == null || typeof request2 !== "object") return false;
   if (!("procedureKey" in request2)) return false;
-  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request";
+  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request";
 }
 function isControllerBridgeMutationRequest(request2) {
-  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request";
+  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request";
 }
 function controllerSupportsRequest(context5, request2) {
   if (request2.procedureKey === "readiness.current") return true;
@@ -32752,6 +34508,230 @@ function stableJson2(value2) {
     (key) => `${JSON.stringify(key)}:${stableJson2(record[key])}`
   ).join(",")}}`;
 }
+function civ7GameUiTownFocusAvailable(target) {
+  return typeof target.Game?.CityCommands?.canStart === "function" && typeof target.Game.CityCommands.sendRequest === "function" && target.CityCommandTypes?.CHANGE_GROWTH_MODE !== void 0 && typeof target.Game?.CityOperations?.canStart === "function" && typeof target.Game.CityOperations.sendRequest === "function" && target.CityOperationTypes?.CONSIDER_TOWN_PROJECT !== void 0;
+}
+async function requestCiv7GameUiTownFocusChange(input, target = globalThis) {
+  const cityId = toComponentId3(input.cityId);
+  if (cityId == null) {
+    throw new Error("Town focus cityId must be a ComponentID.");
+  }
+  const city = input.city ?? cityId.id;
+  const args2 = {
+    Type: input.growthType,
+    ProjectType: input.projectType,
+    City: city
+  };
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const before2 = cityId.owner === localPlayerId ? gameUiTownFocusCityCommandValidation(cityId, args2, target) : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args2, "city-command");
+  if (!before2.valid) {
+    return townFocusResult2({
+      kind: "town-focus-change",
+      cityId,
+      growthType: input.growthType,
+      projectType: input.projectType,
+      city,
+      operationType: "CHANGE_GROWTH_MODE",
+      before: before2,
+      after: before2,
+      sent: false
+    });
+  }
+  const sendRequest = target.Game?.CityCommands?.sendRequest;
+  const sendResult = typeof sendRequest === "function" ? safeValue3(() => sendRequest(
+    cityId,
+    target.CityCommandTypes?.CHANGE_GROWTH_MODE,
+    args2
+  ), false) : false;
+  const sent = sendResult !== false;
+  const after3 = gameUiTownFocusCityCommandValidation(cityId, args2, target);
+  return townFocusResult2({
+    kind: "town-focus-change",
+    cityId,
+    growthType: input.growthType,
+    projectType: input.projectType,
+    city,
+    operationType: "CHANGE_GROWTH_MODE",
+    before: before2,
+    after: after3,
+    sent
+  });
+}
+async function requestCiv7GameUiTownFocusReviewCloseout(input, target = globalThis) {
+  const cityId = toComponentId3(input.cityId);
+  if (cityId == null) {
+    throw new Error("Town focus cityId must be a ComponentID.");
+  }
+  const args2 = {};
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const before2 = cityId.owner === localPlayerId ? gameUiTownFocusCityOperationValidation(cityId, args2, target) : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args2, "city-operation");
+  if (!before2.valid) {
+    return townFocusResult2({
+      kind: "town-focus-review",
+      cityId,
+      operationType: "CONSIDER_TOWN_PROJECT",
+      before: before2,
+      after: before2,
+      sent: false
+    });
+  }
+  const sendRequest = target.Game?.CityOperations?.sendRequest;
+  const sendResult = typeof sendRequest === "function" ? safeValue3(() => sendRequest(
+    cityId,
+    target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
+    args2
+  ), false) : false;
+  const sent = sendResult !== false;
+  const after3 = gameUiTownFocusCityOperationValidation(cityId, args2, target);
+  return townFocusResult2({
+    kind: "town-focus-review",
+    cityId,
+    operationType: "CONSIDER_TOWN_PROJECT",
+    before: before2,
+    after: after3,
+    sent
+  });
+}
+function gameUiTownFocusCityCommandValidation(cityId, args2, target) {
+  const result = safeValue3(
+    () => target.Game?.CityCommands?.canStart?.(
+      cityId,
+      target.CityCommandTypes?.CHANGE_GROWTH_MODE,
+      args2,
+      false
+    ),
+    null
+  );
+  return townFocusValidation({
+    family: "city-command",
+    operationType: "CHANGE_GROWTH_MODE",
+    enumValue: target.CityCommandTypes?.CHANGE_GROWTH_MODE,
+    cityId,
+    args: args2,
+    valid: successFromCanStart2(result),
+    result
+  });
+}
+function gameUiTownFocusCityOperationValidation(cityId, args2, target) {
+  const result = safeValue3(
+    () => target.Game?.CityOperations?.canStart?.(
+      cityId,
+      target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
+      args2,
+      false
+    ),
+    null
+  );
+  return townFocusValidation({
+    family: "city-operation",
+    operationType: "CONSIDER_TOWN_PROJECT",
+    enumValue: target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
+    cityId,
+    args: args2,
+    valid: successFromCanStart2(result),
+    result
+  });
+}
+function gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args2, family) {
+  return townFocusValidation({
+    family,
+    operationType: family === "city-command" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT",
+    enumValue: family === "city-command" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT",
+    cityId,
+    args: args2,
+    valid: false,
+    result: {
+      ok: false,
+      reason: "city-owner-mismatch",
+      cityOwner: cityId.owner,
+      localPlayerId: localPlayerId ?? null
+    }
+  });
+}
+function townFocusValidation(input) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: input.family,
+    operationType: input.operationType,
+    enumValue: input.enumValue,
+    target: { cityId: input.cityId },
+    args: input.args,
+    valid: input.valid,
+    result: input.result
+  };
+}
+function townFocusResult2(input) {
+  const common = {
+    cityId: input.cityId,
+    operation: {
+      before: input.before,
+      after: input.after,
+      sent: input.sent
+    },
+    beforeValidation: input.before,
+    afterValidation: input.after,
+    sent: input.sent,
+    verified: false,
+    postcondition: townFocusPostcondition(input.sent, input.kind)
+  };
+  if (input.kind === "town-focus-change") {
+    return {
+      ...common,
+      kind: "town-focus-change",
+      growthType: input.growthType,
+      projectType: input.projectType,
+      city: input.city
+    };
+  }
+  return {
+    ...common,
+    kind: "town-focus-review"
+  };
+}
+function townFocusPostcondition(sent, kind) {
+  if (!sent) {
+    return {
+      classification: "not-sent",
+      reason: `The ${kind} request did not validate, so no town focus operation was sent.`
+    };
+  }
+  return {
+    classification: "pending-runtime-proof",
+    reason: `The ${kind} request was sent through the game UI controller, but local package tests do not prove live town focus state changed; read fresh city readiness before another request.`
+  };
+}
+function successFromCanStart2(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function toComponentId3(input) {
+  if (input == null || typeof input !== "object") return null;
+  const record = input;
+  if (Number.isInteger(record.owner) && Number.isInteger(record.id) && Number.isInteger(record.type)) {
+    return {
+      owner: record.owner,
+      id: record.id,
+      type: record.type
+    };
+  }
+  return null;
+}
+function safeValue3(fn2, fallback) {
+  try {
+    return fn2();
+  } catch {
+    return fallback;
+  }
+}
 function civ7GameUiProgressionChoiceAvailable(target) {
   return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.SET_TECH_TREE_NODE !== void 0 && target.PlayerOperationTypes.SET_TECH_TREE_TARGET_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== void 0 && typeof target.ProgressionTreeNodeTypes?.NO_NODE === "number" && typeof target.Game?.Notifications?.activate === "function" && typeof target.Game.Notifications.getIdsForPlayer === "function" && typeof target.Game.Notifications.getType === "function" && typeof target.Game.Notifications.getTypeName === "function" && typeof target.Game.Notifications.find === "function" && typeof target.Players?.get === "function";
 }
@@ -32776,7 +34756,7 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
   const policy = progressionPolicy(kind, target);
   const localPlayerId = target.GameContext?.localPlayerID;
   const playerId = typeof localPlayerId === "number" ? localPlayerId : input.playerId;
-  const selectedNotification = toComponentId3(input.notificationId) ?? currentProgressionNotification(kind, playerId, target);
+  const selectedNotification = toComponentId4(input.notificationId) ?? currentProgressionNotification(kind, playerId, target);
   const beforeProgression = readProgressionState(kind, playerId, target);
   const activationResult = probe3(
     () => selectedNotification == null ? null : target.Game?.Notifications?.activate?.(selectedNotification)
@@ -32791,7 +34771,7 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
       false
     )
   );
-  const chooseResult = canChoose.ok && successFromCanStart2(canChoose.value) ? probe3(
+  const chooseResult = canChoose.ok && successFromCanStart3(canChoose.value) ? probe3(
     () => target.Game?.PlayerOperations?.sendRequest?.(
       playerId,
       policy.chooseOperation,
@@ -32807,7 +34787,7 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
       false
     )
   ) : skippedProbe(`${policy.clearLabel} skipped because ${policy.chooseLabel} did not send`);
-  const clearTargetResult = chooseSent && canClearTarget.ok && successFromCanStart2(canClearTarget.value) ? probe3(
+  const clearTargetResult = chooseSent && canClearTarget.ok && successFromCanStart3(canClearTarget.value) ? probe3(
     () => target.Game?.PlayerOperations?.sendRequest?.(
       playerId,
       policy.clearOperation,
@@ -32866,16 +34846,16 @@ function progressionPolicy(kind, target) {
 }
 function currentProgressionNotification(kind, playerId, target) {
   const token = progressionPolicy(kind, target).token;
-  const ids3 = safeValue3(
+  const ids3 = safeValue4(
     () => target.Game?.Notifications?.getIdsForPlayer?.(playerId),
     []
   );
   if (!Array.isArray(ids3)) return null;
   for (const rawId of ids3) {
-    const id = toComponentId3(rawId);
+    const id = toComponentId4(rawId);
     if (id == null) continue;
-    const type = safeValue3(() => target.Game?.Notifications?.getType?.(id), null);
-    const typeName = safeValue3(
+    const type = safeValue4(() => target.Game?.Notifications?.getType?.(id), null);
+    const typeName = safeValue4(
       () => target.Game?.Notifications?.getTypeName?.(type),
       null
     );
@@ -32913,10 +34893,10 @@ function readProgressionState(kind, playerId, target) {
   };
 }
 function playerRecord(playerId, target) {
-  const player = safeValue3(() => target.Players?.get?.(playerId), null);
+  const player = safeValue4(() => target.Players?.get?.(playerId), null);
   return player != null && typeof player === "object" ? player : null;
 }
-function successFromCanStart2(result) {
+function successFromCanStart3(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -32927,7 +34907,7 @@ function successFromCanStart2(result) {
   }
   return Boolean(result);
 }
-function toComponentId3(value2) {
+function toComponentId4(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   if (typeof record.owner !== "number" || typeof record.id !== "number") {
@@ -32938,7 +34918,7 @@ function toComponentId3(value2) {
 function skippedProbe(reason) {
   return { ok: false, error: reason };
 }
-function safeValue3(fn2, fallback) {
+function safeValue4(fn2, fallback) {
   try {
     return fn2() ?? fallback;
   } catch {
@@ -33036,7 +35016,7 @@ function gameUiPlayerOperationLocalPlayerMismatch(playerId, localPlayerId, args2
   };
 }
 async function requestCiv7GameUiExpandCityPlacement(input, target = globalThis) {
-  const cityId = toComponentId4(input.cityId);
+  const cityId = toComponentId5(input.cityId);
   if (cityId == null) {
     throw new Error("Population placement cityId must be a ComponentID.");
   }
@@ -33160,7 +35140,7 @@ function gameUiPopulationPostcondition(input) {
   };
 }
 function gameUiPlayerOperationValidation(playerId, operationType, enumValue, args2, target) {
-  const result = safeValue4(
+  const result = safeValue5(
     () => target.Game?.PlayerOperations?.canStart?.(
       playerId,
       enumValue,
@@ -33178,12 +35158,12 @@ function gameUiPlayerOperationValidation(playerId, operationType, enumValue, arg
     enumValue,
     target: { playerId },
     args: args2,
-    valid: successFromCanStart3(result),
+    valid: successFromCanStart4(result),
     result
   };
 }
 function gameUiCityCommandValidation(cityId, operationType, enumValue, args2, target) {
-  const result = safeValue4(
+  const result = safeValue5(
     () => target.Game?.CityCommands?.canStart?.(
       cityId,
       enumValue,
@@ -33201,12 +35181,12 @@ function gameUiCityCommandValidation(cityId, operationType, enumValue, args2, ta
     enumValue,
     target: { cityId },
     args: args2,
-    valid: successFromCanStart3(result),
+    valid: successFromCanStart4(result),
     result
   };
 }
 function gameUiPopulationSnapshot(cityId, target) {
-  const city = safeValue4(() => target.Cities?.get?.(cityId), null);
+  const city = safeValue5(() => target.Cities?.get?.(cityId), null);
   const placementInfo = cityPlacementInfo(city);
   const expansion = probe4(
     () => target.Game?.CityCommands?.canStart?.(
@@ -33235,9 +35215,9 @@ function gameUiPopulationSnapshot(cityId, target) {
 function readyPopulationCityId(target) {
   const localPlayerId = target.GameContext?.localPlayerID;
   if (typeof localPlayerId !== "number") return null;
-  const player = safeValue4(() => target.Players?.get?.(localPlayerId), null);
+  const player = safeValue5(() => target.Players?.get?.(localPlayerId), null);
   if (player == null || typeof player !== "object") return null;
-  const cityIds = safeValue4(() => {
+  const cityIds = safeValue5(() => {
     const cities = player.Cities;
     if (cities == null || typeof cities !== "object") return [];
     const getCityIds = cities.getCityIds;
@@ -33245,9 +35225,9 @@ function readyPopulationCityId(target) {
   }, []);
   if (!Array.isArray(cityIds)) return null;
   for (const rawCityId of cityIds) {
-    const cityId = toComponentId4(rawCityId);
+    const cityId = toComponentId5(rawCityId);
     if (cityId == null) continue;
-    const city = safeValue4(() => target.Cities?.get?.(cityId), null);
+    const city = safeValue5(() => target.Cities?.get?.(cityId), null);
     if (cityReadyToPlacePopulation(city) === true) return cityId;
   }
   return null;
@@ -33257,7 +35237,7 @@ function citySummary(cityId, city) {
   const record = city;
   return {
     id: cityId,
-    observedCityId: toComponentId4(record.id ?? record.ID ?? record.CityId),
+    observedCityId: toComponentId5(record.id ?? record.ID ?? record.CityId),
     population: record.population ?? record.Population ?? null,
     isTown: record.isTown ?? null,
     location: record.location ?? record.Location ?? null
@@ -33319,7 +35299,7 @@ function populationReadyCleared(before2, after3) {
 function populationSnapshotChanged(before2, after3) {
   return stableJson22(probeValue33(before2.city)) !== stableJson22(probeValue33(after3.city)) || stableJson22(probeValue33(before2.isReadyToPlacePopulation)) !== stableJson22(probeValue33(after3.isReadyToPlacePopulation)) || stableJson22(probeValue33(before2.cityWorkerCap)) !== stableJson22(probeValue33(after3.cityWorkerCap)) || stableJson22(probeValue33(before2.workablePlotIndexes)) !== stableJson22(probeValue33(after3.workablePlotIndexes)) || stableJson22(probeValue33(before2.blockedPlotIndexes)) !== stableJson22(probeValue33(after3.blockedPlotIndexes)) || stableJson22(probeValue33(before2.expansionPlotIndexes)) !== stableJson22(probeValue33(after3.expansionPlotIndexes));
 }
-function successFromCanStart3(result) {
+function successFromCanStart4(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -33330,7 +35310,7 @@ function successFromCanStart3(result) {
   }
   return Boolean(result);
 }
-function toComponentId4(value2) {
+function toComponentId5(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   const owner = numericField(record, "owner", "Owner");
@@ -33344,7 +35324,7 @@ function numericField(record, lower, upper) {
   if (typeof record[upper] === "number") return record[upper];
   return null;
 }
-function safeValue4(fn2, fallback) {
+function safeValue5(fn2, fallback) {
   try {
     return fn2() ?? fallback;
   } catch {
@@ -33490,7 +35470,7 @@ function gameUiNarrativeValidation(playerId, args2, target) {
     enumValue: target.PlayerOperationTypes?.CHOOSE_NARRATIVE_STORY_DIRECTION,
     target: { playerId },
     args: args2,
-    valid: result.ok && successFromCanStart4(result.value),
+    valid: result.ok && successFromCanStart5(result.value),
     result
   };
 }
@@ -33567,16 +35547,16 @@ function findNarrativeChoiceNotification(view) {
   });
 }
 function currentNarrativeNotification(playerId, target) {
-  const ids3 = safeValue5(
+  const ids3 = safeValue6(
     () => target.Game?.Notifications?.getIdsForPlayer?.(playerId),
     []
   );
   if (!Array.isArray(ids3)) return null;
   for (const rawId of ids3) {
-    const id = toComponentId5(rawId);
+    const id = toComponentId6(rawId);
     if (id == null) continue;
-    const type = safeValue5(() => target.Game?.Notifications?.getType?.(id), null);
-    const typeName = safeValue5(
+    const type = safeValue6(() => target.Game?.Notifications?.getType?.(id), null);
+    const typeName = safeValue6(
       () => target.Game?.Notifications?.getTypeName?.(type),
       null
     );
@@ -33613,7 +35593,7 @@ function readNarrativeUiState(targetStoryId, target) {
 function summarizePanel(panel, targetStoryId) {
   const record = panelRecord(panel);
   const component = panelRecord(record?._component);
-  const panelTarget = toComponentId5(component?.targetStoryId);
+  const panelTarget = toComponentId6(component?.targetStoryId);
   return {
     panelType: typeof record?.tagName === "string" ? record.tagName : null,
     componentType: typeof component?.constructor?.name === "string" ? component.constructor.name : null,
@@ -33627,7 +35607,7 @@ function closeVisibleNarrativePanels(targetStoryId, target) {
   return probe5(() => {
     const panels = narrativePanels(target).filter((panel) => {
       const component = panelRecord(panelRecord(panel)?._component);
-      return componentIdEqual2(toComponentId5(component?.targetStoryId), targetStoryId);
+      return componentIdEqual2(toComponentId6(component?.targetStoryId), targetStoryId);
     });
     const results = panels.map((panel) => {
       const record = panelRecord(panel);
@@ -33665,7 +35645,7 @@ function narrativePanels(target) {
     "screen-narrative-event",
     "screen-narrative-trial"
   ];
-  return safeValue5(
+  return safeValue6(
     () => selectors.flatMap(
       (selector) => Array.from(query.call(target.document, selector))
     ),
@@ -33675,7 +35655,7 @@ function narrativePanels(target) {
 function choiceKeys(panel) {
   const query = panel?.querySelectorAll;
   if (typeof query !== "function") return [];
-  return safeValue5(
+  return safeValue6(
     () => Array.from(
       query.call(
         panel,
@@ -33690,7 +35670,7 @@ function choiceKeys(panel) {
     []
   );
 }
-function successFromCanStart4(result) {
+function successFromCanStart5(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -33718,7 +35698,7 @@ function numericField2(value2, field) {
   const candidate2 = value2[field];
   return typeof candidate2 === "number" ? candidate2 : void 0;
 }
-function toComponentId5(value2) {
+function toComponentId6(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   if (typeof record.owner !== "number" || typeof record.id !== "number") {
@@ -33735,7 +35715,7 @@ function panelRecord(value2) {
 function skippedProbe2(reason) {
   return { ok: false, error: reason };
 }
-function safeValue5(fn2, fallback) {
+function safeValue6(fn2, fallback) {
   try {
     return fn2() ?? fallback;
   } catch {
@@ -33778,7 +35758,7 @@ async function requestCiv7GameUiDiplomacyResponse(input, target = globalThis) {
     });
   }
   const discoveredNotification = currentDiplomacyNotification(input, playerId, target);
-  const notificationId = toComponentId6(input.notificationId) ?? (discoveredNotification.ok ? discoveredNotification.value : null);
+  const notificationId = toComponentId7(input.notificationId) ?? (discoveredNotification.ok ? discoveredNotification.value : null);
   const activationResult = activateDiplomacyNotification(
     notificationId,
     input.actionId,
@@ -33878,7 +35858,7 @@ function gameUiDiplomacyValidation(playerId, args2, target) {
     enumValue: target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION,
     target: { playerId },
     args: args2,
-    valid: result.ok && successFromCanStart5(result.value),
+    valid: result.ok && successFromCanStart6(result.value),
     result
   };
 }
@@ -33955,7 +35935,7 @@ function currentDiplomacyNotification(input, playerId, target) {
       playerId,
       blockerType
     );
-    const notificationId = toComponentId6(id);
+    const notificationId = toComponentId7(id);
     if (notificationId == null) return null;
     const notification = target.Game?.Notifications?.find?.(notificationId);
     const type = target.Game?.Notifications?.getType?.(notificationId) ?? recordValue(notification, "Type");
@@ -34034,7 +36014,7 @@ function findDiplomacyResponseNotification(view, actionId) {
     return recordValue(notification.target, "id") === actionId;
   });
 }
-function successFromCanStart5(result) {
+function successFromCanStart6(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -34057,7 +36037,7 @@ function stableJson4(value2) {
     );
   });
 }
-function toComponentId6(value2) {
+function toComponentId7(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   if (typeof record.owner !== "number" || typeof record.id !== "number") {
@@ -34194,7 +36174,7 @@ function candidate(family, operationType, args2, unitId, targetIndex, target) {
   const result = probe7(
     () => router?.canStart?.(unitId, enumValue, args2, false) ?? false
   );
-  const valid = result.ok && successFromCanStart6(result.value);
+  const valid = result.ok && successFromCanStart7(result.value);
   const targetInReturnedPlots = targetInReturnedPlotsFor(result, targetIndex);
   return {
     family,
@@ -34279,7 +36259,7 @@ function summarizeUnit(unitId, target) {
   if (unit == null || typeof unit !== "object") return null;
   const record = unit;
   return {
-    id: toComponentId7(record.id) ?? unitId,
+    id: toComponentId8(record.id) ?? unitId,
     owner: record.owner ?? unitId.owner,
     type: record.type ?? unitId.type ?? null,
     location: record.location ?? null,
@@ -34295,7 +36275,7 @@ function summarizeUnit(unitId, target) {
 }
 function targetUnitsAt(x, y, target) {
   const units = target.MapUnits?.getUnits?.(x, y) ?? [];
-  return Array.isArray(units) ? units.map((id) => toComponentId7(id) ?? id) : units;
+  return Array.isArray(units) ? units.map((id) => toComponentId8(id) ?? id) : units;
 }
 function targetInReturnedPlotsFor(result, targetIndex) {
   if (!result.ok || !targetIndex.ok) return null;
@@ -34325,7 +36305,7 @@ function enumValueFor(enums, operationType) {
   }
   return operationType;
 }
-function successFromCanStart6(result) {
+function successFromCanStart7(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -34350,7 +36330,7 @@ function locationFromUnitProbe(input) {
 function sameLocation(left3, right3) {
   return left3.x === right3.x && left3.y === right3.y;
 }
-function toComponentId7(value2) {
+function toComponentId8(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   if (typeof record.owner !== "number" || typeof record.id !== "number") {
@@ -34551,7 +36531,7 @@ function candidateUnit(id, target) {
   const type = record.type ?? record.getType?.();
   const typeName = unitTypeName(type, target);
   return {
-    id: toComponentId8(record.id ?? id) ?? id,
+    id: toComponentId9(record.id ?? id) ?? id,
     owner: Number(record.owner ?? record.player ?? record.getOwner?.()),
     type,
     typeName,
@@ -34567,8 +36547,8 @@ function candidateCity(id, target) {
   const location = toLocation(record.location ?? record.getLocation?.());
   if (location == null) return null;
   return {
-    id: toComponentId8(id) ?? id,
-    observedCityId: toComponentId8(record.id),
+    id: toComponentId9(id) ?? id,
+    observedCityId: toComponentId9(record.id),
     owner: Number(record.owner ?? record.player ?? record.getOwner?.()),
     name: typeof record.getName === "function" ? record.getName() : record.name ?? null,
     location,
@@ -34698,7 +36678,7 @@ function collectOrigins(requested, playerId, target) {
     target.UI?.Player?.getHeadSelectedUnit
   ]) {
     const id = probe8(() => getter?.()).ok ? getter?.() : null;
-    const unit = toComponentId8(id) == null ? null : target.Units?.get?.(toComponentId8(id));
+    const unit = toComponentId9(id) == null ? null : target.Units?.get?.(toComponentId9(id));
     const location = unitLocation(unit);
     if (location != null) origins.push(location);
   }
@@ -34719,14 +36699,14 @@ function alivePlayerIds(target) {
 }
 function ownerUnitIds(owner, target) {
   try {
-    return [...target.Players?.Units?.get?.(owner)?.getUnitIds?.() ?? []].map(toComponentId8).filter((id) => id != null);
+    return [...target.Players?.Units?.get?.(owner)?.getUnitIds?.() ?? []].map(toComponentId9).filter((id) => id != null);
   } catch {
     return [];
   }
 }
 function ownerCityIds(owner, target) {
   try {
-    return [...target.Players?.Cities?.get?.(owner)?.getCityIds?.() ?? []].map(toComponentId8).filter((id) => id != null);
+    return [...target.Players?.Cities?.get?.(owner)?.getCityIds?.() ?? []].map(toComponentId9).filter((id) => id != null);
   } catch {
     return [];
   }
@@ -34882,7 +36862,7 @@ function toLocation(value2) {
 function isLocation(value2) {
   return value2 != null;
 }
-function toComponentId8(value2) {
+function toComponentId9(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   const owner = Number(record.owner ?? record.Owner ?? record.player ?? record.Player);
@@ -34954,11 +36934,23 @@ function createCiv7GameUiDirectControlFacade(target) {
     requestCiv7NotificationDismissal: async (input) => await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: async (input) => await requestCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) => await requestCiv7GameUiDiplomacyResponse(input, target),
+    requestCiv7FirstMeetResponse: unsupported,
+    requestCiv7GovernmentChoice: unsupported,
+    requestCiv7CelebrationChoice: unsupported,
     requestCiv7TechnologyChoiceCloseout: async (input) => await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) => await requestCiv7GameUiCultureChoiceCloseout(input, target),
+    requestCiv7TechnologyTarget: unsupported,
+    requestCiv7CultureTarget: unsupported,
+    requestCiv7AttributePurchase: unsupported,
+    requestCiv7AttributeReviewCloseout: unsupported,
+    requestCiv7TraditionChange: unsupported,
+    requestCiv7TraditionReviewCloseout: unsupported,
+    requestCiv7TownFocusChange: async (input) => await requestCiv7GameUiTownFocusChange(input, target),
+    requestCiv7TownFocusReviewCloseout: async (input) => await requestCiv7GameUiTownFocusReviewCloseout(input, target),
     requestCiv7AssignWorkerPlacement: async (input) => await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) => await requestCiv7GameUiExpandCityPlacement(input, target),
     requestCiv7UnitTargetAction: async (input) => await requestCiv7GameUiUnitTargetAction(input, target),
+    requestCiv7UnitCommand: unsupported,
     requestCiv7TurnComplete: async () => await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
     getCiv7PlayNotificationView: async (options) => await getCiv7GameUiPlayNotificationView({
@@ -35003,6 +36995,12 @@ function gameUiSupportedMutationProcedures(target) {
   }
   if (civ7GameUiPopulationPlacementAvailable(target)) {
     supported2.push("city.population.place.request");
+  }
+  if (civ7GameUiTownFocusAvailable(target)) {
+    supported2.push(
+      "city.townFocus.change.request",
+      "city.townFocus.review.request"
+    );
   }
   if (gameUiTurnCompletionAvailable(target)) {
     supported2.push("turn.complete.request");

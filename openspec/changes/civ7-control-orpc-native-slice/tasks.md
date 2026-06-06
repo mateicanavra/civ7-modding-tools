@@ -844,6 +844,21 @@ adding more read-only facade shells.
     procedure. Keep the global allowlist, semantic envelopes, no raw
     command/session output, deployed Civ7 proof, play-thread action, and full
     `7.3` acceptance unchanged.
+  - [x] 7.3.29 Add game-resident town-focus runtime dependencies for
+    `city.townFocus.change.request` and `city.townFocus.review.request`:
+    expose ambient `Game.CityCommands.canStart/sendRequest` for
+    `CHANGE_GROWTH_MODE`, ambient
+    `Game.CityOperations.canStart/sendRequest` for
+    `CONSIDER_TOWN_PROJECT`, `CityCommandTypes`, `CityOperationTypes`, and
+    controller-owned local-player proof through the existing service-owned
+    city town-focus procedures; advertise the mutations only when those exact
+    game UI APIs and controller proof exist; reject sends when the requested
+    city owner does not match `GameContext.localPlayerID`; preserve
+    validator-blocked not-sent output and pending-runtime-proof/no-repeat
+    guarded sent output; keep raw game-UI function names, command/session/state
+    details, deployed Civ7 proof, play-thread action, transport expansion,
+    public package-root procedure schema exports, and full `7.3` acceptance
+    pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1088,6 +1103,13 @@ adding more read-only facade shells.
   play-thread action, transport expansion, a city read service, controller or
   game-UI town-focus runtime, public package-root schema exports, or parent
   Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.5 Run focused game-ui controller and controller-ingress tests plus
+  control-oRPC package test/check/build, strict OpenSpec validates, and diff
+  hygiene for the game-resident town-focus runtime dependency and controller
+  bridge allowlist slice. These are local package proofs only and do not claim
+  deployed Civ7 runtime proof, play-thread action, transport expansion, a city
+  read service, public package-root procedure schema exports, or parent Task
+  5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

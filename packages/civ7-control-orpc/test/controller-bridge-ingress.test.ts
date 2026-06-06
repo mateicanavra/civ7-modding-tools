@@ -6,6 +6,10 @@ import {
   Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeCityTownFocusChangeRequestSchema,
+  Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema,
+  Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
+  Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
@@ -27,6 +31,10 @@ import {
   type Civ7ControllerBridgeCityPopulationPlacementSuccessResponse,
   type Civ7ControllerBridgeCityProductionChoiceRequest,
   type Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
+  type Civ7ControllerBridgeCityTownFocusChangeRequest,
+  type Civ7ControllerBridgeCityTownFocusChangeSuccessResponse,
+  type Civ7ControllerBridgeCityTownFocusReviewRequest,
+  type Civ7ControllerBridgeCityTownFocusReviewSuccessResponse,
   type Civ7ControllerBridgeDiplomacyResponseRequest,
   type Civ7ControllerBridgeDiplomacyResponseSuccessResponse,
   type Civ7ControllerBridgeNarrativeChoiceRequest,
@@ -51,6 +59,11 @@ const target = { x: 22, y: 31 };
 const cityId = { owner: 0, id: 65_536, type: 1 };
 const productionArgs = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
 const workerLocation = 2543;
+const townFocusInput = {
+  cityId,
+  growthType: -284_569_333,
+  projectType: -548_685_232,
+};
 const narrativeTarget = { owner: 0, id: 7_001, type: 12 };
 const narrativeInput = {
   playerId: 2,
@@ -82,6 +95,10 @@ type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
   Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
   Civ7ControllerBridgeCityPopulationPlacementRequest,
   Civ7ControllerBridgeCityPopulationPlacementSuccessResponse,
+  Civ7ControllerBridgeCityTownFocusChangeRequest,
+  Civ7ControllerBridgeCityTownFocusChangeSuccessResponse,
+  Civ7ControllerBridgeCityTownFocusReviewRequest,
+  Civ7ControllerBridgeCityTownFocusReviewSuccessResponse,
   Civ7ControllerBridgeNarrativeChoiceRequest,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponse,
   Civ7ControllerBridgeDiplomacyResponseRequest,
@@ -105,6 +122,10 @@ describe("Civ7 controller bridge ingress", () => {
       Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
       Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
       Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+      Civ7ControllerBridgeCityTownFocusChangeRequestSchema,
+      Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema,
+      Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
+      Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
       Civ7ControllerBridgeNarrativeChoiceRequestSchema,
       Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
       Civ7ControllerBridgeDiplomacyResponseRequestSchema,
@@ -529,6 +550,116 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("App UI");
   });
 
+  test("invokes allowlisted city.townFocus.change.request through the in-process router with controller proof", async () => {
+    const fake = fakeTownFocusContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "city.townFocus.change.request",
+      input: townFocusInput,
+      correlationId: "controller-town-focus-change-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "city.townFocus.change.request",
+      correlationId: "controller-town-focus-change-1",
+      output: {
+        cityId,
+        growthType: -284_569_333,
+        projectType: -548_685_232,
+        city: 65_536,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.townFocus).toEqual([{
+      method: "requestCiv7TownFocusChange",
+      input: townFocusInput,
+      options: { timeoutMs: 1_000 },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "city.townFocus.change.request",
+      input: townFocusInput,
+      correlationId: "controller-town-focus-change-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("\"operation\"");
+    expect(serialized).not.toContain("\"verified\"");
+    expect(serialized).not.toContain("CHANGE_GROWTH_MODE");
+    expect(serialized).not.toContain("Game.CityCommands.sendRequest");
+    expect(serialized).not.toContain("CMD");
+    expect(serialized).not.toContain("Tuner");
+    expect(serialized).not.toContain("App UI");
+  });
+
+  test("invokes allowlisted city.townFocus.review.request through the in-process router with controller proof", async () => {
+    const fake = fakeTownFocusContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "city.townFocus.review.request",
+      input: { cityId },
+      correlationId: "controller-town-focus-review-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "city.townFocus.review.request",
+      correlationId: "controller-town-focus-review-1",
+      output: {
+        cityId,
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "pending-runtime-proof",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(fake.calls.townFocus).toEqual([{
+      method: "requestCiv7TownFocusReviewCloseout",
+      input: { cityId },
+      options: { timeoutMs: 1_000 },
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("CONSIDER_TOWN_PROJECT");
+    expect(serialized).not.toContain("Game.CityOperations.sendRequest");
+  });
+
   test("invokes allowlisted narrative.choice.request through the in-process router with controller proof", async () => {
     const fake = fakeNarrativeChoiceContext();
     const ingress = createCiv7ControllerBridgeIngress({
@@ -868,6 +999,25 @@ describe("Civ7 controller bridge ingress", () => {
           destination: target,
         },
         state: { name: "App UI" },
+      },
+      {
+        procedureKey: "city.townFocus.change.request",
+        input: {
+          ...townFocusInput,
+          rawCommand: "Game.CityCommands.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "city.townFocus.change.request",
+        input: townFocusInput,
+        session: { state: "App UI" },
+      },
+      {
+        procedureKey: "city.townFocus.review.request",
+        input: {
+          cityId,
+          rawCommand: "Game.CityOperations.sendRequest(...)",
+        },
       },
       {
         procedureKey: "narrative.choice.request",
@@ -1365,6 +1515,67 @@ function fakePopulationPlacementContext(): {
             options,
           });
           return populationPlacementResult("expand-city");
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
+function fakeTownFocusContext(): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    townFocus: Array<{
+      method: "requestCiv7TownFocusChange" | "requestCiv7TownFocusReviewCloseout";
+      input: unknown;
+      options: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: TestControllerContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    townFocus: Array<{
+      method: "requestCiv7TownFocusChange" | "requestCiv7TownFocusReviewCloseout";
+      input: unknown;
+      options: unknown;
+    }>;
+  } = {
+    status: [],
+    townFocus: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: [
+          "city.townFocus.change.request",
+          "city.townFocus.review.request",
+        ],
+      },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7TownFocusChange: async (input, options) => {
+          calls.townFocus.push({
+            method: "requestCiv7TownFocusChange",
+            input,
+            options,
+          });
+          return townFocusRuntimeResult("town-focus-change");
+        },
+        requestCiv7TownFocusReviewCloseout: async (input, options) => {
+          calls.townFocus.push({
+            method: "requestCiv7TownFocusReviewCloseout",
+            input,
+            options,
+          });
+          return townFocusRuntimeResult("town-focus-review");
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -1967,6 +2178,82 @@ function populationPlacementValidationResult(
       command: family === "city-command"
         ? "Game.CityCommands.canStart(...)"
         : "Game.PlayerOperations.canStart(...)",
+    },
+  };
+}
+
+function townFocusRuntimeResult(
+  kind: "town-focus-change" | "town-focus-review",
+): any {
+  const operationType = kind === "town-focus-change"
+    ? "CHANGE_GROWTH_MODE"
+    : "CONSIDER_TOWN_PROJECT";
+  const args = kind === "town-focus-change"
+    ? {
+        Type: -284_569_333,
+        ProjectType: -548_685_232,
+        City: 65_536,
+      }
+    : {};
+  const beforeValidation = townFocusValidationResult(operationType, args);
+  const common = {
+    cityId,
+    operation: {
+      before: beforeValidation,
+      after: beforeValidation,
+      sent: true,
+      command: {
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "65535", name: "App UI" },
+        output: [`CMD:65535:${operationType}`],
+      },
+    },
+    beforeValidation,
+    afterValidation: beforeValidation,
+    sent: true,
+    verified: false,
+    postcondition: {
+      classification: "pending-runtime-proof",
+      reason: `test ${kind} pending runtime proof`,
+    },
+  };
+  if (kind === "town-focus-change") {
+    return {
+      ...common,
+      kind,
+      growthType: -284_569_333,
+      projectType: -548_685_232,
+      city: 65_536,
+    };
+  }
+  return {
+    ...common,
+    kind,
+  };
+}
+
+function townFocusValidationResult(
+  operationType: "CHANGE_GROWTH_MODE" | "CONSIDER_TOWN_PROJECT",
+  args: Record<string, number>,
+) {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    family: operationType === "CHANGE_GROWTH_MODE"
+      ? "city-command"
+      : "city-operation",
+    operationType,
+    enumValue: operationType,
+    target: { cityId },
+    args,
+    valid: true,
+    result: {
+      raw: "validation-result",
+      command: operationType === "CHANGE_GROWTH_MODE"
+        ? "Game.CityCommands.canStart(...)"
+        : "Game.CityOperations.canStart(...)",
     },
   };
 }

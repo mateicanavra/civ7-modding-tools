@@ -23,6 +23,12 @@ import {
   type Civ7GameUiProductionTarget,
 } from "./game-ui-production";
 import {
+  civ7GameUiTownFocusAvailable,
+  requestCiv7GameUiTownFocusChange,
+  requestCiv7GameUiTownFocusReviewCloseout,
+  type Civ7GameUiTownFocusTarget,
+} from "./game-ui-town-focus";
+import {
   civ7GameUiProgressionChoiceAvailable,
   requestCiv7GameUiCultureChoiceCloseout,
   requestCiv7GameUiTechnologyChoiceCloseout,
@@ -93,13 +99,19 @@ export type Civ7GameUiRuntimeTarget = {
     sendTurnComplete?: () => unknown;
   };
   GameInfo?: Civ7GameUiStrategyFrontTarget["GameInfo"];
-  Game?: Civ7GameUiProductionTarget["Game"] & {
+  Game?: Civ7GameUiProductionTarget["Game"] & Civ7GameUiTownFocusTarget["Game"] & {
     Diplomacy?: Civ7GameUiDiplomacyTarget["Game"] extends infer Game
       ? Game extends { Diplomacy?: infer Diplomacy } ? Diplomacy : never
       : never;
-    CityCommands?: Civ7GameUiPopulationTarget["Game"] extends infer Game
-      ? Game extends { CityCommands?: infer Commands } ? Commands : never
-      : never;
+    CityCommands?: (
+      Civ7GameUiPopulationTarget["Game"] extends infer Game
+        ? Game extends { CityCommands?: infer Commands } ? Commands : never
+        : never
+    ) & (
+      Civ7GameUiTownFocusTarget["Game"] extends infer Game
+        ? Game extends { CityCommands?: infer Commands } ? Commands : never
+        : never
+    );
     PlayerOperations?: {
       canStart?: (
         playerId: number,
@@ -149,10 +161,12 @@ export type Civ7GameUiRuntimeTarget = {
     getHash?: () => number;
     Notifications?: Civ7GameUiNotifications;
   };
-  CityOperationTypes?: Civ7GameUiProductionTarget["CityOperationTypes"];
+  CityOperationTypes?: Civ7GameUiProductionTarget["CityOperationTypes"]
+    & Civ7GameUiTownFocusTarget["CityOperationTypes"];
   CityOperationsParametersValues?:
     Civ7GameUiProductionTarget["CityOperationsParametersValues"];
-  CityCommandTypes?: Civ7GameUiPopulationTarget["CityCommandTypes"];
+  CityCommandTypes?: Civ7GameUiPopulationTarget["CityCommandTypes"]
+    & Civ7GameUiTownFocusTarget["CityCommandTypes"];
   PlayerOperationTypes?: Civ7GameUiPopulationTarget["PlayerOperationTypes"]
     & Civ7GameUiProgressionTarget["PlayerOperationTypes"]
     & Civ7GameUiNarrativeTarget["PlayerOperationTypes"]
@@ -302,8 +316,10 @@ function createCiv7GameUiDirectControlFacade(
     requestCiv7AttributeReviewCloseout: unsupported,
     requestCiv7TraditionChange: unsupported,
     requestCiv7TraditionReviewCloseout: unsupported,
-    requestCiv7TownFocusChange: unsupported,
-    requestCiv7TownFocusReviewCloseout: unsupported,
+    requestCiv7TownFocusChange: async (input) =>
+      await requestCiv7GameUiTownFocusChange(input, target),
+    requestCiv7TownFocusReviewCloseout: async (input) =>
+      await requestCiv7GameUiTownFocusReviewCloseout(input, target),
     requestCiv7AssignWorkerPlacement: async (input) =>
       await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) =>
@@ -377,6 +393,12 @@ function gameUiSupportedMutationProcedures(
   }
   if (civ7GameUiPopulationPlacementAvailable(target)) {
     supported.push("city.population.place.request");
+  }
+  if (civ7GameUiTownFocusAvailable(target)) {
+    supported.push(
+      "city.townFocus.change.request",
+      "city.townFocus.review.request",
+    );
   }
   if (gameUiTurnCompletionAvailable(target)) {
     supported.push("turn.complete.request");

@@ -14,6 +14,10 @@ import {
   Civ7CityPopulationPlacementResultSchema,
   Civ7CityProductionChoiceInputSchema,
   Civ7CityProductionChoiceResultSchema,
+  Civ7CityTownFocusChangeInputSchema,
+  Civ7CityTownFocusChangeResultSchema,
+  Civ7CityTownFocusReviewInputSchema,
+  Civ7CityTownFocusReviewResultSchema,
 } from "../modules/city/contract";
 import {
   Civ7DiplomacyResponseInputSchema,
@@ -165,6 +169,28 @@ export type Civ7ControllerBridgeCityPopulationPlacementRequest = Static<
   typeof Civ7ControllerBridgeCityPopulationPlacementRequestSchema
 >;
 
+export const Civ7ControllerBridgeCityTownFocusChangeRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("city.townFocus.change.request"),
+    input: Civ7CityTownFocusChangeInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeCityTownFocusChangeRequest =
+  Static<typeof Civ7ControllerBridgeCityTownFocusChangeRequestSchema>;
+
+export const Civ7ControllerBridgeCityTownFocusReviewRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("city.townFocus.review.request"),
+    input: Civ7CityTownFocusReviewInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeCityTownFocusReviewRequest =
+  Static<typeof Civ7ControllerBridgeCityTownFocusReviewRequestSchema>;
+
 export const Civ7ControllerBridgeNarrativeChoiceRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("narrative.choice.request"),
@@ -235,6 +261,8 @@ export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
   Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
+  Civ7ControllerBridgeCityTownFocusChangeRequestSchema,
+  Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
@@ -249,6 +277,8 @@ export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeTurnCompleteRequest
   | Civ7ControllerBridgeCityProductionChoiceRequest
   | Civ7ControllerBridgeCityPopulationPlacementRequest
+  | Civ7ControllerBridgeCityTownFocusChangeRequest
+  | Civ7ControllerBridgeCityTownFocusReviewRequest
   | Civ7ControllerBridgeNarrativeChoiceRequest
   | Civ7ControllerBridgeDiplomacyResponseRequest
   | Civ7ControllerBridgeUnitTargetActionRequest
@@ -370,6 +400,34 @@ export type Civ7ControllerBridgeCityPopulationPlacementSuccessResponse = Static<
   typeof Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("city.townFocus.change.request"),
+      output: Civ7CityTownFocusChangeResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeCityTownFocusChangeSuccessResponse = Static<
+  typeof Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("city.townFocus.review.request"),
+      output: Civ7CityTownFocusReviewResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeCityTownFocusReviewSuccessResponse = Static<
+  typeof Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema =
   Type.Object(
     {
@@ -450,6 +508,8 @@ export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
   Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+  Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema,
+  Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
@@ -464,6 +524,8 @@ export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeTurnCompleteSuccessResponse
   | Civ7ControllerBridgeCityProductionChoiceSuccessResponse
   | Civ7ControllerBridgeCityPopulationPlacementSuccessResponse
+  | Civ7ControllerBridgeCityTownFocusChangeSuccessResponse
+  | Civ7ControllerBridgeCityTownFocusReviewSuccessResponse
   | Civ7ControllerBridgeNarrativeChoiceSuccessResponse
   | Civ7ControllerBridgeDiplomacyResponseSuccessResponse
   | Civ7ControllerBridgeUnitTargetActionSuccessResponse
@@ -636,6 +698,34 @@ export async function invokeCiv7ControllerBridgeRequest(
       };
     }
 
+    if (request.procedureKey === "city.townFocus.change.request") {
+      const output = await client.city.townFocus.change.request(
+        request.input,
+      );
+      return {
+        ok: true,
+        procedureKey: "city.townFocus.change.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "city.townFocus.review.request") {
+      const output = await client.city.townFocus.review.request(
+        request.input,
+      );
+      return {
+        ok: true,
+        procedureKey: "city.townFocus.review.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
     if (request.procedureKey === "narrative.choice.request") {
       const output = await client.narrative.choice.request(request.input);
       return {
@@ -736,6 +826,8 @@ function isUnsupportedProcedureRequest(
     && request.procedureKey !== "turn.complete.request"
     && request.procedureKey !== "city.production.choice.request"
     && request.procedureKey !== "city.population.place.request"
+    && request.procedureKey !== "city.townFocus.change.request"
+    && request.procedureKey !== "city.townFocus.review.request"
     && request.procedureKey !== "narrative.choice.request"
     && request.procedureKey !== "diplomacy.response.request"
     && request.procedureKey !== "unit.target.action.request"
@@ -750,6 +842,8 @@ function isControllerBridgeMutationRequest(
   | Civ7ControllerBridgeTurnCompleteRequest
   | Civ7ControllerBridgeCityProductionChoiceRequest
   | Civ7ControllerBridgeCityPopulationPlacementRequest
+  | Civ7ControllerBridgeCityTownFocusChangeRequest
+  | Civ7ControllerBridgeCityTownFocusReviewRequest
   | Civ7ControllerBridgeNarrativeChoiceRequest
   | Civ7ControllerBridgeDiplomacyResponseRequest
   | Civ7ControllerBridgeUnitTargetActionRequest
@@ -759,6 +853,8 @@ function isControllerBridgeMutationRequest(
     || request.procedureKey === "turn.complete.request"
     || request.procedureKey === "city.production.choice.request"
     || request.procedureKey === "city.population.place.request"
+    || request.procedureKey === "city.townFocus.change.request"
+    || request.procedureKey === "city.townFocus.review.request"
     || request.procedureKey === "narrative.choice.request"
     || request.procedureKey === "diplomacy.response.request"
     || request.procedureKey === "unit.target.action.request"

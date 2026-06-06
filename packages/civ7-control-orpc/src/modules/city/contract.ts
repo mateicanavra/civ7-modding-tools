@@ -109,7 +109,7 @@ export const Civ7CityPopulationPlacementInputStandardSchema = toStandardSchema(
   Civ7CityPopulationPlacementInputSchema,
 );
 
-const Civ7CityTownFocusChangeInputSchema = Type.Object(
+export const Civ7CityTownFocusChangeInputSchema = Type.Object(
   {
     cityId: Civ7ControlOrpcComponentIdSchema,
     growthType: Type.Integer(),
@@ -122,7 +122,7 @@ export type Civ7CityTownFocusChangeInput = Static<
   typeof Civ7CityTownFocusChangeInputSchema
 >;
 
-const Civ7CityTownFocusReviewInputSchema = Type.Object(
+export const Civ7CityTownFocusReviewInputSchema = Type.Object(
   {
     cityId: Civ7ControlOrpcComponentIdSchema,
   },
@@ -395,7 +395,7 @@ const Civ7CityTownFocusResultBaseSchema = {
   postcondition: Civ7CityTownFocusPostconditionSummarySchema,
 } as const;
 
-const Civ7CityTownFocusChangeResultSchema = Type.Object(
+export const Civ7CityTownFocusChangeResultSchema = Type.Object(
   {
     ...Civ7CityTownFocusResultBaseSchema,
     growthType: Type.Integer(),
@@ -409,7 +409,7 @@ export type Civ7CityTownFocusChangeResult = Static<
   typeof Civ7CityTownFocusChangeResultSchema
 >;
 
-const Civ7CityTownFocusReviewResultSchema = Type.Object(
+export const Civ7CityTownFocusReviewResultSchema = Type.Object(
   {
     ...Civ7CityTownFocusResultBaseSchema,
     nextSteps: Type.Array(Civ7CityTownFocusReviewNextStepSchema),
