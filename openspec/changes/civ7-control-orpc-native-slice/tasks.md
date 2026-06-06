@@ -982,6 +982,17 @@ adding more read-only facade shells.
     names, command/session/state details, deployed Civ7 proof, play-thread
     action, transport expansion, public package-root procedure schema exports,
     and full `7.3` acceptance pending.
+  - [x] 7.3.36 Add game-resident world plot/grid read dependencies for
+    `world.plot.read` and `world.grid.read`: expose ambient `GameplayMap`
+    plot APIs as low-level map read evidence for the existing service-owned
+    world procedures, allowlist both leaves through closed controller bridge
+    envelopes derived from the aggregated `Civ7ControlOrpcContract`, advertise
+    the reads only when the exact plot-level map APIs exist, and keep normal
+    bridge output semantic without raw host/port/state/session/command,
+    direct-control runtime envelopes, actor catalogs, or relationship labels.
+    Keep deployed Civ7 proof, play-thread action, transport expansion, public
+    package-root procedure schema exports, broad world/actor catalogs, and
+    full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1311,6 +1322,16 @@ adding more read-only facade shells.
   not claim deployed Civ7 runtime proof, play-thread action, controller bridge
   allowlisting, transport expansion, broad actor catalog support, relationship
   labels, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.15 Run focused controller bridge, game-UI controller, world map
+  read, and readiness tests plus control-oRPC package check/build, strict
+  OpenSpec validates, private procedure-schema export scan, active
+  approval/caller-permission scan, generated bundle scan, and diff hygiene for
+  the game-resident world plot/grid read dependency and controller bridge
+  allowlist slice. This is local package and generated-bundle proof only and
+  does not claim deployed Civ7 runtime proof, play-thread action, transport
+  expansion, broad actor catalog support, relationship labels, public
+  package-root procedure schema exports, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

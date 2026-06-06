@@ -47,6 +47,10 @@ import {
   Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
   Civ7ControllerBridgeWorldCurrentRequestSchema,
   Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeWorldGridReadRequestSchema,
+  Civ7ControllerBridgeWorldGridReadSuccessResponseSchema,
+  Civ7ControllerBridgeWorldPlotReadRequestSchema,
+  Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
   type Civ7ControlOrpcContext,
@@ -95,6 +99,10 @@ import {
   type Civ7ControllerBridgeUnitUpgradeSuccessResponse,
   type Civ7ControllerBridgeWorldCurrentRequest,
   type Civ7ControllerBridgeWorldCurrentSuccessResponse,
+  type Civ7ControllerBridgeWorldGridReadRequest,
+  type Civ7ControllerBridgeWorldGridReadSuccessResponse,
+  type Civ7ControllerBridgeWorldPlotReadRequest,
+  type Civ7ControllerBridgeWorldPlotReadSuccessResponse,
 } from "../src/index";
 
 type TestControllerContext = Civ7ControlOrpcContext & Readonly<{
@@ -166,6 +174,10 @@ type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
   Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
   Civ7ControllerBridgeWorldCurrentRequest,
   Civ7ControllerBridgeWorldCurrentSuccessResponse,
+  Civ7ControllerBridgeWorldPlotReadRequest,
+  Civ7ControllerBridgeWorldPlotReadSuccessResponse,
+  Civ7ControllerBridgeWorldGridReadRequest,
+  Civ7ControllerBridgeWorldGridReadSuccessResponse,
   Civ7ControllerBridgeCityProductionChoiceRequest,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
   Civ7ControllerBridgeCityPopulationPlacementRequest,
@@ -217,6 +229,10 @@ describe("Civ7 controller bridge ingress", () => {
       Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
       Civ7ControllerBridgeWorldCurrentRequestSchema,
       Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
+      Civ7ControllerBridgeWorldPlotReadRequestSchema,
+      Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema,
+      Civ7ControllerBridgeWorldGridReadRequestSchema,
+      Civ7ControllerBridgeWorldGridReadSuccessResponseSchema,
       Civ7ControllerBridgeCityProductionChoiceRequestSchema,
       Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
       Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
@@ -439,6 +455,180 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("\"session\"");
     expect(serialized).not.toContain("\"rawCommand\"");
     expect(serialized).not.toContain("relationship");
+  });
+
+  test("invokes allowlisted world.plot.read through the in-process router", async () => {
+    const fake = fakeWorldMapContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "world.plot.read",
+      input: {
+        location: { x: 3, y: 4 },
+        fields: ["terrain", "owner"],
+        playerId: 0,
+      },
+      correlationId: "controller-world-plot-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "world.plot.read",
+      correlationId: "controller-world-plot-1",
+      output: {
+        sourceStatus: {
+          plot: "read",
+        },
+        plot: {
+          location: {
+            x: 3,
+            y: 4,
+            index: 3_004,
+          },
+          hiddenInfoPolicy: "visibility-filtered",
+          facts: {
+            terrain: { ok: true, value: 7 },
+            owner: { ok: true, value: 0 },
+          },
+        },
+      },
+    });
+    expect(fake.calls.plot).toEqual([{
+      input: {
+        x: 3,
+        y: 4,
+        fields: ["terrain", "owner"],
+        playerId: 0,
+        includeHidden: undefined,
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "world.plot.read",
+      input: {
+        location: { x: 3, y: 4 },
+        fields: ["terrain", "owner"],
+        playerId: 0,
+      },
+      correlationId: "controller-world-plot-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("relationship");
+  });
+
+  test("invokes allowlisted world.grid.read through the in-process router", async () => {
+    const fake = fakeWorldMapContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "world.grid.read",
+      input: {
+        bounds: { x: 3, y: 4, width: 2, height: 1 },
+        fields: ["terrain"],
+        maxPlots: 1,
+      },
+      correlationId: "controller-world-grid-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "world.grid.read",
+      correlationId: "controller-world-grid-1",
+      output: {
+        sourceStatus: {
+          grid: "read-with-omissions",
+          map: "read",
+        },
+        bounds: { x: 3, y: 4, width: 2, height: 1 },
+        fields: ["terrain"],
+        plotCount: 2,
+        omitted: 1,
+        plots: [
+          {
+            location: { x: 3, y: 4, index: 3_004 },
+            facts: { terrain: { ok: true, value: 7 } },
+          },
+        ],
+      },
+    });
+    expect(fake.calls.grid).toEqual([{
+      input: {
+        bounds: { x: 3, y: 4, width: 2, height: 1 },
+        fields: ["terrain"],
+        playerId: undefined,
+        includeHidden: undefined,
+        maxPlots: 1,
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("relationship");
+  });
+
+  test("rejects raw world plot/grid controller envelopes before dispatch", async () => {
+    const fake = fakeWorldMapContext();
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: () => fake.context,
+    });
+
+    const plotResponse = await ingress.invoke({
+      procedureKey: "world.plot.read",
+      input: {
+        location: { x: 3, y: 4 },
+        rawCommand: "GameplayMap.getTerrainType(3, 4)",
+      },
+    });
+    const gridResponse = await ingress.invoke({
+      procedureKey: "world.grid.read",
+      input: {
+        bounds: { x: 3, y: 4, width: 2, height: 1 },
+        fields: ["terrain"],
+        state: { id: "65535", name: "App UI" },
+      },
+    });
+
+    expect(plotResponse).toEqual({
+      ok: false,
+      error: {
+        code: "BRIDGE_BAD_REQUEST",
+        message: "Civ7 controller bridge request envelope is invalid.",
+        reason: "invalid-envelope",
+      },
+    });
+    expect(gridResponse).toEqual({
+      ok: false,
+      error: {
+        code: "BRIDGE_BAD_REQUEST",
+        message: "Civ7 controller bridge request envelope is invalid.",
+        reason: "invalid-envelope",
+      },
+    });
+    expect(fake.calls.plot).toEqual([]);
+    expect(fake.calls.grid).toEqual([]);
   });
 
   test("invokes allowlisted notifications.dismiss.request through the in-process router with controller proof", async () => {
@@ -1911,6 +2101,84 @@ function fakeContext(
       } as Civ7ControlOrpcContext["directControl"],
     },
   };
+}
+
+function fakeWorldMapContext(): {
+  calls: {
+    plot: Array<{ input: unknown; options: unknown }>;
+    grid: Array<{ input: unknown; options: unknown }>;
+  };
+  contextRequests: unknown[];
+  context: TestControllerContext;
+} {
+  const calls: {
+    plot: Array<{ input: unknown; options: unknown }>;
+    grid: Array<{ input: unknown; options: unknown }>;
+  } = {
+    plot: [],
+    grid: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
+      controller: {
+        supportedReadProcedures: ["world.plot.read", "world.grid.read"],
+      },
+      directControl: {
+        getCiv7PlayableStatus: async () => playableStatusResult(),
+        getCiv7PlotSnapshot: async (input, options) => {
+          calls.plot.push({ input, options });
+          return plotSnapshotResult(input.x, input.y, input.fields ?? ["terrain"]);
+        },
+        getCiv7MapGrid: async (input, options) => {
+          calls.grid.push({ input, options });
+          const fields = input.fields;
+          return {
+            host: "127.0.0.1",
+            port: 4318,
+            state: { id: "65535", name: "App UI" },
+            bounds: input.bounds,
+            fields: Array.from(fields),
+            plotCount: 2,
+            omitted: 1,
+            hiddenInfoPolicy: "not-player-scoped",
+            map: {
+              width: { ok: true, value: 84 },
+              height: { ok: true, value: 52 },
+            },
+            plots: [plotSnapshotResult(3, 4, fields)],
+          };
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
+function plotSnapshotResult(
+  x: number,
+  y: number,
+  fields: readonly string[],
+) {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    location: {
+      x,
+      y,
+      index: { ok: true, value: x * 1_000 + y },
+    },
+    revealedState: { ok: true, value: 1 },
+    visible: { ok: true, value: true },
+    hiddenInfoPolicy: "visibility-filtered",
+    facts: Object.fromEntries(fields.map((field) => [
+      field,
+      { ok: true, value: field === "owner" ? 0 : 7 },
+    ])),
+  } as const;
 }
 
 function fakeAttentionContext(unitId: { owner: number; id: number; type: number }): {

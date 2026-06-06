@@ -144,6 +144,139 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain("suzerain");
   });
 
+  test("reads world plot and grid through game UI map service dependencies", async () => {
+    const bridge = installCiv7GameUiIntelligenceBridge({
+      target: gameUiMapReadTarget(),
+    });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            { procedureKey: "world.current", risk: "read-only" },
+            { procedureKey: "world.plot.read", risk: "read-only" },
+            { procedureKey: "world.grid.read", risk: "read-only" },
+          ]),
+        },
+      },
+    });
+
+    const plot = await bridge.invoke({
+      procedureKey: "world.plot.read",
+      input: {
+        location: { x: 3, y: 4 },
+        fields: ["terrain", "owner", "visibility"],
+        playerId: 0,
+      },
+      correlationId: "game-ui-world-plot-1",
+    });
+    expect(plot).toMatchObject({
+      ok: true,
+      procedureKey: "world.plot.read",
+      correlationId: "game-ui-world-plot-1",
+      output: {
+        sourceStatus: { plot: "read" },
+        plot: {
+          location: { x: 3, y: 4, index: 3_004 },
+          hiddenInfoPolicy: "visibility-filtered",
+          facts: {
+            terrain: { ok: true, value: 7 },
+            owner: { ok: true, value: 0 },
+            visible: { ok: true, value: true },
+          },
+        },
+      },
+    });
+
+    const grid = await bridge.invoke({
+      procedureKey: "world.grid.read",
+      input: {
+        bounds: { x: 3, y: 4, width: 2, height: 1 },
+        fields: ["terrain"],
+        maxPlots: 1,
+      },
+      correlationId: "game-ui-world-grid-1",
+    });
+    expect(grid).toMatchObject({
+      ok: true,
+      procedureKey: "world.grid.read",
+      correlationId: "game-ui-world-grid-1",
+      output: {
+        sourceStatus: {
+          grid: "read-with-omissions",
+          map: "read",
+        },
+        bounds: { x: 3, y: 4, width: 2, height: 1 },
+        fields: ["terrain"],
+        plotCount: 2,
+        omitted: 1,
+        plots: [
+          {
+            location: { x: 3, y: 4, index: 3_004 },
+            facts: { terrain: { ok: true, value: 7 } },
+          },
+        ],
+      },
+    });
+
+    const serialized = JSON.stringify({ plot, grid });
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("rawCommand");
+    expect(serialized).not.toContain("Game.");
+    expect(serialized).not.toContain("relationship");
+    expect(serialized).not.toContain("enemy");
+    expect(serialized).not.toContain("hostile");
+    expect(serialized).not.toContain("opponent");
+    expect(serialized).not.toContain("threat");
+    expect(serialized).not.toContain("war");
+    expect(serialized).not.toContain("ally");
+    expect(serialized).not.toContain("suzerain");
+  });
+
+  test("does not advertise world plot/grid without plot-level map APIs", async () => {
+    const bridge = installCiv7GameUiIntelligenceBridge({ target: gameUiTarget() });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: [
+            { procedureKey: "world.current", risk: "read-only" },
+          ],
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "world.plot.read",
+      input: {
+        location: { x: 3, y: 4 },
+        fields: ["terrain"],
+      },
+    });
+    expect(response).toEqual({
+      ok: false,
+      error: {
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
+      },
+    });
+  });
+
   test("does not advertise current world without player count APIs", async () => {
     const bridge = installCiv7GameUiIntelligenceBridge({
       target: gameUiTarget({ Players: undefined }),
@@ -3558,6 +3691,24 @@ function gameUiTarget(
     ...target,
     ...overrides,
   };
+}
+
+function gameUiMapReadTarget(): Civ7GameUiRuntimeTarget {
+  const base = gameUiTarget();
+  return gameUiTarget({
+    GameplayMap: {
+      ...(base.GameplayMap ?? {}),
+      isValidXY: (x, y) => x >= 0 && y >= 0 && x < 74 && y < 46,
+      getIndexFromXY: (x, y) => x * 1_000 + y,
+      getTerrainType: () => 7,
+      getOwner: () => 0,
+      getOwnerName: () => "Local Player",
+      getRevealedState: () => 1,
+    },
+    Visibility: {
+      isVisible: () => true,
+    },
+  });
 }
 
 function gameUiStrategyFrontTarget(): Civ7GameUiRuntimeTarget {

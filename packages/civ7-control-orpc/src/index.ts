@@ -58,6 +58,10 @@ export {
   Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
   Civ7ControllerBridgeWorldCurrentRequestSchema,
   Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeWorldGridReadRequestSchema,
+  Civ7ControllerBridgeWorldGridReadSuccessResponseSchema,
+  Civ7ControllerBridgeWorldPlotReadRequestSchema,
+  Civ7ControllerBridgeWorldPlotReadSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
@@ -122,6 +126,10 @@ export type {
   Civ7ControllerBridgeUnitUpgradeSuccessResponse,
   Civ7ControllerBridgeWorldCurrentRequest,
   Civ7ControllerBridgeWorldCurrentSuccessResponse,
+  Civ7ControllerBridgeWorldGridReadRequest,
+  Civ7ControllerBridgeWorldGridReadSuccessResponse,
+  Civ7ControllerBridgeWorldPlotReadRequest,
+  Civ7ControllerBridgeWorldPlotReadSuccessResponse,
 } from "./bridge/controller-ingress";
 export {
   CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY,

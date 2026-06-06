@@ -281,12 +281,12 @@ errors, and server-side callers.
   catalogs, and relationship labels
 - **AND** the procedures reject endpoint/session/state/raw command fields from
   caller input before invoking the direct-control facade
-- **AND** game-UI controller context does not advertise these reads as
-  supported until a separate game-resident map evidence path exists
+- **AND** game-UI controller context advertises these reads only when the
+  separate game-resident map evidence path is present
 - **AND** local package tests prove only service projection and fake runtime
-  behavior; deployed Civ7 runtime proof, controller bridge allowlisting,
-  transport expansion, broad world/actor catalog support, and parent
-  Task 5.x/6.x/7.x acceptance remain pending
+  behavior; deployed Civ7 runtime proof, transport expansion, broad
+  world/actor catalog support, and parent Task 5.x/6.x/7.x acceptance remain
+  pending
 
 #### Scenario: CLI map summary uses current world service projection
 - **WHEN** `game map --summary` reads current world/map facts
@@ -1280,6 +1280,30 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, broad world/actor
   catalogs, play-thread action, and full `7.3` implementation remain pending
+
+#### Scenario: Game UI controller supports world plot and grid reads
+- **WHEN** the game-scoped controller context exposes ambient `GameplayMap`
+  plot APIs for bounded map reads
+- **THEN** the context may execute the service-owned `world.plot.read` and
+  `world.grid.read` procedures through the existing in-process router
+- **AND** `world.plot.read` and `world.grid.read` are listed as supported
+  game-UI reads only when the exact plot-level map APIs required by the
+  low-level dependency are present
+- **AND** the game-UI dependency returns bounded low-level plot/grid runtime
+  evidence for the existing world service procedures to project; it does not
+  own normal output semantics, actor catalogs, relationship labels, or a
+  separate transport API
+- **AND** bridge ingress validates the semantic plot/grid request and output
+  envelopes from the aggregated `Civ7ControlOrpcContract` rather than
+  exporting per-procedure schema constants or using `Type.Unknown`
+- **AND** normal bridge success output remains the semantic world plot/grid
+  view and omits host, port, state, command, rawCommand, session, tuner
+  payloads, raw game-UI function names, direct-control socket details,
+  direct-control runtime envelopes, actor catalogs, and relationship labels
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, broad world/actor
+  catalogs, play-thread action, transport expansion, and full `7.3`
+  implementation remain pending
 
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 

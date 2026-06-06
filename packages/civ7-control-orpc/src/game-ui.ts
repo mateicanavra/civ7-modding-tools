@@ -84,6 +84,12 @@ import {
   getCiv7GameUiTargetCandidates,
   type Civ7GameUiStrategyFrontTarget,
 } from "./game-ui-strategy-front";
+import {
+  civ7GameUiWorldMapReadsAvailable,
+  getCiv7GameUiMapGrid,
+  getCiv7GameUiPlotSnapshot,
+  type Civ7GameUiMapReadTarget,
+} from "./game-ui-map";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 import type {
   Civ7ControlOrpcDirectControlFacade,
@@ -257,7 +263,9 @@ export type Civ7GameUiRuntimeTarget = {
     isWater?: Civ7GameUiStrategyFrontTarget["GameplayMap"] extends infer Map
       ? Map extends { isWater?: infer Fn } ? Fn : never
       : never;
-  };
+  } & Civ7GameUiMapReadTarget["GameplayMap"];
+  Visibility?: Civ7GameUiMapReadTarget["Visibility"];
+  MapCities?: Civ7GameUiMapReadTarget["MapCities"];
   MapUnits?: Civ7GameUiUnitTargetActionTarget["MapUnits"];
   Units?: Civ7GameUiUnitTargetActionTarget["Units"]
     & Civ7GameUiStrategyFrontTarget["Units"];
@@ -315,12 +323,6 @@ export function createCiv7GameUiControllerContextFactory(
 function createCiv7GameUiDirectControlFacade(
   target: Civ7GameUiRuntimeTarget,
 ): Civ7ControlOrpcDirectControlFacade {
-  const unsupported = async (): Promise<never> => {
-    throw new Error(
-      "Civ7 game UI controller dependency is not implemented for this procedure.",
-    );
-  };
-
   return {
     requestCiv7ProductionChoice: async (input) =>
       await requestCiv7GameUiProductionChoice(input, target),
@@ -373,8 +375,10 @@ function createCiv7GameUiDirectControlFacade(
       }, target),
     getCiv7BattlefieldScan: async (input) =>
       await getCiv7GameUiBattlefieldScan(input, target),
-    getCiv7PlotSnapshot: unsupported,
-    getCiv7MapGrid: unsupported,
+    getCiv7PlotSnapshot: async (input) =>
+      await getCiv7GameUiPlotSnapshot(input, target),
+    getCiv7MapGrid: async (input) =>
+      await getCiv7GameUiMapGrid(input, target),
     getCiv7ReadyUnitView: async (input) =>
       await getCiv7GameUiReadyUnitView(input, target),
     getCiv7ReadyCityView: async (input) =>
@@ -500,6 +504,9 @@ function gameUiSupportedReadProcedures(
   }
   if (gameUiWorldCurrentAvailable(target)) {
     supported.push("world.current");
+  }
+  if (civ7GameUiWorldMapReadsAvailable(target)) {
+    supported.push("world.plot.read", "world.grid.read");
   }
   return supported;
 }
