@@ -9,7 +9,6 @@ import { toStandardSchema } from "../../typebox-standard-schema";
 
 const Civ7ProgressionChoiceInputSchema = Type.Object(
   {
-    playerId: Type.Integer({ minimum: 0, maximum: 1024 }),
     node: Type.Integer(),
     notificationId: Type.Optional(Civ7ControlOrpcComponentIdSchema),
   },

@@ -26,8 +26,8 @@ request/output identity to the before-notification read's `localPlayerId`.
 
 - accepts `progression.technology.choice.request` and
   `progression.culture.choice.request` as additional allowlisted mutations;
-- validates the existing semantic progression input shape: `playerId`, `node`,
-  and optional `notificationId`;
+- validates the existing semantic progression input shape: `node` and optional
+  `notificationId`;
 - requires the controller lifecycle proof envelope plus game-controller-ready
   lifecycle evidence, `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;

@@ -146,12 +146,10 @@ const celebrationInput = {
   goldenAgeType: -340_825_966,
 };
 const progressionTechnologyInput = {
-  playerId: 2,
   node: 18_001,
   notificationId,
 };
 const progressionCultureInput = {
-  playerId: 2,
   node: 27_001,
   notificationId,
 };
@@ -1873,6 +1871,13 @@ describe("Civ7 controller bridge ingress", () => {
         input: {
           ...celebrationInput,
           operationType: "CHOOSE_GOLDEN_AGE",
+        },
+      },
+      {
+        procedureKey: "progression.technology.choice.request",
+        input: {
+          ...progressionTechnologyInput,
+          playerId: 2,
         },
       },
       {

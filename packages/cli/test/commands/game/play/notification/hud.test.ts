@@ -43,7 +43,8 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Masonry', 'Sailing']);
       const masonry = details?.enabledOptions.find((option) => option.nodeType === -1255676052);
       expect(masonry?.chooseValidation.value?.Success).toBe(true);
-      expect(masonry?.cli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send');
+      expect(masonry?.cli).toContain('game play choose-tech --node -1255676052 --send');
+      expect(masonry?.cli).not.toContain('--player-id');
       expect(masonry?.cli).not.toContain('--closeout');
       expect(details?.disabledOptions[0].name).toBe('Agriculture');
       expect(details?.disabledOptions[0].cli).toBeNull();
@@ -64,7 +65,9 @@ describe('game play notifications command', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Discipline', 'Ekklesia']);
       const ekklesia = details?.enabledOptions.find((option) => option.nodeType === -869902342);
       expect(ekklesia?.chooseValidation.value?.Success).toBe(true);
-      expect(ekklesia?.cli).toContain('game play choose-culture --player-id 0 --node -869902342 --send --closeout');
+      expect(ekklesia?.cli).toContain('game play choose-culture --node -869902342 --send');
+      expect(ekklesia?.cli).not.toContain('--closeout');
+      expect(ekklesia?.cli).not.toContain('--player-id');
       expect(details?.disabledOptions[0].name).toBe('Mysticism');
       expect(details?.disabledOptions[0].cli).toBeNull();
       expect(payload.view.hud.nextDecision.details).toBeDefined();
@@ -405,13 +408,13 @@ function techChoiceHudView() {
       {
         nodeType: -1255676052,
         name: 'Masonry',
-        cli: "game play choose-tech --player-id 0 --node -1255676052 --send",
+        cli: "game play choose-tech --node -1255676052 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
       {
         nodeType: -1558948215,
         name: 'Sailing',
-        cli: "game play choose-tech --player-id 0 --node -1558948215 --send",
+        cli: "game play choose-tech --node -1558948215 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -451,13 +454,13 @@ function cultureChoiceHudView() {
       {
         nodeType: -869902342,
         name: 'Ekklesia',
-        cli: "game play choose-culture --player-id 0 --node -869902342 --send --closeout",
+        cli: "game play choose-culture --node -869902342 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
       {
         nodeType: -1404789184,
         name: 'Discipline',
-        cli: "game play choose-culture --player-id 0 --node -1404789184 --send --closeout",
+        cli: "game play choose-culture --node -1404789184 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
     ],

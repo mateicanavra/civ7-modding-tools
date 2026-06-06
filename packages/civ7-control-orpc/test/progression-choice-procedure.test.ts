@@ -16,13 +16,11 @@ import type {
 } from "../src/dependencies/direct-control";
 
 const technologyInput = {
-  playerId: 0,
   node: 18_001,
   notificationId: { owner: 0, id: 72, type: 20 },
 } as const;
 
 const cultureInput = {
-  playerId: 0,
   node: 27_001,
 } as const;
 
@@ -96,40 +94,27 @@ describe("progression choice control-oRPC procedures", () => {
     expect(serialized).not.toContain("SET_TECH_TREE_NODE");
   });
 
-  test("uses local-player notification evidence rather than caller player id for progression sends", async () => {
-    const before = notificationView("NOTIFICATION_CHOOSE_TECH", {
-      currentResearching: probe(10),
-      targetNode: probe(20),
-    });
-    const after = cleanView({ canEndTurn: true });
+  test("rejects caller player id before progression send dependencies are called", async () => {
     const fake = fakeContext({
-      views: [before, after],
+      views: [cleanView(), cleanView()],
       technologyResult: progressionCloseoutResult("technology"),
     });
 
-    const result = await call(
-      Civ7ControlOrpcRouter.progression.technology.choice.request,
-      {
-        ...technologyInput,
-        playerId: 2,
-      },
-      { context: fake.context },
-    );
+    await expect(
+      call(
+        Civ7ControlOrpcRouter.progression.technology.choice.request,
+        {
+          ...technologyInput,
+          playerId: 2,
+        } as never,
+        { context: fake.context },
+      ),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
 
-    expect(fake.calls.technology).toEqual([{
-      input: {
-        playerId: 0,
-        node: 18_001,
-        notificationId: { owner: 0, id: 72, type: 20 },
-      },
-      options: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-    }]);
-    expect(result.playerId).toBe(0);
-    expect(result.status).toBe("sent-confirmed");
+    expect(fake.calls.readiness).toEqual([]);
+    expect(fake.calls.views).toEqual([]);
+    expect(fake.calls.technology).toEqual([]);
+    expect(fake.calls.culture).toEqual([]);
   });
 
   test("keeps sent culture choices no-repeat guarded while the blocker remains live", async () => {

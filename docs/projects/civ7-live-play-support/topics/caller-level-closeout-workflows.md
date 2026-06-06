@@ -41,12 +41,12 @@ Use these when the selected action should be handled as one native workflow:
   sends `CHANGE_TRADITION` then `CONSIDER_ASSIGN_TRADITIONS`.
 - `game play buy-attribute --player-id <id> --node <node> --send --closeout`
   sends `BUY_ATTRIBUTE_TREE_NODE` then `CONSIDER_ASSIGN_ATTRIBUTE`.
-- `game play choose-tech --player-id <id> --node <node> --send`
+- `game play choose-tech --node <node> --send`
   runs the App UI tech chooser owner route: activate the current
   `NOTIFICATION_CHOOSE_TECH` when present, send `SET_TECH_TREE_NODE`, clear
   with `SET_TECH_TREE_TARGET_NODE`, then re-read the live technology-choice
   notification postcondition.
-- `game play choose-culture --player-id <id> --node <node> --send --closeout`
+- `game play choose-culture --node <node> --send`
   runs the App UI culture chooser owner route: activate the current
   `NOTIFICATION_CHOOSE_CULTURE_NODE` when present, send
   `SET_CULTURE_TREE_NODE`, clear with `SET_CULTURE_TREE_TARGET_NODE`, then

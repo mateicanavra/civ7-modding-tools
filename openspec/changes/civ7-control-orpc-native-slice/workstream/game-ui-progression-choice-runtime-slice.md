@@ -35,9 +35,10 @@ evidence.
 - The game-UI adapter returns the internal runtime-port result shape required
   by the existing service-owned progression procedures; the procedures still
   own caller-facing semantic projection and post-send attention rereads.
-- Caller `playerId` is not send authority. The service derives runtime
-  `playerId` from the game-UI notification view's local-player evidence, and
-  the adapter sends with `GameContext.localPlayerID` where present.
+- Caller `playerId` is not part of the public send input or send authority.
+  The service derives runtime `playerId` from the game-UI notification view's
+  local-player evidence, and the adapter sends with `GameContext.localPlayerID`
+  where present.
 - Validator-blocked choices remain semantic `not-sent` results. The adapter
   does not call the clear-target send when the choose send did not validate.
 - Sticky blockers, state-changed blockers, failed post-reads, and

@@ -146,9 +146,11 @@ errors, and server-side callers.
   `progression.culture.choice.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, evidence, and
   next-step schemas for those service procedures
-- **AND** the input admits only player ID, node ID, and optional notification
-  identity, with technology versus culture expressed by the domain procedure
-  path rather than a generic kind discriminator
+- **AND** the input admits only node ID and optional notification identity,
+  with technology versus culture expressed by the domain procedure path rather
+  than a generic kind discriminator
+- **AND** the procedure reads current local-player evidence before send and
+  does not admit caller-provided player ID as mutation authority
 - **AND** the evidence summary distinguishes read, failed, and skipped-not-sent
   post-read states without inventing after-state facts
 - **AND** endpoint, session, state, raw command, payload, App UI activation
@@ -817,8 +819,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the procedure's readiness, before/after notification reads,
   direct-control progression closeout port, progression postcondition
   projection, and no-repeat policy remain authoritative for the send
-- **AND** the send result uses live notification local-player evidence rather
-  than treating caller validation `--player-id` as send authority
+- **AND** send mode omits caller `--player-id`; the send result uses live
+  notification local-player evidence rather than caller validation identity as
+  send authority
 - **AND** the normal JSON result is the semantic progression choice procedure
   projection without raw command/session/state/Tuner details, App UI closeout
   payloads, direct-control runtime payloads, before/after notification views, or
@@ -1339,9 +1342,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** progression choice procedures are listed as supported game-UI
   mutations only when controller proof and the required ambient validation,
   send, notification, and player progression APIs are present
-- **AND** caller `playerId` remains validation/input context while the runtime
-  send player is derived from controller-owned `GameContext.localPlayerID` and
-  the pre-read local-player notification evidence
+- **AND** the bridge request omits caller `playerId`; the runtime send player
+  is derived from controller-owned `GameContext.localPlayerID` and the pre-read
+  local-player notification evidence
 - **AND** validator-blocked progression choices project semantic `not-sent`
   output, do not call the choose send API, and do not clear the target node
   after a failed choose validation
@@ -1633,9 +1636,9 @@ boundaries.
 - **AND** it reads notification evidence before and after the closeout request
   and consumes direct-control progression postcondition helpers rather than
   reimplementing blocker proof truth
-- **AND** its normal input exposes player, node, and optional notification
-  identity rather than a generic `kind` discriminator or direct-control App UI
-  toggles
+- **AND** its normal input exposes node and optional notification identity
+  rather than player identity, a generic `kind` discriminator, or
+  direct-control App UI toggles
 - **AND** its closeout request and normal output use the local-player evidence
   from the before-notification read rather than treating caller `playerId` as
   controller/runtime send authority

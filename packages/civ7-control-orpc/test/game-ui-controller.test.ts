@@ -1348,7 +1348,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "progression.technology.choice.request",
       input: {
-        playerId: 2,
         node: 18_001,
         notificationId,
       },
@@ -1416,7 +1415,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "progression.culture.choice.request",
       input: {
-        playerId: 0,
         node: 27_001,
         notificationId,
       },
@@ -1462,7 +1460,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.invoke({
       procedureKey: "progression.technology.choice.request",
       input: {
-        playerId: 0,
         node: 18_001,
         notificationId,
       },

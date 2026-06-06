@@ -23,8 +23,9 @@ is one complete technology selection workflow: it starts the selected research
 node and clears the temporary chooser target behind the scenes. Use
 `game play set-tech-target` directly only when the full tree UI should
 deliberately target a later node or when diagnostics prove the primary chooser
-operation already applied. Culture still accepts `--closeout` for the same
-two-operation chooser workflow until it receives the same default-send contract.
+operation already applied. Culture still accepts hidden `--closeout` as a
+compatibility no-op, but callers should treat `--send` as the complete
+two-operation chooser workflow.
 
 For technology blockers, read `game play choose-tech --options --json` before
 sending if the node id is not already proven. For culture blockers, read
@@ -108,16 +109,14 @@ one caller-level workflow:
 
 ```bash
 civ7 game play choose-culture \
-  --player-id 0 \
   --node -1677668973 \
   --send \
-  --closeout \
   --json
 ```
 
-The JSON result includes `operationSent` and a `postcondition` when sent with
-`--closeout`. `operationSent:true` means the App UI route returned successful
-operation-send evidence; it is not proof that the culture blocker cleared.
+The JSON result includes semantic send status and a `postcondition`.
+`sent:true` means the App UI route returned successful operation-send evidence;
+it is not proof that the culture blocker cleared.
 Treat `culture-choice-sticky-blocker` and
 `culture-state-changed-blocker-still-live` as stop-and-diagnose outcomes, not as
 reasons to repeat `choose-culture` or `set-culture-target` blindly.

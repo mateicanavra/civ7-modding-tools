@@ -70,7 +70,8 @@ describe('game play culture commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       const ekklesia = payload.result.surfaces[0].enabledOptions.find((option) => option.nodeType === -869902342);
       expect(ekklesia?.name).toBe('Ekklesia');
-      expect(ekklesia?.chooseCli).toContain('game play choose-culture --player-id 0 --node -869902342 --send');
+      expect(ekklesia?.chooseCli).toContain('game play choose-culture --node -869902342 --send');
+      expect(ekklesia?.chooseCli).not.toContain('--player-id');
       expect(ekklesia?.chooseCli).not.toContain('--closeout');
       expect(ekklesia?.turns).toBe(4);
       expect(ekklesia?.cost).toBe(105);
@@ -154,12 +155,9 @@ describe('game play culture commands', () => {
           '127.0.0.1',
           '--port',
           String(port),
-          '--player-id',
-          '0',
           '--node',
           '-1677668973',
           '--send',
-          '--closeout',
           '--json',
         ]);
       } finally {
@@ -223,7 +221,6 @@ describe('game play culture commands', () => {
         '--node',
         '-1404789184',
         '--send',
-        '--closeout',
         '--timeout-ms',
         '1000',
         '--json',
@@ -279,7 +276,6 @@ describe('game play culture commands', () => {
         '--node',
         '-1404789184',
         '--send',
-        '--closeout',
         '--timeout-ms',
         '1000',
         '--json',
@@ -651,7 +647,7 @@ function playNotificationView(mode: 'culture-choice' | 'ready-unit', cultureStat
     chooseValidation: { ok: true, value: { Success: row.enabled } },
     targetValidation: { ok: true, value: { Success: row.enabled } },
     cli: row.enabled
-      ? `game play choose-culture --player-id 0 --node ${row.nodeType} --send --closeout`
+      ? `game play choose-culture --node ${row.nodeType} --send`
       : null,
     validateCli: `game play choose-culture --player-id 0 --node ${row.nodeType} --json`,
     targetCli: row.enabled

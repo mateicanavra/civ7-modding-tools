@@ -70,7 +70,8 @@ describe('game play technology commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       const masonry = payload.result.surfaces[0].enabledOptions.find((option) => option.nodeType === -1255676052);
       expect(masonry?.name).toBe('Masonry');
-      expect(masonry?.chooseCli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send');
+      expect(masonry?.chooseCli).toContain('game play choose-tech --node -1255676052 --send');
+      expect(masonry?.chooseCli).not.toContain('--player-id');
       expect(masonry?.chooseCli).not.toContain('--closeout');
       expect(masonry?.turns).toBe(2);
       expect(masonry?.cost).toBe(137);
@@ -177,8 +178,6 @@ describe('game play technology commands', () => {
           '127.0.0.1',
           '--port',
           String(port),
-          '--player-id',
-          '0',
           '--node',
           '-1255676052',
           '--send',
@@ -666,7 +665,7 @@ function playNotificationView(mode: 'tech-choice' | 'ready-unit', technologyStat
     chooseValidation: { ok: true, value: { Success: row.enabled } },
     targetValidation: { ok: true, value: { Success: row.enabled } },
     cli: row.enabled
-      ? `game play choose-tech --player-id 0 --node ${row.nodeType} --send`
+      ? `game play choose-tech --node ${row.nodeType} --send`
       : null,
     validateCli: `game play choose-tech --player-id 0 --node ${row.nodeType} --json`,
     targetCli: row.enabled
