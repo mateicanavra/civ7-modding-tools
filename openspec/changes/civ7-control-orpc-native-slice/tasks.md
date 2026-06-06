@@ -1349,6 +1349,14 @@ adding more read-only facade shells.
     Keep deployed Civ7 proof, play-thread action, transport expansion, public
     package-root procedure schema exports, broad world/actor catalogs, and
     full `7.3` acceptance pending.
+  - [x] 7.3.37 Remove legacy CLI recipe fields from the game-UI attention
+    controller dependency data that feeds `attention.current`: keep categories,
+    notification ids, blocker flags, required inputs, common actions, and notes
+    semantic, and keep bridge/service output free of `cli` fields and
+    `game play ...` command strings. Keep direct-control notification
+    materialization, parser flags, deployed Civ7 proof, play-thread action,
+    transport expansion, public package-root procedure schema exports, and
+    full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1970,6 +1978,16 @@ adding more read-only facade shells.
   contracts, direct-control notification materialization, runtime read
   behavior, parser flags, deployed Civ7 runtime behavior, play-thread state,
   transport/controller scope, relationship authority, or parent Task 5.x/6.x/7.x
+  acceptance; caller-provided approval remains retired and no approval-reason
+  mechanic is introduced.
+- [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package
+  check/build, strict OpenSpec validates, game-UI attention `cli`/command
+  recipe scans, active approval/caller-permission scan, relationship-label
+  safety scan, and diff hygiene for the game-UI attention controller dependency
+  cleanup. This is local package proof only; it does not change direct-control
+  notification materialization, deployed Civ7 runtime behavior, play-thread
+  state, transport/controller scope, relationship authority, public
+  package-root procedure schema exports, or parent Task 5.x/6.x/7.x
   acceptance; caller-provided approval remains retired and no approval-reason
   mechanic is introduced.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,

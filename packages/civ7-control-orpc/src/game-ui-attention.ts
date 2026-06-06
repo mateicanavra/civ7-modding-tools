@@ -357,7 +357,6 @@ function notificationDecisionHint(input: Readonly<{
 }>): PlayDecisionHint {
   return {
     category: input.category,
-    cli: undefined,
     requiredInputs: [],
     commonActions: [],
     confidence: "official-ui",
@@ -386,7 +385,6 @@ function notificationDecisionQueueItem(
     location: notification.location,
     player: notification.player,
     category: notification.decision.category,
-    cli: notification.decision.cli,
     requiredInputs: notification.decision.requiredInputs,
     commonActions: notification.decision.commonActions,
     notes: notification.decision.notes,

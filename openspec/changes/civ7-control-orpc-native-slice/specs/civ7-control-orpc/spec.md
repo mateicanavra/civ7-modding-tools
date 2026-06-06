@@ -1247,6 +1247,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** normal bridge/service output remains semantic and omits raw host,
   port, state, command, rawCommand, session, tuner payloads, and direct-control
   socket details
+- **AND** the game UI attention dependency data does not preserve legacy `cli`
+  command recipe fields or literal `game play ...` command strings in
+  bridge/service output
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, broader read/mutation
   ports, play-thread action, and full `7.3` implementation remain pending
