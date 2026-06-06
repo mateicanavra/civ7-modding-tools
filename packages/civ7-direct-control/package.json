@@ -26,10 +26,10 @@
       "import": "./dist/play/progression/choice-postconditions.js",
       "require": "./dist/play/progression/choice-postconditions.cjs"
     },
-    "./play/notifications/game-ui-dismissal": {
-      "types": "./dist/play/notifications/game-ui-dismissal.d.ts",
-      "import": "./dist/play/notifications/game-ui-dismissal.js",
-      "require": "./dist/play/notifications/game-ui-dismissal.cjs"
+    "./play/notifications/postconditions": {
+      "types": "./dist/play/notifications/postconditions.d.ts",
+      "import": "./dist/play/notifications/postconditions.js",
+      "require": "./dist/play/notifications/postconditions.cjs"
     },
     "./proof/diplomacy-response-proof-policy": {
       "types": "./dist/proof/diplomacy-response-proof-policy.d.ts",

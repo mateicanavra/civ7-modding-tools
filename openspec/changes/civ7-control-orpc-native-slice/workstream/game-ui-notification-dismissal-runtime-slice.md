@@ -1,11 +1,11 @@
-# Game UI Notification Dismissal Runtime Slice
+# Game UI Notification Dismissal Access Path Slice
 
 Status: implemented local package/bundle proof.
 Date: 2026-06-05.
 
 ## Purpose
 
-Add the first game-resident mutation runtime port behind the serialized
+Add the first game-resident mutation access path behind the serialized
 controller ingress: `notifications.dismiss.request`.
 
 This moves the game-scoped controller from bootstrap-only proof toward the
@@ -14,21 +14,24 @@ control-oRPC service. It does not claim deployed Civ7 runtime proof.
 
 ## Write Set
 
-- `packages/civ7-direct-control/src/play/notifications/game-ui-dismissal.ts`
-- `packages/civ7-direct-control/package.json`
+- `packages/civ7-control-orpc/src/game-ui-notification-dismissal.ts`
+- `packages/civ7-control-orpc/test/game-ui-notification-dismissal.test.ts`
 - `packages/civ7-control-orpc/src/game-ui.ts`
-- `packages/civ7-control-orpc/src/context.ts`
-- `packages/civ7-control-orpc/src/middleware/mutation-readiness.ts`
-- `packages/civ7-control-orpc/test/game-ui-controller.test.ts`
+- `packages/civ7-direct-control/package.json`
+- deleted `packages/civ7-direct-control/src/play/notifications/game-ui-dismissal.ts`
+- deleted `packages/civ7-direct-control/test/game-ui-notification-dismissal.test.ts`
 - generated `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js`
 - this OpenSpec record, `tasks.md`, and `specs/civ7-control-orpc/spec.md`
 
 ## Behavior Boundary
 
-- The new direct-control subpath is game-safe and does not import tuner socket,
-  session execution, command serialization, or the direct-control package root.
+- The game UI notification-dismissal adapter is service-owned in
+  `packages/civ7-control-orpc` and does not import tuner socket, session
+  execution, command serialization, or private direct-control subpaths.
+- `@civ7/direct-control` remains the low-level notification dismissal result,
+  component validation, postcondition classifier, and proof-policy authority.
 - `@civ7/control-orpc/game-ui` wires only
-  `requestCiv7NotificationDismissal` to the game-safe runtime port.
+  `requestCiv7NotificationDismissal` to the service-owned game UI adapter.
 - The game-UI context reports only an explicit supported mutation procedure list;
   broad `readiness.current` observe/mutate capability remains conservative
   while game UI read/attention and other mutation ports are unsupported.
@@ -50,8 +53,9 @@ control-oRPC service. It does not claim deployed Civ7 runtime proof.
 ## Proof Collected
 
 - `bun run --cwd packages/civ7-direct-control check`
-- `bun run --cwd packages/civ7-direct-control test test/game-ui-notification-dismissal.test.ts`
 - `bun run --cwd packages/civ7-direct-control build`
+- `bun run --cwd packages/civ7-direct-control test`
+- `bun run --cwd packages/civ7-control-orpc test test/game-ui-notification-dismissal.test.ts`
 - `bun run --cwd packages/civ7-control-orpc test test/game-ui-controller.test.ts test/controller-bridge-ingress.test.ts test/notification-dismissal-procedure.test.ts`
 - `bun run --cwd packages/civ7-control-orpc check`
 - `bun run --cwd packages/civ7-control-orpc build`

@@ -3,8 +3,8 @@ import { describe, expect, test } from "vitest";
 import {
   requestCiv7GameUiNotificationDismissal,
   type Civ7GameUiNotificationDismissalTarget,
-} from "../src/play/notifications/game-ui-dismissal";
-import { notificationDismissalProofPostcondition } from "../src/proof/notification-dismissal-proof-policy";
+} from "../src/game-ui-notification-dismissal";
+import { notificationDismissalProofPostcondition } from "@civ7/direct-control";
 
 describe("game UI notification dismissal runtime", () => {
   test("dismisses a notification through game UI globals with confirmed proof", async () => {

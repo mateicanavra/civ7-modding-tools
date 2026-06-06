@@ -1,7 +1,7 @@
 import {
   requestCiv7GameUiNotificationDismissal,
   type Civ7GameUiNotificationDismissalTarget,
-} from "@civ7/direct-control/play/notifications/game-ui-dismissal";
+} from "./game-ui-notification-dismissal";
 
 import type { Civ7ControllerBridgeContextFactory } from "./bridge/controller-ingress";
 import type { Civ7ControllerBridgeMutationProof } from "./bridge/controller-ingress";

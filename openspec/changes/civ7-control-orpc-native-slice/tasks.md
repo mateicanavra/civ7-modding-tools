@@ -160,8 +160,8 @@ adding more read-only facade shells.
     and strategy contracts off direct-control primitive value imports.
   - [x] 5.4.10 Move `notifications.dismiss.request` caller-facing input and
     normal postcondition classification schemas into control-oRPC service
-    ownership while leaving direct-control notification dismissal runtime/proof
-    helpers authoritative.
+    ownership while leaving direct-control notification dismissal result,
+    postcondition, and proof helpers authoritative.
   - [x] 5.4.11 Move `city.production.choice.request` caller-facing input and
     normal postcondition classification schemas into control-oRPC service
     ownership while leaving direct-control production-choice runtime/proof
@@ -684,9 +684,9 @@ adding more read-only facade shells.
     `Players` globals while mutation runtime ports remain unsupported. Keep
     Civ7 deployment, live runtime proof, mutation runtime support, and full
     `7.3` implementation pending.
-  - [x] 7.3.15 Add the first game-resident mutation runtime port for
-    `notifications.dismiss.request`: expose a game UI notification-dismissal
-    access path that executes against ambient `Game.Notifications`,
+  - [x] 7.3.15 Add the first game-resident mutation access path for
+    `notifications.dismiss.request`: own the game UI notification-dismissal
+    adapter in control-oRPC over ambient `Game.Notifications`,
     `NotificationModel`, `GameContext`, and notification queue evidence without
     tuner socket/session command serialization; wire
     `@civ7/control-orpc/game-ui` to use it when controller proof and
@@ -974,11 +974,11 @@ adding more read-only facade shells.
   hygiene for the context-owned controller proof slice. These are local package
   proofs only and do not claim deployed Civ7 runtime proof, mutation runtime
   support, play-thread action, or full `7.3` acceptance.
-- [x] 8.44 Run direct-control check/build for the game-safe notification
-  dismissal subpath, focused game-ui/controller/notification procedure tests,
+- [x] 8.44 Run direct-control check/build for notification result/proof
+  exports, focused game-ui/controller/notification procedure tests,
   control-oRPC package check/build/test, controller mod package check/build/test
   with bundle scan, strict OpenSpec validates, and diff hygiene for the first
-  game-resident notification dismissal runtime port. These are local package
+  game-resident notification dismissal access path. These are local package
   and bundle proofs only and do not claim deployed Civ7 runtime proof, other
   mutation runtime support, play-thread action, or full `7.3` acceptance.
 - [x] 8.45 Run focused readiness/current, game-ui controller, and controller

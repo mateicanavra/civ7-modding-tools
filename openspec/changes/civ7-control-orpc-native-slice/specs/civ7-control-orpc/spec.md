@@ -900,11 +900,11 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 
 #### Scenario: Game UI controller supports notification dismissal
 - **WHEN** the game-scoped controller context exposes notification dismissal
-  runtime APIs
+  game UI APIs
 - **THEN** the context may execute the service-owned
   `notifications.dismiss.request` procedure through the existing in-process
   router and native readiness and proof procedure middleware
-- **AND** the game UI notification-dismissal access path executes against
+- **AND** the service-owned game UI notification-dismissal access path executes against
   ambient `Game.Notifications`, `NotificationModel`, `GameContext`, and
   notification queue evidence without tuner socket/session command
   serialization
