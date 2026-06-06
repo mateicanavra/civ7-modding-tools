@@ -840,6 +840,12 @@ adding more read-only facade shells.
     instead of adding CLI command-string recipes to the queue JSON view. Keep
     text output concise by printing the semantic next-step label, and keep
     command help responsible for exhaustive flag/interface detail.
+  - [x] 7.1.9.18 Simplify `progression.traditions.current` omission metadata
+    so it describes service-level presentation and runtime evidence categories
+    instead of naming direct-control/CLI implementation fields. Keep the
+    service contract, CLI parser behavior, runtime reads, controller bridge,
+    approval/reason mechanics, deployed Civ7 proof, and parent
+    Task 5.x/6.x/7.x acceptance unchanged.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1727,6 +1733,14 @@ adding more read-only facade shells.
   package/CLI proof for a narrow queue service classifier cleanup plus CLI
   presentation cleanup; it does not change service contracts, CLI parser
   behavior, deployed Civ7 runtime behavior, play-thread state,
+  approval/reason mechanics, transport/controller scope, or parent
+  Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.31 Run focused progression traditions procedure tests, focused CLI
+  progression-read tests, `check:cli`, control-oRPC check, strict OpenSpec
+  validates, service omission metadata scan, active approval/caller-permission
+  scan, and diff hygiene for the traditions omission metadata simplification.
+  This is local package/CLI proof only; it does not change service contracts,
+  CLI parser behavior, deployed Civ7 runtime behavior, play-thread state,
   approval/reason mechanics, transport/controller scope, or parent
   Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,

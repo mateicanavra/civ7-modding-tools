@@ -65,12 +65,19 @@ describe("progression traditions control-oRPC procedure", () => {
       source: "progression.traditions.current",
       label: "Inspect available tradition action descriptors before requesting a tradition change.",
     }]);
+    expect(result.omitted.map((item) => item.path)).toEqual([
+      "presentation.commandSuggestions",
+      "presentation.actionDirections",
+      "runtime.validationProbe",
+    ]);
 
     const serialized = JSON.stringify(result);
     expect(serialized).not.toContain("\"host\"");
     expect(serialized).not.toContain("\"port\"");
     expect(serialized).not.toContain("\"state\"");
     expect(serialized).not.toContain("\"command\"");
+    expect(serialized).not.toContain("cliCommandSuggestions");
+    expect(serialized).not.toContain("actionHints[].cli");
     expect(serialized).not.toContain("recommendedCli");
     expect(serialized).not.toContain("game play ");
     expect(serialized).not.toContain("CMD:");

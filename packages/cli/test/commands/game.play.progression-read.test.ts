@@ -104,9 +104,9 @@ describe('game play progression reads', () => {
       expect(payload.available[0].sendCloseoutCli).toContain('game play change-tradition --tradition-type 90243567 --action -1326475004 --send --closeout');
       expect(payload.enabledAvailableCount).toBe(1);
       expect(payload.disabledAvailableCount).toBe(0);
-      expect(payload.omitted.map((item) => item.path)).toContain('directControl.cliCommandSuggestions');
-      expect(payload.omitted.map((item) => item.path)).toContain('tradition.actionHints[].cli');
-      expect(payload.omitted.map((item) => item.path)).toContain('tradition.actionHints[].validation');
+      expect(payload.omitted.map((item) => item.path)).toContain('presentation.commandSuggestions');
+      expect(payload.omitted.map((item) => item.path)).toContain('presentation.actionDirections');
+      expect(payload.omitted.map((item) => item.path)).toContain('runtime.validationProbe');
       expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
       expect(server.received.some((message) => message.includes('sendRequest('))).toBe(false);
