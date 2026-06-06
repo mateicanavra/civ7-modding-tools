@@ -1,18 +1,17 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayBuildProduction from '../../src/commands/game/play/build-production';
-import GamePlayBuildUnit from '../../src/commands/game/play/build-unit';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play production commands', () => {
-  test('wraps city unit production as BUILD with UnitType', async () => {
+  test('routes city unit production sends through the native city production procedure', async () => {
     const server = await startProductionTunerServer();
     const writes: string[] = [];
-    const log = vi.spyOn(GamePlayBuildUnit.prototype, 'log').mockImplementation((message?: string) => {
+    const log = vi.spyOn(GamePlayBuildProduction.prototype, 'log').mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
     try {
       const { port } = server.address();
-      await GamePlayBuildUnit.run([
+      await GamePlayBuildProduction.run([
         '--host',
         '127.0.0.1',
         '--port',
@@ -25,11 +24,33 @@ describe('game play production commands', () => {
         '--json',
       ]);
 
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { populationPostcondition?: unknown } };
-      expect(payload.result.populationPostcondition).toBeUndefined();
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: ProductionChoiceSendResult;
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.cityId).toEqual({ owner: 0, id: 65536, type: 25 });
+      expect(payload.result.args).toEqual({ UnitType: 1558890441 });
+      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'production-choice-cleared',
+        outcome: 'cleared',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+        productionStateChanged: true,
+        blockerStillLive: false,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'refresh-attention',
+        source: 'city.production.choice.request',
+      });
+      expectSemanticProductionChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('BUILD'))).toBe(true);
       expect(server.received.some((message) => message.includes('"UnitType":1558890441'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readProductionChoice'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(false);
     } finally {
       log.mockRestore();
       await server.close();

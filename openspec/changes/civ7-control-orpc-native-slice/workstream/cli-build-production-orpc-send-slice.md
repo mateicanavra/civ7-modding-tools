@@ -10,8 +10,9 @@ remains the low-level runtime/proof port for production validation, closeout
 execution, post-read evidence, and production postcondition classification.
 
 The read-only `game play build-production` path remains direct-control
-operation validation. `game play build-unit` remains outside this slice because
-it is a separate convenience command over the older generic operation wrapper.
+operation validation. The older `game play build-unit` convenience-command
+intent is folded into the current `game play build-production --unit-type`
+surface instead of preserving a duplicate production command.
 
 ## Write Set
 
@@ -26,8 +27,7 @@ it is a separate convenience command over the older generic operation wrapper.
 - No raw command/session/state/Tuner payloads, UI-closeout payloads, send
   results, before/after runtime probes, production postcondition envelopes, or
   legacy `verified` in normal send output.
-- No `game play build-unit` migration, production read procedure, or broad city
-  production catalog in this slice.
+- No production read procedure or broad city production catalog.
 - No play-thread wake and no live-game/runtime proof claim.
 - No parent Task 5.x/6.x/7.x acceptance by implication.
 
