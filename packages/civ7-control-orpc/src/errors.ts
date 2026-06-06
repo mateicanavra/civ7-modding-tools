@@ -78,6 +78,28 @@ export class Civ7StrategyFrontSummaryUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7WorldCurrentUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("world.current"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7WorldCurrentUnavailableErrorData = Static<
+  typeof Civ7WorldCurrentUnavailableErrorDataSchema
+>;
+
+export class Civ7WorldCurrentUnavailableError extends ORPCTaggedError(
+  "Civ7WorldCurrentUnavailableError",
+  {
+    code: "WORLD_CURRENT_UNAVAILABLE",
+    message: "Current world view failed.",
+    schema: toStandardSchema(Civ7WorldCurrentUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -530,6 +552,7 @@ export const civ7ControlOrpcErrorMap = {
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
   UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
+  WORLD_CURRENT_UNAVAILABLE: Civ7WorldCurrentUnavailableError,
 } satisfies EffectErrorMap;
 
 export type Civ7ControlOrpcEffectErrorMap = typeof civ7ControlOrpcErrorMap;

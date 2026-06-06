@@ -48,11 +48,16 @@ describe("Civ7 game UI controller bootstrap", () => {
         playable: false,
         readiness: "app-ui-game",
         capability: {
-          canObserve: false,
+          canObserve: true,
           canMutate: false,
         },
         controller: {
-          supportedProcedures: [],
+          supportedProcedures: [
+            {
+              procedureKey: "world.current",
+              risk: "read-only",
+            },
+          ],
         },
         sources: {
           gameUi: {
@@ -65,6 +70,115 @@ describe("Civ7 game UI controller bootstrap", () => {
             ready: null,
           },
         },
+      },
+    });
+    expect(response.ok && response.output.nextSteps).toEqual([{
+      kind: "read-world",
+      source: "readiness.current",
+      label: "Read current world facts before choosing support actions.",
+    }]);
+  });
+
+  test("reads current world through game UI service dependency", async () => {
+    const bridge = installCiv7GameUiIntelligenceBridge({ target: gameUiTarget() });
+
+    const response = await bridge.invoke({
+      procedureKey: "world.current",
+      input: {},
+      correlationId: "game-ui-world-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "world.current",
+      correlationId: "game-ui-world-1",
+      output: {
+        playable: false,
+        readiness: "app-ui-game",
+        sourceStatus: {
+          playableStatus: "read",
+          game: "read",
+          map: "read",
+          players: "read",
+        },
+        turn: {
+          current: 42,
+          date: "Ancient Era",
+          age: 1,
+          maxTurns: 500,
+          hash: 123,
+        },
+        localPlayer: {
+          playerId: 0,
+          observerId: 0,
+        },
+        map: {
+          width: 74,
+          height: 46,
+          plotCount: 3404,
+          mapSize: 1,
+          randomSeed: 99,
+        },
+        players: {
+          maxPlayers: 8,
+          alivePlayerIds: [0],
+          aliveHumanIds: [0],
+          aliveHumanCount: 1,
+        },
+      },
+    });
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("rawCommand");
+    expect(serialized).not.toContain("Game.");
+    expect(serialized).not.toContain("enemy");
+    expect(serialized).not.toContain("hostile");
+    expect(serialized).not.toContain("opponent");
+    expect(serialized).not.toContain("threat");
+    expect(serialized).not.toContain("war");
+    expect(serialized).not.toContain("ally");
+    expect(serialized).not.toContain("suzerain");
+  });
+
+  test("does not advertise current world without player count APIs", async () => {
+    const bridge = installCiv7GameUiIntelligenceBridge({
+      target: gameUiTarget({ Players: undefined }),
+    });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+    });
+
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        capability: {
+          canObserve: false,
+          canMutate: false,
+        },
+        controller: {
+          supportedProcedures: [],
+        },
+      },
+    });
+
+    const world = await bridge.invoke({
+      procedureKey: "world.current",
+      input: {},
+    });
+
+    expect(world).toEqual({
+      ok: false,
+      error: {
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
       },
     });
   });
@@ -96,6 +210,10 @@ describe("Civ7 game UI controller bootstrap", () => {
           supportedProcedures: [
             {
               procedureKey: "attention.current",
+              risk: "read-only",
+            },
+            {
+              procedureKey: "world.current",
               risk: "read-only",
             },
             {
@@ -2042,7 +2160,12 @@ describe("Civ7 game UI controller bootstrap", () => {
       ok: true,
       output: {
         controller: {
-          supportedProcedures: [],
+          supportedProcedures: [
+            {
+              procedureKey: "world.current",
+              risk: "read-only",
+            },
+          ],
         },
       },
     });
@@ -3315,7 +3438,7 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     expect(context.endpointDefaults).toEqual({ timeoutMs: 250 });
     expect(context.controller).toEqual({
-      supportedReadProcedures: [],
+      supportedReadProcedures: ["world.current"],
       supportedMutationProcedures: [],
     });
     expect(context.controllerProof).toEqual({
@@ -3355,7 +3478,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
 
     expect(context.controller).toEqual({
-      supportedReadProcedures: ["attention.current"],
+      supportedReadProcedures: ["attention.current", "world.current"],
       supportedMutationProcedures: ["notifications.dismiss.request"],
     });
     expect(await context.directControl.getCiv7PlayableStatus()).toMatchObject({

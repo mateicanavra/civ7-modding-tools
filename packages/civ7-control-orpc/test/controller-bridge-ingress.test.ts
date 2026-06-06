@@ -45,6 +45,8 @@ import {
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
   Civ7ControllerBridgeUnitUpgradeRequestSchema,
   Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
+  Civ7ControllerBridgeWorldCurrentRequestSchema,
+  Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
   type Civ7ControlOrpcContext,
@@ -91,6 +93,8 @@ import {
   type Civ7ControllerBridgeUnitTargetActionSuccessResponse,
   type Civ7ControllerBridgeUnitUpgradeRequest,
   type Civ7ControllerBridgeUnitUpgradeSuccessResponse,
+  type Civ7ControllerBridgeWorldCurrentRequest,
+  type Civ7ControllerBridgeWorldCurrentSuccessResponse,
 } from "../src/index";
 
 type TestControllerContext = Civ7ControlOrpcContext & Readonly<{
@@ -160,6 +164,8 @@ const traditionChangeInput = {
 type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
   Civ7ControllerBridgeStrategyFrontSummaryRequest,
   Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
+  Civ7ControllerBridgeWorldCurrentRequest,
+  Civ7ControllerBridgeWorldCurrentSuccessResponse,
   Civ7ControllerBridgeCityProductionChoiceRequest,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponse,
   Civ7ControllerBridgeCityPopulationPlacementRequest,
@@ -209,6 +215,8 @@ describe("Civ7 controller bridge ingress", () => {
     const publicSchemas = [
       Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
       Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
+      Civ7ControllerBridgeWorldCurrentRequestSchema,
+      Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
       Civ7ControllerBridgeCityProductionChoiceRequestSchema,
       Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
       Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
@@ -371,6 +379,66 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("Game.turn");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("App UI");
+  });
+
+  test("invokes allowlisted world.current through the in-process router", async () => {
+    const fake = fakeContext(playableStatusResult());
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return {
+          ...fake.context,
+          controller: {
+            supportedReadProcedures: ["world.current"],
+          },
+        };
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "world.current",
+      input: {},
+      correlationId: "controller-world-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "world.current",
+      correlationId: "controller-world-1",
+      output: {
+        playable: true,
+        readiness: "tuner-ready",
+        sourceStatus: {
+          playableStatus: "read",
+          game: "read",
+          map: "read",
+          players: "read",
+        },
+        map: {
+          width: 84,
+          height: 52,
+        },
+        players: {
+          alivePlayerIds: [0, 1, 2],
+          aliveHumanIds: [0],
+        },
+      },
+    });
+    expect(fake.calls).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "world.current",
+      input: {},
+      correlationId: "controller-world-1",
+    }]);
+
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("\"host\"");
+    expect(serialized).not.toContain("\"port\"");
+    expect(serialized).not.toContain("\"state\"");
+    expect(serialized).not.toContain("\"session\"");
+    expect(serialized).not.toContain("\"rawCommand\"");
+    expect(serialized).not.toContain("relationship");
   });
 
   test("invokes allowlisted notifications.dismiss.request through the in-process router with controller proof", async () => {
@@ -2625,11 +2693,35 @@ function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
       port: 4318,
       state: { id: "65535", name: "App UI" },
       snapshot: {
+        game: {
+          turn: 77,
+          age: 1,
+          maxTurns: 500,
+          turnDate: { ok: true, value: "Age 1, Turn 77" },
+          hash: { ok: true, value: 123_456 },
+        },
         ui: {
           inGame: { ok: true, value: true },
           inShell: { ok: true, value: false },
           inLoading: { ok: true, value: false },
           canBeginGame: { ok: true, value: false },
+        },
+        gameContext: {
+          localPlayerID: 0,
+          localObserverID: 1,
+        },
+        players: {
+          maxPlayers: 8,
+          aliveIds: { ok: true, value: [0, 1, 2] },
+          aliveHumanIds: { ok: true, value: [0] },
+          numAliveHumans: { ok: true, value: 1 },
+        },
+        map: {
+          width: { ok: true, value: 84 },
+          height: { ok: true, value: 52 },
+          plotCount: { ok: true, value: 4_368 },
+          mapSize: { ok: true, value: 3 },
+          randomSeed: { ok: true, value: 987_654 },
         },
         currentState: "App UI",
       },

@@ -152,6 +152,13 @@ function readinessNextSteps(
       label: "Read strategy front summary before choosing tactical support actions.",
     }];
   }
+  if (status.readiness === "app-ui-game" && supportsWorldCurrent(context)) {
+    return [{
+      kind: "read-world",
+      source: "readiness.current",
+      label: "Read current world facts before choosing support actions.",
+    }];
+  }
 
   switch (status.readiness) {
     case "app-ui-game":
@@ -194,6 +201,10 @@ function supportsAttentionCurrent(context: Civ7ControlOrpcContext): boolean {
 
 function supportsStrategyFront(context: Civ7ControlOrpcContext): boolean {
   return supportedReadProcedures(context).includes("strategy.frontSummary");
+}
+
+function supportsWorldCurrent(context: Civ7ControlOrpcContext): boolean {
+  return supportedReadProcedures(context).includes("world.current");
 }
 
 function supportedReadProcedures(context: Civ7ControlOrpcContext): readonly string[] {

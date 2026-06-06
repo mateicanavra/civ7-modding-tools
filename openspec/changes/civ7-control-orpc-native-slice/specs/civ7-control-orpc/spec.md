@@ -246,6 +246,29 @@ errors, and server-side callers.
   relationship-unproven semantics unless official relationship, team, war, or
   suzerain evidence proves stronger labels
 
+#### Scenario: Current world service view is added
+- **WHEN** `world.current` exposes a caller-facing current-world read
+- **THEN** control-oRPC owns the contract-local input/output schemas, native
+  service procedure, normal projection, and next-step wording under the
+  `world` router
+- **AND** the input is a closed empty object and does not accept endpoint,
+  session, state, host, port, command, rawCommand, or transport fields
+- **AND** the procedure reads the existing playable/App UI snapshot runtime
+  port and projects bounded turn, local-player, map, and player-count facts
+  without exposing the raw playable-status envelope
+- **AND** the procedure does not call transitional direct-control
+  `map.summary.read`, `player.summary.read`, `unit.summary.read`, or
+  `city.summary.read` facade wrappers as runtime resources
+- **AND** normal output omits actor samples, owner grouping, relationship
+  labels, raw app-ui snapshot objects, host, port, state, command, rawCommand,
+  session, Tuner payloads, and direct-control runtime internals
+- **AND** world output does not infer hostile, enemy, opponent, threat, war,
+  ally, suzerain, or other relationship labels from owner ids or player counts
+- **AND** local package tests prove only native service projection and fake
+  runtime behavior; deployed Civ7 runtime proof, broad world/actor catalog
+  support, transport expansion, and parent Task 5.x/6.x/7.x acceptance remain
+  pending
+
 #### Scenario: Transitional facade-only procedure remains
 - **WHEN** a current facade-only read leaf is retained while the native service
   shape is being corrected
@@ -1192,6 +1215,29 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   runtime behavior only; deployed Civ7 runtime proof, target-action send
   authority, broad strategy catalogs, play-thread action, and full `7.3`
   implementation remain pending
+
+#### Scenario: Game UI controller supports current world reads
+- **WHEN** the game-scoped controller context exposes ambient playable/App UI
+  snapshot facts for current world state
+- **THEN** the context may execute the service-owned `world.current` procedure
+  through the existing in-process router
+- **AND** `world.current` is listed as a supported game-UI read only when
+  controller proof and the required ambient game context, map, player, and turn
+  APIs are present
+- **AND** `readiness.current` reports observation capability for a controller
+  context that lists `world.current` as a supported read, keeps
+  `canMutate: false`, and recommends `read-world` when `attention.current` and
+  `strategy.frontSummary` are not supported
+- **AND** bridge ingress validates the semantic `world.current` input and
+  output envelopes from the aggregated `Civ7ControlOrpcContract` rather than
+  exporting per-procedure schema constants or using `Type.Unknown`
+- **AND** normal bridge success output remains the semantic current-world view
+  and omits host, port, state, command, rawCommand, session, tuner payloads,
+  raw game-UI function names, direct-control socket details, raw playable
+  status envelopes, actor catalogs, and relationship labels
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof, broad world/actor
+  catalogs, play-thread action, and full `7.3` implementation remain pending
 
 ### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
 

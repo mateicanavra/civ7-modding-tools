@@ -56,6 +56,8 @@ export {
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
   Civ7ControllerBridgeUnitUpgradeRequestSchema,
   Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
+  Civ7ControllerBridgeWorldCurrentRequestSchema,
+  Civ7ControllerBridgeWorldCurrentSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
@@ -118,6 +120,8 @@ export type {
   Civ7ControllerBridgeUnitTargetActionSuccessResponse,
   Civ7ControllerBridgeUnitUpgradeRequest,
   Civ7ControllerBridgeUnitUpgradeSuccessResponse,
+  Civ7ControllerBridgeWorldCurrentRequest,
+  Civ7ControllerBridgeWorldCurrentSuccessResponse,
 } from "./bridge/controller-ingress";
 export {
   CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY,
@@ -175,6 +179,8 @@ export {
   Civ7UnitRequestUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
+  Civ7WorldCurrentUnavailableError,
+  Civ7WorldCurrentUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
   type Civ7AttentionCurrentUnavailableErrorData,
   type Civ7ControlOrpcErrorMap,
@@ -199,6 +205,7 @@ export {
   type Civ7TurnCompletionUnavailableErrorData,
   type Civ7UnitRequestUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
+  type Civ7WorldCurrentUnavailableErrorData,
 } from "./errors";
 export {
   Civ7ControlOrpcCorrelationIdSchema,
@@ -234,6 +241,18 @@ export type {
 } from "./modules/attention/contract";
 export { attentionRouter } from "./modules/attention/router";
 export { attentionCurrentProcedure } from "./modules/attention/procedures/current";
+export {
+  Civ7WorldContract,
+  Civ7WorldCurrentContract,
+} from "./modules/world/contract";
+export type {
+  Civ7WorldContract as Civ7WorldContractType,
+  Civ7WorldCurrentContract as Civ7WorldCurrentContractType,
+  Civ7WorldCurrentInput,
+  Civ7WorldCurrentResult,
+} from "./modules/world/contract";
+export { worldRouter } from "./modules/world/router";
+export { worldCurrentProcedure } from "./modules/world/procedures/current";
 export {
   Civ7CityContract,
   Civ7CityPopulationPlacementContract,

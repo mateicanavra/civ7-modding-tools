@@ -191,6 +191,13 @@ adding more read-only facade shells.
     direct-control's low-level player-operation/city-command authority inside
     the live facade adapter and keep raw operation inputs out of the exported
     context-construction surface.
+  - [x] 5.4.17 Record `world.current` as a service-owned current-world
+    boundary over playable/App UI snapshot facts. The service owns the
+    contract-local schema, normal projection, next-step wording, raw-output
+    exclusion, and relationship-label absence; direct-control remains only the
+    low-level playable/App UI snapshot port. This does not revive
+    `map.summary.read`, `player.summary.read`, `unit.summary.read`, or
+    `city.summary.read`.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -303,6 +310,11 @@ adding more read-only facade shells.
     direct-control turn-completion send authority, and source-owned
     turn-completion proof classification into semantic output without exposing
     raw command/session/Tuner details or claiming runtime/live proof.
+  - [x] 5.5.15 Seed `world.current` as a native service-owned world procedure
+    that projects bounded turn, local-player, map, and player-count facts from
+    the playable/App UI snapshot without calling direct-control summary
+    wrappers, exposing actor catalogs, inferring relationship labels, or
+    claiming runtime/live proof.
 
 ## 6. Native Policy Layering
 
@@ -940,6 +952,16 @@ adding more read-only facade shells.
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, direct-control game-UI semantic subpaths, public
     package-root procedure schema exports, and full `7.3` acceptance pending.
+  - [x] 7.3.35 Allowlist the read-only `world.current` service procedure
+    through the controller bridge and game-UI supported-read facts: derive the
+    closed bridge request/output schemas from the aggregated
+    `Civ7ControlOrpcContract`, dispatch only when controller context lists
+    `world.current` as supported, and let `readiness.current` recommend
+    `read-world` when current-world facts are the only supported controller
+    read. Keep actor summaries, relationship labels, raw game-UI function
+    names, command/session/state details, deployed Civ7 proof, play-thread
+    action, transport expansion, public package-root procedure schema exports,
+    and full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1243,6 +1265,16 @@ adding more read-only facade shells.
   play-thread action, transport expansion, direct-control game-UI semantic
   subpaths, public package-root procedure schema exports, or parent
   Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.12 Run focused world-current, readiness-current, and
+  controller-ingress tests plus control-oRPC package test/check/build,
+  controller mod package build/test/check with bundle scan, strict OpenSpec
+  validates, private procedure-schema export scans, and diff hygiene for the
+  service-owned `world.current` procedure and controller read allowlist slice.
+  These are local package and generated-bundle proofs only and do not claim
+  deployed Civ7 runtime proof, play-thread action, transport expansion,
+  revived summary wrappers, actor catalog support, relationship labels, public
+  package-root procedure schema exports, or parent Task 5.x/6.x/7.x
+  acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

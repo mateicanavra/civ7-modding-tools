@@ -496,6 +496,9 @@ function gameUiSupportedReadProcedures(
   if (civ7GameUiStrategyFrontAvailable(target)) {
     supported.push("strategy.frontSummary");
   }
+  if (gameUiWorldCurrentAvailable(target)) {
+    supported.push("world.current");
+  }
   return supported;
 }
 
@@ -516,6 +519,17 @@ function gameUiAttentionReadAvailable(target: Civ7GameUiRuntimeTarget): boolean 
   return typeof target.Game?.Notifications?.getIdsForPlayer === "function"
     && typeof target.Game?.Notifications?.find === "function"
     && typeof target.UI?.Player?.getFirstReadyUnit === "function"
+    && isControllerPlayerId(target.GameContext?.localPlayerID);
+}
+
+function gameUiWorldCurrentAvailable(target: Civ7GameUiRuntimeTarget): boolean {
+  return typeof target.UI?.isInGame === "function"
+    && typeof target.GameplayMap?.getGridWidth === "function"
+    && typeof target.GameplayMap?.getGridHeight === "function"
+    && typeof target.Game?.getTurnDate === "function"
+    && typeof target.Players?.getAliveIds === "function"
+    && typeof target.Players?.getAliveHumanIds === "function"
+    && typeof target.Players?.getNumAliveHumans === "function"
     && isControllerPlayerId(target.GameContext?.localPlayerID);
 }
 
