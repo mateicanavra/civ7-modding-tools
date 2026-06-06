@@ -39,8 +39,12 @@ import {
   Civ7ControllerBridgeResponseSchema,
   Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
   Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
+  Civ7ControllerBridgeUnitResettleRequestSchema,
+  Civ7ControllerBridgeUnitResettleSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
+  Civ7ControllerBridgeUnitUpgradeRequestSchema,
+  Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
   type Civ7ControlOrpcContext,
@@ -81,8 +85,12 @@ import {
   type Civ7ControllerBridgeProgressionTraditionReviewSuccessResponse,
   type Civ7ControllerBridgeStrategyFrontSummaryRequest,
   type Civ7ControllerBridgeStrategyFrontSummarySuccessResponse,
+  type Civ7ControllerBridgeUnitResettleRequest,
+  type Civ7ControllerBridgeUnitResettleSuccessResponse,
   type Civ7ControllerBridgeUnitTargetActionRequest,
   type Civ7ControllerBridgeUnitTargetActionSuccessResponse,
+  type Civ7ControllerBridgeUnitUpgradeRequest,
+  type Civ7ControllerBridgeUnitUpgradeSuccessResponse,
 } from "../src/index";
 
 type TestControllerContext = Civ7ControlOrpcContext & Readonly<{
@@ -172,6 +180,10 @@ type PublicControllerBridgeSchemaTypeCoverage = Readonly<[
   Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse,
   Civ7ControllerBridgeUnitTargetActionRequest,
   Civ7ControllerBridgeUnitTargetActionSuccessResponse,
+  Civ7ControllerBridgeUnitUpgradeRequest,
+  Civ7ControllerBridgeUnitUpgradeSuccessResponse,
+  Civ7ControllerBridgeUnitResettleRequest,
+  Civ7ControllerBridgeUnitResettleSuccessResponse,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequest,
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse,
   Civ7ControllerBridgeProgressionCultureChoiceRequest,
@@ -217,6 +229,10 @@ describe("Civ7 controller bridge ingress", () => {
       Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
       Civ7ControllerBridgeUnitTargetActionRequestSchema,
       Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
+      Civ7ControllerBridgeUnitUpgradeRequestSchema,
+      Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
+      Civ7ControllerBridgeUnitResettleRequestSchema,
+      Civ7ControllerBridgeUnitResettleSuccessResponseSchema,
       Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
       Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
       Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
@@ -519,6 +535,119 @@ describe("Civ7 controller bridge ingress", () => {
     expect(serialized).not.toContain("CMD");
     expect(serialized).not.toContain("Tuner");
     expect(serialized).not.toContain("App UI");
+  });
+
+  test("invokes allowlisted unit.upgrade.request through the in-process router with controller proof", async () => {
+    const fake = fakeUnitCommandContext("upgrade");
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "unit.upgrade.request",
+      input: { unitId },
+      correlationId: "controller-unit-upgrade-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "unit.upgrade.request",
+      correlationId: "controller-unit-upgrade-1",
+      output: {
+        action: {
+          kind: "upgrade",
+          unitId,
+        },
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "queue-advanced",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.status).toEqual([{ timeoutMs: 1_000 }]);
+    expect(fake.calls.unitCommand).toEqual([{
+      input: {
+        unitId,
+        operationType: "UNITCOMMAND_UPGRADE",
+        args: {},
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "unit.upgrade.request",
+      input: { unitId },
+      correlationId: "controller-unit-upgrade-1",
+    }]);
+
+    expectSemanticControllerOutputOmitsRawUnitCommand(response);
+  });
+
+  test("invokes allowlisted unit.resettle.request through the in-process router with controller proof", async () => {
+    const fake = fakeUnitCommandContext("resettle");
+    const ingress = createCiv7ControllerBridgeIngress({
+      createContext: (request) => {
+        fake.contextRequests.push(request);
+        return fake.context;
+      },
+    });
+
+    const response = await ingress.invoke({
+      procedureKey: "unit.resettle.request",
+      input: {
+        unitId,
+        destination: target,
+      },
+      correlationId: "controller-unit-resettle-1",
+    });
+
+    expect(Value.Check(Civ7ControllerBridgeResponseSchema, response)).toBe(true);
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "unit.resettle.request",
+      correlationId: "controller-unit-resettle-1",
+      output: {
+        action: {
+          kind: "resettle",
+          unitId,
+          destination: target,
+        },
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "unit-state-changed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(fake.calls.unitCommand).toEqual([{
+      input: {
+        unitId,
+        operationType: "UNITCOMMAND_RESETTLE",
+        args: {
+          X: 22,
+          Y: 31,
+        },
+      },
+      options: { timeoutMs: 1_000 },
+    }]);
+    expect(fake.contextRequests).toEqual([{
+      procedureKey: "unit.resettle.request",
+      input: {
+        unitId,
+        destination: target,
+      },
+      correlationId: "controller-unit-resettle-1",
+    }]);
+
+    expectSemanticControllerOutputOmitsRawUnitCommand(response);
   });
 
   test("invokes allowlisted city.production.choice.request through the in-process router with controller proof", async () => {
@@ -1329,6 +1458,36 @@ describe("Civ7 controller bridge ingress", () => {
         state: { name: "App UI" },
       },
       {
+        procedureKey: "unit.upgrade.request",
+        input: {
+          unitId,
+          rawCommand: "Game.UnitCommands.sendRequest(...)",
+        },
+      },
+      {
+        procedureKey: "unit.upgrade.request",
+        input: {
+          unitId,
+          operationType: "UNITCOMMAND_UPGRADE",
+        },
+      },
+      {
+        procedureKey: "unit.resettle.request",
+        input: {
+          unitId,
+          destination: target,
+          args: { X: 22, Y: 31 },
+        },
+      },
+      {
+        procedureKey: "unit.resettle.request",
+        input: {
+          unitId,
+          destination: target,
+        },
+        session: { state: "App UI" },
+      },
+      {
         procedureKey: "city.production.choice.request",
         input: {
           cityId,
@@ -1858,6 +2017,56 @@ function fakeUnitTargetActionContext(): {
         requestCiv7UnitTargetAction: async (input, options) => {
           calls.targetAction.push({ input, options });
           return unitTargetActionResult();
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+    },
+  };
+}
+
+function fakeUnitCommandContext(kind: "upgrade" | "resettle"): {
+  calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    unitCommand: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+  };
+  contextRequests: unknown[];
+  context: TestControllerContext;
+} {
+  const calls: {
+    status: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
+    unitCommand: Array<{
+      input: unknown;
+      options: unknown;
+    }>;
+  } = {
+    status: [],
+    unitCommand: [],
+  };
+  return {
+    calls,
+    contextRequests: [],
+    context: {
+      endpointDefaults: { timeoutMs: 1_000 },
+      controllerProof: controllerMutationProof(),
+      controller: {
+        supportedMutationProcedures: [
+          "unit.upgrade.request",
+          "unit.resettle.request",
+        ],
+      },
+      directControl: {
+        getCiv7PlayableStatus: async (options) => {
+          calls.status.push(options);
+          return playableStatusResult();
+        },
+        requestCiv7UnitCommand: async (input, options) => {
+          calls.unitCommand.push({ input, options });
+          return unitCommandResult(
+            kind === "upgrade" ? "queue-advanced" : "unit-state-changed",
+            kind,
+          );
         },
       } as Civ7ControlOrpcContext["directControl"],
     },
@@ -2668,6 +2877,70 @@ function unitTargetActionResult(): any {
   };
 }
 
+function unitCommandResult(
+  classification:
+    | "queue-advanced"
+    | "unit-state-changed"
+    | "validation-changed"
+    | "no-state-change"
+    | "not-sent",
+  kind: "upgrade" | "resettle" = "upgrade",
+): any {
+  const sent = classification !== "not-sent";
+  const operationType = kind === "upgrade"
+    ? "UNITCOMMAND_UPGRADE"
+    : "UNITCOMMAND_RESETTLE";
+  const args = kind === "upgrade" ? {} : { X: target.x, Y: target.y };
+  const beforeValid = classification === "not-sent" ? false : true;
+  const afterValid = classification === "validation-changed"
+    ? !beforeValid
+    : beforeValid;
+  return {
+    before: unitCommandValidation(operationType, args, beforeValid),
+    ...(sent
+      ? {
+          command: {
+            host: "127.0.0.1",
+            port: 4318,
+            state: { id: "65535", name: "App UI" },
+            output: ["CMD:65535:Game.UnitCommands.sendRequest(...)"],
+          },
+        }
+      : {}),
+    after: unitCommandValidation(operationType, args, afterValid),
+    sent,
+    verified: sent && classification !== "no-state-change",
+    postcondition: {
+      family: "unit-command",
+      operationType,
+      classification,
+      reason: `test ${classification}`,
+    },
+  };
+}
+
+function unitCommandValidation(
+  operationType: string,
+  args: Readonly<Record<string, number>>,
+  valid: boolean,
+) {
+  return {
+    family: "unit-command",
+    operationType,
+    valid,
+    result: {
+      Success: valid,
+      raw: "Game.UnitCommands.canStart(...)",
+    },
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    enumValue: operationType,
+    target: { unitId },
+    args,
+  };
+}
+
 function unitProbe(location: { x: number; y: number }) {
   return {
     ok: true as const,
@@ -2681,6 +2954,26 @@ function unitProbe(location: { x: number; y: number }) {
       attacksRemaining: 1,
     },
   };
+}
+
+function expectSemanticControllerOutputOmitsRawUnitCommand(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain("CMD");
+  expect(serialized).not.toContain("Game.UnitCommands");
+  expect(serialized).not.toContain("Game.UnitOperations");
+  expect(serialized).not.toContain("sendRequest");
+  expect(serialized).not.toContain("\"host\"");
+  expect(serialized).not.toContain("\"port\"");
+  expect(serialized).not.toContain("\"state\"");
+  expect(serialized).not.toContain("\"session\"");
+  expect(serialized).not.toContain("\"rawCommand\"");
+  expect(serialized).not.toContain("\"command\"");
+  expect(serialized).not.toContain("\"operationType\"");
+  expect(serialized).not.toContain("\"sendResult\"");
+  expect(serialized).not.toContain("\"result\"");
+  expect(serialized).not.toContain("\"verified\"");
+  expect(serialized).not.toContain("\"before\"");
+  expect(serialized).not.toContain("\"after\"");
 }
 
 function productionChoiceResult(): any {

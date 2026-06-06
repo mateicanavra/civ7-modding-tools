@@ -912,6 +912,22 @@ adding more read-only facade shells.
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
+  - [x] 7.3.33 Add game-resident unit-command runtime dependencies for
+    `unit.upgrade.request` and `unit.resettle.request`: expose ambient
+    `Game.UnitCommands.canStart/sendRequest`, exact
+    `UnitCommandTypes.UNITCOMMAND_UPGRADE` and
+    `UnitCommandTypes.UNITCOMMAND_RESETTLE` enum facts, controller-owned
+    local-unit ownership proof, and unit/ready-queue/blocker post-read
+    evidence through the existing service-owned unit procedures; allowlist
+    those leaves through closed controller bridge envelopes that derive
+    concrete schemas from the aggregated `Civ7ControlOrpcContract`; advertise
+    the mutations only when those exact game UI APIs and controller proof
+    exist; reject direct adapter sends when requested unit owner does not match
+    `GameContext.localPlayerID`; preserve validator-blocked not-sent output
+    and no-state-change/no-repeat guarded sent output; keep raw game-UI
+    function names, command/session/state details, deployed Civ7 proof,
+    play-thread action, transport expansion, public package-root procedure
+    schema exports, and full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -1197,6 +1213,15 @@ adding more read-only facade shells.
   and do not claim deployed Civ7 runtime proof, play-thread action, transport
   expansion, a diplomacy read service, public package-root procedure schema
   exports, or parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.10 Run focused game-ui controller, unit command procedure, and
+  controller-ingress tests plus control-oRPC package test/check/build,
+  controller mod package test/check/build with bundle scan, strict OpenSpec
+  validates, private procedure-schema export scans, and diff hygiene for the
+  game-resident unit upgrade/resettle runtime dependency and controller bridge
+  allowlist slice. These are local package and generated-bundle proofs only
+  and do not claim deployed Civ7 runtime proof, play-thread action, transport
+  expansion, a generic unit command catalog, public package-root procedure
+  schema exports, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.

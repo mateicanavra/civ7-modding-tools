@@ -50,8 +50,12 @@ export {
   Civ7ControllerBridgeSuccessResponseSchema,
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
+  Civ7ControllerBridgeUnitResettleRequestSchema,
+  Civ7ControllerBridgeUnitResettleSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
+  Civ7ControllerBridgeUnitUpgradeRequestSchema,
+  Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
   createCiv7ControllerBridgeIngress,
   invokeCiv7ControllerBridgeRequest,
 } from "./bridge/controller-ingress";
@@ -108,8 +112,12 @@ export type {
   Civ7ControllerBridgeSuccessResponse,
   Civ7ControllerBridgeTurnCompleteRequest,
   Civ7ControllerBridgeTurnCompleteSuccessResponse,
+  Civ7ControllerBridgeUnitResettleRequest,
+  Civ7ControllerBridgeUnitResettleSuccessResponse,
   Civ7ControllerBridgeUnitTargetActionRequest,
   Civ7ControllerBridgeUnitTargetActionSuccessResponse,
+  Civ7ControllerBridgeUnitUpgradeRequest,
+  Civ7ControllerBridgeUnitUpgradeSuccessResponse,
 } from "./bridge/controller-ingress";
 export {
   CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY,

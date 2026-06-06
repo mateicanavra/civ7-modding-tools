@@ -74,6 +74,11 @@ import {
   type Civ7GameUiUnitTargetActionTarget,
 } from "./game-ui-unit-target";
 import {
+  civ7GameUiUnitCommandAvailable,
+  requestCiv7GameUiUnitCommand,
+  type Civ7GameUiUnitCommandTarget,
+} from "./game-ui-unit-command";
+import {
   civ7GameUiStrategyFrontAvailable,
   getCiv7GameUiBattlefieldScan,
   getCiv7GameUiTargetCandidates,
@@ -193,7 +198,9 @@ export type Civ7GameUiRuntimeTarget = {
     & Civ7GameUiGovernmentTarget["PlayerOperationTypes"];
   ProgressionTreeNodeTypes?:
     Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
-  UnitCommandTypes?: Civ7GameUiUnitTargetActionTarget["UnitCommandTypes"];
+  UnitCommandTypes?:
+    & Civ7GameUiUnitTargetActionTarget["UnitCommandTypes"]
+    & Civ7GameUiUnitCommandTarget["UnitCommandTypes"];
   UnitOperationMoveModifiers?:
     Civ7GameUiUnitTargetActionTarget["UnitOperationMoveModifiers"];
   UnitOperationTypes?: Civ7GameUiUnitTargetActionTarget["UnitOperationTypes"];
@@ -355,7 +362,8 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiExpandCityPlacement(input, target),
     requestCiv7UnitTargetAction: async (input) =>
       await requestCiv7GameUiUnitTargetAction(input, target),
-    requestCiv7UnitCommand: unsupported,
+    requestCiv7UnitCommand: async (input) =>
+      await requestCiv7GameUiUnitCommand(input, target),
     requestCiv7TurnComplete: async () =>
       await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
@@ -465,6 +473,12 @@ function gameUiSupportedMutationProcedures(
   }
   if (civ7GameUiUnitTargetActionAvailable(target)) {
     supported.push("unit.target.action.request");
+  }
+  if (civ7GameUiUnitCommandAvailable(target)) {
+    supported.push(
+      "unit.upgrade.request",
+      "unit.resettle.request",
+    );
   }
   return supported;
 }

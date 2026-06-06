@@ -24,6 +24,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   const governmentType = 0;
   const governmentAction = -1_326_475_004;
   const goldenAgeType = -340_825_966;
+  const resettleTarget = { x: 22, y: 31 };
   const unitId = { owner: 0, id: 42, type: 1 };
   const unitTarget = { x: 22, y: 31 };
 
@@ -2663,6 +2664,203 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
+  test("executes unit upgrade through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const nextReadyUnitId = { owner: 0, id: 500_001, type: 26 };
+    const target = gameUiNotificationTarget(notificationId, {
+      firstReadyUnitId: unitId,
+      unitCommand: {
+        unitId,
+        nextReadyUnitId,
+        onSend: (operationType, args) =>
+          sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const readiness = await bridge.invoke({
+      procedureKey: "readiness.current",
+      input: {},
+      correlationId: "game-ui-unit-command-readiness-1",
+    });
+    expect(readiness).toMatchObject({
+      ok: true,
+      output: {
+        controller: {
+          supportedProcedures: expect.arrayContaining([
+            {
+              procedureKey: "unit.upgrade.request",
+              risk: "mutation",
+            },
+            {
+              procedureKey: "unit.resettle.request",
+              risk: "mutation",
+            },
+          ]),
+        },
+      },
+    });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.upgrade.request",
+      input: { unitId },
+      correlationId: "game-ui-unit-upgrade-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "unit.upgrade.request",
+      output: {
+        action: {
+          kind: "upgrade",
+          unitId,
+        },
+        sent: true,
+        status: "sent-confirmed",
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: "queue-advanced",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+        nextSteps: [{
+          kind: "refresh-attention",
+          source: "unit.upgrade.request",
+        }],
+      },
+    });
+    expect(sendCalls).toEqual([{
+      operationType: "UNITCOMMAND_UPGRADE",
+      args: {},
+    }]);
+    expectSemanticOutputOmitsRawUnitCommand(response);
+  });
+
+  test("executes unit resettle through game UI service dependency", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      unitCommand: {
+        unitId,
+        destination: resettleTarget,
+        onSend: (operationType, args) =>
+          sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.resettle.request",
+      input: {
+        unitId,
+        destination: resettleTarget,
+      },
+      correlationId: "game-ui-unit-resettle-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      procedureKey: "unit.resettle.request",
+      output: {
+        action: {
+          kind: "resettle",
+          unitId,
+          destination: resettleTarget,
+        },
+        sent: true,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "unit-state-changed",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+      },
+    });
+    expect(sendCalls).toEqual([{
+      operationType: "UNITCOMMAND_RESETTLE",
+      args: { X: 22, Y: 31 },
+    }]);
+    expectSemanticOutputOmitsRawUnitCommand(response);
+  });
+
+  test("blocks game UI unit command sends for non-local unit owners", async () => {
+    const sendCalls: unknown[] = [];
+    const foreignUnitId = { owner: 2, id: 420_001, type: 26 };
+    const target = gameUiNotificationTarget(notificationId, {
+      unitCommand: {
+        unitId: foreignUnitId,
+        onSend: (operationType, args) =>
+          sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.upgrade.request",
+      input: { unitId: foreignUnitId },
+      correlationId: "game-ui-unit-upgrade-foreign-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        action: {
+          kind: "upgrade",
+          unitId: foreignUnitId,
+        },
+        sent: false,
+        status: "not-sent",
+        postcondition: {
+          classification: "not-sent",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      },
+    });
+    expect(sendCalls).toEqual([]);
+  });
+
+  test("keeps game UI unit command no-state-change sends no-repeat guarded", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      firstReadyUnitId: unitId,
+      unitCommand: {
+        unitId,
+        advanceQueueOnSend: false,
+        changeUnitStateOnSend: false,
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.invoke({
+      procedureKey: "unit.upgrade.request",
+      input: { unitId },
+      correlationId: "game-ui-unit-upgrade-no-state-change-1",
+    });
+
+    expect(response).toMatchObject({
+      ok: true,
+      output: {
+        sent: true,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "no-state-change",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [{
+          kind: "do-not-repeat",
+          source: "unit.upgrade.request",
+        }],
+      },
+    });
+    expectSemanticOutputOmitsRawUnitCommand(response);
+  });
+
   test("keeps blocked game UI turn completion semantic and no-repeat guarded", async () => {
     const sendCalls: string[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -3367,6 +3565,19 @@ function gameUiNotificationTarget(
         args: Readonly<Record<string, number>>,
       ) => void;
     };
+    unitCommand?: {
+      unitId: { owner: number; id: number; type: number };
+      canUpgrade?: boolean;
+      canResettle?: boolean;
+      destination?: { x: number; y: number };
+      nextReadyUnitId?: { owner: number; id: number; type: number } | null;
+      advanceQueueOnSend?: boolean;
+      changeUnitStateOnSend?: boolean;
+      onSend?: (
+        operationType: string,
+        args: Readonly<Record<string, number>>,
+      ) => void;
+    };
   }> = {},
 ): Civ7GameUiRuntimeTarget {
   const target = gameUiTarget();
@@ -3376,6 +3587,8 @@ function gameUiNotificationTarget(
   let populationSent = false;
   let progressionSent = false;
   let unitTargetSent = false;
+  let unitCommandSent = false;
+  let lastUnitCommandOperationType: string | null = null;
   let selectedCityCleared = false;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
@@ -3408,9 +3621,19 @@ function gameUiNotificationTarget(
             ? {}
             : { CHANGE_GROWTH_MODE: "CHANGE_GROWTH_MODE" }),
         },
-    UnitCommandTypes: options.unitTargetAction == null
+    UnitCommandTypes: options.unitTargetAction == null && options.unitCommand == null
       ? undefined
-      : { UNITCOMMAND_ARMY_OVERRUN: "UNITCOMMAND_ARMY_OVERRUN" },
+      : {
+          ...(options.unitTargetAction == null
+            ? {}
+            : { UNITCOMMAND_ARMY_OVERRUN: "UNITCOMMAND_ARMY_OVERRUN" }),
+          ...(options.unitCommand == null
+            ? {}
+            : {
+                UNITCOMMAND_UPGRADE: "UNITCOMMAND_UPGRADE",
+                UNITCOMMAND_RESETTLE: "UNITCOMMAND_RESETTLE",
+              }),
+        },
     UnitOperationMoveModifiers: options.unitTargetAction == null
       ? undefined
       : {
@@ -3543,25 +3766,64 @@ function gameUiNotificationTarget(
               ? [{ owner: 1, id: 99, type: 1 }]
               : [],
         },
-    Units: options.unitTargetAction == null
+    Units: options.unitTargetAction == null && options.unitCommand == null
       ? undefined
       : {
           get: (id) => {
-            if (!componentIdEqual(id, options.unitTargetAction?.unitId)) {
+            if (options.unitTargetAction != null) {
+              if (!componentIdEqual(id, options.unitTargetAction.unitId)) {
+                return null;
+              }
+              return {
+                id: options.unitTargetAction.unitId,
+                owner: options.unitTargetAction.unitId.owner,
+                type: options.unitTargetAction.unitId.type,
+                location: unitTargetSent
+                  ? options.unitTargetAction.landedLocation
+                    ?? options.unitTargetAction.target
+                  : { x: 20, y: 31 },
+                Movement: {
+                  movementMovesRemaining: unitTargetSent ? 0 : 1,
+                  movementTurnsRemaining: 0,
+                },
+                Combat: {
+                  attacksRemaining: 1,
+                  rangedStrength: 5,
+                  bombardStrength: 0,
+                  getMeleeStrength: () => 10,
+                },
+                Health: {
+                  damage: 0,
+                  hitPoints: 100,
+                },
+              };
+            }
+
+            if (!componentIdEqual(id, options.unitCommand?.unitId)) {
               return null;
             }
+            const commandDestination = options.unitCommand?.destination
+              ?? resettleTarget;
+            const unitCommandLocation =
+              unitCommandSent
+                && lastUnitCommandOperationType === "UNITCOMMAND_RESETTLE"
+                && options.unitCommand?.changeUnitStateOnSend !== false
+                ? commandDestination
+                : { x: 20, y: 31 };
             return {
-              id: options.unitTargetAction.unitId,
-              owner: options.unitTargetAction.unitId.owner,
-              type: options.unitTargetAction.unitId.type,
-              location: unitTargetSent
-                ? options.unitTargetAction.landedLocation
-                  ?? options.unitTargetAction.target
-                : { x: 20, y: 31 },
+              id: options.unitCommand?.unitId,
+              owner: options.unitCommand?.unitId.owner,
+              type: options.unitCommand?.unitId.type,
+              location: unitCommandLocation,
               Movement: {
-                movementMovesRemaining: unitTargetSent ? 0 : 1,
+                movementMovesRemaining:
+                  unitCommandSent
+                    && options.unitCommand?.changeUnitStateOnSend !== false
+                    ? 0
+                    : 1,
                 movementTurnsRemaining: 0,
               },
+              Activity: "UNIT_ACTIVITY_AWAKE",
               Combat: {
                 attacksRemaining: 1,
                 rangedStrength: 5,
@@ -3579,7 +3841,12 @@ function gameUiNotificationTarget(
       ...target.UI,
       Player: {
         getHeadSelectedUnit: () => options.selectedUnitId ?? null,
-        getFirstReadyUnit: () => options.firstReadyUnitId ?? null,
+        getFirstReadyUnit: () =>
+          options.unitCommand != null
+              && unitCommandSent
+              && options.unitCommand.advanceQueueOnSend !== false
+            ? options.unitCommand.nextReadyUnitId ?? null
+            : options.firstReadyUnitId ?? null,
         getHeadSelectedCity: () =>
           selectedCityCleared ? null : options.selectedCityId ?? null,
         deselectAllCities: () => {
@@ -3655,17 +3922,37 @@ function gameUiNotificationTarget(
               return true;
             },
           },
-      UnitCommands: options.unitTargetAction == null
+      UnitCommands: options.unitTargetAction == null && options.unitCommand == null
         ? undefined
         : {
-            canStart: () => ({ Success: false, Plots: [] }),
+            canStart: (_unitId, commandType) => {
+              const operationType = String(commandType);
+              return {
+                Success: operationType === "UNITCOMMAND_UPGRADE"
+                  ? options.unitCommand?.canUpgrade ?? true
+                  : operationType === "UNITCOMMAND_RESETTLE"
+                  ? options.unitCommand?.canResettle ?? true
+                  : false,
+                Plots: [],
+              };
+            },
             sendRequest: (_unitId, commandType, args) => {
-              options.unitTargetAction?.onSend?.(
-                "unit-command",
-                String(commandType),
-                args,
-              );
-              unitTargetSent = true;
+              const operationType = String(commandType);
+              if (
+                operationType === "UNITCOMMAND_UPGRADE"
+                || operationType === "UNITCOMMAND_RESETTLE"
+              ) {
+                options.unitCommand?.onSend?.(operationType, args);
+                unitCommandSent = true;
+                lastUnitCommandOperationType = operationType;
+              } else {
+                options.unitTargetAction?.onSend?.(
+                  "unit-command",
+                  operationType,
+                  args,
+                );
+                unitTargetSent = true;
+              }
               return true;
             },
           },
@@ -3889,6 +4176,26 @@ function gameUiNotificationTarget(
       },
     },
   };
+}
+
+function expectSemanticOutputOmitsRawUnitCommand(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain("CMD");
+  expect(serialized).not.toContain("Game.UnitCommands");
+  expect(serialized).not.toContain("Game.UnitOperations");
+  expect(serialized).not.toContain("sendRequest");
+  expect(serialized).not.toContain("\"host\"");
+  expect(serialized).not.toContain("\"port\"");
+  expect(serialized).not.toContain("\"state\"");
+  expect(serialized).not.toContain("\"session\"");
+  expect(serialized).not.toContain("\"rawCommand\"");
+  expect(serialized).not.toContain("\"command\"");
+  expect(serialized).not.toContain("\"operationType\"");
+  expect(serialized).not.toContain("\"sendResult\"");
+  expect(serialized).not.toContain("\"result\"");
+  expect(serialized).not.toContain("\"verified\"");
+  expect(serialized).not.toContain("\"before\"");
+  expect(serialized).not.toContain("\"after\"");
 }
 
 function progressionTargetCanStart(

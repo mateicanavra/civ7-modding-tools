@@ -117,6 +117,18 @@ const Civ7UnitTargetActionResultSchema =
   typeboxOutputSchemaFromContractProcedure(
     Civ7ControlOrpcContract.unit.target.action.request,
   );
+const Civ7UnitUpgradeInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.upgrade.request,
+);
+const Civ7UnitUpgradeResultSchema = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.upgrade.request,
+);
+const Civ7UnitResettleInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.resettle.request,
+);
+const Civ7UnitResettleResultSchema = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.resettle.request,
+);
 const Civ7ProgressionChoiceInputSchema = typeboxInputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.progression.technology.choice.request,
 );
@@ -379,6 +391,30 @@ export type Civ7ControllerBridgeUnitTargetActionRequest = Static<
   typeof Civ7ControllerBridgeUnitTargetActionRequestSchema
 >;
 
+export const Civ7ControllerBridgeUnitUpgradeRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("unit.upgrade.request"),
+    input: Civ7UnitUpgradeInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeUnitUpgradeRequest = Static<
+  typeof Civ7ControllerBridgeUnitUpgradeRequestSchema
+>;
+
+export const Civ7ControllerBridgeUnitResettleRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("unit.resettle.request"),
+    input: Civ7UnitResettleInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeUnitResettleRequest = Static<
+  typeof Civ7ControllerBridgeUnitResettleRequestSchema
+>;
+
 export const Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema =
   Type.Object(
     {
@@ -499,6 +535,8 @@ export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeGovernmentChoiceRequestSchema,
   Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
+  Civ7ControllerBridgeUnitUpgradeRequestSchema,
+  Civ7ControllerBridgeUnitResettleRequestSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
   Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
   Civ7ControllerBridgeProgressionTechnologyTargetRequestSchema,
@@ -524,6 +562,8 @@ export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeGovernmentChoiceRequest
   | Civ7ControllerBridgeGovernmentCelebrationChoiceRequest
   | Civ7ControllerBridgeUnitTargetActionRequest
+  | Civ7ControllerBridgeUnitUpgradeRequest
+  | Civ7ControllerBridgeUnitResettleRequest
   | Civ7ControllerBridgeProgressionTechnologyChoiceRequest
   | Civ7ControllerBridgeProgressionCultureChoiceRequest
   | Civ7ControllerBridgeProgressionTechnologyTargetRequest
@@ -761,6 +801,32 @@ export type Civ7ControllerBridgeUnitTargetActionSuccessResponse = Static<
   typeof Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema = Type.Object(
+  {
+    ok: Type.Literal(true),
+    procedureKey: Type.Literal("unit.upgrade.request"),
+    output: Civ7UnitUpgradeResultSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeUnitUpgradeSuccessResponse = Static<
+  typeof Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeUnitResettleSuccessResponseSchema = Type.Object(
+  {
+    ok: Type.Literal(true),
+    procedureKey: Type.Literal("unit.resettle.request"),
+    output: Civ7UnitResettleResultSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeUnitResettleSuccessResponse = Static<
+  typeof Civ7ControllerBridgeUnitResettleSuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema =
   Type.Object(
     {
@@ -897,6 +963,8 @@ export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
   Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
+  Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
+  Civ7ControllerBridgeUnitResettleSuccessResponseSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
   Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
   Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponseSchema,
@@ -922,6 +990,8 @@ export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeGovernmentChoiceSuccessResponse
   | Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponse
   | Civ7ControllerBridgeUnitTargetActionSuccessResponse
+  | Civ7ControllerBridgeUnitUpgradeSuccessResponse
+  | Civ7ControllerBridgeUnitResettleSuccessResponse
   | Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse
   | Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse
   | Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponse
@@ -1202,6 +1272,30 @@ export async function invokeCiv7ControllerBridgeRequest(
       };
     }
 
+    if (request.procedureKey === "unit.upgrade.request") {
+      const output = await client.unit.upgrade.request(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "unit.upgrade.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "unit.resettle.request") {
+      const output = await client.unit.resettle.request(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "unit.resettle.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
     if (request.procedureKey === "progression.technology.choice.request") {
       const output = await client.progression.technology.choice.request(
         validatedInput,
@@ -1358,6 +1452,8 @@ function isUnsupportedProcedureRequest(
     && request.procedureKey !== "government.choice.request"
     && request.procedureKey !== "government.celebration.choice.request"
     && request.procedureKey !== "unit.target.action.request"
+    && request.procedureKey !== "unit.upgrade.request"
+    && request.procedureKey !== "unit.resettle.request"
     && request.procedureKey !== "progression.technology.choice.request"
     && request.procedureKey !== "progression.culture.choice.request"
     && request.procedureKey !== "progression.technology.target.request"
@@ -1383,6 +1479,8 @@ function isControllerBridgeMutationRequest(
   | Civ7ControllerBridgeGovernmentChoiceRequest
   | Civ7ControllerBridgeGovernmentCelebrationChoiceRequest
   | Civ7ControllerBridgeUnitTargetActionRequest
+  | Civ7ControllerBridgeUnitUpgradeRequest
+  | Civ7ControllerBridgeUnitResettleRequest
   | Civ7ControllerBridgeProgressionTechnologyChoiceRequest
   | Civ7ControllerBridgeProgressionCultureChoiceRequest
   | Civ7ControllerBridgeProgressionTechnologyTargetRequest
@@ -1403,6 +1501,8 @@ function isControllerBridgeMutationRequest(
     || request.procedureKey === "government.choice.request"
     || request.procedureKey === "government.celebration.choice.request"
     || request.procedureKey === "unit.target.action.request"
+    || request.procedureKey === "unit.upgrade.request"
+    || request.procedureKey === "unit.resettle.request"
     || request.procedureKey === "progression.technology.choice.request"
     || request.procedureKey === "progression.culture.choice.request"
     || request.procedureKey === "progression.technology.target.request"
