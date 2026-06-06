@@ -231,6 +231,14 @@ adding more read-only facade shells.
     output exclusion, and the no-CLI-string contract boundary; no broad
     operation catalog, approval/reason mechanic, runtime proof, controller
     bridge, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.22 Record `notifications.advisorWarning.viewed.request` as a
+    service-owned advisor-warning acknowledgement boundary over fresh
+    notification/local-player evidence and a source-owned direct-control
+    advisor-warning runtime/proof port. The service owns the caller-facing
+    target-only input, local-player rewrite, semantic validation and
+    postcondition projection, raw-output exclusion, and no-repeat guard; no
+    generic player-operation catalog, approval/reason mechanic, runtime proof,
+    controller bridge, or parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -390,6 +398,15 @@ adding more read-only facade shells.
     legacy `verified`, and keep runtime proof, controller bridge, transport
     expansion, broad operation catalog support, approval/reason mechanics, and
     parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.21 Seed `notifications.advisorWarning.viewed.request` as a native
+    service-owned notification mutation that composes readiness middleware,
+    fresh notification local-player evidence, and the direct-control
+    `VIEWED_ADVISOR_WARNING` runtime/proof port into semantic output. Keep the
+    caller input schema contract-local and target-only, omit raw
+    player-operation envelopes and legacy `verified`, keep sent outcomes
+    pending-runtime-proof/no-repeat guarded, and keep runtime proof,
+    controller bridge, transport expansion, approval/reason mechanics, broad
+    operation catalog support, and parent Task 5.x/6.x/7.x acceptance pending.
 
 ## 6. Native Policy Layering
 
@@ -717,6 +734,15 @@ adding more read-only facade shells.
     `verified`, and raw App UI dismissal internals from normal JSON, and avoid
     controller bridge, transport, broad operation catalogs, approval/reason
     mechanics, or runtime-proof claims.
+  - [x] 7.1.9.12 Route `civ7 game play advisor-warning --send` through the
+    in-process `notifications.advisorWarning.viewed.request` server-side
+    client under the `notifications` router. Move acted-player selection to
+    fresh notification local-player evidence in the service procedure, keep
+    dry-run validation on the legacy direct-control validator path, omit raw
+    host/port/state/session/Tuner payloads, raw player-operation envelopes,
+    raw `VIEWED_ADVISOR_WARNING` operation details, legacy `verified`, and
+    approval/reason mechanics from normal send JSON, and avoid controller
+    bridge, transport, broad operation catalogs, or runtime-proof claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1501,6 +1527,18 @@ adding more read-only facade shells.
   does not claim deployed Civ7 runtime proof, play-thread action, controller
   bridge, transport expansion, broad operation catalog support, approval/reason
   mechanics, raw App UI closeout output, or parent Task 5.x/6.x/7.x
+  acceptance.
+- [x] 8.60.21 Run focused direct-control advisor-warning request tests,
+  focused notification advisor-warning procedure tests, focused CLI operation
+  wrapper tests, direct-control/control-oRPC package test/check/build, CLI
+  play/check gates, strict OpenSpec validates, private procedure-schema export
+  scan, active approval/caller-permission scan, raw operation output scan, and
+  diff hygiene for the `notifications.advisorWarning.viewed.request`
+  service-composition expansion and `game play advisor-warning --send`
+  in-process oRPC caller migration. This is local package/CLI proof only and
+  does not claim deployed Civ7 runtime proof, play-thread action, controller
+  bridge, transport expansion, broad operation catalog support, approval/reason
+  mechanics, raw player-operation output, or parent Task 5.x/6.x/7.x
   acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the

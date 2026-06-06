@@ -56,6 +56,11 @@
       "import": "./dist/proof/notification-dismissal-proof-policy.js",
       "require": "./dist/proof/notification-dismissal-proof-policy.cjs"
     },
+    "./proof/advisor-warning-proof-policy": {
+      "types": "./dist/proof/advisor-warning-proof-policy.d.ts",
+      "import": "./dist/proof/advisor-warning-proof-policy.js",
+      "require": "./dist/proof/advisor-warning-proof-policy.cjs"
+    },
     "./proof/population-placement-proof-policy": {
       "types": "./dist/proof/population-placement-proof-policy.d.ts",
       "import": "./dist/proof/population-placement-proof-policy.js",

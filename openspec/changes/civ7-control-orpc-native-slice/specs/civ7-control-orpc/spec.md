@@ -361,6 +361,32 @@ errors, and server-side callers.
   allowlisting, transport expansion, broad operation catalog support, and
   parent Task 5.x/6.x/7.x acceptance remain pending
 
+#### Scenario: Advisor warning acknowledgement service is added
+- **WHEN** `notifications.advisorWarning.viewed.request` exposes a
+  caller-facing advisor-warning acknowledgement under the `notifications`
+  router
+- **THEN** control-oRPC owns the contract-local target-only input schema,
+  native service procedure, fresh local-player evidence read, semantic
+  validation and postcondition projection, no-repeat next steps, and normal
+  output wording
+- **AND** the input is closed and admits only the target notification
+  ComponentID; it does not accept caller player id, endpoint, session, state,
+  host, port, command, rawCommand, transport, approval, reason, raw operation,
+  or caller-supplied proof fields
+- **AND** the procedure passes native mutation readiness middleware, reads the
+  current notification view for local-player evidence, invokes only the
+  source-owned direct-control advisor-warning runtime/proof port, and keeps
+  sent outcomes pending-runtime-proof and do-not-repeat guarded until live
+  runtime proof is collected
+- **AND** normal output omits host, port, state, session, command, rawCommand,
+  Tuner payloads, direct-control runtime envelopes, raw player-operation
+  details such as `VIEWED_ADVISOR_WARNING` / `Target`, legacy `verified`,
+  approval/reason mechanics, and raw transport details
+- **AND** local package tests prove only native service composition and fake
+  runtime behavior; deployed Civ7 runtime proof, controller bridge
+  allowlisting, transport expansion, broad operation catalog support, and
+  parent Task 5.x/6.x/7.x acceptance remain pending
+
 #### Scenario: Current world service view is added
 - **WHEN** `world.current` exposes a caller-facing current-world read
 - **THEN** control-oRPC owns the contract-local input/output schemas, native
@@ -464,6 +490,27 @@ errors, and server-side callers.
   rawCommand, Tuner payloads, direct-control runtime envelopes, raw App UI
   closeout internals, legacy `verified`, approval/reason mechanics, and
   transport details
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI advisor warning sends use notifications service projection
+- **WHEN** `game play advisor-warning --send` acknowledges a reviewed advisor
+  warning notification
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process
+  `notifications.advisorWarning.viewed.request` server-side client under the
+  `notifications` router
+- **AND** local-player selection, advisor-warning operation mapping,
+  validator result projection, pending-runtime-proof postcondition, and
+  no-repeat guidance come from the service procedure and source-owned
+  direct-control runtime/proof port
+- **AND** the CLI send input provides the target notification ComponentID only;
+  dry-run validation may still require a player id on the legacy validator
+  path, but send mode does not treat a caller `--player-id` as action
+  authority
+- **AND** the normal send JSON result omits raw host, port, state, session,
+  command, rawCommand, Tuner payloads, direct-control runtime envelopes, raw
+  player-operation details such as `VIEWED_ADVISOR_WARNING` / `Target`,
+  legacy `verified`, approval/reason mechanics, and transport details
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI civilian route triage uses strategy service projection

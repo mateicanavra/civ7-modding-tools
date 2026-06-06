@@ -166,6 +166,8 @@ export {
   Civ7MutationReadinessUnavailableErrorDataSchema,
   Civ7NarrativeChoiceUnavailableError,
   Civ7NarrativeChoiceUnavailableErrorDataSchema,
+  Civ7NotificationAdvisorWarningUnavailableError,
+  Civ7NotificationAdvisorWarningUnavailableErrorDataSchema,
   Civ7NotificationDismissalUnavailableError,
   Civ7NotificationDismissalUnavailableErrorDataSchema,
   Civ7NotificationQueueUnavailableError,
@@ -213,6 +215,7 @@ export {
   type Civ7MutationReadinessRequiredErrorData,
   type Civ7MutationReadinessUnavailableErrorData,
   type Civ7NarrativeChoiceUnavailableErrorData,
+  type Civ7NotificationAdvisorWarningUnavailableErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7NotificationQueueUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
@@ -381,6 +384,8 @@ export {
   Civ7NotificationDismissalContract,
 } from "./modules/notifications/contract";
 export type {
+  Civ7NotificationAdvisorWarningViewedInput,
+  Civ7NotificationAdvisorWarningViewedResult,
   Civ7NotificationDismissalContract as Civ7NotificationDismissalContractType,
   Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
@@ -391,6 +396,9 @@ export type {
   Civ7NotificationsContract as Civ7NotificationsContractType,
 } from "./modules/notifications/contract";
 export { notificationsRouter } from "./modules/notifications/router";
+export {
+  notificationsAdvisorWarningViewedRequestProcedure,
+} from "./modules/notifications/procedures/advisor-warning-request";
 export { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
 export {
   notificationsQueueCurrentProcedure,

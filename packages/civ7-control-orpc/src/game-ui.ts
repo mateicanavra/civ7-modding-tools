@@ -329,6 +329,9 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiProductionChoice(input, target),
     requestCiv7NotificationDismissal: async (input) =>
       await requestCiv7GameUiNotificationDismissal(input, target),
+    requestCiv7AdvisorWarningViewed: async () => {
+      throw new Error("game-ui advisor warning viewed request is not supported");
+    },
     requestCiv7NarrativeChoice: async (input) =>
       await requestCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) =>
