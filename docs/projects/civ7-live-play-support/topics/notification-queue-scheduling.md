@@ -110,8 +110,8 @@ A broader bulk closeout class would need stronger preconditions:
 - every target notification is still present in a fresh queue read;
 - every item is classified as informational closeout or another proven
   closeout class;
-- every item has a per-notification reason or a reviewed batch reason plus
-  item-level summaries;
+- every item has item-level review context and summaries sufficient to explain
+  why it is safe to close;
 - no item is an end-turn blocker with an unhandled operation family;
 - post-dismissal queue state is checked.
 

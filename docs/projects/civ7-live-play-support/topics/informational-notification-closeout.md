@@ -176,8 +176,8 @@ Official handler evidence:
   `Expired:true`, `CanUserDismiss:false`, and
   `Game.Notifications.getEndTurnBlockingType(localPlayer) == NONE`, the desktop
   panel close-control route may still call `Game.Notifications.dismiss`. The CLI
-  may attempt that route once with an explicit reason, but it is not successful
-  unless the same identity-based postcondition clears.
+  may attempt that route once after a fresh reviewed read, but it is not
+  successful unless the same identity-based postcondition clears.
 
 ## Norm
 

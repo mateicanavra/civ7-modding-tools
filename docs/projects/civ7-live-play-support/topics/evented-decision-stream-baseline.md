@@ -183,7 +183,8 @@ Examples:
 
 A command intent expires whenever any source snapshot lease expires or any
 invalidation cause occurs. Sending still belongs to the existing explicit
-command family with the appropriate `--send`/reason surface.
+command family with `--send`, validator-first checks, and postcondition/no-repeat
+proof.
 
 ## Subscriber Shapes
 

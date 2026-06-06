@@ -76,7 +76,7 @@ compact play-agent output is introduced.
 | `game play operation` | `game play unit operation`, `city operation`, `player operation` | Keep generic command as the escape hatch. |
 | `game play notifications` | `game play notifications list` | Preserve raw notification read with `--raw`. |
 | `game play notification-queue` | `game play notifications schedule` | Make scheduling a notifications subcommand. |
-| `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep explicit reason and conservative categories. |
+| `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep item-level review context and conservative categories. |
 | `game play ready-city` | `game play city show city:ready` | City-specific grammar should own production/growth/worker decisions. |
 | `game play build-production` | `game play city production send` | Add `preview` and `check` before send. |
 | `game play choose-tech` / `choose-culture` | `game play progress tech send` / `progress culture send` | Tech send already owns the complete chooser workflow; culture still needs the same default-send contract. |
@@ -106,7 +106,7 @@ compact play-agent output is introduced.
    live-smoked.
 2. **Notification namespace.** Move `notifications`, `notification-queue`, and
    dismiss queue behavior under one noun. Risk: medium because bulk dismissal
-   must stay conservative and reason-gated.
+   must stay conservative and item-review gated.
 3. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
    `assign-worker`, `expand-city`, and town focus workflows. Risk: medium; city
    operations have different arg shapes and placement requirements.
