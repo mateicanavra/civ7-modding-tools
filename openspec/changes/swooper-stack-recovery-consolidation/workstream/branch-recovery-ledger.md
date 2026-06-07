@@ -79,6 +79,13 @@
 - Branches with active PR/Graphite ownership should be deleted only after their
   semantic deltas are committed here and the current stack is submitted or
   merged, to avoid removing review references before replacement is durable.
+- Current sparse accounting state lives in
+  `recovery-accounting-ledger.json` and
+  `recovery-accounting-state.md`. As of `2026-06-07T14:00:05-04:00`, covered
+  source branches are not cleanup-safe because the recovery stack has not
+  landed, and `codex/earthlike-natural-wonder-postwrite-footprint-proof-record`
+  remains a planned adoption for the latest Earthlike floodplain config/hash
+  leaf.
 
 ## Cleanup Actions
 

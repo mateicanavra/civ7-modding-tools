@@ -1,0 +1,390 @@
+{
+  "fixtureId": "swooper-recovery-accounting-2026-06-07",
+  "fixtureClass": "accounting-ledger",
+  "schemaVersion": "gt-stack-inspect.accounting-ledger.v1",
+  "capturedAt": "2026-06-07T14:00:05-04:00",
+  "scope": {
+    "recoveryRoot": "codex/swooper-mapgen-recovery-drain",
+    "recoveryTop": "codex/swooper-natural-wonder-plan-input-comparison-drain",
+    "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+    "excludedFamilies": [
+      "live-play/control",
+      "GT stack-inspect/toolkit"
+    ],
+    "policy": "Sparse reconciliation moves only. Done means source intent is represented in the local recovery stack; cleanup remains blocked until the recovery stack is submitted or merged."
+  },
+  "moves": [
+    {
+      "moveId": "done-supersede-pr1421-swooper-earthlike",
+      "state": "done",
+      "kind": "supersede",
+      "source": {
+        "kind": "pr",
+        "number": 1421
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-mapgen-recovery-drain"
+      },
+      "method": "semantic",
+      "anchors": {
+        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Published Swooper Earthlike PR #1421 is superseded locally by the recovery stack's semantic synthesis. Keep it as fallback/reference until the recovery stack lands; do not merge it as-is."
+    },
+    {
+      "moveId": "done-adopt-start-placement-and-initial-resource-policy",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "stack-slice",
+        "id": "predecessor-start-resource-policy",
+        "root": "codex/start-placement-viability",
+        "branches": [
+          "codex/start-placement-viability",
+          "codex/resource-initial-map-policy"
+        ]
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-mapgen-recovery-drain"
+      },
+      "method": "semantic",
+      "anchors": {
+        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Start expansion viability and initial age-gated resource policy were replayed into the recovery base."
+    },
+    {
+      "moveId": "done-adopt-studio-setup-config-sync",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "stack-slice",
+        "id": "studio-setup-and-seed-sync",
+        "root": "codex/studio-setup-config-sync",
+        "branches": [
+          "codex/studio-setup-config-sync",
+          "06-05-fix_studio_validate_civ7_setup_seeds"
+        ]
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-mapgen-recovery-drain"
+      },
+      "method": "semantic",
+      "anchors": {
+        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Studio setup/config loading, setup seed validation, save/deploy/run-in-game sync, and adjacent Swooper recovery behavior were synthesized into the recovery base."
+    },
+    {
+      "moveId": "done-supersede-morphology-peer-review-repairs",
+      "state": "done",
+      "kind": "supersede",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/morphology-peer-review-repairs"
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-mapgen-recovery-drain"
+      },
+      "anchors": {
+        "fromHead": "c886b4fa8d6896a0fdc0154c021da338f5b81d7e",
+        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "The old morphology peer-review repair train is treated as represented/superseded by current recovery morphology/Earthlike behavior. Open mountain-quality/product proof remains in the recovery lane; do not replay the old train wholesale."
+    },
+    {
+      "moveId": "done-reference-resource-runtime-proof-train",
+      "state": "done",
+      "kind": "reference",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/resource-runtime-proof"
+      },
+      "terminalState": "parked-reference",
+      "anchors": {
+        "fromHead": "b4dd7160838261077765bc0b6d00d8a331564f8d",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Old resource-runtime stack remains provenance/reference. Current recovery resource work uses the Earthlike proof stack and current verifier rows, not a wholesale replay of this old train."
+    },
+    {
+      "moveId": "done-adopt-studio-exact-authorship-proof",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/studio-civ7-exact-authorship-proof"
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-studio-parity-proof-drain"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "8966aba5eb6fb3d2adf7edf38aa2bd0b8cde905f",
+        "toHead": "eeccd5a9eb52bd30e7545e3324fe359d21ded7a4",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Studio exact-authorship parsing/proof behavior is represented in the Swooper Studio parity proof drain."
+    },
+    {
+      "moveId": "done-adopt-map-policy-final-surface-parity",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/civ7-map-policy-final-surface-parity"
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-studio-parity-proof-drain"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "70a22c815bd8918febe2750043e4db920cf2bcb6",
+        "toHead": "eeccd5a9eb52bd30e7545e3324fe359d21ded7a4",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Final-surface parity proof path and routing records are represented in the Swooper Studio parity proof drain and later current parity record branches."
+    },
+    {
+      "moveId": "done-adopt-earthlike-feature-resource-proof-stack",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "stack-slice",
+        "id": "earthlike-feature-resource-proof-through-coordinate-intake",
+        "root": "codex/earthlike-live-feature-resource-legality-repair",
+        "branches": [
+          "codex/earthlike-live-feature-resource-legality-repair",
+          "codex/earthlike-adjacent-land-rerun-record",
+          "codex/earthlike-resource-assignment-evidence",
+          "codex/earthlike-resource-feasibility-readback",
+          "codex/earthlike-resource-feasibility-classification",
+          "codex/earthlike-resource-feasibility-artifact",
+          "codex/earthlike-resource-feasibility-row-context",
+          "codex/earthlike-resource-policy-spacing-context",
+          "codex/earthlike-resource-live-plot-context",
+          "codex/earthlike-resource-assignment-trace",
+          "codex/earthlike-resource-builder-diagnostics",
+          "codex/earthlike-resource-assignment-order-context",
+          "codex/earthlike-resource-builder-subclassification",
+          "codex/earthlike-resource-builder-policy-context",
+          "codex/earthlike-resource-assignment-class-summary",
+          "codex/earthlike-resource-distribution-context",
+          "codex/earthlike-resource-position-context",
+          "codex/earthlike-resource-local-materialization-context",
+          "codex/earthlike-resource-placement-coordinate-proof",
+          "codex/earthlike-resource-coordinate-proof-intake"
+        ]
+      },
+      "sink": {
+        "kind": "stack-slice",
+        "id": "swooper-resource-proof-drain-through-coordinate-summary",
+        "root": "codex/swooper-feature-resource-legality-drain",
+        "branches": [
+          "codex/swooper-feature-resource-legality-drain",
+          "codex/swooper-resource-assignment-evidence-drain",
+          "codex/swooper-resource-feasibility-readback-drain",
+          "codex/swooper-resource-feasibility-classification-drain",
+          "codex/swooper-resource-delta-context-drain",
+          "codex/swooper-resource-policy-live-context-drain",
+          "codex/swooper-resource-assignment-trace-drain",
+          "codex/swooper-resource-builder-diagnostics-drain",
+          "codex/swooper-resource-builder-classifier-drain",
+          "codex/swooper-resource-builder-policy-context-drain",
+          "codex/swooper-resource-assignment-summary-drain",
+          "codex/swooper-resource-distribution-context-drain",
+          "codex/swooper-resource-position-context-drain",
+          "codex/swooper-resource-local-materialization-context-drain",
+          "codex/swooper-resource-coordinate-proof-drain",
+          "codex/swooper-resource-coordinate-proof-intake-drain",
+          "codex/swooper-resource-coordinate-proof-summary-drain"
+        ]
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "88055a5ec7de6e0d3ca86f48e05b502cc6c745d4",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Earthlike feature/resource legality and resource proof intent through coordinate intake is represented by the Swooper resource proof drain. Later Swooper resource rejection branches are new continuation work, not source-stack cleanup."
+    },
+    {
+      "moveId": "done-adopt-earthlike-terrain-edge-stack",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "stack-slice",
+        "id": "earthlike-terrain-edge-stack",
+        "root": "codex/earthlike-terrain-edge-diagnostics",
+        "branches": [
+          "codex/earthlike-terrain-edge-diagnostics",
+          "codex/earthlike-terrain-edge-local-mask-context",
+          "codex/earthlike-terrain-edge-live-readback",
+          "codex/earthlike-terrain-edge-validation-boundary",
+          "codex/earthlike-terrain-edge-mock-lake-classification",
+          "codex/earthlike-terrain-edge-mock-materialization-repair",
+          "codex/earthlike-terrain-edge-coast-materialization-context",
+          "codex/earthlike-terrain-edge-mock-terrain-materialization-repair",
+          "codex/earthlike-terrain-edge-stack-integration"
+        ]
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-terrain-edge-reconciliation-drain"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "9137689da849ba227f4057aa941c20a502d92e80",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Terrain-edge diagnostics, mock lake/materialization repairs, and reconciliation records are represented in the Swooper terrain-edge drain."
+    },
+    {
+      "moveId": "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "stack-slice",
+        "id": "earthlike-natural-wonder-through-footprint-proof",
+        "root": "codex/earthlike-natural-wonder-footprint-readback",
+        "branches": [
+          "codex/earthlike-natural-wonder-footprint-readback",
+          "codex/earthlike-feature-footprint-direction-context",
+          "codex/earthlike-feature-live-feasibility-readback",
+          "codex/earthlike-feature-local-evidence-context",
+          "codex/earthlike-feature-delta-context",
+          "codex/earthlike-natural-wonder-footprint-catalog-context",
+          "codex/earthlike-natural-wonder-live-proof-boundary",
+          "codex/earthlike-natural-wonder-live-telemetry",
+          "codex/earthlike-natural-wonder-coordinate-proof",
+          "codex/earthlike-natural-wonder-source-classification",
+          "codex/earthlike-natural-wonder-materialization-repair",
+          "codex/earthlike-natural-wonder-repair-proof-record",
+          "codex/earthlike-feature-post-wonder-repair-context",
+          "codex/earthlike-feature-proof-correction",
+          "codex/earthlike-natural-wonder-deploy-proof-gap",
+          "codex/earthlike-natural-wonder-named-rejection-proof",
+          "codex/earthlike-natural-wonder-readback-mismatch-context",
+          "codex/earthlike-natural-wonder-postwrite-footprint-proof"
+        ]
+      },
+      "sink": {
+        "kind": "stack-slice",
+        "id": "swooper-natural-wonder-drain-through-footprint-proof-record",
+        "root": "codex/swooper-wonder-footprint-readback-drain",
+        "branches": [
+          "codex/swooper-wonder-footprint-readback-drain",
+          "codex/swooper-wonder-footprint-direction-drain",
+          "codex/swooper-feature-local-evidence-drain",
+          "codex/swooper-feature-delta-context-drain",
+          "codex/swooper-wonder-catalog-direction-drain",
+          "codex/swooper-wonder-live-proof-boundary-drain",
+          "codex/swooper-wonder-placement-telemetry-drain",
+          "codex/swooper-wonder-coordinate-proof-drain",
+          "codex/swooper-wonder-source-classification-drain",
+          "codex/swooper-wonder-materialization-repair-drain",
+          "codex/swooper-wonder-proof-record-drain",
+          "codex/swooper-post-wonder-feature-classification-drain",
+          "codex/swooper-wonder-rejection-outcomes-drain",
+          "codex/swooper-wonder-named-rejection-proof-drain",
+          "codex/swooper-wonder-readback-context-drain",
+          "codex/swooper-wonder-footprint-proof-drain",
+          "codex/swooper-wonder-footprint-proof-record-drain"
+        ]
+      },
+      "method": "semantic",
+      "anchors": {
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+    },
+    {
+      "moveId": "planned-adopt-earthlike-floodplain-config-leaf",
+      "state": "planned",
+      "kind": "adopt",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record"
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-mapgen-recovery-drain"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "cbe4943babf131389c892ddd8527b90f52355ab8",
+        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Latest Earthlike floodplainPlanning config/hash leaf is not present in the recovery stack. Adopt this config leaf before claiming the Earthlike source config is fully covered."
+    },
+    {
+      "moveId": "done-exclude-non-earthlike-config-drift",
+      "state": "done",
+      "kind": "exclude",
+      "source": {
+        "kind": "reference",
+        "id": "non-earthlike-config-drift-from-predecessor-sources"
+      },
+      "terminalState": "retired",
+      "anchors": {
+        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Non-Earthlike config drift was intentionally dropped from the recovery stack."
+    },
+    {
+      "moveId": "done-reference-foundation-architecture-packet",
+      "state": "done",
+      "kind": "reference",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/foundation-architecture-packet"
+      },
+      "terminalState": "parked-reference",
+      "anchors": {
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:00:05-04:00"
+      },
+      "note": "Foundation architecture packet remains reference/support material, not a source branch replayed into the Swooper recovery stack."
+    }
+  ],
+  "workSurfaceRows": [
+    {
+      "rowId": "planned-adopt-earthlike-floodplain-config-leaf",
+      "kind": "planned-move",
+      "target": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
+      "sourceRef": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
+      "moveId": "planned-adopt-earthlike-floodplain-config-leaf",
+      "blocker": "Recovery stack lacks latest Earthlike floodplainPlanning config/hash leaf."
+    },
+    {
+      "rowId": "cleanup-blocked-until-recovery-lands",
+      "kind": "done-move",
+      "target": "codex/swooper-mapgen-recovery-drain",
+      "sourceRef": "swooper-recovery-covered-sources",
+      "blocker": "Covered source cleanup is unsafe until recovery stack is submitted or merged."
+    }
+  ]
+}
