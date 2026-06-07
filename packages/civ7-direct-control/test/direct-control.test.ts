@@ -333,7 +333,12 @@ describe("Civ7 direct control", () => {
         timeoutMs: 1_000,
       });
       const plot = await getCiv7PlotSnapshot(
-        { x: 3, y: 4, playerId: 0, fields: ["terrain", "resource", "visibility"] },
+        {
+          x: 3,
+          y: 4,
+          playerId: 0,
+          fields: ["terrain", "resource", "hydrology", "visibility"],
+        },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
       );
 
@@ -346,6 +351,9 @@ describe("Civ7 direct control", () => {
         facts: {
           terrain: { ok: true, value: 4 },
           resource: { ok: true, value: -1 },
+          riverType: { ok: true, value: -1 },
+          water: { ok: true, value: false },
+          lake: { ok: true, value: false },
         },
       });
     } finally {
@@ -1624,7 +1632,7 @@ async function startTunerServer(options: {
                   ...(fields.includes("biome") ? { biome: { ok: true, value: 1 } } : {}),
                   ...(fields.includes("feature") ? { feature: { ok: true, value: -1 } } : {}),
                   ...(fields.includes("resource") ? { resource: { ok: true, value: -1 } } : {}),
-                  ...(fields.includes("hydrology") ? { riverType: { ok: true, value: -1 }, water: { ok: true, value: false } } : {}),
+                  ...(fields.includes("hydrology") ? { riverType: { ok: true, value: -1 }, water: { ok: true, value: false }, lake: { ok: true, value: false } } : {}),
                 },
               });
               if (selectedPlots.length >= maxPlots) break outer;
@@ -1748,6 +1756,9 @@ async function startTunerServer(options: {
                 facts: {
                   terrain: { ok: true, value: 4 },
                   resource: { ok: true, value: -1 },
+                  riverType: { ok: true, value: -1 },
+                  water: { ok: true, value: false },
+                  lake: { ok: true, value: false },
                   revealedState: { ok: true, value: 1 },
                   visible: { ok: true, value: true },
                 },
