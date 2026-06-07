@@ -30,11 +30,11 @@ shared materialization ownership.
 
 | Row | Coordinate | Local | Live | Source-authority status | Next evidence |
 |---|---|---|---|---|---|
-| F1 | `(48,6)` | `FEATURE_COLD_REEF` (`11`) | empty | pending | Check official/static feature legality for cold reef at this terrain/biome/coast context, then compare local `features-apply` attempted/applied/rejected telemetry against live materialization. |
-| F2 | `(48,13)` | empty | `FEATURE_KILIMANJARO` (`35`) | pending | Treat with F3 as a possible natural-wonder footprint/anchor-direction mismatch; inspect placement plan, stamped anchor, footprint catalog, and live feature footprint. |
-| F3 | `(49,13)` | `FEATURE_KILIMANJARO` (`35`) | empty | pending | Pair with F2 before repair; do not classify as accepted wonder semantics without placement telemetry. |
-| F4 | `(51,21)` | empty | `FEATURE_ZHANGJIAJIE` (`36`) | pending | Treat with F5 as a possible natural-wonder footprint/anchor-direction mismatch; inspect placement plan, stamped anchor, footprint catalog, and live feature footprint. |
-| F5 | `(52,21)` | `FEATURE_ZHANGJIAJIE` (`36`) | empty | pending | Pair with F4 before repair; do not classify as accepted wonder semantics without placement telemetry. |
+| F1 | `(48,6)` | `FEATURE_COLD_REEF` (`11`) | empty | pending | Source-recorded post-repair proof keeps the row local-only; local context records reef intent and live post-run `TerrainBuilder.canHaveFeature=false`, but the exact log packet does not yet carry feature-apply telemetry. Needs live feature-apply/materialization proof before repair authority. |
+| F2 | `(48,13)` | empty | `FEATURE_KILIMANJARO` (`35`) | pending | Source-recorded post-repair proof still carries live natural-wonder telemetry `placedCount:5`, `rejectedCount:2`; the apparent `7/7/0` signal came from local verifier generation, not exact live proof. Treat with F3 as an unresolved natural-wonder materialization/deploy proof gap. |
+| F3 | `(49,13)` | `FEATURE_KILIMANJARO` (`35`) | empty | pending | Pair with F2; local direction `0` is complete, but exact live telemetry still rejects the planned anchor. Do not classify as accepted residual or repaired until a fresh exact run proves the repaired materialization path is deployed and live-effective. |
+| F4 | `(51,21)` | empty | `FEATURE_ZHANGJIAJIE` (`36`) | pending | Same class as F2/F3: exact live telemetry still rejects one of the planned natural-wonder anchors while final grid shows the feature under alternate footprint readback. |
+| F5 | `(52,21)` | `FEATURE_ZHANGJIAJIE` (`36`) | empty | pending | Pair with F4; do not classify as accepted residual or further repair authority until exact live materialization/deploy evidence is reconciled. |
 
 ## Resource Example Rows
 
@@ -1123,16 +1123,64 @@ This proof does not close feature parity, natural-wonder product behavior,
 Earthlike acceptance, mountain quality, final-surface parity, or the current
 drain's blocked exact proof rerun.
 
+### Post-Repair Feature Row Classification
+
+Artifacts:
+
+| Artifact | Path | Identity |
+|---|---|---|
+| Feature row context | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2u6wdg-1z4g-feature-delta-context.json` | `sha256:8e4de756eac7f159d5e30b03025672e2fb2551d85386ba87c4230a4f01ee7bfe`, `proofHash:4393fe8e068b855d10ea9838e89e1e2dd32c55921cbbfb6a69c8c527453dbe21` |
+| Feature feasibility readback | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2u6wdg-1z4g-feature-delta-feasibility.json` | `sha256:b3b71d0c07b60c98ef251273ab8eefa3dbfcd69f1ffad446d79d6b2f42943acb`, `proofHash:7a1ac36288ade82d60aaa66ea56cf1ad9aea694405c0605ab00df468aa594920` |
+| Natural-wonder footprint readback | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2u6wdg-1z4g-natural-wonder-footprint-readback.json` | `sha256:690c80e7172d5cc3cc2a2c77f279a6c24436a4cc8e0773c8924455a5cb6c82ac`, `proofHash:d102c79f6bda3f22681ebcdc818e83223fa82e67cc468918d93807ea87bf64cb` |
+
+Source-recorded runtime binding:
+the feature feasibility artifact is bound to request
+`studio-run-in-game-mq2u6wdg-1z4g`, source proof hash
+`8870e330478cb442496c10a45e2935787b317aee06625b8aab5d3831ea11d366`, and
+matched live identity `106x66`, `6996` plots, seed `138503614`, turn `1`,
+game hash `0`; the live plot context read all `5` feature rows with `0`
+omitted cells.
+
+Row facts:
+
+| Class | Count | Evidence | Source-authority disposition |
+|---|---:|---|---|
+| `local-only-ecology-feature` / `local-feature-civ-infeasible-live-empty` | `1` | `(48,6)` has local `FEATURE_COLD_REEF`, local reef intent, live empty feature, and post-run `TerrainBuilder.canHaveFeature(48,6,FEATURE_COLD_REEF)=false`. | Evidence-bound candidate for ecology feature eligibility/materialization repair, but not yet repair authority because the exact log packet lacks live feature-apply telemetry/readback for this row. |
+| `natural-wonder-offset-local-anchor` / `natural-wonder-offset-local-civ-infeasible` | `2` | Local Kilimanjaro/Zhangjiajie footprint cells remain one tile from the live feature cells; exact live telemetry still reports `5` placed and `2` rejected natural wonders. | Unresolved natural-wonder materialization/deploy proof gap. Do not classify as accepted residual or product repair without a fresh exact run proving the repaired path live-effective. |
+| `natural-wonder-offset-live-anchor` / `natural-wonder-offset-live-civ-infeasible` | `2` | Live Kilimanjaro/Zhangjiajie cells already contain the feature while `TerrainBuilder.canHaveFeature` still returns `false`, proving the probe is not a clean natural-wonder pre-placement oracle. | Unresolved materialization/readback evidence only; keep visible for parity accounting, but no repair/closure authority. |
+
+Natural-wonder readback:
+Kilimanjaro remains live-partial/ambiguous after repair (`3/3` local direction
+`0`; `2/3` live under directions `0,1,4,5`). Zhangjiajie is complete under
+live direction `5` versus local direction `0`. These remain final-grid
+footprint/readback evidence rows only: the exact live log still reports
+rejected planned anchors, so they cannot be treated as accepted residuals until
+the materialization/deploy chain is reconciled by a fresh exact run.
+
+Boundary:
+this classification does not close feature parity, natural-wonder product
+behavior, Earthlike acceptance, mountain quality, final-surface parity, reef
+feature repair, or natural-wonder repair. The next valid movement is proof
+repair: reconcile why local verifier generation saw `7/7/0` natural-wonder
+placement while exact live telemetry for the same request still reports `5/2`,
+and add exact live feature-apply telemetry/readback before authorizing a
+cold-reef repair.
+
 ## Required Next Diagnostics
 
-- Extract local row context for every feature/resource mismatch: terrain,
-  biome, feature, resource, placement intent, placement assignment, adapter
-  rejection/mismatch reason, and spacing neighbor context.
-- Compare each row against official/static policy and, where available, live
-  `canHaveFeature`/`canHaveResource` behavior for the same tile and candidate
-  type.
-- For natural-wonder rows, compare planned anchor/direction/footprint against
-  local materialized feature grid and live feature grid before accepting an
-  engine-footprint disposition.
+- Reconcile the natural-wonder materialization/deploy proof gap: local verifier
+  generation reports `7/7/0`, while exact live telemetry for `mq2u6wdg`
+  reports `5/2`.
+- Re-run a fresh exact-authored Studio request after named natural-wonder
+  adapter rejection telemetry is deployed, so any remaining rejection is bound
+  to `can-have-feature-param-false`, `set-feature-false`,
+  `readback-mismatch`, or another named adapter subcondition instead of the old
+  aggregate `adapter-rejected` label.
+- Add or bind exact live feature-apply telemetry/readback before repairing the
+  cold-reef local-only row.
+- Continue resource-row classification using source-recorded coordinate proof
+  and runtime-bound row evidence where applicable before changing resource
+  tuning, scarcity floors, assignment ordering, or static policy; obtain a
+  current exact-authored run before final closure.
 - For resource rows, preserve resource spacing, age legality, and diversity
   evidence before any repair.
