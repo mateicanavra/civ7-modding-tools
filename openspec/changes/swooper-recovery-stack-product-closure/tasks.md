@@ -27,6 +27,16 @@
     original local preferred plan `RESOURCE_SILK` (`13`), so the resource gate
     is now classified as cross-resource assignment/materialization divergence
     rather than same-resource local Wine overacceptance.
+    Current resource feasibility artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-resource-delta-feasibility-local-context.json`
+    (`sha256:46bd5b4452000a0696432772f3ea3179efeffd43b80fbfa0947b319e3697842f`,
+    `proofHash:8c41a37e08b3375c02f9f6c732a2c54af564583e1978cabd70237c5b3c03bd35`)
+    records `308` resource rows with matched runtime identity and `0` omitted
+    cells. The current source-authority split is dominated by scarce-floor
+    assignment (`183/194` local-assigned delta rows), including `62`
+    local-overaccepted/live-empty rows. This narrows the resource blocker to
+    assignment/materialization reconciliation; it does not close resource
+    parity or product acceptance.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -54,11 +64,12 @@
 
 - [ ] 3.1 Run `git status --short --branch`.
   - Current proof-contract slice must leave
-    `codex/swooper-resource-rejection-local-context-drain`
+    `codex/swooper-resource-delta-feasibility-current-record-drain`
     clean before commit or closure.
 - [ ] 3.2 Inspect Graphite branch/stack state.
   - Current audit snapshot: top branch
-    `codex/swooper-resource-rejection-local-context-drain` above
+    `codex/swooper-resource-delta-feasibility-current-record-drain` above
+    `codex/swooper-resource-rejection-local-context-drain`,
     `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
     `codex/swooper-resource-rejection-assignment-context-drain`,
     `codex/swooper-resource-rejection-identity-rerun-record-drain`,

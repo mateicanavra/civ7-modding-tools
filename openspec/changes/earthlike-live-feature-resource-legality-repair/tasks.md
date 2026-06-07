@@ -47,6 +47,23 @@
     scarce-floor rows at target `7`. Live-only resource additions (`114`) and
     both-feasible substitutions (`51`) remain materialization/projection
     questions, not tuning authority.
+  - Current resource diagnostic artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-resource-delta-feasibility-local-context.json`
+    (`sha256:46bd5b4452000a0696432772f3ea3179efeffd43b80fbfa0947b319e3697842f`,
+    `proofHash:8c41a37e08b3375c02f9f6c732a2c54af564583e1978cabd70237c5b3c03bd35`)
+    preserves the current exact-authored resource context after the
+    exact/local rejection join. It covers `308` resource rows with matched
+    runtime identity and source proof hash
+    `66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290`.
+    Under `ignoreWeight:true`, class counts are `114`
+    live-feasible/no-local-assignment, `53` local-feasible/live-empty, `62`
+    local-overaccepted/live-empty, `51` substitution-both-feasible, `27`
+    substitution-mixed-feasibility, and `1` substitution-both-infeasible.
+    Of `194` local-assigned resource delta rows, `183` are from
+    `scarce-floor` (`94.33%`). This confirms the current resource owner
+    question is dominated by scarce-floor assignment plus stateful Civ
+    materialization/readback, not by broad resource-count loss, static
+    surface-policy drift, or Earthlike config tuning.
 
 ## 2. Repair
 
@@ -250,6 +267,15 @@
     local-only ecology-feature materialization authority second, terrain
     projection/readback authority third. Do not tune or repair broader
     live-only/substitution classes until a source owner is proven.
+  - Current resource-delta feasibility proof after the exact/local rejection
+    join strengthens the resource candidate: the exact row is a scarce-floor
+    `RESOURCE_WINE` rejection, while the same coordinate locally materializes
+    `RESOURCE_LIMESTONE` from a later scarce-floor assignment. The aggregate
+    current deltas show `183/194` local-assigned resource delta rows came from
+    scarce-floor and `62` local assignments are currently rejected by Civ
+    feasibility. This is still source-authority evidence only; repair must be
+    selected at the assignment/materialization owner boundary, not by changing
+    public Earthlike config or static policy as a shortcut.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
   - Current exact log proves `251` planned resources, `250` placed, `1`
     rejected, `0` mismatched, `34` unique planned/placed types, min/max placed
@@ -435,6 +461,30 @@
     link, change grid parity semantics, change resource planning,
     materialization, scarce-floor policy, ResourceBuilder policy, final-surface
     parity, or product acceptance.
+- [x] 2.54 Preserve current resource-delta feasibility proof after exact/local
+  rejection-context join.
+  - Current resource feasibility verifier input
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-local-context.json`
+    wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-resource-delta-feasibility-local-context.json`
+    (`sha256:46bd5b4452000a0696432772f3ea3179efeffd43b80fbfa0947b319e3697842f`,
+    `proofHash:8c41a37e08b3375c02f9f6c732a2c54af564583e1978cabd70237c5b3c03bd35`,
+    `sourceProofHash:66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290`).
+  - Runtime identity matched the saved proof at `106x66`, `6996` plots, seed
+    `138503614`, turn `1`, and game hash `0`; both strict and
+    `ignoreWeight:true` reads covered `308` cells with `0` omitted cells.
+  - Under `ignoreWeight:true`, class counts are `114`
+    live-feasible/no-local-assignment, `53` local-feasible/live-empty, `62`
+    local-overaccepted/live-empty, `51` substitution-both-feasible, `27`
+    substitution-mixed-feasibility, and `1` substitution-both-infeasible.
+    Assignment-class summary records `194` local-assigned delta rows, `183`
+    from `scarce-floor` (`94.33%`), and Wine-specific deltas all from
+    `scarce-floor` with local assigned count equal to current ResourceBuilder
+    count (`7/7`) while the local target exceeds official minimum by `4`.
+  - This proof narrows the next resource owner decision to scarce-floor
+    assignment versus stateful Civ materialization/readback. It does not
+    authorize resource tuning, public config changes, static ResourceBuilder
+    policy changes, final-surface parity, or product acceptance.
 
 ## 3. Verification
 
@@ -612,3 +662,10 @@
     `168`, local `legalPlotCountForResource:660`, and the same
     `targetMinPerType:7`. This is cross-resource assignment/materialization
     divergence at one coordinate, not same-resource local Wine overacceptance.
+- [x] 3.25 Run current resource-delta feasibility verifier after exact/local
+  rejection-context join.
+  - Passed
+    `bun run verify:resource-delta-feasibility -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-local-context.json --max-cells 512 --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-resource-delta-feasibility-local-context.json`.
+  - Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-resource-delta-feasibility-mq3v6xr9-local-context.log`
+    (`sha256:014a6f2ceb3f051f393b7fb62579e8de99f3f548056b8c49e05c92caae8491c0`).

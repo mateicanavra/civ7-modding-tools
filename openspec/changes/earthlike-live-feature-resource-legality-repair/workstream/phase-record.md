@@ -6,7 +6,8 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-resource-rejection-local-context-drain`, stacked above
+  `codex/swooper-resource-delta-feasibility-current-record-drain`, stacked
+  above `codex/swooper-resource-rejection-local-context-drain`,
   `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
   `codex/swooper-resource-rejection-assignment-context-drain`,
   `codex/swooper-resource-rejection-identity-rerun-record-drain`,
@@ -39,6 +40,16 @@
   natural-wonder telemetry has `7` planned, `4` placed, and `3` rejected.
   Resource, feature, natural-wonder, and terrain source-authority
   classification remains the active work; product acceptance is not closed.
+  Current resource-delta feasibility after the exact/local rejection join now
+  records `308` resource rows with matched runtime identity. Under
+  `ignoreWeight:true`, the current resource split is `114`
+  live-feasible/no-local-assignment, `53` local-feasible/live-empty, `62`
+  local-overaccepted/live-empty, `51` substitution-both-feasible, `27`
+  substitution-mixed-feasibility, and `1` substitution-both-infeasible; `183`
+  of `194` local-assigned resource delta rows came from scarce-floor. This
+  strengthens the assignment/materialization owner hypothesis but does not
+  authorize config tuning, static-policy shortcuts, final parity, or product
+  acceptance.
 
 ## Objective
 
@@ -1210,6 +1221,21 @@
   `168`, local `legalPlotCountForResource:660`, and the same
   `targetMinPerType:7`. This is cross-resource assignment/materialization
   divergence at one coordinate, not same-resource local Wine overacceptance.
+  Current branch `codex/swooper-resource-delta-feasibility-current-record-drain`
+  then records a bounded resource-delta feasibility rerun from that proof
+  artifact. The verifier wrote
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-resource-delta-feasibility-local-context.json`
+  (`sha256:46bd5b4452000a0696432772f3ea3179efeffd43b80fbfa0947b319e3697842f`,
+  `proofHash:8c41a37e08b3375c02f9f6c732a2c54af564583e1978cabd70237c5b3c03bd35`,
+  source proof hash
+  `66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290`).
+  Runtime identity matched the saved proof at seed `138503614`, dimensions
+  `106x66`, plot count `6996`, turn `1`, and game hash `0`; both readbacks
+  covered `308` cells with `0` omitted cells. The result classifies the
+  current resource source-authority queue as dominated by scarce-floor
+  assignment and stateful Civ materialization/readback behavior, not broad
+  resource-count loss or Earthlike config drift. It is still not a repair
+  authorization or acceptance claim.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-local-context.json`
