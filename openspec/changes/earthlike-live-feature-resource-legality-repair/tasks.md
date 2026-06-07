@@ -15,8 +15,9 @@
 - [x] 2.2 Repair the proven adapter/map-policy owner for the adjacent-land
   resource class.
 - [x] 2.3 Add local resource assignment evidence for remaining resource deltas.
-- [ ] 2.4 Repair remaining proven package or MapGen owners.
-- [ ] 2.5 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.4 Add bounded Civ resource feasibility readback for resource deltas.
+- [ ] 2.5 Repair remaining proven package or MapGen owners.
+- [ ] 2.6 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

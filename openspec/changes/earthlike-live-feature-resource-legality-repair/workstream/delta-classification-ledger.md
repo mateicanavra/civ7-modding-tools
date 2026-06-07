@@ -261,6 +261,45 @@ or equivalent placement-feasibility readback for the delta rows, or an explicit
 engine-materialization policy disposition. No resource density, diversity,
 terrain, coast, or Earthlike tuning is authorized from this evidence.
 
+### Civ Resource Feasibility Readback
+
+Diagnostic repair:
+`@civ7/direct-control` now owns a bounded
+`getCiv7ResourcePlacementFeasibility` wrapper over
+`ResourceBuilder.canHaveResource`; no caller-local tuner script is needed for
+resource legality readback.
+
+Evidence artifact:
+
+- `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-feasibility-readback.json`
+  (`sha256:139c8e52c2acd91b01415f8daee6b5dd27ee28e2db26857627118d993cc2e96c`).
+- Source proof: assignment-evidence artifact
+  `d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`.
+- Readback: Tuner state `1`, host `127.0.0.1`, port `4318`, `106` cells,
+  `0` omitted cells.
+
+Strict readback (`ignoreWeight:false`) is not sufficient as a
+post-materialization acceptance oracle: all `69` live non-empty delta probes
+returned false, including resources that the live grid shows as present.
+
+`ignoreWeight:true` readback:
+
+| Class | Count | Source-authority implication |
+|---|---:|---|
+| `live-only-no-local-assignment`, live feasible | `37` | Civ says the live value is feasible, but the local assignment algorithm did not assign that cell. This points to assignment ordering/rebalance divergence, not static legality. |
+| `local-assigned-live-empty`, local feasible | `28` | Local assigned a Civ-feasible resource where live has no resource. This also points to assignment ordering/rebalance divergence. |
+| `local-assigned-live-empty`, local infeasible | `9` | Local mock/static policy over-accepted a resource Civ rejects under the loose feasibility probe. This is the next focused adapter/map-policy repair class. |
+| `local-assigned-live-substitution`, both feasible | `31` | Both local and live resource values are Civ-feasible at the tile; this is assignment/type-order divergence, not simple legality. |
+| `local-assigned-live-substitution`, both infeasible | `1` | Preserve as an individual evidence row before repair; neither probed value is feasible under the loose check on the current live map. |
+
+Disposition:
+the feasibility readback narrows but does not close source authority. Most
+remaining rows are now assignment ordering/rebalance evidence, not map-policy
+surface legality. A smaller `9`-row local-overacceptance class is likely
+adapter/map-policy-owned, but it still needs row-level symbol/context
+extraction before a focused policy repair. No resource density, diversity,
+terrain, coast, or Earthlike tuning is authorized.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

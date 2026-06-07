@@ -49,6 +49,7 @@ export const DEFAULT_CIV7_TUNER_API_ROOTS = [
   "Autoplay",
   "Players",
   "GameplayMap",
+  "ResourceBuilder",
   "GameInfo",
   "PlayerIds",
 ] as const;
@@ -76,6 +77,7 @@ export const DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS = [
   "MapUnits",
   "MapCities",
   "Visibility",
+  "ResourceBuilder",
   "GameInfo",
   "Database",
   "UnitOperationTypes",
@@ -141,6 +143,10 @@ export const DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS = [
 ] as const;
 export const DEFAULT_CIV7_MAP_GRID_MAX_PLOTS = 512;
 export const HARD_CIV7_MAP_GRID_MAX_PLOTS = 10_000;
+export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
+export const HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 1_000;
+export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
+export const HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL = 256;
 export const DEFAULT_CIV7_GAMEINFO_LIMIT = 100;
 export const HARD_CIV7_GAMEINFO_LIMIT = 1_000;
 export const DEFAULT_CIV7_ROOT_MAX_KEYS = 100;
@@ -457,6 +463,36 @@ export type Civ7MapGridReadChunk = Readonly<{
   bounds: Civ7MapBounds;
   plotCount: number;
   omitted: number;
+}>;
+
+export type Civ7ResourcePlacementFeasibilityCellInput = Readonly<Civ7MapLocation & {
+  resourceTypes: ReadonlyArray<number>;
+}>;
+
+export type Civ7ResourcePlacementFeasibilityInput = Readonly<{
+  cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput>;
+  maxCells?: number;
+  maxResourceTypesPerCell?: number;
+  ignoreWeight?: boolean;
+}>;
+
+export type Civ7ResourcePlacementFeasibilityCell = Readonly<{
+  location: Readonly<Civ7MapLocation & {
+    index: Civ7RuntimeProbe<number>;
+  }>;
+  resourceTypes: ReadonlyArray<number>;
+  omittedResourceTypes: number;
+  feasibility: Readonly<Record<string, Civ7RuntimeProbe<boolean>>>;
+}>;
+
+export type Civ7ResourcePlacementFeasibilityResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  cellCount: number;
+  omittedCells: number;
+  ignoreWeight: boolean;
+  cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCell>;
 }>;
 
 export type Civ7FullMapGridIdentityCheck = Readonly<{
@@ -1652,6 +1688,42 @@ export async function getCiv7MapGrid(
     }),
   });
   return jsonPayloadFromCommandResult<Civ7MapGridResult>(result, "Civ7 map grid");
+}
+
+export async function getCiv7ResourcePlacementFeasibility(
+  input: Civ7ResourcePlacementFeasibilityInput,
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7ResourcePlacementFeasibilityResult> {
+  const maxCells = boundedInteger(
+    input.maxCells ?? DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS,
+    1,
+    HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS,
+    "maxCells",
+  );
+  const maxResourceTypesPerCell = boundedInteger(
+    input.maxResourceTypesPerCell ?? DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL,
+    1,
+    HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL,
+    "maxResourceTypesPerCell",
+  );
+  validateResourcePlacementFeasibilityInput(input, maxCells, maxResourceTypesPerCell);
+  const result = await executeCiv7TunerCommand({
+    ...options,
+    command: buildResourcePlacementFeasibilityCommand({
+      cells: input.cells.slice(0, maxCells).map((cell) => ({
+        ...cell,
+        resourceTypes: cell.resourceTypes.slice(0, maxResourceTypesPerCell),
+        requestedResourceTypeCount: cell.resourceTypes.length,
+      })),
+      requestedCellCount: input.cells.length,
+      maxResourceTypesPerCell,
+      ignoreWeight: input.ignoreWeight === true,
+    }),
+  });
+  return jsonPayloadFromCommandResult<Civ7ResourcePlacementFeasibilityResult>(
+    result,
+    "Civ7 resource placement feasibility",
+  );
 }
 
 export async function getCiv7FullMapGrid(
@@ -3012,6 +3084,50 @@ function buildMapGridCommand(input: Civ7MapGridInput & {
   })()`;
 }
 
+function buildResourcePlacementFeasibilityCommand(input: {
+  cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput & {
+    requestedResourceTypeCount: number;
+  }>;
+  requestedCellCount: number;
+  maxResourceTypesPerCell: number;
+  ignoreWeight: boolean;
+}): string {
+  return `(() => {
+    ${probeHelperSource()}
+    const input = ${jsLiteral(input)};
+    const rb = typeof ResourceBuilder !== "undefined" ? ResourceBuilder : undefined;
+    const canHaveResource = (x, y, resourceType) => {
+      if (!rb || typeof rb.canHaveResource !== "function") {
+        throw new Error("ResourceBuilder.canHaveResource is unavailable");
+      }
+      return rb.canHaveResource(x, y, resourceType, input.ignoreWeight === true);
+    };
+    const readResourcePlacementFeasibility = (cell) => {
+      const resourceTypes = cell.resourceTypes.slice(0, input.maxResourceTypesPerCell);
+      const feasibility = {};
+      for (const resourceType of resourceTypes) {
+        feasibility[String(resourceType)] = probe(() => canHaveResource(cell.x, cell.y, resourceType));
+      }
+      return {
+        location: {
+          x: cell.x,
+          y: cell.y,
+          index: probe(() => GameplayMap.getIndexFromXY(cell.x, cell.y)),
+        },
+        resourceTypes,
+        omittedResourceTypes: Math.max(0, (cell.requestedResourceTypeCount ?? resourceTypes.length) - resourceTypes.length),
+        feasibility,
+      };
+    };
+    return JSON.stringify({
+      cellCount: input.requestedCellCount,
+      omittedCells: Math.max(0, input.requestedCellCount - input.cells.length),
+      ignoreWeight: input.ignoreWeight === true,
+      cells: input.cells.map((cell) => readResourcePlacementFeasibility(cell)),
+    });
+  })()`;
+}
+
 function buildPlayerSummaryCommand(input: Civ7PlayerSummaryInput & { maxItems: number }): string {
   return `(() => {
     ${probeHelperSource()}
@@ -3916,6 +4032,18 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     confidence: "recorded-live-proof",
   },
   {
+    id: "wrapper.resource-placement-feasibility",
+    name: "Resource Placement Feasibility",
+    role: "tuner",
+    kind: "read-wrapper",
+    owner: "@civ7/direct-control",
+    risk: "read",
+    provenance: ["ResourceBuilder.canHaveResource", "GameplayMap"],
+    wrapper: "getCiv7ResourcePlacementFeasibility",
+    confidence: "source",
+    description: "Reads bounded per-cell resource feasibility probes for parity/source-authority diagnostics without mutating the map.",
+  },
+  {
     id: "wrapper.autoplay",
     name: "Autoplay Control",
     role: "app-ui",
@@ -3985,6 +4113,43 @@ function validateMapGridInput(input: Civ7MapGridInput, maxPlots: number): void {
     );
   }
   for (const location of locations.slice(0, maxPlots)) validateMapLocation(location);
+}
+
+function validateResourcePlacementFeasibilityInput(
+  input: Civ7ResourcePlacementFeasibilityInput,
+  maxCells: number,
+  maxResourceTypesPerCell: number,
+): void {
+  if (!Array.isArray(input.cells) || input.cells.length === 0) {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "Resource placement feasibility reads require at least one cell",
+    );
+  }
+  if (input.cells.length > HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS) {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      `Resource placement feasibility cell lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS} entries`,
+    );
+  }
+  for (const cell of input.cells.slice(0, maxCells)) {
+    validateMapLocation(cell);
+    if (!Array.isArray(cell.resourceTypes) || cell.resourceTypes.length === 0) {
+      throw new Civ7DirectControlError(
+        "command-failed",
+        "Resource placement feasibility cells require at least one resource type",
+      );
+    }
+    if (cell.resourceTypes.length > HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL) {
+      throw new Civ7DirectControlError(
+        "command-failed",
+        `Resource placement feasibility resource type lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL} entries`,
+      );
+    }
+    for (const resourceType of cell.resourceTypes.slice(0, maxResourceTypesPerCell)) {
+      boundedInteger(resourceType, 0, 1_000_000, "resourceType");
+    }
+  }
 }
 
 export function planCiv7MapGridReadBounds(
