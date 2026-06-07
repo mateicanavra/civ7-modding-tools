@@ -1110,15 +1110,34 @@
   evidence. It does not change resource placement behavior, scarce-floor
   assignment, ResourceBuilder policy, final-surface parity, or product
   acceptance.
+  Current exact run `studio-run-in-game-mq3sk0ck-1vl` on
+  `codex/swooper-resource-rejection-proof-telemetry-drain`
+  (`96b94a13e4b7b7665b38c8b7c0701e253cfc8b38`) consumes that resource
+  telemetry contract. Exact-authorship completed with no unresolved links. The
+  status artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-telemetry-status.json`
+  has `sha256:beb4b23053dcbee73ce2b5bf0c191e44525f60a9592a92efaa42fbaefa5fe166`
+  and records `RESOURCE_PLACEMENT_V1` stats: `251` planned, `250` placed, `1`
+  rejected, `0` mismatches. The rejected row is
+  `status=rejected resource=RESOURCE_WINE plot=4838 x=68 y=45 reason=cannot-have-resource observed=-1`.
+  The refreshed final-surface verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3sk0ck-1vl-current-final-surface-parity-with-resource-rejection-example.json`
+  has `sha256:3d06cd54ec86875ddd1ac5fd25bdae4b0a1ba25919ea0046070104f76b23fdcc`
+  and
+  `proofHash:4184a136601dbc3768fe175ab9f4f896bdd3754f2fcaf9e65c249d0d79f6a5f1`.
+  It remains `unresolved` with unchanged terrain `139`, biome `874`, feature
+  `381`, resource `308`, and resource coordinate proof placed/rejected links.
+  This narrows the resource boundary to a concrete exact rejection row without
+  authorizing resource tuning or parity closure.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json` by
   proving or rejecting the narrowed repair-owner candidates in order:
-  resource local-overacceptance/scarce-floor materialization using a fresh
-  exact run that consumes bounded resource rejection examples, exact
-  feature-materialization/readback ownership for the two rejected features and
-  remaining `381` feature mismatches, then terrain projection/readback. Do this
-  before any final-surface parity or product acceptance claim. The older
+  resource local-overacceptance/scarce-floor materialization using the exact
+  `RESOURCE_WINE` rejection row at plot `4838`, exact feature-materialization
+  /readback ownership for the two rejected features and remaining `381` feature
+  mismatches, then terrain projection/readback. Do this before any
+  final-surface parity or product acceptance claim. The older
   source-recorded context remains useful: for the prior `9` local-assigned
   live-empty rows, assignment trace ruled out relaxed spacing and rebalance,
   and ResourceBuilder diagnostics and structured subclassification showed `6`
@@ -1137,10 +1156,9 @@
   Current code now emits and parses immediate placement coordinate digests for
   future exact runs, but the current `mq20rbzr` artifact still lacks that digest.
   No resource tuning, static-policy repair, scarce-floor repair, or
-  assignment-order repair is authorized until a fresh exact-authored run binds
-  local and live immediate placement coordinate identity, including the new
-  bounded rejection example, or otherwise assigns those subclasses to a
-  concrete source owner. Older source-recorded feature
+  assignment-order repair is authorized until the exact `RESOURCE_WINE` row and
+  local assignment/resource-builder context are source-classified to a concrete
+  owner. Older source-recorded feature
   rows were split into a reef absence and two natural-wonder one-tile offsets,
   with local intent, application, footprint evidence, runtime-bound
   `canHaveFeature` probes, footprint-direction alternatives, and planned-wonder

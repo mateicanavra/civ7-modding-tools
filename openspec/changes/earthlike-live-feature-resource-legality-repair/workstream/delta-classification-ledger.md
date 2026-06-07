@@ -1521,12 +1521,12 @@ mountain-quality work.
   this as the source-authority input for the cold-reef/local-only feature row
   and remaining feature materialization/readback classification; do not treat it
   as final-surface parity or product acceptance.
-- Resource rejection row identity remains pending a fresh exact run. The
-  current code now emits bounded `RESOURCE_PLACEMENT_V1.rejectionExamples` and
-  Studio parses them into exact-authorship stats, but no current exact artifact
-  has consumed that contract yet. Use the next exact run to classify the one
-  current resource rejection before changing scarce-floor targets, assignment
-  order, static policy, or resource tuning.
+- Resource rejection row identity is now exact-bound by request
+  `studio-run-in-game-mq3sk0ck-1vl`: `RESOURCE_WINE` at plot `4838`
+  (`x=68`, `y=45`) is rejected by `canHaveResource` with observed readback
+  `-1`. Use this row to classify the resource materialization boundary against
+  local assignment/resource-builder context before changing scarce-floor
+  targets, assignment order, static policy, or resource tuning.
 - Continue resource-row classification using source-recorded coordinate proof
   and runtime-bound row evidence where applicable before changing resource
   tuning, scarcity floors, assignment ordering, or static policy; obtain a
