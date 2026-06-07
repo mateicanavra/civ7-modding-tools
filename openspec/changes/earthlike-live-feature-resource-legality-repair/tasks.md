@@ -65,10 +65,12 @@
   contract.
 - [x] 2.31 Preserve source-recorded fresh exact-authored natural-wonder
   coordinate proof artifact.
-- [ ] 2.32 Classify natural-wonder rejected-placement source ownership from
+- [x] 2.32 Classify natural-wonder rejected-placement source ownership from
   fresh coordinate proof.
-- [ ] 2.33 Repair remaining proven package or MapGen owners.
-- [ ] 2.34 Preserve resource spacing, age legality, and diversity expectations.
+- [ ] 2.33 Repair the proven natural-wonder footprint projection/materialization
+  owner without widening to product tuning.
+- [ ] 2.34 Repair remaining proven package or MapGen owners.
+- [ ] 2.35 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

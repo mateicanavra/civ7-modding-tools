@@ -63,8 +63,14 @@ truth.
   `placed.count:5`, `placed.hash32:537c7a40`, `rejected.count:2`, and
   `rejected.hash32:a6747920`, with rejection examples for
   `FEATURE_KILIMANJARO` plot `1320` and `FEATURE_ZHANGJIAJIE` plot `2171`.
-  This identifies the rejected planned placements, but source ownership and
-  repair authority remain open until the row evidence is explicitly classified.
+  This identifies the rejected planned placements. Current classification
+  assigns the feature offset class to repo-owned natural-wonder footprint
+  projection/materialization emulation: local mock/map-policy projection stamps
+  unspecified direction as direction `0`, while live Civ materialization for
+  the same exact-authored request rejects that adapter readback path and leaves
+  the final feature footprint on an alternate supported direction. Repair
+  authority is limited to that owner surface and must not become product
+  tuning, a global catalog rewrite, or acceptance closure.
 - Resource hypotheses:
   the `106/6996` mismatch class includes relocation/substitution patterns that
   may come from mock/static resource legality, assignment-order divergence from

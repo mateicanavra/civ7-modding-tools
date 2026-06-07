@@ -6,10 +6,11 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-wonder-coordinate-proof-drain`, stacked above
+  `codex/swooper-wonder-source-classification-drain`, stacked above
+  `codex/swooper-wonder-coordinate-proof-drain` and
   `codex/swooper-wonder-placement-telemetry-drain`; this slice carries
-  natural-wonder placement/rejection coordinate proof instrumentation and
-  source-recorded fresh coordinate evidence.
+  source-owner classification for the source-recorded fresh natural-wonder
+  coordinate proof.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -594,6 +595,23 @@
   the fresh exact run. It does not, by itself, assign source ownership or
   authorize natural-wonder footprint repair, parity closure, product
   acceptance, Earthlike tuning, or mountain-quality claims.
+- Natural-wonder source-owner classification progress:
+  the fresh coordinate proof, feature delta context, footprint direction
+  alternatives, catalog context, and adapter behavior now assign the
+  Kilimanjaro/Zhangjiajie offset class to repo-owned natural-wonder footprint
+  projection/materialization emulation. The local mock/map-policy path projects
+  `naturalWonderDirection:-1` as direction `0` and predicts all `7` wonders
+  placed; the live Civ adapter path calls `TerrainBuilder.setFeatureType` for
+  the same exact-authored anchors but rejects the placement because the
+  direction-`0` readback footprint does not match Civ's runtime materialized
+  feature cells. The final live grid still contains Kilimanjaro and
+  Zhangjiajie on alternate supported footprint cells, so this is not a missing
+  natural-wonder planning count, density, or product tuning issue. Repair
+  authority is limited to the projection/materialization owner surface that
+  reconciles unspecified-direction natural-wonder footprints between local
+  mock/map-policy prediction and live Civ materialization. It does not
+  authorize a global `Direction:-1` rewrite, generated output changes, parity
+  closure, product acceptance, Earthlike tuning, or mountain-quality closure.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -637,15 +655,15 @@
   predict `7/7/0`. This removes the old missing-telemetry blocker. Current code
   now adds the coordinate-proof contract, and fresh request
   `studio-run-in-game-mq2t7nqs-1z4g` supplies row-level rejected-placement
-  identity for Kilimanjaro plot `1320` and Zhangjiajie plot `2171`. No feature
-  or natural-wonder repair is authorized until this row-level evidence is
-  classified to a source owner and the change is checked against the remaining
-  supported unspecified multi-tile catalog behavior and exact live placement
-  evidence.
+  identity for Kilimanjaro plot `1320` and Zhangjiajie plot `2171`. That row
+  evidence is now classified to repo-owned natural-wonder footprint
+  projection/materialization emulation. The next repair must stay in that owner
+  surface and be checked against the remaining supported unspecified multi-tile
+  catalog behavior and fresh exact live placement evidence.
   The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source
   ownership.
 - Stop condition: source authority is not known for any row outside the
-  classified adjacent-land resource class. The fresh natural-wonder coordinate
-  proof resolves rejected-placement identity, not source-owner classification.
+  classified adjacent-land resource class and the classified natural-wonder
+  projection/materialization class.

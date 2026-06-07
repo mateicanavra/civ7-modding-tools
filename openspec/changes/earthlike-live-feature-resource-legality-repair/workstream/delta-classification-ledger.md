@@ -1036,6 +1036,37 @@ acceptance, Earthlike tuning, or mountain-quality closure until the rejected
 row evidence is explicitly assigned to a source owner and checked against the
 supported natural-wonder catalog behavior.
 
+### Natural-Wonder Source-Owner Classification
+
+Classified rows:
+
+| Rows | Features | Source-owner class | Evidence |
+|---|---|---|---|
+| F2/F3 | `FEATURE_KILIMANJARO` | repo-owned natural-wonder footprint projection/materialization emulation | Exact live coordinate proof rejects anchor plot `1320`; local direction-`0` footprint predicts plot `1427`; live grid contains the same feature at plot `1426`; supported alternatives show directions `4`/`5` can contain the live row. |
+| F4/F5 | `FEATURE_ZHANGJIAJIE` | repo-owned natural-wonder footprint projection/materialization emulation | Exact live coordinate proof rejects anchor plot `2171`; local direction-`0` footprint predicts plot `2278`; live grid contains the same feature at plot `2277`; supported alternatives show direction `5` contains the live row. |
+
+Classification rationale:
+the exact-authored coordinate proof rules out a pure local-diagnostic artifact:
+the live adapter path attempted the same planned anchors and rejected the two
+multi-tile placements as `adapter-rejected`. The final live grid still contains
+those same features on nearby supported footprint cells, so the product planner
+did not merely over-request natural wonders and Civ did not simply omit them.
+The repo-owned local/mock projection treats official `naturalWonderDirection:-1`
+as direction `0`; the live Civ materialization path accepts `FeatureData` with
+direction `-1` but does not produce the repo-predicted direction-`0` readback
+footprint. The mismatch therefore belongs to the natural-wonder
+projection/materialization emulation boundary between local map-policy/mock
+prediction and live Civ runtime materialization.
+
+Repair authority:
+the next repair may change only the owner surface needed to make
+unspecified-direction natural-wonder footprint projection auditable and
+consistent with live materialization. It must preserve the supported catalog
+boundary, avoid a broad product-tuning or generated-output edit, and be followed
+by focused tests plus a fresh exact-authored final-surface proof. This
+classification does not close feature parity, natural-wonder product behavior,
+Earthlike acceptance, mountain quality, or global `Direction:-1` semantics.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,
