@@ -28,8 +28,10 @@
   local-overaccepted rows.
 - [x] 2.11 Add bounded ResourceBuilder cut/count diagnostics for the focused
   local-overaccepted rows.
-- [ ] 2.12 Repair remaining proven package or MapGen owners.
-- [ ] 2.13 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.12 Add structured ResourceBuilder subclassification for the focused
+  local-overaccepted rows.
+- [ ] 2.13 Repair remaining proven package or MapGen owners.
+- [ ] 2.14 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
