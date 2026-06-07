@@ -6,10 +6,11 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-wonder-footprint-proof-record-drain`, stacked above
-  `codex/swooper-wonder-footprint-proof-drain`; this slice preserves
-  source-recorded exact-authored post-write footprint proof above the
-  expected-footprint readback instrumentation layer.
+  `codex/swooper-current-runtime-proof-blocker-drain`, stacked above
+  `codex/swooper-wonder-footprint-proof-record-drain`; this slice records the
+  current checked-in config runtime-proof blocker above the source-recorded
+  post-write footprint proof and expected-footprint readback instrumentation
+  layers.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. The natural-wonder
@@ -18,8 +19,10 @@
   footprint proof reports `5` placed / `2` rejected, now narrowed to partial
   expected-footprint readback vectors at observed plots `1427` and `2278` for
   Kilimanjaro and Zhangjiajie. The cold-reef feature row is evidence-bound
-  because exact live feature-apply telemetry is absent. Current exact proof
-  still blocks on stale config before parity evaluation, and resource classes
+  because exact live feature-apply telemetry is absent. Current exact proof no
+  longer blocks on the stale `floodplainPlanning` key when launched from the
+  current checked-in config, but it now blocks at the Studio/Civ runtime start
+  boundary before mapgen proof markers or parity evaluation. Resource classes
   remain pending source-authority classification.
 
 ## Objective
@@ -472,7 +475,8 @@
   `bun run --cwd packages/civ7-adapter build`;
   `bun run --cwd mods/mod-swooper-maps check`;
   `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`.
-  Current exact parity rerun remains blocked before parity evaluation:
+  Historical saved-wrapper parity rerun at this slice was blocked before
+  parity evaluation:
   `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-materialization-repair.json`
   returned
   `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
@@ -496,7 +500,8 @@
   `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`;
   `bun run openspec:validate`;
   `git diff --check && git diff --cached --check`.
-  Current exact parity rerun remains blocked before parity evaluation:
+  Historical saved-wrapper parity rerun at this slice was blocked before
+  parity evaluation:
   `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-telemetry.json`
   returned
   `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
@@ -553,7 +558,8 @@
   `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`;
   `bun run openspec:validate`;
   `git diff --check && git diff --cached --check`.
-  Current exact parity rerun remains blocked before parity evaluation:
+  Historical saved-wrapper parity rerun at this slice was blocked before
+  parity evaluation:
   `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-coordinate-proof.json`
   returned
   `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
@@ -642,7 +648,8 @@
   `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`;
   `bun run openspec:validate`;
   `git diff --check && git diff --cached --check`.
-  Current exact parity rerun remains blocked before parity evaluation:
+  Historical saved-wrapper parity rerun at this slice was blocked before
+  parity evaluation:
   `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-direction-repair.json`
   returned
   `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
@@ -843,6 +850,40 @@
   the requested feature. It narrows the owner question to Civ natural-wonder
   footprint/materialization semantics versus the local/adapter post-write
   readback oracle, but it does not yet classify repair authority.
+- Current exact-authored proof attempt after post-write footprint telemetry:
+  the current drain launched the checked-in Swooper Earthlike config through the
+  worktree-local Studio endpoint on branch
+  `codex/swooper-wonder-footprint-proof-record-drain` /
+  `codex/swooper-current-runtime-proof-blocker-drain` using request body
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-run-request.json`
+  (`sha256:13f93c6b30f0ed3d41f83854c6e08de39fb501aab9c86c92207f2cb5990fffa3`).
+  This proves the current config surface no longer fails the old
+  `/config/ecology-features/floodplainPlanning` schema gate. The first request
+  `studio-run-in-game-mq3koapx-1qxe` and normal retry
+  `studio-run-in-game-mq3kvvfs-1qxe` both completed materialization, deploy,
+  direct-control availability, setup-row visibility, and setup preparation,
+  then failed in `starting-game` with direct-control code
+  `setup-start-timeout`. Their status artifacts are
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-run-status.json`
+  (`sha256:50d01a5ac3fa6fc2f882c8e6f3661ab3d19e447a44d5c76835117065087fc72d`)
+  and
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-retry-status.json`
+  (`sha256:0eeae66d995be2f07cf5b1017e78364cdb33103ffa870af87aa3a9ce426c6d51`).
+  Both captured `beginAttempted:false`; Civ briefly entered loading states
+  `WaitingForGameplayData` and `WaitingForConfiguration` and then returned to
+  shell. Fresh `Scripting.log` lines for the same window reported
+  `Failed to load file into script system - fs://game/swooper-maps/maps/studio-current.js`
+  even though the local and deployed `studio-current.js` hashes matched the
+  Studio materialization record. A restart-backed request
+  `studio-run-in-game-mq3l0b8p-1qxe` then completed materialization and deploy
+  but failed in `restarting-civ` with
+  `Civ7 process restarted but setup shell was not ready within 180000ms`; its
+  status artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-status.json`
+  (`sha256:cd2a8ab4df93292819f75f1b81de64cbc5c522dcbda79afef5405ff99dc869f7`).
+  This is a current runtime/control blocker, not a source parity result: no
+  current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet,
+  final-surface parity proof, or product acceptance proof was produced.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
