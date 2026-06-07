@@ -1058,6 +1058,21 @@ footprint. The mismatch therefore belongs to the natural-wonder
 projection/materialization emulation boundary between local map-policy/mock
 prediction and live Civ runtime materialization.
 
+Later boundary:
+this historical classification did not close the subsequent expected-empty
+readback subcondition. Fresh exact request `studio-run-in-game-mq2w5548-1z4g`
+still reports the same `5/2` natural-wonder live outcome, now with
+`readback-mismatch` details showing expected footprint plots `1427` and `2278`
+empty after the write call. The same full-grid proof shows adjacent live
+feature cells for those wonders: Kilimanjaro at plot `1426` while expected plot
+`1427` is empty, and Zhangjiajie at plot `2277` while expected plot `2278` is
+empty. Earlier footprint-direction context shows those adjacent live cells are
+compatible with alternate supported footprint orientations, but this proof does
+not include a complete immediate post-write footprint readback. Source
+authority for that narrower expected-empty/readback-oracle gap remains open
+until classified against supported footprint alternatives, final live feature
+cells, and adapter readback semantics.
+
 Repair authority:
 the next repair may change only the owner surface needed to make
 unspecified-direction natural-wonder footprint projection auditable and
@@ -1210,12 +1225,91 @@ natural-wonder repair complete, does not authorize cold-reef repair, and does
 not close feature parity, final-surface parity, Earthlike acceptance, product
 acceptance, generated-output ownership, or mountain-quality work.
 
+### Natural-Wonder Readback-Mismatch Context Instrumentation
+
+Current code now preserves adapter-provided readback context for
+natural-wonder `readback-mismatch` outcomes. Future
+`NATURAL_WONDER_PLACEMENT_V1` rejection examples can include:
+
+- authored natural-wonder feature id;
+- authored anchor plot;
+- named rejection reason;
+- first observed mismatching footprint plot as `observedPlot`;
+- observed feature id at that plot as `observedFeature`.
+
+The coordinate digest also includes those observed facts when present, while
+preserving existing digest identity for ordinary placed/rejected rows that do
+not carry observed readback fields. This is a proof-context change only. It
+does not alter placement planning, materialization direction, terrain policy,
+configuration, tuning, generated output, or final-surface parity. The next
+source-authority movement requires a fresh exact-authored Studio Run in Game
+and final-surface parity proof so the Kilimanjaro/Zhangjiajie
+`readback-mismatch` rows can be classified from exact observed readback
+details rather than the current coarse named reason alone.
+
+### Fresh Natural-Wonder Readback-Context Proof
+
+Artifacts:
+
+| Artifact | Path | Identity |
+|---|---|---|
+| Request body | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-readback-context-run-request.json` | `sha256:a68947c89abca086ca380ee035600b9e7c38a8278a5d895de4fcb64eb398efc2` |
+| Completed Studio status | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-readback-context-run-status.json` | `sha256:b2ad7154db1ab429a7dd35b5d6017b040dfdfdf4e1da0a679706d54dc65dedb9` |
+| Full-grid parity proof | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2w5548-1z4g-after-natural-wonder-readback-context.json` | `sha256:5f947ae855dbafd870dedf982c438529e16c27e673a1a0bacdbd34b75a088093`, `proofHash:d6148b66043fa26b791029653a375edce945fc6175a1896f0ae6162f8388a1be` |
+
+Exact-authored request `studio-run-in-game-mq2w5548-1z4g` completed exact
+authorship with no unresolved links. Runtime identity is `106x66`, `6996`
+plots, seed `138503614`, turn `1`, game hash `0`, source snapshot id
+`status:1:c153eb72`, and snapshot hash `c153eb72`; the full-grid proof read
+`17` chunks with `0` omitted plots and stable pre/post identity.
+
+Natural-wonder exact live telemetry:
+
+| Field | Value |
+|---|---|
+| Placement stats | `planned:7`, `target:7`, `placed:5`, `rejected:2`, `shortfall:0` |
+| Rejection examples | `feature=35 plot=1320 reason=readback-mismatch observedPlot=1427 observedFeature=-1`; `feature=36 plot=2171 reason=readback-mismatch observedPlot=2278 observedFeature=-1` |
+| Coordinate proof | placed `5` / `84d971d2`; rejected `2` / `523bec4f` |
+| Local verifier generation | `planned:7`, `target:7`, `placed:7`, `rejected:0`, `shortfall:0` |
+
+Parity result:
+
+| Surface | Result |
+|---|---|
+| terrain | `1/6996` mismatch, still routed to terrain-edge diagnostics. |
+| biome | `0/6996` mismatches. |
+| feature | `5/6996` mismatches; natural-wonder rows remain in the same offset/readback class with observed expected-footprint empties now available. |
+| resource | `61/6996` mismatches; resource coordinate proof remains a separate blocker. |
+
+Disposition:
+the fresh proof shows both rejected exact live natural-wonder anchors reached
+the adapter write path but failed because the expected footprint readback cell
+was empty after the write: Kilimanjaro anchor plot `1320` expected plot `1427`,
+and Zhangjiajie anchor plot `2171` expected plot `2278`. This makes the next
+source-authority question narrower than generic adapter rejection: classify
+whether the local expected footprint is wrong for Civ's natural-wonder
+materialization semantics, whether Civ writes an alternate footprint that local
+policy should model, or whether the adapter readback is using an incorrect
+post-write footprint oracle. Full-grid parity binds the expected-empty cells to
+adjacent live feature cells (`1426` for Kilimanjaro and `2277` for
+Zhangjiajie), while earlier footprint-direction artifacts show those live cells
+are supported alternatives. That three-part evidence is a strong hypothesis,
+not a closure: the exact artifact does not yet prove the complete immediate
+post-write footprint that Civ materialized or the exact readback oracle shape
+that should replace the current one. This proof still does not prove the natural-wonder
+repair complete, does not authorize cold-reef repair, and does not close
+feature parity, final-surface parity, Earthlike acceptance, product acceptance,
+generated-output ownership, or mountain-quality work.
+
 ## Required Next Diagnostics
 
-- Classify the natural-wonder materialization/deploy proof gap from the fresh
-  named-rejection proof: local verifier generation reports `7/7/0`, while
-  exact live telemetry for `studio-run-in-game-mq2vqhg6-1z4g` reports `5/2`
-  and names both rejected anchors as `readback-mismatch`.
+- Classify the natural-wonder expected-empty footprint/readback owner from the
+  fresh exact `mq2w5548` proof: compare the expected empty plots `1427` and
+  `2278` to supported footprint alternatives, final live feature cells, and
+  adapter readback semantics before assigning repair authority. A valid repair
+  lane needs either complete post-write footprint telemetry or an explicit
+  source-authority disposition explaining why the current adapter readback
+  oracle is wrong for Civ materialization.
 - Add or bind exact live feature-apply telemetry/readback before repairing the
   cold-reef local-only row.
 - Continue resource-row classification using source-recorded coordinate proof

@@ -75,10 +75,13 @@
   proof-gap classification.
 - [x] 2.36 Preserve source-recorded exact-authored natural-wonder named
   rejection proof.
-- [ ] 2.37 Produce current exact-authored parity proof after the natural-wonder
+- [x] 2.37 Add natural-wonder readback-mismatch observed-context telemetry.
+- [x] 2.38 Preserve source-recorded exact-authored natural-wonder
+  readback-context proof.
+- [ ] 2.39 Produce current exact-authored parity proof after the natural-wonder
   projection/materialization repair.
-- [ ] 2.38 Repair remaining proven package or MapGen owners.
-- [ ] 2.39 Preserve resource spacing, age legality, and diversity expectations.
+- [ ] 2.40 Repair remaining proven package or MapGen owners.
+- [ ] 2.41 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
@@ -96,3 +99,6 @@
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after
   named natural-wonder rejection telemetry.
+- [x] 3.11 Run focused natural-wonder telemetry regression for readback context.
+- [x] 3.12 Preserve source-recorded exact-authored final-surface parity after
+  readback-context telemetry.

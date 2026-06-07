@@ -75,6 +75,8 @@ type NaturalWonderPlacementCoordinateRow = {
   featureType: number;
   direction: number;
   reason: string;
+  observedFeatureType?: number;
+  observedPlotIndex?: number;
 };
 
 function hash32Hex(input: string): string {
@@ -99,8 +101,8 @@ function naturalWonderCoordinateDigest(
       if (a.direction !== b.direction) return a.direction - b.direction;
       return a.reason.localeCompare(b.reason);
     })
-    .map((row) =>
-      [
+    .map((row) => {
+      const fields: Array<string | number> = [
         row.status,
         row.plotIndex,
         row.x,
@@ -108,9 +110,28 @@ function naturalWonderCoordinateDigest(
         row.featureType,
         row.direction,
         row.reason,
-      ].join(":")
-    );
+      ];
+      if (row.observedPlotIndex !== undefined) fields.push(`observedPlot=${row.observedPlotIndex}`);
+      if (row.observedFeatureType !== undefined) fields.push(`observedFeature=${row.observedFeatureType}`);
+      return fields.join(":");
+    });
   return { count: coordinateRows.length, hash32: hash32Hex(coordinateRows.join("|")) };
+}
+
+function formatNaturalWonderRejectionExample(args: {
+  featureType: number;
+  plotIndex: number;
+  reason: string;
+  observedPlotIndex?: number;
+  observedFeatureType?: number;
+}): string {
+  return [
+    `feature=${args.featureType}`,
+    `plot=${args.plotIndex}`,
+    `reason=${args.reason}`,
+    ...(args.observedPlotIndex === undefined ? [] : [`observedPlot=${args.observedPlotIndex}`]),
+    ...(args.observedFeatureType === undefined ? [] : [`observedFeature=${args.observedFeatureType}`]),
+  ].join(" ");
 }
 
 function naturalWonderCoordinateProof(
@@ -277,8 +298,26 @@ export function stampNaturalWondersFromPlan({
     );
     if (outcome.status === "rejected") {
       rejectedCount += 1;
-      rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=${outcome.reason}`);
-      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: outcome.reason });
+      rejectionDetails.push(
+        formatNaturalWonderRejectionExample({
+          featureType,
+          plotIndex,
+          reason: outcome.reason,
+          observedPlotIndex: outcome.observedPlotIndex,
+          observedFeatureType: outcome.observedFeatureType,
+        })
+      );
+      coordinateRows.push({
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        reason: outcome.reason,
+        ...(outcome.observedPlotIndex === undefined ? {} : { observedPlotIndex: outcome.observedPlotIndex }),
+        ...(outcome.observedFeatureType === undefined ? {} : { observedFeatureType: outcome.observedFeatureType }),
+      });
       continue;
     }
     let readbackMismatch = false;
