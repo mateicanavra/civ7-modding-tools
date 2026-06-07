@@ -330,19 +330,24 @@ Verifier:
 `scripts/civ7-direct-control/verify-resource-delta-feasibility.ts`.
 
 Runtime binding:
-before probing resource feasibility, the verifier reads current live map
-identity through package-owned `getCiv7MapSummary` and compares it to the saved
-final-surface proof. Missing or mismatched width, height, plot count, seed,
-turn, or game hash blocks the artifact before row-level feasibility evidence is
-accepted.
+before probing resource feasibility, the verifier resolves request id from
+exact-authorship summary, packet, source snapshot, and log fields, then reads
+current live map identity through package-owned `getCiv7MapSummary` and compares
+it to the saved final-surface proof. Missing/conflicting request id or
+missing/mismatched width, height, plot count, seed, turn, or game hash blocks
+the artifact before row-level feasibility evidence is accepted.
 
 Artifact:
 `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-(`sha256:8ea0fcbf898c4cacd7bf1a19f8955e846e4c18631af4a7673ffc7cf058d8c35d`,
-`proofHash:b066b90c41d89e5be0cec575218b0e14351a18f8a1c416f5948249c5acfbd2b2`).
+(`sha256:2ec76e1329ab0b103e4f210c38d57ea3ea562616bad101ada0825d7cc10f8b6b`,
+`proofHash:08f5092303026bb0dd3bbc161bd2adff2984c6bb996cba6ab4758fd581118c8e`).
 
 Source proof:
 `d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`.
+
+Request identity:
+`studio-run-in-game-mq20rbzr-1fhc`, matched across exact-authorship summary,
+exact-authorship packet, source snapshot, and log request id.
 
 Runtime identity:
 saved and observed identities match at width `106`, height `66`, plot count
@@ -364,17 +369,17 @@ cells.
 
 Focused `local-overaccepted-live-empty` rows:
 
-| Coordinate | Plot | Local resource | Planned preferred | Local outcome | Civ loose feasibility |
-|---|---:|---|---|---|---|
-| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `RESOURCE_CLAY` | false |
-| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `RESOURCE_CLAY` | false |
-| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `RESOURCE_GYPSUM` | false |
-| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | false |
-| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `RESOURCE_JADE` | false |
-| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `RESOURCE_HORSES` | false |
-| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `RESOURCE_RICE` | false |
-| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `RESOURCE_CLAY` | false |
-| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `RESOURCE_KAOLIN` | false |
+| Coordinate | Plot | Local resource | Planned preferred | Surface | Static local legality | Civ loose feasibility |
+|---|---:|---|---|---|---|---|
+| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | true / none | false |
+| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | true / none | false |
+| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `TERRAIN_HILL` / `BIOME_TUNDRA` / empty | true / none | false |
+| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `TERRAIN_HILL` / `BIOME_TROPICAL` / empty | true / none | false |
+| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `TERRAIN_FLAT` / `BIOME_TROPICAL` / empty | true / none | false |
+| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / empty | true / none | false |
+| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | true / none | false |
+| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | true / none | false |
+| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / `FEATURE_MARSH` | true / none | false |
 
 Individual `substitution-both-infeasible` row:
 
