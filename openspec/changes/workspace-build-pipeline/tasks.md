@@ -22,6 +22,8 @@
   workspace source entrypoint instead of stale package `dist` declarations.
 - [x] 1.12 Allow Swooper Maps package-local TypeScript checks to include
   source-resolved workspace package files outside the mod `src` tree.
+- [x] 1.13 Bundle `@civ7/map-policy` into generated Swooper map scripts so
+  Civ MapGeneration never sees repo-owned workspace package specifiers.
 
 ## 2. Verification
 
@@ -39,3 +41,5 @@
   `@civ7/adapter` source types without rebuilding adapter declarations first.
 - [x] 2.7 Verify source-resolved workspace package files do not fail Swooper
   Maps package-local checks through `rootDir` bounds.
+- [x] 2.8 Verify built Swooper map scripts contain no bare repo-owned workspace
+  imports after the map-policy bundling fix.

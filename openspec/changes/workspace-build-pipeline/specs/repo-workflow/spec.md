@@ -89,3 +89,11 @@ that depend on generated files or built workspace declarations.
   CLI deploy command through Turbo before the mod-local build/deploy step
 - **AND** request-id-sensitive generated map source is regenerated clean after
   Studio Run in Game proof collection
+
+#### Scenario: Built map scripts are self-contained for Civ MapGeneration
+- **WHEN** Swooper Maps builds generated map scripts for the deployed mod
+- **THEN** repo-owned workspace packages used by those scripts are bundled into
+  the map output
+- **AND** the output scripts do not contain bare `@swooper/*`, `@civ7/*`, or
+  `@mateicanavra/*` imports that Civ MapGeneration cannot resolve
+- **AND** engine virtual imports such as `/base-standard/...` remain external
