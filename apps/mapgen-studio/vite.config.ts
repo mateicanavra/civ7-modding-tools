@@ -35,7 +35,7 @@ import {
   createRunInGameOperationStore,
   type RunInGameOperationState,
 } from "./src/server/runInGame/operationState";
-import { classifyCiv7MapgenLogFailure } from "./src/server/runInGame/logFailure";
+import { waitForCiv7MapgenLogFailure } from "./src/server/runInGame/logFailure";
 import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
@@ -57,6 +57,8 @@ import { buildLiveRuntimeStatusState } from "./src/features/liveRuntime/model";
 const execFileAsync = promisify(execFile);
 const DEPLOY_TIMEOUT_MS = 120_000;
 const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
+const SCRIPTING_LOG_FAILURE_GRACE_MS = 5_000;
+const SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS = 250;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
 const RUN_IN_GAME_OPERATION_TTL_MS = 30 * 60_000;
 const CIV7_STEAM_APP_ID = "1295660";
@@ -108,7 +110,9 @@ async function readFreshLogText(logPath: string, snapshot: Awaited<ReturnType<ty
   const current = await snapshotFile(logPath);
   if (!current.exists) return "";
   const fullText = await readFile(logPath, "utf8");
-  return current.size >= snapshot.size ? fullText.slice(snapshot.size) : fullText;
+  if (current.size > snapshot.size) return fullText.slice(snapshot.size);
+  if (current.mtimeMs > snapshot.mtimeMs) return fullText;
+  return "";
 }
 
 function sleep(ms: number): Promise<void> {
@@ -901,8 +905,13 @@ export default defineConfig(({ command }) => ({
                   { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
                   { approved: true, reason: "Studio Run in Game", disposableSession: true },
                 ).catch(async (err: unknown) => {
-                  const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(() => "");
-                  const mapgenFailure = classifyCiv7MapgenLogFailure(freshLogText, { mapScript: launchMapScript });
+                  const mapgenFailure = await waitForCiv7MapgenLogFailure({
+                    readFreshLogText: () => readFreshLogText(scriptingLogPath, scriptingSnapshot),
+                    sleep,
+                    timeoutMs: SCRIPTING_LOG_FAILURE_GRACE_MS,
+                    pollIntervalMs: SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS,
+                    mapScript: launchMapScript,
+                  });
                   if (mapgenFailure) {
                     throw new RunInGameHttpError(500, mapgenFailure.message, {
                       ...mapgenFailure,
@@ -922,8 +931,13 @@ export default defineConfig(({ command }) => ({
                   timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
                   rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
                 }).catch(async (err: unknown) => {
-                  const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(() => "");
-                  const mapgenFailure = classifyCiv7MapgenLogFailure(freshLogText, { mapScript: launchMapScript });
+                  const mapgenFailure = await waitForCiv7MapgenLogFailure({
+                    readFreshLogText: () => readFreshLogText(scriptingLogPath, scriptingSnapshot),
+                    sleep,
+                    timeoutMs: SCRIPTING_LOG_FAILURE_GRACE_MS,
+                    pollIntervalMs: SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS,
+                    mapScript: launchMapScript,
+                  });
                   if (mapgenFailure) {
                     throw new RunInGameHttpError(500, mapgenFailure.message, {
                       ...mapgenFailure,

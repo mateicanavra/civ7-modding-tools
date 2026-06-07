@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { join } from "node:path";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { describe, expect, test } from "vitest";
 import {
@@ -1159,6 +1159,25 @@ describe("Civ7 direct control", () => {
     });
 
     expect(proof.matched).toEqual(["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"]);
+  });
+
+  test("waits for markers when Civ rewrites the log at the same byte length", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
+    const logPath = join(dir, "Scripting.log");
+    await writeFile(logPath, "old log padding\n");
+    const snapshot = await snapshotFile(logPath);
+    await writeFile(logPath, "fresh\nmarker\n".padEnd(snapshot.size, " "));
+    await utimes(logPath, new Date(snapshot.mtimeMs + 1_000), new Date(snapshot.mtimeMs + 1_000));
+
+    const proof = await waitForFreshLogMarkers({
+      logPath,
+      snapshot,
+      markers: ["fresh", "marker"],
+      timeoutMs: 100,
+      pollIntervalMs: 10,
+    });
+
+    expect(proof.matched).toEqual(["fresh", "marker"]);
   });
 });
 

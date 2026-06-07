@@ -26,6 +26,10 @@
   `starting-game` instead of reducing them to generic setup start timeouts.
 - [x] 2.12 Retry Steam launch during explicit process-restart recovery until the
   Civ process is observed or bounded launch attempts are exhausted.
+- [x] 2.13 Wait through a short bounded fresh-log grace window before reducing
+  start/proof failures to generic timeout status.
+- [x] 2.14 Treat same-size Scripting.log rewrites as fresh log content for
+  start/proof classification.
 
 ## 3. Verification
 
@@ -40,6 +44,8 @@
 - [x] 3.8 Add focused operation-state regression for start-phase map-script
   load failures.
 - [x] 3.9 Add focused macOS restart-launch retry regressions.
+- [x] 3.10 Add focused delayed-log classification regression.
+- [x] 3.11 Add focused fresh-marker regression for same-size log rewrites.
 
 ## 4. Closure
 

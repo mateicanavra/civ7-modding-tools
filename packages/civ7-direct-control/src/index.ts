@@ -2798,7 +2798,7 @@ export async function waitForFreshLogMarkers(options: {
     const current = await snapshotFile(options.logPath);
     if (current.exists && (current.size > startOffset || current.mtimeMs > options.snapshot.mtimeMs)) {
       const fullText = await readFile(options.logPath, "utf8");
-      const newText = current.size >= startOffset ? fullText.slice(startOffset) : fullText;
+      const newText = current.size > startOffset ? fullText.slice(startOffset) : fullText;
       const proof = matchOrderedMarkers(newText, options.markers);
       const rejected = options.rejectPattern?.exec(newText);
       if (rejected) lastError = `Log contains ${rejected[0]}`;
