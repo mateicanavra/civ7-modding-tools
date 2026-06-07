@@ -418,6 +418,9 @@ function summarizeResourceBuilderSubclassification(
     const strict = probeBoolean(cellResource?.canHaveResource.strict);
     const ignoreWeight = probeBoolean(cellResource?.canHaveResource.ignoreWeight);
     const assignmentPhase = row.assignmentTrace?.assignmentPhase ?? null;
+    const officialPolicy = summarizeResourcePolicy(resource);
+    const targetMinPerType = row.assignmentTrace?.targetMinPerType ?? null;
+    const officialMinimum = officialPolicy.minimumPerHemisphere;
     const classification = classifyResourceBuilderFocusedRow({
       assignmentPhase,
       cutIncludesLocal,
@@ -446,6 +449,15 @@ function summarizeResourceBuilderSubclassification(
         validForAge: probeBoolean(resource?.validForAge),
         requiredForAge: probeBoolean(resource?.requiredForAge),
         ignoringWeightForRiverPlacement: probeBoolean(resource?.ignoringWeightForRiverPlacement),
+        officialPolicy,
+        localScarceFloor: {
+          targetMinPerType,
+          officialMinimumPerHemisphere: officialMinimum,
+          targetExceedsOfficialMinimum:
+            targetMinPerType !== null && officialMinimum !== null ? targetMinPerType > officialMinimum : null,
+          targetMinusOfficialMinimum:
+            targetMinPerType !== null && officialMinimum !== null ? targetMinPerType - officialMinimum : null,
+        },
       },
       subclassification: classification,
     };
@@ -499,6 +511,29 @@ function probeBoolean(probe: Civ7RuntimeProbe<boolean> | undefined): boolean | n
 function probeNumberLike(probe: Civ7RuntimeProbe<number> | undefined): number | null {
   if (!probe?.ok || typeof probe.value !== "number" || !Number.isFinite(probe.value)) return null;
   return probe.value;
+}
+
+function summarizeResourcePolicy(resource: Civ7ResourceBuilderDiagnosticsResult["resources"][number] | undefined) {
+  const row = resource?.row.ok === true && isRecord(resource.row.value) ? resource.row.value : {};
+  return {
+    resourceType: stringValue(row.ResourceType),
+    resourceClassType: stringValue(row.ResourceClassType),
+    weight: numberValue(row.Weight) ?? null,
+    minimumPerHemisphere: numberValue(row.MinimumPerHemisphere) ?? null,
+    adjacentToLand: booleanValue(row.AdjacentToLand),
+    lakeEligible: booleanValue(row.LakeEligible),
+    requiresRiver: booleanValue(row.RequiresRiver),
+    noRiver: booleanValue(row.NoRiver),
+    clumped: booleanValue(row.Clumped),
+    hemisphereUnique: booleanValue(row.HemisphereUnique),
+    staple: booleanValue(row.Staple),
+    requiredForAge: probeBoolean(resource?.requiredForAge),
+    validForAge: probeBoolean(resource?.validForAge),
+  };
+}
+
+function booleanValue(value: unknown): boolean | null {
+  return typeof value === "boolean" ? value : null;
 }
 
 function cellsForResourceBuilderDiagnostics(

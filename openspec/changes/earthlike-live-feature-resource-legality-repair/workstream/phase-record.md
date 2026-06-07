@@ -5,14 +5,14 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-builder-classifier-drain`
-  stacked above `codex/swooper-resource-builder-diagnostics-drain`
+- Branch/Graphite stack: `codex/swooper-resource-builder-policy-context-drain`
+  stacked above `codex/swooper-resource-builder-classifier-drain`
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
   feasibility plus row/static-policy/live-plot, assignment-order, and
-  ResourceBuilder diagnostic/subclassification context now narrows the next
-  resource repair class.
+  ResourceBuilder diagnostic/subclassification/policy context now narrows the
+  next resource repair class.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -139,8 +139,8 @@
   plot count, seed, turn, or game hash do not match the saved proof identity.
   The current full feasibility artifact is
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-  (`sha256:3ed111634243de08bb54f112ab1fb320ec020d65b707a1a9896de7521215e9ad`,
-  `proofHash:49e67bfb29691ccc56a37531a7898fcb235ca17c089fe154be209c206c95f921`).
+  (`sha256:30e8cf009798e974f733f5bec25fe49baf0bfdd887af10348eca92de88ba233c`,
+  `proofHash:e01f679e01db7ce2639b01578cc3b060d5c4f2b5eac8269fcdb4db7564ec44c0`).
   Request identity resolves to `studio-run-in-game-mq20rbzr-1fhc`; runtime
   identity is matched to the saved proof at `106x66`, `6996` plots, seed
   `138503614`, turn `1`, and game hash `0`. The artifact preserves the
@@ -186,9 +186,9 @@
   current regenerated runtime-bound artifact
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
   has sha256
-  `3ed111634243de08bb54f112ab1fb320ec020d65b707a1a9896de7521215e9ad`
+  `30e8cf009798e974f733f5bec25fe49baf0bfdd887af10348eca92de88ba233c`
   and proofHash
-  `49e67bfb29691ccc56a37531a7898fcb235ca17c089fe154be209c206c95f921`.
+  `e01f679e01db7ce2639b01578cc3b060d5c4f2b5eac8269fcdb4db7564ec44c0`.
   It keeps the exact-authored source proof hash
   `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`
   and reads ResourceBuilder diagnostics for the `9` focused cells with `0`
@@ -215,9 +215,9 @@
   The regenerated resource feasibility artifact
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
   has sha256
-  `3ed111634243de08bb54f112ab1fb320ec020d65b707a1a9896de7521215e9ad`
+  `30e8cf009798e974f733f5bec25fe49baf0bfdd887af10348eca92de88ba233c`
   and proofHash
-  `49e67bfb29691ccc56a37531a7898fcb235ca17c089fe154be209c206c95f921`.
+  `e01f679e01db7ce2639b01578cc3b060d5c4f2b5eac8269fcdb4db7564ec44c0`.
   The `9` focused rows are all scarce-floor assignments made before their local
   resource type reached the floor target (`targetMinPerType:7`), with local
   legal plot counts between `66` and `554`. This proves the local reason those
@@ -234,6 +234,17 @@
   per-type floor progress, local legal plot count, cut membership, and
   `canHaveResource` results per row. This makes the next owner decision
   auditable without treating either subclass as repair authority.
+- ResourceBuilder policy context progress:
+  the subclassification now also preserves each focused resource's official
+  ResourceBuilder row policy. All `9` rows have local `targetMinPerType:7`
+  while the official `MinimumPerHemisphere` is `3`, so the local scarce-floor
+  target exceeds the official minimum by `4` for every focused row. The `3`
+  cut-included-but-rejected rows are all non-required resources with current
+  ResourceBuilder count `8`; the `6` cut-excluded rows mix required and
+  non-required resources. This sharpens the owner question toward local
+  scarce-floor quota policy versus post-materialization Civ count/cut state, but
+  the readback still occurs after map materialization and therefore is not, by
+  itself, pre-materialization repair authority.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -248,9 +259,11 @@
   assignment trace rules out relaxed spacing and rebalance, and ResourceBuilder
   diagnostics and the structured subclassification show `6` local resources
   absent from Civ cut lists while `3` local resources are present in cut lists
-  but still rejected. Assignment-order context shows every focused local value
-  came from the scarce-floor quota pass, not strict/relaxed fill or rebalance.
-  No resource tuning, static-policy repair, scarce-floor repair, or
+  but still rejected. Assignment-order and policy context show every focused
+  local value came from the scarce-floor quota pass and that the local floor
+  target exceeds the official minimum-per-hemisphere, but the current
+  ResourceBuilder rejection facts are still post-materialization readback. No
+  resource tuning, static-policy repair, scarce-floor repair, or
   assignment-order repair is authorized until those subclasses are assigned to a
   concrete source owner. The single substitution row where both probed values
   are infeasible remains an individual evidence row with no repair authority
