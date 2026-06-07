@@ -5,9 +5,10 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-feature-local-evidence-drain`
-  stacked above `codex/swooper-feature-delta-context-drain`; this slice carries
-  local feature/natural-wonder evidence joins for feature-delta classes.
+- Branch/Graphite stack: `codex/swooper-feature-feasibility-readback-drain`
+  stacked above `codex/swooper-feature-local-evidence-drain`; this slice
+  carries package-owned live feature feasibility readback for feature-delta
+  classes.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -15,8 +16,8 @@
   ResourceBuilder diagnostic/subclassification/policy context plus
   assignment-class, distribution-count, same-resource position, local
   materialization, future coordinate-proof instrumentation, coordinate-proof
-  intake, feature-delta classification, and local feature/wonder evidence joins
-  now narrow the next repair classes.
+  intake, feature-delta classification, local feature/wonder evidence joins, and
+  feature feasibility readback now narrow the next repair classes.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -354,6 +355,32 @@
   planned local natural-wonder footprints. This narrows, but does not close,
   feature ownership: live `canHaveFeature`/materialization/readback evidence is
   still required before repair authority.
+- Feature live feasibility readback progress:
+  `@civ7/direct-control` now has a package-owned
+  `getCiv7FeaturePlacementFeasibility` wrapper over
+  `TerrainBuilder.canHaveFeature`, and
+  `scripts/civ7-direct-control/verify-feature-delta-feasibility.ts` binds that
+  readback to the saved exact-authored parity proof before probing. The current
+  artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-feature-delta-feasibility.json`
+  (`sha256:abaff5fe8bcb09fa2e66e95dc640645f4cf59e80d68bddcbba0921e394fbf0a1`,
+  `proofHash:ed60244c6ea6548dbf7ff43ea154c38e4276d1ebd5b909860577f6f81c59ea01`).
+  It resolves request identity to `studio-run-in-game-mq20rbzr-1fhc` and
+  matches current runtime identity to the saved proof at `106x66`, `6996`
+  plots, seed `138503614`, turn `1`, and game hash `0`. It probes the `5`
+  feature delta cells with `0` omitted cells and joins the prior local
+  feature-context artifact (`sourceContextHash:
+  945a49133d0493cc37cf28ff805637aaf5fc7032a6b3461b805a65ff8a861657`). All
+  probed candidate values return `TerrainBuilder.canHaveFeature=false`: the
+  local-only cold-reef row is `local-feature-civ-infeasible-live-empty`, and
+  the two natural-wonder one-tile offset pairs split into two
+  `natural-wonder-offset-local-civ-infeasible` and two
+  `natural-wonder-offset-live-civ-infeasible` rows. Because the readback is
+  post-materialization and the live natural-wonder cells also return false, it
+  is not a clean pre-placement acceptance oracle. It narrows the feature owner
+  question toward runtime materialization state, natural-wonder stamping
+  semantics, or readback policy, but it still does not authorize feature,
+  natural-wonder, terrain, parity, product, or tuning repair.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -385,10 +412,12 @@
   local and live immediate placement coordinate identity or otherwise assigns
   those subclasses to a concrete source owner. Feature rows are now split into
   a reef absence and two natural-wonder one-tile offsets, with local intent,
-  application, and footprint evidence now attached. No feature repair is
-  authorized until live feature feasibility/materialization/readback evidence
-  assigns ownership. The single substitution row where both probed values are
-  infeasible remains an individual evidence row with no repair authority until
-  row-level context assigns source ownership.
+  application, footprint evidence, and runtime-bound `canHaveFeature` probes
+  now attached. Since post-materialization `canHaveFeature=false` also applies
+  to the live natural-wonder cells that contain those features, no feature
+  repair is authorized until materialization/readback evidence assigns
+  ownership beyond the post-state feasibility caveat. The single substitution
+  row where both probed values are infeasible remains an individual evidence row
+  with no repair authority until row-level context assigns source ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.

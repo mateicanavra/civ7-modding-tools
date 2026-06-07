@@ -38,6 +38,7 @@
     "verify:studio-run-in-game:live": "bun scripts/civ7-direct-control/verify-studio-run-in-game-live.ts",
     "verify:final-surface-parity": "bun scripts/civ7-direct-control/verify-final-surface-parity.ts",
     "verify:resource-delta-feasibility": "bun scripts/civ7-direct-control/verify-resource-delta-feasibility.ts",
+    "verify:feature-delta-feasibility": "bun scripts/civ7-direct-control/verify-feature-delta-feasibility.ts",
     "build:mapgen": "turbo run build --filter=@swooper/mapgen-core",
     "lint:adapter-boundary": "./scripts/lint/lint-adapter-boundary.sh",
     "lint:domain-refactor-guardrails": "./scripts/lint/lint-domain-refactor-guardrails.sh",
