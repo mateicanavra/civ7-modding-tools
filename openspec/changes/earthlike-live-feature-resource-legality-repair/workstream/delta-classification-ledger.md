@@ -1160,22 +1160,62 @@ the materialization/deploy chain is reconciled by a fresh exact run.
 Boundary:
 this classification does not close feature parity, natural-wonder product
 behavior, Earthlike acceptance, mountain quality, final-surface parity, reef
-feature repair, or natural-wonder repair. The next valid movement is proof
-repair: reconcile why local verifier generation saw `7/7/0` natural-wonder
-placement while exact live telemetry for the same request still reports `5/2`,
-and add exact live feature-apply telemetry/readback before authorizing a
+feature repair, or natural-wonder repair. The next valid movement is
+source-authority classification for named natural-wonder `readback-mismatch`
+evidence, plus exact live feature-apply telemetry/readback before authorizing a
 cold-reef repair.
+
+### Fresh Natural-Wonder Named Rejection Proof
+
+Artifacts:
+
+| Artifact | Path | Identity |
+|---|---|---|
+| Request body | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-named-rejection-run-request.json` | `sha256:a68947c89abca086ca380ee035600b9e7c38a8278a5d895de4fcb64eb398efc2` |
+| Completed Studio status | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-named-rejection-run-status.json` | `sha256:e1ef7a6449ac7489383d4696f0130a1cba8699e7f8b4b24ab71d53608b145869` |
+| Full-grid parity proof | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2vqhg6-1z4g-after-natural-wonder-named-rejection-proof.json` | `sha256:631a2120ffaf70e54fdcad8ab3a5b1d0b62ff44b3be1a2f65c8674deb6f46bb3`, `proofHash:75f01f4d92d3b053df9337febea5cc0e266d1f603a024217a7be29e2b0407193` |
+
+Exact-authored request `studio-run-in-game-mq2vqhg6-1z4g` completed exact
+authorship with no unresolved links. Runtime identity is `106x66`, `6996`
+plots, seed `138503614`, turn `1`, game hash `0`, source snapshot id
+`status:1:c153eb72`, and snapshot hash `c153eb72`; the full-grid proof read
+`17` chunks with `0` omitted plots and stable pre/post identity.
+
+Natural-wonder exact live telemetry:
+
+| Field | Value |
+|---|---|
+| Placement stats | `planned:7`, `target:7`, `placed:5`, `rejected:2`, `shortfall:0` |
+| Rejection examples | `feature=35 plot=1320 reason=readback-mismatch`; `feature=36 plot=2171 reason=readback-mismatch` |
+| Coordinate proof | placed `5` / `84d971d2`; rejected `2` / `ebd22c48` |
+| Local verifier generation | `planned:7`, `target:7`, `placed:7`, `rejected:0`, `shortfall:0` |
+
+Parity result:
+
+| Surface | Result |
+|---|---|
+| terrain | `1/6996` mismatch, still routed to terrain-edge diagnostics. |
+| biome | `0/6996` mismatches. |
+| feature | `5/6996` mismatches; natural-wonder rows remain in the same offset/readback class with named rejection reason now available. |
+| resource | `61/6996` mismatches; resource coordinate proof remains a separate blocker. |
+
+Disposition:
+the fresh proof resolves the old aggregate `adapter-rejected` opacity: both
+remaining exact live natural-wonder rejected anchors are now named
+`readback-mismatch`, not `can-have-feature-param-false` or
+`set-feature-false`. This sharpens the next source-authority question toward
+why the adapter write path can call Civ but the exact post-write readback does
+not match the expected footprint at the authored anchor. It does not prove the
+natural-wonder repair complete, does not authorize cold-reef repair, and does
+not close feature parity, final-surface parity, Earthlike acceptance, product
+acceptance, generated-output ownership, or mountain-quality work.
 
 ## Required Next Diagnostics
 
-- Reconcile the natural-wonder materialization/deploy proof gap: local verifier
-  generation reports `7/7/0`, while exact live telemetry for `mq2u6wdg`
-  reports `5/2`.
-- Re-run a fresh exact-authored Studio request after named natural-wonder
-  adapter rejection telemetry is deployed, so any remaining rejection is bound
-  to `can-have-feature-param-false`, `set-feature-false`,
-  `readback-mismatch`, or another named adapter subcondition instead of the old
-  aggregate `adapter-rejected` label.
+- Classify the natural-wonder materialization/deploy proof gap from the fresh
+  named-rejection proof: local verifier generation reports `7/7/0`, while
+  exact live telemetry for `studio-run-in-game-mq2vqhg6-1z4g` reports `5/2`
+  and names both rejected anchors as `readback-mismatch`.
 - Add or bind exact live feature-apply telemetry/readback before repairing the
   cold-reef local-only row.
 - Continue resource-row classification using source-recorded coordinate proof

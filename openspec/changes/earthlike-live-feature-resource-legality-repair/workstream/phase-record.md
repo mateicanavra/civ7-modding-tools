@@ -6,20 +6,21 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-post-wonder-feature-classification-drain`, stacked above
-  `codex/swooper-wonder-proof-record-drain` and
-  `codex/swooper-wonder-direction-repair-drain`; this slice carries
-  source-recorded post-repair feature-row classification after the
-  natural-wonder projection/materialization repair.
+  `codex/swooper-wonder-named-rejection-proof-drain`, stacked above
+  `codex/swooper-wonder-rejection-outcomes-drain`; this slice preserves
+  source-recorded exact-authored named rejection evidence after the
+  natural-wonder proof-gap instrumentation.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
-  in the repo-owned adapter/map-policy surface. Source-recorded post-repair
-  evidence shows a natural-wonder materialization/deploy proof gap: exact live
-  telemetry still rejected two anchors, while local verifier generation saw
-  `7/7/0`. The remaining natural-wonder feature offsets and cold-reef row are
-  evidence-bound pending fresh exact telemetry. Current exact proof still
-  blocks on stale config before parity evaluation, and resource classes remain
-  pending source-authority classification.
+  in the repo-owned adapter/map-policy surface. The natural-wonder
+  rejected-anchor class remains open after the post-repair proof correction:
+  exact live telemetry is authoritative, and source-recorded named rejection
+  proof still reports `5` placed / `2` rejected, now narrowed to
+  `readback-mismatch` for Kilimanjaro and Zhangjiajie anchors. The cold-reef
+  feature row is evidence-bound because exact live feature-apply telemetry is
+  absent. Current exact proof still blocks on stale config before parity
+  evaluation, and resource classes remain pending source-authority
+  classification.
 
 ## Objective
 
@@ -696,11 +697,38 @@
   rejection examples and coordinate proofs. This is proof instrumentation only:
   it does not retroactively strengthen `mq2u6wdg`, whose exact log only carried
   `adapter-rejected`, and it does not prove natural-wonder repair closure.
-  Because the live game has changed since the captured artifacts, the next
-  natural-wonder proof must be a fresh exact-authored Studio request/runtime.
   Swooper Maps package-local check now resolves both `@civ7/map-policy` and
   `@civ7/adapter` to workspace source entrypoints so unbuilt adapter source
   changes are visible to the package check.
+- Fresh natural-wonder named rejection proof:
+  fresh request `studio-run-in-game-mq2vqhg6-1z4g` completed exact authorship
+  and produced parity artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2vqhg6-1z4g-after-natural-wonder-named-rejection-proof.json`
+  (`sha256:631a2120ffaf70e54fdcad8ab3a5b1d0b62ff44b3be1a2f65c8674deb6f46bb3`,
+  `proofHash:75f01f4d92d3b053df9337febea5cc0e266d1f603a024217a7be29e2b0407193`).
+  The request body was
+  `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-named-rejection-run-request.json`
+  (`sha256:a68947c89abca086ca380ee035600b9e7c38a8278a5d895de4fcb64eb398efc2`)
+  and the completed Studio status was
+  `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-named-rejection-run-status.json`
+  (`sha256:e1ef7a6449ac7489383d4696f0130a1cba8699e7f8b4b24ab71d53608b145869`).
+  Exact-authorship status is `complete` with no unresolved links, runtime
+  identity is `106x66`, `6996` plots, seed `138503614`, turn `1`, game hash
+  `0`, source snapshot id `status:1:c153eb72`, and snapshot hash `c153eb72`.
+  The exact live `log.naturalWonderPlacement` reports `plannedCount:7`,
+  `placedCount:5`, `rejectedCount:2`, with rejected examples
+  `feature=35 plot=1320 reason=readback-mismatch` and
+  `feature=36 plot=2171 reason=readback-mismatch`; coordinate proof is
+  `placedHash32:84d971d2` / `rejectedHash32:ebd22c48`. Local verifier
+  generation still emits `7/7/0`, so the exact live log remains authoritative.
+  The final-surface proof remains `unresolved`: terrain has `1` mismatch,
+  biome has `0`, feature has `5`, and resource has `61`, with unresolved links
+  `surface.terrain.mismatch`, `surface.feature.mismatch`,
+  `surface.resource.mismatch`, and `resource-placement-coordinate-proof.placed`.
+  This proof resolves the aggregate `adapter-rejected` label into named
+  readback-mismatch evidence only; it does not close natural-wonder repair,
+  feature parity, final-surface parity, Earthlike acceptance, product
+  acceptance, generated-output ownership, or mountain quality.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -750,11 +778,12 @@
   materialization direction explicit before the plan/write path. Fresh request
   `studio-run-in-game-mq2u6wdg-1z4g` does not verify the old rejected-placement
   class is repaired: exact live telemetry still reports `5/7` placed and `2`
-  rejected. The remaining natural-wonder offset rows stay tied to the rejected
-  live placement class until a fresh exact-authored run proves the deployed
-  repair path is live-effective and, after this instrumentation, names the
-  adapter rejection subcondition if rejection persists. The cold-reef
-  local-only row also remains
+  rejected. Fresh request `studio-run-in-game-mq2vqhg6-1z4g` then proves the
+  rejection subcondition is `readback-mismatch` for the same Kilimanjaro and
+  Zhangjiajie anchors. The remaining natural-wonder offset rows stay tied to
+  the rejected live placement class until that named readback-mismatch owner is
+  source-classified and repaired or dispositioned. The cold-reef local-only row
+  also remains
   evidence-bound pending exact live feature-apply telemetry/readback. Final-
   surface parity remains open on terrain, feature, resource, and any future
   owner-classified residual links.

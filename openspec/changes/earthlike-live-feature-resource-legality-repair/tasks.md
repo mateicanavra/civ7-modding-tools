@@ -73,10 +73,12 @@
   projection/materialization repair.
 - [x] 2.35 Add named adapter rejection telemetry for natural-wonder placement
   proof-gap classification.
-- [ ] 2.36 Produce current exact-authored parity proof after the natural-wonder
+- [x] 2.36 Preserve source-recorded exact-authored natural-wonder named
+  rejection proof.
+- [ ] 2.37 Produce current exact-authored parity proof after the natural-wonder
   projection/materialization repair.
-- [ ] 2.37 Repair remaining proven package or MapGen owners.
-- [ ] 2.38 Preserve resource spacing, age legality, and diversity expectations.
+- [ ] 2.38 Repair remaining proven package or MapGen owners.
+- [ ] 2.39 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
@@ -92,5 +94,5 @@
   projection/materialization repair.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
-- [x] 3.8 Run focused adapter/Swooper checks and tests for natural-wonder
-  rejection telemetry.
+- [x] 3.10 Preserve source-recorded exact-authored final-surface parity after
+  named natural-wonder rejection telemetry.
