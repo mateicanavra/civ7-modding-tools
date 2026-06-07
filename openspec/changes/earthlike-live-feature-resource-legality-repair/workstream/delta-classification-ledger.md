@@ -290,19 +290,18 @@ returned false, including resources that the live grid shows as present.
 |---|---:|---|
 | `live-only-no-local-assignment`, live feasible | `37` | Civ says the live value is feasible, but the local assignment algorithm did not assign that cell. This points to assignment ordering/rebalance divergence, not static legality. |
 | `local-assigned-live-empty`, local feasible | `28` | Local assigned a Civ-feasible resource where live has no resource. This also points to assignment ordering/rebalance divergence. |
-| `local-assigned-live-empty`, local infeasible | `9` | Local placement accepted a resource Civ rejects under the loose feasibility probe. This is a focused local-overacceptance investigation class, not repair authority. |
+| `local-assigned-live-empty`, local infeasible | `9` | Local placement accepted a resource Civ rejects under the loose feasibility probe. This is a focused local-overacceptance investigation class only; source authority remains unresolved. |
 | `local-assigned-live-substitution`, both feasible | `31` | Both local and live resource values are Civ-feasible at the tile; this is assignment/type-order divergence, not simple legality. |
 | `local-assigned-live-substitution`, both infeasible | `1` | Preserve as an individual evidence row before repair; neither probed value is feasible under the loose check on the current live map. |
 
 Disposition:
-the feasibility readback narrows but does not close source authority. Most
-remaining rows are now assignment ordering evidence or local-overacceptance
-evidence, not map-policy surface legality. The smaller `9`-row
-local-overacceptance class remains unresolved between repo-owned mock/static
-policy, runtime materialization/state, and hidden Civ
-`ResourceBuilder.canHaveResource` constraints. Current row-level evidence rules
-out official rows/flags, adjacent-land, authored spacing, owner/water/tag/river,
-relaxed spacing, and rebalance as explanations. No repair authority, resource
+the feasibility readback narrows but does not close source authority. The
+`9`-row local-overacceptance class is a focused investigation class, not a
+repair class. Current row-level evidence rules out official rows/flags,
+adjacent-land, authored spacing, owner/water/tag/river, relaxed spacing, and
+rebalance as explanations, while leaving source authority unresolved between
+repo-owned mock/static policy, runtime materialization/state, and hidden Civ
+`ResourceBuilder.canHaveResource` constraints. No repair authority, resource
 density, diversity, terrain, coast, Earthlike tuning, parity closure, or
 product acceptance is authorized.
 
@@ -345,8 +344,8 @@ the artifact before row-level feasibility evidence is accepted.
 
 Artifact:
 `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-(`sha256:8770c7f465358a97be9213bbbcbf3ac106efbe34cd9d8745e94cb229176acd55`,
-`proofHash:4bb5f364bcf6e3b76ad89712aaf285ca006a1543f48a5dd318947a6a5e98b597`).
+(`sha256:4b6534e577c8d337df66ea42fd33a1d3674b8043a73fbc40c481e16c0cd5324e`,
+`proofHash:cf91a10f32f8a53297058e5712039227869744d8f6354a59ce06b3dc7a8ac259`).
 
 Source proof:
 `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`.
@@ -390,9 +389,9 @@ with local legal plot counts between `66` and `554`. ResourceBuilder
 diagnostics are read through
 `getCiv7ResourceBuilderDiagnostics` in the runtime-bound full artifact:
 sha256
-`8770c7f465358a97be9213bbbcbf3ac106efbe34cd9d8745e94cb229176acd55`,
+`4b6534e577c8d337df66ea42fd33a1d3674b8043a73fbc40c481e16c0cd5324e`,
 proofHash
-`4bb5f364bcf6e3b76ad89712aaf285ca006a1543f48a5dd318947a6a5e98b597`.
+`cf91a10f32f8a53297058e5712039227869744d8f6354a59ce06b3dc7a8ac259`.
 The source assignment-evidence artifact has sha256
 `ff4aec0701cbeeb031737b68d93a0a48e9168313ef983cc30a3df91cff6f08ab`
 and proofHash
@@ -489,6 +488,28 @@ positional cut/order/materialization behavior. It remains diagnostic context
 only; no resource placement repair or product claim is authorized until source
 ownership is classified.
 
+Local materialization consistency context:
+
+The full artifact now compares typed local placement outcomes against the local
+final resource surface.
+
+| Finding | Count | Source-authority implication |
+|---|---:|---|
+| Placed local resource outcomes | `252` | Same population as the typed local placement artifact. |
+| Placed outcomes matching local final surface | `252` | Local final resource surface preserves typed placement outcomes. |
+| Placed outcomes mismatching local final surface | `0` | Local post-placement resource drift is not supported. |
+| Local-authored resource delta outcomes | `69` | Same population as the local-authored resource delta summaries. |
+| Local-authored delta outcomes matching local final surface | `69` | Every local-authored delta row still matches the typed local placement outcome. |
+| Local-authored delta outcomes mismatching local final surface | `0` | The local final resource value is not being rewritten after local placement. |
+
+Disposition: this rules out local post-resource-placement drift inside the
+local artifact for the current resource mismatch class. Combined with
+same-resource live displacement and matching per-resource counts, the remaining
+owner question is bounded to live/Civ materialization, live readback timing, or
+missing immediate post-placement live coordinate evidence. It still does not
+authorize product repair, because immediate post-placement live coordinate
+evidence is not yet captured in the exact-authored proof packet.
+
 | Coordinate | Plot | Local resource | Planned preferred | Assignment order context | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility | ResourceBuilder policy/cut/count diagnostics | Subclassification |
 |---|---:|---|---|---|---|---|---|---|---|---|---|
 | `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `23`; count before `2/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `6` | `elev416 rain185 fert2 area131073 region65536 landmass131073` | false | cut excludes local; class `BONUS`; min `3`; target `7`; count `8`; required false | `scarce-floor-cut-excluded` |
@@ -532,8 +553,11 @@ local-authored resource delta rows, and the distribution context shows local
 assigned counts match current ResourceBuilder counts for all `26` represented
 local resource types. The same-resource position context then matches all `69`
 local-authored delta resources to same-resource live delta rows, mostly at long
-distance. The next owner decision should therefore evaluate positional
-cut/order/materialization behavior before making any resource-placement repair.
+distance. The local materialization context proves all `252` typed local
+placements and all `69` local-authored delta placements still match the local
+final resource surface. The next owner decision should therefore evaluate live
+post-placement materialization/readback behavior, or add immediate live
+coordinate evidence, before making any resource-placement repair.
 
 ## Required Next Diagnostics
 

@@ -37,8 +37,9 @@
   delta rows.
 - [x] 2.16 Add same-resource position displacement context for local-authored
   resource delta rows.
-- [ ] 2.17 Repair remaining proven package or MapGen owners.
-- [ ] 2.18 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.17 Add local resource materialization consistency context.
+- [ ] 2.18 Repair remaining proven package or MapGen owners.
+- [ ] 2.19 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
