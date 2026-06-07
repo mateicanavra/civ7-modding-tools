@@ -246,6 +246,11 @@ export function parseSwooperMapgenLogProof(args: {
     proofLine.index,
     completionLine.index
   );
+  const naturalWonderPlanInput = parseNaturalWonderPlanInputTelemetryBetween(
+    lines,
+    proofLine.index,
+    completionLine.index
+  );
   const naturalWonderPlacement = parseNaturalWonderPlacementTelemetryBetween(
     lines,
     proofLine.index,
@@ -270,6 +275,7 @@ export function parseSwooperMapgenLogProof(args: {
     ...(featureApply ? { featureApply } : {}),
     ...(resourcePlacement ? { resourcePlacement } : {}),
     ...(naturalWonderPlan ? { naturalWonderPlan } : {}),
+    ...(naturalWonderPlanInput ? { naturalWonderPlanInput } : {}),
     ...(naturalWonderPlacement ? { naturalWonderPlacement } : {}),
     matched: ["[mapgen-proof]", args.requestId, args.configHash, args.envelopeHash, "[mapgen-complete]"],
   };
@@ -476,6 +482,26 @@ function parseNaturalWonderPlanTelemetryBetween(
   return undefined;
 }
 
+function parseNaturalWonderPlanInputTelemetryBetween(
+  lines: readonly string[],
+  proofIndex: number,
+  completionIndex: number
+): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]> | undefined {
+  for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
+    const line = lines[index] ?? "";
+    if (!line.includes("NATURAL_WONDER_PLAN_INPUT_V1")) continue;
+    const payload = parsePayloadAfterMarker(line, "NATURAL_WONDER_PLAN_INPUT_V1");
+    if (!payload) continue;
+    return {
+      marker: "NATURAL_WONDER_PLAN_INPUT_V1",
+      payload,
+      ...(naturalWonderPlanInputStats(payload) ?? {}),
+      ...(naturalWonderPlanInputRows(payload) ?? {}),
+    };
+  }
+  return undefined;
+}
+
 function featureApplyStats(
   payload: Record<string, unknown>
 ):
@@ -656,6 +682,93 @@ function naturalWonderPlanRows(
     ];
   }).slice(0, 16);
   return planRows.length === 0 ? undefined : { planRows };
+}
+
+function naturalWonderPlanInputStats(
+  payload: Record<string, unknown>
+):
+  | {
+      stats: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>["stats"]
+      >;
+    }
+  | undefined {
+  const version = numberValue(payload.version);
+  const plannedCount = numberValue(payload.plannedCount);
+  if (version === undefined || plannedCount === undefined) return undefined;
+  const rowCount = Array.isArray(payload.inputRows) ? payload.inputRows.length : 0;
+  return {
+    stats: {
+      version,
+      plannedCount,
+      rowCount,
+    },
+  };
+}
+
+function naturalWonderPlanInputRows(
+  payload: Record<string, unknown>
+):
+  | {
+      inputRows: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>["inputRows"]
+      >;
+    }
+  | undefined {
+  if (!Array.isArray(payload.inputRows)) return undefined;
+  const inputRows = payload.inputRows.flatMap((row) => {
+    if (!Array.isArray(row)) return [];
+    const status = row[0] === "p" ? "planned" : undefined;
+    const plotIndex = numberValue(row[1]);
+    const x = numberValue(row[2]);
+    const y = numberValue(row[3]);
+    const featureType = numberValue(row[4]);
+    const terrainType = numberValue(row[5]);
+    const biomeType = numberValue(row[6]);
+    const occupiedFeatureType = numberValue(row[7]);
+    const elevation = numberValue(row[8]);
+    const aridityPpm = numberValue(row[9]);
+    const riverClass = numberValue(row[10]);
+    const lakeMask = numberValue(row[11]);
+    const blockedMask = numberValue(row[12]);
+    const landMask = numberValue(row[13]);
+    if (
+      status === undefined ||
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined ||
+      featureType === undefined ||
+      terrainType === undefined ||
+      biomeType === undefined ||
+      occupiedFeatureType === undefined ||
+      elevation === undefined ||
+      aridityPpm === undefined ||
+      riverClass === undefined ||
+      lakeMask === undefined ||
+      blockedMask === undefined ||
+      landMask === undefined
+    ) {
+      return [];
+    }
+    return [
+      {
+        plotIndex,
+        x,
+        y,
+        featureType,
+        terrainType,
+        biomeType,
+        occupiedFeatureType,
+        elevation,
+        aridityPpm,
+        riverClass,
+        lakeMask,
+        blockedMask,
+        landMask,
+      },
+    ];
+  }).slice(0, 16);
+  return inputRows.length === 0 ? undefined : { inputRows };
 }
 
 function resourcePlacementStats(

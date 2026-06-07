@@ -97,6 +97,19 @@
     diverged anchors for features `30`, `35`, and `36`. This is still proof
     comparison only, not source-authority closure, planner repair, final
     parity, or product acceptance.
+    Follow-on branch `codex/swooper-natural-wonder-plan-input-context-drain`
+    binds selected-row natural-wonder plan input context into exact-authorship
+    and local replay proof. Fresh exact request
+    `studio-run-in-game-mq40o844-1zzu` records `NATURAL_WONDER_PLAN_INPUT_V1`
+    for all `7` exact selected anchors and completes exact authorship with no
+    unresolved exact links. Final-surface verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input.json`
+    (`sha256:f7b3de32589c369c280461d99ad0d1eb9aa0dc1c3806b6f0d67c167a251e2974`,
+    `proofHash:ddf33279f4858dfa1ab0e83ec530720cb5a62b17d35a8d7e9951ce6b595ef595`)
+    remains unresolved with the natural-wonder plan-coordinate,
+    resource-coordinate, and terrain/biome/feature/resource surface links
+    open. This is still proof-input instrumentation, not source-authority
+    closure, planner repair, final parity, or product acceptance.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -123,8 +136,8 @@
 ## 3. Verification And Closure
 
 - [ ] 3.1 Run `git status --short --branch`.
-  - Current proof-comparison slice must leave
-    `codex/swooper-natural-wonder-plan-comparison-drain`
+  - Current proof-input slice must leave
+    `codex/swooper-natural-wonder-plan-input-context-drain`
     clean before commit or closure.
 - [ ] 3.2 Inspect Graphite branch/stack state.
   - Current audit snapshot: top branch
@@ -138,8 +151,9 @@
   - Follow-on implementation branches:
     `codex/swooper-natural-wonder-supported-catalog-drain`,
     `codex/swooper-natural-wonder-row-proof-drain`,
-    `codex/swooper-natural-wonder-plan-proof-drain`, then
-    `codex/swooper-natural-wonder-plan-comparison-drain`.
+    `codex/swooper-natural-wonder-plan-proof-drain`,
+    `codex/swooper-natural-wonder-plan-comparison-drain`, then
+    `codex/swooper-natural-wonder-plan-input-context-drain`.
 - [ ] 3.3 Run `git diff --check`.
 - [ ] 3.4 Run `bun run openspec -- validate swooper-recovery-stack-product-closure --strict`.
 - [ ] 3.5 Run `bun run openspec:validate`.

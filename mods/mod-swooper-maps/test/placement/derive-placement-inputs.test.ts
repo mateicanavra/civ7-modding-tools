@@ -5,6 +5,7 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { buildPlacementInputs } from "../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
+import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
 import { buildNaturalWonderPlanRuntimeTelemetry } from "../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
 
 const { featureTypes, terrainTypeIndices, biomeGlobals } = CIV7_BROWSER_TABLES_V0;
@@ -257,5 +258,95 @@ describe("derive placement inputs", () => {
     });
     expect(telemetry.coordinateProof.plannedHash32).toMatch(/^[0-9a-f]{8}$/);
     expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(700);
+  });
+
+  it("builds compact natural-wonder plan input telemetry for exact runtime proof", () => {
+    const width = 4;
+    const height = 4;
+    const size = width * height;
+    const mapInfo = {
+      GridWidth: width,
+      GridHeight: height,
+      MinLatitude: -60,
+      MaxLatitude: 60,
+      PlayersLandmass1: 1,
+      PlayersLandmass2: 1,
+      StartSectorRows: 1,
+      StartSectorCols: 1,
+      NumNaturalWonders: 1,
+    };
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
+      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
+      resourceTypeCatalog: [],
+      discoveryCatalog: [],
+    });
+    adapter.setFeatureType(1, 1, featureTypes.FEATURE_ICE);
+    const elevation = new Int16Array(size).fill(100);
+    elevation[5] = 240;
+    const context = {
+      dimensions: { width, height },
+      adapter,
+      buffers: {
+        heightfield: {
+          elevation,
+        },
+      },
+    } as never;
+    const telemetry = buildNaturalWonderPlanInputRuntimeTelemetry({
+      context,
+      plan: {
+        width,
+        height,
+        wondersCount: 1,
+        targetCount: 1,
+        plannedCount: 1,
+        placements: [
+          {
+            plotIndex: 5,
+            featureType: featureTypes.FEATURE_KILIMANJARO,
+            direction: 0,
+            elevation: 240,
+            priority: 0.5,
+          },
+        ],
+      },
+      physical: {
+        topography: { landMask: new Uint8Array(size).fill(1) },
+        hydrography: { riverClass: new Uint8Array(size).fill(2) },
+        lakePlan: { lakeMask: new Uint8Array(size) },
+        biomeClassification: {
+          aridityIndex: new Float32Array(size).fill(0.25),
+        },
+      },
+    });
+
+    expect(telemetry).toEqual({
+      version: 1,
+      plannedCount: 1,
+      inputRows: [
+        [
+          "p",
+          5,
+          1,
+          1,
+          featureTypes.FEATURE_KILIMANJARO,
+          terrainTypeIndices.TERRAIN_MOUNTAIN,
+          biomeGlobals.BIOME_PLAINS,
+          0,
+          240,
+          250000,
+          2,
+          0,
+          1,
+          1,
+        ],
+      ],
+    });
+    expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(500);
   });
 });

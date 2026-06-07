@@ -1605,14 +1605,53 @@ public Earthlike config, or natural-wonder tuning. Final-surface parity remains
 resource coordinate proof links, and the natural-wonder plan-coordinate proof
 link still open.
 
+### Natural-Wonder Plan Input Context Proof
+
+Classification status: selected-row input context captured; upstream candidate
+surface/scoring owner still open.
+
+| Artifact | Path | Identity |
+| --- | --- | --- |
+| Exact status proof | `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-plan-input-status.json` | `sha256:92916fde12abcde0b71d667bb8fdb337b9005ecd8094c8243b487551ad8c9d08` |
+| Final-surface proof with plan-input context | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input.json` | `sha256:f7b3de32589c369c280461d99ad0d1eb9aa0dc1c3806b6f0d67c167a251e2974`, `proofHash:ddf33279f4858dfa1ab0e83ec530720cb5a62b17d35a8d7e9951ce6b595ef595` |
+| Verifier log | `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq40o844-natural-wonder-plan-input.log` | `sha256:b551e06b83996ae920238c898afe00381be9f64148233f86d58a15ea05d404ba` |
+
+Exact `NATURAL_WONDER_PLAN_INPUT_V1` is now bound in the exact-authorship
+packet for request `studio-run-in-game-mq40o844-1zzu`, and local replay carries
+the matching verbose trace evidence. Rows preserve selected-anchor terrain,
+biome, occupied feature, elevation, aridity ppm, river class, lake mask, polar
+blocked mask, and land mask.
+
+Selected diverged-anchor context:
+
+| Feature | Exact plot | Exact input `(terrain, biome, occupied, elev, aridity, river, lake, blocked, land)` | Local plot | Local input `(terrain, biome, occupied, elev, aridity, river, lake, blocked, land)` |
+| ---: | ---: | --- | ---: | --- |
+| `30` | `4130` | `(2, 1, -1, 3, 209935, 1, 0, 0, 1)` | `1342` | `(2, 1, -1, 3, 106804, 1, 0, 0, 1)` |
+| `35` | `1686` | `(0, 2, -1, 3, 190369, 2, 0, 0, 1)` | `1624` | `(0, 2, -1, 6, 179790, 0, 0, 0, 1)` |
+| `36` | `1785` | `(0, 3, -1, 4, 117967, 0, 0, 0, 1)` | `2065` | `(0, 3, -1, 19, 117077, 2, 0, 0, 1)` |
+
+Disposition:
+the selected exact anchors are not explained by occupied-feature, lake,
+polar-block, or non-land blockers in the selected-row proof. Feature `30` has
+matching terrain/biome/elevation/river masks across exact/local selected
+anchors but a large aridity delta; features `35` and `36` also differ in
+elevation and river class at the selected anchor. This narrows the next owner
+decision toward upstream candidate set/scoring surface divergence, not public
+Earthlike config tuning, static catalog repair, or a simple selected-anchor
+legality failure. Final-surface parity remains `unresolved` with
+`natural-wonder-plan-coordinate-proof.planned`,
+`resource-placement-coordinate-proof.placed`,
+`resource-placement-coordinate-proof.rejected`, and terrain/biome/feature/
+resource surface mismatch links still open.
+
 ## Required Next Diagnostics
 
-- Classify the natural-wonder exact/local plan-input or engine-surface
-  divergence from the fresh exact `mq3ze9g3` proof before changing readback
-  behavior. Exact and local plan rows now differ for features `30`, `35`, and
-  `36`; compare the candidate surfaces, feature occupancy, terrain/biome/lake
-  masks, blocked masks, and priority inputs at the exact/local candidate plots
-  before assigning repair authority.
+- Classify the natural-wonder exact/local upstream candidate/scoring or
+  engine-surface divergence from the fresh exact `mq40o844` proof before
+  changing readback behavior. Selected-row input context is now captured for
+  exact and local anchors, but the candidate set, rejection/cut list, and score
+  terms that caused features `30`, `35`, and `36` to choose different anchors
+  are still not source-owned.
 - After the plan-input divergence is source-owned or dispositioned, classify
   the partial expected-footprint readback owner for the exact rejected feature
   `30` and `36` rows. A valid repair lane needs an explicit source-authority
@@ -1637,10 +1676,9 @@ link still open.
   resource tuning.
 - Continue resource-row classification using source-recorded coordinate proof
   and runtime-bound row evidence where applicable before changing resource
-  tuning, scarcity floors, assignment ordering, or static policy; obtain a
-  current exact-authored run before final closure. The current config now
-  passes the stale schema key boundary and restart recovery reaches setup
-  preparation with persisted launch telemetry, but Civ currently fails to load
-  `fs://game/swooper-maps/maps/studio-current.js` before mapgen proof markers.
+  tuning, scarcity floors, assignment ordering, or static policy. Current
+  exact-authored runs reach completed mapgen proof and final-surface verifier
+  input; final closure still needs accepted owner repairs plus a current
+  exact-authored acceptance proof, not stale map-script-load blockers.
 - For resource rows, preserve resource spacing, age legality, and diversity
   evidence before any repair.
