@@ -43,6 +43,32 @@ export type SurfaceDeltaContext = Readonly<{
   }>;
 }>;
 
+export type ResourceDeltaPlacementContext = Readonly<{
+  x: number;
+  y: number;
+  plotIndex: number;
+  localResource: Readonly<{ value: number | null; symbol: string }>;
+  liveResource: Readonly<{ value: number | null; symbol: string }>;
+  plannedPreferredResourceType: number | null;
+  plannedPreferredResourceSymbol: string;
+  localOutcome: ResourcePlacementOutcomeContext | null;
+  evidenceClass:
+    | "local-assigned-live-empty"
+    | "local-assigned-live-substitution"
+    | "live-only-no-local-assignment"
+    | "live-only-preferred-but-unassigned"
+    | "unclassified";
+}>;
+
+export type ResourcePlacementOutcomeContext = Readonly<{
+  status: string;
+  resourceType: number;
+  resourceSymbol: string;
+  observedResourceType: number | null;
+  observedResourceSymbol: string;
+  reason: string | null;
+}>;
+
 export type CellSurfaceContext = Readonly<{
   terrain: number | null;
   terrainSymbol: string;
@@ -116,6 +142,54 @@ export function buildSurfaceDeltaContexts(
       rows.push(buildSurfaceDeltaContext(proof.local, proof.live, key, x, y));
       if (rows.length >= maxRows) return rows;
     }
+  }
+
+  return rows;
+}
+
+export function buildResourceDeltaPlacementContexts(
+  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  options: { maxRows?: number } = {}
+): ReadonlyArray<ResourceDeltaPlacementContext> {
+  const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
+  const resourcePlan = readResourcePlanEvidence(proof.local.evidence);
+  const outcomes = readResourceOutcomeEvidence(proof.local.evidence);
+  const rows: ResourceDeltaPlacementContext[] = [];
+  const localValues = proof.local.surfaces.resource.values;
+  const liveValues = proof.live.surfaces.resource.values;
+  const length = Math.min(localValues.length, liveValues.length);
+
+  for (let index = 0; index < length; index += 1) {
+    const localResource = normalizeSurfaceValue(localValues[index]);
+    const liveResource = normalizeSurfaceValue(liveValues[index]);
+    if (localResource === liveResource) continue;
+    const y = Math.floor(index / proof.local.width);
+    const x = index - y * proof.local.width;
+    const plannedPreferredResourceType = resourcePlan.preferredByPlot.get(index) ?? null;
+    const localOutcome = outcomes.byPlot.get(index) ?? null;
+    rows.push({
+      x,
+      y,
+      plotIndex: index,
+      localResource: {
+        value: localResource,
+        symbol: symbolFor("resource", localResource),
+      },
+      liveResource: {
+        value: liveResource,
+        symbol: symbolFor("resource", liveResource),
+      },
+      plannedPreferredResourceType,
+      plannedPreferredResourceSymbol: symbolFor("resource", plannedPreferredResourceType),
+      localOutcome,
+      evidenceClass: classifyResourceDeltaPlacement({
+        localResource,
+        liveResource,
+        plannedPreferredResourceType,
+        localOutcome,
+      }),
+    });
+    if (rows.length >= maxRows) return rows;
   }
 
   return rows;
@@ -256,6 +330,83 @@ function hasAdjacentLand(snapshot: SnapshotLike, x: number, y: number): boolean 
     if (terrain !== null && !WATER_TERRAINS.has(terrain)) return true;
   }
   return false;
+}
+
+function readResourcePlanEvidence(evidence: unknown): {
+  preferredByPlot: ReadonlyMap<number, number>;
+} {
+  const preferredByPlot = new Map<number, number>();
+  const plan = isRecord(evidence) ? evidence.resourcePlan : undefined;
+  const placements = isRecord(plan) && Array.isArray(plan.placements) ? plan.placements : [];
+  for (const placement of placements) {
+    if (!isRecord(placement)) continue;
+    const plotIndex = finiteInteger(placement.plotIndex);
+    const preferredResourceType = finiteInteger(placement.preferredResourceType);
+    if (plotIndex === null || preferredResourceType === null || preferredByPlot.has(plotIndex)) {
+      continue;
+    }
+    preferredByPlot.set(plotIndex, preferredResourceType);
+  }
+  return { preferredByPlot };
+}
+
+function readResourceOutcomeEvidence(evidence: unknown): {
+  byPlot: ReadonlyMap<number, ResourcePlacementOutcomeContext>;
+} {
+  const byPlot = new Map<number, ResourcePlacementOutcomeContext>();
+  const resourcePlacementOutcomes = isRecord(evidence)
+    ? evidence.resourcePlacementOutcomes
+    : undefined;
+  const outcomes =
+    isRecord(resourcePlacementOutcomes) && Array.isArray(resourcePlacementOutcomes.outcomes)
+      ? resourcePlacementOutcomes.outcomes
+      : [];
+  for (const outcome of outcomes) {
+    if (!isRecord(outcome)) continue;
+    const plotIndex = finiteInteger(outcome.plotIndex);
+    const resourceType = finiteInteger(outcome.resourceType);
+    if (plotIndex === null || resourceType === null || byPlot.has(plotIndex)) continue;
+    const observedResourceType = finiteInteger(outcome.observedResourceType);
+    byPlot.set(plotIndex, {
+      status: typeof outcome.status === "string" ? outcome.status : "unknown",
+      resourceType,
+      resourceSymbol: symbolFor("resource", resourceType),
+      observedResourceType,
+      observedResourceSymbol: symbolFor("resource", observedResourceType),
+      reason: typeof outcome.reason === "string" ? outcome.reason : null,
+    });
+  }
+  return { byPlot };
+}
+
+function classifyResourceDeltaPlacement(args: {
+  localResource: number | null;
+  liveResource: number | null;
+  plannedPreferredResourceType: number | null;
+  localOutcome: ResourcePlacementOutcomeContext | null;
+}): ResourceDeltaPlacementContext["evidenceClass"] {
+  const localAssigned =
+    args.localResource !== null &&
+    args.localOutcome?.status === "placed" &&
+    args.localOutcome.resourceType === args.localResource;
+  if (localAssigned && args.liveResource === null) return "local-assigned-live-empty";
+  if (localAssigned && args.liveResource !== null && args.liveResource !== args.localResource) {
+    return "local-assigned-live-substitution";
+  }
+  if (args.localResource === null && args.liveResource !== null) {
+    return args.plannedPreferredResourceType === args.liveResource
+      ? "live-only-preferred-but-unassigned"
+      : "live-only-no-local-assignment";
+  }
+  return "unclassified";
+}
+
+function finiteInteger(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? Math.trunc(value) : null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function surfaceValue(

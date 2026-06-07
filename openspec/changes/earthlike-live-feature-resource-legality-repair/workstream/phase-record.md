@@ -5,8 +5,8 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-feature-resource-legality-drain`
-  stacked above `codex/swooper-studio-parity-proof-drain`
+- Branch/Graphite stack: `codex/swooper-resource-assignment-evidence-drain`
+  stacked above `codex/swooper-feature-resource-legality-drain`
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. Remaining feature/resource
@@ -68,16 +68,44 @@
 - Verification progress:
   focused policy/adapter/diagnostic tests, package checks, affected Turbo
   build/check lanes, and strict OpenSpec validation pass for this integration
-  slice. No fresh final-surface runtime verifier proof was produced on
-  `codex/swooper-feature-resource-legality-drain`; task 3.1 remains open and
-  the next full parity proof needs a fresh Studio Run in Game exact-authorship
-  request.
+  slice. This slice also integrates the source-recorded post-repair
+  final-surface verifier rerun for `studio-run-in-game-mq20rbzr-1fhc`, which
+  used the saved completed exact-authorship packet from the original proof and
+  live full-grid readback from that Studio/Civ session:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-adjacent-land-policy.json`
+  (`sha256:c80b0c9e77abb67bec29f84413a94d12b4aa17e9e2cf6fe788e48dd5fa91630b`,
+  `proofHash:cb74141e0c63009ecb086dc73cf6955b457910f751038776c0cbd399f7a77dd3`,
+  created `2026-06-06T09:44:55.799Z`). The rerun completed live grid
+  readback with stable runtime identity and zero omitted plots, but it remains
+  `status:"unresolved"` with `surface.terrain.mismatch`,
+  `surface.feature.mismatch`, and `surface.resource.mismatch`.
+- Resource source-authority progress:
+  the local parity diagnostic now carries the exact local `resourcePlan` and
+  typed `resourcePlacementOutcomes` evidence. A rerun with that evidence
+  produced
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-assignment-evidence.json`
+  (`sha256:e07418f9ab3efbab81beb6d5c6a9b68e1e40460b6d7421b5b1248a1e0578494c`,
+  `proofHash:d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`)
+  and summary
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-assignment-summary.json`
+  (`sha256:e8d1917d657654bc0d494457c62b8c84a4613f22e024cd5ca770f7fbbb645d8b`).
+  Local and live both contain `252` resource cells; local evidence records
+  `252` planned placements, `252` typed placed outcomes, `0` rejections, and
+  `0` local readback mismatches. The `106` resource deltas classify as
+  `37` local assigned but live empty, `37` live-only with no local assignment,
+  and `32` local assigned but live substituted. This narrows the remaining
+  resource owner question to placement feasibility/order differences between
+  local mock policy and Civ materialization, not static surface legality,
+  density/count, or MapGen product tuning.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
-- Next action: run a fresh Studio Run in Game exact-authorship request, rerun
-  final-surface parity against that request, then classify remaining
-  feature/resource rows by source authority: official data, adapter/map-policy,
-  MapGen planning/materialization, accepted engine materialization, or readback
+- Next action: classify the remaining feature/resource rows by source
+  authority: official data, adapter/map-policy, MapGen
+  planning/materialization, accepted engine materialization, or readback
   limitation. Terrain edge rows may enter this slice only if diagnostics prove
-  shared materialization ownership.
+  shared materialization ownership. The unchanged resource mismatch count after
+  the adjacent-land repair and the assignment-evidence rerun means the next
+  resource authority gap is a bounded Civ `ResourceBuilder.canHaveResource`
+  / placement-feasibility readback surface for the delta rows, not resource
+  tuning.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.

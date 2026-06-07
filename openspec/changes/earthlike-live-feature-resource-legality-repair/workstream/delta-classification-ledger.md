@@ -176,11 +176,90 @@ and fallback evidence before owner repair.
 ### Post-Repair Proof Status
 
 The repaired diagnostic helper reports no static surface invalid rows for the
-saved proof packet. A full final-surface verifier rerun against
-`studio-run-in-game-mq20rbzr-1fhc` could not be completed after Studio was
-restarted because the new Studio server instance no longer had that request id
-in memory. This lane therefore has no post-repair exact-authored live parity
-closure artifact yet.
+saved proof packet. The post-repair final-surface verifier rerun was completed
+with the saved exact-authorship packet wrapped as verifier input and current
+live full-grid readback from Studio/Civ:
+
+- exact proof wrapper:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json`
+  (`sha256:93a0c3e2ace18d1f3ab2eac0f9e57d2c9bb2642787afc31acc15815286d0d938`).
+- post-repair artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-adjacent-land-policy.json`
+  (`sha256:c80b0c9e77abb67bec29f84413a94d12b4aa17e9e2cf6fe788e48dd5fa91630b`,
+  `proofHash:cb74141e0c63009ecb086dc73cf6955b457910f751038776c0cbd399f7a77dd3`).
+- runtime proof: exact-authorship summary `status:"complete"`, request
+  `studio-run-in-game-mq20rbzr-1fhc`, config hash
+  `c8bf167810f92f9a6096b298d1fcf3bb6b044a0fec22a9ad0ca9b35103982dca`,
+  envelope hash
+  `a9a7bb73e9dd062e1da658a639bc02602e75b7fda1ca6d88123a1a2e9ac5f790`,
+  seed `138503614`, dimensions `106x66`, runtime turn `1`, game hash `0`,
+  source snapshot id `status:1:c153eb72`, and snapshot hash `c153eb72`.
+- live grid proof: `6996` compared plots, `0` omitted plots, `17` chunks,
+  and stable identity across map width, map height, plot count, random seed,
+  turn, and game hash.
+
+The rerun did not close parity. It remains `status:"unresolved"` with
+`surface.terrain.mismatch`, `surface.feature.mismatch`, and
+`surface.resource.mismatch`. Surface diffs remained: terrain `2/6996`,
+biome `0/6996`, feature `5/6996`, and resource `106/6996`.
+
+Interpretation:
+the adjacent-land repair removed the static-invalid diagnostic class, but it
+did not reduce the final resource coordinate mismatch count. The remaining
+resource rows therefore need placement assignment/order/fallback evidence
+before any further repair. This artifact does not prove product acceptance,
+Earthlike quality, start-placement correctness, river metadata parity, or
+natural-wonder footprint semantics.
+
+### Resource Assignment Evidence Rerun
+
+Diagnostic repair:
+`mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts` now carries local
+`resourcePlan` and typed `resourcePlacementOutcomes` into the local proof
+evidence. `surface-delta-context.ts` can join resource mismatch rows back to
+local planned preferred resource and local typed outcome evidence.
+
+Evidence artifacts:
+
+- proof:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-assignment-evidence.json`
+  (`sha256:e07418f9ab3efbab81beb6d5c6a9b68e1e40460b6d7421b5b1248a1e0578494c`,
+  `proofHash:d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`).
+- summary:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-assignment-summary.json`
+  (`sha256:e8d1917d657654bc0d494457c62b8c84a4613f22e024cd5ca770f7fbbb645d8b`).
+
+Resource placement evidence:
+
+| Fact | Value |
+|---|---:|
+| local resource cells | `252` |
+| live resource cells | `252` |
+| local planned placements | `252` |
+| local typed outcomes | `252` |
+| local placed outcomes | `252` |
+| local rejections | `0` |
+| local readback mismatches | `0` |
+| resource delta rows | `106` |
+
+Resource delta evidence classes:
+
+| Evidence class | Count | Implication |
+|---|---:|---|
+| `local-assigned-live-empty` | `37` | Local mock assigned and read back a resource, but live Civ final grid has no resource on that tile. |
+| `live-only-no-local-assignment` | `37` | Live Civ final grid has a resource on a tile with no local assignment/outcome. |
+| `local-assigned-live-substitution` | `32` | Local mock assigned and read back one resource type, but live Civ final grid has a different resource type on that tile. |
+
+Disposition:
+the remaining resource parity problem is not a static-surface legality failure,
+not a local placement count failure, and not local adapter rejection. Local and
+live both materialize `252` resources. The remaining source-authority question
+is why the local mock placement feasibility/order produces a different
+coordinate/type assignment than Civ materialization for the same exact-authored
+request. Before repair, the lane needs bounded Civ `ResourceBuilder.canHaveResource`
+or equivalent placement-feasibility readback for the delta rows, or an explicit
+engine-materialization policy disposition. No resource density, diversity,
+terrain, coast, or Earthlike tuning is authorized from this evidence.
 
 ## Required Next Diagnostics
 
