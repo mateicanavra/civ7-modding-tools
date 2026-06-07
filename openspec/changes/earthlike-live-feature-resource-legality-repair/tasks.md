@@ -101,6 +101,27 @@
     `Failed to load file into script system - fs://game/swooper-maps/maps/studio-current.js`.
     No current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet,
     final-surface parity proof, or product acceptance proof was produced.
+  - Current post-map-policy-bundling request
+    `studio-run-in-game-mq3n8vkc-1qjg` used the same request body
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-request.json`
+    (`sha256:0e23b919efba651b49d36bd967218414ace31620dee1c375a13a2c245decf914`),
+    with post response
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-map-policy-bundle-post.json`
+    (`sha256:855671f1291ead7c4ed2d8b2addbf784b761a30ac1104c0f71b3aff55b34749c`)
+    and terminal status
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-map-policy-bundle-status.json`
+    (`sha256:6b2997225b0dc872a12ba306fec47c5ad7b1a7767692758b6426b8104ee8ae4c`).
+    It passed materialize/deploy, process-restart recovery, direct-control
+    availability, setup-row visibility, setup preparation, and map-script load.
+    It failed in `starting-game` as `map-generation-script-failed` with fresh
+    Scripting log line:
+    `[2026-06-07 06:34:54] [SWOOPER_MOD] Map generation failed: StepExecutionError: Step "mod-swooper-maps.standard.map-elevation.build-elevation" failed: [map-elevation/build-elevation] drift: expected land but adapter reports water at (34,17).`
+    The deployed script identity was
+    `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+    (`sha256:ac3d7a05a4972cb8d264022bbffc4c220f0526e2ff322093bb8da2e0dfa6acdc`,
+    `mtimeIso:2026-06-07T10:33:26.425Z`). No current `[mapgen-proof]`,
+    `[mapgen-complete]`, exact-authorship packet, final-surface parity proof,
+    or product acceptance proof was produced.
 - [ ] 2.42 Repair remaining proven package or MapGen owners.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
 
@@ -120,10 +141,11 @@
     current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet, or
     final-surface parity artifact exists for the current branch.
   - Latest bounded retry is
-    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-same-size-log-fix-status.json`
-    (`sha256:e43e9c2b93575562f5429919f47ddafa033cd305191d12053bfd1cdacc8e3966`).
-    It proves restart retry/status classification behavior, but remains a
-    runtime load blocker rather than final-surface parity proof.
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-map-policy-bundle-status.json`
+    (`sha256:6b2997225b0dc872a12ba306fec47c5ad7b1a7767692758b6426b8104ee8ae4c`).
+    It proves restart retry/status classification behavior and proves the
+    generated map-script load blocker is cleared, but remains a runtime map
+    generation blocker rather than final-surface parity proof.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after
