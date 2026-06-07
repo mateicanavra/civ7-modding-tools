@@ -5,7 +5,7 @@
 - Project: Swooper recovery
 - Phase: product closure planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-coordinate-proof-rerun-record-drain`
+- Branch/Graphite stack: `codex/swooper-feature-apply-proof-telemetry-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -34,15 +34,16 @@
 - Dirty files and owner: current audit snapshot was clean before this closure
   record update; this planning goal owns the current OpenSpec docs.
 - Current code evidence: exact-authorship and mapgen-completion proof are
-  complete for `studio-run-in-game-mq3pfgbe-1doj`; final-surface parity remains
-  unresolved. The latest parity artifact with resource coordinate proof summary
-  is
-  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity-with-resource-coordinate-summary.json`
-  (`sha256:44dee661491ee3d013a9326745fb30825c6155cdbb45af633f57ebb87fda23df`,
-  `proofHash:ce8a5a568bb91678ceb9f108b525d557cbd6b9820f10ebaad0639800cce6d091`).
+  complete for `studio-run-in-game-mq3ryaop-1p7l`; final-surface parity remains
+  unresolved. The latest parity artifact with exact feature-apply telemetry is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json`
+  (`sha256:7d3225aec82c5596a6dd8e58ca1a44aebbdc4b79c5fa6117ca43ad89568dc34b`,
+  `proofHash:89d48831dd981e5144c89e14842b1052d989d3748b011fc7590070075236ba02`).
   It preserves unresolved terrain `139`, biome `874`, feature `381`, and
   resource `308` mismatch counts plus resource coordinate proof placed/rejected
-  links.
+  links. Exact `FEATURE_APPLY_V1` reports `1493` attempted, `1491` applied,
+  and `2` `canHaveFeature` rejections, which narrows but does not close feature
+  source-authority or product acceptance.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -85,7 +86,7 @@
 ## Implementation
 
 - Completed tasks: planning record created; current proof/Graphite audit
-  snapshot recorded.
+  snapshot recorded, including the current exact feature-apply telemetry rerun.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
@@ -99,7 +100,7 @@
   the current exact-authorship proof.
 - Results: repo snapshot clean before this update; latest verifier artifact is
   unresolved with proof hash
-  `ce8a5a568bb91678ceb9f108b525d557cbd6b9820f10ebaad0639800cce6d091`;
+  `89d48831dd981e5144c89e14842b1052d989d3748b011fc7590070075236ba02`;
   broader review-ledger scan found historical P1/P2 entries but no active
   review ledger under the two current recovery closure changes.
 - Skipped gates and rationale: closure gates wait for proof closure.
@@ -116,7 +117,9 @@
 
 - Exact next step: continue the proof-led drain from
   `earthlike-live-feature-resource-legality-repair`, starting with the resource
-  coordinate/materialization boundary now summarized in the parity artifact.
+  coordinate/materialization boundary, then using the current exact
+  `FEATURE_APPLY_V1` telemetry to classify feature materialization/readback
+  ownership.
 - First files to inspect: recovery OpenSpec proof ledgers and Graphite branch
   state.
 - Stop condition: accepted P1/P2 findings remain open.

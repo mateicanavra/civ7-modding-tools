@@ -285,6 +285,25 @@
     feature-materialization classification; it does not retroactively change
     the `studio-run-in-game-mq3pfgbe-1doj` proof, map behavior, ecology tuning,
     or product acceptance.
+- [x] 2.46 Preserve current exact-authored feature-apply telemetry proof.
+  - Current branch `codex/swooper-feature-apply-proof-telemetry-drain`
+    (`a992eb243c407f33676de208ee11a8358ea3c3c1`) reran the same Swooper
+    Earthlike source snapshot through a current-worktree Studio server on
+    `127.0.0.1:5175`. Exact request `studio-run-in-game-mq3ryaop-1p7l`
+    completed with no exact-authorship unresolved links.
+  - Exact `FEATURE_APPLY_V1` telemetry reports `1493` attempted features,
+    `1491` applied features, and `2` `canHaveFeature` rejections
+    (`FEATURE_COLD_REEF:1`, `FEATURE_TAIGA:1`). This narrows feature
+    source-authority work away from broad feature-apply legality and toward
+    remaining materialized/readback surface ownership for the `381` feature
+    mismatches.
+  - Status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-feature-apply-parser-status.json`
+    (`sha256:23e53771a6ce7d8eabf102ce24997f67c87c2c2f1927fc08c05256299daa37fe`)
+    and post artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-feature-apply-parser-post.json`
+    (`sha256:7433af10bbb3197bb1b6608faadff3239179eb86998712702f5e70310ebd77e8`)
+    are exact-run proof inputs. Product acceptance is still not closed.
 
 ## 3. Verification
 
@@ -337,3 +356,17 @@
     because parity remains `unresolved`.
 - [x] 3.16 Run focused Studio proof-identity regression for feature-apply
   telemetry parsing.
+- [x] 3.17 Re-run current exact-authored final-surface parity after
+  feature-apply proof parsing.
+  - Verifier input
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-feature-apply-parser-status.json`
+    wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json`
+    (`sha256:7d3225aec82c5596a6dd8e58ca1a44aebbdc4b79c5fa6117ca43ad89568dc34b`,
+    `proofHash:89d48831dd981e5144c89e14842b1052d989d3748b011fc7590070075236ba02`).
+  - The verifier exited `2` as expected for unresolved parity. It preserves
+    unchanged mismatch counts: terrain `139/6996`, biome `874/6996`, feature
+    `381/6996`, resource `308/6996`, plus resource coordinate proof mismatch
+    links. The verifier log is
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3ryaop.log`
+    (`sha256:95775b27dfaacad92ad3899a2dc69a9edbe43ba77c74075d7ea888c10ee55e7c`).

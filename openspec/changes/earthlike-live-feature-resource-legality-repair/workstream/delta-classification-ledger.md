@@ -1515,8 +1515,12 @@ mountain-quality work.
   source-authority disposition explaining whether the current adapter readback
   oracle is wrong for Civ materialization or whether Civ's footprint behavior
   should be classified as residual.
-- Add or bind exact live feature-apply telemetry/readback before repairing the
-  cold-reef local-only row.
+- Current exact live feature-apply telemetry is now bound by request
+  `studio-run-in-game-mq3ryaop-1p7l`: `1493` attempted, `1491` applied, and `2`
+  `canHaveFeature` rejections (`FEATURE_COLD_REEF:1`, `FEATURE_TAIGA:1`). Use
+  this as the source-authority input for the cold-reef/local-only feature row
+  and remaining feature materialization/readback classification; do not treat it
+  as final-surface parity or product acceptance.
 - Continue resource-row classification using source-recorded coordinate proof
   and runtime-bound row evidence where applicable before changing resource
   tuning, scarcity floors, assignment ordering, or static policy; obtain a
