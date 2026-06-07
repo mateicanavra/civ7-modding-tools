@@ -44,3 +44,13 @@ of each coast/ocean mismatch.
 - **THEN** it cites the classified row owner
 - **AND** it does not use feature/resource legality evidence as terrain repair
   authority unless shared materialization ownership is proven
+
+#### Scenario: Mock lake readback is repaired
+
+- **WHEN** adapter/mock materialization repair changes local lake readback
+- **THEN** ordinary coast terrain remains water but does not automatically read
+  as lake-classified water
+- **AND** planned lake stamping is the path that marks mock lake state
+- **AND** parity status remains open until a current exact-authored parity
+  rerun records whether terrain, feature, or resource mismatches remain
+  unresolved

@@ -26,21 +26,31 @@
   `033609d9293faf4b86a1da5862247a4c41762e7917069be3f2af7c8e7f55f263`.
 - Local validation-boundary proof hash:
   `e906acdcacb002572586379b98cd00d0eb99529c9b86e2384fc6b8e03703da4e`.
+- Source-recorded post-mock-materialization-repair final-surface parity artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-materialization-repair.json`.
+- Source-recorded post-repair parity artifact sha256:
+  `b91ad36796d627a2d9b7381e3a20dcd5b0b604ba623d81e38235cb1061e950f3`.
+- Source-recorded post-repair parity proof hash:
+  `194dc8d2a22469dfc3612d6038cf1dae26574f35a56b3f6ab67062b55b18a289`.
+- Source-recorded post-repair terrain-edge context artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-materialization-repair-terrain-edge-context.json`.
+- Source-recorded post-repair terrain-edge context artifact sha256:
+  `cc28a662c6270feb053a227fd221c15cd00504e3cf54c67ab1bc21e4611e6aa6`.
 - Request: `studio-run-in-game-mq20rbzr-1fhc`.
 - Seed/dimensions: `138503614`, `106x66`, `6996` plots.
 
 ## Boundary
 
-This ledger records terrain row context and row-level source-authority
-classification. It does not authorize repair by itself, prove parity, or prove
-product acceptance.
+This ledger records terrain row context, row-level source-authority
+classification, and the bounded mock lake readback repair. It does not prove
+terrain parity, final-surface parity, or product acceptance.
 
 ## Rows
 
 | Row | Coordinate |   Plot | Local           | Live            | Class                    | Neighborhood                                   | Status     |
 | --- | ---------- | -----: | --------------- | --------------- | ------------------------ | ---------------------------------------------- | ---------- |
 | T1  | `(73,36)`  | `3889` | `TERRAIN_OCEAN` | `TERRAIN_COAST` | `local-ocean-live-coast` | local/live both `coast:4`, `ocean:2`, `land:0` | classified: local mock/materialization terrain parity |
-| T2  | `(65,39)`  | `4199` | `TERRAIN_COAST` | `TERRAIN_OCEAN` | `local-coast-live-ocean` | local/live both `coast:2`, `ocean:3`, `land:1` | classified: local mock/materialization lake+terrain parity |
+| T2  | `(65,39)`  | `4199` | `TERRAIN_COAST` | `TERRAIN_OCEAN` | `local-coast-live-ocean` | local/live both `coast:2`, `ocean:3`, `land:1` | lake sub-gap repaired; terrain materialization remains |
 
 ## Local Projection Context
 
@@ -82,7 +92,7 @@ evidence only.
 | Row          | Classified owner                              | Evidence                                                                                                                                        | Repair authority                                                                                                                       |
 | ------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | T1 `(73,36)` | `local-mock-vs-live-civ-terrain-materialization` | Local row is ocean/non-lake through projection and validation; live exact readback is coast/non-lake in the same water body class.               | Bounded adapter/mock materialization parity only. No map-morphology coast/shelf or product tuning authority.                           |
-| T2 `(65,39)` | `local-mock-vs-live-civ-lake-terrain-materialization` | Local row is coast/lake-classified with `plannedLakeMask:0`; live exact readback is ocean/non-lake; mock `isLake` uses coast terrain as lake evidence. | Bounded adapter/mock lake readback and terrain materialization parity only. No broad Hydrology, coast/shelf, or Earthlike tuning authority. |
+| T2 `(65,39)` | `local-mock-vs-live-civ-lake-terrain-materialization` | Pre-repair local row was coast/lake-classified with `plannedLakeMask:0`; live exact readback was ocean/non-lake; mock `isLake` used coast terrain as lake evidence. | Mock lake readback repaired; remaining repair authority is bounded adapter/mock terrain materialization parity only. |
 
 Rejected owner classes for this row pair:
 
@@ -98,6 +108,24 @@ Rejected owner classes for this row pair:
 
 ## Next Classification Evidence
 
-- Open a separate repair lane before changing adapter/mock materialization code.
+- Mock lake readback has been repaired and verified locally.
+- Continue with the remaining terrain materialization parity gap. The source
+  post-repair artifact still shows T1 local ocean/live coast and T2 local
+  coast/live ocean, but the current drain exact rerun is blocked by stale proof
+  config and must be refreshed before any parity claim.
 - Rerun exact-authored final-surface parity after any repair and keep parity
   open until terrain rows match or residuals are explicitly owner-classified.
+
+## Source-Recorded Post-Repair Evidence
+
+| Row          | Post-repair local | Live            | Post-repair lake evidence               | Disposition                                                                 |
+| ------------ | ----------------- | --------------- | --------------------------------------- | --------------------------------------------------------------------------- |
+| T1 `(73,36)` | `TERRAIN_OCEAN`   | `TERRAIN_COAST` | `engineLakeMask:0`, validation `lake:0` | Unchanged terrain materialization mismatch; lake readback is not implicated. |
+| T2 `(65,39)` | `TERRAIN_COAST`   | `TERRAIN_OCEAN` | `engineLakeMask:0`, validation `lake:0` | Mock lake over-read repaired; terrain materialization mismatch remains.      |
+
+The source-recorded post-repair proof remains `parityStatus:"unresolved"` with
+terrain `2/6996`, feature `5/6996`, and resource `61/6996` mismatches. In the
+current drain, `bun run verify:final-surface-parity -- --proof-file ...` is
+blocked by stale exact proof config key
+`/config/ecology-features/floodplainPlanning`, so this layer does not claim
+fresh final-surface parity proof or product acceptance.
