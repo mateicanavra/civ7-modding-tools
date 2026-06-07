@@ -596,6 +596,38 @@ prevents a fresh parity artifact from silently reusing local coordinate
 placement evidence without exact live log binding. The saved `mq20rbzr`
 artifact still predates this log proof and remains open.
 
+### Feature Delta Context
+
+Diagnostic context:
+`buildFeatureDeltaPlacementContexts` now groups feature mismatches into
+evidence classes without assigning repair ownership. The current feature
+context artifact is
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-feature-delta-context.json`
+(`sha256:a4f78cb9987ecf773be2fef9f597c9a1a019292da95f8c70af274c5623c72363`),
+derived from exact-authored request `studio-run-in-game-mq20rbzr-1fhc`.
+
+Feature context rows:
+
+| Coordinate | Plot | Local feature | Live feature | Evidence class | Pair |
+|---|---:|---|---|---|---|
+| `(48,6)` | `684` | `FEATURE_COLD_REEF` | empty | `local-only-ecology-feature` | none |
+| `(48,13)` | `1426` | empty | `FEATURE_KILIMANJARO` | `natural-wonder-offset-live-anchor` | paired with `(49,13)`, distance `1` |
+| `(49,13)` | `1427` | `FEATURE_KILIMANJARO` | empty | `natural-wonder-offset-local-anchor` | paired with `(48,13)`, distance `1` |
+| `(51,21)` | `2277` | empty | `FEATURE_ZHANGJIAJIE` | `natural-wonder-offset-live-anchor` | paired with `(52,21)`, distance `1` |
+| `(52,21)` | `2278` | `FEATURE_ZHANGJIAJIE` | empty | `natural-wonder-offset-local-anchor` | paired with `(51,21)`, distance `1` |
+
+Disposition:
+the feature mismatch class is now split into one local-only ecology-feature
+absence and two same-feature natural-wonder one-tile offsets represented by
+four anchor rows. This is still diagnostic context only. The cold-reef row
+requires local feature-intent/application versus live `canHaveFeature` or
+engine-materialization proof before repair. The Kilimanjaro and Zhangjiajie
+rows require planned anchor/direction/footprint evidence and local-vs-live
+footprint materialization proof before accepting an engine-footprint
+disposition or changing natural-wonder placement. No feature repair, wonder
+footprint proof, parity closure, product acceptance, or mountain-quality claim
+is authorized from this context alone.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

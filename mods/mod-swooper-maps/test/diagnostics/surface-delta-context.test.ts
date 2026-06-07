@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity";
 import {
+  buildFeatureDeltaPlacementContexts,
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   buildSurfaceDeltaContext,
@@ -58,6 +59,60 @@ describe("surface delta context diagnostics", () => {
       local: { value: 3, symbol: "RESOURCE_FISH" },
       live: { value: null, symbol: "empty" },
     });
+  });
+
+  test("classifies feature deltas into reef absences and nearby natural-wonder offsets", () => {
+    const local = snapshot({
+      feature: { width: 3, height: 2, values: [11, 35, -1, -1, -1, 36] },
+    });
+    const live = snapshot({
+      feature: { width: 3, height: 2, values: [-1, -1, 35, -1, 36, -1] },
+    });
+
+    const rows = buildFeatureDeltaPlacementContexts({ local, live });
+
+    expect(rows).toHaveLength(5);
+    expect(rows[0]).toMatchObject({
+      x: 0,
+      y: 0,
+      local: { symbol: "FEATURE_COLD_REEF" },
+      live: { symbol: "empty" },
+      pairedSameFeatureDelta: null,
+      evidenceClass: "local-only-ecology-feature",
+    });
+    expect(rows[1]).toMatchObject({
+      x: 1,
+      y: 0,
+      local: { symbol: "FEATURE_KILIMANJARO" },
+      live: { symbol: "empty" },
+      pairedSameFeatureDelta: {
+        x: 2,
+        y: 0,
+        distance: 1,
+        liveFeature: { symbol: "FEATURE_KILIMANJARO" },
+      },
+      evidenceClass: "natural-wonder-offset-local-anchor",
+    });
+    expect(rows[2]).toMatchObject({
+      x: 2,
+      y: 0,
+      local: { symbol: "empty" },
+      live: { symbol: "FEATURE_KILIMANJARO" },
+      pairedSameFeatureDelta: {
+        x: 1,
+        y: 0,
+        distance: 1,
+        localFeature: { symbol: "FEATURE_KILIMANJARO" },
+      },
+      evidenceClass: "natural-wonder-offset-live-anchor",
+    });
+    expect(rows.map((row) => row.evidenceClass)).toEqual([
+      "local-only-ecology-feature",
+      "natural-wonder-offset-local-anchor",
+      "natural-wonder-offset-live-anchor",
+      "natural-wonder-offset-live-anchor",
+      "natural-wonder-offset-local-anchor",
+    ]);
   });
 
   test("checks static feature and resource surface legality against snapshot context", () => {

@@ -42,8 +42,10 @@
   the next exact-authored run.
 - [x] 2.19 Bind immediate resource placement coordinate proof into exact/parity
   proof intake.
-- [ ] 2.20 Repair remaining proven package or MapGen owners.
-- [ ] 2.21 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.20 Add feature delta context for ecology-feature and natural-wonder
+  offset classes.
+- [ ] 2.21 Repair remaining proven package or MapGen owners.
+- [ ] 2.22 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
