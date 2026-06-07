@@ -2,11 +2,20 @@
 
 ## Records
 
+The `tasks.md`, `phase-record.md`, `review-disposition-ledger.md`,
+`downstream-realignment-ledger.md`, and `next-packet.md` templates are owned by
+`civ7-open-spec-workstream` (see its `assets/`); copy them from there for an
+OpenSpec implementation slice. For a pre-OpenSpec planning slice that has no
+OpenSpec change, mark the OpenSpec-only rows (downstream realignment, next
+packet) `N/A` rather than leaving them unchecked.
+
 - [ ] `tasks.md` reflects actual task state.
 - [ ] `phase-record.md` reflects branch, commit, proof, and closure state.
 - [ ] `review-disposition-ledger.md` has no open accepted P1/P2 blockers.
-- [ ] `downstream-realignment-ledger.md` records patch/no-patch/deferred state.
-- [ ] `next-packet.md` is absent, accurate, or explicitly marks remaining work.
+- [ ] `downstream-realignment-ledger.md` records patch/no-patch/deferred state
+  (or `N/A` for a non-OpenSpec planning slice).
+- [ ] `next-packet.md` is absent, accurate, or explicitly marks remaining work
+  (or `N/A` for a non-OpenSpec planning slice).
 - [ ] Watcher notes are acknowledged or preserved until their boundary is met.
 
 ## Gates

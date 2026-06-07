@@ -1,7 +1,7 @@
 ---
 name: civ7-systematic-workstream
 description: |
-  Use in the Civ7 Modding Tools repo when running a systematic, evidence-grounded domain workstream that must enumerate a canonical corpus, derive physical/ecological/gameplay/surface expectations, translate each entity/group/action surface into architecture-aligned slices, verify local statistics, prove runtime/log/readback behavior, coordinate reviewer agents, and close cleanly. Trigger phrases include "systematic workstream", "evidence-grounded pass", "canonical corpus", "expected ranges", "resource distribution", "feature placement", "biome pass", "brushing pass", "terrain/tile-type audit", "runtime proof", and "clean Graphite closure". Do not use for ordinary one-off debugging or a bounded OpenSpec phase that does not need corpus-wide systematic evidence.
+  Use in the Civ7 Modding Tools repo when running a systematic, evidence-grounded domain workstream that must enumerate a canonical corpus, derive physical/ecological/gameplay/surface expectations, translate each entity/group/action surface into architecture-aligned slices, verify local statistics, prove runtime/log/readback behavior, coordinate reviewer agents, and close cleanly. Trigger phrases include "systematic workstream", "evidence-grounded pass", "canonical corpus", "expected ranges", "resource distribution pass", "feature placement audit", "biome pass", "brushing pass", "terrain/tile-type audit", "runtime proof", and "clean Graphite closure". Do not use for ordinary one-off debugging, generic project management, or a bounded OpenSpec phase that does not need corpus-wide systematic evidence.
 ---
 
 # Civ7 Systematic Workstream
@@ -18,6 +18,18 @@ This skill owns the systematic evidence loop. It composes with
 `civ7-open-spec-workstream`, `civ7-architecture-authority`,
 `civ7-product-authority`, and `civ7-operational-debugging`; it does not replace
 them.
+
+## Vocabulary
+
+- **Gate**: one of the 12 numbered method steps below. Cite gate numbers in
+  phase records so the next operator sees the current step immediately.
+- **Slice**: a bounded implementation unit mapped to one OpenSpec change and one
+  Graphite branch.
+- **Phase**: the OpenSpec-workstream loop term inherited from
+  `civ7-open-spec-workstream` (a slice plus its review/closure records).
+- **Proof class**: a kind of claim (OpenSpec validation, tests, local stats,
+  deploy, runtime logs, Graphite submit, PR, product proof). A **proof label**
+  is the exact string you write down asserting one proof class is satisfied.
 
 ## When To Use
 
@@ -38,10 +50,10 @@ them.
 
 ## Companion Skill Routing
 
-Load only when the current gate needs them:
+Load only when the current gate needs them.
 
-- `framing-design`: objective, hard core, exterior, falsifier, and handoff frame.
-- `team-design`: multi-agent evidence/review team structure.
+Repo-local companions (always available in this repo under `.agents/skills/`):
+
 - `civ7-open-spec-workstream`: phase records, OpenSpec changes, review ledgers,
   downstream realignment, and handoff packets.
 - `civ7-architecture-authority`: owner, stage, step, artifact, adapter, and
@@ -52,39 +64,33 @@ Load only when the current gate needs them:
   proof.
 - `dra-structural-watcher`: watcher notes, closure drift, and stack/proof audits.
 
+External/global companions (live in the agent skill home, not in this repo; may
+be absent in some runtimes — use the inline fallback if so):
+
+- `framing-design`: objective, hard core, exterior, falsifier, and handoff
+  frame. Fallback if absent: fill the **Frame** block in
+  `assets/workstream-record.md` directly.
+- `team-design`: multi-agent evidence/review team structure. Fallback if absent:
+  use `references/team-review-lanes.md`.
+
 ## Default Workflow
 
-1. **Frame the workstream.** Name objective, non-goals, hard core, exterior,
-   falsifier, proof gates, write set, protected paths, and closure boundaries.
-2. **Isolate repo state.** Check worktree, branch, Graphite stack, dirty files,
-   downstack dependencies, and generated/read-only paths before editing.
-3. **Diagnose before designing.** Use code, history, stats, tests, logs, official
-   data, and Narsil where useful to prove the observed failure mode.
-4. **Extract the canonical corpus.** Enumerate entities, action surfaces, or
-   materialization targets from official/local authority, with IDs, sources,
-   coverage state, and uncertainty.
-5. **Group the corpus.** Slice by shared inputs, constraints, artifacts,
-   architecture owners, consumers, and verification shape. Keep per-entity
-   obligations visible.
-6. **Predeclare expected behavior.** Record physical, ecological, earthlike,
-   gameplay, surface-legality, readback, or effect-matrix expectations and
-   expected ranges before tuning or implementation.
-7. **Translate into architecture.** Design operations, contracts, artifacts,
-   score layers, planners, projections, or mutation surfaces in the owning
-   boundary.
-8. **Implement or plan slices.** Map each coherent slice to OpenSpec/Graphite
-   work with explicit write sets, review lanes, tests, and stop conditions.
-9. **Verify local statistics.** Compare observed stats against predeclared
-   ranges over stable seeds/configs; prove coverage, diversity, legality,
-   rejection/mismatch counts, and spread.
-10. **Prove runtime behavior.** When runtime proof is required, deploy/restart
-    through the current canonical path and inspect fresh bounded logs tied to
-    exact branch, commit, command/API path, request id, timestamps, and payloads.
-11. **Review as a phase gate.** Use framed peer agents to review specs, code,
-    stats, runtime evidence, closure records, and downstream realignment.
-12. **Close deliberately.** Complete tasks, disposition P1/P2 findings, record
-    proof classes, update stale records, commit via Graphite, and leave the
-    worktree clean or write a precise handoff.
+The 12 gates, one line each. Open `references/method-loop.md` for the full
+procedure, sub-steps, and per-domain examples of any gate. Cite the gate number
+in the phase record so the next operator sees the current step immediately.
+
+1. **Frame the workstream** — objective, non-goals, hard core, exterior, falsifier, proof gates, write set, closure boundaries.
+2. **Isolate repo state** — worktree, branch, Graphite stack, dirty files, downstack deps, generated/read-only paths.
+3. **Diagnose before designing** — prove the observed failure mode from code, history, stats, tests, logs, official data.
+4. **Extract the canonical corpus** — every entity, action surface, or materialization target with IDs, sources, coverage, uncertainty.
+5. **Group the corpus** — by shared inputs, constraints, owners, consumers, and verification shape; keep per-entity obligations visible.
+6. **Predeclare expected behavior** — baselines and expected ranges/legality before tuning.
+7. **Translate into architecture** — operations, contracts, artifacts, planners, projections, or mutation surfaces in the owning boundary.
+8. **Implement or plan slices** — one coherent slice per OpenSpec change / Graphite branch, with write set, review lanes, tests, stop conditions.
+9. **Verify local statistics** — observed vs predeclared over stable seeds/configs; coverage, diversity, legality, rejection/mismatch, spread.
+10. **Prove runtime behavior** — when required, deploy/restart via the current canonical path; bound fresh logs to exact branch/commit/path/request/timestamp/payload.
+11. **Review as a phase gate** — framed peer agents review specs, code, stats, runtime evidence, closure records, downstream realignment.
+12. **Close deliberately** — complete tasks, disposition P1/P2, label proof classes separately, fix stale records, commit via Graphite, clean worktree or precise handoff.
 
 ## Reference Map
 
@@ -137,7 +143,8 @@ Load only when the current gate needs them:
 1. Copy `assets/workstream-record.md` into `openspec/changes/<change-id>/workstream/`
    for an OpenSpec implementation slice, or into `docs/projects/<project>/...`
    for pre-OpenSpec planning. Defer to `civ7-open-spec-workstream` if unsure.
-2. Frame the objective with `framing-design`, then check `git status`,
+2. Frame the objective with `framing-design` if available, otherwise fill the
+   Frame block in `assets/workstream-record.md`; then check `git status`,
    `git worktree list`, and `gt log --no-interactive`.
 3. Spawn only useful peer agents with framed prompts and explicit evidence
    outputs; keep the owner responsible for synthesis.

@@ -52,6 +52,9 @@ Do not claim a stronger label than the evidence supports.
 
 ## Exact Closure Language
 
+Every `<...>` placeholder below must be replaced with real evidence. A closure
+statement that still contains an unfilled `<...>` is not a valid claim.
+
 Local commit:
 
 ```text
@@ -87,10 +90,13 @@ Before closure, compare actual state against:
 - `tasks.md`;
 - `workstream/phase-record.md`;
 - `workstream/review-disposition-ledger.md`;
-- `workstream/downstream-realignment-ledger.md`;
-- `workstream/next-packet.md`;
+- `workstream/downstream-realignment-ledger.md` (OpenSpec slices only);
+- `workstream/next-packet.md` (OpenSpec slices only);
 - live `NOTE-TO-DRA*.md` or watcher notes;
 - `git status`, `git log -1`, and `gt log --no-interactive`.
+
+The `workstream/*` record templates are owned by `civ7-open-spec-workstream`;
+for a pre-OpenSpec planning slice, audit only the records that exist.
 
 Stale unchecked commit tasks, "ready to commit" phase text after commit, and
 next packets that tell the next agent to redo complete work are closure
