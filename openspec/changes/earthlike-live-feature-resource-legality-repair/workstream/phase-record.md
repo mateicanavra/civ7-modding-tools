@@ -6,6 +6,7 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
+  `codex/swooper-natural-wonder-row-proof-drain`, stacked above
   `codex/swooper-natural-wonder-supported-catalog-drain`, stacked above
   `codex/swooper-resource-delta-feasibility-current-record-drain`, stacked
   above `codex/swooper-resource-rejection-local-context-drain`,
@@ -50,6 +51,24 @@
   rejections and two remaining `readback-mismatch` rows. The verifier artifact
   remains unresolved with proof hash
   `ea9a8d88f8fbbe7b86d1b06f1f5893acaf579b46ddf534ae9a5f328277fdc5ee`.
+  Current follow-on proof-contract branch
+  `codex/swooper-natural-wonder-row-proof-drain` exposes bounded
+  natural-wonder row identity through verbose local placement artifact rows,
+  compact `NATURAL_WONDER_PLACEMENT_V1` rejected-row telemetry, and expanded
+  Studio exact-authorship `coordinateRows`. This gives the next exact run
+  inspectable natural-wonder rejected-row identity without exceeding Civ's log
+  line cap; it does not change behavior, close final parity, or claim product
+  acceptance. Fresh exact request `studio-run-in-game-mq3yo4uq-20js`
+  consumed the compact row contract and preserves exact rejected rows for
+  feature `30` at plot `4130` and feature `36` at plot `1785`, both
+  `readback-mismatch` with `partial-expected-footprint`. The verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3yo4uq-20js-current-final-surface-parity-with-natural-wonder-rows.json`
+  (`sha256:b1d7033ef3b8b9e7cf55407ab9cf854dac331ac68953d568515ff19dda91923e`,
+  `proofHash:4abcfde0e6a242395611586e501d6b872b1943d6a3c45f6e09d38c8ffb430a46`)
+  remains unresolved. Local replay in that artifact plans feature `30` at
+  plot `1342` and feature `36` at plot `2065`, so the next natural-wonder
+  source decision must account for exact/local plan-input or engine-surface
+  divergence before treating readback mismatch as a narrow post-write repair.
   Resource, feature, natural-wonder, and terrain source-authority
   classification remains the active work; product acceptance is not closed.
   Current resource-delta feasibility after the exact/local rejection join now
@@ -1336,6 +1355,19 @@
   `studio-run-in-game-mq3x46sy-20js` confirms the unsupported-footprint rows
   are gone and leaves only natural-wonder readback-mismatch rows:
   `feature=30` at plot `4130` and `feature=36` at plot `1785`.
+  Current proof-contract branch
+  `codex/swooper-natural-wonder-row-proof-drain` adds bounded
+  `coordinateRows` to the local natural-wonder placement artifact, compact
+  rejected-row tuples to runtime telemetry, and expanded `coordinateRows` to
+  Studio exact-authorship proof parsing so the next exact run can compare
+  exact and local natural-wonder rejected-row identity directly instead of
+  inferring from aggregate counts, hashes, and rejection examples. Fresh
+  request `studio-run-in-game-mq3yo4uq-20js` now preserves those exact rows:
+  feature `30` rejected at plot `4130`, and feature `36` rejected at plot
+  `1785`. Local replay plans those same feature types at plots `1342` and
+  `2065` and places all `7`, so the remaining natural-wonder proof target is
+  exact/local plan-input or engine-surface divergence plus post-write partial
+  footprint readback, not a simple missing supported-catalog row.
   Final-surface parity remains open on terrain (`140` mismatches), biome
   (`874`), feature (`376`), resource (`307`), natural-wonder readback proof,
   resource coordinate proof, and any future owner-classified residual links.

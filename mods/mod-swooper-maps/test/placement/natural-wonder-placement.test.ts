@@ -15,6 +15,16 @@ import {
 } from "../../src/recipes/standard/stages/placement/steps/place-natural-wonders/materialize.js";
 
 const { biomeGlobals, featureTypes } = CIV7_BROWSER_TABLES_V0;
+const redwoodRow = {
+  status: "placed",
+  plotIndex: 9,
+  x: 1,
+  y: 2,
+  featureType: featureTypes.FEATURE_REDWOOD_FOREST,
+  direction: -1,
+  elevation: 120,
+  reason: "placed",
+} as const;
 
 function oneWonderPlan(featureType: number, plotIndex: number, width = 4, height = 6) {
   return {
@@ -63,6 +73,7 @@ describe("natural wonder placement materialization", () => {
         placed: { count: 1, hash32: "deae8452" },
         rejected: { count: 0, hash32: "811c9dc5" },
       },
+      coordinateRows: [redwoodRow],
       plannedCount: 1,
       targetCount: 1,
       placedCount: 1,
@@ -136,6 +147,7 @@ describe("natural wonder placement materialization", () => {
       shortfallCount: 1,
       rejectionExampleCount: 0,
       rejectionExamples: [],
+      rejectedRows: [],
       coordinateProof: {
         version: 1,
         placedCount: 1,
@@ -146,7 +158,7 @@ describe("natural wonder placement materialization", () => {
       `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify(
         buildNaturalWonderPlacementRuntimeTelemetry(stats)
       )}`.length
-    ).toBeLessThan(900);
+    ).toBeLessThan(1400);
   });
 
   it("records adapter legality rejection as a degraded outcome", () => {
@@ -243,6 +255,21 @@ describe("natural wonder placement materialization", () => {
       rejectionExampleCount: 1,
       rejectionExamples: [
         "feature=35 plot=17 direction=-1 elevation=120 reason=readback-mismatch observedPlot=23 observedFeature=-1 footprint=17:35,23:-1,18:35 readback=partial-expected-footprint",
+      ],
+      rejectedRows: [
+        [
+          "r",
+          17,
+          2,
+          3,
+          featureTypes.FEATURE_KILIMANJARO,
+          -1,
+          120,
+          "readback-mismatch",
+          -1,
+          23,
+          "partial-expected-footprint",
+        ],
       ],
       coordinateProof: {
         rejectedCount: 1,

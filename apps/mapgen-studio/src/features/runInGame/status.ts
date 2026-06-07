@@ -70,6 +70,24 @@ export type RunInGameResourcePlacementRejectionRow = Readonly<{
   targetMinPerType?: number;
 }>;
 
+export type RunInGameNaturalWonderPlacementCoordinateRow = Readonly<{
+  status: "placed" | "rejected";
+  featureType: number;
+  plotIndex: number;
+  x: number;
+  y: number;
+  direction: number;
+  elevation?: number;
+  reason: string;
+  observedFeatureType?: number;
+  observedPlotIndex?: number;
+  expectedFootprintReadback?: ReadonlyArray<Readonly<{
+    plotIndex: number;
+    observedFeatureType: number;
+  }>>;
+  expectedFootprintReadbackStatus?: "empty-expected-footprint" | "partial-expected-footprint";
+}>;
+
 export type RunInGameRequestStatus = Readonly<{
   recipeId?: string;
   seed?: number;
@@ -217,6 +235,7 @@ export type RunInGameExactAuthorshipProof = Readonly<{
         placed: Readonly<{ count: number; hash32: string }>;
         rejected?: Readonly<{ count: number; hash32: string }>;
       }>;
+      coordinateRows?: ReadonlyArray<RunInGameNaturalWonderPlacementCoordinateRow>;
     }>;
     matched: ReadonlyArray<string>;
   }>;

@@ -514,6 +514,42 @@
     assignment versus stateful Civ materialization/readback. It does not
     authorize resource tuning, public config changes, static ResourceBuilder
     policy changes, final-surface parity, or product acceptance.
+- [x] 2.55 Bind bounded natural-wonder coordinate rows into future exact-authorship
+  proof packets.
+  - Current proof-contract slice adds verbose `coordinateRows` to the
+    natural-wonder placement artifact, compact rejected-row tuples to
+    `NATURAL_WONDER_PLACEMENT_V1` runtime telemetry, and expanded
+    `coordinateRows` to Studio exact-authorship parsing. Rows carry status,
+    feature type, plot/x/y, direction, elevation where known, reason, and
+    bounded readback context for rejected rows without exceeding Civ's log
+    line cap.
+  - This is proof instrumentation only. It does not change natural-wonder
+    planning, placement, readback disposition, final-surface parity, product
+    acceptance, resource behavior, feature behavior, or terrain behavior. A
+    fresh exact-authored run must consume this row contract before the
+    remaining exact/local natural-wonder plan divergence can be source-owned
+    or dispositioned.
+- [x] 2.56 Preserve current exact-authored natural-wonder rejected-row proof.
+  - Fresh compact exact request `studio-run-in-game-mq3yo4uq-20js` completed
+    with no exact-authorship unresolved links after consuming the compact
+    rejected-row telemetry contract. POST artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-row-proof-compact-post.json`
+    has `sha256:f603328fb9f966cb7f214ae1347e989576e7b2dc11bcbb0339d45bdaf126ac01`;
+    terminal status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-row-proof-compact-status.json`
+    has `sha256:fe96ff90b76ae4b4b8aa190578b81babf4c2f684e156290aa700be0a93ae6e82`.
+  - Exact `NATURAL_WONDER_PLACEMENT_V1` remains `7` planned / `5` placed /
+    `2` rejected. Studio exact-authorship now preserves parsed
+    `coordinateRows` for the two rejected rows: feature `30` at plot `4130`
+    (`x=102`, `y=38`, observed missing plot `4237`) and feature `36` at plot
+    `1785` (`x=89`, `y=16`, observed missing plot `1892`), both
+    `readback-mismatch` with `partial-expected-footprint`.
+  - Current local replay in the same parity artifact plans feature `30` at
+    plot `1342` and feature `36` at plot `2065`, and locally places all `7`
+    natural wonders. This proves the remaining natural-wonder blocker is not
+    just a post-write footprint readback row; it also includes exact/local
+    plan-input or engine-surface divergence that must be source-owned before
+    behavior repair.
 
 ## 3. Verification
 
@@ -698,3 +734,25 @@
   - Verifier log:
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-resource-delta-feasibility-mq3v6xr9-local-context.log`
     (`sha256:014a6f2ceb3f051f393b7fb62579e8de99f3f548056b8c49e05c92caae8491c0`).
+- [x] 3.26 Run focused natural-wonder coordinate-row proof regressions.
+  - Passed `bun test
+    mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts
+    apps/mapgen-studio/test/runInGame/proofIdentity.test.ts`.
+  - Passed owner checks `bun run --cwd mods/mod-swooper-maps check` and
+    `bun run --cwd apps/mapgen-studio check`.
+- [x] 3.27 Re-run current exact-authored final-surface parity after
+  natural-wonder rejected-row proof parsing.
+  - Verifier input request `studio-run-in-game-mq3yo4uq-20js` wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3yo4uq-20js-current-final-surface-parity-with-natural-wonder-rows.json`
+    (`sha256:b1d7033ef3b8b9e7cf55407ab9cf854dac331ac68953d568515ff19dda91923e`,
+    `proofHash:4abcfde0e6a242395611586e501d6b872b1943d6a3c45f6e09d38c8ffb430a46`,
+    created `2026-06-07T15:55:39.210Z`).
+  - The verifier exited `2` as expected for unresolved parity. It preserves
+    unchanged unresolved links: `resource-placement-coordinate-proof.placed`,
+    `resource-placement-coordinate-proof.rejected`, `surface.biome.mismatch`,
+    `surface.feature.mismatch`, `surface.resource.mismatch`, and
+    `surface.terrain.mismatch`. Mismatch counts are terrain `140`, biome
+    `874`, feature `376`, and resource `307`.
+  - Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3yo4uq-natural-wonder-rows.log`
+    (`sha256:82d75d59305815f64b4f775a2128bb6e8327f3ae120c4ab347dbd2136022dade`).
