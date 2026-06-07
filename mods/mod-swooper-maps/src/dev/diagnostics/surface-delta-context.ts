@@ -316,6 +316,60 @@ export type ResourceFeasibilityRuntimeProbeLike<T> = Readonly<{
   error?: string;
 }>;
 
+export type TerrainDeltaEdgeContext = Readonly<{
+  x: number;
+  y: number;
+  plotIndex: number;
+  localTerrain: Readonly<{
+    value: number | null;
+    symbol: string;
+    context: CellSurfaceContext;
+  }>;
+  liveTerrain: Readonly<{
+    value: number | null;
+    symbol: string;
+    context: CellSurfaceContext;
+  }>;
+  neighborhood: TerrainDeltaNeighborhoodContext;
+  evidenceClass:
+    | "local-ocean-live-coast"
+    | "local-coast-live-ocean"
+    | "water-terrain-edge-swap"
+    | "unclassified";
+  sourceAuthorityStatus: "unresolved";
+  ownerCandidates: ReadonlyArray<
+    | "map-morphology-coast-shelf-projection"
+    | "map-hydrology-water-mutation"
+    | "civ-engine-terrain-validation"
+    | "evidence-insufficient"
+  >;
+}>;
+
+export type TerrainDeltaNeighborhoodContext = Readonly<{
+  neighbors: ReadonlyArray<TerrainDeltaNeighborContext>;
+  localCounts: TerrainNeighborhoodCounts;
+  liveCounts: TerrainNeighborhoodCounts;
+}>;
+
+export type TerrainDeltaNeighborContext = Readonly<{
+  direction: number;
+  x: number;
+  y: number;
+  plotIndex: number;
+  localTerrain: Readonly<{ value: number | null; symbol: string; waterClass: TerrainWaterClass }>;
+  liveTerrain: Readonly<{ value: number | null; symbol: string; waterClass: TerrainWaterClass }>;
+}>;
+
+export type TerrainNeighborhoodCounts = Readonly<{
+  coast: number;
+  ocean: number;
+  otherWater: number;
+  land: number;
+  empty: number;
+}>;
+
+export type TerrainWaterClass = "coast" | "ocean" | "other-water" | "land" | "empty";
+
 export type ResourcePlacementOutcomeContext = Readonly<{
   status: string;
   resourceType: number;
@@ -711,6 +765,48 @@ export function buildResourceDeltaFeasibilityContexts(
       }),
     };
   });
+}
+
+export function buildTerrainDeltaEdgeContexts(
+  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  options: { maxRows?: number } = {}
+): ReadonlyArray<TerrainDeltaEdgeContext> {
+  const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
+  const rows: TerrainDeltaEdgeContext[] = [];
+  const localValues = proof.local.surfaces.terrain.values;
+  const liveValues = proof.live.surfaces.terrain.values;
+  const length = Math.min(localValues.length, liveValues.length);
+
+  for (let index = 0; index < length; index += 1) {
+    const localTerrain = normalizeSurfaceValue(localValues[index]);
+    const liveTerrain = normalizeSurfaceValue(liveValues[index]);
+    if (localTerrain === liveTerrain) continue;
+    const y = Math.floor(index / proof.local.width);
+    const x = index - y * proof.local.width;
+    const neighborhood = terrainDeltaNeighborhood(proof.local, proof.live, x, y);
+    rows.push({
+      x,
+      y,
+      plotIndex: index,
+      localTerrain: {
+        value: localTerrain,
+        symbol: symbolFor("terrain", localTerrain),
+        context: cellSurfaceContext(proof.local, x, y),
+      },
+      liveTerrain: {
+        value: liveTerrain,
+        symbol: symbolFor("terrain", liveTerrain),
+        context: cellSurfaceContext(proof.live, x, y),
+      },
+      neighborhood,
+      evidenceClass: classifyTerrainDeltaEdge(localTerrain, liveTerrain),
+      sourceAuthorityStatus: "unresolved",
+      ownerCandidates: terrainOwnerCandidates(localTerrain, liveTerrain),
+    });
+    if (rows.length >= maxRows) return rows;
+  }
+
+  return rows;
 }
 
 export function buildSurfaceDeltaContext(
@@ -1283,6 +1379,102 @@ function hasAdjacentLand(snapshot: SnapshotLike, x: number, y: number): boolean 
     if (terrain !== null && !WATER_TERRAINS.has(terrain)) return true;
   }
   return false;
+}
+
+function terrainDeltaNeighborhood(
+  local: SnapshotLike,
+  live: SnapshotLike,
+  x: number,
+  y: number
+): TerrainDeltaNeighborhoodContext {
+  const offsets = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+  const neighbors = offsets.flatMap(([dx, dy], direction): ReadonlyArray<TerrainDeltaNeighborContext> => {
+    const ny = y + dy;
+    if (ny < 0 || ny >= local.height) return [];
+    const nx = local.width > 0 ? wrapX(x + dx, local.width) : x + dx;
+    const plotIndex = ny * local.width + nx;
+    const localTerrain = surfaceValue(local, "terrain", nx, ny);
+    const liveTerrain = surfaceValue(live, "terrain", nx, ny);
+    return [
+      {
+        direction,
+        x: nx,
+        y: ny,
+        plotIndex,
+        localTerrain: {
+          value: localTerrain,
+          symbol: symbolFor("terrain", localTerrain),
+          waterClass: terrainWaterClass(localTerrain),
+        },
+        liveTerrain: {
+          value: liveTerrain,
+          symbol: symbolFor("terrain", liveTerrain),
+          waterClass: terrainWaterClass(liveTerrain),
+        },
+      },
+    ];
+  });
+  return {
+    neighbors,
+    localCounts: countTerrainNeighborClasses(neighbors, "localTerrain"),
+    liveCounts: countTerrainNeighborClasses(neighbors, "liveTerrain"),
+  };
+}
+
+function countTerrainNeighborClasses(
+  neighbors: ReadonlyArray<TerrainDeltaNeighborContext>,
+  side: "localTerrain" | "liveTerrain"
+): TerrainNeighborhoodCounts {
+  const counts = { coast: 0, ocean: 0, otherWater: 0, land: 0, empty: 0 };
+  for (const neighbor of neighbors) {
+    const waterClass = neighbor[side].waterClass;
+    if (waterClass === "coast") counts.coast += 1;
+    else if (waterClass === "ocean") counts.ocean += 1;
+    else if (waterClass === "other-water") counts.otherWater += 1;
+    else if (waterClass === "land") counts.land += 1;
+    else counts.empty += 1;
+  }
+  return counts;
+}
+
+function classifyTerrainDeltaEdge(
+  localTerrain: number | null,
+  liveTerrain: number | null
+): TerrainDeltaEdgeContext["evidenceClass"] {
+  const localClass = terrainWaterClass(localTerrain);
+  const liveClass = terrainWaterClass(liveTerrain);
+  if (localClass === "ocean" && liveClass === "coast") return "local-ocean-live-coast";
+  if (localClass === "coast" && liveClass === "ocean") return "local-coast-live-ocean";
+  if (isWaterClass(localClass) && isWaterClass(liveClass)) return "water-terrain-edge-swap";
+  return "unclassified";
+}
+
+function terrainOwnerCandidates(
+  localTerrain: number | null,
+  liveTerrain: number | null
+): TerrainDeltaEdgeContext["ownerCandidates"] {
+  const localClass = terrainWaterClass(localTerrain);
+  const liveClass = terrainWaterClass(liveTerrain);
+  if (isWaterClass(localClass) && isWaterClass(liveClass)) {
+    return [
+      "map-morphology-coast-shelf-projection",
+      "map-hydrology-water-mutation",
+      "civ-engine-terrain-validation",
+      "evidence-insufficient",
+    ];
+  }
+  return ["evidence-insufficient"];
+}
+
+function isWaterClass(value: TerrainWaterClass): boolean {
+  return value === "coast" || value === "ocean" || value === "other-water";
+}
+
+function terrainWaterClass(value: number | null): TerrainWaterClass {
+  if (value === null) return "empty";
+  if (value === CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST) return "coast";
+  if (value === CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_OCEAN) return "ocean";
+  return WATER_TERRAINS.has(value) ? "other-water" : "land";
 }
 
 function readResourcePlanEvidence(evidence: unknown): {
