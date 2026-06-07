@@ -23,8 +23,13 @@
 - [x] 2.7 Add official resource policy row/flag and spacing-neighborhood
   context for the focused local-overaccepted rows.
 - [x] 2.8 Add live plot runtime context for resource delta feasibility rows.
-- [ ] 2.9 Repair remaining proven package or MapGen owners.
-- [ ] 2.10 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.9 Add local resource assignment-phase trace for resource delta rows.
+- [x] 2.10 Add local assignment-order context for the focused
+  local-overaccepted rows.
+- [ ] 2.11 Add bounded ResourceBuilder cut/count diagnostics for the focused
+  local-overaccepted rows.
+- [ ] 2.12 Repair remaining proven package or MapGen owners.
+- [ ] 2.13 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

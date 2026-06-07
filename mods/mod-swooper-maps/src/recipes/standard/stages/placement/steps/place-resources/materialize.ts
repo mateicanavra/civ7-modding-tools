@@ -42,10 +42,17 @@ type PlaceResourcesWithTypedOutcomesArgs = {
   height: number;
   resources: DeepReadonly<PlanResourcesOutput>;
 };
+type ResourceAssignmentPhase = "scarce-floor" | "strict-spacing" | "relaxed-spacing";
 type ResourceAssignment = {
   plotIndex: number;
   resourceType: number;
+  initialResourceType: number;
   preferredResourceType: number | null;
+  assignmentPhase: ResourceAssignmentPhase;
+  assignmentOrder: number;
+  perTypeCountBefore: number;
+  legalPlotCountForResource: number;
+  targetMinPerType: number;
 };
 type PlacementCandidate = {
   plotIndex: number;
@@ -370,13 +377,24 @@ function assignResourceIntents(args: {
     legalPlotCounts.set(resourceType, count);
   }
 
-  const addAssignment = (plotIndex: number, resourceType: number): void => {
+  const addAssignment = (
+    plotIndex: number,
+    resourceType: number,
+    assignmentPhase: ResourceAssignmentPhase
+  ): void => {
+    const countBefore = perTypeCounts.get(resourceType) ?? 0;
     usedPlots.add(plotIndex);
-    perTypeCounts.set(resourceType, (perTypeCounts.get(resourceType) ?? 0) + 1);
+    perTypeCounts.set(resourceType, countBefore + 1);
     assignments.push({
       plotIndex,
       resourceType,
+      initialResourceType: resourceType,
       preferredResourceType: preferredByPlot.get(plotIndex) ?? null,
+      assignmentPhase,
+      assignmentOrder: assignments.length,
+      perTypeCountBefore: countBefore,
+      legalPlotCountForResource: legalPlotCounts.get(resourceType) ?? 0,
+      targetMinPerType,
     });
   };
 
@@ -411,7 +429,7 @@ function assignResourceIntents(args: {
         });
         spacingBlockedCount += result.spacingBlockedCount;
         if (result.plotIndex === null) break;
-        addAssignment(result.plotIndex, resourceType);
+        addAssignment(result.plotIndex, resourceType, "scarce-floor");
       }
     }
   }
@@ -440,7 +458,7 @@ function assignResourceIntents(args: {
         strictExhaustedResourceTypes.add(resourceType);
         continue;
       }
-      addAssignment(plotIndex, resourceType);
+      addAssignment(plotIndex, resourceType, "strict-spacing");
       progressed = true;
     }
     if (!progressed) break;
@@ -477,7 +495,7 @@ function assignResourceIntents(args: {
         relaxedExhaustedResourceTypes.add(resourceType);
         continue;
       }
-      addAssignment(plotIndex, resourceType);
+      addAssignment(plotIndex, resourceType, "relaxed-spacing");
       progressed = true;
     }
     if (!progressed) break;
@@ -912,6 +930,23 @@ export function placeResourcesWithTypedOutcomes({
   return {
     summary: summarizeResourceOutcomes(outcomes),
     assignment: assignmentResult.assignment,
+    assignmentTrace: assignmentResult.assignments.map((assignment) => {
+      const tile = expectedTileForIntent(width, assignment.plotIndex);
+      return {
+        plotIndex: assignment.plotIndex,
+        x: tile.x,
+        y: tile.y,
+        resourceType: assignment.resourceType,
+        initialResourceType: assignment.initialResourceType,
+        preferredResourceType: assignment.preferredResourceType,
+        assignmentPhase: assignment.assignmentPhase,
+        reassignedByRebalance: assignment.initialResourceType !== assignment.resourceType,
+        assignmentOrder: assignment.assignmentOrder,
+        perTypeCountBefore: assignment.perTypeCountBefore,
+        legalPlotCountForResource: assignment.legalPlotCountForResource,
+        targetMinPerType: assignment.targetMinPerType,
+      };
+    }),
     outcomes,
   };
 }

@@ -83,6 +83,7 @@ export type ResourceDeltaPlacementContext = Readonly<{
   plannedPreferredResourceType: number | null;
   plannedPreferredResourceSymbol: string;
   localOutcome: ResourcePlacementOutcomeContext | null;
+  assignmentTrace: ResourceAssignmentTraceContext | null;
   resourceNeighborhood: ResourceDeltaNeighborhoodContext;
   evidenceClass:
     | "local-assigned-live-empty"
@@ -163,6 +164,21 @@ export type ResourcePlacementOutcomeContext = Readonly<{
   observedResourceType: number | null;
   observedResourceSymbol: string;
   reason: string | null;
+}>;
+
+export type ResourceAssignmentTraceContext = Readonly<{
+  resourceType: number;
+  resourceSymbol: string;
+  initialResourceType: number;
+  initialResourceSymbol: string;
+  preferredResourceType: number | null;
+  preferredResourceSymbol: string;
+  assignmentPhase: string;
+  reassignedByRebalance: boolean;
+  assignmentOrder: number | null;
+  perTypeCountBefore: number | null;
+  legalPlotCountForResource: number | null;
+  targetMinPerType: number | null;
 }>;
 
 export type CellSurfaceContext = Readonly<{
@@ -250,6 +266,7 @@ export function buildResourceDeltaPlacementContexts(
   const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
   const resourcePlan = readResourcePlanEvidence(proof.local.evidence);
   const outcomes = readResourceOutcomeEvidence(proof.local.evidence);
+  const assignmentTrace = readResourceAssignmentTraceEvidence(proof.local.evidence);
   const rows: ResourceDeltaPlacementContext[] = [];
   const localValues = proof.local.surfaces.resource.values;
   const liveValues = proof.live.surfaces.resource.values;
@@ -296,6 +313,7 @@ export function buildResourceDeltaPlacementContexts(
       plannedPreferredResourceType,
       plannedPreferredResourceSymbol: symbolFor("resource", plannedPreferredResourceType),
       localOutcome,
+      assignmentTrace: assignmentTrace.byPlot.get(index) ?? null,
       resourceNeighborhood: {
         minSpacingTiles: resourcePlan.minSpacingTiles,
         localResourceOnLocal:
@@ -638,6 +656,49 @@ function readResourceOutcomeEvidence(evidence: unknown): {
       observedResourceType,
       observedResourceSymbol: symbolFor("resource", observedResourceType),
       reason: typeof outcome.reason === "string" ? outcome.reason : null,
+    });
+  }
+  return { byPlot };
+}
+
+function readResourceAssignmentTraceEvidence(evidence: unknown): {
+  byPlot: ReadonlyMap<number, ResourceAssignmentTraceContext>;
+} {
+  const byPlot = new Map<number, ResourceAssignmentTraceContext>();
+  const resourcePlacementOutcomes = isRecord(evidence)
+    ? evidence.resourcePlacementOutcomes
+    : undefined;
+  const trace =
+    isRecord(resourcePlacementOutcomes) && Array.isArray(resourcePlacementOutcomes.assignmentTrace)
+      ? resourcePlacementOutcomes.assignmentTrace
+      : [];
+  for (const row of trace) {
+    if (!isRecord(row)) continue;
+    const plotIndex = finiteInteger(row.plotIndex);
+    const resourceType = finiteInteger(row.resourceType);
+    const initialResourceType = finiteInteger(row.initialResourceType);
+    if (
+      plotIndex === null ||
+      resourceType === null ||
+      initialResourceType === null ||
+      byPlot.has(plotIndex)
+    ) {
+      continue;
+    }
+    const preferredResourceType = finiteInteger(row.preferredResourceType);
+    byPlot.set(plotIndex, {
+      resourceType,
+      resourceSymbol: symbolFor("resource", resourceType),
+      initialResourceType,
+      initialResourceSymbol: symbolFor("resource", initialResourceType),
+      preferredResourceType,
+      preferredResourceSymbol: symbolFor("resource", preferredResourceType),
+      assignmentPhase: typeof row.assignmentPhase === "string" ? row.assignmentPhase : "unknown",
+      reassignedByRebalance: row.reassignedByRebalance === true,
+      assignmentOrder: finiteInteger(row.assignmentOrder),
+      perTypeCountBefore: finiteInteger(row.perTypeCountBefore),
+      legalPlotCountForResource: finiteInteger(row.legalPlotCountForResource),
+      targetMinPerType: finiteInteger(row.targetMinPerType),
     });
   }
   return { byPlot };

@@ -146,6 +146,36 @@ describe("surface delta context diagnostics", () => {
           ],
         },
         resourcePlacementOutcomes: {
+          assignmentTrace: [
+            {
+              plotIndex: 0,
+              x: 0,
+              y: 0,
+              resourceType: 3,
+              initialResourceType: 12,
+              preferredResourceType: 3,
+              assignmentPhase: "scarce-floor",
+              reassignedByRebalance: true,
+              assignmentOrder: 0,
+              perTypeCountBefore: 0,
+              legalPlotCountForResource: 4,
+              targetMinPerType: 2,
+            },
+            {
+              plotIndex: 2,
+              x: 2,
+              y: 0,
+              resourceType: 2,
+              initialResourceType: 2,
+              preferredResourceType: 2,
+              assignmentPhase: "strict-spacing",
+              reassignedByRebalance: false,
+              assignmentOrder: 1,
+              perTypeCountBefore: 0,
+              legalPlotCountForResource: 3,
+              targetMinPerType: 2,
+            },
+          ],
           outcomes: [
             {
               status: "placed",
@@ -190,6 +220,17 @@ describe("surface delta context diagnostics", () => {
       },
       plannedPreferredResourceSymbol: "RESOURCE_FISH",
       localOutcome: { status: "placed", resourceSymbol: "RESOURCE_FISH" },
+      assignmentTrace: {
+        resourceSymbol: "RESOURCE_FISH",
+        initialResourceSymbol: "RESOURCE_PEARLS",
+        preferredResourceSymbol: "RESOURCE_FISH",
+        assignmentPhase: "scarce-floor",
+        reassignedByRebalance: true,
+        assignmentOrder: 0,
+        perTypeCountBefore: 0,
+        legalPlotCountForResource: 4,
+        targetMinPerType: 2,
+      },
       resourceNeighborhood: {
         minSpacingTiles: 2,
         localResourceOnLocal: {
@@ -223,6 +264,7 @@ describe("surface delta context diagnostics", () => {
       liveResource: { symbol: "RESOURCE_FISH" },
       plannedPreferredResourceSymbol: "RESOURCE_FISH",
       localOutcome: null,
+      assignmentTrace: null,
       evidenceClass: "live-only-preferred-but-unassigned",
     });
     expect(rows[2]).toMatchObject({
@@ -230,6 +272,10 @@ describe("surface delta context diagnostics", () => {
       localResource: { symbol: "RESOURCE_DYES" },
       liveResource: { symbol: "RESOURCE_PEARLS" },
       localOutcome: { status: "placed", resourceSymbol: "RESOURCE_DYES" },
+      assignmentTrace: {
+        assignmentPhase: "strict-spacing",
+        reassignedByRebalance: false,
+      },
       evidenceClass: "local-assigned-live-substitution",
     });
   });

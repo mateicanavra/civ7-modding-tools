@@ -223,8 +223,10 @@ Evidence artifacts:
 
 - proof:
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-assignment-evidence.json`
-  (`sha256:e07418f9ab3efbab81beb6d5c6a9b68e1e40460b6d7421b5b1248a1e0578494c`,
-  `proofHash:d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`).
+  (current sha256:
+  `ff4aec0701cbeeb031737b68d93a0a48e9168313ef983cc30a3df91cff6f08ab`,
+  current proofHash:
+  `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`).
 - summary:
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-assignment-summary.json`
   (`sha256:e8d1917d657654bc0d494457c62b8c84a4613f22e024cd5ca770f7fbbb645d8b`).
@@ -273,8 +275,8 @@ Evidence artifact:
 
 - `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-feasibility-readback.json`
   (`sha256:139c8e52c2acd91b01415f8daee6b5dd27ee28e2db26857627118d993cc2e96c`).
-- Source proof: assignment-evidence artifact
-  `d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`.
+- Source proof: current assignment-evidence artifact
+  `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`.
 - Readback: Tuner state `1`, host `127.0.0.1`, port `4318`, `106` cells,
   `0` omitted cells.
 
@@ -288,17 +290,21 @@ returned false, including resources that the live grid shows as present.
 |---|---:|---|
 | `live-only-no-local-assignment`, live feasible | `37` | Civ says the live value is feasible, but the local assignment algorithm did not assign that cell. This points to assignment ordering/rebalance divergence, not static legality. |
 | `local-assigned-live-empty`, local feasible | `28` | Local assigned a Civ-feasible resource where live has no resource. This also points to assignment ordering/rebalance divergence. |
-| `local-assigned-live-empty`, local infeasible | `9` | Local mock/static policy over-accepted a resource Civ rejects under the loose feasibility probe. This is the next focused adapter/map-policy repair class. |
+| `local-assigned-live-empty`, local infeasible | `9` | Local placement accepted a resource Civ rejects under the loose feasibility probe. This is a focused local-overacceptance investigation class, not repair authority. |
 | `local-assigned-live-substitution`, both feasible | `31` | Both local and live resource values are Civ-feasible at the tile; this is assignment/type-order divergence, not simple legality. |
 | `local-assigned-live-substitution`, both infeasible | `1` | Preserve as an individual evidence row before repair; neither probed value is feasible under the loose check on the current live map. |
 
 Disposition:
 the feasibility readback narrows but does not close source authority. Most
-remaining rows are now assignment ordering/rebalance evidence, not map-policy
-surface legality. A smaller `9`-row local-overacceptance class is likely
-adapter/map-policy-owned, but it still needs row-level symbol/context
-extraction before a focused policy repair. No resource density, diversity,
-terrain, coast, or Earthlike tuning is authorized.
+remaining rows are now assignment ordering evidence or local-overacceptance
+evidence, not map-policy surface legality. The smaller `9`-row
+local-overacceptance class remains unresolved between repo-owned mock/static
+policy, runtime materialization/state, and hidden Civ
+`ResourceBuilder.canHaveResource` constraints. Current row-level evidence rules
+out official rows/flags, adjacent-land, authored spacing, owner/water/tag/river,
+relaxed spacing, and rebalance as explanations. No repair authority, resource
+density, diversity, terrain, coast, Earthlike tuning, parity closure, or
+product acceptance is authorized.
 
 ### Row-Level Feasibility Classification Diagnostic
 
@@ -339,11 +345,11 @@ the artifact before row-level feasibility evidence is accepted.
 
 Artifact:
 `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-(`sha256:e1ae01d0474aa83960f60c4acb73593851a242d06121670fac751664625356bb`,
-`proofHash:de359a53aa4760c915cfae6dfe9f4d57039e585d85df5892b8c7f6bda80ac932`).
+(`sha256:2d8a85cee626ce561ffa0d735ba5b00670ebc6fbda23da2aaddb651d78af4f15`,
+`proofHash:dd2d9868ad7a86f0091a188feed055c40656675301a751bfeb54d0bf3ffaa1a7`).
 
 Source proof:
-`d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`.
+`e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`.
 
 Request identity:
 `studio-run-in-game-mq20rbzr-1fhc`, matched across exact-authorship summary,
@@ -376,19 +382,23 @@ All rows below have one exact official `Resource_ValidBiomes` row matching the
 local surface, no adjacent-land requirement, `lakeEligible:true`, and no local
 or live resource neighbor inside the authored `minSpacingTiles:2` bound.
 Live plot context additionally confirms these cells are live-empty, unowned,
-non-water, untagged, and have no river.
+non-water, untagged, and have no river. Local assignment trace shows every row
+came from the `scarce-floor` assignment phase and none were changed by
+rebalance. Assignment-order context shows every row was selected before the
+local resource type reached the scarce-floor target (`targetMinPerType:7`),
+with local legal plot counts between `66` and `554`.
 
-| Coordinate | Plot | Local resource | Planned preferred | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility |
-|---|---:|---|---|---|---|---|---|---|
-| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `6` | `elev416 rain185 fert2 area131073 region65536 landmass131073` | false |
-| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `5` | `elev238 rain191 fert2 area589832 region524295 landmass589832` | false |
-| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `TERRAIN_HILL` / `BIOME_TUNDRA` / empty | row match; no flags blocking | `4` / `4` | `elev523 rain197 fert0 area1048591 region720906 landmass196610` | false |
-| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `TERRAIN_HILL` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `2` / `5` | `elev208 rain193 fert0 area1835035 region1310739 landmass1179665` | false |
-| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `TERRAIN_FLAT` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `4` / `2` | `elev214 rain194 fert1 area3538997 region2359331 landmass1638424` | false |
-| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / empty | row match; no flags blocking | `4` / `6` | `elev453 rain169 fert1 area3670071 region2555942 landmass1703961` | false |
-| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `4` / `4` | `elev192 rain184 fert2 area4522052 region3670071 landmass2424868` | false |
-| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `5` / `5` | `elev232 rain176 fert2 area4915274 region4128830 landmass2752553` | false |
-| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / `FEATURE_MARSH` | row match; no flags blocking | `8` / `6` | `elev427 rain172 fert2 area5963866 region5898329 landmass3538997` | false |
+| Coordinate | Plot | Local resource | Planned preferred | Assignment order context | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility |
+|---|---:|---|---|---|---|---|---|---|---|
+| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `23`; count before `2/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `6` | `elev416 rain185 fert2 area131073 region65536 landmass131073` | false |
+| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `21`; count before `0/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `5` | `elev238 rain191 fert2 area589832 region524295 landmass589832` | false |
+| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `scarce-floor`; order `74`; count before `4/7`; legal plots `324`; no rebalance | `TERRAIN_HILL` / `BIOME_TUNDRA` / empty | row match; no flags blocking | `4` / `4` | `elev523 rain197 fert0 area1048591 region720906 landmass196610` | false |
+| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `scarce-floor`; order `90`; count before `6/7`; legal plots `328`; no rebalance | `TERRAIN_HILL` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `2` / `5` | `elev208 rain193 fert0 area1835035 region1310739 landmass1179665` | false |
+| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `scarce-floor`; order `139`; count before `6/7`; legal plots `525`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `4` / `2` | `elev214 rain194 fert1 area3538997 region2359331 landmass1638424` | false |
+| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `scarce-floor`; order `152`; count before `5/7`; legal plots `554`; no rebalance | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / empty | row match; no flags blocking | `4` / `6` | `elev453 rain169 fert1 area3670071 region2555942 landmass1703961` | false |
+| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `scarce-floor`; order `14`; count before `0/7`; legal plots `66`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `4` / `4` | `elev192 rain184 fert2 area4522052 region3670071 landmass2424868` | false |
+| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `24`; count before `3/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `5` / `5` | `elev232 rain176 fert2 area4915274 region4128830 landmass2752553` | false |
+| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `scarce-floor`; order `8`; count before `1/7`; legal plots `66`; no rebalance | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / `FEATURE_MARSH` | row match; no flags blocking | `8` / `6` | `elev427 rain172 fert2 area5963866 region5898329 landmass3538997` | false |
 
 Individual `substitution-both-infeasible` row:
 
@@ -404,9 +414,12 @@ repo-owned mock/static-policy gap or accepted engine/materialization behavior.
 The single both-infeasible substitution row remains outside that repair class.
 Because the focused rows are not explained by official surface rows,
 adjacent-land flags, authored spacing, owner, water, plot tags, or river state,
-the next authority check should inspect Civ `ResourceBuilder.canHaveResource`
-constraints that are not present in the static browser tables, or prove a
-runtime-state/materialization disposition before changing mock policy.
+and are not introduced by relaxed spacing or rebalance, the next authority
+check should inspect Civ `ResourceBuilder.canHaveResource` constraints that are
+not present in the static browser tables, or prove a runtime-state/materialization
+disposition before changing mock policy. The assignment-order context proves
+these rows came from the local scarce-floor quota pass, but that is still
+diagnostic context rather than repair authority.
 
 ## Required Next Diagnostics
 
