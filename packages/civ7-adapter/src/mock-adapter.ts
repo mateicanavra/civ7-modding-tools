@@ -214,6 +214,7 @@ const DEFAULT_DISCOVERY_CATALOG: DiscoveryCatalogEntry[] = [
 
 const DEFAULT_NO_RESOURCE = ADAPTER_NO_RESOURCE;
 const DEFAULT_RESOURCE_TYPE_CATALOG: number[] = [...PLACEABLE_RESOURCE_TYPE_IDS];
+const STANDARD_OCEAN_WATER_COLUMNS = 4;
 
 function sanitizeResourceTypeCatalog(input: number[] | undefined, noResource: number): number[] {
   const source = Array.isArray(input) ? input : DEFAULT_RESOURCE_TYPE_CATALOG;
@@ -272,6 +273,16 @@ const ODD_Q_NEIGHBORS_ODD: readonly (readonly [number, number])[] = [
 
 function wrapMockX(x: number, width: number): number {
   return ((x % width) + width) % width;
+}
+
+function isWithinStandardCoastExpansionBand(x: number, width: number): boolean {
+  const halfOceanColumns = STANDARD_OCEAN_WATER_COLUMNS / 2;
+  return (
+    x > halfOceanColumns &&
+    (x < (width - STANDARD_OCEAN_WATER_COLUMNS) / 2 ||
+      x > (width + STANDARD_OCEAN_WATER_COLUMNS) / 2) &&
+    x < width - halfOceanColumns
+  );
 }
 
 export interface MockAdapterConfig {
@@ -348,6 +359,7 @@ export class MockAdapter implements EngineAdapter {
   private biomes: Uint8Array;
   private waterMask: Uint8Array;
   private lakeMask: Uint8Array;
+  private validationMaterializedCoastMask: Uint8Array;
   private mountainMask: Uint8Array;
   private landmassRegionIds: Uint8Array;
   private riverMask: Uint8Array;
@@ -443,6 +455,7 @@ export class MockAdapter implements EngineAdapter {
     this.biomes = new Uint8Array(size).fill(config.defaultBiomeType ?? 0);
     this.waterMask = new Uint8Array(size);
     this.lakeMask = new Uint8Array(size);
+    this.validationMaterializedCoastMask = new Uint8Array(size);
     this.mountainMask = new Uint8Array(size);
     this.riverMask = new Uint8Array(size);
     this.landmassRegionIds = new Uint8Array(size);
@@ -634,6 +647,7 @@ export class MockAdapter implements EngineAdapter {
     this.riverMask[index] =
       terrainType === this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") ? 1 : 0;
     this.mountainMask[index] = terrainType === this.mountainTerrainId ? 1 : 0;
+    this.validationMaterializedCoastMask[index] = 0;
     if (terrainType !== this.coastTerrainId) {
       this.lakeMask[index] = 0;
     }
@@ -897,7 +911,8 @@ export class MockAdapter implements EngineAdapter {
   }
 
   validateAndFixTerrain(): void {
-    // No-op in mock
+    this.materializeValidationCoasts(this.width, this.height);
+    this.storeWaterData();
   }
 
   recalculateAreas(): void {
@@ -1084,28 +1099,86 @@ export class MockAdapter implements EngineAdapter {
   expandCoasts(width: number, height: number): void {
     this.calls.expandCoasts.push({ width, height });
 
+    const resolvedWidth = Math.max(0, Math.min(this.width, width | 0));
+    const resolvedHeight = Math.max(0, Math.min(this.height, height | 0));
+    if (resolvedWidth <= 0 || resolvedHeight <= 0) return;
+
     const coastTerrain = this.coastTerrainId;
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        if (!this.isWater(x, y)) continue;
-        let adjacentLand = false;
-        for (let dy = -1; dy <= 1 && !adjacentLand; dy++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            if (dx === 0 && dy === 0) continue;
-            const nx = x + dx;
-            const ny = y + dy;
-            if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
-            if (!this.isWater(nx, ny)) {
-              adjacentLand = true;
-              break;
-            }
-          }
-        }
-        if (adjacentLand) {
-          this.terrainTypes[this.idx(x, y)] = coastTerrain & 0xff;
-        }
+    for (let y = 0; y < resolvedHeight; y++) {
+      for (let x = 0; x < resolvedWidth; x++) {
+        if (!isWithinStandardCoastExpansionBand(x, resolvedWidth)) continue;
+        const idx = this.idx(x, y);
+        if ((this.terrainTypes[idx] | 0) !== this.oceanTerrainId) continue;
+        const adjacentCoastRegionId = this.adjacentCoastRegionId(x, y, resolvedWidth, resolvedHeight);
+        if (adjacentCoastRegionId === null) continue;
+        if (this.rngFn(4, "Shallow Water Scatter") !== 0) continue;
+        this.terrainTypes[idx] = coastTerrain & 0xff;
+        this.landmassRegionIds[idx] = adjacentCoastRegionId & 0xff;
       }
     }
+  }
+
+  private materializeValidationCoasts(width: number, height: number): void {
+    const nextTerrain = new Uint8Array(this.terrainTypes);
+    const nextLandmassRegionIds = new Uint8Array(this.landmassRegionIds);
+    const nextValidationMaterializedCoastMask = new Uint8Array(
+      this.validationMaterializedCoastMask
+    );
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = this.idx(x, y);
+        if ((this.terrainTypes[idx] | 0) !== this.oceanTerrainId) continue;
+        if (!this.hasAdjacentLandTerrain(x, y, width, height)) continue;
+        const adjacentCoastRegionId = this.adjacentCoastRegionId(x, y, width, height, {
+          includeValidationMaterializedCoast: false,
+        });
+        if (adjacentCoastRegionId === null) continue;
+        nextTerrain[idx] = this.coastTerrainId & 0xff;
+        nextLandmassRegionIds[idx] = adjacentCoastRegionId & 0xff;
+        nextValidationMaterializedCoastMask[idx] = 1;
+      }
+    }
+    this.terrainTypes = nextTerrain;
+    this.landmassRegionIds = nextLandmassRegionIds;
+    this.validationMaterializedCoastMask = nextValidationMaterializedCoastMask;
+  }
+
+  private adjacentCoastRegionId(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    options: Readonly<{ includeValidationMaterializedCoast?: boolean }> = {}
+  ): number | null {
+    const neighbors = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+    for (const [dx, dy] of neighbors) {
+      const ny = y + dy;
+      if (ny < 0 || ny >= height) continue;
+      const nx = wrapMockX(x + dx, width);
+      const neighborIndex = this.idx(nx, ny);
+      if ((this.terrainTypes[neighborIndex] | 0) === this.coastTerrainId) {
+        if (
+          options.includeValidationMaterializedCoast === false &&
+          this.validationMaterializedCoastMask[neighborIndex] === 1
+        ) {
+          continue;
+        }
+        return this.landmassRegionIds[neighborIndex] | 0;
+      }
+    }
+    return null;
+  }
+
+  private hasAdjacentLandTerrain(x: number, y: number, width: number, height: number): boolean {
+    const neighbors = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+    for (const [dx, dy] of neighbors) {
+      const ny = y + dy;
+      if (ny < 0 || ny >= height) continue;
+      const nx = wrapMockX(x + dx, width);
+      const terrain = this.terrainTypes[this.idx(nx, ny)] | 0;
+      if (terrain !== this.coastTerrainId && terrain !== this.oceanTerrainId) return true;
+    }
+    return false;
   }
 
   // === BIOMES ===
@@ -1423,6 +1496,7 @@ export class MockAdapter implements EngineAdapter {
     this.biomes.fill(config.defaultBiomeType ?? 0);
     this.waterMask.fill(0);
     this.lakeMask.fill(0);
+    this.validationMaterializedCoastMask.fill(0);
     this.mountainMask.fill(0);
     this.riverMask.fill(0);
     this.landmassRegionIds.fill(0);

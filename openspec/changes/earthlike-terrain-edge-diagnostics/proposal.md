@@ -1,9 +1,9 @@
 ## Why
 
 Exact-authored final-surface parity for request
-`studio-run-in-game-mq20rbzr-1fhc` still has `2/6996` terrain mismatches. Both
-are coast/ocean edge swaps. They block parity, but they do not belong in the
-feature/resource legality repair lane unless later evidence proves shared
+`studio-run-in-game-mq20rbzr-1fhc` initially had `2/6996` terrain mismatches.
+Both were coast/ocean edge swaps. They block parity, but they do not belong in
+the feature/resource legality repair lane unless later evidence proves shared
 materialization ownership.
 
 ## Activation Gate
@@ -36,11 +36,15 @@ The source proof hash is
 - Keep source authority unresolved until shelf/lake/projection-boundary and
   live water/area evidence can distinguish repo projection, hydrology mutation,
   Civ terrain validation, and evidence insufficiency.
+- After row-level source authority is classified, repair only the bounded
+  `@civ7/adapter` mock lake/terrain materialization gaps and rerun exact-bound
+  final-surface parity. Do not treat a partial terrain repair as parity or
+  product closure.
 
 ## Non-Goals
 
 - No coast/shelf tuning.
-- No terrain generation repair.
+- No Earthlike/coast/shelf terrain generation repair.
 - No feature/resource repair.
 - No parity, product acceptance, Earthlike quality, or mountain-quality closure
   claim.
@@ -49,6 +53,7 @@ The source proof hash is
 ## Affected Owners
 
 - `mods/mod-swooper-maps/src/dev/diagnostics/**`
+- `packages/civ7-adapter/**`
 - `packages/civ7-direct-control/**`
 - `scripts/civ7-direct-control/verify-terrain-edge-live-context.ts`
 - `openspec/changes/earthlike-terrain-edge-diagnostics/**`
@@ -77,6 +82,10 @@ The source proof hash is
 - Local placement validation-boundary artifact for
   `studio-run-in-game-mq20rbzr-1fhc`.
 - Fact-completeness regression for terrain-edge live readback.
+- Focused `@civ7/adapter` mock terrain tests/check/build after any bounded
+  adapter materialization repair.
+- Exact-authored final-surface parity rerun after any bounded terrain repair,
+  with unresolved residuals left open.
 - `bun run --cwd mods/mod-swooper-maps check`.
 - `bun run --cwd packages/civ7-direct-control check`.
 - `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`.
