@@ -6,6 +6,7 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
+  `codex/swooper-natural-wonder-plan-comparison-drain`, stacked above
   `codex/swooper-natural-wonder-plan-proof-drain`, stacked above
   `codex/swooper-natural-wonder-row-proof-drain`, stacked above
   `codex/swooper-natural-wonder-supported-catalog-drain`, stacked above
@@ -86,6 +87,20 @@
   remains unresolved with terrain `140`, biome `874`, feature `376`, and
   resource `307` mismatches. This is proof plumbing and source-authority
   narrowing only, not behavior repair, parity closure, or product acceptance.
+  Current follow-on proof-comparison branch
+  `codex/swooper-natural-wonder-plan-comparison-drain` makes that
+  exact/local natural-wonder plan divergence a first-class parity proof
+  comparison. The refreshed verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-comparison.json`
+  (`sha256:72972c12cd87396c0f1e54793ee7a8e7d7e8aff6f2baa2a307a7161a7a0c2856`,
+  `proofHash:f6e6ad68cd1d48dff4c16465abd63c2e2ec4fa9e04b2df93e0b55a2da684c10f`)
+  records `naturalWonderPlanCoordinateProof.status:mismatch`, exact planned
+  digest `7/38085c90`, local planned digest `7/b921cd4f`, and the explicit
+  unresolved link `natural-wonder-plan-coordinate-proof.planned`. Row
+  comparison keeps four same-anchor features visible and marks feature `30`,
+  `35`, and `36` as `exact-local-anchor-diverged`. This is proof comparison
+  only, not planner tuning, readback repair, final parity, or product
+  acceptance.
   Resource, feature, natural-wonder, and terrain source-authority
   classification remains the active work; product acceptance is not closed.
   Current resource-delta feasibility after the exact/local rejection join now

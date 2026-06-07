@@ -582,6 +582,21 @@
     plan-input or engine-surface divergence before post-write readback repair.
     It does not authorize tuning, public config changes, local mock shortcuts,
     final-surface parity, or product acceptance.
+- [x] 2.59 Bind natural-wonder plan-coordinate proof comparison into the
+  final-surface parity proof.
+  - Current branch `codex/swooper-natural-wonder-plan-comparison-drain` adds a
+    `naturalWonderPlanCoordinateProof` comparison to the final-surface parity
+    proof. It compares exact runtime `NATURAL_WONDER_PLAN_V1` rows against the
+    local replay `naturalWonderPlan`, computes matching compact planned-row
+    digests, and exposes row-level classifications:
+    `exact-local-same-anchor`, `exact-local-anchor-diverged`, `exact-only`,
+    and `local-only`.
+  - This is proof comparison only. It does not change natural-wonder planning,
+    materialization, readback disposition, final-surface surfaces, product
+    acceptance, public config, or resource behavior. A mismatch adds the
+    explicit unresolved link `natural-wonder-plan-coordinate-proof.planned`
+    so exact/local plan divergence is not hidden behind generic feature
+    surface mismatches.
 
 ## 3. Verification
 
@@ -809,3 +824,25 @@
   - Verifier log:
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3ze9g3-natural-wonder-plan-rows.log`
     (`sha256:b8a581af6a65a95204b8688e8278ad99eab0a7637ab302cc9cb3537e6d0a21cf`).
+- [x] 3.30 Run focused natural-wonder plan-coordinate comparison regressions
+  and rerun current exact-authored final-surface parity.
+  - Passed `bun test
+    mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts
+    mods/mod-swooper-maps/test/placement/derive-placement-inputs.test.ts
+    apps/mapgen-studio/test/runInGame/proofIdentity.test.ts`.
+  - Passed owner check `bun run --cwd mods/mod-swooper-maps check`.
+  - Verifier input request `studio-run-in-game-mq3ze9g3-1zzu` wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-comparison.json`
+    (`sha256:72972c12cd87396c0f1e54793ee7a8e7d7e8aff6f2baa2a307a7161a7a0c2856`,
+    `proofHash:f6e6ad68cd1d48dff4c16465abd63c2e2ec4fa9e04b2df93e0b55a2da684c10f`).
+  - The verifier exited `2` as expected for unresolved parity. It now carries
+    the explicit unresolved link
+    `natural-wonder-plan-coordinate-proof.planned` in addition to the existing
+    resource-coordinate and surface mismatch links. Exact/local plan
+    comparison has `7/7` rows on both sides, exact planned hash `38085c90`,
+    local planned hash `b921cd4f`, and three diverged anchors: feature `30`
+    exact `4130` vs local `1342`, feature `35` exact `1686` vs local `1624`,
+    and feature `36` exact `1785` vs local `2065`.
+  - Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3ze9g3-natural-wonder-plan-comparison.log`
+    (`sha256:4f996cc6ad19f334910c25e0c545cfba79a7e31a21b9f599f594286f636f0309`).
