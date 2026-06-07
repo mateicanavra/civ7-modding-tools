@@ -1,5 +1,7 @@
 import {
   CIV7_BROWSER_TABLES_V0,
+  NATURAL_WONDER_CATALOG,
+  getNaturalWonderFootprintOffsets,
   getNaturalWonderFootprintIndices,
   isResourceAdjacentToLandRuntimeOptional,
 } from "@civ7/map-policy";
@@ -160,6 +162,43 @@ export type NaturalWonderFootprintReadbackCandidate = Readonly<{
   liveMatchCount: number;
   localComplete: boolean;
   liveComplete: boolean;
+}>;
+
+export type NaturalWonderFootprintCatalogContext = Readonly<{
+  featureType: number;
+  featureSymbol: string;
+  placementClass: string;
+  naturalWonderTiles: number;
+  declaredDirection: number;
+  localProjectionDirection: number;
+  localProjectionOffsets: ReadonlyArray<Readonly<{ dx: number; dy: number }>>;
+  supportedDirections: ReadonlyArray<NaturalWonderFootprintCatalogDirectionContext>;
+  directionClass:
+    | "single-tile-direction-irrelevant"
+    | "official-fixed-direction"
+    | "unspecified-engine-direction-local-fixed-projection"
+    | "unsupported";
+  observedReadbacks: ReadonlyArray<NaturalWonderFootprintCatalogReadbackContext>;
+  readbackDisposition:
+    | "no-exact-run-evidence"
+    | "observed-live-direction-drift"
+    | "observed-ambiguous-or-partial"
+    | "observed-local-live-aligned";
+}>;
+
+export type NaturalWonderFootprintCatalogDirectionContext = Readonly<{
+  direction: number;
+  offsets: ReadonlyArray<Readonly<{ dx: number; dy: number }>>;
+}>;
+
+export type NaturalWonderFootprintCatalogReadbackContext = Readonly<{
+  anchorPlotIndex: number;
+  declaredDirection: number;
+  bestLocalDirections: ReadonlyArray<number>;
+  bestLiveDirections: ReadonlyArray<number>;
+  bestLocalMatchCount: number;
+  bestLiveMatchCount: number;
+  classification: NaturalWonderFootprintReadbackContext["classification"];
 }>;
 
 export type ResourceDeltaPlacementContext = Readonly<{
@@ -454,6 +493,56 @@ export function buildNaturalWonderFootprintReadbackContexts(
       bestLocalMatchCount,
       bestLiveMatchCount,
       classification,
+    };
+  });
+}
+
+export function buildNaturalWonderFootprintCatalogContexts(
+  readbacks: ReadonlyArray<NaturalWonderFootprintReadbackContext> = []
+): ReadonlyArray<NaturalWonderFootprintCatalogContext> {
+  const readbacksByFeature = new Map<number, NaturalWonderFootprintCatalogReadbackContext[]>();
+  for (const readback of readbacks) {
+    const bucket = readbacksByFeature.get(readback.featureType) ?? [];
+    bucket.push({
+      anchorPlotIndex: readback.anchorPlotIndex,
+      declaredDirection: readback.declaredDirection,
+      bestLocalDirections: readback.bestLocalDirections,
+      bestLiveDirections: readback.bestLiveDirections,
+      bestLocalMatchCount: readback.bestLocalMatchCount,
+      bestLiveMatchCount: readback.bestLiveMatchCount,
+      classification: readback.classification,
+    });
+    readbacksByFeature.set(readback.featureType, bucket);
+  }
+
+  return NATURAL_WONDER_CATALOG.map((entry) => {
+    const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(entry.featureType)] ?? {};
+    const naturalWonderTiles = Math.max(1, Math.trunc(numberValue(policy.naturalWonderTiles) ?? 1));
+    const localProjectionDirection = normalizeDirectionForReadback(entry.direction);
+    const localProjectionOffsets = [...(getNaturalWonderFootprintOffsets(policy, entry.direction) ?? [])];
+    const supportedDirections = [0, 1, 2, 3, 4, 5].flatMap((direction) => {
+      const offsets = getNaturalWonderFootprintOffsets(policy, direction);
+      if (!offsets) return [];
+      return [{ direction, offsets: [...offsets] }];
+    });
+    const directionClass = naturalWonderDirectionClass({
+      naturalWonderTiles,
+      declaredDirection: entry.direction,
+      supportedDirections,
+    });
+    const observedReadbacks = readbacksByFeature.get(entry.featureType) ?? [];
+    return {
+      featureType: entry.featureType,
+      featureSymbol: symbolFor("feature", entry.featureType),
+      placementClass: stringValue(policy.placementClass) ?? "ONE",
+      naturalWonderTiles,
+      declaredDirection: entry.direction,
+      localProjectionDirection,
+      localProjectionOffsets,
+      supportedDirections,
+      directionClass,
+      observedReadbacks,
+      readbackDisposition: naturalWonderReadbackDisposition(observedReadbacks),
     };
   });
 }
@@ -941,6 +1030,38 @@ function classifyNaturalWonderFootprintReadback(args: {
     args.bestLiveDirections.includes(direction)
   );
   return sharedDirection ? "local-live-same-direction" : "live-direction-differs-from-local";
+}
+
+function naturalWonderDirectionClass(args: {
+  naturalWonderTiles: number;
+  declaredDirection: number;
+  supportedDirections: ReadonlyArray<NaturalWonderFootprintCatalogDirectionContext>;
+}): NaturalWonderFootprintCatalogContext["directionClass"] {
+  if (args.supportedDirections.length === 0) return "unsupported";
+  if (args.naturalWonderTiles <= 1) return "single-tile-direction-irrelevant";
+  if (args.declaredDirection >= 0) return "official-fixed-direction";
+  return "unspecified-engine-direction-local-fixed-projection";
+}
+
+function naturalWonderReadbackDisposition(
+  observedReadbacks: ReadonlyArray<NaturalWonderFootprintCatalogReadbackContext>
+): NaturalWonderFootprintCatalogContext["readbackDisposition"] {
+  if (observedReadbacks.length === 0) return "no-exact-run-evidence";
+  if (observedReadbacks.some((readback) => readback.classification === "live-direction-differs-from-local")) {
+    return "observed-live-direction-drift";
+  }
+  if (
+    observedReadbacks.some(
+      (readback) =>
+        readback.classification === "live-footprint-missing" ||
+        readback.classification === "local-footprint-missing" ||
+        readback.bestLiveDirections.length > 1 ||
+        readback.bestLocalDirections.length > 1
+    )
+  ) {
+    return "observed-ambiguous-or-partial";
+  }
+  return "observed-local-live-aligned";
 }
 
 function addResourceSurfaceReasons(

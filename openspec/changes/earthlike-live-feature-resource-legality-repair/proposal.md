@@ -36,8 +36,11 @@ truth.
 - Feature hypotheses:
   one `FEATURE_COLD_REEF` local-only row may indicate Civ feature legality
   beyond mock/static policy; Kilimanjaro and Zhangjiajie one-tile offsets may
-  indicate natural-wonder footprint anchor/direction semantics drift. Neither
-  hypothesis is a completed source-authority classification.
+  indicate natural-wonder footprint anchor/direction semantics drift. Current
+  supported-catalog context shows `5` multi-tile natural wonders have official
+  `naturalWonderDirection:-1` while local projection materializes that as
+  direction `0`; exact-run readback observes only Kilimanjaro and Zhangjiajie,
+  so the class is narrowed but not yet a global repair authority.
 - Resource hypotheses:
   the `106/6996` mismatch class includes relocation/substitution patterns that
   may come from mock/static resource legality, assignment-order divergence from
