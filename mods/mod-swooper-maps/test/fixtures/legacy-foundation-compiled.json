@@ -562,9 +562,9 @@
     "mesh": {
       "computeMesh": {
         "config": {
-          "cellCount": 312,
+          "cellCount": 364,
           "cellsPerPlate": 13,
-          "plateCount": 24,
+          "plateCount": 28,
           "relaxationSteps": 2
         },
         "strategy": "default"
@@ -573,7 +573,7 @@
     "plate-graph": {
       "computePlateGraph": {
         "config": {
-          "plateCount": 37,
+          "plateCount": 42,
           "polarCaps": {
             "capFraction": 0.08,
             "microplateBandFraction": 0.2,
@@ -603,9 +603,9 @@
       "computePlates": {
         "config": {
           "boundaryDecay": 0.55,
-          "boundaryInfluenceDistance": 5,
-          "movementScale": 100,
-          "rotationScale": 100
+          "boundaryInfluenceDistance": 6,
+          "movementScale": 113.99999999999999,
+          "rotationScale": 113.99999999999999
         },
         "strategy": "default"
       }

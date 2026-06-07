@@ -7,6 +7,12 @@
 		<Row Tag="LOC_MAP_SWOOPER_DESERT_MOUNTAINS_DESCRIPTION">
 			<Text>Plate-forged mega ranges carve a hyper-arid world into stark basins and windward oases. Expect towering boundary cordilleras, savage lee-side deserts, and a handful of monsoon belts clinging to the mountains that feed them.</Text>
 		</Row>
+		<Row Tag="LOC_MAP_SWOOPER_EARTHLIKE_NAME">
+			<Text>Swooper Earthlike</Text>
+		</Row>
+		<Row Tag="LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION">
+			<Text>An Earth-analogue world with vast oceans, a handful of major continents, and familiar climate belts. Expect wet equatorial jungles, dry subtropical deserts, temperate heartlands, and polar tundra shaped by plate-driven mountain arcs and broad passive coasts.</Text>
+		</Row>
 		<Row Tag="LOC_MAP_SHATTERED_RING_NAME">
 			<Text>The Shattered Ring</Text>
 		</Row>
@@ -18,12 +24,6 @@
 		</Row>
 		<Row Tag="LOC_MAP_SUNDERED_ARCHIPELAGO_DESCRIPTION">
 			<Text>A world shattered by ancient tectonic rifting into countless volcanic islands and shallow seas. Hundreds of islands form chains connected by coral reefs and strategic straits. Naval supremacy determines the fate of empires as civilizations island-hop toward dominance. Lush tropical paradises contrast with smoldering volcanic peaks, while narrow channels create natural choke points for trade and warfare.</Text>
-		</Row>
-		<Row Tag="LOC_MAP_SWOOPER_EARTHLIKE_NAME">
-			<Text>Swooper Earthlike</Text>
-		</Row>
-		<Row Tag="LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION">
-			<Text>Swooper Earthlike</Text>
 		</Row>
 	</EnglishText>
 </Database>

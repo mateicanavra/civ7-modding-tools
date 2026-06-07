@@ -8,7 +8,7 @@
  *
  * Invariants:
  * - Passes should ONLY access engine APIs via the adapter
- * - RNG calls should go through ctxRandom/deriveStepSeed for deterministic replay
+ * - RNG calls should go through ctxRandom/ctxStepSeed for deterministic replay
  * - Context is immutable reference (but buffers/fields are mutable for performance)
  * - Buffers are currently treated as artifacts for pipeline gating and DX
  *   (see ArtifactStore + MapBuffers notes for the temporary exception).
@@ -394,6 +394,22 @@ export function ctxRandomLabel(
   suffix = "rngSeed"
 ): string {
   return `${stepId}:${opName}:${suffix}`;
+}
+
+/**
+ * Canonical helper for deriving op-level seeds from a MapGen context.
+ *
+ * Standard recipe code should prefer this over direct `ctxRandom(ctxRandomLabel(...), ...)`
+ * so authored entropy is visible in the context RNG ledger and remains isolated
+ * from Civ adapter RNG.
+ */
+export function ctxStepSeed(
+  ctx: ExtendedMapContext,
+  stepId: string,
+  opName: string,
+  suffix = "rngSeed"
+): number {
+  return ctxRandom(ctx, ctxRandomLabel(stepId, opName, suffix), 2_147_483_647);
 }
 
 // ============================================================================

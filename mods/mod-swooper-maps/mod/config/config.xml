@@ -8,6 +8,12 @@
 			SortIndex="500"
 		/>
 		<Row
+			File="{swooper-maps}/maps/swooper-earthlike.js"
+			Name="LOC_MAP_SWOOPER_EARTHLIKE_NAME"
+			Description="LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION"
+			SortIndex="501"
+		/>
+		<Row
 			File="{swooper-maps}/maps/shattered-ring.js"
 			Name="LOC_MAP_SHATTERED_RING_NAME"
 			Description="LOC_MAP_SHATTERED_RING_DESCRIPTION"
@@ -18,12 +24,6 @@
 			Name="LOC_MAP_SUNDERED_ARCHIPELAGO_NAME"
 			Description="LOC_MAP_SUNDERED_ARCHIPELAGO_DESCRIPTION"
 			SortIndex="503"
-		/>
-		<Row
-			File="{swooper-maps}/maps/swooper-earthlike.js"
-			Name="LOC_MAP_SWOOPER_EARTHLIKE_NAME"
-			Description="LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION"
-			SortIndex="900"
 		/>
 	</Maps>
 </Database>

@@ -1,4 +1,4 @@
-import { ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
+import { clamp01, ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
@@ -21,11 +21,6 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 const MINOR_FLOODPLAIN_DISCHARGE_NORMALIZER = 1000;
 const FLOODPLAIN_RELIEF_NORMALIZER_M = 260;
 const FLOODPLAIN_PATCH_NOISE_SCALE = 0.11;
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return Math.max(0, Math.min(1, value));
-}
 
 function maxAdjacentNavigableDischarge(
   tileIndex: number,

@@ -22,9 +22,9 @@
 				</UpdateText>
 				<ImportFiles>
 					<Item>maps/swooper-desert-mountains.js</Item>
+					<Item>maps/swooper-earthlike.js</Item>
 					<Item>maps/shattered-ring.js</Item>
 					<Item>maps/sundered-archipelago.js</Item>
-					<Item>maps/swooper-earthlike.js</Item>
 				</ImportFiles>
 			</Actions>
 		</ActionGroup>

@@ -20,6 +20,8 @@ const ScoreLayersStepContract = defineStep({
       mapRiversArtifacts.projectedNavigableRivers,
       morphologyArtifacts.topography,
       morphologyArtifacts.coastlineMetrics,
+      morphologyArtifacts.mountains,
+      morphologyArtifacts.volcanoes,
     ],
     provides: [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase],
   },

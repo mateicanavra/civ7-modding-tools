@@ -40,8 +40,8 @@
     },
     "map-rivers": {
       "plot-rivers": {
-        "maxLength": 15,
-        "minLength": 5
+        "maxLength": 12,
+        "minLength": 3
       }
     }
   },
@@ -86,8 +86,8 @@
     },
     "map-rivers": {
       "plot-rivers": {
-        "maxLength": 15,
-        "minLength": 5
+        "maxLength": 12,
+        "minLength": 3
       }
     }
   },
@@ -132,8 +132,8 @@
     },
     "map-rivers": {
       "plot-rivers": {
-        "maxLength": 15,
-        "minLength": 5
+        "maxLength": 18,
+        "minLength": 7
       }
     }
   },
