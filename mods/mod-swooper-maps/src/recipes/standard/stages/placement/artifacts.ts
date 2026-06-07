@@ -222,12 +222,35 @@ const ResourcePlacementResourceSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
+const ResourcePlacementCoordinateDigestSchema = Type.Object(
+  {
+    count: Type.Integer({ minimum: 0 }),
+    hash32: Type.String({ pattern: "^[0-9a-f]{8}$" }),
+  },
+  { additionalProperties: false }
+);
+
+const ResourcePlacementCoordinateProofSchema = Type.Object(
+  {
+    version: Type.Literal(1),
+    placed: ResourcePlacementCoordinateDigestSchema,
+    rejected: ResourcePlacementCoordinateDigestSchema,
+    mismatch: ResourcePlacementCoordinateDigestSchema,
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Compact deterministic coordinate identity for typed resource placement outcomes, intended for exact-run log/artifact comparison.",
+  }
+);
+
 const ResourcePlacementSummarySchema = Type.Object(
   {
     plannedCount: Type.Integer({ minimum: 0 }),
     placedCount: Type.Integer({ minimum: 0 }),
     rejectedCount: Type.Integer({ minimum: 0 }),
     mismatchCount: Type.Integer({ minimum: 0 }),
+    coordinateProof: ResourcePlacementCoordinateProofSchema,
     byResource: Type.Array(ResourcePlacementResourceSummarySchema),
     byReason: Type.Array(ResourcePlacementReasonCountSchema),
   },

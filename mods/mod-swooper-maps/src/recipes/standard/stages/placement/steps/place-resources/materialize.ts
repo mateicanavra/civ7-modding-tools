@@ -35,6 +35,7 @@ type RuntimeResourceRow = {
   readonly ResourceClassType?: unknown;
   readonly Name?: unknown;
 };
+type ResourcePlacementCoordinateDigest = ResourcePlacementSummary["coordinateProof"]["placed"];
 
 type PlaceResourcesWithTypedOutcomesArgs = {
   adapter: ExtendedMapContext["adapter"];
@@ -71,6 +72,8 @@ const RESOURCE_REJECTION_REASONS = new Set<string>([
   "cannot-have-resource",
 ]);
 const RESOURCE_MISMATCH_REASONS = new Set<string>(["wrong-resource-type"]);
+const FNV1A_32_OFFSET = 0x811c9dc5;
+const FNV1A_32_PRIME = 0x01000193;
 
 function expectedTileForIntent(
   width: number,
@@ -96,6 +99,41 @@ function isLegalResourceTile(
 
 function allPlotIndices(size: number): number[] {
   return Array.from({ length: size }, (_value, index) => index);
+}
+
+function hash32Hex(input: string): string {
+  let hash = FNV1A_32_OFFSET;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function buildResourcePlacementCoordinateDigest(
+  outcomes: readonly ResourcePlacementOutcome[],
+  status: ResourcePlacementOutcome["status"]
+): ResourcePlacementCoordinateDigest {
+  const rows = outcomes
+    .filter((outcome) => outcome.status === status)
+    .slice()
+    .sort((a, b) => {
+      if (a.plotIndex !== b.plotIndex) return a.plotIndex - b.plotIndex;
+      if (a.resourceType !== b.resourceType) return a.resourceType - b.resourceType;
+      return (a.observedResourceType ?? -1) - (b.observedResourceType ?? -1);
+    })
+    .map((outcome) =>
+      [
+        outcome.status,
+        outcome.plotIndex,
+        outcome.x,
+        outcome.y,
+        outcome.resourceType,
+        outcome.observedResourceType ?? -1,
+        outcome.status === "placed" ? "placed" : outcome.reason,
+      ].join(":")
+    );
+  return { count: rows.length, hash32: hash32Hex(rows.join("|")) };
 }
 
 function buildCandidatePlotOrder(
@@ -680,6 +718,12 @@ function summarizeResourceOutcomes(
     placedCount,
     rejectedCount,
     mismatchCount,
+    coordinateProof: {
+      version: 1,
+      placed: buildResourcePlacementCoordinateDigest(outcomes, "placed"),
+      rejected: buildResourcePlacementCoordinateDigest(outcomes, "rejected"),
+      mismatch: buildResourcePlacementCoordinateDigest(outcomes, "mismatch"),
+    },
     byResource: Array.from(byResource.entries())
       .sort(([a], [b]) => a - b)
       .map(([resourceType, summary]) => ({
@@ -738,10 +782,18 @@ export function buildResourcePlacementRuntimeTelemetry(
   const plannedResourceTypes = summary.byResource.filter((row) => row.plannedCount > 0);
   const placedResourceTypes = summary.byResource.filter((row) => row.placedCount > 0);
   const rejectedResourceTypes = summary.byResource.filter((row) => row.rejectedCount > 0);
+  const plannedResourceTypeValues = plannedResourceTypes.map((row) => row.resourceType);
+  const placedResourceTypeValues = placedResourceTypes.map((row) => row.resourceType);
+  const rejectedResourceTypeValues = rejectedResourceTypes.map((row) => row.resourceType);
   const placedCounts = placedResourceTypes.map((row) => row.placedCount);
   const unmappedResourceTypes = summary.byResource.filter(
     (row) => row.placedCount > 0 && !runtimeByIndex.has(row.resourceType)
   );
+  const plannedTypeSet = new Set(plannedResourceTypeValues);
+  const coveredTypeSet = new Set([...placedResourceTypeValues, ...rejectedResourceTypeValues]);
+  const plannedTypesCovered =
+    plannedTypeSet.size === coveredTypeSet.size &&
+    plannedResourceTypeValues.every((resourceType) => coveredTypeSet.has(resourceType));
 
   return {
     version: 1,
@@ -754,9 +806,26 @@ export function buildResourcePlacementRuntimeTelemetry(
     minPlacedCountByType: placedCounts.length > 0 ? Math.min(...placedCounts) : 0,
     maxPlacedCountByType: placedCounts.length > 0 ? Math.max(...placedCounts) : 0,
     runtimeCatalogCount: runtimeCatalog.length,
-    plannedResourceTypes: plannedResourceTypes.map((row) => row.resourceType),
-    placedResourceTypes: placedResourceTypes.map((row) => row.resourceType),
-    rejectedResourceTypes: rejectedResourceTypes.map((row) => row.resourceType),
+    coordinateProof: {
+      version: summary.coordinateProof.version,
+      placedCount: summary.coordinateProof.placed.count,
+      placedHash32: summary.coordinateProof.placed.hash32,
+      ...(summary.coordinateProof.rejected.count > 0
+        ? {
+            rejectedCount: summary.coordinateProof.rejected.count,
+            rejectedHash32: summary.coordinateProof.rejected.hash32,
+          }
+        : {}),
+      ...(summary.coordinateProof.mismatch.count > 0
+        ? {
+            mismatchCount: summary.coordinateProof.mismatch.count,
+            mismatchHash32: summary.coordinateProof.mismatch.hash32,
+          }
+        : {}),
+    },
+    ...(plannedTypesCovered ? {} : { plannedResourceTypes: plannedResourceTypeValues }),
+    placedResourceTypes: placedResourceTypeValues,
+    rejectedResourceTypes: rejectedResourceTypeValues,
     unmappedPlacedResourceTypes: unmappedResourceTypes.map((row) => row.resourceType),
     ...(assignment
       ? {
