@@ -197,11 +197,17 @@ async function main(): Promise<number> {
     ),
   ]);
   const ignoreWeightProof = summarizeFeasibilityProof(proof, ignoreWeight);
-  const focusedCells = cellsForResourceBuilderDiagnostics(ignoreWeightProof.rows);
+  const resourceBuilderDiagnosticCells = cellsForResourceBuilderDiagnostics(ignoreWeightProof.rows);
+  const resourceBuilderDiagnosticResourceTypes =
+    resourceTypesForResourceBuilderDiagnostics(ignoreWeightProof.rows);
   const resourceBuilderDiagnostics =
-    focusedCells.length > 0
+    resourceBuilderDiagnosticCells.length > 0
       ? await getCiv7ResourceBuilderDiagnostics(
-          { cells: focusedCells, maxCells: args.maxCells },
+          {
+            cells: resourceBuilderDiagnosticCells,
+            resourceTypes: resourceBuilderDiagnosticResourceTypes,
+            maxCells: args.maxCells,
+          },
           { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
         )
       : null;
@@ -222,6 +228,11 @@ async function main(): Promise<number> {
     livePlotContext: summarizeLivePlotContext(livePlotContext),
     resourceBuilderDiagnostics: resourceBuilderDiagnosticsSummary,
     resourceBuilderSubclassification,
+    resourceDistributionContext: summarizeResourceDistributionContext(
+      proof,
+      ignoreWeightProof.rows,
+      resourceBuilderDiagnosticsSummary
+    ),
     assignmentClassSummary: summarizeAssignmentClasses(ignoreWeightProof.rows),
     strict: summarizeFeasibilityProof(proof, strict),
     ignoreWeight: ignoreWeightProof,
@@ -472,6 +483,183 @@ function summarizeResourceBuilderSubclassification(
   };
 }
 
+function summarizeResourceDistributionContext(
+  proof: Pick<FinalSurfaceParityProof, "local">,
+  rows: ReadonlyArray<ResourceDeltaFeasibilityContext>,
+  diagnostics: ResourceBuilderDiagnosticsSummary | null
+) {
+  const assignmentSummary = readLocalAssignmentSummary(proof.local.evidence);
+  const assignmentByResource = new Map(
+    assignmentSummary.byPreferredResource.map((resource) => [resource.resourceType, resource] as const)
+  );
+  const resourcesByType = new Map(
+    (diagnostics?.resources ?? []).map((resource) => [resource.resourceType, resource] as const)
+  );
+  const locallyAssignedRows = rows.filter(
+    (row) => row.assignmentTrace !== null && row.localResource.value !== null
+  );
+  const groups = new Map<
+    number,
+    {
+      resourceType: number;
+      resourceSymbol: string;
+      deltaRowCount: number;
+      feasibilityClassCounts: Record<string, number>;
+      assignmentPhaseCounts: Record<string, number>;
+      targetMinPerTypeValues: Set<number>;
+      minAssignmentOrder: number | null;
+      maxAssignmentOrder: number | null;
+    }
+  >();
+
+  for (const row of locallyAssignedRows) {
+    const resourceType = row.localResource.value;
+    if (resourceType === null) continue;
+    let group = groups.get(resourceType);
+    if (!group) {
+      group = {
+        resourceType,
+        resourceSymbol: row.localResource.symbol,
+        deltaRowCount: 0,
+        feasibilityClassCounts: {},
+        assignmentPhaseCounts: {},
+        targetMinPerTypeValues: new Set<number>(),
+        minAssignmentOrder: null,
+        maxAssignmentOrder: null,
+      };
+      groups.set(resourceType, group);
+    }
+    group.deltaRowCount += 1;
+    incrementCount(group.feasibilityClassCounts, row.feasibilityClass);
+    const phase = row.assignmentTrace?.assignmentPhase ?? "missing";
+    incrementCount(group.assignmentPhaseCounts, phase);
+    const targetMinPerType = row.assignmentTrace?.targetMinPerType;
+    if (typeof targetMinPerType === "number" && Number.isFinite(targetMinPerType)) {
+      group.targetMinPerTypeValues.add(targetMinPerType);
+    }
+    const assignmentOrder = row.assignmentTrace?.assignmentOrder;
+    if (typeof assignmentOrder === "number" && Number.isFinite(assignmentOrder)) {
+      group.minAssignmentOrder =
+        group.minAssignmentOrder === null ? assignmentOrder : Math.min(group.minAssignmentOrder, assignmentOrder);
+      group.maxAssignmentOrder =
+        group.maxAssignmentOrder === null ? assignmentOrder : Math.max(group.maxAssignmentOrder, assignmentOrder);
+    }
+  }
+
+  const resourceRows = [...groups.values()]
+    .sort((left, right) => left.resourceSymbol.localeCompare(right.resourceSymbol))
+    .map((group) => {
+      const assignment = assignmentByResource.get(group.resourceType);
+      const builder = resourcesByType.get(group.resourceType);
+      const officialPolicy = summarizeResourcePolicy(builder);
+      const builderCount = probeNumberLike(builder?.count);
+      const assignedCount = assignment?.assignedCount ?? null;
+      const targetMinPerTypeValues = [...group.targetMinPerTypeValues].sort((left, right) => left - right);
+      const primaryTargetMinPerType = targetMinPerTypeValues.length === 1 ? targetMinPerTypeValues[0] : null;
+      const officialMinimum = officialPolicy.minimumPerHemisphere;
+      return {
+        resourceType: group.resourceType,
+        resourceSymbol: group.resourceSymbol,
+        deltaRowCount: group.deltaRowCount,
+        feasibilityClassCounts: sortCountRecord(group.feasibilityClassCounts),
+        assignmentPhaseCounts: sortCountRecord(group.assignmentPhaseCounts),
+        assignmentOrder: {
+          min: group.minAssignmentOrder,
+          max: group.maxAssignmentOrder,
+        },
+        localAssignment: assignment ?? null,
+        resourceBuilder: {
+          count: builderCount,
+          officialPolicy,
+        },
+        comparisons: {
+          assignedMinusResourceBuilderCount:
+            assignedCount !== null && builderCount !== null ? assignedCount - builderCount : null,
+          targetMinPerTypeValues,
+          targetMinPerTypeMinusOfficialMinimum:
+            primaryTargetMinPerType !== null && officialMinimum !== null
+              ? primaryTargetMinPerType - officialMinimum
+              : null,
+          assignedCountMinusOfficialMinimum:
+            assignedCount !== null && officialMinimum !== null ? assignedCount - officialMinimum : null,
+        },
+      };
+    });
+
+  return {
+    evidenceBoundary:
+      "Diagnostic context only: ResourceBuilder counts are current post-materialization readback and do not authorize repair without source-owner classification.",
+    localAssignedDeltaRowCount: locallyAssignedRows.length,
+    resourceTypeCount: resourceRows.length,
+    resourceTypesWithAssignedCountGreaterThanBuilderCount: resourceRows.filter(
+      (row) =>
+        row.comparisons.assignedMinusResourceBuilderCount !== null &&
+        row.comparisons.assignedMinusResourceBuilderCount > 0
+    ).length,
+    resourceTypesWithTargetGreaterThanOfficialMinimum: resourceRows.filter(
+      (row) =>
+        row.comparisons.targetMinPerTypeMinusOfficialMinimum !== null &&
+        row.comparisons.targetMinPerTypeMinusOfficialMinimum > 0
+    ).length,
+    rows: resourceRows,
+  };
+}
+
+function readLocalAssignmentSummary(evidence: unknown): {
+  byPreferredResource: ReadonlyArray<{
+    resourceType: number;
+    legalPlotCount: number;
+    plannedCount: number;
+    assignedCount: number;
+    reassignedOutCount: number;
+    reassignedInCount: number;
+    unassignedCount: number;
+  }>;
+} {
+  const record = isRecord(evidence) ? evidence : {};
+  const resourcePlacementOutcomes = isRecord(record.resourcePlacementOutcomes)
+    ? record.resourcePlacementOutcomes
+    : {};
+  const assignment = isRecord(resourcePlacementOutcomes.assignment) ? resourcePlacementOutcomes.assignment : {};
+  const byPreferredResource = Array.isArray(assignment.byPreferredResource)
+    ? assignment.byPreferredResource
+    : [];
+  return {
+    byPreferredResource: byPreferredResource.flatMap((row) => {
+      if (!isRecord(row)) return [];
+      const resourceType = numberValue(row.resourceType);
+      const legalPlotCount = numberValue(row.legalPlotCount);
+      const plannedCount = numberValue(row.plannedCount);
+      const assignedCount = numberValue(row.assignedCount);
+      const reassignedOutCount = numberValue(row.reassignedOutCount);
+      const reassignedInCount = numberValue(row.reassignedInCount);
+      const unassignedCount = numberValue(row.unassignedCount);
+      if (
+        resourceType === undefined ||
+        legalPlotCount === undefined ||
+        plannedCount === undefined ||
+        assignedCount === undefined ||
+        reassignedOutCount === undefined ||
+        reassignedInCount === undefined ||
+        unassignedCount === undefined
+      ) {
+        return [];
+      }
+      return [
+        {
+          resourceType,
+          legalPlotCount,
+          plannedCount,
+          assignedCount,
+          reassignedOutCount,
+          reassignedInCount,
+          unassignedCount,
+        },
+      ];
+    }),
+  };
+}
+
 function summarizeAssignmentClasses(rows: ReadonlyArray<ResourceDeltaFeasibilityContext>) {
   const locallyAssignedRows = rows.filter((row) => row.assignmentTrace !== null);
   const classAndPhaseRows = locallyAssignedRows.map((row) => ({
@@ -638,6 +826,16 @@ function cellsForResourceBuilderDiagnostics(
     }));
 }
 
+function resourceTypesForResourceBuilderDiagnostics(
+  rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
+): ReadonlyArray<number> {
+  return uniqueNumbers(
+    rows
+      .filter((row) => row.assignmentTrace !== null)
+      .map((row) => row.localResource.value)
+  );
+}
+
 function feasibilityValue(
   probe: ResourceDeltaFeasibilityContext["localFeasibleInCiv"]
 ): "true" | "false" | "not-applicable" | "missing" {
@@ -650,8 +848,16 @@ function countBy<T>(items: ReadonlyArray<T>, keyFor: (item: T) => string): Reado
   const counts: Record<string, number> = {};
   for (const item of items) {
     const key = keyFor(item);
-    counts[key] = (counts[key] ?? 0) + 1;
+    incrementCount(counts, key);
   }
+  return sortCountRecord(counts);
+}
+
+function incrementCount(counts: Record<string, number>, key: string): void {
+  counts[key] = (counts[key] ?? 0) + 1;
+}
+
+function sortCountRecord(counts: Readonly<Record<string, number>>): Readonly<Record<string, number>> {
   return Object.fromEntries(Object.entries(counts).sort(([left], [right]) => left.localeCompare(right)));
 }
 

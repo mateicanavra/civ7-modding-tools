@@ -345,8 +345,8 @@ the artifact before row-level feasibility evidence is accepted.
 
 Artifact:
 `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-(`sha256:fe54e81bf3aeb88f8f2831791ef5934ea0c0fcc7eed5313af5a1ea4c4506414d`,
-`proofHash:97fdbff7b48641fa1a18d4cb9c386e1f4e7a18c0f01fb283dded58a9286b3f04`).
+(`sha256:2bca5814bebfc2c8fafba2dac6401dd064d16bf46962f4a42958a913f3ed68d5`,
+`proofHash:37a2b5378689bb2af04b065be012e15598d020d41f51f8b3d1413eb9f6368875`).
 
 Source proof:
 `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`.
@@ -390,9 +390,9 @@ with local legal plot counts between `66` and `554`. ResourceBuilder
 diagnostics are read through
 `getCiv7ResourceBuilderDiagnostics` in the runtime-bound full artifact:
 sha256
-`fe54e81bf3aeb88f8f2831791ef5934ea0c0fcc7eed5313af5a1ea4c4506414d`,
+`2bca5814bebfc2c8fafba2dac6401dd064d16bf46962f4a42958a913f3ed68d5`,
 proofHash
-`97fdbff7b48641fa1a18d4cb9c386e1f4e7a18c0f01fb283dded58a9286b3f04`.
+`37a2b5378689bb2af04b065be012e15598d020d41f51f8b3d1413eb9f6368875`.
 The source assignment-evidence artifact has sha256
 `ff4aec0701cbeeb031737b68d93a0a48e9168313ef983cc30a3df91cff6f08ab`
 and proofHash
@@ -421,6 +421,38 @@ local `scarce-floor` assignment phase. This broadens the owner question from
 the `9` local-overaccepted rows to a general scarce-floor assignment policy
 divergence across most local-authored resource deltas. It remains diagnostic
 context, not repair authority.
+
+Resource distribution context:
+
+The full artifact now reads ResourceBuilder official row/count metadata for all
+`26` local resource types represented by the `69` local-authored resource delta
+rows, while keeping expensive per-cell cut/feasibility diagnostics scoped to the
+`9` focused local-overaccepted rows.
+
+| Finding | Count | Source-authority implication |
+|---|---:|---|
+| Local resource types represented by local-authored deltas | `26` | Distribution context covers the local resource types in the remaining resource-delta evidence, not the full candidate catalog. |
+| Local assigned count equals current ResourceBuilder count | `26` | Broad per-resource count mismatch is not supported by this current post-materialization readback. |
+| Local `targetMinPerType` exceeds official `MinimumPerHemisphere` | `25` | The local floor remains above official minimum for most represented types, but matching current counts prevent treating this alone as repair authority. |
+| Local `targetMinPerType` below official `MinimumPerHemisphere` | `1` | `RESOURCE_SILVER` is an individual count-context exception and not part of the broad `+4` floor pattern. |
+
+Highest delta-row resource types:
+
+| Resource | Delta rows | Class mix | Local assigned / ResourceBuilder count | Target floor / official minimum |
+|---|---:|---|---|---|
+| `RESOURCE_COWRIE` | `7` | `7` local-feasible/live-empty | `7 / 7` | `7 / 3` |
+| `RESOURCE_FISH` | `7` | `4` local-feasible/live-empty; `3` substitution-both-feasible | `7 / 7` | `7 / 3` |
+| `RESOURCE_PEARLS` | `7` | `7` local-feasible/live-empty | `7 / 7` | `7 / 3` |
+| `RESOURCE_TURTLES` | `7` | `7` local-feasible/live-empty | `7 / 7` | `7 / 3` |
+| `RESOURCE_DYES` | `6` | `1` local-feasible/live-empty; `5` substitution-both-feasible | `7 / 7` | `7 / 3` |
+| `RESOURCE_CLAY` | `5` | `3` local-overaccepted/live-empty; `1` substitution-both-feasible; `1` substitution-both-infeasible | `8 / 8` | `7 / 3` |
+
+Disposition: this weakens a broad resource-count/quota mismatch as the source
+owner for the remaining resource deltas. The remaining question is more
+specifically positional cut/order/materialization behavior under the exact
+authored run. The ResourceBuilder counts remain current post-materialization
+readback; no scarce-floor repair, resource tuning, parity closure, Earthlike
+acceptance, or product-proof claim is authorized from this context.
 
 | Coordinate | Plot | Local resource | Planned preferred | Assignment order context | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility | ResourceBuilder policy/cut/count diagnostics | Subclassification |
 |---|---:|---|---|---|---|---|---|---|---|---|---|
@@ -461,9 +493,11 @@ official minimum-per-hemisphere by `4` for each row, but that is still
 diagnostic context rather than repair authority because the ResourceBuilder
 readback is post-materialization.
 The assignment-class summary further shows scarce-floor accounts for `64/69`
-local-authored resource delta rows, so the next owner decision should evaluate
-scarce-floor policy against Civ cut/count materialization behavior before
-making any resource-placement repair.
+local-authored resource delta rows, and the distribution context shows local
+assigned counts match current ResourceBuilder counts for all `26` represented
+local resource types. The next owner decision should therefore evaluate
+positional cut/order/materialization behavior before making any
+resource-placement repair.
 
 ## Required Next Diagnostics
 
