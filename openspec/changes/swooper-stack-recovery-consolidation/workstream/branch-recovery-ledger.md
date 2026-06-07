@@ -30,10 +30,12 @@
 
 | Source | Reason |
 |---|---|
-| old resource trains through `codex/resource-runtime-proof` | Already represented as provenance or owned by separate resource/runtime proof stacks. |
-| old morphology train | Already represented by current morphology behavior and docs. |
+| resource/morphology/authoring predecessor train through `codex/resource-runtime-proof`, `codex/morphology-live-readback-boundary`, and `codex/morphology-peer-review-repairs` | Done through merged aggregate PR `#1402`; shard PRs `#1414`-`#1419` were closed after the aggregate landed. Not parked and not a wholesale replay source. |
+| Studio/run-in-game predecessor range around `codex/live-play-online-context` | Done through merged PRs `#1407`-`#1413`; local Graphite `needs restack` is stale metadata for this accounting pass, not pending product adoption. |
+| systematic workstream skill support slice | Pending separate support adoption if we want `.agents/skills/civ7-systematic-workstream` durable on main; not product recovery. |
 | live-play/control worktrees | Active non-mapgen/control work; leave alone. |
 | foundation architecture packet worktree | Supporting docs/reference unless a specific current delta is needed. |
+| GT stack-inspect/toolkit lane | Active separate tooling stack; excluded from Swooper product cleanup. |
 
 ## Open Evidence Captured During Recovery
 
@@ -81,11 +83,13 @@
   merged, to avoid removing review references before replacement is durable.
 - Current sparse accounting state lives in
   `recovery-accounting-ledger.json` and
-  `recovery-accounting-state.md`. As of `2026-06-07T14:00:05-04:00`, covered
-  source branches are not cleanup-safe because the recovery stack has not
-  landed, and `codex/earthlike-natural-wonder-postwrite-footprint-proof-record`
+  `recovery-accounting-state.md`. As of `2026-06-07T15:03:52-04:00`, sources
+  represented by merged PRs are done and should not be called parked. Sources
+  whose sink is the local recovery stack are still cleanup-blocked until the
+  recovery stack lands. `codex/earthlike-natural-wonder-postwrite-footprint-proof-record`
   remains a planned adoption for the latest Earthlike floodplain config/hash
-  leaf.
+  leaf, and the systematic workstream skill support slice remains a separate
+  planned support adoption outside Swooper product recovery.
 
 ## Cleanup Actions
 
@@ -99,3 +103,24 @@
   published review reference until this replacement stack is submitted or
   merged. That remote should not be merged as-is; it is superseded by this
   recovery stack but remains a non-local fallback/reference.
+- Deleted local Graphite metadata/branches for the resource/morphology
+  predecessor train represented by merged aggregate PR `#1402`:
+  `codex/resource-distribution-planning`,
+  `codex/resource-distribution-root-cause`,
+  `codex/resource-stage-architecture`, `codex/resource-corpus-contract`,
+  `codex/resource-earthlike-expectations`,
+  `codex/resource-earthlike-expectations-artifact`,
+  `codex/resource-aquatic-operation-contract`,
+  `codex/resource-cultivated-operation-contract`,
+  `codex/resource-terrestrial-operation-contract`,
+  `codex/resource-geological-operation-contract`,
+  `codex/resource-group-plan-rollup`,
+  `codex/resource-placement-diversity`,
+  `codex/resource-diversity-stats-gate`, `codex/resource-runtime-proof`,
+  `codex/morphology-live-readback-boundary`, and
+  `codex/morphology-peer-review-repairs`.
+- Deleted local Graphite metadata/branch `codex/live-play-online-context` after
+  confirming the relevant Studio/run-in-game predecessor PR range `#1407`-
+  `#1413` is merged. This exposed `codex/local-catalog-enrichment` as a
+  live-play support branch needing restack; a narrow restack conflicts in
+  live-play docs and is deliberately left to the live-play/control lane.

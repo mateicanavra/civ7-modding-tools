@@ -2,7 +2,7 @@
   "fixtureId": "swooper-recovery-accounting-2026-06-07",
   "fixtureClass": "accounting-ledger",
   "schemaVersion": "gt-stack-inspect.accounting-ledger.v1",
-  "capturedAt": "2026-06-07T14:00:05-04:00",
+  "capturedAt": "2026-06-07T15:03:52-04:00",
   "scope": {
     "recoveryRoot": "codex/swooper-mapgen-recovery-drain",
     "recoveryTop": "codex/swooper-natural-wonder-plan-input-comparison-drain",
@@ -11,7 +11,7 @@
       "live-play/control",
       "GT stack-inspect/toolkit"
     ],
-    "policy": "Sparse reconciliation moves only. Done means source intent is represented in the local recovery stack; cleanup remains blocked until the recovery stack is submitted or merged."
+    "policy": "Sparse reconciliation moves only. Done means source intent is represented by an explicit sink: the local recovery stack, merged mainline PRs, or an explicit terminal exclusion. Already-merged/represented work is not parked. Cleanup remains gated by the sink: source branches adopted only by the local recovery stack cannot be pruned until the recovery stack is submitted or merged."
   },
   "moves": [
     {
@@ -85,40 +85,64 @@
       "note": "Studio setup/config loading, setup seed validation, save/deploy/run-in-game sync, and adjacent Swooper recovery behavior were synthesized into the recovery base."
     },
     {
-      "moveId": "done-supersede-morphology-peer-review-repairs",
+      "moveId": "done-adopt-pr1402-authoring-morphology-resource-train",
       "state": "done",
-      "kind": "supersede",
+      "kind": "adopt",
       "source": {
-        "kind": "branch",
-        "branch": "codex/morphology-peer-review-repairs"
+        "kind": "stack-slice",
+        "id": "resource-morphology-authoring-local-predecessor-train",
+        "root": "codex/resource-distribution-planning",
+        "branches": [
+          "codex/resource-distribution-planning",
+          "codex/resource-distribution-root-cause",
+          "codex/resource-stage-architecture",
+          "codex/resource-corpus-contract",
+          "codex/resource-earthlike-expectations",
+          "codex/resource-earthlike-expectations-artifact",
+          "codex/resource-aquatic-operation-contract",
+          "codex/resource-cultivated-operation-contract",
+          "codex/resource-terrestrial-operation-contract",
+          "codex/resource-geological-operation-contract",
+          "codex/resource-group-plan-rollup",
+          "codex/resource-placement-diversity",
+          "codex/resource-diversity-stats-gate",
+          "codex/resource-runtime-proof",
+          "codex/morphology-live-readback-boundary",
+          "codex/morphology-peer-review-repairs"
+        ]
       },
       "sink": {
-        "kind": "branch",
-        "branch": "codex/swooper-mapgen-recovery-drain"
+        "kind": "pr",
+        "number": 1402
       },
-      "anchors": {
-        "fromHead": "c886b4fa8d6896a0fdc0154c021da338f5b81d7e",
-        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
-        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
-        "capturedAt": "2026-06-07T14:00:05-04:00"
-      },
-      "note": "The old morphology peer-review repair train is treated as represented/superseded by current recovery morphology/Earthlike behavior. Open mountain-quality/product proof remains in the recovery lane; do not replay the old train wholesale."
-    },
-    {
-      "moveId": "done-reference-resource-runtime-proof-train",
-      "state": "done",
-      "kind": "reference",
-      "source": {
-        "kind": "branch",
-        "branch": "codex/resource-runtime-proof"
-      },
-      "terminalState": "parked-reference",
+      "method": "semantic",
       "anchors": {
         "fromHead": "b4dd7160838261077765bc0b6d00d8a331564f8d",
         "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
-        "capturedAt": "2026-06-07T14:00:05-04:00"
+        "capturedAt": "2026-06-07T14:36:32-04:00"
       },
-      "note": "Old resource-runtime stack remains provenance/reference. Current recovery resource work uses the Earthlike proof stack and current verifier rows, not a wholesale replay of this old train."
+      "note": "Resource, morphology, and authoring predecessor branches are represented by merged aggregate PR #1402. Shard PRs #1414-#1419 were closed after the aggregate landed, so this train is done for accounting and must not be replayed wholesale into the Swooper recovery stack."
+    },
+    {
+      "moveId": "done-adopt-live-play-online-context-merged-studio-prs",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/live-play-online-context"
+      },
+      "sink": {
+        "kind": "main",
+        "label": "main via merged Studio/run-in-game PRs #1407-#1413",
+        "commit": "98dca389248d5ddb2777a88105c3ade452b2137c"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "b3013fe5ea00d03fdb7bcc18c7dd5fe537340612",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:36:32-04:00"
+      },
+      "note": "Graphite still shows this as a local root needing restack, but its relevant Studio/run-in-game PR range #1407-#1413 is merged to main. Treat needs-restack here as stale local metadata, not a pending product adoption source."
     },
     {
       "moveId": "done-adopt-studio-exact-authorship-proof",
@@ -161,6 +185,54 @@
         "capturedAt": "2026-06-07T14:00:05-04:00"
       },
       "note": "Final-surface parity proof path and routing records are represented in the Swooper Studio parity proof drain and later current parity record branches."
+    },
+    {
+      "moveId": "done-adopt-studio-live-runtime-snapshot-completion",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/studio-live-runtime-snapshot-completion"
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-studio-parity-proof-drain"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "5fd0a81955d5e8bcbdfe8147e893bb9b79b41d93",
+        "toHead": "eeccd5a9eb52bd30e7545e3324fe359d21ded7a4",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:36:32-04:00"
+      },
+      "note": "Live runtime snapshot completion is represented in the Studio parity proof drain and follow-up current exact-authorship proof branches."
+    },
+    {
+      "moveId": "done-reference-swooper-recovery-planning-context",
+      "state": "done",
+      "kind": "reference",
+      "source": {
+        "kind": "stack-slice",
+        "id": "swooper-recovery-planning-context",
+        "root": "codex/swooper-dra-takeover-handoff",
+        "branches": [
+          "codex/swooper-dra-takeover-handoff",
+          "codex/swooper-recovery-openspec-plan"
+        ]
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/swooper-mapgen-recovery-drain"
+      },
+      "method": "semantic",
+      "terminalState": "retired",
+      "anchors": {
+        "fromHead": "26747873be07c8f3bdb4ce73d4a9b81083b9cc53",
+        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:36:32-04:00"
+      },
+      "note": "The recovery handoff and OpenSpec planning branches were consumed as planning/reference input for the Swooper recovery stack. They are not pending product branches."
     },
     {
       "moveId": "done-adopt-earthlike-feature-resource-proof-stack",
@@ -355,6 +427,33 @@
       "note": "Non-Earthlike config drift was intentionally dropped from the recovery stack."
     },
     {
+      "moveId": "planned-adopt-systematic-workstream-skill-support-slice",
+      "state": "planned",
+      "kind": "adopt",
+      "source": {
+        "kind": "stack-slice",
+        "id": "systematic-workstream-skill-support-slice",
+        "root": "codex/systematic-workstream-skill-framing",
+        "branches": [
+          "codex/systematic-workstream-skill-framing",
+          "codex/systematic-evidence-workstream-skill",
+          "codex/systematic-skill-review-fixes"
+        ]
+      },
+      "sink": {
+        "kind": "main",
+        "label": "main support adoption",
+        "commit": "98dca389248d5ddb2777a88105c3ade452b2137c"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "7b9a16aa4eac8fe319a816bcebc73e574c31f0b6",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:36:32-04:00"
+      },
+      "note": "The repo-local systematic workstream skill is not in main or in the Swooper recovery stack. It is useful support tooling and needs a dedicated support adoption slice; it is not part of the Swooper product recovery drain."
+    },
+    {
       "moveId": "done-reference-foundation-architecture-packet",
       "state": "done",
       "kind": "reference",
@@ -362,12 +461,68 @@
         "kind": "branch",
         "branch": "codex/foundation-architecture-packet"
       },
-      "terminalState": "parked-reference",
+      "terminalState": "retired",
       "anchors": {
         "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
-        "capturedAt": "2026-06-07T14:00:05-04:00"
+        "capturedAt": "2026-06-07T14:36:32-04:00"
       },
       "note": "Foundation architecture packet remains reference/support material, not a source branch replayed into the Swooper recovery stack."
+    },
+    {
+      "moveId": "done-exclude-civ7-intelligence-and-control-doc-train",
+      "state": "done",
+      "kind": "exclude",
+      "source": {
+        "kind": "stack-slice",
+        "id": "civ7-intelligence-and-control-doc-train",
+        "root": "codex/frame-civ7-intelligence-layer",
+        "branches": [
+          "codex/frame-civ7-intelligence-layer",
+          "codex/shape-civ7-intelligence-solution",
+          "codex/investigate-civ7-intelligence-threads",
+          "codex/consolidate-play-agent-docs",
+          "codex/play-agent-output-contract",
+          "codex/unit-movement-api-investigation",
+          "codex/live-play-settlement-reference"
+        ]
+      },
+      "anchors": {
+        "fromHead": "754f90431964fe6439090a0ed03c9546d9e96bc1",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:36:32-04:00"
+      },
+      "note": "Control/intelligence documentation and live-play setup branches are outside the Swooper mapgen recovery accounting. They are not source work to adopt into the recovery stack."
+    },
+    {
+      "moveId": "done-exclude-gt-stack-inspect-toolkit-lane",
+      "state": "done",
+      "kind": "exclude",
+      "source": {
+        "kind": "stack-slice",
+        "id": "gt-stack-inspect-toolkit-lane",
+        "root": "codex/stack-lineage-audit-reference",
+        "branches": [
+          "codex/stack-lineage-audit-reference",
+          "codex/stack-visualizer-ui-integration",
+          "codex/gt-stack-inspect-spec-alignment",
+          "codex/gt-stack-inspect-visual-contract",
+          "codex/gt-stack-inspect-effect-service-core",
+          "codex/gt-stack-inspect-inspection-adapters",
+          "codex/gt-stack-inspect-effect-orpc-router",
+          "codex/gt-stack-inspect-live-event-stream",
+          "codex/gt-stack-inspect-react-rpc-vite-shell",
+          "codex/gt-stack-inspect-react-rpc-client-state",
+          "codex/gt-stack-inspect-react-topology-ui",
+          "codex/gt-stack-inspect-cross-repo-runner",
+          "codex/gt-stack-inspect-react-parity-workstreams"
+        ]
+      },
+      "anchors": {
+        "fromHead": "76f02ff13a56c24af05fa38b5d4d37238d8f66f1",
+        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+        "capturedAt": "2026-06-07T14:36:32-04:00"
+      },
+      "note": "The GT stack-inspect/toolkit stack is an active separate tooling lane owned outside the Swooper product recovery drain. It is excluded from product recovery cleanup decisions."
     }
   ],
   "workSurfaceRows": [
@@ -378,6 +533,14 @@
       "sourceRef": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
       "moveId": "planned-adopt-earthlike-floodplain-config-leaf",
       "blocker": "Recovery stack lacks latest Earthlike floodplainPlanning config/hash leaf."
+    },
+    {
+      "rowId": "planned-adopt-systematic-workstream-skill-support-slice",
+      "kind": "planned-move",
+      "target": "codex/systematic-skill-review-fixes",
+      "sourceRef": "systematic-workstream-skill-support-slice",
+      "moveId": "planned-adopt-systematic-workstream-skill-support-slice",
+      "blocker": "Systematic workstream skill is useful support tooling but is not in main; adopt separately from the Swooper product drain."
     },
     {
       "rowId": "cleanup-blocked-until-recovery-lands",

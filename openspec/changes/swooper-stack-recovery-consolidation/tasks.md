@@ -29,3 +29,16 @@
 - [x] 4.3 Stage and commit through Graphite.
 - [x] 4.4 Confirm Studio is still running from the current worktree after
   commit.
+
+## 5. Accounting Reconciliation Refresh
+
+- [x] 5.1 Refresh current Graphite/worktree facts for the recovery, Earthlike
+  source, toolkit, and live-control lanes.
+- [x] 5.2 Reclassify merged/represented work as `done`, not parked.
+- [x] 5.3 Add explicit planned accounting for the remaining Earthlike
+  floodplain config leaf.
+- [x] 5.4 Add explicit planned support accounting for the systematic
+  workstream skill slice.
+- [x] 5.5 Exclude live-control and GT stack-inspect lanes from Swooper product
+  recovery accounting.
+- [x] 5.6 Validate the ledger against the GT stack-inspect accounting schema.
