@@ -29,6 +29,11 @@ Failed to load file into script system - fs://game/swooper-maps/maps/studio-curr
 This is a deploy/load boundary failure, not a map-generation algorithm proof by
 itself. The durable fix is to keep deploys dependency-aware and stop Studio from
 letting Save/Deploy and Run in Game race each other.
+If Civ drops back to shell during `starting-game`, Studio also checks the fresh
+Scripting log window before recording a generic start timeout. A detected
+`studio-current.js` load failure is surfaced as `map-script-load-failed` with
+notification-dismiss recovery, even if the game never reaches the later
+mapgen-proof wait.
 
 ## Save/Deploy
 
@@ -43,6 +48,10 @@ If Run in Game blocks because Civ setup cannot see a disposable row after an
 exit-to-shell refresh, Studio records `reloadBoundary:
 process-restart-required`. The primary action becomes `Restart Civ & Run`, which
 reissues a fresh Run in Game request with explicit process-restart recovery.
+If Civ emits a fatal generated-script load notification during start, Studio
+records `recoveryBoundary: civ-notification-dismiss`; this is a different
+recovery surface from process restart and should not be collapsed into row
+visibility.
 
 ## Vite/Turbo
 

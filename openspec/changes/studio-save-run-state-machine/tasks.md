@@ -22,6 +22,8 @@
   Game instead of relying only on disabled buttons.
 - [x] 2.10 Base durable Run in Game materialization on saved/deployed config
   provenance rather than browser-preview dirtiness alone.
+- [x] 2.11 Classify fresh map-script load failures during Run in Game
+  `starting-game` instead of reducing them to generic setup start timeouts.
 
 ## 3. Verification
 
@@ -33,6 +35,8 @@
   store behavior.
 - [x] 3.6 Restart Studio dev server and collect browser proof.
 - [x] 3.7 Probe the live save-route lifecycle rejection and status endpoint.
+- [x] 3.8 Add focused operation-state regression for start-phase map-script
+  load failures.
 
 ## 4. Closure
 
