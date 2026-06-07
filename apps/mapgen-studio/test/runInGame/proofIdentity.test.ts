@@ -1,0 +1,336 @@
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+import type {
+  RunInGameExactAuthorshipProof,
+  RunInGameFileIdentity,
+  RunInGameMaterializationStatus,
+  RunInGameRequestStatus,
+  RunInGameSourceSnapshotProof,
+} from "../../src/features/runInGame/status";
+import {
+  buildRunInGameExactAuthorshipProof,
+  buildRunInGameSourceSnapshotProof,
+  fileIdentity,
+  parseDeployTargetDir,
+  parseSwooperMapgenLogProof,
+} from "../../src/server/runInGame/proofIdentity";
+
+const requestId = "studio-run-in-game-test";
+const configHash = "config-hash";
+const envelopeHash = "envelope-hash";
+const mapScript = "{swooper-maps}/maps/studio-current.js";
+
+describe("Run in Game exact authorship proof identity", () => {
+  it("hashes file content and parses the deployed target directory", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "studio-proof-"));
+    try {
+      const path = join(dir, "studio-current.js");
+      await writeFile(path, "export const marker = 1;\n", "utf8");
+
+      const identity = await fileIdentity({ repoRoot: dir, path });
+
+      expect(identity.path).toBe("studio-current.js");
+      expect(identity.sha256).toHaveLength(64);
+      expect(identity.sizeBytes).toBeGreaterThan(0);
+      expect(parseDeployTargetDir("ok\nDeployed to: /tmp/Civ Mods/Swooper Maps\n")).toBe("/tmp/Civ Mods/Swooper Maps");
+      expect(parseDeployTargetDir("ok\n")).toBeNull();
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("builds stable source snapshot identity from Studio-authored visible state", () => {
+    const first = buildRunInGameSourceSnapshotProof({
+      requestId,
+      sourceSnapshot: {
+        recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
+        worldSettings: { resources: "balanced" },
+        pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
+      },
+      configHash,
+      envelopeHash,
+    });
+    const second = buildRunInGameSourceSnapshotProof({
+      requestId,
+      sourceSnapshot: {
+        worldSettings: { resources: "balanced" },
+        pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
+        recipeSettings: { mapSize: "MAPSIZE_STANDARD", seed: 42 },
+      },
+      configHash,
+      envelopeHash,
+    });
+
+    expect(first?.identityHash).toBe(second?.identityHash);
+    expect(first).toMatchObject({
+      requestId,
+      configHash,
+      envelopeHash,
+      recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
+      pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
+    });
+    expect(buildRunInGameSourceSnapshotProof({
+      requestId,
+      sourceSnapshot: {
+        recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
+        worldSettings: { resources: "balanced" },
+        pipelineConfig: { continents: { knobs: { landmassRatio: 0.5 } } },
+      },
+      configHash,
+      envelopeHash,
+    })?.identityHash).not.toBe(first?.identityHash);
+    expect(buildRunInGameSourceSnapshotProof({ requestId, sourceSnapshot: undefined, configHash, envelopeHash })).toBeUndefined();
+  });
+
+  it("parses bounded Swooper proof and completion log payloads for the same request chain", () => {
+    const logProof = parseSwooperMapgenLogProof({
+      text: [
+        `[mapgen-proof] ${JSON.stringify({ requestId: "old", configHash, envelopeHash, seed: 42, dimensions: { width: 1, height: 1 } })}`,
+        `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, mapSize: "MAPSIZE_STANDARD", dimensions: { width: 84, height: 54 } })}`,
+        `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+      ].join("\n"),
+      logPath: "/tmp/Scripting.log",
+      observedAt: "2026-06-06T00:00:00.000Z",
+      requestId,
+      configHash,
+      envelopeHash,
+      seed: 42,
+    });
+
+    expect(logProof).toMatchObject({
+      requestId,
+      configHash,
+      envelopeHash,
+      seed: 42,
+      mapSize: "MAPSIZE_STANDARD",
+      dimensions: { width: 84, height: 54 },
+      matched: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
+    });
+    expect(parseSwooperMapgenLogProof({
+      text: `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 41, dimensions: { width: 84, height: 54 } })}`,
+      requestId,
+      configHash,
+      envelopeHash,
+      seed: 42,
+    })).toBeUndefined();
+    expect(parseSwooperMapgenLogProof({
+      text: [
+        `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+        `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 55 } })}`,
+      ].join("\n"),
+      requestId,
+      configHash,
+      envelopeHash,
+      seed: 42,
+    })).toBeUndefined();
+  });
+
+  it("marks exact authorship complete only when every required identity and equality link resolves", () => {
+    const proof = buildRunInGameExactAuthorshipProof(completeProofArgs());
+
+    expect(proof.status).toBe("complete");
+    expect(proof.unresolvedLinks).toEqual([]);
+    expect(proof.runtime).toMatchObject({
+      seed: 42,
+      width: 84,
+      height: 54,
+      gameHash: 123456,
+      sourceSnapshotId: "live-runtime:abc",
+    });
+  });
+
+  it("keeps exact authorship unresolved when source snapshot body is not auditable", () => {
+    const proof = buildRunInGameExactAuthorshipProof({
+      ...completeProofArgs(),
+      sourceSnapshot: {
+        identityHash: "source-snapshot-hash",
+        requestId,
+        configHash,
+        envelopeHash,
+      },
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.unresolvedLinks).toEqual(expect.arrayContaining([
+      "source-snapshot.recipe-settings",
+      "source-snapshot.world-settings",
+      "source-snapshot.pipeline-config",
+      "source-snapshot.setup-config",
+      "source-snapshot.materialization-mode",
+      "source-snapshot.selected-config",
+    ]));
+  });
+
+  it("keeps exact authorship unresolved when setup, runtime, log, or deployed content differs", () => {
+    const args = completeProofArgs();
+    const proof = buildRunInGameExactAuthorshipProof({
+      ...args,
+      setupSnapshot: setupSnapshot({ mapSeed: 43 }),
+      startMapSummary: mapSummary({ seed: 43 }),
+      logProof: {
+        ...args.logProof!,
+        seed: 43,
+        dimensions: { width: 84, height: 55 },
+      },
+      deployedModScript: fileProof("deployed.js", "different-deployed-hash"),
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.unresolvedLinks).toEqual(expect.arrayContaining([
+      "civ-setup.map-seed-mismatch",
+      "runtime.seed-mismatch",
+      "swooper-log.seed-mismatch",
+      "runtime.log-height-mismatch",
+      "materialization.deployed-mod-script-hash-mismatch",
+    ]));
+  });
+
+  it("uses setup config player count as exact-authorship readback", () => {
+    const proof = buildRunInGameExactAuthorshipProof({
+      ...completeProofArgs(),
+      setupSnapshot: setupSnapshot({ includePlayerCountParameter: false }),
+    });
+
+    expect(proof.status).toBe("complete");
+    expect(proof.civSetup.playerCount).toBe(8);
+    expect(proof.unresolvedLinks).not.toContain("civ-setup.player-count-readback");
+  });
+});
+
+function completeProofArgs(): Parameters<typeof buildRunInGameExactAuthorshipProof>[0] {
+  const request: RunInGameRequestStatus = {
+    recipeId: "mod-swooper-maps/standard",
+    seed: 42,
+    mapSize: "MAPSIZE_STANDARD",
+    playerCount: 8,
+    resources: "balanced",
+    selectedConfigId: "studio-current",
+    setupConfigSource: "request",
+    fingerprint: "request-fingerprint",
+  };
+  const sourceSnapshot: RunInGameSourceSnapshotProof = {
+    identityHash: "source-snapshot-hash",
+    requestId,
+    recipeSettings: {
+      seed: 42,
+      mapSize: "MAPSIZE_STANDARD",
+      playerCount: 8,
+    },
+    worldSettings: {
+      resources: "balanced",
+    },
+    pipelineConfig: {
+      continents: {
+        knobs: {
+          landmassRatio: 0.42,
+        },
+      },
+    },
+    setupConfig: {
+      gameOptions: {
+        StartAge: "AGE_ANTIQUITY",
+      },
+    },
+    materializationMode: "disposable",
+    selectedConfig: {
+      id: "studio-current",
+      label: "Studio Current",
+    },
+    configHash,
+    envelopeHash,
+  };
+  const materialization: RunInGameMaterializationStatus = {
+    mode: "disposable",
+    path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+    mapScript,
+    configHash,
+    envelopeHash,
+  };
+  const localModScript = fileProof("mod/maps/studio-current.js", "same-deployed-js-hash");
+  return {
+    requestId,
+    request,
+    sourceSnapshot,
+    materialization,
+    sourceConfig: fileProof("configs/studio-current.config.json", "source-config-hash"),
+    generatedSourceScript: fileProof("generated/studio-current.ts", "generated-source-hash"),
+    localModScript,
+    deployedModScript: fileProof("/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js", localModScript.sha256),
+    rowProof: { rows: [{ file: mapScript }] },
+    setupSnapshot: setupSnapshot(),
+    startMapSummary: mapSummary(),
+    logProof: logProof(),
+    liveRuntimeSnapshot: {
+      snapshotId: "live-runtime:abc",
+      snapshotHash: "live-runtime-hash",
+      turn: 1,
+      gameHash: 123456,
+    },
+    createdAt: "2026-06-06T00:00:00.000Z",
+  };
+}
+
+function fileProof(path: string, sha256: string): RunInGameFileIdentity {
+  return {
+    path,
+    sha256,
+    sizeBytes: 100,
+    mtimeMs: 1_780_704_000_000,
+    mtimeIso: "2026-06-06T00:00:00.000Z",
+  };
+}
+
+function setupSnapshot(overrides: { mapSeed?: number; includePlayerCountParameter?: boolean } = {}): unknown {
+  const parameters = [
+    { id: "Map", exists: true, value: mapScript },
+    { id: "MapSize", exists: true, value: "MAPSIZE_STANDARD" },
+    { id: "MapRandomSeed", exists: true, value: overrides.mapSeed ?? 42 },
+    { id: "GameRandomSeed", exists: true, value: 42 },
+  ];
+  if (overrides.includePlayerCountParameter !== false) {
+    parameters.push({ id: "PlayerCount", exists: true, value: 8 });
+  }
+  return {
+    setup: {
+      parameters,
+    },
+    config: {
+      playerCount: { ok: true, value: 8 },
+    },
+  };
+}
+
+function mapSummary(overrides: { seed?: number } = {}): unknown {
+  return {
+    map: {
+      randomSeed: { ok: true, value: overrides.seed ?? 42 },
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+    },
+    game: {
+      turn: { ok: true, value: 1 },
+      hash: { ok: true, value: 123456 },
+    },
+  };
+}
+
+function logProof(): NonNullable<RunInGameExactAuthorshipProof["log"]> {
+  return {
+    logPath: "/tmp/Scripting.log",
+    observedAt: "2026-06-06T00:00:00.000Z",
+    requestId,
+    configHash,
+    envelopeHash,
+    seed: 42,
+    mapSize: "MAPSIZE_STANDARD",
+    dimensions: { width: 84, height: 54 },
+    proofPayload: { requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } },
+    completionPayload: { requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } },
+    matched: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
+  };
+}

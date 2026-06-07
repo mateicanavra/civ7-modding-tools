@@ -64,11 +64,11 @@ The current stage order is:
 8. `hydrology-climate-refine`
 9. `ecology-pedology`
 10. `ecology-biomes`
-11. `ecology-features`
-12. `map-morphology`
-13. `map-hydrology`
-14. `map-elevation`
-15. `map-rivers`
+11. `map-morphology`
+12. `map-hydrology`
+13. `map-elevation`
+14. `map-rivers`
+15. `ecology-features`
 16. `map-ecology`
 17. `placement`
 

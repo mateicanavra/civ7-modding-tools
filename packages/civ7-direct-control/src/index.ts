@@ -453,6 +453,42 @@ export type Civ7MapGridResult = Readonly<{
   plots: ReadonlyArray<Civ7PlotSnapshot>;
 }>;
 
+export type Civ7MapGridReadChunk = Readonly<{
+  bounds: Civ7MapBounds;
+  plotCount: number;
+  omitted: number;
+}>;
+
+export type Civ7FullMapGridIdentityCheck = Readonly<{
+  stable: boolean;
+  checked: ReadonlyArray<string>;
+}>;
+
+export type Civ7FullMapGridInput = Readonly<{
+  bounds?: Civ7MapBounds;
+  fields: ReadonlyArray<Civ7PlotSnapshotField>;
+  playerId?: number;
+  includeHidden?: boolean;
+  maxPlotsPerRead?: number;
+}>;
+
+export type Civ7FullMapGridResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  bounds: Civ7MapBounds;
+  fields: ReadonlyArray<Civ7PlotSnapshotField>;
+  plotCount: number;
+  omitted: number;
+  hiddenInfoPolicy: Civ7HiddenInfoPolicy;
+  map: Readonly<{ width: number; height: number }>;
+  summary: Civ7MapSummaryResult;
+  postReadSummary: Civ7MapSummaryResult;
+  identityCheck: Civ7FullMapGridIdentityCheck;
+  chunks: ReadonlyArray<Civ7MapGridReadChunk>;
+  plots: ReadonlyArray<Civ7PlotSnapshot>;
+}>;
+
 export type Civ7PlayerSummaryInput = Readonly<{
   playerIds?: ReadonlyArray<number>;
   includeUnits?: boolean;
@@ -633,6 +669,7 @@ export type Civ7SetupSnapshot = Readonly<{
     mapSize: Civ7RuntimeProbe<string>;
     mapSeed: Civ7RuntimeProbe<number>;
     gameSeed: Civ7RuntimeProbe<number>;
+    playerCount: Civ7RuntimeProbe<number>;
   }>;
 }>;
 
@@ -1615,6 +1652,84 @@ export async function getCiv7MapGrid(
     }),
   });
   return jsonPayloadFromCommandResult<Civ7MapGridResult>(result, "Civ7 map grid");
+}
+
+export async function getCiv7FullMapGrid(
+  input: Civ7FullMapGridInput,
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7FullMapGridResult> {
+  const summary = await getCiv7MapSummary({
+    ...options,
+    includeAreaRegionCounts: false,
+  });
+  const mapWidth = requiredProbeNumber(summary.map.width, "GameplayMap.getGridWidth");
+  const mapHeight = requiredProbeNumber(summary.map.height, "GameplayMap.getGridHeight");
+  const bounds = input.bounds ?? { x: 0, y: 0, width: mapWidth, height: mapHeight };
+  validateMapBounds(bounds, "bounds");
+  const maxPlotsPerRead = boundedInteger(
+    input.maxPlotsPerRead ?? HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    1,
+    HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    "maxPlotsPerRead",
+  );
+  const readBounds = planCiv7MapGridReadBounds(bounds, maxPlotsPerRead);
+  const fields = normalizePlotFields(input.fields);
+  const plots: Civ7PlotSnapshot[] = [];
+  const chunks: Civ7MapGridReadChunk[] = [];
+  let omitted = 0;
+  let hiddenInfoPolicy: Civ7HiddenInfoPolicy = input.playerId === undefined
+    ? "not-player-scoped"
+    : input.includeHidden === true
+      ? "include-hidden"
+      : "visibility-filtered";
+  let lastGrid: Civ7MapGridResult | undefined;
+
+  for (const chunkBounds of readBounds) {
+    const grid = await getCiv7MapGrid({
+      bounds: chunkBounds,
+      fields,
+      ...(input.playerId === undefined ? {} : { playerId: input.playerId }),
+      ...(input.includeHidden === undefined ? {} : { includeHidden: input.includeHidden }),
+      maxPlots: maxPlotsPerRead,
+    }, options);
+    lastGrid = grid;
+    hiddenInfoPolicy = grid.hiddenInfoPolicy;
+    omitted += grid.omitted;
+    chunks.push({
+      bounds: chunkBounds,
+      plotCount: grid.plotCount,
+      omitted: grid.omitted,
+    });
+    plots.push(...grid.plots);
+  }
+
+  plots.sort((a, b) => {
+    const ai = probeNumberOr(a.location.index, Number.MAX_SAFE_INTEGER);
+    const bi = probeNumberOr(b.location.index, Number.MAX_SAFE_INTEGER);
+    return ai - bi;
+  });
+  const postReadSummary = await getCiv7MapSummary({
+    ...options,
+    includeAreaRegionCounts: false,
+  });
+  const identityCheck = assertFullMapGridSummaryIdentityStable(summary, postReadSummary);
+
+  return {
+    host: lastGrid?.host ?? summary.host,
+    port: lastGrid?.port ?? summary.port,
+    state: lastGrid?.state ?? summary.state,
+    bounds,
+    fields,
+    plotCount: bounds.width * bounds.height,
+    omitted,
+    hiddenInfoPolicy,
+    map: { width: mapWidth, height: mapHeight },
+    summary,
+    postReadSummary,
+    identityCheck,
+    chunks,
+    plots,
+  };
 }
 
 export async function getCiv7PlayerSummary(
@@ -3404,6 +3519,7 @@ function setupSnapshotScriptSource(): string {
           mapSize: probe(() => Configuration.getMap().mapSize),
           mapSeed: probe(() => Configuration.getMap().mapSeed),
           gameSeed: probe(() => Configuration.getGame().gameSeed),
+          playerCount: probe(() => Configuration.getMap().maxMajorPlayers),
         },
       };
     };`;
@@ -3796,7 +3912,7 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     owner: "@civ7/direct-control",
     risk: "read",
     provenance: ["GameplayMap", "Visibility", "MapUnits", "MapCities"],
-    wrapper: "getCiv7PlotSnapshot|getCiv7MapGrid",
+    wrapper: "getCiv7PlotSnapshot|getCiv7MapGrid|getCiv7FullMapGrid",
     confidence: "recorded-live-proof",
   },
   {
@@ -3871,10 +3987,31 @@ function validateMapGridInput(input: Civ7MapGridInput, maxPlots: number): void {
   for (const location of locations.slice(0, maxPlots)) validateMapLocation(location);
 }
 
-function validateMapBounds(bounds: Civ7MapBounds): void {
+export function planCiv7MapGridReadBounds(
+  bounds: Civ7MapBounds,
+  maxPlotsPerRead = HARD_CIV7_MAP_GRID_MAX_PLOTS,
+): Civ7MapBounds[] {
+  validateMapBounds(bounds, "bounds");
+  const maxPlots = boundedInteger(maxPlotsPerRead, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "maxPlotsPerRead");
+  const chunks: Civ7MapBounds[] = [];
+  const chunkWidth = Math.min(bounds.width, maxPlots);
+  const chunkHeight = Math.max(1, Math.floor(maxPlots / chunkWidth));
+
+  for (let y = bounds.y; y < bounds.y + bounds.height; y += chunkHeight) {
+    const height = Math.min(chunkHeight, bounds.y + bounds.height - y);
+    for (let x = bounds.x; x < bounds.x + bounds.width; x += chunkWidth) {
+      const width = Math.min(chunkWidth, bounds.x + bounds.width - x);
+      chunks.push({ x, y, width, height });
+    }
+  }
+
+  return chunks;
+}
+
+function validateMapBounds(bounds: Civ7MapBounds, dimensionLabel = "bounds"): void {
   validateMapLocation(bounds);
-  boundedInteger(bounds.width, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "bounds.width");
-  boundedInteger(bounds.height, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "bounds.height");
+  boundedInteger(bounds.width, 1, 1_000_000, `${dimensionLabel}.width`);
+  boundedInteger(bounds.height, 1, 1_000_000, `${dimensionLabel}.height`);
 }
 
 function validateMapLocation(location: Civ7MapLocation): void {
@@ -3891,6 +4028,47 @@ function boundedInteger(value: number, min: number, max: number, label: string):
     throw new Civ7DirectControlError("command-failed", `${label} must be an integer between ${min} and ${max}`);
   }
   return value;
+}
+
+function requiredProbeNumber(probe: Civ7RuntimeProbe<number>, label: string): number {
+  if (!probe.ok || !Number.isFinite(probe.value)) {
+    throw new Civ7DirectControlError("command-failed", `${label} did not return a bounded number`);
+  }
+  return probe.value;
+}
+
+function assertFullMapGridSummaryIdentityStable(
+  before: Civ7MapSummaryResult,
+  after: Civ7MapSummaryResult,
+): Civ7FullMapGridIdentityCheck {
+  const fields: ReadonlyArray<Readonly<{ label: string; before: Civ7RuntimeProbe<unknown>; after: Civ7RuntimeProbe<unknown> }>> = [
+    { label: "map.width", before: before.map.width, after: after.map.width },
+    { label: "map.height", before: before.map.height, after: after.map.height },
+    { label: "map.plotCount", before: before.map.plotCount, after: after.map.plotCount },
+    { label: "map.randomSeed", before: before.map.randomSeed, after: after.map.randomSeed },
+    { label: "game.turn", before: before.game.turn, after: after.game.turn },
+    { label: "game.hash", before: before.game.hash, after: after.game.hash },
+  ];
+  const checked: string[] = [];
+  for (const field of fields) {
+    if (!field.before.ok || !field.after.ok) {
+      throw new Civ7DirectControlError("command-failed", `Civ7 full-grid identity could not verify ${field.label}`);
+    }
+    checked.push(field.label);
+    if (field.before.value !== field.after.value) {
+      throw new Civ7DirectControlError(
+        "command-failed",
+        `Civ7 full-grid identity changed during read: ${field.label} ${String(field.before.value)} -> ${String(field.after.value)}`,
+      );
+    }
+  }
+  return { stable: true, checked };
+}
+
+function probeNumberOr(probe: Civ7RuntimeProbe<unknown>, fallback: number): number {
+  if (!probe.ok) return fallback;
+  const value = Number(probe.value);
+  return Number.isFinite(value) ? value : fallback;
 }
 
 function validateIdentifier(value: string, label: string): string {

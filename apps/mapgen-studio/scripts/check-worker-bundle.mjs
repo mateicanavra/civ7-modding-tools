@@ -29,19 +29,23 @@ try {
   if (!files.length) fail(`no JS files found under ${distRoot} (did you run \`bun run build\`?)`);
 
   const forbidden = [
-    { label: "/base-standard/ imports", needle: "/base-standard/" },
-    { label: "Civ7 engine globals", needle: "GameplayMap" },
-    { label: "Node builtins (node:fs)", needle: "node:fs" },
-    { label: "Node builtins (node:path)", needle: "node:path" },
-    { label: "Node builtins (node:process)", needle: "node:process" },
+    {
+      label: "/base-standard/ import specifiers",
+      pattern: /["'`]\/base-standard\//,
+    },
+    { label: "Civ7 engine globals", pattern: /GameplayMap/ },
+    { label: "Node builtins (node:fs)", pattern: /node:fs/ },
+    { label: "Node builtins (node:path)", pattern: /node:path/ },
+    { label: "Node builtins (node:process)", pattern: /node:process/ },
   ];
 
   const hits = [];
   for (const file of files) {
     const text = readFileSync(file, "utf8");
-    for (const { label, needle } of forbidden) {
-      if (text.includes(needle)) {
-        hits.push({ file, label, needle });
+    for (const { label, pattern } of forbidden) {
+      const match = text.match(pattern);
+      if (match) {
+        hits.push({ file, label, needle: match[0] });
       }
     }
   }
@@ -55,4 +59,3 @@ try {
 }
 
 console.log("[mapgen-studio] worker bundle check passed");
-

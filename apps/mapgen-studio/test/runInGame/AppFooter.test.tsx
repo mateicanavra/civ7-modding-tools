@@ -254,7 +254,7 @@ describe("AppFooter Run in Game status", () => {
       />
     );
 
-    expect(html).toContain("Sync Studio seed and config from the live game");
+    expect(html).toContain("Apply live game suggestion to Studio");
     expect(html).toContain("border-orange-400");
     expect(html).toContain("Seed 123");
   });

@@ -20,6 +20,7 @@ import {
   executeCiv7TunerCommand,
   ensureCiv7SetupMapRowVisible,
   getCiv7GameInfoRows,
+  getCiv7FullMapGrid,
   getCiv7MapGrid,
   getCiv7MapSummary,
   getCiv7PlotSnapshot,
@@ -33,6 +34,7 @@ import {
   loadCiv7SavedGameConfiguration,
   prepareCiv7SinglePlayerSetup,
   parseCiv7TunerFrame,
+  planCiv7MapGridReadBounds,
   queryCiv7TunerStates,
   requestCiv7UnitOperation,
   revealCiv7MapForPlayer,
@@ -369,6 +371,70 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("plans full-grid map reads without exceeding the per-read cap", () => {
+    const chunks = planCiv7MapGridReadBounds({ x: 0, y: 0, width: 106, height: 66 }, 512);
+
+    expect(chunks.length).toBe(17);
+    expect(chunks[0]).toEqual({ x: 0, y: 0, width: 106, height: 4 });
+    expect(chunks.at(-1)).toEqual({ x: 0, y: 64, width: 106, height: 2 });
+    expect(chunks.reduce((sum, chunk) => sum + chunk.width * chunk.height, 0)).toBe(6996);
+    expect(chunks.every((chunk) => chunk.width * chunk.height <= 512)).toBe(true);
+  });
+
+  test("wraps full-grid map reads through bounded chunks", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const grid = await getCiv7FullMapGrid(
+        {
+          bounds: { x: 0, y: 0, width: 6, height: 4 },
+          fields: ["terrain"],
+          maxPlotsPerRead: 10,
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+
+      expect(grid.bounds).toEqual({ x: 0, y: 0, width: 6, height: 4 });
+      expect(grid.plotCount).toBe(24);
+      expect(grid.omitted).toBe(0);
+      expect(grid.identityCheck).toEqual({
+        stable: true,
+        checked: ["map.width", "map.height", "map.plotCount", "map.randomSeed", "game.turn", "game.hash"],
+      });
+      expect(grid.chunks).toEqual([
+        { bounds: { x: 0, y: 0, width: 6, height: 1 }, plotCount: 6, omitted: 0 },
+        { bounds: { x: 0, y: 1, width: 6, height: 1 }, plotCount: 6, omitted: 0 },
+        { bounds: { x: 0, y: 2, width: 6, height: 1 }, plotCount: 6, omitted: 0 },
+        { bounds: { x: 0, y: 3, width: 6, height: 1 }, plotCount: 6, omitted: 0 },
+      ]);
+      expect(grid.plots).toHaveLength(24);
+      expect(server.received.filter((message) => message.includes("locationsFromBounds")).length).toBe(4);
+      expect(server.received.filter((message) => message.includes("MapRegions") && message.includes("randomSeed")).length).toBe(2);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("rejects full-grid map reads when live identity changes between chunks", async () => {
+    const server = await startTunerServer({ mapSummaryHashes: [0, 1] });
+    try {
+      const { port } = server.address();
+      await expect(getCiv7FullMapGrid(
+        {
+          bounds: { x: 0, y: 0, width: 6, height: 4 },
+          fields: ["terrain"],
+          maxPlotsPerRead: 10,
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      )).rejects.toMatchObject({
+        code: "command-failed",
+        message: expect.stringContaining("Civ7 full-grid identity changed during read: game.hash 0 -> 1"),
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
   test("wraps visibility, reveal, and GameInfo reads with contracts", async () => {
     const server = await startTunerServer();
     try {
@@ -422,6 +488,7 @@ describe("Civ7 direct control", () => {
       expect(snapshot.snapshot.selectedMapRow?.file).toBe("{swooper-maps}/maps/swooper-earthlike.js");
       expect(snapshot.snapshot.setup.parameters.find((p) => p.id === "MapRandomSeed")?.value).toBe(111);
       expect(snapshot.snapshot.setup.playerParameters[0]?.parameters.find((p) => p.id === "PlayerLeader")?.value).toBe("LEADER_HARRIET_TUBMAN");
+      expect(snapshot.snapshot.config.playerCount).toEqual({ ok: true, value: 8 });
       expect(rows.rows).toEqual([
         expect.objectContaining({
           source: "setup-domain",
@@ -939,6 +1006,33 @@ describe("Civ7 direct control", () => {
   });
 });
 
+function extractMapGridInput(message: string):
+  | {
+      bounds?: { x: number; y: number; width: number; height: number };
+      fields?: string[];
+      maxPlots?: number;
+    }
+  | undefined {
+  const marker = "const input = ";
+  const start = message.indexOf(marker);
+  if (start < 0) return undefined;
+  const afterMarker = message.slice(start + marker.length);
+  const endMarker = ";\n    const width";
+  const end = afterMarker.indexOf(endMarker);
+  if (end < 0) return undefined;
+  try {
+    const parsed = JSON.parse(afterMarker.slice(0, end)) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return undefined;
+    return parsed as {
+      bounds?: { x: number; y: number; width: number; height: number };
+      fields?: string[];
+      maxPlots?: number;
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 async function startTunerServer(options: {
   restartOutput?: string;
   initialInShell?: boolean;
@@ -947,15 +1041,17 @@ async function startTunerServer(options: {
   savedConfigLoadOk?: boolean;
   postStartSeedOverride?: number;
   hiddenMapScript?: string;
-  revealHiddenMapRowOnShellExit?: boolean;
-  appUiOnlyStates?: boolean;
-  appUiSnapshotWithoutGameplayGlobals?: boolean;
-  tunerReady?: boolean;
-} = {}) {
-  const received: string[] = [];
-  let loadingState = 6;
-  let inShell = options.initialInShell ?? true;
-  let revealedCount = 10;
+	  revealHiddenMapRowOnShellExit?: boolean;
+	  appUiOnlyStates?: boolean;
+	  appUiSnapshotWithoutGameplayGlobals?: boolean;
+	  tunerReady?: boolean;
+	  mapSummaryHashes?: ReadonlyArray<number>;
+	} = {}) {
+	  const received: string[] = [];
+	  let loadingState = 6;
+	  let inShell = options.initialInShell ?? true;
+	  let revealedCount = 10;
+	  let mapSummaryReadCount = 0;
   let autoplayActive = false;
   let autoplayPaused = false;
   let autoplayStopPendingReads = 0;
@@ -1083,6 +1179,7 @@ async function startTunerServer(options: {
       mapSize: { ok: true, value: setupMapSize },
       mapSeed: { ok: true, value: setupMapSeed },
       gameSeed: { ok: true, value: setupGameSeed },
+      playerCount: { ok: true, value: 8 },
     },
   });
   const server = createServer((socket) => {
@@ -1334,10 +1431,12 @@ async function startTunerServer(options: {
               }),
             ]),
           );
-        } else if (frame.message.includes("MapRegions") && frame.message.includes("randomSeed")) {
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
+	        } else if (frame.message.includes("MapRegions") && frame.message.includes("randomSeed")) {
+	          const mapSummaryHash = options.mapSummaryHashes?.[mapSummaryReadCount] ?? 0;
+	          mapSummaryReadCount += 1;
+	          socket.write(
+	            encodeResponse(frame.listenerId, [
+	              JSON.stringify({
                 map: {
                   width: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 },
                   height: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 },
@@ -1345,13 +1444,13 @@ async function startTunerServer(options: {
                   mapSize: { ok: true, value: 0 },
                   randomSeed: { ok: true, value: options.postStartSeedOverride ?? setupMapSeed },
                 },
-                game: {
-                  turn: { ok: true, value: 1 },
-                  age: { ok: true, value: 0 },
-                  maxTurns: { ok: true, value: 0 },
-                  turnDate: { ok: true, value: "4000 BCE" },
-                  hash: { ok: true, value: 0 },
-                },
+	                game: {
+	                  turn: { ok: true, value: 1 },
+	                  age: { ok: true, value: 0 },
+	                  maxTurns: { ok: true, value: 0 },
+	                  turnDate: { ok: true, value: "4000 BCE" },
+	                  hash: { ok: true, value: mapSummaryHash },
+	                },
                 areas: {
                   areaIds: { ok: true, value: [1, 2] },
                   regionIds: { ok: true, value: [7] },
@@ -1361,22 +1460,38 @@ async function startTunerServer(options: {
             ]),
           );
         } else if (frame.message.includes("locationsFromBounds")) {
+          const gridInput = extractMapGridInput(frame.message);
+          const bounds = gridInput?.bounds ?? { x: 0, y: 0, width: 10_000, height: 10_000 };
+          const fields = gridInput?.fields ?? ["terrain"];
+          const maxPlots = gridInput?.maxPlots ?? 1;
+          const plotCount = bounds.width * bounds.height;
+          const selectedPlots = [];
+          outer: for (let y = bounds.y; y < bounds.y + bounds.height; y += 1) {
+            for (let x = bounds.x; x < bounds.x + bounds.width; x += 1) {
+              selectedPlots.push({
+                location: { x, y, index: { ok: true, value: y * 84 + x } },
+                hiddenInfoPolicy: "not-player-scoped",
+                facts: {
+                  terrain: { ok: true, value: 4 },
+                  ...(fields.includes("biome") ? { biome: { ok: true, value: 1 } } : {}),
+                  ...(fields.includes("feature") ? { feature: { ok: true, value: -1 } } : {}),
+                  ...(fields.includes("resource") ? { resource: { ok: true, value: -1 } } : {}),
+                  ...(fields.includes("hydrology") ? { riverType: { ok: true, value: -1 }, water: { ok: true, value: false } } : {}),
+                },
+              });
+              if (selectedPlots.length >= maxPlots) break outer;
+            }
+          }
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
-                bounds: { x: 0, y: 0, width: 10_000, height: 10_000 },
-                fields: ["terrain"],
-                plotCount: 100_000_000,
-                omitted: 99_999_999,
+                bounds,
+                fields,
+                plotCount,
+                omitted: Math.max(0, plotCount - selectedPlots.length),
                 hiddenInfoPolicy: "not-player-scoped",
                 map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
-                plots: [
-                  {
-                    location: { x: 0, y: 0, index: { ok: true, value: 0 } },
-                    hiddenInfoPolicy: "not-player-scoped",
-                    facts: { terrain: { ok: true, value: 4 } },
-                  },
-                ],
+                plots: selectedPlots,
               }),
             ]),
           );

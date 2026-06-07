@@ -8,14 +8,14 @@
 ## 2. Client Runtime Model
 
 - [x] 2.1 Add live runtime types and polling hook.
-- [ ] 2.2 Add turn/hash snapshot keying, backoff, and cancellation.
+- [x] 2.2 Add turn/hash snapshot keying, backoff, and cancellation.
 - [x] 2.3 Keep runtime state separate from `pipelineConfig`.
 
 ## 3. UI
 
 - [x] 3.1 Add compact Live panel.
 - [x] 3.2 Add minimal runtime overlay/status affordances.
-- [ ] 3.3 Add explicit suggestion records if any runtime-to-config translation
+- [x] 3.3 Add explicit suggestion records if any runtime-to-config translation
   is exposed.
 
 ## 4. Verification

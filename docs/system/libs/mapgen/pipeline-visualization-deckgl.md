@@ -194,8 +194,9 @@ MapGen Studio contains both viewer modes:
 ### Authoritative loading + rendering implementation
 
 MapGen Studio’s v1 loader + renderer:
-- dump manifest validation: `apps/mapgen-studio/src/features/dumpViewer/manifest.ts`
-- binary reference resolution: `apps/mapgen-studio/src/features/viz/model.ts`
+- manifest contract: `packages/mapgen-viz/src/index.ts`
+- live manifest ingestion/state: `apps/mapgen-studio/src/features/viz/ingest.ts` and `apps/mapgen-studio/src/features/viz/vizStore.ts`
+- binary reference resolution: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
 - deck.gl rendering: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
 
 ---
@@ -279,7 +280,8 @@ Replay (dump viewer):
 - Studio viz dumper: `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
 - Studio viz forwarding sink: `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
 - Studio worker protocol: `apps/mapgen-studio/src/browser-runner/protocol.ts`
-- Dump viewer manifest validation: `apps/mapgen-studio/src/features/dumpViewer/manifest.ts`
+- Viz manifest contract: `packages/mapgen-viz/src/index.ts`
+- Studio viz manifest state: `apps/mapgen-studio/src/features/viz/vizStore.ts`
 - Deck.gl renderer: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
 - Node/dev dump harness: `mods/mod-swooper-maps/src/dev/viz/dump.ts`
 - Viz contract routing: `docs/system/libs/mapgen/reference/VISUALIZATION.md`
