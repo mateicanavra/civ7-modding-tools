@@ -20,8 +20,11 @@
   resource deltas.
 - [x] 2.6 Produce full row-level feasibility artifact for remaining resource
   deltas.
-- [ ] 2.7 Repair remaining proven package or MapGen owners.
-- [ ] 2.8 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.7 Add official resource policy row/flag and spacing-neighborhood
+  context for the focused local-overaccepted rows.
+- [x] 2.8 Add live plot runtime context for resource delta feasibility rows.
+- [ ] 2.9 Repair remaining proven package or MapGen owners.
+- [ ] 2.10 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

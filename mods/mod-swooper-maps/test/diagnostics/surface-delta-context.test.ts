@@ -75,6 +75,21 @@ describe("surface delta context diagnostics", () => {
     expect(staticSurfaceLegality(surface, "resource", 1, 0, 3)).toMatchObject({
       symbol: "RESOURCE_FISH",
       validSurface: true,
+      resourcePolicy: {
+        matchingRows: [
+          {
+            biomeSymbol: "BIOME_MARINE",
+            terrainSymbol: "TERRAIN_COAST",
+            featureSymbol: "empty",
+          },
+        ],
+        flags: {
+          adjacentToLand: true,
+          adjacentToLandRuntimeOptional: true,
+          lakeEligible: true,
+        },
+        hasAdjacentLand: true,
+      },
     });
     const openCoast = snapshot({
       terrain: { width: 3, height: 2, values: [3, 3, 3, 3, 3, 3] },
@@ -123,6 +138,7 @@ describe("surface delta context diagnostics", () => {
       },
       {
         resourcePlan: {
+          minSpacingTiles: 2,
           placements: [
             { plotIndex: 0, preferredResourceType: 3 },
             { plotIndex: 1, preferredResourceType: 3 },
@@ -174,6 +190,24 @@ describe("surface delta context diagnostics", () => {
       },
       plannedPreferredResourceSymbol: "RESOURCE_FISH",
       localOutcome: { status: "placed", resourceSymbol: "RESOURCE_FISH" },
+      resourceNeighborhood: {
+        minSpacingTiles: 2,
+        localResourceOnLocal: {
+          nearestSameType: null,
+          nearestAnyResource: {
+            plotIndex: 2,
+            resourceSymbol: "RESOURCE_DYES",
+          },
+          anyResourceWithinMinSpacing: true,
+        },
+        localResourceOnLive: {
+          nearestSameType: {
+            plotIndex: 1,
+            resourceSymbol: "RESOURCE_FISH",
+          },
+          sameTypeWithinMinSpacing: true,
+        },
+      },
       legality: {
         localValueOnLocal: {
           symbol: "RESOURCE_FISH",
