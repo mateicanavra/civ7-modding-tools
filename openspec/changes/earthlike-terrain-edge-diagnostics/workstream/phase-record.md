@@ -5,12 +5,12 @@
 - Project: Swooper recovery
 - Phase: terrain-edge diagnostics
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-terrain-validation-boundary-drain`
+- Branch/Graphite stack: `codex/swooper-terrain-source-owner-drain`
 - Started: 2026-06-06
 - Status: active. Terrain edge, local projection/mask context,
-  exact-runtime-bound live terrain/hydrology/area readback, and local placement
-  validation-boundary readback exist for the two coast/ocean rows. Source
-  authority remains unresolved and no repair is authorized.
+  exact-runtime-bound live terrain/hydrology/area readback, local placement
+  validation-boundary readback, and row-level source-authority classification
+  exist for the two coast/ocean rows. Repair is not started in this layer.
 
 ## Objective
 
@@ -34,7 +34,7 @@
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
-- Branch: `codex/swooper-terrain-validation-boundary-drain`.
+- Branch: `codex/swooper-terrain-source-owner-drain`.
 - Source proof:
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc.json`.
 - Source proof hash:
@@ -77,10 +77,12 @@
     neighborhood local/live counts both `coast:4`, `ocean:2`, `land:0`.
   - `(65,39)`: local `TERRAIN_COAST`, live `TERRAIN_OCEAN`;
     neighborhood local/live counts both `coast:2`, `ocean:3`, `land:1`.
-- Both rows remain `sourceAuthorityStatus:"unresolved"`.
-- Candidate owners remain:
-  `map-morphology-coast-shelf-projection`, `map-hydrology-water-mutation`,
-  `civ-engine-terrain-validation`, and `evidence-insufficient`.
+- Both rows are classified to the repo-owned local mock/materialization parity
+  boundary, not to MapGen coast/shelf tuning.
+- Candidate owners rejected for this row pair:
+  `map-morphology-coast-shelf-projection` as direct row intent,
+  `map-hydrology-water-mutation` as authored lake intent, and
+  `evidence-insufficient`.
 - Local mask/projection evidence:
   - Both rows have morphology `shelfMask:0`, `coastalWater:0`,
     `coastalLand:0`, and `distanceToCoast:18`. They are not locally justified
@@ -125,9 +127,55 @@
     `areaId:1` across `beforeValidate`, `afterValidate`, and
     `afterMaintenance`.
   - This narrows the owner: the local placement validation/maintenance step is
-    not rewriting either row. The unresolved boundary is now local
+    not rewriting either row. The classified boundary is local
     mock/materialization expectation versus live Civ terrain/lake
     materialization, not late local placement mutation.
+
+## Source Authority Classification
+
+- Classification status: row-level source authority is classified for the two
+  terrain deltas. The repair owner is the repo-owned local mock/materialization
+  parity boundary in `@civ7/adapter` and adjacent diagnostic projection code,
+  not Earthlike terrain generation, coast/shelf tuning, feature/resource
+  legality, or accepted Civ residual policy.
+- Shared evidence chain:
+  - The exact-authored live proof is request-bound to
+    `studio-run-in-game-mq20rbzr-1fhc`, seed `138503614`, dimensions `106x66`,
+    turn `1`, and game hash `0`.
+  - Live readback succeeded for `terrain`, `water`, `lake`, `riverType`,
+    `areaId`, `regionId`, and `landmassId` for both rows.
+  - Local morphology shelf/coast intent is absent for both rows:
+    `shelfMask:0`, `coastalWater:0`, `coastalLand:0`, and
+    `distanceToCoast:18`.
+  - Local Hydrology lake intent is absent for both rows:
+    `lakeMask:0` and `plannedLakeMask:0`.
+  - Local placement validation and maintenance do not mutate either row.
+  - The live adapter reads lake state from Civ `GameplayMap.isLake`, while the
+    mock adapter currently treats any `TERRAIN_COAST` as lake evidence and uses
+    a local coast-expansion materialization rule as its validation model.
+- T1 `(73,36)` classification:
+  - Local remains `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`
+    before validation, after validation, and after maintenance.
+  - Live exact readback is `TERRAIN_COAST`, `water:true`, `lake:false`,
+    `riverType:-1`, `areaId:720906`, `regionId:-1`, `landmassId:65536`.
+  - This assigns source authority to a local mock/materialization terrain
+    parity gap. It does not authorize map-morphology coast/shelf repair because
+    local authored masks do not request shelf/coast terrain at the row.
+- T2 `(65,39)` classification:
+  - Local remains `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`
+    before validation, after validation, and after maintenance despite
+    `plannedLakeMask:0`.
+  - Live exact readback is `TERRAIN_OCEAN`, `water:true`, `lake:false`,
+    `riverType:-1`, `areaId:720906`, `regionId:-1`, `landmassId:65536`.
+  - This assigns source authority to a local mock/materialization lake and
+    terrain parity gap. The lake sub-gap is specifically that mock lake
+    readback is derived from `TERRAIN_COAST`, while live Civ reports the same
+    exact row as non-lake water.
+- Repair boundary:
+  - A later repair layer may target the adapter/mock materialization parity
+    model and its diagnostics after opening a bounded branch/task movement.
+  - This classification does not authorize product tuning, generated output
+    edits, broad coast/shelf changes, parity closure, or product acceptance.
 
 ## Evidence Boundary
 
@@ -140,11 +188,14 @@
 
 ## Next Evidence
 
-- If live water/area readback does not resolve ownership, add a more granular
-  source-authority classification for the mock/local materialization versus
-  live Civ terrain/lake materialization gap.
-- Classify each row before any repair. Current evidence does not authorize
-  coast/shelf tuning or terrain repair.
+- Open a separate bounded repair layer before changing product or adapter code.
+  The first candidate owner surface is adapter/mock materialization parity,
+  including mock lake readback and coast/ocean materialization behavior.
+- Any repair must rerun focused tests and the exact-authored final-surface
+  parity proof before parity, product acceptance, Earthlike quality, or terrain
+  parity closure can be claimed.
+- Continue to keep feature/resource legality, start placement, mountain quality,
+  and generated output outside this terrain-edge layer.
 
 ## Verification
 
@@ -167,3 +218,10 @@
   passed.
 - `bun run openspec:validate`: passed.
 - `git diff --check`: passed.
+- Records-only source-authority classification verification:
+  - `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`:
+    passed.
+  - `bun run openspec -- validate civ7-map-policy-final-surface-parity --strict`:
+    passed.
+  - `bun run openspec:validate`: passed.
+  - `git diff --check`: passed.

@@ -31,27 +31,28 @@
 
 ## Boundary
 
-This ledger records terrain row context. It does not assign source authority,
-authorize repair, prove parity, or prove product acceptance.
+This ledger records terrain row context and row-level source-authority
+classification. It does not authorize repair by itself, prove parity, or prove
+product acceptance.
 
 ## Rows
 
 | Row | Coordinate |   Plot | Local           | Live            | Class                    | Neighborhood                                   | Status     |
 | --- | ---------- | -----: | --------------- | --------------- | ------------------------ | ---------------------------------------------- | ---------- |
-| T1  | `(73,36)`  | `3889` | `TERRAIN_OCEAN` | `TERRAIN_COAST` | `local-ocean-live-coast` | local/live both `coast:4`, `ocean:2`, `land:0` | unresolved |
-| T2  | `(65,39)`  | `4199` | `TERRAIN_COAST` | `TERRAIN_OCEAN` | `local-coast-live-ocean` | local/live both `coast:2`, `ocean:3`, `land:1` | unresolved |
+| T1  | `(73,36)`  | `3889` | `TERRAIN_OCEAN` | `TERRAIN_COAST` | `local-ocean-live-coast` | local/live both `coast:4`, `ocean:2`, `land:0` | classified: local mock/materialization terrain parity |
+| T2  | `(65,39)`  | `4199` | `TERRAIN_COAST` | `TERRAIN_OCEAN` | `local-coast-live-ocean` | local/live both `coast:2`, `ocean:3`, `land:1` | classified: local mock/materialization lake+terrain parity |
 
 ## Local Projection Context
 
 | Row          | Morphology shelf/coast                                                 | Hydrology lake intent             | Map-hydrology projection                                               | Placement snapshot                    | Current disposition                                                                                                                                                            |
 | ------------ | ---------------------------------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| T1 `(73,36)` | `shelfMask:0`, `coastalWater:0`, `coastalLand:0`, `distanceToCoast:18` | `lakeMask:0`, `plannedLakeMask:0` | `engineWaterMask:1`, `engineLakeMask:0`, `engineTerrain:TERRAIN_OCEAN` | `landMask:0`, `terrain:TERRAIN_OCEAN` | Local pipeline consistently keeps ocean; live coast needs live water/area readback before owner classification.                                                                |
-| T2 `(65,39)` | `shelfMask:0`, `coastalWater:0`, `coastalLand:0`, `distanceToCoast:18` | `lakeMask:0`, `plannedLakeMask:0` | `engineWaterMask:1`, `engineLakeMask:1`, `engineTerrain:TERRAIN_COAST` | `landMask:0`, `terrain:TERRAIN_COAST` | Local pipeline consistently keeps coast/lake-classified water despite no planned lake mask at this row; live ocean needs live water/area readback before owner classification. |
+| T1 `(73,36)` | `shelfMask:0`, `coastalWater:0`, `coastalLand:0`, `distanceToCoast:18` | `lakeMask:0`, `plannedLakeMask:0` | `engineWaterMask:1`, `engineLakeMask:0`, `engineTerrain:TERRAIN_OCEAN` | `landMask:0`, `terrain:TERRAIN_OCEAN` | Local pipeline consistently keeps ocean and non-lake water; live coast assigns the row to local mock/materialization terrain parity rather than authored shelf/coast intent. |
+| T2 `(65,39)` | `shelfMask:0`, `coastalWater:0`, `coastalLand:0`, `distanceToCoast:18` | `lakeMask:0`, `plannedLakeMask:0` | `engineWaterMask:1`, `engineLakeMask:1`, `engineTerrain:TERRAIN_COAST` | `landMask:0`, `terrain:TERRAIN_COAST` | Local pipeline keeps coast/lake-classified water despite no planned lake mask; live ocean/non-lake assigns the row to local mock/materialization lake+terrain parity. |
 
 The local evidence narrows both rows away from simple morphology shelf/coast
-intent and planned Hydrology lake intent. It does not yet prove whether the
-remaining owner is local projection/materialization, Civ live validation, or a
-readback/evidence gap.
+intent and planned Hydrology lake intent. Combined with exact live readback and
+validation-boundary evidence, the remaining owner is classified as repo-owned
+local mock/materialization parity rather than map-generation tuning.
 
 ## Live Readback Context
 
@@ -62,8 +63,8 @@ identity and current runtime identity. It requires successful row facts for
 
 | Row          | Live terrain/hydrology                                      | Live area/region                                   | Local/live contrast                                                                                                                | Current disposition                                                                                                                     |
 | ------------ | ----------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| T1 `(73,36)` | `TERRAIN_COAST`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | local projection `TERRAIN_OCEAN`, `engineLakeMask:0`, `engineAreaId:1`; live is same water body identity class but coast terrain   | Source authority still unresolved; needs projection/validation boundary evidence before repair.                                         |
-| T2 `(65,39)` | `TERRAIN_OCEAN`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | local projection `TERRAIN_COAST`, `engineLakeMask:1`, `engineAreaId:1`; live reports non-lake ocean in the same live area/landmass | Strongest signal for a projection/materialization vs Civ validation gap, but still no repair authority without boundary classification. |
+| T1 `(73,36)` | `TERRAIN_COAST`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | local projection `TERRAIN_OCEAN`, `engineLakeMask:0`, `engineAreaId:1`; live is same water body identity class but coast terrain   | Classified as local mock/materialization terrain parity; repair must not tune authored coast/shelf masks. |
+| T2 `(65,39)` | `TERRAIN_OCEAN`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | local projection `TERRAIN_COAST`, `engineLakeMask:1`, `engineAreaId:1`; live reports non-lake ocean in the same live area/landmass | Classified as local mock/materialization lake+terrain parity; mock lake evidence is over-broad because generic coast reads as lake. |
 
 ## Local Validation Boundary
 
@@ -73,21 +74,30 @@ evidence only.
 
 | Row          | Before validate                                                  | After validate                                                   | After maintenance                                                | Disposition                                                                                                                                                         |
 | ------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T1 `(73,36)` | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | Local placement validation/maintenance does not move this row.                                                                                                      |
-| T2 `(65,39)` | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | Local placement validation/maintenance does not move this row. The live mismatch is now localized to local mock/materialization versus live Civ terrain/lake facts. |
+| T1 `(73,36)` | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | Local placement validation/maintenance does not move this row; the remaining mismatch is local mock/materialization versus live Civ terrain materialization. |
+| T2 `(65,39)` | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | Local placement validation/maintenance does not move this row; the remaining mismatch is local mock/materialization versus live Civ terrain/lake facts. |
 
-## Owner Candidates
+## Owner Classification
 
-| Candidate                               | Current disposition                                                                                                                                       |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `map-morphology-coast-shelf-projection` | less likely as direct row intent; local shelf/coast masks are `0` with distance-to-coast `18`                                                             |
-| `map-hydrology-water-mutation`          | still possible through local engine lake/terrain projection, especially T2 where local `engineLakeMask:1` contrasts with live `lake:false`                |
-| `local-mock-vs-live-civ-materialization` | strongest current class; local rows remain stable through placement validation while live Civ reports different terrain/lake facts                         |
-| `civ-engine-terrain-validation`         | still possible as the live-side materialization owner, but not yet enough to label it accepted engine policy or repair local policy                       |
-| `evidence-insufficient`                 | current status until mock/local versus live Civ materialization owner is classified                                                                        |
+| Row          | Classified owner                              | Evidence                                                                                                                                        | Repair authority                                                                                                                       |
+| ------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| T1 `(73,36)` | `local-mock-vs-live-civ-terrain-materialization` | Local row is ocean/non-lake through projection and validation; live exact readback is coast/non-lake in the same water body class.               | Bounded adapter/mock materialization parity only. No map-morphology coast/shelf or product tuning authority.                           |
+| T2 `(65,39)` | `local-mock-vs-live-civ-lake-terrain-materialization` | Local row is coast/lake-classified with `plannedLakeMask:0`; live exact readback is ocean/non-lake; mock `isLake` uses coast terrain as lake evidence. | Bounded adapter/mock lake readback and terrain materialization parity only. No broad Hydrology, coast/shelf, or Earthlike tuning authority. |
+
+Rejected owner classes for this row pair:
+
+- `map-morphology-coast-shelf-projection`: local morphology masks do not mark
+  either row as shelf/coast intent.
+- `map-hydrology-water-mutation`: Hydrology lake intent and planned lake masks
+  are `0` for both rows; the T2 lake signal appears in mock readback, not in
+  authored lake intent.
+- `accepted-civ-engine-residual`: not classified as accepted residual because
+  the exact live run gives concrete non-lake water facts and the local proof
+  path is expected to model the deployed materialization boundary before parity
+  closure.
 
 ## Next Classification Evidence
 
-- Explicit owner disposition for the mock/local materialization versus live Civ
-  terrain/lake materialization gap.
-- No coast/shelf policy repair until that owner is classified.
+- Open a separate repair lane before changing adapter/mock materialization code.
+- Rerun exact-authored final-surface parity after any repair and keep parity
+  open until terrain rows match or residuals are explicitly owner-classified.
