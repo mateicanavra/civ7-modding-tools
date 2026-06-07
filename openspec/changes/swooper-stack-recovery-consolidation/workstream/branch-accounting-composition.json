@@ -1,25 +1,36 @@
 {
-  "fixtureId": "graphite-accounting-composition-2026-06-07T20:35:47.939Z",
+  "fixtureId": "graphite-accounting-composition-2026-06-07T22:19:21.809Z",
   "schemaVersion": "graphite-accounting-composition.v1",
-  "generatedAt": "2026-06-07T20:35:47.939Z",
+  "generatedAt": "2026-06-07T22:19:21.809Z",
   "inputs": {
-    "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools",
+    "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain",
     "graphiteCachePath": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.git/.graphite_cache_persist",
+    "graphiteStatePath": "/tmp/civ7-current-gt-ls.txt.graphite-state.json",
     "ledgerPath": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain/openspec/changes/swooper-stack-recovery-consolidation/workstream/recovery-accounting-ledger.json",
     "gtLsPath": "/tmp/civ7-current-gt-ls.txt",
-    "gtLsStatusPath": "/tmp/civ7-current-gt-ls.status.json"
+    "gtLsStatusPath": "/tmp/civ7-current-gt-ls.status.json",
+    "relationshipPairs": [],
+    "includeRootRelationships": true,
+    "includeLeafRelationshipCandidates": true,
+    "maxLeafRelationshipCandidates": 80,
+    "semanticOverlapThreshold": 0.24
   },
   "graphite": {
+    "topologySource": "graphite-cache",
+    "cacheSha": "6a16d0524567ef5bfff366cf0480d9492d429f1a",
+    "snapshotCapturedAt": "2026-06-07T22:19:13.521Z",
     "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
     "rootCount": 7,
-    "branchCount": 861
+    "branchCount": 863
   },
   "gtLsStatus": {
-    "refreshedAt": "2026-06-07T20:35:45.366Z",
-    "lineCount": 862,
+    "refreshedAt": "2026-06-07T22:19:13.521Z",
+    "lineCount": 864,
     "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools",
     "outputPath": "/tmp/civ7-current-gt-ls.txt",
-    "command": "/opt/homebrew/bin/gt ls --no-interactive"
+    "graphiteStatePath": "/tmp/civ7-current-gt-ls.txt.graphite-state.json",
+    "command": "gt ls --no-interactive",
+    "topologySource": "graphite-cache"
   },
   "ledger": {
     "fixtureId": "swooper-recovery-accounting-2026-06-07",
@@ -47,14 +58,14 @@
     },
     {
       "root": "codex/swooper-mapgen-recovery-drain",
-      "decision": "finish-planned-adoption",
-      "graphiteState": "clean-local",
+      "decision": "clear-dirty-worktree",
+      "graphiteState": "dirty-worktree",
       "accountingState": "planned-sink",
       "branchCount": 79,
       "localOnly": 79,
       "needsRestack": 0,
       "occupied": 1,
-      "dirtyWorktrees": 0,
+      "dirtyWorktrees": 1,
       "accounting": {
         "planned-sink": 1,
         "accounting-sink": 36,
@@ -66,20 +77,20 @@
     },
     {
       "root": "codex/stack-lineage-audit-reference",
-      "decision": "clear-dirty-worktree",
-      "graphiteState": "dirty-worktree",
+      "decision": "submit-or-merge-clean-stack",
+      "graphiteState": "clean-local",
       "accountingState": "accounted-source",
-      "branchCount": 19,
-      "localOnly": 19,
+      "branchCount": 21,
+      "localOnly": 21,
       "needsRestack": 0,
       "occupied": 1,
-      "dirtyWorktrees": 1,
+      "dirtyWorktrees": 0,
       "accounting": {
         "excluded": 13,
-        "unmarked": 6
+        "unmarked": 8
       },
       "leaves": [
-        "codex/gt-stack-inspect-react-parity-interactions"
+        "codex/gt-stack-inspect-react-parity-runtime-verification"
       ]
     },
     {
@@ -94,8 +105,8 @@
       "dirtyWorktrees": 0,
       "accounting": {
         "excluded": 7,
-        "unmarked": 3,
-        "accounted-source": 56,
+        "unmarked": 2,
+        "accounted-source": 57,
         "needs-accounting": 1
       },
       "leaves": [
@@ -1060,7 +1071,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1098,7 +1109,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1161,7 +1172,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1199,7 +1210,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1237,7 +1248,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1275,7 +1286,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1551,7 +1562,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1589,7 +1600,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1627,7 +1638,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1665,7 +1676,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1728,7 +1739,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1766,7 +1777,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1804,7 +1815,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1842,7 +1853,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1880,7 +1891,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1918,7 +1929,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -1956,7 +1967,7 @@
           "sinkKind": "stack-slice",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -2780,7 +2791,7 @@
       "parent": "codex/swooper-natural-wonder-plan-input-context-drain",
       "children": [],
       "depth": 78,
-      "head": "3a544b5256a8fd2e6d9dc5fb7aa91adc9da5c838",
+      "head": "7a23bc4255016138f77a702defff1b9d3c6f0721",
       "parentRecordedHead": "10280507db72a621d3efb00d4f3d6c7585a1ba58",
       "parentCurrentHead": "10280507db72a621d3efb00d4f3d6c7585a1ba58",
       "validationResult": "VALID",
@@ -2791,15 +2802,15 @@
       "worktree": {
         "path": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain",
         "branch": "codex/swooper-natural-wonder-plan-input-comparison-drain",
-        "head": "3a544b5256a8fd2e6d9dc5fb7aa91adc9da5c838",
-        "dirtyCount": 0,
-        "isMain": false,
+        "head": "7a23bc4255016138f77a702defff1b9d3c6f0721",
+        "dirtyCount": 2,
+        "isMain": true,
         "isDetached": false
       },
       "commit": {
-        "short": "3a544b525",
-        "sha": "3a544b5256a8fd2e6d9dc5fb7aa91adc9da5c838",
-        "iso": "2026-06-07T16:30:13-04:00",
+        "short": "7a23bc425",
+        "sha": "7a23bc4255016138f77a702defff1b9d3c6f0721",
+        "iso": "2026-06-07T16:36:24-04:00",
         "subject": "docs(graphite): compose branch accounting state"
       },
       "accountingLabels": [],
@@ -3402,9 +3413,11 @@
       "branch": "codex/gt-stack-inspect-react-parity-interactions",
       "root": "codex/stack-lineage-audit-reference",
       "parent": "codex/gt-stack-inspect-react-parity-ui-sections",
-      "children": [],
+      "children": [
+        "codex/gt-stack-inspect-react-parity-browser-verification"
+      ],
       "depth": 18,
-      "head": "6b46f7042417848546306f9a7995682c7781c71b",
+      "head": "c2f0a7a7721d9456e7e0b1a6bbb06031f185d7b9",
       "parentRecordedHead": "6b46f7042417848546306f9a7995682c7781c71b",
       "parentCurrentHead": "6b46f7042417848546306f9a7995682c7781c71b",
       "validationResult": "VALID",
@@ -3412,19 +3425,67 @@
       "needsRestack": false,
       "pushedToOrigin": false,
       "localOnly": true,
+      "commit": {
+        "short": "c2f0a7a77",
+        "sha": "c2f0a7a7721d9456e7e0b1a6bbb06031f185d7b9",
+        "iso": "2026-06-07T16:46:20-04:00",
+        "subject": "feat(graphite): wire stack inspect parity interactions Wire the React visualizer interactions over prepared report indexes and facets: broad search, root rail scoping, explicit Covered and Dirty filters, lane/tree expansion, evidence Reveal controls, active copy controls, disclosure help, and accessible result/focus state. Keep React inside the prepared-state boundary by moving structured facet membership into TypeBox filter-index DTOs instead of rebuilding accounting, stale-anchor, work-surface, worktree, or source semantics in client selectors. Verify with focused/full toolkit tests, typecheck, Vite build, focused/full OpenSpec validation, diff checks, and adversarial review disposition."
+      },
+      "accountingLabels": [],
+      "accountingSummary": "unmarked"
+    },
+    {
+      "branch": "codex/gt-stack-inspect-react-parity-browser-verification",
+      "root": "codex/stack-lineage-audit-reference",
+      "parent": "codex/gt-stack-inspect-react-parity-interactions",
+      "children": [
+        "codex/gt-stack-inspect-react-parity-runtime-verification"
+      ],
+      "depth": 19,
+      "head": "fcdf0f8c911d815271e66675925c94f77164d725",
+      "parentRecordedHead": "c2f0a7a7721d9456e7e0b1a6bbb06031f185d7b9",
+      "parentCurrentHead": "c2f0a7a7721d9456e7e0b1a6bbb06031f185d7b9",
+      "validationResult": "VALID",
+      "alignedToParent": true,
+      "needsRestack": false,
+      "pushedToOrigin": false,
+      "localOnly": true,
+      "commit": {
+        "short": "fcdf0f8c9",
+        "sha": "fcdf0f8c911d815271e66675925c94f77164d725",
+        "iso": "2026-06-07T17:33:28-04:00",
+        "subject": "test(graphite): add stack inspect browser verification Add the fixture-backed browser verification harness under verify:browser, served built React assets, and route same-origin /rpc through createStackInspectRpcHandler. Rename the browser/runtime OpenSpec slices to verification terminology, realign downstream records, and keep fixture browser verification separate from live daemon verification. Includes anchor-copy and toast-overflow UI repairs surfaced by browser checks."
+      },
+      "accountingLabels": [],
+      "accountingSummary": "unmarked"
+    },
+    {
+      "branch": "codex/gt-stack-inspect-react-parity-runtime-verification",
+      "root": "codex/stack-lineage-audit-reference",
+      "parent": "codex/gt-stack-inspect-react-parity-browser-verification",
+      "children": [],
+      "depth": 20,
+      "head": "6a9c30458e7228409fd0f271d327f6bb378e103d",
+      "parentRecordedHead": "fcdf0f8c911d815271e66675925c94f77164d725",
+      "parentCurrentHead": "fcdf0f8c911d815271e66675925c94f77164d725",
+      "validationResult": "VALID",
+      "alignedToParent": true,
+      "needsRestack": false,
+      "pushedToOrigin": false,
+      "localOnly": true,
       "worktree": {
         "path": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-stack-lineage-audit-reference",
-        "branch": "codex/gt-stack-inspect-react-parity-interactions",
-        "head": "6b46f7042417848546306f9a7995682c7781c71b",
-        "dirtyCount": 12,
+        "branch": "codex/gt-stack-inspect-react-parity-runtime-verification",
+        "head": "6a9c30458e7228409fd0f271d327f6bb378e103d",
+        "dirtyCount": 0,
         "isMain": false,
         "isDetached": false
       },
       "commit": {
-        "short": "6b46f7042",
-        "sha": "6b46f7042417848546306f9a7995682c7781c71b",
-        "iso": "2026-06-07T16:13:19-04:00",
-        "subject": "feat(graphite): render stack inspect parity sections Render the React stack-inspect decision surface from prepared TypeBox DTOs: capture/sidebar, recovery status, work surface, accounting notes, Graphite tracking, accounting actions, action map, stack lanes, parent tree, and worktree occupancy. Keep React inside the display boundary by avoiding PR/accounting/stale reconciliation joins and preserving interaction/browser/runtime proof obligations for downstream slices. Verify with toolkit tests, typecheck, Vite build, focused OpenSpec validation, full OpenSpec validation, and diff whitespace checks."
+        "short": "6a9c30458",
+        "sha": "6a9c30458e7228409fd0f271d327f6bb378e103d",
+        "iso": "2026-06-07T17:57:22-04:00",
+        "subject": "feat(graphite): verify stack inspect live runtime"
       },
       "accountingLabels": [],
       "accountingSummary": "unmarked"
@@ -3994,7 +4055,7 @@
         "branch": "codex/studio-civ7-exact-authorship-proof",
         "head": "8966aba5eb6fb3d2adf7edf38aa2bd0b8cde905f",
         "dirtyCount": 0,
-        "isMain": true,
+        "isMain": false,
         "isDetached": false
       },
       "commit": {
@@ -4850,7 +4911,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -4888,7 +4949,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -4926,7 +4987,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -4964,7 +5025,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5003,7 +5064,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5041,7 +5102,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5079,7 +5140,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5155,7 +5216,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5193,7 +5254,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5231,7 +5292,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5258,8 +5319,21 @@
         "iso": "2026-06-06T16:57:17-04:00",
         "subject": "fix(repo): resolve map policy from source"
       },
-      "accountingLabels": [],
-      "accountingSummary": "unmarked"
+      "accountingLabels": [
+        {
+          "role": "source",
+          "moveId": "done-adopt-earthlike-natural-wonder-stack-through-footprint-proof",
+          "state": "done",
+          "kind": "adopt",
+          "method": "semantic",
+          "sourceKind": "stack-slice",
+          "sinkKind": "stack-slice",
+          "label": "covered-by-adoption",
+          "cleanup": "blocked-until-sink-lands",
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
+        }
+      ],
+      "accountingSummary": "accounted-source"
     },
     {
       "branch": "codex/earthlike-natural-wonder-materialization-repair",
@@ -5294,7 +5368,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5332,7 +5406,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5370,7 +5444,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5408,7 +5482,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5446,7 +5520,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5484,7 +5558,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5522,7 +5596,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -5560,7 +5634,7 @@
           "sinkKind": "stack-slice",
           "label": "covered-by-adoption",
           "cleanup": "blocked-until-sink-lands",
-          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+          "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
         }
       ],
       "accountingSummary": "accounted-source"
@@ -23271,6 +23345,3428 @@
       "accountingSummary": "accounted-source"
     }
   ],
+  "history": {
+    "config": {
+      "relationshipPairs": [],
+      "includeRootRelationships": true,
+      "includeLeafRelationshipCandidates": true,
+      "maxLeafRelationshipCandidates": 80,
+      "semanticOverlapThreshold": 0.24
+    },
+    "metrics": {
+      "exactSameHead": 0,
+      "linear": 0,
+      "patchOverlap": 6,
+      "semanticOverlapDiverged": 1,
+      "diverged": 14,
+      "independent": 0
+    },
+    "splitPoints": [
+      {
+        "root": "codex/live-play-settlement-reference",
+        "branch": "codex/civ7-orpc-control-architecture-skill",
+        "children": [
+          "codex/consolidate-play-agent-docs",
+          "codex/play-agent-hotseat-phase-packet"
+        ]
+      },
+      {
+        "root": "codex/local-catalog-enrichment",
+        "branch": "codex/live-traditions-view",
+        "children": [
+          "codex/surface-first-meet-exact-commands",
+          "codex/stale-population-blocker-classification"
+        ]
+      },
+      {
+        "root": "codex/live-play-settlement-reference",
+        "branch": "codex/earthlike-natural-wonder-footprint-readback",
+        "children": [
+          "codex/earthlike-natural-wonder-footprint-catalog-context",
+          "codex/earthlike-terrain-edge-diagnostics"
+        ]
+      },
+      {
+        "root": "codex/local-catalog-enrichment",
+        "branch": "codex/add-production-telemetry-adapter",
+        "children": [
+          "codex/watcher-supervisor-handoff-doc",
+          "codex/guard-telemetry-proof-labels"
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "pairId": "root-pair:codex/systematic-workstream-skill-framing...codex/swooper-mapgen-recovery-drain",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/systematic-workstream-skill-framing",
+        "right": "codex/swooper-mapgen-recovery-drain",
+        "leftRoot": "codex/systematic-workstream-skill-framing",
+        "rightRoot": "codex/swooper-mapgen-recovery-drain",
+        "leftHead": "70604ec945cefae8415972dacb1732ef0f165425",
+        "rightHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 1,
+          "rightOnly": 17
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "70604ec945cefae8415972dacb1732ef0f165425",
+                "subject": "docs(skills): capture systematic workstream skill objective"
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 17,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "647b1e61c8bbd024c97729109e4b04fa4115835d",
+                "subject": "fix(mapgen): plan starts by expansion viability"
+              },
+              {
+                "sha": "bcec62ea3b28c88fac8106db46e616a0a5c56567",
+                "subject": "fix(mapgen): gate initial resource authoring by age"
+              },
+              {
+                "sha": "5f2aa7a732280ba29f99e919f1912ddc8d207f0a",
+                "subject": "feat(studio): load Civ saved setup configs"
+              },
+              {
+                "sha": "93076f453742afb283361e0b137ce66ab6bb5158",
+                "subject": "fix(studio): validate Civ7 setup seeds"
+              },
+              {
+                "sha": "08ee2e7807eb10983870e6256cd49ad23812932b",
+                "subject": "fix(studio): harden live setup and run-in-game sync Commit the Studio-side setup sync, run-in-game failure logging/restart helpers, viz orientation guard, and live parity workstream notes as one coherent runtime integration slice."
+              },
+              {
+                "sha": "61581904ec37ac6c3e3f3097916da75936e1b949",
+                "subject": "refactor(mapgen): align foundation authoring contracts Checkpoint the foundation authoring surface alignment: mesh and plate topology contracts, history normalization docs, generated map config updates, and foundation contract tests."
+              },
+              {
+                "sha": "b410ef219d846294d62cd538bb237113e8650c36",
+                "subject": "fix(mapgen): restore authored RNG authority Move MapGen-authored randomness back behind mapgen-core seeded helpers, document the Civ adapter RNG boundary, update standard-stage imports, and align viz/stamping outputs on OddQ tile space."
+              },
+              {
+                "sha": "a23a36978eb395fb594f6cabdb62c44ea5812ed3",
+                "subject": "feat(mapgen): plan long tectonic mountain regions Add reusable OddQ component helpers, preserve connected belt corridors, trace range-region axes for longer mountain bodies, expose independent morphology knobs, and add an earthlike regression covering range diameter and hill balance."
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.010526315789473684,
+          "subjectTokenJaccard": 0.0045662100456621,
+          "combinedJaccard": 0.006051437216338881,
+          "sharedBranchTokens": [
+            "evidence"
+          ],
+          "sharedSubjectTokens": [
+            "apply",
+            "civ7",
+            "review"
+          ],
+          "sharedCombinedTokens": [
+            "apply",
+            "civ7",
+            "evidence",
+            "review"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/systematic-workstream-skill-framing...codex/stack-lineage-audit-reference",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/systematic-workstream-skill-framing",
+        "right": "codex/stack-lineage-audit-reference",
+        "leftRoot": "codex/systematic-workstream-skill-framing",
+        "rightRoot": "codex/stack-lineage-audit-reference",
+        "leftHead": "70604ec945cefae8415972dacb1732ef0f165425",
+        "rightHead": "be60913515d9fd157858316400e95851bbb71d8c",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 1,
+          "rightOnly": 12
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "70604ec945cefae8415972dacb1732ef0f165425",
+                "subject": "docs(skills): capture systematic workstream skill objective"
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 12,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "bb26f5168ad35800b1d325ee65d0e585e44bd57f",
+                "subject": "docs(graphite): clarify stack action taxonomy"
+              },
+              {
+                "sha": "536e478bf7292fbedc5635fcb58c88aa7f2a8272",
+                "subject": "chore(graphite): consolidate stack visualizer toolkit"
+              },
+              {
+                "sha": "d65df9af9d4d1e0fdf816a763622326ff0853e31",
+                "subject": "docs(graphite): capture stack inspect workstream base"
+              },
+              {
+                "sha": "94424ef23522e89c1ece18de9dbd19e50023e1ba",
+                "subject": "docs(graphite): add PR tracking layer to stack visual"
+              },
+              {
+                "sha": "440dad30748ca6fbf40c143bcca313d5870a4417",
+                "subject": "docs(graphite): define stack inspect React workstream"
+              },
+              {
+                "sha": "a62678b091afd4de275458487c914ee03c08dcb3",
+                "subject": "docs(graphite): encode stack recovery phases"
+              },
+              {
+                "sha": "b7bdd75650c31ed3cb391c9b055bd05957b7f512",
+                "subject": "docs(graphite): define effect-orpc visualizer workstream"
+              },
+              {
+                "sha": "967d0657e19278d337854b5d34aece5e745dc92c",
+                "subject": "docs(graphite): refresh stack blocker visual"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.02127659574468085,
+          "subjectTokenJaccard": 0.002976190476190476,
+          "combinedJaccard": 0.0058309037900874635,
+          "sharedBranchTokens": [
+            "evidence"
+          ],
+          "sharedSubjectTokens": [
+            "review"
+          ],
+          "sharedCombinedTokens": [
+            "evidence",
+            "review"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/systematic-workstream-skill-framing...codex/live-play-settlement-reference",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/systematic-workstream-skill-framing",
+        "right": "codex/live-play-settlement-reference",
+        "leftRoot": "codex/systematic-workstream-skill-framing",
+        "rightRoot": "codex/live-play-settlement-reference",
+        "leftHead": "70604ec945cefae8415972dacb1732ef0f165425",
+        "rightHead": "754f90431964aaac4e266a483012b4711b2f6198",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 1,
+          "rightOnly": 1
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "70604ec945cefae8415972dacb1732ef0f165425",
+                "subject": "docs(skills): capture systematic workstream skill objective"
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "754f90431964aaac4e266a483012b4711b2f6198",
+                "subject": "docs(graphite): prepare live-play settlement reference"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.01694915254237288,
+          "subjectTokenJaccard": 0.005780346820809248,
+          "combinedJaccard": 0.011049723756906077,
+          "sharedBranchTokens": [
+            "evidence",
+            "skill"
+          ],
+          "sharedSubjectTokens": [
+            "civ7",
+            "workstream"
+          ],
+          "sharedCombinedTokens": [
+            "civ7",
+            "evidence",
+            "skill",
+            "workstream"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/systematic-workstream-skill-framing...codex/local-catalog-enrichment",
+        "scope": "root-pair",
+        "relationshipKind": "patch-overlap-diverged",
+        "left": "codex/systematic-workstream-skill-framing",
+        "right": "codex/local-catalog-enrichment",
+        "leftRoot": "codex/systematic-workstream-skill-framing",
+        "rightRoot": "codex/local-catalog-enrichment",
+        "leftHead": "70604ec945cefae8415972dacb1732ef0f165425",
+        "rightHead": "1689806731331dae56262cfa988fdbc0800b3e88",
+        "mergeBase": {
+          "sha": "929a282ff34033664e1fee71f4f78c977796a3dd",
+          "short": "929a282ff"
+        },
+        "aheadBehind": {
+          "leftOnly": 27,
+          "rightOnly": 34
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 10,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "db52c7aecda06bebb4eba34bee60def035d67249",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "9011233676639569d76464166179189b1779a169",
+                "subject": "docs(morphology): integrate live readback boundary"
+              },
+              {
+                "sha": "fde990cb16ee8262722a7b8c89ad3c4414c4cf15",
+                "subject": "fix(ecology): integrate morphology peer repairs"
+              },
+              {
+                "sha": "37ae85d62746e62d31c603a52d357e51e8c82cea",
+                "subject": "feat(mapgen): integrate resource corpus expectations"
+              },
+              {
+                "sha": "b1b1b33f3c0d0911a8ab1242a948a36c7af7947e",
+                "subject": "feat(mapgen): integrate resource ops rollup"
+              },
+              {
+                "sha": "e4b5c995d6b38c06a4e9957ddc2b614cab8b03f2",
+                "subject": "fix(mapgen): integrate resource runtime proof"
+              },
+              {
+                "sha": "caab828e97c7d1ee0716dd2cfc314a4c6ff3fa2c",
+                "subject": "chore(imports): break circular dependency edges"
+              },
+              {
+                "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+                "subject": "fix(mapgen): stabilize integrated stack boundaries"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "9d40e87281cfca0355a6ea6934906be200eb874b",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          },
+          "rightComparedToLeft": {
+            "patchNew": 25,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "d186ed978fff01cccc465d429ad9a05310bfd3d3",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7c2312708447f9ad7a38245a9feb4bb7dfb3339f",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "ff740d9bcbef882409802eff6a6d96ec7866657d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "df1b81532c7fcb4930c07fceee1e2ff748d05840",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1e6267722ab07485f2b1ef938cae7d84fc29d041",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "761e4e1a7e5569b9252df00b7e2412603ac8561a",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "218d602c199f3d4455ef50133e870ad8885d3f6d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1020ae667a1ea973aa273e91f6c0bb3eaf4643a5",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "c8a09fedb1ad508e6e284945467631dfbe601140",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "3141acd40ead97ffbdcc1bda463a344585e23036",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "2bd8060613c51faa96421d8f1629938450030b90",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "913779e988091c7ce7ec16a7998c57986864a199",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d09439a575d67dd1ceb39ac438921dfba8e782c9",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "1dc806e926ab2a5711ea43358a2e07889833b0b8",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "c5fa90ef27207333e4dca2af4c8cc494788f0dc5",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "49a93be73254e3be443ee35cfa16b2add7d908e3",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.018469656992084433,
+          "subjectTokenJaccard": 0.01951219512195122,
+          "combinedJaccard": 0.022988505747126436,
+          "sharedBranchTokens": [
+            "evidence",
+            "fixes",
+            "framing",
+            "review",
+            "skill",
+            "systematic",
+            "workstream"
+          ],
+          "sharedSubjectTokens": [
+            "apply",
+            "civ7",
+            "fixes",
+            "review",
+            "skill",
+            "skills",
+            "systematic",
+            "workstream"
+          ],
+          "sharedCombinedTokens": [
+            "apply",
+            "civ7",
+            "evidence",
+            "fixes",
+            "framing",
+            "review",
+            "skill",
+            "skills",
+            "systematic",
+            "workstream"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "left-has-novel-patches",
+          "left-has-patch-equivalent-in-right",
+          "patch-overlap-diverged",
+          "right-has-novel-patches",
+          "right-has-patch-equivalent-in-left"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/systematic-workstream-skill-framing...agent-watch-civ7-live-play-reference-assembly",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/systematic-workstream-skill-framing",
+        "right": "agent-watch-civ7-live-play-reference-assembly",
+        "leftRoot": "codex/systematic-workstream-skill-framing",
+        "rightRoot": "agent-watch-civ7-live-play-reference-assembly",
+        "leftHead": "70604ec945cefae8415972dacb1732ef0f165425",
+        "rightHead": "9e67f53645597dfd9d7299bb5beb9509fa7569fe",
+        "mergeBase": {
+          "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+          "short": "0507ef8e9"
+        },
+        "aheadBehind": {
+          "leftOnly": 19,
+          "rightOnly": 19
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 11,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d39ab4613f878969857aeee533c00af3c4a56263",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 19,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "54a01a354418e1c4115cecea758772be9bced2c6",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "86e33ada1ee886c3c2ee3c79f1a98781052a0748",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "d3c61d35a37b7b2465cbf2e473ead9073d2ffd5c",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "3e363eb0fcdf6a39bb4fbf201372a7e97e915814",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8616c6643651e572b2a3f05781447610c554c9f3",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "b8ef45082366776f785aeb8c994df3a4c24af024",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "941d5debf94302679a60f7f0db84865e0ee2bf13",
+                "subject": "feat(cli): add live Civ play support"
+              },
+              {
+                "sha": "fd69c477767358f259e8c9a00ee561dacd67cc68",
+                "subject": "feat(cli): add live Civ tactical support"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0,
+          "subjectTokenJaccard": 0.07142857142857142,
+          "combinedJaccard": 0.05263157894736842,
+          "sharedBranchTokens": [],
+          "sharedSubjectTokens": [
+            "civ7"
+          ],
+          "sharedCombinedTokens": [
+            "civ7"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/systematic-workstream-skill-framing...codex/foundation-architecture-packet",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/systematic-workstream-skill-framing",
+        "right": "codex/foundation-architecture-packet",
+        "leftRoot": "codex/systematic-workstream-skill-framing",
+        "rightRoot": "codex/foundation-architecture-packet",
+        "leftHead": "70604ec945cefae8415972dacb1732ef0f165425",
+        "rightHead": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 1,
+          "rightOnly": 1
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "70604ec945cefae8415972dacb1732ef0f165425",
+                "subject": "docs(skills): capture systematic workstream skill objective"
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+                "subject": "docs(foundation): add architecture pipeline packet Capture the current Foundation stage, step, op, artifact, projection, validator/test, and downstream consumer model as a source-cited pipeline-realism packet. Record structural coupling around tectonics, final-only crust evolution, projection-derived surfaces, Morphology belt synthesis, missing landform intent layers, and validation/readback gates. References: docs/projects/pipeline-realism/resources/packets/foundation-architecture-generative-pipeline/README.md"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0,
+          "subjectTokenJaccard": 0,
+          "combinedJaccard": 0,
+          "sharedBranchTokens": [],
+          "sharedSubjectTokens": [],
+          "sharedCombinedTokens": []
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/swooper-mapgen-recovery-drain...codex/stack-lineage-audit-reference",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/swooper-mapgen-recovery-drain",
+        "right": "codex/stack-lineage-audit-reference",
+        "leftRoot": "codex/swooper-mapgen-recovery-drain",
+        "rightRoot": "codex/stack-lineage-audit-reference",
+        "leftHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "rightHead": "be60913515d9fd157858316400e95851bbb71d8c",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 17,
+          "rightOnly": 12
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 17,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "647b1e61c8bbd024c97729109e4b04fa4115835d",
+                "subject": "fix(mapgen): plan starts by expansion viability"
+              },
+              {
+                "sha": "bcec62ea3b28c88fac8106db46e616a0a5c56567",
+                "subject": "fix(mapgen): gate initial resource authoring by age"
+              },
+              {
+                "sha": "5f2aa7a732280ba29f99e919f1912ddc8d207f0a",
+                "subject": "feat(studio): load Civ saved setup configs"
+              },
+              {
+                "sha": "93076f453742afb283361e0b137ce66ab6bb5158",
+                "subject": "fix(studio): validate Civ7 setup seeds"
+              },
+              {
+                "sha": "08ee2e7807eb10983870e6256cd49ad23812932b",
+                "subject": "fix(studio): harden live setup and run-in-game sync Commit the Studio-side setup sync, run-in-game failure logging/restart helpers, viz orientation guard, and live parity workstream notes as one coherent runtime integration slice."
+              },
+              {
+                "sha": "61581904ec37ac6c3e3f3097916da75936e1b949",
+                "subject": "refactor(mapgen): align foundation authoring contracts Checkpoint the foundation authoring surface alignment: mesh and plate topology contracts, history normalization docs, generated map config updates, and foundation contract tests."
+              },
+              {
+                "sha": "b410ef219d846294d62cd538bb237113e8650c36",
+                "subject": "fix(mapgen): restore authored RNG authority Move MapGen-authored randomness back behind mapgen-core seeded helpers, document the Civ adapter RNG boundary, update standard-stage imports, and align viz/stamping outputs on OddQ tile space."
+              },
+              {
+                "sha": "a23a36978eb395fb594f6cabdb62c44ea5812ed3",
+                "subject": "feat(mapgen): plan long tectonic mountain regions Add reusable OddQ component helpers, preserve connected belt corridors, trace range-region axes for longer mountain bodies, expose independent morphology knobs, and add an earthlike regression covering range diameter and hill balance."
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 12,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "bb26f5168ad35800b1d325ee65d0e585e44bd57f",
+                "subject": "docs(graphite): clarify stack action taxonomy"
+              },
+              {
+                "sha": "536e478bf7292fbedc5635fcb58c88aa7f2a8272",
+                "subject": "chore(graphite): consolidate stack visualizer toolkit"
+              },
+              {
+                "sha": "d65df9af9d4d1e0fdf816a763622326ff0853e31",
+                "subject": "docs(graphite): capture stack inspect workstream base"
+              },
+              {
+                "sha": "94424ef23522e89c1ece18de9dbd19e50023e1ba",
+                "subject": "docs(graphite): add PR tracking layer to stack visual"
+              },
+              {
+                "sha": "440dad30748ca6fbf40c143bcca313d5870a4417",
+                "subject": "docs(graphite): define stack inspect React workstream"
+              },
+              {
+                "sha": "a62678b091afd4de275458487c914ee03c08dcb3",
+                "subject": "docs(graphite): encode stack recovery phases"
+              },
+              {
+                "sha": "b7bdd75650c31ed3cb391c9b055bd05957b7f512",
+                "subject": "docs(graphite): define effect-orpc visualizer workstream"
+              },
+              {
+                "sha": "967d0657e19278d337854b5d34aece5e745dc92c",
+                "subject": "docs(graphite): refresh stack blocker visual"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.04838709677419355,
+          "subjectTokenJaccard": 0.13048498845265588,
+          "combinedJaccard": 0.13302752293577982,
+          "sharedBranchTokens": [
+            "audit",
+            "evidence",
+            "live",
+            "parity",
+            "proof",
+            "runtime"
+          ],
+          "sharedSubjectTokens": [
+            "accounting",
+            "across",
+            "age",
+            "bind",
+            "boundary",
+            "bounded",
+            "cached",
+            "claim",
+            "claiming",
+            "classes",
+            "classify",
+            "clean",
+            "close",
+            "closure",
+            "context",
+            "contract",
+            "contracts",
+            "core",
+            "counts",
+            "decision",
+            "dependencies",
+            "diagnostics",
+            "disposition",
+            "downstream",
+            "effect",
+            "embedded",
+            "evidence",
+            "existing",
+            "expand",
+            "expected",
+            "explicit",
+            "expose"
+          ],
+          "sharedCombinedTokens": [
+            "accounting",
+            "across",
+            "age",
+            "audit",
+            "bind",
+            "boundary",
+            "bounded",
+            "cached",
+            "claim",
+            "claiming",
+            "classes",
+            "classify",
+            "clean",
+            "close",
+            "closure",
+            "context",
+            "contract",
+            "contracts",
+            "core",
+            "counts",
+            "decision",
+            "dependencies",
+            "diagnostics",
+            "disposition",
+            "downstream",
+            "effect",
+            "embedded",
+            "evidence",
+            "existing",
+            "expand",
+            "expected",
+            "explicit",
+            "expose",
+            "filter",
+            "focused",
+            "for",
+            "found",
+            "full",
+            "gate",
+            "guard",
+            "help",
+            "identity",
+            "imports",
+            "includes",
+            "including",
+            "inside",
+            "instead",
+            "integrate"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/swooper-mapgen-recovery-drain...codex/live-play-settlement-reference",
+        "scope": "root-pair",
+        "relationshipKind": "semantic-overlap-diverged",
+        "left": "codex/swooper-mapgen-recovery-drain",
+        "right": "codex/live-play-settlement-reference",
+        "leftRoot": "codex/swooper-mapgen-recovery-drain",
+        "rightRoot": "codex/live-play-settlement-reference",
+        "leftHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "rightHead": "754f90431964aaac4e266a483012b4711b2f6198",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 17,
+          "rightOnly": 1
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 17,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "647b1e61c8bbd024c97729109e4b04fa4115835d",
+                "subject": "fix(mapgen): plan starts by expansion viability"
+              },
+              {
+                "sha": "bcec62ea3b28c88fac8106db46e616a0a5c56567",
+                "subject": "fix(mapgen): gate initial resource authoring by age"
+              },
+              {
+                "sha": "5f2aa7a732280ba29f99e919f1912ddc8d207f0a",
+                "subject": "feat(studio): load Civ saved setup configs"
+              },
+              {
+                "sha": "93076f453742afb283361e0b137ce66ab6bb5158",
+                "subject": "fix(studio): validate Civ7 setup seeds"
+              },
+              {
+                "sha": "08ee2e7807eb10983870e6256cd49ad23812932b",
+                "subject": "fix(studio): harden live setup and run-in-game sync Commit the Studio-side setup sync, run-in-game failure logging/restart helpers, viz orientation guard, and live parity workstream notes as one coherent runtime integration slice."
+              },
+              {
+                "sha": "61581904ec37ac6c3e3f3097916da75936e1b949",
+                "subject": "refactor(mapgen): align foundation authoring contracts Checkpoint the foundation authoring surface alignment: mesh and plate topology contracts, history normalization docs, generated map config updates, and foundation contract tests."
+              },
+              {
+                "sha": "b410ef219d846294d62cd538bb237113e8650c36",
+                "subject": "fix(mapgen): restore authored RNG authority Move MapGen-authored randomness back behind mapgen-core seeded helpers, document the Civ adapter RNG boundary, update standard-stage imports, and align viz/stamping outputs on OddQ tile space."
+              },
+              {
+                "sha": "a23a36978eb395fb594f6cabdb62c44ea5812ed3",
+                "subject": "feat(mapgen): plan long tectonic mountain regions Add reusable OddQ component helpers, preserve connected belt corridors, trace range-region axes for longer mountain bodies, expose independent morphology knobs, and add an earthlike regression covering range diameter and hill balance."
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "754f90431964aaac4e266a483012b4711b2f6198",
+                "subject": "docs(graphite): prepare live-play settlement reference"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.4027777777777778,
+          "subjectTokenJaccard": 0.2890625,
+          "combinedJaccard": 0.2919334186939821,
+          "sharedBranchTokens": [
+            "assignment",
+            "authorship",
+            "boundary",
+            "builder",
+            "catalog",
+            "classification",
+            "coast",
+            "completion",
+            "context",
+            "coordinate",
+            "delta",
+            "diagnostics",
+            "direction",
+            "distribution",
+            "edge",
+            "evidence",
+            "exact",
+            "feasibility",
+            "feature",
+            "final",
+            "footprint",
+            "intake",
+            "lake",
+            "legality",
+            "live",
+            "local",
+            "map",
+            "mask",
+            "materialization",
+            "mock",
+            "named",
+            "natural"
+          ],
+          "sharedSubjectTokens": [
+            "1fhc",
+            "acceptance",
+            "accepted",
+            "adjacent",
+            "age",
+            "align",
+            "apps",
+            "artifact",
+            "artifacts",
+            "assignment",
+            "authored",
+            "authoritative",
+            "authority",
+            "authorship",
+            "bind",
+            "binds",
+            "blocked",
+            "both",
+            "bound",
+            "boundary",
+            "bounded",
+            "canhaveresource",
+            "catalog",
+            "cells",
+            "change",
+            "changes",
+            "civ",
+            "civ7",
+            "claim",
+            "class",
+            "classes",
+            "classification"
+          ],
+          "sharedCombinedTokens": [
+            "1fhc",
+            "acceptance",
+            "accepted",
+            "adjacent",
+            "age",
+            "align",
+            "apps",
+            "artifact",
+            "artifacts",
+            "assignment",
+            "authored",
+            "authoritative",
+            "authority",
+            "authorship",
+            "bind",
+            "binds",
+            "blocked",
+            "both",
+            "bound",
+            "boundary",
+            "bounded",
+            "builder",
+            "canhaveresource",
+            "catalog",
+            "cells",
+            "change",
+            "changes",
+            "civ",
+            "civ7",
+            "claim",
+            "class",
+            "classes",
+            "classification",
+            "classified",
+            "classify",
+            "closure",
+            "coast",
+            "completion",
+            "config",
+            "configs",
+            "context",
+            "contract",
+            "control",
+            "coordinate",
+            "correct",
+            "count",
+            "cut",
+            "cuts"
+          ]
+        },
+        "signals": [
+          "branch-name-overlap",
+          "cross-root",
+          "left-has-novel-patches",
+          "right-has-novel-patches",
+          "semantic-overlap-diverged",
+          "subject-overlap"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/swooper-mapgen-recovery-drain...codex/local-catalog-enrichment",
+        "scope": "root-pair",
+        "relationshipKind": "patch-overlap-diverged",
+        "left": "codex/swooper-mapgen-recovery-drain",
+        "right": "codex/local-catalog-enrichment",
+        "leftRoot": "codex/swooper-mapgen-recovery-drain",
+        "rightRoot": "codex/local-catalog-enrichment",
+        "leftHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "rightHead": "1689806731331dae56262cfa988fdbc0800b3e88",
+        "mergeBase": {
+          "sha": "929a282ff34033664e1fee71f4f78c977796a3dd",
+          "short": "929a282ff"
+        },
+        "aheadBehind": {
+          "leftOnly": 43,
+          "rightOnly": 34
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 26,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "db52c7aecda06bebb4eba34bee60def035d67249",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "9011233676639569d76464166179189b1779a169",
+                "subject": "docs(morphology): integrate live readback boundary"
+              },
+              {
+                "sha": "fde990cb16ee8262722a7b8c89ad3c4414c4cf15",
+                "subject": "fix(ecology): integrate morphology peer repairs"
+              },
+              {
+                "sha": "37ae85d62746e62d31c603a52d357e51e8c82cea",
+                "subject": "feat(mapgen): integrate resource corpus expectations"
+              },
+              {
+                "sha": "b1b1b33f3c0d0911a8ab1242a948a36c7af7947e",
+                "subject": "feat(mapgen): integrate resource ops rollup"
+              },
+              {
+                "sha": "e4b5c995d6b38c06a4e9957ddc2b614cab8b03f2",
+                "subject": "fix(mapgen): integrate resource runtime proof"
+              },
+              {
+                "sha": "caab828e97c7d1ee0716dd2cfc314a4c6ff3fa2c",
+                "subject": "chore(imports): break circular dependency edges"
+              },
+              {
+                "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+                "subject": "fix(mapgen): stabilize integrated stack boundaries"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "9d40e87281cfca0355a6ea6934906be200eb874b",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          },
+          "rightComparedToLeft": {
+            "patchNew": 25,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "d186ed978fff01cccc465d429ad9a05310bfd3d3",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7c2312708447f9ad7a38245a9feb4bb7dfb3339f",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "ff740d9bcbef882409802eff6a6d96ec7866657d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "df1b81532c7fcb4930c07fceee1e2ff748d05840",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1e6267722ab07485f2b1ef938cae7d84fc29d041",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "761e4e1a7e5569b9252df00b7e2412603ac8561a",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "218d602c199f3d4455ef50133e870ad8885d3f6d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1020ae667a1ea973aa273e91f6c0bb3eaf4643a5",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "c8a09fedb1ad508e6e284945467631dfbe601140",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "3141acd40ead97ffbdcc1bda463a344585e23036",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "2bd8060613c51faa96421d8f1629938450030b90",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "913779e988091c7ce7ec16a7998c57986864a199",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d09439a575d67dd1ceb39ac438921dfba8e782c9",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "1dc806e926ab2a5711ea43358a2e07889833b0b8",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "c5fa90ef27207333e4dca2af4c8cc494788f0dc5",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "49a93be73254e3be443ee35cfa16b2add7d908e3",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.09090909090909091,
+          "subjectTokenJaccard": 0.14224137931034483,
+          "combinedJaccard": 0.14889123548046462,
+          "sharedBranchTokens": [
+            "apply",
+            "audit",
+            "authority",
+            "blocker",
+            "boundary",
+            "builder",
+            "catalog",
+            "classification",
+            "completion",
+            "context",
+            "diagnostics",
+            "drift",
+            "evidence",
+            "exact",
+            "input",
+            "intake",
+            "live",
+            "local",
+            "log",
+            "map",
+            "materialization",
+            "owner",
+            "placement",
+            "plan",
+            "policy",
+            "proof",
+            "queue",
+            "repair",
+            "resource",
+            "restart",
+            "row",
+            "runtime"
+          ],
+          "sharedSubjectTokens": [
+            "acceptance",
+            "adapter",
+            "align",
+            "apply",
+            "artifact",
+            "artifacts",
+            "audit",
+            "authority",
+            "bind",
+            "binding",
+            "blocked",
+            "blocker",
+            "boundary",
+            "bounded",
+            "candidates",
+            "catalog",
+            "civ7",
+            "claims",
+            "class",
+            "classify",
+            "close",
+            "compact",
+            "compatibility",
+            "completion",
+            "config",
+            "context",
+            "contract",
+            "control",
+            "core",
+            "decision",
+            "dependencies",
+            "derive"
+          ],
+          "sharedCombinedTokens": [
+            "acceptance",
+            "adapter",
+            "align",
+            "apply",
+            "artifact",
+            "artifacts",
+            "audit",
+            "authority",
+            "bind",
+            "binding",
+            "blocked",
+            "blocker",
+            "boundary",
+            "bounded",
+            "builder",
+            "candidates",
+            "catalog",
+            "civ7",
+            "claims",
+            "class",
+            "classification",
+            "classify",
+            "close",
+            "compact",
+            "compatibility",
+            "complete",
+            "completion",
+            "config",
+            "context",
+            "contract",
+            "control",
+            "core",
+            "decision",
+            "dependencies",
+            "derive",
+            "diagnostics",
+            "direct",
+            "directions",
+            "disposition",
+            "downstream",
+            "drift",
+            "effect",
+            "evaluation",
+            "evidence",
+            "exact",
+            "explain",
+            "export",
+            "expose"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "left-has-novel-patches",
+          "left-has-patch-equivalent-in-right",
+          "patch-overlap-diverged",
+          "right-has-novel-patches",
+          "right-has-patch-equivalent-in-left"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/swooper-mapgen-recovery-drain...agent-watch-civ7-live-play-reference-assembly",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/swooper-mapgen-recovery-drain",
+        "right": "agent-watch-civ7-live-play-reference-assembly",
+        "leftRoot": "codex/swooper-mapgen-recovery-drain",
+        "rightRoot": "agent-watch-civ7-live-play-reference-assembly",
+        "leftHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "rightHead": "9e67f53645597dfd9d7299bb5beb9509fa7569fe",
+        "mergeBase": {
+          "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+          "short": "0507ef8e9"
+        },
+        "aheadBehind": {
+          "leftOnly": 35,
+          "rightOnly": 19
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 27,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d39ab4613f878969857aeee533c00af3c4a56263",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 19,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "54a01a354418e1c4115cecea758772be9bced2c6",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "86e33ada1ee886c3c2ee3c79f1a98781052a0748",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "d3c61d35a37b7b2465cbf2e473ead9073d2ffd5c",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "3e363eb0fcdf6a39bb4fbf201372a7e97e915814",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8616c6643651e572b2a3f05781447610c554c9f3",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "b8ef45082366776f785aeb8c994df3a4c24af024",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "941d5debf94302679a60f7f0db84865e0ee2bf13",
+                "subject": "feat(cli): add live Civ play support"
+              },
+              {
+                "sha": "fd69c477767358f259e8c9a00ee561dacd67cc68",
+                "subject": "feat(cli): add live Civ tactical support"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.010752688172043012,
+          "subjectTokenJaccard": 0.006125574272588055,
+          "combinedJaccard": 0.006069802731411229,
+          "sharedBranchTokens": [
+            "live"
+          ],
+          "sharedSubjectTokens": [
+            "authority",
+            "civ7",
+            "live",
+            "source"
+          ],
+          "sharedCombinedTokens": [
+            "authority",
+            "civ7",
+            "live",
+            "source"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/swooper-mapgen-recovery-drain...codex/foundation-architecture-packet",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/swooper-mapgen-recovery-drain",
+        "right": "codex/foundation-architecture-packet",
+        "leftRoot": "codex/swooper-mapgen-recovery-drain",
+        "rightRoot": "codex/foundation-architecture-packet",
+        "leftHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "rightHead": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 17,
+          "rightOnly": 1
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 17,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "647b1e61c8bbd024c97729109e4b04fa4115835d",
+                "subject": "fix(mapgen): plan starts by expansion viability"
+              },
+              {
+                "sha": "bcec62ea3b28c88fac8106db46e616a0a5c56567",
+                "subject": "fix(mapgen): gate initial resource authoring by age"
+              },
+              {
+                "sha": "5f2aa7a732280ba29f99e919f1912ddc8d207f0a",
+                "subject": "feat(studio): load Civ saved setup configs"
+              },
+              {
+                "sha": "93076f453742afb283361e0b137ce66ab6bb5158",
+                "subject": "fix(studio): validate Civ7 setup seeds"
+              },
+              {
+                "sha": "08ee2e7807eb10983870e6256cd49ad23812932b",
+                "subject": "fix(studio): harden live setup and run-in-game sync Commit the Studio-side setup sync, run-in-game failure logging/restart helpers, viz orientation guard, and live parity workstream notes as one coherent runtime integration slice."
+              },
+              {
+                "sha": "61581904ec37ac6c3e3f3097916da75936e1b949",
+                "subject": "refactor(mapgen): align foundation authoring contracts Checkpoint the foundation authoring surface alignment: mesh and plate topology contracts, history normalization docs, generated map config updates, and foundation contract tests."
+              },
+              {
+                "sha": "b410ef219d846294d62cd538bb237113e8650c36",
+                "subject": "fix(mapgen): restore authored RNG authority Move MapGen-authored randomness back behind mapgen-core seeded helpers, document the Civ adapter RNG boundary, update standard-stage imports, and align viz/stamping outputs on OddQ tile space."
+              },
+              {
+                "sha": "a23a36978eb395fb594f6cabdb62c44ea5812ed3",
+                "subject": "feat(mapgen): plan long tectonic mountain regions Add reusable OddQ component helpers, preserve connected belt corridors, trace range-region axes for longer mountain bodies, expose independent morphology knobs, and add an earthlike regression covering range diameter and hill balance."
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+                "subject": "docs(foundation): add architecture pipeline packet Capture the current Foundation stage, step, op, artifact, projection, validator/test, and downstream consumer model as a source-cited pipeline-realism packet. Record structural coupling around tectonics, final-only crust evolution, projection-derived surfaces, Morphology belt synthesis, missing landform intent layers, and validation/readback gates. References: docs/projects/pipeline-realism/resources/packets/foundation-architecture-generative-pipeline/README.md"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0,
+          "subjectTokenJaccard": 0.0206794682422452,
+          "combinedJaccard": 0.020588235294117647,
+          "sharedBranchTokens": [],
+          "sharedSubjectTokens": [
+            "artifact",
+            "downstream",
+            "final",
+            "intent",
+            "morphology",
+            "packets",
+            "pipeline",
+            "projection",
+            "projects",
+            "readback",
+            "source",
+            "stage",
+            "synthesis",
+            "validation"
+          ],
+          "sharedCombinedTokens": [
+            "artifact",
+            "downstream",
+            "final",
+            "intent",
+            "morphology",
+            "packets",
+            "pipeline",
+            "projection",
+            "projects",
+            "readback",
+            "source",
+            "stage",
+            "synthesis",
+            "validation"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/stack-lineage-audit-reference...codex/live-play-settlement-reference",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/stack-lineage-audit-reference",
+        "right": "codex/live-play-settlement-reference",
+        "leftRoot": "codex/stack-lineage-audit-reference",
+        "rightRoot": "codex/live-play-settlement-reference",
+        "leftHead": "be60913515d9fd157858316400e95851bbb71d8c",
+        "rightHead": "754f90431964aaac4e266a483012b4711b2f6198",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 12,
+          "rightOnly": 1
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 12,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "bb26f5168ad35800b1d325ee65d0e585e44bd57f",
+                "subject": "docs(graphite): clarify stack action taxonomy"
+              },
+              {
+                "sha": "536e478bf7292fbedc5635fcb58c88aa7f2a8272",
+                "subject": "chore(graphite): consolidate stack visualizer toolkit"
+              },
+              {
+                "sha": "d65df9af9d4d1e0fdf816a763622326ff0853e31",
+                "subject": "docs(graphite): capture stack inspect workstream base"
+              },
+              {
+                "sha": "94424ef23522e89c1ece18de9dbd19e50023e1ba",
+                "subject": "docs(graphite): add PR tracking layer to stack visual"
+              },
+              {
+                "sha": "440dad30748ca6fbf40c143bcca313d5870a4417",
+                "subject": "docs(graphite): define stack inspect React workstream"
+              },
+              {
+                "sha": "a62678b091afd4de275458487c914ee03c08dcb3",
+                "subject": "docs(graphite): encode stack recovery phases"
+              },
+              {
+                "sha": "b7bdd75650c31ed3cb391c9b055bd05957b7f512",
+                "subject": "docs(graphite): define effect-orpc visualizer workstream"
+              },
+              {
+                "sha": "967d0657e19278d337854b5d34aece5e745dc92c",
+                "subject": "docs(graphite): refresh stack blocker visual"
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "754f90431964aaac4e266a483012b4711b2f6198",
+                "subject": "docs(graphite): prepare live-play settlement reference"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.06206896551724138,
+          "subjectTokenJaccard": 0.1266891891891892,
+          "combinedJaccard": 0.12950819672131147,
+          "sharedBranchTokens": [
+            "contract",
+            "evidence",
+            "integration",
+            "live",
+            "orpc",
+            "parity",
+            "proof",
+            "reference",
+            "runtime"
+          ],
+          "sharedSubjectTokens": [
+            "age",
+            "anchor",
+            "bind",
+            "boundary",
+            "bounded",
+            "claim",
+            "classes",
+            "classify",
+            "closure",
+            "command",
+            "context",
+            "contract",
+            "diagnostics",
+            "disposition",
+            "effect",
+            "evidence",
+            "existing",
+            "expansion",
+            "expose",
+            "fixture",
+            "focused",
+            "for",
+            "full",
+            "gate",
+            "help",
+            "identity",
+            "implementation",
+            "including",
+            "integration",
+            "joins",
+            "keep",
+            "lane"
+          ],
+          "sharedCombinedTokens": [
+            "age",
+            "anchor",
+            "bind",
+            "boundary",
+            "bounded",
+            "claim",
+            "classes",
+            "classify",
+            "closure",
+            "command",
+            "context",
+            "contract",
+            "correction",
+            "diagnostics",
+            "disposition",
+            "effect",
+            "evidence",
+            "existing",
+            "expansion",
+            "expose",
+            "fixture",
+            "focused",
+            "for",
+            "full",
+            "gate",
+            "help",
+            "identity",
+            "implementation",
+            "including",
+            "integration",
+            "joins",
+            "keep",
+            "lane",
+            "lanes",
+            "live",
+            "load",
+            "local",
+            "map",
+            "metadata",
+            "not",
+            "notes",
+            "openspec",
+            "orpc",
+            "owned",
+            "ownership",
+            "package",
+            "parity",
+            "policy"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/stack-lineage-audit-reference...codex/local-catalog-enrichment",
+        "scope": "root-pair",
+        "relationshipKind": "patch-overlap-diverged",
+        "left": "codex/stack-lineage-audit-reference",
+        "right": "codex/local-catalog-enrichment",
+        "leftRoot": "codex/stack-lineage-audit-reference",
+        "rightRoot": "codex/local-catalog-enrichment",
+        "leftHead": "be60913515d9fd157858316400e95851bbb71d8c",
+        "rightHead": "1689806731331dae56262cfa988fdbc0800b3e88",
+        "mergeBase": {
+          "sha": "929a282ff34033664e1fee71f4f78c977796a3dd",
+          "short": "929a282ff"
+        },
+        "aheadBehind": {
+          "leftOnly": 38,
+          "rightOnly": 34
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 21,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "db52c7aecda06bebb4eba34bee60def035d67249",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "9011233676639569d76464166179189b1779a169",
+                "subject": "docs(morphology): integrate live readback boundary"
+              },
+              {
+                "sha": "fde990cb16ee8262722a7b8c89ad3c4414c4cf15",
+                "subject": "fix(ecology): integrate morphology peer repairs"
+              },
+              {
+                "sha": "37ae85d62746e62d31c603a52d357e51e8c82cea",
+                "subject": "feat(mapgen): integrate resource corpus expectations"
+              },
+              {
+                "sha": "b1b1b33f3c0d0911a8ab1242a948a36c7af7947e",
+                "subject": "feat(mapgen): integrate resource ops rollup"
+              },
+              {
+                "sha": "e4b5c995d6b38c06a4e9957ddc2b614cab8b03f2",
+                "subject": "fix(mapgen): integrate resource runtime proof"
+              },
+              {
+                "sha": "caab828e97c7d1ee0716dd2cfc314a4c6ff3fa2c",
+                "subject": "chore(imports): break circular dependency edges"
+              },
+              {
+                "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+                "subject": "fix(mapgen): stabilize integrated stack boundaries"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "9d40e87281cfca0355a6ea6934906be200eb874b",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          },
+          "rightComparedToLeft": {
+            "patchNew": 25,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "d186ed978fff01cccc465d429ad9a05310bfd3d3",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7c2312708447f9ad7a38245a9feb4bb7dfb3339f",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "ff740d9bcbef882409802eff6a6d96ec7866657d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "df1b81532c7fcb4930c07fceee1e2ff748d05840",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1e6267722ab07485f2b1ef938cae7d84fc29d041",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "761e4e1a7e5569b9252df00b7e2412603ac8561a",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "218d602c199f3d4455ef50133e870ad8885d3f6d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1020ae667a1ea973aa273e91f6c0bb3eaf4643a5",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "c8a09fedb1ad508e6e284945467631dfbe601140",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "3141acd40ead97ffbdcc1bda463a344585e23036",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "2bd8060613c51faa96421d8f1629938450030b90",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "913779e988091c7ce7ec16a7998c57986864a199",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d09439a575d67dd1ceb39ac438921dfba8e782c9",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "1dc806e926ab2a5711ea43358a2e07889833b0b8",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "c5fa90ef27207333e4dca2af4c8cc494788f0dc5",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "49a93be73254e3be443ee35cfa16b2add7d908e3",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.04738154613466334,
+          "subjectTokenJaccard": 0.15517241379310345,
+          "combinedJaccard": 0.16012084592145015,
+          "sharedBranchTokens": [
+            "alignment",
+            "audit",
+            "contract",
+            "core",
+            "effect",
+            "evidence",
+            "inspect",
+            "inspection",
+            "live",
+            "orpc",
+            "proof",
+            "rebaseline",
+            "reference",
+            "router",
+            "rpc",
+            "runtime",
+            "service",
+            "state",
+            "verification"
+          ],
+          "sharedSubjectTokens": [
+            "action",
+            "actions",
+            "bind",
+            "boundary",
+            "bounded",
+            "classify",
+            "close",
+            "command",
+            "component",
+            "context",
+            "contract",
+            "core",
+            "decision",
+            "define",
+            "dependencies",
+            "dependency",
+            "descriptor",
+            "descriptors",
+            "diagnostics",
+            "discovery",
+            "disposition",
+            "downstream",
+            "effect",
+            "enrich",
+            "error",
+            "errors",
+            "evidence",
+            "execute",
+            "expose",
+            "facade",
+            "field",
+            "fields"
+          ],
+          "sharedCombinedTokens": [
+            "action",
+            "actions",
+            "alignment",
+            "audit",
+            "bind",
+            "boundary",
+            "bounded",
+            "classify",
+            "close",
+            "command",
+            "component",
+            "context",
+            "contract",
+            "core",
+            "data",
+            "decision",
+            "define",
+            "dependencies",
+            "dependency",
+            "descriptor",
+            "descriptors",
+            "diagnostics",
+            "discovery",
+            "disposition",
+            "downstream",
+            "effect",
+            "enrich",
+            "error",
+            "errors",
+            "evidence",
+            "execute",
+            "expose",
+            "facade",
+            "field",
+            "fields",
+            "fixture",
+            "focus",
+            "for",
+            "gate",
+            "guard",
+            "harden",
+            "helpers",
+            "implementation",
+            "import",
+            "imports",
+            "inspect",
+            "inspection",
+            "install"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "left-has-novel-patches",
+          "left-has-patch-equivalent-in-right",
+          "patch-overlap-diverged",
+          "right-has-novel-patches",
+          "right-has-patch-equivalent-in-left"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/stack-lineage-audit-reference...agent-watch-civ7-live-play-reference-assembly",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/stack-lineage-audit-reference",
+        "right": "agent-watch-civ7-live-play-reference-assembly",
+        "leftRoot": "codex/stack-lineage-audit-reference",
+        "rightRoot": "agent-watch-civ7-live-play-reference-assembly",
+        "leftHead": "be60913515d9fd157858316400e95851bbb71d8c",
+        "rightHead": "9e67f53645597dfd9d7299bb5beb9509fa7569fe",
+        "mergeBase": {
+          "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+          "short": "0507ef8e9"
+        },
+        "aheadBehind": {
+          "leftOnly": 30,
+          "rightOnly": 19
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 22,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d39ab4613f878969857aeee533c00af3c4a56263",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 19,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "54a01a354418e1c4115cecea758772be9bced2c6",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "86e33ada1ee886c3c2ee3c79f1a98781052a0748",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "d3c61d35a37b7b2465cbf2e473ead9073d2ffd5c",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "3e363eb0fcdf6a39bb4fbf201372a7e97e915814",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8616c6643651e572b2a3f05781447610c554c9f3",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "b8ef45082366776f785aeb8c994df3a4c24af024",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "941d5debf94302679a60f7f0db84865e0ee2bf13",
+                "subject": "feat(cli): add live Civ play support"
+              },
+              {
+                "sha": "fd69c477767358f259e8c9a00ee561dacd67cc68",
+                "subject": "feat(cli): add live Civ tactical support"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.045454545454545456,
+          "subjectTokenJaccard": 0.006024096385542169,
+          "combinedJaccard": 0.008823529411764706,
+          "sharedBranchTokens": [
+            "live",
+            "reference"
+          ],
+          "sharedSubjectTokens": [
+            "live",
+            "source"
+          ],
+          "sharedCombinedTokens": [
+            "live",
+            "reference",
+            "source"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/stack-lineage-audit-reference...codex/foundation-architecture-packet",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/stack-lineage-audit-reference",
+        "right": "codex/foundation-architecture-packet",
+        "leftRoot": "codex/stack-lineage-audit-reference",
+        "rightRoot": "codex/foundation-architecture-packet",
+        "leftHead": "be60913515d9fd157858316400e95851bbb71d8c",
+        "rightHead": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 12,
+          "rightOnly": 1
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 12,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "bb26f5168ad35800b1d325ee65d0e585e44bd57f",
+                "subject": "docs(graphite): clarify stack action taxonomy"
+              },
+              {
+                "sha": "536e478bf7292fbedc5635fcb58c88aa7f2a8272",
+                "subject": "chore(graphite): consolidate stack visualizer toolkit"
+              },
+              {
+                "sha": "d65df9af9d4d1e0fdf816a763622326ff0853e31",
+                "subject": "docs(graphite): capture stack inspect workstream base"
+              },
+              {
+                "sha": "94424ef23522e89c1ece18de9dbd19e50023e1ba",
+                "subject": "docs(graphite): add PR tracking layer to stack visual"
+              },
+              {
+                "sha": "440dad30748ca6fbf40c143bcca313d5870a4417",
+                "subject": "docs(graphite): define stack inspect React workstream"
+              },
+              {
+                "sha": "a62678b091afd4de275458487c914ee03c08dcb3",
+                "subject": "docs(graphite): encode stack recovery phases"
+              },
+              {
+                "sha": "b7bdd75650c31ed3cb391c9b055bd05957b7f512",
+                "subject": "docs(graphite): define effect-orpc visualizer workstream"
+              },
+              {
+                "sha": "967d0657e19278d337854b5d34aece5e745dc92c",
+                "subject": "docs(graphite): refresh stack blocker visual"
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+                "subject": "docs(foundation): add architecture pipeline packet Capture the current Foundation stage, step, op, artifact, projection, validator/test, and downstream consumer model as a source-cited pipeline-realism packet. Record structural coupling around tectonics, final-only crust evolution, projection-derived surfaces, Morphology belt synthesis, missing landform intent layers, and validation/readback gates. References: docs/projects/pipeline-realism/resources/packets/foundation-architecture-generative-pipeline/README.md"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0,
+          "subjectTokenJaccard": 0.013774104683195593,
+          "combinedJaccard": 0.013550135501355014,
+          "sharedBranchTokens": [],
+          "sharedSubjectTokens": [
+            "downstream",
+            "layers",
+            "model",
+            "source",
+            "validation"
+          ],
+          "sharedCombinedTokens": [
+            "downstream",
+            "layers",
+            "model",
+            "source",
+            "validation"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/live-play-settlement-reference...codex/local-catalog-enrichment",
+        "scope": "root-pair",
+        "relationshipKind": "patch-overlap-diverged",
+        "left": "codex/live-play-settlement-reference",
+        "right": "codex/local-catalog-enrichment",
+        "leftRoot": "codex/live-play-settlement-reference",
+        "rightRoot": "codex/local-catalog-enrichment",
+        "leftHead": "754f90431964aaac4e266a483012b4711b2f6198",
+        "rightHead": "1689806731331dae56262cfa988fdbc0800b3e88",
+        "mergeBase": {
+          "sha": "929a282ff34033664e1fee71f4f78c977796a3dd",
+          "short": "929a282ff"
+        },
+        "aheadBehind": {
+          "leftOnly": 27,
+          "rightOnly": 34
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 10,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "db52c7aecda06bebb4eba34bee60def035d67249",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "9011233676639569d76464166179189b1779a169",
+                "subject": "docs(morphology): integrate live readback boundary"
+              },
+              {
+                "sha": "fde990cb16ee8262722a7b8c89ad3c4414c4cf15",
+                "subject": "fix(ecology): integrate morphology peer repairs"
+              },
+              {
+                "sha": "37ae85d62746e62d31c603a52d357e51e8c82cea",
+                "subject": "feat(mapgen): integrate resource corpus expectations"
+              },
+              {
+                "sha": "b1b1b33f3c0d0911a8ab1242a948a36c7af7947e",
+                "subject": "feat(mapgen): integrate resource ops rollup"
+              },
+              {
+                "sha": "e4b5c995d6b38c06a4e9957ddc2b614cab8b03f2",
+                "subject": "fix(mapgen): integrate resource runtime proof"
+              },
+              {
+                "sha": "caab828e97c7d1ee0716dd2cfc314a4c6ff3fa2c",
+                "subject": "chore(imports): break circular dependency edges"
+              },
+              {
+                "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+                "subject": "fix(mapgen): stabilize integrated stack boundaries"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "9d40e87281cfca0355a6ea6934906be200eb874b",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          },
+          "rightComparedToLeft": {
+            "patchNew": 25,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "d186ed978fff01cccc465d429ad9a05310bfd3d3",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7c2312708447f9ad7a38245a9feb4bb7dfb3339f",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "ff740d9bcbef882409802eff6a6d96ec7866657d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "df1b81532c7fcb4930c07fceee1e2ff748d05840",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1e6267722ab07485f2b1ef938cae7d84fc29d041",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "761e4e1a7e5569b9252df00b7e2412603ac8561a",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "218d602c199f3d4455ef50133e870ad8885d3f6d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1020ae667a1ea973aa273e91f6c0bb3eaf4643a5",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "c8a09fedb1ad508e6e284945467631dfbe601140",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "3141acd40ead97ffbdcc1bda463a344585e23036",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "2bd8060613c51faa96421d8f1629938450030b90",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "913779e988091c7ce7ec16a7998c57986864a199",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d09439a575d67dd1ceb39ac438921dfba8e782c9",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "1dc806e926ab2a5711ea43358a2e07889833b0b8",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "c5fa90ef27207333e4dca2af4c8cc494788f0dc5",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "49a93be73254e3be443ee35cfa16b2add7d908e3",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.12585812356979406,
+          "subjectTokenJaccard": 0.18354430379746836,
+          "combinedJaccard": 0.19364599092284418,
+          "sharedBranchTokens": [
+            "api",
+            "artifact",
+            "boundary",
+            "builder",
+            "catalog",
+            "class",
+            "classification",
+            "completion",
+            "config",
+            "context",
+            "contract",
+            "control",
+            "diagnostics",
+            "dra",
+            "evidence",
+            "exact",
+            "handoff",
+            "hotseat",
+            "intake",
+            "intelligence",
+            "live",
+            "local",
+            "map",
+            "materialization",
+            "openspec",
+            "orpc",
+            "output",
+            "packet",
+            "phase",
+            "placement",
+            "plan",
+            "play"
+          ],
+          "sharedSubjectTokens": [
+            "acceptance",
+            "align",
+            "api",
+            "artifact",
+            "artifacts",
+            "authority",
+            "bind",
+            "blocked",
+            "boundary",
+            "bounded",
+            "bridge",
+            "builder",
+            "catalog",
+            "civ7",
+            "class",
+            "classify",
+            "command",
+            "completion",
+            "config",
+            "context",
+            "contract",
+            "control",
+            "controller",
+            "diagnostics",
+            "direct",
+            "directions",
+            "disposition",
+            "effect",
+            "evidence",
+            "exact",
+            "export",
+            "expose"
+          ],
+          "sharedCombinedTokens": [
+            "acceptance",
+            "align",
+            "api",
+            "architecture",
+            "artifact",
+            "artifacts",
+            "authority",
+            "bind",
+            "blocked",
+            "boundary",
+            "bounded",
+            "bridge",
+            "builder",
+            "catalog",
+            "civ7",
+            "class",
+            "classification",
+            "classify",
+            "command",
+            "completion",
+            "config",
+            "context",
+            "contract",
+            "control",
+            "controller",
+            "diagnostics",
+            "direct",
+            "directions",
+            "disposition",
+            "dra",
+            "effect",
+            "evidence",
+            "exact",
+            "export",
+            "expose",
+            "first",
+            "fixture",
+            "for",
+            "frame",
+            "game",
+            "gate",
+            "handoff",
+            "helper",
+            "hotseat",
+            "implementation",
+            "inputs",
+            "intake",
+            "intelligence"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "left-has-novel-patches",
+          "left-has-patch-equivalent-in-right",
+          "patch-overlap-diverged",
+          "right-has-novel-patches",
+          "right-has-patch-equivalent-in-left"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/live-play-settlement-reference...agent-watch-civ7-live-play-reference-assembly",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/live-play-settlement-reference",
+        "right": "agent-watch-civ7-live-play-reference-assembly",
+        "leftRoot": "codex/live-play-settlement-reference",
+        "rightRoot": "agent-watch-civ7-live-play-reference-assembly",
+        "leftHead": "754f90431964aaac4e266a483012b4711b2f6198",
+        "rightHead": "9e67f53645597dfd9d7299bb5beb9509fa7569fe",
+        "mergeBase": {
+          "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+          "short": "0507ef8e9"
+        },
+        "aheadBehind": {
+          "leftOnly": 19,
+          "rightOnly": 19
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 11,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d39ab4613f878969857aeee533c00af3c4a56263",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 19,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "54a01a354418e1c4115cecea758772be9bced2c6",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "86e33ada1ee886c3c2ee3c79f1a98781052a0748",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "d3c61d35a37b7b2465cbf2e473ead9073d2ffd5c",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "3e363eb0fcdf6a39bb4fbf201372a7e97e915814",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8616c6643651e572b2a3f05781447610c554c9f3",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "b8ef45082366776f785aeb8c994df3a4c24af024",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "941d5debf94302679a60f7f0db84865e0ee2bf13",
+                "subject": "feat(cli): add live Civ play support"
+              },
+              {
+                "sha": "fd69c477767358f259e8c9a00ee561dacd67cc68",
+                "subject": "feat(cli): add live Civ tactical support"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.03508771929824561,
+          "subjectTokenJaccard": 0.011730205278592375,
+          "combinedJaccard": 0.01675977653631285,
+          "sharedBranchTokens": [
+            "civ7",
+            "live",
+            "play",
+            "reference"
+          ],
+          "sharedSubjectTokens": [
+            "authority",
+            "civ7",
+            "live",
+            "source"
+          ],
+          "sharedCombinedTokens": [
+            "authority",
+            "civ7",
+            "live",
+            "play",
+            "reference",
+            "source"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/live-play-settlement-reference...codex/foundation-architecture-packet",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "codex/live-play-settlement-reference",
+        "right": "codex/foundation-architecture-packet",
+        "leftRoot": "codex/live-play-settlement-reference",
+        "rightRoot": "codex/foundation-architecture-packet",
+        "leftHead": "754f90431964aaac4e266a483012b4711b2f6198",
+        "rightHead": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 1,
+          "rightOnly": 1
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "754f90431964aaac4e266a483012b4711b2f6198",
+                "subject": "docs(graphite): prepare live-play settlement reference"
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 1,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+                "subject": "docs(foundation): add architecture pipeline packet Capture the current Foundation stage, step, op, artifact, projection, validator/test, and downstream consumer model as a source-cited pipeline-realism packet. Record structural coupling around tectonics, final-only crust evolution, projection-derived surfaces, Morphology belt synthesis, missing landform intent layers, and validation/readback gates. References: docs/projects/pipeline-realism/resources/packets/foundation-architecture-generative-pipeline/README.md"
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.017543859649122806,
+          "subjectTokenJaccard": 0.024324324324324326,
+          "combinedJaccard": 0.028645833333333332,
+          "sharedBranchTokens": [
+            "architecture",
+            "packet"
+          ],
+          "sharedSubjectTokens": [
+            "artifact",
+            "final",
+            "gates",
+            "missing",
+            "morphology",
+            "pipeline",
+            "readback",
+            "source",
+            "validation"
+          ],
+          "sharedCombinedTokens": [
+            "architecture",
+            "artifact",
+            "final",
+            "gates",
+            "missing",
+            "morphology",
+            "packet",
+            "pipeline",
+            "readback",
+            "source",
+            "validation"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/local-catalog-enrichment...agent-watch-civ7-live-play-reference-assembly",
+        "scope": "root-pair",
+        "relationshipKind": "patch-overlap-diverged",
+        "left": "codex/local-catalog-enrichment",
+        "right": "agent-watch-civ7-live-play-reference-assembly",
+        "leftRoot": "codex/local-catalog-enrichment",
+        "rightRoot": "agent-watch-civ7-live-play-reference-assembly",
+        "leftHead": "1689806731331dae56262cfa988fdbc0800b3e88",
+        "rightHead": "9e67f53645597dfd9d7299bb5beb9509fa7569fe",
+        "mergeBase": {
+          "sha": "929a282ff34033664e1fee71f4f78c977796a3dd",
+          "short": "929a282ff"
+        },
+        "aheadBehind": {
+          "leftOnly": 34,
+          "rightOnly": 27
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 16,
+            "patchEquivalent": 18,
+            "sampleNew": [
+              {
+                "sha": "c8a09fedb1ad508e6e284945467631dfbe601140",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "3141acd40ead97ffbdcc1bda463a344585e23036",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "2bd8060613c51faa96421d8f1629938450030b90",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "913779e988091c7ce7ec16a7998c57986864a199",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d186ed978fff01cccc465d429ad9a05310bfd3d3",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "d09439a575d67dd1ceb39ac438921dfba8e782c9",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "1dc806e926ab2a5711ea43358a2e07889833b0b8",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "c5fa90ef27207333e4dca2af4c8cc494788f0dc5",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "ff740d9bcbef882409802eff6a6d96ec7866657d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "df1b81532c7fcb4930c07fceee1e2ff748d05840",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1e6267722ab07485f2b1ef938cae7d84fc29d041",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "761e4e1a7e5569b9252df00b7e2412603ac8561a",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "218d602c199f3d4455ef50133e870ad8885d3f6d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1020ae667a1ea973aa273e91f6c0bb3eaf4643a5",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8bfd5f66c3bd1afa8ea8e082f6d8fdd88b5b2fdb",
+                "subject": "feat(cli): add live Civ tactical support"
+              },
+              {
+                "sha": "08eb8d9b4c708a326ebd0fcff5c9d7a610ca8c97",
+                "subject": "feat(cli): add notification decision HUD Expand the live play notification materialized view with decision HUD data: ordered blocker queue, required inputs, common safe actions, and CLI rendering. Document the blocker-family frame and narrative CLOSE fallback for later skill promotion."
+              }
+            ]
+          },
+          "rightComparedToLeft": {
+            "patchNew": 9,
+            "patchEquivalent": 18,
+            "sampleNew": [
+              {
+                "sha": "db52c7aecda06bebb4eba34bee60def035d67249",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "9011233676639569d76464166179189b1779a169",
+                "subject": "docs(morphology): integrate live readback boundary"
+              },
+              {
+                "sha": "fde990cb16ee8262722a7b8c89ad3c4414c4cf15",
+                "subject": "fix(ecology): integrate morphology peer repairs"
+              },
+              {
+                "sha": "37ae85d62746e62d31c603a52d357e51e8c82cea",
+                "subject": "feat(mapgen): integrate resource corpus expectations"
+              },
+              {
+                "sha": "b1b1b33f3c0d0911a8ab1242a948a36c7af7947e",
+                "subject": "feat(mapgen): integrate resource ops rollup"
+              },
+              {
+                "sha": "e4b5c995d6b38c06a4e9957ddc2b614cab8b03f2",
+                "subject": "fix(mapgen): integrate resource runtime proof"
+              },
+              {
+                "sha": "caab828e97c7d1ee0716dd2cfc314a4c6ff3fa2c",
+                "subject": "chore(imports): break circular dependency edges"
+              },
+              {
+                "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+                "subject": "fix(mapgen): stabilize integrated stack boundaries"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "54a01a354418e1c4115cecea758772be9bced2c6",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "86e33ada1ee886c3c2ee3c79f1a98781052a0748",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "d3c61d35a37b7b2465cbf2e473ead9073d2ffd5c",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "3e363eb0fcdf6a39bb4fbf201372a7e97e915814",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8616c6643651e572b2a3f05781447610c554c9f3",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "b8ef45082366776f785aeb8c994df3a4c24af024",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "fd69c477767358f259e8c9a00ee561dacd67cc68",
+                "subject": "feat(cli): add live Civ tactical support"
+              },
+              {
+                "sha": "5434eb63c6c98cff7d2f93fd92b6a296bc326566",
+                "subject": "feat(cli): add notification decision HUD Expand the live play notification materialized view with decision HUD data: ordered blocker queue, required inputs, common safe actions, and CLI rendering. Document the blocker-family frame and narrative CLOSE fallback for later skill promotion."
+              }
+            ]
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.007874015748031496,
+          "subjectTokenJaccard": 0.012195121951219513,
+          "combinedJaccard": 0.01839080459770115,
+          "sharedBranchTokens": [
+            "live",
+            "play",
+            "reference"
+          ],
+          "sharedSubjectTokens": [
+            "authority",
+            "civ7",
+            "clarify",
+            "hud",
+            "source"
+          ],
+          "sharedCombinedTokens": [
+            "authority",
+            "civ7",
+            "clarify",
+            "hud",
+            "live",
+            "play",
+            "reference",
+            "source"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "left-has-novel-patches",
+          "left-has-patch-equivalent-in-right",
+          "patch-overlap-diverged",
+          "right-has-novel-patches",
+          "right-has-patch-equivalent-in-left"
+        ]
+      },
+      {
+        "pairId": "root-pair:codex/local-catalog-enrichment...codex/foundation-architecture-packet",
+        "scope": "root-pair",
+        "relationshipKind": "patch-overlap-diverged",
+        "left": "codex/local-catalog-enrichment",
+        "right": "codex/foundation-architecture-packet",
+        "leftRoot": "codex/local-catalog-enrichment",
+        "rightRoot": "codex/foundation-architecture-packet",
+        "leftHead": "1689806731331dae56262cfa988fdbc0800b3e88",
+        "rightHead": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+        "mergeBase": {
+          "sha": "929a282ff34033664e1fee71f4f78c977796a3dd",
+          "short": "929a282ff"
+        },
+        "aheadBehind": {
+          "leftOnly": 34,
+          "rightOnly": 27
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 25,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "d186ed978fff01cccc465d429ad9a05310bfd3d3",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7c2312708447f9ad7a38245a9feb4bb7dfb3339f",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "ff740d9bcbef882409802eff6a6d96ec7866657d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "df1b81532c7fcb4930c07fceee1e2ff748d05840",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1e6267722ab07485f2b1ef938cae7d84fc29d041",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "761e4e1a7e5569b9252df00b7e2412603ac8561a",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "218d602c199f3d4455ef50133e870ad8885d3f6d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1020ae667a1ea973aa273e91f6c0bb3eaf4643a5",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "c8a09fedb1ad508e6e284945467631dfbe601140",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "3141acd40ead97ffbdcc1bda463a344585e23036",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "2bd8060613c51faa96421d8f1629938450030b90",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "913779e988091c7ce7ec16a7998c57986864a199",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d09439a575d67dd1ceb39ac438921dfba8e782c9",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "1dc806e926ab2a5711ea43358a2e07889833b0b8",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "c5fa90ef27207333e4dca2af4c8cc494788f0dc5",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "49a93be73254e3be443ee35cfa16b2add7d908e3",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          },
+          "rightComparedToLeft": {
+            "patchNew": 10,
+            "patchEquivalent": 9,
+            "sampleNew": [
+              {
+                "sha": "db52c7aecda06bebb4eba34bee60def035d67249",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "9011233676639569d76464166179189b1779a169",
+                "subject": "docs(morphology): integrate live readback boundary"
+              },
+              {
+                "sha": "fde990cb16ee8262722a7b8c89ad3c4414c4cf15",
+                "subject": "fix(ecology): integrate morphology peer repairs"
+              },
+              {
+                "sha": "37ae85d62746e62d31c603a52d357e51e8c82cea",
+                "subject": "feat(mapgen): integrate resource corpus expectations"
+              },
+              {
+                "sha": "b1b1b33f3c0d0911a8ab1242a948a36c7af7947e",
+                "subject": "feat(mapgen): integrate resource ops rollup"
+              },
+              {
+                "sha": "e4b5c995d6b38c06a4e9957ddc2b614cab8b03f2",
+                "subject": "fix(mapgen): integrate resource runtime proof"
+              },
+              {
+                "sha": "caab828e97c7d1ee0716dd2cfc314a4c6ff3fa2c",
+                "subject": "chore(imports): break circular dependency edges"
+              },
+              {
+                "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+                "subject": "fix(mapgen): stabilize integrated stack boundaries"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              },
+              {
+                "sha": "9d40e87281cfca0355a6ea6934906be200eb874b",
+                "subject": "feat(studio): add Civ autoplay control Adds a Studio /api/civ7/autoplay endpoint backed by @civ7/direct-control startCiv7Autoplay and stopCiv7Autoplay. The endpoint rejects malformed actions and blocks autoplay changes while Save/Deploy or Run in Game operations are active. Adds a live Civ footer button that starts unbounded native autoplay when inactive and switches to Stop Auto when Civ reports autoplay active. The UI disables the control during Studio operations and records live autoplay pause/active state. Verification: bun run --cwd apps/mapgen-studio check; bun run --cwd apps/mapgen-studio test -- runInGame; live Studio footer showed Stop Auto for an already-active autoplay game; invalid autoplay action probe returned 400."
+              }
+            ]
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.0026246719160104987,
+          "subjectTokenJaccard": 0.01583710407239819,
+          "combinedJaccard": 0.017167381974248927,
+          "sharedBranchTokens": [
+            "packet"
+          ],
+          "sharedSubjectTokens": [
+            "architecture",
+            "artifact",
+            "downstream",
+            "projection",
+            "references",
+            "source",
+            "validation"
+          ],
+          "sharedCombinedTokens": [
+            "architecture",
+            "artifact",
+            "downstream",
+            "packet",
+            "projection",
+            "references",
+            "source",
+            "validation"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "left-has-novel-patches",
+          "left-has-patch-equivalent-in-right",
+          "patch-overlap-diverged",
+          "right-has-novel-patches",
+          "right-has-patch-equivalent-in-left"
+        ]
+      },
+      {
+        "pairId": "root-pair:agent-watch-civ7-live-play-reference-assembly...codex/foundation-architecture-packet",
+        "scope": "root-pair",
+        "relationshipKind": "diverged",
+        "left": "agent-watch-civ7-live-play-reference-assembly",
+        "right": "codex/foundation-architecture-packet",
+        "leftRoot": "agent-watch-civ7-live-play-reference-assembly",
+        "rightRoot": "codex/foundation-architecture-packet",
+        "leftHead": "9e67f53645597dfd9d7299bb5beb9509fa7569fe",
+        "rightHead": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+        "mergeBase": {
+          "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+          "short": "0507ef8e9"
+        },
+        "aheadBehind": {
+          "leftOnly": 19,
+          "rightOnly": 19
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 19,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "54a01a354418e1c4115cecea758772be9bced2c6",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "86e33ada1ee886c3c2ee3c79f1a98781052a0748",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "d3c61d35a37b7b2465cbf2e473ead9073d2ffd5c",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "3e363eb0fcdf6a39bb4fbf201372a7e97e915814",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8616c6643651e572b2a3f05781447610c554c9f3",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "b8ef45082366776f785aeb8c994df3a4c24af024",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "941d5debf94302679a60f7f0db84865e0ee2bf13",
+                "subject": "feat(cli): add live Civ play support"
+              },
+              {
+                "sha": "fd69c477767358f259e8c9a00ee561dacd67cc68",
+                "subject": "feat(cli): add live Civ tactical support"
+              }
+            ],
+            "sampleEquivalent": []
+          },
+          "rightComparedToLeft": {
+            "patchNew": 11,
+            "patchEquivalent": 0,
+            "sampleNew": [
+              {
+                "sha": "cdca71f02ac1bf24757a89f86bc3fe894080b5ce",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "017fbb24931944b4fb4b8a9a587ac94fa196bcc0",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "3433ecb1ed49e9dd6fbf8425064fa2b39adfbb6c",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "49a51198a16237c2debd6fc785824d9e27c92116",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d39ab4613f878969857aeee533c00af3c4a56263",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "7eda16891440a90894aac4f860da64b4f047eeac",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "364e7f2880f133b3b47353fb24b2e9ec85424cf7",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "feba6884f8db4273e786bf094f9675afe2bff040",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              }
+            ],
+            "sampleEquivalent": []
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0,
+          "subjectTokenJaccard": 0.022222222222222223,
+          "combinedJaccard": 0.020833333333333332,
+          "sharedBranchTokens": [],
+          "sharedSubjectTokens": [
+            "source"
+          ],
+          "sharedCombinedTokens": [
+            "source"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "diverged",
+          "left-has-novel-patches",
+          "right-has-novel-patches"
+        ]
+      }
+    ]
+  },
+  "metadataWarnings": [],
   "staleAnchorWarnings": [
     {
       "moveId": "done-adopt-studio-live-runtime-snapshot-completion",
@@ -23500,6 +26996,7 @@
         "codex/earthlike-natural-wonder-live-telemetry",
         "codex/earthlike-natural-wonder-coordinate-proof",
         "codex/earthlike-natural-wonder-source-classification",
+        "codex/workspace-source-package-resolution",
         "codex/earthlike-natural-wonder-materialization-repair",
         "codex/earthlike-natural-wonder-repair-proof-record",
         "codex/earthlike-feature-post-wonder-repair-context",
@@ -23528,7 +27025,7 @@
         "codex/swooper-wonder-footprint-proof-drain",
         "codex/swooper-wonder-footprint-proof-record-drain"
       ],
-      "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+      "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
     },
     {
       "moveId": "planned-adopt-earthlike-floodplain-config-leaf",

@@ -348,6 +348,7 @@
           "codex/earthlike-natural-wonder-live-telemetry",
           "codex/earthlike-natural-wonder-coordinate-proof",
           "codex/earthlike-natural-wonder-source-classification",
+          "codex/workspace-source-package-resolution",
           "codex/earthlike-natural-wonder-materialization-repair",
           "codex/earthlike-natural-wonder-repair-proof-record",
           "codex/earthlike-feature-post-wonder-repair-context",
@@ -387,7 +388,7 @@
         "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
         "capturedAt": "2026-06-07T14:00:05-04:00"
       },
-      "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. Later Swooper plan-input comparison branches are new continuation work."
+      "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
     },
     {
       "moveId": "planned-adopt-earthlike-floodplain-config-leaf",

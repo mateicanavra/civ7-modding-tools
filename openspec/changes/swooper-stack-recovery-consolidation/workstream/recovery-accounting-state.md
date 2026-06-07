@@ -44,6 +44,7 @@ This is the human-readable companion to
 | Earthlike feature/resource proof stack through `codex/earthlike-resource-coordinate-proof-intake` | `done/adopt` | Swooper resource proof drain | Covered locally; later Swooper resource rejection branches are continuation work, not old-source cleanup. |
 | Earthlike terrain-edge stack through `codex/earthlike-terrain-edge-stack-integration` | `done/adopt` | `codex/swooper-terrain-edge-reconciliation-drain` | Covered locally; cleanup gated on recovery landing. |
 | Earthlike natural-wonder stack through `codex/earthlike-natural-wonder-postwrite-footprint-proof` | `done/adopt` | Swooper natural-wonder drain | Covered locally through footprint proof; later plan-input branches are continuation work. |
+| `codex/workspace-source-package-resolution` | `done/adopt` | Swooper natural-wonder drain | Covered locally by the recovery-side workspace source-resolution expansion for `@civ7/map-policy` and `@civ7/adapter`; this is an accounting-label correction, not new product adoption. |
 | `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `planned/adopt` | `codex/swooper-mapgen-recovery-drain` | Not finished: latest Earthlike `floodplainPlanning` config/hash leaf is missing from recovery. |
 | Non-Earthlike predecessor config drift | `done/exclude` | retired | Intentionally dropped. |
 | Systematic workstream skill support slice | `planned/adopt` | `main` | Not product recovery; adopt separately if we want repo-local skill support durable on main. |
@@ -69,8 +70,8 @@ Finished locally:
 
 - The recovery stack has local semantic coverage for the predecessor Swooper
   Earthlike, Studio setup, exact-authorship, final-surface proof, feature/resource
-  proof, terrain-edge, and natural-wonder proof/materialization slices listed
-  above.
+  proof, terrain-edge, natural-wonder proof/materialization, and workspace
+  source-resolution slices listed above.
 - Resource/morphology/authoring predecessor trains are done through merged
   aggregate PR `#1402`, not parked, and their local Graphite branches were
   deleted.

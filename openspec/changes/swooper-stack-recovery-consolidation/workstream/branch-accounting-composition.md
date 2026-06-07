@@ -1,21 +1,46 @@
 # Branch Accounting Composition
 
-Generated: `2026-06-07T20:35:47.939Z`
+Generated: `2026-06-07T22:19:21.809Z`
 Graphite main head: `98dca389248d5ddb2777a88105c3ade452b2137c`
+Topology source: `graphite-cache`
 Ledger: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain/openspec/changes/swooper-stack-recovery-consolidation/workstream/recovery-accounting-ledger.json`
-GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T20:35:45.366Z`
+Graphite state snapshot: `/tmp/civ7-current-gt-ls.txt.graphite-state.json`
+GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T22:19:13.521Z`
 
 ## Root Rollup
 
 | Root | Recommended action | Graphite | Accounting | Branches | Needs restack | Worktrees | Dirty | Counts |
 |---|---|---|---|---:|---:|---:|---:|---|
 | `codex/systematic-workstream-skill-framing` | `drain-to-main` | `clean-local` | `planned-main-adoption-source` | 3 | 0 | 0 | 0 | needs-accounting:3 |
-| `codex/swooper-mapgen-recovery-drain` | `finish-planned-adoption` | `clean-local` | `planned-sink` | 79 | 0 | 1 | 0 | planned-sink:1, accounting-sink:36, unmarked:42 |
-| `codex/stack-lineage-audit-reference` | `clear-dirty-worktree` | `dirty-worktree` | `accounted-source` | 19 | 0 | 1 | 1 | excluded:13, unmarked:6 |
-| `codex/live-play-settlement-reference` | `adopt-into-sink` | `clean-local` | `planned-local-adoption-source` | 67 | 0 | 2 | 0 | excluded:7, unmarked:3, accounted-source:56, needs-accounting:1 |
+| `codex/swooper-mapgen-recovery-drain` | `clear-dirty-worktree` | `dirty-worktree` | `planned-sink` | 79 | 0 | 1 | 1 | planned-sink:1, accounting-sink:36, unmarked:42 |
+| `codex/stack-lineage-audit-reference` | `submit-or-merge-clean-stack` | `clean-local` | `accounted-source` | 21 | 0 | 1 | 0 | excluded:13, unmarked:8 |
+| `codex/live-play-settlement-reference` | `adopt-into-sink` | `clean-local` | `planned-local-adoption-source` | 67 | 0 | 2 | 0 | excluded:7, unmarked:2, accounted-source:57, needs-accounting:1 |
 | `codex/local-catalog-enrichment` | `restack-before-drain` | `needs-restack` | `unmarked` | 691 | 1 | 1 | 0 | unmarked:691 |
 | `agent-watch-civ7-live-play-reference-assembly` | `restack-before-drain` | `needs-restack` | `unmarked` | 1 | 1 | 0 | 0 | unmarked:1 |
 | `codex/foundation-architecture-packet` | `submit-or-merge-clean-stack` | `clean-local` | `accounted-source` | 1 | 0 | 0 | 0 | accounted-source:1 |
+
+## History Relationship Signals
+
+These rows are diagnostic only. They do not mark accounting complete; they show history/patch/name evidence that may justify an explicit accounting move.
+
+| Scope | Relationship | Left | Right | Ahead/behind | Cherry overlap | Semantic overlap | Shared tokens |
+|---|---|---|---|---:|---|---:|---|
+| `root-pair` | `patch-overlap-diverged` | `codex/systematic-workstream-skill-framing` | `codex/local-catalog-enrichment` | 27/34 | left +10/-9<br>right +25/-9 | 0.02 | `apply` `civ7` `evidence` `fixes` `framing` `review` `skill` `skills` `systematic` `workstream` |
+| `root-pair` | `semantic-overlap-diverged` | `codex/swooper-mapgen-recovery-drain` | `codex/live-play-settlement-reference` | 17/1 | left +17/-0<br>right +1/-0 | 0.29 | `1fhc` `acceptance` `accepted` `adjacent` `age` `align` `apps` `artifact` `artifacts` `assignment` `authored` `authoritative` |
+| `root-pair` | `patch-overlap-diverged` | `codex/swooper-mapgen-recovery-drain` | `codex/local-catalog-enrichment` | 43/34 | left +26/-9<br>right +25/-9 | 0.15 | `acceptance` `adapter` `align` `apply` `artifact` `artifacts` `audit` `authority` `bind` `binding` `blocked` `blocker` |
+| `root-pair` | `patch-overlap-diverged` | `codex/stack-lineage-audit-reference` | `codex/local-catalog-enrichment` | 38/34 | left +21/-9<br>right +25/-9 | 0.16 | `action` `actions` `alignment` `audit` `bind` `boundary` `bounded` `classify` `close` `command` `component` `context` |
+| `root-pair` | `patch-overlap-diverged` | `codex/live-play-settlement-reference` | `codex/local-catalog-enrichment` | 27/34 | left +10/-9<br>right +25/-9 | 0.19 | `acceptance` `align` `api` `architecture` `artifact` `artifacts` `authority` `bind` `blocked` `boundary` `bounded` `bridge` |
+| `root-pair` | `patch-overlap-diverged` | `codex/local-catalog-enrichment` | `agent-watch-civ7-live-play-reference-assembly` | 34/27 | left +16/-18<br>right +9/-18 | 0.02 | `authority` `civ7` `clarify` `hud` `live` `play` `reference` `source` |
+| `root-pair` | `patch-overlap-diverged` | `codex/local-catalog-enrichment` | `codex/foundation-architecture-packet` | 34/27 | left +25/-9<br>right +10/-9 | 0.02 | `architecture` `artifact` `downstream` `packet` `projection` `references` `source` `validation` |
+
+## Graphite Split Points
+
+| Root | Branch | Children |
+|---|---|---|
+| `codex/live-play-settlement-reference` | `codex/civ7-orpc-control-architecture-skill` | `codex/consolidate-play-agent-docs`<br>`codex/play-agent-hotseat-phase-packet` |
+| `codex/local-catalog-enrichment` | `codex/live-traditions-view` | `codex/surface-first-meet-exact-commands`<br>`codex/stale-population-blocker-classification` |
+| `codex/live-play-settlement-reference` | `codex/earthlike-natural-wonder-footprint-readback` | `codex/earthlike-natural-wonder-footprint-catalog-context`<br>`codex/earthlike-terrain-edge-diagnostics` |
+| `codex/local-catalog-enrichment` | `codex/add-production-telemetry-adapter` | `codex/watcher-supervisor-handoff-doc`<br>`codex/guard-telemetry-proof-labels` |
 
 ## Active Accounting Rows
 
@@ -61,7 +86,7 @@ GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T20:3
 | `codex/swooper-wonder-footprint-proof-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/swooper-wonder-footprint-proof-record-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/swooper-resource-coordinate-proof-summary-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-feature-resource-proof-stack` | no |  |
-| `codex/swooper-natural-wonder-plan-input-comparison-drain` | `codex/swooper-mapgen-recovery-drain` | `unmarked` |  | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain` |
+| `codex/swooper-natural-wonder-plan-input-comparison-drain` | `codex/swooper-mapgen-recovery-drain` | `unmarked` |  | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain` (2) |
 | `codex/stack-lineage-audit-reference` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/stack-visualizer-ui-integration` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/gt-stack-inspect-spec-alignment` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
@@ -75,7 +100,7 @@ GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T20:3
 | `codex/gt-stack-inspect-react-topology-ui` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/gt-stack-inspect-cross-repo-runner` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/gt-stack-inspect-react-parity-workstreams` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
-| `codex/gt-stack-inspect-react-parity-interactions` | `codex/stack-lineage-audit-reference` | `unmarked` |  | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-stack-lineage-audit-reference` (12) |
+| `codex/gt-stack-inspect-react-parity-runtime-verification` | `codex/stack-lineage-audit-reference` | `unmarked` |  | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-stack-lineage-audit-reference` |
 | `codex/live-play-settlement-reference` | `codex/live-play-settlement-reference` | `excluded` | `source:excluded:done-exclude-civ7-intelligence-and-control-doc-train` | no |  |
 | `codex/unit-movement-api-investigation` | `codex/live-play-settlement-reference` | `excluded` | `source:excluded:done-exclude-civ7-intelligence-and-control-doc-train` | no |  |
 | `codex/play-agent-output-contract` | `codex/live-play-settlement-reference` | `excluded` | `source:excluded:done-exclude-civ7-intelligence-and-control-doc-train` | no |  |
@@ -123,6 +148,7 @@ GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T20:3
 | `codex/earthlike-natural-wonder-live-telemetry` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/earthlike-natural-wonder-coordinate-proof` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/earthlike-natural-wonder-source-classification` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
+| `codex/workspace-source-package-resolution` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/earthlike-natural-wonder-materialization-repair` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/earthlike-natural-wonder-repair-proof-record` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/earthlike-feature-post-wonder-repair-context` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
@@ -151,11 +177,18 @@ GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T20:3
 |---|---|---|---|
 | `done-adopt-studio-live-runtime-snapshot-completion` | `codex/studio-live-runtime-snapshot-completion` | `5fd0a81955d5e8bc` | `5fd0a81955d52568` |
 
+## Metadata Consistency
+
+No Graphite cache parent/child consistency warnings.
+
 ## Decision Notes
 
-- The watcher/GTLS capture remains raw Graphite evidence; this file is the composed decision surface.
+- Graphite topology is read from Graphite's persisted cache (`parentBranchName`, `children`, branch revisions), not from `gt ls` ASCII layout.
+- The watcher/GTLS text capture is human display evidence only; the composed decision surface does not infer parentage from terminal graph columns.
 - `needs-accounting` marks a ledger-planned source branch, not a generic uninspected branch.
 - `accounted-source` means the ledger says the source intent is covered; cleanup can still be blocked when the sink is a local recovery branch.
 - `accounting-sink` marks where accepted intent was adopted; it is not the same as source cleanup.
 - Branches with no accounting label are not automatically pending; they are just unmarked by this ledger.
 - Root recommended actions are generic combinations of raw Graphite state and explicit ledger moves; they do not special-case branch names.
+- History relationship signals are diagnostic facts from Git and Graphite: ancestry, ahead/behind, `git cherry`, split points, and token overlap.
+- Patch-equivalence or semantic overlap is not adoption. Adoption is recorded only by explicit ledger moves.
