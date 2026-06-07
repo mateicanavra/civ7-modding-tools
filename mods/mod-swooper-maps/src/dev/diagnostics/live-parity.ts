@@ -98,6 +98,52 @@ type ResourcePlacementCoordinateProofComparison = Readonly<{
   mismatchedLinks: ReadonlyArray<string>;
 }>;
 
+export type ResourcePlacementRejectionContext = Readonly<{
+  exact: Readonly<{
+    status: string;
+    resourceType: number;
+    resource?: string | null;
+    plotIndex: number;
+    x?: number;
+    y?: number;
+    reason?: string | null;
+    observedResourceType?: number | null;
+    observedResource?: string | null;
+    assignmentPhase?: string;
+    assignmentOrder?: number;
+    initialResourceType?: number;
+    preferredResourceType?: number | null;
+    perTypeCountBefore?: number;
+    legalPlotCountForResource?: number;
+    targetMinPerType?: number;
+  }>;
+  local: Readonly<{
+    surfaceResourceType?: number | null;
+    preferredPlacement?: Readonly<{
+      preferredResourceType: number;
+      preferredTypeOffset?: number;
+      priority?: number;
+    }>;
+    outcome?: Readonly<{
+      status: string;
+      resourceType: number;
+      observedResourceType?: number | null;
+      reason?: string | null;
+    }>;
+    assignment?: Readonly<{
+      resourceType: number;
+      initialResourceType: number;
+      preferredResourceType?: number | null;
+      assignmentPhase: string;
+      reassignedByRebalance?: boolean;
+      assignmentOrder?: number;
+      perTypeCountBefore?: number;
+      legalPlotCountForResource?: number;
+      targetMinPerType?: number;
+    }>;
+  }>;
+}>;
+
 export type FinalSurfaceParityProof = Readonly<{
   status: "complete" | "unresolved";
   createdAt: string;
@@ -116,6 +162,7 @@ export type FinalSurfaceParityProof = Readonly<{
   live: FinalSurfaceSnapshot;
   diffs: ReadonlyArray<SurfaceDiffSummary>;
   resourcePlacementCoordinateProof?: ResourcePlacementCoordinateProofComparison;
+  resourcePlacementRejectionContexts?: ReadonlyArray<ResourcePlacementRejectionContext>;
   residuals: ReadonlyArray<ParityResidualClassification>;
   unresolvedLinks: ReadonlyArray<string>;
 }>;
@@ -178,6 +225,9 @@ export type ExactAuthorshipProofLike = Readonly<{
     seed?: number;
     dimensions?: Readonly<{ width?: number; height?: number }>;
     resourcePlacement?: Readonly<{
+      stats?: Readonly<{
+        rejectionRows?: ReadonlyArray<unknown>;
+      }>;
       coordinateProof?: Readonly<{
         version?: number;
         placed?: Readonly<{ count?: number; hash32?: string }>;
@@ -626,6 +676,8 @@ export function buildFinalSurfaceParityProof(args: {
   const exact = args.exactAuthorship;
   const resourcePlacementCoordinateProof =
     exact === undefined ? undefined : buildResourcePlacementCoordinateProofComparison(exact, args.local);
+  const resourcePlacementRejectionContexts =
+    exact === undefined ? [] : buildResourcePlacementRejectionContexts(exact, args.local);
 
   unresolvedLinks.push(...validateExactAuthorshipProofPacket(exact).unresolvedLinks);
   addSurfaceShapeLinks(unresolvedLinks, args.local, "local", exact?.runtime?.width, exact?.runtime?.height);
@@ -740,6 +792,9 @@ export function buildFinalSurfaceParityProof(args: {
     live: args.live,
     diffs,
     ...(resourcePlacementCoordinateProof === undefined ? {} : { resourcePlacementCoordinateProof }),
+    ...(resourcePlacementRejectionContexts.length === 0
+      ? {}
+      : { resourcePlacementRejectionContexts }),
     residuals,
     unresolvedLinks: [...new Set(unresolvedLinks)].sort((a, b) => a.localeCompare(b)),
   };
@@ -998,6 +1053,256 @@ function coordinateDigest(value: unknown): { count?: number; hash32?: string } |
     ...(numberValue(value.count) === undefined ? {} : { count: numberValue(value.count) }),
     ...(typeof value.hash32 === "string" ? { hash32: value.hash32 } : {}),
   };
+}
+
+function buildResourcePlacementRejectionContexts(
+  exact: ExactAuthorshipProofLike,
+  local: FinalSurfaceSnapshot
+): ResourcePlacementRejectionContext[] {
+  const rows = readExactResourcePlacementRejectionRows(exact);
+  if (rows.length === 0) return [];
+  const localEvidence = readLocalResourcePlacementEvidence(local);
+  return rows.map((row) => ({
+    exact: row,
+    local: {
+      ...(indexedSurfaceValue(local.surfaces.resource.values, row.plotIndex) === undefined
+        ? {}
+        : { surfaceResourceType: indexedSurfaceValue(local.surfaces.resource.values, row.plotIndex) }),
+      ...(localEvidence.preferredByPlot.get(row.plotIndex) === undefined
+        ? {}
+        : { preferredPlacement: localEvidence.preferredByPlot.get(row.plotIndex)! }),
+      ...(localEvidence.outcomeByPlot.get(row.plotIndex) === undefined
+        ? {}
+        : { outcome: localEvidence.outcomeByPlot.get(row.plotIndex)! }),
+      ...(localEvidence.assignmentByPlot.get(row.plotIndex) === undefined
+        ? {}
+        : { assignment: localEvidence.assignmentByPlot.get(row.plotIndex)! }),
+    },
+  }));
+}
+
+function readExactResourcePlacementRejectionRows(
+  exact: ExactAuthorshipProofLike
+): ResourcePlacementRejectionContext["exact"][] {
+  const rows = exact.log?.resourcePlacement?.stats?.rejectionRows;
+  if (!Array.isArray(rows)) return [];
+  return rows.flatMap((row) => {
+    if (!isPlainObject(row)) return [];
+    const status = stringValue(row.status);
+    const resourceType = numberValue(row.resourceType);
+    const plotIndex = numberValue(row.plotIndex);
+    if (!status || resourceType === undefined || plotIndex === undefined) return [];
+    return [
+      {
+        status,
+        resourceType,
+        ...(stringOrNullValue(row.resource) === undefined
+          ? {}
+          : { resource: stringOrNullValue(row.resource) }),
+        plotIndex,
+        ...(numberValue(row.x) === undefined ? {} : { x: numberValue(row.x) }),
+        ...(numberValue(row.y) === undefined ? {} : { y: numberValue(row.y) }),
+        ...(stringOrNullValue(row.reason) === undefined
+          ? {}
+          : { reason: stringOrNullValue(row.reason) }),
+        ...(numberOrNullValue(row.observedResourceType) === undefined
+          ? {}
+          : { observedResourceType: numberOrNullValue(row.observedResourceType) }),
+        ...(stringOrNullValue(row.observedResource) === undefined
+          ? {}
+          : { observedResource: stringOrNullValue(row.observedResource) }),
+        ...(stringValue(row.assignmentPhase) === undefined
+          ? {}
+          : { assignmentPhase: stringValue(row.assignmentPhase) }),
+        ...(numberValue(row.assignmentOrder) === undefined
+          ? {}
+          : { assignmentOrder: numberValue(row.assignmentOrder) }),
+        ...(numberValue(row.initialResourceType) === undefined
+          ? {}
+          : { initialResourceType: numberValue(row.initialResourceType) }),
+        ...(numberOrNullValue(row.preferredResourceType) === undefined
+          ? {}
+          : { preferredResourceType: numberOrNullValue(row.preferredResourceType) }),
+        ...(numberValue(row.perTypeCountBefore) === undefined
+          ? {}
+          : { perTypeCountBefore: numberValue(row.perTypeCountBefore) }),
+        ...(numberValue(row.legalPlotCountForResource) === undefined
+          ? {}
+          : { legalPlotCountForResource: numberValue(row.legalPlotCountForResource) }),
+        ...(numberValue(row.targetMinPerType) === undefined
+          ? {}
+          : { targetMinPerType: numberValue(row.targetMinPerType) }),
+      },
+    ];
+  });
+}
+
+function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
+  preferredByPlot: ReadonlyMap<
+    number,
+    { preferredResourceType: number; preferredTypeOffset?: number; priority?: number }
+  >;
+  outcomeByPlot: ReadonlyMap<
+    number,
+    {
+      status: string;
+      resourceType: number;
+      observedResourceType?: number | null;
+      reason?: string | null;
+    }
+  >;
+  assignmentByPlot: ReadonlyMap<
+    number,
+    {
+      resourceType: number;
+      initialResourceType: number;
+      preferredResourceType?: number | null;
+      assignmentPhase: string;
+      reassignedByRebalance?: boolean;
+      assignmentOrder?: number;
+      perTypeCountBefore?: number;
+      legalPlotCountForResource?: number;
+      targetMinPerType?: number;
+    }
+  >;
+} {
+  const resourcePlan = isPlainObject(local.evidence?.resourcePlan)
+    ? local.evidence.resourcePlan
+    : undefined;
+  const resourcePlacementOutcomes = isPlainObject(local.evidence?.resourcePlacementOutcomes)
+    ? local.evidence.resourcePlacementOutcomes
+    : undefined;
+  const preferredByPlot = new Map<
+    number,
+    { preferredResourceType: number; preferredTypeOffset?: number; priority?: number }
+  >();
+  const placements = Array.isArray(resourcePlan?.placements) ? resourcePlan.placements : [];
+  for (const placement of placements) {
+    if (!isPlainObject(placement)) continue;
+    const plotIndex = numberValue(placement.plotIndex);
+    const preferredResourceType = numberValue(placement.preferredResourceType);
+    if (plotIndex === undefined || preferredResourceType === undefined || preferredByPlot.has(plotIndex)) {
+      continue;
+    }
+    preferredByPlot.set(plotIndex, {
+      preferredResourceType,
+      ...(numberValue(placement.preferredTypeOffset) === undefined
+        ? {}
+        : { preferredTypeOffset: numberValue(placement.preferredTypeOffset) }),
+      ...(numberValue(placement.priority) === undefined ? {} : { priority: numberValue(placement.priority) }),
+    });
+  }
+
+  const outcomeByPlot = new Map<
+    number,
+    {
+      status: string;
+      resourceType: number;
+      observedResourceType?: number | null;
+      reason?: string | null;
+    }
+  >();
+  const outcomes = Array.isArray(resourcePlacementOutcomes?.outcomes)
+    ? resourcePlacementOutcomes.outcomes
+    : [];
+  for (const outcome of outcomes) {
+    if (!isPlainObject(outcome)) continue;
+    const plotIndex = numberValue(outcome.plotIndex);
+    const status = stringValue(outcome.status);
+    const resourceType = numberValue(outcome.resourceType);
+    if (plotIndex === undefined || !status || resourceType === undefined || outcomeByPlot.has(plotIndex)) {
+      continue;
+    }
+    outcomeByPlot.set(plotIndex, {
+      status,
+      resourceType,
+      ...(numberOrNullValue(outcome.observedResourceType) === undefined
+        ? {}
+        : { observedResourceType: numberOrNullValue(outcome.observedResourceType) }),
+      ...(stringOrNullValue(outcome.reason) === undefined
+        ? {}
+        : { reason: stringOrNullValue(outcome.reason) }),
+    });
+  }
+
+  const assignmentByPlot = new Map<
+    number,
+    {
+      resourceType: number;
+      initialResourceType: number;
+      preferredResourceType?: number | null;
+      assignmentPhase: string;
+      reassignedByRebalance?: boolean;
+      assignmentOrder?: number;
+      perTypeCountBefore?: number;
+      legalPlotCountForResource?: number;
+      targetMinPerType?: number;
+    }
+  >();
+  const assignmentTrace = Array.isArray(resourcePlacementOutcomes?.assignmentTrace)
+    ? resourcePlacementOutcomes.assignmentTrace
+    : [];
+  for (const assignment of assignmentTrace) {
+    if (!isPlainObject(assignment)) continue;
+    const plotIndex = numberValue(assignment.plotIndex);
+    const resourceType = numberValue(assignment.resourceType);
+    const initialResourceType = numberValue(assignment.initialResourceType);
+    const assignmentPhase = stringValue(assignment.assignmentPhase);
+    if (
+      plotIndex === undefined ||
+      resourceType === undefined ||
+      initialResourceType === undefined ||
+      !assignmentPhase ||
+      assignmentByPlot.has(plotIndex)
+    ) {
+      continue;
+    }
+    assignmentByPlot.set(plotIndex, {
+      resourceType,
+      initialResourceType,
+      ...(numberOrNullValue(assignment.preferredResourceType) === undefined
+        ? {}
+        : { preferredResourceType: numberOrNullValue(assignment.preferredResourceType) }),
+      assignmentPhase,
+      ...(typeof assignment.reassignedByRebalance === "boolean"
+        ? { reassignedByRebalance: assignment.reassignedByRebalance }
+        : {}),
+      ...(numberValue(assignment.assignmentOrder) === undefined
+        ? {}
+        : { assignmentOrder: numberValue(assignment.assignmentOrder) }),
+      ...(numberValue(assignment.perTypeCountBefore) === undefined
+        ? {}
+        : { perTypeCountBefore: numberValue(assignment.perTypeCountBefore) }),
+      ...(numberValue(assignment.legalPlotCountForResource) === undefined
+        ? {}
+        : { legalPlotCountForResource: numberValue(assignment.legalPlotCountForResource) }),
+      ...(numberValue(assignment.targetMinPerType) === undefined
+        ? {}
+        : { targetMinPerType: numberValue(assignment.targetMinPerType) }),
+    });
+  }
+
+  return { preferredByPlot, outcomeByPlot, assignmentByPlot };
+}
+
+function indexedSurfaceValue(values: ReadonlyArray<number | null>, index: number): number | null | undefined {
+  if (!Number.isInteger(index) || index < 0 || index >= values.length) return undefined;
+  const value = values[index];
+  return value === undefined ? undefined : value;
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function stringOrNullValue(value: unknown): string | null | undefined {
+  if (value === null) return null;
+  return typeof value === "string" ? value : undefined;
+}
+
+function numberOrNullValue(value: unknown): number | null | undefined {
+  if (value === null) return null;
+  return numberValue(value);
 }
 
 function probeNumberValue(value: unknown): number | null {

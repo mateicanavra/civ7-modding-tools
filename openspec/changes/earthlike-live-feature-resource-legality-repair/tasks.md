@@ -423,6 +423,18 @@
     final-surface parity, or product acceptance; it narrows the next repair
     owner decision to reconciling exact scarce-floor assignment/materialization
     with the local resource assignment/resource-builder context.
+- [x] 2.53 Join exact resource rejection rows to local assignment context in
+  final-surface parity proof artifacts.
+  - Current branch `codex/swooper-resource-rejection-local-context-drain` adds
+    compact `resourcePlacementRejectionContexts` to final-surface parity
+    artifacts. The field is emitted only when exact proof carries
+    `RESOURCE_PLACEMENT_V1` rejection rows, and joins each exact row to the
+    local resource surface value, preferred plan row, typed local outcome, and
+    local assignment trace at the same plot.
+  - This is diagnostic/proof context only. It does not add a new unresolved
+    link, change grid parity semantics, change resource planning,
+    materialization, scarce-floor policy, ResourceBuilder policy, final-surface
+    parity, or product acceptance.
 
 ## 3. Verification
 
@@ -575,3 +587,28 @@
     `0`/`811c9dc5`, exact rejected `1`/`af57eb7b`. Verifier log:
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3v6xr9.log`
     (`sha256:9479c3028e5e59f3c5d33afdf33d05c2e46e6aca31d0de4cef4a1a985c110d44`).
+- [x] 3.24 Run focused resource rejection local-context proof regressions and
+  rerun final-surface parity with local context.
+  - Passed `bun test mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`
+    and `bun run --cwd mods/mod-swooper-maps check`.
+  - Verifier input
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-assignment-context-status.json`
+    wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-local-context.json`
+    (`sha256:1387bbcc0d645263a068854884acbc7746c7f82a0742650168393e7e3f78e8cf`,
+    `proofHash:66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290`,
+    created `2026-06-07T14:33:20.850Z`).
+  - The verifier exited `2` as expected for unresolved parity. Remaining
+    unresolved links are unchanged: `resource-placement-coordinate-proof.placed`,
+    `resource-placement-coordinate-proof.rejected`, `surface.biome.mismatch`,
+    `surface.feature.mismatch`, `surface.resource.mismatch`, and
+    `surface.terrain.mismatch`. The verifier log is
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3v6xr9-local-context.log`
+    (`sha256:c661878c2bfbda715750412bff93e592e60af76a619b79628d014e0a9e29cff8`).
+  - The new context proves the exact rejected `RESOURCE_WINE` row at plot
+    `4838` was a scarce-floor assignment at order `85`, while local evidence at
+    the same plot has final/local placed `RESOURCE_LIMESTONE` (`46`), local
+    preferred plan `RESOURCE_SILK` (`13`), local scarce-floor assignment order
+    `168`, local `legalPlotCountForResource:660`, and the same
+    `targetMinPerType:7`. This is cross-resource assignment/materialization
+    divergence at one coordinate, not same-resource local Wine overacceptance.

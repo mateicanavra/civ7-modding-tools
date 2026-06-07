@@ -84,9 +84,67 @@ function snapshot(args: {
   omitted?: number;
   localTerrain?: ReadonlyArray<number | null>;
   resourceCoordinateProof?: boolean;
+  resourceRejectionContext?: boolean;
 }): FinalSurfaceSnapshot {
   const width = 2;
   const height = 1;
+  const localEvidence = {
+    ...(args.resourceCoordinateProof
+      ? {
+          resourcePlacementOutcomes: {
+            summary: {
+              coordinateProof: {
+                version: 1,
+                placed: { count: 2, hash32: "aaaaaaaa" },
+                rejected: { count: 0, hash32: "811c9dc5" },
+                mismatch: { count: 0, hash32: "811c9dc5" },
+              },
+            },
+          },
+        }
+      : {}),
+    ...(args.resourceRejectionContext
+      ? {
+          resourcePlan: {
+            placements: [
+              { plotIndex: 1, preferredResourceType: 13, preferredTypeOffset: 2, priority: 0.9 },
+            ],
+          },
+          resourcePlacementOutcomes: {
+            summary: {
+              coordinateProof: {
+                version: 1,
+                placed: { count: 2, hash32: "aaaaaaaa" },
+                rejected: { count: 0, hash32: "811c9dc5" },
+                mismatch: { count: 0, hash32: "811c9dc5" },
+              },
+            },
+            outcomes: [
+              {
+                plotIndex: 1,
+                status: "placed",
+                resourceType: 46,
+                observedResourceType: 46,
+              },
+            ],
+            assignmentTrace: [
+              {
+                plotIndex: 1,
+                resourceType: 46,
+                initialResourceType: 46,
+                preferredResourceType: 13,
+                assignmentPhase: "scarce-floor",
+                reassignedByRebalance: false,
+                assignmentOrder: 168,
+                perTypeCountBefore: 0,
+                legalPlotCountForResource: 660,
+                targetMinPerType: 7,
+              },
+            ],
+          },
+        }
+      : {}),
+  };
   return {
     source: args.source,
     width,
@@ -113,20 +171,7 @@ function snapshot(args: {
             },
           },
         }
-      : args.resourceCoordinateProof
-        ? {
-            resourcePlacementOutcomes: {
-              summary: {
-                coordinateProof: {
-                  version: 1,
-                  placed: { count: 2, hash32: "aaaaaaaa" },
-                  rejected: { count: 0, hash32: "811c9dc5" },
-                  mismatch: { count: 0, hash32: "811c9dc5" },
-                },
-              },
-            },
-          }
-        : {},
+      : localEvidence,
   };
 }
 
@@ -208,6 +253,91 @@ describe("final-surface parity proof", () => {
       exact: { placed: { count: 2, hash32: "bbbbbbbb" } },
     });
     expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.placed");
+  });
+
+  test("joins exact resource rejection rows to local placement evidence", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof({
+        log: {
+          requestId: "run-1",
+          configHash,
+          envelopeHash: "envelope-1",
+          seed: 1234,
+          dimensions: { width: 2, height: 1 },
+          resourcePlacement: {
+            stats: {
+              rejectionRows: [
+                {
+                  status: "rejected",
+                  resourceType: 16,
+                  resource: "RESOURCE_WINE",
+                  plotIndex: 1,
+                  x: 1,
+                  y: 0,
+                  reason: "cannot-have-resource",
+                  observedResourceType: -1,
+                  assignmentPhase: "scarce-floor",
+                  assignmentOrder: 85,
+                  initialResourceType: 16,
+                  preferredResourceType: 4,
+                  perTypeCountBefore: 1,
+                  legalPlotCountForResource: 313,
+                  targetMinPerType: 7,
+                },
+              ],
+            },
+            coordinateProof: {
+              version: 1,
+              placed: { count: 1, hash32: "bbbbbbbb" },
+              rejected: { count: 1, hash32: "cccccccc" },
+            },
+          },
+        },
+      }),
+      local: snapshot({ source: "local-mapgen", resourceRejectionContext: true }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.resourcePlacementRejectionContexts).toEqual([
+      {
+        exact: {
+          status: "rejected",
+          resourceType: 16,
+          resource: "RESOURCE_WINE",
+          plotIndex: 1,
+          x: 1,
+          y: 0,
+          reason: "cannot-have-resource",
+          observedResourceType: -1,
+          assignmentPhase: "scarce-floor",
+          assignmentOrder: 85,
+          initialResourceType: 16,
+          preferredResourceType: 4,
+          perTypeCountBefore: 1,
+          legalPlotCountForResource: 313,
+          targetMinPerType: 7,
+        },
+        local: {
+          surfaceResourceType: 8,
+          preferredPlacement: { preferredResourceType: 13, preferredTypeOffset: 2, priority: 0.9 },
+          outcome: { status: "placed", resourceType: 46, observedResourceType: 46 },
+          assignment: {
+            resourceType: 46,
+            initialResourceType: 46,
+            preferredResourceType: 13,
+            assignmentPhase: "scarce-floor",
+            reassignedByRebalance: false,
+            assignmentOrder: 168,
+            perTypeCountBefore: 0,
+            legalPlotCountForResource: 660,
+            targetMinPerType: 7,
+          },
+        },
+      },
+    ]);
+    expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.placed");
+    expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.rejected");
   });
 
   test("rejects hash-only exact-authorship source snapshots", () => {
