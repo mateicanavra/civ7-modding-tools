@@ -39,9 +39,24 @@ export type {
 } from "./types.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type { EngineEffectTagId } from "./effects.js";
-export { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
-export { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
-export { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
+export {
+  CIV7_BROWSER_TABLES_V0,
+  DISCOVERY_CATALOG,
+  NATURAL_WONDER_CATALOG,
+  NO_RESOURCE,
+  PLACEABLE_RESOURCE_TYPE_IDS,
+  RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
+  getNaturalWonderFootprintIndices,
+  getNaturalWonderFootprintOffsets,
+  hasUnsupportedNaturalWonderPolicyTags,
+  isResourceAdjacentToLandRuntimeOptional,
+  resolveNaturalWonderPlacementDirection,
+} from "@civ7/map-policy";
+export type {
+  Civ7BrowserTablesV0,
+  NaturalWonderFootprintOffset,
+  NaturalWonderPlacementPolicy,
+} from "@civ7/map-policy";
 export {
   CIV7_STANDARD_MAP_SIZE_PRESETS,
   CIV7_STANDARD_ROW_LATITUDE_BOUNDS,

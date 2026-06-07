@@ -115,6 +115,7 @@
       "name": "@civ7/adapter",
       "version": "0.1.0",
       "dependencies": {
+        "@civ7/map-policy": "workspace:*",
         "@civ7/types": "workspace:*",
       },
       "devDependencies": {

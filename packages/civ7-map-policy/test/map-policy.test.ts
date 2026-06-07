@@ -6,10 +6,12 @@ import {
   CIV7_BROWSER_TABLES_V0,
   CIV7_COAST_CLASSIFICATION_POLICY_V0,
   NATURAL_WONDER_CATALOG,
+  RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
   WATER_CLASS_COAST,
   WATER_CLASS_OCEAN,
   applyCiv7CoastClassificationPolicy,
   getNaturalWonderFootprintIndices,
+  isResourceAdjacentToLandRuntimeOptional,
   resolveNaturalWonderPlacementDirection,
 } from "../src/index.js";
 
@@ -109,6 +111,21 @@ describe("@civ7/map-policy", () => {
       { x: 65, y: 14 },
       { x: 65, y: 13 },
     ]);
+  });
+
+  it("records the live-observed adjacent-land resource exception narrowly", () => {
+    const { resourceTypes } = CIV7_BROWSER_TABLES_V0;
+
+    expect(RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS).toEqual([
+      resourceTypes.RESOURCE_DYES,
+      resourceTypes.RESOURCE_FISH,
+      resourceTypes.RESOURCE_PEARLS,
+      resourceTypes.RESOURCE_COWRIE,
+      resourceTypes.RESOURCE_TURTLES,
+    ]);
+    expect(isResourceAdjacentToLandRuntimeOptional(resourceTypes.RESOURCE_FISH)).toBe(true);
+    expect(isResourceAdjacentToLandRuntimeOptional(resourceTypes.RESOURCE_WHALES)).toBe(false);
+    expect(isResourceAdjacentToLandRuntimeOptional(resourceTypes.RESOURCE_CRABS)).toBe(false);
   });
 
 });

@@ -1,7 +1,12 @@
 export { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
 export type { Civ7BrowserTablesV0 } from "./civ7-tables.gen.js";
 
-export { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
+export {
+  NO_RESOURCE,
+  PLACEABLE_RESOURCE_TYPE_IDS,
+  RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
+  isResourceAdjacentToLandRuntimeOptional,
+} from "./resource-constants.js";
 export { NATURAL_WONDER_CATALOG } from "./catalogs/natural-wonders.js";
 export { DISCOVERY_CATALOG } from "./catalogs/discoveries.js";
 export {

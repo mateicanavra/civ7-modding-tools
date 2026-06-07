@@ -29,11 +29,50 @@ import type {
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import {
+  CIV7_BROWSER_TABLES_V0,
+  NATURAL_WONDER_CATALOG,
   NO_RESOURCE as ADAPTER_NO_RESOURCE,
   PLACEABLE_RESOURCE_TYPE_IDS,
-} from "./resource-constants.js";
+  getNaturalWonderFootprintIndices,
+  hasUnsupportedNaturalWonderPolicyTags,
+  isResourceAdjacentToLandRuntimeOptional,
+} from "@civ7/map-policy";
+import { getCiv7RowLatitude } from "./map-metadata.js";
 
 type MockRandomFn = (max: number, label: string) => number;
+type ResourceValidPlacementRow = readonly [
+  biomeType: number,
+  terrainType: number,
+  featureType: number,
+];
+
+type FeaturePolicy = Readonly<{
+  noLake: boolean;
+  minimumElevation?: number;
+  placementClass?: string;
+  naturalWonderTiles?: number;
+  naturalWonderDirection?: number;
+}>;
+
+const FEATURE_VALID_TERRAIN_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as
+  Record<string, readonly number[] | undefined>;
+
+const FEATURE_VALID_BIOME_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices as
+  Record<string, readonly number[] | undefined>;
+
+const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as
+  Record<string, FeaturePolicy | undefined>;
+
+const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as
+  Record<string, readonly string[] | undefined>;
+
+const RESOURCE_VALID_PLACEMENT_ROWS = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows as
+  Record<string, readonly ResourceValidPlacementRow[] | undefined>;
+
+const RESOURCE_PLACEMENT_FLAGS = CIV7_BROWSER_TABLES_V0.resourcePlacementFlags as Record<
+  string,
+  { adjacentToLand: boolean; lakeEligible: boolean } | undefined
+>;
 
 const hashMockRngLabel = (label: string): number => {
   let hash = 5381;
@@ -111,70 +150,21 @@ const DEFAULT_VORONOI_UTILS: VoronoiUtils = {
  * Default biome globals for testing
  */
 export const DEFAULT_BIOME_GLOBALS: Record<string, number> = {
-  BIOME_TUNDRA: 0,
-  BIOME_GRASSLAND: 1,
-  BIOME_PLAINS: 2,
-  BIOME_TROPICAL: 3,
-  BIOME_DESERT: 4,
-  BIOME_MARINE: 5,
+  ...CIV7_BROWSER_TABLES_V0.biomeGlobals,
 };
 
 /**
  * Default feature type indices for testing
  */
 export const DEFAULT_FEATURE_TYPES: Record<string, number> = {
-  FEATURE_SAGEBRUSH_STEPPE: 0,
-  FEATURE_OASIS: 1,
-  FEATURE_DESERT_FLOODPLAIN_MINOR: 2,
-  FEATURE_DESERT_FLOODPLAIN_NAVIGABLE: 3,
-  FEATURE_FOREST: 4,
-  FEATURE_MARSH: 5,
-  FEATURE_GRASSLAND_FLOODPLAIN_MINOR: 6,
-  FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE: 7,
-  FEATURE_REEF: 8,
-  FEATURE_COLD_REEF: 9,
-  FEATURE_ICE: 10,
-  FEATURE_SAVANNA_WOODLAND: 11,
-  FEATURE_WATERING_HOLE: 12,
-  FEATURE_PLAINS_FLOODPLAIN_MINOR: 13,
-  FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE: 14,
-  FEATURE_RAINFOREST: 15,
-  FEATURE_MANGROVE: 16,
-  FEATURE_TROPICAL_FLOODPLAIN_MINOR: 17,
-  FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE: 18,
-  FEATURE_TAIGA: 19,
-  FEATURE_TUNDRA_BOG: 20,
-  FEATURE_TUNDRA_FLOODPLAIN_MINOR: 21,
-  FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE: 22,
-  FEATURE_VOLCANO: 23,
-  FEATURE_LOTUS: 24,
-  FEATURE_ATOLL: 25,
-  FEATURE_VALLEY_OF_FLOWERS: 26,
-  FEATURE_BARRIER_REEF: 27,
-  FEATURE_REDWOOD_FOREST: 28,
-  FEATURE_GRAND_CANYON: 29,
-  FEATURE_GULLFOSS: 30,
-  FEATURE_HOERIKWAGGO: 31,
-  FEATURE_IGUAZU_FALLS: 32,
-  FEATURE_KILIMANJARO: 33,
-  FEATURE_ZHANGJIAJIE: 34,
-  FEATURE_THERA: 35,
-  FEATURE_TORRES_DEL_PAINE: 36,
-  FEATURE_ULURU: 37,
-  FEATURE_BERMUDA_TRIANGLE: 38,
-  FEATURE_MOUNT_EVEREST: 39,
+  ...CIV7_BROWSER_TABLES_V0.featureTypes,
 };
 
 /**
  * Default terrain type indices for testing
  */
 export const DEFAULT_TERRAIN_TYPE_INDICES: Record<string, number> = {
-  TERRAIN_MOUNTAIN: 0,
-  TERRAIN_HILL: 1,
-  TERRAIN_FLAT: 2,
-  TERRAIN_COAST: 3,
-  TERRAIN_OCEAN: 4,
-  TERRAIN_NAVIGABLE_RIVER: 5,
+  ...CIV7_BROWSER_TABLES_V0.terrainTypeIndices,
 };
 
 /**
@@ -216,9 +206,7 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
   { id: 4, name: "PLOTEFFECT_BURNED", tags: ["BURNED"] },
 ];
 
-const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = [
-  { featureType: DEFAULT_FEATURE_TYPES.FEATURE_MOUNT_EVEREST, direction: 0 },
-];
+const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CATALOG;
 
 const DEFAULT_DISCOVERY_CATALOG: DiscoveryCatalogEntry[] = [
   { discoveryVisualType: 0, discoveryActivationType: 0 },
@@ -262,6 +250,28 @@ function sanitizeDiscoveryCatalog(
     });
   }
   return catalog;
+}
+
+const ODD_Q_NEIGHBORS_EVEN: readonly (readonly [number, number])[] = [
+  [-1, 0],
+  [1, 0],
+  [0, -1],
+  [0, 1],
+  [-1, -1],
+  [1, -1],
+];
+
+const ODD_Q_NEIGHBORS_ODD: readonly (readonly [number, number])[] = [
+  [-1, 0],
+  [1, 0],
+  [0, -1],
+  [0, 1],
+  [-1, 1],
+  [1, 1],
+];
+
+function wrapMockX(x: number, width: number): number {
+  return ((x % width) + width) % width;
 }
 
 export interface MockAdapterConfig {
@@ -610,15 +620,19 @@ export class MockAdapter implements EngineAdapter {
   }
 
   getLatitude(x: number, y: number): number {
-    // Simple latitude calculation: -90 to 90 based on y position
-    const normalizedY = y / this.height;
-    return 90 - normalizedY * 180;
+    return getCiv7RowLatitude(this.mapInfo, this.height, y);
   }
 
   // === TERRAIN WRITES ===
 
   setTerrainType(x: number, y: number, terrainType: number): void {
-    this.terrainTypes[this.idx(x, y)] = terrainType;
+    const index = this.idx(x, y);
+    this.terrainTypes[index] = terrainType;
+    this.waterMask[index] =
+      terrainType === this.coastTerrainId || terrainType === this.oceanTerrainId ? 1 : 0;
+    this.riverMask[index] =
+      terrainType === this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") ? 1 : 0;
+    this.mountainMask[index] = terrainType === this.mountainTerrainId ? 1 : 0;
   }
 
   setRainfall(x: number, y: number, value: number): void {
@@ -664,11 +678,45 @@ export class MockAdapter implements EngineAdapter {
     if (this.canHaveFeatureFn) {
       return this.canHaveFeatureFn(_x, _y, _featureType);
     }
-    return true; // Mock: always allow features
+    return this.canHaveFeatureByStaticPolicy(_x, _y, _featureType);
   }
 
   canHaveFeatureParam(x: number, y: number, featureData: FeatureData): boolean {
     return this.canHaveFeature(x, y, featureData.Feature);
+  }
+
+  private canHaveFeatureByStaticPolicy(x: number, y: number, featureType: number): boolean {
+    if (x < 0 || y < 0 || x >= this.width || y >= this.height) return false;
+    const normalizedFeatureType = featureType | 0;
+    if (normalizedFeatureType < 0) return false;
+    if ((this.getFeatureType(x, y) | 0) !== this.NO_FEATURE) return false;
+
+    const featureKey = String(normalizedFeatureType);
+    const validTerrainTypes = FEATURE_VALID_TERRAIN_TYPE_INDICES[featureKey];
+    if (validTerrainTypes?.length && !validTerrainTypes.includes(this.getTerrainType(x, y) | 0)) {
+      return false;
+    }
+
+    const validBiomeTypes = FEATURE_VALID_BIOME_TYPE_INDICES[featureKey];
+    if (validBiomeTypes?.length && !validBiomeTypes.includes(this.getBiomeType(x, y) | 0)) {
+      return false;
+    }
+
+    const policy = FEATURE_POLICIES[featureKey];
+    if (
+      policy?.naturalWonderTiles !== undefined &&
+      hasUnsupportedNaturalWonderPolicyTags(FEATURE_TAGS_BY_FEATURE_TYPE[featureKey])
+    ) {
+      return false;
+    }
+    if (
+      policy?.minimumElevation !== undefined &&
+      this.getElevation(x, y) < policy.minimumElevation
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   get NO_RESOURCE(): number {
@@ -696,7 +744,48 @@ export class MockAdapter implements EngineAdapter {
     if (this.canHaveResourceFn) {
       return this.canHaveResourceFn(x, y, resourceType);
     }
+    return this.canHaveResourceByStaticPolicy(x, y, resourceType);
+  }
+
+  private canHaveResourceByStaticPolicy(x: number, y: number, resourceType: number): boolean {
+    if (x < 0 || y < 0 || x >= this.width || y >= this.height) return false;
+    const normalizedResourceType = resourceType | 0;
+    const validRows = RESOURCE_VALID_PLACEMENT_ROWS[String(normalizedResourceType)];
+    if (!validRows?.length) return false;
+
+    const biomeType = this.getBiomeType(x, y) | 0;
+    const terrainType = this.getTerrainType(x, y) | 0;
+    const featureType = this.getFeatureType(x, y) | 0;
+    let validSurface = false;
+    for (const row of validRows) {
+      if (row[0] !== biomeType || row[1] !== terrainType) continue;
+      if (row[2] !== featureType) continue;
+      validSurface = true;
+      break;
+    }
+    if (!validSurface) return false;
+
+    const flags = RESOURCE_PLACEMENT_FLAGS[String(normalizedResourceType)];
+    if (
+      flags?.adjacentToLand &&
+      !isResourceAdjacentToLandRuntimeOptional(normalizedResourceType) &&
+      !this.hasAdjacentLand(x, y)
+    ) {
+      return false;
+    }
+
     return true;
+  }
+
+  private hasAdjacentLand(x: number, y: number): boolean {
+    const offsets = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+    for (const [dx, dy] of offsets) {
+      const ny = y + dy;
+      if (ny < 0 || ny >= this.height) continue;
+      const nx = this.width > 0 ? wrapMockX(x + dx, this.width) : x + dx;
+      if (!this.isWater(nx, ny)) return true;
+    }
+    return false;
   }
 
   getPlaceableResourceTypes(): number[] {
