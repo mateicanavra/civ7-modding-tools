@@ -86,6 +86,8 @@ function snapshot(args: {
   resourceCoordinateProof?: boolean;
   resourceRejectionContext?: boolean;
   naturalWonderPlan?: "matching" | "diverged";
+  naturalWonderPlanInput?: "matching" | "diverged";
+  naturalWonderPlanInputSurfaceDigests?: "matching" | "diverged";
 }): FinalSurfaceSnapshot {
   const width = 2;
   const height = 1;
@@ -106,6 +108,37 @@ function snapshot(args: {
                 elevation: args.naturalWonderPlan === "diverged" ? 3 : 4,
                 priority: args.naturalWonderPlan === "diverged" ? 0.25 : 0.5,
               },
+            ],
+          },
+        }
+      : {}),
+    ...(args.naturalWonderPlanInput
+      ? {
+          naturalWonderPlanInput: {
+            type: "naturalWonder.planInput",
+            version: 1,
+            plannedCount: 1,
+            ...(args.naturalWonderPlanInputSurfaceDigests
+              ? {
+                  surfaceDigests: {
+                    version: 1,
+                    plotCount: 2,
+                    landMaskHash32: "aaaaaaaa",
+                    elevationHash32: args.naturalWonderPlanInputSurfaceDigests === "diverged" ? "bbbbbbbb" : "22222222",
+                    aridityPpmHash32: args.naturalWonderPlanInputSurfaceDigests === "diverged" ? "cccccccc" : "33333333",
+                    riverClassHash32: "44444444",
+                    lakeMaskHash32: "55555555",
+                    blockedMaskHash32: "66666666",
+                    terrainTypeHash32: "77777777",
+                    biomeTypeHash32: "88888888",
+                    featureTypeHash32: "99999999",
+                  },
+                }
+              : {}),
+            inputRows: [
+              args.naturalWonderPlanInput === "diverged"
+                ? ["p", 0, 0, 0, 30, 2, 3, -1, 3, 250000, 1, 0, 0, 1]
+                : ["p", 1, 1, 0, 30, 2, 3, -1, 4, 500000, 1, 0, 0, 1],
             ],
           },
         }
@@ -364,6 +397,88 @@ describe("final-surface parity proof", () => {
       mismatchedLinks: ["natural-wonder-plan-coordinate-proof.planned"],
     });
     expect(proof.unresolvedLinks).toContain("natural-wonder-plan-coordinate-proof.planned");
+  });
+
+  test("compares exact and local natural-wonder plan input context", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof({
+        log: {
+          requestId: "run-1",
+          configHash,
+          envelopeHash: "envelope-1",
+          seed: 1234,
+          dimensions: { width: 2, height: 1 },
+          naturalWonderPlanInput: {
+            surfaceDigests: {
+              version: 1,
+              plotCount: 2,
+              landMaskHash32: "aaaaaaaa",
+              elevationHash32: "22222222",
+              aridityPpmHash32: "33333333",
+              riverClassHash32: "44444444",
+              lakeMaskHash32: "55555555",
+              blockedMaskHash32: "66666666",
+              terrainTypeHash32: "77777777",
+              biomeTypeHash32: "88888888",
+              featureTypeHash32: "99999999",
+            },
+            inputRows: [
+              {
+                plotIndex: 1,
+                x: 1,
+                y: 0,
+                featureType: 30,
+                terrainType: 2,
+                biomeType: 3,
+                occupiedFeatureType: -1,
+                elevation: 4,
+                aridityPpm: 500000,
+                riverClass: 1,
+                lakeMask: 0,
+                blockedMask: 0,
+                landMask: 1,
+              },
+            ],
+          },
+        },
+      }),
+      local: snapshot({
+        source: "local-mapgen",
+        naturalWonderPlanInput: "diverged",
+        naturalWonderPlanInputSurfaceDigests: "diverged",
+      }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.naturalWonderPlanInputContextProof).toMatchObject({
+      status: "compared",
+      surfaceDigests: {
+        status: "mismatch",
+        mismatchedFields: ["elevationHash32", "aridityPpmHash32"],
+        exact: {
+          elevationHash32: "22222222",
+          aridityPpmHash32: "33333333",
+        },
+        local: {
+          elevationHash32: "bbbbbbbb",
+          aridityPpmHash32: "cccccccc",
+        },
+      },
+      rowComparisons: [
+        {
+          featureType: 30,
+          classification: "exact-local-anchor-diverged",
+          exact: { plotIndex: 1, x: 1, y: 0, elevation: 4, aridityPpm: 500000 },
+          local: { plotIndex: 0, x: 0, y: 0, elevation: 3, aridityPpm: 250000 },
+          distance: 1,
+          inputDelta: {
+            elevationDelta: 1,
+            aridityPpmDelta: 250000,
+          },
+        },
+      ],
+    });
+    expect(proof.unresolvedLinks).not.toContain("natural-wonder-plan-input-context-proof");
   });
 
   test("joins exact resource rejection rows to local placement evidence", () => {

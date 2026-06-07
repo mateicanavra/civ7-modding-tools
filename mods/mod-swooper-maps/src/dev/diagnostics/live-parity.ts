@@ -111,6 +111,19 @@ type NaturalWonderPlanCoordinateProofComparison = Readonly<{
   mismatchedLinks: ReadonlyArray<string>;
 }>;
 
+type NaturalWonderPlanInputContextProofComparison = Readonly<{
+  status: "compared" | "missing-exact-log" | "missing-local-input";
+  surfaceDigests?: NaturalWonderPlanInputSurfaceDigestComparison;
+  rowComparisons: ReadonlyArray<NaturalWonderPlanInputRowComparison>;
+}>;
+
+type NaturalWonderPlanInputSurfaceDigestComparison = Readonly<{
+  status: "match" | "mismatch" | "missing-exact-log" | "missing-local-input";
+  exact?: NaturalWonderPlanInputSurfaceDigests;
+  local?: NaturalWonderPlanInputSurfaceDigests;
+  mismatchedFields: ReadonlyArray<keyof NaturalWonderPlanInputSurfaceDigests>;
+}>;
+
 type NaturalWonderPlanRowComparison = Readonly<{
   featureType: number;
   classification:
@@ -134,6 +147,76 @@ type NaturalWonderPlanRow = Readonly<{
   elevation?: number;
   priorityPpm?: number;
 }>;
+
+type NaturalWonderPlanInputRowComparison = Readonly<{
+  featureType: number;
+  classification:
+    | "exact-local-same-anchor-input-match"
+    | "exact-local-same-anchor-input-drift"
+    | "exact-local-anchor-diverged"
+    | "exact-only"
+    | "local-only";
+  exact?: NaturalWonderPlanInputRow;
+  local?: NaturalWonderPlanInputRow;
+  distance?: number;
+  inputDelta?: NaturalWonderPlanInputDelta;
+}>;
+
+type NaturalWonderPlanInputRow = Readonly<{
+  plotIndex: number;
+  x: number;
+  y: number;
+  featureType: number;
+  terrainType: number;
+  biomeType: number;
+  occupiedFeatureType: number;
+  elevation: number;
+  aridityPpm: number;
+  riverClass: number;
+  lakeMask: number;
+  blockedMask: number;
+  landMask: number;
+}>;
+
+type NaturalWonderPlanInputDelta = Readonly<Partial<{
+  terrainType: Readonly<{ exact: number; local: number }>;
+  biomeType: Readonly<{ exact: number; local: number }>;
+  occupiedFeatureType: Readonly<{ exact: number; local: number }>;
+  elevationDelta: number;
+  aridityPpmDelta: number;
+  riverClassDelta: number;
+  lakeMaskDelta: number;
+  blockedMaskDelta: number;
+  landMaskDelta: number;
+}>>;
+
+type NaturalWonderPlanInputSurfaceDigests = Readonly<{
+  version: number;
+  plotCount: number;
+  landMaskHash32: string;
+  elevationHash32: string;
+  aridityPpmHash32: string;
+  riverClassHash32: string;
+  lakeMaskHash32: string;
+  blockedMaskHash32: string;
+  terrainTypeHash32: string;
+  biomeTypeHash32: string;
+  featureTypeHash32: string;
+}>;
+
+const NATURAL_WONDER_PLAN_INPUT_SURFACE_DIGEST_FIELDS: readonly (keyof NaturalWonderPlanInputSurfaceDigests)[] = [
+  "version",
+  "plotCount",
+  "landMaskHash32",
+  "elevationHash32",
+  "aridityPpmHash32",
+  "riverClassHash32",
+  "lakeMaskHash32",
+  "blockedMaskHash32",
+  "terrainTypeHash32",
+  "biomeTypeHash32",
+  "featureTypeHash32",
+];
 
 export type ResourcePlacementRejectionContext = Readonly<{
   exact: Readonly<{
@@ -199,6 +282,7 @@ export type FinalSurfaceParityProof = Readonly<{
   live: FinalSurfaceSnapshot;
   diffs: ReadonlyArray<SurfaceDiffSummary>;
   naturalWonderPlanCoordinateProof?: NaturalWonderPlanCoordinateProofComparison;
+  naturalWonderPlanInputContextProof?: NaturalWonderPlanInputContextProofComparison;
   resourcePlacementCoordinateProof?: ResourcePlacementCoordinateProofComparison;
   resourcePlacementRejectionContexts?: ReadonlyArray<ResourcePlacementRejectionContext>;
   residuals: ReadonlyArray<ParityResidualClassification>;
@@ -307,6 +391,7 @@ export type ExactAuthorshipProofLike = Readonly<{
         plannedCount?: number;
         rowCount?: number;
       }>;
+      surfaceDigests?: unknown;
       inputRows?: ReadonlyArray<unknown>;
       payload?: unknown;
     }>;
@@ -733,6 +818,8 @@ export function buildFinalSurfaceParityProof(args: {
   const exact = args.exactAuthorship;
   const naturalWonderPlanCoordinateProof =
     exact === undefined ? undefined : buildNaturalWonderPlanCoordinateProofComparison(exact, args.local);
+  const naturalWonderPlanInputContextProof =
+    exact === undefined ? undefined : buildNaturalWonderPlanInputContextProofComparison(exact, args.local);
   const resourcePlacementCoordinateProof =
     exact === undefined ? undefined : buildResourcePlacementCoordinateProofComparison(exact, args.local);
   const resourcePlacementRejectionContexts =
@@ -856,6 +943,9 @@ export function buildFinalSurfaceParityProof(args: {
     ...(naturalWonderPlanCoordinateProof === undefined
       ? {}
       : { naturalWonderPlanCoordinateProof }),
+    ...(naturalWonderPlanInputContextProof === undefined
+      ? {}
+      : { naturalWonderPlanInputContextProof }),
     ...(resourcePlacementCoordinateProof === undefined ? {} : { resourcePlacementCoordinateProof }),
     ...(resourcePlacementRejectionContexts.length === 0
       ? {}
@@ -1267,6 +1357,315 @@ function buildNaturalWonderPlanRowComparisons(
   });
 }
 
+function buildNaturalWonderPlanInputContextProofComparison(
+  exact: ExactAuthorshipProofLike,
+  local: FinalSurfaceSnapshot
+): NaturalWonderPlanInputContextProofComparison | undefined {
+  const exactRows = readExactNaturalWonderPlanInputRows(exact);
+  const localRows = readLocalNaturalWonderPlanInputRows(local);
+  const surfaceDigests = buildNaturalWonderPlanInputSurfaceDigestComparison(exact, local);
+  if (exactRows.length === 0 && localRows.length === 0 && surfaceDigests === undefined) return undefined;
+  const rowComparisons = buildNaturalWonderPlanInputRowComparisons(exactRows, localRows, local.width);
+  if (exactRows.length === 0) {
+    return {
+      status: "missing-exact-log",
+      ...(surfaceDigests === undefined ? {} : { surfaceDigests }),
+      rowComparisons,
+    };
+  }
+  if (localRows.length === 0) {
+    return {
+      status: "missing-local-input",
+      ...(surfaceDigests === undefined ? {} : { surfaceDigests }),
+      rowComparisons,
+    };
+  }
+  return {
+    status: "compared",
+    ...(surfaceDigests === undefined ? {} : { surfaceDigests }),
+    rowComparisons,
+  };
+}
+
+function buildNaturalWonderPlanInputSurfaceDigestComparison(
+  exact: ExactAuthorshipProofLike,
+  local: FinalSurfaceSnapshot
+): NaturalWonderPlanInputSurfaceDigestComparison | undefined {
+  const exactSurfaceDigests = readExactNaturalWonderPlanInputSurfaceDigests(exact);
+  const localSurfaceDigests = readLocalNaturalWonderPlanInputSurfaceDigests(local);
+  if (!exactSurfaceDigests && !localSurfaceDigests) return undefined;
+  if (!exactSurfaceDigests) {
+    return {
+      status: "missing-exact-log",
+      local: localSurfaceDigests,
+      mismatchedFields: [],
+    };
+  }
+  if (!localSurfaceDigests) {
+    return {
+      status: "missing-local-input",
+      exact: exactSurfaceDigests,
+      mismatchedFields: [],
+    };
+  }
+  const mismatchedFields = NATURAL_WONDER_PLAN_INPUT_SURFACE_DIGEST_FIELDS.filter(
+    (field) => exactSurfaceDigests[field] !== localSurfaceDigests[field]
+  );
+  return {
+    status: mismatchedFields.length === 0 ? "match" : "mismatch",
+    exact: exactSurfaceDigests,
+    local: localSurfaceDigests,
+    mismatchedFields,
+  };
+}
+
+function readExactNaturalWonderPlanInputSurfaceDigests(
+  exact: ExactAuthorshipProofLike
+): NaturalWonderPlanInputSurfaceDigests | undefined {
+  return readNaturalWonderPlanInputSurfaceDigests(exact.log?.naturalWonderPlanInput?.surfaceDigests);
+}
+
+function readLocalNaturalWonderPlanInputSurfaceDigests(
+  local: FinalSurfaceSnapshot
+): NaturalWonderPlanInputSurfaceDigests | undefined {
+  const input = isPlainObject(local.evidence?.naturalWonderPlanInput)
+    ? local.evidence.naturalWonderPlanInput
+    : undefined;
+  return readNaturalWonderPlanInputSurfaceDigests(input?.surfaceDigests);
+}
+
+function readNaturalWonderPlanInputSurfaceDigests(
+  value: unknown
+): NaturalWonderPlanInputSurfaceDigests | undefined {
+  if (!isPlainObject(value)) return undefined;
+  const version = numberValue(value.version);
+  const plotCount = numberValue(value.plotCount);
+  const landMaskHash32 = hash32Value(value.landMaskHash32);
+  const elevationHash32 = hash32Value(value.elevationHash32);
+  const aridityPpmHash32 = hash32Value(value.aridityPpmHash32);
+  const riverClassHash32 = hash32Value(value.riverClassHash32);
+  const lakeMaskHash32 = hash32Value(value.lakeMaskHash32);
+  const blockedMaskHash32 = hash32Value(value.blockedMaskHash32);
+  const terrainTypeHash32 = hash32Value(value.terrainTypeHash32);
+  const biomeTypeHash32 = hash32Value(value.biomeTypeHash32);
+  const featureTypeHash32 = hash32Value(value.featureTypeHash32);
+  if (
+    version === undefined ||
+    plotCount === undefined ||
+    landMaskHash32 === undefined ||
+    elevationHash32 === undefined ||
+    aridityPpmHash32 === undefined ||
+    riverClassHash32 === undefined ||
+    lakeMaskHash32 === undefined ||
+    blockedMaskHash32 === undefined ||
+    terrainTypeHash32 === undefined ||
+    biomeTypeHash32 === undefined ||
+    featureTypeHash32 === undefined
+  ) {
+    return undefined;
+  }
+  return {
+    version,
+    plotCount,
+    landMaskHash32,
+    elevationHash32,
+    aridityPpmHash32,
+    riverClassHash32,
+    lakeMaskHash32,
+    blockedMaskHash32,
+    terrainTypeHash32,
+    biomeTypeHash32,
+    featureTypeHash32,
+  };
+}
+
+function readExactNaturalWonderPlanInputRows(
+  exact: ExactAuthorshipProofLike
+): NaturalWonderPlanInputRow[] {
+  const rows = exact.log?.naturalWonderPlanInput?.inputRows;
+  return Array.isArray(rows)
+    ? rows.flatMap((row) => readNaturalWonderPlanInputRow(row))
+    : [];
+}
+
+function readLocalNaturalWonderPlanInputRows(
+  local: FinalSurfaceSnapshot
+): NaturalWonderPlanInputRow[] {
+  const input = isPlainObject(local.evidence?.naturalWonderPlanInput)
+    ? local.evidence.naturalWonderPlanInput
+    : undefined;
+  const rows = Array.isArray(input?.inputRows) ? input.inputRows : [];
+  return rows.flatMap((row) => readNaturalWonderPlanInputRow(row));
+}
+
+function readNaturalWonderPlanInputRow(value: unknown): NaturalWonderPlanInputRow[] {
+  if (Array.isArray(value)) {
+    const status = value[0];
+    const plotIndex = numberValue(value[1]);
+    const x = numberValue(value[2]);
+    const y = numberValue(value[3]);
+    const featureType = numberValue(value[4]);
+    const terrainType = numberValue(value[5]);
+    const biomeType = numberValue(value[6]);
+    const occupiedFeatureType = numberValue(value[7]);
+    const elevation = numberValue(value[8]);
+    const aridityPpm = numberValue(value[9]);
+    const riverClass = numberValue(value[10]);
+    const lakeMask = numberValue(value[11]);
+    const blockedMask = numberValue(value[12]);
+    const landMask = numberValue(value[13]);
+    if (
+      status !== "p" ||
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined ||
+      featureType === undefined ||
+      terrainType === undefined ||
+      biomeType === undefined ||
+      occupiedFeatureType === undefined ||
+      elevation === undefined ||
+      aridityPpm === undefined ||
+      riverClass === undefined ||
+      lakeMask === undefined ||
+      blockedMask === undefined ||
+      landMask === undefined
+    ) {
+      return [];
+    }
+    return [
+      {
+        plotIndex,
+        x,
+        y,
+        featureType,
+        terrainType,
+        biomeType,
+        occupiedFeatureType,
+        elevation,
+        aridityPpm,
+        riverClass,
+        lakeMask,
+        blockedMask,
+        landMask,
+      },
+    ];
+  }
+  if (!isPlainObject(value)) return [];
+  const plotIndex = numberValue(value.plotIndex);
+  const x = numberValue(value.x);
+  const y = numberValue(value.y);
+  const featureType = numberValue(value.featureType);
+  const terrainType = numberValue(value.terrainType);
+  const biomeType = numberValue(value.biomeType);
+  const occupiedFeatureType = numberValue(value.occupiedFeatureType);
+  const elevation = numberValue(value.elevation);
+  const aridityPpm = numberValue(value.aridityPpm);
+  const riverClass = numberValue(value.riverClass);
+  const lakeMask = numberValue(value.lakeMask);
+  const blockedMask = numberValue(value.blockedMask);
+  const landMask = numberValue(value.landMask);
+  if (
+    plotIndex === undefined ||
+    x === undefined ||
+    y === undefined ||
+    featureType === undefined ||
+    terrainType === undefined ||
+    biomeType === undefined ||
+    occupiedFeatureType === undefined ||
+    elevation === undefined ||
+    aridityPpm === undefined ||
+    riverClass === undefined ||
+    lakeMask === undefined ||
+    blockedMask === undefined ||
+    landMask === undefined
+  ) {
+    return [];
+  }
+  return [
+    {
+      plotIndex,
+      x,
+      y,
+      featureType,
+      terrainType,
+      biomeType,
+      occupiedFeatureType,
+      elevation,
+      aridityPpm,
+      riverClass,
+      lakeMask,
+      blockedMask,
+      landMask,
+    },
+  ];
+}
+
+function buildNaturalWonderPlanInputRowComparisons(
+  exactRows: readonly NaturalWonderPlanInputRow[],
+  localRows: readonly NaturalWonderPlanInputRow[],
+  width: number
+): NaturalWonderPlanInputRowComparison[] {
+  const exactByFeature = new Map(exactRows.map((row) => [row.featureType, row] as const));
+  const localByFeature = new Map(localRows.map((row) => [row.featureType, row] as const));
+  const featureTypes = [...new Set([...exactByFeature.keys(), ...localByFeature.keys()])]
+    .sort((a, b) => a - b);
+  return featureTypes.map((featureType) => {
+    const exact = exactByFeature.get(featureType);
+    const local = localByFeature.get(featureType);
+    if (!exact) {
+      return {
+        featureType,
+        classification: "local-only",
+        local,
+      };
+    }
+    if (!local) {
+      return {
+        featureType,
+        classification: "exact-only",
+        exact,
+      };
+    }
+    const inputDelta = naturalWonderPlanInputDelta(exact, local);
+    const sameAnchor = exact.plotIndex === local.plotIndex;
+    return {
+      featureType,
+      classification: sameAnchor
+        ? Object.keys(inputDelta).length === 0
+          ? "exact-local-same-anchor-input-match"
+          : "exact-local-same-anchor-input-drift"
+        : "exact-local-anchor-diverged",
+      exact,
+      local,
+      distance: hexDistanceOddQPeriodicX(exact.plotIndex, local.plotIndex, width),
+      ...(Object.keys(inputDelta).length === 0 ? {} : { inputDelta }),
+    };
+  });
+}
+
+function naturalWonderPlanInputDelta(
+  exact: NaturalWonderPlanInputRow,
+  local: NaturalWonderPlanInputRow
+): NaturalWonderPlanInputDelta {
+  return stripUndefined({
+    terrainType: exact.terrainType === local.terrainType
+      ? undefined
+      : { exact: exact.terrainType, local: local.terrainType },
+    biomeType: exact.biomeType === local.biomeType
+      ? undefined
+      : { exact: exact.biomeType, local: local.biomeType },
+    occupiedFeatureType: exact.occupiedFeatureType === local.occupiedFeatureType
+      ? undefined
+      : { exact: exact.occupiedFeatureType, local: local.occupiedFeatureType },
+    elevationDelta: exact.elevation === local.elevation ? undefined : exact.elevation - local.elevation,
+    aridityPpmDelta: exact.aridityPpm === local.aridityPpm ? undefined : exact.aridityPpm - local.aridityPpm,
+    riverClassDelta: exact.riverClass === local.riverClass ? undefined : exact.riverClass - local.riverClass,
+    lakeMaskDelta: exact.lakeMask === local.lakeMask ? undefined : exact.lakeMask - local.lakeMask,
+    blockedMaskDelta: exact.blockedMask === local.blockedMask ? undefined : exact.blockedMask - local.blockedMask,
+    landMaskDelta: exact.landMask === local.landMask ? undefined : exact.landMask - local.landMask,
+  }) ?? {};
+}
+
 const FNV1A_32_OFFSET = 0x811c9dc5;
 const FNV1A_32_PRIME = 0x01000193;
 
@@ -1603,6 +2002,10 @@ function indexedSurfaceValue(values: ReadonlyArray<number | null>, index: number
 
 function stringValue(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
+}
+
+function hash32Value(value: unknown): string | undefined {
+  return typeof value === "string" && /^[0-9a-f]{8}$/.test(value) ? value : undefined;
 }
 
 function stringOrNullValue(value: unknown): string | null | undefined {

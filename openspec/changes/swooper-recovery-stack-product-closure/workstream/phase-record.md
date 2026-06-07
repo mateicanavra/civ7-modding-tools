@@ -6,7 +6,7 @@
 - Phase: product closure planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack:
-  `codex/swooper-natural-wonder-plan-input-context-drain`
+  `codex/swooper-natural-wonder-plan-input-comparison-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -29,6 +29,7 @@
 ## Current State
 
 - Repo/Graphite state: current top branch is
+  `codex/swooper-natural-wonder-plan-input-comparison-drain`, stacked above
   `codex/swooper-natural-wonder-plan-input-context-drain`, stacked above
   `codex/swooper-natural-wonder-plan-comparison-drain`, stacked above
   `codex/swooper-natural-wonder-plan-proof-drain`,
@@ -138,6 +139,29 @@
   coordinate, and terrain/biome/feature/resource surface links open. This
   narrows the next owner decision toward candidate/scoring surface divergence;
   it is not behavior repair, final parity, or product acceptance.
+  Current follow-on branch
+  `codex/swooper-natural-wonder-plan-input-comparison-drain` binds those
+  exact/local selected-row input deltas into the final-surface parity artifact
+  as `naturalWonderPlanInputContextProof`. Refreshed verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input-comparison.json`
+  (`sha256:ddc2bd90456a238e4f9952744457fac4d89d22cf3c27729b860c7045e1c0913d`,
+  `proofHash:4868dffcca7b41ac13be1399c545da89b1ba1c53bc5bea2671968a131d3528d1`)
+  remains unresolved with the same gating links. This is explanatory proof
+  comparison only and does not close source authority, planner repair, final
+  parity, or product acceptance.
+  Current plan-input comparison branch also binds full-surface natural-wonder
+  plan-input digests into exact-authorship and final-surface parity proof.
+  Fresh exact request
+  `studio-run-in-game-mq41wza4-1zzu` completed with
+  `NATURAL_WONDER_PLAN_INPUT_V1.surfaceDigests` for `6996` plots. Final-surface
+  verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq41wza4-1zzu-current-final-surface-parity-with-natural-wonder-input-surface-digest.json`
+  (`sha256:edb8a88b09f201dd016b510ae3641472032a7dfca34f2032e8db5849b6524d30`,
+  `proofHash:7b1164396c500028a2d63f23b18880a04f7dff362c6976ca66fb578e9f3f9b71`)
+  remains unresolved with the same gating links. Digest comparison proves
+  exact/local land, elevation, and blocked masks match, while aridity, river,
+  lake, terrain, biome, and feature surfaces differ. This is source-owner
+  narrowing only; final parity and product acceptance remain open.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -191,8 +215,11 @@
   coordinate mismatch as a first-class parity proof link, proving the remaining
   natural-wonder source decision begins at exact/local plan-input or
   engine-surface divergence. Current proof-input branch records selected-row
-  natural-wonder input context for that divergence without closing source
-  ownership.
+  natural-wonder input context for that divergence, and current proof-comparison
+  branch exposes exact/local selected-row input deltas first-class. Current
+  proof-comparison branch shows the upstream input surfaces already diverge across
+  aridity, river, lake, terrain, biome, and feature digests, while land,
+  elevation, and blocked masks match. None of this closes source ownership.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
@@ -206,7 +233,7 @@
   the current exact-authorship proof.
 - Results: repo snapshot clean before this update; latest verifier artifact is
   unresolved with proof hash
-  `f6e6ad68cd1d48dff4c16465abd63c2e2ec4fa9e04b2df93e0b55a2da684c10f`;
+  `7b1164396c500028a2d63f23b18880a04f7dff362c6976ca66fb578e9f3f9b71`;
   broader review-ledger scan found historical P1/P2 entries but no active
   review ledger under the two current recovery closure changes. Focused local
   validation for the natural-wonder repair passed: `bun test
