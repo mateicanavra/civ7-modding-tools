@@ -71,6 +71,20 @@
     at plot `1342` and feature `36` at plot `2065`, so natural-wonder closure
     is blocked on source-owning exact/local plan-input or engine-surface
     divergence before behavior repair.
+    Follow-on branch `codex/swooper-natural-wonder-plan-proof-drain` is a
+    proof-contract slice for exact natural-wonder plan rows. Fresh exact
+    request `studio-run-in-game-mq3ze9g3-1zzu` consumes the plan marker and
+    proves exact planning selected feature `30` at plot `4130`, feature `35`
+    at plot `1686`, and feature `36` at plot `1785`, while local replay
+    selected those features at `1342`, `1624`, and `2065`. Final-surface
+    verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-rows.json`
+    (`sha256:6a16a3273cc0e99120826d5adb74382dad66f0d45fb307c4af073ade9e1fe711`,
+    `proofHash:9c19e242e009dbf89711cba6e5f40ee618e27ea8bdb707d18d2d9d8727d87296`)
+    remains unresolved. This narrows the natural-wonder blocker to
+    exact/local plan-input or engine-surface divergence before partial
+    footprint readback repair; it does not close final parity or product
+    acceptance.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -98,7 +112,7 @@
 
 - [ ] 3.1 Run `git status --short --branch`.
   - Current proof-contract slice must leave
-    `codex/swooper-natural-wonder-supported-catalog-drain`
+    `codex/swooper-natural-wonder-plan-proof-drain`
     clean before commit or closure.
 - [ ] 3.2 Inspect Graphite branch/stack state.
   - Current audit snapshot: top branch
@@ -110,8 +124,9 @@
     `codex/swooper-resource-rejection-proof-identity-drain`, and the current
     feature/resource/source-authority proof-record branches.
   - Follow-on implementation branches:
-    `codex/swooper-natural-wonder-supported-catalog-drain`, then
-    `codex/swooper-natural-wonder-row-proof-drain`.
+    `codex/swooper-natural-wonder-supported-catalog-drain`,
+    `codex/swooper-natural-wonder-row-proof-drain`, then
+    `codex/swooper-natural-wonder-plan-proof-drain`.
 - [ ] 3.3 Run `git diff --check`.
 - [ ] 3.4 Run `bun run openspec -- validate swooper-recovery-stack-product-closure --strict`.
 - [ ] 3.5 Run `bun run openspec:validate`.

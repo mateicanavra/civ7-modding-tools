@@ -1560,16 +1560,58 @@ This is a strong owner hypothesis for assignment/materialization reconciliation,
 not an authorization to tune public Earthlike config, change static resource
 policy, or claim final-surface/product acceptance.
 
+### Current Natural-Wonder Exact Plan Rows
+
+Classification status: exact plan-input divergence captured; source owner still
+open.
+
+| Artifact | Path | Identity |
+| --- | --- | --- |
+| Exact status proof | `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-plan-proof-status.json` | `sha256:a1e25662685fee91916d27a81021ff5bf7ad90f610a79bd1ae75b27b9057fa39` |
+| Final-surface proof | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-rows.json` | `sha256:6a16a3273cc0e99120826d5adb74382dad66f0d45fb307c4af073ade9e1fe711`, `proofHash:9c19e242e009dbf89711cba6e5f40ee618e27ea8bdb707d18d2d9d8727d87296` |
+| Verifier log | `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3ze9g3-natural-wonder-plan-rows.log` | `sha256:b8a581af6a65a95204b8688e8278ad99eab0a7637ab302cc9cb3537e6d0a21cf` |
+
+Exact `NATURAL_WONDER_PLAN_V1` is now bound in the exact-authorship packet for
+request `studio-run-in-game-mq3ze9g3-1zzu`. It proves the exact planner rows:
+
+| Feature | Exact plan plot | Exact priority ppm | Local replay plot | Local priority |
+| ---: | ---: | ---: | ---: | ---: |
+| `30` | `4130` | `530579` | `1342` | `0.6107035471190667` |
+| `32` | `1228` | `888087` | `1228` | `0.8862814251333475` |
+| `34` | `1861` | `831121` | `1861` | `0.8319755537371183` |
+| `35` | `1686` | `441272` | `1624` | `0.3040659082346949` |
+| `36` | `1785` | `377995` | `2065` | `0.8272660786093309` |
+| `38` | `1000` | `736723` | `1000` | `0.7338061736703947` |
+| `39` | `5107` | `488668` | `5107` | `0.4857279896736145` |
+
+Exact placement then reports `7` planned, `5` placed, and `2` rejected. The
+rejected rows are feature `30` at plot `4130` and feature `36` at plot `1785`,
+both `readback-mismatch` with `partial-expected-footprint`.
+
+Disposition:
+this proof proves the remaining natural-wonder blocker is not only a post-write
+readback mismatch. The exact planner itself sees a different placement surface
+or input set for three feature rows (`30`, `35`, `36`) before materialization.
+The next owner decision must explain the exact/local plan-input or
+engine-surface divergence before changing readback behavior, local mock policy,
+public Earthlike config, or natural-wonder tuning. Final-surface parity remains
+`unresolved` with terrain `140`, biome `874`, feature `376`, resource `307`,
+and resource coordinate proof links still open.
+
 ## Required Next Diagnostics
 
-- Classify the natural-wonder expected-empty footprint/readback owner from the
-  fresh exact `mq2x1ugm` proof: compare the partial expected-footprint vectors
-  (`1320:35,1427:-1,1321:35` and `2171:36,2278:-1`) to supported footprint
-  alternatives, final live feature cells, and adapter readback semantics before
-  assigning repair authority. A valid repair lane needs an explicit
-  source-authority disposition explaining whether the current adapter readback
-  oracle is wrong for Civ materialization or whether Civ's footprint behavior
-  should be classified as residual.
+- Classify the natural-wonder exact/local plan-input or engine-surface
+  divergence from the fresh exact `mq3ze9g3` proof before changing readback
+  behavior. Exact and local plan rows now differ for features `30`, `35`, and
+  `36`; compare the candidate surfaces, feature occupancy, terrain/biome/lake
+  masks, blocked masks, and priority inputs at the exact/local candidate plots
+  before assigning repair authority.
+- After the plan-input divergence is source-owned or dispositioned, classify
+  the partial expected-footprint readback owner for the exact rejected feature
+  `30` and `36` rows. A valid repair lane needs an explicit source-authority
+  disposition explaining whether the adapter readback oracle is wrong for Civ
+  materialization or whether Civ's footprint behavior should be classified as
+  residual.
 - Current exact live feature-apply telemetry is now bound by request
   `studio-run-in-game-mq3ryaop-1p7l`: `1493` attempted, `1491` applied, and `2`
   `canHaveFeature` rejections (`FEATURE_COLD_REEF:1`, `FEATURE_TAIGA:1`). Use

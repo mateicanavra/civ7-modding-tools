@@ -6,6 +6,7 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
+  `codex/swooper-natural-wonder-plan-proof-drain`, stacked above
   `codex/swooper-natural-wonder-row-proof-drain`, stacked above
   `codex/swooper-natural-wonder-supported-catalog-drain`, stacked above
   `codex/swooper-resource-delta-feasibility-current-record-drain`, stacked
@@ -69,6 +70,22 @@
   plot `1342` and feature `36` at plot `2065`, so the next natural-wonder
   source decision must account for exact/local plan-input or engine-surface
   divergence before treating readback mismatch as a narrow post-write repair.
+  Current follow-on proof-contract branch
+  `codex/swooper-natural-wonder-plan-proof-drain` adds compact
+  `NATURAL_WONDER_PLAN_V1` runtime telemetry and Studio exact-authorship
+  parsing for natural-wonder plan rows. Fresh exact request
+  `studio-run-in-game-mq3ze9g3-1zzu` completed with no exact-authorship
+  unresolved links and proves exact planning selected feature `30` at plot
+  `4130`, feature `35` at plot `1686`, and feature `36` at plot `1785`, while
+  local replay selected those features at plots `1342`, `1624`, and `2065`.
+  Exact placement still rejects feature `30` and feature `36` with
+  `partial-expected-footprint` readback mismatch. The verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-rows.json`
+  (`sha256:6a16a3273cc0e99120826d5adb74382dad66f0d45fb307c4af073ade9e1fe711`,
+  `proofHash:9c19e242e009dbf89711cba6e5f40ee618e27ea8bdb707d18d2d9d8727d87296`)
+  remains unresolved with terrain `140`, biome `874`, feature `376`, and
+  resource `307` mismatches. This is proof plumbing and source-authority
+  narrowing only, not behavior repair, parity closure, or product acceptance.
   Resource, feature, natural-wonder, and terrain source-authority
   classification remains the active work; product acceptance is not closed.
   Current resource-delta feasibility after the exact/local rejection join now
@@ -1368,6 +1385,20 @@
   `2065` and places all `7`, so the remaining natural-wonder proof target is
   exact/local plan-input or engine-surface divergence plus post-write partial
   footprint readback, not a simple missing supported-catalog row.
+  Current proof-contract branch
+  `codex/swooper-natural-wonder-plan-proof-drain` adds exact natural-wonder
+  plan-row telemetry. Fresh request `studio-run-in-game-mq3ze9g3-1zzu`
+  proves exact planning selected feature `30` at plot `4130`, feature `35` at
+  plot `1686`, and feature `36` at plot `1785`; local replay selected those
+  features at plots `1342`, `1624`, and `2065`. The current verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-rows.json`
+  has `sha256:6a16a3273cc0e99120826d5adb74382dad66f0d45fb307c4af073ade9e1fe711`
+  and
+  `proofHash:9c19e242e009dbf89711cba6e5f40ee618e27ea8bdb707d18d2d9d8727d87296`.
+  The next natural-wonder owner decision is now explicitly plan-input /
+  engine-surface divergence first, then partial expected-footprint readback
+  ownership for the exact rejected feature `30` and `36` rows. No behavior
+  repair, parity closure, or product acceptance is claimed.
   Final-surface parity remains open on terrain (`140` mismatches), biome
   (`874`), feature (`376`), resource (`307`), natural-wonder readback proof,
   resource coordinate proof, and any future owner-classified residual links.
