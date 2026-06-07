@@ -136,6 +136,15 @@ export type NaturalWonderPlacementRejectionReason =
   | "set-feature-false"
   | "readback-mismatch";
 
+export type NaturalWonderFootprintReadback = {
+  plotIndex: number;
+  observedFeatureType: number;
+};
+
+export type NaturalWonderFootprintReadbackStatus =
+  | "empty-expected-footprint"
+  | "partial-expected-footprint";
+
 export type NaturalWonderPlacementOutcome =
   | {
       status: "placed";
@@ -157,6 +166,8 @@ export type NaturalWonderPlacementOutcome =
       reason: NaturalWonderPlacementRejectionReason;
       observedFeatureType?: number;
       observedPlotIndex?: number;
+      expectedFootprintReadback?: NaturalWonderFootprintReadback[];
+      expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
     };
 
 /**

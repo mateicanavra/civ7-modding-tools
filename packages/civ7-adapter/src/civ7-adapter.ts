@@ -778,11 +778,19 @@ export class Civ7Adapter implements EngineAdapter {
         reason: "set-feature-false",
       };
     }
-    for (const plotIndex of footprint) {
+    const expectedFootprintReadback = footprint.map((plotIndex) => {
       const fy = Math.trunc(plotIndex / this.width);
       const fx = plotIndex - fy * this.width;
-      const observedFeatureType = GameplayMap.getFeatureType(fx, fy) | 0;
-      if (observedFeatureType !== (featureType | 0)) {
+      return {
+        plotIndex,
+        observedFeatureType: GameplayMap.getFeatureType(fx, fy) | 0,
+      };
+    });
+    for (const readback of expectedFootprintReadback) {
+      if (readback.observedFeatureType !== (featureType | 0)) {
+        const matchingFootprintCells = expectedFootprintReadback.filter(
+          (cell) => cell.observedFeatureType === (featureType | 0)
+        ).length;
         return {
           status: "rejected",
           plotIndex: y * this.width + x,
@@ -792,8 +800,13 @@ export class Civ7Adapter implements EngineAdapter {
           direction,
           elevation: resolvedElevation,
           reason: "readback-mismatch",
-          observedFeatureType,
-          observedPlotIndex: plotIndex,
+          observedFeatureType: readback.observedFeatureType,
+          observedPlotIndex: readback.plotIndex,
+          expectedFootprintReadback,
+          expectedFootprintReadbackStatus:
+            matchingFootprintCells === 0
+              ? "empty-expected-footprint"
+              : "partial-expected-footprint",
         };
       }
     }

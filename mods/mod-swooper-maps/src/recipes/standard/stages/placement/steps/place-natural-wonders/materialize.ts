@@ -1,5 +1,9 @@
 import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
-import type { NaturalWonderPlacementOutcome } from "@civ7/adapter";
+import type {
+  NaturalWonderFootprintReadback,
+  NaturalWonderFootprintReadbackStatus,
+  NaturalWonderPlacementOutcome,
+} from "@civ7/adapter";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
@@ -77,6 +81,8 @@ type NaturalWonderPlacementCoordinateRow = {
   reason: string;
   observedFeatureType?: number;
   observedPlotIndex?: number;
+  expectedFootprintReadback?: NaturalWonderFootprintReadback[];
+  expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
 };
 
 function hash32Hex(input: string): string {
@@ -113,24 +119,67 @@ function naturalWonderCoordinateDigest(
       ];
       if (row.observedPlotIndex !== undefined) fields.push(`observedPlot=${row.observedPlotIndex}`);
       if (row.observedFeatureType !== undefined) fields.push(`observedFeature=${row.observedFeatureType}`);
+      const footprint = formatExpectedFootprintReadback(row.expectedFootprintReadback);
+      if (footprint !== undefined) fields.push(`footprint=${footprint}`);
+      const readbackStatus = resolveExpectedFootprintReadbackStatus(
+        row.featureType,
+        row.expectedFootprintReadback,
+        row.expectedFootprintReadbackStatus
+      );
+      if (readbackStatus !== undefined) fields.push(`readback=${readbackStatus}`);
       return fields.join(":");
     });
   return { count: coordinateRows.length, hash32: hash32Hex(coordinateRows.join("|")) };
 }
 
+function formatExpectedFootprintReadback(
+  readback: readonly NaturalWonderFootprintReadback[] | undefined
+): string | undefined {
+  if (!Array.isArray(readback) || readback.length === 0) return undefined;
+  return readback
+    .map((row) => `${row.plotIndex | 0}:${row.observedFeatureType | 0}`)
+    .join(",");
+}
+
+function resolveExpectedFootprintReadbackStatus(
+  featureType: number,
+  readback: readonly NaturalWonderFootprintReadback[] | undefined,
+  explicitStatus?: NaturalWonderFootprintReadbackStatus
+): NaturalWonderFootprintReadbackStatus | undefined {
+  if (explicitStatus !== undefined) return explicitStatus;
+  if (!Array.isArray(readback) || readback.length === 0) return undefined;
+  const matchingCells = readback.filter((cell) => (cell.observedFeatureType | 0) === (featureType | 0)).length;
+  if (matchingCells === readback.length) return undefined;
+  return matchingCells === 0 ? "empty-expected-footprint" : "partial-expected-footprint";
+}
+
 function formatNaturalWonderRejectionExample(args: {
   featureType: number;
   plotIndex: number;
+  direction: number;
+  elevation?: number;
   reason: string;
   observedPlotIndex?: number;
   observedFeatureType?: number;
+  expectedFootprintReadback?: readonly NaturalWonderFootprintReadback[];
+  expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
 }): string {
+  const footprint = formatExpectedFootprintReadback(args.expectedFootprintReadback);
+  const readbackStatus = resolveExpectedFootprintReadbackStatus(
+    args.featureType,
+    args.expectedFootprintReadback,
+    args.expectedFootprintReadbackStatus
+  );
   return [
     `feature=${args.featureType}`,
     `plot=${args.plotIndex}`,
+    `direction=${args.direction}`,
+    ...(args.elevation === undefined ? [] : [`elevation=${Math.trunc(args.elevation)}`]),
     `reason=${args.reason}`,
     ...(args.observedPlotIndex === undefined ? [] : [`observedPlot=${args.observedPlotIndex}`]),
     ...(args.observedFeatureType === undefined ? [] : [`observedFeature=${args.observedFeatureType}`]),
+    ...(footprint === undefined ? [] : [`footprint=${footprint}`]),
+    ...(readbackStatus === undefined ? [] : [`readback=${readbackStatus}`]),
   ].join(" ");
 }
 
@@ -302,9 +351,13 @@ export function stampNaturalWondersFromPlan({
         formatNaturalWonderRejectionExample({
           featureType,
           plotIndex,
+          direction,
+          elevation: outcome.elevation,
           reason: outcome.reason,
           observedPlotIndex: outcome.observedPlotIndex,
           observedFeatureType: outcome.observedFeatureType,
+          expectedFootprintReadback: outcome.expectedFootprintReadback,
+          expectedFootprintReadbackStatus: outcome.expectedFootprintReadbackStatus,
         })
       );
       coordinateRows.push({
@@ -317,6 +370,12 @@ export function stampNaturalWondersFromPlan({
         reason: outcome.reason,
         ...(outcome.observedPlotIndex === undefined ? {} : { observedPlotIndex: outcome.observedPlotIndex }),
         ...(outcome.observedFeatureType === undefined ? {} : { observedFeatureType: outcome.observedFeatureType }),
+        ...(outcome.expectedFootprintReadback === undefined
+          ? {}
+          : { expectedFootprintReadback: outcome.expectedFootprintReadback }),
+        ...(outcome.expectedFootprintReadbackStatus === undefined
+          ? {}
+          : { expectedFootprintReadbackStatus: outcome.expectedFootprintReadbackStatus }),
       });
       continue;
     }
