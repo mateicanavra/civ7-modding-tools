@@ -6,7 +6,8 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-resource-rejection-assignment-context-drain`, stacked above
+  `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
+  stacked above `codex/swooper-resource-rejection-assignment-context-drain`,
   `codex/swooper-resource-rejection-identity-rerun-record-drain`,
   `codex/swooper-resource-rejection-proof-identity-drain`,
   `codex/swooper-resource-rejection-proof-rerun-record-drain`, and the current
@@ -20,17 +21,20 @@
   map-elevation drift, missing `[mapgen-complete]`, or rewritten log offsets.
   Exact feature-apply telemetry is now present and shows `1493` attempted,
   `1491` applied, and `2` `canHaveFeature` rejections. Exact resource
-  placement telemetry now includes structured numeric rejection rows: current
-  compact run `studio-run-in-game-mq3twjd7-18mg` completed exact authorship and
-  identifies `RESOURCE_WINE` `resourceType:16` rejected at plot `4838`
-  (`x=68`, `y=45`) with `observedResourceType:-1`. Current top branch now
-  adds exact rejected-row assignment context for the next exact run, because
-  the current proof identifies the coordinate/resource but not the exact
-  runtime assignment phase/order that selected it. Final-surface parity still
-  remains unresolved on terrain, biome, feature, resource, and
-  resource-coordinate-proof links. Resource, feature, and terrain
-  source-authority classification remains the active work; product acceptance
-  is not closed.
+  placement telemetry now includes structured numeric rejection rows. Current
+  assignment-context run `studio-run-in-game-mq3v6xr9-4w9` completed exact
+  authorship and identifies `RESOURCE_WINE` `resourceType:16` rejected at plot
+  `4838` (`x=68`, `y=45`) with `observedResourceType:-1`,
+  `assignmentPhase:scarce-floor`, `assignmentOrder:85`,
+  `initialResourceType:16`, `preferredResourceType:4`,
+  `perTypeCountBefore:1`, `legalPlotCountForResource:313`, and
+  `targetMinPerType:7`. Final-surface parity still remains unresolved on
+  terrain, biome, feature, resource, and resource-coordinate-proof links.
+  Current exact feature telemetry has `1493` attempted, `1491` applied, and
+  `2` `canHaveFeature` rejections; current exact natural-wonder telemetry has
+  `7` planned, `4` placed, and `3` rejected. Resource, feature,
+  natural-wonder, and terrain source-authority classification remains the
+  active work; product acceptance is not closed.
 
 ## Objective
 
@@ -1150,25 +1154,55 @@
   Resource coordinate proof remains mismatched: local placed
   `251`/`98393a08`, exact placed `250`/`9c5eaad8`; local rejected
   `0`/`811c9dc5`, exact rejected `1`/`af57eb7b`.
-  Current branch `codex/swooper-resource-rejection-assignment-context-drain`
-  adds compact assignment context to future exact `RESOURCE_PLACEMENT_V1`
-  non-placed rows: assignment phase/order, initial/preferred resource,
-  per-type count before assignment, legal plot count, and target floor. Studio
-  exact-authorship parsing preserves those optional fields. This is proof
-  instrumentation only; it does not change resource placement behavior,
-  scarce-floor policy, runtime materialization, final-surface parity, or
-  product acceptance. A fresh exact-authored run is still needed before using
-  the plot `4838` rejection to authorize any resource owner repair.
+  Current branch
+  `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`
+  records fresh exact request `studio-run-in-game-mq3v6xr9-4w9` after the
+  assignment-context proof contract. Status artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-assignment-context-status.json`
+  has
+  `sha256:feeb442bb095ce0094faea1fb38695798db5e2034c8486812e10ba8e77c212d7`;
+  post artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-assignment-context-post.json`
+  has
+  `sha256:1126b02788b522f3790976a8b4139f4c757d0b8c522fd0aa9a9cd930a38a7839`.
+  Exact `RESOURCE_PLACEMENT_V1` still records `251` planned, `250` placed, `1`
+  rejected, and `0` mismatches. The rejected row is `RESOURCE_WINE`
+  `resourceType:16` at plot `4838` (`x=68`, `y=45`), rejected with
+  `reason:cannot-have-resource`, `observedResourceType:-1`,
+  `assignmentPhase:scarce-floor`, `assignmentOrder:85`,
+  `initialResourceType:16`, `preferredResourceType:4`,
+  `perTypeCountBefore:1`, `legalPlotCountForResource:313`, and
+  `targetMinPerType:7`.
+  The current final-surface verifier wrote
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-assignment-context.json`
+  (`sha256:d77c9c4d495be9ea048faa6a6f2f0ce667c933a74cc86b7697b5e1fe094043a9`,
+  `proofHash:0ba7fe430c77b99aae8d6b3c514a9a7fc5136990deb763e89f7203cb11568ca7`,
+  created `2026-06-07T14:18:32.698Z`). It exits `2` as expected because
+  parity remains `unresolved`; remaining links are
+  `resource-placement-coordinate-proof.placed`,
+  `resource-placement-coordinate-proof.rejected`,
+  `surface.biome.mismatch`, `surface.feature.mismatch`,
+  `surface.resource.mismatch`, and `surface.terrain.mismatch`.
+  Resource coordinate proof remains mismatched: local placed
+  `251`/`98393a08`, exact placed `250`/`9c5eaad8`; local rejected
+  `0`/`811c9dc5`, exact rejected `1`/`af57eb7b`. Verifier log:
+  `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3v6xr9.log`
+  (`sha256:9479c3028e5e59f3c5d33afdf33d05c2e46e6aca31d0de4cef4a1a985c110d44`).
+  This classifies the exact runtime rejected resource as a scarce-floor Wine
+  assignment selected before materialization. It does not authorize tuning,
+  scarce-floor policy repair, ResourceBuilder policy changes, final-surface
+  parity, or product acceptance.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
-  `studio-run-in-game-mq3twjd7-18mg-current-final-surface-parity-with-resource-rejection-identity.json`
+  `studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-assignment-context.json`
   by proving or rejecting the narrowed repair-owner candidates in order:
   resource local-overacceptance/scarce-floor materialization using the exact
-  plot `4838` `RESOURCE_WINE` numeric/runtime rejection row plus a fresh exact
-  assignment-context rerun, exact feature-materialization/readback ownership
-  for the two rejected feature applications and remaining feature mismatches,
-  then terrain projection/readback. Do this before any final-surface parity or
-  product acceptance claim. The older
+  plot `4838` `RESOURCE_WINE` scarce-floor assignment row plus the local
+  assignment/resource-builder context, current exact natural-wonder
+  unsupported-footprint/readback ownership, exact feature-materialization/
+  readback ownership for the two rejected feature applications and remaining
+  feature mismatches, then terrain projection/readback. Do this before any
+  final-surface parity or product acceptance claim. The older
   source-recorded context remains useful: for the prior `9` local-assigned
   live-empty rows, assignment trace ruled out relaxed spacing and rebalance,
   and ResourceBuilder diagnostics and structured subclassification showed `6`
@@ -1231,9 +1265,14 @@
   a Civ engine footprint/materialization semantic as residual.
   The cold-reef local-only row is no longer blocked on missing exact
   feature-apply telemetry: the current exact run proves one cold-reef
-  `canHaveFeature` rejection, while the full feature surface still has `381`
-  mismatches. Final-surface parity remains open on terrain, feature, resource,
-  and any future owner-classified residual links.
+  `canHaveFeature` rejection and one taiga rejection, while the full feature
+  surface still has `381` mismatches. Current exact natural-wonder telemetry
+  also regressed from the source-recorded post-repair expectation to `4`
+  placed and `3` rejected (`unsupported-footprint` for two features and one
+  partial expected-footprint readback mismatch), so natural-wonder source
+  ownership remains in the active queue. Final-surface parity remains open on
+  terrain, feature, resource, natural-wonder proof, and any future
+  owner-classified residual links.
   The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source

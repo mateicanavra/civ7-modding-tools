@@ -3,22 +3,25 @@
 - [ ] 1.1 Verify exact-authorship, final-surface parity, product acceptance, and
   activated targeted repairs are closed or explicitly out of scope.
   - Current audit snapshot on
-    `codex/swooper-resource-rejection-assignment-context-drain`
+    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`
     verifies exact-authorship and mapgen completion are complete for request
-    `studio-run-in-game-mq3twjd7-18mg`, but final-surface parity is still
+    `studio-run-in-game-mq3v6xr9-4w9`, but final-surface parity is still
     unresolved. Refreshed parity artifact
-    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3twjd7-18mg-current-final-surface-parity-with-resource-rejection-identity.json`
-    (`sha256:a8d0c18f155cd60dd13dd80c52961fc3d24bdabe172edf45d8677764c116b115`,
-    `proofHash:b7a32c172ce1e7cf0b26812c551e789a2f246e0e5598f92d5388adc8c116b68c`)
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-assignment-context.json`
+    (`sha256:d77c9c4d495be9ea048faa6a6f2f0ce667c933a74cc86b7697b5e1fe094043a9`,
+    `proofHash:0ba7fe430c77b99aae8d6b3c514a9a7fc5136990deb763e89f7203cb11568ca7`)
     remains `unresolved` with terrain, biome, feature, resource, and
     resource-coordinate proof links open. It records exact resource rejection
     numeric identity: `RESOURCE_WINE`, numeric `resourceType:16`, plot `4838`,
-    `x=68`, `y=45`, `cannot-have-resource`, observed resource type `-1`, plus
+    `x=68`, `y=45`, `cannot-have-resource`, observed resource type `-1`,
+    and exact assignment context: `assignmentPhase:scarce-floor`,
+    `assignmentOrder:85`, `initialResourceType:16`,
+    `preferredResourceType:4`, `perTypeCountBefore:1`,
+    `legalPlotCountForResource:313`, `targetMinPerType:7`. It also records
     exact `FEATURE_APPLY_V1` telemetry (`1493` attempted, `1491` applied, `2`
-    rejected). This narrows source-authority work but does not close final
-    parity or product acceptance. The current top branch adds exact
-    rejected-row assignment context for future proof packets; it does not
-    supersede the `mq3twjd7` proof until a fresh exact run consumes it.
+    rejected) and current `NATURAL_WONDER_PLACEMENT_V1` telemetry (`7`
+    planned, `4` placed, `3` rejected). This narrows source-authority work but
+    does not close final parity, natural-wonder repair, or product acceptance.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -29,9 +32,10 @@
     finding remains open inside the closure claim.
 - [ ] 1.3 Audit repo, Graphite, PR, and remote predecessor state.
   - Current repo snapshot is on
-    `codex/swooper-resource-rejection-assignment-context-drain`; Graphite top
-    branch is local and stacked above the Swooper recovery drain. PR/remote
-    predecessor disposition remains blocked until proof categories close.
+    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`;
+    Graphite top branch is local and stacked above the Swooper recovery drain.
+    PR/remote predecessor disposition remains blocked until proof categories
+    close.
 
 ## 2. Reconciliation
 
@@ -45,11 +49,12 @@
 
 - [ ] 3.1 Run `git status --short --branch`.
   - Current proof-contract slice must leave
-    `codex/swooper-resource-rejection-assignment-context-drain` clean before
-    commit or closure.
+    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`
+    clean before commit or closure.
 - [ ] 3.2 Inspect Graphite branch/stack state.
   - Current audit snapshot: top branch
-    `codex/swooper-resource-rejection-assignment-context-drain` above
+    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`
+    above `codex/swooper-resource-rejection-assignment-context-drain`,
     `codex/swooper-resource-rejection-identity-rerun-record-drain`,
     `codex/swooper-resource-rejection-proof-identity-drain`, and the current
     feature/resource/source-authority proof-record branches.
