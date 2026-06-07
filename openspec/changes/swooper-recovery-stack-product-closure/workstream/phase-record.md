@@ -5,7 +5,7 @@
 - Project: Swooper recovery
 - Phase: product closure planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-rejection-proof-identity-drain`
+- Branch/Graphite stack: `codex/swooper-resource-rejection-identity-rerun-record-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -28,27 +28,25 @@
 ## Current State
 
 - Repo/Graphite state: current top branch is
-  `codex/swooper-resource-rejection-proof-identity-drain`, stacked above the
-  current Swooper proof/diagnostic drain branches.
+  `codex/swooper-resource-rejection-identity-rerun-record-drain`, stacked
+  above `codex/swooper-resource-rejection-proof-identity-drain` and the current
+  Swooper proof/diagnostic drain branches.
 - Dirty files and owner: current audit snapshot was clean before this closure
   record update; this planning goal owns the current OpenSpec docs.
 - Current code evidence: exact-authorship and mapgen-completion proof are
-  complete for `studio-run-in-game-mq3sk0ck-1vl`; final-surface parity remains
+  complete for `studio-run-in-game-mq3twjd7-18mg`; final-surface parity remains
   unresolved. The latest parity artifact with exact resource rejection row
   identity is
-  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3sk0ck-1vl-current-final-surface-parity-with-resource-rejection-example.json`
-  (`sha256:3d06cd54ec86875ddd1ac5fd25bdae4b0a1ba25919ea0046070104f76b23fdcc`,
-  `proofHash:4184a136601dbc3768fe175ab9f4f896bdd3754f2fcaf9e65c249d0d79f6a5f1`).
-  It preserves unresolved terrain `139`, biome `874`, feature `381`, and
-  resource `308` mismatch counts plus resource coordinate proof placed/rejected
-  links. Exact resource telemetry identifies a string-only rejected row as
-  `RESOURCE_WINE` at plot `4838` (`x=68`, `y=45`), rejected by
-  `canHaveResource`; exact `FEATURE_APPLY_V1` reports `1493` attempted,
-  `1491` applied, and `2` `canHaveFeature` rejections. Current top branch adds
-  structured numeric rejection rows for future exact runs because local
-  evidence for plot `4838` records numeric resource type `46`, mapped by the
-  repo table to `RESOURCE_LIMESTONE`. These narrow but do not close
-  source-authority or product acceptance.
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3twjd7-18mg-current-final-surface-parity-with-resource-rejection-identity.json`
+  (`sha256:a8d0c18f155cd60dd13dd80c52961fc3d24bdabe172edf45d8677764c116b115`,
+  `proofHash:b7a32c172ce1e7cf0b26812c551e789a2f246e0e5598f92d5388adc8c116b68c`).
+  It preserves unresolved terrain, biome, feature, resource, and
+  resource-coordinate proof links. Exact resource telemetry identifies the
+  structured numeric rejected row as `RESOURCE_WINE` with `resourceType:16` at
+  plot `4838` (`x=68`, `y=45`), rejected by `canHaveResource` with observed
+  resource type `-1`; exact `FEATURE_APPLY_V1` reports `1493` attempted,
+  `1491` applied, and `2` `canHaveFeature` rejections. These narrow but do not
+  close source-authority, final-surface parity, or product acceptance.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -92,7 +90,7 @@
 
 - Completed tasks: planning record created; current proof/Graphite audit
   snapshot recorded, including the current exact feature-apply telemetry rerun
-  and resource rejection numeric-identity proof-contract repair.
+  and resource rejection numeric-identity proof rerun.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
@@ -106,7 +104,7 @@
   the current exact-authorship proof.
 - Results: repo snapshot clean before this update; latest verifier artifact is
   unresolved with proof hash
-  `4184a136601dbc3768fe175ab9f4f896bdd3754f2fcaf9e65c249d0d79f6a5f1`;
+  `b7a32c172ce1e7cf0b26812c551e789a2f246e0e5598f92d5388adc8c116b68c`;
   broader review-ledger scan found historical P1/P2 entries but no active
   review ledger under the two current recovery closure changes.
 - Skipped gates and rationale: closure gates wait for proof closure.
@@ -122,10 +120,10 @@
 ## Next Action
 
 - Exact next step: continue the proof-led drain from
-  `earthlike-live-feature-resource-legality-repair`, starting with a fresh exact
-  run that consumes structured resource rejection rows for plot `4838`, then
-  use the current exact `FEATURE_APPLY_V1` telemetry to classify feature
-  materialization/readback ownership.
+  `earthlike-live-feature-resource-legality-repair`, starting with
+  source-authority classification of the exact `RESOURCE_WINE` numeric
+  rejection row at plot `4838`, then use the current exact `FEATURE_APPLY_V1`
+  telemetry to classify feature materialization/readback ownership.
 - First files to inspect: recovery OpenSpec proof ledgers and Graphite branch
   state.
 - Stop condition: accepted P1/P2 findings remain open.

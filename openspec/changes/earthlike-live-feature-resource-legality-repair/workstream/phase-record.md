@@ -6,50 +6,27 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-studio-log-rewrite-reader-drain`, with runtime proof to be
-  recorded in a follow-on proof-record slice, stacked above
-  `codex/swooper-sdk-mapgen-completion-marker-drain` and
-  `codex/swooper-map-elevation-drift-policy-drain`; this slice repairs the
-  locally proven direct-control/Studio fresh-log reader gap after
-  restart-launch retry, start-log grace, same-size `Scripting.log` rewrite
-  fixes, map-policy bundling for Civ map scripts, map-elevation bounded drift
-  policy repair, and SDK completion-marker repair.
+  `codex/swooper-resource-rejection-identity-rerun-record-drain`, stacked above
+  `codex/swooper-resource-rejection-proof-identity-drain`,
+  `codex/swooper-resource-rejection-proof-rerun-record-drain`, and the current
+  Swooper proof/diagnostic drain branches.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
-  in the repo-owned adapter/map-policy surface. The natural-wonder
-  rejected-anchor class remains open after the post-repair proof correction:
-  exact live telemetry is authoritative, and source-recorded post-write
-  footprint proof reports `5` placed / `2` rejected, now narrowed to partial
-  expected-footprint readback vectors at observed plots `1427` and `2278` for
-  Kilimanjaro and Zhangjiajie. The cold-reef feature row is evidence-bound
-  because exact live feature-apply telemetry is absent. Current exact proof no
-  longer blocks on the stale `floodplainPlanning` key when launched from the
-  current checked-in config. It also no longer blocks on unobserved Civ process
-  restart: the latest retry records two Steam launch attempts and reaches setup
-  preparation. It also no longer blocks on generated `studio-current.js`
-  map-script loading after `@civ7/map-policy` was bundled into the Civ map
-  script. Request
-  `studio-run-in-game-mq3n8vkc-1qjg` failed in
-  `mod-swooper-maps.standard.map-elevation.build-elevation` because
-  `map-elevation/build-elevation` expected land but the adapter reported water
-  at `(34,17)`. The current branch repairs the local policy mismatch by using
-  the accepted bounded water-drift policy in `map-elevation/buildElevation`,
-  and the next request `studio-run-in-game-mq3nyiss-8oj` then passed
-  `map-elevation/build-elevation`, emitted bounded `WATER_DRIFT_POLICY_V1`
-  telemetry, ran all `50/50` recipe steps, and emitted `[mapgen-proof]`.
-  It timed out in `waiting-for-proof` because `[mapgen-complete]` was absent.
-  The SDK marker repair was then proven in deployed runtime logs by request
-  `studio-run-in-game-mq3omoo3-8oj`, but Studio still failed in
-  `waiting-for-proof` because the direct-control log waiter sliced a
-  Civ-rewritten `Scripting.log` from the stale pre-restart byte offset. The
-  current slice repairs that fresh-log reader boundary, and the committed
-  rerun `studio-run-in-game-mq3pfgbe-1doj` completed exact authorship and
-  mapgen-completion proof from head
-  `5537f2a829f8dd1452fec81d002c4afc1f0826a6`. The current final-surface
-  verifier was then rerun from that completed exact-authorship evidence and
-  produced an unresolved proof artifact. Resource classes remain pending
-  source-authority
-  classification.
+  in the repo-owned adapter/map-policy surface, and the natural-wonder
+  projection/materialization class has a bounded repair but remains open for
+  subsequent readback/footprint proof. Current exact-authored runtime proof no
+  longer blocks on stale config, process restart, map-script loading,
+  map-elevation drift, missing `[mapgen-complete]`, or rewritten log offsets.
+  Exact feature-apply telemetry is now present and shows `1493` attempted,
+  `1491` applied, and `2` `canHaveFeature` rejections. Exact resource
+  placement telemetry now includes structured numeric rejection rows: current
+  compact run `studio-run-in-game-mq3twjd7-18mg` completed exact authorship and
+  identifies `RESOURCE_WINE` `resourceType:16` rejected at plot `4838`
+  (`x=68`, `y=45`) with `observedResourceType:-1`. Final-surface parity still
+  remains unresolved on terrain, biome, feature, resource, and
+  resource-coordinate-proof links. Resource, feature, and terrain
+  source-authority classification remains the active work; product acceptance
+  is not closed.
 
 ## Objective
 
@@ -1138,16 +1115,47 @@
   reason, and observed resource identity in future exact-authorship packets.
   This is proof instrumentation only and does not authorize resource tuning,
   scarce-floor repair, parity closure, or product acceptance.
+  The first post-contract exact run `studio-run-in-game-mq3tkdui-ygx`
+  completed exact authorship but showed the proof line was still too large for
+  reliable Studio parsing; that run is recorded as a proof-contract failure,
+  not resource proof. After compacting the proof payload, exact request
+  `studio-run-in-game-mq3twjd7-18mg` completed with no unresolved
+  exact-authorship links. Status artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-identity-compact-status.json`
+  has
+  `sha256:da06bc02e50773044af13a1f9bcdf62abbe419b4bc1ef081f57f9cc006841461`;
+  post artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-identity-compact-post.json`
+  has
+  `sha256:3dc98df92afce28192c19bd2b2315d5388282a7e1dc3e24483d0025ac28e503b`.
+  Exact `RESOURCE_PLACEMENT_V1` now records `251` planned, `250` placed, `1`
+  rejected, `0` mismatches, `34` unique planned/placed resource types, min/max
+  placed count by type `7/8`, and the structured rejected row:
+  `resourceType:16`, `resource:"RESOURCE_WINE"`, plot `4838`, `x=68`, `y=45`,
+  reason `cannot-have-resource`, observed resource type `-1`.
+  The current final-surface verifier then wrote
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3twjd7-18mg-current-final-surface-parity-with-resource-rejection-identity.json`
+  (`sha256:a8d0c18f155cd60dd13dd80c52961fc3d24bdabe172edf45d8677764c116b115`,
+  `proofHash:b7a32c172ce1e7cf0b26812c551e789a2f246e0e5598f92d5388adc8c116b68c`,
+  created `2026-06-07T13:42:38.215Z`). It exits `2` as expected because
+  parity is still `unresolved`; remaining links are
+  `resource-placement-coordinate-proof.placed`,
+  `resource-placement-coordinate-proof.rejected`,
+  `surface.biome.mismatch`, `surface.feature.mismatch`,
+  `surface.resource.mismatch`, and `surface.terrain.mismatch`.
+  Resource coordinate proof remains mismatched: local placed
+  `251`/`98393a08`, exact placed `250`/`9c5eaad8`; local rejected
+  `0`/`811c9dc5`, exact rejected `1`/`af57eb7b`.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
-  `studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json` by
-  first rerunning exact proof with structured resource rejection rows, then
-  proving or rejecting the narrowed repair-owner candidates in order:
+  `studio-run-in-game-mq3twjd7-18mg-current-final-surface-parity-with-resource-rejection-identity.json`
+  by proving or rejecting the narrowed repair-owner candidates in order:
   resource local-overacceptance/scarce-floor materialization using the exact
-  plot `4838` rejection row with numeric/runtime identity, exact
-  feature-materialization/readback ownership for the two rejected features and
-  remaining `381` feature mismatches, then terrain projection/readback. Do this before any
-  final-surface parity or product acceptance claim. The older
+  plot `4838` `RESOURCE_WINE` numeric/runtime rejection row, exact
+  feature-materialization/readback ownership for the two rejected feature
+  applications and remaining feature mismatches, then terrain
+  projection/readback. Do this before any final-surface parity or product
+  acceptance claim. The older
   source-recorded context remains useful: for the prior `9` local-assigned
   live-empty rows, assignment trace ruled out relaxed spacing and rebalance,
   and ResourceBuilder diagnostics and structured subclassification showed `6`
