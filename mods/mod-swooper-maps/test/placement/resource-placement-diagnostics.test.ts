@@ -218,6 +218,17 @@ describe("resource placement diagnostics", () => {
           resourceClassType: "RESOURCECLASS_BONUS",
           name: "Rubies",
         },
+      ],
+      [
+        {
+          status: "rejected",
+          plotIndex: 67,
+          x: 12,
+          y: 3,
+          resourceType: 44,
+          reason: "cannot-have-resource",
+          observedResourceType: -1,
+        },
       ]
     );
 
@@ -241,6 +252,10 @@ describe("resource placement diagnostics", () => {
       },
       placedResourceTypes: [4, 44],
       rejectedResourceTypes: [44],
+      rejectionExampleCount: 1,
+      rejectionExamples: [
+        "status=rejected resource=RESOURCE_RUBIES plot=67 x=12 y=3 reason=cannot-have-resource observed=-1",
+      ],
       unmappedPlacedResourceTypes: [],
       byReason: [{ reason: "cannot-have-resource", count: 1 }],
     });

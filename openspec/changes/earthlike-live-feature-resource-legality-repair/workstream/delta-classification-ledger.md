@@ -1521,6 +1521,12 @@ mountain-quality work.
   this as the source-authority input for the cold-reef/local-only feature row
   and remaining feature materialization/readback classification; do not treat it
   as final-surface parity or product acceptance.
+- Resource rejection row identity remains pending a fresh exact run. The
+  current code now emits bounded `RESOURCE_PLACEMENT_V1.rejectionExamples` and
+  Studio parses them into exact-authorship stats, but no current exact artifact
+  has consumed that contract yet. Use the next exact run to classify the one
+  current resource rejection before changing scarce-floor targets, assignment
+  order, static policy, or resource tuning.
 - Continue resource-row classification using source-recorded coordinate proof
   and runtime-bound row evidence where applicable before changing resource
   tuning, scarcity floors, assignment ordering, or static policy; obtain a

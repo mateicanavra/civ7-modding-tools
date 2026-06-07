@@ -103,13 +103,17 @@ describe("Run in Game exact authorship proof identity", () => {
         `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 4,
-          placedCount: 4,
-          rejectedCount: 0,
+          placedCount: 3,
+          rejectedCount: 1,
           mismatchCount: 0,
+          rejectionExampleCount: 1,
+          rejectionExamples: ["status=rejected resource=RESOURCE_WINE plot=67 x=12 y=3 reason=cannot-have-resource observed=-1"],
           coordinateProof: {
             version: 1,
-            placedCount: 4,
+            placedCount: 3,
             placedHash32: "3c3530cb",
+            rejectedCount: 1,
+            rejectedHash32: "aaaaaaaa",
           },
         })}`,
         `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
@@ -164,9 +168,19 @@ describe("Run in Game exact authorship proof identity", () => {
     });
     expect(logProof?.resourcePlacement).toMatchObject({
       marker: "RESOURCE_PLACEMENT_V1",
+      stats: {
+        version: 1,
+        plannedCount: 4,
+        placedCount: 3,
+        rejectedCount: 1,
+        mismatchCount: 0,
+        rejectionExampleCount: 1,
+        rejectionExamples: ["status=rejected resource=RESOURCE_WINE plot=67 x=12 y=3 reason=cannot-have-resource observed=-1"],
+      },
       coordinateProof: {
         version: 1,
-        placed: { count: 4, hash32: "3c3530cb" },
+        placed: { count: 3, hash32: "3c3530cb" },
+        rejected: { count: 1, hash32: "aaaaaaaa" },
       },
     });
     expect(logProof?.naturalWonderPlacement).toMatchObject({
