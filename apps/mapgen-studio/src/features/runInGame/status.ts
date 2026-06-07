@@ -145,6 +145,19 @@ export type RunInGameExactAuthorshipProof = Readonly<{
     dimensions: Readonly<{ width: number; height: number }>;
     proofPayload: unknown;
     completionPayload: unknown;
+    featureApply?: Readonly<{
+      marker: "FEATURE_APPLY_V1";
+      payload: unknown;
+      stats?: Readonly<{
+        attempted: number;
+        applied: number;
+        rejected: number;
+        rejectedCanHaveFeature: number;
+        attemptedByFeature?: Readonly<Record<string, number>>;
+        appliedByFeature?: Readonly<Record<string, number>>;
+        rejectedCanHaveFeatureByFeature?: Readonly<Record<string, number>>;
+      }>;
+    }>;
     resourcePlacement?: Readonly<{
       marker: "RESOURCE_PLACEMENT_V1";
       payload: unknown;
