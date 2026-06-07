@@ -64,6 +64,21 @@ describe("surface delta context diagnostics", () => {
   test("classifies feature deltas into reef absences and nearby natural-wonder offsets", () => {
     const local = snapshot({
       feature: { width: 3, height: 2, values: [11, 35, -1, -1, -1, 36] },
+    }, {
+      featureIntents: {
+        reefs: [{ x: 0, y: 0, feature: "FEATURE_COLD_REEF", weight: 0.8 }],
+      },
+      naturalWonderPlan: {
+        width: 3,
+        height: 2,
+        wondersCount: 2,
+        targetCount: 2,
+        plannedCount: 2,
+        placements: [
+          { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
+          { plotIndex: 5, featureType: 36, direction: 0, elevation: 900, priority: 0.8 },
+        ],
+      },
     });
     const live = snapshot({
       feature: { width: 3, height: 2, values: [-1, -1, 35, -1, 36, -1] },
@@ -78,6 +93,11 @@ describe("surface delta context diagnostics", () => {
       local: { symbol: "FEATURE_COLD_REEF" },
       live: { symbol: "empty" },
       pairedSameFeatureDelta: null,
+      localFeatureIntent: {
+        family: "reefs",
+        feature: "FEATURE_COLD_REEF",
+        weight: 0.8,
+      },
       evidenceClass: "local-only-ecology-feature",
     });
     expect(rows[1]).toMatchObject({
@@ -85,6 +105,11 @@ describe("surface delta context diagnostics", () => {
       y: 0,
       local: { symbol: "FEATURE_KILIMANJARO" },
       live: { symbol: "empty" },
+      naturalWonderFootprint: {
+        anchorPlotIndex: 1,
+        featureSymbol: "FEATURE_KILIMANJARO",
+        priority: 0.9,
+      },
       pairedSameFeatureDelta: {
         x: 2,
         y: 0,

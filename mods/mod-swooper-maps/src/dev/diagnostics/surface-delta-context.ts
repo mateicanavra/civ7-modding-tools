@@ -1,5 +1,6 @@
 import {
   CIV7_BROWSER_TABLES_V0,
+  getNaturalWonderFootprintIndices,
   isResourceAdjacentToLandRuntimeOptional,
 } from "@civ7/map-policy";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
@@ -70,6 +71,8 @@ export type FeatureDeltaPlacementContext = SurfaceDeltaContext &
   Readonly<{
     key: "feature";
     plotIndex: number;
+    localFeatureIntent: FeatureIntentContext | null;
+    naturalWonderFootprint: NaturalWonderFootprintContext | null;
     pairedSameFeatureDelta: FeatureDeltaPairContext | null;
     evidenceClass:
       | "local-only-ecology-feature"
@@ -86,6 +89,23 @@ export type FeatureDeltaPairContext = Readonly<{
   distance: number;
   localFeature: Readonly<{ value: number | null; symbol: string }>;
   liveFeature: Readonly<{ value: number | null; symbol: string }>;
+}>;
+
+export type FeatureIntentContext = Readonly<{
+  family: string;
+  feature: string;
+  weight: number | null;
+}>;
+
+export type NaturalWonderFootprintContext = Readonly<{
+  anchorPlotIndex: number;
+  anchorX: number;
+  anchorY: number;
+  featureType: number;
+  featureSymbol: string;
+  direction: number;
+  priority: number | null;
+  footprintDistanceFromAnchor: number;
 }>;
 
 export type ResourceDeltaPlacementContext = Readonly<{
@@ -286,12 +306,16 @@ export function buildFeatureDeltaPlacementContexts(
   options: { maxRows?: number } = {}
 ): ReadonlyArray<FeatureDeltaPlacementContext> {
   const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
+  const featureIntents = readFeatureIntentEvidence(proof.local);
+  const naturalWonderFootprints = readNaturalWonderFootprintEvidence(proof.local);
   const rows = buildSurfaceDeltaContexts(proof, { keys: ["feature"] }).map((row) => {
     const plotIndex = row.y * proof.local.width + row.x;
     return {
       ...row,
       key: "feature" as const,
       plotIndex,
+      localFeatureIntent: featureIntents.byPlot.get(plotIndex) ?? null,
+      naturalWonderFootprint: naturalWonderFootprints.byPlot.get(plotIndex) ?? null,
       pairedSameFeatureDelta: null,
       evidenceClass: "unclassified" as const,
     };
@@ -593,6 +617,74 @@ function classifyFeatureDelta(
 function isNaturalWonderFeature(featureType: number): boolean {
   const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(featureType)];
   return typeof policy?.naturalWonderTiles === "number" && policy.naturalWonderTiles > 0;
+}
+
+function readFeatureIntentEvidence(snapshot: FinalSurfaceSnapshot): {
+  byPlot: ReadonlyMap<number, FeatureIntentContext>;
+} {
+  const byPlot = new Map<number, FeatureIntentContext>();
+  const evidence = snapshot.evidence;
+  const featureIntents = isRecord(evidence) ? evidence.featureIntents : undefined;
+  if (!isRecord(featureIntents)) return { byPlot };
+  for (const [family, rawIntents] of Object.entries(featureIntents)) {
+    if (!Array.isArray(rawIntents)) continue;
+    for (const rawIntent of rawIntents) {
+      if (!isRecord(rawIntent)) continue;
+      const x = finiteInteger(rawIntent.x);
+      const y = finiteInteger(rawIntent.y);
+      const feature = stringValue(rawIntent.feature);
+      if (x === null || y === null || feature === null) continue;
+      if (x < 0 || x >= snapshot.width || y < 0 || y >= snapshot.height) continue;
+      const plotIndex = y * snapshot.width + x;
+      byPlot.set(plotIndex, {
+        family,
+        feature,
+        weight: numberValue(rawIntent.weight),
+      });
+    }
+  }
+  return { byPlot };
+}
+
+function readNaturalWonderFootprintEvidence(snapshot: FinalSurfaceSnapshot): {
+  byPlot: ReadonlyMap<number, NaturalWonderFootprintContext>;
+} {
+  const byPlot = new Map<number, NaturalWonderFootprintContext>();
+  const evidence = snapshot.evidence;
+  const naturalWonderPlan = isRecord(evidence) ? evidence.naturalWonderPlan : undefined;
+  const placements = isRecord(naturalWonderPlan) && Array.isArray(naturalWonderPlan.placements)
+    ? naturalWonderPlan.placements
+    : [];
+  for (const rawPlacement of placements) {
+    if (!isRecord(rawPlacement)) continue;
+    const anchorPlotIndex = finiteInteger(rawPlacement.plotIndex);
+    const featureType = finiteInteger(rawPlacement.featureType);
+    const direction = finiteInteger(rawPlacement.direction);
+    if (anchorPlotIndex === null || featureType === null || direction === null) continue;
+    const anchorY = Math.floor(anchorPlotIndex / snapshot.width);
+    const anchorX = anchorPlotIndex - anchorY * snapshot.width;
+    const footprint = getNaturalWonderFootprintIndices({
+      x: anchorX,
+      y: anchorY,
+      width: snapshot.width,
+      height: snapshot.height,
+      policy: CIV7_BROWSER_TABLES_V0.featurePolicies[String(featureType)] ?? {},
+      direction,
+    }) ?? [anchorPlotIndex];
+    for (const plotIndex of footprint) {
+      byPlot.set(plotIndex, {
+        anchorPlotIndex,
+        anchorX,
+        anchorY,
+        featureType,
+        featureSymbol: symbolFor("feature", featureType),
+        direction,
+        priority: numberValue(rawPlacement.priority),
+        footprintDistanceFromAnchor: hexDistanceOddQPeriodicX(anchorPlotIndex, plotIndex, snapshot.width),
+      });
+    }
+  }
+  return { byPlot };
 }
 
 function addResourceSurfaceReasons(
@@ -914,6 +1006,14 @@ function resourceFeasibilityCellKey(x: number, y: number, plotIndex: number): st
 
 function finiteInteger(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? Math.trunc(value) : null;
+}
+
+function numberValue(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function stringValue(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

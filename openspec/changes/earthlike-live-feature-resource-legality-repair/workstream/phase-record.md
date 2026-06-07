@@ -5,10 +5,9 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-feature-delta-context-drain`
-  stacked above `codex/swooper-resource-coordinate-proof-intake-drain`; this
-  slice carries feature-delta source context for ecology-feature and
-  natural-wonder offset classes.
+- Branch/Graphite stack: `codex/swooper-feature-local-evidence-drain`
+  stacked above `codex/swooper-feature-delta-context-drain`; this slice carries
+  local feature/natural-wonder evidence joins for feature-delta classes.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -16,7 +15,8 @@
   ResourceBuilder diagnostic/subclassification/policy context plus
   assignment-class, distribution-count, same-resource position, local
   materialization, future coordinate-proof instrumentation, coordinate-proof
-  intake, and feature-delta classification now narrow the next repair classes.
+  intake, feature-delta classification, and local feature/wonder evidence joins
+  now narrow the next repair classes.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -338,6 +338,22 @@
   still needs feature-intent/application versus live engine proof, and the
   natural-wonder offsets still need planned anchor/direction/footprint proof
   before repair ownership can be assigned.
+- Feature local evidence context progress:
+  `runLocalFinalSurfaceSnapshot` now exports local feature intent families,
+  feature-apply diagnostics, natural-wonder plan, and natural-wonder placement
+  stats from existing artifacts, and the feature delta diagnostic joins that
+  evidence when present. The current local-evidence artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-feature-local-evidence-context.json`
+  (`sha256:729cc1d2c3b080177b524293991ceff8b7bc312796dac31a8e59053cda7f1c45`).
+  It is a local exact-source rerun joined to the saved live grid, not a fresh
+  exact-authored live parity proof. It proves local feature apply attempted and
+  applied `1501/1501` rows with `0` rejections; local `FEATURE_COLD_REEF`
+  applied count is `55`; natural wonders planned/placed/rejected are `7/7/0`.
+  The local cold-reef delta row `(48,6)` has a local reef intent; the local
+  `FEATURE_KILIMANJARO` and `FEATURE_ZHANGJIAJIE` mismatch anchors are within
+  planned local natural-wonder footprints. This narrows, but does not close,
+  feature ownership: live `canHaveFeature`/materialization/readback evidence is
+  still required before repair authority.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -368,8 +384,9 @@
   assignment-order repair is authorized until a fresh exact-authored run binds
   local and live immediate placement coordinate identity or otherwise assigns
   those subclasses to a concrete source owner. Feature rows are now split into
-  a reef absence and two natural-wonder one-tile offsets, but no feature repair
-  is authorized until local intent/application and live materialization evidence
+  a reef absence and two natural-wonder one-tile offsets, with local intent,
+  application, and footprint evidence now attached. No feature repair is
+  authorized until live feature feasibility/materialization/readback evidence
   assigns ownership. The single substitution row where both probed values are
   infeasible remains an individual evidence row with no repair authority until
   row-level context assigns source ownership.

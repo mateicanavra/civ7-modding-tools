@@ -628,6 +628,46 @@ disposition or changing natural-wonder placement. No feature repair, wonder
 footprint proof, parity closure, product acceptance, or mountain-quality claim
 is authorized from this context alone.
 
+### Feature Local Evidence Context
+
+Diagnostic repair:
+`runLocalFinalSurfaceSnapshot` now exports the local feature-intent families,
+feature-apply diagnostics, natural-wonder plan, and natural-wonder placement
+stats from existing schema-backed artifacts. `buildFeatureDeltaPlacementContexts`
+joins that local evidence to feature mismatch rows when it is present, while
+remaining compatible with older proof files that lack it.
+
+The current local-evidence artifact is
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-feature-local-evidence-context.json`
+(`sha256:729cc1d2c3b080177b524293991ceff8b7bc312796dac31a8e59053cda7f1c45`).
+It is a local exact-source rerun joined to the saved live grid from request
+`studio-run-in-game-mq20rbzr-1fhc`; it is not a fresh exact-authored live
+parity proof.
+
+Feature local evidence facts:
+
+| Fact | Value | Boundary |
+|---|---:|---|
+| Feature apply attempted / applied / rejected | `1501 / 1501 / 0` | Local exact-source rerun only. |
+| `FEATURE_COLD_REEF` applied locally | `55` | Includes the local-only row `(48,6)`. |
+| Natural wonders planned / placed / rejected | `7 / 7 / 0` | Local exact-source rerun only. |
+| Local `FEATURE_KILIMANJARO` row `(49,13)` | planned footprint, anchor plot `1320`, distance `2` | Live anchor `(48,13)` still needs live footprint/materialization proof. |
+| Local `FEATURE_ZHANGJIAJIE` row `(52,21)` | planned footprint, anchor plot `2171`, distance `1` | Live anchor `(51,21)` still needs live footprint/materialization proof. |
+
+Disposition:
+the cold-reef mismatch is now proven to be a local planned-and-applied ecology
+feature on the exact source snapshot, with no local feature-apply rejection.
+The remaining source-owner question is whether live Civ materialization or live
+readback removed/omitted that feature, or whether the local mock feature
+eligibility diverges from Civ live `canHaveFeature` for that exact tile. The
+two natural-wonder mismatch pairs are now proven to touch locally planned
+natural-wonder footprints, but the live grid has the same feature one tile away
+from the local footprint row. That keeps ownership unresolved between planned
+anchor/direction/footprint semantics, local mock stamping, Civ live
+materialization policy, or readback semantics. No feature repair, natural-wonder
+repair, parity closure, product acceptance, or mountain-quality claim is
+authorized from this local evidence alone.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,
