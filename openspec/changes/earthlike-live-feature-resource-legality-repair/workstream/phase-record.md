@@ -6,21 +6,21 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-wonder-footprint-proof-drain`, stacked above
-  `codex/swooper-wonder-readback-context-drain`; this slice adds complete
-  expected-footprint readback instrumentation above the source-recorded
-  natural-wonder readback-context proof.
+  `codex/swooper-wonder-footprint-proof-record-drain`, stacked above
+  `codex/swooper-wonder-footprint-proof-drain`; this slice preserves
+  source-recorded exact-authored post-write footprint proof above the
+  expected-footprint readback instrumentation layer.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. The natural-wonder
   rejected-anchor class remains open after the post-repair proof correction:
-  exact live telemetry is authoritative, and source-recorded readback-context
-  proof still reports `5` placed / `2` rejected, now narrowed to empty expected
-  footprint readback at observed plots `1427` and `2278` for Kilimanjaro and
-  Zhangjiajie. The cold-reef feature row is evidence-bound because exact live
-  feature-apply telemetry is absent. Current exact proof still blocks on stale
-  config before parity evaluation, and resource classes remain pending
-  source-authority classification.
+  exact live telemetry is authoritative, and source-recorded post-write
+  footprint proof reports `5` placed / `2` rejected, now narrowed to partial
+  expected-footprint readback vectors at observed plots `1427` and `2278` for
+  Kilimanjaro and Zhangjiajie. The cold-reef feature row is evidence-bound
+  because exact live feature-apply telemetry is absent. Current exact proof
+  still blocks on stale config before parity evaluation, and resource classes
+  remain pending source-authority classification.
 
 ## Objective
 
@@ -805,10 +805,44 @@
   readback facts without relying on hidden digest inputs. This is
   instrumentation only. It does not change `Direction` resolution, placement
   policy, natural-wonder config, generated output, materialization behavior, or
-  parity status. A fresh exact-authored Studio Run in Game must consume this
-  contract before the expected-empty Kilimanjaro/Zhangjiajie subcondition can
-  be classified to adapter readback, local footprint projection, Civ
-  materialization semantics, or evidence insufficiency.
+  parity status. The follow-up exact proof below consumes this contract, but
+  the expected-empty Kilimanjaro/Zhangjiajie subcondition still needs explicit
+  source-authority classification before any adapter readback, local footprint
+  projection, Civ materialization residual, or evidence-insufficiency
+  disposition can authorize repair/closure movement.
+- Fresh natural-wonder post-write footprint proof:
+  fresh request `studio-run-in-game-mq2x1ugm-1z4g` completed exact authorship
+  after the post-write footprint telemetry contract landed. The completed
+  Studio status artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-postwrite-footprint-v2-run-status.json`
+  (`sha256:e112342126773ebaba7719f5e92539a814a71d6b79207ba2ddc63e96b48779a7`);
+  the request post response is
+  `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-postwrite-footprint-v2-run-post.json`
+  (`sha256:22688520ef3e61b39ee23ff56744de719ecaef748e9ed5e0d0a850b4a9a21a5e`);
+  and the exact-authored full-grid parity proof is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2x1ugm-1z4g-after-postwrite-footprint-proof-v2.json`
+  (`sha256:527973a4a5ed0b23b506dd780accb3fec777dbeea1dde610161c605beed80294`,
+  `proofHash:3c47392d308a071cc128f6dc3d35567adf6b2bdd11249e2c34275dbe7d6402a3`).
+  Exact-authorship status is `complete` with no unresolved links. Runtime
+  identity is `106x66`, `6996` plots, seed `138503614`, turn `1`, game hash
+  `0`, source snapshot id `status:1:c153eb72`, and snapshot hash `c153eb72`.
+  Exact live `log.naturalWonderPlacement` reports `plannedCount:7`,
+  `placedCount:5`, `rejectedCount:2`, with rejection examples
+  `feature=35 plot=1320 direction=0 elevation=21 reason=readback-mismatch observedPlot=1427 observedFeature=-1 footprint=1320:35,1427:-1,1321:35 readback=partial-expected-footprint`
+  and
+  `feature=36 plot=2171 direction=0 elevation=32 reason=readback-mismatch observedPlot=2278 observedFeature=-1 footprint=2171:36,2278:-1 readback=partial-expected-footprint`.
+  Coordinate proof remains `placedHash32:84d971d2` /
+  `rejectedHash32:f78a9fb9`. The full-grid verifier's local generation still
+  emits `7/7/0`, so the exact live log remains authoritative.
+  Final-surface parity remains `unresolved`: terrain has `1` mismatch, biome
+  has `0`, feature has `5`, and resource has `61`, with unresolved links
+  `surface.terrain.mismatch`, `surface.feature.mismatch`,
+  `surface.resource.mismatch`, and `resource-placement-coordinate-proof.placed`.
+  This proves the exact Civ post-write readback observed one expected
+  footprint cell empty while sibling expected footprint cells already carried
+  the requested feature. It narrows the owner question to Civ natural-wonder
+  footprint/materialization semantics versus the local/adapter post-write
+  readback oracle, but it does not yet classify repair authority.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -871,9 +905,13 @@
   until the expected-empty footprint/readback owner is source-classified and
   repaired or dispositioned from exact-bound evidence that explains the
   adapter's post-write readback oracle versus Civ's materialized footprint.
-  Current proof instrumentation now records the full expected-footprint
-  readback vector needed by that next exact run, but this local schema/test
-  layer does not itself classify the owner.
+  Fresh request `studio-run-in-game-mq2x1ugm-1z4g` now records the full
+  expected-footprint readback vector for both rejected anchors:
+  Kilimanjaro has `1320:35,1427:-1,1321:35`, and Zhangjiajie has
+  `2171:36,2278:-1`. That exact-bound vector proves partial expected-footprint
+  readback after the write call, but it still does not classify whether the
+  repo should change its local footprint projection/readback oracle or accept
+  a Civ engine footprint/materialization semantic as residual.
   The cold-reef local-only row also remains
   evidence-bound pending exact live feature-apply telemetry/readback. Final-
   surface parity remains open on terrain, feature, resource, and any future
