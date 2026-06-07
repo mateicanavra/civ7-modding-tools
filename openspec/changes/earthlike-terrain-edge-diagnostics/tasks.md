@@ -9,7 +9,7 @@
 - [x] 2.1 Add terrain-only mismatch context extraction.
 - [x] 2.2 Add neighborhood classification for coast/ocean edge swaps.
 - [x] 2.3 Produce the terrain-edge context artifact.
-- [ ] 2.4 Add or link shelf/coast/lake/projection-boundary mask evidence.
+- [x] 2.4 Add or link shelf/coast/lake/projection-boundary mask evidence.
 - [ ] 2.5 Add or link live water/lake/area readback evidence.
 - [ ] 2.6 Classify source authority for each row.
 

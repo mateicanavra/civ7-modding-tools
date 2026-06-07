@@ -331,6 +331,7 @@ export type TerrainDeltaEdgeContext = Readonly<{
     context: CellSurfaceContext;
   }>;
   neighborhood: TerrainDeltaNeighborhoodContext;
+  localProjection: TerrainProjectionRowContext | null;
   evidenceClass:
     | "local-ocean-live-coast"
     | "local-coast-live-ocean"
@@ -369,6 +370,55 @@ export type TerrainNeighborhoodCounts = Readonly<{
 }>;
 
 export type TerrainWaterClass = "coast" | "ocean" | "other-water" | "land" | "empty";
+
+export type TerrainProjectionRowContext = Readonly<{
+  morphology: TerrainMorphologyProjectionRowContext | null;
+  hydrologyLakePlan: TerrainHydrologyLakePlanRowContext | null;
+  mapHydrologyProjection: TerrainMapHydrologyProjectionRowContext | null;
+  hydrologyTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
+  placementSurfacePreparation: TerrainPlacementPreparationContext | null;
+  placementTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
+}>;
+
+export type TerrainMorphologyProjectionRowContext = Readonly<{
+  coastalLand: number | null;
+  coastalWater: number | null;
+  shelfMask: number | null;
+  distanceToCoast: number | null;
+}>;
+
+export type TerrainHydrologyLakePlanRowContext = Readonly<{
+  lakeMask: number | null;
+  plannedLakeTileCount: number | null;
+  sinkLakeCount: number | null;
+}>;
+
+export type TerrainMapHydrologyProjectionRowContext = Readonly<{
+  lakeMask: number | null;
+  plannedLakeMask: number | null;
+  engineWaterMask: number | null;
+  engineLakeMask: number | null;
+  engineTerrain: number | null;
+  engineTerrainSymbol: string;
+  engineAreaId: number | null;
+  terrainMismatchMask: number | null;
+  terrainMismatchTileCount: number | null;
+  nonLakeTileCount: number | null;
+  morphologyProtectedLakeTileCount: number | null;
+}>;
+
+export type TerrainProjectionSnapshotRowContext = Readonly<{
+  stage: string | null;
+  landMask: number | null;
+  terrain: number | null;
+  terrainSymbol: string;
+}>;
+
+export type TerrainPlacementPreparationContext = Readonly<{
+  acceptedLakeTileCount: number | null;
+  finalLakeWaterDriftCount: number | null;
+  finalLakeClassificationDriftCount: number | null;
+}>;
 
 export type ResourcePlacementOutcomeContext = Readonly<{
   status: string;
@@ -799,6 +849,7 @@ export function buildTerrainDeltaEdgeContexts(
         context: cellSurfaceContext(proof.live, x, y),
       },
       neighborhood,
+      localProjection: terrainProjectionRowContext(proof.local, index),
       evidenceClass: classifyTerrainDeltaEdge(localTerrain, liveTerrain),
       sourceAuthorityStatus: "unresolved",
       ownerCandidates: terrainOwnerCandidates(localTerrain, liveTerrain),
@@ -1475,6 +1526,103 @@ function terrainWaterClass(value: number | null): TerrainWaterClass {
   if (value === CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST) return "coast";
   if (value === CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_OCEAN) return "ocean";
   return WATER_TERRAINS.has(value) ? "other-water" : "land";
+}
+
+function terrainProjectionRowContext(
+  snapshot: FinalSurfaceSnapshot,
+  plotIndex: number
+): TerrainProjectionRowContext | null {
+  const projection = isRecord(snapshot.evidence) && isRecord(snapshot.evidence.terrainProjection)
+    ? snapshot.evidence.terrainProjection
+    : undefined;
+  if (!projection) return null;
+  const morphology = isRecord(projection.coastlineMetrics) ? projection.coastlineMetrics : undefined;
+  const hydrologyLakePlan = isRecord(projection.hydrologyLakePlan) ? projection.hydrologyLakePlan : undefined;
+  const mapHydrologyProjection = isRecord(projection.mapHydrologyProjection)
+    ? projection.mapHydrologyProjection
+    : undefined;
+  const hydrologyTerrainSnapshot = isRecord(projection.hydrologyTerrainSnapshot)
+    ? projection.hydrologyTerrainSnapshot
+    : undefined;
+  const placementSurfacePreparation = isRecord(projection.placementSurfacePreparation)
+    ? projection.placementSurfacePreparation
+    : undefined;
+  const placementTerrainSnapshot = isRecord(projection.placementTerrainSnapshot)
+    ? projection.placementTerrainSnapshot
+    : undefined;
+  return {
+    morphology: morphology
+      ? {
+          coastalLand: indexedInteger(morphology.coastalLand, plotIndex),
+          coastalWater: indexedInteger(morphology.coastalWater, plotIndex),
+          shelfMask: indexedInteger(morphology.shelfMask, plotIndex),
+          distanceToCoast: indexedInteger(morphology.distanceToCoast, plotIndex),
+        }
+      : null,
+    hydrologyLakePlan: hydrologyLakePlan
+      ? {
+          lakeMask: indexedInteger(hydrologyLakePlan.lakeMask, plotIndex),
+          plannedLakeTileCount: finiteInteger(hydrologyLakePlan.plannedLakeTileCount),
+          sinkLakeCount: finiteInteger(hydrologyLakePlan.sinkLakeCount),
+        }
+      : null,
+    mapHydrologyProjection: mapHydrologyProjection
+      ? {
+          lakeMask: indexedInteger(mapHydrologyProjection.lakeMask, plotIndex),
+          plannedLakeMask: indexedInteger(mapHydrologyProjection.plannedLakeMask, plotIndex),
+          engineWaterMask: indexedInteger(mapHydrologyProjection.engineWaterMask, plotIndex),
+          engineLakeMask: indexedInteger(mapHydrologyProjection.engineLakeMask, plotIndex),
+          engineTerrain: indexedInteger(mapHydrologyProjection.engineTerrain, plotIndex),
+          engineTerrainSymbol: symbolFor(
+            "terrain",
+            indexedInteger(mapHydrologyProjection.engineTerrain, plotIndex)
+          ),
+          engineAreaId: indexedInteger(mapHydrologyProjection.engineAreaId, plotIndex),
+          terrainMismatchMask: indexedInteger(mapHydrologyProjection.terrainMismatchMask, plotIndex),
+          terrainMismatchTileCount: finiteInteger(mapHydrologyProjection.terrainMismatchTileCount),
+          nonLakeTileCount: finiteInteger(mapHydrologyProjection.nonLakeTileCount),
+          morphologyProtectedLakeTileCount: finiteInteger(
+            mapHydrologyProjection.morphologyProtectedLakeTileCount
+          ),
+        }
+      : null,
+    hydrologyTerrainSnapshot: projectionSnapshotRowContext(hydrologyTerrainSnapshot, plotIndex),
+    placementSurfacePreparation: placementSurfacePreparation
+      ? {
+          acceptedLakeTileCount: finiteInteger(placementSurfacePreparation.acceptedLakeTileCount),
+          finalLakeWaterDriftCount: finiteInteger(
+            placementSurfacePreparation.finalLakeWaterDriftCount
+          ),
+          finalLakeClassificationDriftCount: finiteInteger(
+            placementSurfacePreparation.finalLakeClassificationDriftCount
+          ),
+        }
+      : null,
+    placementTerrainSnapshot: projectionSnapshotRowContext(placementTerrainSnapshot, plotIndex),
+  };
+}
+
+function projectionSnapshotRowContext(
+  snapshot: Record<string, unknown> | undefined,
+  plotIndex: number
+): TerrainProjectionSnapshotRowContext | null {
+  if (!snapshot) return null;
+  const terrain = indexedInteger(snapshot.terrain, plotIndex);
+  return {
+    stage: typeof snapshot.stage === "string" ? snapshot.stage : null,
+    landMask: indexedInteger(snapshot.landMask, plotIndex),
+    terrain,
+    terrainSymbol: symbolFor("terrain", terrain),
+  };
+}
+
+function indexedInteger(value: unknown, index: number): number | null {
+  if (Array.isArray(value)) return finiteInteger(value[index]);
+  if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
+    return finiteInteger((value as ArrayLike<number>)[index]);
+  }
+  if (isRecord(value)) return finiteInteger(value[String(index)]);
+  return null;
 }
 
 function readResourcePlanEvidence(evidence: unknown): {
