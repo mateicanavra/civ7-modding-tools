@@ -4,10 +4,38 @@
   `studio-run-in-game-mq20rbzr-1fhc` for the adjacent-land resource class.
 - [ ] 1.2 Link remaining concrete classified feature/resource delta rows from
   `studio-run-in-game-mq20rbzr-1fhc`.
+  - Current `studio-run-in-game-mq3pfgbe-1doj` diagnostics now link the current
+    unresolved rows at proof-artifact level, but they do not complete
+    source-authority classification: terrain rows are `139` unresolved,
+    feature rows are `381`, and resource rows are `308`.
 - [x] 1.3 Identify source authority for the adjacent-land resource class:
   adapter/map-policy static runtime divergence.
 - [ ] 1.4 Identify source authority for each remaining row: official data, adapter/map
   policy, MapGen planning, or accepted engine materialization.
+  - Current terrain diagnostic artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-terrain-edge-live-readback-context.json`
+    (`sha256:fb3e0e912897253066d53720ca51346c1ac7c6ef940384028e351935a1f176a4`,
+    `proofHash:fc2226d188385c50e5163256304971893a94210fe6175d60ba28f4b242769876`)
+    preserves `139` terrain rows with matched runtime identity. It leaves all
+    rows source-authority `unresolved` (`138` unclassified, `1`
+    `local-coast-live-ocean`).
+  - Current feature diagnostic artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-feature-delta-feasibility.json`
+    (`sha256:a827a0e0c6560950cf8e944ed7a566911c2b16d3fb79b173ccea2d1e29e1f8ae`,
+    `proofHash:77e2565802122291e9ec50dfb0752dbdb70fd7bf5cd54185e56172a127acf1d0`)
+    preserves `381` feature rows: `166`
+    `live-feature-civ-infeasible-local-empty`, `78`
+    `local-feature-civ-infeasible-live-empty`, `30`
+    `local-feature-civ-feasible-live-empty`, and `107` unclassified swaps.
+  - Current resource diagnostic artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-resource-delta-feasibility-full.json`
+    (`sha256:05512721dba9cb8a9a63d6a87702d7daf8439a658bb9680827c65bfab73be03a`,
+    `proofHash:7eb8a38538bd8c61d7b8cd96f0b01984cd6bb68c4b581c09565e950a78ee9ff9`)
+    preserves `308` resource rows with matched runtime identity. Under
+    `ignoreWeight:true`, class counts are `114`
+    live-feasible/no-local-assignment, `53` local-feasible/live-empty, `62`
+    local-overaccepted/live-empty, `51` substitution-both-feasible, `27`
+    substitution-mixed-feasibility, and `1` substitution-both-infeasible.
 
 ## 2. Repair
 
@@ -207,6 +235,14 @@
     bucket for any future package or MapGen owners proven by the open
     source-authority rows.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
+  - Current exact log proves `251` planned resources, `250` placed, `1`
+    rejected, `0` mismatched, `34` unique planned/placed types, min/max placed
+    count by type `7/8`, and runtime catalog count `55`.
+  - Current resource diagnostics preserve the broader class context but do not
+    yet authorize repair: `194` local-assigned delta rows, `183` from
+    `scarce-floor`, and `62` local-overaccepted/live-empty rows subclassified
+    as `39` scarce-floor cut-excluded, `17` scarce-floor cut-included rejected,
+    and `6` non-scarce-floor local overaccepted.
 
 ## 3. Verification
 

@@ -1215,6 +1215,28 @@ authorship and generate a current final-surface verifier artifact. That
 artifact is unresolved, so no final-surface parity or product acceptance claim
 is authorized.
 
+Current exact-authored final-surface diagnostics:
+request `studio-run-in-game-mq3pfgbe-1doj` produced the current final-surface
+artifact
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json`
+(`sha256:24743163cf07f2741e9b7e4b3ae3f018811788f9beb77550748f214ea977c035`,
+`proofHash:fb1edeedbf479b446190d895e9137dc023e36223d6cb0bdeca8c0a60ee481c2d`).
+Live identity is stable (`106x66`, `6996` plots, seed `138503614`, turn `1`,
+game hash `0`, `0` omitted plots), but parity remains `unresolved`.
+
+| Surface | Count / class summary | Artifact |
+|---|---:|---|
+| Terrain | `139` mismatches; live readback context leaves all source-authority statuses unresolved (`138` unclassified, `1` `local-coast-live-ocean`). | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-terrain-edge-live-readback-context.json` (`sha256:fb3e0e912897253066d53720ca51346c1ac7c6ef940384028e351935a1f176a4`, `proofHash:fc2226d188385c50e5163256304971893a94210fe6175d60ba28f4b242769876`) |
+| Feature | `381` mismatches; `166` live-feature Civ-infeasible/local-empty, `78` local-feature Civ-infeasible/live-empty, `30` local-feature Civ-feasible/live-empty, `107` unclassified swaps. | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-feature-delta-feasibility.json` (`sha256:a827a0e0c6560950cf8e944ed7a566911c2b16d3fb79b173ccea2d1e29e1f8ae`, `proofHash:77e2565802122291e9ec50dfb0752dbdb70fd7bf5cd54185e56172a127acf1d0`) |
+| Resource | `308` mismatches. Under `ignoreWeight:true`: `114` live-feasible/no-local-assignment, `53` local-feasible/live-empty, `62` local-overaccepted/live-empty, `51` substitution-both-feasible, `27` substitution-mixed-feasibility, `1` substitution-both-infeasible. Focused local-overaccepted rows subclassify as `39` scarce-floor cut-excluded, `17` scarce-floor cut-included rejected, `6` non-scarce-floor local overaccepted. | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-resource-delta-feasibility-full.json` (`sha256:05512721dba9cb8a9a63d6a87702d7daf8439a658bb9680827c65bfab73be03a`, `proofHash:7eb8a38538bd8c61d7b8cd96f0b01984cd6bb68c4b581c09565e950a78ee9ff9`) |
+
+Resource diagnostic note:
+the first unbatched ResourceBuilder diagnostics command timed out at
+`180000ms` for `62` focused cells. The current verifier script batches
+ResourceBuilder diagnostics in groups of `8`; the batched run produced the
+artifact above. This is a diagnostic robustness repair, not a resource behavior
+change.
+
 Source-recorded post-repair proof:
 request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
 generated parity artifact

@@ -11,6 +11,7 @@ import {
   type Civ7MapGridResult,
   type Civ7PlotSnapshotField,
   type Civ7MapSummaryResult,
+  type Civ7ResourcePlacementFeasibilityCellInput,
   type Civ7ResourceBuilderDiagnosticsResult,
   type Civ7ResourcePlacementFeasibilityResult,
   type Civ7RuntimeProbe,
@@ -58,6 +59,8 @@ const LIVE_RESOURCE_CONTEXT_FIELDS = [
   "tags",
   "owner",
 ] as const satisfies ReadonlyArray<Civ7PlotSnapshotField>;
+
+const RESOURCE_BUILDER_DIAGNOSTIC_BATCH_SIZE = 8;
 
 function parseArgs(argv: string[]): Args {
   const args: {
@@ -202,7 +205,7 @@ async function main(): Promise<number> {
     resourceTypesForResourceBuilderDiagnostics(ignoreWeightProof.rows);
   const resourceBuilderDiagnostics =
     resourceBuilderDiagnosticCells.length > 0
-      ? await getCiv7ResourceBuilderDiagnostics(
+      ? await getResourceBuilderDiagnosticsBatched(
           {
             cells: resourceBuilderDiagnosticCells,
             resourceTypes: resourceBuilderDiagnosticResourceTypes,
@@ -246,6 +249,49 @@ async function main(): Promise<number> {
   writeOutput(args.output, output);
   console.log(stableParityProofStringify(output));
   return 0;
+}
+
+async function getResourceBuilderDiagnosticsBatched(
+  input: {
+    cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput>;
+    resourceTypes: ReadonlyArray<number>;
+    maxCells: number;
+  },
+  options: Pick<Args, "host" | "port" | "timeoutMs">
+): Promise<Civ7ResourceBuilderDiagnosticsResult> {
+  const cells = input.cells.slice(0, input.maxCells);
+  const batches = chunk(cells, RESOURCE_BUILDER_DIAGNOSTIC_BATCH_SIZE);
+  const results: Civ7ResourceBuilderDiagnosticsResult[] = [];
+  for (const batch of batches) {
+    results.push(
+      await getCiv7ResourceBuilderDiagnostics(
+        {
+          cells: batch,
+          resourceTypes: input.resourceTypes,
+          maxCells: batch.length,
+        },
+        options
+      )
+    );
+  }
+  const first = results[0];
+  if (!first) throw new Error("Expected at least one ResourceBuilder diagnostics batch");
+  const resourcesByType = new Map<number, Civ7ResourceBuilderDiagnosticsResult["resources"][number]>();
+  for (const result of results) {
+    for (const resource of result.resources) {
+      resourcesByType.set(resource.resourceType, resource);
+    }
+  }
+  return {
+    host: first.host,
+    port: first.port,
+    state: first.state,
+    cellCount: input.cells.length,
+    omittedCells: Math.max(0, input.cells.length - cells.length) +
+      results.reduce((sum, result) => sum + result.omittedCells, 0),
+    resources: [...resourcesByType.values()].sort((left, right) => left.resourceType - right.resourceType),
+    cells: results.flatMap((result) => result.cells),
+  };
 }
 
 function extractFinalSurfaceParityProof(payload: unknown): FinalSurfaceParityProof {
@@ -1126,6 +1172,14 @@ function writeOutput(path: string | undefined, output: unknown): void {
   const absolute = resolve(path);
   mkdirSync(dirname(absolute), { recursive: true });
   writeFileSync(absolute, JSON.stringify(output, null, 2));
+}
+
+function chunk<T>(values: ReadonlyArray<T>, size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+  return chunks;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
