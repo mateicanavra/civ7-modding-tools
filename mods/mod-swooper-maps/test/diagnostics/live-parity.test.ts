@@ -64,6 +64,14 @@ function exactProof(overrides: Partial<ExactAuthorshipProofLike> = {}): ExactAut
       envelopeHash: "envelope-1",
       seed: 1234,
       dimensions: { width: 2, height: 1 },
+      resourcePlacement: {
+        coordinateProof: {
+          version: 1,
+          placed: { count: 2, hash32: "aaaaaaaa" },
+          rejected: { count: 0, hash32: "811c9dc5" },
+          mismatch: { count: 0, hash32: "811c9dc5" },
+        },
+      },
     },
     ...overrides,
   };
@@ -75,6 +83,7 @@ function snapshot(args: {
   gameHash?: number;
   omitted?: number;
   localTerrain?: ReadonlyArray<number | null>;
+  resourceCoordinateProof?: boolean;
 }): FinalSurfaceSnapshot {
   const width = 2;
   const height = 1;
@@ -104,7 +113,20 @@ function snapshot(args: {
             },
           },
         }
-      : {},
+      : args.resourceCoordinateProof
+        ? {
+            resourcePlacementOutcomes: {
+              summary: {
+                coordinateProof: {
+                  version: 1,
+                  placed: { count: 2, hash32: "aaaaaaaa" },
+                  rejected: { count: 0, hash32: "811c9dc5" },
+                  mismatch: { count: 0, hash32: "811c9dc5" },
+                },
+              },
+            },
+          }
+        : {},
   };
 }
 
@@ -112,7 +134,7 @@ describe("final-surface parity proof", () => {
   test("marks a fully bound matching grid complete", () => {
     const proof = buildFinalSurfaceParityProof({
       exactAuthorship: exactProof(),
-      local: snapshot({ source: "local-mapgen" }),
+      local: snapshot({ source: "local-mapgen", resourceCoordinateProof: true }),
       live: snapshot({ source: "live-civ7" }),
       now: () => new Date("2026-06-06T00:00:00.000Z"),
     });
@@ -120,6 +142,50 @@ describe("final-surface parity proof", () => {
     expect(proof.status).toBe("complete");
     expect(proof.unresolvedLinks).toEqual([]);
     expect(proof.diffs.every((diff) => diff.status === "match")).toBe(true);
+  });
+
+  test("keeps parity unresolved when local resource coordinate proof lacks matching exact log evidence", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof({
+        log: {
+          requestId: "run-1",
+          configHash,
+          envelopeHash: "envelope-1",
+          seed: 1234,
+          dimensions: { width: 2, height: 1 },
+        },
+      }),
+      local: snapshot({ source: "local-mapgen", resourceCoordinateProof: true }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.log");
+  });
+
+  test("keeps parity unresolved when resource coordinate proof hash differs", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof({
+        log: {
+          requestId: "run-1",
+          configHash,
+          envelopeHash: "envelope-1",
+          seed: 1234,
+          dimensions: { width: 2, height: 1 },
+          resourcePlacement: {
+            coordinateProof: {
+              version: 1,
+              placed: { count: 2, hash32: "bbbbbbbb" },
+            },
+          },
+        },
+      }),
+      local: snapshot({ source: "local-mapgen", resourceCoordinateProof: true }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.placed");
   });
 
   test("rejects hash-only exact-authorship source snapshots", () => {

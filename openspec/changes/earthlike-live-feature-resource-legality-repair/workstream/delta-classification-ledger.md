@@ -578,6 +578,24 @@ source-authority state remains open until a fresh exact-authored run binds local
 typed placement coordinate identity to runtime log evidence, or another bounded
 proof assigns the remaining subclasses to a concrete owner.
 
+### Resource Placement Coordinate Proof Intake
+
+Diagnostic repair:
+Studio exact-authorship parsing now accepts the `RESOURCE_PLACEMENT_V1`
+coordinate proof only from the bounded log section between the matching
+`[mapgen-proof]` and `[mapgen-complete]` payloads for the same
+request/config/envelope/seed chain. Final-surface parity proof then compares
+that exact log coordinate proof against local
+`resourcePlacementOutcomes.summary.coordinateProof` when the local artifact
+contains one.
+
+Boundary:
+missing or mismatched coordinate proof now keeps parity/source-authority proof
+unresolved with named `resource-placement-coordinate-proof.*` links. This
+prevents a fresh parity artifact from silently reusing local coordinate
+placement evidence without exact live log binding. The saved `mq20rbzr`
+artifact still predates this log proof and remains open.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

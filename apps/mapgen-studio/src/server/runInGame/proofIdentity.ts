@@ -218,9 +218,14 @@ export function parseSwooperMapgenLogProof(args: {
   envelopeHash: string;
   seed: number;
 }): RunInGameExactAuthorshipProof["log"] | undefined {
-  const proofPayload = lastSwooperPayload(args.text, "[mapgen-proof]", args);
-  const completionPayload = lastSwooperPayload(args.text, "[mapgen-complete]", args);
-  if (!proofPayload || !completionPayload) return undefined;
+  const lines = args.text.split(/\r?\n/);
+  const completionLine = lastSwooperPayloadLine(lines, "[mapgen-complete]", args);
+  const proofLine = completionLine
+    ? lastSwooperPayloadLine(lines, "[mapgen-proof]", args, { beforeIndex: completionLine.index })
+    : lastSwooperPayloadLine(lines, "[mapgen-proof]", args);
+  if (!proofLine || !completionLine) return undefined;
+  const proofPayload = proofLine.payload;
+  const completionPayload = completionLine.payload;
   const proofDimensions = dimensionsFromPayload(proofPayload);
   const completionDimensions = dimensionsFromPayload(completionPayload);
   if (
@@ -231,6 +236,11 @@ export function parseSwooperMapgenLogProof(args: {
   ) {
     return undefined;
   }
+  const resourcePlacement = parseResourcePlacementTelemetryBetween(
+    lines,
+    proofLine.index,
+    completionLine.index
+  );
   return {
     ...(args.logPath ? { logPath: args.logPath } : {}),
     ...(args.observedAt ? { observedAt: args.observedAt } : {}),
@@ -242,6 +252,7 @@ export function parseSwooperMapgenLogProof(args: {
     dimensions: proofDimensions,
     proofPayload,
     completionPayload,
+    ...(resourcePlacement ? { resourcePlacement } : {}),
     matched: ["[mapgen-proof]", args.requestId, args.configHash, args.envelopeHash, "[mapgen-complete]"],
   };
 }
@@ -339,22 +350,79 @@ function hasRows(rowProof: unknown): boolean {
   return count !== undefined && count > 0;
 }
 
-function lastSwooperPayload(
-  text: string,
+function lastSwooperPayloadLine(
+  lines: readonly string[],
   marker: "[mapgen-proof]" | "[mapgen-complete]",
   expected: Pick<Parameters<typeof parseSwooperMapgenLogProof>[0], "requestId" | "configHash" | "envelopeHash" | "seed">,
-): Record<string, unknown> | null {
-  const lines = text.split(/\r?\n/).filter((line) => line.includes(marker));
-  for (const line of lines.reverse()) {
+  options: { beforeIndex?: number } = {},
+): { index: number; payload: Record<string, unknown> } | null {
+  const startIndex = options.beforeIndex === undefined
+    ? lines.length - 1
+    : Math.min(options.beforeIndex - 1, lines.length - 1);
+  for (let index = startIndex; index >= 0; index -= 1) {
+    const line = lines[index] ?? "";
+    if (!line.includes(marker)) continue;
     const payload = parsePayloadAfterMarker(line, marker);
     if (!payload) continue;
     if (payload.requestId !== expected.requestId) continue;
     if (payload.configHash !== expected.configHash) continue;
     if (payload.envelopeHash !== expected.envelopeHash) continue;
     if (payload.seed !== expected.seed) continue;
-    return payload;
+    return { index, payload };
   }
   return null;
+}
+
+function parseResourcePlacementTelemetryBetween(
+  lines: readonly string[],
+  proofIndex: number,
+  completionIndex: number
+): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]> | undefined {
+  for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
+    const line = lines[index] ?? "";
+    if (!line.includes("RESOURCE_PLACEMENT_V1")) continue;
+    const payload = parsePayloadAfterMarker(line, "RESOURCE_PLACEMENT_V1");
+    if (!payload) continue;
+    return {
+      marker: "RESOURCE_PLACEMENT_V1",
+      payload,
+      ...(resourcePlacementCoordinateProof(payload) ?? {}),
+    };
+  }
+  return undefined;
+}
+
+function resourcePlacementCoordinateProof(
+  payload: Record<string, unknown>
+):
+  | {
+      coordinateProof: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]>["coordinateProof"]
+      >;
+    }
+  | undefined {
+  const coordinateProof = isRecord(payload.coordinateProof) ? payload.coordinateProof : undefined;
+  if (!coordinateProof) return undefined;
+  const version = numberValue(coordinateProof.version);
+  const placedCount = numberValue(coordinateProof.placedCount);
+  const placedHash32 = hash32Value(coordinateProof.placedHash32);
+  if (version === undefined || placedCount === undefined || placedHash32 === undefined) return undefined;
+  const rejectedCount = numberValue(coordinateProof.rejectedCount);
+  const rejectedHash32 = hash32Value(coordinateProof.rejectedHash32);
+  const mismatchCount = numberValue(coordinateProof.mismatchCount);
+  const mismatchHash32 = hash32Value(coordinateProof.mismatchHash32);
+  return {
+    coordinateProof: {
+      version,
+      placed: { count: placedCount, hash32: placedHash32 },
+      ...(rejectedCount === undefined || rejectedHash32 === undefined
+        ? {}
+        : { rejected: { count: rejectedCount, hash32: rejectedHash32 } }),
+      ...(mismatchCount === undefined || mismatchHash32 === undefined
+        ? {}
+        : { mismatch: { count: mismatchCount, hash32: mismatchHash32 } }),
+    },
+  };
 }
 
 function parsePayloadAfterMarker(line: string, marker: string): Record<string, unknown> | null {
@@ -368,6 +436,10 @@ function parsePayloadAfterMarker(line: string, marker: string): Record<string, u
   } catch {
     return null;
   }
+}
+
+function hash32Value(value: unknown): string | undefined {
+  return typeof value === "string" && /^[0-9a-f]{8}$/.test(value) ? value : undefined;
 }
 
 function dimensionsFromPayload(payload: Record<string, unknown>): { width: number; height: number } | null {
