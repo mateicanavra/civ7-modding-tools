@@ -61,9 +61,14 @@
 - [x] 2.28 Add exact log telemetry binding for natural-wonder placement stats.
 - [x] 2.29 Preserve source-recorded fresh exact-authored natural-wonder
   telemetry proof artifact.
-- [ ] 2.30 Add row-level natural-wonder placement rejection identity if needed.
-- [ ] 2.31 Repair remaining proven package or MapGen owners.
-- [ ] 2.32 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.30 Add row-level natural-wonder placement/rejection coordinate proof
+  contract.
+- [x] 2.31 Preserve source-recorded fresh exact-authored natural-wonder
+  coordinate proof artifact.
+- [ ] 2.32 Classify natural-wonder rejected-placement source ownership from
+  fresh coordinate proof.
+- [ ] 2.33 Repair remaining proven package or MapGen owners.
+- [ ] 2.34 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

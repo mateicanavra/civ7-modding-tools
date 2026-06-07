@@ -130,6 +130,27 @@ const AdvancedStartAssignmentArtifactSchema = Type.Object(
   }
 );
 
+const NaturalWonderPlacementCoordinateDigestSchema = Type.Object(
+  {
+    count: Type.Integer({ minimum: 0 }),
+    hash32: Type.String({ pattern: "^[0-9a-f]{8}$" }),
+  },
+  { additionalProperties: false }
+);
+
+const NaturalWonderPlacementCoordinateProofSchema = Type.Object(
+  {
+    version: Type.Literal(1),
+    placed: NaturalWonderPlacementCoordinateDigestSchema,
+    rejected: NaturalWonderPlacementCoordinateDigestSchema,
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Compact deterministic coordinate identity for natural-wonder placement outcomes, intended for exact-run log/artifact comparison.",
+  }
+);
+
 const NaturalWonderPlacementArtifactSchema = Type.Object(
   {
     plannedCount: Type.Integer({ minimum: 0 }),
@@ -140,6 +161,7 @@ const NaturalWonderPlacementArtifactSchema = Type.Object(
     rejectedCount: Type.Integer({ minimum: 0 }),
     shortfallCount: Type.Integer({ minimum: 0 }),
     rejectionExamples: Type.Array(Type.String()),
+    coordinateProof: NaturalWonderPlacementCoordinateProofSchema,
   },
   {
     additionalProperties: false,

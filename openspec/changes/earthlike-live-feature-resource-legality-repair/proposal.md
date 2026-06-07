@@ -58,6 +58,13 @@ truth.
   blocker for the source branch, but it does not yet classify feature rows
   because the compact marker lacks row-level placement/rejection coordinate
   identity.
+  Source-recorded evidence from `studio-run-in-game-mq2t7nqs-1z4g` now carries
+  the row-level placement/rejection coordinate proof contract:
+  `placed.count:5`, `placed.hash32:537c7a40`, `rejected.count:2`, and
+  `rejected.hash32:a6747920`, with rejection examples for
+  `FEATURE_KILIMANJARO` plot `1320` and `FEATURE_ZHANGJIAJIE` plot `2171`.
+  This identifies the rejected planned placements, but source ownership and
+  repair authority remain open until the row evidence is explicitly classified.
 - Resource hypotheses:
   the `106/6996` mismatch class includes relocation/substitution patterns that
   may come from mock/static resource legality, assignment-order divergence from

@@ -593,20 +593,24 @@ describe("surface delta context diagnostics", () => {
         log: {
           naturalWonderPlacement: {
             marker: "NATURAL_WONDER_PLACEMENT_V1",
-            stats: {
-              version: 1,
-              plannedCount: 7,
+          stats: {
+            version: 1,
+            plannedCount: 7,
               targetCount: 7,
               placedCount: 7,
               terrainAdjustedCount: 0,
               skippedOutOfBoundsCount: 0,
               rejectedCount: 0,
-              shortfallCount: 0,
-              rejectionExampleCount: 0,
-            },
+            shortfallCount: 0,
+            rejectionExampleCount: 0,
+          },
+          coordinateProof: {
+            version: 1,
+            placed: { count: 7, hash32: "3c3530cb" },
           },
         },
-      }),
+      },
+    }),
     });
 
     expect(context).toMatchObject({
@@ -616,6 +620,11 @@ describe("surface delta context diagnostics", () => {
         placedCount: 7,
         rejectedCount: 0,
         shortfallCount: 0,
+        coordinateProof: {
+          version: 1,
+          placed: { count: 7, hash32: "3c3530cb" },
+          rejected: { count: null, hash32: null },
+        },
       },
       liveProofPlacementStats: null,
       liveCompletionPlacementStats: null,

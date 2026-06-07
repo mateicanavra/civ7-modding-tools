@@ -412,6 +412,7 @@ function parseNaturalWonderPlacementTelemetryBetween(
       marker: "NATURAL_WONDER_PLACEMENT_V1",
       payload,
       ...(naturalWonderPlacementStats(payload) ?? {}),
+      ...(naturalWonderPlacementCoordinateProof(payload) ?? {}),
     };
   }
   return undefined;
@@ -434,6 +435,9 @@ function naturalWonderPlacementStats(
   const skippedOutOfBoundsCount = numberValue(payload.skippedOutOfBoundsCount);
   const rejectedCount = numberValue(payload.rejectedCount);
   const shortfallCount = numberValue(payload.shortfallCount);
+  const rejectionExamples = Array.isArray(payload.rejectionExamples)
+    ? payload.rejectionExamples.filter((entry): entry is string => typeof entry === "string").slice(0, 8)
+    : undefined;
   if (
     version === undefined ||
     plannedCount === undefined ||
@@ -458,6 +462,35 @@ function naturalWonderPlacementStats(
       rejectedCount,
       shortfallCount,
       ...(rejectionExampleCount === undefined ? {} : { rejectionExampleCount }),
+      ...(rejectionExamples === undefined ? {} : { rejectionExamples }),
+    },
+  };
+}
+
+function naturalWonderPlacementCoordinateProof(
+  payload: Record<string, unknown>
+):
+  | {
+      coordinateProof: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["coordinateProof"]
+      >;
+    }
+  | undefined {
+  const coordinateProof = isRecord(payload.coordinateProof) ? payload.coordinateProof : undefined;
+  if (!coordinateProof) return undefined;
+  const version = numberValue(coordinateProof.version);
+  const placedCount = numberValue(coordinateProof.placedCount);
+  const placedHash32 = hash32Value(coordinateProof.placedHash32);
+  if (version === undefined || placedCount === undefined || placedHash32 === undefined) return undefined;
+  const rejectedCount = numberValue(coordinateProof.rejectedCount);
+  const rejectedHash32 = hash32Value(coordinateProof.rejectedHash32);
+  return {
+    coordinateProof: {
+      version,
+      placed: { count: placedCount, hash32: placedHash32 },
+      ...(rejectedCount === undefined || rejectedHash32 === undefined
+        ? {}
+        : { rejected: { count: rejectedCount, hash32: rejectedHash32 } }),
     },
   };
 }

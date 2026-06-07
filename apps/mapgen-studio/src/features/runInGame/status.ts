@@ -162,6 +162,12 @@ export type RunInGameExactAuthorshipProof = Readonly<{
         rejectedCount: number;
         shortfallCount: number;
         rejectionExampleCount?: number;
+        rejectionExamples?: ReadonlyArray<string>;
+      }>;
+      coordinateProof?: Readonly<{
+        version: number;
+        placed: Readonly<{ count: number; hash32: string }>;
+        rejected?: Readonly<{ count: number; hash32: string }>;
       }>;
     }>;
     matched: ReadonlyArray<string>;
