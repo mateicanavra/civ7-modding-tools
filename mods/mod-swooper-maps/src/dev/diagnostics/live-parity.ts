@@ -301,7 +301,6 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
   evidence.featureIntents = {
     vegetation: context.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id),
     wetlands: context.artifacts.get(ecologyArtifacts.featureIntentsWetlands.id),
-    floodplains: context.artifacts.get(ecologyArtifacts.featureIntentsFloodplains.id),
     reefs: context.artifacts.get(ecologyArtifacts.featureIntentsReefs.id),
     ice: context.artifacts.get(ecologyArtifacts.featureIntentsIce.id),
   };

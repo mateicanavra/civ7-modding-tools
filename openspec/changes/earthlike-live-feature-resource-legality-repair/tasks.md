@@ -82,7 +82,7 @@
   natural-wonder `readback-mismatch` classification.
 - [x] 2.40 Preserve source-recorded exact-authored natural-wonder post-write
   footprint proof artifact.
-- [ ] 2.41 Produce current exact-authored parity proof after the natural-wonder
+- [x] 2.41 Produce current exact-authored parity proof after the natural-wonder
   projection/materialization repair.
   - Current checked-in config attempts `studio-run-in-game-mq3koapx-1qxe` and
     `studio-run-in-game-mq3kvvfs-1qxe` passed materialize/deploy/setup
@@ -174,6 +174,19 @@
     evidence. It does not itself run the final-surface parity verifier or
     product acceptance rows, so this task and 3.8 remain open until that
     verifier artifact exists.
+  - Current exact-authored final-surface verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json`
+    (`sha256:24743163cf07f2741e9b7e4b3ae3f018811788f9beb77550748f214ea977c035`,
+    `proofHash:fb1edeedbf479b446190d895e9137dc023e36223d6cb0bdeca8c0a60ee481c2d`,
+    created `2026-06-07T11:50:17.262Z`) completed with live identity stable:
+    seed `138503614`, dimensions `106x66`, plot count `6996`, turn `1`,
+    game hash `0`, and `0` omitted plots across `17` chunks. Parity remains
+    `unresolved`, with links `surface.terrain.mismatch`,
+    `surface.biome.mismatch`, `surface.feature.mismatch`,
+    `surface.resource.mismatch`, `resource-placement-coordinate-proof.placed`,
+    and `resource-placement-coordinate-proof.rejected`. The verifier log is
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3pfgbe.log`
+    (`sha256:6f1167800a46975af0dd1d1ba8bbbbfe99d7bcf657ac63060e217341f909c28e`).
 - [ ] 2.42 Repair remaining proven package or MapGen owners.
   - Current branch `codex/swooper-map-elevation-drift-policy-drain` repairs the
     locally proven map-elevation owner mismatch: `buildElevation` now applies
@@ -205,22 +218,28 @@
 - [x] 3.6 Re-run exact-authored final-surface parity after natural-wonder telemetry.
 - [x] 3.7 Preserve source-recorded exact-authored final-surface parity after
   natural-wonder projection/materialization repair.
-- [ ] 3.8 Re-run current exact-authored final-surface parity after natural-wonder
+- [x] 3.8 Re-run current exact-authored final-surface parity after natural-wonder
   projection/materialization repair.
   - No longer blocked on the Studio/Civ runtime start/reload boundary above:
     current request `studio-run-in-game-mq3pfgbe-1doj` completed
     exact-authorship and mapgen-completion proof on committed head
     `5537f2a829f8dd1452fec81d002c4afc1f0826a6`.
-  - Latest bounded retry is
+  - Latest current verifier artifact is
     `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-log-rewrite-reader-status.json`
-    (`sha256:381e25d77639fcf3fe1660524ba7ead72cabb7c60f7dadb53062ca684bbd9ed6`).
+    (`sha256:381e25d77639fcf3fe1660524ba7ead72cabb7c60f7dadb53062ca684bbd9ed6`)
+    as the exact-authorship input plus
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json`
+    (`sha256:24743163cf07f2741e9b7e4b3ae3f018811788f9beb77550748f214ea977c035`,
+    `proofHash:fb1edeedbf479b446190d895e9137dc023e36223d6cb0bdeca8c0a60ee481c2d`)
+    as the final-surface parity output.
     It proves restart retry/status classification, map-script load,
     map-elevation bounded-drift handling, SDK completion-marker emission, and
-    direct-control/Studio rewritten-log proof reading. It is not a
-    final-surface parity artifact.
-  - Next action for this row is to run the current exact-authored
-    final-surface parity verifier from the completed exact-authorship evidence,
-    then preserve the verifier artifact and classify any remaining links.
+    direct-control/Studio rewritten-log proof reading, then preserves the
+    current final-surface parity result. The result is `unresolved`, not
+    acceptance proof: terrain mismatches `139/6996`, biome mismatches
+    `874/6996`, feature mismatches `381/6996`, and resource mismatches
+    `308/6996`, with resource coordinate proof placed/rejected links still
+    unresolved.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after
