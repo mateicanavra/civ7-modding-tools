@@ -130,6 +130,38 @@ export type NaturalWonderDirectionCandidateContext = Readonly<{
   containsPairedRow: boolean | null;
 }>;
 
+export type NaturalWonderFootprintReadbackContext = Readonly<{
+  anchorPlotIndex: number;
+  anchorX: number;
+  anchorY: number;
+  featureType: number;
+  featureSymbol: string;
+  declaredDirection: number;
+  declaredFootprintPlotIndexes: ReadonlyArray<number>;
+  candidates: ReadonlyArray<NaturalWonderFootprintReadbackCandidate>;
+  bestLocalDirections: ReadonlyArray<number>;
+  bestLiveDirections: ReadonlyArray<number>;
+  declaredLocalMatchCount: number;
+  declaredLiveMatchCount: number;
+  bestLocalMatchCount: number;
+  bestLiveMatchCount: number;
+  classification:
+    | "local-live-same-direction"
+    | "live-direction-differs-from-local"
+    | "live-footprint-missing"
+    | "local-footprint-missing"
+    | "unclassified";
+}>;
+
+export type NaturalWonderFootprintReadbackCandidate = Readonly<{
+  direction: number;
+  footprintPlotIndexes: ReadonlyArray<number>;
+  localMatchCount: number;
+  liveMatchCount: number;
+  localComplete: boolean;
+  liveComplete: boolean;
+}>;
+
 export type ResourceDeltaPlacementContext = Readonly<{
   x: number;
   y: number;
@@ -360,6 +392,70 @@ export function buildFeatureDeltaPlacementContexts(
     };
   });
   return classified.slice(0, maxRows);
+}
+
+export function buildNaturalWonderFootprintReadbackContexts(
+  proof: Pick<FinalSurfaceParityProof, "local" | "live">
+): ReadonlyArray<NaturalWonderFootprintReadbackContext> {
+  return readNaturalWonderPlacementEvidence(proof.local).placements.map((placement) => {
+    const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(placement.featureType)] ?? {};
+    const candidates = [0, 1, 2, 3, 4, 5].flatMap((direction) => {
+      const footprintPlotIndexes = getNaturalWonderFootprintIndices({
+        x: placement.anchorX,
+        y: placement.anchorY,
+        width: proof.local.width,
+        height: proof.local.height,
+        policy,
+        direction,
+      });
+      if (!footprintPlotIndexes) return [];
+      const localMatchCount = countFeatureMatches(proof.local, footprintPlotIndexes, placement.featureType);
+      const liveMatchCount = countFeatureMatches(proof.live, footprintPlotIndexes, placement.featureType);
+      return [
+        {
+          direction,
+          footprintPlotIndexes,
+          localMatchCount,
+          liveMatchCount,
+          localComplete: localMatchCount === footprintPlotIndexes.length,
+          liveComplete: liveMatchCount === footprintPlotIndexes.length,
+        },
+      ];
+    });
+    const declaredDirection = normalizeDirectionForReadback(placement.direction);
+    const declared = candidates.find((candidate) => candidate.direction === declaredDirection) ?? candidates[0];
+    const bestLocalMatchCount = maxMatchCount(candidates, "localMatchCount");
+    const bestLiveMatchCount = maxMatchCount(candidates, "liveMatchCount");
+    const bestLocalDirections = candidates
+      .filter((candidate) => candidate.localMatchCount === bestLocalMatchCount)
+      .map((candidate) => candidate.direction);
+    const bestLiveDirections = candidates
+      .filter((candidate) => candidate.liveMatchCount === bestLiveMatchCount)
+      .map((candidate) => candidate.direction);
+    const classification = classifyNaturalWonderFootprintReadback({
+      bestLocalMatchCount,
+      bestLiveMatchCount,
+      bestLocalDirections,
+      bestLiveDirections,
+    });
+    return {
+      anchorPlotIndex: placement.anchorPlotIndex,
+      anchorX: placement.anchorX,
+      anchorY: placement.anchorY,
+      featureType: placement.featureType,
+      featureSymbol: symbolFor("feature", placement.featureType),
+      declaredDirection: placement.direction,
+      declaredFootprintPlotIndexes: declared?.footprintPlotIndexes ?? [],
+      candidates,
+      bestLocalDirections,
+      bestLiveDirections,
+      declaredLocalMatchCount: declared?.localMatchCount ?? 0,
+      declaredLiveMatchCount: declared?.liveMatchCount ?? 0,
+      bestLocalMatchCount,
+      bestLiveMatchCount,
+      classification,
+    };
+  });
 }
 
 export function buildResourceDeltaPlacementContexts(
@@ -804,6 +900,47 @@ function buildNaturalWonderDirectionAlternatives(
       .filter((candidate) => candidate.containsPairedRow === true)
       .map((candidate) => candidate.direction),
   };
+}
+
+function countFeatureMatches(
+  snapshot: SnapshotLike,
+  plotIndexes: ReadonlyArray<number>,
+  featureType: number
+): number {
+  let count = 0;
+  for (const plotIndex of plotIndexes) {
+    if (normalizeSurfaceValue(snapshot.surfaces.feature.values[plotIndex]) === featureType) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+function maxMatchCount(
+  candidates: ReadonlyArray<NaturalWonderFootprintReadbackCandidate>,
+  key: "localMatchCount" | "liveMatchCount"
+): number {
+  return candidates.reduce((max, candidate) => Math.max(max, candidate[key]), 0);
+}
+
+function normalizeDirectionForReadback(direction: number): number {
+  if (!Number.isFinite(direction) || direction < 0) return 0;
+  return Math.trunc(direction) % 6;
+}
+
+function classifyNaturalWonderFootprintReadback(args: {
+  bestLocalMatchCount: number;
+  bestLiveMatchCount: number;
+  bestLocalDirections: ReadonlyArray<number>;
+  bestLiveDirections: ReadonlyArray<number>;
+}): NaturalWonderFootprintReadbackContext["classification"] {
+  if (args.bestLocalMatchCount === 0 && args.bestLiveMatchCount === 0) return "unclassified";
+  if (args.bestLocalMatchCount === 0) return "local-footprint-missing";
+  if (args.bestLiveMatchCount === 0) return "live-footprint-missing";
+  const sharedDirection = args.bestLocalDirections.some((direction) =>
+    args.bestLiveDirections.includes(direction)
+  );
+  return sharedDirection ? "local-live-same-direction" : "live-direction-differs-from-local";
 }
 
 function addResourceSurfaceReasons(

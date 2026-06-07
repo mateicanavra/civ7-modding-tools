@@ -5,9 +5,10 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-wonder-footprint-direction-drain`
-  stacked above `codex/swooper-feature-feasibility-readback-drain`; this slice
-  carries natural-wonder footprint direction context for feature-delta classes.
+- Branch/Graphite stack: `codex/swooper-wonder-footprint-readback-drain`
+  stacked above `codex/swooper-wonder-footprint-direction-drain`; this slice
+  carries planned natural-wonder footprint readback context across local and
+  live grids.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -16,8 +17,8 @@
   assignment-class, distribution-count, same-resource position, local
   materialization, future coordinate-proof instrumentation, coordinate-proof
   intake, feature-delta classification, local feature/wonder evidence joins,
-  feature feasibility readback, and natural-wonder footprint-direction context
-  now narrow the next repair classes.
+  feature feasibility readback, natural-wonder footprint-direction context, and
+  planned natural-wonder footprint readback now narrow the next repair classes.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -400,6 +401,25 @@
   projection and Civ runtime materialization. It still does not authorize a
   natural-wonder repair until the source owner is explicitly accepted and tested
   against broader wonder footprint behavior.
+- Planned natural-wonder footprint readback progress:
+  `buildNaturalWonderFootprintReadbackContexts` now scores every planned
+  natural wonder present in the local context artifact against local and live
+  feature grids across local map-policy directions `0..5`. The current
+  readback artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-natural-wonder-footprint-readback.json`
+  (`sha256:50ecdd1bee31c8243dac792b2d8d9fe5faae4d422cf0cae44f95a696d86d16a3`,
+  `proofHash:3e0389b5977d997ce40d5888c97e703397b518e5ff034911be70a949afd1d6b4`).
+  The artifact covers the `2` planned multi-tile natural wonders represented in
+  the current local feature-context artifact. Both have declared direction
+  `-1`; local map-policy projection has best direction `0` for both. Live
+  readback is not uniformly direction `0`: Kilimanjaro has best live directions
+  `0,1,4,5` with partial live coverage (`2/3` cells) while Zhangjiajie has best
+  live direction `5` with complete live coverage (`2/2` cells). This confirms
+  the direction/footprint semantics gap is real for the readback set, but also
+  shows the evidence set is too small and partially ambiguous for a global
+  `Direction:-1` repair. The next repair layer must either collect broader
+  exact-run footprint evidence or explicitly constrain a repair to the accepted
+  owner surface and supported catalog behavior.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -431,9 +451,10 @@
   local and live immediate placement coordinate identity or otherwise assigns
   those subclasses to a concrete source owner. Feature rows are now split into
   a reef absence and two natural-wonder one-tile offsets, with local intent,
-  application, footprint evidence, runtime-bound `canHaveFeature` probes, and
-  footprint-direction alternatives now attached. The direction context points at
-  a likely natural-wonder footprint orientation semantics gap, but no feature or
+  application, footprint evidence, runtime-bound `canHaveFeature` probes,
+  footprint-direction alternatives, and planned-wonder readback context now
+  attached. The direction context points at a real natural-wonder footprint
+  orientation semantics gap in the current readback set, but no feature or
   natural-wonder repair is authorized until source ownership is accepted and the
   change is checked against the supported wonder catalog. The single
   substitution row where both probed values are infeasible remains an individual

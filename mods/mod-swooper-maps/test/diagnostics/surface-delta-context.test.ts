@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity";
 import {
   buildFeatureDeltaPlacementContexts,
+  buildNaturalWonderFootprintReadbackContexts,
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   buildSurfaceDeltaContext,
@@ -150,6 +151,65 @@ describe("surface delta context diagnostics", () => {
       "natural-wonder-offset-live-anchor",
       "natural-wonder-offset-local-anchor",
     ]);
+  });
+
+  test("summarizes natural-wonder footprint readback direction matches", () => {
+    const local = snapshot({
+      feature: { width: 3, height: 2, values: [-1, 35, 35, -1, -1, -1] },
+    }, {
+      naturalWonderPlan: {
+        width: 3,
+        height: 2,
+        wondersCount: 1,
+        targetCount: 1,
+        plannedCount: 1,
+        placements: [
+          { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
+        ],
+      },
+    });
+    const live = snapshot({
+      feature: { width: 3, height: 2, values: [-1, 35, 35, -1, -1, -1] },
+    });
+
+    const rows = buildNaturalWonderFootprintReadbackContexts({ local, live });
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      featureSymbol: "FEATURE_KILIMANJARO",
+      declaredDirection: 0,
+      bestLocalDirections: expect.arrayContaining([0]),
+      bestLiveDirections: expect.arrayContaining([0]),
+      classification: "local-live-same-direction",
+    });
+  });
+
+  test("classifies natural-wonder footprint direction divergence", () => {
+    const local = snapshot({
+      feature: { width: 3, height: 2, values: [-1, 35, 35, -1, -1, -1] },
+    }, {
+      naturalWonderPlan: {
+        width: 3,
+        height: 2,
+        wondersCount: 1,
+        targetCount: 1,
+        plannedCount: 1,
+        placements: [
+          { plotIndex: 1, featureType: 35, direction: 0, elevation: 1000, priority: 0.9 },
+        ],
+      },
+    });
+    const live = snapshot({
+      feature: { width: 3, height: 2, values: [-1, 35, -1, -1, 35, -1] },
+    });
+
+    const rows = buildNaturalWonderFootprintReadbackContexts({ local, live });
+
+    expect(rows[0]).toMatchObject({
+      bestLocalDirections: expect.arrayContaining([0]),
+      bestLiveDirections: expect.arrayContaining([5]),
+      classification: "live-direction-differs-from-local",
+    });
   });
 
   test("checks static feature and resource surface legality against snapshot context", () => {
