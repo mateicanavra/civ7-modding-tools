@@ -1,12 +1,16 @@
 import { defineVizMeta, logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
-import { createStep } from "@swooper/mapgen-core/authoring";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import PlotContinentsStepContract from "./plotContinents.contract.js";
-import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js";
+import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
+import { mapMorphologyArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlotContinentsStepContract, {
+  artifacts: implementArtifacts([mapMorphologyArtifacts.continentValidationTerrainSnapshot], {
+    continentValidationTerrainSnapshot: {},
+  }),
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.dimensions;
@@ -36,17 +40,27 @@ export default createStep(PlotContinentsStepContract, {
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-      values: engine.landMask,
-      meta: defineVizMeta("map.morphology.continents.landMask", {
-        label: "Land Mask (Engine After Stamp Continents)",
-        group: GROUP_MAP_MORPHOLOGY,
-        palette: "categorical",
-        role: "engine",
-      }),
-    });
+        values: engine.landMask,
+        meta: defineVizMeta("map.morphology.continents.landMask", {
+          label: "Land Mask (Engine After Stamp Continents)",
+          group: GROUP_MAP_MORPHOLOGY,
+          palette: "categorical",
+          role: "engine",
+        }),
+      });
+    }
+    if (engine) {
+      deps.artifacts.continentValidationTerrainSnapshot.publish(context, {
+        stage: "map-morphology/plot-continents",
+        width,
+        height,
+        landMask: engine.landMask,
+        terrain: engine.terrain,
+        elevation: engine.elevation,
+      });
     }
 
     logLandmassAscii(context.trace, context.adapter, width, height);
-    assertNoWaterDrift(context, topography.landMask, "map-morphology/plot-continents");
+    assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-continents");
   },
 });

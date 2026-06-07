@@ -19,7 +19,10 @@ import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
+import { mapElevationArtifacts } from "../../recipes/standard/stages/map-elevation/artifacts.js";
 import { mapHydrologyArtifacts } from "../../recipes/standard/stages/map-hydrology/artifacts.js";
+import { mapMorphologyArtifacts } from "../../recipes/standard/stages/map-morphology/artifacts.js";
+import { mapRiversArtifacts } from "../../recipes/standard/stages/map-rivers/artifacts.js";
 import { morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts.js";
 import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
 import { isPlainObject, mergeDeep } from "./shared.js";
@@ -319,10 +322,23 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
 
 function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtendedMapContext>): unknown {
   const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id);
+  const mapMorphologyCoastPolicy = context.artifacts.get(mapMorphologyArtifacts.coastClassification.id);
+  const mapMorphologyCoastTerrainSnapshot = context.artifacts.get(
+    mapMorphologyArtifacts.coastEngineTerrainSnapshot.id
+  );
+  const mapMorphologyContinentValidationSnapshot = context.artifacts.get(
+    mapMorphologyArtifacts.continentValidationTerrainSnapshot.id
+  );
   const hydrologyLakePlan = context.artifacts.get(hydrologyHydrographyArtifacts.lakePlan.id);
   const mapHydrologyProjection = context.artifacts.get(mapHydrologyArtifacts.engineProjectionLakes.id);
   const hydrologyTerrainSnapshot = context.artifacts.get(
     mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot.id
+  );
+  const mapElevationTerrainSnapshot = context.artifacts.get(
+    mapElevationArtifacts.elevationEngineTerrainSnapshot.id
+  );
+  const mapRiversTerrainSnapshot = context.artifacts.get(
+    mapRiversArtifacts.riversEngineTerrainSnapshot.id
   );
   const placementSurfacePreparation = context.artifacts.get(
     placementArtifacts.placementSurfacePreparation.id
@@ -340,6 +356,26 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtende
       "shelfMask",
       "distanceToCoast",
     ]),
+    mapMorphologyCoastPolicy: pickSerializableFields(mapMorphologyCoastPolicy, [
+      "width",
+      "height",
+      "baseWaterClass",
+      "waterClass",
+      "policyCoastMask",
+      "coastBufferTiles",
+      "promotedOceanToCoast",
+    ]),
+    mapMorphologyCoastTerrainSnapshot: pickSerializableFields(mapMorphologyCoastTerrainSnapshot, [
+      "stage",
+      "width",
+      "height",
+      "landMask",
+      "terrain",
+    ]),
+    mapMorphologyContinentValidationSnapshot: pickSerializableFields(
+      mapMorphologyContinentValidationSnapshot,
+      ["stage", "width", "height", "landMask", "terrain"]
+    ),
     hydrologyLakePlan: pickSerializableFields(hydrologyLakePlan, [
       "lakeMask",
       "plannedLakeTileCount",
@@ -361,6 +397,20 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtende
       "morphologyProtectedLakeTileCount",
     ]),
     hydrologyTerrainSnapshot: pickSerializableFields(hydrologyTerrainSnapshot, [
+      "stage",
+      "width",
+      "height",
+      "landMask",
+      "terrain",
+    ]),
+    mapElevationTerrainSnapshot: pickSerializableFields(mapElevationTerrainSnapshot, [
+      "stage",
+      "width",
+      "height",
+      "landMask",
+      "terrain",
+    ]),
+    mapRiversTerrainSnapshot: pickSerializableFields(mapRiversTerrainSnapshot, [
       "stage",
       "width",
       "height",

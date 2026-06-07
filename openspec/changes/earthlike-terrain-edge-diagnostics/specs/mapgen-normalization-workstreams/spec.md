@@ -38,6 +38,15 @@ of each coast/ocean mismatch.
   materialization versus live Civ materialization gap rather than authorizing a
   terrain policy repair
 
+#### Scenario: Coast materialization boundaries are recorded
+
+- **WHEN** a coast/ocean row remains mismatched after mock lake readback repair
+- **THEN** diagnostics record the map-morphology coast policy water class,
+  the engine terrain immediately after coast stamping, the engine terrain after
+  continent validation, and downstream terrain snapshots
+- **AND** a row that changes only during local validation is classified as a
+  mock/local terrain materialization parity gap before any repair is proposed
+
 #### Scenario: Terrain repair is proposed
 
 - **WHEN** a change proposes a coast/ocean terrain repair

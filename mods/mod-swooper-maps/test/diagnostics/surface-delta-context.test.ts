@@ -78,6 +78,23 @@ describe("surface delta context diagnostics", () => {
             shelfMask: [1, 0, 1, 0, 1, 0],
             distanceToCoast: [0, 1, 0, 0, 0, 1],
           },
+          mapMorphologyCoastPolicy: {
+            baseWaterClass: [1, 2, 1, 0, 1, 2],
+            waterClass: [1, 2, 1, 0, 1, 2],
+            policyCoastMask: [0, 0, 0, 0, 0, 0],
+            coastBufferTiles: 4,
+            promotedOceanToCoast: 0,
+          },
+          mapMorphologyCoastTerrainSnapshot: {
+            stage: "map-morphology/plot-coasts",
+            landMask: [0, 0, 0, 1, 0, 0],
+            terrain: [3, 4, 3, 2, 3, 4],
+          },
+          mapMorphologyContinentValidationSnapshot: {
+            stage: "map-morphology/plot-continents",
+            landMask: [0, 0, 0, 1, 0, 0],
+            terrain: [3, 3, 3, 2, 3, 4],
+          },
           hydrologyLakePlan: {
             lakeMask: [0, 0, 0, 0, 0, 0],
             plannedLakeTileCount: 0,
@@ -97,6 +114,16 @@ describe("surface delta context diagnostics", () => {
           },
           hydrologyTerrainSnapshot: {
             stage: "map-hydrology/lakes",
+            landMask: [0, 0, 0, 1, 0, 0],
+            terrain: [3, 4, 3, 2, 3, 4],
+          },
+          mapElevationTerrainSnapshot: {
+            stage: "map-elevation/build-elevation",
+            landMask: [0, 0, 0, 1, 0, 0],
+            terrain: [3, 4, 3, 2, 3, 4],
+          },
+          mapRiversTerrainSnapshot: {
+            stage: "map-rivers/plot-rivers",
             landMask: [0, 0, 0, 1, 0, 0],
             terrain: [3, 4, 3, 2, 3, 4],
           },
@@ -174,6 +201,23 @@ describe("surface delta context diagnostics", () => {
           shelfMask: 0,
           distanceToCoast: 1,
         },
+        mapMorphologyCoastPolicy: {
+          baseWaterClass: 2,
+          waterClass: 2,
+          policyCoastMask: 0,
+          coastBufferTiles: 4,
+          promotedOceanToCoast: 0,
+        },
+        mapMorphologyCoastTerrainSnapshot: {
+          stage: "map-morphology/plot-coasts",
+          landMask: 0,
+          terrainSymbol: "TERRAIN_OCEAN",
+        },
+        mapMorphologyContinentValidationSnapshot: {
+          stage: "map-morphology/plot-continents",
+          landMask: 0,
+          terrainSymbol: "TERRAIN_COAST",
+        },
         hydrologyLakePlan: {
           lakeMask: 0,
           plannedLakeTileCount: 0,
@@ -186,6 +230,16 @@ describe("surface delta context diagnostics", () => {
         },
         hydrologyTerrainSnapshot: {
           stage: "map-hydrology/lakes",
+          landMask: 0,
+          terrainSymbol: "TERRAIN_OCEAN",
+        },
+        mapElevationTerrainSnapshot: {
+          stage: "map-elevation/build-elevation",
+          landMask: 0,
+          terrainSymbol: "TERRAIN_OCEAN",
+        },
+        mapRiversTerrainSnapshot: {
+          stage: "map-rivers/plot-rivers",
           landMask: 0,
           terrainSymbol: "TERRAIN_OCEAN",
         },

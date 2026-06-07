@@ -1,6 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
+import { mapMorphologyArtifacts } from "../artifacts.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotContinentsStepContract = defineStep({
@@ -10,7 +11,7 @@ const PlotContinentsStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   artifacts: {
     requires: [morphologyArtifacts.topography],
-    provides: [],
+    provides: [mapMorphologyArtifacts.continentValidationTerrainSnapshot],
   },
   schema: Type.Object({}),
 });

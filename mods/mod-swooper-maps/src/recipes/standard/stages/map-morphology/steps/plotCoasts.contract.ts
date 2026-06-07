@@ -2,6 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
+import { mapMorphologyArtifacts } from "../artifacts.js";
 
 const PlotCoastsStepContract = defineStep({
   id: "plot-coasts",
@@ -10,7 +11,10 @@ const PlotCoastsStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.coastlineMetrics],
-    provides: [],
+    provides: [
+      mapMorphologyArtifacts.coastClassification,
+      mapMorphologyArtifacts.coastEngineTerrainSnapshot,
+    ],
   },
   schema: Type.Object({}),
 });

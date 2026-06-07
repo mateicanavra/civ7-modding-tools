@@ -354,7 +354,7 @@ export function summarizeTerrainEdgeReadbackCompleteness(
           },
         ];
       }
-      if (!isRecord(fact) || fact.ok !== true || !("value" in fact)) {
+      if (!isRecord(fact) || fact.ok !== true || !("value" in fact) || fact.value === undefined) {
         return [
           {
             x: row.x,

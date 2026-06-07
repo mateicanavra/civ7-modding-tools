@@ -36,6 +36,18 @@
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-materialization-repair-terrain-edge-context.json`.
 - Source-recorded post-repair terrain-edge context artifact sha256:
   `cc28a662c6270feb053a227fd221c15cd00504e3cf54c67ab1bc21e4611e6aa6`.
+- Post-repair coast materialization parity artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-coast-materialization-context.json`.
+- Post-repair coast materialization parity artifact sha256:
+  `a14455a238ac6e0296f116827c2d842ea2621561be38862696fceb3084a2bb11`.
+- Post-repair coast materialization parity proof hash:
+  `8dfb35f12c493895c21057543dbe7bff0f365b5437b43f0bb0b186d3fda864dc`.
+- Post-repair coast materialization context artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-coast-materialization-context.json`.
+- Post-repair coast materialization context artifact sha256:
+  `59378d7c5d90593958e14ecf66f966107499499ef0eb4f616978226e3e3b0b93`.
+- Post-repair coast materialization context proof hash:
+  `c58aee8b820ac50355705bb500e48863b389776b219acd86ee1c390d2cd76b5e`.
 - Request: `studio-run-in-game-mq20rbzr-1fhc`.
 - Seed/dimensions: `138503614`, `106x66`, `6996` plots.
 
@@ -52,17 +64,17 @@ terrain parity, final-surface parity, or product acceptance.
 | T1  | `(73,36)`  | `3889` | `TERRAIN_OCEAN` | `TERRAIN_COAST` | `local-ocean-live-coast` | local/live both `coast:4`, `ocean:2`, `land:0` | classified: local mock/materialization terrain parity |
 | T2  | `(65,39)`  | `4199` | `TERRAIN_COAST` | `TERRAIN_OCEAN` | `local-coast-live-ocean` | local/live both `coast:2`, `ocean:3`, `land:1` | lake sub-gap repaired; terrain materialization remains |
 
-## Local Projection Context
+## Pre-Repair Local Projection Context
 
 | Row          | Morphology shelf/coast                                                 | Hydrology lake intent             | Map-hydrology projection                                               | Placement snapshot                    | Current disposition                                                                                                                                                            |
 | ------------ | ---------------------------------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | T1 `(73,36)` | `shelfMask:0`, `coastalWater:0`, `coastalLand:0`, `distanceToCoast:18` | `lakeMask:0`, `plannedLakeMask:0` | `engineWaterMask:1`, `engineLakeMask:0`, `engineTerrain:TERRAIN_OCEAN` | `landMask:0`, `terrain:TERRAIN_OCEAN` | Local pipeline consistently keeps ocean and non-lake water; live coast assigns the row to local mock/materialization terrain parity rather than authored shelf/coast intent. |
 | T2 `(65,39)` | `shelfMask:0`, `coastalWater:0`, `coastalLand:0`, `distanceToCoast:18` | `lakeMask:0`, `plannedLakeMask:0` | `engineWaterMask:1`, `engineLakeMask:1`, `engineTerrain:TERRAIN_COAST` | `landMask:0`, `terrain:TERRAIN_COAST` | Local pipeline keeps coast/lake-classified water despite no planned lake mask; live ocean/non-lake assigns the row to local mock/materialization lake+terrain parity. |
 
-The local evidence narrows both rows away from simple morphology shelf/coast
-intent and planned Hydrology lake intent. Combined with exact live readback and
-validation-boundary evidence, the remaining owner is classified as repo-owned
-local mock/materialization parity rather than map-generation tuning.
+The pre-repair local evidence narrowed both rows away from simple morphology
+shelf/coast intent and planned Hydrology lake intent. The later mock lake
+repair removed the T2 lake-readback sub-gap; current remaining source authority
+is recorded in the post-repair coast materialization section below.
 
 ## Live Readback Context
 
@@ -74,7 +86,7 @@ identity and current runtime identity. It requires successful row facts for
 | Row          | Live terrain/hydrology                                      | Live area/region                                   | Local/live contrast                                                                                                                | Current disposition                                                                                                                     |
 | ------------ | ----------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | T1 `(73,36)` | `TERRAIN_COAST`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | local projection `TERRAIN_OCEAN`, `engineLakeMask:0`, `engineAreaId:1`; live is same water body identity class but coast terrain   | Classified as local mock/materialization terrain parity; repair must not tune authored coast/shelf masks. |
-| T2 `(65,39)` | `TERRAIN_OCEAN`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | local projection `TERRAIN_COAST`, `engineLakeMask:1`, `engineAreaId:1`; live reports non-lake ocean in the same live area/landmass | Classified as local mock/materialization lake+terrain parity; mock lake evidence is over-broad because generic coast reads as lake. |
+| T2 `(65,39)` | `TERRAIN_OCEAN`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | pre-repair local projection `TERRAIN_COAST`, `engineLakeMask:1`, `engineAreaId:1`; live reports non-lake ocean in the same live area/landmass | Pre-repair mock lake evidence was over-broad because generic coast read as lake; post-repair current gap is terrain materialization. |
 
 ## Local Validation Boundary
 
@@ -129,3 +141,20 @@ current drain, `bun run verify:final-surface-parity -- --proof-file ...` is
 blocked by stale exact proof config key
 `/config/ecology-features/floodplainPlanning`, so this layer does not claim
 fresh final-surface parity proof or product acceptance.
+
+## Coast Materialization Boundary
+
+The source-recorded post-repair coast materialization artifact adds
+map-morphology coast policy and engine terrain snapshots before and after local
+terrain validation. It is diagnostic source-authority evidence only.
+
+| Row          | Coast policy                                                                 | After `plot-coasts` | After `plot-continents` | Downstream local snapshots | Live exact readback | Disposition |
+| ------------ | ----------------------------------------------------------------------------- | ------------------- | ----------------------- | -------------------------- | ------------------- | ----------- |
+| T1 `(73,36)` | `baseWaterClass:2`, `waterClass:2`, `policyCoastMask:0`, `coastBufferTiles:4` | `TERRAIN_OCEAN`     | `TERRAIN_OCEAN`         | remains `TERRAIN_OCEAN` through hydrology, rivers, placement, and validation | `TERRAIN_COAST` | Local mock/materialization under-models this live coast result; no authored morphology shelf/coast intent exists at the row. |
+| T2 `(65,39)` | `baseWaterClass:2`, `waterClass:2`, `policyCoastMask:0`, `coastBufferTiles:4` | `TERRAIN_OCEAN`     | `TERRAIN_COAST`         | remains `TERRAIN_COAST` through hydrology, rivers, placement, and validation | `TERRAIN_OCEAN` | Local `validateAndFixTerrain`/mock materialization over-models coast here; lake readback is repaired and no Hydrology lake intent exists. |
+
+The remaining terrain owner is classified as local mock/Civ materialization
+parity at the adapter terrain-validation boundary. This does not authorize a
+MapGen coast/shelf tuning change. A repair, if opened, must be a separate
+bounded terrain materialization parity layer followed by exact-authored parity
+rerun.

@@ -373,9 +373,14 @@ export type TerrainWaterClass = "coast" | "ocean" | "other-water" | "land" | "em
 
 export type TerrainProjectionRowContext = Readonly<{
   morphology: TerrainMorphologyProjectionRowContext | null;
+  mapMorphologyCoastPolicy: TerrainMapMorphologyCoastPolicyRowContext | null;
+  mapMorphologyCoastTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
+  mapMorphologyContinentValidationSnapshot: TerrainProjectionSnapshotRowContext | null;
   hydrologyLakePlan: TerrainHydrologyLakePlanRowContext | null;
   mapHydrologyProjection: TerrainMapHydrologyProjectionRowContext | null;
   hydrologyTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
+  mapElevationTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
+  mapRiversTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
   placementSurfacePreparation: TerrainPlacementPreparationContext | null;
   placementTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
   placementValidationBoundary: TerrainValidationBoundaryRowContext | null;
@@ -386,6 +391,14 @@ export type TerrainMorphologyProjectionRowContext = Readonly<{
   coastalWater: number | null;
   shelfMask: number | null;
   distanceToCoast: number | null;
+}>;
+
+export type TerrainMapMorphologyCoastPolicyRowContext = Readonly<{
+  baseWaterClass: number | null;
+  waterClass: number | null;
+  policyCoastMask: number | null;
+  coastBufferTiles: number | null;
+  promotedOceanToCoast: number | null;
 }>;
 
 export type TerrainHydrologyLakePlanRowContext = Readonly<{
@@ -1553,12 +1566,31 @@ function terrainProjectionRowContext(
     : undefined;
   if (!projection) return null;
   const morphology = isRecord(projection.coastlineMetrics) ? projection.coastlineMetrics : undefined;
+  const mapMorphologyCoastPolicy = isRecord(projection.mapMorphologyCoastPolicy)
+    ? projection.mapMorphologyCoastPolicy
+    : undefined;
+  const mapMorphologyCoastTerrainSnapshot = isRecord(
+    projection.mapMorphologyCoastTerrainSnapshot
+  )
+    ? projection.mapMorphologyCoastTerrainSnapshot
+    : undefined;
+  const mapMorphologyContinentValidationSnapshot = isRecord(
+    projection.mapMorphologyContinentValidationSnapshot
+  )
+    ? projection.mapMorphologyContinentValidationSnapshot
+    : undefined;
   const hydrologyLakePlan = isRecord(projection.hydrologyLakePlan) ? projection.hydrologyLakePlan : undefined;
   const mapHydrologyProjection = isRecord(projection.mapHydrologyProjection)
     ? projection.mapHydrologyProjection
     : undefined;
   const hydrologyTerrainSnapshot = isRecord(projection.hydrologyTerrainSnapshot)
     ? projection.hydrologyTerrainSnapshot
+    : undefined;
+  const mapElevationTerrainSnapshot = isRecord(projection.mapElevationTerrainSnapshot)
+    ? projection.mapElevationTerrainSnapshot
+    : undefined;
+  const mapRiversTerrainSnapshot = isRecord(projection.mapRiversTerrainSnapshot)
+    ? projection.mapRiversTerrainSnapshot
     : undefined;
   const placementSurfacePreparation = isRecord(projection.placementSurfacePreparation)
     ? projection.placementSurfacePreparation
@@ -1578,6 +1610,23 @@ function terrainProjectionRowContext(
           distanceToCoast: indexedInteger(morphology.distanceToCoast, plotIndex),
         }
       : null,
+    mapMorphologyCoastPolicy: mapMorphologyCoastPolicy
+      ? {
+          baseWaterClass: indexedInteger(mapMorphologyCoastPolicy.baseWaterClass, plotIndex),
+          waterClass: indexedInteger(mapMorphologyCoastPolicy.waterClass, plotIndex),
+          policyCoastMask: indexedInteger(mapMorphologyCoastPolicy.policyCoastMask, plotIndex),
+          coastBufferTiles: finiteInteger(mapMorphologyCoastPolicy.coastBufferTiles),
+          promotedOceanToCoast: finiteInteger(mapMorphologyCoastPolicy.promotedOceanToCoast),
+        }
+      : null,
+    mapMorphologyCoastTerrainSnapshot: projectionSnapshotRowContext(
+      mapMorphologyCoastTerrainSnapshot,
+      plotIndex
+    ),
+    mapMorphologyContinentValidationSnapshot: projectionSnapshotRowContext(
+      mapMorphologyContinentValidationSnapshot,
+      plotIndex
+    ),
     hydrologyLakePlan: hydrologyLakePlan
       ? {
           lakeMask: indexedInteger(hydrologyLakePlan.lakeMask, plotIndex),
@@ -1606,6 +1655,8 @@ function terrainProjectionRowContext(
         }
       : null,
     hydrologyTerrainSnapshot: projectionSnapshotRowContext(hydrologyTerrainSnapshot, plotIndex),
+    mapElevationTerrainSnapshot: projectionSnapshotRowContext(mapElevationTerrainSnapshot, plotIndex),
+    mapRiversTerrainSnapshot: projectionSnapshotRowContext(mapRiversTerrainSnapshot, plotIndex),
     placementSurfacePreparation: placementSurfacePreparation
       ? {
           acceptedLakeTileCount: finiteInteger(placementSurfacePreparation.acceptedLakeTileCount),
