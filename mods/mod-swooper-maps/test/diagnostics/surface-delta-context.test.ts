@@ -110,6 +110,12 @@ describe("surface delta context diagnostics", () => {
         featureSymbol: "FEATURE_KILIMANJARO",
         priority: 0.9,
       },
+      naturalWonderDirectionAlternatives: {
+        anchorPlotIndex: 1,
+        declaredDirection: 0,
+        directionsContainingRow: expect.arrayContaining([0]),
+        directionsContainingPairedRow: expect.arrayContaining([0]),
+      },
       pairedSameFeatureDelta: {
         x: 2,
         y: 0,
@@ -123,6 +129,12 @@ describe("surface delta context diagnostics", () => {
       y: 0,
       local: { symbol: "empty" },
       live: { symbol: "FEATURE_KILIMANJARO" },
+      naturalWonderDirectionAlternatives: {
+        anchorPlotIndex: 1,
+        declaredDirection: 0,
+        directionsContainingRow: expect.arrayContaining([0]),
+        directionsContainingPairedRow: expect.arrayContaining([0]),
+      },
       pairedSameFeatureDelta: {
         x: 1,
         y: 0,

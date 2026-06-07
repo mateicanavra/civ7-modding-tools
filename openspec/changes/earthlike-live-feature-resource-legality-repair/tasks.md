@@ -48,8 +48,10 @@
   classes.
 - [x] 2.22 Add runtime-bound feature feasibility readback for feature delta
   classes.
-- [ ] 2.23 Repair remaining proven package or MapGen owners.
-- [ ] 2.24 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.23 Add natural-wonder footprint direction context for feature offset
+  rows.
+- [ ] 2.24 Repair remaining proven package or MapGen owners.
+- [ ] 2.25 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

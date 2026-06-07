@@ -5,10 +5,9 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-feature-feasibility-readback-drain`
-  stacked above `codex/swooper-feature-local-evidence-drain`; this slice
-  carries package-owned live feature feasibility readback for feature-delta
-  classes.
+- Branch/Graphite stack: `codex/swooper-wonder-footprint-direction-drain`
+  stacked above `codex/swooper-feature-feasibility-readback-drain`; this slice
+  carries natural-wonder footprint direction context for feature-delta classes.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -16,8 +15,9 @@
   ResourceBuilder diagnostic/subclassification/policy context plus
   assignment-class, distribution-count, same-resource position, local
   materialization, future coordinate-proof instrumentation, coordinate-proof
-  intake, feature-delta classification, local feature/wonder evidence joins, and
-  feature feasibility readback now narrow the next repair classes.
+  intake, feature-delta classification, local feature/wonder evidence joins,
+  feature feasibility readback, and natural-wonder footprint-direction context
+  now narrow the next repair classes.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -381,6 +381,25 @@
   question toward runtime materialization state, natural-wonder stamping
   semantics, or readback policy, but it still does not authorize feature,
   natural-wonder, terrain, parity, product, or tuning repair.
+- Feature footprint direction context progress:
+  `buildFeatureDeltaPlacementContexts` now records all six local
+  map-policy footprint direction alternatives for planned natural-wonder rows.
+  The current direction-context artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-feature-footprint-direction-context.json`
+  (`sha256:bbb9b1ce680af7e6f456cb7fb594b88d892a1fa3a8e1287982fb9a560b918c42`).
+  It is derived from the saved exact parity proof plus the prior local feature
+  context artifact; it is not a fresh parity proof and does not mutate product
+  code. For both affected natural wonders, the current local policy helper's
+  normalized declared direction `0` contains the local feature row. The live
+  offset row is explained by a different direction alternative: Kilimanjaro's
+  live row `(48,13)` is contained by directions `4` and `5`, while direction
+  `5` contains both local/live delta cells; Zhangjiajie's live row `(51,21)` is
+  contained by direction `5` while direction `0` contains the local row
+  `(52,21)`. This narrows the natural-wonder source-owner question toward
+  `Direction:-1` / footprint-orientation semantics between local map-policy
+  projection and Civ runtime materialization. It still does not authorize a
+  natural-wonder repair until the source owner is explicitly accepted and tested
+  against broader wonder footprint behavior.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -412,12 +431,13 @@
   local and live immediate placement coordinate identity or otherwise assigns
   those subclasses to a concrete source owner. Feature rows are now split into
   a reef absence and two natural-wonder one-tile offsets, with local intent,
-  application, footprint evidence, and runtime-bound `canHaveFeature` probes
-  now attached. Since post-materialization `canHaveFeature=false` also applies
-  to the live natural-wonder cells that contain those features, no feature
-  repair is authorized until materialization/readback evidence assigns
-  ownership beyond the post-state feasibility caveat. The single substitution
-  row where both probed values are infeasible remains an individual evidence row
-  with no repair authority until row-level context assigns source ownership.
+  application, footprint evidence, runtime-bound `canHaveFeature` probes, and
+  footprint-direction alternatives now attached. The direction context points at
+  a likely natural-wonder footprint orientation semantics gap, but no feature or
+  natural-wonder repair is authorized until source ownership is accepted and the
+  change is checked against the supported wonder catalog. The single
+  substitution row where both probed values are infeasible remains an individual
+  evidence row with no repair authority until row-level context assigns source
+  ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.
