@@ -50,6 +50,7 @@
     "@swooper/mapgen-core": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
     "@civ7/adapter": "workspace:*",
+    "@civ7/map-policy": "workspace:*",
     "@mateicanavra/civ7-sdk": "workspace:*",
     "typebox": "^1.0.80"
   },
