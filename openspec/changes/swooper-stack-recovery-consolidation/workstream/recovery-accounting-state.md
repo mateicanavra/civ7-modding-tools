@@ -1,11 +1,11 @@
 # Recovery Accounting State
 
-Capture: `2026-06-07T18:38:04-04:00`
+Capture: `2026-06-07T18:45:30-04:00`
 
 Recovery stack:
 
 - Base: `codex/swooper-mapgen-recovery-drain` at `d77f7e3d01b3`
-- Current top: `codex/swooper-natural-wonder-plan-input-comparison-drain` at `03a1d3e3b2a5`
+- Current top: `codex/swooper-earthlike-floodplain-final-adoption` (this record commit)
 - Main base: `98dca389248d`
 
 This is the human-readable companion to
@@ -45,7 +45,7 @@ This is the human-readable companion to
 | Earthlike terrain-edge stack through `codex/earthlike-terrain-edge-stack-integration` | `done/adopt` | `codex/swooper-terrain-edge-reconciliation-drain` | Covered locally; cleanup gated on recovery landing. |
 | Earthlike natural-wonder stack through `codex/earthlike-natural-wonder-postwrite-footprint-proof` | `done/adopt` | Swooper natural-wonder drain | Covered locally through footprint proof; later plan-input branches are continuation work. |
 | `codex/workspace-source-package-resolution` | `done/adopt` | Swooper natural-wonder drain | Covered locally by the recovery-side workspace source-resolution expansion for `@civ7/map-policy` and `@civ7/adapter`; this is an accounting-label correction, not new product adoption. |
-| `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `done/adopt` | `codex/swooper-natural-wonder-plan-input-comparison-drain` | Covered locally: latest Earthlike `floodplainPlanning` config/hash leaf is represented, floodplain planning now belongs to ecology-features, generated map artifacts were regenerated, and stale non-Earthlike placement-side floodplain config drift was dropped. |
+| `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `done/adopt` | `codex/swooper-earthlike-floodplain-final-adoption` | Covered locally: latest Earthlike `floodplainPlanning` config/hash leaf is represented, floodplain planning now belongs to ecology-features, generated map artifacts were regenerated, and stale non-Earthlike placement-side floodplain config drift was dropped. |
 | Non-Earthlike predecessor config drift | `done/exclude` | retired | Intentionally dropped. |
 | Systematic workstream skill support slice | `planned/adopt` | `main` | Not product recovery; adopt separately if we want repo-local skill support durable on main. |
 | `codex/foundation-architecture-packet` | `done/reference` | reference only | Not part of product recovery adoption. |

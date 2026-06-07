@@ -1,7 +1,7 @@
 {
-  "fixtureId": "graphite-accounting-composition-2026-06-07T22:43:47.980Z",
+  "fixtureId": "graphite-accounting-composition-2026-06-07T22:48:27.238Z",
   "schemaVersion": "graphite-accounting-composition.v1",
-  "generatedAt": "2026-06-07T22:43:47.980Z",
+  "generatedAt": "2026-06-07T22:48:27.238Z",
   "inputs": {
     "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain",
     "graphiteCachePath": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.git/.graphite_cache_persist",
@@ -9,7 +9,16 @@
     "ledgerPath": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain/openspec/changes/swooper-stack-recovery-consolidation/workstream/recovery-accounting-ledger.json",
     "gtLsPath": "/tmp/civ7-current-gt-ls.txt",
     "gtLsStatusPath": "/tmp/civ7-current-gt-ls.status.json",
-    "relationshipPairs": [],
+    "relationshipPairs": [
+      {
+        "left": "agent-watch-civ7-live-play-reference-assembly",
+        "right": "codex/local-catalog-enrichment"
+      },
+      {
+        "left": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
+        "right": "codex/swooper-earthlike-floodplain-final-adoption"
+      }
+    ],
     "includeRootRelationships": true,
     "includeLeafRelationshipCandidates": true,
     "maxLeafRelationshipCandidates": 80,
@@ -17,16 +26,16 @@
   },
   "graphite": {
     "topologySource": "graphite-cache",
-    "cacheSha": "de956a804d1b11950777865a06d8dc7dcda230ab",
-    "snapshotCapturedAt": "2026-06-07T22:43:44.844Z",
+    "cacheSha": "016f8970402d8729973183902d80f1dc7c74e5d1",
+    "snapshotCapturedAt": "2026-06-07T22:48:27.196Z",
     "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
     "rootCount": 7,
-    "branchCount": 863
+    "branchCount": 865
   },
   "gtLsStatus": {
-    "refreshedAt": "2026-06-07T22:43:44.844Z",
-    "lineCount": 864,
-    "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools",
+    "refreshedAt": "2026-06-07T22:48:27.196Z",
+    "lineCount": 866,
+    "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain",
     "outputPath": "/tmp/civ7-current-gt-ls.txt",
     "graphiteStatePath": "/tmp/civ7-current-gt-ls.txt.graphite-state.json",
     "command": "gt ls --no-interactive",
@@ -34,7 +43,7 @@
   },
   "ledger": {
     "fixtureId": "swooper-recovery-accounting-2026-06-07",
-    "capturedAt": "2026-06-07T18:38:04-04:00",
+    "capturedAt": "2026-06-07T18:45:30-04:00",
     "schemaVersion": "gt-stack-inspect.accounting-ledger.v1",
     "moveCount": 18
   },
@@ -58,20 +67,20 @@
     },
     {
       "root": "codex/swooper-mapgen-recovery-drain",
-      "decision": "clear-dirty-worktree",
-      "graphiteState": "dirty-worktree",
+      "decision": "submit-or-merge-clean-stack",
+      "graphiteState": "clean-local",
       "accountingState": "adoption-sink",
-      "branchCount": 79,
-      "localOnly": 79,
+      "branchCount": 80,
+      "localOnly": 80,
       "needsRestack": 0,
       "occupied": 1,
-      "dirtyWorktrees": 1,
+      "dirtyWorktrees": 0,
       "accounting": {
         "accounting-sink": 38,
-        "unmarked": 41
+        "unmarked": 42
       },
       "leaves": [
-        "codex/swooper-natural-wonder-plan-input-comparison-drain"
+        "codex/swooper-earthlike-floodplain-final-adoption"
       ]
     },
     {
@@ -79,17 +88,17 @@
       "decision": "submit-or-merge-clean-stack",
       "graphiteState": "clean-local",
       "accountingState": "accounted-source",
-      "branchCount": 21,
-      "localOnly": 21,
+      "branchCount": 22,
+      "localOnly": 22,
       "needsRestack": 0,
       "occupied": 1,
       "dirtyWorktrees": 0,
       "accounting": {
         "excluded": 13,
-        "unmarked": 8
+        "unmarked": 9
       },
       "leaves": [
-        "codex/gt-stack-inspect-react-parity-runtime-verification"
+        "codex/gt-stack-inspect-react-ui-ux-system-rebuild"
       ]
     },
     {
@@ -329,6 +338,18 @@
         },
         {
           "role": "sink",
+          "moveId": "done-adopt-studio-setup-config-sync",
+          "state": "done",
+          "kind": "adopt",
+          "method": "semantic",
+          "sourceKind": "stack-slice",
+          "sinkKind": "branch",
+          "label": "adoption-sink",
+          "cleanup": "not-cleanup-relevant",
+          "note": "Studio setup/config loading, setup seed validation, save/deploy/run-in-game sync, and adjacent Swooper recovery behavior were synthesized into the recovery base."
+        },
+        {
+          "role": "sink",
           "moveId": "done-reference-swooper-recovery-planning-context",
           "state": "done",
           "kind": "reference",
@@ -338,18 +359,6 @@
           "label": "accounting-sink",
           "cleanup": "not-cleanup-relevant",
           "note": "The recovery handoff and OpenSpec planning branches were consumed as planning/reference input for the Swooper recovery stack. They are not pending product branches."
-        },
-        {
-          "role": "sink",
-          "moveId": "done-adopt-earthlike-floodplain-config-leaf",
-          "state": "done",
-          "kind": "adopt",
-          "method": "semantic",
-          "sourceKind": "branch",
-          "sinkKind": "branch",
-          "label": "adoption-sink",
-          "cleanup": "not-cleanup-relevant",
-          "note": "Latest Earthlike floodplainPlanning config/hash leaf is now represented in the recovery stack. Adoption also carries the missing source-stack boundary correction that makes floodplain planning an ecology-features concern instead of stale placement public config, regenerates generated map artifacts and compiled fixtures from the chosen configs, imports the start-placement system-card reference artifacts, and limits non-Earthlike config changes to removing the now-invalid placement.floodplains key."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -2775,7 +2784,9 @@
       "branch": "codex/swooper-natural-wonder-plan-input-comparison-drain",
       "root": "codex/swooper-mapgen-recovery-drain",
       "parent": "codex/swooper-natural-wonder-plan-input-context-drain",
-      "children": [],
+      "children": [
+        "codex/swooper-earthlike-floodplain-final-adoption"
+      ],
       "depth": 78,
       "head": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
       "parentRecordedHead": "10280507db72a621d3efb00d4f3d6c7585a1ba58",
@@ -2785,32 +2796,55 @@
       "needsRestack": false,
       "pushedToOrigin": false,
       "localOnly": true,
-      "worktree": {
-        "path": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain",
-        "branch": "codex/swooper-natural-wonder-plan-input-comparison-drain",
-        "head": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
-        "dirtyCount": 61,
-        "isMain": true,
-        "isDetached": false
-      },
       "commit": {
         "short": "03a1d3e3b",
         "sha": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
         "iso": "2026-06-07T18:20:48-04:00",
         "subject": "docs(graphite): correct recovery accounting label"
       },
+      "accountingLabels": [],
+      "accountingSummary": "unmarked"
+    },
+    {
+      "branch": "codex/swooper-earthlike-floodplain-final-adoption",
+      "root": "codex/swooper-mapgen-recovery-drain",
+      "parent": "codex/swooper-natural-wonder-plan-input-comparison-drain",
+      "children": [],
+      "depth": 79,
+      "head": "534b22c8512fcdec4a130aa080dcd8fbe38a50b6",
+      "parentRecordedHead": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
+      "parentCurrentHead": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
+      "validationResult": "VALID",
+      "alignedToParent": true,
+      "needsRestack": false,
+      "pushedToOrigin": false,
+      "localOnly": true,
+      "worktree": {
+        "path": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain",
+        "branch": "codex/swooper-earthlike-floodplain-final-adoption",
+        "head": "534b22c8512fcdec4a130aa080dcd8fbe38a50b6",
+        "dirtyCount": 0,
+        "isMain": true,
+        "isDetached": false
+      },
+      "commit": {
+        "short": "534b22c85",
+        "sha": "534b22c8512fcdec4a130aa080dcd8fbe38a50b6",
+        "iso": "2026-06-07T18:48:12-04:00",
+        "subject": "docs(graphite): close floodplain adoption accounting"
+      },
       "accountingLabels": [
         {
           "role": "sink",
-          "moveId": "done-adopt-studio-setup-config-sync",
+          "moveId": "done-adopt-earthlike-floodplain-config-leaf",
           "state": "done",
           "kind": "adopt",
           "method": "semantic",
-          "sourceKind": "stack-slice",
+          "sourceKind": "branch",
           "sinkKind": "branch",
           "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Studio setup/config loading, setup seed validation, save/deploy/run-in-game sync, and adjacent Swooper recovery behavior were synthesized into the recovery base."
+          "note": "Latest Earthlike floodplainPlanning config/hash leaf is now represented in the recovery stack. Adoption also carries the missing source-stack boundary correction that makes floodplain planning an ecology-features concern instead of stale placement public config, regenerates generated map artifacts and compiled fixtures from the chosen configs, imports the start-placement system-card reference artifacts, and limits non-Earthlike config changes to removing the now-invalid placement.floodplains key."
         }
       ],
       "accountingSummary": "accounting-sink"
@@ -3462,7 +3496,9 @@
       "branch": "codex/gt-stack-inspect-react-parity-runtime-verification",
       "root": "codex/stack-lineage-audit-reference",
       "parent": "codex/gt-stack-inspect-react-parity-browser-verification",
-      "children": [],
+      "children": [
+        "codex/gt-stack-inspect-react-ui-ux-system-rebuild"
+      ],
       "depth": 20,
       "head": "6a9c30458e7228409fd0f271d327f6bb378e103d",
       "parentRecordedHead": "fcdf0f8c911d815271e66675925c94f77164d725",
@@ -3472,9 +3508,32 @@
       "needsRestack": false,
       "pushedToOrigin": false,
       "localOnly": true,
+      "commit": {
+        "short": "6a9c30458",
+        "sha": "6a9c30458e7228409fd0f271d327f6bb378e103d",
+        "iso": "2026-06-07T17:57:22-04:00",
+        "subject": "feat(graphite): verify stack inspect live runtime"
+      },
+      "accountingLabels": [],
+      "accountingSummary": "unmarked"
+    },
+    {
+      "branch": "codex/gt-stack-inspect-react-ui-ux-system-rebuild",
+      "root": "codex/stack-lineage-audit-reference",
+      "parent": "codex/gt-stack-inspect-react-parity-runtime-verification",
+      "children": [],
+      "depth": 21,
+      "head": "6a9c30458e7228409fd0f271d327f6bb378e103d",
+      "parentRecordedHead": "6a9c30458e7228409fd0f271d327f6bb378e103d",
+      "parentCurrentHead": "6a9c30458e7228409fd0f271d327f6bb378e103d",
+      "validationResult": "VALID",
+      "alignedToParent": true,
+      "needsRestack": false,
+      "pushedToOrigin": false,
+      "localOnly": true,
       "worktree": {
         "path": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-stack-lineage-audit-reference",
-        "branch": "codex/gt-stack-inspect-react-parity-runtime-verification",
+        "branch": "codex/gt-stack-inspect-react-ui-ux-system-rebuild",
         "head": "6a9c30458e7228409fd0f271d327f6bb378e103d",
         "dirtyCount": 0,
         "isMain": false,
@@ -23346,7 +23405,16 @@
   ],
   "history": {
     "config": {
-      "relationshipPairs": [],
+      "relationshipPairs": [
+        {
+          "left": "agent-watch-civ7-live-play-reference-assembly",
+          "right": "codex/local-catalog-enrichment"
+        },
+        {
+          "left": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
+          "right": "codex/swooper-earthlike-floodplain-final-adoption"
+        }
+      ],
       "includeRootRelationships": true,
       "includeLeafRelationshipCandidates": true,
       "maxLeafRelationshipCandidates": 80,
@@ -23355,7 +23423,7 @@
     "metrics": {
       "exactSameHead": 0,
       "linear": 0,
-      "patchOverlap": 6,
+      "patchOverlap": 8,
       "semanticOverlapDiverged": 1,
       "diverged": 14,
       "independent": 0
@@ -23395,6 +23463,387 @@
       }
     ],
     "relationships": [
+      {
+        "pairId": "explicit-pair:agent-watch-civ7-live-play-reference-assembly...codex/local-catalog-enrichment",
+        "scope": "explicit-pair",
+        "relationshipKind": "patch-overlap-diverged",
+        "left": "agent-watch-civ7-live-play-reference-assembly",
+        "right": "codex/local-catalog-enrichment",
+        "leftRoot": "agent-watch-civ7-live-play-reference-assembly",
+        "rightRoot": "codex/local-catalog-enrichment",
+        "leftHead": "9e67f53645597dfd9d7299bb5beb9509fa7569fe",
+        "rightHead": "1689806731331dae56262cfa988fdbc0800b3e88",
+        "mergeBase": {
+          "sha": "929a282ff34033664e1fee71f4f78c977796a3dd",
+          "short": "929a282ff"
+        },
+        "aheadBehind": {
+          "leftOnly": 27,
+          "rightOnly": 34
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 9,
+            "patchEquivalent": 18,
+            "sampleNew": [
+              {
+                "sha": "db52c7aecda06bebb4eba34bee60def035d67249",
+                "subject": "test(mapgen): keep artifact guards package-owned"
+              },
+              {
+                "sha": "9011233676639569d76464166179189b1779a169",
+                "subject": "docs(morphology): integrate live readback boundary"
+              },
+              {
+                "sha": "fde990cb16ee8262722a7b8c89ad3c4414c4cf15",
+                "subject": "fix(ecology): integrate morphology peer repairs"
+              },
+              {
+                "sha": "37ae85d62746e62d31c603a52d357e51e8c82cea",
+                "subject": "feat(mapgen): integrate resource corpus expectations"
+              },
+              {
+                "sha": "b1b1b33f3c0d0911a8ab1242a948a36c7af7947e",
+                "subject": "feat(mapgen): integrate resource ops rollup"
+              },
+              {
+                "sha": "e4b5c995d6b38c06a4e9957ddc2b614cab8b03f2",
+                "subject": "fix(mapgen): integrate resource runtime proof"
+              },
+              {
+                "sha": "caab828e97c7d1ee0716dd2cfc314a4c6ff3fa2c",
+                "subject": "chore(imports): break circular dependency edges"
+              },
+              {
+                "sha": "0507ef8e9108fc58f141c241f214994f221eb4d2",
+                "subject": "fix(mapgen): stabilize integrated stack boundaries"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "54a01a354418e1c4115cecea758772be9bced2c6",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "86e33ada1ee886c3c2ee3c79f1a98781052a0748",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "d3c61d35a37b7b2465cbf2e473ead9073d2ffd5c",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "3e363eb0fcdf6a39bb4fbf201372a7e97e915814",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8616c6643651e572b2a3f05781447610c554c9f3",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "b8ef45082366776f785aeb8c994df3a4c24af024",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "fd69c477767358f259e8c9a00ee561dacd67cc68",
+                "subject": "feat(cli): add live Civ tactical support"
+              },
+              {
+                "sha": "5434eb63c6c98cff7d2f93fd92b6a296bc326566",
+                "subject": "feat(cli): add notification decision HUD Expand the live play notification materialized view with decision HUD data: ordered blocker queue, required inputs, common safe actions, and CLI rendering. Document the blocker-family frame and narrative CLOSE fallback for later skill promotion."
+              }
+            ]
+          },
+          "rightComparedToLeft": {
+            "patchNew": 16,
+            "patchEquivalent": 18,
+            "sampleNew": [
+              {
+                "sha": "c8a09fedb1ad508e6e284945467631dfbe601140",
+                "subject": "docs: refresh integration gate record Capture the refreshed Gate 1-8 operating record for graphite-stack-integration, including current worktree dirty state, conflict model, proposed branch order, validation lanes, stop conditions, and framed sub-agent objective rule."
+              },
+              {
+                "sha": "3141acd40ead97ffbdcc1bda463a344585e23036",
+                "subject": "docs: record Studio Run in Game recovery UX"
+              },
+              {
+                "sha": "2bd8060613c51faa96421d8f1629938450030b90",
+                "subject": "docs: report Studio Vite robustness findings"
+              },
+              {
+                "sha": "913779e988091c7ce7ec16a7998c57986864a199",
+                "subject": "docs(civ7): add Studio verification gap matrix"
+              },
+              {
+                "sha": "d186ed978fff01cccc465d429ad9a05310bfd3d3",
+                "subject": "feat(studio): harden Run in Game recovery Adds phase-aware Studio Run in Game operation state, resumable request status, shell-safe direct-control health, guarded Begin evidence, Vite/dev-server hardening, and user-facing recovery diagnostics. Includes the studio-run-in-game-robustness OpenSpec/workstream artifacts and focused direct-control, Studio UI/status, and Swooper authoring-surface test updates."
+              },
+              {
+                "sha": "d09439a575d67dd1ceb39ac438921dfba8e782c9",
+                "subject": "chore(mapgen): preserve Studio earthlike config state Commits the current Swooper Earthlike config edits separately from the Studio Run in Game robustness work so follow-up reliability changes can stay scoped."
+              },
+              {
+                "sha": "1dc806e926ab2a5711ea43358a2e07889833b0b8",
+                "subject": "feat(studio): complete Run in Game operation state"
+              },
+              {
+                "sha": "c5fa90ef27207333e4dca2af4c8cc494788f0dc5",
+                "subject": "feat(studio): harden save and run state machine Adds the studio-save-run-state-machine OpenSpec/workstream slice, server-owned Save/Deploy operation status, API conflict guards between Save/Deploy and Run in Game, and shared dependency-aware Studio deploy commands. Save/Deploy no longer requests Civ lifecycle changes; Run in Game owns Civ restart/recovery. Studio disables conflicting Browser Run, reroll, auto-run, Save/Deploy, and Run in Game controls while operations are active, and durable Run in Game materialization now considers saved/deployed config provenance. Verification: bun run verify:studio-run-in-game; focused mapConfigSave/runInGame tests; browser Run proof on localhost:5173; live save-route restart rejection/status probes."
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "ff740d9bcbef882409802eff6a6d96ec7866657d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "df1b81532c7fcb4930c07fceee1e2ff748d05840",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1e6267722ab07485f2b1ef938cae7d84fc29d041",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "761e4e1a7e5569b9252df00b7e2412603ac8561a",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "218d602c199f3d4455ef50133e870ad8885d3f6d",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "1020ae667a1ea973aa273e91f6c0bb3eaf4643a5",
+                "subject": "feat(cli): add live Civ play shortcuts"
+              },
+              {
+                "sha": "8bfd5f66c3bd1afa8ea8e082f6d8fdd88b5b2fdb",
+                "subject": "feat(cli): add live Civ tactical support"
+              },
+              {
+                "sha": "08eb8d9b4c708a326ebd0fcff5c9d7a610ca8c97",
+                "subject": "feat(cli): add notification decision HUD Expand the live play notification materialized view with decision HUD data: ordered blocker queue, required inputs, common safe actions, and CLI rendering. Document the blocker-family frame and narrative CLOSE fallback for later skill promotion."
+              }
+            ]
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0,
+          "subjectTokenJaccard": 0.1,
+          "combinedJaccard": 0.07692307692307693,
+          "sharedBranchTokens": [],
+          "sharedSubjectTokens": [
+            "civ7"
+          ],
+          "sharedCombinedTokens": [
+            "civ7"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "left-has-novel-patches",
+          "left-has-patch-equivalent-in-right",
+          "patch-overlap-diverged",
+          "right-has-novel-patches",
+          "right-has-patch-equivalent-in-left"
+        ]
+      },
+      {
+        "pairId": "explicit-pair:codex/earthlike-natural-wonder-postwrite-footprint-proof-record...codex/swooper-earthlike-floodplain-final-adoption",
+        "scope": "explicit-pair",
+        "relationshipKind": "patch-overlap-diverged",
+        "left": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
+        "right": "codex/swooper-earthlike-floodplain-final-adoption",
+        "leftRoot": "codex/live-play-settlement-reference",
+        "rightRoot": "codex/swooper-mapgen-recovery-drain",
+        "leftHead": "cbe4943babf131389c892ddd8527b90f52355ab8",
+        "rightHead": "534b22c8512fcdec4a130aa080dcd8fbe38a50b6",
+        "mergeBase": {
+          "sha": "98dca389248d5ddb2777a88105c3ade452b2137c",
+          "short": "98dca3892"
+        },
+        "aheadBehind": {
+          "leftOnly": 89,
+          "rightOnly": 101
+        },
+        "ancestry": {
+          "leftIsAncestorOfRight": false,
+          "rightIsAncestorOfLeft": false
+        },
+        "cherry": {
+          "leftComparedToRight": {
+            "patchNew": 79,
+            "patchEquivalent": 10,
+            "sampleNew": [
+              {
+                "sha": "754f90431964aaac4e266a483012b4711b2f6198",
+                "subject": "docs(graphite): prepare live-play settlement reference"
+              },
+              {
+                "sha": "af05f5e8484441e6988a1e5544b94e02da15a43f",
+                "subject": "docs(direct-control): record unit movement API findings"
+              },
+              {
+                "sha": "0ed0c4b2c1a5e79944a1afd173aec919b51c2f60",
+                "subject": "docs(direct-control): propose play-agent output contract Capture a summary-first response contract for direct-control and CLI play-agent calls, including response tiers, domain boundaries, schema conventions, representative command examples, migration guidance, and play-quality risks."
+              },
+              {
+                "sha": "2c5a743faddb0f15d255680531bc84e8942ac32d",
+                "subject": "docs(civ7): persist play-agent session strategy notes"
+              },
+              {
+                "sha": "d3d49b48fbbb541c0fc6ff273014f86cf84af10d",
+                "subject": "Add effect-orpc direct-control procedures"
+              },
+              {
+                "sha": "c965762044039b7e8f52ee651a9326648660c23b",
+                "subject": "docs(direct-control): consolidate play-agent workstream docs"
+              },
+              {
+                "sha": "251ce6f4db1db8107897d4bd2641bf04a6c455c2",
+                "subject": "docs(civ7): frame intelligence layer workstream"
+              },
+              {
+                "sha": "9c3f87b3a4283c670aec1e3aa996c5c141237d9b",
+                "subject": "docs(civ7): refine intelligence solution frame"
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "c4e3e3ee81ce16bc9bea58e4ab2627c160a936d7",
+                "subject": "fix(mapgen): gate initial resource authoring by age"
+              },
+              {
+                "sha": "bfb7d7474020d9f75f2176215fe9e72c7fe537cc",
+                "subject": "fix(studio): harden live setup and run-in-game sync Commit the Studio-side setup sync, run-in-game failure logging/restart helpers, viz orientation guard, and live parity workstream notes as one coherent runtime integration slice."
+              },
+              {
+                "sha": "105bded93aef7f9d765ceedf4a32bc71997a7cb9",
+                "subject": "refactor(mapgen): align foundation authoring contracts Checkpoint the foundation authoring surface alignment: mesh and plate topology contracts, history normalization docs, generated map config updates, and foundation contract tests."
+              },
+              {
+                "sha": "1cb2aedc3975f3fa802dc554e94dd01569c7c1c2",
+                "subject": "fix(mapgen): restore authored RNG authority Move MapGen-authored randomness back behind mapgen-core seeded helpers, document the Civ adapter RNG boundary, update standard-stage imports, and align viz/stamping outputs on OddQ tile space."
+              },
+              {
+                "sha": "7fa77f568455bf812180db9c63e6c659fcfa21dd",
+                "subject": "feat(mapgen): plan long tectonic mountain regions Add reusable OddQ component helpers, preserve connected belt corridors, trace range-region axes for longer mountain bodies, expose independent morphology knobs, and add an earthlike regression covering range diameter and hill balance."
+              },
+              {
+                "sha": "17afb74395aa77a5f95ff09de8903d5047459b37",
+                "subject": "fix(mapgen): break up rough upland hill carpets Require rough upland hills to have local relief, active deformation, or dissected drainage instead of broad uplift alone; make foothill skirts distance-aware; shift Earthlike hill budget toward foothills; and add regression stats/tests for rough-upland component size."
+              },
+              {
+                "sha": "b967141277643cdf25b4cdefd82aa96a5622dbb2",
+                "subject": "chore(maps): remove transient live-game map metadata Drop generated mod metadata references to copy-of-live-game after the transient Studio run artifact is no longer a source map config."
+              },
+              {
+                "sha": "5c59896e0dbe4d7d5feba03c5062f9c3de303637",
+                "subject": "fix(adapter): make mock RNG deterministic Replace the mock adapter default Math.random source with a deterministic label RNG while preserving explicit RNG overrides for adapter-boundary tests."
+              }
+            ]
+          },
+          "rightComparedToLeft": {
+            "patchNew": 91,
+            "patchEquivalent": 10,
+            "sampleNew": [
+              {
+                "sha": "647b1e61c8bbd024c97729109e4b04fa4115835d",
+                "subject": "fix(mapgen): plan starts by expansion viability"
+              },
+              {
+                "sha": "5f2aa7a732280ba29f99e919f1912ddc8d207f0a",
+                "subject": "feat(studio): load Civ saved setup configs"
+              },
+              {
+                "sha": "93076f453742afb283361e0b137ce66ab6bb5158",
+                "subject": "fix(studio): validate Civ7 setup seeds"
+              },
+              {
+                "sha": "a90074517f39383b9c6cb4c47c2a19a943c304e2",
+                "subject": "fix(mapgen): consolidate Swooper stack recovery"
+              },
+              {
+                "sha": "3bcd022d339bc1f8e23975c458bc8834f1f1791d",
+                "subject": "fix(mapgen): drop non-earthlike config drift Restore non-Earthlike map config and generated artifacts to main in the Swooper recovery drain. The accepted recovery intent keeps the latest Swooper Earthlike source-of-truth config while excluding incidental stale drift from other shipped map configs."
+              },
+              {
+                "sha": "90013f35f27f14c4e8a119203b10e0a96d0e61bc",
+                "subject": "fix(mapgen): add map policy workspace scaffold Add the @civ7/map-policy package scaffold and workspace dependency needed by the accepted Swooper recovery imports. Keep this scoped to package wiring instead of replaying the skipped noisy commit that also carried unrelated skills, turbo, and system-card changes."
+              },
+              {
+                "sha": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+                "subject": "fix(mapgen): stabilize Swooper recovery drain Repair selective-replay gaps in the clean main-based Swooper recovery drain: restore direct-control dist/DTS packaging, re-add ctxStepSeed at the MapGen core boundary, compose map and engine river effect tags, restore ecology score-layer morphology artifact dependencies, strip stale non-Earthlike config keys, and regenerate downstream map/config fixtures from the accepted shipped configs. Validation: bun test packages/civ7-map-policy/test/map-policy.test.ts mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts; bunx turbo run check --filter=@civ7/map-policy --filter=mod-swooper-maps --filter=mapgen-studio; git diff --check."
+              },
+              {
+                "sha": "eeccd5a9eb52bd30e7545e3324fe359d21ded7a4",
+                "subject": "feat(studio): integrate exact parity proof drain Replay and synthesize the Studio live-runtime, exact-authorship, and final-surface parity proof lane above the Swooper recovery drain. Keep accepted runtime/proof behavior, add the adapter map-size metadata prerequisite needed by parity diagnostics, route unresolved terrain/feature/resource deltas to downstream repair workstreams, and remove stale handoff/control records from the integrated OpenSpec state. Validation: bun run --cwd apps/mapgen-studio check; bun run --cwd packages/civ7-direct-control check; bun run --cwd packages/civ7-adapter check; bun run --cwd mods/mod-swooper-maps check; bun run --cwd apps/mapgen-studio test -- liveRuntime runInGame/proofIdentity runInGame/AppFooter; bun run --cwd packages/civ7-direct-control test -- direct-control; bun run --cwd mods/mod-swooper-maps test -- test/diagnostics/live-parity.test.ts; bun test scripts/civ7-direct-control/verify-final-surface-parity.test.ts; bunx turbo run check --filter=@civ7/adapter --filter=@civ7/direct-control --filter=mapgen-studio --filter=mod-swooper-maps; bun run openspec:validate; git diff --check; git diff --cached --check."
+              }
+            ],
+            "sampleEquivalent": [
+              {
+                "sha": "bcec62ea3b28c88fac8106db46e616a0a5c56567",
+                "subject": "fix(mapgen): gate initial resource authoring by age"
+              },
+              {
+                "sha": "08ee2e7807eb10983870e6256cd49ad23812932b",
+                "subject": "fix(studio): harden live setup and run-in-game sync Commit the Studio-side setup sync, run-in-game failure logging/restart helpers, viz orientation guard, and live parity workstream notes as one coherent runtime integration slice."
+              },
+              {
+                "sha": "61581904ec37ac6c3e3f3097916da75936e1b949",
+                "subject": "refactor(mapgen): align foundation authoring contracts Checkpoint the foundation authoring surface alignment: mesh and plate topology contracts, history normalization docs, generated map config updates, and foundation contract tests."
+              },
+              {
+                "sha": "b410ef219d846294d62cd538bb237113e8650c36",
+                "subject": "fix(mapgen): restore authored RNG authority Move MapGen-authored randomness back behind mapgen-core seeded helpers, document the Civ adapter RNG boundary, update standard-stage imports, and align viz/stamping outputs on OddQ tile space."
+              },
+              {
+                "sha": "a23a36978eb395fb594f6cabdb62c44ea5812ed3",
+                "subject": "feat(mapgen): plan long tectonic mountain regions Add reusable OddQ component helpers, preserve connected belt corridors, trace range-region axes for longer mountain bodies, expose independent morphology knobs, and add an earthlike regression covering range diameter and hill balance."
+              },
+              {
+                "sha": "e2dd2d3efe82ffba384307b5ebf63beda9cdc0de",
+                "subject": "fix(mapgen): break up rough upland hill carpets Require rough upland hills to have local relief, active deformation, or dissected drainage instead of broad uplift alone; make foothill skirts distance-aware; shift Earthlike hill budget toward foothills; and add regression stats/tests for rough-upland component size."
+              },
+              {
+                "sha": "fb9ab3fbe47843fb6d35847d8515513c372abde8",
+                "subject": "chore(maps): remove transient live-game map metadata Drop generated mod metadata references to copy-of-live-game after the transient Studio run artifact is no longer a source map config."
+              },
+              {
+                "sha": "237b5e7cac02b2499cfc83c9c8a2b5467634a807",
+                "subject": "fix(adapter): make mock RNG deterministic Replace the mock adapter default Math.random source with a deterministic label RNG while preserving explicit RNG overrides for adapter-boundary tests."
+              }
+            ]
+          }
+        },
+        "semanticOverlap": {
+          "branchTokenJaccard": 0.1,
+          "subjectTokenJaccard": 0.125,
+          "combinedJaccard": 0.13333333333333333,
+          "sharedBranchTokens": [
+            "earthlike"
+          ],
+          "sharedSubjectTokens": [
+            "floodplain"
+          ],
+          "sharedCombinedTokens": [
+            "earthlike",
+            "floodplain"
+          ]
+        },
+        "signals": [
+          "cross-root",
+          "left-has-novel-patches",
+          "left-has-patch-equivalent-in-right",
+          "patch-overlap-diverged",
+          "right-has-novel-patches",
+          "right-has-patch-equivalent-in-left"
+        ]
+      },
       {
         "pairId": "root-pair:codex/systematic-workstream-skill-framing...codex/swooper-mapgen-recovery-drain",
         "scope": "root-pair",
@@ -23470,9 +23919,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.010526315789473684,
-          "subjectTokenJaccard": 0.004559270516717325,
-          "combinedJaccard": 0.006042296072507553,
+          "branchTokenJaccard": 0.01020408163265306,
+          "subjectTokenJaccard": 0.004545454545454545,
+          "combinedJaccard": 0.006024096385542169,
           "sharedBranchTokens": [
             "evidence"
           ],
@@ -23570,9 +24019,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.02127659574468085,
+          "branchTokenJaccard": 0.02040816326530612,
           "subjectTokenJaccard": 0.002976190476190476,
-          "combinedJaccard": 0.0058309037900874635,
+          "combinedJaccard": 0.005797101449275362,
           "sharedBranchTokens": [
             "evidence"
           ],
@@ -24161,9 +24610,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.04838709677419355,
-          "subjectTokenJaccard": 0.13163972286374134,
-          "combinedJaccard": 0.1341743119266055,
+          "branchTokenJaccard": 0.046511627906976744,
+          "subjectTokenJaccard": 0.13264129181084197,
+          "combinedJaccard": 0.13485714285714287,
           "sharedBranchTokens": [
             "audit",
             "evidence",
@@ -24175,6 +24624,7 @@
           "sharedSubjectTokens": [
             "accounting",
             "across",
+            "adoption",
             "age",
             "bind",
             "boundary",
@@ -24203,12 +24653,12 @@
             "existing",
             "expand",
             "expected",
-            "explicit",
-            "expose"
+            "explicit"
           ],
           "sharedCombinedTokens": [
             "accounting",
             "across",
+            "adoption",
             "age",
             "audit",
             "bind",
@@ -24253,8 +24703,7 @@
             "includes",
             "including",
             "inside",
-            "instead",
-            "integrate"
+            "instead"
           ]
         },
         "signals": [
@@ -24339,9 +24788,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.4027777777777778,
-          "subjectTokenJaccard": 0.2886866059817945,
-          "combinedJaccard": 0.2915601023017903,
+          "branchTokenJaccard": 0.4041095890410959,
+          "subjectTokenJaccard": 0.2896103896103896,
+          "combinedJaccard": 0.29246487867177523,
           "sharedBranchTokens": [
             "assignment",
             "authorship",
@@ -24357,6 +24806,7 @@
             "diagnostics",
             "direction",
             "distribution",
+            "earthlike",
             "edge",
             "evidence",
             "exact",
@@ -24373,8 +24823,7 @@
             "mask",
             "materialization",
             "mock",
-            "named",
-            "natural"
+            "named"
           ],
           "sharedSubjectTokens": [
             "1fhc",
@@ -24639,9 +25088,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.09090909090909091,
-          "subjectTokenJaccard": 0.14208826695371368,
-          "combinedJaccard": 0.14873417721518986,
+          "branchTokenJaccard": 0.09027777777777778,
+          "subjectTokenJaccard": 0.14178302900107412,
+          "combinedJaccard": 0.14842105263157895,
           "sharedBranchTokens": [
             "apply",
             "audit",
@@ -24873,9 +25322,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.010752688172043012,
-          "subjectTokenJaccard": 0.0061162079510703364,
-          "combinedJaccard": 0.006060606060606061,
+          "branchTokenJaccard": 0.010416666666666666,
+          "subjectTokenJaccard": 0.006097560975609756,
+          "combinedJaccard": 0.006042296072507553,
           "sharedBranchTokens": [
             "live"
           ],
@@ -24975,8 +25424,8 @@
         },
         "semanticOverlap": {
           "branchTokenJaccard": 0,
-          "subjectTokenJaccard": 0.02064896755162242,
-          "combinedJaccard": 0.020558002936857563,
+          "subjectTokenJaccard": 0.020588235294117647,
+          "combinedJaccard": 0.020497803806734993,
           "sharedBranchTokens": [],
           "sharedSubjectTokens": [
             "artifact",
@@ -25093,9 +25542,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.06206896551724138,
+          "branchTokenJaccard": 0.061224489795918366,
           "subjectTokenJaccard": 0.1266891891891892,
-          "combinedJaccard": 0.12950819672131147,
+          "combinedJaccard": 0.1309328968903437,
           "sharedBranchTokens": [
             "contract",
             "evidence",
@@ -25368,9 +25817,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.04738154613466334,
+          "branchTokenJaccard": 0.04714640198511166,
           "subjectTokenJaccard": 0.15517241379310345,
-          "combinedJaccard": 0.16012084592145015,
+          "combinedJaccard": 0.15963855421686746,
           "sharedBranchTokens": [
             "alignment",
             "audit",
@@ -25589,9 +26038,9 @@
           }
         },
         "semanticOverlap": {
-          "branchTokenJaccard": 0.045454545454545456,
+          "branchTokenJaccard": 0.043478260869565216,
           "subjectTokenJaccard": 0.006024096385542169,
-          "combinedJaccard": 0.008823529411764706,
+          "combinedJaccard": 0.008771929824561403,
           "sharedBranchTokens": [
             "live",
             "reference"
@@ -25690,7 +26139,7 @@
         "semanticOverlap": {
           "branchTokenJaccard": 0,
           "subjectTokenJaccard": 0.013774104683195593,
-          "combinedJaccard": 0.013550135501355014,
+          "combinedJaccard": 0.013477088948787063,
           "sharedBranchTokens": [],
           "sharedSubjectTokens": [
             "downstream",
@@ -26812,7 +27261,7 @@
         "06-05-fix_studio_validate_civ7_setup_seeds"
       ],
       "sinkTargets": [
-        "codex/swooper-natural-wonder-plan-input-comparison-drain"
+        "codex/swooper-mapgen-recovery-drain"
       ],
       "note": "Studio setup/config loading, setup seed validation, save/deploy/run-in-game sync, and adjacent Swooper recovery behavior were synthesized into the recovery base."
     },
@@ -27035,7 +27484,7 @@
         "codex/earthlike-natural-wonder-postwrite-footprint-proof-record"
       ],
       "sinkTargets": [
-        "codex/swooper-mapgen-recovery-drain"
+        "codex/swooper-earthlike-floodplain-final-adoption"
       ],
       "note": "Latest Earthlike floodplainPlanning config/hash leaf is now represented in the recovery stack. Adoption also carries the missing source-stack boundary correction that makes floodplain planning an ecology-features concern instead of stale placement public config, regenerates generated map artifacts and compiled fixtures from the chosen configs, imports the start-placement system-card reference artifacts, and limits non-Earthlike config changes to removing the now-invalid placement.floodplains key."
     },

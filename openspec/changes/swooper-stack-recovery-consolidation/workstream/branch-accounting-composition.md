@@ -1,19 +1,19 @@
 # Branch Accounting Composition
 
-Generated: `2026-06-07T22:43:47.980Z`
+Generated: `2026-06-07T22:48:27.238Z`
 Graphite main head: `98dca389248d5ddb2777a88105c3ade452b2137c`
 Topology source: `graphite-cache`
 Ledger: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain/openspec/changes/swooper-stack-recovery-consolidation/workstream/recovery-accounting-ledger.json`
 Graphite state snapshot: `/tmp/civ7-current-gt-ls.txt.graphite-state.json`
-GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T22:43:44.844Z`
+GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T22:48:27.196Z`
 
 ## Root Rollup
 
 | Root | Recommended action | Graphite | Accounting | Branches | Needs restack | Worktrees | Dirty | Counts |
 |---|---|---|---|---:|---:|---:|---:|---|
 | `codex/systematic-workstream-skill-framing` | `drain-to-main` | `clean-local` | `planned-main-adoption-source` | 3 | 0 | 0 | 0 | needs-accounting:3 |
-| `codex/swooper-mapgen-recovery-drain` | `clear-dirty-worktree` | `dirty-worktree` | `adoption-sink` | 79 | 0 | 1 | 1 | accounting-sink:38, unmarked:41 |
-| `codex/stack-lineage-audit-reference` | `submit-or-merge-clean-stack` | `clean-local` | `accounted-source` | 21 | 0 | 1 | 0 | excluded:13, unmarked:8 |
+| `codex/swooper-mapgen-recovery-drain` | `submit-or-merge-clean-stack` | `clean-local` | `adoption-sink` | 80 | 0 | 1 | 0 | accounting-sink:38, unmarked:42 |
+| `codex/stack-lineage-audit-reference` | `submit-or-merge-clean-stack` | `clean-local` | `accounted-source` | 22 | 0 | 1 | 0 | excluded:13, unmarked:9 |
 | `codex/live-play-settlement-reference` | `submit-or-merge-clean-stack` | `clean-local` | `accounted-source` | 67 | 0 | 2 | 0 | excluded:7, unmarked:2, accounted-source:58 |
 | `codex/local-catalog-enrichment` | `restack-before-drain` | `needs-restack` | `unmarked` | 691 | 1 | 1 | 0 | unmarked:691 |
 | `agent-watch-civ7-live-play-reference-assembly` | `restack-before-drain` | `needs-restack` | `unmarked` | 1 | 1 | 0 | 0 | unmarked:1 |
@@ -25,6 +25,8 @@ These rows are diagnostic only. They do not mark accounting complete; they show 
 
 | Scope | Relationship | Left | Right | Ahead/behind | Cherry overlap | Semantic overlap | Shared tokens |
 |---|---|---|---|---:|---|---:|---|
+| `explicit-pair` | `patch-overlap-diverged` | `agent-watch-civ7-live-play-reference-assembly` | `codex/local-catalog-enrichment` | 27/34 | left +9/-18<br>right +16/-18 | 0.08 | `civ7` |
+| `explicit-pair` | `patch-overlap-diverged` | `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `codex/swooper-earthlike-floodplain-final-adoption` | 89/101 | left +79/-10<br>right +91/-10 | 0.13 | `earthlike` `floodplain` |
 | `root-pair` | `patch-overlap-diverged` | `codex/systematic-workstream-skill-framing` | `codex/local-catalog-enrichment` | 27/34 | left +10/-9<br>right +25/-9 | 0.02 | `apply` `civ7` `evidence` `fixes` `framing` `review` `skill` `skills` `systematic` `workstream` |
 | `root-pair` | `semantic-overlap-diverged` | `codex/swooper-mapgen-recovery-drain` | `codex/live-play-settlement-reference` | 17/1 | left +17/-0<br>right +1/-0 | 0.29 | `1fhc` `acceptance` `accepted` `adjacent` `age` `align` `apps` `artifact` `artifacts` `assignment` `authored` `authoritative` |
 | `root-pair` | `patch-overlap-diverged` | `codex/swooper-mapgen-recovery-drain` | `codex/local-catalog-enrichment` | 43/34 | left +26/-9<br>right +25/-9 | 0.15 | `acceptance` `adapter` `align` `apply` `artifact` `artifacts` `audit` `authority` `bind` `binding` `blocked` `blocker` |
@@ -49,7 +51,7 @@ These rows are diagnostic only. They do not mark accounting complete; they show 
 | `codex/systematic-workstream-skill-framing` | `codex/systematic-workstream-skill-framing` | `needs-accounting` | `source:needs-adoption:planned-adopt-systematic-workstream-skill-support-slice` | no |  |
 | `codex/systematic-evidence-workstream-skill` | `codex/systematic-workstream-skill-framing` | `needs-accounting` | `source:needs-adoption:planned-adopt-systematic-workstream-skill-support-slice` | no |  |
 | `codex/systematic-skill-review-fixes` | `codex/systematic-workstream-skill-framing` | `needs-accounting` | `source:needs-adoption:planned-adopt-systematic-workstream-skill-support-slice` | no |  |
-| `codex/swooper-mapgen-recovery-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:supersession-sink:done-supersede-pr1421-swooper-earthlike`<br>`sink:adoption-sink:done-adopt-start-placement-and-initial-resource-policy`<br>`sink:accounting-sink:done-reference-swooper-recovery-planning-context`<br>`sink:adoption-sink:done-adopt-earthlike-floodplain-config-leaf` | no |  |
+| `codex/swooper-mapgen-recovery-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:supersession-sink:done-supersede-pr1421-swooper-earthlike`<br>`sink:adoption-sink:done-adopt-start-placement-and-initial-resource-policy`<br>`sink:adoption-sink:done-adopt-studio-setup-config-sync`<br>`sink:accounting-sink:done-reference-swooper-recovery-planning-context` | no |  |
 | `codex/swooper-studio-parity-proof-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-studio-exact-authorship-proof`<br>`sink:adoption-sink:done-adopt-map-policy-final-surface-parity`<br>`sink:adoption-sink:done-adopt-studio-live-runtime-snapshot-completion` | no |  |
 | `codex/swooper-feature-resource-legality-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-feature-resource-proof-stack` | no |  |
 | `codex/swooper-resource-assignment-evidence-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-feature-resource-proof-stack` | no |  |
@@ -86,7 +88,7 @@ These rows are diagnostic only. They do not mark accounting complete; they show 
 | `codex/swooper-wonder-footprint-proof-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/swooper-wonder-footprint-proof-record-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/swooper-resource-coordinate-proof-summary-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-feature-resource-proof-stack` | no |  |
-| `codex/swooper-natural-wonder-plan-input-comparison-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-studio-setup-config-sync` | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain` (61) |
+| `codex/swooper-earthlike-floodplain-final-adoption` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-floodplain-config-leaf` | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain` |
 | `codex/stack-lineage-audit-reference` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/stack-visualizer-ui-integration` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/gt-stack-inspect-spec-alignment` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
@@ -100,7 +102,7 @@ These rows are diagnostic only. They do not mark accounting complete; they show 
 | `codex/gt-stack-inspect-react-topology-ui` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/gt-stack-inspect-cross-repo-runner` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/gt-stack-inspect-react-parity-workstreams` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
-| `codex/gt-stack-inspect-react-parity-runtime-verification` | `codex/stack-lineage-audit-reference` | `unmarked` |  | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-stack-lineage-audit-reference` |
+| `codex/gt-stack-inspect-react-ui-ux-system-rebuild` | `codex/stack-lineage-audit-reference` | `unmarked` |  | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-stack-lineage-audit-reference` |
 | `codex/live-play-settlement-reference` | `codex/live-play-settlement-reference` | `excluded` | `source:excluded:done-exclude-civ7-intelligence-and-control-doc-train` | no |  |
 | `codex/unit-movement-api-investigation` | `codex/live-play-settlement-reference` | `excluded` | `source:excluded:done-exclude-civ7-intelligence-and-control-doc-train` | no |  |
 | `codex/play-agent-output-contract` | `codex/live-play-settlement-reference` | `excluded` | `source:excluded:done-exclude-civ7-intelligence-and-control-doc-train` | no |  |

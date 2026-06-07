@@ -2,10 +2,10 @@
   "fixtureId": "swooper-recovery-accounting-2026-06-07",
   "fixtureClass": "accounting-ledger",
   "schemaVersion": "gt-stack-inspect.accounting-ledger.v1",
-  "capturedAt": "2026-06-07T18:38:04-04:00",
+  "capturedAt": "2026-06-07T18:45:30-04:00",
   "scope": {
     "recoveryRoot": "codex/swooper-mapgen-recovery-drain",
-    "recoveryTop": "codex/swooper-natural-wonder-plan-input-comparison-drain",
+    "recoveryTop": "codex/swooper-earthlike-floodplain-final-adoption",
     "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
     "excludedFamilies": [
       "live-play/control",
@@ -74,7 +74,7 @@
       },
       "sink": {
         "kind": "branch",
-        "branch": "codex/swooper-natural-wonder-plan-input-comparison-drain"
+        "branch": "codex/swooper-mapgen-recovery-drain"
       },
       "method": "semantic",
       "anchors": {
@@ -400,14 +400,14 @@
       },
       "sink": {
         "kind": "branch",
-        "branch": "codex/swooper-mapgen-recovery-drain"
+        "branch": "codex/swooper-earthlike-floodplain-final-adoption"
       },
       "method": "semantic",
       "anchors": {
         "fromHead": "cbe4943babf131389c892ddd8527b90f52355ab8",
-        "toHead": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
+        "toHead": "b8967bce7e03bc205942cccb8ec67ef7831c5330",
         "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
-        "capturedAt": "2026-06-07T18:38:04-04:00"
+        "capturedAt": "2026-06-07T18:45:30-04:00"
       },
       "note": "Latest Earthlike floodplainPlanning config/hash leaf is now represented in the recovery stack. Adoption also carries the missing source-stack boundary correction that makes floodplain planning an ecology-features concern instead of stale placement public config, regenerates generated map artifacts and compiled fixtures from the chosen configs, imports the start-placement system-card reference artifacts, and limits non-Earthlike config changes to removing the now-invalid placement.floodplains key."
     },
