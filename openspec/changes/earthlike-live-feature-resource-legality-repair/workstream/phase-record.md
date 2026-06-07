@@ -6,9 +6,9 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-current-map-generation-blocker-drain`, stacked above
-  `codex/swooper-map-script-bundle-policy-drain`; this slice records the
-  current checked-in config runtime-proof blocker after restart-launch retry,
+  `codex/swooper-map-elevation-drift-policy-drain`, stacked above
+  `codex/swooper-current-map-generation-blocker-drain`; this slice repairs the
+  locally proven map-elevation drift-policy mismatch after restart-launch retry,
   start-log grace, same-size `Scripting.log` rewrite fixes, and map-policy
   bundling for Civ map scripts.
 - Started: 2026-06-06
@@ -25,12 +25,14 @@
   restart: the latest retry records two Steam launch attempts and reaches setup
   preparation. It also no longer blocks on generated `studio-current.js`
   map-script loading after `@civ7/map-policy` was bundled into the Civ map
-  script. It now blocks inside map generation: request
+  script. The latest runtime attempt blocks inside map generation: request
   `studio-run-in-game-mq3n8vkc-1qjg` failed in
   `mod-swooper-maps.standard.map-elevation.build-elevation` because
   `map-elevation/build-elevation` expected land but the adapter reported water
-  at `(34,17)`. Resource classes remain pending source-authority
-  classification, and no current final-surface parity proof exists.
+  at `(34,17)`. The current branch repairs the local policy mismatch by using
+  the accepted bounded water-drift policy in `map-elevation/buildElevation`,
+  but no current final-surface parity proof exists until Studio/Civ is rerun.
+  Resource classes remain pending source-authority classification.
 
 ## Objective
 

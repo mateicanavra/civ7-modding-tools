@@ -1,7 +1,7 @@
 import { defineVizMeta, logElevationSummary, logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import BuildElevationStepContract from "./buildElevation.contract.js";
-import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js";
+import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
 import { mapElevationArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
@@ -35,7 +35,7 @@ export default createStep(BuildElevationStepContract, {
     context.adapter.recalculateAreas();
     context.adapter.buildElevation();
     context.adapter.recalculateAreas();
-    assertNoWaterDrift(context, expectedLandMask, "map-elevation/build-elevation");
+    assertWaterDriftWithinPolicy(context, expectedLandMask, "map-elevation/build-elevation");
 
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);

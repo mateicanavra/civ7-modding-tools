@@ -1186,6 +1186,12 @@ is claimed from this attempt. The current blocker is now the Swooper
 map-elevation materialization/runtime boundary, not the Studio/Civ generated
 map-script load boundary.
 
+Local repair on `codex/swooper-map-elevation-drift-policy-drain` wires
+`map-elevation/buildElevation` to the accepted bounded water-drift policy
+instead of the strict no-drift assert. Focused local proof covers the policy
+boundary only; a fresh Studio/Civ rerun is still required before claiming the
+runtime blocker is cleared.
+
 Source-recorded post-repair proof:
 request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
 generated parity artifact
