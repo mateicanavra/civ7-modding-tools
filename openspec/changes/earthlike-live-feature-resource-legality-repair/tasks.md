@@ -155,6 +155,25 @@
     Civ-rewritten log file and sliced past the proof markers. No
     exact-authorship packet, final-surface parity proof, or product acceptance
     proof was produced.
+  - Post-log-rewrite-reader request `studio-run-in-game-mq3pfgbe-1doj` used
+    the same request body
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-request.json`
+    (`sha256:0e23b919efba651b49d36bd967218414ace31620dee1c375a13a2c245decf914`),
+    with post response
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-log-rewrite-reader-post.json`
+    (`sha256:e2640bf851b30bfe54f95a96a24867c65068c0cb30d8dbdf89528a2f4e9e1f8d`)
+    and terminal status
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-log-rewrite-reader-status.json`
+    (`sha256:381e25d77639fcf3fe1660524ba7ead72cabb7c60f7dadb53062ca684bbd9ed6`).
+    It completed materialize/deploy, process-restart recovery, setup
+    preparation, map-script load, all recipe steps, and `waiting-for-proof`.
+    `exactAuthorshipProof.status` is `complete` with no unresolved links, and
+    Scripting.log matched `[mapgen-proof]` and `[mapgen-complete]` for request
+    `studio-run-in-game-mq3pfgbe-1doj`. This proves the current runtime/log
+    completion blocker is cleared and produces current exact-authorship
+    evidence. It does not itself run the final-surface parity verifier or
+    product acceptance rows, so this task and 3.8 remain open until that
+    verifier artifact exists.
 - [ ] 2.42 Repair remaining proven package or MapGen owners.
   - Current branch `codex/swooper-map-elevation-drift-policy-drain` repairs the
     locally proven map-elevation owner mismatch: `buildElevation` now applies
@@ -168,8 +187,12 @@
   - Current follow-on slice repairs the locally proven direct-control/Studio
     log reader gap: `snapshotFile` now preserves a log prefix, and fresh-log
     readers use byte `0` when Civ rewrites `Scripting.log` beyond the old
-    offset. Focused direct-control and Studio tests/checks pass, but a
-    committed post-repair Studio/Civ rerun is still pending.
+    offset. Focused direct-control and Studio tests/checks pass, and current
+    request `studio-run-in-game-mq3pfgbe-1doj` proves the committed repair in
+    Studio/Civ by reaching `status:"complete"` with exact-authorship and
+    `[mapgen-complete]` evidence. Keep this row open only as the remaining
+    bucket for any future package or MapGen owners proven by the open
+    source-authority rows.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
@@ -184,26 +207,20 @@
   natural-wonder projection/materialization repair.
 - [ ] 3.8 Re-run current exact-authored final-surface parity after natural-wonder
   projection/materialization repair.
-  - Blocked on the current Studio/Civ runtime start/reload boundary above; no
-    current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet, or
-    final-surface parity artifact exists for the current branch.
+  - No longer blocked on the Studio/Civ runtime start/reload boundary above:
+    current request `studio-run-in-game-mq3pfgbe-1doj` completed
+    exact-authorship and mapgen-completion proof on committed head
+    `5537f2a829f8dd1452fec81d002c4afc1f0826a6`.
   - Latest bounded retry is
-    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-map-policy-bundle-status.json`
-    (`sha256:6b2997225b0dc872a12ba306fec47c5ad7b1a7767692758b6426b8104ee8ae4c`).
-    It proves restart retry/status classification behavior and proves the
-    generated map-script load blocker is cleared, but remains a runtime map
-    generation blocker rather than final-surface parity proof.
-  - Current branch locally repairs that blocker through the accepted
-    map-elevation bounded drift policy. No post-repair Studio/Civ rerun has
-    been completed yet.
-  - Current branch locally repairs the next blocker by emitting the SDK
-    `[mapgen-complete]` marker after successful recipe execution. No
-    post-repair Studio/Civ rerun has been completed yet.
-  - Post-SDK-marker runtime logs prove `[mapgen-complete]` is emitted, but the
-    Studio operation still timed out because the proof waiter used a stale
-    pre-restart byte offset after Civ rewrote `Scripting.log`. Current
-    follow-on code repairs that log boundary, but no post-repair Studio/Civ
-    rerun has been completed yet.
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-log-rewrite-reader-status.json`
+    (`sha256:381e25d77639fcf3fe1660524ba7ead72cabb7c60f7dadb53062ca684bbd9ed6`).
+    It proves restart retry/status classification, map-script load,
+    map-elevation bounded-drift handling, SDK completion-marker emission, and
+    direct-control/Studio rewritten-log proof reading. It is not a
+    final-surface parity artifact.
+  - Next action for this row is to run the current exact-authored
+    final-surface parity verifier from the completed exact-authorship evidence,
+    then preserve the verifier artifact and classify any remaining links.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after
