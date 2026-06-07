@@ -12,6 +12,7 @@ import {
   applyCiv7CoastClassificationPolicy,
   getNaturalWonderFootprintIndices,
   isResourceAdjacentToLandRuntimeOptional,
+  resolveNaturalWonderMaterializationDirection,
   resolveNaturalWonderPlacementDirection,
 } from "../src/index.js";
 
@@ -97,6 +98,7 @@ describe("@civ7/map-policy", () => {
     expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_VIHREN);
     const redwoodPolicy = policies[String(featureTypes.FEATURE_REDWOOD_FOREST)]!;
     expect(resolveNaturalWonderPlacementDirection(redwoodPolicy)).toBe(-1);
+    expect(resolveNaturalWonderMaterializationDirection(redwoodPolicy)).toBe(0);
     expect(
       getNaturalWonderFootprintIndices({
         x: 64,

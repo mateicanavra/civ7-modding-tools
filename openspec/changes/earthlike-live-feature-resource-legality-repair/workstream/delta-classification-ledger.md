@@ -1067,6 +1067,41 @@ by focused tests plus a fresh exact-authored final-surface proof. This
 classification does not close feature parity, natural-wonder product behavior,
 Earthlike acceptance, mountain quality, or global `Direction:-1` semantics.
 
+### Natural-Wonder Projection/Materialization Repair
+
+Repair:
+the map-policy package now exposes a separate materialization-direction helper.
+The official catalog direction remains `-1` for evidence and policy records,
+but the placement-input derivation resolves that value to the explicit local
+projection direction before natural-wonder planning and materialization. This
+prevents the repaired path from validating footprint offsets for direction `0`
+and then passing `Direction:-1` to Civ, which was the source of the exact-run
+Kilimanjaro/Zhangjiajie rejection/readback split.
+
+Verification boundary:
+focused local tests cover the shared map-policy helper and the Swooper
+derive-placement-inputs handoff into `planNaturalWonders`. This does not prove
+final-surface parity. A fresh Studio Run in Game and exact-authored
+final-surface parity proof are still required before marking the feature rows
+resolved or making any product acceptance claim.
+
+Current drain validation:
+`bun test packages/civ7-map-policy/test/map-policy.test.ts`;
+`bun test mods/mod-swooper-maps/test/placement/derive-placement-inputs.test.ts mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`;
+`bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`;
+`bun run --cwd packages/civ7-map-policy check`;
+`bun run --cwd packages/civ7-map-policy build`;
+`bun run --cwd mods/mod-swooper-maps check`;
+`bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`;
+`bun run openspec:validate`;
+`git diff --check && git diff --cached --check`.
+
+Current exact parity rerun:
+blocked before parity evaluation. The rerun command
+`bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-direction-repair.json`
+returned
+`Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

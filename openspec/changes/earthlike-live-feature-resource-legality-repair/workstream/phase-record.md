@@ -612,6 +612,34 @@
   mock/map-policy prediction and live Civ materialization. It does not
   authorize a global `Direction:-1` rewrite, generated output changes, parity
   closure, product acceptance, Earthlike tuning, or mountain-quality closure.
+- Natural-wonder projection/materialization repair progress:
+  `@civ7/map-policy` now separates official placement direction from
+  materialization direction. `resolveNaturalWonderPlacementDirection` still
+  preserves official `naturalWonderDirection:-1` for catalog/evidence records,
+  while `resolveNaturalWonderMaterializationDirection` resolves that
+  unspecified value to the explicit footprint projection used by local policy.
+  The Swooper placement input derivation now passes the explicit materialization
+  direction and matching offsets into `planNaturalWonders`, so the planner,
+  local mock placement, and live Civ write path share the same deterministic
+  direction instead of validating direction `0` locally and then sending
+  `Direction:-1` to Civ. This is a projection/materialization boundary repair,
+  not a natural-wonder density/tuning change. Exact-authored final-surface
+  parity must be rerun before claiming the Kilimanjaro/Zhangjiajie feature rows
+  are resolved.
+  Current drain validation passed:
+  `bun test packages/civ7-map-policy/test/map-policy.test.ts`;
+  `bun test mods/mod-swooper-maps/test/placement/derive-placement-inputs.test.ts mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`;
+  `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`;
+  `bun run --cwd packages/civ7-map-policy check`;
+  `bun run --cwd packages/civ7-map-policy build`;
+  `bun run --cwd mods/mod-swooper-maps check`;
+  `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`;
+  `bun run openspec:validate`;
+  `git diff --check && git diff --cached --check`.
+  Current exact parity rerun remains blocked before parity evaluation:
+  `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-direction-repair.json`
+  returned
+  `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -657,9 +685,11 @@
   `studio-run-in-game-mq2t7nqs-1z4g` supplies row-level rejected-placement
   identity for Kilimanjaro plot `1320` and Zhangjiajie plot `2171`. That row
   evidence is now classified to repo-owned natural-wonder footprint
-  projection/materialization emulation. The next repair must stay in that owner
-  surface and be checked against the remaining supported unspecified multi-tile
-  catalog behavior and fresh exact live placement evidence.
+  projection/materialization emulation, and the repair now makes the
+  materialization direction explicit before the plan/write path. The next proof
+  step is a fresh exact-authored final-surface run to verify whether the
+  Kilimanjaro/Zhangjiajie feature deltas resolve without widening to product
+  tuning.
   The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source
