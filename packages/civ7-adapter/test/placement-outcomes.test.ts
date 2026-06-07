@@ -83,6 +83,33 @@ describe("typed placement outcomes", () => {
     });
   });
 
+  it("returns typed natural-wonder outcomes and structural rejections", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 6,
+      defaultBiomeType: CIV7_BROWSER_TABLES_V0.biomeGlobals.BIOME_GRASSLAND,
+      defaultTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+    });
+    const featureType = CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_REDWOOD_FOREST;
+
+    const placed = adapter.placeNaturalWonder(1, 2, featureType, 0, 120);
+    const rejected = adapter.placeNaturalWonder(-1, 2, featureType, 0, 120);
+
+    expect(placed).toMatchObject({
+      status: "placed",
+      plotIndex: 9,
+      x: 1,
+      y: 2,
+      featureType,
+      direction: 0,
+      elevation: 120,
+    });
+    expect(rejected).toMatchObject({
+      status: "rejected",
+      reason: "out-of-bounds",
+    });
+  });
+
   it("matches live-observed adjacent-land resource behavior narrowly", () => {
     const adapter = createMockAdapter({ width: 3, height: 3 });
     const coast = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST;

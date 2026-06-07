@@ -58,6 +58,21 @@ that depend on generated files or built workspace declarations.
 - **AND** the check does not depend on a developer remembering manual package
   order
 
+#### Scenario: Swooper Maps checks map-policy source changes
+- **WHEN** Swooper Maps imports `@civ7/map-policy` during its package-local
+  check
+- **THEN** TypeScript resolves the import to the workspace source entrypoint
+- **AND** the check observes unbuilt map-policy source changes instead of stale
+  package declaration output
+
+#### Scenario: Swooper Maps checks adapter source changes
+- **WHEN** Swooper Maps imports `@civ7/adapter` during its package-local check
+- **THEN** TypeScript resolves the import to the workspace source entrypoint
+- **AND** the check observes unbuilt adapter source changes instead of stale
+  package declaration output
+- **AND** source-resolved workspace package files are inside the package-local
+  TypeScript check root
+
 #### Scenario: Studio check runs through Turbo
 - **WHEN** Turbo runs `mapgen-studio#check`
 - **THEN** Studio recipe artifacts and workspace dependencies are built first

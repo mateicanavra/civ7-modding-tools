@@ -33,6 +33,8 @@ export type {
   ResourcePlacementOutcome,
   ResourcePlacementRejectionReason,
   ResourcePlacementMismatchReason,
+  NaturalWonderPlacementOutcome,
+  NaturalWonderPlacementRejectionReason,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   DiscoveryPlacementRejectionReason,

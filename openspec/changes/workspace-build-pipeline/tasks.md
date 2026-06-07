@@ -16,6 +16,12 @@
 - [x] 1.9 Update Swooper Maps deploy so Studio Run in Game deployments build
   workspace dependencies through Turbo before the request-id-sensitive mod
   build/deploy step.
+- [x] 1.10 Route Swooper Maps `@civ7/map-policy` type-check resolution to the
+  workspace source entrypoint instead of stale package `dist` declarations.
+- [x] 1.11 Route Swooper Maps `@civ7/adapter` type-check resolution to the
+  workspace source entrypoint instead of stale package `dist` declarations.
+- [x] 1.12 Allow Swooper Maps package-local TypeScript checks to include
+  source-resolved workspace package files outside the mod `src` tree.
 
 ## 2. Verification
 
@@ -27,3 +33,9 @@
   and record the initial LSQ blocker without attempting mutation.
 - [x] 2.4 Re-run `bun run verify:studio-run-in-game` after disposable setup
   reload implementation.
+- [x] 2.5 Verify `bun run --cwd mods/mod-swooper-maps check` resolves
+  `@civ7/map-policy` to `packages/civ7-map-policy/src/index.ts`.
+- [x] 2.6 Verify `bun run --cwd mods/mod-swooper-maps check` observes current
+  `@civ7/adapter` source types without rebuilding adapter declarations first.
+- [x] 2.7 Verify source-resolved workspace package files do not fail Swooper
+  Maps package-local checks through `rootDir` bounds.
