@@ -35,8 +35,10 @@
 - [x] 2.14 Add assignment-class summary for local-authored resource delta rows.
 - [x] 2.15 Add resource distribution count context for local-authored resource
   delta rows.
-- [ ] 2.16 Repair remaining proven package or MapGen owners.
-- [ ] 2.17 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.16 Add same-resource position displacement context for local-authored
+  resource delta rows.
+- [ ] 2.17 Repair remaining proven package or MapGen owners.
+- [ ] 2.18 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

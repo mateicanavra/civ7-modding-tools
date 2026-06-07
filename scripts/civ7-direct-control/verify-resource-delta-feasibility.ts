@@ -233,6 +233,7 @@ async function main(): Promise<number> {
       ignoreWeightProof.rows,
       resourceBuilderDiagnosticsSummary
     ),
+    resourcePositionContext: summarizeResourcePositionContext(proof, ignoreWeightProof.rows),
     assignmentClassSummary: summarizeAssignmentClasses(ignoreWeightProof.rows),
     strict: summarizeFeasibilityProof(proof, strict),
     ignoreWeight: ignoreWeightProof,
@@ -602,6 +603,152 @@ function summarizeResourceDistributionContext(
         row.comparisons.targetMinPerTypeMinusOfficialMinimum > 0
     ).length,
     rows: resourceRows,
+  };
+}
+
+function summarizeResourcePositionContext(
+  proof: Pick<FinalSurfaceParityProof, "local">,
+  rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
+) {
+  const localAssignedRows = rows.filter(
+    (row) => row.assignmentTrace !== null && row.localResource.value !== null
+  );
+  const liveRowsByResource = new Map<number, ResourceDeltaFeasibilityContext[]>();
+  for (const row of rows) {
+    const resourceType = row.liveResource.value;
+    if (resourceType === null || row.localResource.value === resourceType) continue;
+    const bucket = liveRowsByResource.get(resourceType) ?? [];
+    bucket.push(row);
+    liveRowsByResource.set(resourceType, bucket);
+  }
+
+  const matchedLivePlotIndexes = new Set<number>();
+  const matchedRows = localAssignedRows.map((row) => {
+    const resourceType = row.localResource.value as number;
+    const candidates = (liveRowsByResource.get(resourceType) ?? []).filter(
+      (candidate) => !matchedLivePlotIndexes.has(candidate.plotIndex)
+    );
+    const match = nearestResourceDeltaMatch(row, candidates, proof.local.width);
+    if (match !== null) matchedLivePlotIndexes.add(match.row.plotIndex);
+    return {
+      local: {
+        x: row.x,
+        y: row.y,
+        plotIndex: row.plotIndex,
+        resourceSymbol: row.localResource.symbol,
+        feasibilityClass: row.feasibilityClass,
+        assignmentPhase: row.assignmentTrace?.assignmentPhase ?? null,
+        assignmentOrder: row.assignmentTrace?.assignmentOrder ?? null,
+      },
+      matchedLive:
+        match === null
+          ? null
+          : {
+              x: match.row.x,
+              y: match.row.y,
+              plotIndex: match.row.plotIndex,
+              distance: match.distance,
+              evidenceClass: match.row.evidenceClass,
+              feasibilityClass: match.row.feasibilityClass,
+              localResourceSymbol: match.row.localResource.symbol,
+              liveResourceSymbol: match.row.liveResource.symbol,
+            },
+    };
+  });
+  const unmatchedRows = matchedRows.filter((row) => row.matchedLive === null);
+  const matchedDistances = matchedRows.flatMap((row) =>
+    row.matchedLive === null ? [] : [row.matchedLive.distance]
+  );
+
+  return {
+    evidenceBoundary:
+      "Diagnostic context only: nearest same-resource live delta matching is a positional classifier and does not prove Civ placement authorship or authorize repair without source-owner classification.",
+    localAssignedDeltaRowCount: localAssignedRows.length,
+    matchedSameResourceLiveDeltaRowCount: matchedRows.length - unmatchedRows.length,
+    unmatchedLocalAssignedDeltaRowCount: unmatchedRows.length,
+    distanceSummary: summarizeDistances(matchedDistances),
+    matchClassCounts: countBy(matchedRows, (row) =>
+      row.matchedLive === null
+        ? `${row.local.feasibilityClass}->unmatched`
+        : `${row.local.feasibilityClass}->${row.matchedLive.feasibilityClass}`
+    ),
+    targetEvidenceClassCounts: countBy(
+      matchedRows.filter((row) => row.matchedLive !== null),
+      (row) => row.matchedLive?.evidenceClass ?? "unmatched"
+    ),
+    rows: matchedRows,
+  };
+}
+
+function nearestResourceDeltaMatch(
+  row: ResourceDeltaFeasibilityContext,
+  candidates: ReadonlyArray<ResourceDeltaFeasibilityContext>,
+  width: number
+): { row: ResourceDeltaFeasibilityContext; distance: number } | null {
+  let best: { row: ResourceDeltaFeasibilityContext; distance: number } | null = null;
+  for (const candidate of candidates) {
+    const distance = hexDistanceOddQPeriodicX(row.plotIndex, candidate.plotIndex, width);
+    if (
+      best === null ||
+      distance < best.distance ||
+      (distance === best.distance && candidate.plotIndex < best.row.plotIndex)
+    ) {
+      best = { row: candidate, distance };
+    }
+  }
+  return best;
+}
+
+function hexDistanceOddQPeriodicX(aIndex: number, bIndex: number, width: number): number {
+  const ay = Math.trunc(aIndex / width);
+  const ax = aIndex - ay * width;
+  const by = Math.trunc(bIndex / width);
+  const bx = bIndex - by * width;
+  const wrappedBx = ax + wrapDeltaPeriodic(bx - ax, width);
+  const aCube = oddqToCube(ax, ay);
+  const bCube = oddqToCube(wrappedBx, by);
+  return Math.max(
+    Math.abs(aCube.x - bCube.x),
+    Math.abs(aCube.y - bCube.y),
+    Math.abs(aCube.z - bCube.z)
+  );
+}
+
+function oddqToCube(x: number, y: number): Readonly<{ x: number; y: number; z: number }> {
+  const z = y - (x - (x & 1)) / 2;
+  const xCube = x;
+  const zCube = z;
+  const yCube = -xCube - zCube;
+  return { x: xCube, y: yCube, z: zCube };
+}
+
+function wrapDeltaPeriodic(delta: number, width: number): number {
+  if (width <= 0) return delta;
+  const half = width / 2;
+  let wrapped = ((delta % width) + width) % width;
+  if (wrapped > half) wrapped -= width;
+  return wrapped;
+}
+
+function summarizeDistances(distances: ReadonlyArray<number>) {
+  const sorted = [...distances].sort((left, right) => left - right);
+  const quantile = (fraction: number): number | null => {
+    if (sorted.length === 0) return null;
+    const index = Math.min(sorted.length - 1, Math.max(0, Math.floor((sorted.length - 1) * fraction)));
+    return sorted[index];
+  };
+  return {
+    count: sorted.length,
+    min: sorted[0] ?? null,
+    p50: quantile(0.5),
+    p90: quantile(0.9),
+    max: sorted[sorted.length - 1] ?? null,
+    buckets: {
+      "0-2": sorted.filter((distance) => distance <= 2).length,
+      "3-5": sorted.filter((distance) => distance >= 3 && distance <= 5).length,
+      "6-10": sorted.filter((distance) => distance >= 6 && distance <= 10).length,
+      "11+": sorted.filter((distance) => distance >= 11).length,
+    },
   };
 }
 
