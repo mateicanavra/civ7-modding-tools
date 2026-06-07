@@ -25,6 +25,18 @@ export type NaturalWonderStampingStats = {
   rejectionExamples: string[];
 };
 
+export type NaturalWonderPlacementRuntimeTelemetry = {
+  version: 1;
+  plannedCount: number;
+  targetCount: number;
+  placedCount: number;
+  terrainAdjustedCount: number;
+  skippedOutOfBoundsCount: number;
+  rejectedCount: number;
+  shortfallCount: number;
+  rejectionExampleCount: number;
+};
+
 const FEATURE_VALID_TERRAIN_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as
   Record<string, readonly number[] | undefined>;
 const POLAR_WATER_ROWS = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
@@ -244,4 +256,31 @@ export function normalizeNaturalWonderStampingStats(
     shortfallCount,
     rejectionExamples,
   };
+}
+
+export function buildNaturalWonderPlacementRuntimeTelemetry(
+  stats: DeepReadonly<NaturalWonderStampingStats>
+): NaturalWonderPlacementRuntimeTelemetry {
+  const normalized = normalizeNaturalWonderStampingStats(stats);
+  return {
+    version: 1,
+    plannedCount: normalized.plannedCount,
+    targetCount: normalized.targetCount,
+    placedCount: normalized.placedCount,
+    terrainAdjustedCount: normalized.terrainAdjustedCount,
+    skippedOutOfBoundsCount: normalized.skippedOutOfBoundsCount,
+    rejectedCount: normalized.rejectedCount,
+    shortfallCount: normalized.shortfallCount,
+    rejectionExampleCount: normalized.rejectionExamples.length,
+  };
+}
+
+export function logNaturalWonderPlacementRuntimeTelemetry(
+  stats: DeepReadonly<NaturalWonderStampingStats>
+): void {
+  console.log(
+    `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify(
+      buildNaturalWonderPlacementRuntimeTelemetry(stats)
+    )}`
+  );
 }

@@ -58,8 +58,12 @@
   placement stats.
 - [x] 2.27 Repair natural-wonder materialization outcome recording and
   footprint terrain projection without claiming exact live parity.
-- [ ] 2.28 Repair remaining proven package or MapGen owners.
-- [ ] 2.29 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.28 Add exact log telemetry binding for natural-wonder placement stats.
+- [x] 2.29 Preserve source-recorded fresh exact-authored natural-wonder
+  telemetry proof artifact.
+- [ ] 2.30 Add row-level natural-wonder placement rejection identity if needed.
+- [ ] 2.31 Repair remaining proven package or MapGen owners.
+- [ ] 2.32 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
@@ -68,3 +72,4 @@
 - [x] 3.3 Run focused package tests/checks for touched owners.
 - [x] 3.4 Run `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`.
 - [x] 3.5 Run `bun run openspec:validate`.
+- [x] 3.6 Re-run exact-authored final-surface parity after natural-wonder telemetry.

@@ -44,13 +44,20 @@ truth.
   supported-catalog context shows `5` multi-tile natural wonders have official
   `naturalWonderDirection:-1` while local projection materializes that as
   direction `0`; exact-run readback observes only Kilimanjaro and Zhangjiajie,
-  so the class is narrowed but not yet a global repair authority. Current
-  natural-wonder placement counts are local diagnostic evidence only; the
-  exact live proof/completion payloads for the request do not yet carry
-  `naturalWonderPlacement` stats. Natural-wonder materialization can still
-  repair repo-owned outcome recording independently of exact live telemetry:
-  it must not claim parity or product acceptance until a later exact proof
-  carries those stats or otherwise classifies the remaining source authority.
+  so the class is narrowed but not yet a global repair authority. The
+  `mq20rbzr` proof's natural-wonder placement counts are local diagnostic
+  evidence only; that saved exact proof predates `NATURAL_WONDER_PLACEMENT_V1`
+  and does not carry live natural-wonder placement telemetry. Natural-wonder
+  materialization can still repair repo-owned outcome recording independently
+  of exact live telemetry: it must not claim parity or product acceptance until
+  a later exact proof carries those stats or otherwise classifies the remaining
+  source authority. Source-recorded evidence from
+  `studio-run-in-game-mq2spmz0-1z4g` carries bounded live telemetry
+  (`planned:7`, `placed:5`, `rejected:2`) for the same source snapshot, while
+  local diagnostics still predict `7/7/0`; that resolves the missing-live-stats
+  blocker for the source branch, but it does not yet classify feature rows
+  because the compact marker lacks row-level placement/rejection coordinate
+  identity.
 - Resource hypotheses:
   the `106/6996` mismatch class includes relocation/substitution patterns that
   may come from mock/static resource legality, assignment-order divergence from

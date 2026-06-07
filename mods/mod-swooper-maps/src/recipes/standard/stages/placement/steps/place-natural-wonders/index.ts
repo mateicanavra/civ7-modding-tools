@@ -2,6 +2,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { buildPlacementPlanInput } from "../derive-placement-inputs/inputs.js";
 import {
+  logNaturalWonderPlacementRuntimeTelemetry,
   stampNaturalWondersFromPlan,
   type NaturalWonderStampingStats,
 } from "./materialize.js";
@@ -27,5 +28,6 @@ export default createStep(PlaceNaturalWondersStepContract, {
     });
 
     deps.artifacts.naturalWonderPlacement.publish(context, stamping);
+    logNaturalWonderPlacementRuntimeTelemetry(stamping);
   },
 });

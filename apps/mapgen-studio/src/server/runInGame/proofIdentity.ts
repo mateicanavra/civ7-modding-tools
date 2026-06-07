@@ -241,6 +241,11 @@ export function parseSwooperMapgenLogProof(args: {
     proofLine.index,
     completionLine.index
   );
+  const naturalWonderPlacement = parseNaturalWonderPlacementTelemetryBetween(
+    lines,
+    proofLine.index,
+    completionLine.index
+  );
   return {
     ...(args.logPath ? { logPath: args.logPath } : {}),
     ...(args.observedAt ? { observedAt: args.observedAt } : {}),
@@ -253,6 +258,7 @@ export function parseSwooperMapgenLogProof(args: {
     proofPayload,
     completionPayload,
     ...(resourcePlacement ? { resourcePlacement } : {}),
+    ...(naturalWonderPlacement ? { naturalWonderPlacement } : {}),
     matched: ["[mapgen-proof]", args.requestId, args.configHash, args.envelopeHash, "[mapgen-complete]"],
   };
 }
@@ -390,6 +396,70 @@ function parseResourcePlacementTelemetryBetween(
     };
   }
   return undefined;
+}
+
+function parseNaturalWonderPlacementTelemetryBetween(
+  lines: readonly string[],
+  proofIndex: number,
+  completionIndex: number
+): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]> | undefined {
+  for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
+    const line = lines[index] ?? "";
+    if (!line.includes("NATURAL_WONDER_PLACEMENT_V1")) continue;
+    const payload = parsePayloadAfterMarker(line, "NATURAL_WONDER_PLACEMENT_V1");
+    if (!payload) continue;
+    return {
+      marker: "NATURAL_WONDER_PLACEMENT_V1",
+      payload,
+      ...(naturalWonderPlacementStats(payload) ?? {}),
+    };
+  }
+  return undefined;
+}
+
+function naturalWonderPlacementStats(
+  payload: Record<string, unknown>
+):
+  | {
+      stats: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["stats"]
+      >;
+    }
+  | undefined {
+  const version = numberValue(payload.version);
+  const plannedCount = numberValue(payload.plannedCount);
+  const targetCount = numberValue(payload.targetCount);
+  const placedCount = numberValue(payload.placedCount);
+  const terrainAdjustedCount = numberValue(payload.terrainAdjustedCount);
+  const skippedOutOfBoundsCount = numberValue(payload.skippedOutOfBoundsCount);
+  const rejectedCount = numberValue(payload.rejectedCount);
+  const shortfallCount = numberValue(payload.shortfallCount);
+  if (
+    version === undefined ||
+    plannedCount === undefined ||
+    targetCount === undefined ||
+    placedCount === undefined ||
+    terrainAdjustedCount === undefined ||
+    skippedOutOfBoundsCount === undefined ||
+    rejectedCount === undefined ||
+    shortfallCount === undefined
+  ) {
+    return undefined;
+  }
+  const rejectionExampleCount = numberValue(payload.rejectionExampleCount);
+  return {
+    stats: {
+      version,
+      plannedCount,
+      targetCount,
+      placedCount,
+      terrainAdjustedCount,
+      skippedOutOfBoundsCount,
+      rejectedCount,
+      shortfallCount,
+      ...(rejectionExampleCount === undefined ? {} : { rejectionExampleCount }),
+    },
+  };
 }
 
 function resourcePlacementCoordinateProof(

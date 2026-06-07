@@ -169,6 +169,20 @@ export type ExactAuthorshipProofLike = Readonly<{
         mismatch?: Readonly<{ count?: number; hash32?: string }>;
       }>;
     }>;
+    naturalWonderPlacement?: Readonly<{
+      stats?: Readonly<{
+        version?: number;
+        plannedCount?: number;
+        targetCount?: number;
+        placedCount?: number;
+        terrainAdjustedCount?: number;
+        skippedOutOfBoundsCount?: number;
+        rejectedCount?: number;
+        shortfallCount?: number;
+        rejectionExampleCount?: number;
+      }>;
+      payload?: unknown;
+    }>;
   }>;
 }>;
 
