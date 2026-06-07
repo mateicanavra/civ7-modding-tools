@@ -180,22 +180,22 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
-    console.log(
-      `${prefix} [mapgen-proof] ${JSON.stringify({
-        mapId: def.id,
-        sourceConfigId: def.sourceConfigId ?? def.id,
-        requestId: def.requestId ?? null,
-        configHash: def.configHash ?? null,
-        envelopeHash: def.envelopeHash ?? null,
-        seed,
-        mapSize: captured.mapSizeId,
-        dimensions: { width, height },
-      })}`
-    );
+    const proofPayload = {
+      mapId: def.id,
+      sourceConfigId: def.sourceConfigId ?? def.id,
+      requestId: def.requestId ?? null,
+      configHash: def.configHash ?? null,
+      envelopeHash: def.envelopeHash ?? null,
+      seed,
+      mapSize: captured.mapSizeId,
+      dimensions: { width, height },
+    };
+    console.log(`${prefix} [mapgen-proof] ${JSON.stringify(proofPayload)}`);
     try {
       def.recipe.run(context, env, def.config, {
         log: (message) => console.log(prefix, message),
       });
+      console.log(`${prefix} [mapgen-complete] ${JSON.stringify(proofPayload)}`);
     } catch (err) {
       console.error(prefix, "Map generation failed:", err);
       throw err;

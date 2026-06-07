@@ -6,11 +6,11 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-map-elevation-drift-policy-drain`, stacked above
-  `codex/swooper-current-map-generation-blocker-drain`; this slice repairs the
-  locally proven map-elevation drift-policy mismatch after restart-launch retry,
-  start-log grace, same-size `Scripting.log` rewrite fixes, and map-policy
-  bundling for Civ map scripts.
+  `codex/swooper-sdk-mapgen-completion-marker-drain`, stacked above
+  `codex/swooper-map-elevation-drift-policy-drain`; this slice repairs the
+  locally proven SDK completion-marker gap after restart-launch retry,
+  start-log grace, same-size `Scripting.log` rewrite fixes, map-policy bundling
+  for Civ map scripts, and map-elevation bounded drift policy repair.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. The natural-wonder
@@ -25,14 +25,19 @@
   restart: the latest retry records two Steam launch attempts and reaches setup
   preparation. It also no longer blocks on generated `studio-current.js`
   map-script loading after `@civ7/map-policy` was bundled into the Civ map
-  script. The latest runtime attempt blocks inside map generation: request
+  script. Request
   `studio-run-in-game-mq3n8vkc-1qjg` failed in
   `mod-swooper-maps.standard.map-elevation.build-elevation` because
   `map-elevation/build-elevation` expected land but the adapter reported water
   at `(34,17)`. The current branch repairs the local policy mismatch by using
   the accepted bounded water-drift policy in `map-elevation/buildElevation`,
-  but no current final-surface parity proof exists until Studio/Civ is rerun.
-  Resource classes remain pending source-authority classification.
+  and the next request `studio-run-in-game-mq3nyiss-8oj` then passed
+  `map-elevation/build-elevation`, emitted bounded `WATER_DRIFT_POLICY_V1`
+  telemetry, ran all `50/50` recipe steps, and emitted `[mapgen-proof]`.
+  It timed out in `waiting-for-proof` because `[mapgen-complete]` was absent.
+  The current branch repairs that SDK marker gap locally, but no current
+  final-surface parity proof exists until Studio/Civ is rerun. Resource classes
+  remain pending source-authority classification.
 
 ## Objective
 
