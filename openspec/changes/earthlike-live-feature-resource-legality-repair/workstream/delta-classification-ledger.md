@@ -320,7 +320,7 @@ Classification labels:
 |---|---|
 | `live-feasible-no-local-assignment` | Civ says the live resource value is feasible, but local assignment did not place it on that cell; investigate assignment ordering/rebalance before repair. |
 | `local-feasible-live-empty` | Local placed a Civ-feasible resource where live has no resource; investigate assignment ordering/rebalance before repair. |
-| `local-overaccepted-live-empty` | Local placed a resource Civ rejects on that cell under loose feasibility; this is the focused `9`-row mock/static-policy overacceptance investigation class. |
+| `local-overaccepted-live-empty` | Local placed a resource Civ rejects on that cell under loose feasibility; this is the focused `9`-row local-overacceptance investigation class. |
 | `substitution-both-feasible` | Local and live resource values are both Civ-feasible; investigate resource type ordering/fallback selection before repair. |
 | `substitution-both-infeasible` | Preserve as an individual unresolved evidence row; no repair authority exists until row-level context/source authority is classified. |
 
@@ -345,8 +345,8 @@ the artifact before row-level feasibility evidence is accepted.
 
 Artifact:
 `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-(`sha256:30e8cf009798e974f733f5bec25fe49baf0bfdd887af10348eca92de88ba233c`,
-`proofHash:e01f679e01db7ce2639b01578cc3b060d5c4f2b5eac8269fcdb4db7564ec44c0`).
+(`sha256:fe54e81bf3aeb88f8f2831791ef5934ea0c0fcc7eed5313af5a1ea4c4506414d`,
+`proofHash:97fdbff7b48641fa1a18d4cb9c386e1f4e7a18c0f01fb283dded58a9286b3f04`).
 
 Source proof:
 `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`.
@@ -372,7 +372,7 @@ returned `106` plots with `0` omitted and `hiddenInfoPolicy:"not-player-scoped"`
 |---|---:|---|
 | `live-feasible-no-local-assignment` | `37` | Assignment ordering/rebalance pending. |
 | `local-feasible-live-empty` | `28` | Assignment ordering/rebalance pending. |
-| `local-overaccepted-live-empty` | `9` | Focused mock/static-policy overacceptance investigation. |
+| `local-overaccepted-live-empty` | `9` | Focused local-overacceptance investigation; source authority remains unresolved. |
 | `substitution-both-feasible` | `31` | Assignment/type-order divergence pending. |
 | `substitution-both-infeasible` | `1` | Individual unresolved row; no repair authority yet. |
 
@@ -390,9 +390,9 @@ with local legal plot counts between `66` and `554`. ResourceBuilder
 diagnostics are read through
 `getCiv7ResourceBuilderDiagnostics` in the runtime-bound full artifact:
 sha256
-`30e8cf009798e974f733f5bec25fe49baf0bfdd887af10348eca92de88ba233c`,
+`fe54e81bf3aeb88f8f2831791ef5934ea0c0fcc7eed5313af5a1ea4c4506414d`,
 proofHash
-`e01f679e01db7ce2639b01578cc3b060d5c4f2b5eac8269fcdb4db7564ec44c0`.
+`97fdbff7b48641fa1a18d4cb9c386e1f4e7a18c0f01fb283dded58a9286b3f04`.
 The source assignment-evidence artifact has sha256
 `ff4aec0701cbeeb031737b68d93a0a48e9168313ef983cc30a3df91cff6f08ab`
 and proofHash
@@ -405,6 +405,22 @@ policy. All `9` focused rows have local `targetMinPerType:7` while official
 `MinimumPerHemisphere` is `3`, so the local floor exceeds the official minimum
 by `4` for each row. This is source-authority context only because the
 ResourceBuilder probes are current post-materialization readback.
+
+Assignment class summary:
+
+| Local-authored resource delta class | Assignment phase | Target floor | Count | Assignment order span |
+|---|---|---:|---:|---|
+| `local-feasible-live-empty` | `scarce-floor` | `7` | `28` | `97..195` |
+| `local-overaccepted-live-empty` | `scarce-floor` | `7` | `9` | `8..152` |
+| `substitution-both-feasible` | `scarce-floor` | `7` | `26` | `15..231` |
+| `substitution-both-feasible` | `strict-spacing` | `7` | `5` | `239..251` |
+| `substitution-both-infeasible` | `scarce-floor` | `7` | `1` | `26..26` |
+
+Of `69` local-authored resource delta rows, `64` (`92.75%`) came from the
+local `scarce-floor` assignment phase. This broadens the owner question from
+the `9` local-overaccepted rows to a general scarce-floor assignment policy
+divergence across most local-authored resource deltas. It remains diagnostic
+context, not repair authority.
 
 | Coordinate | Plot | Local resource | Planned preferred | Assignment order context | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility | ResourceBuilder policy/cut/count diagnostics | Subclassification |
 |---|---:|---|---|---|---|---|---|---|---|---|---|
@@ -427,8 +443,10 @@ Individual `substitution-both-infeasible` row:
 Disposition:
 the full artifact supersedes the prior summary-only feasibility evidence for
 row-level inspection. It still does not authorize tuning or parity closure.
-The next code repair, if any, must prove whether the `9` focused rows are a
-repo-owned mock/static-policy gap or accepted engine/materialization behavior.
+The next code repair, if any, must first prove whether the `9` focused rows are
+repo-owned mock/static-policy behavior, runtime materialization/state behavior,
+hidden Civ `ResourceBuilder.canHaveResource` constraints, or evidence
+insufficiency.
 The single both-infeasible substitution row remains outside that repair class.
 Because the focused rows are not explained by official surface rows,
 adjacent-land flags, authored spacing, owner, water, plot tags, or river state,
@@ -442,6 +460,10 @@ quota pass, and the official policy context proves the local floor exceeds
 official minimum-per-hemisphere by `4` for each row, but that is still
 diagnostic context rather than repair authority because the ResourceBuilder
 readback is post-materialization.
+The assignment-class summary further shows scarce-floor accounts for `64/69`
+local-authored resource delta rows, so the next owner decision should evaluate
+scarce-floor policy against Civ cut/count materialization behavior before
+making any resource-placement repair.
 
 ## Required Next Diagnostics
 
