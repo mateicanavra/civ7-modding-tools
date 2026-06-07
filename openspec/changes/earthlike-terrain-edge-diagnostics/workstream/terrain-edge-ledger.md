@@ -20,6 +20,12 @@
   `213134d7020063f53073c2f6f254ae8fc0d153007b0b6e0848c2da4a642262f6`.
 - Live readback proof hash:
   `aa817119c628d1ecc144c5dd7ed4d3227f6fe3301af1ffab501e26751868c2a8`.
+- Local validation-boundary context artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-terrain-edge-validation-boundary-context.json`.
+- Local validation-boundary context artifact sha256:
+  `033609d9293faf4b86a1da5862247a4c41762e7917069be3f2af7c8e7f55f263`.
+- Local validation-boundary proof hash:
+  `e906acdcacb002572586379b98cd00d0eb99529c9b86e2384fc6b8e03703da4e`.
 - Request: `studio-run-in-game-mq20rbzr-1fhc`.
 - Seed/dimensions: `138503614`, `106x66`, `6996` plots.
 
@@ -59,16 +65,29 @@ identity and current runtime identity. It requires successful row facts for
 | T1 `(73,36)` | `TERRAIN_COAST`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | local projection `TERRAIN_OCEAN`, `engineLakeMask:0`, `engineAreaId:1`; live is same water body identity class but coast terrain   | Source authority still unresolved; needs projection/validation boundary evidence before repair.                                         |
 | T2 `(65,39)` | `TERRAIN_OCEAN`, `water:true`, `lake:false`, `riverType:-1` | `areaId:720906`, `regionId:-1`, `landmassId:65536` | local projection `TERRAIN_COAST`, `engineLakeMask:1`, `engineAreaId:1`; live reports non-lake ocean in the same live area/landmass | Strongest signal for a projection/materialization vs Civ validation gap, but still no repair authority without boundary classification. |
 
+## Local Validation Boundary
+
+The placement validation-boundary artifact records local engine facts around the
+placement surface maintenance sequence. It is diagnostic source-authority
+evidence only.
+
+| Row          | Before validate                                                  | After validate                                                   | After maintenance                                                | Disposition                                                                                                                                                         |
+| ------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1 `(73,36)` | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`, `areaId:1`         | Local placement validation/maintenance does not move this row.                                                                                                      |
+| T2 `(65,39)` | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`, `areaId:1`         | Local placement validation/maintenance does not move this row. The live mismatch is now localized to local mock/materialization versus live Civ terrain/lake facts. |
+
 ## Owner Candidates
 
 | Candidate                               | Current disposition                                                                                                                                       |
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `map-morphology-coast-shelf-projection` | less likely as direct row intent; local shelf/coast masks are `0` with distance-to-coast `18`, but projection-boundary terrain snapshots are still needed |
+| `map-morphology-coast-shelf-projection` | less likely as direct row intent; local shelf/coast masks are `0` with distance-to-coast `18`                                                             |
 | `map-hydrology-water-mutation`          | still possible through local engine lake/terrain projection, especially T2 where local `engineLakeMask:1` contrasts with live `lake:false`                |
-| `civ-engine-terrain-validation`         | still possible; needs before/after `validateAndFixTerrain` or equivalent materialization boundary evidence                                                |
-| `evidence-insufficient`                 | current status until the evidence above exists                                                                                                            |
+| `local-mock-vs-live-civ-materialization` | strongest current class; local rows remain stable through placement validation while live Civ reports different terrain/lake facts                         |
+| `civ-engine-terrain-validation`         | still possible as the live-side materialization owner, but not yet enough to label it accepted engine policy or repair local policy                       |
+| `evidence-insufficient`                 | current status until mock/local versus live Civ materialization owner is classified                                                                        |
 
 ## Next Classification Evidence
 
-- Projection-boundary engine terrain snapshots around terrain validation.
-- Explicit owner disposition before any coast/shelf policy repair.
+- Explicit owner disposition for the mock/local materialization versus live Civ
+  terrain/lake materialization gap.
+- No coast/shelf policy repair until that owner is classified.

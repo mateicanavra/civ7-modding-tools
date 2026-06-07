@@ -28,7 +28,10 @@ const PreparePlacementSurfaceStepContract = defineStep({
       mapHydrologyArtifacts.engineProjectionLakes,
       mapArtifacts.landmassRegionSlotByTile,
     ],
-    provides: [placementArtifacts.placementSurfacePreparation],
+    provides: [
+      placementArtifacts.placementSurfacePreparation,
+      mapArtifacts.placementSurfaceValidationBoundary,
+    ],
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

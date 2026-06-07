@@ -110,6 +110,29 @@ describe("surface delta context diagnostics", () => {
             landMask: [0, 0, 0, 1, 0, 0],
             terrain: [3, 4, 3, 2, 3, 4],
           },
+          placementValidationBoundary: {
+            beforeValidate: {
+              stage: "placement/prepare-surface/before-validate",
+              terrain: [3, 4, 3, 2, 3, 4],
+              waterMask: [1, 1, 1, 0, 1, 1],
+              lakeMask: [0, 1, 0, 0, 0, 0],
+              areaId: [1, 1, 1, 2, 1, 1],
+            },
+            afterValidate: {
+              stage: "placement/prepare-surface/after-validate",
+              terrain: [3, 3, 3, 2, 3, 4],
+              waterMask: [1, 1, 1, 0, 1, 1],
+              lakeMask: [0, 0, 0, 0, 0, 0],
+              areaId: [1, 1, 1, 2, 1, 1],
+            },
+            afterMaintenance: {
+              stage: "placement/prepare-surface/after-maintenance",
+              terrain: [3, 3, 3, 2, 3, 4],
+              waterMask: [1, 1, 1, 0, 1, 1],
+              lakeMask: [0, 0, 0, 0, 0, 0],
+              areaId: [10, 10, 10, 20, 10, 10],
+            },
+          },
         },
       }
     );
@@ -169,6 +192,26 @@ describe("surface delta context diagnostics", () => {
         placementTerrainSnapshot: {
           stage: "placement/placement",
           terrainSymbol: "TERRAIN_OCEAN",
+        },
+        placementValidationBoundary: {
+          beforeValidate: {
+            stage: "placement/prepare-surface/before-validate",
+            terrainSymbol: "TERRAIN_OCEAN",
+            lakeMask: 1,
+            areaId: 1,
+          },
+          afterValidate: {
+            stage: "placement/prepare-surface/after-validate",
+            terrainSymbol: "TERRAIN_COAST",
+            lakeMask: 0,
+            areaId: 1,
+          },
+          afterMaintenance: {
+            stage: "placement/prepare-surface/after-maintenance",
+            terrainSymbol: "TERRAIN_COAST",
+            lakeMask: 0,
+            areaId: 10,
+          },
         },
       },
     });

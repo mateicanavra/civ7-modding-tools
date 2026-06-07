@@ -27,6 +27,17 @@ of each coast/ocean mismatch.
 - **AND** missing or failed requested facts keep the artifact blocked rather
   than complete
 
+#### Scenario: Local terrain validation boundary facts are recorded
+
+- **WHEN** local terrain diagnostics need to distinguish authored projection
+  from placement validation mutation
+- **THEN** diagnostics record terrain, water, lake, and area facts before
+  placement terrain validation, after validation, and after placement surface
+  maintenance
+- **AND** unchanged local rows narrow the remaining owner to a mock/local
+  materialization versus live Civ materialization gap rather than authorizing a
+  terrain policy repair
+
 #### Scenario: Terrain repair is proposed
 
 - **WHEN** a change proposes a coast/ocean terrain repair
