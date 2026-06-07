@@ -5,7 +5,7 @@
 - Project: Swooper recovery
 - Phase: product closure planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-rejection-identity-rerun-record-drain`
+- Branch/Graphite stack: `codex/swooper-resource-rejection-assignment-context-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -28,11 +28,13 @@
 ## Current State
 
 - Repo/Graphite state: current top branch is
-  `codex/swooper-resource-rejection-identity-rerun-record-drain`, stacked
-  above `codex/swooper-resource-rejection-proof-identity-drain` and the current
+  `codex/swooper-resource-rejection-assignment-context-drain`, stacked above
+  `codex/swooper-resource-rejection-identity-rerun-record-drain`,
+  `codex/swooper-resource-rejection-proof-identity-drain`, and the current
   Swooper proof/diagnostic drain branches.
-- Dirty files and owner: current audit snapshot was clean before this closure
-  record update; this planning goal owns the current OpenSpec docs.
+- Dirty files and owner: this proof-contract slice owns the current
+  Swooper/Studio telemetry and OpenSpec files and must leave the branch clean
+  before commit or closure.
 - Current code evidence: exact-authorship and mapgen-completion proof are
   complete for `studio-run-in-game-mq3twjd7-18mg`; final-surface parity remains
   unresolved. The latest parity artifact with exact resource rejection row
@@ -46,7 +48,10 @@
   plot `4838` (`x=68`, `y=45`), rejected by `canHaveResource` with observed
   resource type `-1`; exact `FEATURE_APPLY_V1` reports `1493` attempted,
   `1491` applied, and `2` `canHaveFeature` rejections. These narrow but do not
-  close source-authority, final-surface parity, or product acceptance.
+  close source-authority, final-surface parity, or product acceptance. Current
+  top branch adds exact rejected-row assignment context for future proof
+  packets; it does not supersede the `mq3twjd7` proof until a fresh exact run
+  consumes it.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -90,7 +95,8 @@
 
 - Completed tasks: planning record created; current proof/Graphite audit
   snapshot recorded, including the current exact feature-apply telemetry rerun
-  and resource rejection numeric-identity proof rerun.
+  and resource rejection numeric-identity proof rerun. Current top branch
+  adds resource rejection assignment-context instrumentation only.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
@@ -121,9 +127,10 @@
 
 - Exact next step: continue the proof-led drain from
   `earthlike-live-feature-resource-legality-repair`, starting with
-  source-authority classification of the exact `RESOURCE_WINE` numeric
-  rejection row at plot `4838`, then use the current exact `FEATURE_APPLY_V1`
-  telemetry to classify feature materialization/readback ownership.
+  a fresh exact run that consumes resource rejection assignment context for
+  plot `4838`, then source-authority classification of that exact
+  `RESOURCE_WINE` row and use the current exact `FEATURE_APPLY_V1` telemetry
+  to classify feature materialization/readback ownership.
 - First files to inspect: recovery OpenSpec proof ledgers and Graphite branch
   state.
 - Stop condition: accepted P1/P2 findings remain open.

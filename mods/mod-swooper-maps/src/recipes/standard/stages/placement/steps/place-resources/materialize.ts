@@ -33,6 +33,13 @@ type ResourcePlacementRuntimeRejectionExample = {
   readonly reason: ResourcePlacementReason | null;
   readonly observedResourceType?: number;
   readonly observedResource?: string | null;
+  readonly phase?: ResourceAssignmentPhase;
+  readonly order?: number;
+  readonly initial?: number;
+  readonly preferred?: number | null;
+  readonly countBefore?: number;
+  readonly legalPlots?: number;
+  readonly targetMin?: number;
 };
 type RuntimeResourceCatalogEntry = {
   readonly index: number;
@@ -789,7 +796,8 @@ export function buildResourcePlacementRuntimeTelemetry(
   summary: ResourcePlacementSummary,
   assignment?: ResourceAssignmentSummary,
   runtimeCatalog: readonly RuntimeResourceCatalogEntry[] = readRuntimeResourceCatalog(),
-  outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[] = []
+  outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[] = [],
+  assignmentTrace: readonly ResourceAssignment[] = []
 ): Record<string, unknown> {
   const runtimeByIndex = new Map(runtimeCatalog.map((row) => [row.index, row]));
   const plannedResourceTypes = summary.byResource.filter((row) => row.plannedCount > 0);
@@ -807,7 +815,7 @@ export function buildResourcePlacementRuntimeTelemetry(
   const plannedTypesCovered =
     plannedTypeSet.size === coveredTypeSet.size &&
     plannedResourceTypeValues.every((resourceType) => coveredTypeSet.has(resourceType));
-  const rejectionRows = resourcePlacementRejectionRows(outcomes, runtimeByIndex);
+  const rejectionRows = resourcePlacementRejectionRows(outcomes, runtimeByIndex, assignmentTrace);
   const rejectionExamples = rejectionRows.map(formatResourcePlacementRejectionExample);
   const hasNonPlacedExamples = rejectionRows.length > 0;
 
@@ -873,39 +881,67 @@ export function buildResourcePlacementRuntimeTelemetry(
 export function logResourcePlacementRuntimeTelemetry(
   summary: ResourcePlacementSummary,
   assignment: ResourceAssignmentSummary,
-  outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[] = []
+  outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[] = [],
+  assignmentTrace: readonly ResourceAssignment[] = []
 ): void {
   const runtimeCatalog = readRuntimeResourceCatalog();
   if (runtimeCatalog.length === 0) return;
   console.log(
     `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify(
-      buildResourcePlacementRuntimeTelemetry(summary, assignment, runtimeCatalog, outcomes)
+      buildResourcePlacementRuntimeTelemetry(
+        summary,
+        assignment,
+        runtimeCatalog,
+        outcomes,
+        assignmentTrace
+      )
     )}`
   );
 }
 
 function resourcePlacementRejectionRows(
   outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[],
-  runtimeByIndex: ReadonlyMap<number, RuntimeResourceCatalogEntry>
+  runtimeByIndex: ReadonlyMap<number, RuntimeResourceCatalogEntry>,
+  assignmentTrace: readonly ResourceAssignment[]
 ): ResourcePlacementRuntimeRejectionExample[] {
+  const assignmentByOutcome = new Map(
+    assignmentTrace.map((assignment) => [
+      `${assignment.plotIndex}:${assignment.resourceType}`,
+      assignment,
+    ])
+  );
   return outcomes
     .filter(isResourcePlacementNonPlacedOutcome)
     .slice(0, 8)
-    .map((outcome) => ({
-      status: outcome.status,
-      resourceType: outcome.resourceType,
-      resource: runtimeByIndex.get(outcome.resourceType)?.resourceType ?? null,
-      plotIndex: outcome.plotIndex,
-      x: outcome.x,
-      y: outcome.y,
-      reason: outcome.reason ?? null,
-      ...(outcome.observedResourceType === undefined
-        ? {}
-        : {
-            observedResourceType: outcome.observedResourceType,
-            observedResource: runtimeByIndex.get(outcome.observedResourceType)?.resourceType ?? null,
-          }),
-    }));
+    .map((outcome) => {
+      const assignment = assignmentByOutcome.get(`${outcome.plotIndex}:${outcome.resourceType}`);
+      return {
+        status: outcome.status,
+        resourceType: outcome.resourceType,
+        resource: runtimeByIndex.get(outcome.resourceType)?.resourceType ?? null,
+        plotIndex: outcome.plotIndex,
+        x: outcome.x,
+        y: outcome.y,
+        reason: outcome.reason ?? null,
+        ...(outcome.observedResourceType === undefined
+          ? {}
+          : {
+              observedResourceType: outcome.observedResourceType,
+              observedResource: runtimeByIndex.get(outcome.observedResourceType)?.resourceType ?? null,
+            }),
+        ...(assignment === undefined
+          ? {}
+          : {
+              phase: assignment.assignmentPhase,
+              order: assignment.assignmentOrder,
+              initial: assignment.initialResourceType,
+              preferred: assignment.preferredResourceType,
+              countBefore: assignment.perTypeCountBefore,
+              legalPlots: assignment.legalPlotCountForResource,
+              targetMin: assignment.targetMinPerType,
+            }),
+      };
+    });
 }
 
 function isResourcePlacementNonPlacedOutcome(

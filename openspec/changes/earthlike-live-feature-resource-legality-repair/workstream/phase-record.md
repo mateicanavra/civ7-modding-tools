@@ -6,7 +6,8 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-resource-rejection-identity-rerun-record-drain`, stacked above
+  `codex/swooper-resource-rejection-assignment-context-drain`, stacked above
+  `codex/swooper-resource-rejection-identity-rerun-record-drain`,
   `codex/swooper-resource-rejection-proof-identity-drain`,
   `codex/swooper-resource-rejection-proof-rerun-record-drain`, and the current
   Swooper proof/diagnostic drain branches.
@@ -22,7 +23,10 @@
   placement telemetry now includes structured numeric rejection rows: current
   compact run `studio-run-in-game-mq3twjd7-18mg` completed exact authorship and
   identifies `RESOURCE_WINE` `resourceType:16` rejected at plot `4838`
-  (`x=68`, `y=45`) with `observedResourceType:-1`. Final-surface parity still
+  (`x=68`, `y=45`) with `observedResourceType:-1`. Current top branch now
+  adds exact rejected-row assignment context for the next exact run, because
+  the current proof identifies the coordinate/resource but not the exact
+  runtime assignment phase/order that selected it. Final-surface parity still
   remains unresolved on terrain, biome, feature, resource, and
   resource-coordinate-proof links. Resource, feature, and terrain
   source-authority classification remains the active work; product acceptance
@@ -1146,16 +1150,25 @@
   Resource coordinate proof remains mismatched: local placed
   `251`/`98393a08`, exact placed `250`/`9c5eaad8`; local rejected
   `0`/`811c9dc5`, exact rejected `1`/`af57eb7b`.
+  Current branch `codex/swooper-resource-rejection-assignment-context-drain`
+  adds compact assignment context to future exact `RESOURCE_PLACEMENT_V1`
+  non-placed rows: assignment phase/order, initial/preferred resource,
+  per-type count before assignment, legal plot count, and target floor. Studio
+  exact-authorship parsing preserves those optional fields. This is proof
+  instrumentation only; it does not change resource placement behavior,
+  scarce-floor policy, runtime materialization, final-surface parity, or
+  product acceptance. A fresh exact-authored run is still needed before using
+  the plot `4838` rejection to authorize any resource owner repair.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3twjd7-18mg-current-final-surface-parity-with-resource-rejection-identity.json`
   by proving or rejecting the narrowed repair-owner candidates in order:
   resource local-overacceptance/scarce-floor materialization using the exact
-  plot `4838` `RESOURCE_WINE` numeric/runtime rejection row, exact
-  feature-materialization/readback ownership for the two rejected feature
-  applications and remaining feature mismatches, then terrain
-  projection/readback. Do this before any final-surface parity or product
-  acceptance claim. The older
+  plot `4838` `RESOURCE_WINE` numeric/runtime rejection row plus a fresh exact
+  assignment-context rerun, exact feature-materialization/readback ownership
+  for the two rejected feature applications and remaining feature mismatches,
+  then terrain projection/readback. Do this before any final-surface parity or
+  product acceptance claim. The older
   source-recorded context remains useful: for the prior `9` local-assigned
   live-empty rows, assignment trace ruled out relaxed spacing and rebalance,
   and ResourceBuilder diagnostics and structured subclassification showed `6`

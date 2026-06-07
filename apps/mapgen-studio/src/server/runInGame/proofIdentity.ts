@@ -587,6 +587,11 @@ function resourcePlacementRejectionRows(
     const plotIndex = numberValue(value.plotIndex);
     const x = numberValue(value.x);
     const y = numberValue(value.y);
+    const preferredValue = Object.hasOwn(value, "preferredResourceType")
+      ? value.preferredResourceType
+      : value.preferred;
+    const preferredResourceType =
+      preferredValue === null ? null : numberValue(preferredValue);
     if (
       status === undefined ||
       resourceType === undefined ||
@@ -610,6 +615,29 @@ function resourcePlacementRejectionRows(
         ...(stringValue(value.observedResource) === undefined
           ? {}
           : { observedResource: stringValue(value.observedResource) }),
+        ...(stringValue(value.assignmentPhase ?? value.phase) === undefined
+          ? {}
+          : { assignmentPhase: stringValue(value.assignmentPhase ?? value.phase) }),
+        ...(numberValue(value.assignmentOrder ?? value.order) === undefined
+          ? {}
+          : { assignmentOrder: numberValue(value.assignmentOrder ?? value.order) }),
+        ...(numberValue(value.initialResourceType ?? value.initial) === undefined
+          ? {}
+          : { initialResourceType: numberValue(value.initialResourceType ?? value.initial) }),
+        ...(preferredResourceType === undefined ? {} : { preferredResourceType }),
+        ...(numberValue(value.perTypeCountBefore ?? value.countBefore) === undefined
+          ? {}
+          : { perTypeCountBefore: numberValue(value.perTypeCountBefore ?? value.countBefore) }),
+        ...(numberValue(value.legalPlotCountForResource ?? value.legalPlots) === undefined
+          ? {}
+          : {
+              legalPlotCountForResource: numberValue(
+                value.legalPlotCountForResource ?? value.legalPlots
+              ),
+            }),
+        ...(numberValue(value.targetMinPerType ?? value.targetMin) === undefined
+          ? {}
+          : { targetMinPerType: numberValue(value.targetMinPerType ?? value.targetMin) }),
       },
     ];
   }).slice(0, 8);
