@@ -1050,6 +1050,14 @@
   projection swaps. Live-only resource additions, both-feasible resource
   substitutions, live-feature Civ-infeasible rows, and unclassified feature
   swaps do not authorize tuning or direct repair yet.
+  Follow-up implementation on
+  `codex/swooper-current-source-authority-queue-drain` exposes that first
+  resource proof boundary directly in final-surface parity artifacts:
+  `resourcePlacementCoordinateProof` now summarizes local coordinate proof,
+  exact runtime log coordinate proof, and mismatched
+  `resource-placement-coordinate-proof.*` links. This is proof instrumentation
+  only. It does not alter parity status, resource assignment, scarce-floor
+  behavior, runtime materialization, or product acceptance.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` by
