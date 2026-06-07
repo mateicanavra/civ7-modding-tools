@@ -585,6 +585,38 @@ describe("ecology op contract surfaces", () => {
     expect(result.placements.length).toBeGreaterThan(0);
   });
 
+  it("planFloodplains validates output", () => {
+    const width = 3;
+    const height = 3;
+    const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planFloodplains, {
+      strategy: "default",
+      config: {},
+    });
+    const result = ecology.ops.planFloodplains.run(
+      {
+        width,
+        height,
+        seed: 1337,
+        scoreDesertMinor01: new Float32Array(size),
+        scoreDesertNavigable01: new Float32Array(size),
+        scoreGrasslandMinor01: new Float32Array(size).fill(1),
+        scoreGrasslandNavigable01: new Float32Array(size),
+        scorePlainsMinor01: new Float32Array(size),
+        scorePlainsNavigable01: new Float32Array(size),
+        scoreTropicalMinor01: new Float32Array(size),
+        scoreTropicalNavigable01: new Float32Array(size),
+        scoreTundraMinor01: new Float32Array(size),
+        scoreTundraNavigable01: new Float32Array(size),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
+      },
+      selection
+    );
+    expect(result.placements.length).toBe(size);
+    expect(result.placements[0]?.feature).toBe("FEATURE_GRASSLAND_FLOODPLAIN_MINOR");
+  });
+
   it("planReefs validates output", () => {
     const width = 2;
     const height = 2;
@@ -686,6 +718,7 @@ describe("ecology op contract surfaces", () => {
       {
         vegetation: [{ x: 0, y: 0, feature: "FEATURE_FOREST" }],
         wetlands: [],
+        floodplains: [],
         reefs: [],
         ice: [],
       },

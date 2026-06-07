@@ -381,6 +381,7 @@ describe("Studio default config", () => {
         "icePlanning",
         "reefPlanning",
         "wetlandPlanning",
+        "floodplainPlanning",
         "vegetationPlanning",
         "plotEffectScoring",
         "plotEffectCoverage",
@@ -421,6 +422,7 @@ describe("Studio default config", () => {
         "icePlanning",
         "reefPlanning",
         "wetlandPlanning",
+        "floodplainPlanning",
         "vegetationPlanning",
         "plotEffectScoring",
         "plotEffectCoverage",
@@ -468,7 +470,7 @@ describe("Studio default config", () => {
   });
 
   it("exposes semantic Placement authoring keys instead of runtime step/op envelopes", () => {
-    const expected = ["knobs", "naturalWonders", "discoveries", "floodplains", "resources", "starts"];
+    const expected = ["knobs", "naturalWonders", "discoveries", "resources", "starts"];
     const schemaProps =
       (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement"]) as {
         properties?: Record<string, unknown>;
@@ -513,7 +515,7 @@ describe("Studio default config", () => {
   });
 
   it("exposes documented and bounded Placement public controls to Studio", () => {
-    const publicKeys = ["knobs", "naturalWonders", "discoveries", "floodplains", "resources"];
+    const publicKeys = ["knobs", "naturalWonders", "discoveries", "resources"];
 
     expectPublicStageDescription(STANDARD_RECIPE_CONFIG_SCHEMA, "placement");
     for (const key of publicKeys) {
@@ -700,6 +702,7 @@ describe("Studio default config", () => {
       "ecology-biomes": ["biomes"],
       "ecology-features": [
         "score-layers",
+        "plan-floodplains",
         "plan-ice",
         "plan-reefs",
         "plan-wetlands",

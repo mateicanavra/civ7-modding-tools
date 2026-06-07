@@ -41,10 +41,11 @@ export const defaultStrategy = createStrategy(FeaturesApplyContract, "default", 
       }
     };
 
-    merge(input.ice);
-    merge(input.reefs);
-    merge(input.wetlands);
-    merge(input.vegetation);
+    merge(input.ice ?? []);
+    merge(input.reefs ?? []);
+    merge(input.floodplains ?? []);
+    merge(input.wetlands ?? []);
+    merge(input.vegetation ?? []);
 
     // Deterministic application order: y-major, then x, preserving merge order within a tile.
     const merged: Placement[] = [];

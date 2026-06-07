@@ -1,11 +1,11 @@
 # Recovery Accounting State
 
-Capture: `2026-06-07T15:03:52-04:00`
+Capture: `2026-06-07T18:38:04-04:00`
 
 Recovery stack:
 
 - Base: `codex/swooper-mapgen-recovery-drain` at `d77f7e3d01b3`
-- Current top: `codex/swooper-natural-wonder-plan-input-comparison-drain` at `6dc5acd2992b`
+- Current top: `codex/swooper-natural-wonder-plan-input-comparison-drain` at `03a1d3e3b2a5`
 - Main base: `98dca389248d`
 
 This is the human-readable companion to
@@ -45,7 +45,7 @@ This is the human-readable companion to
 | Earthlike terrain-edge stack through `codex/earthlike-terrain-edge-stack-integration` | `done/adopt` | `codex/swooper-terrain-edge-reconciliation-drain` | Covered locally; cleanup gated on recovery landing. |
 | Earthlike natural-wonder stack through `codex/earthlike-natural-wonder-postwrite-footprint-proof` | `done/adopt` | Swooper natural-wonder drain | Covered locally through footprint proof; later plan-input branches are continuation work. |
 | `codex/workspace-source-package-resolution` | `done/adopt` | Swooper natural-wonder drain | Covered locally by the recovery-side workspace source-resolution expansion for `@civ7/map-policy` and `@civ7/adapter`; this is an accounting-label correction, not new product adoption. |
-| `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `planned/adopt` | `codex/swooper-mapgen-recovery-drain` | Not finished: latest Earthlike `floodplainPlanning` config/hash leaf is missing from recovery. |
+| `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `done/adopt` | `codex/swooper-natural-wonder-plan-input-comparison-drain` | Covered locally: latest Earthlike `floodplainPlanning` config/hash leaf is represented, floodplain planning now belongs to ecology-features, generated map artifacts were regenerated, and stale non-Earthlike placement-side floodplain config drift was dropped. |
 | Non-Earthlike predecessor config drift | `done/exclude` | retired | Intentionally dropped. |
 | Systematic workstream skill support slice | `planned/adopt` | `main` | Not product recovery; adopt separately if we want repo-local skill support durable on main. |
 | `codex/foundation-architecture-packet` | `done/reference` | reference only | Not part of product recovery adoption. |
@@ -54,14 +54,11 @@ This is the human-readable companion to
 
 ## Immediate Work Surface
 
-1. Adopt `codex/earthlike-natural-wonder-postwrite-footprint-proof-record`
-   into the recovery stack, specifically the latest Swooper Earthlike
-   `floodplainPlanning` config/hash leaf.
-2. Adopt the systematic workstream skill separately if the repo-local skill
+1. Adopt the systematic workstream skill separately if the repo-local skill
    should be durable on main; do not mix it into Swooper product closure.
-3. Do not delete recovery-adopted source branches yet. Cleanup for sources whose
+2. Do not delete recovery-adopted source branches yet. Cleanup for sources whose
    sink is the local recovery stack is blocked until recovery submits or merges.
-4. Do not add more proof branches before deciding whether to fold/reduce the
+3. Do not add more proof branches before deciding whether to fold/reduce the
    current recovery stack.
 
 ## Current Finished Boundary
@@ -70,8 +67,9 @@ Finished locally:
 
 - The recovery stack has local semantic coverage for the predecessor Swooper
   Earthlike, Studio setup, exact-authorship, final-surface proof, feature/resource
-  proof, terrain-edge, natural-wonder proof/materialization, and workspace
-  source-resolution slices listed above.
+  proof, terrain-edge, natural-wonder proof/materialization, workspace
+  source-resolution, and final Earthlike floodplain config/source-boundary slices
+  listed above.
 - Resource/morphology/authoring predecessor trains are done through merged
   aggregate PR `#1402`, not parked, and their local Graphite branches were
   deleted.
@@ -83,6 +81,5 @@ Not finished:
 - The recovery stack has not landed.
 - Source cleanup for branches adopted only by the local recovery stack is not
   safe until the recovery stack lands.
-- Latest Earthlike floodplain config leaf is not adopted.
 - Systematic workstream skill support slice is not adopted to main.
 - Product closure/final parity is not claimed.

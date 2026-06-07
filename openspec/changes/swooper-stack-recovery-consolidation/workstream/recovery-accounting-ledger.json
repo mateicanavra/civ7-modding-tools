@@ -2,7 +2,7 @@
   "fixtureId": "swooper-recovery-accounting-2026-06-07",
   "fixtureClass": "accounting-ledger",
   "schemaVersion": "gt-stack-inspect.accounting-ledger.v1",
-  "capturedAt": "2026-06-07T15:03:52-04:00",
+  "capturedAt": "2026-06-07T18:38:04-04:00",
   "scope": {
     "recoveryRoot": "codex/swooper-mapgen-recovery-drain",
     "recoveryTop": "codex/swooper-natural-wonder-plan-input-comparison-drain",
@@ -74,7 +74,7 @@
       },
       "sink": {
         "kind": "branch",
-        "branch": "codex/swooper-mapgen-recovery-drain"
+        "branch": "codex/swooper-natural-wonder-plan-input-comparison-drain"
       },
       "method": "semantic",
       "anchors": {
@@ -391,8 +391,8 @@
       "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
     },
     {
-      "moveId": "planned-adopt-earthlike-floodplain-config-leaf",
-      "state": "planned",
+      "moveId": "done-adopt-earthlike-floodplain-config-leaf",
+      "state": "done",
       "kind": "adopt",
       "source": {
         "kind": "branch",
@@ -405,11 +405,11 @@
       "method": "semantic",
       "anchors": {
         "fromHead": "cbe4943babf131389c892ddd8527b90f52355ab8",
-        "toHead": "d77f7e3d01b332af344345909c10a9cebbce25ae",
+        "toHead": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
         "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
-        "capturedAt": "2026-06-07T14:00:05-04:00"
+        "capturedAt": "2026-06-07T18:38:04-04:00"
       },
-      "note": "Latest Earthlike floodplainPlanning config/hash leaf is not present in the recovery stack. Adopt this config leaf before claiming the Earthlike source config is fully covered."
+      "note": "Latest Earthlike floodplainPlanning config/hash leaf is now represented in the recovery stack. Adoption also carries the missing source-stack boundary correction that makes floodplain planning an ecology-features concern instead of stale placement public config, regenerates generated map artifacts and compiled fixtures from the chosen configs, imports the start-placement system-card reference artifacts, and limits non-Earthlike config changes to removing the now-invalid placement.floodplains key."
     },
     {
       "moveId": "done-exclude-non-earthlike-config-drift",
@@ -527,14 +527,6 @@
     }
   ],
   "workSurfaceRows": [
-    {
-      "rowId": "planned-adopt-earthlike-floodplain-config-leaf",
-      "kind": "planned-move",
-      "target": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
-      "sourceRef": "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
-      "moveId": "planned-adopt-earthlike-floodplain-config-leaf",
-      "blocker": "Recovery stack lacks latest Earthlike floodplainPlanning config/hash leaf."
-    },
     {
       "rowId": "planned-adopt-systematic-workstream-skill-support-slice",
       "kind": "planned-move",

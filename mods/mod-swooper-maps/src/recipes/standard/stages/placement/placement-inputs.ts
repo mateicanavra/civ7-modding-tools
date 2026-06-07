@@ -6,7 +6,6 @@ export const PlacementInputsConfigSchema = Type.Object(
     wonders: placement.ops.planWonders.config,
     naturalWonders: placement.ops.planNaturalWonders.config,
     discoveries: placement.ops.planDiscoveries.config,
-    floodplains: placement.ops.planFloodplains.config,
     resources: placement.ops.planResources.config,
   },
   { additionalProperties: false }
@@ -21,7 +20,6 @@ export const PlacementInputsV1Schema = Type.Object(
     wonders: placement.ops.planWonders["output"],
     naturalWonderPlan: placement.ops.planNaturalWonders["output"],
     discoveryPlan: placement.ops.planDiscoveries["output"],
-    floodplains: placement.ops.planFloodplains["output"],
     resources: placement.ops.planResources["output"],
     placementConfig: PlacementInputsConfigSchema,
   },

@@ -84,10 +84,6 @@ describe("derive placement inputs", () => {
         plannedCount: 0,
         placements: [],
       }),
-      floodplains: () => ({
-        minLength: 4,
-        maxLength: 10,
-      }),
     } as never;
 
     buildPlacementInputs(
@@ -190,10 +186,6 @@ describe("derive placement inputs", () => {
         targetCount: 0,
         plannedCount: 0,
         placements: [],
-      }),
-      floodplains: () => ({
-        minLength: 4,
-        maxLength: 10,
       }),
     } as never;
 

@@ -5,7 +5,6 @@ import { runOpValidated } from "../support/compiler-helpers.js";
 
 const {
   planDiscoveries,
-  planFloodplains,
   planNaturalWonders,
   planResources,
   planStarts,
@@ -300,21 +299,6 @@ describe("placement plan operations", () => {
         config: { candidateResourceTypes: [1, 2] },
       })
     ).toThrow();
-  });
-
-  it("plans floodplains respecting min/max", () => {
-    const result = runOpValidated(planFloodplains, {}, { strategy: "default", config: {} });
-    expect(result.minLength).toBe(4);
-    expect(result.maxLength).toBe(10);
-  });
-
-  it("normalizes floodplains maxLength >= minLength", () => {
-    const result = runOpValidated(planFloodplains, {}, {
-      strategy: "default",
-      config: { minLength: 10, maxLength: 4 },
-    });
-    expect(result.minLength).toBe(10);
-    expect(result.maxLength).toBe(10);
   });
 
   it("merges start overrides", () => {

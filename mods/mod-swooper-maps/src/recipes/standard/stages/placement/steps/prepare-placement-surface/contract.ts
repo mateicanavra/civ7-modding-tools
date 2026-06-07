@@ -23,7 +23,6 @@ const PreparePlacementSurfaceStepContract = defineStep({
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
   artifacts: {
     requires: [
-      placementArtifacts.placementInputs,
       placementArtifacts.naturalWonderPlacement,
       mapHydrologyArtifacts.engineProjectionLakes,
       mapArtifacts.landmassRegionSlotByTile,

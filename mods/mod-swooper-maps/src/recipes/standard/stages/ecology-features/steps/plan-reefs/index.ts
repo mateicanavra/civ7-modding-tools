@@ -1,4 +1,4 @@
-import { deriveStepSeed } from "@swooper/mapgen-core";
+import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 
@@ -31,7 +31,7 @@ export default createStep(PlanReefsStepContract, {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const { width, height } = context.dimensions;
 
-    const seed = deriveStepSeed(context.env.seed, "ecology:planReefs");
+    const seed = ctxStepSeed(context, PlanReefsStepContract.id, "ecology/plan-reefs");
     const placements = ops.planReefs(
       {
         width,

@@ -1,6 +1,5 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { buildPlacementPlanInput } from "../derive-placement-inputs/inputs.js";
 import { normalizeNaturalWonderStampingStats } from "../place-natural-wonders/materialize.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import { logTerrainStats } from "../terrain-diagnostics.js";
@@ -20,11 +19,9 @@ export default createStep(PreparePlacementSurfaceStepContract, {
     }
   ),
   run: (context, _config, _ops, deps) => {
-    const placementInputs = deps.artifacts.placementInputs.read(context);
     const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
-    const { floodplains } = buildPlacementPlanInput(placementInputs);
     const { adapter, trace } = context;
     const { width, height } = context.dimensions;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
@@ -37,10 +34,6 @@ export default createStep(PreparePlacementSurfaceStepContract, {
     // cannot become a hidden second chance to stamp product intent.
     normalizeNaturalWonderStampingStats(naturalWonderPlacement);
     logTerrainStats(trace, adapter, width, height, "Initial");
-
-    runPlacementProductStep("placement.floodplains", emit, () => {
-      adapter.addFloodplains(floodplains.minLength, floodplains.maxLength);
-    });
 
     const beforeValidate = readTerrainValidationBoundarySnapshot(
       adapter,

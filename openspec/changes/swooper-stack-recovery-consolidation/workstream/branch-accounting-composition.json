@@ -1,7 +1,7 @@
 {
-  "fixtureId": "graphite-accounting-composition-2026-06-07T22:19:21.809Z",
+  "fixtureId": "graphite-accounting-composition-2026-06-07T22:43:47.980Z",
   "schemaVersion": "graphite-accounting-composition.v1",
-  "generatedAt": "2026-06-07T22:19:21.809Z",
+  "generatedAt": "2026-06-07T22:43:47.980Z",
   "inputs": {
     "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain",
     "graphiteCachePath": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.git/.graphite_cache_persist",
@@ -17,14 +17,14 @@
   },
   "graphite": {
     "topologySource": "graphite-cache",
-    "cacheSha": "6a16d0524567ef5bfff366cf0480d9492d429f1a",
-    "snapshotCapturedAt": "2026-06-07T22:19:13.521Z",
+    "cacheSha": "de956a804d1b11950777865a06d8dc7dcda230ab",
+    "snapshotCapturedAt": "2026-06-07T22:43:44.844Z",
     "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
     "rootCount": 7,
     "branchCount": 863
   },
   "gtLsStatus": {
-    "refreshedAt": "2026-06-07T22:19:13.521Z",
+    "refreshedAt": "2026-06-07T22:43:44.844Z",
     "lineCount": 864,
     "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools",
     "outputPath": "/tmp/civ7-current-gt-ls.txt",
@@ -34,7 +34,7 @@
   },
   "ledger": {
     "fixtureId": "swooper-recovery-accounting-2026-06-07",
-    "capturedAt": "2026-06-07T15:03:52-04:00",
+    "capturedAt": "2026-06-07T18:38:04-04:00",
     "schemaVersion": "gt-stack-inspect.accounting-ledger.v1",
     "moveCount": 18
   },
@@ -60,16 +60,15 @@
       "root": "codex/swooper-mapgen-recovery-drain",
       "decision": "clear-dirty-worktree",
       "graphiteState": "dirty-worktree",
-      "accountingState": "planned-sink",
+      "accountingState": "adoption-sink",
       "branchCount": 79,
       "localOnly": 79,
       "needsRestack": 0,
       "occupied": 1,
       "dirtyWorktrees": 1,
       "accounting": {
-        "planned-sink": 1,
-        "accounting-sink": 36,
-        "unmarked": 42
+        "accounting-sink": 38,
+        "unmarked": 41
       },
       "leaves": [
         "codex/swooper-natural-wonder-plan-input-comparison-drain"
@@ -95,9 +94,9 @@
     },
     {
       "root": "codex/live-play-settlement-reference",
-      "decision": "adopt-into-sink",
+      "decision": "submit-or-merge-clean-stack",
       "graphiteState": "clean-local",
-      "accountingState": "planned-local-adoption-source",
+      "accountingState": "accounted-source",
       "branchCount": 67,
       "localOnly": 67,
       "needsRestack": 0,
@@ -106,8 +105,7 @@
       "accounting": {
         "excluded": 7,
         "unmarked": 2,
-        "accounted-source": 57,
-        "needs-accounting": 1
+        "accounted-source": 58
       },
       "leaves": [
         "codex/earthlike-natural-wonder-postwrite-footprint-proof-record",
@@ -331,18 +329,6 @@
         },
         {
           "role": "sink",
-          "moveId": "done-adopt-studio-setup-config-sync",
-          "state": "done",
-          "kind": "adopt",
-          "method": "semantic",
-          "sourceKind": "stack-slice",
-          "sinkKind": "branch",
-          "label": "adoption-sink",
-          "cleanup": "not-cleanup-relevant",
-          "note": "Studio setup/config loading, setup seed validation, save/deploy/run-in-game sync, and adjacent Swooper recovery behavior were synthesized into the recovery base."
-        },
-        {
-          "role": "sink",
           "moveId": "done-reference-swooper-recovery-planning-context",
           "state": "done",
           "kind": "reference",
@@ -355,18 +341,18 @@
         },
         {
           "role": "sink",
-          "moveId": "planned-adopt-earthlike-floodplain-config-leaf",
-          "state": "planned",
+          "moveId": "done-adopt-earthlike-floodplain-config-leaf",
+          "state": "done",
           "kind": "adopt",
           "method": "semantic",
           "sourceKind": "branch",
           "sinkKind": "branch",
-          "label": "planned-adoption-sink",
+          "label": "adoption-sink",
           "cleanup": "not-cleanup-relevant",
-          "note": "Latest Earthlike floodplainPlanning config/hash leaf is not present in the recovery stack. Adopt this config leaf before claiming the Earthlike source config is fully covered."
+          "note": "Latest Earthlike floodplainPlanning config/hash leaf is now represented in the recovery stack. Adoption also carries the missing source-stack boundary correction that makes floodplain planning an ecology-features concern instead of stale placement public config, regenerates generated map artifacts and compiled fixtures from the chosen configs, imports the start-placement system-card reference artifacts, and limits non-Earthlike config changes to removing the now-invalid placement.floodplains key."
         }
       ],
-      "accountingSummary": "planned-sink"
+      "accountingSummary": "accounting-sink"
     },
     {
       "branch": "codex/swooper-studio-parity-proof-drain",
@@ -2791,7 +2777,7 @@
       "parent": "codex/swooper-natural-wonder-plan-input-context-drain",
       "children": [],
       "depth": 78,
-      "head": "7a23bc4255016138f77a702defff1b9d3c6f0721",
+      "head": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
       "parentRecordedHead": "10280507db72a621d3efb00d4f3d6c7585a1ba58",
       "parentCurrentHead": "10280507db72a621d3efb00d4f3d6c7585a1ba58",
       "validationResult": "VALID",
@@ -2802,19 +2788,32 @@
       "worktree": {
         "path": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain",
         "branch": "codex/swooper-natural-wonder-plan-input-comparison-drain",
-        "head": "7a23bc4255016138f77a702defff1b9d3c6f0721",
-        "dirtyCount": 2,
+        "head": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
+        "dirtyCount": 61,
         "isMain": true,
         "isDetached": false
       },
       "commit": {
-        "short": "7a23bc425",
-        "sha": "7a23bc4255016138f77a702defff1b9d3c6f0721",
-        "iso": "2026-06-07T16:36:24-04:00",
-        "subject": "docs(graphite): compose branch accounting state"
+        "short": "03a1d3e3b",
+        "sha": "03a1d3e3b2a5833afd24e41bb131d246350b101e",
+        "iso": "2026-06-07T18:20:48-04:00",
+        "subject": "docs(graphite): correct recovery accounting label"
       },
-      "accountingLabels": [],
-      "accountingSummary": "unmarked"
+      "accountingLabels": [
+        {
+          "role": "sink",
+          "moveId": "done-adopt-studio-setup-config-sync",
+          "state": "done",
+          "kind": "adopt",
+          "method": "semantic",
+          "sourceKind": "stack-slice",
+          "sinkKind": "branch",
+          "label": "adoption-sink",
+          "cleanup": "not-cleanup-relevant",
+          "note": "Studio setup/config loading, setup seed validation, save/deploy/run-in-game sync, and adjacent Swooper recovery behavior were synthesized into the recovery base."
+        }
+      ],
+      "accountingSummary": "accounting-sink"
     },
     {
       "branch": "codex/stack-lineage-audit-reference",
@@ -5670,18 +5669,18 @@
       "accountingLabels": [
         {
           "role": "source",
-          "moveId": "planned-adopt-earthlike-floodplain-config-leaf",
-          "state": "planned",
+          "moveId": "done-adopt-earthlike-floodplain-config-leaf",
+          "state": "done",
           "kind": "adopt",
           "method": "semantic",
           "sourceKind": "branch",
           "sinkKind": "branch",
-          "label": "needs-adoption",
-          "cleanup": "pending",
-          "note": "Latest Earthlike floodplainPlanning config/hash leaf is not present in the recovery stack. Adopt this config leaf before claiming the Earthlike source config is fully covered."
+          "label": "covered-by-adoption",
+          "cleanup": "blocked-until-sink-lands",
+          "note": "Latest Earthlike floodplainPlanning config/hash leaf is now represented in the recovery stack. Adoption also carries the missing source-stack boundary correction that makes floodplain planning an ecology-features concern instead of stale placement public config, regenerates generated map artifacts and compiled fixtures from the chosen configs, imports the start-placement system-card reference artifacts, and limits non-Earthlike config changes to removing the now-invalid placement.floodplains key."
         }
       ],
-      "accountingSummary": "needs-accounting"
+      "accountingSummary": "accounted-source"
     },
     {
       "branch": "codex/earthlike-terrain-edge-diagnostics",
@@ -23472,8 +23471,8 @@
         },
         "semanticOverlap": {
           "branchTokenJaccard": 0.010526315789473684,
-          "subjectTokenJaccard": 0.0045662100456621,
-          "combinedJaccard": 0.006051437216338881,
+          "subjectTokenJaccard": 0.004559270516717325,
+          "combinedJaccard": 0.006042296072507553,
           "sharedBranchTokens": [
             "evidence"
           ],
@@ -24163,8 +24162,8 @@
         },
         "semanticOverlap": {
           "branchTokenJaccard": 0.04838709677419355,
-          "subjectTokenJaccard": 0.13048498845265588,
-          "combinedJaccard": 0.13302752293577982,
+          "subjectTokenJaccard": 0.13163972286374134,
+          "combinedJaccard": 0.1341743119266055,
           "sharedBranchTokens": [
             "audit",
             "evidence",
@@ -24341,8 +24340,8 @@
         },
         "semanticOverlap": {
           "branchTokenJaccard": 0.4027777777777778,
-          "subjectTokenJaccard": 0.2890625,
-          "combinedJaccard": 0.2919334186939821,
+          "subjectTokenJaccard": 0.2886866059817945,
+          "combinedJaccard": 0.2915601023017903,
           "sharedBranchTokens": [
             "assignment",
             "authorship",
@@ -24641,8 +24640,8 @@
         },
         "semanticOverlap": {
           "branchTokenJaccard": 0.09090909090909091,
-          "subjectTokenJaccard": 0.14224137931034483,
-          "combinedJaccard": 0.14889123548046462,
+          "subjectTokenJaccard": 0.14208826695371368,
+          "combinedJaccard": 0.14873417721518986,
           "sharedBranchTokens": [
             "apply",
             "audit",
@@ -24875,8 +24874,8 @@
         },
         "semanticOverlap": {
           "branchTokenJaccard": 0.010752688172043012,
-          "subjectTokenJaccard": 0.006125574272588055,
-          "combinedJaccard": 0.006069802731411229,
+          "subjectTokenJaccard": 0.0061162079510703364,
+          "combinedJaccard": 0.006060606060606061,
           "sharedBranchTokens": [
             "live"
           ],
@@ -24976,8 +24975,8 @@
         },
         "semanticOverlap": {
           "branchTokenJaccard": 0,
-          "subjectTokenJaccard": 0.0206794682422452,
-          "combinedJaccard": 0.020588235294117647,
+          "subjectTokenJaccard": 0.02064896755162242,
+          "combinedJaccard": 0.020558002936857563,
           "sharedBranchTokens": [],
           "sharedSubjectTokens": [
             "artifact",
@@ -26813,7 +26812,7 @@
         "06-05-fix_studio_validate_civ7_setup_seeds"
       ],
       "sinkTargets": [
-        "codex/swooper-mapgen-recovery-drain"
+        "codex/swooper-natural-wonder-plan-input-comparison-drain"
       ],
       "note": "Studio setup/config loading, setup seed validation, save/deploy/run-in-game sync, and adjacent Swooper recovery behavior were synthesized into the recovery base."
     },
@@ -27028,8 +27027,8 @@
       "note": "Natural-wonder proof/materialization intent through the footprint proof record is represented in the Swooper natural-wonder drain. The workspace source-package resolution branch is covered by the recovery-side package-local source-resolution expansion for @civ7/map-policy and @civ7/adapter. Later Swooper plan-input comparison branches are new continuation work."
     },
     {
-      "moveId": "planned-adopt-earthlike-floodplain-config-leaf",
-      "state": "planned",
+      "moveId": "done-adopt-earthlike-floodplain-config-leaf",
+      "state": "done",
       "kind": "adopt",
       "method": "semantic",
       "sourceTargets": [
@@ -27038,7 +27037,7 @@
       "sinkTargets": [
         "codex/swooper-mapgen-recovery-drain"
       ],
-      "note": "Latest Earthlike floodplainPlanning config/hash leaf is not present in the recovery stack. Adopt this config leaf before claiming the Earthlike source config is fully covered."
+      "note": "Latest Earthlike floodplainPlanning config/hash leaf is now represented in the recovery stack. Adoption also carries the missing source-stack boundary correction that makes floodplain planning an ecology-features concern instead of stale placement public config, regenerates generated map artifacts and compiled fixtures from the chosen configs, imports the start-placement system-card reference artifacts, and limits non-Earthlike config changes to removing the now-invalid placement.floodplains key."
     },
     {
       "moveId": "done-exclude-non-earthlike-config-drift",

@@ -1,7 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import placement from "@mapgen/domain/placement";
 
-import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS, STANDARD_ENGINE_EFFECT_TAGS } from "../../../../tags.js";
 import { placementArtifacts } from "../../artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
@@ -18,7 +18,7 @@ const DerivePlacementInputsContract = defineStep({
   id: "derive-placement-inputs",
   phase: "placement",
   requires: [
-    STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled,
+    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,
   ],
   provides: [],
@@ -41,7 +41,6 @@ const DerivePlacementInputsContract = defineStep({
     wonders: placement.ops.planWonders,
     naturalWonders: placement.ops.planNaturalWonders,
     discoveries: placement.ops.planDiscoveries,
-    floodplains: placement.ops.planFloodplains,
     resources: placement.ops.planResources,
   },
   schema: Type.Object({}),

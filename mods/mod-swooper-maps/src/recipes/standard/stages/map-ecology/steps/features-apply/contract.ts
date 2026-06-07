@@ -20,6 +20,7 @@ const FeaturesApplyStepContract = defineStep({
     requires: [
       ecologyArtifacts.featureIntentsVegetation,
       ecologyArtifacts.featureIntentsWetlands,
+      ecologyArtifacts.featureIntentsFloodplains,
       ecologyArtifacts.featureIntentsReefs,
       ecologyArtifacts.featureIntentsIce,
     ],

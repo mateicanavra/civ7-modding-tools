@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>System Card — Start Placement · TARGET STATE</title>
+<!--
+  ============================================================================
+  PIPELINE SYSTEM CARD · TARGET-STATE TWIN · Start Placement  ·  format v1
+  ----------------------------------------------------------------------------
+  The "should" side of ./system-card.html (the as-built "is" side).
+  Same skeleton + primitives so the two read side-by-side; accent flipped to
+  green to signal target/healthy. Prescriptive, not descriptive.
+  Grounded in: immutable engine boundary (civ7-adapter types.ts:658),
+  aggregate-only current artifact (artifacts.ts:77-119), and the existing
+  score-and-rebalance precedent (ecology/resources/score-balance).
+  Cited file:line. ✓ read directly · ~ reported. ◇ = target, not yet built.
+  ============================================================================
+-->
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b24; --panel2:#1d2430; --ink:#e6edf3; --muted:#9aa7b5;
+    --line:#2a3340; --accent:#34d399; --accent2:#38bdf8; --good:#34d399;
+    --p1:#f87171; --p2:#fbbf24; --p3:#60a5fa; --refuted:#6b7280;
+    --truth:#a78bfa; --proj:#34d399; --up:#38bdf8; --target:#34d399;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 24px 80px}
+  code,.mono{font-family:var(--mono);font-size:.82em}
+  a{color:var(--accent2);text-decoration:none}
+  h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+  .cite{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .twin{display:flex;align-items:center;gap:10px;background:#0f2a20;border:1px solid #1d4d3a;border-left:3px solid var(--target);border-radius:10px;padding:11px 15px;margin-bottom:18px;font-size:13px}
+  .twin b{color:var(--good)} .twin .pill{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  header.card{background:linear-gradient(135deg,#13241d,#101713);border:1px solid #1d4d3a;border-radius:16px;padding:22px 26px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;box-shadow:0 1px 0 #ffffff08 inset}
+  .badge{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border-radius:999px;border:1px solid #1d4d3a;color:var(--good)}
+  .title-block{flex:1 1 360px}
+  .eyebrow{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+  h1{font-size:30px;margin:4px 0 6px}
+  .subtitle{color:var(--muted);font-size:14px}
+  .meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px;font-size:12.5px;min-width:300px}
+  .meta div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+  .meta .k{color:var(--muted)} .meta .v{font-family:var(--mono);text-align:right}
+  section{margin-top:34px}
+  .sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .sec-h .n{font-family:var(--mono);font-size:13px;color:var(--bg);background:var(--accent);width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;flex:0 0 auto}
+  .sec-h h2{font-size:19px}
+  .sec-h .hint{color:var(--muted);font-size:12.5px;margin-left:auto}
+  .ribbon{display:flex;align-items:stretch;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .stage{flex:1 1 0;min-width:150px;padding:12px 14px;border-radius:10px;margin:4px;position:relative}
+  .stage.up{background:#0f2030;border:1px solid #1e3a4f}
+  .stage.truth{background:#1c1733;border:1px solid #34286b}
+  .stage.proj{background:#0f2a20;border:1px solid #1d4d3a}
+  .stage h3{font-size:13px;display:flex;align-items:center;gap:7px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .stage small{color:var(--muted);font-size:11px;display:block;margin-top:5px;line-height:1.45}
+  .stage .add{color:var(--good);font-size:10.5px;display:block;margin-top:6px;font-family:var(--mono)}
+  .arrow{align-self:center;color:var(--muted);font-size:20px;padding:0 2px}
+  .layer-stack{display:flex;flex-direction:column;gap:9px}
+  .origin-group{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+  .origin-group.added{border-color:#1d4d3a}
+  .origin-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .origin-head .src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .origin-head .tag{font-family:var(--mono);font-size:11px;color:var(--up);text-transform:uppercase;letter-spacing:.06em}
+  .origin-head .tag.t{color:var(--good)}
+  .layers{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:1px;background:var(--line)}
+  .layer{background:var(--panel);padding:9px 12px}
+  .layer .nm{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+  .layer .ty{font-family:var(--mono);font-size:10.5px;color:var(--accent2)}
+  .layer .ph{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .layer .ph em{color:var(--good);font-style:normal}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .panel h3{font-size:14px;margin-bottom:10px;color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  tbody tr:hover{background:#ffffff05}
+  .lossy{color:var(--p2);font-family:var(--mono);font-size:11px}
+  .keep{color:var(--good);font-family:var(--mono);font-size:11px}
+  .add-row td{background:#0f2a2010}
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+  ol.steps>li{counter-increment:s;position:relative;padding:12px 14px 12px 50px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  ol.steps>li.new{border-color:#1d4d3a;border-left:3px solid var(--good)}
+  ol.steps>li::before{content:counter(s);position:absolute;left:12px;top:12px;width:26px;height:26px;background:var(--panel2);border:1px solid var(--line);border-radius:7px;display:grid;place-items:center;font-family:var(--mono);font-size:12px;color:var(--accent)}
+  ol.steps>li b{color:var(--ink)} ol.steps>li .cite{display:block;margin-top:3px}
+  .tag-new{font-family:var(--mono);font-size:10px;color:var(--good);border:1px solid #1d4d3a;border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:middle}
+  .heur{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+  .heur .panel{border-top:3px solid var(--good)}
+  .heur .eff{margin-top:9px;font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+  .heur .eff b{color:var(--accent)}
+  .knob td:nth-child(1){font-family:var(--mono);color:var(--ink);white-space:nowrap}
+  .knob td:nth-child(2),.knob td:nth-child(3){font-family:var(--mono);text-align:center;white-space:nowrap}
+  .callout{background:linear-gradient(135deg,#13241d,#0f1714);border:1px solid #1d4d3a;border-left:3px solid var(--accent);border-radius:10px;padding:14px 16px;font-size:13px}
+  .callout b{color:var(--accent)}
+  .issues{display:flex;flex-direction:column;gap:10px}
+  .issue{display:grid;grid-template-columns:64px 1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .sev{font-family:var(--mono);font-size:11px;font-weight:700;text-align:center;height:fit-content;padding:4px 0;border-radius:7px;letter-spacing:.04em}
+  .sev.GOOD{background:#0f2a20;color:var(--good);border:1px solid #1d4d3a}
+  .sev.GAP{background:#2a210f;color:var(--p2);border:1px solid #5e4717}
+  .sev.NEW{background:#11243f;color:var(--p3);border:1px solid #1d3a60}
+  .issue .body h3{font-size:13.5px;margin-bottom:4px}
+  .issue .body p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
+  .issue .body .ev{font-family:var(--mono);font-size:11px;color:var(--accent2);margin-top:6px}
+  .issue .body .ev.was{color:var(--p2)}
+  footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:12px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  @media (max-width:760px){.grid2,.heur{grid-template-columns:1fr}.meta{grid-template-columns:1fr}}
+  @media print{body{background:#fff;color:#111}.wrap{max-width:none}header.card,.panel,.stage,.origin-group,ol.steps>li,.issue{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="twin"><b>◇ Target-state twin.</b>&nbsp;This is the “should” side of <a href="system-card.html">system-card.html</a> (the as-built “is” side). Same component, same skeleton — flipped from <i>what it does</i> to <i>what a top-tier outcome looks like</i>. <span class="pill">prescriptive · ◇ = not yet built</span></div>
+
+  <!-- ============================ HEADER ============================ -->
+  <header class="card">
+    <div class="title-block">
+      <div class="eyebrow">Target State · placement / plan-starts</div>
+      <h1>Start Placement — what “good” looks like</h1>
+      <div class="subtitle">Nothing that matters is dropped, every start’s quality is published, fairness across players is measured and bounded, and generation never crashes — all without giving up determinism.</div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="badge">Nothing dropped</span><span class="badge">Fairness-first</span><span class="badge">Never throws</span><span class="badge">Still deterministic</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div><span class="k">Twin of</span><span class="v">system-card.html</span></div>
+      <div><span class="k">Engine boundary</span><span class="v">setStartPosition(plot,player)</span></div>
+      <div><span class="k">Boundary status</span><span class="v">immutable ✓types.ts:658</span></div>
+      <div><span class="k">Today’s artifact</span><span class="v">aggregate-only</span></div>
+      <div><span class="k">Target artifact</span><span class="v">+ per-player + fairness</span></div>
+      <div><span class="k">Precedent</span><span class="v">resources/score-balance</span></div>
+      <div><span class="k">Card date</span><span class="v">2026-06-06</span></div>
+      <div><span class="k">Format</span><span class="v">target-twin v1</span></div>
+    </div>
+  </header>
+
+  <div class="callout" style="margin-top:18px"><b>The thesis.</b> The Civ7 engine accepts exactly one thing per player:
+    <code>setStartPosition(plotIndex, playerId)</code> — <span class="cite">✓ civ7-adapter/src/types.ts:658</span>. You <i>cannot</i> hand the engine
+    the reasoning behind a start. So “don’t drop half the factors” is <b>not</b> a request to push more into the engine — it is a demand that the
+    <b>truth layer decide and measure everything, publish the full per-start record, and guarantee fairness <i>before</i> projection</b>. The engine
+    call stays identical; what changes is that nothing load-bearing is thrown away on the way there, and the one-way boundary is crossed only after
+    quality and fairness are already settled and recorded.</div>
+
+  <!-- ============================ RIBBON / DATAFLOW ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">▸</span><h2>End-to-end dataflow — target</h2>
+      <span class="hint">same pipeline, with the target guarantees per stage</span></div>
+    <div class="ribbon">
+      <div class="stage up"><h3><span class="dot" style="background:var(--up)"></span>Upstream (unchanged)</h3>
+        <small>land &amp; coast, rivers &amp; lakes, fertility &amp; climate, region slots, placed resources</small>
+        <span class="add">◇ each input validated — never silently neutral-defaulted</span></div>
+      <div class="arrow">→</div>
+      <div class="stage truth"><h3><span class="dot" style="background:var(--truth)"></span>plan-starts — TRUTH</h3>
+        <small>score every tile, classify tier, sort candidates</small>
+        <span class="add">◇ retain the full component vector + run a fairness-balancing pass</span></div>
+      <div class="arrow">→</div>
+      <div class="stage proj"><h3><span class="dot" style="background:var(--proj)"></span>assign-starts — PROJECTION</h3>
+        <small>pick &amp; space winners, stamp setStartPosition(plot,player)</small>
+        <span class="add">◇ publish per-player StartRecord[] + fairnessReport; degrade, never throw</span></div>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--up)"></span>upstream</span>
+      <span><span class="dot" style="background:var(--truth)"></span>truth (retains everything)</span>
+      <span><span class="dot" style="background:var(--proj)"></span>projection (fairness enforced here)</span>
+      <span class="cite">◇ = target addition · policy: TRUTH-VS-PROJECTION.md</span>
+    </div>
+  </section>
+
+  <!-- ============================ A · INPUTS ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">A</span><h2>Inputs — fully consumed, never silently defaulted</h2>
+      <span class="hint">same 4 families as the as-built card + one derived in target</span></div>
+    <div class="layer-stack">
+
+      <div class="origin-group">
+        <div class="origin-head"><span class="tag">land · water · habitability (4 families)</span>
+          <span class="dot" style="background:var(--up)"></span>
+          <span>the same 11 artifacts — see the as-built card for full provenance</span>
+          <span class="src">morphology · hydrology · ecology · placement</span></div>
+        <div class="layers">
+          <div class="layer"><div class="nm">topography / landmasses / coastline</div><div class="ty">land structure</div><div class="ph">land, continent size, expansion room, coast distance</div></div>
+          <div class="layer"><div class="nm">hydrography / lakePlan</div><div class="ty">fresh water</div><div class="ph">river class, planned lakes</div></div>
+          <div class="layer"><div class="nm">pedology / biomeClassification</div><div class="ty">soil &amp; climate</div><div class="ph">fertility, moisture, temperature, aridity</div></div>
+          <div class="layer"><div class="nm">slots / placed resources / surface prep</div><div class="ty">placement context</div><div class="ph">player counts, region slot, placed resources</div></div>
+        </div>
+      </div>
+
+      <div class="origin-group added">
+        <div class="origin-head"><span class="tag t">◇ target · input contract</span>
+          <span class="dot" style="background:var(--good)"></span>
+          <span>every input is a guarantee, not a fallback</span>
+          <span class="src">closes as-built P3 · default.ts:447-478</span></div>
+        <div class="layers">
+          <div class="layer"><div class="nm">required vs imputed</div><div class="ty">◇ validation</div><div class="ph">a missing fertility/climate value is flagged <em>imputed</em> on that component — never silently replaced with 0.5/0.45/16</div></div>
+          <div class="layer"><div class="nm">coverage assertion</div><div class="ty">◇ precondition</div><div class="ph">each layer’s coverage is checked before scoring; under-coverage is surfaced, not absorbed</div></div>
+        </div>
+      </div>
+
+      <div class="origin-group added">
+        <div class="origin-head"><span class="tag t">◇ target · derived</span>
+          <span class="dot" style="background:var(--good)"></span>
+          <span>the cross-start fairness frame (new)</span>
+          <span class="src">derived in-step from the provisional selection</span></div>
+        <div class="layers">
+          <div class="layer"><div class="nm">per-factor parity frame</div><div class="ty">◇ Float32 per player</div><div class="ph">fresh-water, fertility, expansion &amp; resource potential of each <em>chosen</em> start, made comparable across players</div></div>
+          <div class="layer"><div class="nm">worst-pair gap</div><div class="ty">◇ scalar</div><div class="ph">the largest fairness gap between any two starts — the thing the balancing pass minimizes</div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================ B · TRANSFORMS ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">B</span><h2>What it should produce &amp; how the boundary is crossed</h2>
+      <span class="hint">the headline flip: nothing load-bearing is dropped</span></div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Published artifact — target <span class="cite">◇ extends artifacts.ts:77-119</span></h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">positions · *Assigned · tierCounts · rejectionCounts</td><td>aggregates</td><td class="keep">kept (today)</td></tr>
+            <tr class="add-row"><td class="mono">◇ starts[]: StartRecord</td><td>per player</td><td class="keep">added</td></tr>
+            <tr class="add-row"><td class="mono">&nbsp;&nbsp;↳ plot · tier · score</td><td>int · enum · 0..1</td><td class="keep">added</td></tr>
+            <tr class="add-row"><td class="mono">&nbsp;&nbsp;↳ components{freshwater,fertility,expansion,climate,resource,roughness}</td><td>0..1 each</td><td class="keep">added</td></tr>
+            <tr class="add-row"><td class="mono">&nbsp;&nbsp;↳ achievedSpacing · imputedFlags</td><td>int · string[]</td><td class="keep">added</td></tr>
+            <tr class="add-row"><td class="mono">◇ fairnessReport{parity,worstPairGap,balanced,relaxations[]}</td><td>object</td><td class="keep">added</td></tr>
+            <tr class="add-row"><td class="mono">◇ status: "full" | "degraded"</td><td>enum</td><td class="keep">added</td></tr>
+          </tbody></table>
+      </div>
+      <div class="panel">
+        <h3>Truth → engine — the fidelity flip <span class="cite">◇ vs materialize.ts:146-218</span></h3>
+        <table><thead><tr><th>Planned</th><th>Engine</th><th>Where it lives now</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">chosen start tile</td><td class="mono">setStartPosition</td><td class="keep">1:1 (unchanged)</td></tr>
+            <tr><td>viability score (0..1)</td><td>—</td><td class="keep">◇ preserved in StartRecord.score</td></tr>
+            <tr><td>tier</td><td>—</td><td class="keep">◇ preserved in StartRecord.tier</td></tr>
+            <tr><td>six component scores</td><td>—</td><td class="keep">◇ preserved in .components</td></tr>
+            <tr><td>spacing &amp; relaxations</td><td>enforced pre-projection</td><td class="keep">◇ preserved in fairnessReport</td></tr>
+            <tr><td>cross-start fairness</td><td>enforced pre-projection</td><td class="keep">◇ measured &amp; bounded, not unrecoverable</td></tr>
+          </tbody></table>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:16px"><b>Why the engine column is still mostly “—”, and that’s fine.</b> The engine genuinely cannot store a rationale,
+      so the target does not fight the boundary. Instead every dropped-at-the-engine factor moves from “gone” to <b>“preserved in the published
+      artifact”</b>, and every fairness decision is <b>made and enforced in truth, before</b> the one-way <code>setStartPosition</code> call. The
+      as-built card’s long “dropped” column becomes a “preserved / enforced-pre-projection” column — same boundary, nothing lost.</div>
+  </section>
+
+  <!-- ============================ C · ALGORITHM ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">C</span><h2>The target algorithm, in plain language</h2>
+      <span class="hint">as-built steps + the target additions, marked ◇</span></div>
+    <ol class="steps">
+      <li><b>Gather base starts &amp; config.</b> As today — players-per-hemisphere and the sector grid from runtime, plus the (now fully-knobbed) <code>starts</code> block. <span class="cite">✓ index.ts:30-44</span></li>
+      <li><b>Validate inputs.</b><span class="tag-new">◇ new</span> Assert each climate/soil layer’s coverage; where a tile lacks a value, mark the affected component <code>imputed</code> rather than silently substituting a neutral default. <span class="cite">◇ closes default.ts:447-478</span></li>
+      <li><b>Scan &amp; gate.</b> Reject water, lakes, and non-slot tiles before scoring — unchanged. <span class="cite">✓ default.ts:362-379</span></li>
+      <li><b>Measure the land envelope &amp; classify a tier.</b> Continent size, expansion room, island cluster, coast distance → primary / islandCluster / marginal. Thresholds now all knobs. <span class="cite">✓ default.ts:208-238</span></li>
+      <li><b>Score habitability — and keep the breakdown.</b><span class="tag-new">◇ changed</span> Compute the same six components, but <b>retain the per-component vector on the candidate</b> instead of collapsing straight to one scalar. The scalar is still derived for ranking; the vector survives to publication. <span class="cite">◇ extends default.ts:258-306</span></li>
+      <li><b>Provisional selection with an honest spacing floor.</b><span class="tag-new">◇ changed</span> Pick &amp; space per region as today, but the minimum-spacing floor is a published guarantee: every relaxation step is appended to <code>fairnessReport.relaxations[]</code>, never silently swallowed. <span class="cite">◇ extends materialize.ts:482-530</span></li>
+      <li><b>Fairness-balancing pass.</b><span class="tag-new">◇ new</span> Build the cross-start parity frame; if the worst-pair gap exceeds <code>fairnessTolerance</code>, deterministically swap the weakest marginal pick(s) for alternatives that shrink the gap — the same score-and-rebalance shape the codebase already uses for resources. Record the final parity + whether it converged. <span class="cite">◇ precedent: ecology/resources/score-balance</span></li>
+      <li><b>Graceful degradation ladder — never throw.</b><span class="tag-new">◇ changed</span> regional → open-pool → <b>quality-relaxed</b> → <b>spacing-relaxed</b>. A truly unfillable map yields <code>status:"degraded"</code> as data (deterministically), surfaced to the caller — not an exception that aborts generation. <span class="cite">◇ replaces materialize.ts:214-218</span></li>
+      <li><b>Last resort, still scored.</b><span class="tag-new">◇ changed</span> If degradation is reached, pick by a <i>reduced-but-present</i> quality function (not pure distance), and stamp each such start with lowered confidence in its StartRecord. <span class="cite">◇ replaces materialize.ts:546-576</span></li>
+      <li><b>Publish the full record, then project.</b><span class="tag-new">◇ new</span> Emit <code>starts[]</code> (per-player StartRecord), <code>fairnessReport</code>, and <code>status</code>; only then stamp <code>setStartPosition(plot, player)</code> for each. Quality and fairness are settled before the one-way boundary. <span class="cite">◇ extends artifacts.ts:77-119 → materialize.ts:146-218</span></li>
+    </ol>
+
+    <h3 style="margin-top:22px;font-size:15px">Target heuristics &amp; what they buy you</h3>
+    <div class="heur">
+      <div class="panel"><h3>Retain-then-reduce scoring</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin:0">Keep the full component vector; derive the ranking scalar from it instead of discarding it.</p>
+        <div class="eff"><b>Effect:</b> every start’s “why” is <b>inspectable and testable</b> downstream — the factors are no longer dropped. <span class="cite">closes the core gap</span></div></div>
+      <div class="panel"><h3>Measured fairness, bounded</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin:0">A cross-start parity frame + a balancing swap pass with a tolerance knob.</p>
+        <div class="eff"><b>Effect:</b> start <b>fairness becomes a first-class, bounded output</b> — or its breach is published, never hidden. <span class="cite">new capability</span></div></div>
+      <div class="panel"><h3>Degrade-as-data</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin:0">An explicit ladder ending in a <code>status:"degraded"</code> record instead of a throw.</p>
+        <div class="eff"><b>Effect:</b> a hostile map yields a <b>known, deterministic outcome</b> the caller can react to, not a crashed generation. <span class="cite">closes the P2 throw</span></div></div>
+    </div>
+
+    <h3 style="margin-top:22px;font-size:15px">Knobs the target adds <span class="cite">◇ every constant becomes config</span></h3>
+    <table class="knob"><thead><tr><th>Knob</th><th>Today</th><th>Target</th><th>Why it should be tunable</th></tr></thead>
+      <tbody>
+        <tr><td>fairnessTolerance</td><td>n/a</td><td>◇ new</td><td>how equal starts must be before the balancing pass stops <span class="cite">new</span></td></tr>
+        <tr><td>roughnessDivisor</td><td>900 (literal)</td><td>◇ knob</td><td>roughness calibration shouldn’t be fixed across map scales <span class="cite">default.ts:179</span></td></tr>
+        <tr><td>tierBias[primary/island/marginal]</td><td>±0.08/0.02 (literal)</td><td>◇ knob</td><td>presets should be able to favor/penalize tiers <span class="cite">default.ts:304</span></td></tr>
+        <tr><td>rankingBlend (score:spacing)</td><td>0.86:0.14 (literal)</td><td>◇ knob</td><td>the quality-vs-spread trade-off is map-dependent <span class="cite">materialize.ts:506</span></td></tr>
+        <tr><td>marginalRatios</td><td>0.5 / 0.65 (literal)</td><td>◇ knob</td><td>how permissive the fallback tier is should be tunable <span class="cite">default.ts:231-235</span></td></tr>
+      </tbody></table>
+
+    <div class="callout" style="margin-top:16px;border-left-color:var(--good)"><b>Determinism is preserved — non-negotiable.</b> Every addition is order-deterministic:
+      the balancing swaps iterate candidates in the existing <code>(tier, score, plotIndex)</code> order with the same tie-breaks, the degradation ladder
+      is a fixed sequence, and imputation is a pure function of coverage. No <code>Math.random</code> enters. Identical inputs + config ⇒ identical starts
+      <i>and</i> an identical <code>fairnessReport</code>. The target buys completeness and fairness <b>without</b> spending reproducibility.</div>
+  </section>
+
+  <!-- ============================ D · ACCEPTANCE CRITERIA / GAP ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">D</span><h2>What “good” asserts &amp; the gap from today</h2>
+      <span class="hint">acceptance criteria (the target oracle) + the delta from the as-built card</span></div>
+
+    <h3 style="font-size:14px;color:var(--good);margin-bottom:10px">Acceptance criteria — a top-tier outcome passes all of these</h3>
+    <div class="issues">
+      <div class="issue"><div class="sev GOOD">A1</div><div class="body">
+        <h3>Per-start completeness</h3>
+        <p>Every published <code>StartRecord</code> carries all six component scores + tier + plot. No factor that influenced the choice is absent from the artifact.</p>
+        <div class="ev">◇ test: starts.length === totalPlayers ∧ every record has 6 components</div></div></div>
+      <div class="issue"><div class="sev GOOD">A2</div><div class="body">
+        <h3>Fairness measured &amp; bounded</h3>
+        <p>A <code>fairnessReport</code> is always published; either <code>worstPairGap ≤ fairnessTolerance</code>, or <code>balanced:false</code> is surfaced. Unfairness is never silent.</p>
+        <div class="ev">◇ test: report present ∧ (gap ≤ tol ∨ balanced === false)</div></div></div>
+      <div class="issue"><div class="sev GOOD">A3</div><div class="body">
+        <h3>No hard failure</h3>
+        <p>Assignment never throws. An unfillable map returns <code>status:"degraded"</code> deterministically; the caller decides what to do.</p>
+        <div class="ev">◇ test: pathological map ⇒ resolves with status:"degraded", no exception</div></div></div>
+      <div class="issue"><div class="sev GOOD">A4</div><div class="body">
+        <h3>Honest spacing &amp; scored last resort</h3>
+        <p>Every spacing relaxation is recorded in <code>relaxations[]</code>; desperation picks use a reduced quality function and carry lowered confidence — never pure distance.</p>
+        <div class="ev">◇ test: relaxations logged ∧ desperation records have components + confidence</div></div></div>
+      <div class="issue"><div class="sev GOOD">A5</div><div class="body">
+        <h3>No silent neutrality, fully tunable, still deterministic</h3>
+        <p>Missing inputs are flagged <code>imputed</code>, every scoring constant is a knob, and identical inputs+config reproduce identical starts <i>and</i> fairnessReport.</p>
+        <div class="ev">◇ test: imputed flags surface ∧ re-run is byte-identical</div></div></div>
+    </div>
+
+    <h3 style="margin-top:22px;font-size:14px;color:var(--p2)">Gap from current
+      <span class="cite">— each as-built limitation → the target behavior that closes it</span></h3>
+    <div class="issues" style="margin-top:10px">
+      <div class="issue"><div class="sev GAP">CORE</div><div class="body">
+        <h3>Factors dropped → per-start record published</h3>
+        <p>Today <code>startAssignment</code> publishes only aggregate counts; the per-tile <code>computeScore</code> vector is discarded after ranking, so the engine and every downstream consumer see only a plot index. Target: publish <code>starts[]</code> with the full component vector.</p>
+        <div class="ev was">was: aggregate-only ✓ artifacts.ts:77-119 · scoring ✓ default.ts:258-306</div></div></div>
+      <div class="issue"><div class="sev GAP">P2</div><div class="body">
+        <h3>Silent spacing relaxation → recorded guarantee</h3>
+        <p>Target records every relaxation step and publishes the achieved spacing per start.</p>
+        <div class="ev was">was: P2 silent relaxation ✓ materialize.ts:491-523</div></div></div>
+      <div class="issue"><div class="sev GAP">P2</div><div class="body">
+        <h3>Assign-all-or-throw → degrade-as-data</h3>
+        <p>Target replaces the hard throw with an explicit, deterministic <code>status:"degraded"</code> outcome.</p>
+        <div class="ev was">was: P2 throw ✓ materialize.ts:214-218</div></div></div>
+      <div class="issue"><div class="sev GAP">P3</div><div class="body">
+        <h3>Quality-blind desperation → reduced-quality scoring</h3>
+        <p>Target keeps a present-but-reduced quality function for last-resort picks and records lowered confidence.</p>
+        <div class="ev was">was: P3 distance-only ✓ materialize.ts:546-576</div></div></div>
+      <div class="issue"><div class="sev GAP">P3</div><div class="body">
+        <h3>Hardcoded constants &amp; silent neutral fallbacks → knobs + imputed flags</h3>
+        <p>Target promotes roughness divisor, tier biases, ranking blend &amp; marginal ratios to config, and flags missing inputs instead of defaulting them.</p>
+        <div class="ev was">was: P3 ✓ default.ts:179,231-235,304-305,447-478 · materialize.ts:506</div></div></div>
+      <div class="issue"><div class="sev NEW">NEW</div><div class="body">
+        <h3>No fairness notion at all → measured cross-start balance</h3>
+        <p>Today nothing compares starts to each other — fairness is implicit at best. Target adds a parity frame + balancing pass, modeled on the existing resource score-balance op.</p>
+        <div class="ev">◇ new capability · precedent: ecology/resources/score-balance</div></div></div>
+    </div>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer>
+    <b>Provenance.</b> This target-state twin is <i>design</i>, not implemented code (every ◇ marks an addition that does not yet exist). It is derived
+    from the verified as-built card (<a href="system-card.html">system-card.html</a>) and grounded in three checked facts: the engine boundary is immutable
+    (<code>setStartPosition(plot,player)</code> ✓ civ7-adapter/src/types.ts:658), today’s artifact is aggregate-only (✓ artifacts.ts:77-119), and a
+    score-and-rebalance op already exists as precedent (<code>ecology/resources/score-balance</code>). No agent team was used — this is owner synthesis
+    over an already-verified corpus, so the load-bearing constraints were re-read directly rather than re-investigated.
+    <div class="legend">
+      <span><span class="dot" style="background:var(--good)"></span>acceptance criterion / target</span>
+      <span><span class="dot" style="background:var(--p2)"></span>gap from current</span>
+      <span>◇ = target addition, not yet built</span>
+      <span>✓ = read directly</span>
+    </div>
+    <p style="margin-top:12px"><b>Reuse:</b> pair any as-built card with a target twin — keep the skeleton, flip section D from “issues” to “acceptance criteria + gap”, and ground every ◇ in a real constraint. Sibling “is” card: <a href="system-card.html">system-card.html</a>.</p>
+  </footer>
+
+</div>
+</body>
+</html>

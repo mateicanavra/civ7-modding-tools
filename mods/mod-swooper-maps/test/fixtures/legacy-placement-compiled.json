@@ -2,41 +2,12 @@
   "shattered-ring": {
     "placement": {
       "assign-advanced-starts": {},
-      "assign-starts": {
-        "starts": {
-          "config": {
-            "expansionRadiusTiles": 4,
-            "fertilityWeight": 1.2,
-            "freshwaterWeight": 0.9,
-            "islandClusterRadiusTiles": 5,
-            "largeLandmassWeight": 1,
-            "maxIslandStartCoastDistance": 1,
-            "minContiguousLandTiles": 24,
-            "minExpansionLandTiles": 14,
-            "minIslandClusterLandTiles": 18,
-            "minStartSpacingTiles": 9,
-            "overrides": {
-              "startSectors": []
-            },
-            "resourceSupportRadiusTiles": 4,
-            "resourceSupportWeight": 1,
-            "roughnessPenaltyWeight": 0.6
-          },
-          "strategy": "default"
-        }
-      },
+      "assign-starts": {},
       "derive-placement-inputs": {
         "discoveries": {
           "config": {
             "densityPer100Tiles": 3,
             "minSpacingTiles": 3
-          },
-          "strategy": "default"
-        },
-        "floodplains": {
-          "config": {
-            "maxLength": 10,
-            "minLength": 4
           },
           "strategy": "default"
         },
@@ -56,6 +27,27 @@
         },
         "wonders": {
           "config": {},
+          "strategy": "default"
+        },
+        "starts": {
+          "config": {
+            "expansionRadiusTiles": 4,
+            "fertilityWeight": 1.2,
+            "freshwaterWeight": 0.9,
+            "islandClusterRadiusTiles": 5,
+            "largeLandmassWeight": 1,
+            "maxIslandStartCoastDistance": 1,
+            "minContiguousLandTiles": 24,
+            "minExpansionLandTiles": 14,
+            "minIslandClusterLandTiles": 18,
+            "minStartSpacingTiles": 9,
+            "overrides": {
+              "startSectors": []
+            },
+            "resourceSupportRadiusTiles": 4,
+            "resourceSupportWeight": 1,
+            "roughnessPenaltyWeight": 0.6
+          },
           "strategy": "default"
         }
       },
@@ -70,41 +62,12 @@
   "sundered-archipelago": {
     "placement": {
       "assign-advanced-starts": {},
-      "assign-starts": {
-        "starts": {
-          "config": {
-            "expansionRadiusTiles": 4,
-            "fertilityWeight": 1.2,
-            "freshwaterWeight": 0.9,
-            "islandClusterRadiusTiles": 5,
-            "largeLandmassWeight": 1,
-            "maxIslandStartCoastDistance": 1,
-            "minContiguousLandTiles": 24,
-            "minExpansionLandTiles": 14,
-            "minIslandClusterLandTiles": 18,
-            "minStartSpacingTiles": 9,
-            "overrides": {
-              "startSectors": []
-            },
-            "resourceSupportRadiusTiles": 4,
-            "resourceSupportWeight": 1,
-            "roughnessPenaltyWeight": 0.6
-          },
-          "strategy": "default"
-        }
-      },
+      "assign-starts": {},
       "derive-placement-inputs": {
         "discoveries": {
           "config": {
             "densityPer100Tiles": 3,
             "minSpacingTiles": 3
-          },
-          "strategy": "default"
-        },
-        "floodplains": {
-          "config": {
-            "maxLength": 10,
-            "minLength": 4
           },
           "strategy": "default"
         },
@@ -124,6 +87,27 @@
         },
         "wonders": {
           "config": {},
+          "strategy": "default"
+        },
+        "starts": {
+          "config": {
+            "expansionRadiusTiles": 4,
+            "fertilityWeight": 1.2,
+            "freshwaterWeight": 0.9,
+            "islandClusterRadiusTiles": 5,
+            "largeLandmassWeight": 1,
+            "maxIslandStartCoastDistance": 1,
+            "minContiguousLandTiles": 24,
+            "minExpansionLandTiles": 14,
+            "minIslandClusterLandTiles": 18,
+            "minStartSpacingTiles": 9,
+            "overrides": {
+              "startSectors": []
+            },
+            "resourceSupportRadiusTiles": 4,
+            "resourceSupportWeight": 1,
+            "roughnessPenaltyWeight": 0.6
+          },
           "strategy": "default"
         }
       },
@@ -138,7 +122,33 @@
   "swooper-desert-mountains": {
     "placement": {
       "assign-advanced-starts": {},
-      "assign-starts": {
+      "assign-starts": {},
+      "derive-placement-inputs": {
+        "discoveries": {
+          "config": {
+            "densityPer100Tiles": 3,
+            "minSpacingTiles": 3
+          },
+          "strategy": "default"
+        },
+        "naturalWonders": {
+          "config": {
+            "minSpacingTiles": 6
+          },
+          "strategy": "default"
+        },
+        "resources": {
+          "config": {
+            "densityPer100Tiles": 9,
+            "maxPlacementsPerResourceShare": 0.3,
+            "minSpacingTiles": 2
+          },
+          "strategy": "default"
+        },
+        "wonders": {
+          "config": {},
+          "strategy": "default"
+        },
         "starts": {
           "config": {
             "expansionRadiusTiles": 4,
@@ -161,40 +171,6 @@
           "strategy": "default"
         }
       },
-      "derive-placement-inputs": {
-        "discoveries": {
-          "config": {
-            "densityPer100Tiles": 3,
-            "minSpacingTiles": 3
-          },
-          "strategy": "default"
-        },
-        "floodplains": {
-          "config": {
-            "maxLength": 10,
-            "minLength": 4
-          },
-          "strategy": "default"
-        },
-        "naturalWonders": {
-          "config": {
-            "minSpacingTiles": 6
-          },
-          "strategy": "default"
-        },
-        "resources": {
-          "config": {
-            "densityPer100Tiles": 9,
-            "maxPlacementsPerResourceShare": 0.3,
-            "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
-        "wonders": {
-          "config": {},
-          "strategy": "default"
-        }
-      },
       "place-discoveries": {},
       "place-natural-wonders": {},
       "place-resources": {},
@@ -206,41 +182,12 @@
   "swooper-earthlike": {
     "placement": {
       "assign-advanced-starts": {},
-      "assign-starts": {
-        "starts": {
-          "config": {
-            "expansionRadiusTiles": 4,
-            "fertilityWeight": 1.2,
-            "freshwaterWeight": 0.9,
-            "islandClusterRadiusTiles": 5,
-            "largeLandmassWeight": 4,
-            "maxIslandStartCoastDistance": 8,
-            "minContiguousLandTiles": 24,
-            "minExpansionLandTiles": 4,
-            "minIslandClusterLandTiles": 3,
-            "minStartSpacingTiles": 9,
-            "overrides": {
-              "startSectors": []
-            },
-            "resourceSupportRadiusTiles": 1,
-            "resourceSupportWeight": 1,
-            "roughnessPenaltyWeight": 0.6
-          },
-          "strategy": "default"
-        }
-      },
+      "assign-starts": {},
       "derive-placement-inputs": {
         "discoveries": {
           "config": {
             "densityPer100Tiles": 3,
             "minSpacingTiles": 3
-          },
-          "strategy": "default"
-        },
-        "floodplains": {
-          "config": {
-            "maxLength": 10,
-            "minLength": 4
           },
           "strategy": "default"
         },
@@ -260,6 +207,27 @@
         },
         "wonders": {
           "config": {},
+          "strategy": "default"
+        },
+        "starts": {
+          "config": {
+            "expansionRadiusTiles": 4,
+            "fertilityWeight": 1.2,
+            "freshwaterWeight": 0.9,
+            "islandClusterRadiusTiles": 5,
+            "largeLandmassWeight": 4,
+            "maxIslandStartCoastDistance": 8,
+            "minContiguousLandTiles": 24,
+            "minExpansionLandTiles": 4,
+            "minIslandClusterLandTiles": 3,
+            "minStartSpacingTiles": 9,
+            "overrides": {
+              "startSectors": []
+            },
+            "resourceSupportRadiusTiles": 1,
+            "resourceSupportWeight": 1,
+            "roughnessPenaltyWeight": 0.6
+          },
           "strategy": "default"
         }
       },

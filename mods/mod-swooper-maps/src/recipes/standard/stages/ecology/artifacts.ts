@@ -1,5 +1,5 @@
 import { TypedArraySchemas, Type, defineArtifact, type Static } from "@swooper/mapgen-core/authoring";
-import type { PlotEffectKey } from "@mapgen/domain/ecology";
+import { FEATURE_PLACEMENT_KEYS, type PlotEffectKey } from "@mapgen/domain/ecology";
 
 export const BiomeClassificationArtifactSchema = Type.Object(
   {
@@ -51,23 +51,14 @@ export type ResourceBasinsArtifact = Static<typeof ResourceBasinsArtifactSchema>
 export const ScoreLayersArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
-  layers: Type.Object({
-    FEATURE_FOREST: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_RAINFOREST: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_TAIGA: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_SAVANNA_WOODLAND: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_SAGEBRUSH_STEPPE: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_MARSH: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_TUNDRA_BOG: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_MANGROVE: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_OASIS: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_WATERING_HOLE: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_REEF: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_COLD_REEF: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_ATOLL: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_LOTUS: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-    FEATURE_ICE: TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
-  }),
+  layers: Type.Object(
+    Object.fromEntries(
+      FEATURE_PLACEMENT_KEYS.map((featureKey) => [
+        featureKey,
+        TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
+      ])
+    )
+  ),
 });
 
 export type ScoreLayersArtifact = Static<typeof ScoreLayersArtifactSchema>;
@@ -199,6 +190,11 @@ export const ecologyArtifacts = {
     id: "artifact:ecology.occupancy.base",
     schema: OccupancyArtifactSchema,
   }),
+  occupancyFloodplains: defineArtifact({
+    name: "occupancyFloodplains",
+    id: "artifact:ecology.occupancy.floodplains",
+    schema: OccupancyArtifactSchema,
+  }),
   occupancyIce: defineArtifact({
     name: "occupancyIce",
     id: "artifact:ecology.occupancy.ice",
@@ -227,6 +223,11 @@ export const ecologyArtifacts = {
   featureIntentsWetlands: defineArtifact({
     name: "featureIntentsWetlands",
     id: "artifact:ecology.featureIntents.wetlands",
+    schema: FeatureIntentsListArtifactSchema,
+  }),
+  featureIntentsFloodplains: defineArtifact({
+    name: "featureIntentsFloodplains",
+    id: "artifact:ecology.featureIntents.floodplains",
     schema: FeatureIntentsListArtifactSchema,
   }),
   featureIntentsReefs: defineArtifact({

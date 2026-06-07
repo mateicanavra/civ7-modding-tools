@@ -1,4 +1,4 @@
-import { deriveStepSeed } from "@swooper/mapgen-core";
+import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 
@@ -19,11 +19,11 @@ export default createStep(PlanIceStepContract, {
     },
   }),
   run: (context, config, ops, deps) => {
-    const base = deps.artifacts.occupancyBase.read(context);
+    const base = deps.artifacts.occupancyFloodplains.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
     const { width, height } = context.dimensions;
 
-    const seed = deriveStepSeed(context.env.seed, "ecology:planIce");
+    const seed = ctxStepSeed(context, PlanIceStepContract.id, "ecology/plan-ice");
     const placements = ops.planIce(
       {
         width,

@@ -1,20 +1,20 @@
 # Branch Accounting Composition
 
-Generated: `2026-06-07T22:19:21.809Z`
+Generated: `2026-06-07T22:43:47.980Z`
 Graphite main head: `98dca389248d5ddb2777a88105c3ade452b2137c`
 Topology source: `graphite-cache`
 Ledger: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain/openspec/changes/swooper-stack-recovery-consolidation/workstream/recovery-accounting-ledger.json`
 Graphite state snapshot: `/tmp/civ7-current-gt-ls.txt.graphite-state.json`
-GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T22:19:13.521Z`
+GTLS status: `/tmp/civ7-current-gt-ls.status.json` refreshed at `2026-06-07T22:43:44.844Z`
 
 ## Root Rollup
 
 | Root | Recommended action | Graphite | Accounting | Branches | Needs restack | Worktrees | Dirty | Counts |
 |---|---|---|---|---:|---:|---:|---:|---|
 | `codex/systematic-workstream-skill-framing` | `drain-to-main` | `clean-local` | `planned-main-adoption-source` | 3 | 0 | 0 | 0 | needs-accounting:3 |
-| `codex/swooper-mapgen-recovery-drain` | `clear-dirty-worktree` | `dirty-worktree` | `planned-sink` | 79 | 0 | 1 | 1 | planned-sink:1, accounting-sink:36, unmarked:42 |
+| `codex/swooper-mapgen-recovery-drain` | `clear-dirty-worktree` | `dirty-worktree` | `adoption-sink` | 79 | 0 | 1 | 1 | accounting-sink:38, unmarked:41 |
 | `codex/stack-lineage-audit-reference` | `submit-or-merge-clean-stack` | `clean-local` | `accounted-source` | 21 | 0 | 1 | 0 | excluded:13, unmarked:8 |
-| `codex/live-play-settlement-reference` | `adopt-into-sink` | `clean-local` | `planned-local-adoption-source` | 67 | 0 | 2 | 0 | excluded:7, unmarked:2, accounted-source:57, needs-accounting:1 |
+| `codex/live-play-settlement-reference` | `submit-or-merge-clean-stack` | `clean-local` | `accounted-source` | 67 | 0 | 2 | 0 | excluded:7, unmarked:2, accounted-source:58 |
 | `codex/local-catalog-enrichment` | `restack-before-drain` | `needs-restack` | `unmarked` | 691 | 1 | 1 | 0 | unmarked:691 |
 | `agent-watch-civ7-live-play-reference-assembly` | `restack-before-drain` | `needs-restack` | `unmarked` | 1 | 1 | 0 | 0 | unmarked:1 |
 | `codex/foundation-architecture-packet` | `submit-or-merge-clean-stack` | `clean-local` | `accounted-source` | 1 | 0 | 0 | 0 | accounted-source:1 |
@@ -49,7 +49,7 @@ These rows are diagnostic only. They do not mark accounting complete; they show 
 | `codex/systematic-workstream-skill-framing` | `codex/systematic-workstream-skill-framing` | `needs-accounting` | `source:needs-adoption:planned-adopt-systematic-workstream-skill-support-slice` | no |  |
 | `codex/systematic-evidence-workstream-skill` | `codex/systematic-workstream-skill-framing` | `needs-accounting` | `source:needs-adoption:planned-adopt-systematic-workstream-skill-support-slice` | no |  |
 | `codex/systematic-skill-review-fixes` | `codex/systematic-workstream-skill-framing` | `needs-accounting` | `source:needs-adoption:planned-adopt-systematic-workstream-skill-support-slice` | no |  |
-| `codex/swooper-mapgen-recovery-drain` | `codex/swooper-mapgen-recovery-drain` | `planned-sink` | `sink:supersession-sink:done-supersede-pr1421-swooper-earthlike`<br>`sink:adoption-sink:done-adopt-start-placement-and-initial-resource-policy`<br>`sink:adoption-sink:done-adopt-studio-setup-config-sync`<br>`sink:accounting-sink:done-reference-swooper-recovery-planning-context`<br>`sink:planned-adoption-sink:planned-adopt-earthlike-floodplain-config-leaf` | no |  |
+| `codex/swooper-mapgen-recovery-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:supersession-sink:done-supersede-pr1421-swooper-earthlike`<br>`sink:adoption-sink:done-adopt-start-placement-and-initial-resource-policy`<br>`sink:accounting-sink:done-reference-swooper-recovery-planning-context`<br>`sink:adoption-sink:done-adopt-earthlike-floodplain-config-leaf` | no |  |
 | `codex/swooper-studio-parity-proof-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-studio-exact-authorship-proof`<br>`sink:adoption-sink:done-adopt-map-policy-final-surface-parity`<br>`sink:adoption-sink:done-adopt-studio-live-runtime-snapshot-completion` | no |  |
 | `codex/swooper-feature-resource-legality-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-feature-resource-proof-stack` | no |  |
 | `codex/swooper-resource-assignment-evidence-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-feature-resource-proof-stack` | no |  |
@@ -86,7 +86,7 @@ These rows are diagnostic only. They do not mark accounting complete; they show 
 | `codex/swooper-wonder-footprint-proof-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/swooper-wonder-footprint-proof-record-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/swooper-resource-coordinate-proof-summary-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-earthlike-feature-resource-proof-stack` | no |  |
-| `codex/swooper-natural-wonder-plan-input-comparison-drain` | `codex/swooper-mapgen-recovery-drain` | `unmarked` |  | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain` (2) |
+| `codex/swooper-natural-wonder-plan-input-comparison-drain` | `codex/swooper-mapgen-recovery-drain` | `accounting-sink` | `sink:adoption-sink:done-adopt-studio-setup-config-sync` | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain` (61) |
 | `codex/stack-lineage-audit-reference` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/stack-visualizer-ui-integration` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
 | `codex/gt-stack-inspect-spec-alignment` | `codex/stack-lineage-audit-reference` | `excluded` | `source:excluded:done-exclude-gt-stack-inspect-toolkit-lane` | no |  |
@@ -157,7 +157,7 @@ These rows are diagnostic only. They do not mark accounting complete; they show 
 | `codex/earthlike-natural-wonder-named-rejection-proof` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/earthlike-natural-wonder-readback-mismatch-context` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
 | `codex/earthlike-natural-wonder-postwrite-footprint-proof` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-natural-wonder-stack-through-footprint-proof` | no |  |
-| `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `codex/live-play-settlement-reference` | `needs-accounting` | `source:needs-adoption:planned-adopt-earthlike-floodplain-config-leaf` | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-civ7-map-policy-final-surface-parity` |
+| `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-floodplain-config-leaf` | no | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-civ7-map-policy-final-surface-parity` |
 | `codex/earthlike-terrain-edge-diagnostics` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-terrain-edge-stack` | no |  |
 | `codex/earthlike-terrain-edge-local-mask-context` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-terrain-edge-stack` | no |  |
 | `codex/earthlike-terrain-edge-live-readback` | `codex/live-play-settlement-reference` | `accounted-source` | `source:covered-by-adoption:done-adopt-earthlike-terrain-edge-stack` | no |  |

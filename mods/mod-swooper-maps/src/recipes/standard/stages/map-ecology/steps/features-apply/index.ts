@@ -22,6 +22,7 @@ export default createStep(FeaturesApplyStepContract, {
     const placements = {
       vegetation: Array.from(deps.artifacts.featureIntentsVegetation.read(context)),
       wetlands: Array.from(deps.artifacts.featureIntentsWetlands.read(context)),
+      floodplains: Array.from(deps.artifacts.featureIntentsFloodplains.read(context)),
       reefs: Array.from(deps.artifacts.featureIntentsReefs.read(context)),
       ice: Array.from(deps.artifacts.featureIntentsIce.read(context)),
     };
@@ -185,6 +186,7 @@ export default createStep(FeaturesApplyStepContract, {
       context.fields.featureType = new Int16Array(size);
     }
     if (applied > 0) {
+      context.adapter.validateAndFixTerrain();
       reifyFeatureField(context);
       const featureTypeCategories = buildFeatureTypeVizCategories(
         context.adapter,
@@ -207,7 +209,6 @@ export default createStep(FeaturesApplyStepContract, {
           })),
         }),
       });
-      context.adapter.validateAndFixTerrain();
       const physics = context.buffers.heightfield;
       const engine = snapshotEngineHeightfield(context);
       if (engine) {

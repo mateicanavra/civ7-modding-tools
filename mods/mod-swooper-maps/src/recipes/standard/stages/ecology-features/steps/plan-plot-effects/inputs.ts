@@ -1,4 +1,4 @@
-import { deriveStepSeed, type ExtendedMapContext, type HeightfieldBuffer } from "@swooper/mapgen-core";
+import { ctxStepSeed, type ExtendedMapContext, type HeightfieldBuffer } from "@swooper/mapgen-core";
 import type { BiomeClassificationArtifact } from "../../../ecology/artifacts.js";
 
 export type PlotEffectsStepInput = {
@@ -23,7 +23,8 @@ export function buildPlotEffectsInput(
   artifacts: {
     classification: BiomeClassificationArtifact;
     heightfield: HeightfieldBuffer;
-  }
+  },
+  stepId: string
 ): PlotEffectsStepInput {
   const { width, height } = context.dimensions;
   const { classification, heightfield } = artifacts;
@@ -31,7 +32,7 @@ export function buildPlotEffectsInput(
   return {
     width,
     height,
-    seed: deriveStepSeed(context.env.seed, "ecology:planPlotEffects"),
+    seed: ctxStepSeed(context, stepId, "ecology/plan-plot-effects"),
     biomeIndex: classification.biomeIndex,
     vegetationDensity: classification.vegetationDensity,
     effectiveMoisture: classification.effectiveMoisture,
