@@ -6,10 +6,12 @@ import { dirname, resolve } from "node:path";
 import {
   getCiv7MapGrid,
   getCiv7MapSummary,
+  getCiv7ResourceBuilderDiagnostics,
   getCiv7ResourcePlacementFeasibility,
   type Civ7MapGridResult,
   type Civ7PlotSnapshotField,
   type Civ7MapSummaryResult,
+  type Civ7ResourceBuilderDiagnosticsResult,
   type Civ7ResourcePlacementFeasibilityResult,
   type Civ7RuntimeProbe,
 } from "../../packages/civ7-direct-control/src/index.ts";
@@ -194,6 +196,15 @@ async function main(): Promise<number> {
       { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
     ),
   ]);
+  const ignoreWeightProof = summarizeFeasibilityProof(proof, ignoreWeight);
+  const focusedCells = cellsForResourceBuilderDiagnostics(ignoreWeightProof.rows);
+  const resourceBuilderDiagnostics =
+    focusedCells.length > 0
+      ? await getCiv7ResourceBuilderDiagnostics(
+          { cells: focusedCells, maxCells: args.maxCells },
+          { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
+        )
+      : null;
 
   const outputWithoutHash = {
     ok: true,
@@ -203,8 +214,10 @@ async function main(): Promise<number> {
     runtimeIdentity,
     rowCount: deltaRows.length,
     livePlotContext: summarizeLivePlotContext(livePlotContext),
+    resourceBuilderDiagnostics:
+      resourceBuilderDiagnostics === null ? null : summarizeResourceBuilderDiagnostics(resourceBuilderDiagnostics),
     strict: summarizeFeasibilityProof(proof, strict),
-    ignoreWeight: summarizeFeasibilityProof(proof, ignoreWeight),
+    ignoreWeight: ignoreWeightProof,
   };
   const output = {
     ...outputWithoutHash,
@@ -360,6 +373,32 @@ function summarizeLivePlotContext(readback: Civ7MapGridResult) {
       facts: plot.facts,
     })),
   };
+}
+
+function summarizeResourceBuilderDiagnostics(readback: Civ7ResourceBuilderDiagnosticsResult) {
+  return {
+    readback: {
+      host: readback.host,
+      port: readback.port,
+      state: readback.state,
+      cellCount: readback.cellCount,
+      omittedCells: readback.omittedCells,
+    },
+    resources: readback.resources,
+    cells: readback.cells,
+  };
+}
+
+function cellsForResourceBuilderDiagnostics(
+  rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
+): ReadonlyArray<{ x: number; y: number; resourceTypes: ReadonlyArray<number> }> {
+  return rows
+    .filter((row) => row.feasibilityClass === "local-overaccepted-live-empty" && row.localResource.value !== null)
+    .map((row) => ({
+      x: row.x,
+      y: row.y,
+      resourceTypes: [row.localResource.value as number],
+    }));
 }
 
 function feasibilityValue(

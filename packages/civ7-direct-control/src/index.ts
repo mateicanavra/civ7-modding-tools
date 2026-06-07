@@ -495,6 +495,59 @@ export type Civ7ResourcePlacementFeasibilityResult = Readonly<{
   cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCell>;
 }>;
 
+export type Civ7ResourceBuilderCutResource = Readonly<{
+  hash: number;
+  resourceType?: number;
+  resourceTypeName?: string;
+  row?: unknown;
+}>;
+
+export type Civ7ResourceBuilderDiagnosticsResource = Readonly<{
+  resourceType: number;
+  row: Civ7RuntimeProbe<unknown>;
+  hash: Civ7RuntimeProbe<number>;
+  count: Civ7RuntimeProbe<number>;
+  landmass: Civ7RuntimeProbe<number>;
+  validForAge: Civ7RuntimeProbe<boolean>;
+  requiredForAge: Civ7RuntimeProbe<boolean>;
+  ignoringWeightForRiverPlacement: Civ7RuntimeProbe<boolean>;
+}>;
+
+export type Civ7ResourceBuilderDiagnosticsCellResource = Readonly<{
+  canHaveResource: Readonly<{
+    strict: Civ7RuntimeProbe<boolean>;
+    ignoreWeight: Civ7RuntimeProbe<boolean>;
+  }>;
+  resourceLandmassAtCell: Civ7RuntimeProbe<number>;
+  bestMapResourceCutHashes: Civ7RuntimeProbe<ReadonlyArray<number>>;
+  bestMapResourceCuts: Civ7RuntimeProbe<ReadonlyArray<Civ7ResourceBuilderCutResource>>;
+}>;
+
+export type Civ7ResourceBuilderDiagnosticsCell = Readonly<{
+  location: Readonly<Civ7MapLocation & {
+    index: Civ7RuntimeProbe<number>;
+  }>;
+  resourceTypes: ReadonlyArray<number>;
+  omittedResourceTypes: number;
+  resources: Readonly<Record<string, Civ7ResourceBuilderDiagnosticsCellResource>>;
+}>;
+
+export type Civ7ResourceBuilderDiagnosticsInput = Readonly<{
+  cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput>;
+  maxCells?: number;
+  maxResourceTypesPerCell?: number;
+}>;
+
+export type Civ7ResourceBuilderDiagnosticsResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  cellCount: number;
+  omittedCells: number;
+  resources: ReadonlyArray<Civ7ResourceBuilderDiagnosticsResource>;
+  cells: ReadonlyArray<Civ7ResourceBuilderDiagnosticsCell>;
+}>;
+
 export type Civ7FullMapGridIdentityCheck = Readonly<{
   stable: boolean;
   checked: ReadonlyArray<string>;
@@ -1723,6 +1776,41 @@ export async function getCiv7ResourcePlacementFeasibility(
   return jsonPayloadFromCommandResult<Civ7ResourcePlacementFeasibilityResult>(
     result,
     "Civ7 resource placement feasibility",
+  );
+}
+
+export async function getCiv7ResourceBuilderDiagnostics(
+  input: Civ7ResourceBuilderDiagnosticsInput,
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7ResourceBuilderDiagnosticsResult> {
+  const maxCells = boundedInteger(
+    input.maxCells ?? DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS,
+    1,
+    HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS,
+    "maxCells",
+  );
+  const maxResourceTypesPerCell = boundedInteger(
+    input.maxResourceTypesPerCell ?? DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL,
+    1,
+    HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL,
+    "maxResourceTypesPerCell",
+  );
+  validateResourcePlacementFeasibilityInput(input, maxCells, maxResourceTypesPerCell);
+  const result = await executeCiv7TunerCommand({
+    ...options,
+    command: buildResourceBuilderDiagnosticsCommand({
+      cells: input.cells.slice(0, maxCells).map((cell) => ({
+        ...cell,
+        resourceTypes: cell.resourceTypes.slice(0, maxResourceTypesPerCell),
+        requestedResourceTypeCount: cell.resourceTypes.length,
+      })),
+      requestedCellCount: input.cells.length,
+      maxResourceTypesPerCell,
+    }),
+  });
+  return jsonPayloadFromCommandResult<Civ7ResourceBuilderDiagnosticsResult>(
+    result,
+    "Civ7 ResourceBuilder diagnostics",
   );
 }
 
@@ -3128,6 +3216,121 @@ function buildResourcePlacementFeasibilityCommand(input: {
   })()`;
 }
 
+function buildResourceBuilderDiagnosticsCommand(input: {
+  cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput & {
+    requestedResourceTypeCount: number;
+  }>;
+  requestedCellCount: number;
+  maxResourceTypesPerCell: number;
+}): string {
+  return `(() => {
+    ${probeHelperSource()}
+    const input = ${jsLiteral(input)};
+    const rb = typeof ResourceBuilder !== "undefined" ? ResourceBuilder : undefined;
+    if (!rb) throw new Error("ResourceBuilder is unavailable");
+    const toPlain = (row) => {
+      if (row == null || typeof row !== "object") return row;
+      try {
+        return JSON.parse(JSON.stringify(row));
+      } catch {
+        const out = {};
+        for (const key of Object.getOwnPropertyNames(row)) {
+          try {
+            const value = row[key];
+            if (typeof value !== "function") out[key] = value;
+          } catch {}
+        }
+        return out;
+      }
+    };
+    const resourceRows = (() => {
+      const table = typeof GameInfo !== "undefined" ? GameInfo.Resources : undefined;
+      if (!table) return [];
+      try {
+        return Array.from(table).map((row) => toPlain(row));
+      } catch {
+        return [];
+      }
+    })();
+    const resourceRowsByType = new Map();
+    const resourceRowsByHash = new Map();
+    for (const row of resourceRows) {
+      const type = row?.$index ?? row?.Index ?? row?.ResourceType;
+      if (Number.isInteger(type)) resourceRowsByType.set(type, row);
+      const hash = row?.$hash ?? row?.Hash;
+      if (Number.isInteger(hash)) resourceRowsByHash.set(hash, row);
+    }
+    const resourceTypes = [...new Set(input.cells.flatMap((cell) => cell.resourceTypes))].sort((left, right) => left - right);
+    const counts = probe(() => rb.getResourceCounts());
+    const readCount = (resourceType) => {
+      if (!counts.ok || !Array.isArray(counts.value)) return counts.ok ? { ok: false, error: "ResourceBuilder.getResourceCounts did not return an array" } : counts;
+      return { ok: true, value: counts.value[resourceType] };
+    };
+    const readResource = (resourceType) => {
+      const row = resourceRowsByType.get(resourceType);
+      const hash = row?.$hash ?? row?.Hash;
+      return {
+        resourceType,
+        row: row === undefined ? { ok: false, error: "GameInfo.Resources row not found" } : { ok: true, value: row },
+        hash: Number.isInteger(hash) ? { ok: true, value: hash } : { ok: false, error: "GameInfo.Resources hash not found" },
+        count: readCount(resourceType),
+        landmass: probe(() => rb.getResourceLandmass(resourceType)),
+        validForAge: probe(() => rb.isResourceValidForAge(resourceType)),
+        requiredForAge: probe(() => rb.isResourceRequiredForAge(resourceType)),
+        ignoringWeightForRiverPlacement: probe(() => rb.isResourceIgnoringWeightForRiverPlacement(resourceType)),
+      };
+    };
+    const decodeCuts = (cutHashes) => cutHashes.map((hash) => {
+      const row = resourceRowsByHash.get(hash);
+      const type = row?.$index ?? row?.Index ?? row?.ResourceType;
+      return {
+        hash,
+        ...(Number.isInteger(type) ? { resourceType: type } : {}),
+        ...(typeof row?.ResourceType === "string" ? { resourceTypeName: row.ResourceType } : {}),
+        ...(typeof row?.ResourceType === "string" ? {} : typeof row?.ResourceTypeName === "string" ? { resourceTypeName: row.ResourceTypeName } : {}),
+        ...(row !== undefined ? { row } : {}),
+      };
+    });
+    const readCellResource = (cell, resourceType) => {
+      const cutHashes = probe(() => rb.getBestMapResourceCuts(cell.x, cell.y, resourceType));
+      return {
+        canHaveResource: {
+          strict: probe(() => rb.canHaveResource(cell.x, cell.y, resourceType, false)),
+          ignoreWeight: probe(() => rb.canHaveResource(cell.x, cell.y, resourceType, true)),
+        },
+        resourceLandmassAtCell: probe(() => rb.getResourceLandmass(cell.x, cell.y, resourceType)),
+        bestMapResourceCutHashes: cutHashes,
+        bestMapResourceCuts: cutHashes.ok && Array.isArray(cutHashes.value)
+          ? { ok: true, value: decodeCuts(cutHashes.value) }
+          : cutHashes.ok
+            ? { ok: false, error: "ResourceBuilder.getBestMapResourceCuts did not return an array" }
+            : cutHashes,
+      };
+    };
+    const readCell = (cell) => {
+      const resourceTypes = cell.resourceTypes.slice(0, input.maxResourceTypesPerCell);
+      const resources = {};
+      for (const resourceType of resourceTypes) resources[String(resourceType)] = readCellResource(cell, resourceType);
+      return {
+        location: {
+          x: cell.x,
+          y: cell.y,
+          index: probe(() => GameplayMap.getIndexFromXY(cell.x, cell.y)),
+        },
+        resourceTypes,
+        omittedResourceTypes: Math.max(0, (cell.requestedResourceTypeCount ?? resourceTypes.length) - resourceTypes.length),
+        resources,
+      };
+    };
+    return JSON.stringify({
+      cellCount: input.requestedCellCount,
+      omittedCells: Math.max(0, input.requestedCellCount - input.cells.length),
+      resources: resourceTypes.map((resourceType) => readResource(resourceType)),
+      cells: input.cells.map((cell) => readCell(cell)),
+    });
+  })()`;
+}
+
 function buildPlayerSummaryCommand(input: Civ7PlayerSummaryInput & { maxItems: number }): string {
   return `(() => {
     ${probeHelperSource()}
@@ -4038,10 +4241,10 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     kind: "read-wrapper",
     owner: "@civ7/direct-control",
     risk: "read",
-    provenance: ["ResourceBuilder.canHaveResource", "GameplayMap"],
-    wrapper: "getCiv7ResourcePlacementFeasibility",
+    provenance: ["ResourceBuilder.canHaveResource", "ResourceBuilder.getBestMapResourceCuts", "ResourceBuilder.getResourceCounts", "GameInfo.Resources", "GameplayMap"],
+    wrapper: "getCiv7ResourcePlacementFeasibility|getCiv7ResourceBuilderDiagnostics",
     confidence: "source",
-    description: "Reads bounded per-cell resource feasibility probes for parity/source-authority diagnostics without mutating the map.",
+    description: "Reads bounded per-cell resource feasibility and ResourceBuilder cut/count diagnostics for parity/source-authority diagnostics without mutating the map.",
   },
   {
     id: "wrapper.autoplay",
