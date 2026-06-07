@@ -23,6 +23,10 @@ truth.
 - Classify feature/resource deltas by official data, map policy, adapter
   emulation, MapGen planning, or accepted engine materialization.
 - Repair repo-owned legality or distribution behavior in the correct owner.
+- Preserve natural-wonder materialization as a measured placement outcome:
+  corrupt plans still fail, while planner shortfall, terrain projection, and
+  adapter legality rejection are recorded in the placement artifact instead of
+  aborting map generation.
 - Preserve age/resource legality and measured spacing/diversity.
 
 ## Requires
@@ -43,7 +47,10 @@ truth.
   so the class is narrowed but not yet a global repair authority. Current
   natural-wonder placement counts are local diagnostic evidence only; the
   exact live proof/completion payloads for the request do not yet carry
-  `naturalWonderPlacement` stats.
+  `naturalWonderPlacement` stats. Natural-wonder materialization can still
+  repair repo-owned outcome recording independently of exact live telemetry:
+  it must not claim parity or product acceptance until a later exact proof
+  carries those stats or otherwise classifies the remaining source authority.
 - Resource hypotheses:
   the `106/6996` mismatch class includes relocation/substitution patterns that
   may come from mock/static resource legality, assignment-order divergence from

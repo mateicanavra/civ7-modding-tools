@@ -454,6 +454,30 @@
   authority from relying on local placement counts alone; the next accepted
   movement must either instrument exact live natural-wonder placement evidence
   or explicitly classify ownership from a stronger exact-run source.
+- Natural-wonder materialization outcome repair progress:
+  `codex/swooper-wonder-materialization-repair-drain` synthetically adopts only
+  the natural-wonder materialization behavior from stale source commit
+  `b9a3e9d50` and excludes its unrelated Studio, package, config, generated,
+  and build-surface churn. The materializer now projects generated
+  feature-valid terrain across supported natural-wonder footprints, stamps
+  multi-tile footprints through the mock adapter, preserves hard failures for
+  corrupt plan metadata, and records planner shortfall/out-of-bounds/adapter
+  rejection/readback mismatch as measured placement outcomes in
+  `artifact:placement.naturalWonderPlacement`. This is a repo-owned
+  materialization repair, not an exact live parity or product-acceptance claim.
+  Validation passed:
+  `bun test mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`;
+  `bun test packages/civ7-adapter/test/mock-terrain-policy.test.ts`;
+  `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`;
+  `bun test mods/mod-swooper-maps/test/placement/placement-contracts.test.ts`;
+  `bun run --cwd packages/civ7-adapter check`;
+  `bun run --cwd packages/civ7-adapter build`;
+  `bun run --cwd mods/mod-swooper-maps check`;
+  `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`.
+  Current exact parity rerun remains blocked before parity evaluation:
+  `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-materialization-repair.json`
+  returned
+  `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen

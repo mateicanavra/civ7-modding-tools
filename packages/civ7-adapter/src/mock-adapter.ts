@@ -1233,19 +1233,35 @@ export class MockAdapter implements EngineAdapter {
     elevation?: number
   ): boolean {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
-    if (!this.canHaveFeature(x, y, featureType)) return false;
-    const existing = this.getFeatureType(x, y);
-    if (Number.isFinite(existing) && existing >= 0) return false;
+    const policy = FEATURE_POLICIES[String(featureType | 0)];
+    const footprint = getNaturalWonderFootprintIndices({
+      x,
+      y,
+      width: this.width,
+      height: this.height,
+      policy: policy ?? {},
+      direction,
+    });
+    if (!footprint) return false;
+    for (const plotIndex of footprint) {
+      const fy = (plotIndex / this.width) | 0;
+      const fx = plotIndex - fy * this.width;
+      if (!this.canHaveFeature(fx, fy, featureType)) return false;
+    }
 
     const i = this.idx(x, y);
     const resolvedElevation = Number.isFinite(elevation)
       ? (elevation as number)
       : this.elevations[i]!;
-    this.setFeatureType(x, y, {
-      Feature: featureType,
-      Direction: direction,
-      Elevation: resolvedElevation,
-    });
+    for (const plotIndex of footprint) {
+      const fy = (plotIndex / this.width) | 0;
+      const fx = plotIndex - fy * this.width;
+      this.setFeatureType(fx, fy, {
+        Feature: featureType,
+        Direction: direction,
+        Elevation: resolvedElevation,
+      });
+    }
     this.calls.stampNaturalWonder.push({
       x,
       y,
