@@ -4,6 +4,7 @@ import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity
 import {
   buildFeatureDeltaPlacementContexts,
   buildNaturalWonderFootprintCatalogContexts,
+  buildNaturalWonderLiveProofBoundaryContext,
   buildNaturalWonderFootprintReadbackContexts,
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
@@ -278,6 +279,80 @@ describe("surface delta context diagnostics", () => {
           classification: "live-direction-differs-from-local",
         },
       ],
+    });
+  });
+
+  test("keeps natural-wonder placement proof unresolved when stats are local-only", () => {
+    const local = snapshot({}, {
+      naturalWonderPlacement: {
+        plannedCount: 7,
+        targetCount: 7,
+        placedCount: 7,
+        rejectedCount: 0,
+        shortfallCount: 0,
+      },
+    });
+
+    const context = buildNaturalWonderLiveProofBoundaryContext({
+      local,
+      exactAuthorshipPacket: {
+        log: {
+          requestId: "studio-run-in-game-test",
+        },
+      },
+    });
+
+    expect(context).toMatchObject({
+      localPlacementStats: {
+        plannedCount: 7,
+        targetCount: 7,
+        placedCount: 7,
+        rejectedCount: 0,
+        shortfallCount: 0,
+      },
+      liveProofPlacementStats: null,
+      liveCompletionPlacementStats: null,
+      boundaryClass: "local-placement-stats-only",
+      unresolvedLinks: ["natural-wonder.live-placement-stats"],
+    });
+  });
+
+  test("accepts natural-wonder placement stats only when live proof payload carries them", () => {
+    const local = snapshot({}, {
+      naturalWonderPlacement: {
+        plannedCount: 7,
+        placedCount: 7,
+      },
+    });
+
+    const context = buildNaturalWonderLiveProofBoundaryContext({
+      local,
+      exactAuthorshipPacket: exactAuthorshipPacket({
+        log: {
+          completionPayload: {
+            naturalWonderPlacement: {
+              plannedCount: 7,
+              targetCount: 7,
+              placedCount: 7,
+              rejectedCount: 0,
+              shortfallCount: 0,
+            },
+          },
+        },
+      }),
+    });
+
+    expect(context).toMatchObject({
+      liveProofPlacementStats: null,
+      liveCompletionPlacementStats: {
+        plannedCount: 7,
+        targetCount: 7,
+        placedCount: 7,
+        rejectedCount: 0,
+        shortfallCount: 0,
+      },
+      boundaryClass: "local-and-live-placement-stats-present",
+      unresolvedLinks: [],
     });
   });
 
@@ -592,4 +667,12 @@ function feasibilityCell(
       ])
     ),
   };
+}
+
+function exactAuthorshipPacket(value: unknown): NonNullable<
+  Parameters<typeof buildNaturalWonderLiveProofBoundaryContext>[0]["exactAuthorshipPacket"]
+> {
+  return value as NonNullable<
+    Parameters<typeof buildNaturalWonderLiveProofBoundaryContext>[0]["exactAuthorshipPacket"]
+  >;
 }

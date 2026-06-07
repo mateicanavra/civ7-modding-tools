@@ -817,6 +817,39 @@ broader exact-run footprint evidence or explicitly constrain its owner claim to
 supported catalog behavior with tests that protect fixed-direction and
 single-tile entries.
 
+### Natural-Wonder Live Proof Boundary
+
+Diagnostic repair:
+`buildNaturalWonderLiveProofBoundaryContext` now records whether
+natural-wonder placement stats are present in local diagnostic evidence, the
+exact live proof payload, and the exact live completion payload. This keeps
+local placement counts from being mistaken for exact live natural-wonder
+authorship evidence.
+
+The current live-proof boundary artifact is
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-natural-wonder-live-proof-boundary.json`
+(`sha256:1cd7da84ac26417f46c851b51e9abe4e146c0b4150c3a5ca104d577f1647ea4a`,
+`proofHash:156386737ebde2b38fee76a3a8d716291acefb285be19a2a226129139ec81557`).
+It is derived from the saved exact parity proof and prior local feature-context
+artifact; it is not a fresh exact-authored parity proof.
+
+Placement proof facts:
+
+| Evidence source | Placement stats | Boundary |
+|---|---|---|
+| Local feature evidence | `planned:7`, `target:7`, `placed:7`, `rejected:0`, `shortfall:0` | Local exact-source diagnostic evidence only. |
+| Exact proof payload | missing | No `naturalWonderPlacement` stats in the live proof payload. |
+| Exact completion payload | missing | No `naturalWonderPlacement` stats in the live completion payload. |
+
+Disposition:
+the boundary class is `local-placement-stats-only` and the artifact carries
+unresolved link `natural-wonder.live-placement-stats`. The local placement
+stats support row classification, but they do not close source authority for a
+natural-wonder repair because the exact live proof packet does not yet carry
+corresponding natural-wonder placement stats for the same request/config/seed
+chain. No natural-wonder repair, parity closure, product acceptance, or
+mountain-quality claim is authorized from local placement counts alone.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

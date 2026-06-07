@@ -54,8 +54,10 @@
   and live grids.
 - [x] 2.25 Add supported-catalog direction context for natural-wonder footprint
   readback rows.
-- [ ] 2.26 Repair remaining proven package or MapGen owners.
-- [ ] 2.27 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.26 Add natural-wonder live proof boundary context for local-only
+  placement stats.
+- [ ] 2.27 Repair remaining proven package or MapGen owners.
+- [ ] 2.28 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

@@ -40,7 +40,10 @@ truth.
   supported-catalog context shows `5` multi-tile natural wonders have official
   `naturalWonderDirection:-1` while local projection materializes that as
   direction `0`; exact-run readback observes only Kilimanjaro and Zhangjiajie,
-  so the class is narrowed but not yet a global repair authority.
+  so the class is narrowed but not yet a global repair authority. Current
+  natural-wonder placement counts are local diagnostic evidence only; the
+  exact live proof/completion payloads for the request do not yet carry
+  `naturalWonderPlacement` stats.
 - Resource hypotheses:
   the `106/6996` mismatch class includes relocation/substitution patterns that
   may come from mock/static resource legality, assignment-order divergence from
