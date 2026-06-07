@@ -26,10 +26,13 @@ import type {
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
 import { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
-import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  NATURAL_WONDER_CATALOG,
+  getNaturalWonderFootprintIndices,
+} from "@civ7/map-policy";
 
 type FeaturePolicy = Readonly<{
   noLake: boolean;

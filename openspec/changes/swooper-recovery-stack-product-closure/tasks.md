@@ -37,6 +37,20 @@
     local-overaccepted/live-empty rows. This narrows the resource blocker to
     assignment/materialization reconciliation; it does not close resource
     parity or product acceptance.
+    Follow-on branch `codex/swooper-natural-wonder-supported-catalog-drain`
+    repairs the exact natural-wonder unsupported-footprint class by aligning
+    production adapter catalog authority with `@civ7/map-policy` and preserving
+    unsupported/empty footprints as not plannable. This is a local source
+    repair with focused tests, not final-surface parity or product acceptance.
+    Fresh exact request `studio-run-in-game-mq3x46sy-20js` confirms the
+    unsupported-footprint class is removed from live natural-wonder telemetry:
+    exact natural wonders are now `7` planned, `5` placed, and `2` rejected,
+    both `readback-mismatch`. Final-surface verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3x46sy-20js-after-natural-wonder-supported-catalog.json`
+    (`sha256:3555c553ade9dd3c810868c34ffa7bff3aa602e477e476b05366fbc8449d60e2`,
+    `proofHash:ea9a8d88f8fbbe7b86d1b06f1f5893acaf579b46ddf534ae9a5f328277fdc5ee`)
+    remains unresolved with terrain, biome, feature, resource, and resource
+    coordinate proof links still open.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -64,7 +78,7 @@
 
 - [ ] 3.1 Run `git status --short --branch`.
   - Current proof-contract slice must leave
-    `codex/swooper-resource-delta-feasibility-current-record-drain`
+    `codex/swooper-natural-wonder-supported-catalog-drain`
     clean before commit or closure.
 - [ ] 3.2 Inspect Graphite branch/stack state.
   - Current audit snapshot: top branch
@@ -75,6 +89,8 @@
     `codex/swooper-resource-rejection-identity-rerun-record-drain`,
     `codex/swooper-resource-rejection-proof-identity-drain`, and the current
     feature/resource/source-authority proof-record branches.
+  - Follow-on implementation branch:
+    `codex/swooper-natural-wonder-supported-catalog-drain`.
 - [ ] 3.3 Run `git diff --check`.
 - [ ] 3.4 Run `bun run openspec -- validate swooper-recovery-stack-product-closure --strict`.
 - [ ] 3.5 Run `bun run openspec:validate`.

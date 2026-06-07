@@ -142,29 +142,34 @@ export function buildPlacementInputs(
     startSectors: runtime.startSectors,
   };
   const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
-  const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog().map((entry) => {
+  const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog().flatMap((entry) => {
     const featureType = entry.featureType | 0;
     const policy = FEATURE_POLICIES[String(featureType)];
     const materializationDirection = resolveNaturalWonderMaterializationDirection(
       policy ?? {},
       entry.direction | 0
     );
-    return {
-      featureType,
-      direction: materializationDirection,
-      validTerrainTypes: [...(FEATURE_VALID_TERRAIN_TYPE_INDICES[String(featureType)] ?? [])],
-      validBiomeTypes: [...(FEATURE_VALID_BIOME_TYPE_INDICES[String(featureType)] ?? [])],
-      ...(policy?.minimumElevation !== undefined
-        ? { minimumElevation: policy.minimumElevation }
-        : {}),
-      ...(policy?.noLake ? { noLake: true } : {}),
-      ...(policy?.placementClass ? { placementClass: policy.placementClass } : {}),
-      ...(policy?.naturalWonderTiles ? { naturalWonderTiles: policy.naturalWonderTiles } : {}),
-      featureTags: [...(FEATURE_TAGS_BY_FEATURE_TYPE[String(featureType)] ?? [])],
-      footprintOffsets: [
-        ...(getNaturalWonderFootprintOffsets(policy ?? {}, materializationDirection) ?? []),
-      ],
-    };
+    const footprintOffsets = getNaturalWonderFootprintOffsets(
+      policy ?? {},
+      materializationDirection
+    );
+    if (!footprintOffsets) return [];
+    return [
+      {
+        featureType,
+        direction: materializationDirection,
+        validTerrainTypes: [...(FEATURE_VALID_TERRAIN_TYPE_INDICES[String(featureType)] ?? [])],
+        validBiomeTypes: [...(FEATURE_VALID_BIOME_TYPE_INDICES[String(featureType)] ?? [])],
+        ...(policy?.minimumElevation !== undefined
+          ? { minimumElevation: policy.minimumElevation }
+          : {}),
+        ...(policy?.noLake ? { noLake: true } : {}),
+        ...(policy?.placementClass ? { placementClass: policy.placementClass } : {}),
+        ...(policy?.naturalWonderTiles ? { naturalWonderTiles: policy.naturalWonderTiles } : {}),
+        featureTags: [...(FEATURE_TAGS_BY_FEATURE_TYPE[String(featureType)] ?? [])],
+        footprintOffsets: [...footprintOffsets],
+      },
+    ];
   });
   const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
   const noResourceSentinel = context.adapter.NO_RESOURCE | 0;

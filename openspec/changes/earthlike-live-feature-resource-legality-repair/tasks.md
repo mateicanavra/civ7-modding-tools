@@ -276,6 +276,35 @@
     feasibility. This is still source-authority evidence only; repair must be
     selected at the assignment/materialization owner boundary, not by changing
     public Earthlike config or static policy as a shortcut.
+  - Current branch `codex/swooper-natural-wonder-supported-catalog-drain`
+    repairs one newly proven natural-wonder owner class from
+    `studio-run-in-game-mq3v6xr9-4w9`: unsupported natural-wonder footprint
+    rows could survive into planning. The production adapter now consumes the
+    shared `@civ7/map-policy` supported natural-wonder catalog, placement-input
+    derivation filters unsupported footprints before planning, and explicit
+    empty footprint arrays no longer fall back to one-tile placement
+    candidates. Focused local tests/checks pass. This does not claim final
+    parity, product acceptance, the remaining natural-wonder readback-mismatch
+    row, or any resource/feature/terrain source-authority closure until fresh
+    exact runtime proof is rerun.
+  - Fresh exact request `studio-run-in-game-mq3x46sy-20js` proves that repair
+    in the live path. POST artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-supported-catalog-post.json`
+    has `sha256:f56ed199e8f081d34aca7388adc839b175df7953473e43948b28218521d6542b`;
+    terminal status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-supported-catalog-status.json`
+    has `sha256:c5a223071f580d596f43c34624103281366fb8b2b33f75f2d8beddd4f5ca22b5`.
+    Exact authorship completed with no unresolved exact links. Natural-wonder
+    telemetry moved from `7` planned / `4` placed / `3` rejected with two
+    `unsupported-footprint` rows to `7` planned / `5` placed / `2` rejected,
+    both `readback-mismatch` rows (`feature=30` at plot `4130` and
+    `feature=36` at plot `1785`). Final-surface verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3x46sy-20js-after-natural-wonder-supported-catalog.json`
+    has `sha256:3555c553ade9dd3c810868c34ffa7bff3aa602e477e476b05366fbc8449d60e2`,
+    `proofHash:ea9a8d88f8fbbe7b86d1b06f1f5893acaf579b46ddf534ae9a5f328277fdc5ee`,
+    and was created `2026-06-07T15:14:43.351Z`. It remains unresolved:
+    terrain `140`, biome `874`, feature `376`, resource `307`, and resource
+    coordinate proof placed/rejected links are still open.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
   - Current exact log proves `251` planned resources, `250` placed, `1`
     rejected, `0` mismatched, `34` unique planned/placed types, min/max placed

@@ -6,7 +6,7 @@
 - Phase: product closure planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack:
-  `codex/swooper-resource-delta-feasibility-current-record-drain`
+  `codex/swooper-natural-wonder-supported-catalog-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -29,7 +29,8 @@
 ## Current State
 
 - Repo/Graphite state: current top branch is
-  `codex/swooper-resource-delta-feasibility-current-record-drain`, stacked above
+  `codex/swooper-natural-wonder-supported-catalog-drain`, stacked above
+  `codex/swooper-resource-delta-feasibility-current-record-drain`,
   `codex/swooper-resource-rejection-local-context-drain`,
   `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
   `codex/swooper-resource-rejection-assignment-context-drain`,
@@ -68,7 +69,16 @@
   matches runtime identity and records `308` resource rows with `0` omitted
   cells. Its current resource split is dominated by scarce-floor assignment
   (`183/194` local-assigned delta rows), so resource closure is now blocked on
-  assignment/materialization owner disposition rather than config cleanup.
+  assignment/materialization owner disposition rather than config cleanup. The
+  current follow-on branch repairs the exact natural-wonder
+  unsupported-footprint owner class by aligning production adapter catalog
+  authority with `@civ7/map-policy`, filtering unsupported footprints before
+  planning, and preserving explicit empty footprints as not plannable. Fresh
+  exact request `studio-run-in-game-mq3x46sy-20js` proves runtime telemetry
+  changed: exact authorship completed with no unresolved exact links, and
+  natural-wonder telemetry is `7` planned / `5` placed / `2` rejected, with the
+  two previous unsupported-footprint rejections gone. Final-surface parity and
+  product acceptance remain open.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -114,8 +124,10 @@
   snapshot recorded, including current exact feature-apply telemetry,
   natural-wonder telemetry, resource rejection numeric identity, resource
   rejection assignment/local-context proof rerun, and current resource-delta
-  feasibility proof after the exact/local rejection join. Current top branch is
-  a diagnostic/proof slice only.
+  feasibility proof after the exact/local rejection join. Current branch also
+  locally repairs the natural-wonder unsupported-catalog / empty-footprint
+  planning leak, and fresh exact runtime proof confirms that unsupported
+  footprint rows no longer reach live natural-wonder placement telemetry.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
@@ -131,7 +143,20 @@
   unresolved with proof hash
   `66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290`;
   broader review-ledger scan found historical P1/P2 entries but no active
-  review ledger under the two current recovery closure changes.
+  review ledger under the two current recovery closure changes. Focused local
+  validation for the natural-wonder repair passed: `bun test
+  mods/mod-swooper-maps/test/placement/plan-ops.test.ts
+  mods/mod-swooper-maps/test/placement/derive-placement-inputs.test.ts
+  packages/civ7-adapter/test/natural-wonder-catalog.test.ts`,
+  `bun run --cwd packages/civ7-adapter check`, and
+  `bun run --cwd mods/mod-swooper-maps check`. Fresh runtime proof:
+  `studio-run-in-game-mq3x46sy-20js` completed through materialize, deploy,
+  Civ restart, setup, game start, and proof waiting. POST/status/verifier/log
+  artifacts have SHA-256 values
+  `f56ed199e8f081d34aca7388adc839b175df7953473e43948b28218521d6542b`,
+  `c5a223071f580d596f43c34624103281366fb8b2b33f75f2d8beddd4f5ca22b5`,
+  `3555c553ade9dd3c810868c34ffa7bff3aa602e477e476b05366fbc8449d60e2`, and
+  `a750bce889c3db09c2728323798aee22ad4eef05aa8bb86eed202b174e5a922f`.
 - Skipped gates and rationale: closure gates wait for proof closure.
 - Evidence boundary: this record proves no product closure.
 
@@ -144,11 +169,11 @@
 
 ## Next Action
 
-- Exact next step: continue the proof-led drain from
-  `earthlike-live-feature-resource-legality-repair`, starting with
-  source-authority classification of the cross-resource scarce-floor divergence
-  at plot `4838`, then current natural-wonder unsupported-footprint/readback
-  ownership, and exact `FEATURE_APPLY_V1` materialization/readback ownership.
+- Exact next step: run strict OpenSpec/git checks and amend this bounded
+  natural-wonder source repair with the fresh proof record. Then continue the
+  remaining queue: natural-wonder readback-mismatch ownership, cross-resource
+  scarce-floor divergence at plot `4838`, and exact `FEATURE_APPLY_V1`
+  materialization/readback ownership.
 - First files to inspect: recovery OpenSpec proof ledgers and Graphite branch
   state.
 - Stop condition: accepted P1/P2 findings remain open.
