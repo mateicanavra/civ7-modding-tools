@@ -1,4 +1,4 @@
-import { readdir, readFile, stat } from "node:fs/promises";
+import { open, readdir, readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
 import { Socket, createConnection } from "node:net";
@@ -2761,6 +2761,8 @@ export type FileSnapshot = Readonly<{
   exists: boolean;
   size: number;
   mtimeMs: number;
+  prefix: string;
+  prefixBytes: number;
 }>;
 
 export type FreshLogMarkerProof = Readonly<{
@@ -2776,8 +2778,46 @@ export async function snapshotFile(path: string): Promise<FileSnapshot> {
     throw err;
   });
   return info
-    ? { exists: true, size: info.size, mtimeMs: info.mtimeMs }
-    : { exists: false, size: 0, mtimeMs: 0 };
+    ? {
+        exists: true,
+        size: info.size,
+        mtimeMs: info.mtimeMs,
+        ...(await filePrefixSnapshot(path, info.size)),
+      }
+    : { exists: false, size: 0, mtimeMs: 0, prefix: "", prefixBytes: 0 };
+}
+
+async function filePrefixSnapshot(path: string, size: number): Promise<Pick<FileSnapshot, "prefix" | "prefixBytes">> {
+  const prefixBytes = Math.min(size, 4096);
+  if (prefixBytes === 0) return { prefix: "", prefixBytes: 0 };
+  const handle = await open(path, "r");
+  try {
+    const buffer = Buffer.alloc(prefixBytes);
+    const { bytesRead } = await handle.read(buffer, 0, prefixBytes, 0);
+    return {
+      prefix: buffer.subarray(0, bytesRead).toString("utf8"),
+      prefixBytes: bytesRead,
+    };
+  } finally {
+    await handle.close();
+  }
+}
+
+export function logTextFromSnapshot(args: {
+  fullText: string;
+  snapshot: FileSnapshot;
+  current: FileSnapshot;
+}): { text: string; startOffset: number; rewritten: boolean } {
+  const { fullText, snapshot, current } = args;
+  if (!snapshot.exists) return { text: fullText, startOffset: 0, rewritten: true };
+
+  const rewritten = snapshot.prefixBytes > 0 && !fullText.startsWith(snapshot.prefix);
+  if (rewritten) return { text: fullText, startOffset: 0, rewritten };
+  if (current.size > snapshot.size) {
+    return { text: fullText.slice(snapshot.size), startOffset: snapshot.size, rewritten: false };
+  }
+  if (current.mtimeMs > snapshot.mtimeMs) return { text: fullText, startOffset: 0, rewritten: true };
+  return { text: "", startOffset: snapshot.size, rewritten: false };
 }
 
 export async function waitForFreshLogMarkers(options: {
@@ -2791,22 +2831,24 @@ export async function waitForFreshLogMarkers(options: {
   const timeoutMs = options.timeoutMs ?? 90_000;
   const pollIntervalMs = options.pollIntervalMs ?? 1_000;
   const startedAt = Date.now();
-  const startOffset = options.snapshot.size;
+  const snapshotOffset = options.snapshot.size;
+  let lastStartOffset = snapshotOffset;
   let lastError: string | undefined;
 
   while (Date.now() - startedAt <= timeoutMs) {
     const current = await snapshotFile(options.logPath);
-    if (current.exists && (current.size > startOffset || current.mtimeMs > options.snapshot.mtimeMs)) {
+    if (current.exists && (current.size > snapshotOffset || current.mtimeMs > options.snapshot.mtimeMs)) {
       const fullText = await readFile(options.logPath, "utf8");
-      const newText = current.size > startOffset ? fullText.slice(startOffset) : fullText;
-      const proof = matchOrderedMarkers(newText, options.markers);
-      const rejected = options.rejectPattern?.exec(newText);
+      const freshLog = logTextFromSnapshot({ fullText, snapshot: options.snapshot, current });
+      lastStartOffset = freshLog.startOffset;
+      const proof = matchOrderedMarkers(freshLog.text, options.markers);
+      const rejected = options.rejectPattern?.exec(freshLog.text);
       if (rejected) lastError = `Log contains ${rejected[0]}`;
       if (proof.ok && !rejected) {
         return {
           logPath: options.logPath,
           observedAt: new Date().toISOString(),
-          startOffset,
+          startOffset: freshLog.startOffset,
           matched: proof.matched,
         };
       }
@@ -2817,7 +2859,7 @@ export async function waitForFreshLogMarkers(options: {
   throw new Civ7DirectControlError(
     "log-timeout",
     lastError ?? `Timed out waiting for fresh log markers in ${options.logPath}`,
-    { details: { markers: options.markers, startOffset } },
+    { details: { markers: options.markers, startOffset: lastStartOffset, snapshotOffset } },
   );
 }
 

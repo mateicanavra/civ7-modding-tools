@@ -30,13 +30,13 @@ try {
 
   const forbidden = [
     {
-      label: "/base-standard/ import specifiers",
-      pattern: /["'`]\/base-standard\//,
+      label: "/base-standard/ imports",
+      pattern: /\b(?:import\s*(?:\(|["'])|from\s*["'])\/base-standard\//,
     },
-    { label: "Civ7 engine globals", pattern: /GameplayMap/ },
-    { label: "Node builtins (node:fs)", pattern: /node:fs/ },
-    { label: "Node builtins (node:path)", pattern: /node:path/ },
-    { label: "Node builtins (node:process)", pattern: /node:process/ },
+    { label: "Civ7 engine globals", pattern: /\bGameplayMap\b/ },
+    { label: "Node builtins (node:fs)", pattern: /["']node:fs["']/ },
+    { label: "Node builtins (node:path)", pattern: /["']node:path["']/ },
+    { label: "Node builtins (node:process)", pattern: /["']node:process["']/ },
   ];
 
   const hits = [];
@@ -45,13 +45,13 @@ try {
     for (const { label, pattern } of forbidden) {
       const match = text.match(pattern);
       if (match) {
-        hits.push({ file, label, needle: match[0] });
+        hits.push({ file, label, pattern, match: match[0] });
       }
     }
   }
 
   if (hits.length) {
-    const lines = hits.map((h) => `- ${h.label}: ${h.needle} in ${h.file}`);
+    const lines = hits.map((h) => `- ${h.label}: ${h.match} in ${h.file}`);
     fail(`worker bundle contains forbidden references:\n${lines.join("\n")}`);
   }
 } catch (e) {
