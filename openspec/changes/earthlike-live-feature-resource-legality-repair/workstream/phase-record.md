@@ -5,13 +5,14 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-builder-diagnostics-drain`
-  stacked above `codex/swooper-resource-assignment-trace-drain`
+- Branch/Graphite stack: `codex/swooper-resource-builder-classifier-drain`
+  stacked above `codex/swooper-resource-builder-diagnostics-drain`
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
   feasibility plus row/static-policy/live-plot, assignment-order, and
-  ResourceBuilder diagnostic context now narrows the next resource repair class.
+  ResourceBuilder diagnostic/subclassification context now narrows the next
+  resource repair class.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -136,10 +137,10 @@
   blocks if those sources are missing or conflicting. It then reads current
   live map identity through `getCiv7MapSummary` and blocks if width, height,
   plot count, seed, turn, or game hash do not match the saved proof identity.
-  The current assignment-order artifact is
+  The current full feasibility artifact is
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-  (`sha256:2d8a85cee626ce561ffa0d735ba5b00670ebc6fbda23da2aaddb651d78af4f15`,
-  `proofHash:dd2d9868ad7a86f0091a188feed055c40656675301a751bfeb54d0bf3ffaa1a7`).
+  (`sha256:3ed111634243de08bb54f112ab1fb320ec020d65b707a1a9896de7521215e9ad`,
+  `proofHash:49e67bfb29691ccc56a37531a7898fcb235ca17c089fe154be209c206c95f921`).
   Request identity resolves to `studio-run-in-game-mq20rbzr-1fhc`; runtime
   identity is matched to the saved proof at `106x66`, `6996` plots, seed
   `138503614`, turn `1`, and game hash `0`. The artifact preserves the
@@ -179,6 +180,28 @@
   removes relaxed-spacing and rebalance as explanations for the focused class,
   but it still does not identify the hidden Civ feasibility constraint that
   rejected those cells.
+- ResourceBuilder diagnostics progress:
+  `@civ7/direct-control` now exposes a bounded
+  `getCiv7ResourceBuilderDiagnostics` read wrapper for the focused rows. The
+  current regenerated runtime-bound artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
+  has sha256
+  `3ed111634243de08bb54f112ab1fb320ec020d65b707a1a9896de7521215e9ad`
+  and proofHash
+  `49e67bfb29691ccc56a37531a7898fcb235ca17c089fe154be209c206c95f921`.
+  It keeps the exact-authored source proof hash
+  `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`
+  and reads ResourceBuilder diagnostics for the `9` focused cells with `0`
+  omitted cells. All `9` remain false under both strict and
+  `ignoreWeight:true` `canHaveResource`. Civ `getBestMapResourceCuts` excludes
+  the local resource for `6` rows and includes it for `3` rows that are still
+  rejected, so cut-list exclusion explains part but not all of the class. All
+  probed resource types are age-valid, counts are present, and the
+  ResourceBuilder landmass probe returns `255` for each local resource type.
+  This narrows the next source-authority step to hidden ResourceBuilder cut
+  ordering/landmass/count or materialization-state constraints; it still does
+  not authorize mock/static-policy repair, resource tuning, parity closure, or
+  product acceptance.
 - Assignment-order context progress:
   the typed local `resourcePlacementOutcomes.assignmentTrace` now records
   assignment order, per-type count before assignment, legal local plot count for
@@ -192,9 +215,9 @@
   The regenerated resource feasibility artifact
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
   has sha256
-  `2d8a85cee626ce561ffa0d735ba5b00670ebc6fbda23da2aaddb651d78af4f15`
+  `3ed111634243de08bb54f112ab1fb320ec020d65b707a1a9896de7521215e9ad`
   and proofHash
-  `dd2d9868ad7a86f0091a188feed055c40656675301a751bfeb54d0bf3ffaa1a7`.
+  `49e67bfb29691ccc56a37531a7898fcb235ca17c089fe154be209c206c95f921`.
   The `9` focused rows are all scarce-floor assignments made before their local
   resource type reached the floor target (`targetMinPerType:7`), with local
   legal plot counts between `66` and `554`. This proves the local reason those
@@ -203,28 +226,14 @@
   belongs in the local scarce-floor candidate/cut ordering policy, in an
   adapter/mock approximation of hidden Civ constraints, or in an accepted
   materialization-state disposition.
-- ResourceBuilder diagnostics progress:
-  `@civ7/direct-control` now exposes a bounded
-  `getCiv7ResourceBuilderDiagnostics` read wrapper for the focused rows. The
-  regenerated runtime-bound artifact
-  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-  has sha256
-  `0106c8aefdd05083159b57e93d2d8f463bfb3c59ee5cb223b7b36d7be381528b`
-  and proofHash
-  `5fb8111e4967bb45f50893adb95d122ca38a2ad5ddb4c8926d2ce2e1f605b7d1`.
-  It keeps the same exact-authored source proof hash
-  `43238c33197c3b8d2e06e6209f03101268c4f125dcc33f2e9892c8d2baf7fcab`
-  and reads ResourceBuilder diagnostics for the `9` focused cells with `0`
-  omitted cells. All `9` remain false under both strict and
-  `ignoreWeight:true` `canHaveResource`. Civ `getBestMapResourceCuts` excludes
-  the local resource for `6` rows and includes it for `3` rows that are still
-  rejected, so cut-list exclusion explains part but not all of the class. All
-  probed resource types are age-valid, counts are present, and the
-  ResourceBuilder landmass probe returns `255` for each local resource type.
-  This narrows the next source-authority step to hidden ResourceBuilder cut
-  ordering/landmass/count or materialization-state constraints; it still does
-  not authorize mock/static-policy repair, resource tuning, parity closure, or
-  product acceptance.
+- ResourceBuilder subclassification progress:
+  the full feasibility artifact now carries a structured
+  `resourceBuilderSubclassification` block for the `9` focused rows. It records
+  `6` `scarce-floor-cut-excluded` rows and `3`
+  `scarce-floor-cut-included-rejected` rows, preserving assignment order,
+  per-type floor progress, local legal plot count, cut membership, and
+  `canHaveResource` results per row. This makes the next owner decision
+  auditable without treating either subclass as repair authority.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -236,14 +245,15 @@
   feasible live-only/local-empty/substitution classes plus hidden runtime
   feasibility classification for the `9` local-assigned/live-empty rows where
   Civ rejects the local value with `ignoreWeight:true`. For those `9` rows,
-  assignment trace rules out relaxed spacing and rebalance, assignment-order
-  context shows every focused local value came from the scarce-floor quota pass,
-  and ResourceBuilder diagnostics show `6` local resources absent from Civ cut
-  lists while `3` local resources are present in cut lists but still rejected.
-  No resource tuning, static-policy repair, or assignment-order repair is
-  authorized until those sub-classes are assigned to a concrete source owner.
-  The single substitution row where both probed values are infeasible remains
-  an individual evidence row with no repair authority until row-level context
-  assigns source ownership.
+  assignment trace rules out relaxed spacing and rebalance, and ResourceBuilder
+  diagnostics and the structured subclassification show `6` local resources
+  absent from Civ cut lists while `3` local resources are present in cut lists
+  but still rejected. Assignment-order context shows every focused local value
+  came from the scarce-floor quota pass, not strict/relaxed fill or rebalance.
+  No resource tuning, static-policy repair, scarce-floor repair, or
+  assignment-order repair is authorized until those subclasses are assigned to a
+  concrete source owner. The single substitution row where both probed values
+  are infeasible remains an individual evidence row with no repair authority
+  until row-level context assigns source ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.

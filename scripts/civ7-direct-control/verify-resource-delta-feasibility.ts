@@ -205,6 +205,12 @@ async function main(): Promise<number> {
           { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
         )
       : null;
+  const resourceBuilderDiagnosticsSummary =
+    resourceBuilderDiagnostics === null ? null : summarizeResourceBuilderDiagnostics(resourceBuilderDiagnostics);
+  const resourceBuilderSubclassification =
+    resourceBuilderDiagnosticsSummary === null
+      ? null
+      : summarizeResourceBuilderSubclassification(ignoreWeightProof.rows, resourceBuilderDiagnosticsSummary);
 
   const outputWithoutHash = {
     ok: true,
@@ -214,8 +220,8 @@ async function main(): Promise<number> {
     runtimeIdentity,
     rowCount: deltaRows.length,
     livePlotContext: summarizeLivePlotContext(livePlotContext),
-    resourceBuilderDiagnostics:
-      resourceBuilderDiagnostics === null ? null : summarizeResourceBuilderDiagnostics(resourceBuilderDiagnostics),
+    resourceBuilderDiagnostics: resourceBuilderDiagnosticsSummary,
+    resourceBuilderSubclassification,
     strict: summarizeFeasibilityProof(proof, strict),
     ignoreWeight: ignoreWeightProof,
   };
@@ -387,6 +393,112 @@ function summarizeResourceBuilderDiagnostics(readback: Civ7ResourceBuilderDiagno
     resources: readback.resources,
     cells: readback.cells,
   };
+}
+
+type ResourceBuilderDiagnosticsSummary = ReturnType<typeof summarizeResourceBuilderDiagnostics>;
+
+function summarizeResourceBuilderSubclassification(
+  rows: ReadonlyArray<ResourceDeltaFeasibilityContext>,
+  diagnostics: ResourceBuilderDiagnosticsSummary
+) {
+  const focusedRows = rows.filter(
+    (row) => row.feasibilityClass === "local-overaccepted-live-empty" && row.localResource.value !== null
+  );
+  const cellsByLocation = new Map(
+    diagnostics.cells.map((cell) => [`${cell.location.x},${cell.location.y}`, cell] as const)
+  );
+  const resourcesByType = new Map(diagnostics.resources.map((resource) => [resource.resourceType, resource] as const));
+  const classifiedRows = focusedRows.map((row) => {
+    const localResourceType = row.localResource.value as number;
+    const cell = cellsByLocation.get(`${row.x},${row.y}`);
+    const cellResource = cell?.resources[String(localResourceType)];
+    const resource = resourcesByType.get(localResourceType);
+    const cutResourceTypes = cutResourceTypeNames(cellResource?.bestMapResourceCuts);
+    const cutIncludesLocal = cutIncludesResource(cellResource?.bestMapResourceCuts, localResourceType);
+    const strict = probeBoolean(cellResource?.canHaveResource.strict);
+    const ignoreWeight = probeBoolean(cellResource?.canHaveResource.ignoreWeight);
+    const assignmentPhase = row.assignmentTrace?.assignmentPhase ?? null;
+    const classification = classifyResourceBuilderFocusedRow({
+      assignmentPhase,
+      cutIncludesLocal,
+      ignoreWeight,
+      hasCellDiagnostics: cellResource !== undefined,
+    });
+
+    return {
+      x: row.x,
+      y: row.y,
+      plotIndex: row.plotIndex,
+      localResource: row.localResource,
+      plannedPreferredResourceSymbol: row.plannedPreferredResourceSymbol,
+      feasibilityClass: row.feasibilityClass,
+      assignmentTrace: row.assignmentTrace,
+      resourceBuilder: {
+        canHaveResource: {
+          strict,
+          ignoreWeight,
+        },
+        cutIncludesLocal,
+        cutResourceTypes,
+        count: probeNumberLike(resource?.count),
+        landmass: probeNumberLike(resource?.landmass),
+        resourceLandmassAtCell: probeNumberLike(cellResource?.resourceLandmassAtCell),
+        validForAge: probeBoolean(resource?.validForAge),
+        requiredForAge: probeBoolean(resource?.requiredForAge),
+        ignoringWeightForRiverPlacement: probeBoolean(resource?.ignoringWeightForRiverPlacement),
+      },
+      subclassification: classification,
+    };
+  });
+
+  return {
+    readback: diagnostics.readback,
+    focusedRowCount: focusedRows.length,
+    classCounts: countBy(classifiedRows, (row) => row.subclassification),
+    rows: classifiedRows,
+  };
+}
+
+function classifyResourceBuilderFocusedRow(input: {
+  assignmentPhase: string | null;
+  cutIncludesLocal: boolean | null;
+  ignoreWeight: boolean | null;
+  hasCellDiagnostics: boolean;
+}):
+  | "scarce-floor-cut-excluded"
+  | "scarce-floor-cut-included-rejected"
+  | "scarce-floor-resource-builder-evidence-missing"
+  | "local-overaccepted-non-scarce-floor" {
+  if (!input.hasCellDiagnostics) return "scarce-floor-resource-builder-evidence-missing";
+  if (input.assignmentPhase !== "scarce-floor") return "local-overaccepted-non-scarce-floor";
+  if (input.cutIncludesLocal === false) return "scarce-floor-cut-excluded";
+  if (input.cutIncludesLocal === true && input.ignoreWeight === false) return "scarce-floor-cut-included-rejected";
+  return "scarce-floor-resource-builder-evidence-missing";
+}
+
+function cutIncludesResource(
+  probe: Civ7RuntimeProbe<ReadonlyArray<{ resourceType?: number }>> | undefined,
+  resourceType: number
+): boolean | null {
+  if (!probe?.ok || !Array.isArray(probe.value)) return null;
+  return probe.value.some((resource) => resource.resourceType === resourceType);
+}
+
+function cutResourceTypeNames(
+  probe: Civ7RuntimeProbe<ReadonlyArray<{ resourceTypeName?: string; resourceType?: number }>> | undefined
+): ReadonlyArray<string> | null {
+  if (!probe?.ok || !Array.isArray(probe.value)) return null;
+  return probe.value.map((resource) => resource.resourceTypeName ?? String(resource.resourceType ?? "unknown"));
+}
+
+function probeBoolean(probe: Civ7RuntimeProbe<boolean> | undefined): boolean | null {
+  if (!probe?.ok || typeof probe.value !== "boolean") return null;
+  return probe.value;
+}
+
+function probeNumberLike(probe: Civ7RuntimeProbe<number> | undefined): number | null {
+  if (!probe?.ok || typeof probe.value !== "number" || !Number.isFinite(probe.value)) return null;
+  return probe.value;
 }
 
 function cellsForResourceBuilderDiagnostics(

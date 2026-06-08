@@ -345,8 +345,8 @@ the artifact before row-level feasibility evidence is accepted.
 
 Artifact:
 `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-(`sha256:2d8a85cee626ce561ffa0d735ba5b00670ebc6fbda23da2aaddb651d78af4f15`,
-`proofHash:dd2d9868ad7a86f0091a188feed055c40656675301a751bfeb54d0bf3ffaa1a7`).
+(`sha256:3ed111634243de08bb54f112ab1fb320ec020d65b707a1a9896de7521215e9ad`,
+`proofHash:49e67bfb29691ccc56a37531a7898fcb235ca17c089fe154be209c206c95f921`).
 
 Source proof:
 `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`.
@@ -390,21 +390,29 @@ with local legal plot counts between `66` and `554`. ResourceBuilder
 diagnostics are read through
 `getCiv7ResourceBuilderDiagnostics` in the runtime-bound full artifact:
 sha256
-`0106c8aefdd05083159b57e93d2d8f463bfb3c59ee5cb223b7b36d7be381528b`,
+`3ed111634243de08bb54f112ab1fb320ec020d65b707a1a9896de7521215e9ad`,
 proofHash
-`5fb8111e4967bb45f50893adb95d122ca38a2ad5ddb4c8926d2ce2e1f605b7d1`.
+`49e67bfb29691ccc56a37531a7898fcb235ca17c089fe154be209c206c95f921`.
+The source assignment-evidence artifact has sha256
+`ff4aec0701cbeeb031737b68d93a0a48e9168313ef983cc30a3df91cff6f08ab`
+and proofHash
+`e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`.
+The artifact now includes a `resourceBuilderSubclassification` block with `6`
+`scarce-floor-cut-excluded` rows and `3`
+`scarce-floor-cut-included-rejected` rows. This split is diagnostic context,
+not repair authority.
 
-| Coordinate | Plot | Local resource | Planned preferred | Assignment order context | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility | ResourceBuilder cut/count diagnostics |
-|---|---:|---|---|---|---|---|---|---|---|---|
-| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `23`; count before `2/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `6` | `elev416 rain185 fert2 area131073 region65536 landmass131073` | false | cut excludes local; count `8`; required false |
-| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `21`; count before `0/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `5` | `elev238 rain191 fert2 area589832 region524295 landmass589832` | false | cut excludes local; count `8`; required false |
-| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `scarce-floor`; order `74`; count before `4/7`; legal plots `324`; no rebalance | `TERRAIN_HILL` / `BIOME_TUNDRA` / empty | row match; no flags blocking | `4` / `4` | `elev523 rain197 fert0 area1048591 region720906 landmass196610` | false | cut includes local but `canHaveResource` false; count `8`; required false |
-| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `scarce-floor`; order `90`; count before `6/7`; legal plots `328`; no rebalance | `TERRAIN_HILL` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `2` / `5` | `elev208 rain193 fert0 area1835035 region1310739 landmass1179665` | false | cut excludes local; count `8`; required true |
-| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `scarce-floor`; order `139`; count before `6/7`; legal plots `525`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `4` / `2` | `elev214 rain194 fert1 area3538997 region2359331 landmass1638424` | false | cut excludes local; count `7`; required true |
-| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `scarce-floor`; order `152`; count before `5/7`; legal plots `554`; no rebalance | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / empty | row match; no flags blocking | `4` / `6` | `elev453 rain169 fert1 area3670071 region2555942 landmass1703961` | false | cut excludes local; count `7`; required true |
-| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `scarce-floor`; order `14`; count before `0/7`; legal plots `66`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `4` / `4` | `elev192 rain184 fert2 area4522052 region3670071 landmass2424868` | false | cut includes local but `canHaveResource` false; count `8`; required false |
-| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `24`; count before `3/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `5` / `5` | `elev232 rain176 fert2 area4915274 region4128830 landmass2752553` | false | cut includes local but `canHaveResource` false; count `8`; required false |
-| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `scarce-floor`; order `8`; count before `1/7`; legal plots `66`; no rebalance | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / `FEATURE_MARSH` | row match; no flags blocking | `8` / `6` | `elev427 rain172 fert2 area5963866 region5898329 landmass3538997` | false | cut excludes local; count `8`; required true |
+| Coordinate | Plot | Local resource | Planned preferred | Assignment order context | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility | ResourceBuilder cut/count diagnostics | Subclassification |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `23`; count before `2/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `6` | `elev416 rain185 fert2 area131073 region65536 landmass131073` | false | cut excludes local; count `8`; required false | `scarce-floor-cut-excluded` |
+| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `21`; count before `0/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `5` | `elev238 rain191 fert2 area589832 region524295 landmass589832` | false | cut excludes local; count `8`; required false | `scarce-floor-cut-excluded` |
+| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `scarce-floor`; order `74`; count before `4/7`; legal plots `324`; no rebalance | `TERRAIN_HILL` / `BIOME_TUNDRA` / empty | row match; no flags blocking | `4` / `4` | `elev523 rain197 fert0 area1048591 region720906 landmass196610` | false | cut includes local but `canHaveResource` false; count `8`; required false | `scarce-floor-cut-included-rejected` |
+| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `scarce-floor`; order `90`; count before `6/7`; legal plots `328`; no rebalance | `TERRAIN_HILL` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `2` / `5` | `elev208 rain193 fert0 area1835035 region1310739 landmass1179665` | false | cut excludes local; count `8`; required true | `scarce-floor-cut-excluded` |
+| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `scarce-floor`; order `139`; count before `6/7`; legal plots `525`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `4` / `2` | `elev214 rain194 fert1 area3538997 region2359331 landmass1638424` | false | cut excludes local; count `7`; required true | `scarce-floor-cut-excluded` |
+| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `scarce-floor`; order `152`; count before `5/7`; legal plots `554`; no rebalance | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / empty | row match; no flags blocking | `4` / `6` | `elev453 rain169 fert1 area3670071 region2555942 landmass1703961` | false | cut excludes local; count `7`; required true | `scarce-floor-cut-excluded` |
+| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `scarce-floor`; order `14`; count before `0/7`; legal plots `66`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `4` / `4` | `elev192 rain184 fert2 area4522052 region3670071 landmass2424868` | false | cut includes local but `canHaveResource` false; count `8`; required false | `scarce-floor-cut-included-rejected` |
+| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `24`; count before `3/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `5` / `5` | `elev232 rain176 fert2 area4915274 region4128830 landmass2752553` | false | cut includes local but `canHaveResource` false; count `8`; required false | `scarce-floor-cut-included-rejected` |
+| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `scarce-floor`; order `8`; count before `1/7`; legal plots `66`; no rebalance | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / `FEATURE_MARSH` | row match; no flags blocking | `8` / `6` | `elev427 rain172 fert2 area5963866 region5898329 landmass3538997` | false | cut excludes local; count `8`; required true | `scarce-floor-cut-excluded` |
 
 Individual `substitution-both-infeasible` row:
 
@@ -421,10 +429,10 @@ The single both-infeasible substitution row remains outside that repair class.
 Because the focused rows are not explained by official surface rows,
 adjacent-land flags, authored spacing, owner, water, plot tags, or river state,
 and are not introduced by relaxed spacing or rebalance, the next authority
-check should split the `6` cut-excluded rows from the `3` cut-included but
-still rejected rows and determine whether the owner is repo mock/static policy,
-Civ cut ordering/count/landmass policy, runtime materialization state, or
-evidence insufficiency before changing mock policy.
+check should use the structured `6` cut-excluded / `3` cut-included-but-rejected
+split to determine whether the owner is repo mock/static policy, Civ cut
+ordering/count/landmass policy, runtime materialization state, or evidence
+insufficiency before changing mock policy.
 The assignment-order context proves these rows came from the local scarce-floor
 quota pass, but that is still diagnostic context rather than repair authority.
 
