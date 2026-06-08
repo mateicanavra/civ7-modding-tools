@@ -178,11 +178,13 @@
     - feature mismatches: `5/6996`;
     - resource mismatches: `106/6996`.
   - Delta routing:
-    - terrain `2/6996`: observed coast/ocean edge swaps; source-authority
-      classification remains open. A downstream
-      `earthlike-terrain-edge-diagnostics` context artifact now records the two
-      row neighborhoods, but repair authority still requires coast/lake/shelf,
-      projection-boundary, terrain-validation, and live water/area evidence;
+    - terrain `2/6996`: observed coast/ocean edge swaps. Downstream
+      `earthlike-terrain-edge-diagnostics` now records terrain row
+      neighborhoods, local projection/mask context, exact-runtime-bound live
+      water/lake/area readback, local validation-boundary evidence, and a
+      bounded mock lake/terrain materialization repair. The T2
+      local-coast/live-ocean row is repaired in the post-repair proof; the T1
+      enclosed-water local-ocean/live-coast row remains unresolved;
     - feature `5/6996`: observed one cold reef absent in live plus one-tile
       feature-grid offsets for Kilimanjaro and Zhangjiajie; source-authority
       classification remains open and must not claim natural-wonder footprint
@@ -209,12 +211,24 @@
   direction to `earthlike-mountain-region-visual-acceptance` without changing
   this parity layer's proof claim.
 - Terrain diagnostic follow-up is now recorded in
-  `openspec/changes/earthlike-terrain-edge-diagnostics/**` with context
-  artifact
+  `openspec/changes/earthlike-terrain-edge-diagnostics/**`. The original
+  context artifact is
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-terrain-edge-context.json`
   (`sha256:7c17cb5ecde54909ba7d0e58647403e19b3341739ab297568c2de654270b647f`).
-  This does not satisfy task 2.1 because row source authority remains
-  unresolved.
+  The source-recorded terrain-stack-integration parity artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-terrain-stack-integration.json`
+  (`sha256:f82e68a3959f81e82c7beac7fd98fdc5748bf9d0fdeb8db2b4faa6ae55612283`,
+  `proofHash:c53c0b81c10d91565913c31c0f4a8c2daca89b88749c12591eb87e876cf6be50`).
+  The matching source-recorded terrain-edge context artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-terrain-stack-integration-terrain-edge-context.json`
+  (`sha256:31508ac3c336236ae0eb2054c95be78fe02d78fc7bf7a535304e902485148eef`,
+  `proofHash:7738d3847fb5e730cae4d9507ecccf51090fd23dac1fef294763f43982e834c4`).
+  In the current drain, rerunning the old exact proof wrapper to
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-terrain-stack-integration.json`
+  exits before parity evaluation on stale config key
+  `/config/ecology-features/floodplainPlanning`.
+  This still does not satisfy task 2.1 because the residual T1 terrain row
+  remains unresolved.
 - OpenSpec task state updated for implemented proof-path, routing, and
   focused-gate work only. Source-authority classification and product parity
   remain open.
@@ -223,9 +237,9 @@
 
 - Continue targeted classification from
   `earthlike-live-feature-resource-legality-repair` for feature/resource rows.
-  For terrain rows, link shelf/coast/lake/projection-boundary masks and live
-  water/area readback in `earthlike-terrain-edge-diagnostics` before any repair
-  or source-authority closure.
+  For terrain, continue from `earthlike-terrain-edge-diagnostics`: T2 is
+  repaired, but T1 needs additional enclosed-water source-authority evidence
+  before any further repair or terrain parity closure.
 - Stop condition: do not claim parity closure until the proof output is
   `status:"complete"` after downstream repairs. This slice makes no parity
   match, product acceptance, or Earthlike tuning claim.

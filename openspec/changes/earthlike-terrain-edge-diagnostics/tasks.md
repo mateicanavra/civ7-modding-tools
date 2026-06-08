@@ -17,8 +17,8 @@
 
 ## 3. Repair
 
-- [ ] 3.1 Repair only rows assigned to a repo-owned source authority.
-- [ ] 3.2 Preserve hydrology water mutation and Civ validation boundaries.
+- [x] 3.1 Repair only rows assigned to a repo-owned source authority.
+- [x] 3.2 Preserve hydrology water mutation and Civ validation boundaries.
 - [x] 3.3 Open any adapter/mock materialization repair as a separate bounded
       layer before changing code.
 - [x] 3.4 Repair mock lake readback so ordinary coast terrain is not lake.
@@ -40,5 +40,5 @@
 - [x] 4.4 Run `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`.
 - [x] 4.5 Run `bun run openspec:validate`.
 - [x] 4.6 Run focused adapter mock terrain tests and adapter check/build.
-- [x] 4.7 Re-run exact-authored final-surface parity and terrain-edge context
-      after the mock terrain materialization repair.
+- [x] 4.7 Record source-authored post-repair final-surface parity and
+      terrain-edge context after the mock terrain materialization repair.

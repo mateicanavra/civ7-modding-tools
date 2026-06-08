@@ -5,8 +5,10 @@
 - Project: Swooper recovery
 - Phase: terrain-edge diagnostics
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-mock-terrain-materialization-drain`
-  stacked above `codex/swooper-coast-materialization-edge-drain`
+- Branch/Graphite stack: `codex/swooper-terrain-edge-reconciliation-drain`
+  stacked above `codex/swooper-mock-terrain-materialization-drain`; this branch
+  reconciles the terrain-edge diagnostic and mock/materialization repair
+  sequence with the active feature/resource/natural-wonder proof stack.
 - Started: 2026-06-06
 - Status: active. Terrain edge, local projection/mask context,
   exact-runtime-bound live terrain/hydrology/area readback, local placement
@@ -37,7 +39,7 @@
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
-- Branch: `codex/swooper-mock-terrain-materialization-drain`.
+- Branch: `codex/swooper-terrain-edge-reconciliation-drain`.
 - Source proof:
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc.json`.
 - Source proof hash:
@@ -106,6 +108,18 @@
   `3452fb5922dd7080429295cd6caf41a33747b4657b849fa7cbd4d3f5cca8a7b9`.
 - Source-recorded post-mock-terrain-materialization-repair terrain-edge context proof hash:
   `bd35969a6c58d07b4ae473935242932c04c6e7d82d791af8338a818cddc1c043`.
+- Source-recorded terrain-stack-integration exact-bound parity artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-terrain-stack-integration.json`.
+- Source-recorded terrain-stack-integration parity artifact sha256:
+  `f82e68a3959f81e82c7beac7fd98fdc5748bf9d0fdeb8db2b4faa6ae55612283`.
+- Source-recorded terrain-stack-integration parity proof hash:
+  `c53c0b81c10d91565913c31c0f4a8c2daca89b88749c12591eb87e876cf6be50`.
+- Source-recorded terrain-stack-integration terrain-edge context artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-terrain-stack-integration-terrain-edge-context.json`.
+- Source-recorded terrain-stack-integration terrain-edge context artifact sha256:
+  `31508ac3c336236ae0eb2054c95be78fe02d78fc7bf7a535304e902485148eef`.
+- Source-recorded terrain-stack-integration terrain-edge context proof hash:
+  `7738d3847fb5e730cae4d9507ecccf51090fd23dac1fef294763f43982e834c4`.
 
 ## Findings
 
@@ -353,6 +367,18 @@
   readback sub-gap is repaired and the land-contact terrain materialization
   subset is repaired. The remaining T1 enclosed-water row needs additional
   source-authority evidence before another repair.
+- This integration layer does not change the terrain evidence boundary: it
+  makes the existing terrain-edge sequence current with the active
+  feature/resource/natural-wonder stack. T2 is repaired; T1 remains unresolved
+  and must not be treated as terrain parity closure.
+- The source-recorded terrain-stack-integration artifact remains
+  `parityStatus:"unresolved"` with unresolved links
+  `resource-placement-coordinate-proof.log`,
+  `surface.feature.mismatch`, `surface.resource.mismatch`, and
+  `surface.terrain.mismatch`. The terrain diff is `1/6996` at T1 `(73,36)`;
+  feature remains `5/6996`, and resource remains `61/6996`.
+- The current drain exact proof rerun is still blocked before parity evaluation
+  by stale exact proof config key `/config/ecology-features/floodplainPlanning`.
 - Any further repair must rerun focused tests and the exact-authored
   final-surface parity proof before parity, product acceptance, Earthlike
   quality, or terrain parity closure can be claimed.
@@ -380,6 +406,19 @@
   passed.
 - `bun run openspec:validate`: passed.
 - `git diff --check`: passed.
+- Integration verification:
+  - `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-terrain-stack-integration.json`:
+    source-recorded result exited `2` with expected unresolved parity, proof hash
+    `c53c0b81c10d91565913c31c0f4a8c2daca89b88749c12591eb87e876cf6be50`,
+    terrain `1/6996`, feature `5/6996`, resource `61/6996`.
+  - `bun run verify:terrain-edge-live-context -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-terrain-stack-integration.json --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-terrain-stack-integration-terrain-edge-context.json`:
+    source-recorded result passed with status `complete`, proof hash
+    `7738d3847fb5e730cae4d9507ecccf51090fd23dac1fef294763f43982e834c4`,
+    and one unresolved local-ocean/live-coast T1 row.
+  - Current drain command
+    `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-terrain-stack-integration.json`
+    exits `1` before parity evaluation with stale exact proof config key
+    `/config/ecology-features/floodplainPlanning`.
 - Coast materialization context verification:
   - `bun test scripts/civ7-direct-control/verify-terrain-edge-live-context.test.ts`:
     passed.

@@ -9,6 +9,9 @@
 ## 2. Delta Classification
 
 - [ ] 2.1 Classify terrain deltas with source evidence.
+  - Terrain-edge diagnostics and bounded mock/materialization repairs are
+    integrated, but the post-repair T1 enclosed-water terrain row remains
+    unresolved.
 - [x] 2.2 Classify biome deltas with source evidence.
 - [ ] 2.3 Classify feature deltas with source evidence.
 - [ ] 2.4 Classify resource deltas with source evidence.
