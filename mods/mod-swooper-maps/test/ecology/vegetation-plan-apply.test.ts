@@ -149,6 +149,9 @@ describe("plan-vegetation/apply pipeline", () => {
       ctx,
       []
     );
+    implementArtifacts([ecologyArtifacts.featureIntentsFloodplains], {
+      featureIntentsFloodplains: {},
+    }).featureIntentsFloodplains.publish(ctx, []);
 
     const vegetationIntents = ctx.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id);
     expect(vegetationIntents).toBeTruthy();

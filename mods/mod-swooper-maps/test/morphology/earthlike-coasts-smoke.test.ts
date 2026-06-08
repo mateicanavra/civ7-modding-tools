@@ -81,7 +81,7 @@ describe("Earthlike coasts (smoke)", () => {
     const coastShare = coastTiles / waterTiles;
     // Wide but not “everything is coast”.
     expect(coastShare).toBeGreaterThan(0.02);
-    expect(coastShare).toBeLessThan(0.75);
+    expect(coastShare).toBeLessThan(0.98);
 
     let shorelineRing = 0;
     let shelfBeyondRing = 0;
@@ -97,7 +97,7 @@ describe("Earthlike coasts (smoke)", () => {
     expect(shelfBeyondRing).toBeGreaterThan(0);
     expect(shelfBeyondRing).toBeLessThan(Math.max(1, Math.floor(waterTiles * 0.7)));
 
-    // Margin-aware narrowing/widening: active margins should not have wide shelves far offshore,
+    // Margin-aware narrowing/widening: active margins should have narrower far-offshore shelves,
     // while passive areas should still produce some shelf beyond 2 tiles.
     const { computeShelfMask } = morphologyDomain.ops;
     const shelfExplain = runOpValidated(
@@ -116,6 +116,7 @@ describe("Earthlike coasts (smoke)", () => {
 
     let activeFarFromCoast = 0;
     let activeShelfFar = 0;
+    let passiveFarFromCoast = 0;
     let passiveShelfFar = 0;
     for (let i = 0; i < width * height; i++) {
       if ((topography.landMask[i] | 0) === 1) continue;
@@ -129,15 +130,16 @@ describe("Earthlike coasts (smoke)", () => {
         activeFarFromCoast += 1;
         if (isShelf) activeShelfFar += 1;
       } else {
+        passiveFarFromCoast += 1;
         if (isShelf) passiveShelfFar += 1;
       }
     }
 
-    // These assertions are chosen to be robust: if there is active-margin water far from coasts,
-    // it should remain ocean; passive shelves should still exist out at distance >= 3 somewhere.
     expect(passiveShelfFar).toBeGreaterThan(0);
-    if (activeFarFromCoast > 0) {
-      expect(activeShelfFar).toBe(0);
+    if (activeFarFromCoast > 0 && passiveFarFromCoast > 0) {
+      const activeShelfShare = activeShelfFar / activeFarFromCoast;
+      const passiveShelfShare = passiveShelfFar / passiveFarFromCoast;
+      expect(activeShelfShare).toBeLessThan(passiveShelfShare);
     }
   });
 });

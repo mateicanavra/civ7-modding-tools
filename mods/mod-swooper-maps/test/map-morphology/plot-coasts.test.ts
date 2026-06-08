@@ -3,9 +3,10 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { COAST_TERRAIN, FLAT_TERRAIN, OCEAN_TERRAIN } from "@swooper/mapgen-core";
+import { COAST_TERRAIN, FLAT_TERRAIN } from "@swooper/mapgen-core";
 
 import plotCoasts from "../../src/recipes/standard/stages/map-morphology/steps/plotCoasts.js";
+import { mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
 describe("map-morphology/plot-coasts", () => {
@@ -48,9 +49,14 @@ describe("map-morphology/plot-coasts", () => {
     expect(adapter.getTerrainType(1, 0)).toBe(COAST_TERRAIN);
     // shelfMask becomes COAST terrain
     expect(adapter.getTerrainType(2, 1)).toBe(COAST_TERRAIN);
-    // other water stays OCEAN terrain
-    expect(adapter.getTerrainType(2, 0)).toBe(OCEAN_TERRAIN);
-    expect(adapter.getTerrainType(3, 2)).toBe(OCEAN_TERRAIN);
+    // Civ7 coast classification policy can promote neighboring ocean to coast.
+    expect(adapter.getTerrainType(2, 0)).toBe(COAST_TERRAIN);
+    const coastClassification = context.artifacts.get(mapMorphologyArtifacts.coastClassification.id) as
+      | { baseWaterClass?: Uint8Array; waterClass?: Uint8Array }
+      | undefined;
+    expect(coastClassification?.baseWaterClass?.[2]).toBe(2);
+    expect(coastClassification?.waterClass?.[2]).toBe(1);
+    expect([...coastClassification?.baseWaterClass ?? []]).toContain(2);
 
     // expandCoasts is intentionally not invoked by this step.
     expect((adapter as any).calls?.expandCoasts?.length ?? 0).toBe(0);
