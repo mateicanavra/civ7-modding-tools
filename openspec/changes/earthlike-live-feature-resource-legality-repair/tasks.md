@@ -351,8 +351,39 @@
     readers can distinguish runtime symbol names from repo-local numeric ids.
     This is proof instrumentation only. It does not change resource planning,
     scarce-floor assignment, candidate ordering, resource tuning, final-surface
-    parity, or product acceptance. A fresh exact-authored run is still required
-    to classify the plot `4838` rejection with the repaired proof contract.
+    parity, or product acceptance. The follow-on exact-authored proof run that
+    consumes this repaired contract is recorded separately in 2.50 and 3.21.
+- [x] 2.50 Preserve current exact-authored resource rejection numeric-identity
+  proof.
+  - Current branch
+    `codex/swooper-resource-rejection-identity-rerun-record-drain` records the
+    fresh exact-authored compact rerun that consumed the structured numeric
+    rejection-row proof contract. The first post-contract run,
+    `studio-run-in-game-mq3tkdui-ygx`, completed exact authorship but exposed a
+    proof-contract failure: the `RESOURCE_PLACEMENT_V1` line was truncated
+    before Studio could parse `resourcePlacement` telemetry. That run is a
+    proof-contract validation failure, not accepted resource proof.
+  - Compact exact request `studio-run-in-game-mq3twjd7-18mg` completed with
+    `exactAuthorshipProof.status:"complete"` and no unresolved exact-authorship
+    links. Status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-identity-compact-status.json`
+    (`sha256:da06bc02e50773044af13a1f9bcdf62abbe419b4bc1ef081f57f9cc006841461`)
+    and post artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-identity-compact-post.json`
+    (`sha256:3dc98df92afce28192c19bd2b2315d5388282a7e1dc3e24483d0025ac28e503b`)
+    are exact-run proof inputs.
+  - Exact `RESOURCE_PLACEMENT_V1` telemetry now carries the structured rejected
+    row: `resourceType:16`, `resource:"RESOURCE_WINE"`, plot `4838`
+    (`x=68`, `y=45`), reason `cannot-have-resource`, observed resource type
+    `-1`. The same telemetry records `251` planned, `250` placed, `1`
+    rejected, `0` mismatches, `34` unique planned/placed resource types,
+    min/max placed count by type `7/8`, and coordinate proof placed
+    `250`/`9c5eaad8`, rejected `1`/`af57eb7b`.
+  - This proof classifies the exact runtime rejection identity only. It does
+    not authorize resource tuning or scarce-floor repair by itself: local
+    source-authority still has to join the exact `RESOURCE_WINE` rejection at
+    plot `4838` to the local placement/assignment evidence before selecting an
+    owner repair.
 
 ## 3. Verification
 
@@ -445,5 +476,27 @@
     `bun test mods/mod-swooper-maps/test/placement/resource-placement-diagnostics.test.ts`.
   - Passed owner checks `bun run --cwd apps/mapgen-studio check` and
     `bun run --cwd mods/mod-swooper-maps check`.
-  - Full OpenSpec validation remains required before committing this
-    proof-contract slice.
+  - Full OpenSpec validation was run before committing the proof-contract
+    slice; this follow-on proof-record slice reruns strict validation before
+    commit.
+- [x] 3.21 Re-run current exact-authored final-surface parity after resource
+  rejection numeric-identity proof.
+  - Verifier input
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-identity-compact-status.json`
+    wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3twjd7-18mg-current-final-surface-parity-with-resource-rejection-identity.json`
+    (`sha256:a8d0c18f155cd60dd13dd80c52961fc3d24bdabe172edf45d8677764c116b115`,
+    `proofHash:b7a32c172ce1e7cf0b26812c551e789a2f246e0e5598f92d5388adc8c116b68c`,
+    created `2026-06-07T13:42:38.215Z`).
+  - The verifier exited `2` as expected for unresolved parity. It preserves
+    runtime identity seed `138503614`, dimensions `106x66`, plot count `6996`,
+    turn `1`, and game hash `0`. Remaining unresolved links are
+    `resource-placement-coordinate-proof.placed`,
+    `resource-placement-coordinate-proof.rejected`,
+    `surface.biome.mismatch`, `surface.feature.mismatch`,
+    `surface.resource.mismatch`, and `surface.terrain.mismatch`.
+  - Resource coordinate proof is still mismatched: local placed
+    `251`/`98393a08`, exact placed `250`/`9c5eaad8`; local rejected
+    `0`/`811c9dc5`, exact rejected `1`/`af57eb7b`. Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3twjd7.log`
+    (`sha256:28c0e4ee02de4e45348d1cb5d6f919b238d025fbaf2cec85af782a15ee1063d2`).
