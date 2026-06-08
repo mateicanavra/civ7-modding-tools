@@ -16,6 +16,7 @@ import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
 import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
+import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
 import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
 import { isPlainObject, mergeDeep } from "./shared.js";
 
@@ -174,6 +175,10 @@ type FileIdentityLike = Readonly<{
 
 type LocalTraceEvidence = {
   placementParity?: unknown;
+  featureIntents?: unknown;
+  featureApplyDiagnostics?: unknown;
+  naturalWonderPlan?: unknown;
+  naturalWonderPlacement?: unknown;
   resourcePlan?: unknown;
   resourcePlacementOutcomes?: unknown;
 };
@@ -265,6 +270,21 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
     if (event.kind !== "step.event" || !isPlainObject(event.data)) continue;
     if (event.data.type === "placement.parity") evidence.placementParity = event.data;
   }
+  evidence.featureIntents = {
+    vegetation: context.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id),
+    wetlands: context.artifacts.get(ecologyArtifacts.featureIntentsWetlands.id),
+    floodplains: context.artifacts.get(ecologyArtifacts.featureIntentsFloodplains.id),
+    reefs: context.artifacts.get(ecologyArtifacts.featureIntentsReefs.id),
+    ice: context.artifacts.get(ecologyArtifacts.featureIntentsIce.id),
+  };
+  const featureApplyDiagnostics = context.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id);
+  if (featureApplyDiagnostics !== undefined) {
+    evidence.featureApplyDiagnostics = featureApplyDiagnostics;
+  }
+  const naturalWonderPlan = context.artifacts.get(placementArtifacts.naturalWonderPlan.id);
+  if (naturalWonderPlan !== undefined) evidence.naturalWonderPlan = naturalWonderPlan;
+  const naturalWonderPlacement = context.artifacts.get(placementArtifacts.naturalWonderPlacement.id);
+  if (naturalWonderPlacement !== undefined) evidence.naturalWonderPlacement = naturalWonderPlacement;
   const resourcePlan = context.artifacts.get(placementArtifacts.resourcePlan.id);
   if (resourcePlan !== undefined) evidence.resourcePlan = resourcePlan;
   const resourcePlacementOutcomes = context.artifacts.get(

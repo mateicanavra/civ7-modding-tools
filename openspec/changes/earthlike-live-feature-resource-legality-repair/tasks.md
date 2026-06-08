@@ -44,8 +44,10 @@
   proof intake.
 - [x] 2.20 Add feature delta context for ecology-feature and natural-wonder
   offset classes.
-- [ ] 2.21 Repair remaining proven package or MapGen owners.
-- [ ] 2.22 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.21 Add local feature/natural-wonder evidence context for feature delta
+  classes.
+- [ ] 2.22 Repair remaining proven package or MapGen owners.
+- [ ] 2.23 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
