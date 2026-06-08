@@ -19,6 +19,7 @@ import {
   executeCiv7AppUiCommand,
   executeCiv7TunerCommand,
   ensureCiv7SetupMapRowVisible,
+  getCiv7FeaturePlacementFeasibility,
   getCiv7GameInfoRows,
   getCiv7FullMapGrid,
   getCiv7MapGrid,
@@ -471,6 +472,43 @@ describe("Civ7 direct control", () => {
       });
       expect(server.received.some((message) => message.includes("ResourceBuilder"))).toBe(true);
       expect(server.received.some((message) => message.includes("readResourcePlacementFeasibility"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("wraps feature placement feasibility through TerrainBuilder", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const feasibility = await getCiv7FeaturePlacementFeasibility(
+        {
+          cells: [
+            { x: 48, y: 6, featureTypes: [11, 35] },
+            { x: 49, y: 13, featureTypes: [35] },
+          ],
+          maxCells: 1,
+          maxFeatureTypesPerCell: 1,
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+
+      expect(feasibility).toMatchObject({
+        cellCount: 2,
+        omittedCells: 1,
+        cells: [
+          {
+            location: { x: 48, y: 6, index: { ok: true, value: 684 } },
+            featureTypes: [11],
+            omittedFeatureTypes: 1,
+            feasibility: {
+              "11": { ok: true, value: false },
+            },
+          },
+        ],
+      });
+      expect(server.received.some((message) => message.includes("TerrainBuilder"))).toBe(true);
+      expect(server.received.some((message) => message.includes("readFeaturePlacementFeasibility"))).toBe(true);
     } finally {
       await server.close();
     }
@@ -1619,6 +1657,25 @@ async function startTunerServer(options: {
                     omittedResourceTypes: 1,
                     feasibility: {
                       "3": { ok: true, value: true },
+                    },
+                  },
+                ],
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("readFeaturePlacementFeasibility")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                cellCount: 2,
+                omittedCells: 1,
+                cells: [
+                  {
+                    location: { x: 48, y: 6, index: { ok: true, value: 684 } },
+                    featureTypes: [11],
+                    omittedFeatureTypes: 1,
+                    feasibility: {
+                      "11": { ok: true, value: false },
                     },
                   },
                 ],

@@ -668,6 +668,46 @@ materialization policy, or readback semantics. No feature repair, natural-wonder
 repair, parity closure, product acceptance, or mountain-quality claim is
 authorized from this local evidence alone.
 
+### Feature Live Feasibility Readback
+
+Diagnostic repair:
+`@civ7/direct-control` now exposes a package-owned
+`getCiv7FeaturePlacementFeasibility` wrapper over
+`TerrainBuilder.canHaveFeature`, and the root verifier
+`verify:feature-delta-feasibility` binds feature probes to the saved
+exact-authored parity proof before reading the live runtime.
+
+The current feature feasibility artifact is
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-feature-delta-feasibility.json`
+(`sha256:abaff5fe8bcb09fa2e66e95dc640645f4cf59e80d68bddcbba0921e394fbf0a1`,
+`proofHash:ed60244c6ea6548dbf7ff43ea154c38e4276d1ebd5b909860577f6f81c59ea01`).
+It is bound to request `studio-run-in-game-mq20rbzr-1fhc`, saved proof hash
+`f7d91ad72a6c998926fa24fd82266388420de99dbe338bf7d627448a760fe1ba`,
+local-context hash
+`945a49133d0493cc37cf28ff805637aaf5fc7032a6b3461b805a65ff8a861657`, and
+matched live runtime identity `106x66`, `6996` plots, seed `138503614`, turn
+`1`, game hash `0`. It probed all `5` feature delta cells with `0` omitted
+cells and joined the prior local feature/natural-wonder evidence by plot index.
+
+Feature feasibility facts:
+
+| Class | Count | Evidence |
+|---|---:|---|
+| `local-feature-civ-infeasible-live-empty` | `1` | Local `FEATURE_COLD_REEF` at `(48,6)` has local reef intent, but current live `TerrainBuilder.canHaveFeature(48,6,FEATURE_COLD_REEF)` returns `false`. |
+| `natural-wonder-offset-local-civ-infeasible` | `2` | Local natural-wonder footprint cells `(49,13)` / `(52,21)` return `false` for the local wonder feature. |
+| `natural-wonder-offset-live-civ-infeasible` | `2` | Live natural-wonder cells `(48,13)` / `(51,21)` also return `false` for the live wonder feature even though the live grid contains that feature. |
+
+Disposition:
+the feature rows now have runtime-bound `TerrainBuilder.canHaveFeature`
+evidence, but this is post-materialization readback. Because the live
+natural-wonder cells that already contain the feature also return false, the
+probe is not a clean pre-placement acceptance oracle and cannot by itself prove
+that the local cells were invalid at materialization time. The evidence narrows
+the next owner question to materialization-time feature stamping, natural-wonder
+footprint/anchor semantics, runtime state, or readback policy. It does not
+authorize feature repair, natural-wonder repair, parity closure, product
+acceptance, or mountain-quality claims.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,
