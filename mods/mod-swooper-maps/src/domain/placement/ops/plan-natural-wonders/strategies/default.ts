@@ -245,7 +245,7 @@ function sanitizeFootprintOffsets(
     seen.add(key);
     offsets.push({ dx, dy });
   }
-  return offsets.length > 0 ? offsets : [{ dx: 0, dy: 0 }];
+  return offsets;
 }
 
 function sanitizeStringArray(values: readonly string[] | undefined): string[] {

@@ -75,6 +75,43 @@ describe("placement plan operations", () => {
     expect(result.placements[1]?.featureType).toBe(1002);
   });
 
+  it("drops explicit empty natural-wonder footprints from placement candidates", () => {
+    const width = 4;
+    const height = 3;
+    const size = width * height;
+    const result = runOpValidated(planNaturalWonders, {
+      width,
+      height,
+      wondersCount: 2,
+      landMask: new Uint8Array(size).fill(1),
+      elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
+      aridityIndex: new Float32Array(size).fill(0.3),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+      coastTerrainType: 2,
+      mountainTerrainType: 3,
+      iceFeatureType: 4,
+      terrainType: new Uint8Array(size).fill(1),
+      biomeType: new Uint8Array(size).fill(1),
+      featureType: new Int16Array(size).fill(-1),
+      noFeatureType: -1,
+      naturalWonderBlockedMask: new Uint8Array(size),
+      featureCatalog: [
+        { featureType: 1001, direction: 0, footprintOffsets: [] },
+        { featureType: 1002, direction: 1, footprintOffsets: [{ dx: 0, dy: 0 }] },
+      ],
+    }, {
+      strategy: "default",
+      config: { minSpacingTiles: 1 },
+    });
+
+    expect(result.targetCount).toBe(1);
+    expect(result.plannedCount).toBe(1);
+    expect(result.placements).toEqual([
+      expect.objectContaining({ featureType: 1002 }),
+    ]);
+  });
+
   it("plans deterministic discovery placements from physical fields", () => {
     const width = 5;
     const height = 4;

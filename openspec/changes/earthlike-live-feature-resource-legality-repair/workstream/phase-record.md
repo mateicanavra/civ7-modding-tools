@@ -6,6 +6,7 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
+  `codex/swooper-natural-wonder-supported-catalog-drain`, stacked above
   `codex/swooper-resource-delta-feasibility-current-record-drain`, stacked
   above `codex/swooper-resource-rejection-local-context-drain`,
   `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
@@ -38,6 +39,17 @@
   resource-coordinate-proof links. Current exact feature telemetry has `1493`
   attempted, `1491` applied, and `2` `canHaveFeature` rejections; current exact
   natural-wonder telemetry has `7` planned, `4` placed, and `3` rejected.
+  Current branch `codex/swooper-natural-wonder-supported-catalog-drain`
+  repairs the unsupported-footprint part of that natural-wonder telemetry class
+  by aligning the production adapter to the shared `@civ7/map-policy`
+  supported catalog, filtering unsupported footprints before planning, and
+  treating explicit empty footprint arrays as not plannable. Fresh exact
+  runtime request `studio-run-in-game-mq3x46sy-20js` proves the telemetry
+  changed: exact authorship completed and natural-wonder telemetry is now `7`
+  planned, `5` placed, and `2` rejected, with no `unsupported-footprint`
+  rejections and two remaining `readback-mismatch` rows. The verifier artifact
+  remains unresolved with proof hash
+  `ea9a8d88f8fbbe7b86d1b06f1f5893acaf579b46ddf534ae9a5f328277fdc5ee`.
   Resource, feature, natural-wonder, and terrain source-authority
   classification remains the active work; product acceptance is not closed.
   Current resource-delta feasibility after the exact/local rejection join now
@@ -1314,9 +1326,21 @@
   also regressed from the source-recorded post-repair expectation to `4`
   placed and `3` rejected (`unsupported-footprint` for two features and one
   partial expected-footprint readback mismatch), so natural-wonder source
-  ownership remains in the active queue. Final-surface parity remains open on
-  terrain, feature, resource, natural-wonder proof, and any future
-  owner-classified residual links.
+  ownership remains in the active queue. Current branch
+  `codex/swooper-natural-wonder-supported-catalog-drain` repairs the
+  unsupported-footprint subcase by removing the stale production manual catalog,
+  filtering unsupported footprint policies at placement-input derivation, and
+  preventing empty footprint arrays from becoming fallback one-tile candidates.
+  Focused local proof covers adapter catalog defaults, placement-input
+  filtering, and planner filtering. Fresh exact request
+  `studio-run-in-game-mq3x46sy-20js` confirms the unsupported-footprint rows
+  are gone and leaves only natural-wonder readback-mismatch rows:
+  `feature=30` at plot `4130` and `feature=36` at plot `1785`.
+  Final-surface parity remains open on terrain (`140` mismatches), biome
+  (`874`), feature (`376`), resource (`307`), natural-wonder readback proof,
+  resource coordinate proof, and any future owner-classified residual links.
+  Final-surface parity remains open on terrain, feature, resource,
+  natural-wonder proof, and any future owner-classified residual links.
   The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source
