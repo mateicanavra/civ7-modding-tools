@@ -315,6 +315,24 @@
     product acceptance, or resource tuning. A fresh exact-authored run must
     consume this marker before the current one-rejection resource boundary can
     be row-classified.
+- [x] 2.48 Preserve current exact-authored resource rejection row proof.
+  - Current branch `codex/swooper-resource-rejection-proof-telemetry-drain`
+    (`96b94a13e4b7b7665b38c8b7c0701e253cfc8b38`) reran the same Swooper
+    Earthlike source snapshot through a current-worktree Studio server on
+    `127.0.0.1:5175`. Exact request `studio-run-in-game-mq3sk0ck-1vl`
+    completed with no exact-authorship unresolved links.
+  - Exact `RESOURCE_PLACEMENT_V1` telemetry reports `251` planned resources,
+    `250` placed, `1` rejected, and `0` mismatches. The rejected row is now
+    identified as `RESOURCE_WINE` at plot `4838` (`x=68`, `y=45`), rejected by
+    `canHaveResource` with observed readback `-1`.
+  - Status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-telemetry-status.json`
+    (`sha256:beb4b23053dcbee73ce2b5bf0c191e44525f60a9592a92efaa42fbaefa5fe166`)
+    and post artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-telemetry-post.json`
+    (`sha256:5b88aaa0c54c88161dfdde447a05b75f359d53d8435185ee9de977306b6a4020`)
+    are exact-run proof inputs. Resource parity and product acceptance are still
+    not closed.
 
 ## 3. Verification
 
@@ -387,3 +405,17 @@
     `bun test mods/mod-swooper-maps/test/placement/resource-placement-diagnostics.test.ts`.
   - Passed owner checks `bun run --cwd apps/mapgen-studio check` and
     `bun run --cwd mods/mod-swooper-maps check`.
+- [x] 3.19 Re-run current exact-authored final-surface parity after
+  resource rejection telemetry.
+  - Verifier input
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-telemetry-status.json`
+    wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3sk0ck-1vl-current-final-surface-parity-with-resource-rejection-example.json`
+    (`sha256:3d06cd54ec86875ddd1ac5fd25bdae4b0a1ba25919ea0046070104f76b23fdcc`,
+    `proofHash:4184a136601dbc3768fe175ab9f4f896bdd3754f2fcaf9e65c249d0d79f6a5f1`).
+  - The verifier exited `2` as expected for unresolved parity. It preserves
+    unchanged mismatch counts: terrain `139/6996`, biome `874/6996`, feature
+    `381/6996`, resource `308/6996`, plus resource coordinate proof mismatch
+    links. The verifier log is
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3sk0ck.log`
+    (`sha256:8217718d3c115b2160635980e6d5eebd4e1cf509d8225de9e60cfdc040e47fcb`).

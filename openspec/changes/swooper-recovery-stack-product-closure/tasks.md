@@ -2,19 +2,21 @@
 
 - [ ] 1.1 Verify exact-authorship, final-surface parity, product acceptance, and
   activated targeted repairs are closed or explicitly out of scope.
-  - Current audit snapshot on `codex/swooper-feature-apply-proof-telemetry-drain`
-    (`a992eb243c407f33676de208ee11a8358ea3c3c1`) verifies exact-authorship
+  - Current audit snapshot on `codex/swooper-resource-rejection-proof-telemetry-drain`
+    (`96b94a13e4b7b7665b38c8b7c0701e253cfc8b38`) verifies exact-authorship
     and mapgen completion are complete for request
-    `studio-run-in-game-mq3ryaop-1p7l`, but final-surface parity is still
+    `studio-run-in-game-mq3sk0ck-1vl`, but final-surface parity is still
     unresolved. Refreshed parity artifact
-    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json`
-    (`sha256:7d3225aec82c5596a6dd8e58ca1a44aebbdc4b79c5fa6117ca43ad89568dc34b`,
-    `proofHash:89d48831dd981e5144c89e14842b1052d989d3748b011fc7590070075236ba02`)
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3sk0ck-1vl-current-final-surface-parity-with-resource-rejection-example.json`
+    (`sha256:3d06cd54ec86875ddd1ac5fd25bdae4b0a1ba25919ea0046070104f76b23fdcc`,
+    `proofHash:4184a136601dbc3768fe175ab9f4f896bdd3754f2fcaf9e65c249d0d79f6a5f1`)
     remains `unresolved` with terrain `139`, biome `874`, feature `381`, and
     resource `308` mismatches plus resource coordinate proof placed/rejected
-    links. It also records exact `FEATURE_APPLY_V1` telemetry (`1493`
-    attempted, `1491` applied, `2` rejected), narrowing but not closing feature
-    source-authority work. Product acceptance is therefore not closed.
+    links. It also records exact resource rejection row identity
+    (`RESOURCE_WINE`, plot `4838`, `x=68`, `y=45`, `cannot-have-resource`) and
+    exact `FEATURE_APPLY_V1` telemetry (`1493` attempted, `1491` applied, `2`
+    rejected), narrowing but not closing source-authority work. Product
+    acceptance is therefore not closed.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -25,7 +27,7 @@
     finding remains open inside the closure claim.
 - [ ] 1.3 Audit repo, Graphite, PR, and remote predecessor state.
   - Current repo snapshot is clean on
-    `codex/swooper-feature-apply-proof-telemetry-drain`; Graphite top
+    `codex/swooper-resource-rejection-proof-telemetry-drain`; Graphite top
     branch is local and stacked above the Swooper recovery drain. PR/remote
     predecessor disposition remains blocked until proof categories close.
 
@@ -41,12 +43,12 @@
 
 - [ ] 3.1 Run `git status --short --branch`.
   - Current audit snapshot: clean on
-    `codex/swooper-feature-apply-proof-telemetry-drain`.
+    `codex/swooper-resource-rejection-proof-telemetry-drain`.
 - [ ] 3.2 Inspect Graphite branch/stack state.
   - Current audit snapshot: top branch
-    `codex/swooper-feature-apply-proof-telemetry-drain` above
-    `codex/swooper-product-closure-audit-record-drain` and the current
-    feature/resource/source-authority proof-record branches.
+    `codex/swooper-resource-rejection-proof-telemetry-drain` above
+    `codex/swooper-current-feature-apply-proof-rerun-record-drain` and the
+    current feature/resource/source-authority proof-record branches.
 - [ ] 3.3 Run `git diff --check`.
 - [ ] 3.4 Run `bun run openspec -- validate swooper-recovery-stack-product-closure --strict`.
 - [ ] 3.5 Run `bun run openspec:validate`.
