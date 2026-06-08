@@ -69,10 +69,12 @@
   fresh coordinate proof.
 - [x] 2.33 Repair the proven natural-wonder footprint projection/materialization
   owner without widening to product tuning.
-- [ ] 2.34 Produce fresh exact-authored parity proof after the natural-wonder
+- [x] 2.34 Preserve source-recorded exact-authored parity proof after the natural-wonder
   projection/materialization repair.
-- [ ] 2.35 Repair remaining proven package or MapGen owners.
-- [ ] 2.36 Preserve resource spacing, age legality, and diversity expectations.
+- [ ] 2.35 Produce current exact-authored parity proof after the natural-wonder
+  projection/materialization repair.
+- [ ] 2.36 Repair remaining proven package or MapGen owners.
+- [ ] 2.37 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
@@ -82,5 +84,7 @@
 - [x] 3.4 Run `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`.
 - [x] 3.5 Run `bun run openspec:validate`.
 - [x] 3.6 Re-run exact-authored final-surface parity after natural-wonder telemetry.
-- [ ] 3.7 Re-run exact-authored final-surface parity after natural-wonder
+- [x] 3.7 Preserve source-recorded exact-authored final-surface parity after
+  natural-wonder projection/materialization repair.
+- [ ] 3.8 Re-run current exact-authored final-surface parity after natural-wonder
   projection/materialization repair.

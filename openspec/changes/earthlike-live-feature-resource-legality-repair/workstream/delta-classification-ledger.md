@@ -1102,6 +1102,27 @@ blocked before parity evaluation. The rerun command
 returned
 `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
 
+Source-recorded post-repair proof:
+request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
+generated parity artifact
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2u6wdg-1z4g-after-natural-wonder-materialization-repair.json`
+(`sha256:2ab1115b4ed48614180d1982801149164c9fc1841360b3babacd817a43ebf171`,
+`proofHash:8870e330478cb442496c10a45e2935787b317aee06625b8aab5d3831ea11d366`).
+The exact live `log.naturalWonderPlacement` still reports `plannedCount:7`,
+`placedCount:5`, `rejectedCount:2`, rejected examples
+`feature=35 plot=1320 reason=adapter-rejected` and
+`feature=36 plot=2171 reason=adapter-rejected`, and coordinate proof
+`placedHash32:84d971d2` / `rejectedHash32:e69d9860`. The apparent `7/7/0`
+placement signal came from local verifier generation, not the exact live log,
+so the rejected-anchor class is not live-proven repaired. The final-surface
+proof remains `unresolved`: terrain has `1` mismatch, feature has `5`
+mismatches, and resource has `61` mismatches, with unresolved links
+`surface.terrain.mismatch`, `surface.feature.mismatch`,
+`surface.resource.mismatch`, and `resource-placement-coordinate-proof.placed`.
+This proof does not close feature parity, natural-wonder product behavior,
+Earthlike acceptance, mountain quality, final-surface parity, or the current
+drain's blocked exact proof rerun.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,
