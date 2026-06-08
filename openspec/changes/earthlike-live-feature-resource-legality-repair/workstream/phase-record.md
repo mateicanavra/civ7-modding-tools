@@ -1082,12 +1082,33 @@
   raw log text to reparse; it prepares the next exact run to classify
   local-only ecology-feature materialization without relying on local-only
   diagnostics.
+  Current exact run `studio-run-in-game-mq3ryaop-1p7l` on
+  `codex/swooper-feature-apply-proof-telemetry-drain`
+  (`a992eb243c407f33676de208ee11a8358ea3c3c1`) now consumes that parser from a
+  current-worktree Studio server. Exact-authorship completed with no unresolved
+  links. The status artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-feature-apply-parser-status.json`
+  has `sha256:23e53771a6ce7d8eabf102ce24997f67c87c2c2f1927fc08c05256299daa37fe`
+  and records `FEATURE_APPLY_V1` stats: `1493` attempted, `1491` applied, `2`
+  `canHaveFeature` rejections (`FEATURE_COLD_REEF:1`, `FEATURE_TAIGA:1`).
+  Resource telemetry remains stable at `251` planned, `250` placed, `1`
+  rejected, coordinate hashes `9c5eaad8`/`af57eb7b`. The current final-surface
+  verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json`
+  has `sha256:7d3225aec82c5596a6dd8e58ca1a44aebbdc4b79c5fa6117ca43ad89568dc34b`
+  and
+  `proofHash:89d48831dd981e5144c89e14842b1052d989d3748b011fc7590070075236ba02`.
+  It remains `unresolved` with the same terrain `139`, biome `874`, feature
+  `381`, resource `308`, and resource coordinate proof placed/rejected links.
+  This is proof narrowing only: exact feature-apply legality is no longer a
+  broad blocker, but final-surface parity and product acceptance remain open.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
-  `studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` by
+  `studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json` by
   proving or rejecting the narrowed repair-owner candidates in order:
-  resource local-overacceptance/scarce-floor materialization, local-only
-  ecology-feature materialization, then terrain projection/readback. Do this
+  resource local-overacceptance/scarce-floor materialization, exact
+  feature-materialization/readback ownership for the two rejected features and
+  remaining `381` feature mismatches, then terrain projection/readback. Do this
   before any final-surface parity or product acceptance claim. The older
   source-recorded context remains useful: for the prior `9` local-assigned
   live-empty rows, assignment trace ruled out relaxed spacing and rebalance,
@@ -1149,10 +1170,11 @@
   readback after the write call, but it still does not classify whether the
   repo should change its local footprint projection/readback oracle or accept
   a Civ engine footprint/materialization semantic as residual.
-  The cold-reef local-only row also remains
-  evidence-bound pending exact live feature-apply telemetry/readback. Final-
-  surface parity remains open on terrain, feature, resource, and any future
-  owner-classified residual links.
+  The cold-reef local-only row is no longer blocked on missing exact
+  feature-apply telemetry: the current exact run proves one cold-reef
+  `canHaveFeature` rejection, while the full feature surface still has `381`
+  mismatches. Final-surface parity remains open on terrain, feature, resource,
+  and any future owner-classified residual links.
   The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source
