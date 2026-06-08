@@ -50,4 +50,46 @@ describe("terrain-edge live context verifier", () => {
       { x: 73, y: 36, plotIndex: 3889, field: "landmassId", status: "missing" },
     ]);
   });
+
+  test("blocks complete readback when requested row facts have no value", () => {
+    const completeness = summarizeTerrainEdgeReadbackCompleteness(
+      [
+        {
+          x: 65,
+          y: 39,
+          plotIndex: 4199,
+        },
+      ] as TerrainRows,
+      {
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "1", name: "Tuner" },
+        fields: ["terrain", "hydrology", "areaRegion"],
+        plotCount: 1,
+        omitted: 0,
+        hiddenInfoPolicy: "not-player-scoped",
+        plots: [
+          {
+            location: { x: 65, y: 39, index: { ok: true, value: 4199 } },
+            hiddenInfoPolicy: "not-player-scoped",
+            facts: {
+              terrain: { ok: true, value: 4 },
+              water: { ok: true, value: true },
+              lake: { ok: true, value: false },
+              riverType: { ok: true, value: undefined },
+              areaId: { ok: true, value: 7 },
+              regionId: { ok: true, value: -1 },
+              landmassId: { ok: true, value: -1 },
+            },
+          },
+        ],
+      } as MapGrid
+    );
+
+    expect(completeness.status).toBe("blocked");
+    expect(completeness.blockedBy).toEqual(["live-terrain-readback.riverType.failed"]);
+    expect(completeness.factIssues).toMatchObject([
+      { x: 65, y: 39, plotIndex: 4199, field: "riverType", status: "failed" },
+    ]);
+  });
 });

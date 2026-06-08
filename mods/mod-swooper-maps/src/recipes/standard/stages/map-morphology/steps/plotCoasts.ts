@@ -1,12 +1,37 @@
-import { COAST_TERRAIN, FLAT_TERRAIN, OCEAN_TERRAIN, defineVizMeta, logLandmassAscii } from "@swooper/mapgen-core";
-import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  COAST_TERRAIN,
+  FLAT_TERRAIN,
+  OCEAN_TERRAIN,
+  defineVizMeta,
+  logLandmassAscii,
+  snapshotEngineHeightfield,
+} from "@swooper/mapgen-core";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import {
+  CIV7_COAST_CLASSIFICATION_POLICY_V0,
+  WATER_CLASS_COAST,
+  WATER_CLASS_LAND,
+  WATER_CLASS_OCEAN,
+  applyCiv7CoastClassificationPolicy,
+} from "@civ7/map-policy";
 import PlotCoastsStepContract from "./plotCoasts.contract.js";
-import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js";
+import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
+import { mapMorphologyArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlotCoastsStepContract, {
+  artifacts: implementArtifacts(
+    [
+      mapMorphologyArtifacts.coastClassification,
+      mapMorphologyArtifacts.coastEngineTerrainSnapshot,
+    ],
+    {
+      coastClassification: {},
+      coastEngineTerrainSnapshot: {},
+    }
+  ),
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
@@ -14,18 +39,72 @@ export default createStep(PlotCoastsStepContract, {
     const size = Math.max(0, (width | 0) * (height | 0));
 
     // 0=land, 1=coast, 2=ocean
-    const waterClass = new Uint8Array(size);
+    const baseWaterClass = new Uint8Array(size);
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
         // Coasts are shallow shelf water derived from Morphology truth (our analogue of Civ's
         // validateAndFixTerrain + expandCoasts pipeline). We intentionally avoid Civ's coast expansion.
         const isLand = topography.landMask[idx] === 1;
-        const isCoast = !isLand && (coastlineMetrics.coastalWater[idx] === 1 || coastlineMetrics.shelfMask[idx] === 1);
-        const terrain = isLand ? FLAT_TERRAIN : isCoast ? COAST_TERRAIN : OCEAN_TERRAIN;
-        context.adapter.setTerrainType(x, y, terrain);
-        waterClass[idx] = isLand ? 0 : isCoast ? 1 : 2;
+        const isCoast =
+          !isLand &&
+          (coastlineMetrics.coastalWater[idx] === 1 || coastlineMetrics.shelfMask[idx] === 1);
+        baseWaterClass[idx] = isLand
+          ? WATER_CLASS_LAND
+          : isCoast
+            ? WATER_CLASS_COAST
+            : WATER_CLASS_OCEAN;
       }
+    }
+
+    const coastPolicy = applyCiv7CoastClassificationPolicy({
+      width,
+      height,
+      waterClass: baseWaterClass,
+    });
+    const waterClass = coastPolicy.waterClass;
+
+    deps.artifacts.coastClassification.publish(context, {
+      width,
+      height,
+      baseWaterClass,
+      waterClass,
+      policyCoastMask: coastPolicy.policyCoastMask,
+      coastBufferTiles: coastPolicy.coastBufferTiles,
+      promotedOceanToCoast: coastPolicy.promotedOceanToCoast,
+    });
+
+    context.trace.event(() => ({
+      type: "map.morphology.coasts.policy",
+      policy: "civ7.coastClassification.v0",
+      coastBufferTiles: coastPolicy.coastBufferTiles,
+      promotedOceanToCoast: coastPolicy.promotedOceanToCoast,
+      source: CIV7_COAST_CLASSIFICATION_POLICY_V0.source,
+    }));
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        const cls = waterClass[idx] | 0;
+        const terrain = cls === WATER_CLASS_LAND
+          ? FLAT_TERRAIN
+          : cls === WATER_CLASS_COAST
+            ? COAST_TERRAIN
+            : OCEAN_TERRAIN;
+        context.adapter.setTerrainType(x, y, terrain);
+      }
+    }
+
+    const engineAfterCoasts = snapshotEngineHeightfield(context);
+    if (engineAfterCoasts) {
+      deps.artifacts.coastEngineTerrainSnapshot.publish(context, {
+        stage: "map-morphology/plot-coasts",
+        width,
+        height,
+        landMask: engineAfterCoasts.landMask,
+        terrain: engineAfterCoasts.terrain,
+        elevation: engineAfterCoasts.elevation,
+      });
     }
 
     // Map-stage layers: coastline metrics are computed from Morphology truth (tile-space) and should match
@@ -39,7 +118,8 @@ export default createStep(PlotCoastsStepContract, {
       meta: defineVizMeta("map.morphology.coasts.waterClass", {
         label: "Water Class (Stamped)",
         group: GROUP_MAP_MORPHOLOGY,
-        description: "What the engine actually receives after Morphology coast projection (0=land, 1=coast, 2=ocean).",
+        description:
+          "What the engine actually receives after Morphology coast projection (0=land, 1=coast, 2=ocean).",
         role: "membership",
         palette: "categorical",
         categories: [
@@ -87,6 +167,6 @@ export default createStep(PlotCoastsStepContract, {
     });
 
     logLandmassAscii(context.trace, context.adapter, width, height);
-    assertNoWaterDrift(context, topography.landMask, "map-morphology/plot-coasts");
+    assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-coasts");
   },
 });

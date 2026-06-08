@@ -5,13 +5,14 @@
 - Project: Swooper recovery
 - Phase: terrain-edge diagnostics
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-mock-lake-readback-drain`
+- Branch/Graphite stack: `codex/swooper-coast-materialization-edge-drain`
 - Started: 2026-06-06
 - Status: active. Terrain edge, local projection/mask context,
   exact-runtime-bound live terrain/hydrology/area readback, local placement
   validation-boundary readback, row-level source-authority classification, and
-  a bounded mock lake readback repair exist for the two coast/ocean rows.
-  Final-surface parity remains unresolved.
+  a bounded mock lake readback repair, and post-repair coast materialization
+  boundary context exist for the two coast/ocean rows. Final-surface parity
+  remains unresolved.
 
 ## Objective
 
@@ -35,7 +36,7 @@
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
-- Branch: `codex/swooper-mock-lake-readback-drain`.
+- Branch: `codex/swooper-coast-materialization-edge-drain`.
 - Source proof:
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc.json`.
 - Source proof hash:
@@ -80,6 +81,18 @@
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-materialization-repair-terrain-edge-context.json`.
 - Source-recorded post-repair terrain-edge context artifact sha256:
   `cc28a662c6270feb053a227fd221c15cd00504e3cf54c67ab1bc21e4611e6aa6`.
+- Source-recorded post-repair coast materialization parity artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-coast-materialization-context.json`.
+- Source-recorded post-repair coast materialization parity artifact sha256:
+  `a14455a238ac6e0296f116827c2d842ea2621561be38862696fceb3084a2bb11`.
+- Source-recorded post-repair coast materialization parity proof hash:
+  `8dfb35f12c493895c21057543dbe7bff0f365b5437b43f0bb0b186d3fda864dc`.
+- Source-recorded post-repair coast materialization context artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-coast-materialization-context.json`.
+- Source-recorded post-repair coast materialization context artifact sha256:
+  `59378d7c5d90593958e14ecf66f966107499499ef0eb4f616978226e3e3b0b93`.
+- Source-recorded post-repair coast materialization context proof hash:
+  `c58aee8b820ac50355705bb500e48863b389776b219acd86ee1c390d2cd76b5e`.
 
 ## Findings
 
@@ -94,7 +107,7 @@
   `map-morphology-coast-shelf-projection` as direct row intent,
   `map-hydrology-water-mutation` as authored lake intent, and
   `evidence-insufficient`.
-- Local mask/projection evidence:
+- Pre-repair local mask/projection evidence:
   - Both rows have morphology `shelfMask:0`, `coastalWater:0`,
     `coastalLand:0`, and `distanceToCoast:18`. They are not locally justified
     by morphology shelf/coastline intent alone.
@@ -123,10 +136,11 @@
   - `(65,39)` live readback is `TERRAIN_OCEAN`, `water:true`,
     `lake:false`, `riverType:-1`, `areaId:720906`, `regionId:-1`,
     `landmassId:65536`.
-  - The second row is the strongest remaining signal: local projection carries
-    `engineLakeMask:1` and `TERRAIN_COAST`, while live Civ readback reports
-    `lake:false` and `TERRAIN_OCEAN`. That narrows the next classification
-    question but does not prove the repair owner.
+  - Before the mock lake repair, the second row was the strongest lake-readback
+    signal: local projection carried `engineLakeMask:1` and `TERRAIN_COAST`,
+    while live Civ readback reported `lake:false` and `TERRAIN_OCEAN`. The
+    later mock lake repair removed the lake-readback sub-gap; the remaining
+    current gap is terrain materialization.
 - Local placement validation-boundary evidence:
   - New diagnostic artifact records `terrain`, `waterMask`, `lakeMask`, and
     `areaId` before `placement.terrain.validate`, after
@@ -223,6 +237,48 @@
     exact proof wrapper contains stale config key
     `/config/ecology-features/floodplainPlanning`.
 
+## Coast Materialization Boundary Context
+
+- Added a structured `map-morphology` coast classification artifact and
+  engine terrain snapshots after `plot-coasts` and after `plot-continents`.
+  These are diagnostic proof surfaces only; they do not tune coast policy.
+- Exact-authored post-context parity rerun:
+  - Command:
+    `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-coast-materialization-context.json`.
+  - Result: exited `2` with `parityStatus:"unresolved"`, proof hash
+    `8dfb35f12c493895c21057543dbe7bff0f365b5437b43f0bb0b186d3fda864dc`.
+  - Unresolved links remain
+    `resource-placement-coordinate-proof.log`, `surface.feature.mismatch`,
+    `surface.resource.mismatch`, and `surface.terrain.mismatch`.
+- Focused context artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-coast-materialization-context.json`,
+  sha256
+  `59378d7c5d90593958e14ecf66f966107499499ef0eb4f616978226e3e3b0b93`,
+  proof hash
+  `c58aee8b820ac50355705bb500e48863b389776b219acd86ee1c390d2cd76b5e`.
+- T1 `(73,36)`:
+  - Coast policy classifies the row as ocean: `baseWaterClass:2`,
+    `waterClass:2`, `policyCoastMask:0`.
+  - Local engine terrain remains `TERRAIN_OCEAN` after `plot-coasts`,
+    after `plot-continents`, after map-hydrology, after map-rivers, after
+    placement, and through placement validation/maintenance.
+  - Live exact readback remains `TERRAIN_COAST`.
+  - Classification: local mock/materialization under-models this live Civ
+    coast result, but this still does not authorize coast/shelf tuning because
+    authored morphology coast/shelf masks are absent at the row.
+- T2 `(65,39)`:
+  - Coast policy classifies the row as ocean: `baseWaterClass:2`,
+    `waterClass:2`, `policyCoastMask:0`.
+  - Local engine terrain is `TERRAIN_OCEAN` immediately after `plot-coasts`,
+    then becomes `TERRAIN_COAST` after `plot-continents` validation and remains
+    coast through downstream snapshots.
+  - Live exact readback remains `TERRAIN_OCEAN`.
+  - Classification: the remaining T2 terrain gap is a local
+    `validateAndFixTerrain`/mock terrain materialization parity gap, not a
+    Hydrology lake gap and not a MapGen coast policy row.
+- Repair authority from this layer is limited to a future bounded mock/local
+  terrain materialization parity slice. This layer does not start that repair.
+
 ## Evidence Boundary
 
 - This layer proves only row-level terrain context and local projection/mask
@@ -236,8 +292,8 @@
 ## Next Evidence
 
 - Continue terrain work in a separate terrain materialization slice. The lake
-  readback sub-gap is repaired, but coast/ocean materialization still differs
-  from the live exact run at both terrain rows.
+  readback sub-gap is repaired, and the remaining coast/ocean materialization
+  boundary is classified, but a terrain materialization repair has not started.
 - Any further repair must rerun focused tests and the exact-authored
   final-surface parity proof before parity, product acceptance, Earthlike
   quality, or terrain parity closure can be claimed.
@@ -265,6 +321,21 @@
   passed.
 - `bun run openspec:validate`: passed.
 - `git diff --check`: passed.
+- Coast materialization context verification:
+  - `bun test scripts/civ7-direct-control/verify-terrain-edge-live-context.test.ts`:
+    passed.
+  - `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`:
+    passed.
+  - `bun test mods/mod-swooper-maps/test/standard-run.test.ts`: passed.
+  - `bun run --cwd mods/mod-swooper-maps check`: passed.
+  - `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-coast-materialization-context.json`:
+    source-recorded result exited `2` with exact-bound unresolved proof hash
+    `8dfb35f12c493895c21057543dbe7bff0f365b5437b43f0bb0b186d3fda864dc`.
+  - Current drain proof-file rerun is blocked before parity evaluation by stale
+    exact proof config key `/config/ecology-features/floodplainPlanning`.
+  - Source-recorded `bun -e <regenerate coast materialization terrain context>`
+    wrote `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-coast-materialization-context.json`.
+  - `git diff --check && git diff --cached --check`: passed.
 - Records-only source-authority classification verification:
   - `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`:
     passed.

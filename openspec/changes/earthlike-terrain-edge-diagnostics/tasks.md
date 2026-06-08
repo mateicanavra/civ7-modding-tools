@@ -13,6 +13,7 @@
 - [x] 2.5 Add or link live water/lake/area readback evidence.
 - [x] 2.6 Add placement validation-boundary readback evidence.
 - [x] 2.7 Classify source authority for each row.
+- [x] 2.8 Add post-repair coast materialization boundary context.
 
 ## 3. Repair
 
@@ -21,8 +22,10 @@
 - [x] 3.3 Open any adapter/mock materialization repair as a separate bounded
       layer before changing code.
 - [x] 3.4 Repair mock lake readback so ordinary coast terrain is not lake.
-- [ ] 3.5 Classify or repair the remaining mock terrain coast/ocean
-      materialization mismatch.
+- [x] 3.5 Classify the remaining mock terrain coast/ocean materialization
+      boundary before repair.
+- [ ] 3.6 Repair the remaining mock terrain coast/ocean materialization
+      mismatch in a bounded repair layer.
 
 ## 4. Verification
 
