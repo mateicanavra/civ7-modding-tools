@@ -5,12 +5,13 @@
 - Project: Swooper recovery
 - Phase: terrain-edge diagnostics
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-terrain-source-owner-drain`
+- Branch/Graphite stack: `codex/swooper-mock-lake-readback-drain`
 - Started: 2026-06-06
 - Status: active. Terrain edge, local projection/mask context,
   exact-runtime-bound live terrain/hydrology/area readback, local placement
-  validation-boundary readback, and row-level source-authority classification
-  exist for the two coast/ocean rows. Repair is not started in this layer.
+  validation-boundary readback, row-level source-authority classification, and
+  a bounded mock lake readback repair exist for the two coast/ocean rows.
+  Final-surface parity remains unresolved.
 
 ## Objective
 
@@ -34,7 +35,7 @@
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
-- Branch: `codex/swooper-terrain-source-owner-drain`.
+- Branch: `codex/swooper-mock-lake-readback-drain`.
 - Source proof:
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc.json`.
 - Source proof hash:
@@ -69,6 +70,16 @@
   `033609d9293faf4b86a1da5862247a4c41762e7917069be3f2af7c8e7f55f263`.
 - Local validation-boundary proof hash:
   `e906acdcacb002572586379b98cd00d0eb99529c9b86e2384fc6b8e03703da4e`.
+- Source-recorded post-mock-materialization-repair final-surface parity artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-materialization-repair.json`.
+- Source-recorded post-repair parity artifact sha256:
+  `b91ad36796d627a2d9b7381e3a20dcd5b0b604ba623d81e38235cb1061e950f3`.
+- Source-recorded post-repair parity proof hash:
+  `194dc8d2a22469dfc3612d6038cf1dae26574f35a56b3f6ab67062b55b18a289`.
+- Source-recorded post-repair terrain-edge context artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-materialization-repair-terrain-edge-context.json`.
+- Source-recorded post-repair terrain-edge context artifact sha256:
+  `cc28a662c6270feb053a227fd221c15cd00504e3cf54c67ab1bc21e4611e6aa6`.
 
 ## Findings
 
@@ -177,10 +188,46 @@
   - This classification does not authorize product tuning, generated output
     edits, broad coast/shelf changes, parity closure, or product acceptance.
 
+## Mock Lake Readback Repair
+
+- Repair implemented in `packages/civ7-adapter/src/mock-adapter.ts`:
+  - Added explicit mock lake state separate from terrain type.
+  - `MockAdapter.isLake()` now reads that state instead of treating every
+    `TERRAIN_COAST` tile as lake-classified water.
+  - `stampLakes()` is the path that marks planned lake tiles as mock lakes.
+  - Ordinary coast expansion still produces water terrain, but not lake
+    readback.
+- Focused test coverage in
+  `packages/civ7-adapter/test/mock-terrain-policy.test.ts` proves ordinary
+  expanded coast is water/non-lake and stamped lake terrain is water/lake.
+- Source-recorded post-repair parity artifact:
+  - Input exact proof wrapper:
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json`.
+  - Source command:
+    `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-materialization-repair.json`.
+  - Source result: exited `2` with `parityStatus:"unresolved"`, proof hash
+    `194dc8d2a22469dfc3612d6038cf1dae26574f35a56b3f6ab67062b55b18a289`.
+  - Runtime identity remained exact-bound and stable: seed `138503614`,
+    dimensions `106x66`, turn `1`, game hash `0`, omitted live plots `0`.
+  - Terrain remains `2/6996` mismatched at `(73,36)` and `(65,39)`.
+  - T2 post-repair terrain context now has local `engineLakeMask:0` and
+    validation `lakeMask:0`; the lake-readback sub-gap is repaired.
+  - T2 still has local `TERRAIN_COAST` versus live `TERRAIN_OCEAN`; the
+    remaining owner is terrain materialization parity, not lake readback.
+  - Feature remains `5/6996` mismatched and resource remains `61/6996`
+    mismatched; those stay in their own feature/resource legality lanes.
+  - Unresolved links remain
+    `resource-placement-coordinate-proof.log`, `surface.feature.mismatch`,
+    `surface.resource.mismatch`, and `surface.terrain.mismatch`.
+  - Current drain rerun attempt did not reach parity evaluation because the old
+    exact proof wrapper contains stale config key
+    `/config/ecology-features/floodplainPlanning`.
+
 ## Evidence Boundary
 
 - This layer proves only row-level terrain context and local projection/mask
-  context for the exact-authored proof.
+  context plus the focused mock lake readback repair for the exact-authored
+  proof.
 - It does not prove the repo should change coast/shelf policy.
 - It does not prove Civ engine terrain validation is accepted policy.
 - It does not close final-surface parity, product acceptance, Earthlike quality,
@@ -188,12 +235,12 @@
 
 ## Next Evidence
 
-- Open a separate bounded repair layer before changing product or adapter code.
-  The first candidate owner surface is adapter/mock materialization parity,
-  including mock lake readback and coast/ocean materialization behavior.
-- Any repair must rerun focused tests and the exact-authored final-surface
-  parity proof before parity, product acceptance, Earthlike quality, or terrain
-  parity closure can be claimed.
+- Continue terrain work in a separate terrain materialization slice. The lake
+  readback sub-gap is repaired, but coast/ocean materialization still differs
+  from the live exact run at both terrain rows.
+- Any further repair must rerun focused tests and the exact-authored
+  final-surface parity proof before parity, product acceptance, Earthlike
+  quality, or terrain parity closure can be claimed.
 - Continue to keep feature/resource legality, start placement, mountain quality,
   and generated output outside this terrain-edge layer.
 
@@ -219,6 +266,22 @@
 - `bun run openspec:validate`: passed.
 - `git diff --check`: passed.
 - Records-only source-authority classification verification:
+  - `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`:
+    passed.
+  - `bun run openspec -- validate civ7-map-policy-final-surface-parity --strict`:
+    passed.
+  - `bun run openspec:validate`: passed.
+  - `git diff --check`: passed.
+- Mock materialization repair verification:
+  - `bun test packages/civ7-adapter/test/mock-terrain-policy.test.ts`: passed.
+  - `bun run --cwd packages/civ7-adapter check`: passed.
+  - `bun run --cwd packages/civ7-adapter build`: passed.
+  - `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-materialization-repair.json`:
+    failed before parity evaluation with stale proof config key
+    `/config/ecology-features/floodplainPlanning`.
+  - `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`:
+    passed.
+  - `bun run --cwd mods/mod-swooper-maps check`: passed.
   - `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`:
     passed.
   - `bun run openspec -- validate civ7-map-policy-final-surface-parity --strict`:

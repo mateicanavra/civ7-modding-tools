@@ -347,6 +347,7 @@ export class MockAdapter implements EngineAdapter {
   private resources: Int16Array;
   private biomes: Uint8Array;
   private waterMask: Uint8Array;
+  private lakeMask: Uint8Array;
   private mountainMask: Uint8Array;
   private landmassRegionIds: Uint8Array;
   private riverMask: Uint8Array;
@@ -441,6 +442,7 @@ export class MockAdapter implements EngineAdapter {
     this.resources = new Int16Array(size).fill(this.noResourceSentinel);
     this.biomes = new Uint8Array(size).fill(config.defaultBiomeType ?? 0);
     this.waterMask = new Uint8Array(size);
+    this.lakeMask = new Uint8Array(size);
     this.mountainMask = new Uint8Array(size);
     this.riverMask = new Uint8Array(size);
     this.landmassRegionIds = new Uint8Array(size);
@@ -570,8 +572,7 @@ export class MockAdapter implements EngineAdapter {
   }
 
   isLake(x: number, y: number): boolean {
-    // The mock has no engine area classifier, so coast terrain is its lake-classification evidence.
-    return this.terrainTypes[this.idx(x, y)] === this.coastTerrainId;
+    return this.lakeMask[this.idx(x, y)] === 1;
   }
 
   getAreaId(x: number, y: number): number {
@@ -633,6 +634,9 @@ export class MockAdapter implements EngineAdapter {
     this.riverMask[index] =
       terrainType === this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") ? 1 : 0;
     this.mountainMask[index] = terrainType === this.mountainTerrainId ? 1 : 0;
+    if (terrainType !== this.coastTerrainId) {
+      this.lakeMask[index] = 0;
+    }
   }
 
   setRainfall(x: number, y: number, value: number): void {
@@ -958,7 +962,15 @@ export class MockAdapter implements EngineAdapter {
   }
 
   storeWaterData(): void {
-    // No-op in mock
+    const size = this.width * this.height;
+    for (let i = 0; i < size; i++) {
+      const terrain = this.terrainTypes[i] ?? 0;
+      this.waterMask[i] =
+        terrain === this.coastTerrainId || terrain === this.oceanTerrainId ? 1 : 0;
+      if (terrain !== this.coastTerrainId) {
+        this.lakeMask[i] = 0;
+      }
+    }
   }
 
   generateLakes(width: number, height: number, tilesPerLake: number): void {
@@ -981,6 +993,7 @@ export class MockAdapter implements EngineAdapter {
     }
 
     let plannedLakeTileCount = 0;
+    this.lakeMask.fill(0);
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -988,6 +1001,7 @@ export class MockAdapter implements EngineAdapter {
         if (lakeMask[idx] !== 1) continue;
         plannedLakeTileCount += 1;
         this.terrainTypes[idx] = this.coastTerrainId & 0xff;
+        this.lakeMask[idx] = 1;
       }
     }
 
@@ -1370,7 +1384,11 @@ export class MockAdapter implements EngineAdapter {
 
   /** Set water mask for testing */
   setWater(x: number, y: number, isWater: boolean): void {
-    this.waterMask[this.idx(x, y)] = isWater ? 1 : 0;
+    const index = this.idx(x, y);
+    this.waterMask[index] = isWater ? 1 : 0;
+    if (!isWater) {
+      this.lakeMask[index] = 0;
+    }
   }
 
   /** Set mountain mask for testing */
@@ -1381,6 +1399,9 @@ export class MockAdapter implements EngineAdapter {
   /** Fill all tiles with water/land */
   fillWater(isWater: boolean): void {
     this.waterMask.fill(isWater ? 1 : 0);
+    if (!isWater) {
+      this.lakeMask.fill(0);
+    }
   }
 
   /** Reset all data to defaults */
@@ -1401,6 +1422,7 @@ export class MockAdapter implements EngineAdapter {
     this.resources.fill(this.NO_RESOURCE);
     this.biomes.fill(config.defaultBiomeType ?? 0);
     this.waterMask.fill(0);
+    this.lakeMask.fill(0);
     this.mountainMask.fill(0);
     this.riverMask.fill(0);
     this.landmassRegionIds.fill(0);
