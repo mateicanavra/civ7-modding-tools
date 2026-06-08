@@ -2,16 +2,15 @@
   "fixtureId": "swooper-recovery-accounting-2026-06-07",
   "fixtureClass": "accounting-ledger",
   "schemaVersion": "gt-stack-inspect.accounting-ledger.v1",
-  "capturedAt": "2026-06-07T18:45:30-04:00",
+  "capturedAt": "2026-06-07T21:30:37-04:00",
   "scope": {
     "recoveryRoot": "codex/swooper-mapgen-recovery-drain",
-    "recoveryTop": "codex/swooper-earthlike-floodplain-final-adoption",
-    "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
+    "recoveryTop": "codex/swooper-source-route-accounting-closure",
+    "mainHead": "9d5ce882ef691291263abcef4024c0823eb07972",
     "excludedFamilies": [
-      "live-play/control",
       "GT stack-inspect/toolkit"
     ],
-    "policy": "Sparse reconciliation moves only. Done means source intent is represented by an explicit sink: the local recovery stack, merged mainline PRs, or an explicit terminal exclusion. Already-merged/represented work is not parked. Cleanup remains gated by the sink: source branches adopted only by the local recovery stack cannot be pruned until the recovery stack is submitted or merged."
+    "policy": "Sparse reconciliation moves only. Done means source intent is represented by an explicit sink: the local recovery stack, live-control stack, merged mainline PRs, or an explicit terminal exclusion. Already-merged/represented work is not parked. Cleanup remains gated by the sink: source branches adopted only by the local recovery stack cannot be pruned until the recovery stack is submitted or merged."
   },
   "moves": [
     {
@@ -200,7 +199,7 @@
       },
       "method": "semantic",
       "anchors": {
-        "fromHead": "5fd0a81955d5e8bcbdfe8147e893bb9b79b41d93",
+        "fromHead": "5fd0a81955d52568328555702ec88e99bb64e679",
         "toHead": "eeccd5a9eb52bd30e7545e3324fe359d21ded7a4",
         "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
         "capturedAt": "2026-06-07T14:36:32-04:00"
@@ -428,8 +427,50 @@
       "note": "Non-Earthlike config drift was intentionally dropped from the recovery stack."
     },
     {
-      "moveId": "planned-adopt-systematic-workstream-skill-support-slice",
-      "state": "planned",
+      "moveId": "done-adopt-hotseat-phase-packet-live-control",
+      "state": "done",
+      "kind": "adopt",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/play-agent-hotseat-phase-packet"
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/live-control-hotseat-phase-packet-adoption"
+      },
+      "method": "cherry-pick",
+      "anchors": {
+        "fromHead": "547b81e13d5bbd004132d0e5ffe915723c431ff1",
+        "toHead": "c172847cc5f8608618248b9d9c042e5e43b8a71e",
+        "mainHead": "9d5ce882ef691291263abcef4024c0823eb07972",
+        "capturedAt": "2026-06-07T20:07:37-04:00"
+      },
+      "note": "The hotseat proof-phase packet is a direct-control/live-play context leaf, not Swooper mapgen recovery content. It is now carried forward on top of the live-control stack by an exact Graphite cherry-pick, so the old source route no longer has an unhandled hotseat terminal path."
+    },
+    {
+      "moveId": "done-supersede-civ7-orpc-control-architecture-skill-live-control",
+      "state": "done",
+      "kind": "supersede",
+      "source": {
+        "kind": "branch",
+        "branch": "codex/civ7-orpc-control-architecture-skill"
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/live-control-source-route-docs-adoption"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "d3d49b48fbbb541c0fc6ff273014f86cf84af10d",
+        "toHead": "7ea1cbd5849de30bc37e976f6edaafe2f7102c0f",
+        "mainHead": "9d5ce882ef691291263abcef4024c0823eb07972",
+        "capturedAt": "2026-06-07T20:18:52-04:00"
+      },
+      "note": "The early direct-control embedded oRPC branch is superseded by the live-control stack's package-owned @civ7/control-orpc implementation. Do not replay its stale packages/civ7-direct-control/src/orpc surface or caller-approval model; the live-control stack carries the accepted architecture through module routers, contract-base, mutation-readiness/proof middleware, package-local tests, and CLI callers importing @civ7/control-orpc."
+    },
+    {
+      "moveId": "done-adopt-systematic-workstream-skill-support-slice-main",
+      "state": "done",
       "kind": "adopt",
       "source": {
         "kind": "stack-slice",
@@ -444,55 +485,88 @@
       "sink": {
         "kind": "main",
         "label": "main support adoption",
-        "commit": "98dca389248d5ddb2777a88105c3ade452b2137c"
+        "commit": "9d5ce882ef691291263abcef4024c0823eb07972"
       },
-      "method": "semantic",
+      "method": "as-is",
       "anchors": {
-        "fromHead": "7b9a16aa4eac8fe319a816bcebc73e574c31f0b6",
-        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
-        "capturedAt": "2026-06-07T14:36:32-04:00"
+        "fromHead": "e2211d19d84b735b6bee26600ebb8b8871d5a084",
+        "mainHead": "9d5ce882ef691291263abcef4024c0823eb07972",
+        "capturedAt": "2026-06-07T20:32:00-04:00"
       },
-      "note": "The repo-local systematic workstream skill is not in main or in the Swooper recovery stack. It is useful support tooling and needs a dedicated support adoption slice; it is not part of the Swooper product recovery drain."
+      "note": "The repo-local systematic workstream skill support stack was submitted and merged through Graphite as PRs #1423, #1424, and #1425. It is durable on main and is no longer a planned adoption or parked source."
     },
     {
-      "moveId": "done-reference-foundation-architecture-packet",
+      "moveId": "done-adopt-foundation-architecture-packet-main",
       "state": "done",
-      "kind": "reference",
+      "kind": "adopt",
       "source": {
         "kind": "branch",
         "branch": "codex/foundation-architecture-packet"
       },
-      "terminalState": "retired",
-      "anchors": {
-        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
-        "capturedAt": "2026-06-07T14:36:32-04:00"
+      "sink": {
+        "kind": "main",
+        "label": "main support adoption",
+        "commit": "8c4608b4d1c7d1174a83c2684319908f968c73cb"
       },
-      "note": "Foundation architecture packet remains reference/support material, not a source branch replayed into the Swooper recovery stack."
+      "method": "as-is",
+      "anchors": {
+        "fromHead": "eaba8d5c707c3e84396bdd002583e21b9cb0d6f3",
+        "mainHead": "9d5ce882ef691291263abcef4024c0823eb07972",
+        "capturedAt": "2026-06-07T20:32:00-04:00"
+      },
+      "note": "The foundation architecture packet was submitted and merged through Graphite as PR #1422. It is durable on main and is no longer a live source branch for this recovery accounting pass."
     },
     {
-      "moveId": "done-exclude-civ7-intelligence-and-control-doc-train",
+      "moveId": "done-adopt-civ7-intelligence-and-control-doc-train-live-control",
       "state": "done",
-      "kind": "exclude",
+      "kind": "adopt",
       "source": {
         "kind": "stack-slice",
         "id": "civ7-intelligence-and-control-doc-train",
-        "root": "codex/frame-civ7-intelligence-layer",
+        "root": "codex/live-play-settlement-reference",
         "branches": [
+          "codex/live-play-settlement-reference",
+          "codex/unit-movement-api-investigation",
+          "codex/play-agent-output-contract",
           "codex/frame-civ7-intelligence-layer",
           "codex/shape-civ7-intelligence-solution",
           "codex/investigate-civ7-intelligence-threads",
-          "codex/consolidate-play-agent-docs",
-          "codex/play-agent-output-contract",
-          "codex/unit-movement-api-investigation",
-          "codex/live-play-settlement-reference"
+          "codex/consolidate-play-agent-docs"
         ]
       },
-      "anchors": {
-        "fromHead": "754f90431964fe6439090a0ed03c9546d9e96bc1",
-        "mainHead": "98dca389248d5ddb2777a88105c3ade452b2137c",
-        "capturedAt": "2026-06-07T14:36:32-04:00"
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/live-control-source-route-docs-adoption"
       },
-      "note": "Control/intelligence documentation and live-play setup branches are outside the Swooper mapgen recovery accounting. They are not source work to adopt into the recovery stack."
+      "method": "cherry-pick",
+      "anchors": {
+        "fromHead": "0ef887b0b52d24cae97283ff55fbd252f0efe0b4",
+        "toHead": "7ea1cbd5849de30bc37e976f6edaafe2f7102c0f",
+        "mainHead": "9d5ce882ef691291263abcef4024c0823eb07972",
+        "capturedAt": "2026-06-07T20:18:52-04:00"
+      },
+      "note": "The old source route's control/intelligence documentation train is now carried forward on the live-control stack by ordered Graphite cherry-picks. The applied range includes branch-internal commits for the play-agent output contract and controller-bridge handoff metadata; the obsolete embedded oRPC code branch remains separately superseded rather than replayed."
+    },
+    {
+      "moveId": "done-supersede-agent-watch-live-play-reference-assembly",
+      "state": "done",
+      "kind": "supersede",
+      "source": {
+        "kind": "branch",
+        "branch": "agent-watch-civ7-live-play-reference-assembly"
+      },
+      "sink": {
+        "kind": "branch",
+        "branch": "codex/local-catalog-enrichment"
+      },
+      "method": "semantic",
+      "anchors": {
+        "fromHead": "9e67f53645597dfd9d7299bb5beb9509fa7569fe",
+        "toHead": "1689806731331dae56262cfa988fdbc0800b3e88",
+        "mainHead": "9d5ce882ef691291263abcef4024c0823eb07972",
+        "capturedAt": "2026-06-07T21:30:37-04:00"
+      },
+      "note": "The single-branch agent-watch live-play reference assembly commit is patch-equivalent in the live-control/catalog stack, which carries additional later live-play support context. Its local Graphite metadata/branch was deleted on 2026-06-07; do not merge it as a separate source branch."
     },
     {
       "moveId": "done-exclude-gt-stack-inspect-toolkit-lane",
@@ -527,14 +601,6 @@
     }
   ],
   "workSurfaceRows": [
-    {
-      "rowId": "planned-adopt-systematic-workstream-skill-support-slice",
-      "kind": "planned-move",
-      "target": "codex/systematic-skill-review-fixes",
-      "sourceRef": "systematic-workstream-skill-support-slice",
-      "moveId": "planned-adopt-systematic-workstream-skill-support-slice",
-      "blocker": "Systematic workstream skill is useful support tooling but is not in main; adopt separately from the Swooper product drain."
-    },
     {
       "rowId": "cleanup-blocked-until-recovery-lands",
       "kind": "done-move",

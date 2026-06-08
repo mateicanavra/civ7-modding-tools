@@ -1,12 +1,12 @@
 # Recovery Accounting State
 
-Capture: `2026-06-07T18:45:30-04:00`
+Capture: `2026-06-07T21:30:37-04:00`
 
 Recovery stack:
 
-- Base: `codex/swooper-mapgen-recovery-drain` at `d77f7e3d01b3`
-- Current top: `codex/swooper-earthlike-floodplain-final-adoption` (this record commit)
-- Main base: `98dca389248d`
+- Base: `codex/swooper-mapgen-recovery-drain` at `bab09d4653`
+- Current top: `codex/swooper-source-route-accounting-closure` (this record commit)
+- Main base: `9d5ce882ef`
 
 This is the human-readable companion to
 `recovery-accounting-ledger.json`. The JSON file uses the sparse
@@ -22,7 +22,8 @@ This is the human-readable companion to
   or merged when the sink is the local recovery stack.
 - Already-merged or explicitly represented branches are not parked. The parked
   set is reserved for actually pending or owner-held work.
-- No active live-play/control continuation branches are classified here.
+- No active live-play/control continuation branches are classified here except
+  explicit source-route adoption/supersession rows.
 - GT stack-inspect/toolkit branches are not classified here; they are a
   separate owned lane.
 - No source branch should be replayed wholesale when the ledger marks it
@@ -47,18 +48,19 @@ This is the human-readable companion to
 | `codex/workspace-source-package-resolution` | `done/adopt` | Swooper natural-wonder drain | Covered locally by the recovery-side workspace source-resolution expansion for `@civ7/map-policy` and `@civ7/adapter`; this is an accounting-label correction, not new product adoption. |
 | `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` | `done/adopt` | `codex/swooper-earthlike-floodplain-final-adoption` | Covered locally: latest Earthlike `floodplainPlanning` config/hash leaf is represented, floodplain planning now belongs to ecology-features, generated map artifacts were regenerated, and stale non-Earthlike placement-side floodplain config drift was dropped. |
 | Non-Earthlike predecessor config drift | `done/exclude` | retired | Intentionally dropped. |
-| Systematic workstream skill support slice | `planned/adopt` | `main` | Not product recovery; adopt separately if we want repo-local skill support durable on main. |
-| `codex/foundation-architecture-packet` | `done/reference` | reference only | Not part of product recovery adoption. |
-| Civ7 intelligence/control doc train | `done/exclude` | outside this drain | Not source work for Swooper recovery. |
+| `codex/play-agent-hotseat-phase-packet` | `done/adopt` | `codex/live-control-hotseat-phase-packet-adoption` | Carried forward on top of the live-control stack by exact Graphite cherry-pick; not part of Swooper mapgen recovery. |
+| Old control/intelligence documentation train | `done/adopt` | `codex/live-control-source-route-docs-adoption` | Carried forward on the live-control stack by ordered Graphite cherry-picks, including branch-internal output-contract and controller-bridge handoff commits. |
+| `codex/civ7-orpc-control-architecture-skill` | `done/supersede` | `codex/live-control-source-route-docs-adoption` | Superseded by the live-control stack's package-owned `@civ7/control-orpc` architecture; do not replay the stale embedded `@civ7/direct-control/src/orpc` surface. |
+| `agent-watch-civ7-live-play-reference-assembly` | `done/supersede` | `codex/local-catalog-enrichment` | Single-branch live-play reference assembly is patch-equivalent in the live-control/catalog stack, which carries additional later live-play support context. Local Graphite branch deleted on `2026-06-07`; do not merge separately. |
+| Systematic workstream skill support slice | `done/adopt` | `main` via merged PRs `#1423`-`#1425` | Done; support stack is durable on main and no longer parked or planned. |
+| `codex/foundation-architecture-packet` | `done/adopt` | `main` via merged PR `#1422` | Done; support packet is durable on main and no longer a live source branch for this recovery accounting pass. |
 | GT stack-inspect/toolkit lane | `done/exclude` | outside this drain | Active separate tooling lane. |
 
 ## Immediate Work Surface
 
-1. Adopt the systematic workstream skill separately if the repo-local skill
-   should be durable on main; do not mix it into Swooper product closure.
-2. Do not delete recovery-adopted source branches yet. Cleanup for sources whose
+1. Do not delete recovery-adopted source branches yet. Cleanup for sources whose
    sink is the local recovery stack is blocked until recovery submits or merges.
-3. Do not add more proof branches before deciding whether to fold/reduce the
+2. Do not add more proof branches before deciding whether to fold/reduce the
    current recovery stack.
 
 ## Current Finished Boundary
@@ -70,16 +72,27 @@ Finished locally:
   proof, terrain-edge, natural-wonder proof/materialization, workspace
   source-resolution, and final Earthlike floodplain config/source-boundary slices
   listed above.
+- The old source route's hotseat terminal path is explicitly carried forward
+  on the live-control stack, not left as a vague exclusion.
+- The old source route's control/intelligence documentation train is explicitly
+  carried forward on the live-control stack.
+- The old source route's early embedded oRPC architecture branch is explicitly
+  superseded by the live-control stack's `@civ7/control-orpc` implementation.
 - Resource/morphology/authoring predecessor trains are done through merged
   aggregate PR `#1402`, not parked, and their local Graphite branches were
   deleted.
 - Studio/run-in-game predecessor range is done through merged PRs `#1407`-`#1413`,
   not parked, and `codex/live-play-online-context` was deleted locally.
+- The obsolete Earthlike source worktree was removed on `2026-06-07`; the source
+  branches remain cleanup-gated until the recovery sink lands.
+- The single-branch `agent-watch-civ7-live-play-reference-assembly` reference was
+  deleted locally after patch-equivalence accounting against
+  `codex/local-catalog-enrichment`.
 
 Not finished:
 
 - The recovery stack has not landed.
 - Source cleanup for branches adopted only by the local recovery stack is not
   safe until the recovery stack lands.
-- Systematic workstream skill support slice is not adopted to main.
+- Foundation and systematic support stacks are merged into `main`.
 - Product closure/final parity is not claimed.
