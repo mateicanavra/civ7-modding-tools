@@ -49,6 +49,13 @@ export function resolveNaturalWonderPlacementDirection(
   return -1;
 }
 
+export function resolveNaturalWonderMaterializationDirection(
+  policy: NaturalWonderPlacementPolicy,
+  direction = resolveNaturalWonderPlacementDirection(policy)
+): number {
+  return normalizeFootprintDirection(direction);
+}
+
 function normalizeFootprintDirection(direction: number | undefined): number {
   if (!Number.isFinite(direction) || (direction as number) < 0) return 0;
   return Math.trunc(direction as number) % 6;
@@ -66,7 +73,7 @@ export function getNaturalWonderFootprintOffsets(
   const tiles = Math.max(1, policy.naturalWonderTiles ?? 1);
   if (tiles <= 1 || placementClass === "ONE") return ANCHOR;
 
-  const normalizedDirection = normalizeFootprintDirection(direction);
+  const normalizedDirection = resolveNaturalWonderMaterializationDirection(policy, direction);
   const primary = directionOffset(normalizedDirection);
   const clockwise = directionOffset(normalizedDirection + 1);
   switch (placementClass) {

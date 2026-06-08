@@ -1,7 +1,11 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { DiscoveryCatalogEntry } from "@civ7/adapter";
-import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintOffsets } from "@civ7/map-policy";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  getNaturalWonderFootprintOffsets,
+  resolveNaturalWonderMaterializationDirection,
+} from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
 import type { PlacementInputsV1 } from "../../placement-inputs.js";
 import { getStandardRuntime } from "../../../../runtime.js";
@@ -141,9 +145,13 @@ export function buildPlacementInputs(
   const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog().map((entry) => {
     const featureType = entry.featureType | 0;
     const policy = FEATURE_POLICIES[String(featureType)];
+    const materializationDirection = resolveNaturalWonderMaterializationDirection(
+      policy ?? {},
+      entry.direction | 0
+    );
     return {
       featureType,
-      direction: entry.direction | 0,
+      direction: materializationDirection,
       validTerrainTypes: [...(FEATURE_VALID_TERRAIN_TYPE_INDICES[String(featureType)] ?? [])],
       validBiomeTypes: [...(FEATURE_VALID_BIOME_TYPE_INDICES[String(featureType)] ?? [])],
       ...(policy?.minimumElevation !== undefined
@@ -154,7 +162,7 @@ export function buildPlacementInputs(
       ...(policy?.naturalWonderTiles ? { naturalWonderTiles: policy.naturalWonderTiles } : {}),
       featureTags: [...(FEATURE_TAGS_BY_FEATURE_TYPE[String(featureType)] ?? [])],
       footprintOffsets: [
-        ...(getNaturalWonderFootprintOffsets(policy ?? {}, entry.direction | 0) ?? []),
+        ...(getNaturalWonderFootprintOffsets(policy ?? {}, materializationDirection) ?? []),
       ],
     };
   });

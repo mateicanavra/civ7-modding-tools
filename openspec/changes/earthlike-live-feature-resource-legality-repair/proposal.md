@@ -70,7 +70,11 @@ truth.
   the same exact-authored request rejects that adapter readback path and leaves
   the final feature footprint on an alternate supported direction. Repair
   authority is limited to that owner surface and must not become product
-  tuning, a global catalog rewrite, or acceptance closure.
+  tuning, a global catalog rewrite, or acceptance closure. Current repair keeps
+  official `naturalWonderDirection:-1` as catalog evidence but resolves it to
+  the explicit local projection direction before planning/materialization, so
+  local validation and live writes use the same direction contract instead of
+  letting Civ choose an unspecified footprint at write time.
 - Resource hypotheses:
   the `106/6996` mismatch class includes relocation/substitution patterns that
   may come from mock/static resource legality, assignment-order divergence from

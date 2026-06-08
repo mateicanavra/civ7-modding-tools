@@ -13,6 +13,7 @@ export {
   getNaturalWonderFootprintIndices,
   getNaturalWonderFootprintOffsets,
   hasUnsupportedNaturalWonderPolicyTags,
+  resolveNaturalWonderMaterializationDirection,
   resolveNaturalWonderPlacementDirection,
 } from "./natural-wonder-footprints.js";
 export type {
