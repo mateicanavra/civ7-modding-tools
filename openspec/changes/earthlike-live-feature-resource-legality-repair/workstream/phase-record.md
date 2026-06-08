@@ -6,25 +6,20 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-wonder-source-classification-drain`, stacked above
-  `codex/swooper-wonder-coordinate-proof-drain` and
-  `codex/swooper-wonder-placement-telemetry-drain`; this slice carries
-  source-owner classification for the source-recorded fresh natural-wonder
-  coordinate proof.
+  `codex/swooper-post-wonder-feature-classification-drain`, stacked above
+  `codex/swooper-wonder-proof-record-drain` and
+  `codex/swooper-wonder-direction-repair-drain`; this slice carries
+  source-recorded post-repair feature-row classification after the
+  natural-wonder projection/materialization repair.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
-  in the repo-owned adapter/map-policy surface, and bounded Civ resource
-  feasibility plus row/static-policy/live-plot, assignment-order, and
-  ResourceBuilder diagnostic/subclassification/policy context plus
-  assignment-class, distribution-count, same-resource position, local
-  materialization, future coordinate-proof instrumentation, coordinate-proof
-  intake, feature-delta classification, local feature/wonder evidence joins,
-  feature feasibility readback, natural-wonder footprint-direction context,
-  planned natural-wonder footprint readback, supported-catalog direction
-  context, and natural-wonder live proof boundary context now narrow the next
-  repair classes.
-  Remaining feature/resource classes still need source-authority classification
-  before repair.
+  in the repo-owned adapter/map-policy surface. Source-recorded post-repair
+  evidence shows a natural-wonder materialization/deploy proof gap: exact live
+  telemetry still rejected two anchors, while local verifier generation saw
+  `7/7/0`. The remaining natural-wonder feature offsets and cold-reef row are
+  evidence-bound pending fresh exact telemetry. Current exact proof still
+  blocks on stale config before parity evaluation, and resource classes remain
+  pending source-authority classification.
 
 ## Objective
 
@@ -660,6 +655,37 @@
   Remaining parity rows are `terrain:1`, `feature:5`, `resource:61`; these are
   not product acceptance, Earthlike quality, mountain-quality, final parity
   closure, or current-drain exact proof closure.
+- Source-recorded post-repair feature-row context:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2u6wdg-1z4g-feature-delta-context.json`
+  (`sha256:8e4de756eac7f159d5e30b03025672e2fb2551d85386ba87c4230a4f01ee7bfe`,
+  `proofHash:4393fe8e068b855d10ea9838e89e1e2dd32c55921cbbfb6a69c8c527453dbe21`)
+  and
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2u6wdg-1z4g-feature-delta-feasibility.json`
+  (`sha256:b3b71d0c07b60c98ef251273ab8eefa3dbfcd69f1ffad446d79d6b2f42943acb`,
+  `proofHash:7a1ac36288ade82d60aaa66ea56cf1ad9aea694405c0605ab00df468aa594920`)
+  bind the `5` feature rows to the source-recorded exact runtime (`106x66`, seed
+  `138503614`, turn `1`, game hash `0`, omitted plot reads `0`). The row set is
+  one local-only `FEATURE_COLD_REEF` row and two paired natural-wonder offset
+  classes. `TerrainBuilder.canHaveFeature` returns `false` for the cold-reef
+  row and for both local and live natural-wonder offset cells; because the live
+  natural-wonder cells already contain those features, this readback is not a
+  clean natural-wonder pre-placement oracle. It is not sufficient to classify
+  the natural-wonder rows as accepted residuals because exact live telemetry
+  still reports the two rejected anchors, and it is not sufficient to authorize
+  cold-reef repair because exact live feature-apply telemetry/readback is
+  absent from the packet.
+- Post-repair natural-wonder footprint readback:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2u6wdg-1z4g-natural-wonder-footprint-readback.json`
+  (`sha256:690c80e7172d5cc3cc2a2c77f279a6c24436a4cc8e0773c8924455a5cb6c82ac`,
+  `proofHash:d102c79f6bda3f22681ebcdc818e83223fa82e67cc468918d93807ea87bf64cb`)
+  confirms local verifier generation can produce complete natural-wonder
+  placement while final-grid footprint readback can still differ from the local
+  projection. Kilimanjaro is
+  partial/ambiguous (`3/3` local direction `0`, `2/3` live under directions
+  `0,1,4,5`), while Zhangjiajie is complete under live direction `5` versus
+  local direction `0`. Because exact live telemetry for the same request still
+  reports `5` placed / `2` rejected, this artifact is a falsifier for the
+  prior accepted-residual wording, not closure evidence.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -708,9 +734,12 @@
   projection/materialization emulation, and the repair now makes the
   materialization direction explicit before the plan/write path. Fresh request
   `studio-run-in-game-mq2u6wdg-1z4g` verifies the old rejected-placement class
-  no longer occurs (`7/7` planned natural wonders placed, `0` rejected), while
-  final-surface parity remains open on terrain/feature/resource mismatches that
-  need source-authority classification.
+  no longer occurs (`7/7` planned natural wonders placed, `0` rejected). The
+  remaining natural-wonder offset rows are now classified as final-grid
+  materialization/readback residuals, not an additional natural-wonder repair
+  authorization. The remaining repo-owned feature repair candidate is the
+  cold-reef local-only row, and final-surface parity remains open on terrain,
+  cold-reef feature, resource, and any explicitly accepted residual links.
   The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source
