@@ -103,6 +103,17 @@ describe("Run in Game exact authorship proof identity", () => {
             placedHash32: "3c3530cb",
           },
         })}`,
+        `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
+          version: 1,
+          plannedCount: 7,
+          targetCount: 7,
+          placedCount: 7,
+          terrainAdjustedCount: 0,
+          skippedOutOfBoundsCount: 0,
+          rejectedCount: 0,
+          shortfallCount: 0,
+          rejectionExampleCount: 0,
+        })}`,
         `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
       ].join("\n"),
       logPath: "/tmp/Scripting.log",
@@ -129,6 +140,20 @@ describe("Run in Game exact authorship proof identity", () => {
         placed: { count: 4, hash32: "3c3530cb" },
       },
     });
+    expect(logProof?.naturalWonderPlacement).toMatchObject({
+      marker: "NATURAL_WONDER_PLACEMENT_V1",
+      stats: {
+        version: 1,
+        plannedCount: 7,
+        targetCount: 7,
+        placedCount: 7,
+        terrainAdjustedCount: 0,
+        skippedOutOfBoundsCount: 0,
+        rejectedCount: 0,
+        shortfallCount: 0,
+        rejectionExampleCount: 0,
+      },
+    });
     expect(parseSwooperMapgenLogProof({
       text: `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 41, dimensions: { width: 84, height: 54 } })}`,
       requestId,
@@ -148,12 +173,22 @@ describe("Run in Game exact authorship proof identity", () => {
     })).toBeUndefined();
   });
 
-  it("ignores resource placement telemetry outside the matching proof section", () => {
+  it("ignores placement telemetry outside the matching proof section", () => {
     const logProof = parseSwooperMapgenLogProof({
       text: [
         `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           coordinateProof: { version: 1, placedCount: 4, placedHash32: "aaaaaaaa" },
+        })}`,
+        `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
+          version: 1,
+          plannedCount: 1,
+          targetCount: 1,
+          placedCount: 1,
+          terrainAdjustedCount: 0,
+          skippedOutOfBoundsCount: 0,
+          rejectedCount: 0,
+          shortfallCount: 0,
         })}`,
         `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
         `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
@@ -165,6 +200,7 @@ describe("Run in Game exact authorship proof identity", () => {
     });
 
     expect(logProof?.resourcePlacement).toBeUndefined();
+    expect(logProof?.naturalWonderPlacement).toBeUndefined();
   });
 
   it("marks exact authorship complete only when every required identity and equality link resolves", () => {

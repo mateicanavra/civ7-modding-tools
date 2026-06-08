@@ -9,6 +9,7 @@ import {
 } from "@swooper/mapgen-core";
 
 import {
+  buildNaturalWonderPlacementRuntimeTelemetry,
   normalizeNaturalWonderStampingStats,
   stampNaturalWondersFromPlan,
 } from "../../src/recipes/standard/stages/placement/steps/place-natural-wonders/materialize.js";
@@ -119,6 +120,22 @@ describe("natural wonder placement materialization", () => {
     expect(stats.shortfallCount).toBe(1);
     expect(stats.rejectedCount).toBe(0);
     expect(normalizeNaturalWonderStampingStats(stats)).toEqual(stats);
+    expect(buildNaturalWonderPlacementRuntimeTelemetry(stats)).toEqual({
+      version: 1,
+      plannedCount: 1,
+      targetCount: 2,
+      placedCount: 1,
+      terrainAdjustedCount: 3,
+      skippedOutOfBoundsCount: 0,
+      rejectedCount: 0,
+      shortfallCount: 1,
+      rejectionExampleCount: 0,
+    });
+    expect(
+      `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify(
+        buildNaturalWonderPlacementRuntimeTelemetry(stats)
+      )}`.length
+    ).toBeLessThan(900);
   });
 
   it("records adapter legality rejection as a degraded outcome", () => {

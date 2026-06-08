@@ -149,6 +149,21 @@ export type RunInGameExactAuthorshipProof = Readonly<{
         mismatch?: Readonly<{ count: number; hash32: string }>;
       }>;
     }>;
+    naturalWonderPlacement?: Readonly<{
+      marker: "NATURAL_WONDER_PLACEMENT_V1";
+      payload: unknown;
+      stats?: Readonly<{
+        version: number;
+        plannedCount: number;
+        targetCount: number;
+        placedCount: number;
+        terrainAdjustedCount: number;
+        skippedOutOfBoundsCount: number;
+        rejectedCount: number;
+        shortfallCount: number;
+        rejectionExampleCount?: number;
+      }>;
+    }>;
     matched: ReadonlyArray<string>;
   }>;
   unresolvedLinks: ReadonlyArray<string>;

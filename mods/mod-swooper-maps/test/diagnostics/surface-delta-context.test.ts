@@ -531,6 +531,7 @@ describe("surface delta context diagnostics", () => {
         rejectedCount: 0,
         shortfallCount: 0,
       },
+      liveTelemetryPlacementStats: null,
       liveProofPlacementStats: null,
       liveCompletionPlacementStats: null,
       boundaryClass: "local-placement-stats-only",
@@ -564,6 +565,7 @@ describe("surface delta context diagnostics", () => {
     });
 
     expect(context).toMatchObject({
+      liveTelemetryPlacementStats: null,
       liveProofPlacementStats: null,
       liveCompletionPlacementStats: {
         plannedCount: 7,
@@ -572,6 +574,51 @@ describe("surface delta context diagnostics", () => {
         rejectedCount: 0,
         shortfallCount: 0,
       },
+      boundaryClass: "local-and-live-placement-stats-present",
+      unresolvedLinks: [],
+    });
+  });
+
+  test("accepts natural-wonder placement stats from exact log telemetry", () => {
+    const local = snapshot({}, {
+      naturalWonderPlacement: {
+        plannedCount: 7,
+        placedCount: 7,
+      },
+    });
+
+    const context = buildNaturalWonderLiveProofBoundaryContext({
+      local,
+      exactAuthorshipPacket: exactAuthorshipPacket({
+        log: {
+          naturalWonderPlacement: {
+            marker: "NATURAL_WONDER_PLACEMENT_V1",
+            stats: {
+              version: 1,
+              plannedCount: 7,
+              targetCount: 7,
+              placedCount: 7,
+              terrainAdjustedCount: 0,
+              skippedOutOfBoundsCount: 0,
+              rejectedCount: 0,
+              shortfallCount: 0,
+              rejectionExampleCount: 0,
+            },
+          },
+        },
+      }),
+    });
+
+    expect(context).toMatchObject({
+      liveTelemetryPlacementStats: {
+        plannedCount: 7,
+        targetCount: 7,
+        placedCount: 7,
+        rejectedCount: 0,
+        shortfallCount: 0,
+      },
+      liveProofPlacementStats: null,
+      liveCompletionPlacementStats: null,
       boundaryClass: "local-and-live-placement-stats-present",
       unresolvedLinks: [],
     });

@@ -5,10 +5,11 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-wonder-live-proof-boundary-drain`
-  stacked above `codex/swooper-wonder-catalog-direction-drain`; this slice
-  carries natural-wonder live proof boundary context for local-only placement
-  stats.
+- Branch/Graphite stack: current recovery drain tip
+  `codex/swooper-wonder-placement-telemetry-drain`, stacked above
+  `codex/swooper-wonder-materialization-repair-drain`; this slice carries
+  exact log telemetry binding for natural-wonder placement stats in future
+  fresh runs.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -478,6 +479,67 @@
   `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-materialization-repair.json`
   returned
   `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
+- Natural-wonder exact telemetry progress:
+  natural-wonder materialization now emits compact
+  `NATURAL_WONDER_PLACEMENT_V1` stats between the exact-authored
+  `[mapgen-proof]` and `[mapgen-complete]` markers, and Studio exact authorship
+  parses the bounded marker into `log.naturalWonderPlacement` only inside the
+  matching request/config/envelope/seed chain. The feature/resource diagnostic
+  boundary now accepts those telemetry stats as live placement evidence for a
+  future fresh exact-authored run. This does not retroactively repair
+  `studio-run-in-game-mq20rbzr-1fhc`, whose saved proof still lacks the marker;
+  it only removes the instrumentation gap for the next proof packet. No
+  natural-wonder repair, parity closure, product acceptance, Earthlike tuning,
+  or mountain-quality claim is authorized from this instrumentation layer.
+  Current drain validation passed:
+  `bun test apps/mapgen-studio/test/runInGame/proofIdentity.test.ts`;
+  `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`;
+  `bun run --cwd mods/mod-swooper-maps check`;
+  `bun run --cwd apps/mapgen-studio check`;
+  `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`;
+  `bun run openspec:validate`;
+  `git diff --check && git diff --cached --check`.
+  Current exact parity rerun remains blocked before parity evaluation:
+  `bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-telemetry.json`
+  returned
+  `Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
+- Source-recorded fresh natural-wonder telemetry proof progress:
+  the source telemetry branch recorded a fresh Studio Run in Game launched from
+  the saved exact source snapshot for `studio-run-in-game-mq20rbzr-1fhc`,
+  producing request
+  `studio-run-in-game-mq2spmz0-1z4g`. The request body is
+  `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-telemetry-run-request.json`
+  (`sha256:a68947c89abca086ca380ee035600b9e7c38a8278a5d895de4fcb64eb398efc2`)
+  and the completed Studio status is
+  `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-telemetry-run-status.json`
+  (`sha256:286e037b8ac2bdb9511dc23fa2649309d874949a76c8004c9a6327df79b7d608`).
+  Exact authorship is `complete` with no unresolved links, runtime identity is
+  `106x66`, `6996` plots, seed `138503614`, turn `1`, game hash `0`,
+  source snapshot id `status:1:c153eb72`, and snapshot hash `c153eb72`.
+  The exact log now carries `NATURAL_WONDER_PLACEMENT_V1` with
+  `plannedCount:7`, `targetCount:7`, `placedCount:5`, `rejectedCount:2`,
+  and `shortfallCount:0`; it also carries resource coordinate proof
+  `placed.count:252`, `placed.hash32:231726d6`.
+  The fresh full-grid parity proof is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2spmz0-1z4g-after-natural-wonder-telemetry.json`
+  (`sha256:abb84c44b7b30221f49333983e8a650f0e0d0981be9a5d0e2b9a4c3018c07006`,
+  `proofHash:1a28ab8c22902d274bff83be1efccbe376b0fbe5f4596d039c7e756e9eb9e24e`).
+  It remains `status:"unresolved"` with `surface.terrain.mismatch`,
+  `surface.feature.mismatch`, `surface.resource.mismatch`, and
+  `resource-placement-coordinate-proof.placed`; diffs are terrain `1/6996`,
+  biome `0/6996`, feature `5/6996`, and resource `61/6996`.
+  The natural-wonder telemetry boundary artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2spmz0-1z4g-natural-wonder-telemetry-boundary.json`
+  (`sha256:5b08c941493df87d4ab99c83092aba829e347a5add2be078f8c6443cc88b67d8`,
+  `proofHash:7fb4c1eff15f36d0e69f8d762b7d6a0019f1c465023ba7e66e2e7bf5dab8d67c`).
+  It shows the old missing-live-stats blocker is resolved for this fresh run:
+  local placement stats are `7/7/0`, exact live telemetry is `7 planned`,
+  `5 placed`, `2 rejected`, and the boundary class is
+  `local-and-live-placement-stats-present` with no live-placement unresolved
+  link. This is still source-authority evidence, not repair authority; the next
+  natural-wonder diagnostic must identify which planned placements were
+  rejected or otherwise bind row-level placement/rejection coordinate identity
+  before assigning a repair owner.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -515,12 +577,17 @@
   entries where local projection fixes direction `-1` to direction `0`, with
   exact-run readback for Kilimanjaro and Zhangjiajie only. The direction
   context points at a real natural-wonder footprint orientation semantics gap
-  in the current readback set, while the live proof boundary now shows
-  natural-wonder placement counts are local-only and absent from the exact live
-  proof/completion payloads. No feature or natural-wonder repair is authorized
-  until source ownership is accepted and the change is checked against the
-  remaining supported unspecified multi-tile catalog behavior, exact live
-  placement evidence, or a fresh exact-run proof. The single
+  in the current readback set. The fresh `mq2spmz0` exact run now carries live
+  natural-wonder placement telemetry and proves Civ placed `5/7` planned
+  natural wonders while rejecting `2`, whereas local source diagnostics still
+  predict `7/7/0`. This removes the old missing-telemetry blocker but does not
+  identify which two planned placements failed or whether ownership belongs in
+  local natural-wonder candidate policy, footprint projection/stamping, Civ
+  materialization policy, or a readback limitation. No feature or
+  natural-wonder repair is authorized until row-level placement/rejection
+  identity assigns source ownership and the change is checked against the
+  remaining supported unspecified multi-tile catalog behavior and exact live
+  placement evidence. The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source
   ownership.

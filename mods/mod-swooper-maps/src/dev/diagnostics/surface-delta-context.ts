@@ -207,6 +207,7 @@ export type NaturalWonderFootprintCatalogReadbackContext = Readonly<{
 
 export type NaturalWonderLiveProofBoundaryContext = Readonly<{
   localPlacementStats: NaturalWonderPlacementStatsContext | null;
+  liveTelemetryPlacementStats: NaturalWonderPlacementStatsContext | null;
   liveProofPlacementStats: NaturalWonderPlacementStatsContext | null;
   liveCompletionPlacementStats: NaturalWonderPlacementStatsContext | null;
   boundaryClass:
@@ -708,6 +709,7 @@ export function buildNaturalWonderLiveProofBoundaryContext(
   proof: Pick<FinalSurfaceParityProof, "local" | "exactAuthorshipPacket">
 ): NaturalWonderLiveProofBoundaryContext {
   const localPlacementStats = readNaturalWonderPlacementStats(proof.local.evidence?.naturalWonderPlacement);
+  const liveTelemetryPlacementStats = readNaturalWonderPlacementStatsFromLogTelemetry(proof.exactAuthorshipPacket?.log);
   const liveProofPlacementStats = readNaturalWonderPlacementStatsFromLogPayload(
     proof.exactAuthorshipPacket?.log,
     "proofPayload"
@@ -717,12 +719,16 @@ export function buildNaturalWonderLiveProofBoundaryContext(
     "completionPayload"
   );
   const hasLocal = localPlacementStats !== null;
-  const hasLive = liveProofPlacementStats !== null || liveCompletionPlacementStats !== null;
+  const hasLive =
+    liveTelemetryPlacementStats !== null ||
+    liveProofPlacementStats !== null ||
+    liveCompletionPlacementStats !== null;
   const unresolvedLinks: string[] = [];
   if (!hasLocal) unresolvedLinks.push("natural-wonder.local-placement-stats");
   if (!hasLive) unresolvedLinks.push("natural-wonder.live-placement-stats");
   return {
     localPlacementStats,
+    liveTelemetryPlacementStats,
     liveProofPlacementStats,
     liveCompletionPlacementStats,
     boundaryClass: naturalWonderLiveProofBoundaryClass({ hasLocal, hasLive }),
@@ -1320,6 +1326,15 @@ function readNaturalWonderPlacementStatsFromLogPayload(
   const payload = log[payloadKey];
   if (!isRecord(payload)) return null;
   return readNaturalWonderPlacementStats(payload.naturalWonderPlacement);
+}
+
+function readNaturalWonderPlacementStatsFromLogTelemetry(
+  log: unknown
+): NaturalWonderPlacementStatsContext | null {
+  if (!isRecord(log)) return null;
+  const telemetry = log.naturalWonderPlacement;
+  if (!isRecord(telemetry)) return null;
+  return readNaturalWonderPlacementStats(telemetry.stats) ?? readNaturalWonderPlacementStats(telemetry.payload);
 }
 
 function addResourceSurfaceReasons(
