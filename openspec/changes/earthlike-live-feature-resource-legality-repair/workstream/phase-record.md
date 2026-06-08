@@ -45,9 +45,10 @@
   current slice repairs that fresh-log reader boundary, and the committed
   rerun `studio-run-in-game-mq3pfgbe-1doj` completed exact authorship and
   mapgen-completion proof from head
-  `5537f2a829f8dd1452fec81d002c4afc1f0826a6`. No current final-surface parity
-  proof exists until the verifier is rerun from that completed exact-authorship
-  evidence. Resource classes remain pending source-authority
+  `5537f2a829f8dd1452fec81d002c4afc1f0826a6`. The current final-surface
+  verifier was then rerun from that completed exact-authorship evidence and
+  produced an unresolved proof artifact. Resource classes remain pending
+  source-authority
   classification.
 
 ## Objective
@@ -985,14 +986,28 @@
   `9c5eaad8`/`af57eb7b`; and `NATURAL_WONDER_PLACEMENT_V1` at `7` planned,
   `4` placed, `3` rejected, with placed/rejected coordinate hashes
   `b623433b`/`d6bab8b6`. This is current exact-authorship and runtime
-  completion proof only. It does not run or close current final-surface parity,
-  resource legality/source-authority rows, feature rows, or product acceptance.
+  completion proof only. The follow-up final-surface verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json`
+  (`sha256:24743163cf07f2741e9b7e4b3ae3f018811788f9beb77550748f214ea977c035`,
+  `proofHash:fb1edeedbf479b446190d895e9137dc023e36223d6cb0bdeca8c0a60ee481c2d`,
+  created `2026-06-07T11:50:17.262Z`) was generated from that status. Live
+  identity remained stable against the exact runtime: seed `138503614`,
+  dimensions `106x66`, plot count `6996`, turn `1`, game hash `0`, and `0`
+  omitted plots across `17` chunks. The result remains `unresolved`: terrain
+  mismatches `139/6996`, biome mismatches `874/6996`, feature mismatches
+  `381/6996`, resource mismatches `308/6996`, with unresolved links
+  `surface.terrain.mismatch`, `surface.biome.mismatch`,
+  `surface.feature.mismatch`, `surface.resource.mismatch`,
+  `resource-placement-coordinate-proof.placed`, and
+  `resource-placement-coordinate-proof.rejected`. This does not close resource
+  legality/source-authority rows, feature rows, product acceptance, or final
+  product closure.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
-- Next action: run the current exact-authored final-surface parity verifier
-  from request `studio-run-in-game-mq3pfgbe-1doj`, preserve the verifier
-  artifact, and classify any remaining links before any final-surface parity
-  or product acceptance claim. Then continue classifying the remaining
-  feature/resource rows by source authority: official data,
+- Next action: classify the current unresolved links from
+  `studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` before
+  any final-surface parity or product acceptance claim. Then continue
+  classifying the remaining feature/resource rows by source authority:
+  official data,
   adapter/map-policy, MapGen
   planning/materialization, accepted engine materialization, or readback
   limitation. Terrain edge rows may enter this slice only if diagnostics prove

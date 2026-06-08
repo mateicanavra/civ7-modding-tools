@@ -878,7 +878,7 @@ Validation:
 | Placement contract tests | Passed `bun test mods/mod-swooper-maps/test/placement/placement-contracts.test.ts`. |
 | Owner checks | Passed `bun run --cwd packages/civ7-adapter check`, `bun run --cwd packages/civ7-adapter build`, and `bun run --cwd mods/mod-swooper-maps check`. |
 | OpenSpec strict validation | Passed `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`. |
-| Current exact parity proof rerun | Superseded by current checked-in config run attempts: the stale `floodplainPlanning` schema blocker is no longer active, but parity closure is still not claimed. |
+| Current exact parity proof rerun | Current proof now exists at `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` (`proofHash:fb1edeedbf479b446190d895e9137dc023e36223d6cb0bdeca8c0a60ee481c2d`); it is unresolved, so parity closure is still not claimed. |
 
 ### Natural-Wonder Exact Log Telemetry Binding
 
@@ -908,7 +908,7 @@ Current drain validation:
 | Diagnostics/parity/materialization tests | Passed `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`. |
 | Owner checks | Passed `bun run --cwd mods/mod-swooper-maps check` and `bun run --cwd apps/mapgen-studio check`. |
 | OpenSpec strict validation | Passed `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict` and `bun run openspec:validate`. |
-| Current exact parity proof rerun | Superseded by current checked-in config run attempts: the stale `floodplainPlanning` schema blocker is no longer active, but parity closure is still not claimed. |
+| Current exact parity proof rerun | Current proof now exists at `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` (`proofHash:fb1edeedbf479b446190d895e9137dc023e36223d6cb0bdeca8c0a60ee481c2d`); it is unresolved, so parity closure is still not claimed. |
 
 ### Source-Recorded Fresh Natural-Wonder Telemetry Proof
 
@@ -984,7 +984,7 @@ Current drain validation:
 | Diagnostics/parity/materialization tests | Passed `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`. |
 | Owner checks | Passed `bun run --cwd mods/mod-swooper-maps check` and `bun run --cwd apps/mapgen-studio check`. |
 | OpenSpec strict validation | Passed `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict` and `bun run openspec:validate`. |
-| Current exact parity proof rerun | Superseded by current checked-in config run attempts: the stale `floodplainPlanning` schema blocker is no longer active, but parity closure is still not claimed. |
+| Current exact parity proof rerun | Current proof now exists at `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` (`proofHash:fb1edeedbf479b446190d895e9137dc023e36223d6cb0bdeca8c0a60ee481c2d`); it is unresolved, so parity closure is still not claimed. |
 
 ### Source-Recorded Fresh Natural-Wonder Coordinate Proof
 
@@ -1095,10 +1095,10 @@ Kilimanjaro/Zhangjiajie rejection/readback split.
 
 Verification boundary:
 focused local tests cover the shared map-policy helper and the Swooper
-derive-placement-inputs handoff into `planNaturalWonders`. This does not prove
-final-surface parity. A fresh Studio Run in Game and exact-authored
-final-surface parity proof are still required before marking the feature rows
-resolved or making any product acceptance claim.
+derive-placement-inputs handoff into `planNaturalWonders`. The current
+Studio/Civ proof now exists, but it remains unresolved; do not mark feature
+rows resolved or make any product acceptance claim until the current unresolved
+links are classified and repaired or dispositioned.
 
 Current drain validation:
 `bun test packages/civ7-map-policy/test/map-policy.test.ts`;
@@ -1157,8 +1157,9 @@ The deployed mod script identity in that status is
 `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
 (`sha256:862baf3441a7f98b7a5e38d183a0e64c47890fb1f70385b68e36599e16844a03`,
 `mtimeIso:2026-06-07T10:18:01.268Z`).
-No current exact-authorship, final-surface parity, or product acceptance proof
-is claimed from these attempts.
+No exact-authorship, final-surface parity, or product acceptance proof is
+claimed from these earlier attempts; the current proof chain is the later
+`studio-run-in-game-mq3pfgbe-1doj` run and its unresolved verifier artifact.
 
 The follow-up map-policy bundling slice added `@civ7/map-policy` to the Swooper
 map-script bundle so Civ does not need to resolve a repo-owned bare package
@@ -1181,16 +1182,15 @@ script identity in that status is
 `map-generation-script-failed` with recovery boundary
 `civ-notification-dismiss`; matched fresh log line:
 `[2026-06-07 06:34:54] [SWOOPER_MOD] Map generation failed: StepExecutionError: Step "mod-swooper-maps.standard.map-elevation.build-elevation" failed: [map-elevation/build-elevation] drift: expected land but adapter reports water at (34,17).`
-No current exact-authorship, final-surface parity, or product acceptance proof
-is claimed from this attempt. The current blocker is now the Swooper
-map-elevation materialization/runtime boundary, not the Studio/Civ generated
-map-script load boundary.
+No exact-authorship, final-surface parity, or product acceptance proof is
+claimed from this attempt. This moved the blocker from Studio/Civ generated
+map-script load to Swooper map-elevation materialization/runtime.
 
 Local repair on `codex/swooper-map-elevation-drift-policy-drain` wires
 `map-elevation/buildElevation` to the accepted bounded water-drift policy
 instead of the strict no-drift assert. Focused local proof covers the policy
-boundary only; a fresh Studio/Civ rerun is still required before claiming the
-runtime blocker is cleared.
+boundary only; subsequent request `studio-run-in-game-mq3nyiss-8oj` cleared
+the map-elevation blocker and exposed the SDK completion-marker gap.
 
 Post-elevation-policy request `studio-run-in-game-mq3nyiss-8oj` used the same
 request body, with post response
@@ -1209,9 +1209,11 @@ marker boundary, not map-elevation.
 
 Local repair on `codex/swooper-sdk-mapgen-completion-marker-drain` emits
 `[mapgen-complete]` from SDK `createMap` after `recipe.run` returns
-successfully. Focused local proof covers marker emission only; a fresh
-Studio/Civ rerun is still required before claiming exact authorship or
-final-surface parity.
+successfully. The follow-on direct-control/Studio log-rewrite reader repair
+allowed request `studio-run-in-game-mq3pfgbe-1doj` to complete exact
+authorship and generate a current final-surface verifier artifact. That
+artifact is unresolved, so no final-surface parity or product acceptance claim
+is authorized.
 
 Source-recorded post-repair proof:
 request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
@@ -1337,11 +1339,11 @@ The coordinate digest also includes those observed facts when present, while
 preserving existing digest identity for ordinary placed/rejected rows that do
 not carry observed readback fields. This is a proof-context change only. It
 does not alter placement planning, materialization direction, terrain policy,
-configuration, tuning, generated output, or final-surface parity. The next
-source-authority movement requires a fresh exact-authored Studio Run in Game
-and final-surface parity proof so the Kilimanjaro/Zhangjiajie
-`readback-mismatch` rows can be classified from exact observed readback
-details rather than the current coarse named reason alone.
+configuration, tuning, generated output, or final-surface parity. The current
+exact-authored verifier artifact now exists and is unresolved; source-authority
+movement requires classifying its natural-wonder/feature links from exact
+observed readback details rather than treating the proof-context change as a
+repair.
 
 ### Fresh Natural-Wonder Readback-Context Proof
 
