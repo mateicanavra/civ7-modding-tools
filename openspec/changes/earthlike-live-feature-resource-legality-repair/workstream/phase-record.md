@@ -5,10 +5,10 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-wonder-catalog-direction-drain`
-  stacked above `codex/swooper-wonder-footprint-readback-drain`; this slice
-  carries supported-catalog direction context for planned natural-wonder
-  readback rows.
+- Branch/Graphite stack: `codex/swooper-wonder-live-proof-boundary-drain`
+  stacked above `codex/swooper-wonder-catalog-direction-drain`; this slice
+  carries natural-wonder live proof boundary context for local-only placement
+  stats.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -18,8 +18,9 @@
   materialization, future coordinate-proof instrumentation, coordinate-proof
   intake, feature-delta classification, local feature/wonder evidence joins,
   feature feasibility readback, natural-wonder footprint-direction context,
-  planned natural-wonder footprint readback, and supported-catalog direction
-  context now narrow the next repair classes.
+  planned natural-wonder footprint readback, supported-catalog direction
+  context, and natural-wonder live proof boundary context now narrow the next
+  repair classes.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -438,6 +439,21 @@
   projection versus Civ runtime materialization semantics, but it still does
   not authorize a global repair because only `2/5` unspecified multi-tile
   catalog entries have exact-run readback evidence in this proof.
+- Natural-wonder live proof boundary progress:
+  `buildNaturalWonderLiveProofBoundaryContext` now compares local
+  natural-wonder placement stats with the exact-authorship proof and completion
+  log payloads. The current boundary artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-natural-wonder-live-proof-boundary.json`
+  (`sha256:1cd7da84ac26417f46c851b51e9abe4e146c0b4150c3a5ca104d577f1647ea4a`,
+  `proofHash:156386737ebde2b38fee76a3a8d716291acefb285be19a2a226129139ec81557`).
+  It preserves the local exact-source placement stats (`plannedCount:7`,
+  `targetCount:7`, `placedCount:7`, `rejectedCount:0`, `shortfallCount:0`) and
+  records that both exact live proof payloads lack `naturalWonderPlacement`
+  stats. The boundary class is `local-placement-stats-only` with unresolved
+  link `natural-wonder.live-placement-stats`. This blocks natural-wonder repair
+  authority from relying on local placement counts alone; the next accepted
+  movement must either instrument exact live natural-wonder placement evidence
+  or explicitly classify ownership from a stronger exact-run source.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -475,10 +491,12 @@
   entries where local projection fixes direction `-1` to direction `0`, with
   exact-run readback for Kilimanjaro and Zhangjiajie only. The direction
   context points at a real natural-wonder footprint orientation semantics gap
-  in the current readback set, but no feature or natural-wonder repair is
-  authorized until source ownership is accepted and the change is checked
-  against the remaining supported unspecified multi-tile catalog behavior or a
-  fresh exact-run proof. The single
+  in the current readback set, while the live proof boundary now shows
+  natural-wonder placement counts are local-only and absent from the exact live
+  proof/completion payloads. No feature or natural-wonder repair is authorized
+  until source ownership is accepted and the change is checked against the
+  remaining supported unspecified multi-tile catalog behavior, exact live
+  placement evidence, or a fresh exact-run proof. The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source
   ownership.

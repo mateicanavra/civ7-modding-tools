@@ -7,7 +7,11 @@ import {
 } from "@civ7/map-policy";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
-import type { FinalSurfaceKey, FinalSurfaceParityProof, FinalSurfaceSnapshot } from "./live-parity.js";
+import type {
+  FinalSurfaceKey,
+  FinalSurfaceParityProof,
+  FinalSurfaceSnapshot,
+} from "./live-parity.js";
 
 export type ClassifiableSurfaceKey = Extract<FinalSurfaceKey, "feature" | "resource">;
 
@@ -199,6 +203,26 @@ export type NaturalWonderFootprintCatalogReadbackContext = Readonly<{
   bestLocalMatchCount: number;
   bestLiveMatchCount: number;
   classification: NaturalWonderFootprintReadbackContext["classification"];
+}>;
+
+export type NaturalWonderLiveProofBoundaryContext = Readonly<{
+  localPlacementStats: NaturalWonderPlacementStatsContext | null;
+  liveProofPlacementStats: NaturalWonderPlacementStatsContext | null;
+  liveCompletionPlacementStats: NaturalWonderPlacementStatsContext | null;
+  boundaryClass:
+    | "local-and-live-placement-stats-present"
+    | "local-placement-stats-only"
+    | "live-placement-stats-only"
+    | "placement-stats-missing";
+  unresolvedLinks: ReadonlyArray<string>;
+}>;
+
+export type NaturalWonderPlacementStatsContext = Readonly<{
+  plannedCount: number | null;
+  targetCount: number | null;
+  placedCount: number | null;
+  rejectedCount: number | null;
+  shortfallCount: number | null;
 }>;
 
 export type ResourceDeltaPlacementContext = Readonly<{
@@ -545,6 +569,32 @@ export function buildNaturalWonderFootprintCatalogContexts(
       readbackDisposition: naturalWonderReadbackDisposition(observedReadbacks),
     };
   });
+}
+
+export function buildNaturalWonderLiveProofBoundaryContext(
+  proof: Pick<FinalSurfaceParityProof, "local" | "exactAuthorshipPacket">
+): NaturalWonderLiveProofBoundaryContext {
+  const localPlacementStats = readNaturalWonderPlacementStats(proof.local.evidence?.naturalWonderPlacement);
+  const liveProofPlacementStats = readNaturalWonderPlacementStatsFromLogPayload(
+    proof.exactAuthorshipPacket?.log,
+    "proofPayload"
+  );
+  const liveCompletionPlacementStats = readNaturalWonderPlacementStatsFromLogPayload(
+    proof.exactAuthorshipPacket?.log,
+    "completionPayload"
+  );
+  const hasLocal = localPlacementStats !== null;
+  const hasLive = liveProofPlacementStats !== null || liveCompletionPlacementStats !== null;
+  const unresolvedLinks: string[] = [];
+  if (!hasLocal) unresolvedLinks.push("natural-wonder.local-placement-stats");
+  if (!hasLive) unresolvedLinks.push("natural-wonder.live-placement-stats");
+  return {
+    localPlacementStats,
+    liveProofPlacementStats,
+    liveCompletionPlacementStats,
+    boundaryClass: naturalWonderLiveProofBoundaryClass({ hasLocal, hasLive }),
+    unresolvedLinks,
+  };
 }
 
 export function buildResourceDeltaPlacementContexts(
@@ -1062,6 +1112,38 @@ function naturalWonderReadbackDisposition(
     return "observed-ambiguous-or-partial";
   }
   return "observed-local-live-aligned";
+}
+
+function naturalWonderLiveProofBoundaryClass(args: {
+  hasLocal: boolean;
+  hasLive: boolean;
+}): NaturalWonderLiveProofBoundaryContext["boundaryClass"] {
+  if (args.hasLocal && args.hasLive) return "local-and-live-placement-stats-present";
+  if (args.hasLocal) return "local-placement-stats-only";
+  if (args.hasLive) return "live-placement-stats-only";
+  return "placement-stats-missing";
+}
+
+function readNaturalWonderPlacementStats(value: unknown): NaturalWonderPlacementStatsContext | null {
+  if (!isRecord(value)) return null;
+  const stats = {
+    plannedCount: numberValue(value.plannedCount),
+    targetCount: numberValue(value.targetCount),
+    placedCount: numberValue(value.placedCount),
+    rejectedCount: numberValue(value.rejectedCount),
+    shortfallCount: numberValue(value.shortfallCount),
+  };
+  return Object.values(stats).some((entry) => entry !== null) ? stats : null;
+}
+
+function readNaturalWonderPlacementStatsFromLogPayload(
+  log: unknown,
+  payloadKey: "proofPayload" | "completionPayload"
+): NaturalWonderPlacementStatsContext | null {
+  if (!isRecord(log)) return null;
+  const payload = log[payloadKey];
+  if (!isRecord(payload)) return null;
+  return readNaturalWonderPlacementStats(payload.naturalWonderPlacement);
 }
 
 function addResourceSurfaceReasons(
