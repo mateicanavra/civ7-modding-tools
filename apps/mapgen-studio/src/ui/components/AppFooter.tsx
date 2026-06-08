@@ -66,7 +66,7 @@ export interface AppFooterProps {
   };
   /** Whether the current Studio config/seed matches the proved live game source. */
   liveGameStudioRelation?: "current" | "stale" | "unknown";
-  /** Callback to apply the proved live game seed/config back into Studio. */
+  /** Callback to apply a visible live-runtime or proved-run suggestion back into Studio. */
   onSyncFromLiveGame?: () => void;
   /** Whether a Civ7 autoplay start/stop request is in flight */
   isAutoplayActionRunning?: boolean;
@@ -170,7 +170,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     Boolean(onSyncFromLiveGame) &&
     !operationControlsDisabled;
   const liveSyncTitle = liveSyncAvailable
-    ? "Sync Studio seed and config from the live game"
+    ? "Apply live game suggestion to Studio"
     : liveRuntime?.readiness ?? liveRuntime?.error ?? "Civ7 live runtime status";
   const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || liveRuntime?.status !== "ok" || !onToggleAutoplay;
   const autoplayButtonText = isAutoplayActionRunning

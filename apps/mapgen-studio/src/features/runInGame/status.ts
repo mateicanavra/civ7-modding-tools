@@ -24,6 +24,31 @@ export type RunInGameMaterializationStatus = Readonly<{
   mapScript?: string;
   configHash?: string;
   envelopeHash?: string;
+  sourceConfig?: RunInGameFileIdentity;
+  generatedSourceScript?: RunInGameFileIdentity;
+  localModScript?: RunInGameFileIdentity;
+  deployedModScript?: RunInGameFileIdentity;
+}>;
+
+export type RunInGameFileIdentity = Readonly<{
+  path: string;
+  sha256: string;
+  sizeBytes: number;
+  mtimeMs: number;
+  mtimeIso: string;
+}>;
+
+export type RunInGameSourceSnapshotProof = Readonly<{
+  identityHash: string;
+  requestId: string;
+  recipeSettings?: unknown;
+  worldSettings?: unknown;
+  pipelineConfig?: unknown;
+  setupConfig?: unknown;
+  materializationMode?: string;
+  selectedConfig?: unknown;
+  configHash?: string;
+  envelopeHash?: string;
 }>;
 
 export type RunInGameRequestStatus = Readonly<{
@@ -34,9 +59,11 @@ export type RunInGameRequestStatus = Readonly<{
   resources?: string;
   selectedConfigId?: string;
   setupConfig?: unknown;
+  setupConfigSource?: string;
   materializationMode?: string;
   restartCivProcess?: boolean;
   fingerprint?: string;
+  sourceSnapshot?: RunInGameSourceSnapshotProof;
 }>;
 
 export type RunInGameFailureDetails = Readonly<{
@@ -57,6 +84,66 @@ export type RunInGameFailureDetails = Readonly<{
   [key: string]: unknown;
 }>;
 
+export type RunInGameExactAuthorshipProof = Readonly<{
+  status: "complete" | "unresolved";
+  requestId: string;
+  createdAt: string;
+  sourceSnapshot?: RunInGameSourceSnapshotProof;
+  request: Readonly<{
+    recipeId?: string;
+    seed?: number;
+    mapSize?: string;
+    playerCount?: number;
+    resources?: string;
+    selectedConfigId?: string;
+    setupConfigSource?: string;
+    fingerprint?: string;
+  }>;
+  materialization: Readonly<{
+    mode?: string;
+    path?: string;
+    mapScript?: string;
+    configHash?: string;
+    envelopeHash?: string;
+    sourceConfig?: RunInGameFileIdentity;
+    generatedSourceScript?: RunInGameFileIdentity;
+    localModScript?: RunInGameFileIdentity;
+    deployedModScript?: RunInGameFileIdentity;
+  }>;
+  civSetup: Readonly<{
+    mapScript?: string;
+    mapSize?: unknown;
+    mapSeed?: unknown;
+    gameSeed?: unknown;
+    playerCount?: unknown;
+    rowCount?: number;
+  }>;
+  runtime: Readonly<{
+    seed?: number;
+    width?: number;
+    height?: number;
+    plotCount?: number;
+    turn?: number;
+    gameHash?: number;
+    sourceSnapshotId?: string;
+    snapshotHash?: string;
+  }>;
+  log?: Readonly<{
+    logPath?: string;
+    observedAt?: string;
+    requestId: string;
+    configHash: string;
+    envelopeHash: string;
+    seed: number;
+    mapSize?: string;
+    dimensions: Readonly<{ width: number; height: number }>;
+    proofPayload: unknown;
+    completionPayload: unknown;
+    matched: ReadonlyArray<string>;
+  }>;
+  unresolvedLinks: ReadonlyArray<string>;
+}>;
+
 export type RunInGameOperationStatus = Readonly<{
   ok: boolean;
   requestId: string;
@@ -69,6 +156,7 @@ export type RunInGameOperationStatus = Readonly<{
   completedPhases: ReadonlyArray<RunInGamePhase>;
   request?: RunInGameRequestStatus;
   materialization?: RunInGameMaterializationStatus;
+  exactAuthorshipProof?: RunInGameExactAuthorshipProof;
   error?: string;
   details?: RunInGameFailureDetails;
   result?: unknown;
@@ -165,6 +253,7 @@ export function formatRunInGameDiagnostics(status: RunInGameOperationStatus): st
     completedPhases: status.completedPhases,
     request: status.request,
     materialization: status.materialization,
+    exactAuthorshipProof: status.exactAuthorshipProof,
     error: status.error,
     details: status.details,
   });

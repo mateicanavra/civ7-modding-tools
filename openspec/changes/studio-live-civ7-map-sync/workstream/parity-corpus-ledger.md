@@ -28,3 +28,26 @@
 - Runtime ID/readback status: terrain, biome, feature, and resource readback
   are available through the CLI; areas, starts, and discoveries require a
   follow-up readback wrapper if existing direct-control surfaces are insufficient.
+- 2026-06-06 command status: `bun run verify:final-surface-parity` now consumes
+  exact-authorship proof and compares full-grid local final terrain, biome,
+  feature, and resource surfaces against direct-control live readback through
+  `getCiv7FullMapGrid`. Rivers/floodplains/wonders are explicit residual rows;
+  starts remain a direct-control readback limitation until a canonical live
+  start-surface wrapper exists. Studio live status is currently tuner-ready,
+  and the setup player-count exact-authorship blocker was repaired by reading
+  direct-control setup `config.playerCount`.
+- 2026-06-06 full-grid proof result: request
+  `studio-run-in-game-mq20rbzr-1fhc`, seed `138503614`, dimensions `106x66`,
+  config hash
+  `c8bf167810f92f9a6096b298d1fcf3bb6b044a0fec22a9ad0ca9b35103982dca`,
+  envelope hash
+  `a9a7bb73e9dd062e1da658a639bc02602e75b7fda1ca6d88123a1a2e9ac5f790`.
+  The verifier read bounds `0,0,106,66` in 17 chunks, compared 6,996 plots,
+  omitted 0 plots, and kept live seed/dimensions/turn/game-hash identity stable.
+  Biome parity passed (`0/6996` mismatches). Terrain (`2/6996`), feature
+  (`5/6996`), and resource (`106/6996`) mismatches remain unresolved. Terrain
+  is observed as coast/ocean edge swaps and routed to terrain-policy
+  diagnostics for source-authority classification. Feature and resource rows
+  are observed as live/local legality, placement, or footprint deltas and
+  routed to `earthlike-live-feature-resource-legality-repair` for
+  source-authority classification before repair.

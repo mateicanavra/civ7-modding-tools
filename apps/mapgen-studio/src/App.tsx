@@ -53,7 +53,6 @@ import {
 import {
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   getLocalPlayerSetup,
-  isDefaultStudioSetupConfig,
   labelForCiv7SetupValue,
   normalizeStudioSetupConfig,
   optionRowsFromParameter,
@@ -75,6 +74,19 @@ import {
   updateMapConfigSaveDeployStatus,
   type MapConfigSaveDeployStatus,
 } from "./features/mapConfigSave/status";
+import {
+  buildLiveRuntimeErrorState,
+  buildLiveRuntimeSnapshotQuery,
+  buildLiveRuntimeSnapshotRequest,
+  buildLiveRuntimeSnapshotState,
+  buildLiveRuntimeStatusState,
+  buildLiveRuntimeSuggestionRecords,
+  nextLiveRuntimePollDelayMs,
+  shouldCommitLiveRuntimeSnapshot,
+  type LiveRuntimeSnapshotState,
+  type LiveRuntimeStatusState,
+  type LiveRuntimeSuggestionRecord,
+} from "./features/liveRuntime/model";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import {
@@ -192,6 +204,10 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+function isAbortLikeError(err: unknown): boolean {
+  return Boolean(err && typeof err === "object" && (err as { name?: unknown }).name === "AbortError");
+}
+
 async function fetchMapConfigSaveDeployStatus(requestId: string): Promise<MapConfigSaveDeployStatus | { ok: false; error: string; statusCode?: number }> {
   try {
     const res = await fetch(`/api/map-configs/status?requestId=${encodeURIComponent(requestId)}`);
@@ -226,6 +242,7 @@ async function runCurrentConfigInGame(args: {
     }>;
   };
   config: unknown;
+  sourceSnapshot?: unknown;
 }): Promise<
   | RunInGameOperationStatus
   | { ok: false; error: string; details?: RunInGameFailureDetails; statusCode?: number }
@@ -245,6 +262,7 @@ async function runCurrentConfigInGame(args: {
         ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
         selectedConfig: args.selectedConfig,
         config: args.config,
+        sourceSnapshot: args.sourceSnapshot,
       }),
     });
     const body = (await res.json().catch(() => null)) as
@@ -277,12 +295,12 @@ async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperati
   }
 }
 
-async function fetchCiv7SetupConfig(): Promise<
+async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {}): Promise<
   | { ok: true; observedAt: string; setup: Civ7SetupSnapshotLike }
   | { ok: false; error: string; observedAt?: string; statusCode?: number }
 > {
   try {
-    const res = await fetch("/api/civ7/setup-config");
+    const res = await fetch("/api/civ7/setup-config", options.signal ? { signal: options.signal } : undefined);
     const body = (await res.json().catch(() => null)) as {
       ok?: boolean;
       observedAt?: string;
@@ -701,7 +719,6 @@ function AppContent(props: AppContentProps) {
   const [setupConfig, setSetupConfig] = useState<Civ7StudioSetupConfig>(() =>
     initialAuthoringState?.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
   );
-  const initialLiveSetupHydratedRef = useRef(!isDefaultStudioSetupConfig(setupConfig));
   const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
   const [saveDialogState, setSaveDialogState] = useState<{ open: boolean; label: string; description?: string }>({
     open: false,
@@ -875,16 +892,18 @@ function AppContent(props: AppContentProps) {
   const [runInGameSnapshot, setRunInGameSnapshot] = useState<RunInGameClientSnapshot | null>(null);
   const [lastSaveDeployConfig, setLastSaveDeployConfig] = useState<unknown>(null);
   const lastRunInGameToastRef = useRef<string | null>(null);
-  const [liveRuntime, setLiveRuntime] = useState<{
-    status: "idle" | "ok" | "error";
-    turn?: number;
-    seed?: number;
-    readiness?: string;
-    autoplayActive?: boolean;
-    autoplayPaused?: boolean;
-    updatedAt?: string;
-    error?: string;
-  }>({ status: "idle" });
+  const liveStatusFailureCountRef = useRef(0);
+  const liveSnapshotFailureCountRef = useRef(0);
+  const activeLiveSnapshotRequestKeyRef = useRef<string | null>(null);
+  const liveSnapshotAbortRef = useRef<AbortController | null>(null);
+  const [liveRuntime, setLiveRuntime] = useState<LiveRuntimeStatusState>({
+    status: "idle",
+    snapshotStatus: "idle",
+    bindingStatus: "unbound-runtime",
+    failureCount: 0,
+  });
+  const [, setLiveRuntimeSnapshot] = useState<LiveRuntimeSnapshotState | null>(null);
+  const [liveRuntimeSuggestions, setLiveRuntimeSuggestions] = useState<ReadonlyArray<LiveRuntimeSuggestionRecord>>([]);
   const [liveSetup, setLiveSetup] = useState<{
     status: "idle" | "ok" | "error";
     setup?: Civ7SetupSnapshotLike;
@@ -947,28 +966,107 @@ function AppContent(props: AppContentProps) {
   useEffect(() => {
     let cancelled = false;
     let timer: number | null = null;
-    const poll = async () => {
+    let statusAbortController: AbortController | null = null;
+
+    const scheduleNextPoll = () => {
+      const failureCount = Math.max(liveStatusFailureCountRef.current, liveSnapshotFailureCountRef.current);
+      timer = window.setTimeout(
+        poll,
+        nextLiveRuntimePollDelayMs({ failureCount, documentHidden: document.hidden }),
+      );
+    };
+
+    const readSnapshot = async (request: NonNullable<ReturnType<typeof buildLiveRuntimeSnapshotRequest>>) => {
+      liveSnapshotAbortRef.current?.abort();
+      const snapshotAbortController = new AbortController();
+      liveSnapshotAbortRef.current = snapshotAbortController;
+      activeLiveSnapshotRequestKeyRef.current = request.key;
+
       try {
-        const res = await fetch("/api/civ7/live/status");
-        const body = (await res.json().catch(() => null)) as any;
-        if (cancelled) return;
-        if (!res.ok || !body) throw new Error(body?.error ?? `HTTP ${res.status}`);
-        const mapSummary = body.mapSummary?.map ? body.mapSummary : null;
-        const turn = body.mapSummary?.game?.turn?.ok ? body.mapSummary.game.turn.value : undefined;
-        const seed = mapSummary?.map?.randomSeed?.ok ? mapSummary.map.randomSeed.value : undefined;
-        const readiness = body.status?.readiness;
-        setLiveRuntime({
-          status: body.ok ? "ok" : "error",
-          turn,
-          seed,
-          readiness,
-          autoplayActive: body.autoplay?.autoplay?.isActive,
-          autoplayPaused: body.autoplay?.autoplay?.isPaused,
-          updatedAt: body.observedAt,
-          error: body.ok ? undefined : body.status?.error ?? body.mapSummary?.error,
+        const res = await fetch(`/api/civ7/live/snapshot?${buildLiveRuntimeSnapshotQuery(request)}`, {
+          signal: snapshotAbortController.signal,
         });
-        const setup = await fetchCiv7SetupConfig();
+        const body = (await res.json().catch(() => null)) as unknown;
         if (cancelled) return;
+        if (!shouldCommitLiveRuntimeSnapshot({
+          activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
+          resultRequestKey: request.key,
+          aborted: snapshotAbortController.signal.aborted,
+        })) {
+          return;
+        }
+        const snapshotState = buildLiveRuntimeSnapshotState({
+          request,
+          body: res.ok ? body : { ok: false, error: isPlainObject(body) ? body.error : `HTTP ${res.status}` },
+          observedAtFallback: new Date().toISOString(),
+        });
+        liveSnapshotFailureCountRef.current = snapshotState.status === "ok" ? 0 : liveSnapshotFailureCountRef.current + 1;
+        setLiveRuntimeSnapshot(snapshotState);
+        setLiveRuntime((current) => ({
+          ...current,
+          snapshotStatus: snapshotState.status,
+          snapshotHash: snapshotState.snapshotHash ?? current.snapshotHash,
+          bindingStatus: snapshotState.status === "ok" ? current.bindingStatus : "partial",
+          failureCount: Math.max(liveStatusFailureCountRef.current, liveSnapshotFailureCountRef.current),
+          error: snapshotState.status === "ok" ? current.error : snapshotState.error,
+        }));
+      } catch (err) {
+        if (cancelled || isAbortLikeError(err)) return;
+        if (!shouldCommitLiveRuntimeSnapshot({
+          activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
+          resultRequestKey: request.key,
+        })) {
+          return;
+        }
+        liveSnapshotFailureCountRef.current += 1;
+        const snapshotState: LiveRuntimeSnapshotState = {
+          status: "error",
+          requestKey: request.key,
+          error: err instanceof Error ? err.message : "Live snapshot unavailable",
+        };
+        setLiveRuntimeSnapshot(snapshotState);
+        setLiveRuntime((current) => ({
+          ...current,
+          snapshotStatus: "error",
+          bindingStatus: "partial",
+          failureCount: Math.max(liveStatusFailureCountRef.current, liveSnapshotFailureCountRef.current),
+          error: snapshotState.error,
+        }));
+      }
+    };
+
+    const poll = async () => {
+      statusAbortController?.abort();
+      statusAbortController = new AbortController();
+      try {
+        const res = await fetch("/api/civ7/live/status", { signal: statusAbortController.signal });
+        const body = (await res.json().catch(() => null)) as unknown;
+        if (cancelled) return;
+        if (!res.ok || !body) throw new Error(isPlainObject(body) && typeof body.error === "string" ? body.error : `HTTP ${res.status}`);
+
+        const statusState = buildLiveRuntimeStatusState({
+          body,
+          observedAtFallback: new Date().toISOString(),
+          failureCount: 0,
+        });
+        liveStatusFailureCountRef.current = statusState.status === "ok" ? 0 : liveStatusFailureCountRef.current + 1;
+        const snapshotRequest = buildLiveRuntimeSnapshotRequest({ status: statusState });
+        setLiveRuntime((current) => ({
+          ...statusState,
+          snapshotStatus:
+            snapshotRequest === null
+              ? statusState.snapshotStatus
+              : current.snapshotId === statusState.snapshotId && current.snapshotStatus === "ok"
+                ? current.snapshotStatus
+                : "loading",
+          failureCount: Math.max(liveStatusFailureCountRef.current, liveSnapshotFailureCountRef.current),
+        }));
+
+        const setup = await fetchCiv7SetupConfig({ signal: statusAbortController.signal });
+        if (cancelled) return;
+        const suggestedSetupConfig = setup.ok
+          ? normalizeStudioSetupConfig(studioSetupConfigFromLiveSnapshot(setup.setup))
+          : undefined;
         if (setup.ok) {
           setLiveSetup({ status: "ok", setup: setup.setup, updatedAt: setup.observedAt });
         } else {
@@ -978,26 +1076,39 @@ function AppContent(props: AppContentProps) {
             updatedAt: setup.observedAt ?? new Date().toISOString(),
           });
         }
+        setLiveRuntimeSuggestions(buildLiveRuntimeSuggestionRecords({
+          sourceSnapshotId: statusState.snapshotId,
+          seed: statusState.seed,
+          setupConfig: suggestedSetupConfig,
+          provedStudioRun: false,
+        }));
+
+        if (snapshotRequest) await readSnapshot(snapshotRequest);
       } catch (err) {
-        if (!cancelled) {
-          setLiveRuntime({
-            status: "error",
-            error: err instanceof Error ? err.message : "Live status unavailable",
-            updatedAt: new Date().toISOString(),
-          });
-          setLiveSetup({
-            status: "error",
-            error: err instanceof Error ? err.message : "Live setup unavailable",
-            updatedAt: new Date().toISOString(),
-          });
-        }
+        if (cancelled || isAbortLikeError(err)) return;
+        liveStatusFailureCountRef.current += 1;
+        const errorState = buildLiveRuntimeErrorState({
+          error: err,
+          observedAt: new Date().toISOString(),
+          failureCount: liveStatusFailureCountRef.current,
+        });
+        setLiveRuntime(errorState);
+        setLiveSetup({
+          status: "error",
+          error: errorState.error ?? "Live setup unavailable",
+          updatedAt: errorState.updatedAt,
+        });
+        setLiveRuntimeSuggestions([]);
       } finally {
-        if (!cancelled) timer = window.setTimeout(poll, document.hidden ? 5000 : 3000);
+        if (!cancelled) scheduleNextPoll();
       }
     };
+
     timer = window.setTimeout(poll, 250);
     return () => {
       cancelled = true;
+      statusAbortController?.abort();
+      liveSnapshotAbortRef.current?.abort();
       if (timer !== null) window.clearTimeout(timer);
     };
   }, []);
@@ -1062,19 +1173,6 @@ function AppContent(props: AppContentProps) {
       window.removeEventListener("focus", loadNow);
     };
   }, []);
-
-  useEffect(() => {
-    if (initialLiveSetupHydratedRef.current || liveSetup.status !== "ok" || !liveSetup.setup) return;
-    const liveConfig = studioSetupConfigFromLiveSnapshot(liveSetup.setup);
-    setSetupConfig((current) => {
-      initialLiveSetupHydratedRef.current = true;
-      if (!isDefaultStudioSetupConfig(current) || current.savedConfig) return current;
-      return normalizeStudioSetupConfig({
-        ...liveConfig,
-        mapScript: current.mapScript,
-      });
-    });
-  }, [liveSetup]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -1943,6 +2041,14 @@ function AppContent(props: AppContentProps) {
       restartCivProcess: options?.restartCivProcess,
       selectedConfig,
       config: sanitized,
+      sourceSnapshot: {
+        recipeSettings,
+        worldSettings,
+        pipelineConfig: sanitized,
+        setupConfig: normalizeStudioSetupConfig(setupConfig),
+        materializationMode: runInGameMaterializationMode,
+        selectedConfig,
+      },
     });
     if (!("requestId" in result)) {
       toast(`Run in Game failed: ${result.error}`, { variant: "error" });
@@ -2011,22 +2117,58 @@ function AppContent(props: AppContentProps) {
       toast("Finish the current Studio operation before syncing from the live game.", { variant: "info" });
       return;
     }
-    const liveSetupConfig = liveSetup.status === "ok" && liveSetup.setup
-      ? studioSetupConfigFromLiveSnapshot(liveSetup.setup)
-      : null;
+    const currentSnapshotSuggestions = liveRuntimeSuggestions.filter(
+      (record) =>
+        record.applyPath === "visible-studio-control" &&
+        record.sourceSnapshotId !== undefined &&
+        record.sourceSnapshotId === liveRuntime.snapshotId,
+    );
+    const seedSuggestion = currentSnapshotSuggestions.find((record) => record.affectedConfigPath === "recipeSettings.seed");
+    const setupSuggestion = currentSnapshotSuggestions.find((record) => record.affectedConfigPath === "setupConfig");
+    const applySuggestedSeed = (value: unknown, source: string): boolean => {
+      const parsedSeed = parseCiv7StudioSeed(value);
+      if (!parsedSeed.ok) {
+        toast(`${source} seed ignored: ${formatCiv7StudioSeedError(parsedSeed)}`, { variant: "info" });
+        return false;
+      }
+      setRecipeSettings((prev) => ({ ...prev, seed: String(parsedSeed.value) }));
+      return true;
+    };
+    const applySuggestedSetup = (value: unknown): boolean => {
+      if (!isPlainObject(value)) return false;
+      setSetupConfig(normalizeStudioSetupConfig(value as Civ7StudioSetupConfig));
+      return true;
+    };
+
     if (!provedRunInGameSource) {
-      if (liveRuntime.seed === undefined && !liveSetupConfig) {
-        toast("Live game setup is unavailable; run the game through Studio to sync full config.", { variant: "error" });
+      if (currentSnapshotSuggestions.length === 0) {
+        toast("Live game suggestions are unavailable; wait for a fresh keyed live snapshot.", { variant: "error" });
         return;
       }
-      if (liveRuntime.seed !== undefined) setRecipeSettings((prev) => ({ ...prev, seed: String(liveRuntime.seed) }));
-      if (liveSetupConfig) setSetupConfig(liveSetupConfig);
-      toast(liveSetupConfig ? "Studio setup synced from live game" : "Studio seed synced from live game.", { variant: "success" });
+      const didApplySeed = seedSuggestion ? applySuggestedSeed(seedSuggestion.value, "Live runtime suggestion") : false;
+      const didApplySetup = setupSuggestion ? applySuggestedSetup(setupSuggestion.value) : false;
+      if (!didApplySeed && !didApplySetup) {
+        toast("Live game suggestions did not include an applicable Studio seed or setup change.", { variant: "error" });
+        return;
+      }
+      toast(didApplySetup ? "Live runtime suggestion applied to Studio setup." : "Live runtime seed suggestion applied.", {
+        variant: "success",
+      });
       return;
     }
     const liveSeed = liveRuntime.seed === undefined ? provedRunInGameSource.recipeSettings.seed : String(liveRuntime.seed);
     if (liveSeed !== provedRunInGameSource.recipeSettings.seed) {
       toast("Live game seed no longer matches the last proved Studio run.", { variant: "error" });
+      return;
+    }
+    const provedSuggestions = buildLiveRuntimeSuggestionRecords({
+      sourceSnapshotId: liveRuntime.snapshotId ?? `proved:${provedRunInGameSource.requestId}`,
+      seed: Number(provedRunInGameSource.recipeSettings.seed),
+      setupConfig: provedRunInGameSource.setupConfig,
+      provedStudioRun: true,
+    });
+    if (provedSuggestions.length === 0) {
+      toast("The proved Studio run did not include an applicable restore suggestion.", { variant: "error" });
       return;
     }
     const durablePresetKey =
@@ -2041,7 +2183,7 @@ function AppContent(props: AppContentProps) {
     };
     setWorldSettings(provedRunInGameSource.worldSettings);
     setPipelineConfig(provedRunInGameSource.pipelineConfig);
-    setSetupConfig(liveSetupConfig ?? provedRunInGameSource.setupConfig);
+    setSetupConfig(provedRunInGameSource.setupConfig);
     setOverridesDisabled(false);
     setRecipeSettings({
       ...provedRunInGameSource.recipeSettings,
@@ -2051,7 +2193,18 @@ function AppContent(props: AppContentProps) {
     toast(nextPreset === LIVE_GAME_PRESET_KEY ? "Studio synced to live game config" : "Studio synced to live game preset", {
       variant: "success",
     });
-  }, [browserRunning, liveRuntime, liveSetup, provedRunInGameSource, resolvePreset, runInGameRunning, saveDeployRunning, toast]);
+  }, [
+    browserRunning,
+    liveRuntime.seed,
+    liveRuntime.snapshotId,
+    liveRuntime.status,
+    liveRuntimeSuggestions,
+    provedRunInGameSource,
+    resolvePreset,
+    runInGameRunning,
+    saveDeployRunning,
+    toast,
+  ]);
 
   const handleToggleAutoplay = useCallback(async () => {
     if (autoplayActionRunning || browserRunning || runInGameRunning || saveDeployRunning) return;

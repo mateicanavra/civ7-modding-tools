@@ -17,8 +17,8 @@
 
 ## 3. Tests
 
-- [ ] 3.1 Add Studio request assembly/endpoint validation coverage where current
-  test harness permits it.
+- [x] 3.1 Add Studio request assembly/proof packet validation coverage where
+  current test harness permits it.
 - [x] 3.2 Add generator/SDK focused checks through generated artifacts and package
   build/check gates.
 - [x] 3.3 Add build/check gates for touched packages.
@@ -28,3 +28,8 @@
 - [ ] 4.1 Prove row visibility after deploy/reload boundary.
 - [ ] 4.2 Prove setup seed/readback and post-start runtime seed.
 - [ ] 4.3 Prove Swooper log hash/request id matches the Studio request.
+
+`studio-civ7-exact-authorship-proof` now implements the exact proof packet and
+missing/mismatched-link guards needed for these live proof tasks. The tasks
+remain unchecked until a fresh Studio Run in Game operation produces a complete
+exact-authorship packet from Civ readback/log evidence.

@@ -1,6 +1,7 @@
 import { Civ7DirectControlError } from "@civ7/direct-control";
 import type {
   RunInGameFailureDetails,
+  RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
   RunInGameOperationKind,
   RunInGameOperationStatus,
@@ -105,6 +106,7 @@ export function createRunInGameOperationStore(options: StoreOptions) {
     requestId: string,
     result: unknown,
     materialization?: RunInGameMaterializationStatus,
+    exactAuthorshipProof?: RunInGameExactAuthorshipProof,
   ): RunInGameOperationState {
     return update(requestId, {
       ok: true,
@@ -112,6 +114,7 @@ export function createRunInGameOperationStore(options: StoreOptions) {
       status: "complete",
       result,
       ...(materialization === undefined ? {} : { materialization }),
+      ...(exactAuthorshipProof === undefined ? {} : { exactAuthorshipProof }),
       recoveryActions: ["copy-diagnostics"],
     });
   }

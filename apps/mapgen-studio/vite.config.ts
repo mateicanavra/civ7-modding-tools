@@ -36,12 +36,20 @@ import {
   type RunInGameOperationState,
 } from "./src/server/runInGame/operationState";
 import { classifyCiv7MapgenLogFailure } from "./src/server/runInGame/logFailure";
+import {
+  buildRunInGameExactAuthorshipProof,
+  buildRunInGameSourceSnapshotProof,
+  fileIdentity,
+  parseDeployTargetDir,
+  parseSwooperMapgenLogProof,
+} from "./src/server/runInGame/proofIdentity";
 import { parseRunInGameSetupRequest } from "./src/server/runInGame/requestValidation";
 import { shutdownCiv7MacProcess } from "./src/server/runInGame/macosProcessRestart";
 import { buildSwooperMapsStudioDeployCommand } from "./src/server/mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "./src/server/mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValidation";
 import type { RunInGamePhase, RunInGameRequestStatus } from "./src/features/runInGame/status";
+import { buildLiveRuntimeStatusState } from "./src/features/liveRuntime/model";
 
 const execFileAsync = promisify(execFile);
 const DEPLOY_TIMEOUT_MS = 120_000;
@@ -182,6 +190,7 @@ async function deploySwooperMapsForRun(repoRoot: string, requestId: string): Pro
   command: string;
   stdout: string;
   stderr: string;
+  targetDir?: string;
 }> {
   const deploy = buildSwooperMapsStudioDeployCommand({ requestId });
   const { stdout, stderr } = await execFileAsync("bun", [...deploy.args], {
@@ -190,11 +199,33 @@ async function deploySwooperMapsForRun(repoRoot: string, requestId: string): Pro
     maxBuffer: 16 * 1024 * 1024,
     env: deploy.env,
   });
+  const targetDir = parseDeployTargetDir(stdout);
   return {
     command: deploy.command,
     stdout: tail(stdout),
     stderr: tail(stderr),
+    ...(targetDir ? { targetDir } : {}),
   };
+}
+
+async function optionalFileIdentity(args: {
+  repoRoot: string;
+  path: string;
+  exposeAs?: "relative-to-repo" | "absolute";
+}) {
+  return await fileIdentity(args).catch(() => undefined);
+}
+
+function generatedSourceScriptPath(repoRoot: string, id: string): string {
+  return resolve(repoRoot, "mods/mod-swooper-maps/src/maps/generated", `${id}.ts`);
+}
+
+function localModScriptPath(repoRoot: string, id: string): string {
+  return resolve(repoRoot, "mods/mod-swooper-maps/mod/maps", `${id}.js`);
+}
+
+function deployedModScriptPath(targetDir: string, id: string): string {
+  return resolve(targetDir, "maps", `${id}.js`);
 }
 
 async function regenerateSwooperMapArtifacts(repoRoot: string): Promise<void> {
@@ -605,6 +636,7 @@ export default defineConfig(({ command }) => ({
               recovery?: { restartCivProcess?: unknown };
               setupConfig?: unknown;
               config?: unknown;
+              sourceSnapshot?: unknown;
               selectedConfig?: {
                 id?: unknown;
                 label?: unknown;
@@ -641,6 +673,13 @@ export default defineConfig(({ command }) => ({
               latitudeBounds: selected.latitudeBounds ?? null,
               configHash,
             });
+            const sourceSnapshotIdentityHash = body.sourceSnapshot === undefined
+              ? undefined
+              : stableHash({
+                  sourceSnapshot: body.sourceSnapshot,
+                  configHash,
+                  envelopeHash,
+                });
             const requestFingerprint = stableHash({
               recipeId: "mod-swooper-maps/standard",
               seed,
@@ -652,6 +691,7 @@ export default defineConfig(({ command }) => ({
               materializationMode: requestedMode,
               configHash,
               envelopeHash,
+              sourceSnapshotIdentityHash: sourceSnapshotIdentityHash ?? null,
             });
             const activeOperation = runInGameOperations.findActive();
             if (activeOperation) {
@@ -692,6 +732,12 @@ export default defineConfig(({ command }) => ({
               return;
             }
             const requestId = createCiv7ControlRequestId("studio-run-in-game");
+            const sourceSnapshotProof = buildRunInGameSourceSnapshotProof({
+              requestId,
+              sourceSnapshot: body.sourceSnapshot,
+              configHash,
+              envelopeHash,
+            });
             const requestStatus: RunInGameRequestStatus = {
               recipeId: "mod-swooper-maps/standard",
               seed,
@@ -703,6 +749,7 @@ export default defineConfig(({ command }) => ({
               materializationMode: requestedMode,
               ...(restartCivProcess ? { restartCivProcess } : {}),
               fingerprint: requestFingerprint,
+              ...(sourceSnapshotProof ? { sourceSnapshot: sourceSnapshotProof } : {}),
             };
             const operation = runInGameOperations.create(requestId, requestStatus);
             const run = async () => {
@@ -728,6 +775,10 @@ export default defineConfig(({ command }) => ({
                   mapScript: materialized.mapScript,
                   configHash,
                   envelopeHash,
+                  ...(await optionalFileIdentity({
+                    repoRoot,
+                    path: materialized.path,
+                  }).then((sourceConfig) => sourceConfig ? { sourceConfig } : {})),
                 };
                 runInGameOperations.update(requestId, { materialization });
 
@@ -738,6 +789,28 @@ export default defineConfig(({ command }) => ({
                 runInGameOperations.update(requestId, { phase, materialization });
                 let deploy;
                 deploy = await deploySwooperMapsForRun(repoRoot, requestId);
+                const generatedSourceScript = await optionalFileIdentity({
+                  repoRoot,
+                  path: generatedSourceScriptPath(repoRoot, id),
+                });
+                const localModScript = await optionalFileIdentity({
+                  repoRoot,
+                  path: localModScriptPath(repoRoot, id),
+                });
+                const deployedModScript = deploy.targetDir
+                  ? await optionalFileIdentity({
+                      repoRoot,
+                      path: deployedModScriptPath(deploy.targetDir, id),
+                      exposeAs: "absolute",
+                    })
+                  : undefined;
+                materialization = {
+                  ...materialization,
+                  ...(generatedSourceScript ? { generatedSourceScript } : {}),
+                  ...(localModScript ? { localModScript } : {}),
+                  ...(deployedModScript ? { deployedModScript } : {}),
+                };
+                runInGameOperations.update(requestId, { phase, materialization });
 
                 let processRestart;
                 if (restartCivProcess) {
@@ -812,10 +885,10 @@ export default defineConfig(({ command }) => ({
 
                 phase = "waiting-for-proof";
                 runInGameOperations.update(requestId, { phase, materialization });
-                const logProof = await waitForFreshLogMarkers({
+                const logMarkerProof = await waitForFreshLogMarkers({
                   logPath: scriptingLogPath,
                   snapshot: scriptingSnapshot,
-                  markers: ["[mapgen-proof]", requestId, configHash, envelopeHash],
+                  markers: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
                   timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
                   rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
                 }).catch(async (err: unknown) => {
@@ -830,6 +903,62 @@ export default defineConfig(({ command }) => ({
                   }
                   throw err;
                 });
+                const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(() => "");
+                const logProof = parseSwooperMapgenLogProof({
+                  text: freshLogText,
+                  logPath: logMarkerProof.logPath,
+                  observedAt: logMarkerProof.observedAt,
+                  requestId,
+                  configHash,
+                  envelopeHash,
+                  seed,
+                });
+                if (!logProof) {
+                  throw new RunInGameHttpError(500, "Swooper log proof payload did not match the Studio Run in Game request", {
+                    code: "swooper-log-proof-missing",
+                    requestId,
+                    configHash,
+                    envelopeHash,
+                    seed,
+                    markers: logMarkerProof.matched,
+                    materialization,
+                  });
+                }
+                const liveRuntimeStatus = start.start.mapSummary
+                  ? buildLiveRuntimeStatusState({
+                      body: {
+                        ok: true,
+                        observedAt: new Date().toISOString(),
+                        status: { readiness: "running-game" },
+                        mapSummary: start.start.mapSummary,
+                      },
+                      observedAtFallback: new Date().toISOString(),
+                    })
+                  : undefined;
+                const exactAuthorshipProof = buildRunInGameExactAuthorshipProof({
+                  requestId,
+                  request: requestStatus,
+                  sourceSnapshot: sourceSnapshotProof,
+                  materialization,
+                  sourceConfig: materialization.sourceConfig,
+                  generatedSourceScript: materialization.generatedSourceScript,
+                  localModScript: materialization.localModScript,
+                  deployedModScript: materialization.deployedModScript,
+                  rowProof,
+                  setupSnapshot: start.prepare.after.snapshot,
+                  startMapSummary: start.start.mapSummary,
+                  logProof,
+                  ...(liveRuntimeStatus
+                    ? {
+                        liveRuntimeSnapshot: {
+                          ...(liveRuntimeStatus.snapshotId ? { snapshotId: liveRuntimeStatus.snapshotId } : {}),
+                          ...(liveRuntimeStatus.snapshotHash ? { snapshotHash: liveRuntimeStatus.snapshotHash } : {}),
+                          ...(liveRuntimeStatus.turn === undefined ? {} : { turn: liveRuntimeStatus.turn }),
+                          ...(liveRuntimeStatus.gameHash === undefined ? {} : { gameHash: liveRuntimeStatus.gameHash }),
+                        },
+                      }
+                    : {}),
+                });
 
                 runInGameOperations.complete(requestId, {
                   ok: true,
@@ -840,8 +969,10 @@ export default defineConfig(({ command }) => ({
                   rowProof,
                   rowVisibility,
                   start,
+                  logMarkerProof,
                   logProof,
-                }, materialization);
+                  exactAuthorshipProof,
+                }, materialization, exactAuthorshipProof);
               } catch (err) {
                 runInGameOperations.fail(requestId, phase, err, materialization);
               } finally {
