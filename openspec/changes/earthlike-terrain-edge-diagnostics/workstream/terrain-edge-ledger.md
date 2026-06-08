@@ -48,21 +48,34 @@
   `59378d7c5d90593958e14ecf66f966107499499ef0eb4f616978226e3e3b0b93`.
 - Post-repair coast materialization context proof hash:
   `c58aee8b820ac50355705bb500e48863b389776b219acd86ee1c390d2cd76b5e`.
+- Source-recorded post-mock-terrain-materialization-repair final-surface parity artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-terrain-materialization-repair.json`.
+- Source-recorded post-mock-terrain-materialization-repair parity artifact sha256:
+  `8ff6e5ada94fae46b032082f4c7955d480c9ba3b091d8e42c7632c92171b87c8`.
+- Source-recorded post-mock-terrain-materialization-repair parity proof hash:
+  `209aac19056be1717fa58cdf5c6157241bb7a08f0bd1d16b8178634c13039012`.
+- Source-recorded post-mock-terrain-materialization-repair terrain-edge context artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-after-mock-terrain-materialization-repair-terrain-edge-context.json`.
+- Source-recorded post-mock-terrain-materialization-repair terrain-edge context artifact sha256:
+  `3452fb5922dd7080429295cd6caf41a33747b4657b849fa7cbd4d3f5cca8a7b9`.
+- Source-recorded post-mock-terrain-materialization-repair terrain-edge context proof hash:
+  `bd35969a6c58d07b4ae473935242932c04c6e7d82d791af8338a818cddc1c043`.
 - Request: `studio-run-in-game-mq20rbzr-1fhc`.
 - Seed/dimensions: `138503614`, `106x66`, `6996` plots.
 
 ## Boundary
 
 This ledger records terrain row context, row-level source-authority
-classification, and the bounded mock lake readback repair. It does not prove
-terrain parity, final-surface parity, or product acceptance.
+classification, the bounded mock lake readback repair, and the bounded mock
+terrain materialization repair. It does not prove terrain parity,
+final-surface parity, or product acceptance.
 
 ## Rows
 
 | Row | Coordinate |   Plot | Local           | Live            | Class                    | Neighborhood                                   | Status     |
 | --- | ---------- | -----: | --------------- | --------------- | ------------------------ | ---------------------------------------------- | ---------- |
-| T1  | `(73,36)`  | `3889` | `TERRAIN_OCEAN` | `TERRAIN_COAST` | `local-ocean-live-coast` | local/live both `coast:4`, `ocean:2`, `land:0` | classified: local mock/materialization terrain parity |
-| T2  | `(65,39)`  | `4199` | `TERRAIN_COAST` | `TERRAIN_OCEAN` | `local-coast-live-ocean` | local/live both `coast:2`, `ocean:3`, `land:1` | lake sub-gap repaired; terrain materialization remains |
+| T1  | `(73,36)`  | `3889` | `TERRAIN_OCEAN` | `TERRAIN_COAST` | `local-ocean-live-coast` | local/live both `coast:4`, `ocean:2`, `land:0` | residual enclosed-water materialization row remains unresolved |
+| T2  | `(65,39)`  | `4199` | `TERRAIN_COAST` | `TERRAIN_OCEAN` | `local-coast-live-ocean` | local/live both `coast:2`, `ocean:3`, `land:1` | lake and terrain materialization sub-gaps repaired |
 
 ## Pre-Repair Local Projection Context
 
@@ -121,14 +134,19 @@ Rejected owner classes for this row pair:
 ## Next Classification Evidence
 
 - Mock lake readback has been repaired and verified locally.
-- Continue with the remaining terrain materialization parity gap. The source
-  post-repair artifact still shows T1 local ocean/live coast and T2 local
-  coast/live ocean, but the current drain exact rerun is blocked by stale proof
-  config and must be refreshed before any parity claim.
-- Rerun exact-authored final-surface parity after any repair and keep parity
-  open until terrain rows match or residuals are explicitly owner-classified.
+- Mock terrain materialization has been partially repaired and verified
+  by source-recorded exact-bound artifacts. The land-contact local validation
+  subset is repaired there; only T1 local ocean/live coast remains in the
+  post-repair exact-bound parity artifact.
+- In the current drain, exact proof rerun to
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-mock-terrain-materialization-repair.json`
+  exits `1` before parity evaluation with stale proof config key
+  `/config/ecology-features/floodplainPlanning`; refresh that wrapper before
+  making any fresh parity claim.
+- Keep parity open until terrain rows match or residuals are explicitly
+  owner-classified.
 
-## Source-Recorded Post-Repair Evidence
+## Source-Recorded Post-Lake-Repair Evidence
 
 | Row          | Post-repair local | Live            | Post-repair lake evidence               | Disposition                                                                 |
 | ------------ | ----------------- | --------------- | --------------------------------------- | --------------------------------------------------------------------------- |
@@ -158,3 +176,33 @@ parity at the adapter terrain-validation boundary. This does not authorize a
 MapGen coast/shelf tuning change. A repair, if opened, must be a separate
 bounded terrain materialization parity layer followed by exact-authored parity
 rerun.
+
+## Mock Terrain Materialization Repair
+
+The bounded mock terrain repair was opened after the row-level classification
+above. It changes only `@civ7/adapter` mock terrain materialization behavior
+and focused mock terrain tests.
+
+- `validateAndFixTerrain()` now materializes ocean as coast only when the row
+  touches both land terrain and an existing non-validation-created coast seed.
+- Validation-created coast is tracked separately and cannot seed later
+  validation passes, preventing self-cascade back into T2.
+- `expandCoasts()` is aligned with the official standard helper shape: ocean
+  adjacent to existing coast, within the standard ocean-column band, gated by
+  `"Shallow Water Scatter"`.
+- Focused adapter test coverage proves land-only validation does not convert,
+  land+coast validation does convert, validation-created coast does not seed a
+  later pass, ordinary coast is non-lake, and stamped lakes remain lake.
+
+Source-recorded exact-authored post-repair parity remains unresolved but
+improves terrain from `2/6996` to `1/6996`:
+
+| Row          | Post-terrain-repair local | Live            | Current disposition |
+| ------------ | ------------------------- | --------------- | ------------------- |
+| T1 `(73,36)` | `TERRAIN_OCEAN`           | `TERRAIN_COAST` | Still unresolved. Local and live neighborhoods both have `coast:4`, `ocean:2`, `land:0`; local morphology/hydrology/validation evidence does not distinguish this row from other live-ocean enclosed-water rows. |
+| T2 `(65,39)` | `TERRAIN_OCEAN`           | `TERRAIN_OCEAN` | Repaired by preventing validation-created coast from cascading into later validation passes. |
+
+This repair does not claim terrain parity, final-surface parity, coast/shelf
+tuning correctness, Earthlike quality, or product acceptance. Feature remains
+`5/6996` mismatched and resource remains `61/6996` mismatched in the same
+exact-bound proof.

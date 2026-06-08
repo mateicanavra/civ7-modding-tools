@@ -24,8 +24,10 @@
 - [x] 3.4 Repair mock lake readback so ordinary coast terrain is not lake.
 - [x] 3.5 Classify the remaining mock terrain coast/ocean materialization
       boundary before repair.
-- [ ] 3.6 Repair the remaining mock terrain coast/ocean materialization
-      mismatch in a bounded repair layer.
+- [x] 3.6 Repair the source-authorized land-contact mock terrain
+      materialization subset in a bounded repair layer.
+- [ ] 3.7 Classify or repair the residual enclosed-water
+      local-ocean/live-coast terrain row.
 
 ## 4. Verification
 
@@ -38,3 +40,5 @@
 - [x] 4.4 Run `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`.
 - [x] 4.5 Run `bun run openspec:validate`.
 - [x] 4.6 Run focused adapter mock terrain tests and adapter check/build.
+- [x] 4.7 Re-run exact-authored final-surface parity and terrain-edge context
+      after the mock terrain materialization repair.
