@@ -6,21 +6,21 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-wonder-named-rejection-proof-drain`, stacked above
-  `codex/swooper-wonder-rejection-outcomes-drain`; this slice preserves
-  source-recorded exact-authored named rejection evidence after the
-  natural-wonder proof-gap instrumentation.
+  `codex/swooper-wonder-readback-context-drain`, stacked above
+  `codex/swooper-wonder-named-rejection-proof-drain`; this slice adds
+  readback-mismatch observed-context telemetry and preserves source-recorded
+  exact-authored readback-context evidence.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. The natural-wonder
   rejected-anchor class remains open after the post-repair proof correction:
-  exact live telemetry is authoritative, and source-recorded named rejection
-  proof still reports `5` placed / `2` rejected, now narrowed to
-  `readback-mismatch` for Kilimanjaro and Zhangjiajie anchors. The cold-reef
-  feature row is evidence-bound because exact live feature-apply telemetry is
-  absent. Current exact proof still blocks on stale config before parity
-  evaluation, and resource classes remain pending source-authority
-  classification.
+  exact live telemetry is authoritative, and source-recorded readback-context
+  proof still reports `5` placed / `2` rejected, now narrowed to empty expected
+  footprint readback at observed plots `1427` and `2278` for Kilimanjaro and
+  Zhangjiajie. The cold-reef feature row is evidence-bound because exact live
+  feature-apply telemetry is absent. Current exact proof still blocks on stale
+  config before parity evaluation, and resource classes remain pending
+  source-authority classification.
 
 ## Objective
 
@@ -608,6 +608,16 @@
   mock/map-policy prediction and live Civ materialization. It does not
   authorize a global `Direction:-1` rewrite, generated output changes, parity
   closure, product acceptance, Earthlike tuning, or mountain-quality closure.
+  Later exact proof shows that this historical class does not close the
+  expected-empty readback subcondition: after the projection/materialization
+  repair and named telemetry, Civ still reports `readback-mismatch` with
+  expected footprint plots `1427` and `2278` empty. The full-grid proof
+  simultaneously shows adjacent live feature cells for the same wonders:
+  Kilimanjaro live at `(48,13)` while the local expected cell `(49,13)`
+  (`1427`) is empty, and Zhangjiajie live at `(51,21)` while the local
+  expected cell `(52,21)` (`2278`) is empty. Source authority for that
+  narrower readback oracle/materialization semantics gap remains open until
+  classified and repaired or dispositioned.
 - Natural-wonder projection/materialization repair progress:
   `@civ7/map-policy` now separates official placement direction from
   materialization direction. `resolveNaturalWonderPlacementDirection` still
@@ -729,6 +739,61 @@
   readback-mismatch evidence only; it does not close natural-wonder repair,
   feature parity, final-surface parity, Earthlike acceptance, product
   acceptance, generated-output ownership, or mountain quality.
+- Natural-wonder readback-mismatch context progress:
+  the Swooper natural-wonder materializer now preserves adapter-provided
+  readback context in `NATURAL_WONDER_PLACEMENT_V1` rejection examples and
+  coordinate digests. For `readback-mismatch` outcomes, future exact logs can
+  carry `observedPlot` and `observedFeature` beside the authored feature,
+  anchor plot, and named reason. Existing placed/rejected coordinate digests
+  remain stable unless observed readback facts are present. This is proof
+  instrumentation only: it does not change natural-wonder planning,
+  materialization direction, feature placement policy, config, tuning, or
+  generated output ownership. A fresh exact-authored Studio Run in Game and
+  final-surface parity proof are required before using these observed fields
+  for source-authority classification of the Kilimanjaro/Zhangjiajie
+  readback-mismatch rows.
+- Fresh natural-wonder readback-context proof:
+  fresh request `studio-run-in-game-mq2w5548-1z4g` completed exact authorship
+  and produced parity artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2w5548-1z4g-after-natural-wonder-readback-context.json`
+  (`sha256:5f947ae855dbafd870dedf982c438529e16c27e673a1a0bacdbd34b75a088093`,
+  `proofHash:d6148b66043fa26b791029653a375edce945fc6175a1896f0ae6162f8388a1be`).
+  The request body was
+  `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-readback-context-run-request.json`
+  (`sha256:a68947c89abca086ca380ee035600b9e7c38a8278a5d895de4fcb64eb398efc2`)
+  and the completed Studio status was
+  `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-readback-context-run-status.json`
+  (`sha256:b2ad7154db1ab429a7dd35b5d6017b040dfdfdf4e1da0a679706d54dc65dedb9`).
+  Exact-authorship status is `complete` with no unresolved links, runtime
+  identity is `106x66`, `6996` plots, seed `138503614`, turn `1`, game hash
+  `0`, source snapshot id `status:1:c153eb72`, and snapshot hash `c153eb72`.
+  The exact live `log.naturalWonderPlacement` reports `plannedCount:7`,
+  `placedCount:5`, `rejectedCount:2`, with rejected examples
+  `feature=35 plot=1320 reason=readback-mismatch observedPlot=1427 observedFeature=-1`
+  and
+  `feature=36 plot=2171 reason=readback-mismatch observedPlot=2278 observedFeature=-1`;
+  coordinate proof is `placedHash32:84d971d2` /
+  `rejectedHash32:523bec4f`. The full-grid verifier's local generation still
+  emits `7/7/0`, so the exact live log remains authoritative. The
+  final-surface proof remains `unresolved`: terrain has `1` mismatch, biome
+  has `0`, feature has `5`, and resource has `61`, with unresolved links
+  `surface.terrain.mismatch`, `surface.feature.mismatch`,
+  `surface.resource.mismatch`, and `resource-placement-coordinate-proof.placed`.
+  The full-grid feature rows line up with the exact observed-empty cells:
+  Kilimanjaro is present at `(48,13)` while the local expected plot `1427`
+  (`49,13`) is empty, and Zhangjiajie is present at `(51,21)` while the local
+  expected plot `2278` (`52,21`) is empty. Earlier footprint-direction context
+  shows those live cells are supported by alternate footprint orientations, but
+  the current proof records only the first expected-empty post-write readback
+  cell, not a complete immediate post-write footprint. Therefore the evidence
+  supports an expected-footprint/readback semantics hypothesis but does not yet
+  assign repair authority to placement policy, materialization direction, or
+  adapter readback.
+  This proof sharpens the natural-wonder failure from a coarse readback mismatch
+  to expected footprint cells that are empty after the Civ write call. It does
+  not close natural-wonder repair, feature parity, final-surface parity,
+  Earthlike acceptance, product acceptance, generated-output ownership, or
+  mountain quality.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -775,15 +840,23 @@
   identity for Kilimanjaro plot `1320` and Zhangjiajie plot `2171`. That row
   evidence is now classified to repo-owned natural-wonder footprint
   projection/materialization emulation, and the repair now makes the
-  materialization direction explicit before the plan/write path. Fresh request
+  materialization direction explicit before the plan/write path. That prior
+  classification/repair did not close the subsequent expected-empty readback
+  subcondition proven by `mq2w5548`; it remains a separate source-authority
+  question. Fresh request
   `studio-run-in-game-mq2u6wdg-1z4g` does not verify the old rejected-placement
   class is repaired: exact live telemetry still reports `5/7` placed and `2`
   rejected. Fresh request `studio-run-in-game-mq2vqhg6-1z4g` then proves the
   rejection subcondition is `readback-mismatch` for the same Kilimanjaro and
-  Zhangjiajie anchors. The remaining natural-wonder offset rows stay tied to
-  the rejected live placement class until that named readback-mismatch owner is
-  source-classified and repaired or dispositioned. The cold-reef local-only row
-  also remains
+  Zhangjiajie anchors. Fresh request `studio-run-in-game-mq2w5548-1z4g` then
+  proves those readback mismatches are empty expected footprint plots
+  (`1427`, `2278`) after the write call, while full-grid parity still shows
+  adjacent live natural-wonder cells (`1426`, `2277`). The remaining
+  natural-wonder offset rows stay tied to the rejected live placement class
+  until the expected-empty footprint/readback owner is source-classified and
+  repaired or dispositioned from exact-bound evidence that explains the
+  adapter's post-write readback oracle versus Civ's materialized footprint.
+  The cold-reef local-only row also remains
   evidence-bound pending exact live feature-apply telemetry/readback. Final-
   surface parity remains open on terrain, feature, resource, and any future
   owner-classified residual links.

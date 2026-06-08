@@ -190,6 +190,60 @@ describe("natural wonder placement materialization", () => {
     expect(stats.rejectionExamples[0]).toContain("can-have-feature-param-false");
   });
 
+  it("preserves natural-wonder readback mismatch evidence from the adapter", () => {
+    const adapter = createMockAdapter({
+      width: 5,
+      height: 8,
+      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+    adapter.placeNaturalWonder = (x, y, featureType, direction) => ({
+      status: "rejected",
+      plotIndex: y * adapter.width + x,
+      x,
+      y,
+      featureType,
+      direction,
+      reason: "readback-mismatch",
+      observedPlotIndex: 23,
+      observedFeatureType: adapter.NO_FEATURE,
+    });
+
+    const stats = stampNaturalWondersFromPlan({
+      adapter,
+      width: 5,
+      height: 8,
+      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, 5, 8),
+      requestedCount: 1,
+    });
+
+    expect(stats).toMatchObject({
+      coordinateProof: {
+        version: 1,
+        placed: { count: 0, hash32: "811c9dc5" },
+        rejected: { count: 1, hash32: "5fa1cc6e" },
+      },
+      plannedCount: 1,
+      targetCount: 1,
+      placedCount: 0,
+      rejectedCount: 1,
+      shortfallCount: 0,
+    });
+    expect(stats.rejectionExamples[0]).toBe(
+      "feature=35 plot=17 reason=readback-mismatch observedPlot=23 observedFeature=-1"
+    );
+    expect(buildNaturalWonderPlacementRuntimeTelemetry(stats)).toMatchObject({
+      rejectionExampleCount: 1,
+      rejectionExamples: [
+        "feature=35 plot=17 reason=readback-mismatch observedPlot=23 observedFeature=-1",
+      ],
+      coordinateProof: {
+        rejectedCount: 1,
+        rejectedHash32: "5fa1cc6e",
+      },
+    });
+  });
+
   it("still fails corrupt plan metadata", () => {
     const adapter = createMockAdapter({
       width: 2,
