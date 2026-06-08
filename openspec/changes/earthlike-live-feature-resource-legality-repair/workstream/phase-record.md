@@ -5,10 +5,10 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-wonder-footprint-readback-drain`
-  stacked above `codex/swooper-wonder-footprint-direction-drain`; this slice
-  carries planned natural-wonder footprint readback context across local and
-  live grids.
+- Branch/Graphite stack: `codex/swooper-wonder-catalog-direction-drain`
+  stacked above `codex/swooper-wonder-footprint-readback-drain`; this slice
+  carries supported-catalog direction context for planned natural-wonder
+  readback rows.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -17,8 +17,9 @@
   assignment-class, distribution-count, same-resource position, local
   materialization, future coordinate-proof instrumentation, coordinate-proof
   intake, feature-delta classification, local feature/wonder evidence joins,
-  feature feasibility readback, natural-wonder footprint-direction context, and
-  planned natural-wonder footprint readback now narrow the next repair classes.
+  feature feasibility readback, natural-wonder footprint-direction context,
+  planned natural-wonder footprint readback, and supported-catalog direction
+  context now narrow the next repair classes.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -420,6 +421,23 @@
   `Direction:-1` repair. The next repair layer must either collect broader
   exact-run footprint evidence or explicitly constrain a repair to the accepted
   owner surface and supported catalog behavior.
+- Supported natural-wonder catalog context progress:
+  `buildNaturalWonderFootprintCatalogContexts` now exposes the supported
+  natural-wonder catalog direction classes and joins the exact-run footprint
+  readback rows by feature type. The current catalog context artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-natural-wonder-footprint-catalog-context.json`
+  (`sha256:34211c105979d84b780278e76e838102cea47c7c45e3fb9c24499cf5e34046ab`,
+  `proofHash:6ace44be42fc7b2a87d4a393d1ecb2c52af7bcb58dd90acdcc6e553e6338c009`).
+  It records `10` supported natural-wonder catalog entries: `3`
+  single-tile entries where direction is irrelevant, `2` fixed-direction
+  multi-tile entries, and `5` multi-tile entries with official
+  `naturalWonderDirection:-1` that the local projection currently materializes
+  as direction `0`. The exact run observes `FEATURE_KILIMANJARO` as ambiguous
+  or partial and `FEATURE_ZHANGJIAJIE` as live direction drift. This strengthens
+  the source-owner focus toward local map-policy/mock natural-wonder
+  projection versus Civ runtime materialization semantics, but it still does
+  not authorize a global repair because only `2/5` unspecified multi-tile
+  catalog entries have exact-run readback evidence in this proof.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -453,10 +471,14 @@
   a reef absence and two natural-wonder one-tile offsets, with local intent,
   application, footprint evidence, runtime-bound `canHaveFeature` probes,
   footprint-direction alternatives, and planned-wonder readback context now
-  attached. The direction context points at a real natural-wonder footprint
-  orientation semantics gap in the current readback set, but no feature or
-  natural-wonder repair is authorized until source ownership is accepted and the
-  change is checked against the supported wonder catalog. The single
+  attached. Supported-catalog context now shows `5` unspecified multi-tile
+  entries where local projection fixes direction `-1` to direction `0`, with
+  exact-run readback for Kilimanjaro and Zhangjiajie only. The direction
+  context points at a real natural-wonder footprint orientation semantics gap
+  in the current readback set, but no feature or natural-wonder repair is
+  authorized until source ownership is accepted and the change is checked
+  against the remaining supported unspecified multi-tile catalog behavior or a
+  fresh exact-run proof. The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source
   ownership.

@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity";
 import {
   buildFeatureDeltaPlacementContexts,
+  buildNaturalWonderFootprintCatalogContexts,
   buildNaturalWonderFootprintReadbackContexts,
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
@@ -209,6 +210,74 @@ describe("surface delta context diagnostics", () => {
       bestLocalDirections: expect.arrayContaining([0]),
       bestLiveDirections: expect.arrayContaining([5]),
       classification: "live-direction-differs-from-local",
+    });
+  });
+
+  test("exposes unsupported repair authority for unspecified multi-tile wonder directions", () => {
+    const rows = buildNaturalWonderFootprintCatalogContexts();
+    const kilimanjaro = rows.find((row) => row.featureSymbol === "FEATURE_KILIMANJARO");
+    const fuji = rows.find((row) => row.featureSymbol === "FEATURE_MOUNT_FUJI");
+    const uluru = rows.find((row) => row.featureSymbol === "FEATURE_ULURU");
+
+    expect(kilimanjaro).toMatchObject({
+      declaredDirection: -1,
+      localProjectionDirection: 0,
+      naturalWonderTiles: 3,
+      directionClass: "unspecified-engine-direction-local-fixed-projection",
+      readbackDisposition: "no-exact-run-evidence",
+    });
+    expect(kilimanjaro?.supportedDirections.map((row) => row.direction)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(kilimanjaro?.localProjectionOffsets).toEqual([
+      { dx: 0, dy: 0 },
+      { dx: 1, dy: 1 },
+      { dx: 1, dy: 0 },
+    ]);
+    expect(fuji).toMatchObject({
+      declaredDirection: 2,
+      localProjectionDirection: 2,
+      directionClass: "official-fixed-direction",
+    });
+    expect(uluru).toMatchObject({
+      naturalWonderTiles: 1,
+      directionClass: "single-tile-direction-irrelevant",
+    });
+  });
+
+  test("joins exact-run readback evidence to natural-wonder catalog direction classes", () => {
+    const local = snapshot({
+      feature: { width: 3, height: 2, values: [-1, 36, -1, -1, -1, 36] },
+    }, {
+      naturalWonderPlan: {
+        width: 3,
+        height: 2,
+        wondersCount: 1,
+        targetCount: 1,
+        plannedCount: 1,
+        placements: [
+          { plotIndex: 1, featureType: 36, direction: -1, elevation: 1000, priority: 0.9 },
+        ],
+      },
+    });
+    const live = snapshot({
+      feature: { width: 3, height: 2, values: [-1, 36, -1, -1, 36, -1] },
+    });
+    const readbacks = buildNaturalWonderFootprintReadbackContexts({ local, live });
+
+    const catalog = buildNaturalWonderFootprintCatalogContexts(readbacks);
+    const zhangjiajie = catalog.find((row) => row.featureSymbol === "FEATURE_ZHANGJIAJIE");
+
+    expect(zhangjiajie).toMatchObject({
+      declaredDirection: -1,
+      directionClass: "unspecified-engine-direction-local-fixed-projection",
+      readbackDisposition: "observed-live-direction-drift",
+      observedReadbacks: [
+        {
+          declaredDirection: -1,
+          bestLocalDirections: [0],
+          bestLiveDirections: [5],
+          classification: "live-direction-differs-from-local",
+        },
+      ],
     });
   });
 

@@ -771,6 +771,52 @@ natural-wonder projection versus Civ runtime materialization semantics, with a
 broader supported-catalog test or fresh exact-run proof required before repair
 closure.
 
+### Supported Natural-Wonder Footprint Catalog Context
+
+Diagnostic repair:
+`buildNaturalWonderFootprintCatalogContexts` now exposes the supported
+natural-wonder catalog direction classes and joins exact-run footprint readback
+rows by feature type. This records where official `naturalWonderDirection:-1`
+is currently projected locally as direction `0`, without changing placement or
+stamping behavior.
+
+The current catalog context artifact is
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-natural-wonder-footprint-catalog-context.json`
+(`sha256:34211c105979d84b780278e76e838102cea47c7c45e3fb9c24499cf5e34046ab`,
+`proofHash:6ace44be42fc7b2a87d4a393d1ecb2c52af7bcb58dd90acdcc6e553e6338c009`).
+It is derived from the planned-footprint readback artifact; it is not a fresh
+exact-authored parity proof.
+
+Catalog facts:
+
+| Direction class | Count | Meaning |
+|---|---:|---|
+| `single-tile-direction-irrelevant` | `3` | Supported one-tile wonders where direction cannot move the footprint. |
+| `official-fixed-direction` | `2` | Supported multi-tile wonders with explicit official direction values. |
+| `unspecified-engine-direction-local-fixed-projection` | `5` | Supported multi-tile wonders with official `naturalWonderDirection:-1`; local projection currently uses direction `0`. |
+
+Unspecified multi-tile catalog entries:
+`FEATURE_REDWOOD_FOREST`, `FEATURE_KILIMANJARO`, `FEATURE_ZHANGJIAJIE`,
+`FEATURE_TORRES_DEL_PAINE`, and `FEATURE_MACHAPUCHARE`.
+
+Exact-run observed rows:
+
+| Feature | Direction class | Readback disposition | Evidence |
+|---|---|---|---|
+| `FEATURE_KILIMANJARO` | `unspecified-engine-direction-local-fixed-projection` | `observed-ambiguous-or-partial` | local best direction `0` with `3/3`; live best directions `0,1,4,5` with `2/3`. |
+| `FEATURE_ZHANGJIAJIE` | `unspecified-engine-direction-local-fixed-projection` | `observed-live-direction-drift` | local best direction `0` with `2/2`; live best direction `5` with `2/2`. |
+
+Disposition:
+the catalog context strengthens the classification that the natural-wonder
+offset class belongs at the map-policy/mock natural-wonder projection versus
+Civ runtime materialization boundary, not ecology feature density or resource
+legality. It still does not authorize a global `Direction:-1` repair: only
+`2/5` unspecified multi-tile entries have exact-run readback evidence here, and
+Kilimanjaro remains ambiguous/partial. A repair layer must either collect
+broader exact-run footprint evidence or explicitly constrain its owner claim to
+supported catalog behavior with tests that protect fixed-direction and
+single-tile entries.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

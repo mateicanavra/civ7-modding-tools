@@ -52,8 +52,10 @@
   rows.
 - [x] 2.24 Add planned natural-wonder footprint readback context across local
   and live grids.
-- [ ] 2.25 Repair remaining proven package or MapGen owners.
-- [ ] 2.26 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.25 Add supported-catalog direction context for natural-wonder footprint
+  readback rows.
+- [ ] 2.26 Repair remaining proven package or MapGen owners.
+- [ ] 2.27 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
