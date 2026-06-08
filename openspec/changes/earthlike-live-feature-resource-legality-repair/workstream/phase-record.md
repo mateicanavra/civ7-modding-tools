@@ -6,10 +6,11 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-current-map-script-load-proof-drain`, stacked above
-  `codex/swooper-studio-start-log-grace-drain`; this slice records the current
-  checked-in config runtime-proof blocker after restart-launch retry,
-  start-log grace, and same-size `Scripting.log` rewrite fixes.
+  `codex/swooper-current-map-generation-blocker-drain`, stacked above
+  `codex/swooper-map-script-bundle-policy-drain`; this slice records the
+  current checked-in config runtime-proof blocker after restart-launch retry,
+  start-log grace, same-size `Scripting.log` rewrite fixes, and map-policy
+  bundling for Civ map scripts.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. The natural-wonder
@@ -22,9 +23,14 @@
   longer blocks on the stale `floodplainPlanning` key when launched from the
   current checked-in config. It also no longer blocks on unobserved Civ process
   restart: the latest retry records two Steam launch attempts and reaches setup
-  preparation. It now blocks because Civ fails to load the generated
-  `studio-current.js` map script before mapgen proof markers or parity
-  evaluation. Resource classes remain pending source-authority classification.
+  preparation. It also no longer blocks on generated `studio-current.js`
+  map-script loading after `@civ7/map-policy` was bundled into the Civ map
+  script. It now blocks inside map generation: request
+  `studio-run-in-game-mq3n8vkc-1qjg` failed in
+  `mod-swooper-maps.standard.map-elevation.build-elevation` because
+  `map-elevation/build-elevation` expected land but the adapter reported water
+  at `(34,17)`. Resource classes remain pending source-authority
+  classification, and no current final-surface parity proof exists.
 
 ## Objective
 
@@ -911,9 +917,35 @@
   This is a current runtime/control blocker, not a source parity result: no
   current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet,
   final-surface parity proof, or product acceptance proof was produced.
+  A follow-up map-policy bundling slice added `@civ7/map-policy` to the
+  Swooper map-script bundle so Civ does not need to resolve a repo-owned bare
+  package import at map-script load time. Current request
+  `studio-run-in-game-mq3n8vkc-1qjg` used the same restart request body
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-request.json`
+  (`sha256:0e23b919efba651b49d36bd967218414ace31620dee1c375a13a2c245decf914`),
+  with post response
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-map-policy-bundle-post.json`
+  (`sha256:855671f1291ead7c4ed2d8b2addbf784b761a30ac1104c0f71b3aff55b34749c`)
+  and terminal status
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-map-policy-bundle-status.json`
+  (`sha256:6b2997225b0dc872a12ba306fec47c5ad7b1a7767692758b6426b8104ee8ae4c`).
+  It completed materialization, deploy, process restart, direct-control
+  availability, setup-row visibility, setup preparation, and map-script load.
+  The deployed script identity in that status is
+  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+  (`sha256:ac3d7a05a4972cb8d264022bbffc4c220f0526e2ff322093bb8da2e0dfa6acdc`,
+  `mtimeIso:2026-06-07T10:33:26.425Z`). The terminal failure moved to
+  `map-generation-script-failed` with recovery boundary
+  `civ-notification-dismiss`; matched fresh log line:
+  `[2026-06-07 06:34:54] [SWOOPER_MOD] Map generation failed: StepExecutionError: Step "mod-swooper-maps.standard.map-elevation.build-elevation" failed: [map-elevation/build-elevation] drift: expected land but adapter reports water at (34,17).`
+  This is a source/runtime map-generation blocker, not a parity result: no
+  current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet,
+  final-surface parity proof, or product acceptance proof was produced.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
-- Next action: classify the remaining feature/resource rows by source
-  authority: official data, adapter/map-policy, MapGen
+- Next action: diagnose and repair the current
+  `map-elevation/build-elevation` drift before another final-surface parity
+  proof attempt, then continue classifying the remaining feature/resource rows
+  by source authority: official data, adapter/map-policy, MapGen
   planning/materialization, accepted engine materialization, or readback
   limitation. Terrain edge rows may enter this slice only if diagnostics prove
   shared materialization ownership. The unchanged resource mismatch count after

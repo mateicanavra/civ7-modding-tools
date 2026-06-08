@@ -1158,8 +1158,33 @@ The deployed mod script identity in that status is
 (`sha256:862baf3441a7f98b7a5e38d183a0e64c47890fb1f70385b68e36599e16844a03`,
 `mtimeIso:2026-06-07T10:18:01.268Z`).
 No current exact-authorship, final-surface parity, or product acceptance proof
-is claimed from these attempts. The current blocker is now the Studio/Civ
-generated map-script load boundary, not feature/resource source authority.
+is claimed from these attempts.
+
+The follow-up map-policy bundling slice added `@civ7/map-policy` to the Swooper
+map-script bundle so Civ does not need to resolve a repo-owned bare package
+import at map-script load time. Request `studio-run-in-game-mq3n8vkc-1qjg` used
+the same request body
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-request.json`
+(`sha256:0e23b919efba651b49d36bd967218414ace31620dee1c375a13a2c245decf914`),
+with post response
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-map-policy-bundle-post.json`
+(`sha256:855671f1291ead7c4ed2d8b2addbf784b761a30ac1104c0f71b3aff55b34749c`)
+and terminal status
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-map-policy-bundle-status.json`
+(`sha256:6b2997225b0dc872a12ba306fec47c5ad7b1a7767692758b6426b8104ee8ae4c`).
+It passed materialization, deploy, process restart, direct-control availability,
+setup-row visibility, setup preparation, and map-script load. The deployed
+script identity in that status is
+`/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+(`sha256:ac3d7a05a4972cb8d264022bbffc4c220f0526e2ff322093bb8da2e0dfa6acdc`,
+`mtimeIso:2026-06-07T10:33:26.425Z`). The terminal failure moved to
+`map-generation-script-failed` with recovery boundary
+`civ-notification-dismiss`; matched fresh log line:
+`[2026-06-07 06:34:54] [SWOOPER_MOD] Map generation failed: StepExecutionError: Step "mod-swooper-maps.standard.map-elevation.build-elevation" failed: [map-elevation/build-elevation] drift: expected land but adapter reports water at (34,17).`
+No current exact-authorship, final-surface parity, or product acceptance proof
+is claimed from this attempt. The current blocker is now the Swooper
+map-elevation materialization/runtime boundary, not the Studio/Civ generated
+map-script load boundary.
 
 Source-recorded post-repair proof:
 request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
