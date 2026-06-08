@@ -107,7 +107,21 @@ describe("Run in Game exact authorship proof identity", () => {
           rejectedCount: 1,
           mismatchCount: 0,
           rejectionExampleCount: 1,
-          rejectionExamples: ["status=rejected resource=RESOURCE_WINE plot=67 x=12 y=3 reason=cannot-have-resource observed=-1"],
+          rejectionExamples: [
+            "status=rejected resource=RESOURCE_WINE resourceType=16 plot=67 x=12 y=3 reason=cannot-have-resource observed=-1",
+          ],
+          rejectionRows: [
+            {
+              status: "rejected",
+              resourceType: 16,
+              resource: "RESOURCE_WINE",
+              plotIndex: 67,
+              x: 12,
+              y: 3,
+              reason: "cannot-have-resource",
+              observedResourceType: -1,
+            },
+          ],
           coordinateProof: {
             version: 1,
             placedCount: 3,
@@ -175,7 +189,21 @@ describe("Run in Game exact authorship proof identity", () => {
         rejectedCount: 1,
         mismatchCount: 0,
         rejectionExampleCount: 1,
-        rejectionExamples: ["status=rejected resource=RESOURCE_WINE plot=67 x=12 y=3 reason=cannot-have-resource observed=-1"],
+        rejectionExamples: [
+          "status=rejected resource=RESOURCE_WINE resourceType=16 plot=67 x=12 y=3 reason=cannot-have-resource observed=-1",
+        ],
+        rejectionRows: [
+          {
+            status: "rejected",
+            resourceType: 16,
+            resource: "RESOURCE_WINE",
+            plotIndex: 67,
+            x: 12,
+            y: 3,
+            reason: "cannot-have-resource",
+            observedResourceType: -1,
+          },
+        ],
       },
       coordinateProof: {
         version: 1,

@@ -250,15 +250,29 @@ describe("resource placement diagnostics", () => {
         rejectedCount: 1,
         rejectedHash32: "abcdef12",
       },
-      placedResourceTypes: [4, 44],
       rejectedResourceTypes: [44],
       rejectionExampleCount: 1,
       rejectionExamples: [
-        "status=rejected resource=RESOURCE_RUBIES plot=67 x=12 y=3 reason=cannot-have-resource observed=-1",
+        "status=rejected resource=RESOURCE_RUBIES resourceType=44 plot=67 x=12 y=3 reason=cannot-have-resource observed=-1",
       ],
-      unmappedPlacedResourceTypes: [],
+      rejectionRows: [
+        {
+          status: "rejected",
+          resourceType: 44,
+          resource: "RESOURCE_RUBIES",
+          plotIndex: 67,
+          x: 12,
+          y: 3,
+          reason: "cannot-have-resource",
+          observedResourceType: -1,
+          observedResource: null,
+        },
+      ],
       byReason: [{ reason: "cannot-have-resource", count: 1 }],
     });
+    expect(telemetry).not.toHaveProperty("placedResourceTypes");
+    expect(telemetry).not.toHaveProperty("assignment");
+    expect(telemetry).not.toHaveProperty("unmappedPlacedResourceTypes");
     expect(telemetry).not.toHaveProperty("plannedResourceTypes");
     expect(JSON.stringify(telemetry).length).toBeLessThan(900);
   });
@@ -326,7 +340,6 @@ describe("resource placement diagnostics", () => {
       },
       placedResourceTypes,
       rejectedResourceTypes: [],
-      unmappedPlacedResourceTypes: [],
       assignment: {
         requestedPlannedCount: 159,
         assignedCount: 159,
@@ -336,6 +349,7 @@ describe("resource placement diagnostics", () => {
         unassignableResourceTypes: [5, 15],
       },
     });
+    expect(telemetry).not.toHaveProperty("unmappedPlacedResourceTypes");
     expect(telemetry).not.toHaveProperty("plannedResourceTypes");
     expect(JSON.stringify(telemetry).length).toBeLessThan(900);
     expect(`[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(

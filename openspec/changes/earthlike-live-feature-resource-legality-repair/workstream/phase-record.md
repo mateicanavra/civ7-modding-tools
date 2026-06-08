@@ -1127,16 +1127,26 @@
   `proofHash:4184a136601dbc3768fe175ab9f4f896bdd3754f2fcaf9e65c249d0d79f6a5f1`.
   It remains `unresolved` with unchanged terrain `139`, biome `874`, feature
   `381`, resource `308`, and resource coordinate proof placed/rejected links.
-  This narrows the resource boundary to a concrete exact rejection row without
-  authorizing resource tuning or parity closure.
+  This narrows the resource boundary to a concrete exact rejection coordinate
+  but does not yet make the resource symbol source-authoritative: the run
+  predates structured numeric rejection rows, and local evidence for plot
+  `4838` records numeric resource type `46`, which the repo-generated table
+  maps to `RESOURCE_LIMESTONE`. Current branch
+  `codex/swooper-resource-rejection-proof-identity-drain` adds bounded
+  structured `rejectionRows` to `RESOURCE_PLACEMENT_V1` and Studio proof
+  parsing, preserving numeric `resourceType`, runtime symbol, plot, x/y,
+  reason, and observed resource identity in future exact-authorship packets.
+  This is proof instrumentation only and does not authorize resource tuning,
+  scarce-floor repair, parity closure, or product acceptance.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json` by
+  first rerunning exact proof with structured resource rejection rows, then
   proving or rejecting the narrowed repair-owner candidates in order:
   resource local-overacceptance/scarce-floor materialization using the exact
-  `RESOURCE_WINE` rejection row at plot `4838`, exact feature-materialization
-  /readback ownership for the two rejected features and remaining `381` feature
-  mismatches, then terrain projection/readback. Do this before any
+  plot `4838` rejection row with numeric/runtime identity, exact
+  feature-materialization/readback ownership for the two rejected features and
+  remaining `381` feature mismatches, then terrain projection/readback. Do this before any
   final-surface parity or product acceptance claim. The older
   source-recorded context remains useful: for the prior `9` local-assigned
   live-empty rows, assignment trace ruled out relaxed spacing and rebalance,
@@ -1156,9 +1166,9 @@
   Current code now emits and parses immediate placement coordinate digests for
   future exact runs, but the current `mq20rbzr` artifact still lacks that digest.
   No resource tuning, static-policy repair, scarce-floor repair, or
-  assignment-order repair is authorized until the exact `RESOURCE_WINE` row and
-  local assignment/resource-builder context are source-classified to a concrete
-  owner. Older source-recorded feature
+  assignment-order repair is authorized until the exact plot `4838` rejection
+  row and local assignment/resource-builder context are source-classified to a
+  concrete owner. Older source-recorded feature
   rows were split into a reef absence and two natural-wonder one-tile offsets,
   with local intent, application, footprint evidence, runtime-bound
   `canHaveFeature` probes, footprint-direction alternatives, and planned-wonder

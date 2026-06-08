@@ -23,6 +23,17 @@ type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacem
 type ResourcePlacementSummary = ResourcePlacementOutcomes["summary"];
 type ResourceAssignmentSummary = ResourcePlacementOutcomes["assignment"];
 type ResourcePlacementRuntimeTelemetryOutcome = ResourcePlacementOutcomes["outcomes"][number];
+type ResourcePlacementRuntimeRejectionExample = {
+  readonly status: Exclude<ResourcePlacementRuntimeTelemetryOutcome["status"], "placed">;
+  readonly resourceType: number;
+  readonly resource: string | null;
+  readonly plotIndex: number;
+  readonly x: number;
+  readonly y: number;
+  readonly reason: ResourcePlacementReason | null;
+  readonly observedResourceType?: number;
+  readonly observedResource?: string | null;
+};
 type RuntimeResourceCatalogEntry = {
   readonly index: number;
   readonly resourceType: string;
@@ -796,7 +807,9 @@ export function buildResourcePlacementRuntimeTelemetry(
   const plannedTypesCovered =
     plannedTypeSet.size === coveredTypeSet.size &&
     plannedResourceTypeValues.every((resourceType) => coveredTypeSet.has(resourceType));
-  const rejectionExamples = resourcePlacementRejectionExamples(outcomes, runtimeByIndex);
+  const rejectionRows = resourcePlacementRejectionRows(outcomes, runtimeByIndex);
+  const rejectionExamples = rejectionRows.map(formatResourcePlacementRejectionExample);
+  const hasNonPlacedExamples = rejectionRows.length > 0;
 
   return {
     version: 1,
@@ -827,16 +840,19 @@ export function buildResourcePlacementRuntimeTelemetry(
         : {}),
     },
     ...(plannedTypesCovered ? {} : { plannedResourceTypes: plannedResourceTypeValues }),
-    placedResourceTypes: placedResourceTypeValues,
+    ...(hasNonPlacedExamples ? {} : { placedResourceTypes: placedResourceTypeValues }),
     rejectedResourceTypes: rejectedResourceTypeValues,
     ...(rejectionExamples.length === 0
       ? {}
       : {
           rejectionExampleCount: rejectionExamples.length,
           rejectionExamples,
+          rejectionRows,
         }),
-    unmappedPlacedResourceTypes: unmappedResourceTypes.map((row) => row.resourceType),
-    ...(assignment
+    ...(unmappedResourceTypes.length === 0
+      ? {}
+      : { unmappedPlacedResourceTypes: unmappedResourceTypes.map((row) => row.resourceType) }),
+    ...(assignment && !hasNonPlacedExamples
       ? {
           assignment: {
             requestedPlannedCount: assignment.requestedPlannedCount,
@@ -868,29 +884,55 @@ export function logResourcePlacementRuntimeTelemetry(
   );
 }
 
-function resourcePlacementRejectionExamples(
+function resourcePlacementRejectionRows(
   outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[],
   runtimeByIndex: ReadonlyMap<number, RuntimeResourceCatalogEntry>
-): string[] {
+): ResourcePlacementRuntimeRejectionExample[] {
   return outcomes
-    .filter((outcome) => outcome.status !== "placed")
+    .filter(isResourcePlacementNonPlacedOutcome)
     .slice(0, 8)
-    .map((outcome) => {
-      const resource =
-        runtimeByIndex.get(outcome.resourceType)?.resourceType ?? String(outcome.resourceType);
-      const fields = [
-        `status=${outcome.status}`,
-        `resource=${resource}`,
-        `plot=${outcome.plotIndex}`,
-        `x=${outcome.x}`,
-        `y=${outcome.y}`,
-        `reason=${outcome.reason}`,
-      ];
-      if (outcome.observedResourceType !== undefined) {
-        fields.push(`observed=${outcome.observedResourceType}`);
-      }
-      return fields.join(" ");
-    });
+    .map((outcome) => ({
+      status: outcome.status,
+      resourceType: outcome.resourceType,
+      resource: runtimeByIndex.get(outcome.resourceType)?.resourceType ?? null,
+      plotIndex: outcome.plotIndex,
+      x: outcome.x,
+      y: outcome.y,
+      reason: outcome.reason ?? null,
+      ...(outcome.observedResourceType === undefined
+        ? {}
+        : {
+            observedResourceType: outcome.observedResourceType,
+            observedResource: runtimeByIndex.get(outcome.observedResourceType)?.resourceType ?? null,
+          }),
+    }));
+}
+
+function isResourcePlacementNonPlacedOutcome(
+  outcome: ResourcePlacementRuntimeTelemetryOutcome
+): outcome is ResourcePlacementRuntimeTelemetryOutcome & { status: "rejected" | "mismatch" } {
+  return outcome.status !== "placed";
+}
+
+function formatResourcePlacementRejectionExample(
+  row: ResourcePlacementRuntimeRejectionExample
+): string {
+  const fields = [
+    `status=${row.status}`,
+    `resource=${row.resource ?? "unknown"}`,
+    `resourceType=${row.resourceType}`,
+    `plot=${row.plotIndex}`,
+    `x=${row.x}`,
+    `y=${row.y}`,
+    `reason=${row.reason ?? "unknown"}`,
+  ];
+  if (row.observedResourceType !== undefined) {
+    fields.push(`observed=${row.observedResourceType}`);
+  }
+  if (row.observedResource !== undefined && row.observedResource !== null) {
+    fields.push(`observedResource=${row.observedResource}`);
+  }
+  return fields.join(" ");
 }
 
 function assertResourceOutcomeMatchesIntent(

@@ -51,6 +51,18 @@ export type RunInGameSourceSnapshotProof = Readonly<{
   envelopeHash?: string;
 }>;
 
+export type RunInGameResourcePlacementRejectionRow = Readonly<{
+  status: "rejected" | "mismatch";
+  resourceType: number;
+  resource?: string;
+  plotIndex: number;
+  x: number;
+  y: number;
+  reason?: string;
+  observedResourceType?: number;
+  observedResource?: string;
+}>;
+
 export type RunInGameRequestStatus = Readonly<{
   recipeId?: string;
   seed?: number;
@@ -169,6 +181,7 @@ export type RunInGameExactAuthorshipProof = Readonly<{
         mismatchCount: number;
         rejectionExampleCount?: number;
         rejectionExamples?: ReadonlyArray<string>;
+        rejectionRows?: ReadonlyArray<RunInGameResourcePlacementRejectionRow>;
       }>;
       coordinateProof?: Readonly<{
         version: number;

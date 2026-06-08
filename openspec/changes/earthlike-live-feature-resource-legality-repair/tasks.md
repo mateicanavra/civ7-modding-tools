@@ -323,8 +323,15 @@
     completed with no exact-authorship unresolved links.
   - Exact `RESOURCE_PLACEMENT_V1` telemetry reports `251` planned resources,
     `250` placed, `1` rejected, and `0` mismatches. The rejected row is now
-    identified as `RESOURCE_WINE` at plot `4838` (`x=68`, `y=45`), rejected by
-    `canHaveResource` with observed readback `-1`.
+    identified by the string telemetry as `RESOURCE_WINE` at plot `4838`
+    (`x=68`, `y=45`), rejected by `canHaveResource` with observed readback
+    `-1`. This exact run predates the structured numeric rejection-row proof
+    contract, so the string name is not yet sufficient source-authority proof
+    where runtime catalog names and repo-generated numeric ids must be compared.
+    Local evidence for the same plot records numeric resource type `46`, which
+    the repo-generated table maps to `RESOURCE_LIMESTONE`; the next exact run
+    must carry both numeric id and runtime symbol before this row can authorize
+    repair.
   - Status artifact
     `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-telemetry-status.json`
     (`sha256:beb4b23053dcbee73ce2b5bf0c191e44525f60a9592a92efaa42fbaefa5fe166`)
@@ -333,6 +340,19 @@
     (`sha256:5b88aaa0c54c88161dfdde447a05b75f359d53d8435185ee9de977306b6a4020`)
     are exact-run proof inputs. Resource parity and product acceptance are still
     not closed.
+- [x] 2.49 Bind numeric resource rejection rows into future exact-authorship
+  proof packets.
+  - Current branch `codex/swooper-resource-rejection-proof-identity-drain`
+    adds structured bounded `rejectionRows` to `RESOURCE_PLACEMENT_V1` runtime
+    telemetry and Studio exact-authorship parsing. Each non-placed resource row
+    now carries status, numeric `resourceType`, runtime resource symbol when
+    available, plot index, x/y, reason, and observed numeric/resource identity.
+  - Compact `rejectionExamples` now also include `resourceType=<number>` so log
+    readers can distinguish runtime symbol names from repo-local numeric ids.
+    This is proof instrumentation only. It does not change resource planning,
+    scarce-floor assignment, candidate ordering, resource tuning, final-surface
+    parity, or product acceptance. A fresh exact-authored run is still required
+    to classify the plot `4838` rejection with the repaired proof contract.
 
 ## 3. Verification
 
@@ -419,3 +439,11 @@
     links. The verifier log is
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3sk0ck.log`
     (`sha256:8217718d3c115b2160635980e6d5eebd4e1cf509d8225de9e60cfdc040e47fcb`).
+- [x] 3.20 Run focused resource rejection identity regressions.
+  - Passed `bun test apps/mapgen-studio/test/runInGame/proofIdentity.test.ts`
+    and
+    `bun test mods/mod-swooper-maps/test/placement/resource-placement-diagnostics.test.ts`.
+  - Passed owner checks `bun run --cwd apps/mapgen-studio check` and
+    `bun run --cwd mods/mod-swooper-maps check`.
+  - Full OpenSpec validation remains required before committing this
+    proof-contract slice.

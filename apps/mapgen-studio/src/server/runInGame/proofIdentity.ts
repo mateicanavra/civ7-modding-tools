@@ -301,6 +301,10 @@ function numberValue(value: unknown): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
 function setupParameterValue(snapshot: unknown, id: string): unknown {
   if (!isRecord(snapshot) || !isRecord(snapshot.setup) || !Array.isArray(snapshot.setup.parameters)) return undefined;
   const parameter = snapshot.setup.parameters.find((item) =>
@@ -552,6 +556,7 @@ function resourcePlacementStats(
     return undefined;
   }
   const rejectionExampleCount = numberValue(payload.rejectionExampleCount);
+  const rejectionRows = resourcePlacementRejectionRows(payload);
   return {
     stats: {
       version,
@@ -561,8 +566,53 @@ function resourcePlacementStats(
       mismatchCount,
       ...(rejectionExampleCount === undefined ? {} : { rejectionExampleCount }),
       ...(rejectionExamples === undefined ? {} : { rejectionExamples }),
+      ...(rejectionRows.length === 0 ? {} : { rejectionRows }),
     },
   };
+}
+
+function resourcePlacementRejectionRows(
+  payload: Record<string, unknown>
+): NonNullable<
+  NonNullable<
+    NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]>["stats"]
+  >["rejectionRows"]
+> {
+  if (!Array.isArray(payload.rejectionRows)) return [];
+  return payload.rejectionRows.flatMap((value) => {
+    if (!isRecord(value)) return [];
+    const status: "rejected" | "mismatch" | undefined =
+      value.status === "rejected" || value.status === "mismatch" ? value.status : undefined;
+    const resourceType = numberValue(value.resourceType);
+    const plotIndex = numberValue(value.plotIndex);
+    const x = numberValue(value.x);
+    const y = numberValue(value.y);
+    if (
+      status === undefined ||
+      resourceType === undefined ||
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined
+    ) {
+      return [];
+    }
+    const observedResourceType = numberValue(value.observedResourceType);
+    return [
+      {
+        status,
+        resourceType,
+        ...(stringValue(value.resource) === undefined ? {} : { resource: stringValue(value.resource) }),
+        plotIndex,
+        x,
+        y,
+        ...(stringValue(value.reason) === undefined ? {} : { reason: stringValue(value.reason) }),
+        ...(observedResourceType === undefined ? {} : { observedResourceType }),
+        ...(stringValue(value.observedResource) === undefined
+          ? {}
+          : { observedResource: stringValue(value.observedResource) }),
+      },
+    ];
+  }).slice(0, 8);
 }
 
 function naturalWonderPlacementCoordinateProof(
