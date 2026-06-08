@@ -12,12 +12,14 @@
 - [x] 2.4 Add or link shelf/coast/lake/projection-boundary mask evidence.
 - [x] 2.5 Add or link live water/lake/area readback evidence.
 - [x] 2.6 Add placement validation-boundary readback evidence.
-- [ ] 2.7 Classify source authority for each row.
+- [x] 2.7 Classify source authority for each row.
 
 ## 3. Repair
 
 - [ ] 3.1 Repair only rows assigned to a repo-owned source authority.
 - [ ] 3.2 Preserve hydrology water mutation and Civ validation boundaries.
+- [ ] 3.3 Open any adapter/mock materialization repair as a separate bounded
+      layer before changing code.
 
 ## 4. Verification
 
