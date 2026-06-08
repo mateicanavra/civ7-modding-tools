@@ -66,6 +66,28 @@ export type SurfaceDeltaContext = Readonly<{
   }>;
 }>;
 
+export type FeatureDeltaPlacementContext = SurfaceDeltaContext &
+  Readonly<{
+    key: "feature";
+    plotIndex: number;
+    pairedSameFeatureDelta: FeatureDeltaPairContext | null;
+    evidenceClass:
+      | "local-only-ecology-feature"
+      | "live-only-ecology-feature"
+      | "natural-wonder-offset-local-anchor"
+      | "natural-wonder-offset-live-anchor"
+      | "unclassified";
+  }>;
+
+export type FeatureDeltaPairContext = Readonly<{
+  x: number;
+  y: number;
+  plotIndex: number;
+  distance: number;
+  localFeature: Readonly<{ value: number | null; symbol: string }>;
+  liveFeature: Readonly<{ value: number | null; symbol: string }>;
+}>;
+
 export type ResourceDeltaPlacementContext = Readonly<{
   x: number;
   y: number;
@@ -257,6 +279,32 @@ export function buildSurfaceDeltaContexts(
   }
 
   return rows;
+}
+
+export function buildFeatureDeltaPlacementContexts(
+  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  options: { maxRows?: number } = {}
+): ReadonlyArray<FeatureDeltaPlacementContext> {
+  const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
+  const rows = buildSurfaceDeltaContexts(proof, { keys: ["feature"] }).map((row) => {
+    const plotIndex = row.y * proof.local.width + row.x;
+    return {
+      ...row,
+      key: "feature" as const,
+      plotIndex,
+      pairedSameFeatureDelta: null,
+      evidenceClass: "unclassified" as const,
+    };
+  });
+  const classified = rows.map((row) => {
+    const pairedSameFeatureDelta = findPairedFeatureDelta(row, rows, proof.local.width);
+    return {
+      ...row,
+      pairedSameFeatureDelta,
+      evidenceClass: classifyFeatureDelta(row, pairedSameFeatureDelta),
+    };
+  });
+  return classified.slice(0, maxRows);
 }
 
 export function buildResourceDeltaPlacementContexts(
@@ -471,6 +519,80 @@ function addFeatureSurfaceReasons(
   if (biomeRows?.length && !biomeRows.includes(context.biome ?? -1)) {
     reasons.push("feature.biome");
   }
+}
+
+function findPairedFeatureDelta(
+  row: FeatureDeltaPlacementContext,
+  rows: ReadonlyArray<FeatureDeltaPlacementContext>,
+  width: number
+): FeatureDeltaPairContext | null {
+  const featureType = row.local.value ?? row.live.value;
+  if (featureType === null || !isNaturalWonderFeature(featureType)) return null;
+  let best: FeatureDeltaPairContext | null = null;
+  for (const candidate of rows) {
+    if (candidate.plotIndex === row.plotIndex) continue;
+    const sameFeatureMovedFromLocal =
+      row.local.value === featureType &&
+      row.live.value === null &&
+      candidate.local.value === null &&
+      candidate.live.value === featureType;
+    const sameFeatureMovedFromLive =
+      row.local.value === null &&
+      row.live.value === featureType &&
+      candidate.local.value === featureType &&
+      candidate.live.value === null;
+    if (!sameFeatureMovedFromLocal && !sameFeatureMovedFromLive) continue;
+    const distance = hexDistanceOddQPeriodicX(row.plotIndex, candidate.plotIndex, width);
+    const pair = {
+      x: candidate.x,
+      y: candidate.y,
+      plotIndex: candidate.plotIndex,
+      distance,
+      localFeature: {
+        value: candidate.local.value,
+        symbol: candidate.local.symbol,
+      },
+      liveFeature: {
+        value: candidate.live.value,
+        symbol: candidate.live.symbol,
+      },
+    };
+    if (
+      best === null ||
+      pair.distance < best.distance ||
+      (pair.distance === best.distance && pair.plotIndex < best.plotIndex)
+    ) {
+      best = pair;
+    }
+  }
+  return best;
+}
+
+function classifyFeatureDelta(
+  row: FeatureDeltaPlacementContext,
+  pair: FeatureDeltaPairContext | null
+): FeatureDeltaPlacementContext["evidenceClass"] {
+  const localFeature = row.local.value;
+  const liveFeature = row.live.value;
+  const featureType = localFeature ?? liveFeature;
+  if (featureType === null) return "unclassified";
+  if (pair !== null && pair.distance <= 1 && isNaturalWonderFeature(featureType)) {
+    return localFeature === featureType
+      ? "natural-wonder-offset-local-anchor"
+      : "natural-wonder-offset-live-anchor";
+  }
+  if (localFeature !== null && liveFeature === null && !isNaturalWonderFeature(localFeature)) {
+    return "local-only-ecology-feature";
+  }
+  if (localFeature === null && liveFeature !== null && !isNaturalWonderFeature(liveFeature)) {
+    return "live-only-ecology-feature";
+  }
+  return "unclassified";
+}
+
+function isNaturalWonderFeature(featureType: number): boolean {
+  const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(featureType)];
+  return typeof policy?.naturalWonderTiles === "number" && policy.naturalWonderTiles > 0;
 }
 
 function addResourceSurfaceReasons(

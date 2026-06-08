@@ -5,18 +5,18 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-coordinate-proof-intake-drain`
-  stacked above `codex/swooper-resource-coordinate-proof-drain`; this slice
-  carries exact/parity proof intake for immediate resource placement coordinate
-  identity.
+- Branch/Graphite stack: `codex/swooper-feature-delta-context-drain`
+  stacked above `codex/swooper-resource-coordinate-proof-intake-drain`; this
+  slice carries feature-delta source context for ecology-feature and
+  natural-wonder offset classes.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
   feasibility plus row/static-policy/live-plot, assignment-order, and
   ResourceBuilder diagnostic/subclassification/policy context plus
   assignment-class, distribution-count, same-resource position, local
-  materialization, future coordinate-proof instrumentation, and coordinate-proof
-  intake now narrow the next resource repair class.
+  materialization, future coordinate-proof instrumentation, coordinate-proof
+  intake, and feature-delta classification now narrow the next repair classes.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -325,6 +325,19 @@
   the exact log coordinate digest when local evidence carries one. Missing or
   mismatched coordinate proof keeps parity unresolved with named
   `resource-placement-coordinate-proof.*` links.
+- Feature delta context progress:
+  `mods/mod-swooper-maps/src/dev/diagnostics/surface-delta-context.ts` now
+  classifies feature mismatch rows into bounded evidence classes. The current
+  feature context artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-feature-delta-context.json`
+  (`sha256:a4f78cb9987ecf773be2fef9f597c9a1a019292da95f8c70af274c5623c72363`).
+  It splits the `5` feature mismatches into one local-only
+  `FEATURE_COLD_REEF` row and two same-feature one-tile natural-wonder offsets
+  (`FEATURE_KILIMANJARO` and `FEATURE_ZHANGJIAJIE`, each represented by local
+  and live anchor rows). This is classification context only: the reef row
+  still needs feature-intent/application versus live engine proof, and the
+  natural-wonder offsets still need planned anchor/direction/footprint proof
+  before repair ownership can be assigned.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -354,8 +367,11 @@
   No resource tuning, static-policy repair, scarce-floor repair, or
   assignment-order repair is authorized until a fresh exact-authored run binds
   local and live immediate placement coordinate identity or otherwise assigns
-  those subclasses to a concrete source owner. The single substitution row where
-  both probed values are infeasible remains an individual evidence row with no
-  repair authority until row-level context assigns source ownership.
+  those subclasses to a concrete source owner. Feature rows are now split into
+  a reef absence and two natural-wonder one-tile offsets, but no feature repair
+  is authorized until local intent/application and live materialization evidence
+  assigns ownership. The single substitution row where both probed values are
+  infeasible remains an individual evidence row with no repair authority until
+  row-level context assigns source ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.
