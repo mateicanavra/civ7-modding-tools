@@ -1328,15 +1328,60 @@ vector before the expected-empty subcondition can be assigned to adapter
 readback oracle, local footprint projection, Civ engine semantics, or evidence
 insufficiency.
 
+### Natural-Wonder Post-Write Footprint Proof Artifact
+
+Classification status: exact evidence captured; source authority still open.
+
+Fresh exact-authored request `studio-run-in-game-mq2x1ugm-1z4g` consumed the
+post-write footprint proof contract. Exact authorship completed with no
+unresolved links for seed `138503614`, dimensions `106x66`, runtime snapshot
+`status:1:c153eb72`, snapshot hash `c153eb72`, and game hash `0`.
+
+| Artifact | Path | Identity |
+| --- | --- | --- |
+| Request body | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-readback-context-run-request.json` | `sha256:a68947c89abca086ca380ee035600b9e7c38a8278a5d895de4fcb64eb398efc2` |
+| Run post response | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-postwrite-footprint-v2-run-post.json` | `sha256:22688520ef3e61b39ee23ff56744de719ecaef748e9ed5e0d0a850b4a9a21a5e` |
+| Completed Studio status | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-postwrite-footprint-v2-run-status.json` | `sha256:e112342126773ebaba7719f5e92539a814a71d6b79207ba2ddc63e96b48779a7` |
+| Full-grid parity proof | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2x1ugm-1z4g-after-postwrite-footprint-proof-v2.json` | `sha256:527973a4a5ed0b23b506dd780accb3fec777dbeea1dde610161c605beed80294`, `proofHash:3c47392d308a071cc128f6dc3d35567adf6b2bdd11249e2c34275dbe7d6402a3` |
+
+Exact `log.naturalWonderPlacement` remains authoritative and reports
+`plannedCount:7`, `placedCount:5`, `rejectedCount:2`. The rejected examples now
+carry requested direction, resolved elevation, complete expected-footprint
+readback, and the partial label:
+
+- Kilimanjaro: `feature=35 plot=1320 direction=0 elevation=21 reason=readback-mismatch observedPlot=1427 observedFeature=-1 footprint=1320:35,1427:-1,1321:35 readback=partial-expected-footprint`
+- Zhangjiajie: `feature=36 plot=2171 direction=0 elevation=32 reason=readback-mismatch observedPlot=2278 observedFeature=-1 footprint=2171:36,2278:-1 readback=partial-expected-footprint`
+
+The full-grid proof remains `unresolved`: terrain has `1/6996` mismatch, biome
+has `0`, feature has `5/6996`, and resource has `61/6996`, with unresolved
+links `surface.terrain.mismatch`, `surface.feature.mismatch`,
+`surface.resource.mismatch`, and `resource-placement-coordinate-proof.placed`.
+The verifier's local generation block still reports natural-wonder
+`placedCount:7` / `rejectedCount:0`; that is structured local parity evidence,
+not the exact live placement result. The readback-mismatch vector above is the
+exact-authored log evidence.
+
+Disposition:
+the v2 artifact proves the new proof contract is consumed by a fresh exact run.
+It narrows the natural-wonder question to the owner of a partial expected
+footprint after `TerrainBuilder.setFeatureType`: either the repo's local
+footprint projection/readback oracle must be changed, or this is a Civ engine
+natural-wonder materialization semantic that must be accepted as a classified
+residual. This artifact does not itself choose that owner, does not close
+natural-wonder repair, and does not close feature parity, final-surface parity,
+Earthlike acceptance, product acceptance, generated-output ownership, or
+mountain-quality work.
+
 ## Required Next Diagnostics
 
 - Classify the natural-wonder expected-empty footprint/readback owner from the
-  fresh exact `mq2w5548` proof: compare the expected empty plots `1427` and
-  `2278` to supported footprint alternatives, final live feature cells, and
-  adapter readback semantics before assigning repair authority. A valid repair
-  lane needs either complete post-write footprint telemetry or an explicit
-  source-authority disposition explaining why the current adapter readback
-  oracle is wrong for Civ materialization.
+  fresh exact `mq2x1ugm` proof: compare the partial expected-footprint vectors
+  (`1320:35,1427:-1,1321:35` and `2171:36,2278:-1`) to supported footprint
+  alternatives, final live feature cells, and adapter readback semantics before
+  assigning repair authority. A valid repair lane needs an explicit
+  source-authority disposition explaining whether the current adapter readback
+  oracle is wrong for Civ materialization or whether Civ's footprint behavior
+  should be classified as residual.
 - Add or bind exact live feature-apply telemetry/readback before repairing the
   cold-reef local-only row.
 - Continue resource-row classification using source-recorded coordinate proof
