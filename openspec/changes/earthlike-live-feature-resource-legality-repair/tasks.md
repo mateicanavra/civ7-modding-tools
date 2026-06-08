@@ -123,6 +123,10 @@
     `[mapgen-complete]`, exact-authorship packet, final-surface parity proof,
     or product acceptance proof was produced.
 - [ ] 2.42 Repair remaining proven package or MapGen owners.
+  - Current branch `codex/swooper-map-elevation-drift-policy-drain` repairs the
+    locally proven map-elevation owner mismatch: `buildElevation` now applies
+    the accepted bounded water-drift policy instead of the strict no-drift
+    assert. Focused local tests/checks pass, but runtime proof is still pending.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
@@ -146,6 +150,9 @@
     It proves restart retry/status classification behavior and proves the
     generated map-script load blocker is cleared, but remains a runtime map
     generation blocker rather than final-surface parity proof.
+  - Current branch locally repairs that blocker through the accepted
+    map-elevation bounded drift policy. No post-repair Studio/Civ rerun has
+    been completed yet.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after
