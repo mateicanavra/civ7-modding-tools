@@ -345,8 +345,8 @@ the artifact before row-level feasibility evidence is accepted.
 
 Artifact:
 `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-(`sha256:2bca5814bebfc2c8fafba2dac6401dd064d16bf46962f4a42958a913f3ed68d5`,
-`proofHash:37a2b5378689bb2af04b065be012e15598d020d41f51f8b3d1413eb9f6368875`).
+(`sha256:8770c7f465358a97be9213bbbcbf3ac106efbe34cd9d8745e94cb229176acd55`,
+`proofHash:4bb5f364bcf6e3b76ad89712aaf285ca006a1543f48a5dd318947a6a5e98b597`).
 
 Source proof:
 `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`.
@@ -390,9 +390,9 @@ with local legal plot counts between `66` and `554`. ResourceBuilder
 diagnostics are read through
 `getCiv7ResourceBuilderDiagnostics` in the runtime-bound full artifact:
 sha256
-`2bca5814bebfc2c8fafba2dac6401dd064d16bf46962f4a42958a913f3ed68d5`,
+`8770c7f465358a97be9213bbbcbf3ac106efbe34cd9d8745e94cb229176acd55`,
 proofHash
-`37a2b5378689bb2af04b065be012e15598d020d41f51f8b3d1413eb9f6368875`.
+`4bb5f364bcf6e3b76ad89712aaf285ca006a1543f48a5dd318947a6a5e98b597`.
 The source assignment-evidence artifact has sha256
 `ff4aec0701cbeeb031737b68d93a0a48e9168313ef983cc30a3df91cff6f08ab`
 and proofHash
@@ -454,6 +454,41 @@ authored run. The ResourceBuilder counts remain current post-materialization
 readback; no scarce-floor repair, resource tuning, parity closure, Earthlike
 acceptance, or product-proof claim is authorized from this context.
 
+Same-resource position context:
+
+The full artifact now greedily pairs each local-authored resource delta row to
+the nearest unmatched live delta row carrying the same resource type. This is a
+position classifier over observed local/live final surfaces; it does not prove
+the internal Civ placement order.
+
+| Finding | Count / value | Source-authority implication |
+|---|---:|---|
+| Local-authored resource delta rows | `69` | Same population as the assignment/distribution summaries. |
+| Same-resource live delta matches | `69` | Every local-authored delta resource reappears elsewhere in the live delta set. |
+| Unmatched local-authored resource rows | `0` | Missing resource instances are not supported for these rows. |
+| Match distance min / p50 / p90 / max | `2 / 27 / 46 / 59` | The displacement is global, not a small local neighbor swap. |
+| Matches at distance `11+` | `53` | Most matching live instances are far from the local-authored coordinate. |
+| Match targets: live-only / substitution | `37 / 32` | Same-resource matches land across both live-only and substituted live rows. |
+
+Match class summary:
+
+| Local feasibility class -> matched live feasibility class | Count |
+|---|---:|
+| `local-feasible-live-empty -> live-feasible-no-local-assignment` | `19` |
+| `local-feasible-live-empty -> substitution-both-feasible` | `9` |
+| `local-overaccepted-live-empty -> live-feasible-no-local-assignment` | `3` |
+| `local-overaccepted-live-empty -> substitution-both-feasible` | `5` |
+| `local-overaccepted-live-empty -> substitution-both-infeasible` | `1` |
+| `substitution-both-feasible -> live-feasible-no-local-assignment` | `14` |
+| `substitution-both-feasible -> substitution-both-feasible` | `17` |
+| `substitution-both-infeasible -> live-feasible-no-local-assignment` | `1` |
+
+Disposition: combined with matched per-resource counts, this points away from
+resource density, missing instances, or broad count/quota mismatch and toward
+positional cut/order/materialization behavior. It remains diagnostic context
+only; no resource placement repair or product claim is authorized until source
+ownership is classified.
+
 | Coordinate | Plot | Local resource | Planned preferred | Assignment order context | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility | ResourceBuilder policy/cut/count diagnostics | Subclassification |
 |---|---:|---|---|---|---|---|---|---|---|---|---|
 | `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `scarce-floor`; order `23`; count before `2/7`; legal plots `88`; no rebalance | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `6` | `elev416 rain185 fert2 area131073 region65536 landmass131073` | false | cut excludes local; class `BONUS`; min `3`; target `7`; count `8`; required false | `scarce-floor-cut-excluded` |
@@ -495,9 +530,10 @@ readback is post-materialization.
 The assignment-class summary further shows scarce-floor accounts for `64/69`
 local-authored resource delta rows, and the distribution context shows local
 assigned counts match current ResourceBuilder counts for all `26` represented
-local resource types. The next owner decision should therefore evaluate
-positional cut/order/materialization behavior before making any
-resource-placement repair.
+local resource types. The same-resource position context then matches all `69`
+local-authored delta resources to same-resource live delta rows, mostly at long
+distance. The next owner decision should therefore evaluate positional
+cut/order/materialization behavior before making any resource-placement repair.
 
 ## Required Next Diagnostics
 
