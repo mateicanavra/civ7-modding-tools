@@ -94,6 +94,13 @@ describe("Run in Game operation store", () => {
   it("surfaces Civ notification dismissal recovery for start-phase map script load failures", () => {
     const { store } = createStore();
     store.create("request-1");
+    store.update("request-1", {
+      phase: "restarting-civ",
+      processRestart: {
+        command: "open steam://rungameid/1295660",
+        launchAttempts: [{ attempt: 1, processStart: { started: true } }],
+      },
+    });
     const failed = store.fail("request-1", "starting-game", new RunInGameHttpError(500, "Civ7 could not load generated map script", {
       code: "map-script-load-failed",
       dismissNotificationRequired: true,
@@ -103,6 +110,10 @@ describe("Run in Game operation store", () => {
     expect(failed.status).toBe("failed");
     expect(failed.phase).toBe("failed");
     expect(failed.details?.phase).toBe("starting-game");
+    expect(failed.processRestart).toMatchObject({
+      command: "open steam://rungameid/1295660",
+      launchAttempts: [{ attempt: 1, processStart: { started: true } }],
+    });
     expect(failed.recoveryActions).toContain("dismiss-civ-notification-and-retry");
   });
 

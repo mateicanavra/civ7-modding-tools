@@ -48,6 +48,10 @@ If Run in Game blocks because Civ setup cannot see a disposable row after an
 exit-to-shell refresh, Studio records `reloadBoundary:
 process-restart-required`. The primary action becomes `Restart Civ & Run`, which
 reissues a fresh Run in Game request with explicit process-restart recovery.
+During process-restart recovery, Studio must treat Steam launch completion as a
+request to launch, not proof that Civ is alive. It retries the Steam launch until
+the Civ process is observed or the bounded launch retry window is exhausted, and
+records the launch attempts in the restart status payload.
 If Civ emits a fatal generated-script load notification during start, Studio
 records `recoveryBoundary: civ-notification-dismiss`; this is a different
 recovery surface from process restart and should not be collapsed into row

@@ -24,6 +24,8 @@
   provenance rather than browser-preview dirtiness alone.
 - [x] 2.11 Classify fresh map-script load failures during Run in Game
   `starting-game` instead of reducing them to generic setup start timeouts.
+- [x] 2.12 Retry Steam launch during explicit process-restart recovery until the
+  Civ process is observed or bounded launch attempts are exhausted.
 
 ## 3. Verification
 
@@ -37,6 +39,7 @@
 - [x] 3.7 Probe the live save-route lifecycle rejection and status endpoint.
 - [x] 3.8 Add focused operation-state regression for start-phase map-script
   load failures.
+- [x] 3.9 Add focused macOS restart-launch retry regressions.
 
 ## 4. Closure
 

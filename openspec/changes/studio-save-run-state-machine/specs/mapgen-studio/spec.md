@@ -80,6 +80,14 @@ newly deployed disposable setup row.
 - **THEN** Studio offers `Restart Civ & Run` as the primary launch action
 - **AND** the next launch request records explicit process-restart recovery
 
+#### Scenario: Steam launch returns before Civ process is alive
+- **WHEN** a process-restart recovery request relaunches Civ through Steam
+- **AND** the Steam open command returns without an observable Civ process
+- **THEN** Studio retries the Steam launch within a bounded retry window
+- **AND** records the launch attempts in the restart status payload
+- **AND** fails the operation if Civ still does not start after the bounded
+  attempts
+
 ### Requirement: Start-Phase Map Script Load Failures Are Classified
 
 Mapgen Studio SHALL preserve the fatal generated-map-script load boundary even

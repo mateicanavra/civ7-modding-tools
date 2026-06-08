@@ -44,7 +44,10 @@ import {
   parseSwooperMapgenLogProof,
 } from "./src/server/runInGame/proofIdentity";
 import { parseRunInGameSetupRequest } from "./src/server/runInGame/requestValidation";
-import { shutdownCiv7MacProcess } from "./src/server/runInGame/macosProcessRestart";
+import {
+  launchCiv7MacViaSteamWithRetries,
+  shutdownCiv7MacProcess,
+} from "./src/server/runInGame/macosProcessRestart";
 import { buildSwooperMapsStudioDeployCommand } from "./src/server/mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "./src/server/mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValidation";
@@ -64,6 +67,10 @@ const CIV7_PROCESS_FORCE_KILL_TIMEOUT_MS = 15_000;
 const CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS = 180_000;
 const CIV7_PROCESS_RESTART_POLL_INTERVAL_MS = 2_000;
 const CIV7_PROCESS_EXIT_STABLE_POLLS = 2;
+const CIV7_PROCESS_LAUNCH_COMMAND_TIMEOUT_MS = 10_000;
+const CIV7_PROCESS_LAUNCH_START_TIMEOUT_MS = 20_000;
+const CIV7_PROCESS_LAUNCH_ATTEMPTS = 6;
+const CIV7_PROCESS_LAUNCH_RETRY_DELAY_MS = 5_000;
 const STUDIO_SERVER_STARTED_AT = new Date().toISOString();
 const STUDIO_SERVER_INSTANCE_ID = createCiv7ControlRequestId("studio-server");
 
@@ -115,6 +122,7 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   forceKill?: { command: string; stdout: string; stderr: string };
   shutdown: Awaited<ReturnType<typeof shutdownCiv7MacProcess>>;
   launch: { command: string; stdout: string; stderr: string };
+  launchAttempts: Awaited<ReturnType<typeof launchCiv7MacViaSteamWithRetries>>["attempts"];
   setupPhase?: string;
 }> {
   if (process.platform !== "darwin") {
@@ -133,11 +141,20 @@ async function restartCiv7ProcessViaSteam(): Promise<{
     stableAbsentPolls: CIV7_PROCESS_EXIT_STABLE_POLLS,
   });
 
-  const launchCommand = `open steam://rungameid/${CIV7_STEAM_APP_ID}`;
-  const launch = await execFileAsync("open", [`steam://rungameid/${CIV7_STEAM_APP_ID}`], {
-    timeout: 10_000,
-    maxBuffer: 1024 * 1024,
+  const steamLaunch = await launchCiv7MacViaSteamWithRetries({
+    execFileAsync,
+    sleep,
+    tail,
+    steamAppId: CIV7_STEAM_APP_ID,
+    processPattern: CIV7_PROCESS_PATTERN,
+    launchCommandTimeoutMs: CIV7_PROCESS_LAUNCH_COMMAND_TIMEOUT_MS,
+    processStartTimeoutMs: CIV7_PROCESS_LAUNCH_START_TIMEOUT_MS,
+    pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
+    maxLaunchAttempts: CIV7_PROCESS_LAUNCH_ATTEMPTS,
+    retryDelayMs: CIV7_PROCESS_LAUNCH_RETRY_DELAY_MS,
   });
+  const launch = steamLaunch.attempts[steamLaunch.attempts.length - 1]?.launch;
+  if (!launch) throw new Error("Civ7 Steam launch did not record an attempt");
 
   const startedAt = Date.now();
   let setupPhase: string | undefined;
@@ -157,12 +174,13 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   }
 
   return {
-    command: `${shutdown.quit.command} && ${launchCommand}`,
+    command: `${shutdown.quit.command} && ${steamLaunch.command}`,
     quit: shutdown.quit,
     ...(shutdown.kill === undefined ? {} : { kill: shutdown.kill }),
     ...(shutdown.forceKill === undefined ? {} : { forceKill: shutdown.forceKill }),
     shutdown,
-    launch: { command: launchCommand, stdout: tail(launch.stdout), stderr: tail(launch.stderr) },
+    launch,
+    launchAttempts: steamLaunch.attempts,
     setupPhase,
   };
 }
@@ -817,6 +835,7 @@ export default defineConfig(({ command }) => ({
                   phase = "restarting-civ";
                   runInGameOperations.update(requestId, { phase, materialization });
                   processRestart = await restartCiv7ProcessViaSteam();
+                  runInGameOperations.update(requestId, { phase, materialization, processRestart });
                 }
 
                 phase = "checking-civ7";

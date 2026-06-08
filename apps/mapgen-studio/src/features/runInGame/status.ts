@@ -66,6 +66,12 @@ export type RunInGameRequestStatus = Readonly<{
   sourceSnapshot?: RunInGameSourceSnapshotProof;
 }>;
 
+export type RunInGameProcessRestartStatus = Readonly<{
+  command?: string;
+  launchAttempts?: unknown;
+  [key: string]: unknown;
+}>;
+
 export type RunInGameFailureDetails = Readonly<{
   failureClass?: string;
   code?: string;
@@ -187,6 +193,7 @@ export type RunInGameOperationStatus = Readonly<{
   completedPhases: ReadonlyArray<RunInGamePhase>;
   request?: RunInGameRequestStatus;
   materialization?: RunInGameMaterializationStatus;
+  processRestart?: RunInGameProcessRestartStatus;
   exactAuthorshipProof?: RunInGameExactAuthorshipProof;
   error?: string;
   details?: RunInGameFailureDetails;
@@ -284,6 +291,7 @@ export function formatRunInGameDiagnostics(status: RunInGameOperationStatus): st
     completedPhases: status.completedPhases,
     request: status.request,
     materialization: status.materialization,
+    processRestart: status.processRestart,
     exactAuthorshipProof: status.exactAuthorshipProof,
     error: status.error,
     details: status.details,

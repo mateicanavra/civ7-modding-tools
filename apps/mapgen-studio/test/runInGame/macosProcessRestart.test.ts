@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  launchCiv7MacViaSteamWithRetries,
   shutdownCiv7MacProcess,
   waitForMacProcessExit,
+  waitForMacProcessStart,
   type ExecFileAsync,
 } from "../../src/server/runInGame/macosProcessRestart";
 
@@ -52,6 +54,67 @@ describe("macOS Civ7 process restart helpers", () => {
       polls: 5,
       stableAbsentPolls: 2,
     });
+  });
+
+  it("waits until the Civ process starts after launch", async () => {
+    const harness = createHarness([false, false, true]);
+
+    const result = await waitForMacProcessStart({
+      execFileAsync: harness.execFileAsync,
+      sleep: harness.sleep,
+      now: harness.now,
+      processPattern: "CivilizationVII.app/Contents/MacOS/CivilizationVII",
+      timeoutMs: 10_000,
+      pollIntervalMs: 1_000,
+    });
+
+    expect(result).toMatchObject({
+      started: true,
+      polls: 3,
+      elapsedMs: 2_000,
+    });
+  });
+
+  it("retries Steam launch when open succeeds but Civ does not start", async () => {
+    const harness = createHarness([false, true]);
+
+    const result = await launchCiv7MacViaSteamWithRetries({
+      execFileAsync: harness.execFileAsync,
+      sleep: harness.sleep,
+      now: harness.now,
+      tail: (value) => value,
+      steamAppId: "1295660",
+      processPattern: "CivilizationVII.app/Contents/MacOS/CivilizationVII",
+      launchCommandTimeoutMs: 10_000,
+      processStartTimeoutMs: 0,
+      pollIntervalMs: 1_000,
+      maxLaunchAttempts: 2,
+      retryDelayMs: 500,
+    });
+
+    expect(result.command).toBe("open steam://rungameid/1295660 (2 attempts)");
+    expect(result.attempts.map((attempt) => attempt.processStart.started)).toEqual([false, true]);
+    expect(harness.calls.filter((call) => call.file === "open")).toHaveLength(2);
+  });
+
+  it("throws when Steam never starts the Civ process", async () => {
+    const harness = createHarness([false, false]);
+
+    await expect(launchCiv7MacViaSteamWithRetries({
+      execFileAsync: harness.execFileAsync,
+      sleep: harness.sleep,
+      now: harness.now,
+      tail: (value) => value,
+      steamAppId: "1295660",
+      processPattern: "CivilizationVII.app/Contents/MacOS/CivilizationVII",
+      launchCommandTimeoutMs: 10_000,
+      processStartTimeoutMs: 0,
+      pollIntervalMs: 1_000,
+      maxLaunchAttempts: 2,
+      retryDelayMs: 500,
+    })).rejects.toThrow("Civ7 process did not start after 2 Steam launch attempt");
+
+    expect(harness.calls.filter((call) => call.file === "open")).toHaveLength(2);
   });
 
   it("escalates to pkill and waits before returning from shutdown", async () => {

@@ -17,6 +17,12 @@ export type WaitForMacProcessExitResult = {
   stableAbsentPolls: number;
 };
 
+export type WaitForMacProcessStartResult = {
+  started: boolean;
+  elapsedMs: number;
+  polls: number;
+};
+
 export type Civ7MacProcessShutdownResult = {
   quit: CommandOutput;
   gracefulExit: WaitForMacProcessExitResult;
@@ -38,6 +44,43 @@ export type Civ7MacProcessShutdownOptions = {
   pollIntervalMs: number;
   stableAbsentPolls: number;
 };
+
+export type Civ7MacSteamLaunchAttempt = {
+  attempt: number;
+  command: string;
+  launch: CommandOutput;
+  processStart: WaitForMacProcessStartResult;
+};
+
+export type Civ7MacSteamLaunchResult = {
+  command: string;
+  attempts: Civ7MacSteamLaunchAttempt[];
+  processStart: WaitForMacProcessStartResult;
+};
+
+export type Civ7MacSteamLaunchOptions = {
+  execFileAsync: ExecFileAsync;
+  sleep: (ms: number) => Promise<void>;
+  tail: (value: string) => string;
+  now?: () => number;
+  steamAppId: string;
+  processPattern: string;
+  launchCommandTimeoutMs: number;
+  processStartTimeoutMs: number;
+  pollIntervalMs: number;
+  maxLaunchAttempts: number;
+  retryDelayMs: number;
+};
+
+export class Civ7MacSteamLaunchError extends Error {
+  constructor(
+    message: string,
+    readonly attempts: Civ7MacSteamLaunchAttempt[],
+  ) {
+    super(message);
+    this.name = "Civ7MacSteamLaunchError";
+  }
+}
 
 function commandOutput(command: string, stdout: string, stderr: string, tail: (value: string) => string): CommandOutput {
   return { command, stdout: tail(stdout), stderr: tail(stderr) };
@@ -77,6 +120,38 @@ export async function isMacProcessRunning(
   }
 }
 
+export async function waitForMacProcessStart(options: {
+  execFileAsync: ExecFileAsync;
+  sleep: (ms: number) => Promise<void>;
+  now?: () => number;
+  processPattern: string;
+  timeoutMs: number;
+  pollIntervalMs: number;
+}): Promise<WaitForMacProcessStartResult> {
+  const now = options.now ?? Date.now;
+  const startedAt = now();
+  let polls = 0;
+
+  while (now() - startedAt <= options.timeoutMs) {
+    polls += 1;
+    const running = await isMacProcessRunning(options.execFileAsync, options.processPattern);
+    if (running) {
+      return {
+        started: true,
+        elapsedMs: now() - startedAt,
+        polls,
+      };
+    }
+    await options.sleep(options.pollIntervalMs);
+  }
+
+  return {
+    started: false,
+    elapsedMs: now() - startedAt,
+    polls,
+  };
+}
+
 export async function waitForMacProcessExit(options: {
   execFileAsync: ExecFileAsync;
   sleep: (ms: number) => Promise<void>;
@@ -112,6 +187,52 @@ export async function waitForMacProcessExit(options: {
     polls,
     stableAbsentPolls,
   };
+}
+
+export async function launchCiv7MacViaSteamWithRetries(
+  options: Civ7MacSteamLaunchOptions,
+): Promise<Civ7MacSteamLaunchResult> {
+  const launchCommand = `open steam://rungameid/${options.steamAppId}`;
+  const attempts: Civ7MacSteamLaunchAttempt[] = [];
+  const maxLaunchAttempts = Math.max(1, Math.floor(options.maxLaunchAttempts));
+
+  for (let attempt = 1; attempt <= maxLaunchAttempts; attempt += 1) {
+    const launch = await options.execFileAsync("open", [`steam://rungameid/${options.steamAppId}`], {
+      timeout: options.launchCommandTimeoutMs,
+      maxBuffer: 1024 * 1024,
+    });
+    const processStart = await waitForMacProcessStart({
+      execFileAsync: options.execFileAsync,
+      sleep: options.sleep,
+      now: options.now,
+      processPattern: options.processPattern,
+      timeoutMs: options.processStartTimeoutMs,
+      pollIntervalMs: options.pollIntervalMs,
+    });
+    attempts.push({
+      attempt,
+      command: launchCommand,
+      launch: commandOutput(launchCommand, launch.stdout, launch.stderr, options.tail),
+      processStart,
+    });
+
+    if (processStart.started) {
+      return {
+        command: attempts.length === 1 ? launchCommand : `${launchCommand} (${attempts.length} attempts)`,
+        attempts,
+        processStart,
+      };
+    }
+
+    if (attempt < maxLaunchAttempts) {
+      await options.sleep(options.retryDelayMs);
+    }
+  }
+
+  throw new Civ7MacSteamLaunchError(
+    `Civ7 process did not start after ${attempts.length} Steam launch attempt(s)`,
+    attempts,
+  );
 }
 
 async function runPossiblyEmptyPkill(
