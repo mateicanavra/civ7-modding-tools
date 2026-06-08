@@ -534,6 +534,7 @@ export type Civ7ResourceBuilderDiagnosticsCell = Readonly<{
 
 export type Civ7ResourceBuilderDiagnosticsInput = Readonly<{
   cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput>;
+  resourceTypes?: ReadonlyArray<number>;
   maxCells?: number;
   maxResourceTypesPerCell?: number;
 }>;
@@ -1796,6 +1797,7 @@ export async function getCiv7ResourceBuilderDiagnostics(
     "maxResourceTypesPerCell",
   );
   validateResourcePlacementFeasibilityInput(input, maxCells, maxResourceTypesPerCell);
+  const requestedResourceTypes = uniqueBoundedResourceTypes(input.resourceTypes ?? []);
   const result = await executeCiv7TunerCommand({
     ...options,
     command: buildResourceBuilderDiagnosticsCommand({
@@ -1804,6 +1806,7 @@ export async function getCiv7ResourceBuilderDiagnostics(
         resourceTypes: cell.resourceTypes.slice(0, maxResourceTypesPerCell),
         requestedResourceTypeCount: cell.resourceTypes.length,
       })),
+      resourceTypes: requestedResourceTypes,
       requestedCellCount: input.cells.length,
       maxResourceTypesPerCell,
     }),
@@ -3220,6 +3223,7 @@ function buildResourceBuilderDiagnosticsCommand(input: {
   cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput & {
     requestedResourceTypeCount: number;
   }>;
+  resourceTypes: ReadonlyArray<number>;
   requestedCellCount: number;
   maxResourceTypesPerCell: number;
 }): string {
@@ -3260,7 +3264,7 @@ function buildResourceBuilderDiagnosticsCommand(input: {
       const hash = row?.$hash ?? row?.Hash;
       if (Number.isInteger(hash)) resourceRowsByHash.set(hash, row);
     }
-    const resourceTypes = [...new Set(input.cells.flatMap((cell) => cell.resourceTypes))].sort((left, right) => left - right);
+    const resourceTypes = [...new Set([...input.resourceTypes, ...input.cells.flatMap((cell) => cell.resourceTypes)])].sort((left, right) => left - right);
     const counts = probe(() => rb.getResourceCounts());
     const readCount = (resourceType) => {
       if (!counts.ok || !Array.isArray(counts.value)) return counts.ok ? { ok: false, error: "ResourceBuilder.getResourceCounts did not return an array" } : counts;
@@ -4353,6 +4357,17 @@ function validateResourcePlacementFeasibilityInput(
       boundedInteger(resourceType, 0, 1_000_000, "resourceType");
     }
   }
+}
+
+function uniqueBoundedResourceTypes(resourceTypes: ReadonlyArray<number>): number[] {
+  if (resourceTypes.length > HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL) {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      `ResourceBuilder diagnostic resource type lists must not exceed ${HARD_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL} entries`,
+    );
+  }
+  return [...new Set(resourceTypes.map((resourceType) => boundedInteger(resourceType, 0, 1_000_000, "resourceType")))]
+    .sort((left, right) => left - right);
 }
 
 export function planCiv7MapGridReadBounds(

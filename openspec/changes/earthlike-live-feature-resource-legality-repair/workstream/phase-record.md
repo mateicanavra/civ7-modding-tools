@@ -5,14 +5,17 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-assignment-summary-drain`
-  stacked above `codex/swooper-resource-builder-policy-context-drain`
+- Branch/Graphite stack: `codex/swooper-resource-distribution-context-drain`
+  stacked above `codex/swooper-resource-assignment-summary-drain`; this slice
+  carries ResourceBuilder distribution-count context for the represented local
+  resource delta types.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
   feasibility plus row/static-policy/live-plot, assignment-order, and
   ResourceBuilder diagnostic/subclassification/policy context plus
-  assignment-class summary now narrows the next resource repair class.
+  assignment-class and distribution-count summaries now narrow the next
+  resource repair class.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -139,8 +142,8 @@
   plot count, seed, turn, or game hash do not match the saved proof identity.
   The current full feasibility artifact is
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-  (`sha256:fe54e81bf3aeb88f8f2831791ef5934ea0c0fcc7eed5313af5a1ea4c4506414d`,
-  `proofHash:97fdbff7b48641fa1a18d4cb9c386e1f4e7a18c0f01fb283dded58a9286b3f04`).
+  (`sha256:2bca5814bebfc2c8fafba2dac6401dd064d16bf46962f4a42958a913f3ed68d5`,
+  `proofHash:37a2b5378689bb2af04b065be012e15598d020d41f51f8b3d1413eb9f6368875`).
   Request identity resolves to `studio-run-in-game-mq20rbzr-1fhc`; runtime
   identity is matched to the saved proof at `106x66`, `6996` plots, seed
   `138503614`, turn `1`, and game hash `0`. The artifact preserves the
@@ -186,9 +189,9 @@
   current regenerated runtime-bound artifact
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
   has sha256
-  `fe54e81bf3aeb88f8f2831791ef5934ea0c0fcc7eed5313af5a1ea4c4506414d`
+  `2bca5814bebfc2c8fafba2dac6401dd064d16bf46962f4a42958a913f3ed68d5`
   and proofHash
-  `97fdbff7b48641fa1a18d4cb9c386e1f4e7a18c0f01fb283dded58a9286b3f04`.
+  `37a2b5378689bb2af04b065be012e15598d020d41f51f8b3d1413eb9f6368875`.
   It keeps the exact-authored source proof hash
   `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`
   and reads ResourceBuilder diagnostics for the `9` focused cells with `0`
@@ -215,9 +218,9 @@
   The regenerated resource feasibility artifact
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
   has sha256
-  `fe54e81bf3aeb88f8f2831791ef5934ea0c0fcc7eed5313af5a1ea4c4506414d`
+  `2bca5814bebfc2c8fafba2dac6401dd064d16bf46962f4a42958a913f3ed68d5`
   and proofHash
-  `97fdbff7b48641fa1a18d4cb9c386e1f4e7a18c0f01fb283dded58a9286b3f04`.
+  `37a2b5378689bb2af04b065be012e15598d020d41f51f8b3d1413eb9f6368875`.
   The `9` focused rows are all scarce-floor assignments made before their local
   resource type reached the floor target (`targetMinPerType:7`), with local
   legal plot counts between `66` and `554`. This proves the local reason those
@@ -257,6 +260,27 @@
   question from a 9-row legality anomaly to a scarce-floor assignment policy
   divergence across most local-authored resource deltas, while still not
   authorizing a repair without an owner decision.
+- Resource distribution context progress:
+  `getCiv7ResourceBuilderDiagnostics` now accepts a bounded metadata-only
+  resource type list so the verifier can read official rows/counts for all
+  locally assigned delta resource types without widening expensive per-cell
+  cut/feasibility probes beyond the `9` focused rows. The regenerated
+  runtime-bound full artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
+  has sha256
+  `2bca5814bebfc2c8fafba2dac6401dd064d16bf46962f4a42958a913f3ed68d5`
+  and proofHash
+  `37a2b5378689bb2af04b065be012e15598d020d41f51f8b3d1413eb9f6368875`.
+  It records `26` local resource types across `69` local-authored delta rows.
+  For all `26`, local assigned count equals current ResourceBuilder count
+  (`assignedMinusResourceBuilderCount:0`), while `25/26` still have local
+  `targetMinPerType:7` above official `MinimumPerHemisphere` by `4`
+  (`RESOURCE_SILVER` is below its official minimum by `1`). This weakens broad
+  per-resource count mismatch as the remaining owner and moves the next source
+  authority question toward positional cut/order/materialization behavior. The
+  ResourceBuilder counts remain current post-materialization readback and do
+  not authorize scarce-floor, resource tuning, parity closure, Earthlike
+  acceptance, or product-proof claims.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -275,11 +299,14 @@
   local value came from the scarce-floor quota pass and that the local floor
   target exceeds the official minimum-per-hemisphere. The assignment-class
   summary also shows scarce-floor accounts for `64/69` local-authored resource
-  delta rows overall. However, the current ResourceBuilder rejection facts are
-  still post-materialization readback. No resource tuning, static-policy repair,
-  scarce-floor repair, or assignment-order repair is authorized until those
-  subclasses are assigned to a concrete source owner. The single substitution
-  row where both probed values are infeasible remains an individual evidence row
-  with no repair authority until row-level context assigns source ownership.
+  delta rows overall, while the resource distribution context shows local
+  assigned counts match current ResourceBuilder counts for all `26` local
+  resource types represented by those deltas. However, the current
+  ResourceBuilder facts are still post-materialization readback. No resource
+  tuning, static-policy repair, scarce-floor repair, or assignment-order repair
+  is authorized until those subclasses are assigned to a concrete source owner.
+  The single substitution row where both probed values are infeasible remains an
+  individual evidence row with no repair authority until row-level context
+  assigns source ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.
