@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyCiv7MapgenLogFailure } from "../../src/server/runInGame/logFailure";
+import {
+  classifyCiv7MapgenLogFailure,
+  waitForCiv7MapgenLogFailure,
+} from "../../src/server/runInGame/logFailure";
 
 describe("Civ7 mapgen log failure classifier", () => {
   it("classifies missing generated map scripts as notification-dismiss retry failures", () => {
@@ -40,5 +43,32 @@ describe("Civ7 mapgen log failure classifier", () => {
 
   it("ignores unrelated log text", () => {
     expect(classifyCiv7MapgenLogFailure("ordinary shell log text")).toBeUndefined();
+  });
+
+  it("waits briefly for a delayed fatal map script log line", async () => {
+    let nowMs = 0;
+    let reads = 0;
+
+    const failure = await waitForCiv7MapgenLogFailure({
+      readFreshLogText: async () => {
+        reads += 1;
+        return reads < 3
+          ? "ordinary shell log text"
+          : "[2026-06-07 05:58:53]\tFailed to load file into script system - fs://game/swooper-maps/maps/studio-current.js";
+      },
+      sleep: async (ms) => {
+        nowMs += ms;
+      },
+      now: () => nowMs,
+      timeoutMs: 1_000,
+      pollIntervalMs: 250,
+      mapScript: "{swooper-maps}/maps/studio-current.js",
+    });
+
+    expect(failure).toMatchObject({
+      code: "map-script-load-failed",
+      mapScript: "{swooper-maps}/maps/studio-current.js",
+    });
+    expect(reads).toBe(3);
   });
 });

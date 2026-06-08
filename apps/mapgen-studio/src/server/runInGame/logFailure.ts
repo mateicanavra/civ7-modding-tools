@@ -55,3 +55,27 @@ export function classifyCiv7MapgenLogFailure(
 
   return undefined;
 }
+
+export async function waitForCiv7MapgenLogFailure(options: {
+  readFreshLogText: () => Promise<string>;
+  sleep: (ms: number) => Promise<void>;
+  timeoutMs: number;
+  pollIntervalMs: number;
+  now?: () => number;
+  mapScript?: string;
+}): Promise<Civ7MapgenLogFailure | undefined> {
+  const now = options.now ?? Date.now;
+  const deadline = now() + Math.max(0, options.timeoutMs);
+
+  while (true) {
+    const failure = classifyCiv7MapgenLogFailure(
+      await options.readFreshLogText().catch(() => ""),
+      { mapScript: options.mapScript },
+    );
+    if (failure) return failure;
+
+    const remainingMs = deadline - now();
+    if (remainingMs <= 0) return undefined;
+    await options.sleep(Math.min(Math.max(1, options.pollIntervalMs), remainingMs));
+  }
+}

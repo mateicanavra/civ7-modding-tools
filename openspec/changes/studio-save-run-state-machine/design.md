@@ -55,7 +55,11 @@ records the launch attempts in the restart status payload.
 If Civ emits a fatal generated-script load notification during start, Studio
 records `recoveryBoundary: civ-notification-dismiss`; this is a different
 recovery surface from process restart and should not be collapsed into row
-visibility.
+visibility. The fresh-log classifier uses a short bounded grace window after
+start/proof control failures because Civ can write the fatal map-generation log
+line just after the direct-control timeout resolves. It also treats same-size
+`Scripting.log` rewrites as fresh content, because Civ can truncate and rewrite
+the log to the same byte length during restart and map-generation failure.
 
 ## Vite/Turbo
 

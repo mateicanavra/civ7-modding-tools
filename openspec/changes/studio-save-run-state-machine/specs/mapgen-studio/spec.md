@@ -98,3 +98,21 @@ when Civ reports it while Run in Game is still starting the prepared game.
 - **AND** the fresh Scripting log contains a generated map script load failure
 - **THEN** the operation status records `map-script-load-failed`
 - **AND** the recovery actions include `dismiss-civ-notification-and-retry`
+
+#### Scenario: Fatal script load line trails the control timeout
+- **WHEN** Run in Game start or proof control returns a timeout
+- **AND** Civ writes a generated map script load failure shortly after that
+  timeout
+- **THEN** Studio waits through a bounded fresh-log grace window before
+  classifying the failure
+- **AND** records the generated script load boundary instead of a generic
+  timeout when that line appears within the grace window
+
+#### Scenario: Civ rewrites Scripting.log at the same byte length
+- **WHEN** Run in Game compares the current `Scripting.log` to its pre-run
+  snapshot
+- **AND** Civ has rewritten the log with a newer modification time but the same
+  byte length
+- **THEN** Studio treats the rewritten log contents as fresh
+- **AND** fatal map-generation lines in that rewritten log can classify the
+  operation status
