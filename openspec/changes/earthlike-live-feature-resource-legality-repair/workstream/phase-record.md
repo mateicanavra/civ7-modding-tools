@@ -1102,11 +1102,20 @@
   `381`, resource `308`, and resource coordinate proof placed/rejected links.
   This is proof narrowing only: exact feature-apply legality is no longer a
   broad blocker, but final-surface parity and product acceptance remain open.
+  Current implementation now extends `RESOURCE_PLACEMENT_V1` with bounded
+  resource rejection examples and parses them into Studio exact-authorship
+  resource placement stats. This is the resource equivalent of the
+  natural-wonder proof-contract repairs: it should let the next exact run name
+  the one currently rejected resource row instead of carrying only count/hash
+  evidence. It does not change resource placement behavior, scarce-floor
+  assignment, ResourceBuilder policy, final-surface parity, or product
+  acceptance.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3ryaop-1p7l-current-final-surface-parity-with-feature-apply.json` by
   proving or rejecting the narrowed repair-owner candidates in order:
-  resource local-overacceptance/scarce-floor materialization, exact
+  resource local-overacceptance/scarce-floor materialization using a fresh
+  exact run that consumes bounded resource rejection examples, exact
   feature-materialization/readback ownership for the two rejected features and
   remaining `381` feature mismatches, then terrain projection/readback. Do this
   before any final-surface parity or product acceptance claim. The older
@@ -1129,8 +1138,9 @@
   future exact runs, but the current `mq20rbzr` artifact still lacks that digest.
   No resource tuning, static-policy repair, scarce-floor repair, or
   assignment-order repair is authorized until a fresh exact-authored run binds
-  local and live immediate placement coordinate identity or otherwise assigns
-  those subclasses to a concrete source owner. Older source-recorded feature
+  local and live immediate placement coordinate identity, including the new
+  bounded rejection example, or otherwise assigns those subclasses to a
+  concrete source owner. Older source-recorded feature
   rows were split into a reef absence and two natural-wonder one-tile offsets,
   with local intent, application, footprint evidence, runtime-bound
   `canHaveFeature` probes, footprint-direction alternatives, and planned-wonder

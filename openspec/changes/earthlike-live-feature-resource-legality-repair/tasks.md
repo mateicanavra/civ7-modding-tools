@@ -304,6 +304,17 @@
     `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-feature-apply-parser-post.json`
     (`sha256:7433af10bbb3197bb1b6608faadff3239179eb86998712702f5e70310ebd77e8`)
     are exact-run proof inputs. Product acceptance is still not closed.
+- [x] 2.47 Add bounded resource rejection telemetry for the next exact run.
+  - `RESOURCE_PLACEMENT_V1` now includes bounded `rejectionExamples` for
+    non-placed resource outcomes, carrying status, resource, plot, x/y, reason,
+    and observed readback where present. Studio exact-authorship parsing now
+    exposes aggregate resource placement stats and those examples from the
+    bounded proof section.
+  - This is a proof-contract repair only. It does not change resource planning,
+    scarce-floor assignment, ResourceBuilder policy, final-surface parity,
+    product acceptance, or resource tuning. A fresh exact-authored run must
+    consume this marker before the current one-rejection resource boundary can
+    be row-classified.
 
 ## 3. Verification
 
@@ -370,3 +381,9 @@
     links. The verifier log is
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3ryaop.log`
     (`sha256:95775b27dfaacad92ad3899a2dc69a9edbe43ba77c74075d7ea888c10ee55e7c`).
+- [x] 3.18 Run focused resource rejection telemetry regressions.
+  - Passed `bun test apps/mapgen-studio/test/runInGame/proofIdentity.test.ts`
+    and
+    `bun test mods/mod-swooper-maps/test/placement/resource-placement-diagnostics.test.ts`.
+  - Passed owner checks `bun run --cwd apps/mapgen-studio check` and
+    `bun run --cwd mods/mod-swooper-maps check`.

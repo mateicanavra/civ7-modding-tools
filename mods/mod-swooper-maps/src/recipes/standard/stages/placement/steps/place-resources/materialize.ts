@@ -22,6 +22,7 @@ type ResourcePlacementOutcomes = Static<
 type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacementMismatchReason;
 type ResourcePlacementSummary = ResourcePlacementOutcomes["summary"];
 type ResourceAssignmentSummary = ResourcePlacementOutcomes["assignment"];
+type ResourcePlacementRuntimeTelemetryOutcome = ResourcePlacementOutcomes["outcomes"][number];
 type RuntimeResourceCatalogEntry = {
   readonly index: number;
   readonly resourceType: string;
@@ -776,7 +777,8 @@ export function readRuntimeResourceCatalog(): readonly RuntimeResourceCatalogEnt
 export function buildResourcePlacementRuntimeTelemetry(
   summary: ResourcePlacementSummary,
   assignment?: ResourceAssignmentSummary,
-  runtimeCatalog: readonly RuntimeResourceCatalogEntry[] = readRuntimeResourceCatalog()
+  runtimeCatalog: readonly RuntimeResourceCatalogEntry[] = readRuntimeResourceCatalog(),
+  outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[] = []
 ): Record<string, unknown> {
   const runtimeByIndex = new Map(runtimeCatalog.map((row) => [row.index, row]));
   const plannedResourceTypes = summary.byResource.filter((row) => row.plannedCount > 0);
@@ -794,6 +796,7 @@ export function buildResourcePlacementRuntimeTelemetry(
   const plannedTypesCovered =
     plannedTypeSet.size === coveredTypeSet.size &&
     plannedResourceTypeValues.every((resourceType) => coveredTypeSet.has(resourceType));
+  const rejectionExamples = resourcePlacementRejectionExamples(outcomes, runtimeByIndex);
 
   return {
     version: 1,
@@ -826,6 +829,12 @@ export function buildResourcePlacementRuntimeTelemetry(
     ...(plannedTypesCovered ? {} : { plannedResourceTypes: plannedResourceTypeValues }),
     placedResourceTypes: placedResourceTypeValues,
     rejectedResourceTypes: rejectedResourceTypeValues,
+    ...(rejectionExamples.length === 0
+      ? {}
+      : {
+          rejectionExampleCount: rejectionExamples.length,
+          rejectionExamples,
+        }),
     unmappedPlacedResourceTypes: unmappedResourceTypes.map((row) => row.resourceType),
     ...(assignment
       ? {
@@ -847,15 +856,41 @@ export function buildResourcePlacementRuntimeTelemetry(
 
 export function logResourcePlacementRuntimeTelemetry(
   summary: ResourcePlacementSummary,
-  assignment: ResourceAssignmentSummary
+  assignment: ResourceAssignmentSummary,
+  outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[] = []
 ): void {
   const runtimeCatalog = readRuntimeResourceCatalog();
   if (runtimeCatalog.length === 0) return;
   console.log(
     `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify(
-      buildResourcePlacementRuntimeTelemetry(summary, assignment, runtimeCatalog)
+      buildResourcePlacementRuntimeTelemetry(summary, assignment, runtimeCatalog, outcomes)
     )}`
   );
+}
+
+function resourcePlacementRejectionExamples(
+  outcomes: readonly ResourcePlacementRuntimeTelemetryOutcome[],
+  runtimeByIndex: ReadonlyMap<number, RuntimeResourceCatalogEntry>
+): string[] {
+  return outcomes
+    .filter((outcome) => outcome.status !== "placed")
+    .slice(0, 8)
+    .map((outcome) => {
+      const resource =
+        runtimeByIndex.get(outcome.resourceType)?.resourceType ?? String(outcome.resourceType);
+      const fields = [
+        `status=${outcome.status}`,
+        `resource=${resource}`,
+        `plot=${outcome.plotIndex}`,
+        `x=${outcome.x}`,
+        `y=${outcome.y}`,
+        `reason=${outcome.reason}`,
+      ];
+      if (outcome.observedResourceType !== undefined) {
+        fields.push(`observed=${outcome.observedResourceType}`);
+      }
+      return fields.join(" ");
+    });
 }
 
 function assertResourceOutcomeMatchesIntent(

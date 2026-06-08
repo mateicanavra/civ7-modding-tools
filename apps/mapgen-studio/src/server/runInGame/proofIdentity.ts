@@ -398,6 +398,7 @@ function parseResourcePlacementTelemetryBetween(
     return {
       marker: "RESOURCE_PLACEMENT_V1",
       payload,
+      ...(resourcePlacementStats(payload) ?? {}),
       ...(resourcePlacementCoordinateProof(payload) ?? {}),
     };
   }
@@ -518,6 +519,46 @@ function naturalWonderPlacementStats(
       skippedOutOfBoundsCount,
       rejectedCount,
       shortfallCount,
+      ...(rejectionExampleCount === undefined ? {} : { rejectionExampleCount }),
+      ...(rejectionExamples === undefined ? {} : { rejectionExamples }),
+    },
+  };
+}
+
+function resourcePlacementStats(
+  payload: Record<string, unknown>
+):
+  | {
+      stats: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["resourcePlacement"]>["stats"]
+      >;
+    }
+  | undefined {
+  const version = numberValue(payload.version);
+  const plannedCount = numberValue(payload.plannedCount);
+  const placedCount = numberValue(payload.placedCount);
+  const rejectedCount = numberValue(payload.rejectedCount);
+  const mismatchCount = numberValue(payload.mismatchCount);
+  const rejectionExamples = Array.isArray(payload.rejectionExamples)
+    ? payload.rejectionExamples.filter((entry): entry is string => typeof entry === "string").slice(0, 8)
+    : undefined;
+  if (
+    version === undefined ||
+    plannedCount === undefined ||
+    placedCount === undefined ||
+    rejectedCount === undefined ||
+    mismatchCount === undefined
+  ) {
+    return undefined;
+  }
+  const rejectionExampleCount = numberValue(payload.rejectionExampleCount);
+  return {
+    stats: {
+      version,
+      plannedCount,
+      placedCount,
+      rejectedCount,
+      mismatchCount,
       ...(rejectionExampleCount === undefined ? {} : { rejectionExampleCount }),
       ...(rejectionExamples === undefined ? {} : { rejectionExamples }),
     },

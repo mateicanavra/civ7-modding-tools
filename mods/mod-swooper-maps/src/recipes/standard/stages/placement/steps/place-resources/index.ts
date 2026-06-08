@@ -24,7 +24,11 @@ export default createStep(PlaceResourcesStepContract, {
     const outcomes = runPlacementProductStep("placement.resources", emit, () =>
       placeResourcesWithTypedOutcomes({ adapter: context.adapter, width, height, resources })
     );
-    logResourcePlacementRuntimeTelemetry(outcomes.summary, outcomes.assignment);
+    logResourcePlacementRuntimeTelemetry(
+      outcomes.summary,
+      outcomes.assignment,
+      outcomes.outcomes
+    );
     deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes);
   },
 });
