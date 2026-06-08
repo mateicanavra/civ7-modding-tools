@@ -91,6 +91,15 @@ describe("Run in Game exact authorship proof identity", () => {
       text: [
         `[mapgen-proof] ${JSON.stringify({ requestId: "old", configHash, envelopeHash, seed: 42, dimensions: { width: 1, height: 1 } })}`,
         `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, mapSize: "MAPSIZE_STANDARD", dimensions: { width: 84, height: 54 } })}`,
+        `[SWOOPER_MOD] FEATURE_APPLY_V1 ${JSON.stringify({
+          attempted: 1434,
+          applied: 1430,
+          rejected: 4,
+          rejectedCanHaveFeature: 4,
+          attemptedByFeature: { FEATURE_TAIGA: 305, FEATURE_REEF: 11 },
+          appliedByFeature: { FEATURE_TAIGA: 301, FEATURE_REEF: 11 },
+          rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
+        })}`,
         `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 4,
@@ -141,6 +150,18 @@ describe("Run in Game exact authorship proof identity", () => {
       dimensions: { width: 84, height: 54 },
       matched: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
     });
+    expect(logProof?.featureApply).toMatchObject({
+      marker: "FEATURE_APPLY_V1",
+      stats: {
+        attempted: 1434,
+        applied: 1430,
+        rejected: 4,
+        rejectedCanHaveFeature: 4,
+        attemptedByFeature: { FEATURE_REEF: 11, FEATURE_TAIGA: 305 },
+        appliedByFeature: { FEATURE_REEF: 11, FEATURE_TAIGA: 301 },
+        rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
+      },
+    });
     expect(logProof?.resourcePlacement).toMatchObject({
       marker: "RESOURCE_PLACEMENT_V1",
       coordinateProof: {
@@ -190,6 +211,12 @@ describe("Run in Game exact authorship proof identity", () => {
   it("ignores placement telemetry outside the matching proof section", () => {
     const logProof = parseSwooperMapgenLogProof({
       text: [
+        `[SWOOPER_MOD] FEATURE_APPLY_V1 ${JSON.stringify({
+          attempted: 1,
+          applied: 1,
+          rejected: 0,
+          rejectedCanHaveFeature: 0,
+        })}`,
         `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           coordinateProof: { version: 1, placedCount: 4, placedHash32: "aaaaaaaa" },
@@ -213,6 +240,7 @@ describe("Run in Game exact authorship proof identity", () => {
       seed: 42,
     });
 
+    expect(logProof?.featureApply).toBeUndefined();
     expect(logProof?.resourcePlacement).toBeUndefined();
     expect(logProof?.naturalWonderPlacement).toBeUndefined();
   });

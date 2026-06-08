@@ -1072,6 +1072,16 @@
   and makes the resource coordinate split explicit: local placed
   `251`/`98393a08` versus exact placed `250`/`9c5eaad8`; local rejected
   `0`/`811c9dc5` versus exact rejected `1`/`af57eb7b`.
+  Follow-up implementation on
+  `codex/swooper-product-closure-audit-record-drain` adds bounded
+  `FEATURE_APPLY_V1` parsing to Studio exact-authorship proof packets for future
+  runs. The parser only accepts telemetry between the matched `[mapgen-proof]`
+  and `[mapgen-complete]` markers and preserves attempted/applied/rejected
+  counts plus per-feature count maps when present. This does not change the
+  current `mq3pfgbe` proof because the saved status artifact does not include
+  raw log text to reparse; it prepares the next exact run to classify
+  local-only ecology-feature materialization without relying on local-only
+  diagnostics.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` by

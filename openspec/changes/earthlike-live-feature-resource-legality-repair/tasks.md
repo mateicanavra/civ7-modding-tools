@@ -277,6 +277,14 @@
     preserves the current mismatch: local placed `251`/`98393a08`, exact
     placed `250`/`9c5eaad8`; local rejected `0`/`811c9dc5`, exact rejected
     `1`/`af57eb7b`.
+- [x] 2.45 Bind feature-apply runtime telemetry into future exact-authorship
+  proof packets.
+  - Studio exact-authorship log parsing now preserves bounded
+    `FEATURE_APPLY_V1` telemetry between the matched `[mapgen-proof]` and
+    `[mapgen-complete]` markers. This is proof instrumentation for future
+    feature-materialization classification; it does not retroactively change
+    the `studio-run-in-game-mq3pfgbe-1doj` proof, map behavior, ecology tuning,
+    or product acceptance.
 
 ## 3. Verification
 
@@ -327,3 +335,5 @@
     `current-drain-after-log-rewrite-reader-status.json` as exact-authorship
     input and wrote the refreshed artifact above. Exit code `2` is expected
     because parity remains `unresolved`.
+- [x] 3.16 Run focused Studio proof-identity regression for feature-apply
+  telemetry parsing.

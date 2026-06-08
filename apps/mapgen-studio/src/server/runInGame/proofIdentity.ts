@@ -246,6 +246,11 @@ export function parseSwooperMapgenLogProof(args: {
     proofLine.index,
     completionLine.index
   );
+  const featureApply = parseFeatureApplyTelemetryBetween(
+    lines,
+    proofLine.index,
+    completionLine.index
+  );
   return {
     ...(args.logPath ? { logPath: args.logPath } : {}),
     ...(args.observedAt ? { observedAt: args.observedAt } : {}),
@@ -257,6 +262,7 @@ export function parseSwooperMapgenLogProof(args: {
     dimensions: proofDimensions,
     proofPayload,
     completionPayload,
+    ...(featureApply ? { featureApply } : {}),
     ...(resourcePlacement ? { resourcePlacement } : {}),
     ...(naturalWonderPlacement ? { naturalWonderPlacement } : {}),
     matched: ["[mapgen-proof]", args.requestId, args.configHash, args.envelopeHash, "[mapgen-complete]"],
@@ -398,6 +404,25 @@ function parseResourcePlacementTelemetryBetween(
   return undefined;
 }
 
+function parseFeatureApplyTelemetryBetween(
+  lines: readonly string[],
+  proofIndex: number,
+  completionIndex: number
+): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["featureApply"]> | undefined {
+  for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
+    const line = lines[index] ?? "";
+    if (!line.includes("FEATURE_APPLY_V1")) continue;
+    const payload = parsePayloadAfterMarker(line, "FEATURE_APPLY_V1");
+    if (!payload) continue;
+    return {
+      marker: "FEATURE_APPLY_V1",
+      payload,
+      ...(featureApplyStats(payload) ?? {}),
+    };
+  }
+  return undefined;
+}
+
 function parseNaturalWonderPlacementTelemetryBetween(
   lines: readonly string[],
   proofIndex: number,
@@ -416,6 +441,38 @@ function parseNaturalWonderPlacementTelemetryBetween(
     };
   }
   return undefined;
+}
+
+function featureApplyStats(
+  payload: Record<string, unknown>
+):
+  | {
+      stats: NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["featureApply"]>["stats"];
+    }
+  | undefined {
+  const attempted = numberValue(payload.attempted);
+  const applied = numberValue(payload.applied);
+  const rejected = numberValue(payload.rejected);
+  const rejectedCanHaveFeature = numberValue(payload.rejectedCanHaveFeature);
+  if (
+    attempted === undefined ||
+    applied === undefined ||
+    rejected === undefined ||
+    rejectedCanHaveFeature === undefined
+  ) {
+    return undefined;
+  }
+  return {
+    stats: {
+      attempted,
+      applied,
+      rejected,
+      rejectedCanHaveFeature,
+      ...countRecordField(payload, "attemptedByFeature"),
+      ...countRecordField(payload, "appliedByFeature"),
+      ...countRecordField(payload, "rejectedCanHaveFeatureByFeature"),
+    },
+  };
 }
 
 function naturalWonderPlacementStats(
@@ -526,6 +583,19 @@ function resourcePlacementCoordinateProof(
         : { mismatch: { count: mismatchCount, hash32: mismatchHash32 } }),
     },
   };
+}
+
+function countRecordField(
+  payload: Record<string, unknown>,
+  field: "attemptedByFeature" | "appliedByFeature" | "rejectedCanHaveFeatureByFeature"
+): Partial<Record<typeof field, Readonly<Record<string, number>>>> {
+  const source = isRecord(payload[field]) ? payload[field] : undefined;
+  if (!source) return {};
+  const entries = Object.entries(source)
+    .map(([key, value]) => [key, numberValue(value)] as const)
+    .filter((entry): entry is readonly [string, number] => entry[1] !== undefined)
+    .sort(([left], [right]) => left.localeCompare(right));
+  return entries.length === 0 ? {} : { [field]: Object.fromEntries(entries) };
 }
 
 function parsePayloadAfterMarker(line: string, marker: string): Record<string, unknown> | null {
