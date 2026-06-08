@@ -40,8 +40,10 @@
 - [x] 2.17 Add local resource materialization consistency context.
 - [x] 2.18 Add immediate resource placement coordinate proof instrumentation for
   the next exact-authored run.
-- [ ] 2.19 Repair remaining proven package or MapGen owners.
-- [ ] 2.20 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.19 Bind immediate resource placement coordinate proof into exact/parity
+  proof intake.
+- [ ] 2.20 Repair remaining proven package or MapGen owners.
+- [ ] 2.21 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

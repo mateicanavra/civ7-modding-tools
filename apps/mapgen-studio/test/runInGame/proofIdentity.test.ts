@@ -91,6 +91,18 @@ describe("Run in Game exact authorship proof identity", () => {
       text: [
         `[mapgen-proof] ${JSON.stringify({ requestId: "old", configHash, envelopeHash, seed: 42, dimensions: { width: 1, height: 1 } })}`,
         `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, mapSize: "MAPSIZE_STANDARD", dimensions: { width: 84, height: 54 } })}`,
+        `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
+          version: 1,
+          plannedCount: 4,
+          placedCount: 4,
+          rejectedCount: 0,
+          mismatchCount: 0,
+          coordinateProof: {
+            version: 1,
+            placedCount: 4,
+            placedHash32: "3c3530cb",
+          },
+        })}`,
         `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
       ].join("\n"),
       logPath: "/tmp/Scripting.log",
@@ -110,6 +122,13 @@ describe("Run in Game exact authorship proof identity", () => {
       dimensions: { width: 84, height: 54 },
       matched: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
     });
+    expect(logProof?.resourcePlacement).toMatchObject({
+      marker: "RESOURCE_PLACEMENT_V1",
+      coordinateProof: {
+        version: 1,
+        placed: { count: 4, hash32: "3c3530cb" },
+      },
+    });
     expect(parseSwooperMapgenLogProof({
       text: `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 41, dimensions: { width: 84, height: 54 } })}`,
       requestId,
@@ -127,6 +146,25 @@ describe("Run in Game exact authorship proof identity", () => {
       envelopeHash,
       seed: 42,
     })).toBeUndefined();
+  });
+
+  it("ignores resource placement telemetry outside the matching proof section", () => {
+    const logProof = parseSwooperMapgenLogProof({
+      text: [
+        `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
+          version: 1,
+          coordinateProof: { version: 1, placedCount: 4, placedHash32: "aaaaaaaa" },
+        })}`,
+        `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+        `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+      ].join("\n"),
+      requestId,
+      configHash,
+      envelopeHash,
+      seed: 42,
+    });
+
+    expect(logProof?.resourcePlacement).toBeUndefined();
   });
 
   it("marks exact authorship complete only when every required identity and equality link resolves", () => {

@@ -139,6 +139,16 @@ export type RunInGameExactAuthorshipProof = Readonly<{
     dimensions: Readonly<{ width: number; height: number }>;
     proofPayload: unknown;
     completionPayload: unknown;
+    resourcePlacement?: Readonly<{
+      marker: "RESOURCE_PLACEMENT_V1";
+      payload: unknown;
+      coordinateProof?: Readonly<{
+        version: number;
+        placed: Readonly<{ count: number; hash32: string }>;
+        rejected?: Readonly<{ count: number; hash32: string }>;
+        mismatch?: Readonly<{ count: number; hash32: string }>;
+      }>;
+    }>;
     matched: ReadonlyArray<string>;
   }>;
   unresolvedLinks: ReadonlyArray<string>;

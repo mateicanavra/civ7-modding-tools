@@ -5,18 +5,18 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-coordinate-proof-drain`
-  stacked above `codex/swooper-resource-local-materialization-context-drain`;
-  this slice carries immediate resource placement coordinate proof
-  instrumentation for the next exact-authored run.
+- Branch/Graphite stack: `codex/swooper-resource-coordinate-proof-intake-drain`
+  stacked above `codex/swooper-resource-coordinate-proof-drain`; this slice
+  carries exact/parity proof intake for immediate resource placement coordinate
+  identity.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
   feasibility plus row/static-policy/live-plot, assignment-order, and
   ResourceBuilder diagnostic/subclassification/policy context plus
   assignment-class, distribution-count, same-resource position, local
-  materialization, and future coordinate-proof instrumentation now narrow the
-  next resource repair class.
+  materialization, future coordinate-proof instrumentation, and coordinate-proof
+  intake now narrow the next resource repair class.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -316,6 +316,15 @@
   identity needed by the next exact-authored run. It does not retroactively
   classify request `studio-run-in-game-mq20rbzr-1fhc`, because that saved proof
   predates the coordinate digest.
+- Resource placement coordinate proof intake progress:
+  Studio exact-authorship log parsing now captures the bounded
+  `RESOURCE_PLACEMENT_V1` telemetry line only when it appears between the
+  matching `[mapgen-proof]` and `[mapgen-complete]` payloads for the same
+  request/config/envelope/seed chain. Final-surface parity proof now compares
+  the local `resourcePlacementOutcomes.summary.coordinateProof` digest against
+  the exact log coordinate digest when local evidence carries one. Missing or
+  mismatched coordinate proof keeps parity unresolved with named
+  `resource-placement-coordinate-proof.*` links.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -340,13 +349,13 @@
   matches all `69` local-authored delta resources to same-resource live delta
   rows, mostly at long distance. Local materialization context proves the local
   final resource surface still matches every typed local placement outcome.
-  Current code now emits immediate placement coordinate digests for future exact
-  runs, but the current `mq20rbzr` artifact still lacks that digest. No resource
-  tuning, static-policy repair, scarce-floor repair, or assignment-order repair
-  is authorized until a fresh exact-authored run binds local and live immediate
-  placement coordinate identity or otherwise assigns those subclasses to a
-  concrete source owner. The single substitution row where both probed values are
-  infeasible remains an individual evidence row with no repair authority until
-  row-level context assigns source ownership.
+  Current code now emits and parses immediate placement coordinate digests for
+  future exact runs, but the current `mq20rbzr` artifact still lacks that digest.
+  No resource tuning, static-policy repair, scarce-floor repair, or
+  assignment-order repair is authorized until a fresh exact-authored run binds
+  local and live immediate placement coordinate identity or otherwise assigns
+  those subclasses to a concrete source owner. The single substitution row where
+  both probed values are infeasible remains an individual evidence row with no
+  repair authority until row-level context assigns source ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.

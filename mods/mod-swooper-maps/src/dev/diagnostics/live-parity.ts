@@ -153,6 +153,14 @@ export type ExactAuthorshipProofLike = Readonly<{
     envelopeHash?: string;
     seed?: number;
     dimensions?: Readonly<{ width?: number; height?: number }>;
+    resourcePlacement?: Readonly<{
+      coordinateProof?: Readonly<{
+        version?: number;
+        placed?: Readonly<{ count?: number; hash32?: string }>;
+        rejected?: Readonly<{ count?: number; hash32?: string }>;
+        mismatch?: Readonly<{ count?: number; hash32?: string }>;
+      }>;
+    }>;
   }>;
 }>;
 
@@ -484,6 +492,7 @@ export function buildFinalSurfaceParityProof(args: {
     ) {
       unresolvedLinks.push("exact-authorship-proof.materialization-envelope-hash.local-envelope-hash");
     }
+    addResourcePlacementCoordinateProofLinks(unresolvedLinks, exact, args.local);
   }
 
   for (const diff of diffs) {
@@ -689,6 +698,82 @@ function addFullGridEvidenceLinks(unresolvedLinks: string[], live: FinalSurfaceS
   }
   const identityCheck = isPlainObject(fullGrid.identityCheck) ? fullGrid.identityCheck : undefined;
   if (identityCheck?.stable !== true) unresolvedLinks.push("live.full-grid.identity-check");
+}
+
+function addResourcePlacementCoordinateProofLinks(
+  unresolvedLinks: string[],
+  exact: ExactAuthorshipProofLike,
+  local: FinalSurfaceSnapshot
+): void {
+  const localCoordinateProof = localResourcePlacementCoordinateProof(local);
+  if (!localCoordinateProof) return;
+  const logCoordinateProof = exact.log?.resourcePlacement?.coordinateProof;
+  if (!logCoordinateProof) {
+    unresolvedLinks.push("resource-placement-coordinate-proof.log");
+    return;
+  }
+  compareCoordinateDigest(
+    unresolvedLinks,
+    localCoordinateProof.placed,
+    logCoordinateProof.placed,
+    "resource-placement-coordinate-proof.placed"
+  );
+  compareCoordinateDigest(
+    unresolvedLinks,
+    localCoordinateProof.rejected,
+    logCoordinateProof.rejected,
+    "resource-placement-coordinate-proof.rejected"
+  );
+  compareCoordinateDigest(
+    unresolvedLinks,
+    localCoordinateProof.mismatch,
+    logCoordinateProof.mismatch,
+    "resource-placement-coordinate-proof.mismatch"
+  );
+}
+
+function compareCoordinateDigest(
+  unresolvedLinks: string[],
+  local: { count?: number; hash32?: string } | undefined,
+  log: { count?: number; hash32?: string } | undefined,
+  link: string
+): void {
+  if (!local) return;
+  if (!log) {
+    if ((local.count ?? 0) > 0) unresolvedLinks.push(link);
+    return;
+  }
+  if (local.count !== log.count || local.hash32 !== log.hash32) unresolvedLinks.push(link);
+}
+
+function localResourcePlacementCoordinateProof(local: FinalSurfaceSnapshot):
+  | {
+      placed?: { count?: number; hash32?: string };
+      rejected?: { count?: number; hash32?: string };
+      mismatch?: { count?: number; hash32?: string };
+    }
+  | undefined {
+  const resourcePlacementOutcomes = isPlainObject(local.evidence?.resourcePlacementOutcomes)
+    ? local.evidence.resourcePlacementOutcomes
+    : undefined;
+  const summary = isPlainObject(resourcePlacementOutcomes?.summary)
+    ? resourcePlacementOutcomes.summary
+    : undefined;
+  const coordinateProof = isPlainObject(summary?.coordinateProof) ? summary.coordinateProof : undefined;
+  if (!coordinateProof) return undefined;
+  return {
+    placed: coordinateDigest(coordinateProof.placed),
+    rejected: coordinateDigest(coordinateProof.rejected),
+    mismatch: coordinateDigest(coordinateProof.mismatch),
+  };
+}
+
+function coordinateDigest(value: unknown): { count?: number; hash32?: string } | undefined {
+  if (!isPlainObject(value)) return undefined;
+  return {
+    ...(numberValue(value.count) === undefined ? {} : { count: numberValue(value.count) }),
+    ...(typeof value.hash32 === "string" ? { hash32: value.hash32 } : {}),
+  };
 }
 
 function probeNumberValue(value: unknown): number | null {
