@@ -738,6 +738,39 @@ test the supported wonder catalog so one-row offset evidence does not regress
 other footprint classes. No natural-wonder repair, parity closure, product
 acceptance, or mountain-quality claim is authorized from this context alone.
 
+### Planned Natural-Wonder Footprint Readback
+
+Diagnostic repair:
+`buildNaturalWonderFootprintReadbackContexts` now scores each planned natural
+wonder represented in the local context artifact against local and live feature
+grids across local map-policy direction alternatives `0..5`.
+
+The current planned-footprint readback artifact is
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-natural-wonder-footprint-readback.json`
+(`sha256:50ecdd1bee31c8243dac792b2d8d9fe5faae4d422cf0cae44f95a696d86d16a3`,
+`proofHash:3e0389b5977d997ce40d5888c97e703397b518e5ff034911be70a949afd1d6b4`).
+It is derived from the saved exact parity proof and prior local feature-context
+artifact; it is not a fresh exact-authored parity proof.
+
+Readback facts:
+
+| Feature | Declared direction | Best local direction(s) | Best live direction(s) | Classification |
+|---|---:|---|---|---|
+| `FEATURE_KILIMANJARO` | `-1` | `0` (`3/3` local cells) | `0,1,4,5` (`2/3` live cells) | `local-live-same-direction` with partial/ambiguous live coverage |
+| `FEATURE_ZHANGJIAJIE` | `-1` | `0` (`2/2` local cells) | `5` (`2/2` live cells) | `live-direction-differs-from-local` |
+
+Disposition:
+the planned-footprint readback confirms the natural-wonder offset class is not
+random surface noise: at least one supported multi-tile wonder in this exact
+run has live complete footprint coverage under a different direction than the
+local projection. The readback set is still only `2` planned multi-tile wonders
+from this request, and Kilimanjaro is live-partial/ambiguous, so this evidence
+does not yet authorize a global `Direction:-1` footprint repair. It does
+authorize the next source-owner decision to focus on local map-policy/mock
+natural-wonder projection versus Civ runtime materialization semantics, with a
+broader supported-catalog test or fresh exact-run proof required before repair
+closure.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,
