@@ -16,6 +16,7 @@ import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
 import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
+import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
 import { isPlainObject, mergeDeep } from "./shared.js";
 
 export const FINAL_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
@@ -165,6 +166,8 @@ type FileIdentityLike = Readonly<{
 
 type LocalTraceEvidence = {
   placementParity?: unknown;
+  resourcePlan?: unknown;
+  resourcePlacementOutcomes?: unknown;
 };
 
 function createMemoryTraceSink(events: TraceEvent[]): TraceSink {
@@ -253,6 +256,14 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
   for (const event of traceEvents) {
     if (event.kind !== "step.event" || !isPlainObject(event.data)) continue;
     if (event.data.type === "placement.parity") evidence.placementParity = event.data;
+  }
+  const resourcePlan = context.artifacts.get(placementArtifacts.resourcePlan.id);
+  if (resourcePlan !== undefined) evidence.resourcePlan = resourcePlan;
+  const resourcePlacementOutcomes = context.artifacts.get(
+    placementArtifacts.resourcePlacementOutcomes.id
+  );
+  if (resourcePlacementOutcomes !== undefined) {
+    evidence.resourcePlacementOutcomes = resourcePlacementOutcomes;
   }
 
   return {

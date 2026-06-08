@@ -14,12 +14,13 @@
 - [x] 2.1 Add focused failing-row tests or diagnostics.
 - [x] 2.2 Repair the proven adapter/map-policy owner for the adjacent-land
   resource class.
-- [ ] 2.3 Repair remaining proven package or MapGen owners.
-- [ ] 2.4 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.3 Add local resource assignment evidence for remaining resource deltas.
+- [ ] 2.4 Repair remaining proven package or MapGen owners.
+- [ ] 2.5 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
-- [ ] 3.1 Re-run final-surface feature/resource parity proof.
+- [x] 3.1 Re-run final-surface feature/resource parity proof.
 - [ ] 3.2 Re-run product acceptance rows for resources/wonders/ecology.
 - [x] 3.3 Run focused package tests/checks for touched owners.
 - [x] 3.4 Run `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`.

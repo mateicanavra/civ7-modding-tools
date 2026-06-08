@@ -2,12 +2,16 @@ import { describe, expect, test } from "bun:test";
 
 import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity";
 import {
+  buildResourceDeltaPlacementContexts,
   buildSurfaceDeltaContext,
   buildSurfaceDeltaContexts,
   staticSurfaceLegality,
 } from "../../src/dev/diagnostics/surface-delta-context";
 
-function snapshot(overrides: Partial<FinalSurfaceSnapshot["surfaces"]> = {}): FinalSurfaceSnapshot {
+function snapshot(
+  overrides: Partial<FinalSurfaceSnapshot["surfaces"]> = {},
+  evidence?: Readonly<Record<string, unknown>>
+): FinalSurfaceSnapshot {
   const width = 3;
   const height = 2;
   return {
@@ -21,6 +25,7 @@ function snapshot(overrides: Partial<FinalSurfaceSnapshot["surfaces"]> = {}): Fi
       resource: { width, height, values: [-1, 3, -1, -1, -1, -1] },
       ...overrides,
     },
+    ...(evidence === undefined ? {} : { evidence }),
   };
 }
 
@@ -107,6 +112,73 @@ describe("surface delta context diagnostics", () => {
       symbol: "RESOURCE_FISH",
       validSurface: false,
       reasons: ["resource.surface"],
+    });
+  });
+
+  test("joins resource deltas to local placement plan and assignment outcomes", () => {
+    const local = snapshot(
+      {
+        resource: { width: 3, height: 2, values: [3, -1, 2, -1, -1, -1] },
+      },
+      {
+        resourcePlan: {
+          placements: [
+            { plotIndex: 0, preferredResourceType: 3 },
+            { plotIndex: 1, preferredResourceType: 3 },
+            { plotIndex: 2, preferredResourceType: 2 },
+          ],
+        },
+        resourcePlacementOutcomes: {
+          outcomes: [
+            {
+              status: "placed",
+              plotIndex: 0,
+              x: 0,
+              y: 0,
+              resourceType: 3,
+              observedResourceType: 3,
+            },
+            {
+              status: "placed",
+              plotIndex: 2,
+              x: 2,
+              y: 0,
+              resourceType: 2,
+              observedResourceType: 2,
+            },
+          ],
+        },
+      }
+    );
+    const live = snapshot({
+      resource: { width: 3, height: 2, values: [-1, 3, 12, -1, -1, -1] },
+    });
+
+    const rows = buildResourceDeltaPlacementContexts({ local, live });
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toMatchObject({
+      plotIndex: 0,
+      localResource: { symbol: "RESOURCE_FISH" },
+      liveResource: { symbol: "empty" },
+      plannedPreferredResourceSymbol: "RESOURCE_FISH",
+      localOutcome: { status: "placed", resourceSymbol: "RESOURCE_FISH" },
+      evidenceClass: "local-assigned-live-empty",
+    });
+    expect(rows[1]).toMatchObject({
+      plotIndex: 1,
+      localResource: { symbol: "empty" },
+      liveResource: { symbol: "RESOURCE_FISH" },
+      plannedPreferredResourceSymbol: "RESOURCE_FISH",
+      localOutcome: null,
+      evidenceClass: "live-only-preferred-but-unassigned",
+    });
+    expect(rows[2]).toMatchObject({
+      plotIndex: 2,
+      localResource: { symbol: "RESOURCE_DYES" },
+      liveResource: { symbol: "RESOURCE_PEARLS" },
+      localOutcome: { status: "placed", resourceSymbol: "RESOURCE_DYES" },
+      evidenceClass: "local-assigned-live-substitution",
     });
   });
 });
