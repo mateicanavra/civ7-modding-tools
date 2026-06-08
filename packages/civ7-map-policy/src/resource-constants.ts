@@ -22,3 +22,26 @@ export const PLACEABLE_RESOURCE_TYPE_IDS = [
   40, 41, 42, 43, 44, 45, 46, 47,
   48, 49, 50, 51, 52, 53, 54,
 ] as const;
+
+/**
+ * Resource IDs whose official data has `AdjacentToLand=true`, but whose
+ * exact-authored live Civ7 `ResourceBuilder.canHaveResource`/placement proof
+ * accepted coast/marine/no-feature rows without adjacent land.
+ *
+ * Evidence: `studio-run-in-game-mq20rbzr-1fhc` final-surface parity proof,
+ * 2026-06-06, classified in
+ * `earthlike-live-feature-resource-legality-repair`.
+ */
+export const RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS = [
+  2, // RESOURCE_DYES
+  3, // RESOURCE_FISH
+  12, // RESOURCE_PEARLS
+  52, // RESOURCE_COWRIE
+  53, // RESOURCE_TURTLES
+] as const;
+
+export function isResourceAdjacentToLandRuntimeOptional(resourceType: number): boolean {
+  return RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS.includes(
+    resourceType as (typeof RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS)[number]
+  );
+}

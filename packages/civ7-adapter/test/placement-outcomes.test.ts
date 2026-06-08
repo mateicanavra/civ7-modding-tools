@@ -1,5 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+
 import { createMockAdapter } from "../src/mock-adapter.js";
 
 /**
@@ -11,7 +13,7 @@ import { createMockAdapter } from "../src/mock-adapter.js";
  */
 describe("typed placement outcomes", () => {
   it("returns placed resource outcomes with readback evidence", () => {
-    const adapter = createMockAdapter({ width: 4, height: 3 });
+    const adapter = createMockAdapter({ width: 4, height: 3, canHaveResource: () => true });
 
     const outcome = adapter.placeResourceIntent(4, 3, {
       plotIndex: 5,
@@ -79,5 +81,24 @@ describe("typed placement outcomes", () => {
       status: "rejected",
       reason: "out-of-bounds",
     });
+  });
+
+  it("matches live-observed adjacent-land resource behavior narrowly", () => {
+    const adapter = createMockAdapter({ width: 3, height: 3 });
+    const coast = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST;
+    const marine = CIV7_BROWSER_TABLES_V0.biomeGlobals.BIOME_MARINE;
+    for (let y = 0; y < 3; y += 1) {
+      for (let x = 0; x < 3; x += 1) {
+        adapter.setTerrainType(x, y, coast);
+        adapter.setBiomeType(x, y, marine);
+      }
+    }
+
+    expect(adapter.canHaveResource(1, 1, CIV7_BROWSER_TABLES_V0.resourceTypes.RESOURCE_FISH)).toBe(
+      true
+    );
+    expect(
+      adapter.canHaveResource(1, 1, CIV7_BROWSER_TABLES_V0.resourceTypes.RESOURCE_WHALES)
+    ).toBe(false);
   });
 });
