@@ -88,4 +88,78 @@ constraint to preserve. The intent (typed, native oRPC×Effect server) stands; t
 
 - Branch: `design/mapgen-studio-redesign`. Strategy: one branch, one commit per
   slice, one PR (not a multi-branch Graphite stack — lower risk for autonomous run).
-- Next: Phase A (server `@civ7/studio-server`).
+- Committed `cae889456` (planning), `5dba36d35` (A1 contracts).
+
+## ⚠ LIVE-CONTROL SUBSTRATE CORRECTION (2026-06-08) — Phase A/B PAUSED
+
+User correction: **no FireTuner reads — there is a better way now**, and the
+redesign must consume the **actual latest live-control code**, which is **not in
+this base**.
+
+Ground truth verified:
+- `packages/civ7-control-orpc` is **empty (0 ts files)** on this branch. The new
+  **effect-oRPC control router + `Civ7IntelligenceBridge` ingress** (the target
+  read/action substrate) lives in the **570-branch live-control stack currently
+  being consolidated** — see `docs/projects/graphite-stack-integration/`
+  `LIVE-CONTROL-STACK-CONSOLIDATION-PLAYBOOK.md`. It is **not settled** (local-only,
+  no PRs, folding 570 → ≤50 semantic branches).
+- The studio reads live state **today** via `@civ7/direct-control`
+  (`apps/mapgen-studio/vite.config.ts:32`) — exactly the surface being rebuilt.
+  **FireTuner is being demoted** to canary/parity/diagnostic; the in-game App-UI
+  controller bridge (oRPC/Effect) becomes baseline.
+- The **mapgen-studio ↔ control "Studio link" is itself being rebuilt** inside
+  that stack (playbook rows 38, 42–43). So Phase A (replace the studio server)
+  would collide with / be superseded by that work.
+
+Consequences:
+- **`audit/05-server-contracts.md` and `architecture/10` §1 (server) are PROVISIONAL /
+  superseded** — they model the deprecated `@civ7/direct-control` surface. Re-baseline
+  against the consolidated control-oRPC contracts once that stack settles.
+- **A1 (`@civ7/studio-server` contracts) is provisional** — kept on this isolated
+  branch for reference; will be re-derived from the settled substrate.
+- Reference prior art for the target client stack (effect-oRPC + RPCLink +
+  oRPC-TanStack-Query + Zustand React shell) already exists in the repo's
+  **gt-stack-inspect** toolkit lane — mirror it when re-baselining (that lane is a
+  separate owner and out of scope to modify).
+
+Lane status:
+- ⏸ **PAUSED (blocked on live-control settle):** Phase A (server), Phase B (data
+  layer + live wiring), live-state-coupled parts of Phase D (decomposition).
+- ✅ **Still valid (decoupled from live-control):** Phase C (Tailwind v4 + shadcn +
+  token/theming repair) and the presentational parts of Phase E. These are
+  app-local CSS + primitive components with no `@civ7/direct-control` coupling.
+  Carries minor merge risk against in-flight "Studio link" branches.
+- ✅ **Still-valid audits:** `audit/03` (component architecture), `audit/04`
+  (design system), `audit/06` (TS rigor), `research/02` (client patterns).
+
+## ⏸ WORKSTREAM PAUSED — resume conditions (decided 2026-06-08)
+
+User decision: **full pause**; re-baseline source of truth = **`main`** (not the
+in-flight stack). Do **not** proceed on any lane — including the decoupled design
+system — until resumed.
+
+**Resume trigger:** the consolidated control-oRPC / direct-control substrate
+(effect-oRPC router + `Civ7IntelligenceBridge` ingress + rebuilt mapgen-studio
+"Studio link") has **merged to `main`**. The user will signal, or I re-check `main`.
+
+**On resume, before writing any code:**
+1. `git checkout main && git pull`; rebase `design/mapgen-studio-redesign` onto it.
+2. Re-audit the **settled** substrate on main: read the merged `@civ7/control-orpc`
+   router + contracts, the `Civ7IntelligenceBridge` invoke surface, how Tuner is
+   now scoped (canary/diagnostic), and how the studio is now wired to control.
+3. **Re-baseline** `audit/05-server-contracts.md` and `architecture/10` §1 against
+   those real contracts. Re-derive A1 (`@civ7/studio-server`) — the studio server
+   should consume/extend the control-oRPC substrate, **not** re-implement reads and
+   **not** read FireTuner.
+4. Mirror the repo's existing effect-oRPC + RPCLink + oRPC-TanStack + Zustand
+   pattern (gt-stack-inspect lane) for the client.
+5. Then resume Phase A → G per `architecture/11-slice-plan.md`.
+
+**Unchanged on resume (no re-audit needed):** the design-system, component-
+architecture, and TS-rigor audits and the client-pattern research remain valid.
+
+## Status ledger (paused)
+
+- [x] Frame, isolate, research, audit, target architecture, slice plan
+- [x] A1 — `@civ7/studio-server` contracts (PROVISIONAL — re-derive on resume)
+- [⏸] Everything downstream — blocked until control-oRPC lands on `main`
