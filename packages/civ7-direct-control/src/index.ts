@@ -4159,6 +4159,7 @@ function plotSnapshotScriptSource(): string {
         if (fields.includes("hydrology")) {
           add("riverType", safeMapCall("getRiverType", input.x, input.y));
           add("water", safeMapCall("isWater", input.x, input.y));
+          add("lake", safeMapCall("isLake", input.x, input.y));
         }
         if (fields.includes("yields")) add("yields", safeMapCall("getYields", input.x, input.y));
         if (fields.includes("owner")) {

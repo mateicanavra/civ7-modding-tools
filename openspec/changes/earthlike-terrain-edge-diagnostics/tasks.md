@@ -10,7 +10,7 @@
 - [x] 2.2 Add neighborhood classification for coast/ocean edge swaps.
 - [x] 2.3 Produce the terrain-edge context artifact.
 - [x] 2.4 Add or link shelf/coast/lake/projection-boundary mask evidence.
-- [ ] 2.5 Add or link live water/lake/area readback evidence.
+- [x] 2.5 Add or link live water/lake/area readback evidence.
 - [ ] 2.6 Classify source authority for each row.
 
 ## 3. Repair

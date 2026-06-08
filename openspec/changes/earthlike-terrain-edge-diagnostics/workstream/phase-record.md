@@ -5,11 +5,12 @@
 - Project: Swooper recovery
 - Phase: terrain-edge diagnostics
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-terrain-edge-mask-context-drain`
+- Branch/Graphite stack: `codex/swooper-terrain-edge-live-readback-drain`
 - Started: 2026-06-06
-- Status: active. Terrain edge and local projection/mask context exist for the
-  two coast/ocean rows, but live water/area readback and source authority
-  remain unresolved and no repair is authorized.
+- Status: active. Terrain edge, local projection/mask context, and
+  exact-runtime-bound live terrain/hydrology/area readback exist for the two
+  coast/ocean rows, but source authority remains unresolved and no repair is
+  authorized.
 
 ## Objective
 
@@ -33,7 +34,7 @@
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
-- Branch: `codex/swooper-terrain-edge-mask-context-drain`.
+- Branch: `codex/swooper-terrain-edge-live-readback-drain`.
 - Source proof:
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc.json`.
 - Source proof hash:
@@ -56,6 +57,12 @@
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-terrain-edge-local-mask-context.json`.
 - Local mask/projection artifact sha256:
   `3b6822d02ddd9844e872dfafa1879860ecfd12d6558df43cfe75a1aed726aec2`.
+- Source-recorded live readback artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-terrain-edge-live-readback-context.json`.
+- Live readback artifact sha256:
+  `213134d7020063f53073c2f6f254ae8fc0d153007b0b6e0848c2da4a642262f6`.
+- Live readback proof hash:
+  `aa817119c628d1ecc144c5dd7ed4d3227f6fe3301af1ffab501e26751868c2a8`.
 
 ## Findings
 
@@ -82,6 +89,25 @@
   - Accepted lake count is `137`; final lake water/classification drift counts
     are both `0`. This proves the local projection evidence is internally
     consistent at the placement boundary, not that it matches live Civ.
+- Exact-runtime-bound live readback evidence:
+  - Verifier command:
+    `bun run verify:terrain-edge-live-context -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc.json --context-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-terrain-edge-local-mask-context.json --output /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-terrain-edge-live-readback-context.json`.
+  - Request identity matched across exact summary, exact packet, source
+    snapshot, and log: `studio-run-in-game-mq20rbzr-1fhc`.
+  - Runtime identity matched saved proof and current readback: `106x66`,
+    `6996` plots, seed `138503614`, turn `1`, game hash `0`.
+  - Required row facts were present and `ok:true` for both rows: `terrain`,
+    `water`, `lake`, `riverType`, `areaId`, `regionId`, and `landmassId`.
+  - `(73,36)` live readback is `TERRAIN_COAST`, `water:true`,
+    `lake:false`, `riverType:-1`, `areaId:720906`, `regionId:-1`,
+    `landmassId:65536`.
+  - `(65,39)` live readback is `TERRAIN_OCEAN`, `water:true`,
+    `lake:false`, `riverType:-1`, `areaId:720906`, `regionId:-1`,
+    `landmassId:65536`.
+  - The second row is the strongest remaining signal: local projection carries
+    `engineLakeMask:1` and `TERRAIN_COAST`, while live Civ readback reports
+    `lake:false` and `TERRAIN_OCEAN`. That narrows the next classification
+    question but does not prove the repair owner.
 
 ## Evidence Boundary
 
@@ -94,8 +120,6 @@
 
 ## Next Evidence
 
-- Link live water/lake/area or equivalent runtime flags for `(73,36)` and
-  `(65,39)`.
 - If live water/area readback does not resolve ownership, add a more granular
   projection-boundary snapshot immediately around `validateAndFixTerrain`.
 - Then classify each row before any repair.
@@ -109,6 +133,12 @@
 - `bun run --cwd mods/mod-swooper-maps check`: passed.
 - `bun scripts/civ7-direct-control/verify-final-surface-parity.ts --help`:
   passed.
+- `bun run verify:terrain-edge-live-context -- --help`: passed.
+- `bun test scripts/civ7-direct-control/verify-terrain-edge-live-context.test.ts`:
+  passed.
+- `bun run --cwd packages/civ7-direct-control test -- direct-control`:
+  passed.
+- `bun run --cwd packages/civ7-direct-control check`: passed.
 - `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`:
   passed.
 - `bun run openspec -- validate civ7-map-policy-final-surface-parity --strict`:

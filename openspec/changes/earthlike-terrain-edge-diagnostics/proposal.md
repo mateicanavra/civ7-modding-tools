@@ -27,6 +27,10 @@ The source proof hash is
 
 - Add terrain-only diagnostic context for local/live terrain mismatches.
 - Classify coast/ocean edge swap row shape and nearby terrain neighborhood.
+- Add a package-owned direct-control `hydrology.lake` readback fact and a
+  runtime-bound terrain-edge verifier that requires successful terrain,
+  water/lake/river, and area/region/landmass facts before producing complete
+  live context.
 - Keep source authority unresolved until shelf/lake/projection-boundary and
   live water/area evidence can distinguish repo projection, hydrology mutation,
   Civ terrain validation, and evidence insufficiency.
@@ -43,6 +47,8 @@ The source proof hash is
 ## Affected Owners
 
 - `mods/mod-swooper-maps/src/dev/diagnostics/**`
+- `packages/civ7-direct-control/**`
+- `scripts/civ7-direct-control/verify-terrain-edge-live-context.ts`
 - `openspec/changes/earthlike-terrain-edge-diagnostics/**`
 - Parity/OpenSpec records that route terrain deltas.
 
@@ -56,13 +62,19 @@ The source proof hash is
 
 - The exact-authored source proof is missing or identity-unstable.
 - Terrain rows cannot be tied to a current proof artifact.
+- Live readback rows are present but requested terrain/hydrology/area facts are
+  missing or failed.
 - Records start treating context as repair authority or parity closure.
 
 ## Verification Gates
 
 - Focused terrain diagnostic test.
 - Terrain edge context artifact for `studio-run-in-game-mq20rbzr-1fhc`.
+- Runtime-bound terrain-edge live readback artifact for
+  `studio-run-in-game-mq20rbzr-1fhc`.
+- Fact-completeness regression for terrain-edge live readback.
 - `bun run --cwd mods/mod-swooper-maps check`.
+- `bun run --cwd packages/civ7-direct-control check`.
 - `bun run openspec -- validate earthlike-terrain-edge-diagnostics --strict`.
 - `bun run openspec:validate`.
 - `git diff --check`.
