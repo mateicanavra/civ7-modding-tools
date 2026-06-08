@@ -222,6 +222,7 @@ async function main(): Promise<number> {
     livePlotContext: summarizeLivePlotContext(livePlotContext),
     resourceBuilderDiagnostics: resourceBuilderDiagnosticsSummary,
     resourceBuilderSubclassification,
+    assignmentClassSummary: summarizeAssignmentClasses(ignoreWeightProof.rows),
     strict: summarizeFeasibilityProof(proof, strict),
     ignoreWeight: ignoreWeightProof,
   };
@@ -469,6 +470,95 @@ function summarizeResourceBuilderSubclassification(
     classCounts: countBy(classifiedRows, (row) => row.subclassification),
     rows: classifiedRows,
   };
+}
+
+function summarizeAssignmentClasses(rows: ReadonlyArray<ResourceDeltaFeasibilityContext>) {
+  const locallyAssignedRows = rows.filter((row) => row.assignmentTrace !== null);
+  const classAndPhaseRows = locallyAssignedRows.map((row) => ({
+    feasibilityClass: row.feasibilityClass,
+    evidenceClass: row.evidenceClass,
+    assignmentPhase: row.assignmentTrace?.assignmentPhase ?? "missing",
+    targetMinPerType: row.assignmentTrace?.targetMinPerType ?? null,
+    resourceSymbol: row.localResource.symbol,
+    assignmentOrder: row.assignmentTrace?.assignmentOrder ?? null,
+  }));
+  const scarceFloorRows = classAndPhaseRows.filter((row) => row.assignmentPhase === "scarce-floor");
+  return {
+    localAssignedDeltaRowCount: locallyAssignedRows.length,
+    scarceFloorLocalAssignedDeltaRowCount: scarceFloorRows.length,
+    scarceFloorLocalAssignedDeltaShare:
+      locallyAssignedRows.length > 0 ? scarceFloorRows.length / locallyAssignedRows.length : null,
+    classCounts: countBy(rows, (row) => row.feasibilityClass),
+    classPhaseCounts: countBy(
+      classAndPhaseRows,
+      (row) => `${row.feasibilityClass}|${row.assignmentPhase}|target:${row.targetMinPerType ?? "missing"}`
+    ),
+    classPhaseResources: summarizeClassPhaseResources(classAndPhaseRows),
+  };
+}
+
+function summarizeClassPhaseResources(
+  rows: ReadonlyArray<{
+    feasibilityClass: string;
+    assignmentPhase: string;
+    targetMinPerType: number | null;
+    resourceSymbol: string;
+    assignmentOrder: number | null;
+  }>
+) {
+  const groups = new Map<
+    string,
+    {
+      feasibilityClass: string;
+      assignmentPhase: string;
+      targetMinPerType: number | null;
+      count: number;
+      resources: Set<string>;
+      minAssignmentOrder: number | null;
+      maxAssignmentOrder: number | null;
+    }
+  >();
+  for (const row of rows) {
+    const key = `${row.feasibilityClass}|${row.assignmentPhase}|target:${row.targetMinPerType ?? "missing"}`;
+    let group = groups.get(key);
+    if (!group) {
+      group = {
+        feasibilityClass: row.feasibilityClass,
+        assignmentPhase: row.assignmentPhase,
+        targetMinPerType: row.targetMinPerType,
+        count: 0,
+        resources: new Set<string>(),
+        minAssignmentOrder: null,
+        maxAssignmentOrder: null,
+      };
+      groups.set(key, group);
+    }
+    group.count += 1;
+    group.resources.add(row.resourceSymbol);
+    if (row.assignmentOrder !== null) {
+      group.minAssignmentOrder =
+        group.minAssignmentOrder === null ? row.assignmentOrder : Math.min(group.minAssignmentOrder, row.assignmentOrder);
+      group.maxAssignmentOrder =
+        group.maxAssignmentOrder === null ? row.assignmentOrder : Math.max(group.maxAssignmentOrder, row.assignmentOrder);
+    }
+  }
+  return [...groups.values()]
+    .sort((left, right) => {
+      const classDelta = left.feasibilityClass.localeCompare(right.feasibilityClass);
+      if (classDelta !== 0) return classDelta;
+      const phaseDelta = left.assignmentPhase.localeCompare(right.assignmentPhase);
+      if (phaseDelta !== 0) return phaseDelta;
+      return (left.targetMinPerType ?? -1) - (right.targetMinPerType ?? -1);
+    })
+    .map((group) => ({
+      feasibilityClass: group.feasibilityClass,
+      assignmentPhase: group.assignmentPhase,
+      targetMinPerType: group.targetMinPerType,
+      count: group.count,
+      minAssignmentOrder: group.minAssignmentOrder,
+      maxAssignmentOrder: group.maxAssignmentOrder,
+      resources: [...group.resources].sort((left, right) => left.localeCompare(right)),
+    }));
 }
 
 function classifyResourceBuilderFocusedRow(input: {

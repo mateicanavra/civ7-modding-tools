@@ -32,8 +32,9 @@
   local-overaccepted rows.
 - [x] 2.13 Add official ResourceBuilder row policy context for the focused
   local-overaccepted rows.
-- [ ] 2.14 Repair remaining proven package or MapGen owners.
-- [ ] 2.15 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.14 Add assignment-class summary for local-authored resource delta rows.
+- [ ] 2.15 Repair remaining proven package or MapGen owners.
+- [ ] 2.16 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
