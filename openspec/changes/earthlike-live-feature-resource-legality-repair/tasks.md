@@ -84,6 +84,14 @@
   footprint proof artifact.
 - [ ] 2.41 Produce current exact-authored parity proof after the natural-wonder
   projection/materialization repair.
+  - Current checked-in config attempts `studio-run-in-game-mq3koapx-1qxe` and
+    `studio-run-in-game-mq3kvvfs-1qxe` passed materialize/deploy/setup
+    preparation but failed in `starting-game` with `setup-start-timeout` before
+    `begin` was attempted; restart-backed attempt
+    `studio-run-in-game-mq3l0b8p-1qxe` failed in `restarting-civ` because setup
+    shell was not ready within `180000ms`. This supersedes the old stale
+    `floodplainPlanning` schema blocker but does not produce current exact
+    authorship or parity proof.
 - [ ] 2.42 Repair remaining proven package or MapGen owners.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
 
@@ -99,6 +107,9 @@
   natural-wonder projection/materialization repair.
 - [ ] 3.8 Re-run current exact-authored final-surface parity after natural-wonder
   projection/materialization repair.
+  - Blocked on the current Studio/Civ runtime start/reload boundary above; no
+    current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet, or
+    final-surface parity artifact exists for the current branch.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after

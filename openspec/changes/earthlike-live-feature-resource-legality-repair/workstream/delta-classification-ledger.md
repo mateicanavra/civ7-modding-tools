@@ -878,7 +878,7 @@ Validation:
 | Placement contract tests | Passed `bun test mods/mod-swooper-maps/test/placement/placement-contracts.test.ts`. |
 | Owner checks | Passed `bun run --cwd packages/civ7-adapter check`, `bun run --cwd packages/civ7-adapter build`, and `bun run --cwd mods/mod-swooper-maps check`. |
 | OpenSpec strict validation | Passed `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`. |
-| Current exact parity proof rerun | Blocked before parity evaluation by stale config key `/config/ecology-features/floodplainPlanning`; no parity closure claimed. |
+| Current exact parity proof rerun | Superseded by current checked-in config run attempts: the stale `floodplainPlanning` schema blocker is no longer active, but parity closure is still not claimed. |
 
 ### Natural-Wonder Exact Log Telemetry Binding
 
@@ -908,7 +908,7 @@ Current drain validation:
 | Diagnostics/parity/materialization tests | Passed `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`. |
 | Owner checks | Passed `bun run --cwd mods/mod-swooper-maps check` and `bun run --cwd apps/mapgen-studio check`. |
 | OpenSpec strict validation | Passed `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict` and `bun run openspec:validate`. |
-| Current exact parity proof rerun | Blocked before parity evaluation by stale config key `/config/ecology-features/floodplainPlanning`; no parity closure claimed. |
+| Current exact parity proof rerun | Superseded by current checked-in config run attempts: the stale `floodplainPlanning` schema blocker is no longer active, but parity closure is still not claimed. |
 
 ### Source-Recorded Fresh Natural-Wonder Telemetry Proof
 
@@ -984,7 +984,7 @@ Current drain validation:
 | Diagnostics/parity/materialization tests | Passed `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`. |
 | Owner checks | Passed `bun run --cwd mods/mod-swooper-maps check` and `bun run --cwd apps/mapgen-studio check`. |
 | OpenSpec strict validation | Passed `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict` and `bun run openspec:validate`. |
-| Current exact parity proof rerun | Blocked before parity evaluation by stale config key `/config/ecology-features/floodplainPlanning`; no parity closure claimed. |
+| Current exact parity proof rerun | Superseded by current checked-in config run attempts: the stale `floodplainPlanning` schema blocker is no longer active, but parity closure is still not claimed. |
 
 ### Source-Recorded Fresh Natural-Wonder Coordinate Proof
 
@@ -1112,10 +1112,28 @@ Current drain validation:
 `git diff --check && git diff --cached --check`.
 
 Current exact parity rerun:
-blocked before parity evaluation. The rerun command
-`bun run verify:final-surface-parity -- --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-exact-proof-wrapper.json --output /tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-direction-repair.json`
-returned
-`Recipe compile failed: /config/ecology-features/floodplainPlanning: Unknown key`.
+the older saved-wrapper rerun was blocked before parity evaluation by stale
+`/config/ecology-features/floodplainPlanning`; that stale-config blocker is no
+longer the active current-config blocker. The current drain rebuilt the request
+from the checked-in Swooper Earthlike config and launched Studio Run in Game
+through the worktree-local endpoint. Requests `studio-run-in-game-mq3koapx-1qxe`
+and `studio-run-in-game-mq3kvvfs-1qxe` both materialized/deployed the current
+`studio-current.js` and prepared setup, then failed in `starting-game` with
+`setup-start-timeout` before `begin` was attempted. The fresh Scripting log
+reported
+`Failed to load file into script system - fs://game/swooper-maps/maps/studio-current.js`.
+Restart-backed request `studio-run-in-game-mq3l0b8p-1qxe` then failed in
+`restarting-civ` because setup shell was not ready within `180000ms`. Current
+status artifacts are
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-run-status.json`
+(`sha256:50d01a5ac3fa6fc2f882c8e6f3661ab3d19e447a44d5c76835117065087fc72d`),
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-retry-status.json`
+(`sha256:0eeae66d995be2f07cf5b1017e78364cdb33103ffa870af87aa3a9ce426c6d51`),
+and
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-status.json`
+(`sha256:cd2a8ab4df93292819f75f1b81de64cbc5c522dcbda79afef5405ff99dc869f7`).
+No current exact-authorship, final-surface parity, or product acceptance proof
+is claimed from these attempts.
 
 Source-recorded post-repair proof:
 request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
@@ -1387,6 +1405,8 @@ mountain-quality work.
 - Continue resource-row classification using source-recorded coordinate proof
   and runtime-bound row evidence where applicable before changing resource
   tuning, scarcity floors, assignment ordering, or static policy; obtain a
-  current exact-authored run before final closure.
+  current exact-authored run before final closure. The current config now
+  passes the stale schema key boundary, but Studio/Civ runtime start/reload
+  currently blocks before mapgen proof markers.
 - For resource rows, preserve resource spacing, age legality, and diversity
   evidence before any repair.
