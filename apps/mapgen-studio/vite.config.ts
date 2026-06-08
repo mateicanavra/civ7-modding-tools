@@ -881,7 +881,18 @@ export default defineConfig(({ command }) => ({
                   },
                   { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
                   { approved: true, reason: "Studio Run in Game", disposableSession: true },
-                );
+                ).catch(async (err: unknown) => {
+                  const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(() => "");
+                  const mapgenFailure = classifyCiv7MapgenLogFailure(freshLogText, { mapScript: launchMapScript });
+                  if (mapgenFailure) {
+                    throw new RunInGameHttpError(500, mapgenFailure.message, {
+                      ...mapgenFailure,
+                      materialization,
+                      cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
+                    });
+                  }
+                  throw err;
+                });
 
                 phase = "waiting-for-proof";
                 runInGameOperations.update(requestId, { phase, materialization });

@@ -79,3 +79,14 @@ newly deployed disposable setup row.
 - **WHEN** Run in Game blocks with `reloadBoundary: process-restart-required`
 - **THEN** Studio offers `Restart Civ & Run` as the primary launch action
 - **AND** the next launch request records explicit process-restart recovery
+
+### Requirement: Start-Phase Map Script Load Failures Are Classified
+
+Mapgen Studio SHALL preserve the fatal generated-map-script load boundary even
+when Civ reports it while Run in Game is still starting the prepared game.
+
+#### Scenario: Civ drops back to shell after failing to load studio-current
+- **WHEN** Run in Game fails during `starting-game`
+- **AND** the fresh Scripting log contains a generated map script load failure
+- **THEN** the operation status records `map-script-load-failed`
+- **AND** the recovery actions include `dismiss-civ-notification-and-retry`
