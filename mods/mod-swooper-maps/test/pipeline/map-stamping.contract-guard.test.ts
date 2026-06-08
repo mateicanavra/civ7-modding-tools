@@ -119,7 +119,7 @@ describe("map stamping contract guardrails", () => {
     expect(lakeStampers).toEqual([path.join(stagesRoot, "map-hydrology/steps/lakes.ts")]);
   });
 
-  it("only calls TerrainBuilder.modelRivers through the dedicated map-rivers step", () => {
+  it("keeps navigable river materialization MapGen-owned instead of calling Civ river modeling", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
     const files = listFilesRecursive(stagesRoot).filter((file) => file.endsWith(".ts"));
@@ -130,7 +130,13 @@ describe("map stamping contract guardrails", () => {
     });
 
     callers.sort();
-    expect(callers).toEqual([path.join(stagesRoot, "map-rivers/steps/plotRivers.ts")]);
+    expect(callers).toEqual([]);
+
+    const plotRiversText = readFileSync(
+      path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"),
+      "utf8"
+    );
+    expect(plotRiversText).toContain("materializeNavigableRiverMask");
   });
 
   it("labels standard recipe tile layers as Civ row-major odd-q", () => {

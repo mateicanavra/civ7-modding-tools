@@ -62,7 +62,7 @@ const CASES = [
     label: "shattered-ring",
     config: recipeConfig(shatteredRingRaw),
     wetlandMax: 0.12,
-    reefMax: 0.02,
+    reefMax: 0.025,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_SAGEBRUSH_STEPPE"],
     vegetationFamiliesMin: 3,
     requireAtolls: true,

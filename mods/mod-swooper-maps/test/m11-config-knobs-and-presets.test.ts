@@ -90,7 +90,18 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
       },
       "morphology-features": {
         knobs: { volcanism: "high", orogeny: "high" },
-        mountainRanges: { tectonicIntensity: 1.0, mountainThreshold: 0.6, hillThreshold: 0.35 },
+        mountainRanges: {
+          tectonicActivity: 1.0,
+          rangeSystemSpacingTiles: 20,
+          rangeSystemLengthTiles: 22,
+          provinceRadiusTiles: 4,
+          ridgeWidthTiles: 1,
+          foothillExtentTiles: 3,
+          interiorHighlandExpression: 0.55,
+          terrainTextureFractalMix: 0.45,
+          erosionMaturity: 0.45,
+          tectonicSignalSensitivity: 1.0,
+        },
         volcanoes: { baseDensity: 0.01, hotspotWeight: 0.12, convergentMultiplier: 2.4 },
       },
       "map-morphology": {},
@@ -163,21 +174,31 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     ).toBeCloseTo(1.25, 6);
     expect(
       compiled["morphology-features"].mountains.ridges.config.mountainThreshold
-    ).toBeCloseTo(0.55, 6);
+    ).toBeCloseTo(0.2, 6);
     expect(compiled["morphology-features"].mountains.ridges.config.hillThreshold).toBeCloseTo(
-      0.32,
+      0.1555,
       6
     );
 
-    // Both ops should receive the same knob transform (they share the knob envelope).
+    // All mountain-family planners should receive the same knob transform (they share the knob envelope).
     expect(
       compiled["morphology-features"].mountains.foothills.config.tectonicIntensity
     ).toBeCloseTo(1.25, 6);
     expect(
       compiled["morphology-features"].mountains.foothills.config.mountainThreshold
-    ).toBeCloseTo(0.55, 6);
+    ).toBeCloseTo(0.2, 6);
     expect(compiled["morphology-features"].mountains.foothills.config.hillThreshold).toBeCloseTo(
-      0.32,
+      0.1555,
+      6
+    );
+    expect(
+      compiled["morphology-features"].mountains.roughLands.config.tectonicIntensity
+    ).toBeCloseTo(1.25, 6);
+    expect(
+      compiled["morphology-features"].mountains.roughLands.config.mountainThreshold
+    ).toBeCloseTo(0.2, 6);
+    expect(compiled["morphology-features"].mountains.roughLands.config.hillThreshold).toBeCloseTo(
+      0.1555,
       6
     );
   });

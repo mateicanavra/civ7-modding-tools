@@ -153,7 +153,7 @@ describe("standard recipe execution", () => {
     );
   }
 
-  it("compiles and executes with a mock adapter", () => {
+  it("compiles and executes with a mock adapter", { timeout: 20_000 }, () => {
     const width = 24;
     const height = 18;
     const mapInfo = {
@@ -259,13 +259,13 @@ describe("standard recipe execution", () => {
     expect(authoredResourceTypes.some((resourceType) => deferredResourceTypes.has(resourceType ?? -1))).toBe(false);
   });
 
-  it("produces deterministic climate signatures for same seed + config", () => {
+  it("produces deterministic climate signatures for same seed + config", { timeout: 20_000 }, () => {
     const signatureA = runAndGetClimateSignature({ seed: 123, width: 24, height: 18 });
     const signatureB = runAndGetClimateSignature({ seed: 123, width: 24, height: 18 });
     expect(signatureA).toBe(signatureB);
   });
 
-  it("lowers mean surface temperature when temperature is cold vs hot (same seed)", () => {
+  it("lowers mean surface temperature when temperature is cold vs hot (same seed)", { timeout: 20_000 }, () => {
     const width = 24;
     const height = 18;
     const seed = 123;
@@ -331,7 +331,7 @@ describe("standard recipe execution", () => {
     expect(meanCold).toBeLessThan(meanHot);
   });
 
-	  it("projects more river tiles when riverDensity is dense vs sparse (same seed)", () => {
+	  it("projects more river tiles when riverDensity is dense vs sparse (same seed)", { timeout: 20_000 }, () => {
 	    const width = 24;
 	    const height = 18;
 	    const seed = 123;

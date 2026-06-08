@@ -23,15 +23,15 @@ describe("placement final lake readback", () => {
     acceptedLakeMask[2 + width] = 1;
 
     // This reproduces the lifecycle problem we care about: map-hydrology accepted
-    // both lakes, but a later engine maintenance pass left one tile no longer
-    // reading as lake water at the final placement surface boundary.
+    // both lakes, but later engine maintenance left one tile as non-lake water
+    // and another as dry land at the final placement surface boundary.
     adapter.setTerrainType(1, 1, COAST_TERRAIN);
     adapter.setTerrainType(2, 1, FLAT_TERRAIN);
 
     expect(readFinalLakeProjection(adapter, width, height, acceptedLakeMask)).toEqual({
       acceptedLakeTileCount: 2,
       finalLakeWaterDriftCount: 1,
-      finalLakeClassificationDriftCount: 1,
+      finalLakeClassificationDriftCount: 2,
     });
   });
 });

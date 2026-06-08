@@ -27,16 +27,24 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       [
         ecologyArtifacts.featureIntentsVegetation,
         ecologyArtifacts.featureIntentsWetlands,
+        ecologyArtifacts.featureIntentsFloodplains,
         ecologyArtifacts.featureIntentsReefs,
         ecologyArtifacts.featureIntentsIce,
       ],
-      { featureIntentsVegetation: {}, featureIntentsWetlands: {}, featureIntentsReefs: {}, featureIntentsIce: {} }
+      {
+        featureIntentsVegetation: {},
+        featureIntentsWetlands: {},
+        featureIntentsFloodplains: {},
+        featureIntentsReefs: {},
+        featureIntentsIce: {},
+      }
     );
 
     stageArtifacts.featureIntentsVegetation.publish(ctx, [
       { x: 0, y: 0, feature: "FEATURE_DOES_NOT_EXIST" },
     ]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);
+    stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
     stageArtifacts.featureIntentsReefs.publish(ctx, []);
     stageArtifacts.featureIntentsIce.publish(ctx, []);
 
@@ -71,14 +79,22 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       [
         ecologyArtifacts.featureIntentsVegetation,
         ecologyArtifacts.featureIntentsWetlands,
+        ecologyArtifacts.featureIntentsFloodplains,
         ecologyArtifacts.featureIntentsReefs,
         ecologyArtifacts.featureIntentsIce,
       ],
-      { featureIntentsVegetation: {}, featureIntentsWetlands: {}, featureIntentsReefs: {}, featureIntentsIce: {} }
+      {
+        featureIntentsVegetation: {},
+        featureIntentsWetlands: {},
+        featureIntentsFloodplains: {},
+        featureIntentsReefs: {},
+        featureIntentsIce: {},
+      }
     );
 
     stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "FEATURE_FOREST" }]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);
+    stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
     stageArtifacts.featureIntentsReefs.publish(ctx, []);
     stageArtifacts.featureIntentsIce.publish(ctx, []);
 
