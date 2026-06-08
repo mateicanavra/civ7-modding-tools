@@ -85,10 +85,31 @@ function snapshot(args: {
   localTerrain?: ReadonlyArray<number | null>;
   resourceCoordinateProof?: boolean;
   resourceRejectionContext?: boolean;
+  naturalWonderPlan?: "matching" | "diverged";
 }): FinalSurfaceSnapshot {
   const width = 2;
   const height = 1;
   const localEvidence = {
+    ...(args.naturalWonderPlan
+      ? {
+          naturalWonderPlan: {
+            width,
+            height,
+            wondersCount: 1,
+            targetCount: 1,
+            plannedCount: 1,
+            placements: [
+              {
+                plotIndex: args.naturalWonderPlan === "diverged" ? 0 : 1,
+                featureType: 30,
+                direction: 0,
+                elevation: args.naturalWonderPlan === "diverged" ? 3 : 4,
+                priority: args.naturalWonderPlan === "diverged" ? 0.25 : 0.5,
+              },
+            ],
+          },
+        }
+      : {}),
     ...(args.resourceCoordinateProof
       ? {
           resourcePlacementOutcomes: {
@@ -253,6 +274,96 @@ describe("final-surface parity proof", () => {
       exact: { placed: { count: 2, hash32: "bbbbbbbb" } },
     });
     expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.placed");
+  });
+
+  test("compares matching exact and local natural-wonder plan rows", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof({
+        log: {
+          requestId: "run-1",
+          configHash,
+          envelopeHash: "envelope-1",
+          seed: 1234,
+          dimensions: { width: 2, height: 1 },
+          naturalWonderPlan: {
+            planRows: [
+              {
+                plotIndex: 1,
+                x: 1,
+                y: 0,
+                featureType: 30,
+                direction: 0,
+                elevation: 4,
+                priorityPpm: 500000,
+              },
+            ],
+          },
+        },
+      }),
+      local: snapshot({ source: "local-mapgen", naturalWonderPlan: "matching" }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.naturalWonderPlanCoordinateProof).toMatchObject({
+      status: "match",
+      rowComparisons: [
+        {
+          featureType: 30,
+          classification: "exact-local-same-anchor",
+          distance: 0,
+          elevationDelta: 0,
+          priorityDeltaPpm: 0,
+        },
+      ],
+      mismatchedLinks: [],
+    });
+    expect(proof.unresolvedLinks).not.toContain("natural-wonder-plan-coordinate-proof.planned");
+  });
+
+  test("keeps parity unresolved when exact and local natural-wonder plan rows diverge", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof({
+        log: {
+          requestId: "run-1",
+          configHash,
+          envelopeHash: "envelope-1",
+          seed: 1234,
+          dimensions: { width: 2, height: 1 },
+          naturalWonderPlan: {
+            planRows: [
+              {
+                plotIndex: 1,
+                x: 1,
+                y: 0,
+                featureType: 30,
+                direction: 0,
+                elevation: 4,
+                priorityPpm: 500000,
+              },
+            ],
+          },
+        },
+      }),
+      local: snapshot({ source: "local-mapgen", naturalWonderPlan: "diverged" }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.naturalWonderPlanCoordinateProof).toMatchObject({
+      status: "mismatch",
+      rowComparisons: [
+        {
+          featureType: 30,
+          classification: "exact-local-anchor-diverged",
+          exact: { plotIndex: 1, x: 1, y: 0, elevation: 4, priorityPpm: 500000 },
+          local: { plotIndex: 0, x: 0, y: 0, elevation: 3, priorityPpm: 250000 },
+          elevationDelta: 1,
+          priorityDeltaPpm: 250000,
+        },
+      ],
+      mismatchedLinks: ["natural-wonder-plan-coordinate-proof.planned"],
+    });
+    expect(proof.unresolvedLinks).toContain("natural-wonder-plan-coordinate-proof.planned");
   });
 
   test("joins exact resource rejection rows to local placement evidence", () => {

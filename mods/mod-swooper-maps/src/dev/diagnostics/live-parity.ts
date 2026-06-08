@@ -11,6 +11,7 @@ import {
   sha256Hex,
   stableStringify,
 } from "@swooper/mapgen-core";
+import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
 
 import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
@@ -98,6 +99,42 @@ type ResourcePlacementCoordinateProofComparison = Readonly<{
   mismatchedLinks: ReadonlyArray<string>;
 }>;
 
+type NaturalWonderPlanCoordinateProofComparison = Readonly<{
+  status: "match" | "mismatch" | "missing-exact-log" | "missing-local-plan";
+  local?: Readonly<{
+    planned?: Readonly<{ count?: number; hash32?: string }>;
+  }>;
+  exact?: Readonly<{
+    planned?: Readonly<{ count?: number; hash32?: string }>;
+  }>;
+  rowComparisons: ReadonlyArray<NaturalWonderPlanRowComparison>;
+  mismatchedLinks: ReadonlyArray<string>;
+}>;
+
+type NaturalWonderPlanRowComparison = Readonly<{
+  featureType: number;
+  classification:
+    | "exact-local-same-anchor"
+    | "exact-local-anchor-diverged"
+    | "exact-only"
+    | "local-only";
+  exact?: NaturalWonderPlanRow;
+  local?: NaturalWonderPlanRow;
+  distance?: number;
+  elevationDelta?: number;
+  priorityDeltaPpm?: number;
+}>;
+
+type NaturalWonderPlanRow = Readonly<{
+  plotIndex: number;
+  x: number;
+  y: number;
+  featureType: number;
+  direction: number;
+  elevation?: number;
+  priorityPpm?: number;
+}>;
+
 export type ResourcePlacementRejectionContext = Readonly<{
   exact: Readonly<{
     status: string;
@@ -161,6 +198,7 @@ export type FinalSurfaceParityProof = Readonly<{
   local: FinalSurfaceSnapshot;
   live: FinalSurfaceSnapshot;
   diffs: ReadonlyArray<SurfaceDiffSummary>;
+  naturalWonderPlanCoordinateProof?: NaturalWonderPlanCoordinateProofComparison;
   resourcePlacementCoordinateProof?: ResourcePlacementCoordinateProofComparison;
   resourcePlacementRejectionContexts?: ReadonlyArray<ResourcePlacementRejectionContext>;
   residuals: ReadonlyArray<ParityResidualClassification>;
@@ -252,6 +290,14 @@ export type ExactAuthorshipProofLike = Readonly<{
         version?: number;
         placed?: Readonly<{ count?: number; hash32?: string }>;
         rejected?: Readonly<{ count?: number; hash32?: string }>;
+      }>;
+      payload?: unknown;
+    }>;
+    naturalWonderPlan?: Readonly<{
+      planRows?: ReadonlyArray<unknown>;
+      coordinateProof?: Readonly<{
+        version?: number;
+        planned?: Readonly<{ count?: number; hash32?: string }>;
       }>;
       payload?: unknown;
     }>;
@@ -674,6 +720,8 @@ export function buildFinalSurfaceParityProof(args: {
   const diffs = diffFinalSurfaceSnapshots(args.local, args.live);
   const unresolvedLinks: string[] = [];
   const exact = args.exactAuthorship;
+  const naturalWonderPlanCoordinateProof =
+    exact === undefined ? undefined : buildNaturalWonderPlanCoordinateProofComparison(exact, args.local);
   const resourcePlacementCoordinateProof =
     exact === undefined ? undefined : buildResourcePlacementCoordinateProofComparison(exact, args.local);
   const resourcePlacementRejectionContexts =
@@ -755,6 +803,9 @@ export function buildFinalSurfaceParityProof(args: {
     ) {
       unresolvedLinks.push("exact-authorship-proof.materialization-envelope-hash.local-envelope-hash");
     }
+    if (naturalWonderPlanCoordinateProof) {
+      unresolvedLinks.push(...naturalWonderPlanCoordinateProof.mismatchedLinks);
+    }
     if (resourcePlacementCoordinateProof) {
       unresolvedLinks.push(...resourcePlacementCoordinateProof.mismatchedLinks);
     }
@@ -791,6 +842,9 @@ export function buildFinalSurfaceParityProof(args: {
     local: args.local,
     live: args.live,
     diffs,
+    ...(naturalWonderPlanCoordinateProof === undefined
+      ? {}
+      : { naturalWonderPlanCoordinateProof }),
     ...(resourcePlacementCoordinateProof === undefined ? {} : { resourcePlacementCoordinateProof }),
     ...(resourcePlacementRejectionContexts.length === 0
       ? {}
@@ -967,6 +1021,251 @@ function addFullGridEvidenceLinks(unresolvedLinks: string[], live: FinalSurfaceS
   }
   const identityCheck = isPlainObject(fullGrid.identityCheck) ? fullGrid.identityCheck : undefined;
   if (identityCheck?.stable !== true) unresolvedLinks.push("live.full-grid.identity-check");
+}
+
+function buildNaturalWonderPlanCoordinateProofComparison(
+  exact: ExactAuthorshipProofLike,
+  local: FinalSurfaceSnapshot
+): NaturalWonderPlanCoordinateProofComparison | undefined {
+  const localRows = readLocalNaturalWonderPlanRows(local);
+  const exactRows = readExactNaturalWonderPlanRows(exact);
+  if (localRows.length === 0 && exactRows.length === 0) return undefined;
+
+  const localProof =
+    localRows.length === 0
+      ? undefined
+      : {
+          planned: naturalWonderPlanCoordinateDigest(localRows),
+        };
+  const exactLoggedDigest = exactNaturalWonderPlanLoggedDigest(exact);
+  const exactProof =
+    exactRows.length === 0 && !exactLoggedDigest
+      ? undefined
+      : {
+          planned: exactLoggedDigest ?? naturalWonderPlanCoordinateDigest(exactRows),
+        };
+  const rowComparisons = buildNaturalWonderPlanRowComparisons(exactRows, localRows, local.width);
+  if (!exactProof) {
+    return {
+      status: "missing-exact-log",
+      local: localProof,
+      rowComparisons,
+      mismatchedLinks: (localProof?.planned?.count ?? 0) > 0
+        ? ["natural-wonder-plan-coordinate-proof.log"]
+        : [],
+    };
+  }
+  if (!localProof) {
+    return {
+      status: "missing-local-plan",
+      exact: exactProof,
+      rowComparisons,
+      mismatchedLinks: (exactProof.planned?.count ?? 0) > 0
+        ? ["natural-wonder-plan-coordinate-proof.local"]
+        : [],
+    };
+  }
+  const mismatchedLinks = [
+    coordinateDigestMismatchLink(
+      localProof.planned,
+      exactProof.planned,
+      "natural-wonder-plan-coordinate-proof.planned"
+    ),
+  ].filter((link): link is string => link !== undefined);
+  return {
+    status: mismatchedLinks.length === 0 ? "match" : "mismatch",
+    local: localProof,
+    exact: exactProof,
+    rowComparisons,
+    mismatchedLinks,
+  };
+}
+
+function readExactNaturalWonderPlanRows(exact: ExactAuthorshipProofLike): NaturalWonderPlanRow[] {
+  const rows = exact.log?.naturalWonderPlan?.planRows;
+  return Array.isArray(rows)
+    ? rows.flatMap((row) => readNaturalWonderPlanRow(row))
+    : [];
+}
+
+function readLocalNaturalWonderPlanRows(local: FinalSurfaceSnapshot): NaturalWonderPlanRow[] {
+  const plan = isPlainObject(local.evidence?.naturalWonderPlan)
+    ? local.evidence.naturalWonderPlan
+    : undefined;
+  const placements = Array.isArray(plan?.placements) ? plan.placements : [];
+  return placements.flatMap((placement) => readNaturalWonderPlanRow(placement, local.width));
+}
+
+function readNaturalWonderPlanRow(value: unknown, width?: number): NaturalWonderPlanRow[] {
+  if (Array.isArray(value)) {
+    const status = value[0];
+    const plotIndex = numberValue(value[1]);
+    const x = numberValue(value[2]);
+    const y = numberValue(value[3]);
+    const featureType = numberValue(value[4]);
+    const direction = numberValue(value[5]);
+    if (status !== "p" || plotIndex === undefined || x === undefined || y === undefined || featureType === undefined || direction === undefined) {
+      return [];
+    }
+    return [
+      stripUndefinedNaturalWonderPlanRow({
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        elevation: numberOrNullValue(value[6]) ?? undefined,
+        priorityPpm: numberOrNullValue(value[7]) ?? undefined,
+      }),
+    ];
+  }
+  if (!isPlainObject(value)) return [];
+  const plotIndex = numberValue(value.plotIndex);
+  const featureType = numberValue(value.featureType);
+  const direction = numberValue(value.direction);
+  if (plotIndex === undefined || featureType === undefined || direction === undefined) return [];
+  const rowY = numberValue(value.y) ?? (width === undefined ? undefined : Math.floor(plotIndex / width));
+  const rowX = numberValue(value.x) ?? (width === undefined || rowY === undefined ? undefined : plotIndex - rowY * width);
+  if (rowX === undefined || rowY === undefined) return [];
+  return [
+    stripUndefinedNaturalWonderPlanRow({
+      plotIndex,
+      x: rowX,
+      y: rowY,
+      featureType,
+      direction,
+      elevation: numberValue(value.elevation),
+      priorityPpm: priorityPpmValue(value.priorityPpm ?? value.priority),
+    }),
+  ];
+}
+
+function stripUndefinedNaturalWonderPlanRow(
+  row: NaturalWonderPlanRow
+): NaturalWonderPlanRow {
+  return {
+    plotIndex: row.plotIndex,
+    x: row.x,
+    y: row.y,
+    featureType: row.featureType,
+    direction: row.direction,
+    ...(row.elevation === undefined ? {} : { elevation: row.elevation }),
+    ...(row.priorityPpm === undefined ? {} : { priorityPpm: row.priorityPpm }),
+  };
+}
+
+function priorityPpmValue(value: unknown): number | undefined {
+  const numeric = numberValue(value);
+  if (numeric === undefined) return undefined;
+  if (numeric > 1) return Math.max(0, Math.min(1_000_000, Math.trunc(numeric)));
+  return Math.max(0, Math.min(1_000_000, Math.round(numeric * 1_000_000)));
+}
+
+function naturalWonderPlanCoordinateDigest(
+  rows: readonly NaturalWonderPlanRow[]
+): { count: number; hash32: string } {
+  return {
+    count: rows.length,
+    hash32: hash32Hex(
+      rows
+        .slice()
+        .sort((a, b) => {
+          if (a.plotIndex !== b.plotIndex) return a.plotIndex - b.plotIndex;
+          if (a.featureType !== b.featureType) return a.featureType - b.featureType;
+          return a.direction - b.direction;
+        })
+        .map((row) => naturalWonderPlanDigestFields(row).join(":"))
+        .join("|")
+    ),
+  };
+}
+
+function naturalWonderPlanDigestFields(
+  row: NaturalWonderPlanRow
+): ReadonlyArray<string | number | null> {
+  return [
+    "p",
+    row.plotIndex,
+    row.x,
+    row.y,
+    row.featureType,
+    row.direction,
+    row.elevation ?? null,
+    row.priorityPpm ?? null,
+  ];
+}
+
+function exactNaturalWonderPlanLoggedDigest(
+  exact: ExactAuthorshipProofLike
+): { count?: number; hash32?: string } | undefined {
+  const planned = exact.log?.naturalWonderPlan?.coordinateProof?.planned;
+  const plannedDigest = coordinateDigest(planned);
+  if (plannedDigest) return plannedDigest;
+  const payload = isPlainObject(exact.log?.naturalWonderPlan?.payload)
+    ? exact.log?.naturalWonderPlan?.payload
+    : undefined;
+  const coordinateProof = isPlainObject(payload?.coordinateProof) ? payload.coordinateProof : undefined;
+  const count = numberValue(coordinateProof?.plannedCount);
+  const hash32 = typeof coordinateProof?.plannedHash32 === "string"
+    ? coordinateProof.plannedHash32
+    : undefined;
+  return count === undefined && hash32 === undefined ? undefined : { count, hash32 };
+}
+
+function buildNaturalWonderPlanRowComparisons(
+  exactRows: readonly NaturalWonderPlanRow[],
+  localRows: readonly NaturalWonderPlanRow[],
+  width: number
+): NaturalWonderPlanRowComparison[] {
+  const exactByFeature = new Map(exactRows.map((row) => [row.featureType, row] as const));
+  const localByFeature = new Map(localRows.map((row) => [row.featureType, row] as const));
+  const featureTypes = [...new Set([...exactByFeature.keys(), ...localByFeature.keys()])]
+    .sort((a, b) => a - b);
+  return featureTypes.map((featureType) => {
+    const exact = exactByFeature.get(featureType);
+    const local = localByFeature.get(featureType);
+    if (!exact) {
+      return {
+        featureType,
+        classification: "local-only",
+        local,
+      };
+    }
+    if (!local) {
+      return {
+        featureType,
+        classification: "exact-only",
+        exact,
+      };
+    }
+    return {
+      featureType,
+      classification: exact.plotIndex === local.plotIndex && exact.direction === local.direction
+        ? "exact-local-same-anchor"
+        : "exact-local-anchor-diverged",
+      exact,
+      local,
+      distance: hexDistanceOddQPeriodicX(exact.plotIndex, local.plotIndex, width),
+      ...(exact.elevation === undefined || local.elevation === undefined
+        ? {}
+        : { elevationDelta: exact.elevation - local.elevation }),
+      ...(exact.priorityPpm === undefined || local.priorityPpm === undefined
+        ? {}
+        : { priorityDeltaPpm: exact.priorityPpm - local.priorityPpm }),
+    };
+  });
+}
+
+const FNV1A_32_OFFSET = 0x811c9dc5;
+const FNV1A_32_PRIME = 0x01000193;
+
+function hash32Hex(input: string): string {
+  let hash = FNV1A_32_OFFSET;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 function buildResourcePlacementCoordinateProofComparison(

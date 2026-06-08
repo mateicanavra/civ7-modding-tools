@@ -6,7 +6,7 @@
 - Phase: product closure planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack:
-  `codex/swooper-natural-wonder-plan-proof-drain`
+  `codex/swooper-natural-wonder-plan-comparison-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -29,6 +29,9 @@
 ## Current State
 
 - Repo/Graphite state: current top branch is
+  `codex/swooper-natural-wonder-plan-comparison-drain`, stacked above
+  `codex/swooper-natural-wonder-plan-proof-drain`,
+  `codex/swooper-natural-wonder-row-proof-drain`,
   `codex/swooper-natural-wonder-supported-catalog-drain`, stacked above
   `codex/swooper-resource-delta-feasibility-current-record-drain`,
   `codex/swooper-resource-rejection-local-context-drain`,
@@ -37,7 +40,7 @@
   `codex/swooper-resource-rejection-identity-rerun-record-drain`,
   `codex/swooper-resource-rejection-proof-identity-drain`, and the current
   Swooper proof/diagnostic drain branches.
-- Dirty files and owner: this proof-contract slice owns the current
+- Dirty files and owner: this proof-comparison slice owns the current
   Swooper/Studio telemetry and OpenSpec files and must leave the branch clean
   before commit or closure.
 - Current code evidence: exact-authorship and mapgen-completion proof are
@@ -109,6 +112,17 @@
   remains unresolved with terrain `140`, biome `874`, feature `376`, and
   resource `307` mismatches. This is proof-contract work only; final parity
   and product acceptance remain open.
+  Current follow-on branch `codex/swooper-natural-wonder-plan-comparison-drain`
+  binds that divergence as a final-surface parity proof comparison. Refreshed
+  verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-comparison.json`
+  (`sha256:72972c12cd87396c0f1e54793ee7a8e7d7e8aff6f2baa2a307a7161a7a0c2856`,
+  `proofHash:f6e6ad68cd1d48dff4c16465abd63c2e2ec4fa9e04b2df93e0b55a2da684c10f`)
+  remains unresolved and now carries explicit link
+  `natural-wonder-plan-coordinate-proof.planned`, exact planned digest
+  `7/38085c90`, local planned digest `7/b921cd4f`, and row classifications
+  showing diverged anchors for features `30`, `35`, and `36`. This is proof
+  comparison only; final parity and product acceptance remain open.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -158,9 +172,10 @@
   locally repairs the natural-wonder unsupported-catalog / empty-footprint
   planning leak, and fresh exact runtime proof confirms that unsupported
   footprint rows no longer reach live natural-wonder placement telemetry.
-  Current proof-contract branch also records exact natural-wonder plan rows,
-  proving the remaining natural-wonder source decision begins at exact/local
-  plan-input or engine-surface divergence.
+  Current proof-comparison branch also records exact/local natural-wonder plan
+  coordinate mismatch as a first-class parity proof link, proving the remaining
+  natural-wonder source decision begins at exact/local plan-input or
+  engine-surface divergence.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
@@ -174,7 +189,7 @@
   the current exact-authorship proof.
 - Results: repo snapshot clean before this update; latest verifier artifact is
   unresolved with proof hash
-  `66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290`;
+  `f6e6ad68cd1d48dff4c16465abd63c2e2ec4fa9e04b2df93e0b55a2da684c10f`;
   broader review-ledger scan found historical P1/P2 entries but no active
   review ledger under the two current recovery closure changes. Focused local
   validation for the natural-wonder repair passed: `bun test

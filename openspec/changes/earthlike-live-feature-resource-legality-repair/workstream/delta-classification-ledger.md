@@ -1568,21 +1568,27 @@ open.
 | Artifact | Path | Identity |
 | --- | --- | --- |
 | Exact status proof | `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-plan-proof-status.json` | `sha256:a1e25662685fee91916d27a81021ff5bf7ad90f610a79bd1ae75b27b9057fa39` |
-| Final-surface proof | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-rows.json` | `sha256:6a16a3273cc0e99120826d5adb74382dad66f0d45fb307c4af073ade9e1fe711`, `proofHash:9c19e242e009dbf89711cba6e5f40ee618e27ea8bdb707d18d2d9d8727d87296` |
-| Verifier log | `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3ze9g3-natural-wonder-plan-rows.log` | `sha256:b8a581af6a65a95204b8688e8278ad99eab0a7637ab302cc9cb3537e6d0a21cf` |
+| Final-surface proof with raw plan rows | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-rows.json` | `sha256:6a16a3273cc0e99120826d5adb74382dad66f0d45fb307c4af073ade9e1fe711`, `proofHash:9c19e242e009dbf89711cba6e5f40ee618e27ea8bdb707d18d2d9d8727d87296` |
+| Final-surface proof with plan comparison | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-comparison.json` | `sha256:72972c12cd87396c0f1e54793ee7a8e7d7e8aff6f2baa2a307a7161a7a0c2856`, `proofHash:f6e6ad68cd1d48dff4c16465abd63c2e2ec4fa9e04b2df93e0b55a2da684c10f` |
+| Verifier log | `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3ze9g3-natural-wonder-plan-comparison.log` | `sha256:4f996cc6ad19f334910c25e0c545cfba79a7e31a21b9f599f594286f636f0309` |
 
 Exact `NATURAL_WONDER_PLAN_V1` is now bound in the exact-authorship packet for
 request `studio-run-in-game-mq3ze9g3-1zzu`. It proves the exact planner rows:
 
-| Feature | Exact plan plot | Exact priority ppm | Local replay plot | Local priority |
-| ---: | ---: | ---: | ---: | ---: |
-| `30` | `4130` | `530579` | `1342` | `0.6107035471190667` |
-| `32` | `1228` | `888087` | `1228` | `0.8862814251333475` |
-| `34` | `1861` | `831121` | `1861` | `0.8319755537371183` |
-| `35` | `1686` | `441272` | `1624` | `0.3040659082346949` |
-| `36` | `1785` | `377995` | `2065` | `0.8272660786093309` |
-| `38` | `1000` | `736723` | `1000` | `0.7338061736703947` |
-| `39` | `5107` | `488668` | `5107` | `0.4857279896736145` |
+The current final-surface proof now carries
+`naturalWonderPlanCoordinateProof.status:mismatch`, exact planned digest
+`7/38085c90`, local planned digest `7/b921cd4f`, and unresolved link
+`natural-wonder-plan-coordinate-proof.planned`.
+
+| Feature | Class | Exact plan plot | Exact priority ppm | Local replay plot | Local priority ppm | Distance |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: |
+| `30` | `exact-local-anchor-diverged` | `4130` | `530579` | `1342` | `610704` | `42` |
+| `32` | `exact-local-same-anchor` | `1228` | `888087` | `1228` | `886281` | `0` |
+| `34` | `exact-local-same-anchor` | `1861` | `831121` | `1861` | `831976` | `0` |
+| `35` | `exact-local-anchor-diverged` | `1686` | `441272` | `1624` | `304066` | `44` |
+| `36` | `exact-local-anchor-diverged` | `1785` | `377995` | `2065` | `827266` | `38` |
+| `38` | `exact-local-same-anchor` | `1000` | `736723` | `1000` | `733806` | `0` |
+| `39` | `exact-local-same-anchor` | `5107` | `488668` | `5107` | `485728` | `0` |
 
 Exact placement then reports `7` planned, `5` placed, and `2` rejected. The
 rejected rows are feature `30` at plot `4130` and feature `36` at plot `1785`,
@@ -1596,7 +1602,8 @@ The next owner decision must explain the exact/local plan-input or
 engine-surface divergence before changing readback behavior, local mock policy,
 public Earthlike config, or natural-wonder tuning. Final-surface parity remains
 `unresolved` with terrain `140`, biome `874`, feature `376`, resource `307`,
-and resource coordinate proof links still open.
+resource coordinate proof links, and the natural-wonder plan-coordinate proof
+link still open.
 
 ## Required Next Diagnostics
 
