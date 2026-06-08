@@ -25,6 +25,7 @@ import {
   getCiv7MapSummary,
   getCiv7PlotSnapshot,
   getCiv7PlayableStatus,
+  getCiv7ResourceBuilderDiagnostics,
   getCiv7ResourcePlacementFeasibility,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
@@ -470,6 +471,68 @@ describe("Civ7 direct control", () => {
       });
       expect(server.received.some((message) => message.includes("ResourceBuilder"))).toBe(true);
       expect(server.received.some((message) => message.includes("readResourcePlacementFeasibility"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("wraps ResourceBuilder diagnostics through package-owned readback", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const diagnostics = await getCiv7ResourceBuilderDiagnostics(
+        {
+          cells: [
+            { x: 9, y: 9, resourceTypes: [3, 12] },
+            { x: 10, y: 9, resourceTypes: [53] },
+          ],
+          maxCells: 1,
+          maxResourceTypesPerCell: 1,
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+
+      expect(diagnostics).toMatchObject({
+        cellCount: 2,
+        omittedCells: 1,
+        resources: [
+          {
+            resourceType: 3,
+            row: { ok: true, value: expect.objectContaining({ ResourceType: "RESOURCE_CLAY" }) },
+            hash: { ok: true, value: 333 },
+            count: { ok: true, value: 7 },
+            landmass: { ok: true, value: 255 },
+            validForAge: { ok: true, value: true },
+            requiredForAge: { ok: true, value: false },
+            ignoringWeightForRiverPlacement: { ok: true, value: false },
+          },
+        ],
+        cells: [
+          {
+            location: { x: 9, y: 9, index: { ok: true, value: 765 } },
+            resourceTypes: [3],
+            omittedResourceTypes: 1,
+            resources: {
+              "3": {
+                canHaveResource: {
+                  strict: { ok: true, value: false },
+                  ignoreWeight: { ok: true, value: true },
+                },
+                resourceLandmassAtCell: { ok: true, value: 255 },
+                bestMapResourceCutHashes: { ok: true, value: [333, 444] },
+                bestMapResourceCuts: {
+                  ok: true,
+                  value: [
+                    expect.objectContaining({ hash: 333, resourceType: 3, resourceTypeName: "RESOURCE_CLAY" }),
+                    expect.objectContaining({ hash: 444, resourceType: 12, resourceTypeName: "RESOURCE_RICE" }),
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      });
+      expect(server.received.some((message) => message.includes("getBestMapResourceCuts"))).toBe(true);
     } finally {
       await server.close();
     }
@@ -1549,6 +1612,51 @@ async function startTunerServer(options: {
                     omittedResourceTypes: 1,
                     feasibility: {
                       "3": { ok: true, value: true },
+                    },
+                  },
+                ],
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("readCellResource")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                cellCount: 2,
+                omittedCells: 1,
+                resources: [
+                  {
+                    resourceType: 3,
+                    row: { ok: true, value: { $index: 3, $hash: 333, ResourceType: "RESOURCE_CLAY" } },
+                    hash: { ok: true, value: 333 },
+                    count: { ok: true, value: 7 },
+                    landmass: { ok: true, value: 255 },
+                    validForAge: { ok: true, value: true },
+                    requiredForAge: { ok: true, value: false },
+                    ignoringWeightForRiverPlacement: { ok: true, value: false },
+                  },
+                ],
+                cells: [
+                  {
+                    location: { x: 9, y: 9, index: { ok: true, value: 765 } },
+                    resourceTypes: [3],
+                    omittedResourceTypes: 1,
+                    resources: {
+                      "3": {
+                        canHaveResource: {
+                          strict: { ok: true, value: false },
+                          ignoreWeight: { ok: true, value: true },
+                        },
+                        resourceLandmassAtCell: { ok: true, value: 255 },
+                        bestMapResourceCutHashes: { ok: true, value: [333, 444] },
+                        bestMapResourceCuts: {
+                          ok: true,
+                          value: [
+                            { hash: 333, resourceType: 3, resourceTypeName: "RESOURCE_CLAY" },
+                            { hash: 444, resourceType: 12, resourceTypeName: "RESOURCE_RICE" },
+                          ],
+                        },
+                      },
                     },
                   },
                 ],
