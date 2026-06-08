@@ -850,6 +850,35 @@ corresponding natural-wonder placement stats for the same request/config/seed
 chain. No natural-wonder repair, parity closure, product acceptance, or
 mountain-quality claim is authorized from local placement counts alone.
 
+### Natural-Wonder Materialization Outcome Repair
+
+Repair:
+the natural-wonder materializer now treats planner shortfall, out-of-bounds
+placement, adapter rejection, and footprint readback mismatch as measured
+placement outcomes rather than fatal generation errors. It projects generated
+feature-valid terrain across supported natural-wonder footprints before
+stamping and uses the mock adapter to stamp/read back the full supported
+footprint. Corrupt plan metadata remains fatal.
+
+Accounting:
+this is a synthetic, natural-wonder-only adoption of source behavior from stale
+commit `b9a3e9d50`; it does not replay the stale commit's unrelated Studio,
+package, config, generated, or build-surface changes. The accepted source
+authority is repo-owned materialization behavior. Exact live placement telemetry
+and parity/product acceptance remain separate proof classes.
+
+Validation:
+
+| Proof class | Result |
+|---|---|
+| Focused materialization tests | Passed `bun test mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`. |
+| Adapter regression tests | Passed `bun test packages/civ7-adapter/test/mock-terrain-policy.test.ts`. |
+| Diagnostics/parity unit tests | Passed `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`. |
+| Placement contract tests | Passed `bun test mods/mod-swooper-maps/test/placement/placement-contracts.test.ts`. |
+| Owner checks | Passed `bun run --cwd packages/civ7-adapter check`, `bun run --cwd packages/civ7-adapter build`, and `bun run --cwd mods/mod-swooper-maps check`. |
+| OpenSpec strict validation | Passed `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict`. |
+| Current exact parity proof rerun | Blocked before parity evaluation by stale config key `/config/ecology-features/floodplainPlanning`; no parity closure claimed. |
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

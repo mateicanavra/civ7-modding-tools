@@ -56,8 +56,10 @@
   readback rows.
 - [x] 2.26 Add natural-wonder live proof boundary context for local-only
   placement stats.
-- [ ] 2.27 Repair remaining proven package or MapGen owners.
-- [ ] 2.28 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.27 Repair natural-wonder materialization outcome recording and
+  footprint terrain projection without claiming exact live parity.
+- [ ] 2.28 Repair remaining proven package or MapGen owners.
+- [ ] 2.29 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

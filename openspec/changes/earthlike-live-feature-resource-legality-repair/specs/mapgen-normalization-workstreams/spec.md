@@ -15,3 +15,14 @@ evidence and the correct official-data, adapter, map-policy, or MapGen owner.
 - **WHEN** a resource repair would silently violate authored spacing,
   age-appropriateness, or diversity expectations
 - **THEN** the repair is rejected before product acceptance reruns
+
+#### Scenario: Natural wonder materialization produces measured outcomes
+- **WHEN** a dimension-valid natural-wonder plan has supported footprint policy
+  but a planner shortfall, feature-valid terrain adjustment, out-of-bounds
+  placement, or adapter rejection occurs
+- **THEN** the placement materializer records target, planned, placed,
+  terrain-adjusted, out-of-bounds, rejected, shortfall, and bounded rejection
+  example counts in the natural-wonder placement artifact
+- **AND** corrupt plan metadata still fails before materialization
+- **AND** the repair does not claim exact live parity or product acceptance
+  without a matching runtime proof class
