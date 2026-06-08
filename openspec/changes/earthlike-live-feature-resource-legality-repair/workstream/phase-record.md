@@ -1002,6 +1002,43 @@
   `resource-placement-coordinate-proof.rejected`. This does not close resource
   legality/source-authority rows, feature rows, product acceptance, or final
   product closure.
+  Current diagnostic follow-ups preserve row context for those unresolved
+  links without authorizing repair. Terrain context artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-terrain-edge-live-readback-context.json`
+  (`sha256:fb3e0e912897253066d53720ca51346c1ac7c6ef940384028e351935a1f176a4`,
+  `proofHash:fc2226d188385c50e5163256304971893a94210fe6175d60ba28f4b242769876`)
+  records `139` terrain rows with matched runtime identity and leaves all
+  source-authority statuses unresolved. Feature context artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-feature-delta-feasibility.json`
+  (`sha256:a827a0e0c6560950cf8e944ed7a566911c2b16d3fb79b173ccea2d1e29e1f8ae`,
+  `proofHash:77e2565802122291e9ec50dfb0752dbdb70fd7bf5cd54185e56172a127acf1d0`)
+  records `381` feature rows with Civ feasibility classes: `166`
+  live-feature Civ-infeasible/local-empty, `78` local-feature
+  Civ-infeasible/live-empty, `30` local-feature Civ-feasible/live-empty, and
+  `107` unclassified swaps. Resource context artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-resource-delta-feasibility-full.json`
+  (`sha256:05512721dba9cb8a9a63d6a87702d7daf8439a658bb9680827c65bfab73be03a`,
+  `proofHash:7eb8a38538bd8c61d7b8cd96f0b01984cd6bb68c4b581c09565e950a78ee9ff9`)
+  records `308` resource rows. Its `ignoreWeight:true` classes are `114`
+  live-feasible/no-local-assignment, `53` local-feasible/live-empty, `62`
+  local-overaccepted/live-empty, `51` substitution-both-feasible, `27`
+  substitution-mixed-feasibility, and `1` substitution-both-infeasible. The
+  focused `62` local-overaccepted/live-empty rows subclassify as `39`
+  scarce-floor cut-excluded, `17` scarce-floor cut-included rejected, and `6`
+  non-scarce-floor local overaccepted. The verifier script now batches
+  ResourceBuilder diagnostics in groups of `8`; the unbatched `62`-cell read
+  timed out at `180000ms`.
+  Slice verification on `codex/swooper-current-final-surface-parity-record-drain`
+  before committing the diagnostic record: `bun run --cwd mods/mod-swooper-maps
+  check`; `bun test
+  mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts
+  mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts
+  scripts/civ7-direct-control/verify-final-surface-parity.test.ts
+  scripts/civ7-direct-control/verify-terrain-edge-live-context.test.ts` (`26`
+  pass); `bun scripts/civ7-direct-control/verify-resource-delta-feasibility.ts
+  --help`; `bun run openspec -- validate
+  earthlike-live-feature-resource-legality-repair --strict`; `bun run
+  openspec:validate` (`76` passed, `0` failed); and `git diff --check`.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` before
