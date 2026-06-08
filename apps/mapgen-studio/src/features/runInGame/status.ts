@@ -98,6 +98,22 @@ export type RunInGameNaturalWonderPlanRow = Readonly<{
   priorityPpm?: number;
 }>;
 
+export type RunInGameNaturalWonderPlanInputRow = Readonly<{
+  plotIndex: number;
+  x: number;
+  y: number;
+  featureType: number;
+  terrainType: number;
+  biomeType: number;
+  occupiedFeatureType: number;
+  elevation: number;
+  aridityPpm: number;
+  riverClass: number;
+  lakeMask: number;
+  blockedMask: number;
+  landMask: number;
+}>;
+
 export type RunInGameRequestStatus = Readonly<{
   recipeId?: string;
   seed?: number;
@@ -239,6 +255,16 @@ export type RunInGameExactAuthorshipProof = Readonly<{
         planned: Readonly<{ count: number; hash32: string }>;
       }>;
       planRows?: ReadonlyArray<RunInGameNaturalWonderPlanRow>;
+    }>;
+    naturalWonderPlanInput?: Readonly<{
+      marker: "NATURAL_WONDER_PLAN_INPUT_V1";
+      payload: unknown;
+      stats?: Readonly<{
+        version: number;
+        plannedCount: number;
+        rowCount: number;
+      }>;
+      inputRows?: ReadonlyArray<RunInGameNaturalWonderPlanInputRow>;
     }>;
     naturalWonderPlacement?: Readonly<{
       marker: "NATURAL_WONDER_PLACEMENT_V1";

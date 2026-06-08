@@ -6,6 +6,7 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
+  `codex/swooper-natural-wonder-plan-input-context-drain`, stacked above
   `codex/swooper-natural-wonder-plan-comparison-drain`, stacked above
   `codex/swooper-natural-wonder-plan-proof-drain`, stacked above
   `codex/swooper-natural-wonder-row-proof-drain`, stacked above
@@ -101,6 +102,20 @@
   `35`, and `36` as `exact-local-anchor-diverged`. This is proof comparison
   only, not planner tuning, readback repair, final parity, or product
   acceptance.
+  Current follow-on proof-input branch
+  `codex/swooper-natural-wonder-plan-input-context-drain` binds selected-row
+  natural-wonder plan input context into exact-authorship and local replay
+  proof. Fresh exact request `studio-run-in-game-mq40o844-1zzu` completed with
+  no exact-authorship unresolved links and records `NATURAL_WONDER_PLAN_INPUT_V1`
+  for all `7` planned exact rows. The final-surface verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input.json`
+  (`sha256:f7b3de32589c369c280461d99ad0d1eb9aa0dc1c3806b6f0d67c167a251e2974`,
+  `proofHash:ddf33279f4858dfa1ab0e83ec530720cb5a62b17d35a8d7e9951ce6b595ef595`)
+  remains unresolved with `natural-wonder-plan-coordinate-proof.planned`,
+  resource-coordinate proof links, and terrain/biome/feature/resource surface
+  mismatch links open. This narrows the natural-wonder owner question toward
+  upstream candidate/scoring surface divergence; it is not behavior repair,
+  final parity, or product acceptance.
   Resource, feature, natural-wonder, and terrain source-authority
   classification remains the active work; product acceptance is not closed.
   Current resource-delta feasibility after the exact/local rejection join now
@@ -1414,11 +1429,23 @@
   engine-surface divergence first, then partial expected-footprint readback
   ownership for the exact rejected feature `30` and `36` rows. No behavior
   repair, parity closure, or product acceptance is claimed.
+  Current proof-input branch
+  `codex/swooper-natural-wonder-plan-input-context-drain` adds selected-row
+  input context for the exact and local planned anchors. Fresh request
+  `studio-run-in-game-mq40o844-1zzu` proves exact selected anchors have
+  concrete terrain/biome/occupied-feature/elevation/aridity/river/lake/
+  blocked/land context. The current verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input.json`
+  has `sha256:f7b3de32589c369c280461d99ad0d1eb9aa0dc1c3806b6f0d67c167a251e2974`
+  and
+  `proofHash:ddf33279f4858dfa1ab0e83ec530720cb5a62b17d35a8d7e9951ce6b595ef595`.
+  The next natural-wonder owner decision is now upstream candidate/scoring
+  surface divergence; selected-row blockers alone do not explain the diverged
+  anchors. No behavior repair, parity closure, or product acceptance is
+  claimed.
   Final-surface parity remains open on terrain (`140` mismatches), biome
   (`874`), feature (`376`), resource (`307`), natural-wonder readback proof,
   resource coordinate proof, and any future owner-classified residual links.
-  Final-surface parity remains open on terrain, feature, resource,
-  natural-wonder proof, and any future owner-classified residual links.
   The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source

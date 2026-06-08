@@ -597,6 +597,46 @@
     explicit unresolved link `natural-wonder-plan-coordinate-proof.planned`
     so exact/local plan divergence is not hidden behind generic feature
     surface mismatches.
+- [x] 2.60 Bind selected-row natural-wonder plan input context into future
+  exact-authorship and local replay proof packets.
+  - Current branch `codex/swooper-natural-wonder-plan-input-context-drain`
+    adds compact `NATURAL_WONDER_PLAN_INPUT_V1` runtime telemetry from the
+    placement-input owner and binds matching local verbose trace evidence into
+    final-surface parity proof. Rows carry the selected plan anchor, feature
+    type, terrain type, biome type, occupied feature type, elevation, aridity
+    ppm, river class, lake mask, polar blocked mask, and land mask.
+  - This is proof-input instrumentation only. It does not change
+    natural-wonder planning, candidate scoring, materialization, readback
+    disposition, final-surface surfaces, product acceptance, public config, or
+    resource behavior.
+- [x] 2.61 Preserve current exact-authored natural-wonder plan-input proof.
+  - Fresh exact request `studio-run-in-game-mq40o844-1zzu` completed with no
+    exact-authorship unresolved links after consuming
+    `NATURAL_WONDER_PLAN_INPUT_V1`. POST artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-plan-input-post.json`
+    has `sha256:bfbe9dacca8babdf9a9bc8ee251311db0560a2e4889683344a4a4b21d48981f9`;
+    terminal status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-plan-input-status.json`
+    has `sha256:92916fde12abcde0b71d667bb8fdb337b9005ecd8094c8243b487551ad8c9d08`.
+  - Exact plan-input rows now prove the selected exact anchors for features
+    `30`, `35`, and `36` carry concrete terrain/biome/feature/elevation/
+    aridity/river/lake/blocked/land context, while local replay still selects
+    those feature rows at plots `1342`, `1624`, and `2065`. The exact anchor
+    input rows do not show occupied features, lake blocks, polar blocks, or
+    non-land blockers for the selected exact anchors. This narrows the next
+    owner decision toward upstream candidate/scoring surface divergence rather
+    than a simple selected-anchor legality explanation.
+  - The final-surface verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input.json`
+    has `sha256:f7b3de32589c369c280461d99ad0d1eb9aa0dc1c3806b6f0d67c167a251e2974`
+    and
+    `proofHash:ddf33279f4858dfa1ab0e83ec530720cb5a62b17d35a8d7e9951ce6b595ef595`.
+    The verifier exited `2` as expected for unresolved parity and preserves
+    unresolved links `natural-wonder-plan-coordinate-proof.planned`,
+    `resource-placement-coordinate-proof.placed`,
+    `resource-placement-coordinate-proof.rejected`,
+    `surface.biome.mismatch`, `surface.feature.mismatch`,
+    `surface.resource.mismatch`, and `surface.terrain.mismatch`.
 
 ## 3. Verification
 
@@ -846,3 +886,21 @@
   - Verifier log:
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3ze9g3-natural-wonder-plan-comparison.log`
     (`sha256:4f996cc6ad19f334910c25e0c545cfba79a7e31a21b9f599f594286f636f0309`).
+- [x] 3.31 Run focused natural-wonder plan-input proof regressions and rerun
+  current exact-authored final-surface parity.
+  - Passed `bun test
+    mods/mod-swooper-maps/test/placement/derive-placement-inputs.test.ts
+    apps/mapgen-studio/test/runInGame/proofIdentity.test.ts
+    mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`.
+  - Passed owner checks `bun run --cwd mods/mod-swooper-maps check` and
+    `bun run --cwd apps/mapgen-studio check`.
+  - Verifier input request `studio-run-in-game-mq40o844-1zzu` wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input.json`
+    (`sha256:f7b3de32589c369c280461d99ad0d1eb9aa0dc1c3806b6f0d67c167a251e2974`,
+    `proofHash:ddf33279f4858dfa1ab0e83ec530720cb5a62b17d35a8d7e9951ce6b595ef595`).
+  - The verifier exited `2` as expected for unresolved parity. It preserves
+    mismatch counts terrain `140`, biome `874`, feature `376`, and resource
+    `307`, and keeps the natural-wonder plan-coordinate, resource-coordinate,
+    and surface mismatch links open. Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq40o844-natural-wonder-plan-input.log`
+    (`sha256:b551e06b83996ae920238c898afe00381be9f64148233f86d58a15ea05d404ba`).

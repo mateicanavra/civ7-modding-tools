@@ -6,7 +6,7 @@
 - Phase: product closure planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack:
-  `codex/swooper-natural-wonder-plan-comparison-drain`
+  `codex/swooper-natural-wonder-plan-input-context-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -29,6 +29,7 @@
 ## Current State
 
 - Repo/Graphite state: current top branch is
+  `codex/swooper-natural-wonder-plan-input-context-drain`, stacked above
   `codex/swooper-natural-wonder-plan-comparison-drain`, stacked above
   `codex/swooper-natural-wonder-plan-proof-drain`,
   `codex/swooper-natural-wonder-row-proof-drain`,
@@ -123,6 +124,20 @@
   `7/38085c90`, local planned digest `7/b921cd4f`, and row classifications
   showing diverged anchors for features `30`, `35`, and `36`. This is proof
   comparison only; final parity and product acceptance remain open.
+  Current follow-on branch
+  `codex/swooper-natural-wonder-plan-input-context-drain` binds selected-row
+  natural-wonder plan input context into exact-authorship and local replay
+  proof. Fresh exact request `studio-run-in-game-mq40o844-1zzu` completed
+  exact authorship with no unresolved exact links and records terrain, biome,
+  occupied feature, elevation, aridity, river, lake, blocked, and land masks
+  for all `7` exact selected anchors. Final-surface verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input.json`
+  (`sha256:f7b3de32589c369c280461d99ad0d1eb9aa0dc1c3806b6f0d67c167a251e2974`,
+  `proofHash:ddf33279f4858dfa1ab0e83ec530720cb5a62b17d35a8d7e9951ce6b595ef595`)
+  remains unresolved with the natural-wonder plan-coordinate, resource
+  coordinate, and terrain/biome/feature/resource surface links open. This
+  narrows the next owner decision toward candidate/scoring surface divergence;
+  it is not behavior repair, final parity, or product acceptance.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -175,7 +190,9 @@
   Current proof-comparison branch also records exact/local natural-wonder plan
   coordinate mismatch as a first-class parity proof link, proving the remaining
   natural-wonder source decision begins at exact/local plan-input or
-  engine-surface divergence.
+  engine-surface divergence. Current proof-input branch records selected-row
+  natural-wonder input context for that divergence without closing source
+  ownership.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
@@ -218,10 +235,12 @@
 ## Next Action
 
 - Exact next step: classify the exact/local natural-wonder plan-input or
-  engine-surface divergence now proven by request
-  `studio-run-in-game-mq3ze9g3-1zzu`. Exact plans feature `30` at `4130`,
-  feature `35` at `1686`, and feature `36` at `1785`; local replay plans those
-  features at `1342`, `1624`, and `2065`. Do not repair readback behavior
+  engine-surface divergence now narrowed by request
+  `studio-run-in-game-mq40o844-1zzu`. Selected-row input context is captured
+  for exact and local anchors, but the upstream candidate set, cut/reject list,
+  and score terms that selected feature `30` at `4130` instead of `1342`,
+  feature `35` at `1686` instead of `1624`, and feature `36` at `1785`
+  instead of `2065` are still not source-owned. Do not repair readback behavior
   until that divergence is source-owned or deliberately dispositioned. Then
   continue the remaining queue: partial footprint readback for exact rejected
   natural-wonder rows, cross-resource scarce-floor divergence at plot `4838`,

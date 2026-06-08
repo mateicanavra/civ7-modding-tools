@@ -301,6 +301,15 @@ export type ExactAuthorshipProofLike = Readonly<{
       }>;
       payload?: unknown;
     }>;
+    naturalWonderPlanInput?: Readonly<{
+      stats?: Readonly<{
+        version?: number;
+        plannedCount?: number;
+        rowCount?: number;
+      }>;
+      inputRows?: ReadonlyArray<unknown>;
+      payload?: unknown;
+    }>;
   }>;
 }>;
 
@@ -317,6 +326,7 @@ type LocalTraceEvidence = {
   featureIntents?: unknown;
   featureApplyDiagnostics?: unknown;
   naturalWonderPlan?: unknown;
+  naturalWonderPlanInput?: unknown;
   naturalWonderPlacement?: unknown;
   resourcePlan?: unknown;
   resourcePlacementOutcomes?: unknown;
@@ -409,6 +419,7 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
   for (const event of traceEvents) {
     if (event.kind !== "step.event" || !isPlainObject(event.data)) continue;
     if (event.data.type === "placement.parity") evidence.placementParity = event.data;
+    if (event.data.type === "naturalWonder.planInput") evidence.naturalWonderPlanInput = event.data;
   }
   evidence.featureIntents = {
     vegetation: context.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id),

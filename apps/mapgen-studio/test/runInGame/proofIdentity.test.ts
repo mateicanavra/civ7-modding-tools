@@ -152,6 +152,14 @@ describe("Run in Game exact authorship proof identity", () => {
             plannedHash32: "bbbbbbbb",
           },
         })}`,
+        `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify({
+          version: 1,
+          plannedCount: 2,
+          inputRows: [
+            ["p", 1320, 60, 15, 35, 2, 5, -1, 120, 330000, 1, 0, 0, 1],
+            ["p", 1405, 61, 16, 36, 3, 5, -1, 90, 660000, 0, 1, 0, 1],
+          ],
+        })}`,
         `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 7,
@@ -273,6 +281,46 @@ describe("Run in Game exact authorship proof identity", () => {
           direction: 0,
           elevation: 90,
           priorityPpm: 420000,
+        },
+      ],
+    });
+    expect(logProof?.naturalWonderPlanInput).toMatchObject({
+      marker: "NATURAL_WONDER_PLAN_INPUT_V1",
+      stats: {
+        version: 1,
+        plannedCount: 2,
+        rowCount: 2,
+      },
+      inputRows: [
+        {
+          plotIndex: 1320,
+          x: 60,
+          y: 15,
+          featureType: 35,
+          terrainType: 2,
+          biomeType: 5,
+          occupiedFeatureType: -1,
+          elevation: 120,
+          aridityPpm: 330000,
+          riverClass: 1,
+          lakeMask: 0,
+          blockedMask: 0,
+          landMask: 1,
+        },
+        {
+          plotIndex: 1405,
+          x: 61,
+          y: 16,
+          featureType: 36,
+          terrainType: 3,
+          biomeType: 5,
+          occupiedFeatureType: -1,
+          elevation: 90,
+          aridityPpm: 660000,
+          riverClass: 0,
+          lakeMask: 1,
+          blockedMask: 0,
+          landMask: 1,
         },
       ],
     });
