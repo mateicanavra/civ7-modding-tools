@@ -41,6 +41,10 @@ describe("Run in Game request validation", () => {
       mapSize: "MAPSIZE_STANDARD",
       playerCount: 8,
       restartCivProcess: false,
+      setupConfig: {
+        gameOptions: {},
+        playerOptions: [{ playerId: 0, options: {} }],
+      },
     });
   });
 
@@ -58,6 +62,10 @@ describe("Run in Game request validation", () => {
       seed: 123,
       mapSize: "MAPSIZE_HUGE",
       restartCivProcess: false,
+      setupConfig: {
+        gameOptions: {},
+        playerOptions: [{ playerId: 0, options: {} }],
+      },
     });
   });
 
@@ -72,6 +80,64 @@ describe("Run in Game request validation", () => {
       requestedMode: "disposable",
       id: "studio-current",
       restartCivProcess: true,
+      setupConfig: {
+        gameOptions: {},
+        playerOptions: [{ playerId: 0, options: {} }],
+      },
+    });
+  });
+
+  it("normalizes bounded setup config fields", () => {
+    expect(parseRunInGameSetupRequest({
+      recipeId: "mod-swooper-maps/standard",
+      seed: 123,
+      mapSize: "MAPSIZE_STANDARD",
+      setupConfig: {
+        savedConfig: {
+          id: "tot-config",
+          displayName: "ToT Config",
+          fileName: "ToT Config.Civ7Cfg",
+          path: "/tmp/ToT Config.Civ7Cfg",
+        },
+        mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+        gameOptions: {
+          Difficulty: "DIFFICULTY_CUSTOM",
+          BadOption: "ignored",
+        },
+        playerOptions: [
+          {
+            playerId: 0,
+            options: {
+              PlayerLeader: "LEADER_HARRIET_TUBMAN",
+              PlayerCivilization: "CIVILIZATION_AMERICA",
+              BadPlayerOption: "ignored",
+            },
+          },
+        ],
+      },
+      config: { ok: true },
+    })).toMatchObject({
+      setupConfig: {
+        savedConfig: {
+          id: "tot-config",
+          displayName: "ToT Config",
+          fileName: "ToT Config.Civ7Cfg",
+          path: "/tmp/ToT Config.Civ7Cfg",
+        },
+        mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+        gameOptions: {
+          Difficulty: "DIFFICULTY_CUSTOM",
+        },
+        playerOptions: [
+          {
+            playerId: 0,
+            options: {
+              PlayerLeader: "LEADER_HARRIET_TUBMAN",
+              PlayerCivilization: "CIVILIZATION_AMERICA",
+            },
+          },
+        ],
+      },
     });
   });
 
@@ -80,7 +146,12 @@ describe("Run in Game request validation", () => {
       recipeId: "mod-swooper-maps/standard",
       seed: "not a number",
       config: { ok: true },
-    })).toThrow("seed must be an integer");
+    })).toThrow("Seed must be an integer");
+    expect(() => parseRunInGameSetupRequest({
+      recipeId: "mod-swooper-maps/standard",
+      seed: 2147483648,
+      config: { ok: true },
+    })).toThrow("signed 32-bit integers");
     expect(() => parseRunInGameSetupRequest({
       recipeId: "other",
       seed: 123,

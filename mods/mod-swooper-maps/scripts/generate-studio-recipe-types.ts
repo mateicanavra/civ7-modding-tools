@@ -491,6 +491,7 @@ const standardUiMeta = deriveStudioRecipeUiMeta({
   recipeId: "standard",
   stages: standardMod.STANDARD_STAGES,
 });
+const transientStudioCurrentConfig = "studio-current.config.json";
 const standardDefaultPresetPath = resolve(pkgRoot, "src", "maps", "configs", "swooper-earthlike.config.json");
 const standardDefaultPresetRaw = JSON.parse(await readFile(standardDefaultPresetPath, "utf-8")) as unknown;
 const standardDefaultMapConfig = validateCanonicalMapConfig({
@@ -580,6 +581,7 @@ async function validateStandardMapConfigPresets(): Promise<void> {
   for (const ent of entries) {
     if (!ent.isFile()) continue;
     if (!ent.name.endsWith(".config.json")) continue;
+    if (ent.name === transientStudioCurrentConfig) continue;
     const abs = resolve(dir, ent.name);
     const raw = JSON.parse(await readFile(abs, "utf-8")) as unknown;
     try {

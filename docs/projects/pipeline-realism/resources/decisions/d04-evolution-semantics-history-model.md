@@ -12,16 +12,15 @@ Should the Foundation evolutionary refactor treat history as **Lagrangian materi
   - `docs/projects/pipeline-realism/resources/spec/proposal-comparison-foundation-evolutionary-refactor.md` (D04 backlog entry)
   - `docs/projects/pipeline-realism/resources/packets/foundation-proposals/tectonic-evolution-engine.md` (Part II “Core Concept: Lagrangian Material Tracking”)
   - `docs/projects/pipeline-realism/resources/packets/foundation-refactor-proposal-packet/raw/docs/system/libs/mapgen/_archive/foundation-tectonic-evolution-spec.md` (Goals + “Optional Bounded Advection (Tracer History)”)
-  - `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` (contract, artifacts, eraCount guard note)
+  - `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` (current contract, artifacts, and era validation)
 - Code:
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (`eraCount !== 3` guard)
-  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (`eraCount` min/max)
+  - This packet is superseded; use `docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md` for current code anchors.
 
 ## Why this is ambiguous
 
 - Proposal C frames evolution as **forward simulation with material tracking**, implying a Lagrangian history core.
 - Proposal D frames evolution as **era-resolved fields + optional bounded advection**, implying Eulerian history with limited tracer context.
-- Current Foundation contract already exposes **tectonic history era fields**, but downstream consumption is minimal and validation fixes `eraCount` to 3, contradicting the wider contract range.
+- Current Foundation contract exposes **tectonic history era fields** and provenance, but downstream consumption is still minimal.
 
 ## Why it matters
 

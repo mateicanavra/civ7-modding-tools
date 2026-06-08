@@ -1,11 +1,10 @@
-import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, defineVizMeta, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampInt16 } from "@swooper/mapgen-core/lib/math";
 import IslandsStepContract from "./islands.contract.js";
-import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 
 const GROUP_ISLANDS = "Morphology / Islands";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(IslandsStepContract, {
   run: (context, config, ops, deps) => {

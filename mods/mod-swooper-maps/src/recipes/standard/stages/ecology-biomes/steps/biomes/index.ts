@@ -7,7 +7,7 @@ import { validateBiomeClassificationArtifact } from "../../../ecology/artifact-v
 import { assertBiomeIndexVizCategoriesCoverSymbols, BIOME_INDEX_VIZ_CATEGORIES } from "../../viz.js";
 
 const GROUP_BIOMES = "Ecology / Biomes";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(BiomesStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.biomeClassification], {

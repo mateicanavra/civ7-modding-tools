@@ -107,38 +107,6 @@
         }
       }
     },
-    "hydrology-hydrography": {
-      "lakes": {
-        "planLakes": {
-          "config": {
-            "maxLakeLandFraction": 0.003,
-            "maxUpstreamSteps": 1,
-            "sinkDischargePercentileMin": 0.94
-          },
-          "strategy": "default"
-        }
-      },
-      "rivers": {
-        "accumulateDischarge": {
-          "config": {
-            "humidityDampening": 0.25,
-            "infiltrationFraction": 0.15,
-            "minRunoff": 0,
-            "runoffScale": 1
-          },
-          "strategy": "default"
-        },
-        "projectRiverNetwork": {
-          "config": {
-            "majorPercentile": 0.91,
-            "minMajorDischarge": 0,
-            "minMinorDischarge": 0,
-            "minorPercentile": 0.78
-          },
-          "strategy": "default"
-        }
-      }
-    },
     "hydrology-climate-refine": {
       "climate-refine": {
         "applyAlbedoFeedback": {
@@ -228,6 +196,38 @@
             "lapseRateCPerM": -0.0065,
             "maxC": 50,
             "minC": -40
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "hydrology-hydrography": {
+      "lakes": {
+        "planLakes": {
+          "config": {
+            "maxLakeLandFraction": 0.003,
+            "maxUpstreamSteps": 1,
+            "sinkDischargePercentileMin": 0.94
+          },
+          "strategy": "default"
+        }
+      },
+      "rivers": {
+        "accumulateDischarge": {
+          "config": {
+            "humidityDampening": 0.25,
+            "infiltrationFraction": 0.15,
+            "minRunoff": 0,
+            "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "projectRiverNetwork": {
+          "config": {
+            "majorPercentile": 0.91,
+            "minMajorDischarge": 0,
+            "minMinorDischarge": 0,
+            "minorPercentile": 0.78
           },
           "strategy": "default"
         }
@@ -342,38 +342,6 @@
         }
       }
     },
-    "hydrology-hydrography": {
-      "lakes": {
-        "planLakes": {
-          "config": {
-            "maxLakeLandFraction": 0.003,
-            "maxUpstreamSteps": 1,
-            "sinkDischargePercentileMin": 0.94
-          },
-          "strategy": "default"
-        }
-      },
-      "rivers": {
-        "accumulateDischarge": {
-          "config": {
-            "humidityDampening": 0.25,
-            "infiltrationFraction": 0.15,
-            "minRunoff": 0,
-            "runoffScale": 1
-          },
-          "strategy": "default"
-        },
-        "projectRiverNetwork": {
-          "config": {
-            "majorPercentile": 0.91,
-            "minMajorDischarge": 0,
-            "minMinorDischarge": 0,
-            "minorPercentile": 0.78
-          },
-          "strategy": "default"
-        }
-      }
-    },
     "hydrology-climate-refine": {
       "climate-refine": {
         "applyAlbedoFeedback": {
@@ -463,6 +431,38 @@
             "lapseRateCPerM": -0.0065,
             "maxC": 50,
             "minC": -40
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "hydrology-hydrography": {
+      "lakes": {
+        "planLakes": {
+          "config": {
+            "maxLakeLandFraction": 0.003,
+            "maxUpstreamSteps": 1,
+            "sinkDischargePercentileMin": 0.94
+          },
+          "strategy": "default"
+        }
+      },
+      "rivers": {
+        "accumulateDischarge": {
+          "config": {
+            "humidityDampening": 0.25,
+            "infiltrationFraction": 0.15,
+            "minRunoff": 0,
+            "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "projectRiverNetwork": {
+          "config": {
+            "majorPercentile": 0.91,
+            "minMajorDischarge": 0,
+            "minMinorDischarge": 0,
+            "minorPercentile": 0.78
           },
           "strategy": "default"
         }
@@ -577,38 +577,6 @@
         }
       }
     },
-    "hydrology-hydrography": {
-      "lakes": {
-        "planLakes": {
-          "config": {
-            "maxLakeLandFraction": 0.003,
-            "maxUpstreamSteps": 1,
-            "sinkDischargePercentileMin": 0.94
-          },
-          "strategy": "default"
-        }
-      },
-      "rivers": {
-        "accumulateDischarge": {
-          "config": {
-            "humidityDampening": 0.25,
-            "infiltrationFraction": 0.15,
-            "minRunoff": 0,
-            "runoffScale": 1
-          },
-          "strategy": "default"
-        },
-        "projectRiverNetwork": {
-          "config": {
-            "majorPercentile": 0.98,
-            "minMajorDischarge": 0,
-            "minMinorDischarge": 0,
-            "minorPercentile": 0.91
-          },
-          "strategy": "default"
-        }
-      }
-    },
     "hydrology-climate-refine": {
       "climate-refine": {
         "applyAlbedoFeedback": {
@@ -698,6 +666,38 @@
             "lapseRateCPerM": -0.0065,
             "maxC": 50,
             "minC": -40
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "hydrology-hydrography": {
+      "lakes": {
+        "planLakes": {
+          "config": {
+            "maxLakeLandFraction": 0.003,
+            "maxUpstreamSteps": 1,
+            "sinkDischargePercentileMin": 0.94
+          },
+          "strategy": "default"
+        }
+      },
+      "rivers": {
+        "accumulateDischarge": {
+          "config": {
+            "humidityDampening": 0.25,
+            "infiltrationFraction": 0.15,
+            "minRunoff": 0,
+            "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "projectRiverNetwork": {
+          "config": {
+            "majorPercentile": 0.98,
+            "minMajorDischarge": 0,
+            "minMinorDischarge": 0,
+            "minorPercentile": 0.91
           },
           "strategy": "default"
         }
@@ -812,38 +812,6 @@
         }
       }
     },
-    "hydrology-hydrography": {
-      "lakes": {
-        "planLakes": {
-          "config": {
-            "maxLakeLandFraction": 0.006,
-            "maxUpstreamSteps": 1,
-            "sinkDischargePercentileMin": 0.9
-          },
-          "strategy": "default"
-        }
-      },
-      "rivers": {
-        "accumulateDischarge": {
-          "config": {
-            "humidityDampening": 0.22,
-            "infiltrationFraction": 0.18,
-            "minRunoff": 0,
-            "runoffScale": 1
-          },
-          "strategy": "default"
-        },
-        "projectRiverNetwork": {
-          "config": {
-            "majorPercentile": 0.91,
-            "minMajorDischarge": 0,
-            "minMinorDischarge": 0,
-            "minorPercentile": 0.78
-          },
-          "strategy": "default"
-        }
-      }
-    },
     "hydrology-climate-refine": {
       "climate-refine": {
         "applyAlbedoFeedback": {
@@ -933,6 +901,38 @@
             "lapseRateCPerM": -0.0095,
             "maxC": 50,
             "minC": -60
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "hydrology-hydrography": {
+      "lakes": {
+        "planLakes": {
+          "config": {
+            "maxLakeLandFraction": 0.006,
+            "maxUpstreamSteps": 1,
+            "sinkDischargePercentileMin": 0.9
+          },
+          "strategy": "default"
+        }
+      },
+      "rivers": {
+        "accumulateDischarge": {
+          "config": {
+            "humidityDampening": 0.22,
+            "infiltrationFraction": 0.18,
+            "minRunoff": 0,
+            "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "projectRiverNetwork": {
+          "config": {
+            "majorPercentile": 0.91,
+            "minMajorDischarge": 0,
+            "minMinorDischarge": 0,
+            "minorPercentile": 0.78
           },
           "strategy": "default"
         }

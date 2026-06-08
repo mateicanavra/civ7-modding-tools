@@ -19,7 +19,6 @@ function memoryStorage() {
 }
 
 const worldSettings: WorldSettings = {
-  mode: "browser",
   mapSize: "MAPSIZE_STANDARD",
   playerCount: 6,
   resources: "balanced",
@@ -39,12 +38,45 @@ const pipelineConfig = {
   },
 } as unknown as PipelineConfig;
 
+const legacyFoundationConfig = {
+  foundation: {
+    meshResolution: {
+      plateCount: 28,
+      cellsPerPlate: 2,
+      relaxationSteps: 2,
+      referenceArea: 4536,
+      plateScalePower: 0.8,
+    },
+    platePartition: {
+      plateCount: 28,
+      referenceArea: 4536,
+      plateScalePower: 0.8,
+    },
+  },
+} as unknown as PipelineConfig;
+
+const setupConfig = {
+  gameOptions: {
+    Difficulty: "DIFFICULTY_PRINCE",
+  },
+  playerOptions: [
+    {
+      playerId: 0,
+      options: {
+        PlayerLeader: "LEADER_HARRIET_TUBMAN",
+        PlayerCivilization: "CIVILIZATION_AMERICA",
+      },
+    },
+  ],
+};
+
 describe("Studio authoring-state persistence", () => {
-  it("saves and reloads selected config, seed, world settings, and repo-backed overrides", () => {
+  it("saves and reloads selected config, seed, setup config, world settings, and repo-backed overrides", () => {
     const storage = memoryStorage();
     saveStudioAuthoringState({
       worldSettings,
       recipeSettings,
+      setupConfig,
       pipelineConfig,
       overridesDisabled: false,
       repoBackedPresetOverridesByRecipe: {
@@ -64,6 +96,7 @@ describe("Studio authoring-state persistence", () => {
     expect(loadStudioAuthoringState(storage)).toMatchObject({
       worldSettings,
       recipeSettings,
+      setupConfig,
       pipelineConfig,
       overridesDisabled: false,
       repoBackedPresetOverridesByRecipe: {
@@ -84,5 +117,40 @@ describe("Studio authoring-state persistence", () => {
       recipeSettings,
       pipelineConfig,
     }))).toBeNull();
+  });
+
+  it("migrates retired Foundation size-scaling fields from saved authoring state", () => {
+    const parsed = parseStudioAuthoringState(JSON.stringify({
+      schemaVersion: 1,
+      savedAt: "2026-06-01T00:00:00.000Z",
+      worldSettings,
+      recipeSettings,
+      setupConfig,
+      pipelineConfig: legacyFoundationConfig,
+      overridesDisabled: false,
+      repoBackedPresetOverridesByRecipe: {
+        "mod-swooper-maps/standard": {
+          "legacy-config": {
+            id: "legacy-config",
+            label: "Legacy Config",
+            config: legacyFoundationConfig,
+          },
+        },
+      },
+    }));
+
+    expect(parsed).not.toBeNull();
+    const foundation = parsed!.pipelineConfig.foundation as Record<string, Record<string, unknown>>;
+    expect(foundation.meshResolution).not.toHaveProperty("referenceArea");
+    expect(foundation.meshResolution).not.toHaveProperty("plateScalePower");
+    expect(foundation.platePartition).not.toHaveProperty("referenceArea");
+    expect(foundation.platePartition).not.toHaveProperty("plateScalePower");
+    expect(foundation.meshResolution.plateCount).toBe(28);
+
+    const override = parsed!.repoBackedPresetOverridesByRecipe["mod-swooper-maps/standard"]!["legacy-config"]!
+      .config as PipelineConfig;
+    const overrideFoundation = override.foundation as Record<string, Record<string, unknown>>;
+    expect(overrideFoundation.meshResolution).not.toHaveProperty("referenceArea");
+    expect(overrideFoundation.platePartition).not.toHaveProperty("plateScalePower");
   });
 });

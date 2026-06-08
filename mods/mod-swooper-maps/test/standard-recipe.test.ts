@@ -33,11 +33,11 @@ describe("standard recipe composition", () => {
       "hydrology-climate-refine",
       "ecology-pedology",
       "ecology-biomes",
-      "ecology-features",
       "map-morphology",
       "map-hydrology",
       "map-elevation",
       "map-rivers",
+      "ecology-features",
       "map-ecology",
       "placement",
     ];

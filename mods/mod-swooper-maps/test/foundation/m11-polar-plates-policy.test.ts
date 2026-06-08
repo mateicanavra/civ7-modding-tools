@@ -54,7 +54,7 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 18, cellsPerPlate: 3, relaxationSteps: 2, referenceArea: 5400, plateScalePower: 0 },
+        config: { plateCount: 18, cellsPerPlate: 3, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -73,8 +73,6 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
         config: {
           ...computePlateGraph.defaultConfig.config,
           plateCount: 18,
-          plateScalePower: 0,
-          referenceArea: width * height,
           polarCaps: {
             ...computePlateGraph.defaultConfig.config.polarCaps,
             capFraction: 0.1,
@@ -104,7 +102,7 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
     const meshConfig = computeMesh.normalize(
       {
         strategy: "default",
-        config: { plateCount: 24, cellsPerPlate: 8, relaxationSteps: 2, referenceArea: 9600, plateScalePower: 0 },
+        config: { plateCount: 24, cellsPerPlate: 8, relaxationSteps: 2},
       },
       ctx as any
     );
@@ -124,8 +122,6 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
         config: {
           ...computePlateGraph.defaultConfig.config,
           plateCount: 24,
-          plateScalePower: 0,
-          referenceArea: width * height,
           polarCaps: {
             ...computePlateGraph.defaultConfig.config.polarCaps,
             capFraction: 0.08,

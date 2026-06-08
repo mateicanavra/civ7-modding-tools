@@ -8,7 +8,7 @@ import { buildEngineBiomeIdVizCategories } from "./plot-biomes/viz.js";
 import { ecologyArtifacts } from "../../ecology/artifacts.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlotBiomesStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.biomeBindings], {

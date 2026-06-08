@@ -1,5 +1,4 @@
-import type { ExtendedMapContext, HeightfieldBuffer } from "@swooper/mapgen-core";
-import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
+import { deriveStepSeed, type ExtendedMapContext, type HeightfieldBuffer } from "@swooper/mapgen-core";
 import type { BiomeClassificationArtifact } from "../../../ecology/artifacts.js";
 
 export type PlotEffectsStepInput = {

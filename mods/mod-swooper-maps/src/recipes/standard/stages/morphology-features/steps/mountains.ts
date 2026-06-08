@@ -4,11 +4,11 @@ import {
   defineVizMeta,
   renderAsciiGrid,
   shadeByte,
+  deriveStepSeed,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import {
   MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
@@ -21,7 +21,7 @@ import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import MountainsStepContract from "./mountains.contract.js";
 
 const GROUP_MORPHOLOGY_FEATURES = "Morphology / Features";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function buildFractalArray(width: number, height: number, seed: number, grain: number): Int16Array {
   const fractal = new Int16Array(width * height);
@@ -161,6 +161,8 @@ export default createStep(MountainsStepContract, {
         height,
         landMask: topography.landMask,
         mountainMask: ridges.mountainMask,
+        mountainRegionMask: ridges.mountainRegionMask,
+        mountainRegionIdByTile: ridges.mountainRegionIdByTile,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,
@@ -179,6 +181,8 @@ export default createStep(MountainsStepContract, {
         height,
         landMask: topography.landMask,
         mountainMask: ridges.mountainMask,
+        mountainRegionMask: ridges.mountainRegionMask,
+        mountainRegionIdByTile: ridges.mountainRegionIdByTile,
         foothillMask: foothills.hillMask,
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
@@ -205,6 +209,8 @@ export default createStep(MountainsStepContract, {
 
     const plan = {
       mountainMask: ridges.mountainMask,
+      mountainRegionMask: ridges.mountainRegionMask,
+      mountainRegionIdByTile: ridges.mountainRegionIdByTile,
       hillMask,
       foothillMask: foothills.hillMask,
       roughLandMask: roughLands.hillMask,
@@ -240,6 +246,18 @@ export default createStep(MountainsStepContract, {
       values: plan.hillMask,
       meta: defineVizMeta("morphology.mountains.hillMask", {
         label: "Hill Mask (Planned)",
+        group: GROUP_MORPHOLOGY_FEATURES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.mountains.mountainRegionMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: plan.mountainRegionMask,
+      meta: defineVizMeta("morphology.mountains.mountainRegionMask", {
+        label: "Mountain Region Footprint (Planned)",
         group: GROUP_MORPHOLOGY_FEATURES,
         visibility: "debug",
       }),

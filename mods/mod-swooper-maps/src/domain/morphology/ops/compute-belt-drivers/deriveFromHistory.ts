@@ -1,4 +1,4 @@
-import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 import type {
@@ -10,6 +10,8 @@ import type { BeltComponentSummary, BeltDriverOutputs } from "./types.js";
 
 const GAP_FILL_DISTANCE = 2;
 const MIN_BELT_LENGTH = 3;
+const ACTIVE_BELT_SEED_LINEAR_DENSITY = 5;
+const ACTIVE_BELT_SEED_MIN_INTENSITY_FRACTION = 0.18;
 
 // Era blending: favor newer eras exponentially, but lightly boost the last-active era when known.
 const ERA_WEIGHT_DECAY_PER_ERA = 0.7;
@@ -143,39 +145,23 @@ function filterShortComponents(input: {
   nextComponentId: number;
 }): { mask: Uint8Array; components: BeltComponentSummary[]; nextComponentId: number } {
   const size = input.width * input.height;
-  const visited = new Uint8Array(size);
   const filtered = new Uint8Array(size);
   const components: BeltComponentSummary[] = [];
 
-  for (let i = 0; i < size; i++) {
-    if (!input.mask[i] || visited[i]) continue;
-    const queue: number[] = [i];
-    visited[i] = 1;
-    const indices: number[] = [];
-
-    while (queue.length > 0) {
-      const idx = queue.pop()!;
-      indices.push(idx);
-      const x = idx % input.width;
-      const y = Math.floor(idx / input.width);
-      forEachHexNeighborOddQ(x, y, input.width, input.height, (nx, ny) => {
-        const ni = ny * input.width + nx;
-        if (input.mask[ni] && !visited[ni]) {
-          visited[ni] = 1;
-          queue.push(ni);
-        }
-      });
-    }
-
-    if (indices.length < input.minSize) continue;
-    for (const idx of indices) filtered[idx] = 1;
+  for (const rawComponent of collectMaskComponentsOddQ({
+    mask: input.mask,
+    width: input.width,
+    height: input.height,
+  })) {
+    if (rawComponent.size < input.minSize) continue;
+    for (const idx of rawComponent.indices) filtered[idx] = 1;
 
     let upliftSum = 0;
     let widthSum = 0;
     let sigmaSum = 0;
     let originEraSum = 0;
     let originPlateSum = 0;
-    for (const idx of indices) {
+    for (const idx of rawComponent.indices) {
       upliftSum += input.upliftBlend[idx] ?? 0;
       widthSum += input.widthScale[idx] ?? 0;
       const age = input.seedAge[idx] ?? 0;
@@ -184,11 +170,12 @@ function filterShortComponents(input: {
       originEraSum += input.originEra[idx] ?? 0;
       originPlateSum += input.originPlateId[idx] ?? 0;
     }
-    const denom = Math.max(1, indices.length);
+    const denom = Math.max(1, rawComponent.size);
     components.push({
       id: input.nextComponentId,
       boundaryType: input.boundaryType,
-      size: indices.length,
+      size: rawComponent.size,
+      diameter: rawComponent.diameter,
       meanUpliftBlend: upliftSum / denom,
       meanWidthScale: widthSum / denom,
       meanSigma: sigmaSum / denom,
@@ -391,14 +378,19 @@ export function deriveBeltDriversFromHistory(input: {
     BOUNDARY_TYPE.transform,
   ]) {
     const count = countByType[boundaryType] ?? 0;
-    const targetCount = Math.max(1, Math.round(Math.sqrt(Math.max(1, count))));
+    const targetCount = Math.max(
+      1,
+      Math.round(Math.sqrt(Math.max(1, count)) * ACTIVE_BELT_SEED_LINEAR_DENSITY)
+    );
     const values: number[] = [];
     for (let i = 0; i < size; i++) {
       if ((boundaryTypeBlend[i] ?? 0) !== boundaryType) continue;
       const v = intensityBlend[i] ?? 0;
       if (v > 0) values.push(v);
     }
-    seedThresholdByType[boundaryType] = selectQuantileThreshold(values, targetCount);
+    const quantile = selectQuantileThreshold(values, targetCount);
+    const intensityFloor = (maxIntensityByType[boundaryType] ?? 0) * ACTIVE_BELT_SEED_MIN_INTENSITY_FRACTION;
+    seedThresholdByType[boundaryType] = Math.max(quantile, intensityFloor);
   }
 
   for (let i = 0; i < size; i++) {
@@ -406,8 +398,11 @@ export function deriveBeltDriversFromHistory(input: {
     const intensity = intensityBlend[i] ?? 0;
     if (boundary === BOUNDARY_TYPE.none) continue;
     const threshold = seedThresholdByType[boundary] ?? Infinity;
-    if (!(intensity >= threshold)) continue;
-    if (!isStrictLocalMaximumWithTies(i, width, height, boundaryTypeBlend, intensityBlend)) continue;
+    const isCorridorSeed = intensity >= threshold;
+    const isPeakSeed =
+      intensity >= (maxIntensityByType[boundary] ?? 0) * 0.65 &&
+      isStrictLocalMaximumWithTies(i, width, height, boundaryTypeBlend, intensityBlend);
+    if (!isCorridorSeed && !isPeakSeed) continue;
     typeSeeds[boundary][i] = 1;
   }
   // Ensure each boundary type with any intensity produces at least one seed.

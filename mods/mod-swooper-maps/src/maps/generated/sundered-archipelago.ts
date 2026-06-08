@@ -17,7 +17,7 @@ export default createMap({
   description: mapConfig.description,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "ddb080fc9d4254f425f5d4008433f9d5fd1533fd53a4a759891a75e5be2a348b",
-  envelopeHash: "c238eba9f27137ec2a826413f93c25c1121931f1f0ed2a48a9d9c6ac4f3ca1c6",
+  configHash: "6bda4a99a0624382155adbcabea3de281050c6d51457aeb9cf8b9cbb5b26adaa",
+  envelopeHash: "f67cab68fcfa9437251b49b63bc39e70ff7f2c0ce3f4339e7ea77d43c7ce547f",
   config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });

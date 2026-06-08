@@ -1,6 +1,5 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import { rampDown01, rampUp01, validateGridSize } from "../../score-shared/index.js";
 import ScoreAtollContract from "../contract.js";
@@ -15,6 +14,7 @@ export const defaultStrategy = createStrategy(ScoreAtollContract, "default", {
         { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
         { label: "bathymetry", arr: input.bathymetry as Int16Array },
         { label: "shelfMask", arr: input.shelfMask as Uint8Array },
+        { label: "openOceanMask", arr: input.openOceanMask as Uint8Array },
         { label: "coastalWater", arr: input.coastalWater as Uint8Array },
         { label: "distanceToCoast", arr: input.distanceToCoast as Uint16Array },
       ],
@@ -29,21 +29,15 @@ export const defaultStrategy = createStrategy(ScoreAtollContract, "default", {
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] !== 0) continue;
+      if (input.openOceanMask[i] !== 1) continue;
       if (input.shelfMask[i] === 1) continue;
       if (input.coastalWater[i] !== 0) continue;
       const distanceToCoast = input.distanceToCoast[i] ?? 0;
       if (distanceToCoast < minDistanceToCoast || distanceToCoast > maxDistanceToCoast) continue;
-      const x = i % input.width;
-      const y = Math.floor(i / input.width);
-      let nearShelfBank = false;
-      forEachHexNeighborOddQ(x, y, input.width, input.height, (nx, ny) => {
-        if (input.shelfMask[ny * input.width + nx] === 1) nearShelfBank = true;
-      });
-      if (!nearShelfBank) continue;
 
       // Civ7 atolls are open-water features. Swooper projects shelfMask water
-      // to TERRAIN_COAST, so atolls must score off-shelf ocean tiles rather
-      // than the shallow-bank surface used by warm reefs.
+      // to TERRAIN_COAST, so atolls score from warm shallow open-ocean banks
+      // beyond the shelf/coast band rather than the coast surface used by reefs.
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],
         config.tempWarmStartC,

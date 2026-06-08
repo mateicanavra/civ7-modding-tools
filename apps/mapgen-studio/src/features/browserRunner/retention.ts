@@ -10,12 +10,11 @@ export function shouldRetainLayer(pinnedStepId: string | null, pinnedLayerKey: s
 }
 
 export function capturePinnedSelection(args: {
-  mode: "browser" | "dump";
   selectedStepId: string | null;
   selectedLayerKey: string | null;
 }): PinnedSelection {
-  const pinnedStepId = args.mode === "browser" ? args.selectedStepId : null;
-  const pinnedLayerKey = args.mode === "browser" ? args.selectedLayerKey : null;
+  const pinnedStepId = args.selectedStepId;
+  const pinnedLayerKey = args.selectedLayerKey;
   const retainStep = Boolean(pinnedStepId);
   const retainLayer = shouldRetainLayer(pinnedStepId, pinnedLayerKey);
   return { pinnedStepId, pinnedLayerKey, retainStep, retainLayer };

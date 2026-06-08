@@ -18,6 +18,13 @@ const PlanFoothillsContract = defineOp({
     mountainMask: TypedArraySchemas.u8({
       description: "Mask (1/0): mountain tiles to exclude from hills.",
     }),
+    mountainRegionMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): mountain-region footprint used to allow internal passes, foothills, and settlement-capable valleys.",
+    }),
+    mountainRegionIdByTile: TypedArraySchemas.i32({
+      description: "Per-tile mountain-region id (-1 outside mountain-region footprint).",
+    }),
     boundaryCloseness: TypedArraySchemas.u8({
       description: "Boundary proximity per tile (0..255).",
     }),

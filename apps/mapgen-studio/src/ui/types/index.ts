@@ -108,8 +108,6 @@ export type KnobOptionsMap = Record<string, readonly string[]>;
  * Backend: These should be validated server-side before generation.
  */
 export interface WorldSettings {
-  /** Generation mode - affects output format */
-  mode: WorldMode;
   /** Map dimensions preset */
   mapSize: MapSize;
   /** Number of players (affects spawn placement) */
@@ -118,7 +116,6 @@ export interface WorldSettings {
   resources: ResourceMode;
 }
 
-export type WorldMode = "browser" | "dump";
 export type MapSize =
   | "MAPSIZE_TINY"
   | "MAPSIZE_SMALL"

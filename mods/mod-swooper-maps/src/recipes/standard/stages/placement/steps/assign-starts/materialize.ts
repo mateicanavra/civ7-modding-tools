@@ -1,11 +1,13 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import { defineVizMeta } from "@swooper/mapgen-core";
-import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { clamp01, defineVizMeta } from "@swooper/mapgen-core";
+import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 import placement from "@mapgen/domain/placement";
 
 type PlanStartsOutput = Static<(typeof placement.ops.planStarts)["output"]>;
+type StartCandidate = PlanStartsOutput["candidates"][number];
+type StartTier = StartCandidate["tier"];
 
 type AssignStartPositionsArgs = {
   context: ExtendedMapContext;
@@ -19,6 +21,13 @@ export type StartAssignmentResult = {
   regionalAssigned: number;
   openPoolAssigned: number;
   openPoolUsed: boolean;
+  primaryAssigned: number;
+  islandClusterAssigned: number;
+  marginalAssigned: number;
+  desperationAssigned: number;
+  candidateCount: number;
+  rejectionCounts: Array<PlanStartsOutput["rejectionCounts"][number]>;
+  tierCounts: PlanStartsOutput["tierCounts"];
 };
 
 const GROUP_GAMEPLAY = "Gameplay / Placement";
@@ -32,20 +41,25 @@ const START_POSITION_COLORS: Array<[number, number, number, number]> = [
   [249, 115, 22, 230],
   [99, 102, 241, 230],
 ];
+const START_TIER_CATEGORIES = [
+  { value: 0, label: "None", color: [148, 163, 184, 0] as [number, number, number, number] },
+  { value: 1, label: "Rejected", color: [100, 116, 139, 120] as [number, number, number, number] },
+  { value: 2, label: "Marginal", color: [245, 158, 11, 210] as [number, number, number, number] },
+  { value: 3, label: "Island Cluster", color: [14, 165, 233, 220] as [number, number, number, number] },
+  { value: 4, label: "Primary", color: [34, 197, 94, 225] as [number, number, number, number] },
+];
 
 function colorForStartPosition(index: number): [number, number, number, number] {
   return START_POSITION_COLORS[index % START_POSITION_COLORS.length] ?? [148, 163, 184, 220];
 }
 
 /**
- * Assigns player starts through one deterministic tiered policy.
+ * Assigns player starts through viability-first deterministic tiers.
  *
- * The first tier respects west/east landmass ownership and active start-sector
- * constraints. The open-pool tier is not a compatibility fallback; it is the
- * declared completion tier for maps whose configured player count exceeds the
- * strictly regional candidate supply. The artifact reports both tiers so review
- * can see when a map is relying on open-pool assignment without treating it as
- * hidden recovery behavior.
+ * The planner owns candidate viability. This materializer only applies
+ * regional sector filters, start spacing, and final adapter writes. Spacing is
+ * deliberately subordinate to viability so remote one-tile islands no longer
+ * win just because they maximize distance from other starts.
  */
 export function assignStartPositions({
   context,
@@ -57,6 +71,11 @@ export function assignStartPositions({
   const playersWest = Math.max(0, starts.playersLandmass1 | 0);
   const playersEast = Math.max(0, starts.playersLandmass2 | 0);
   const totalPlayers = playersWest + playersEast;
+  const tierAssignments = {
+    primary: 0,
+    islandCluster: 0,
+    marginal: 0,
+  };
 
   if (totalPlayers <= 0) {
     return {
@@ -65,6 +84,13 @@ export function assignStartPositions({
       regionalAssigned: 0,
       openPoolAssigned: 0,
       openPoolUsed: false,
+      primaryAssigned: 0,
+      islandClusterAssigned: 0,
+      marginalAssigned: 0,
+      desperationAssigned: 0,
+      candidateCount: starts.candidateCount,
+      rejectionCounts: cloneRejectionCounts(starts.rejectionCounts),
+      tierCounts: starts.tierCounts,
     };
   }
 
@@ -75,23 +101,26 @@ export function assignStartPositions({
 
   const used = new Uint8Array(width * height);
   const positions = new Array<number>(totalPlayers).fill(-1);
+  const selectedGlobal: StartCandidate[] = [];
+  const candidates = [...starts.candidates].sort(compareCandidates);
 
-  const westCandidates = collectCandidates(slotByTile, 1);
-  const eastCandidates = collectCandidates(slotByTile, 2);
-  const allCandidates = collectCandidates(slotByTile, null);
+  const westCandidates = candidates.filter((candidate) => candidate.regionSlot === 1);
+  const eastCandidates = candidates.filter((candidate) => candidate.regionSlot === 2);
+  const allCandidates = candidates;
 
   const startSectors = Array.isArray(starts.startSectors) ? starts.startSectors : [];
   const sectorRows = Math.max(0, starts.startSectorRows | 0);
   const sectorCols = Math.max(0, starts.startSectorCols | 0);
+  const minSpacingTiles = Math.max(0, starts.minStartSpacingTiles | 0);
 
   const selectForRegion = (
     region: "west" | "east",
-    candidates: number[],
+    regionCandidates: StartCandidate[],
     count: number
-  ): number[] => {
+  ): StartCandidate[] => {
     if (count <= 0) return [];
     const filtered = filterCandidatesBySectors(
-      candidates,
+      regionCandidates,
       width,
       height,
       sectorRows,
@@ -99,18 +128,26 @@ export function assignStartPositions({
       startSectors,
       region
     );
-    const pool = filtered.length ? filtered : candidates;
-    return chooseStartTiles(pool, count, width, height, used);
+    const pool = filtered.length ? filtered : regionCandidates;
+    return chooseStartTiles(pool, count, width, used, selectedGlobal, minSpacingTiles);
   };
 
   const selectedWest = selectForRegion("west", westCandidates, playersWest);
+  for (const candidate of selectedWest) {
+    selectedGlobal.push(candidate);
+    tierAssignments[candidate.tier] += 1;
+  }
   const selectedEast = selectForRegion("east", eastCandidates, playersEast);
+  for (const candidate of selectedEast) {
+    selectedGlobal.push(candidate);
+    tierAssignments[candidate.tier] += 1;
+  }
 
   for (let i = 0; i < playersWest; i++) {
-    positions[i] = selectedWest[i] ?? -1;
+    positions[i] = selectedWest[i]?.plotIndex ?? -1;
   }
   for (let i = 0; i < playersEast; i++) {
-    positions[playersWest + i] = selectedEast[i] ?? -1;
+    positions[playersWest + i] = selectedEast[i]?.plotIndex ?? -1;
   }
 
   let assigned = 0;
@@ -128,28 +165,113 @@ export function assignStartPositions({
   if (assigned < totalPlayers && allCandidates.length) {
     openPoolUsed = true;
     const remaining = totalPlayers - assigned;
-    const openPoolSelection = chooseStartTiles(allCandidates, remaining, width, height, used);
+    const openPoolSelection = chooseStartTiles(
+      allCandidates,
+      remaining,
+      width,
+      used,
+      selectedGlobal,
+      minSpacingTiles
+    );
     let writeIndex = 0;
     for (let i = 0; i < positions.length && writeIndex < openPoolSelection.length; i++) {
       if (positions[i] >= 0) continue;
-      const plotIndex = openPoolSelection[writeIndex] ?? -1;
+      const candidate = openPoolSelection[writeIndex++];
+      if (!candidate) continue;
+      positions[i] = candidate.plotIndex;
+      adapter.setStartPosition(candidate.plotIndex, i);
+      selectedGlobal.push(candidate);
+      tierAssignments[candidate.tier] += 1;
+      assigned++;
+      openPoolAssigned++;
+    }
+  }
+
+  let desperationAssigned = 0;
+  if (assigned < totalPlayers) {
+    const desperateCandidates = collectDesperationCandidates(slotByTile, candidates);
+    const remaining = totalPlayers - assigned;
+    const desperateSelection = chooseDesperationTiles(
+      desperateCandidates,
+      remaining,
+      width,
+      used,
+      selectedGlobal
+    );
+    let writeIndex = 0;
+    for (let i = 0; i < positions.length && writeIndex < desperateSelection.length; i++) {
+      if (positions[i] >= 0) continue;
+      const plotIndex = desperateSelection[writeIndex++] ?? -1;
+      if (plotIndex < 0) continue;
       positions[i] = plotIndex;
-      if (plotIndex >= 0) {
-        adapter.setStartPosition(plotIndex, i);
-        assigned++;
-        openPoolAssigned++;
-      }
-      writeIndex++;
+      adapter.setStartPosition(plotIndex, i);
+      used[plotIndex] = 1;
+      assigned++;
+      desperationAssigned++;
     }
   }
 
   if (assigned !== totalPlayers) {
     throw new Error(
-      `[Placement] Unable to assign all start positions through deterministic tiered selection (assigned ${assigned}/${totalPlayers}, westCandidates=${westCandidates.length}, eastCandidates=${eastCandidates.length}, allCandidates=${allCandidates.length}, regionalAssigned=${regionalAssigned}, openPoolAssigned=${openPoolAssigned}).`
+      `[Placement] Unable to assign all start positions through viability planning (assigned ${assigned}/${totalPlayers}, candidates=${starts.candidateCount}, primary=${starts.tierCounts.primary}, islandCluster=${starts.tierCounts.islandCluster}, marginal=${starts.tierCounts.marginal}, regionalAssigned=${regionalAssigned}, openPoolAssigned=${openPoolAssigned}, desperationAssigned=${desperationAssigned}).`
     );
   }
 
-  return { positions, assigned, regionalAssigned, openPoolAssigned, openPoolUsed };
+  return {
+    positions,
+    assigned,
+    regionalAssigned,
+    openPoolAssigned,
+    openPoolUsed,
+    primaryAssigned: tierAssignments.primary,
+    islandClusterAssigned: tierAssignments.islandCluster,
+    marginalAssigned: tierAssignments.marginal,
+    desperationAssigned,
+    candidateCount: starts.candidateCount,
+    rejectionCounts: cloneRejectionCounts(starts.rejectionCounts),
+    tierCounts: starts.tierCounts,
+  };
+}
+
+export function emitStartViabilityViz(
+  context: ExtendedMapContext,
+  starts: DeepReadonly<PlanStartsOutput>
+): void {
+  const { width, height } = context.dimensions;
+  const size = Math.max(0, width * height);
+  if (starts.scoreByTile.length === size) {
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "placement.starts.viabilityScore",
+      spaceId: "tile.hexOddQ",
+      dims: { width, height },
+      format: "f32",
+      values: starts.scoreByTile as Float32Array,
+      meta: defineVizMeta("placement.starts.viabilityScore", {
+        label: "Start Viability",
+        group: GROUP_GAMEPLAY,
+        description:
+          "Viability-first start score from land envelope, island cluster support, freshwater, resources, and roughness.",
+        palette: "continuous",
+      }),
+    });
+  }
+  if (starts.tierByTile.length === size) {
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "placement.starts.viabilityTier",
+      spaceId: "tile.hexOddQ",
+      dims: { width, height },
+      format: "u8",
+      values: starts.tierByTile as Uint8Array,
+      meta: defineVizMeta("placement.starts.viabilityTier", {
+        label: "Start Viability Tiers",
+        group: GROUP_GAMEPLAY,
+        description:
+          "Candidate classification for starts: primary land envelope, island cluster, marginal fallback, or rejected.",
+        palette: "categorical",
+        categories: START_TIER_CATEGORIES,
+      }),
+    });
+  }
 }
 
 export function emitStartSectorViz(
@@ -168,7 +290,7 @@ export function emitStartSectorViz(
 
   context.viz?.dumpGrid(context.trace, {
     dataTypeKey: "placement.starts.sectorId",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     dims: { width, height },
     format: "u16",
     values: grid,
@@ -269,7 +391,7 @@ export function emitStartPositionsViz(context: ExtendedMapContext, startPosition
 
   context.viz?.dumpGrid(context.trace, {
     dataTypeKey: "placement.starts.startPosition",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     dims: { width, height },
     format: "u16",
     values: grid,
@@ -284,7 +406,7 @@ export function emitStartPositionsViz(context: ExtendedMapContext, startPosition
 
   context.viz?.dumpPoints(context.trace, {
     dataTypeKey: "placement.starts.startPosition",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     positions,
     values,
     valueFormat: "u16",
@@ -297,32 +419,19 @@ export function emitStartPositionsViz(context: ExtendedMapContext, startPosition
   });
 }
 
-function collectCandidates(slotByTile: Uint8Array, slot: number | null): number[] {
-  const candidates: number[] = [];
-  for (let i = 0; i < slotByTile.length; i++) {
-    const value = slotByTile[i] ?? 0;
-    if (slot === null) {
-      if (value !== 0) candidates.push(i);
-      continue;
-    }
-    if (value === slot) candidates.push(i);
-  }
-  return candidates;
-}
-
 function filterCandidatesBySectors(
-  candidates: number[],
+  candidates: readonly StartCandidate[],
   width: number,
   height: number,
   rows: number,
   cols: number,
   sectors: unknown[],
   region: "west" | "east"
-): number[] {
-  if (rows <= 0 || cols <= 0) return candidates;
+): StartCandidate[] {
+  if (rows <= 0 || cols <= 0) return [...candidates];
   const sectorsPerRegion = rows * cols;
   if (sectors.length !== sectorsPerRegion && sectors.length !== sectorsPerRegion * 2) {
-    return candidates;
+    return [...candidates];
   }
 
   const offset =
@@ -332,7 +441,8 @@ function filterCandidatesBySectors(
   const maxCol = Math.max(1, cols);
   const maxRow = Math.max(1, rows);
 
-  return candidates.filter((idx) => {
+  return candidates.filter((candidate) => {
+    const idx = candidate.plotIndex;
     const y = (idx / width) | 0;
     const x = idx - y * width;
     const col = Math.min(maxCol - 1, Math.max(0, Math.floor(x / cellWidth)));
@@ -343,104 +453,160 @@ function filterCandidatesBySectors(
 }
 
 function chooseStartTiles(
-  candidates: number[],
+  candidates: readonly StartCandidate[],
   count: number,
   width: number,
-  height: number,
-  used: Uint8Array
-): number[] {
+  used: Uint8Array,
+  selectedGlobal: readonly StartCandidate[],
+  minSpacingTiles: number
+): StartCandidate[] {
   if (count <= 0) return [];
-  const available = candidates.filter((idx) => used[idx] !== 1);
-  if (!available.length) return [];
-
-  const seed = pickSeedTile(available, width, height);
-  const selected: number[] = [];
-  if (seed >= 0) {
-    selected.push(seed);
-    used[seed] = 1;
+  const selected: StartCandidate[] = [];
+  for (const tier of ["primary", "islandCluster", "marginal"] as const) {
+    if (selected.length >= count) break;
+    const tierPool = candidates.filter((candidate) => candidate.tier === tier);
+    selected.push(
+      ...chooseRankedFromPool({
+        candidates: tierPool,
+        count: count - selected.length,
+        width,
+        used,
+        selectedGlobal: [...selectedGlobal, ...selected],
+        minSpacingTiles,
+      })
+    );
   }
+  return selected;
+}
 
-  while (selected.length < count) {
-    let bestIdx = -1;
-    let bestDistance = -1;
-    for (const idx of available) {
-      if (used[idx] === 1) continue;
-      const distance = minDistanceToSelection(idx, selected, width, height);
-      if (distance > bestDistance) {
-        bestDistance = distance;
-        bestIdx = idx;
+function chooseRankedFromPool(args: {
+  candidates: readonly StartCandidate[];
+  count: number;
+  width: number;
+  used: Uint8Array;
+  selectedGlobal: readonly StartCandidate[];
+  minSpacingTiles: number;
+}): StartCandidate[] {
+  const selected: StartCandidate[] = [];
+  let spacing = Math.max(0, args.minSpacingTiles | 0);
+
+  while (selected.length < args.count) {
+    let best: StartCandidate | null = null;
+    let bestScore = Number.NEGATIVE_INFINITY;
+    const currentSelected = [...args.selectedGlobal, ...selected];
+
+    for (const candidate of args.candidates) {
+      if (args.used[candidate.plotIndex] === 1) continue;
+      if (selected.some((entry) => entry.plotIndex === candidate.plotIndex)) continue;
+      const distance = minDistanceToSelection(candidate, currentSelected, args.width);
+      if (distance < spacing) continue;
+      const spacingScore = currentSelected.length
+        ? clamp01(distance / Math.max(1, spacing * 1.5))
+        : 0.75;
+      const rankingScore = candidate.score * 0.86 + spacingScore * 0.14;
+      if (
+        rankingScore > bestScore ||
+        (rankingScore === bestScore && candidate.score > (best?.score ?? -1)) ||
+        (rankingScore === bestScore && candidate.score === (best?.score ?? -1) && candidate.plotIndex < (best?.plotIndex ?? Infinity))
+      ) {
+        best = candidate;
+        bestScore = rankingScore;
       }
     }
-    if (bestIdx < 0) break;
-    selected.push(bestIdx);
-    used[bestIdx] = 1;
+
+    if (!best) {
+      if (spacing > 0) {
+        spacing--;
+        continue;
+      }
+      break;
+    }
+
+    selected.push(best);
+    args.used[best.plotIndex] = 1;
   }
 
   return selected;
 }
 
-function pickSeedTile(candidates: number[], width: number, height: number): number {
-  if (!candidates.length) return -1;
-  let sumX = 0;
-  let sumY = 0;
-  for (const idx of candidates) {
-    const y = (idx / width) | 0;
-    const x = idx - y * width;
-    sumX += x;
-    sumY += y;
+function collectDesperationCandidates(
+  slotByTile: Uint8Array,
+  plannedCandidates: readonly StartCandidate[]
+): number[] {
+  const planned = new Set(plannedCandidates.map((candidate) => candidate.plotIndex));
+  const out: number[] = [];
+  for (let i = 0; i < slotByTile.length; i++) {
+    if ((slotByTile[i] ?? 0) === 0) continue;
+    if (planned.has(i)) continue;
+    out.push(i);
   }
-  const centerX = sumX / candidates.length;
-  const centerY = sumY / candidates.length;
+  return out;
+}
 
-  let bestIdx = candidates[0] ?? -1;
-  let bestScore = Number.POSITIVE_INFINITY;
-  for (const idx of candidates) {
-    const y = (idx / width) | 0;
-    const x = idx - y * width;
-    const dx = x - centerX;
-    const dy = y - centerY;
-    const score = dx * dx + dy * dy;
-    if (score < bestScore) {
-      bestScore = score;
-      bestIdx = idx;
+function chooseDesperationTiles(
+  candidates: readonly number[],
+  count: number,
+  width: number,
+  used: Uint8Array,
+  selectedGlobal: readonly StartCandidate[]
+): number[] {
+  const selected: number[] = [];
+  while (selected.length < count) {
+    let best = -1;
+    let bestDistance = Number.NEGATIVE_INFINITY;
+    for (const plotIndex of candidates) {
+      if (used[plotIndex] === 1 || selected.includes(plotIndex)) continue;
+      const distance = selectedGlobal.length
+        ? Math.min(
+            ...selectedGlobal.map((candidate) =>
+              hexDistanceOddQPeriodicX(plotIndex, candidate.plotIndex, width)
+            )
+          )
+        : 0;
+      if (distance > bestDistance || (distance === bestDistance && plotIndex < best)) {
+        best = plotIndex;
+        bestDistance = distance;
+      }
     }
+    if (best < 0) break;
+    selected.push(best);
+    used[best] = 1;
   }
-  return bestIdx;
+  return selected;
 }
 
 function minDistanceToSelection(
-  idx: number,
-  selected: number[],
-  width: number,
-  height: number
+  candidate: StartCandidate,
+  selected: readonly StartCandidate[],
+  width: number
 ): number {
   if (!selected.length) return Infinity;
   let best = Infinity;
   for (const other of selected) {
-    const dist = hexDistanceOddQ(idx, other, width, height);
+    const dist = hexDistanceOddQPeriodicX(candidate.plotIndex, other.plotIndex, width);
     if (dist < best) best = dist;
   }
   return best;
 }
 
-function hexDistanceOddQ(aIndex: number, bIndex: number, width: number, _height: number): number {
-  const ay = (aIndex / width) | 0;
-  const ax = aIndex - ay * width;
-  const by = (bIndex / width) | 0;
-  const bx = bIndex - by * width;
-  const wrappedBx = ax + wrapDeltaPeriodic(bx - ax, width);
-  const aCube = oddqToCube(ax, ay);
-  const bCube = oddqToCube(wrappedBx, by);
-  const dx = Math.abs(aCube.x - bCube.x);
-  const dy = Math.abs(aCube.y - bCube.y);
-  const dz = Math.abs(aCube.z - bCube.z);
-  return Math.max(dx, dy, dz);
+function compareCandidates(a: StartCandidate, b: StartCandidate): number {
+  const tierDiff = tierValue(b.tier) - tierValue(a.tier);
+  if (tierDiff !== 0) return tierDiff;
+  if (b.score !== a.score) return b.score - a.score;
+  return a.plotIndex - b.plotIndex;
 }
 
-function oddqToCube(x: number, y: number): { x: number; y: number; z: number } {
-  const z = y - (x - (x & 1)) / 2;
-  const xCube = x;
-  const zCube = z;
-  const yCube = -xCube - zCube;
-  return { x: xCube, y: yCube, z: zCube };
+function cloneRejectionCounts(
+  rejectionCounts: DeepReadonly<PlanStartsOutput["rejectionCounts"]>
+): Array<PlanStartsOutput["rejectionCounts"][number]> {
+  return rejectionCounts.map((entry) => ({
+    reason: entry.reason,
+    count: entry.count,
+  }));
+}
+
+function tierValue(tier: StartTier): number {
+  if (tier === "primary") return 3;
+  if (tier === "islandCluster") return 2;
+  return 1;
 }

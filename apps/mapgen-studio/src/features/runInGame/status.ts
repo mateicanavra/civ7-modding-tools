@@ -33,8 +33,10 @@ export type RunInGameRequestStatus = Readonly<{
   playerCount?: number;
   resources?: string;
   selectedConfigId?: string;
+  setupConfig?: unknown;
   materializationMode?: string;
   restartCivProcess?: boolean;
+  fingerprint?: string;
 }>;
 
 export type RunInGameFailureDetails = Readonly<{
@@ -46,6 +48,9 @@ export type RunInGameFailureDetails = Readonly<{
   reloadRequired?: boolean;
   reloadBoundary?: string;
   reloadAttempted?: boolean;
+  dismissNotificationRequired?: boolean;
+  recoveryBoundary?: string;
+  recoveryHint?: string;
   completedPhases?: ReadonlyArray<RunInGamePhase>;
   directControlCode?: string;
   cause?: unknown;

@@ -43,7 +43,7 @@ Chosen default:
 
 Implications:
 - Downstream API (Morphology-first) should be built around: era selection/weights + force fields, not provenance-heavy parcel histories.
-- The current “`eraCount === 3`” validation guard is now a likely migration pressure point (contract allows more; consumer selection becomes the stable interface).
+- The prior `eraCount === 3` guard has been removed; the active Foundation contract supports 5..8 eras, so consumer selection/blending is now the stable interface pressure point.
 
 ## Resulting Spine (Working Target)
 

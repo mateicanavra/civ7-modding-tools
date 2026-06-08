@@ -5,8 +5,8 @@
 // ============================================================================
 
 export const LAYOUT = {
-  /** Header bar height in pixels */
-  HEADER_HEIGHT: 56,
+  /** Header reserve in pixels; allows the top controls to wrap without covering panels. */
+  HEADER_HEIGHT: 104,
   /** Footer bar height in pixels */
   FOOTER_HEIGHT: 56,
   /** Default panel width in pixels */

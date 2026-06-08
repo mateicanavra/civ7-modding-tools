@@ -69,7 +69,7 @@ Rationale:
 - `ERA_COUNT_MAX = 8` aligns with the existing schema upper bound and allows controlled higher-fidelity presets.
 - `ADVECTION_STEPS_PER_ERA = 6` bounds per-era drift to a fixed cost while preserving visible transport structure.
 
-## New Invariant (Replaces `eraCount === 3` Guard)
+## Era Invariant
 
 Validation must enforce:
 - `eraCount === historyProfile.eraCount`
@@ -77,7 +77,7 @@ Validation must enforce:
 - `eraCount <= ERA_COUNT_MAX`
 - `tectonicHistory.eraCount === tectonicProvenance.eraCount`
 
-This replaces `eraCount === 3` in `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts`.
+This is the active Foundation era contract; the legacy fixed-3-era assumption is no longer part of runtime validation.
 
 ## Memory Surfaces (Arrays × Sizes)
 
@@ -132,12 +132,13 @@ function computeHistoryAndProvenance(mesh, segments, historyProfile):
 
 ```mermaid
 flowchart TD
-  A["computeTectonicSegments"] --> B["buildEraFields (E eras)"]
-  B --> C["reduceEraRollups"]
-  B --> D["advectTracerIndex (E × steps)"]
-  D --> E["updateProvenanceScalars"]
-  C --> F["publish artifact:foundation.tectonicHistory"]
-  E --> G["publish artifact:foundation.tectonicProvenance"]
+  A["computeTectonicSegments"] --> B["computeSegmentEvents"]
+  B --> C["computeEraTectonicFields"]
+  C --> D["computeTectonicHistoryRollups"]
+  C --> E["computeTracerAdvection"]
+  E --> F["computeTectonicProvenance"]
+  D --> G["publish artifact:foundation.tectonicHistory"]
+  F --> H["publish artifact:foundation.tectonicProvenance"]
 ```
 
 ## Downstream Consumption (Morphology First)
@@ -151,9 +152,12 @@ This keeps existing boundary-driven shaping intact while enabling lineage-driven
 ## Mapping To Current Contract / Code
 
 Current anchors (from `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`):
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (extend schema to include provenance artifact)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` (produce era fields + rollups; add provenance output)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (replace `eraCount === 3` with new invariant)
+- `mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/schemas.ts` (`FoundationTectonicHistorySchema`, `FoundationTectonicProvenanceSchema`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts` (produce per-era fields)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts` (produce history rollups)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/index.ts` (produce tracer history)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts` (produce provenance scalars)
+- `mods/mod-swooper-maps/src/domain/foundation/lib/require.ts` (`requireTectonicHistory`, `requireTectonicProvenance` enforce 5..8 eras)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` (publish dual artifacts)
 
 No current artifact is removed. `artifact:foundation.tectonicHistory` remains canonical for era fields, while `artifact:foundation.tectonicProvenance` becomes the required Lagrangian output.

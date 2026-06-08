@@ -16,6 +16,9 @@ the dev server remains alive.
 - `blocked`: the operation reached a known non-transient boundary, such as a
   setup map row that Civ cannot see.
 - `failed`: the operation failed before an ambiguous start/proof mutation.
+  Fresh Civ map-script load failures and authored map-generation script
+  exceptions are failed operations with Civ notification dismissal recovery, not
+  process restart recovery.
 - `uncertain`: socket or timeout uncertainty happened after a mutating
   start/proof phase, so Studio does not replay the mutation automatically.
 
@@ -28,6 +31,10 @@ the dev server remains alive.
   and cause details where available.
 - `Retry Run`: starts a new request id after a failed, blocked, or uncertain
   operation. It is not an automatic replay of a timed-out mutation.
+- `Dismiss Civ notification and retry`: close the fatal Civ notification left
+  by an unloadable/generated map script or generation exception, fix or
+  regenerate the map script as needed, then run again. This does not require a
+  Civ process restart.
 - Browser reload: safe for same dev-server lifetime. Studio reloads the last
   request id from local storage and asks the server status endpoint for the
   authoritative operation state.
@@ -42,5 +49,11 @@ the dev server remains alive.
   to main menu and continue" recovery button. Run in Game itself may perform
   exit-to-shell when that action is implied by the submitted request and
   recorded in phase state.
+- `Restart Civ & Run` owns the macOS process boundary before it launches
+  through Steam. The restart primitive must observe Civ's process exiting for
+  consecutive polls, escalate from AppleScript quit to `pkill` only when needed,
+  and fail the operation instead of calling Steam while the old process is still
+  alive. This boundary is for Civ setup catalog visibility, not for fatal
+  map-script load/generation notifications.
 - Ambiguous start/proof failures are intentionally not replayed. The user must
   inspect status/diagnostics and start a new operation explicitly.

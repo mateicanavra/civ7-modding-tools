@@ -80,6 +80,8 @@ describe("standard pipeline viz emissions", () => {
       "ecology.biome.vegetationDensity",
       "map.ecology.featureType",
       "placement.landmassRegions.regionSlot",
+      "placement.starts.viabilityScore",
+      "placement.starts.viabilityTier",
       "placement.starts.startPosition",
     ];
     const missing = expected.filter((dataTypeKey) => !seenLayers.has(dataTypeKey));
@@ -241,6 +243,12 @@ describe("standard pipeline viz emissions", () => {
 
     const sectorMetas = metasByKey.get("placement.starts.sectorId") as any[] | undefined;
     expect(sectorMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const startViabilityMetas = metasByKey.get("placement.starts.viabilityScore") as any[] | undefined;
+    expect(startViabilityMetas?.some((m) => m?.visibility === "default")).toBe(true);
+
+    const startTierMetas = metasByKey.get("placement.starts.viabilityTier") as any[] | undefined;
+    expect(startTierMetas?.some((m) => m?.visibility === "default" && m?.palette === "categorical")).toBe(true);
 
     const startMetas = metasByKey.get("placement.starts.startPosition") as any[] | undefined;
     expect(startMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);

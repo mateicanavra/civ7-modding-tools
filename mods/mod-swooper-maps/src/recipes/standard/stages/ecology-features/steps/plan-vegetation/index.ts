@@ -1,5 +1,5 @@
+import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";

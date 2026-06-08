@@ -216,6 +216,34 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
+  it("rejects Foundation reference-area scaling fields on the public surface", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: {
+          meshResolution: {
+            referenceArea: 4536,
+            plateScalePower: 0.8,
+          },
+          platePartition: {
+            referenceArea: 4536,
+            plateScalePower: 0.8,
+          },
+        },
+      } as any)
+    );
+
+    for (const path of [
+      "/config/foundation/meshResolution/referenceArea",
+      "/config/foundation/meshResolution/plateScalePower",
+      "/config/foundation/platePartition/referenceArea",
+      "/config/foundation/platePartition/plateScalePower",
+    ]) {
+      expect(
+        err.errors.some((item) => item.code === "config.invalid" && item.path.includes(path))
+      ).toBe(true);
+    }
+  });
+
   it("rejects legacy Morphology step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {

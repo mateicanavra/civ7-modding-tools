@@ -1,25 +1,25 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
-import { STANDARD_ENGINE_EFFECT_TAGS, MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS, STANDARD_ENGINE_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 import { mapRiversArtifacts } from "../artifacts.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
   {
     /**
-     * Engine river modeling minimum length threshold (lower = denser).
+     * Minimum navigable channel trunk length selected from Hydrology flow.
      */
     minLength: Type.Integer({
-      description: "Engine river modeling minimum length threshold (lower = denser).",
+      description: "Minimum navigable channel trunk length selected from Hydrology flow.",
       default: 5,
       minimum: 1,
       maximum: 40,
     }),
     /**
-     * Engine river modeling maximum length threshold.
+     * Maximum navigable channel trunk length selected from Hydrology flow.
      */
     maxLength: Type.Integer({
-      description: "Engine river modeling maximum length threshold.",
+      description: "Maximum navigable channel trunk length selected from Hydrology flow.",
       default: 15,
       minimum: 1,
       maximum: 80,
@@ -27,7 +27,7 @@ const PlotRiversStepConfigSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Config for engine river projection (projection-only).",
+    description: "Config for MapGen-owned navigable river projection.",
   }
 );
 
@@ -36,12 +36,14 @@ const PlotRiversStepContract = defineStep({
   phase: "gameplay",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   provides: [
-    STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled,
+    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
+    STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled,
   ],
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],
     provides: [
+      mapRiversArtifacts.projectedNavigableRivers,
       mapRiversArtifacts.engineProjectionRivers,
       mapRiversArtifacts.riversEngineTerrainSnapshot,
     ],

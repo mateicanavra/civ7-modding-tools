@@ -14,7 +14,9 @@ Do we require **event semantics** (typed tectonic events with explicit state/pro
 - `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` (current contract + artifact surfaces)
 - Code (current reality anchors):
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts` (segment intensities + polarity + drift)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` (era fields from segment seeds + diffusion)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/index.ts` and `mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/index.ts` (era event seeds)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts` (era fields from events + diffusion)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts` (history rollups)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (tile projection uses tectonics fields)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts` (consumes `upliftPotential`, `riftPotential`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/volcanoes.ts` (consumes `volcanism`)
@@ -90,7 +92,7 @@ A "Pacific margin" scenario:
 
 Current reality (from `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`):
 - `artifact:foundation.tectonicSegments` already exposes plate-pair topology, regime, polarity, and drift direction.
-- `artifact:foundation.tectonicHistory` is currently derived by "seed + diffusion" from segments with 3 eras.
+- `artifact:foundation.tectonicHistory` is currently derived by "seed + diffusion" from segments under the 5..8 era contract.
 - `artifact:foundation.tectonics` (newest-era snapshot + `cumulativeUplift`) feeds `artifact:foundation.plates` projection and therefore Morphology.
 
 D06r binds these into a single causal contract:

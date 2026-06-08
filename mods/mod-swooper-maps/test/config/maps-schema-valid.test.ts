@@ -158,6 +158,7 @@ const ECOLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
   "ecology-biomes": ["biomes"],
   "ecology-features": [
     "score-layers",
+    "plan-floodplains",
     "plan-ice",
     "plan-reefs",
     "plan-wetlands",
@@ -196,7 +197,33 @@ const PLACEMENT_PUBLIC_KEYS = [
   "discoveries",
   "floodplains",
   "resources",
+  "starts",
 ] as const;
+
+const DEFAULT_STARTS_CONFIG = {
+  expansionRadiusTiles: 4,
+  fertilityWeight: 1.2,
+  freshwaterWeight: 0.9,
+  islandClusterRadiusTiles: 5,
+  largeLandmassWeight: 1,
+  maxIslandStartCoastDistance: 1,
+  minContiguousLandTiles: 24,
+  minExpansionLandTiles: 14,
+  minIslandClusterLandTiles: 18,
+  minStartSpacingTiles: 9,
+  overrides: { startSectors: [] },
+  resourceSupportRadiusTiles: 4,
+  resourceSupportWeight: 1,
+  roughnessPenaltyWeight: 0.6,
+};
+
+function expectedStartsConfig(raw: CanonicalMapConfigEnvelope) {
+  return {
+    ...DEFAULT_STARTS_CONFIG,
+    ...((raw.config as any).placement?.starts ?? {}),
+    overrides: { startSectors: [] },
+  };
+}
 
 const PLACEMENT_INTERNAL_STAGE_KEYS = [
   "derive-placement-inputs",
@@ -569,6 +596,12 @@ describe("Shipped map configs", () => {
     const meshResolutionProps =
       (props.meshResolution as { properties?: Record<string, unknown> }).properties ?? {};
     expect(meshResolutionProps).not.toHaveProperty("cellCount");
+    expect(meshResolutionProps).not.toHaveProperty("referenceArea");
+    expect(meshResolutionProps).not.toHaveProperty("plateScalePower");
+    const platePartitionProps =
+      (props.platePartition as { properties?: Record<string, unknown> }).properties ?? {};
+    expect(platePartitionProps).not.toHaveProperty("referenceArea");
+    expect(platePartitionProps).not.toHaveProperty("plateScalePower");
     expect(JSON.stringify(props)).not.toContain("\"strategy\"");
     expect(JSON.stringify(props)).not.toContain("\"config\"");
   });
@@ -725,7 +758,7 @@ describe("Shipped map configs", () => {
       swooperEarthlikeConfig.config
     ) as any;
 
-    expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("coastal-shelf");
+    expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("orogeny-boosted");
     expect(compiled["ecology-pedology"]["resource-basins"].plan.strategy).toBe("mixed");
     expect(compiled["ecology-pedology"]["resource-basins"].score.strategy).toBe("default");
     expect(compiled["ecology-biomes"].biomes.classify.strategy).toBe("default");
@@ -781,7 +814,7 @@ describe("Shipped map configs", () => {
     expect(compiled["map-morphology"]["plot-volcanoes"]).toEqual({});
     expect(compiled["map-hydrology"].lakes.projectionReadback).toBe(true);
     expect(compiled["map-elevation"]["build-elevation"]).toEqual({});
-    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 3, maxLength: 12 });
+    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
     expect(compiled["map-ecology"]["plot-biomes"].bindings.tropicalSeasonal).toBe("BIOME_PLAINS");
     expect(compiled["map-ecology"]["plot-biomes"].bindings.marine).toBe("BIOME_MARINE");
     expect(compiled["map-ecology"]["features-apply"].apply).toEqual({
@@ -832,26 +865,21 @@ describe("Shipped map configs", () => {
       strategy: "default",
       config: { densityPer100Tiles: 3, minSpacingTiles: 3 },
     });
-    expect(compiled.placement["derive-placement-inputs"].floodplains).toEqual({
-      strategy: "default",
-      config: { minLength: 4, maxLength: 10 },
-    });
     expect(compiled.placement["derive-placement-inputs"].resources.strategy).toBe("default");
     expect(compiled.placement["derive-placement-inputs"].resources.config).toEqual({
-      candidateResourceTypes: Array.from({ length: 55 }, (_, index) => index),
-      densityPer100Tiles: 9,
+      densityPer100Tiles: 10,
       minSpacingTiles: 2,
       maxPlacementsPerResourceShare: 0.3,
     });
-    expect(compiled.placement["derive-placement-inputs"].starts).toEqual({
+    expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
+    expect(compiled.placement["assign-starts"].starts).toEqual({
       strategy: "default",
-      config: { overrides: { startSectors: [] } },
+      config: expectedStartsConfig(swooperEarthlikeConfig),
     });
     expect(compiled.placement["plot-landmass-regions"]).toEqual({});
     expect(compiled.placement["place-natural-wonders"]).toEqual({});
     expect(compiled.placement["prepare-placement-surface"]).toEqual({});
     expect(compiled.placement["place-resources"]).toEqual({});
-    expect(compiled.placement["assign-starts"]).toEqual({});
     expect(compiled.placement["place-discoveries"]).toEqual({});
     expect(compiled.placement["assign-advanced-starts"]).toEqual({});
     expect(compiled.placement.placement).toEqual({});
@@ -970,7 +998,7 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("keeps Placement configs compiled-equivalent to the legacy shipped configs", () => {
+  it("keeps non-start Placement configs legacy-equivalent while assigning start planning to assign-starts", () => {
     const env = {
       seed: 123,
       dimensions: { width: 80, height: 60 },
@@ -981,7 +1009,17 @@ describe("Shipped map configs", () => {
     for (const [fileName, raw] of shippedMapConfigs) {
       const id = fileName.replace(/\.config\.json$/, "");
       const compiled = standardRecipe.compileConfig(env, raw.config) as any;
-      expect({ placement: stable(compiled.placement) }).toEqual(expected[id]);
+      const observedPlacement = stable(compiled.placement) as any;
+      const expectedPlacement = stable(expected[id]) as any;
+      delete observedPlacement["assign-starts"].starts;
+      delete expectedPlacement.placement["derive-placement-inputs"].starts;
+      delete expectedPlacement.placement["assign-starts"].starts;
+      expect({ placement: observedPlacement }).toEqual(expectedPlacement);
+      expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
+      expect(compiled.placement["assign-starts"].starts).toEqual({
+        strategy: "default",
+        config: expectedStartsConfig(raw),
+      });
     }
   });
 
@@ -1070,7 +1108,7 @@ describe("Shipped map configs", () => {
               strategy: "default",
               config: {
                 candidateResourceTypes: [1, 2, 3],
-                densityPer100Tiles: 9,
+                densityPer100Tiles: 10,
               },
             },
             starts: {
@@ -1126,7 +1164,7 @@ describe("Shipped map configs", () => {
     expect(errorPaths).toEqual(
       expect.arrayContaining([
         "/maps/placement-owner-leakage/placement/resources/candidateResourceTypes",
-        "/maps/placement-owner-leakage/placement/starts",
+        "/maps/placement-owner-leakage/placement/starts/overrides",
       ])
     );
   });

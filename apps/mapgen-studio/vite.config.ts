@@ -22,18 +22,22 @@ import {
   getCiv7PlayerSummary,
   getCiv7UnitSummary,
   ensureCiv7SetupMapRowVisible,
+  listCiv7SavedGameConfigurations,
   runCiv7SinglePlayerFromSetup,
   startCiv7Autoplay,
   stopCiv7Autoplay,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
+import { loadCiv7SetupCatalog } from "./src/server/civ7Resources/catalog";
 import {
   RunInGameHttpError,
   createRunInGameOperationStore,
   type RunInGameOperationState,
 } from "./src/server/runInGame/operationState";
+import { classifyCiv7MapgenLogFailure } from "./src/server/runInGame/logFailure";
 import { parseRunInGameSetupRequest } from "./src/server/runInGame/requestValidation";
+import { shutdownCiv7MacProcess } from "./src/server/runInGame/macosProcessRestart";
 import { buildSwooperMapsStudioDeployCommand } from "./src/server/mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "./src/server/mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValidation";
@@ -45,8 +49,13 @@ const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
 const RUN_IN_GAME_OPERATION_TTL_MS = 30 * 60_000;
 const CIV7_STEAM_APP_ID = "1295660";
+const CIV7_PROCESS_PATTERN = "CivilizationVII.app/Contents/MacOS/CivilizationVII";
+const CIV7_PROCESS_GRACEFUL_QUIT_TIMEOUT_MS = 45_000;
+const CIV7_PROCESS_FORCE_QUIT_TIMEOUT_MS = 30_000;
+const CIV7_PROCESS_FORCE_KILL_TIMEOUT_MS = 15_000;
 const CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS = 180_000;
 const CIV7_PROCESS_RESTART_POLL_INTERVAL_MS = 2_000;
+const CIV7_PROCESS_EXIT_STABLE_POLLS = 2;
 const STUDIO_SERVER_STARTED_AT = new Date().toISOString();
 const STUDIO_SERVER_INSTANCE_ID = createCiv7ControlRequestId("studio-server");
 
@@ -80,6 +89,13 @@ function stableHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
 }
 
+async function readFreshLogText(logPath: string, snapshot: Awaited<ReturnType<typeof snapshotFile>>): Promise<string> {
+  const current = await snapshotFile(logPath);
+  if (!current.exists) return "";
+  const fullText = await readFile(logPath, "utf8");
+  return current.size >= snapshot.size ? fullText.slice(snapshot.size) : fullText;
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -88,6 +104,8 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   command: string;
   quit: { command: string; stdout: string; stderr: string };
   kill?: { command: string; stdout: string; stderr: string };
+  forceKill?: { command: string; stdout: string; stderr: string };
+  shutdown: Awaited<ReturnType<typeof shutdownCiv7MacProcess>>;
   launch: { command: string; stdout: string; stderr: string };
   setupPhase?: string;
 }> {
@@ -95,36 +113,17 @@ async function restartCiv7ProcessViaSteam(): Promise<{
     throw new Error("Civ7 process restart from Studio is currently supported on macOS only");
   }
 
-  const quitCommand = "osascript -e 'tell application id \"com.2k.civ7\" to quit'";
-  const quitResult = await execFileAsync("osascript", ["-e", 'tell application id "com.2k.civ7" to quit'], {
-    timeout: 10_000,
-    maxBuffer: 1024 * 1024,
-  }).catch((err: unknown) => {
-    if (err && typeof err === "object" && "stdout" in err && "stderr" in err) {
-      return { stdout: String((err as { stdout?: unknown }).stdout ?? ""), stderr: String((err as { stderr?: unknown }).stderr ?? "") };
-    }
-    throw err;
+  const shutdown = await shutdownCiv7MacProcess({
+    execFileAsync,
+    sleep,
+    tail,
+    processPattern: CIV7_PROCESS_PATTERN,
+    gracefulQuitTimeoutMs: CIV7_PROCESS_GRACEFUL_QUIT_TIMEOUT_MS,
+    forceQuitTimeoutMs: CIV7_PROCESS_FORCE_QUIT_TIMEOUT_MS,
+    forceKillTimeoutMs: CIV7_PROCESS_FORCE_KILL_TIMEOUT_MS,
+    pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
+    stableAbsentPolls: CIV7_PROCESS_EXIT_STABLE_POLLS,
   });
-
-  await sleep(5_000);
-
-  let killResult: { command: string; stdout: string; stderr: string } | undefined;
-  const stillRunning = await execFileAsync("pgrep", ["-f", "CivilizationVII.app/Contents/MacOS/CivilizationVII"], {
-    timeout: 5_000,
-    maxBuffer: 1024 * 1024,
-  }).then(
-    () => true,
-    () => false,
-  );
-  if (stillRunning) {
-    const killCommand = "pkill -f CivilizationVII.app/Contents/MacOS/CivilizationVII";
-    const { stdout, stderr } = await execFileAsync("pkill", ["-f", "CivilizationVII.app/Contents/MacOS/CivilizationVII"], {
-      timeout: 10_000,
-      maxBuffer: 1024 * 1024,
-    });
-    killResult = { command: killCommand, stdout: tail(stdout), stderr: tail(stderr) };
-    await sleep(3_000);
-  }
 
   const launchCommand = `open steam://rungameid/${CIV7_STEAM_APP_ID}`;
   const launch = await execFileAsync("open", [`steam://rungameid/${CIV7_STEAM_APP_ID}`], {
@@ -150,9 +149,11 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   }
 
   return {
-    command: `${quitCommand} && ${launchCommand}`,
-    quit: { command: quitCommand, stdout: tail(quitResult.stdout), stderr: tail(quitResult.stderr) },
-    ...(killResult === undefined ? {} : { kill: killResult }),
+    command: `${shutdown.quit.command} && ${launchCommand}`,
+    quit: shutdown.quit,
+    ...(shutdown.kill === undefined ? {} : { kill: shutdown.kill }),
+    ...(shutdown.forceKill === undefined ? {} : { forceKill: shutdown.forceKill }),
+    shutdown,
     launch: { command: launchCommand, stdout: tail(launch.stdout), stderr: tail(launch.stderr) },
     setupPhase,
   };
@@ -529,6 +530,48 @@ export default defineConfig(({ command }) => ({
             viteCommand: command,
           });
         });
+        server.middlewares.use("/api/civ7/setup-config", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const snapshot = await getCiv7SetupSnapshot({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS });
+            writeJson(res, 200, {
+              ok: true,
+              observedAt: new Date().toISOString(),
+              setup: snapshot.snapshot,
+              state: snapshot.state,
+              host: snapshot.host,
+              port: snapshot.port,
+            });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 setup config unavailable";
+            writeJson(res, 503, { ok: false, error, observedAt: new Date().toISOString() });
+          }
+        });
+        server.middlewares.use("/api/civ7/saved-configs", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const result = await listCiv7SavedGameConfigurations();
+            writeJson(res, 200, {
+              ok: true,
+              observedAt: new Date().toISOString(),
+              ...result,
+            });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 saved configurations unavailable";
+            writeJson(res, 500, { ok: false, error, observedAt: new Date().toISOString() });
+          }
+        });
+        server.middlewares.use("/api/civ7/setup-catalog", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
+            const catalog = await loadCiv7SetupCatalog({ repoRoot });
+            writeJson(res, 200, { ok: true, catalog });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 setup catalog unavailable";
+            writeJson(res, 500, { ok: false, error, observedAt: new Date().toISOString() });
+          }
+        });
         server.middlewares.use("/api/civ7/run-in-game/status", async (req, res, next) => {
           if (req.method !== "GET") return next();
           const url = new URL(req.url ?? "", "http://localhost");
@@ -560,6 +603,7 @@ export default defineConfig(({ command }) => ({
               resources?: unknown;
               materialization?: { mode?: unknown };
               recovery?: { restartCivProcess?: unknown };
+              setupConfig?: unknown;
               config?: unknown;
               selectedConfig?: {
                 id?: unknown;
@@ -570,9 +614,16 @@ export default defineConfig(({ command }) => ({
                 latitudeBounds?: unknown;
               };
             }>(req);
-            const parsedRequest = parseRunInGameSetupRequest(body);
+            let parsedRequest: ReturnType<typeof parseRunInGameSetupRequest>;
+            try {
+              parsedRequest = parseRunInGameSetupRequest(body);
+            } catch (err) {
+              throw new RunInGameHttpError(400, err instanceof Error ? err.message : "Invalid Run in Game request", {
+                code: "run-in-game-request-invalid",
+              });
+            }
             const selected = body.selectedConfig ?? {};
-            const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess } = parsedRequest;
+            const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess, setupConfig } = parsedRequest;
             const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
             const configHash = stableHash(body.config);
             const envelope = makeRepoMapEnvelope({
@@ -590,17 +641,41 @@ export default defineConfig(({ command }) => ({
               latitudeBounds: selected.latitudeBounds ?? null,
               configHash,
             });
+            const requestFingerprint = stableHash({
+              recipeId: "mod-swooper-maps/standard",
+              seed,
+              mapSize,
+              playerCount: playerCount ?? null,
+              resources: typeof body.resources === "string" ? body.resources : null,
+              selectedConfigId: typeof selected.id === "string" ? selected.id : null,
+              setupConfig,
+              materializationMode: requestedMode,
+              configHash,
+              envelopeHash,
+            });
             const activeOperation = runInGameOperations.findActive();
             if (activeOperation) {
-              writeJson(res, 202, {
-                ...activeOperation,
-                details: {
-                  ...activeOperation.details,
-                  duplicateRequest: true,
-                  code: "run-in-game-operation-active",
-                  activeRequestId: activeOperation.requestId,
-                },
-              });
+              if (activeOperation.request?.fingerprint === requestFingerprint) {
+                writeJson(res, 202, {
+                  ...activeOperation,
+                  details: {
+                    ...activeOperation.details,
+                    duplicateRequest: true,
+                    code: "run-in-game-operation-active",
+                    activeRequestId: activeOperation.requestId,
+                  },
+                });
+              } else {
+                writeJson(res, 409, {
+                  ok: false,
+                  error: "Another Run in Game request is already running; wait for it to finish before launching a different config.",
+                  details: {
+                    code: "run-in-game-operation-active",
+                    activeRequestId: activeOperation.requestId,
+                    activePhase: activeOperation.phase,
+                  },
+                });
+              }
               return;
             }
             const activeSaveDeploy = saveDeployOperations.findActive();
@@ -624,8 +699,10 @@ export default defineConfig(({ command }) => ({
               ...(playerCount === undefined ? {} : { playerCount }),
               ...(typeof body.resources === "string" ? { resources: body.resources } : {}),
               ...(typeof selected.id === "string" ? { selectedConfigId: selected.id } : {}),
+              setupConfig,
               materializationMode: requestedMode,
               ...(restartCivProcess ? { restartCivProcess } : {}),
+              fingerprint: requestFingerprint,
             };
             const operation = runInGameOperations.create(requestId, requestStatus);
             const run = async () => {
@@ -679,9 +756,10 @@ export default defineConfig(({ command }) => ({
                   });
                 });
 
+                const launchMapScript = materialized.mapScript;
                 const rowVisibility = await ensureCiv7SetupMapRowVisible(
                   {
-                    file: materialized.mapScript,
+                    file: launchMapScript,
                     limit: 20,
                     reloadIfMissing: requestedMode === "disposable" ? "exit-to-shell" : "none",
                     waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
@@ -696,12 +774,12 @@ export default defineConfig(({ command }) => ({
                 }
                 const rowProof = rowVisibility.final;
                 if (rowProof.rows.length === 0) {
-                  throw new RunInGameHttpError(409, `Civ7 setup cannot see ${materialized.mapScript}`, {
+                  throw new RunInGameHttpError(409, `Civ7 setup cannot see ${launchMapScript}`, {
                     code: "setup-map-row-not-visible",
                     reloadRequired: true,
                     reloadBoundary: requestedMode === "disposable" ? "process-restart-required" : "setup-row-missing",
                     reloadAttempted: rowVisibility.refreshed,
-                    mapScript: materialized.mapScript,
+                    mapScript: launchMapScript,
                     materialization: {
                       mode: requestedMode,
                       path: materialized.path,
@@ -716,10 +794,14 @@ export default defineConfig(({ command }) => ({
                 runInGameOperations.update(requestId, { phase, materialization });
                 const start = await runCiv7SinglePlayerFromSetup(
                   {
-                    mapScript: materialized.mapScript,
+                    mapScript: launchMapScript,
                     mapSize,
                     seed,
+                    gameSeed: seed,
                     ...(playerCount === undefined ? {} : { playerCount }),
+                    ...(setupConfig.savedConfig === undefined ? {} : { savedConfig: setupConfig.savedConfig }),
+                    options: setupConfig.gameOptions,
+                    playerOptions: setupConfig.playerOptions,
                     fromRunningGame: "exit-to-shell",
                     waitForTuner: true,
                     waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
@@ -736,6 +818,17 @@ export default defineConfig(({ command }) => ({
                   markers: ["[mapgen-proof]", requestId, configHash, envelopeHash],
                   timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
                   rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
+                }).catch(async (err: unknown) => {
+                  const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(() => "");
+                  const mapgenFailure = classifyCiv7MapgenLogFailure(freshLogText, { mapScript: launchMapScript });
+                  if (mapgenFailure) {
+                    throw new RunInGameHttpError(500, mapgenFailure.message, {
+                      ...mapgenFailure,
+                      materialization,
+                      cause: err instanceof Error ? err.message : String(err),
+                    });
+                  }
+                  throw err;
                 });
 
                 runInGameOperations.complete(requestId, {

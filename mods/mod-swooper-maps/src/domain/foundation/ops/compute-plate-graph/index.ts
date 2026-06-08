@@ -1,8 +1,8 @@
 import { createOp, type Static } from "@swooper/mapgen-core/authoring";
 import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import { createLabelRng } from "@swooper/mapgen-core";
 
-import { requireEnvDimensions } from "../../lib/normalize.js";
+import { deriveFoundationReferenceArea, requireEnvDimensions } from "../../lib/normalize.js";
 import { requireCrust, requireMesh } from "../../lib/require.js";
 import ComputePlateGraphContract from "./contract.js";
 import type { FoundationPlate } from "./contract.js";
@@ -302,14 +302,10 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
   strategies: {
     default: {
       normalize: (config: PlateGraphConfig, ctx) => {
-        const { width, height } = requireEnvDimensions(ctx, "foundation/compute-plate-graph.normalize");
-        const area = Math.max(1, width * height);
-
-        const referenceArea = Math.max(1, config.referenceArea | 0);
-        const power = config.plateScalePower;
-
-        const scale = Math.pow(area / referenceArea, power);
-        const scaledPlateCount = Math.max(2, Math.round((config.plateCount | 0) * scale));
+        deriveFoundationReferenceArea(
+          requireEnvDimensions(ctx, "foundation/compute-plate-graph.normalize")
+        );
+        const scaledPlateCount = Math.max(2, config.plateCount | 0);
 
         return {
           ...config,

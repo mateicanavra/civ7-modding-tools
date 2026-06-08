@@ -6,7 +6,7 @@ import LandmassesStepContract from "./landmasses.contract.js";
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_LANDMASSES = "Morphology / Landmasses";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);

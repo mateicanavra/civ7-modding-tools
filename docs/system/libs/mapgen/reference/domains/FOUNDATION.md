@@ -48,6 +48,7 @@ FOUNDATION does not require upstream domain artifacts. It requires only:
 - **a deterministic seed source** (steps derive per-op `rngSeed` and pass it as pure data to ops)
 
 **Ground truth anchors**
+- `packages/mapgen-core/src/core/types.ts` (`ctxRandom` derives from `Env.seed`, not adapter RNG)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts` (`ctxRandom`, `ctxRandomLabel`, `context.dimensions`)
 - `mods/mod-swooper-maps/src/domain/foundation/lib/normalize.ts` (`requireEnvDimensions`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/contract.ts` (`ComputeMeshContract.input`)
@@ -216,7 +217,7 @@ Key fields:
 Multi-era tectonic driver snapshots plus cumulative rollups.
 
 Notes:
-- The op contract allows `eraCount` up to 8, but current validation expects exactly **3 eras**.
+- The active era contract supports 5..8 eras; shipped configs currently use 5-era histories.
 
 Key fields:
 - `eras[]` (oldest→newest): per-era fields (`boundaryType`, `upliftPotential`, `riftPotential`, `shearStress`, `volcanism`, `fracture`)
@@ -348,7 +349,7 @@ FOUNDATION ops are the domain’s compute units. The standard recipe wires them 
 ### Projection op (non-truth)
 - `foundation/compute-plates-tensors` → `{ tileToCellIndex, crustTiles, plates }`
 
-Legacy `foundation/compute-tectonic-history` used to act as a monolithic history + tectonics op; the current surface intentionally removes it so the `tectonics` step bonds to the focused ops above (see `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`). This reference doc now points readers to the active operations rather than the retired aggregate.
+Legacy `foundation/compute-tectonic-history` used to act as a monolithic history + tectonics op. It has been removed so the `tectonics` step bonds only to the focused ops above; do not reintroduce an aggregate compatibility op.
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/index.ts` (`defineDomain({ id: "foundation", ops })`)
@@ -368,25 +369,25 @@ The standard recipe exposes two knobs that apply *after* defaulted step config, 
 - `mods/mod-swooper-maps/src/domain/foundation/shared/knobs.ts` (`FoundationPlateCountKnobSchema`, `FoundationPlateActivityKnobSchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts` (`resolvePlateActivityKinematicsMultiplier`, `resolvePlateActivityBoundaryDelta`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (`knobsSchema`, “Knobs apply last” docstrings)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts` (`normalize` applying `plateCount` override)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateGraph.ts` (`normalize` applying `plateCount` override)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts` (`normalize` applying plate activity scaling)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`normalize` deriving `cellCount`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (`normalize` validating selected-map-size plate count)
 
-### Op normalization (dimension-aware scaling)
+### Op normalization (map-size validation)
 
 Some op strategies normalize authored config using runtime dimensions:
-- `foundation/compute-mesh` scales `plateCount` and derives `cellCount`
-- `foundation/compute-plate-graph` scales `plateCount`
+- `foundation/compute-mesh` validates map dimensions and derives `cellCount`
+- `foundation/compute-plate-graph` validates map dimensions before graph partitioning
 
-Both use an area-based scaling function:
-- `area = width * height`
-- `scale = (area / referenceArea) ^ plateScalePower`
-- `scaledPlateCount = round(authoredPlateCount * scale)` with a minimum of 2
+Reference Area is not an authored config field. Foundation derives it exactly
+from validated runtime map dimensions:
+- `referenceArea = width * height`
+- invalid, non-integer, zero, or unsafe dimensions fail at the Foundation boundary
+- no synthetic fallback area is used
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`normalize` in default strategy)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (`normalize` in default strategy)
-- `mods/mod-swooper-maps/src/domain/foundation/lib/normalize.ts` (`requireEnvDimensions`)
+- `mods/mod-swooper-maps/src/domain/foundation/lib/normalize.ts` (`requireEnvDimensions`, `deriveFoundationReferenceArea`)
 
 ## Current Mapping (Standard Recipe)
 
@@ -394,14 +395,18 @@ Both use an area-based scaling function:
 
 In the standard recipe, the `foundation` stage runs these steps (in order):
 1. `mesh`
-2. `crust`
-3. `plate-graph`
-4. `tectonics`
-5. `projection`
-6. `plate-topology`
+2. `mantle-potential`
+3. `mantle-forcing`
+4. `crust`
+5. `plate-graph`
+6. `plate-motion`
+7. `tectonics`
+8. `crust-evolution`
+9. `projection`
+10. `plate-topology`
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (`createStage`, `steps: [mesh, crust, ...]`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (`createStage`, `steps`)
 - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts` (`STANDARD_STAGES`, `stages` ordering)
 
 ### Downstream consumption (today)
@@ -419,11 +424,9 @@ Downstream domains in the standard recipe primarily consume **tile projections**
 This is the minimal drift worth calling out in a domain reference:
 - **Plate topology is tile-derived today** (`foundation.plateTopology` is built from tile `plates.id`), even though plate adjacency is conceptually mesh-native.
 - **Tectonic history is not consumed cross-domain today**, even though it exists as a truth artifact.
-- **History era count is effectively fixed at 3** by current validation, despite the op contract allowing a wider range.
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateTopology.ts` (`buildPlateTopology(plateIds, width, height, plateCount)`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (`validateTectonicHistoryArtifact`, `eraCount !== 3`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` (publishes history; no downstream reads in standard recipe)
 
 ## Open Questions
@@ -431,8 +434,7 @@ This is the minimal drift worth calling out in a domain reference:
 Marking these explicitly avoids “silent drift” in canonical docs.
 
 1. Should `artifact:foundation.plateTopology` be a **mesh-space truth** product derived from `foundation.plateGraph + foundation.mesh` (rather than tile-derived from plate tensors)?
-2. Is the effective invariant “tectonic history uses exactly 3 eras” a deliberate contract, or should validation be relaxed to match `FoundationTectonicHistorySchema` (`eraCount <= 8`)?
-3. Which downstream domain(s) should consume `artifact:foundation.tectonicHistory` (if any), and what is the minimal cross-domain contract for “age of orogeny” vs “recent activity”?
+2. Which downstream domain(s) should consume `artifact:foundation.tectonicHistory` (if any), and what is the minimal cross-domain contract for “age of orogeny” vs “recent activity”?
 
 ## Ground truth anchors
 
@@ -456,7 +458,14 @@ This page contains many inline “Ground truth anchors” callouts. This section
 - Plates + tectonics (truth + projection):
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/contract.ts` (`ComputePlateGraphContract`, `FoundationPlateGraphSchema`)
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts` (`ComputeTectonicSegmentsContract`, `FoundationTectonicSegmentsSchema`)
-  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (`ComputeTectonicHistoryContract`, `FoundationTectonicHistorySchema`, `FoundationTectonicsSchema`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/contract.ts` (`ComputeEraPlateMembershipContract`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/contract.ts` (`ComputeSegmentEventsContract`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/contract.ts` (`ComputeHotspotEventsContract`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/contract.ts` (`ComputeEraTectonicFieldsContract`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/contract.ts` (`ComputeTectonicHistoryRollupsContract`, `FoundationTectonicHistorySchema`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/contract.ts` (`ComputeTectonicsCurrentContract`, `FoundationTectonicsSchema`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/contract.ts` (`ComputeTracerAdvectionContract`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/contract.ts` (`ComputeTectonicProvenanceContract`)
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`ComputePlatesTensorsContract`, `tileToCellIndex`)
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`projectPlatesFromModel`, `tileToCellIndex`)
 

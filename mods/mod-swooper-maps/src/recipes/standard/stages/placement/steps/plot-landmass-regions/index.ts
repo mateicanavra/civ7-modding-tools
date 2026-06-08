@@ -80,7 +80,7 @@ export default createStep(PlotLandmassRegionsStepContract, {
 
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "placement.landmassRegions.regionSlot",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       dims: { width, height },
       format: "u8",
       values: slotByTile,

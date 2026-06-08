@@ -173,6 +173,9 @@ export function recoveryActionsFor(state: Pick<RunInGameOperationStatus, "phase"
   if (state.details?.reloadBoundary === "process-restart-required") {
     actions.push("restart-civ-process-and-retry");
   }
+  if (state.details?.dismissNotificationRequired === true || state.details?.recoveryBoundary === "civ-notification-dismiss") {
+    actions.push("dismiss-civ-notification-and-retry");
+  }
   return [...new Set(actions)];
 }
 

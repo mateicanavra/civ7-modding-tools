@@ -155,8 +155,10 @@ V0.1 should guarantee:
   - payload buffers that are byte-identical (where possible)
 
 Practical requirements:
-- Use `ctxRandom(...)` consistently (already true for Foundation).
-- Ensure adapter `getRandomNumber(max,label)` is deterministic.
+- Use `ctxRandom(...)`/`deriveStepSeed(...)` consistently for authored pipeline
+  entropy; both are derived from the run seed in `@swooper/mapgen-core`.
+- Keep adapter `getRandomNumber(max,label)` deterministic where mocked, but do
+  not use it as an authored recipe/domain entropy source.
 - Avoid non-deterministic sources in worker (Date/Math.random without seeding).
 
 Replay/export posture:

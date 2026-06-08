@@ -41,13 +41,14 @@ This keeps:
 
 ### Browser test recipe (`mods/mod-swooper-maps/src/recipes/browser-test/recipe.ts`)
 
-Foundation stage steps use `ctxRandom(...)`, which calls `adapter.getRandomNumber(...)`.
+Foundation stage steps use `ctxRandom(...)`, which is pipeline-owned and derived
+from `Env.seed`. Browser and Civ runtime must therefore agree even when their
+adapters expose different engine RNG implementations.
 
 In addition, `createExtendedMapContext(...)` initializes terrain constants and therefore requires name→index lookups during context creation.
 
 **Required by Foundation (today):**
 - `width`, `height`
-- `getRandomNumber(max, label)`
 - `getTerrainTypeIndex(name)`
 - `getBiomeGlobal(name)`
 - `getFeatureTypeIndex(name)`
@@ -57,7 +58,9 @@ In addition, `createExtendedMapContext(...)` initializes terrain constants and t
 The standard recipe uses these adapter members (directly or via `createExtendedMapContext` helpers):
 
 - `getMapSizeId()`, `lookupMapInfo(mapSizeId)`
-- `getRandomNumber(max, label)`
+- `getRandomNumber(max, label)` for adapter-owned compatibility surfaces only;
+  authored recipe/domain entropy uses `ctxRandom(...)` or `deriveStepSeed(...)`
+  from `@swooper/mapgen-core`
 - `getTerrainTypeIndex(name)`, `getBiomeGlobal(name)`, `getFeatureTypeIndex(name)`, `getPlotEffectTypeIndex(name)`, `getLandmassId(name)`
 - `getTerrainType(x,y)`, `setTerrainType(x,y,terrainType)`, `isWater(x,y)`
 - `getElevation(x,y)`
@@ -84,7 +87,7 @@ The standard recipe uses these adapter members (directly or via `createExtendedM
 **Other usage (standard recipe):**
 - Narrative utilities read from the adapter: `getElevation`, `getLatitude`, `getRainfall`, `getTerrainType`, `isWater`.
 - Core helpers used by multiple stages:
-  - `ctxRandom(...)` → `getRandomNumber(...)`
+  - `ctxRandom(...)` → `Env.seed` + core label RNG
   - `writeHeightfield(...)` → `setTerrainType(...)`
   - `writeClimateField(...)` → `setRainfall(...)`
   - `snapshotEngineHeightfield(...)` → `getTerrainType(...)`, `getElevation(...)`, `isWater(...)` (viz/dumps only; must not overwrite physics-truth buffers)
@@ -98,7 +101,8 @@ This section classifies each currently-used member into one of four buckets:
 Implement in memory with typed arrays / plain objects; no external game resources required beyond constants already carried by the pipeline.
 
 - Dimensions: `width`, `height`
-- Deterministic RNG: `getRandomNumber(max, label)`
+- Adapter compatibility RNG: `getRandomNumber(max, label)` must be deterministic
+  if mocked, but authored pipeline randomness comes from core `Env.seed`
 - Latitude: `getLatitude(x,y)` (derive from `env.latitudeBounds` + tile Y)
 - Terrain/fields storage:
   - `getTerrainType(x,y)`, `setTerrainType(x,y,terrainType)`, `isWater(x,y)`
@@ -173,10 +177,12 @@ These should throw immediately if reached in a browser run because they imply en
 
 **Must implement (V0.1):**
 - `width`, `height`
-- `getRandomNumber(max, label)`
 - `getTerrainTypeIndex(name)` (for terrain constants initialization)
 - `getBiomeGlobal(name)` (for biome constants initialization)
 - `getFeatureTypeIndex(name)` (for feature constants initialization)
+
+**Should implement deterministically but not rely on for authored generation:**
+- `getRandomNumber(max, label)` (adapter compatibility only)
 
 **Should stub/throw (V0.1):**
 - All “engine behavior” methods in (c) unless Foundation explicitly needs them.

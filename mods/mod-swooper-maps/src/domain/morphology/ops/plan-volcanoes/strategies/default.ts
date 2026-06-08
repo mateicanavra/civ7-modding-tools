@@ -1,5 +1,5 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import { createLabelRng } from "@swooper/mapgen-core";
 
 import PlanVolcanoesContract from "../contract.js";
 import {

@@ -5,6 +5,7 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { describe, expect, test } from "vitest";
 import {
+  CIV7_SIGNED_INT_SEED_MAX,
   CIV7_RESTART_COMMAND,
   Civ7DirectControlError,
   DEFAULT_CIV7_TUNER_HOST,
@@ -28,6 +29,8 @@ import {
   getCiv7VisibilitySummary,
   getCiv7AppUiSnapshot,
   inspectCiv7RuntimeApi,
+  listCiv7SavedGameConfigurations,
+  loadCiv7SavedGameConfiguration,
   prepareCiv7SinglePlayerSetup,
   parseCiv7TunerFrame,
   queryCiv7TunerStates,
@@ -75,6 +78,27 @@ describe("Civ7 direct control", () => {
     expect([true, false]).toContain(health.ok);
     expect(DEFAULT_CIV7_TUNER_HOST).toBe("127.0.0.1");
     expect(DEFAULT_CIV7_TUNER_PORT).toBe(4318);
+  });
+
+  test("rejects setup seeds Civ7 would wrap before mutating setup state", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await expect(
+        prepareCiv7SinglePlayerSetup(
+          {
+            mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+            mapSize: "MAPSIZE_SMALL",
+            seed: CIV7_SIGNED_INT_SEED_MAX + 1,
+          },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 },
+          { approved: true, reason: "test seed range policy" },
+        ),
+      ).rejects.toMatchObject({ code: "setup-parameter-invalid" });
+      expect(server.received.some((message) => message.includes("editMap.setMapSeed"))).toBe(false);
+    } finally {
+      await server.close();
+    }
   });
 
   test("queries states and sends commands using the tuner frame protocol", async () => {
@@ -397,6 +421,7 @@ describe("Civ7 direct control", () => {
       expect(snapshot.snapshot.phase).toBe("shell");
       expect(snapshot.snapshot.selectedMapRow?.file).toBe("{swooper-maps}/maps/swooper-earthlike.js");
       expect(snapshot.snapshot.setup.parameters.find((p) => p.id === "MapRandomSeed")?.value).toBe(111);
+      expect(snapshot.snapshot.setup.playerParameters[0]?.parameters.find((p) => p.id === "PlayerLeader")?.value).toBe("LEADER_HARRIET_TUBMAN");
       expect(rows.rows).toEqual([
         expect.objectContaining({
           source: "setup-domain",
@@ -407,6 +432,114 @@ describe("Civ7 direct control", () => {
           file: "{swooper-maps}/maps/swooper-earthlike.js",
         }),
       ]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("discovers Civ7 saved game configuration files from disk", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "civ7-cfg-"));
+    await writeFile(
+      join(directory, "ToT Config.Civ7Cfg"),
+      Buffer.from(
+        [
+          "CIV7",
+          "GAMESPEED_STANDARD",
+          "MAPSIZE_HUGE",
+          "LEADER_ALEXANDER",
+          "DIFFICULTY_CUSTOM",
+          "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
+          "3507297712",
+          "3507297713",
+          "CIVILIZATION_GREECE",
+        ].join("\0"),
+        "ascii",
+      ),
+    );
+
+    const result = await listCiv7SavedGameConfigurations({ directory });
+
+    expect(result.directory).toBe(directory);
+    expect(result.configurations).toHaveLength(1);
+    expect(result.configurations[0]).toMatchObject({
+      id: "tot-config",
+      displayName: "ToT Config",
+      fileName: "ToT Config.Civ7Cfg",
+      source: "local-disk",
+      summary: {
+        gameSpeed: "GAMESPEED_STANDARD",
+        mapSize: "MAPSIZE_HUGE",
+        leader: "LEADER_ALEXANDER",
+        civilization: "CIVILIZATION_GREECE",
+        difficulty: "DIFFICULTY_CUSTOM",
+        mapSeed: 3507297712,
+        gameSeed: 3507297713,
+      },
+      setupOptions: {
+        Difficulty: "DIFFICULTY_CUSTOM",
+        GameSpeeds: "GAMESPEED_STANDARD",
+      },
+      playerOptions: [
+        {
+          playerId: 0,
+          options: {
+            PlayerLeader: "LEADER_ALEXANDER",
+            PlayerCivilization: "CIVILIZATION_GREECE",
+            PlayerDifficulty: "DIFFICULTY_CUSTOM",
+          },
+        },
+      ],
+    });
+  });
+
+  test("loads saved game configurations through Civ7 native setup workflow", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const result = await loadCiv7SavedGameConfiguration(
+        {
+          id: "tot-config",
+          displayName: "ToT Config",
+          fileName: "ToT Config.Civ7Cfg",
+          path: "/tmp/ToT Config.Civ7Cfg",
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { waitTimeoutMs: 1_000, pollIntervalMs: 10 },
+      );
+
+      expect(result.loaded).toBe(true);
+      expect(result.after.snapshot.setup.parameters.find((p) => p.id === "Difficulty")?.value).toBe("DIFFICULTY_CUSTOM");
+      expect(result.after.snapshot.setup.playerParameters[0]?.parameters.find((p) => p.id === "PlayerLeader")?.value).toBe("LEADER_ALEXANDER");
+      expect(server.received.some((message) => message.includes("Network.loadGame") && message.includes("GAME_CONFIGURATION"))).toBe(true);
+      expect(server.received.some((message) => message.includes("ToT Config.Civ7Cfg"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("blocks setup preparation when Civ7 refuses a saved game configuration load", async () => {
+    const server = await startTunerServer({ savedConfigLoadOk: false });
+    try {
+      const { port } = server.address();
+      await expect(
+        prepareCiv7SinglePlayerSetup(
+          {
+            mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+            mapSize: "MAPSIZE_SMALL",
+            seed: 222,
+            savedConfig: {
+              id: "tot-config",
+              displayName: "ToT Config",
+              fileName: "ToT Config.Civ7Cfg",
+              path: "/tmp/ToT Config.Civ7Cfg",
+            },
+          },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 },
+          { approved: true, reason: "test failed saved config load" },
+        ),
+      ).rejects.toMatchObject({ code: "setup-config-load-failed" });
+      expect(server.received.some((message) => message.includes("Network.loadGame") && message.includes("GAME_CONFIGURATION"))).toBe(true);
+      expect(server.received.some((message) => message.includes("editMap.setScript"))).toBe(false);
     } finally {
       await server.close();
     }
@@ -441,6 +574,46 @@ describe("Civ7 direct control", () => {
       expect(server.received.some((message) => message.includes('setSetupParameter("MapSize"'))).toBe(true);
       expect(server.received.some((message) => message.includes('setSetupParameter("MapRandomSeed"'))).toBe(true);
       expect(server.received.some((message) => message.includes("Network.hostGame"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("applies and verifies game and player setup options", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const prepare = await prepareCiv7SinglePlayerSetup(
+        {
+          mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+          mapSize: "MAPSIZE_SMALL",
+          seed: 222,
+          options: {
+            Difficulty: "DIFFICULTY_CUSTOM",
+          },
+          playerOptions: [
+            {
+              playerId: 0,
+              options: {
+                PlayerLeader: "LEADER_ASHOKA",
+                PlayerCivilization: "CIVILIZATION_MAURYA",
+                PlayerDifficulty: "DIFFICULTY_CUSTOM",
+              },
+            },
+          ],
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test setup option preservation" },
+      );
+
+      expect(prepare.verified).toBe(true);
+      expect(prepare.applied).toMatchObject({
+        Difficulty: "DIFFICULTY_CUSTOM",
+        "Player:0:PlayerLeader": "LEADER_ASHOKA",
+        "Player:0:PlayerCivilization": "CIVILIZATION_MAURYA",
+        "Player:0:PlayerDifficulty": "DIFFICULTY_CUSTOM",
+      });
+      expect(server.received.some((message) => message.includes("setPlayerParameterValue"))).toBe(true);
     } finally {
       await server.close();
     }
@@ -771,6 +944,7 @@ async function startTunerServer(options: {
   initialInShell?: boolean;
   closeOnSetupMutation?: boolean;
   closeOnBegin?: boolean;
+  savedConfigLoadOk?: boolean;
   postStartSeedOverride?: number;
   hiddenMapScript?: string;
   revealHiddenMapRowOnShellExit?: boolean;
@@ -789,6 +963,10 @@ async function startTunerServer(options: {
   let setupMapSize = "MAPSIZE_STANDARD";
   let setupMapSeed = 111;
   let setupGameSeed = 112;
+  let setupDifficulty = "DIFFICULTY_PRINCE";
+  let setupLeader = "LEADER_HARRIET_TUBMAN";
+  let setupCivilization = "CIVILIZATION_AMERICA";
+  let setupPlayerDifficulty = "DIFFICULTY_PRINCE";
   let setupRevision = 19;
   let hiddenMapRowVisible = false;
   const visibleSetupRows = () => [
@@ -878,7 +1056,19 @@ async function startTunerServer(options: {
         },
         { id: "MapRandomSeed", exists: true, value: setupMapSeed, possibleValues: [] },
         { id: "GameRandomSeed", exists: true, value: setupGameSeed, possibleValues: [] },
+        { id: "Difficulty", exists: true, value: setupDifficulty, possibleValues: [{ value: "DIFFICULTY_PRINCE" }, { value: "DIFFICULTY_CUSTOM" }] },
       ],
+      playerParameters: [
+        {
+          playerId: 0,
+          parameters: [
+            { id: "PlayerLeader", exists: true, value: setupLeader, possibleValues: [{ value: "LEADER_HARRIET_TUBMAN" }, { value: "LEADER_ASHOKA" }] },
+            { id: "PlayerCivilization", exists: true, value: setupCivilization, possibleValues: [{ value: "CIVILIZATION_AMERICA" }, { value: "CIVILIZATION_MAURYA" }] },
+            { id: "PlayerDifficulty", exists: true, value: setupPlayerDifficulty, possibleValues: [{ value: "DIFFICULTY_PRINCE" }, { value: "DIFFICULTY_CUSTOM" }] },
+          ],
+        },
+      ],
+      localPlayerId: { ok: true, value: 0 },
     },
     selectedMapRow: {
       source: "setup-domain",
@@ -925,6 +1115,17 @@ async function startTunerServer(options: {
           loadingState = 8;
           inShell = false;
           socket.write(encodeResponse(frame.listenerId, ["null"]));
+        } else if (frame.message.includes("Network.loadGame") && frame.message.includes("GAME_CONFIGURATION")) {
+          if (options.savedConfigLoadOk === false) {
+            socket.write(encodeResponse(frame.listenerId, ['{"ok":false,"serverType":0}']));
+          } else {
+            setupDifficulty = "DIFFICULTY_CUSTOM";
+            setupLeader = "LEADER_ALEXANDER";
+            setupCivilization = "CIVILIZATION_GREECE";
+            setupPlayerDifficulty = "DIFFICULTY_CUSTOM";
+            setupRevision += 1;
+            socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"serverType":0}']));
+          }
         } else if (frame.message.includes("editMap.setScript")) {
           if (options.closeOnSetupMutation) {
             socket.destroy();
@@ -934,6 +1135,10 @@ async function startTunerServer(options: {
           setupMapSize = frame.message.includes('"mapSize":"MAPSIZE_SMALL"') ? "MAPSIZE_SMALL" : "MAPSIZE_STANDARD";
           setupMapSeed = frame.message.includes('"seed":333') ? 333 : frame.message.includes('"seed":444') ? 444 : 222;
           setupGameSeed = frame.message.includes('"gameSeed":223') ? 223 : setupGameSeed;
+          setupDifficulty = frame.message.includes('"Difficulty":"DIFFICULTY_CUSTOM"') ? "DIFFICULTY_CUSTOM" : setupDifficulty;
+          setupLeader = frame.message.includes('"PlayerLeader":"LEADER_ASHOKA"') ? "LEADER_ASHOKA" : setupLeader;
+          setupCivilization = frame.message.includes('"PlayerCivilization":"CIVILIZATION_MAURYA"') ? "CIVILIZATION_MAURYA" : setupCivilization;
+          setupPlayerDifficulty = frame.message.includes('"PlayerDifficulty":"DIFFICULTY_CUSTOM"') ? "DIFFICULTY_CUSTOM" : setupPlayerDifficulty;
           setupRevision += 1;
           socket.write(
             encodeResponse(frame.listenerId, [
@@ -945,6 +1150,10 @@ async function startTunerServer(options: {
                   MapSize: setupMapSize,
                   MapRandomSeed: setupMapSeed,
                   ...(setupGameSeed === 223 ? { GameRandomSeed: setupGameSeed } : {}),
+                  ...(setupDifficulty === "DIFFICULTY_CUSTOM" ? { Difficulty: setupDifficulty } : {}),
+                  ...(setupLeader === "LEADER_ASHOKA" ? { "Player:0:PlayerLeader": setupLeader } : {}),
+                  ...(setupCivilization === "CIVILIZATION_MAURYA" ? { "Player:0:PlayerCivilization": setupCivilization } : {}),
+                  ...(setupPlayerDifficulty === "DIFFICULTY_CUSTOM" ? { "Player:0:PlayerDifficulty": setupPlayerDifficulty } : {}),
                 },
               }),
             ]),

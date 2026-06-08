@@ -1,3 +1,13 @@
+import {
+  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
+  normalizeStudioSetupConfig,
+  type Civ7StudioSetupConfig,
+} from "../../features/civ7Setup/setupConfig";
+import {
+  formatCiv7StudioSeedError,
+  parseCiv7StudioSeed,
+} from "../../features/civ7Setup/seedPolicy";
+
 export function assertNoRawControlFields(value: unknown): void {
   if (!value || typeof value !== "object") return;
   const stack: unknown[] = [value];
@@ -24,6 +34,7 @@ export function parseRunInGameSetupRequest(body: {
   materialization?: { mode?: unknown };
   recovery?: { restartCivProcess?: unknown };
   selectedConfig?: { id?: unknown };
+  setupConfig?: unknown;
   config?: unknown;
 }): {
   requestedMode: "durable" | "disposable";
@@ -32,6 +43,7 @@ export function parseRunInGameSetupRequest(body: {
   mapSize: string;
   playerCount?: number;
   restartCivProcess: boolean;
+  setupConfig: Civ7StudioSetupConfig;
 } {
   assertNoRawControlFields(body);
   if (body.recipeId !== "mod-swooper-maps/standard") {
@@ -48,8 +60,9 @@ export function parseRunInGameSetupRequest(body: {
       ? selected.id
       : "studio-current";
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Run in Game map config id must be kebab-case");
-  const seed = Number(body.seed);
-  if (!Number.isInteger(seed)) throw new Error("Run in Game seed must be an integer");
+  const seedPolicy = parseCiv7StudioSeed(body.seed);
+  if (!seedPolicy.ok) throw new Error(`Run in Game ${formatCiv7StudioSeedError(seedPolicy)}`);
+  const seed = seedPolicy.value;
   const mapSize = typeof body.mapSize === "string" ? body.mapSize : "MAPSIZE_STANDARD";
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize)) throw new Error("Run in Game mapSize must be a Civ7 MAPSIZE_* value");
   const playerCount = body.playerCount === undefined ? undefined : Number(body.playerCount);
@@ -57,12 +70,17 @@ export function parseRunInGameSetupRequest(body: {
     throw new Error("Run in Game playerCount must be an integer between 1 and 64");
   }
   const restartCivProcess = body.recovery?.restartCivProcess === true;
+  const setupConfig = normalizeStudioSetupConfig(body.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG);
+  if (setupConfig.mapScript !== undefined && (!setupConfig.mapScript.trim() || /[\0\r\n]/.test(setupConfig.mapScript))) {
+    throw new Error("Run in Game setupConfig.mapScript must be a non-empty single-line string");
+  }
   return {
     requestedMode,
     id,
     seed,
     mapSize,
     restartCivProcess,
+    setupConfig,
     ...(playerCount === undefined ? {} : { playerCount }),
   };
 }

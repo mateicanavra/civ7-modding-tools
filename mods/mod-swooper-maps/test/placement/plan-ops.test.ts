@@ -51,9 +51,17 @@ describe("placement plan operations", () => {
       aridityIndex: new Float32Array(size).fill(0.3),
       riverClass: new Uint8Array(size),
       lakeMask: new Uint8Array(size),
+      coastTerrainType: 2,
+      mountainTerrainType: 3,
+      iceFeatureType: 4,
+      terrainType: new Uint8Array(size).fill(1),
+      biomeType: new Uint8Array(size).fill(1),
+      featureType: new Int16Array(size).fill(-1),
+      noFeatureType: -1,
+      naturalWonderBlockedMask: new Uint8Array(size),
       featureCatalog: [
-        { featureType: 1001, direction: 0 },
-        { featureType: 1002, direction: 1 },
+        { featureType: 1001, direction: 0, footprintOffsets: [{ dx: 0, dy: 0 }] },
+        { featureType: 1002, direction: 1, footprintOffsets: [{ dx: 0, dy: 0 }] },
       ],
     }, {
       strategy: "default",
@@ -125,7 +133,6 @@ describe("placement plan operations", () => {
     }, {
       strategy: "default",
       config: {
-        candidateResourceTypes: [1, 3], // kept for config-compat, ignored for planning input.
         densityPer100Tiles: 25,
         minSpacingTiles: 0,
         maxPlacementsPerResourceShare: 1,
@@ -158,7 +165,6 @@ describe("placement plan operations", () => {
     }, {
       strategy: "default",
       config: {
-        candidateResourceTypes: [],
         densityPer100Tiles: 25,
         minSpacingTiles: 0,
         maxPlacementsPerResourceShare: 1,
@@ -195,7 +201,6 @@ describe("placement plan operations", () => {
     }, {
       strategy: "default",
       config: {
-        candidateResourceTypes: [5, 1, 5],
         densityPer100Tiles: 25,
         minSpacingTiles: 0,
         maxPlacementsPerResourceShare: 1,
@@ -227,7 +232,6 @@ describe("placement plan operations", () => {
     }, {
       strategy: "default",
       config: {
-        candidateResourceTypes: [],
         densityPer100Tiles: 25,
         minSpacingTiles: 0,
         maxPlacementsPerResourceShare: 1,
@@ -238,6 +242,27 @@ describe("placement plan operations", () => {
     expect(result.targetCount).toBe(0);
     expect(result.plannedCount).toBe(0);
     expect(result.placements).toEqual([]);
+  });
+
+  it("rejects resource candidate catalog config so runtime policy owns type ids", () => {
+    expect(() =>
+      runOpValidated(planResources, {
+        width: 2,
+        height: 2,
+        noResourceSentinel: 99,
+        candidateResourceTypes: [1, 2],
+        landMask: new Uint8Array(4).fill(1),
+        fertility: new Float32Array(4).fill(0.8),
+        effectiveMoisture: new Float32Array(4).fill(0.6),
+        surfaceTemperature: new Float32Array(4).fill(18),
+        aridityIndex: new Float32Array(4).fill(0.4),
+        riverClass: new Uint8Array(4),
+        lakeMask: new Uint8Array(4),
+      }, {
+        strategy: "default",
+        config: { candidateResourceTypes: [1, 2] },
+      })
+    ).toThrow();
   });
 
   it("plans floodplains respecting min/max", () => {

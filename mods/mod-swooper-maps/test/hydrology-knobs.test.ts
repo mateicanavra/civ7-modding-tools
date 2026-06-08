@@ -94,26 +94,42 @@ describe("hydrology knobs compilation", () => {
     expect(wetRiverBonus).toBeGreaterThan(dryRiverBonus);
   });
 
-  it("maps riverDensity to monotonic engine river thresholds (legacy)", () => {
+  it("maps riverDensity to monotonic hydrology river thresholds", () => {
     const sparse = standardRecipe.compileConfig(
       env,
-      withFoundation({ "map-rivers": { knobs: { riverDensity: "sparse" } } })
+      withFoundation({
+        "hydrology-hydrography": { knobs: { riverDensity: "sparse" } },
+        "map-rivers": { knobs: { riverDensity: "sparse" } },
+      })
     );
     const normal = standardRecipe.compileConfig(
       env,
-      withFoundation({ "map-rivers": { knobs: { riverDensity: "normal" } } })
+      withFoundation({
+        "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
+        "map-rivers": { knobs: { riverDensity: "normal" } },
+      })
     );
     const dense = standardRecipe.compileConfig(
       env,
-      withFoundation({ "map-rivers": { knobs: { riverDensity: "dense" } } })
+      withFoundation({
+        "hydrology-hydrography": { knobs: { riverDensity: "dense" } },
+        "map-rivers": { knobs: { riverDensity: "dense" } },
+      })
     );
 
-    expect(sparse["map-rivers"]["plot-rivers"].minLength).toBeGreaterThan(
-      normal["map-rivers"]["plot-rivers"].minLength
+    expect(
+      sparse["hydrology-hydrography"].rivers.projectRiverNetwork.config.minorPercentile
+    ).toBeGreaterThan(
+      normal["hydrology-hydrography"].rivers.projectRiverNetwork.config.minorPercentile
     );
-    expect(normal["map-rivers"]["plot-rivers"].minLength).toBeGreaterThan(
-      dense["map-rivers"]["plot-rivers"].minLength
+    expect(
+      normal["hydrology-hydrography"].rivers.projectRiverNetwork.config.minorPercentile
+    ).toBeGreaterThan(
+      dense["hydrology-hydrography"].rivers.projectRiverNetwork.config.minorPercentile
     );
+    expect(sparse["map-rivers"]["plot-rivers"]).toEqual({ minLength: 7, maxLength: 18 });
+    expect(normal["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
+    expect(dense["map-rivers"]["plot-rivers"]).toEqual({ minLength: 3, maxLength: 12 });
   });
 
   it("allows optional semantic public config in hydrology stages", () => {
@@ -157,7 +173,7 @@ describe("hydrology knobs compilation", () => {
         "map-hydrology": {},
         "map-rivers": {
           knobs: { riverDensity: "dense" },
-          riverProjection: { minLength: 11, maxLength: 11 },
+          riverProjection: { minLength: 5, maxLength: 15 },
         },
         "hydrology-climate-refine": {
           knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },
@@ -198,10 +214,8 @@ describe("hydrology knobs compilation", () => {
     expect(
       compiled["hydrology-hydrography"].rivers.projectRiverNetwork.config.majorPercentile
     ).toBeCloseTo(0.91, 6);
-    // - riverDensity=dense shifts length bounds down relative to normal.
-    expect(compiled["map-rivers"]["plot-rivers"].minLength).toBe(9);
-    // Note: clamp enforces schema bounds and keeps maxLength >= minLength.
-    expect(compiled["map-rivers"]["plot-rivers"].maxLength).toBe(9);
+    // - map-rivers materializes hydrology-owned major rivers without engine generator thresholds.
+    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 3, maxLength: 12 });
     expect(
       compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config
         .riverCorridor.lowlandAdjacencyBonus

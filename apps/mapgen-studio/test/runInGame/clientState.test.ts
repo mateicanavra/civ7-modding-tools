@@ -18,7 +18,6 @@ const recipeSettings: RecipeSettings = {
 };
 
 const worldSettings: WorldSettings = {
-  mode: "browser",
   mapSize: "MAPSIZE_STANDARD",
   playerCount: 8,
   resources: "balanced",
@@ -31,6 +30,39 @@ const pipelineConfig = {
     },
   },
 } as unknown as PipelineConfig;
+
+const legacyFoundationConfig = {
+  foundation: {
+    meshResolution: {
+      plateCount: 28,
+      cellsPerPlate: 2,
+      relaxationSteps: 2,
+      referenceArea: 4536,
+      plateScalePower: 0.8,
+    },
+    platePartition: {
+      plateCount: 28,
+      referenceArea: 4536,
+      plateScalePower: 0.8,
+    },
+  },
+} as unknown as PipelineConfig;
+
+const setupConfig = {
+  gameOptions: {
+    Difficulty: "DIFFICULTY_PRINCE",
+  },
+  playerOptions: [
+    {
+      playerId: 0,
+      options: {
+        PlayerLeader: "LEADER_HARRIET_TUBMAN",
+        PlayerCivilization: "CIVILIZATION_AMERICA",
+        PlayerDifficulty: "DIFFICULTY_PRINCE",
+      },
+    },
+  ],
+};
 
 const status: RunInGameOperationStatus = {
   ok: true,
@@ -49,6 +81,7 @@ describe("Run in Game client state", () => {
       recipeSettings,
       worldSettings,
       pipelineConfig,
+      setupConfig,
       materializationMode: "durable",
       now: () => new Date("2026-06-01T00:00:00.000Z"),
     });
@@ -56,6 +89,7 @@ describe("Run in Game client state", () => {
       recipeSettings,
       worldSettings,
       pipelineConfig,
+      setupConfig,
       materializationMode: "durable",
     });
 
@@ -67,6 +101,29 @@ describe("Run in Game client state", () => {
         recipeSettings: { ...recipeSettings, seed: "456" },
         worldSettings,
         pipelineConfig,
+        setupConfig,
+        materializationMode: "durable",
+      }),
+    })).toBe("stale");
+    expect(relationForRunInGameOperation({
+      status,
+      snapshot,
+      currentFingerprint: buildRunInGameFingerprint({
+        recipeSettings,
+        worldSettings,
+        pipelineConfig,
+        setupConfig: {
+          ...setupConfig,
+          playerOptions: [
+            {
+              playerId: 0,
+              options: {
+                ...setupConfig.playerOptions[0]!.options,
+                PlayerLeader: "LEADER_ASHOKA",
+              },
+            },
+          ],
+        },
         materializationMode: "durable",
       }),
     })).toBe("stale");
@@ -90,6 +147,7 @@ describe("Run in Game client state", () => {
         resources: "balanced",
         recipe: "standard",
         preset: "builtin:swooper-earthlike",
+        setupConfig,
         materializationMode: "durable",
       },
       currentFingerprint: "anything",
@@ -119,6 +177,7 @@ describe("Run in Game client state", () => {
       recipeSettings,
       worldSettings,
       pipelineConfig,
+      setupConfig,
       materializationMode: "disposable",
       selectedConfig: {
         id: "studio-current",
@@ -135,5 +194,37 @@ describe("Run in Game client state", () => {
       worldSettings,
       materializationMode: "disposable",
     }))).toBeNull();
+  });
+
+  it("migrates retired Foundation size-scaling fields from stored source snapshots", () => {
+    const built = buildRunInGameSourceSnapshot({
+      requestId: status.requestId,
+      recipeSettings,
+      worldSettings,
+      pipelineConfig: legacyFoundationConfig,
+      setupConfig,
+      materializationMode: "disposable",
+    });
+    const builtFoundation = built.pipelineConfig.foundation as Record<string, Record<string, unknown>>;
+    expect(builtFoundation.meshResolution).not.toHaveProperty("referenceArea");
+    expect(builtFoundation.platePartition).not.toHaveProperty("plateScalePower");
+
+    const parsed = parseRunInGameSourceSnapshot(JSON.stringify({
+      requestId: status.requestId,
+      createdAt: "2026-06-01T00:00:00.000Z",
+      recipeSettings,
+      worldSettings,
+      pipelineConfig: legacyFoundationConfig,
+      setupConfig,
+      materializationMode: "disposable",
+    }));
+
+    expect(parsed).not.toBeNull();
+    const parsedFoundation = parsed!.pipelineConfig.foundation as Record<string, Record<string, unknown>>;
+    expect(parsedFoundation.meshResolution.plateCount).toBe(28);
+    expect(parsedFoundation.meshResolution).not.toHaveProperty("referenceArea");
+    expect(parsedFoundation.meshResolution).not.toHaveProperty("plateScalePower");
+    expect(parsedFoundation.platePartition).not.toHaveProperty("referenceArea");
+    expect(parsedFoundation.platePartition).not.toHaveProperty("plateScalePower");
   });
 });

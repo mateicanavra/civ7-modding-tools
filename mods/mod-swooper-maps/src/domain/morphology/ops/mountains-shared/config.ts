@@ -60,6 +60,21 @@ export const MountainsConfigSchema = Type.Object({
     maximum: 1,
   }),
   /**
+   * Soft floor on mountain tile coverage, expressed as a fraction of *land* tiles (0..1).
+   *
+   * This is not a license for noise-only mountains: ridge planning still requires
+   * physics-gated scores. The floor only asks the planner to keep selecting from
+   * available tectonic candidates when absolute thresholds would otherwise leave
+   * a visibly under-molded mountain system.
+   */
+  mountainMinFraction: Type.Number({
+    description:
+      "Controls soft floor on mountain terrain coverage from physics-gated candidates as a fraction of land tiles (0..1).",
+    default: 0,
+    minimum: 0,
+    maximum: 1,
+  }),
+  /**
    * Hard cap on hill tile coverage, expressed as a fraction of *land* tiles (0..1).
    *
    * Hills represent foothills, uplifted rift shoulders, and worn-down ranges.
@@ -85,6 +100,49 @@ export const MountainsConfigSchema = Type.Object({
     maximum: 1,
   }),
   /**
+   * Mean spacing between major mountain range systems, in map hexes.
+   *
+   * A value of 0 preserves legacy `mountainSpineFraction` behavior. Nonzero values
+   * derive the number of range systems from map area, so official map sizes scale
+   * naturally without directly authoring an output count. The Earthlike reference
+   * spacing is sqrt((106*66)/18) ~= 19.7 tiles.
+   */
+  mountainRangeSpacingTiles: Type.Number({
+    description:
+      "Controls mean spacing between major mountain range systems in map hexes; 0 preserves mountainSpineFraction.",
+    default: 0,
+    minimum: 0,
+    maximum: 256,
+  }),
+  /**
+   * Target longitudinal span for each major mountain range system, in map hexes.
+   *
+   * This is not a direct mountain-tile output count. It asks the ridge planner
+   * to carry each selected orogenic system along supported tectonic corridors
+   * before province-width expansion paints foothills, passes, and valleys.
+   */
+  mountainRangeLengthTiles: Type.Number({
+    description:
+      "Controls target longitudinal span for each major mountain range system in map hexes.",
+    default: 0,
+    minimum: 0,
+    maximum: 128,
+  }),
+  /**
+   * Maximum footprint radius for a mountain region around each selected range anchor.
+   *
+   * This describes the orographic province, not peak coverage. Tiles inside the
+   * footprint can later remain flat valleys, become foothills/rough lands, or
+   * become true mountain terrain according to relief and ecology constraints.
+   */
+  mountainRegionRadiusTiles: Type.Integer({
+    description:
+      "Controls the maximum hex radius of each tectonically supported mountain-region footprint around selected range anchors.",
+    default: 0,
+    minimum: 0,
+    maximum: 32,
+  }),
+  /**
    * Expansion radius (in hex steps) around ridge spines to form the final mountain mask.
    *
    * This provides limited ridge width while keeping ridgelines spine-driven.
@@ -95,6 +153,32 @@ export const MountainsConfigSchema = Type.Object({
     default: 1,
     minimum: 0,
     maximum: 6,
+  }),
+  /**
+   * Score scale used for mountain shoulders around selected ridge spines.
+   *
+   * Lower values permit wider, more varied ridge bodies while retaining the
+   * authored mountain threshold for initial spine seeds.
+   */
+  mountainShoulderThresholdScale: Type.Number({
+    description:
+      "Controls score threshold scale for mountain shoulders around ridge spines (0..1).",
+    default: 0.6,
+    minimum: 0,
+    maximum: 1,
+  }),
+  /**
+   * Minimum hex distance between selected ridge-spine seeds.
+   *
+   * This spreads mountain terrain across more distinct ranges without widening
+   * each range. A value of 0 preserves legacy greedy selection.
+   */
+  mountainSpineMinDistance: Type.Integer({
+    description:
+      "Controls minimum hex distance between selected ridge-spine seeds; higher values favor more separate ranges over denser single belts.",
+    default: 0,
+    minimum: 0,
+    maximum: 32,
   }),
   /**
    * Age-based relief attenuation for mountains (0..1).
@@ -129,6 +213,34 @@ export const MountainsConfigSchema = Type.Object({
     default: 2,
     minimum: 0,
     maximum: 12,
+  }),
+  /**
+   * Soft floor on foothill tile coverage, expressed as a fraction of *land* tiles (0..1).
+   *
+   * The floor fills only from tiles that are either ridge-adjacent or supported
+   * by meaningful boundary deformation, so it cannot turn unrelated interiors
+   * into generic hills.
+   */
+  foothillMinFraction: Type.Number({
+    description:
+      "Controls soft floor on foothill terrain coverage from ridge-adjacent or boundary-supported candidates as a fraction of land tiles (0..1).",
+    default: 0,
+    minimum: 0,
+    maximum: 1,
+  }),
+  /**
+   * Hard cap on foothill tile coverage, expressed as a fraction of *land* tiles (0..1).
+   *
+   * A value of 0 preserves legacy behavior by using `hillMaxFraction` as the
+   * foothill cap. Nonzero values keep foothill skirts from consuming the full
+   * hill budget needed by interior highlands and rough lands.
+   */
+  foothillMaxFraction: Type.Number({
+    description:
+      "Controls hard cap on foothill terrain coverage as a fraction of land tiles; 0 falls back to hillMaxFraction.",
+    default: 0,
+    minimum: 0,
+    maximum: 1,
   }),
   /** Score threshold for promoting a tile to a mountain; lower values allow more peaks. */
   mountainThreshold: Type.Number({
@@ -318,6 +430,20 @@ export const MountainsConfigSchema = Type.Object({
     maximum: 10,
   }),
   /**
+   * Terrain-classification envelope applied to Foundation-derived boundary proximity.
+   *
+   * This does not change Foundation truth, landmasses, sea level, or coastal
+   * shelves. It only controls how broadly existing tectonic corridors can express
+   * as mountain spines and foothills during terrain classification.
+   */
+  rangeEnvelopeScale: Type.Number({
+    description:
+      "Controls how broadly existing Foundation tectonic corridors express as mountain/foothill terrain without changing landmasses.",
+    default: 1,
+    minimum: 0.25,
+    maximum: 4,
+  }),
+  /**
    * Penalty applied to deep interior tiles to keep high terrain near tectonic action.
    *
    * Applied as a multiplier that scales with distance from plate boundaries (higher = fewer interior peaks).
@@ -433,6 +559,40 @@ export const MountainsConfigSchema = Type.Object({
   hillRiftDepthScale: Type.Number({
     description: "Controls rift depth suppression scale for hill terrain scoring.",
     default: 0.5,
+    minimum: 0,
+    maximum: 10,
+  }),
+  /**
+   * Hard cap on non-foothill rough-land hills, expressed as a fraction of land.
+   *
+   * A value of 0 preserves legacy behavior by using the remaining hill budget.
+   */
+  roughLandMaxFraction: Type.Number({
+    description:
+      "Controls hard cap on non-foothill rough-land hill coverage as a fraction of land tiles; 0 uses the remaining hill budget.",
+    default: 0,
+    minimum: 0,
+    maximum: 1,
+  }),
+  /** Baseline multiplier for rough-land fractal texture. */
+  roughLandFractalFloor: Type.Number({
+    description: "Controls baseline multiplier for rough-land fractal texture.",
+    default: 0.75,
+    minimum: 0,
+    maximum: 10,
+  }),
+  /** Gain multiplier for rough-land fractal texture. */
+  roughLandFractalGain: Type.Number({
+    description: "Controls gain multiplier for rough-land fractal texture.",
+    default: 0.5,
+    minimum: 0,
+    maximum: 10,
+  }),
+  /** Scale applied to interior old-highland, rolling-upland, and plateau signals. */
+  roughLandInteriorScale: Type.Number({
+    description:
+      "Controls interior highland/rolling-upland/plateau contribution to rough-land hill scoring.",
+    default: 1,
     minimum: 0,
     maximum: 10,
   }),

@@ -16,6 +16,8 @@ function createInput(width: number, height: number) {
     height,
     landMask: new Uint8Array(size).fill(1),
     mountainMask: new Uint8Array(size),
+    mountainRegionMask: new Uint8Array(size),
+    mountainRegionIdByTile: new Int32Array(size).fill(-1),
     foothillMask: new Uint8Array(size),
     elevation: new Int16Array(size).fill(30),
     seaLevel: 0,
@@ -84,5 +86,25 @@ describe("morphology/plan-rough-lands", () => {
 
     expect(countMask(result.hillMask)).toBe(0);
     expect(Math.max(...result.roughnessPotential)).toBe(0);
+  });
+
+  it("keeps broad uplifted plateaus flat when there is no local relief or active deformation", () => {
+    const input = createInput(8, 2);
+    input.boundaryCloseness.fill(0);
+    input.boundaryType.fill(BOUNDARY_TYPE.none);
+    input.upliftPotential.fill(220);
+    input.riftPotential.fill(0);
+    input.tectonicStress.fill(0);
+    input.beltAge.fill(180);
+    input.elevation.fill(70);
+    input.erodibilityK.fill(0.1);
+    input.sedimentDepth.fill(0.1);
+    input.flowAccum.fill(0);
+    input.distanceToCoast.fill(8);
+    input.fractalRoughLand.fill(255);
+
+    const result = planRoughLands.run(input, roughLandConfig({ hillMaxFraction: 1 }));
+
+    expect(countMask(result.hillMask)).toBe(0);
   });
 });

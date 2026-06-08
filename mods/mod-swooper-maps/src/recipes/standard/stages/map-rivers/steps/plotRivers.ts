@@ -11,17 +11,20 @@ import PlotRiversStepContract from "./plotRivers.contract.js";
 import { HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS } from "@mapgen/domain/hydrology/config.js";
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
 import { mapRiversArtifacts } from "../artifacts.js";
+import { materializeNavigableRiverMask } from "../../../projection-policies/navigableRiverMaterialization.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlotRiversStepContract, {
   artifacts: implementArtifacts(
     [
+      mapRiversArtifacts.projectedNavigableRivers,
       mapRiversArtifacts.engineProjectionRivers,
       mapRiversArtifacts.riversEngineTerrainSnapshot,
     ],
     {
+      projectedNavigableRivers: {},
       engineProjectionRivers: {},
       riversEngineTerrainSnapshot: {},
     }
@@ -111,9 +114,62 @@ export default createStep(PlotRiversStepContract, {
       }));
     };
 
+    const size = width * height;
+    const projectableLandMask = new Uint8Array(size);
+    let landTileCount = 0;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        if (context.adapter.isWater(x, y)) continue;
+        landTileCount += 1;
+        if (context.adapter.getTerrainType(x, y) === MOUNTAIN_TERRAIN) continue;
+        projectableLandMask[idx] = 1;
+      }
+    }
+
+    const materialized = materializeNavigableRiverMask({
+      width,
+      height,
+      riverClass: hydrography.riverClass,
+      discharge: hydrography.discharge,
+      flowDir: hydrography.flowDir,
+      projectableLandMask,
+      minLength: config.minLength,
+      maxLength: config.maxLength,
+      targetTileCount: Math.round(landTileCount / (config.minLength + 2 * config.maxLength)),
+    });
+
+    deps.artifacts.projectedNavigableRivers.publish(context, {
+      width,
+      height,
+      riverMask: materialized.riverMask,
+      selectedTileCount: materialized.selectedTileCount,
+      eligibleTileCount: materialized.eligibleTileCount,
+      candidateEndpointCount: materialized.candidateEndpointCount,
+      selectedChainCount: materialized.selectedChainCount,
+      targetTileCount: materialized.targetTileCount,
+      minLength: materialized.minLength,
+      maxLength: materialized.maxLength,
+    });
+
+    context.trace.event(() => ({
+      type: "map.rivers.materialization",
+      policy: "mapgen.navigableRiverMaterialization.v0",
+      selectedTileCount: materialized.selectedTileCount,
+      targetTileCount: materialized.targetTileCount,
+      selectedChainCount: materialized.selectedChainCount,
+      candidateEndpointCount: materialized.candidateEndpointCount,
+      eligibleTileCount: materialized.eligibleTileCount,
+      minLength: materialized.minLength,
+      maxLength: materialized.maxLength,
+    }));
+
     logStats("PRE-RIVERS");
-    context.adapter.modelRivers(config.minLength, config.maxLength, NAVIGABLE_RIVER_TERRAIN);
-    logStats("POST-MODELRIVERS");
+    for (let i = 0; i < size; i++) {
+      if (materialized.riverMask[i] !== 1) continue;
+      context.adapter.setTerrainType(i % width, Math.floor(i / width), NAVIGABLE_RIVER_TERRAIN);
+    }
+    logStats("POST-STAMP-RIVERS");
     context.adapter.validateAndFixTerrain();
     logStats("POST-VALIDATE");
     context.adapter.defineNamedRivers();
@@ -127,19 +183,23 @@ export default createStep(PlotRiversStepContract, {
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
     if (engine) {
-      const lakeMask = new Uint8Array(width * height);
-      const riverMask = new Uint8Array(width * height);
-      const riverMismatchMask = new Uint8Array(width * height);
+      const lakeMask = new Uint8Array(size);
+      const riverMask = new Uint8Array(size);
+      const riverMismatchMask = new Uint8Array(size);
       let riverMismatchCount = 0;
-      for (let i = 0; i < width * height; i++) {
+      let selectedRiverRejectedCount = 0;
+      let extraEngineRiverCount = 0;
+      for (let i = 0; i < size; i++) {
         const terrain = engine.terrain[i] ?? 0;
         const isRiver = terrain === NAVIGABLE_RIVER_TERRAIN;
         const isWater = (engine.landMask[i] ?? 1) === 0;
         if (isRiver) riverMask[i] = 1;
         if (isWater) lakeMask[i] = 1;
-        if ((hydrography.riverClass[i] ?? 0) > 0 && !isRiver) {
+        if ((materialized.riverMask[i] ?? 0) !== (isRiver ? 1 : 0)) {
           riverMismatchMask[i] = 1;
           riverMismatchCount += 1;
+          if ((materialized.riverMask[i] ?? 0) === 1) selectedRiverRejectedCount += 1;
+          else extraEngineRiverCount += 1;
         }
       }
 
@@ -155,6 +215,8 @@ export default createStep(PlotRiversStepContract, {
         riverMask,
         sinkMismatchCount,
         riverMismatchCount,
+        selectedRiverRejectedCount,
+        extraEngineRiverCount,
       });
 
       deps.artifacts.riversEngineTerrainSnapshot.publish(context, {
@@ -169,9 +231,24 @@ export default createStep(PlotRiversStepContract, {
       context.trace.event(() => ({
         type: "map.rivers.parity",
         riverMismatchCount,
+        selectedRiverRejectedCount,
+        extraEngineRiverCount,
         riverMismatchShare: Number((riverMismatchCount / Math.max(1, width * height)).toFixed(4)),
       }));
 
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.rivers.projectedRiverMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: materialized.riverMask,
+        meta: defineVizMeta("map.rivers.projectedRiverMask", {
+          label: "Navigable River Mask (Projected)",
+          group: GROUP_MAP_RIVERS,
+          palette: "categorical",
+          role: "engine",
+        }),
+      });
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.rivers.engineRiverMask",
         spaceId: TILE_SPACE_ID,

@@ -12,6 +12,10 @@ const ScoreAtollContract = defineOp({
       description: "Bathymetry in meters (0 on land; <=0 in water; more negative is deeper).",
     }),
     shelfMask: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is on shallow shelf or bank." }),
+    openOceanMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): downstream engine surface treats this water tile as open ocean rather than coast/shelf.",
+    }),
     coastalWater: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is adjacent to existing land." }),
     distanceToCoast: TypedArraySchemas.u16({ description: "Tile distance from nearest coast." }),
   }),
@@ -25,7 +29,7 @@ const ScoreAtollContract = defineOp({
       shallowDepthM: Type.Integer({ default: 0 }),
       deepDepthM: Type.Integer({ default: 100 }),
       minDistanceToCoast: Type.Integer({ default: 4, minimum: 0 }),
-      maxDistanceToCoast: Type.Integer({ default: 10, minimum: 0 }),
+      maxDistanceToCoast: Type.Integer({ default: 8, minimum: 0 }),
     }),
   },
 });

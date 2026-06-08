@@ -468,7 +468,7 @@ describe("Studio default config", () => {
   });
 
   it("exposes semantic Placement authoring keys instead of runtime step/op envelopes", () => {
-    const expected = ["knobs", "naturalWonders", "discoveries", "floodplains", "resources"];
+    const expected = ["knobs", "naturalWonders", "discoveries", "floodplains", "resources", "starts"];
     const schemaProps =
       (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement"]) as {
         properties?: Record<string, unknown>;

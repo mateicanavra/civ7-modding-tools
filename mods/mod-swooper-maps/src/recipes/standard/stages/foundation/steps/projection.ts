@@ -27,7 +27,7 @@ const GROUP_CRUST_TILES = "Foundation / Crust Tiles";
 const GROUP_TILE_MAP = "Foundation / Tile Mapping";
 const GROUP_TECTONIC_HISTORY_TILES = "Foundation / Tectonic History Tiles";
 const GROUP_TECTONIC_PROVENANCE_TILES = "Foundation / Tectonic Provenance Tiles";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(ProjectionStepContract, {
   artifacts: implementArtifacts(

@@ -121,7 +121,129 @@ export const PlacementResourcesSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Resource placement controls for density, spacing, and type variety. Resource type candidates come from the Civ7 adapter catalog, not authored config.",
+      "Resource placement controls for density, spacing, and type variety. Resource type candidates come from the Civ7 adapter catalog filtered by the resource-domain initial-map authoring policy, not authored config.",
+  }
+);
+
+export const PlacementStartsSchema = Type.Object(
+  {
+    minContiguousLandTiles: Type.Optional(
+      Type.Integer({
+        default: 24,
+        minimum: 1,
+        maximum: 400,
+        description:
+          "Minimum connected land tiles for a normal continent or subcontinent start.",
+      })
+    ),
+    expansionRadiusTiles: Type.Optional(
+      Type.Integer({
+        default: 4,
+        minimum: 1,
+        maximum: 8,
+        description:
+          "Radius used to measure first-age same-landmass expansion space around a start.",
+      })
+    ),
+    minExpansionLandTiles: Type.Optional(
+      Type.Integer({
+        default: 14,
+        minimum: 1,
+        maximum: 120,
+        description:
+          "Minimum same-landmass tiles inside the expansion radius for a normal start.",
+      })
+    ),
+    islandClusterRadiusTiles: Type.Optional(
+      Type.Integer({
+        default: 5,
+        minimum: 1,
+        maximum: 10,
+        description:
+          "Radius used to count nearby land when admitting intentional archipelago starts.",
+      })
+    ),
+    minIslandClusterLandTiles: Type.Optional(
+      Type.Integer({
+        default: 18,
+        minimum: 1,
+        maximum: 160,
+        description:
+          "Minimum nearby land across small islands before a start can use the island-cluster tier.",
+      })
+    ),
+    maxIslandStartCoastDistance: Type.Optional(
+      Type.Integer({
+        default: 1,
+        minimum: 0,
+        maximum: 8,
+        description:
+          "Maximum coast distance for island-cluster starts, keeping those starts tied to water access.",
+      })
+    ),
+    minStartSpacingTiles: Type.Optional(
+      Type.Integer({
+        default: 9,
+        minimum: 0,
+        maximum: 24,
+        description:
+          "Minimum spacing between starts after viability tiers are applied; relaxes only when needed.",
+      })
+    ),
+    resourceSupportRadiusTiles: Type.Optional(
+      Type.Integer({
+        default: 4,
+        minimum: 0,
+        maximum: 8,
+        description:
+          "Radius used to evaluate placed-resource support around candidate starts.",
+      })
+    ),
+    resourceSupportWeight: Type.Optional(
+      Type.Number({
+        default: 1,
+        minimum: 0,
+        maximum: 4,
+        description: "Weight for nearby placed-resource support in start scoring.",
+      })
+    ),
+    fertilityWeight: Type.Optional(
+      Type.Number({
+        default: 1.2,
+        minimum: 0,
+        maximum: 4,
+        description: "Weight for local fertility in start scoring.",
+      })
+    ),
+    freshwaterWeight: Type.Optional(
+      Type.Number({
+        default: 0.9,
+        minimum: 0,
+        maximum: 4,
+        description: "Weight for river and lake adjacency in start scoring.",
+      })
+    ),
+    largeLandmassWeight: Type.Optional(
+      Type.Number({
+        default: 1,
+        minimum: 0,
+        maximum: 4,
+        description: "Weight for contiguous landmass and nearby expansion area support.",
+      })
+    ),
+    roughnessPenaltyWeight: Type.Optional(
+      Type.Number({
+        default: 0.6,
+        minimum: 0,
+        maximum: 4,
+        description: "Penalty applied to locally rugged start candidates.",
+      })
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Start placement controls for first-age expansion viability, intentional island starts, spacing, and early support.",
   }
 );
 
@@ -131,11 +253,12 @@ export const PlacementPublicSchema = Type.Object(
     discoveries: Type.Optional(PlacementDiscoveriesSchema),
     floodplains: Type.Optional(PlacementFloodplainsSchema),
     resources: Type.Optional(PlacementResourcesSchema),
+    starts: Type.Optional(PlacementStartsSchema),
   },
   {
     additionalProperties: false,
     description:
-      "Placement authoring controls for late gameplay products: natural wonders, discoveries, floodplains, and resources. Runtime map-size starts and adapter catalogs are supplied by the run environment rather than authored here.",
+      "Placement authoring controls for late gameplay products: natural wonders, discoveries, floodplains, resources, and first-age viable starts. Runtime map-size start counts and adapter catalogs are supplied by the run environment rather than authored here.",
   }
 );
 
@@ -147,13 +270,17 @@ export function compilePlacementPublicConfig(config: Record<string, unknown>) {
       discoveries: defaultEnvelope(config.discoveries),
       floodplains: defaultEnvelope(config.floodplains),
       resources: defaultEnvelope(config.resources),
-      starts: defaultEnvelope({ overrides: { startSectors: [] } }),
     },
     "plot-landmass-regions": {},
     "place-natural-wonders": {},
     "prepare-placement-surface": {},
     "place-resources": {},
-    "assign-starts": {},
+    "assign-starts": {
+      starts: defaultEnvelope({
+        ...(config.starts as object | undefined),
+        overrides: { startSectors: [] },
+      }),
+    },
     "place-discoveries": {},
     "assign-advanced-starts": {},
     placement: {},

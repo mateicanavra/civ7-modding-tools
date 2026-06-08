@@ -85,6 +85,14 @@ export function applyPlacementPlan({
   const slotCounts = surfacePreparation.slotCounts;
   const resourcesPlaced = resourcePlacement.summary.placedCount;
   const startsAssigned = startAssignment.assigned;
+  const startTierSummary = {
+    primaryAssigned: startAssignment.primaryAssigned,
+    islandClusterAssigned: startAssignment.islandClusterAssigned,
+    marginalAssigned: startAssignment.marginalAssigned,
+    desperationAssigned: startAssignment.desperationAssigned,
+    candidateCount: startAssignment.candidateCount,
+    tierCounts: startAssignment.tierCounts,
+  };
   const discoveriesPlanned = discoveryPlacement.summary.plannedCount;
   const discoveriesPlaced = discoveryPlacement.summary.placedCount;
 
@@ -119,7 +127,7 @@ export function applyPlacementPlan({
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "map.placement.engine.landMask",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       dims: { width, height },
       format: "u8",
       values: engineSnapshot.landMask,
@@ -158,6 +166,7 @@ export function applyPlacementPlan({
     discoveriesPlanned,
     discoveriesPlaced,
     waterDriftCount,
+    starts: startTierSummary,
   });
 
   return publishOutputs({

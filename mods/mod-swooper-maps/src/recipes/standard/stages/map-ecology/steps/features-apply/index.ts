@@ -8,7 +8,7 @@ import { buildFeatureTypeVizCategories } from "./viz.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function incrementCount(counts: Record<string, number>, key: string): void {
   counts[key] = (counts[key] ?? 0) + 1;

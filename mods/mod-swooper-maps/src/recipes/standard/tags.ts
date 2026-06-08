@@ -34,6 +34,7 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
     volcanoesPlotted: "effect:map.volcanoesPlotted",
     landmassRegionsPlotted: "effect:map.landmassRegionsPlotted",
     lakesPlotted: "effect:map.lakesPlotted",
+    riversPlotted: "effect:map.riversPlotted",
     elevationParityCaptured: "effect:map.elevationParityCaptured",
     hydrologyLakesParityCaptured: "effect:map.hydrologyLakesParityCaptured",
     riversParityCaptured: "effect:map.riversParityCaptured",
@@ -111,6 +112,11 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     stepId: "lakes",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured]: {
+    pkg: "mod-swooper-maps",
+    phase: "gameplay",
+    stepId: "plot-rivers",
+  },
+  [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-rivers",

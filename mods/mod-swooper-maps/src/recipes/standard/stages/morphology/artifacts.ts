@@ -149,6 +149,13 @@ const MorphologyMountainsArtifactSchema = Type.Object(
     mountainMask: TypedArraySchemas.u8({
       description: "Mask (1/0): Morphology truth intent for mountain terrain.",
     }),
+    mountainRegionMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): Morphology truth footprint for orographic provinces, including peak spines, passes, valleys, foothills, and internal rough terrain.",
+    }),
+    mountainRegionIdByTile: TypedArraySchemas.i32({
+      description: "Per-tile orographic province id (-1 outside the mountain-region footprint).",
+    }),
     hillMask: TypedArraySchemas.u8({
       description: "Mask (1/0): Morphology truth intent for hill terrain excluding mountain tiles.",
     }),
@@ -184,6 +191,10 @@ const MorphologyBeltComponentSummarySchema = Type.Object(
       description: "Boundary type (BOUNDARY_TYPE values).",
     }),
     size: Type.Integer({ minimum: 0, description: "Number of tiles in this connected belt seed component." }),
+    diameter: Type.Integer({
+      minimum: 0,
+      description: "Approximate hex-graph end-to-end length of this connected belt seed component.",
+    }),
     meanUpliftBlend: Type.Number({
       description: "Mean uplift blend intensity (0..255) across belt seeds in this component (pre-decay).",
     }),

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { OFFICIAL_RESOURCE_CORPUS } from "../../src/domain/resources/index.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
@@ -12,6 +13,18 @@ import { collectWorldBalanceStats, type WorldBalanceStats } from "../support/wor
 function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
   return canonicalRecipeConfig<StandardRecipeConfig>(config);
 }
+
+const ANTIQUITY_RESOURCE_CANDIDATE_TYPES = new Set(
+  OFFICIAL_RESOURCE_CORPUS
+    .filter(
+      (entry) =>
+        entry.validAges.includes("AGE_ANTIQUITY") &&
+        entry.placeability.status === "placeable" &&
+        entry.strategyRequired.status === "required"
+    )
+    .map((entry) => entry.staticResourceRowSlot)
+);
+const ANTIQUITY_RESOURCE_CANDIDATE_COUNT = ANTIQUITY_RESOURCE_CANDIDATE_TYPES.size;
 
 const CASES = [
   {
@@ -79,16 +92,44 @@ const CASES = [
 
 function expectResourceDiagnostics(stats: WorldBalanceStats): void {
   expect(stats.resourcePlannedCount, `${stats.label} resource plans`).toBeGreaterThan(0);
-  expect(stats.resourceUniquePlannedTypes, `${stats.label} planned resource variety`).toBeGreaterThanOrEqual(
-    Math.min(55, stats.resourcePlannedCount)
-  );
-  expect(stats.resourceUniquePlacedTypes, `${stats.label} placed resource variety`).toBeGreaterThanOrEqual(
-    Math.min(49, stats.resourcePlacedCount)
+  expect(
+    stats.resourceRequestedPlannedCount,
+    `${stats.label} requested resource plans`
+  ).toBeGreaterThanOrEqual(stats.resourcePlannedCount);
+  expect(stats.resourceAssignedCount, `${stats.label} assigned resource plans`).toBe(
+    stats.resourcePlannedCount
   );
   expect(
-    stats.resourcePlacedCountMaxByType - stats.resourcePlacedCountMinByType,
-    `${stats.label} placed resource spread`
+    stats.resourceReassignmentShare,
+    `${stats.label} reassignment share floor`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.resourceReassignmentShare,
+    `${stats.label} reassignment share ceiling`
   ).toBeLessThanOrEqual(1);
+  expect(
+    stats.resourceLegalCandidateResourceTypeCount,
+    `${stats.label} legal resource candidate types`
+  ).toBeGreaterThan(0);
+  const feasibleResourceTypeCount = Math.max(
+    0,
+    stats.resourceLegalCandidateResourceTypeCount -
+      stats.resourceConstrainedCandidateResourceTypeCount
+  );
+  expect(stats.resourceUniquePlannedTypes, `${stats.label} planned resource variety`).toBeGreaterThanOrEqual(
+    Math.min(feasibleResourceTypeCount, stats.resourcePlannedCount)
+  );
+  expect(stats.resourceUniquePlacedTypes, `${stats.label} placed resource variety`).toBeGreaterThanOrEqual(
+    Math.min(feasibleResourceTypeCount, stats.resourcePlacedCount)
+  );
+  expect(
+    stats.resourceFeasiblePlacedCountMaxByType - stats.resourceFeasiblePlacedCountMinByType,
+    `${stats.label} feasible placed resource spread`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    stats.resourceConstrainedCandidateResourceTypeCount,
+    `${stats.label} constrained resource candidate count`
+  ).toBeGreaterThanOrEqual(0);
   expect(
     stats.resourcePlacedCount + stats.resourceRejectedCount + stats.resourceMismatchCount,
     `${stats.label} resource outcome total`
@@ -108,8 +149,42 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
     stats.resourceOutcomeCountsByReason.reduce((sum, entry) => sum + entry.count, 0),
     `${stats.label} resource by-reason total`
   ).toBe(stats.resourceRejectedCount + stats.resourceMismatchCount);
+  if (stats.resourcePlacedCount > 1) {
+    expect(
+      stats.resourcePlacedNearestNeighborMin,
+      `${stats.label} placed resource spacing`
+    ).toBeGreaterThanOrEqual(stats.resourceAssignmentMinSpacingTiles);
+  }
+  expect(
+    stats.resourcePlacedMaxLocalDensityRadius2,
+    `${stats.label} placed resource local density`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.resourcePlacedSectorMaxShare,
+    `${stats.label} placed resource sector max share`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    stats.resourcePlacedSectorEntropy01,
+    `${stats.label} placed resource sector entropy`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.resourcePlacedSectorEntropy01,
+    `${stats.label} placed resource sector entropy`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    stats.resourcePlacedPolarBandShare,
+    `${stats.label} placed resource polar share`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Object.values(stats.resourcePlacedBiomeSymbolCounts).reduce((sum, count) => sum + count, 0),
+    `${stats.label} placed resource biome totals`
+  ).toBe(stats.resourcePlacedCount);
 
   for (const entry of stats.resourceOutcomeCountsByResource) {
+    expect(
+      ANTIQUITY_RESOURCE_CANDIDATE_TYPES.has(entry.resourceType),
+      `${stats.label} resource ${entry.resourceType} should be Antiquity-eligible`
+    ).toBe(true);
     expect(
       entry.placedCount + entry.rejectedCount + entry.mismatchCount,
       `${stats.label} resource ${entry.resourceType} outcome total`
@@ -118,6 +193,18 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
       entry.reasons.reduce((sum, reason) => sum + reason.count, 0),
       `${stats.label} resource ${entry.resourceType} reason total`
     ).toBe(entry.rejectedCount + entry.mismatchCount);
+  }
+  for (const resourceType of Object.keys(stats.resourcePlanTypeCounts)) {
+    expect(
+      ANTIQUITY_RESOURCE_CANDIDATE_TYPES.has(Number(resourceType)),
+      `${stats.label} planned resource ${resourceType} should be Antiquity-eligible`
+    ).toBe(true);
+  }
+  for (const resourceType of Object.keys(stats.resourcePlacedTypeCounts)) {
+    expect(
+      ANTIQUITY_RESOURCE_CANDIDATE_TYPES.has(Number(resourceType)),
+      `${stats.label} placed resource ${resourceType} should be Antiquity-eligible`
+    ).toBe(true);
   }
 }
 

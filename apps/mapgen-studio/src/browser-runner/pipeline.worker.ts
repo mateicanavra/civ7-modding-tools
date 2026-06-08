@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
 import { createMockAdapter } from "@civ7/adapter/mock";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 
@@ -11,6 +11,7 @@ import { getRuntimeRecipe } from "./recipeRuntime";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { createWorkerTraceSink } from "./worker-trace-sink";
 import { createWorkerVizDumper } from "./worker-viz-dumper";
+import { migratePipelineConfigUnknown } from "../features/configMigrations/pipelineConfig";
 
 function post(event: BrowserRunEvent, transfer?: Transferable[]): void {
   (self as DedicatedWorkerGlobalScope).postMessage(event, transfer ?? []);
@@ -96,25 +97,6 @@ function describeThrown(e: unknown): { name?: string; message: string; details?:
   };
 }
 
-function hash32(value: string): number {
-  // FNV-1a (32-bit)
-  let h = 0x811c9dc5;
-  for (let i = 0; i < value.length; i++) {
-    h ^= value.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return h >>> 0;
-}
-
-function createLabelRng(seed: number): (max: number, label: string) => number {
-  const seedU32 = seed >>> 0;
-  return (max: number, label: string): number => {
-    const m = Math.max(1, max | 0);
-    const h = hash32(`${seedU32}:${label}`);
-    return (h % m) | 0;
-  };
-}
-
 function isAbortError(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
   return (error as { name?: unknown }).name === "AbortError";
@@ -135,7 +117,7 @@ async function runRecipe(
 
   const mergedRaw = mergeDeterministic(
     stripSchemaMetadataRoot(recipeEntry.defaultConfig),
-    stripSchemaMetadataRoot(configOverrides)
+    migratePipelineConfigUnknown(stripSchemaMetadataRoot(configOverrides))
   );
   const { value: config, errors: configErrors } = normalizeStrict<Record<string, unknown>>(
     recipeEntry.configSchema,

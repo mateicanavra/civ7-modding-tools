@@ -48,6 +48,11 @@ export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
       minimum: 0,
       description: "Count of planned lake tiles whose terrain readback did not match TERRAIN_COAST.",
     }),
+    morphologyProtectedLakeTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of Hydrology-planned lake tiles withheld from stamping because they overlap protected morphology terrain such as mountain spines.",
+    }),
   },
   {
     additionalProperties: false,

@@ -26,7 +26,6 @@ function isAbortError(error: unknown): boolean {
 
 export type UseVizStateArgs = {
   enabled: boolean;
-  mode: "browser" | "dump";
   assetResolver?: VizAssetResolver | null;
   showEdgeOverlay?: boolean;
   overlayDataTypeKey?: string | null;
@@ -39,7 +38,6 @@ export type UseVizStateArgs = {
 export type UseVizStateResult = {
   ingest(event: VizEvent): void;
   clearStream(): void;
-  setDumpManifest(manifest: VizManifestV1 | null): void;
 
   selectedStepId: string | null;
   setSelectedStepId(next: string | null): void;
@@ -68,7 +66,6 @@ export type UseVizStateResult = {
 export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const {
     enabled,
-    mode,
     assetResolver,
     showEdgeOverlay = true,
     overlayDataTypeKey = null,
@@ -80,7 +77,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const store = getVizStore();
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
-  const manifest = mode === "dump" ? snapshot.dumpManifest : snapshot.streamManifest;
+  const manifest = snapshot.streamManifest;
 
   const selectedStepId = snapshot.selectedStepId;
   const selectedLayerKey = snapshot.selectedLayerKey;
@@ -110,10 +107,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     store.clearStream();
     setLayerStats(null);
     setResolvedLayers([]);
-  }, [store]);
-
-  const setDumpManifest = useCallback((next: VizManifestV1 | null) => {
-    store.setDumpManifest(next);
   }, [store]);
 
   const steps = useMemo(() => {
@@ -316,7 +309,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   return {
     ingest,
     clearStream,
-    setDumpManifest,
     selectedStepId: activeSelectedStepId,
     setSelectedStepId,
     selectedLayerKey: activeSelectedLayerKey,

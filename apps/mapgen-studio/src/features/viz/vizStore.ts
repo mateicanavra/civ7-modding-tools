@@ -4,7 +4,6 @@ import type { VizManifestV1 } from "./model";
 
 export type VizStoreSnapshot = Readonly<{
   streamManifest: VizManifestV1 | null;
-  dumpManifest: VizManifestV1 | null;
   selectedStepId: string | null;
   selectedLayerKey: string | null;
   showDebugLayers: boolean;
@@ -16,7 +15,6 @@ export type VizStore = {
 
   ingest(event: VizEvent): void;
   clearStream(): void;
-  setDumpManifest(next: VizManifestV1 | null): void;
 
   setSelectedStepId(next: string | null): void;
   setSelectedLayerKey(next: string | null): void;
@@ -32,7 +30,6 @@ export function createVizStore(): VizStore {
   const listeners = new Set<() => void>();
 
   let streamManifest: VizManifestV1 | null = null;
-  let dumpManifest: VizManifestV1 | null = null;
   let selectedStepId: string | null = null;
   let selectedLayerKey: string | null = null;
   let showDebugLayers = false;
@@ -42,7 +39,6 @@ export function createVizStore(): VizStore {
   // infinite render loops.
   let snapshot: VizStoreSnapshot = Object.freeze({
     streamManifest,
-    dumpManifest,
     selectedStepId,
     selectedLayerKey,
     showDebugLayers,
@@ -60,7 +56,6 @@ export function createVizStore(): VizStore {
   const updateSnapshot = () => {
     snapshot = Object.freeze({
       streamManifest,
-      dumpManifest,
       selectedStepId,
       selectedLayerKey,
       showDebugLayers,
@@ -145,12 +140,6 @@ export function createVizStore(): VizStore {
       if (!streamManifest && pendingStreamManifest === undefined) return;
       streamManifest = null;
       pendingStreamManifest = undefined;
-      updateSnapshot();
-      notify();
-    },
-    setDumpManifest(next) {
-      if (dumpManifest === next) return;
-      dumpManifest = next;
       updateSnapshot();
       notify();
     },

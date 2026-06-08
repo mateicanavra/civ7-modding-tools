@@ -38,6 +38,50 @@ const CASES = [
 ] as const;
 
 describe("shipped map config identity", () => {
+  it("keeps Swooper Earthlike on the tuned current-schema baseline", () => {
+    const earthlike = recipeConfig(swooperEarthlikeConfigRaw) as any;
+
+    expect(swooperEarthlikeConfigRaw.description).toContain("Earth-analogue world");
+    expect(swooperEarthlikeConfigRaw.sortIndex).toBe(501);
+    expect(earthlike.foundation.knobs.plateActivity).toBe(0.85);
+    expect(earthlike.foundation.meshResolution.plateCount).toBe(28);
+    expect(earthlike.foundation.platePartition.plateCount).toBe(42);
+    expect(earthlike["morphology-coasts"].knobs.shelfWidth).toBe("wide");
+    expect(earthlike["morphology-coasts"].shelf).toMatchObject({
+      nearshoreDistance: 8,
+      shallowQuantile: 0.45,
+      capTilesActive: 4,
+      capTilesPassive: 10,
+      capTilesMax: 14,
+    });
+    expect(earthlike["morphology-features"].mountainRanges).toMatchObject({
+      rangeSystemSpacingTiles: 19.7,
+      rangeSystemLengthTiles: 30,
+      provinceRadiusTiles: 5,
+    });
+    expect(earthlike["ecology-pedology"].soilClassification).toMatchObject({
+      profile: "orogenyBoosted",
+      reliefWeight: 1.18,
+      bedrockWeight: 0.82,
+    });
+    expect(earthlike["ecology-biomes"].biomeClassification.moisture.thresholds).toEqual([
+      90,
+      188,
+      228,
+      252,
+    ]);
+    expect(earthlike["ecology-features"].reefPlanning).toMatchObject({
+      minConfidence01: 0.84,
+      stride: 4,
+    });
+    expect(earthlike.placement.resources.densityPer100Tiles).toBe(10);
+
+    expect(earthlike.placement).not.toHaveProperty("floodplains");
+    expect(earthlike["map-rivers"].riverProjection).toEqual({ minLength: 5, maxLength: 15 });
+    expect(earthlike.foundation.meshResolution).not.toHaveProperty("referenceArea");
+    expect(earthlike.foundation.platePartition).not.toHaveProperty("plateScalePower");
+  });
+
   it("keeps Ecology feature authoring semantic while compiled planners preserve tuned identity", () => {
     const env = {
       seed: 123,

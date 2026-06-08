@@ -200,9 +200,10 @@ projection.
 
 Load-bearing examples:
 
-- `map-hydrology` currently calls `generateLakes(...)`.
-- placement currently treats resources/discoveries as official-generator output
-  rather than fully reconciled plan truth.
+- `map-hydrology` projects authored lake intent through the adapter and records
+  readback; it must not reintroduce official lake generation as truth.
+- placement plans resources/discoveries as authored intents, then reconciles
+  adapter legality/readback; official generator output is not accepted truth.
 - `map-*` stages are valid only when they are projection/materialization lanes,
   not domain truth or Studio grouping devices.
 
@@ -313,14 +314,13 @@ wrong type/location, or untyped rejection.
 
 Do not gate on naive `placed === planned`.
 
-**Why:** official resource/discovery generators own feasibility internally
-today. Count equality can fail on legitimate engine rejection or pass while
-placing the wrong thing. The target is deterministic intent plus typed rejection
-reasons, not all-or-nothing porting before progress.
+**Why:** engine legality owns feasibility at materialization time. Count equality
+can fail on legitimate rejection or pass while placing the wrong thing. The
+target is deterministic intent plus typed rejection reasons.
 
 **Dependency:** D4 requires adapter/materializer outcomes with per-tile placed
-items and typed rejection reasons. Until that exists, official-generator output
-must be labeled projection diagnostics, not silent truth.
+items and typed rejection reasons. Standard generation must not fall back to
+official resource/discovery generators as a truth source.
 
 ### D5: Ecology Uses Multiple Truth Stages By Input/Handoff Surface
 

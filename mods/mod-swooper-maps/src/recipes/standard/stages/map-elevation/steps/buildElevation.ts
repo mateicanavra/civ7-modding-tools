@@ -5,7 +5,7 @@ import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js
 import { mapElevationArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(BuildElevationStepContract, {
   artifacts: implementArtifacts([mapElevationArtifacts.elevationEngineTerrainSnapshot], {

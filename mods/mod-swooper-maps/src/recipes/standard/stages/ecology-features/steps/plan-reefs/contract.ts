@@ -2,6 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 
 const PlanReefsStepContract = defineStep({
   id: "plan-reefs",
@@ -9,7 +10,11 @@ const PlanReefsStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyIce],
+    requires: [
+      ecologyArtifacts.scoreLayers,
+      ecologyArtifacts.occupancyIce,
+      hydrologyHydrographyArtifacts.lakePlan,
+    ],
     provides: [ecologyArtifacts.featureIntentsReefs, ecologyArtifacts.occupancyReefs],
   },
   ops: {
@@ -25,4 +30,3 @@ const PlanReefsStepContract = defineStep({
 });
 
 export default PlanReefsStepContract;
-

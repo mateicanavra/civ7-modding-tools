@@ -2,12 +2,6 @@ import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authorin
 
 const FeatureSubstrateConfigSchema = Type.Object(
   {
-    navigableRiverClass: Type.Integer({
-      description: "riverClass value treated as a navigable river.",
-      default: 2,
-      minimum: 0,
-      maximum: 255,
-    }),
     nearRiverRadius: Type.Integer({
       description: "Square-radius used to compute near-river adjacency mask.",
       default: 2,
@@ -59,6 +53,10 @@ const ComputeFeatureSubstrateContract = defineOp({
       riverClass: TypedArraySchemas.u8({
         description: "River class per tile (0=no river, >0 indicates river presence).",
       }),
+      navigableRiverMask: TypedArraySchemas.u8({
+        description:
+          "Materialized navigable-river terrain mask from map-rivers projection (1=navigable river terrain).",
+      }),
       landMask: TypedArraySchemas.u8({
         description: "Land mask per tile (1=land, 0=water).",
       }),
@@ -79,7 +77,7 @@ const ComputeFeatureSubstrateContract = defineOp({
   ),
   output: Type.Object({
     navigableRiverMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): tiles that are navigable rivers (by riverClass).",
+      description: "Mask (1/0): materialized navigable-river terrain tiles.",
     }),
     nearRiverMask: TypedArraySchemas.u8({
       description: "Mask (1/0): tiles within nearRiverRadius of any river tile.",

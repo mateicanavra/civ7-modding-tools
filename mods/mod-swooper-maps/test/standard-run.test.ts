@@ -5,6 +5,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
+import { DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS } from "../src/domain/resources/initial-map-authoring-policy.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
 import { mapArtifacts } from "../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../src/recipes/standard/stages/foundation/artifacts.js";
@@ -232,6 +233,30 @@ describe("standard recipe execution", () => {
     expect(context.artifacts.get(mapArtifacts.foundationPlates.id)).toBeTruthy();
     expect(context.artifacts.get(foundationArtifacts.plateTopology.id)).toBeTruthy();
     expect(context.artifacts.get(placementArtifacts.placementOutputs.id)).toBeTruthy();
+
+    const deferredResourceTypes = new Set(DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS);
+    const placementInputs = context.artifacts.get(placementArtifacts.placementInputs.id) as
+      | {
+          resources?: {
+            candidateResourceTypes?: readonly number[];
+            placements?: readonly { preferredResourceType?: number }[];
+          };
+        }
+      | undefined;
+    const resourcePlacement = context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
+      | { outcomes?: readonly { resourceType?: number }[] }
+      | undefined;
+    const candidateResourceTypes = placementInputs?.resources?.candidateResourceTypes ?? [];
+    const preferredResourceTypes = (placementInputs?.resources?.placements ?? []).map(
+      (placement) => placement.preferredResourceType
+    );
+    const authoredResourceTypes = (resourcePlacement?.outcomes ?? []).map(
+      (outcome) => outcome.resourceType
+    );
+
+    expect(candidateResourceTypes.filter((resourceType) => deferredResourceTypes.has(resourceType))).toEqual([]);
+    expect(preferredResourceTypes.some((resourceType) => deferredResourceTypes.has(resourceType ?? -1))).toBe(false);
+    expect(authoredResourceTypes.some((resourceType) => deferredResourceTypes.has(resourceType ?? -1))).toBe(false);
   });
 
   it("produces deterministic climate signatures for same seed + config", () => {

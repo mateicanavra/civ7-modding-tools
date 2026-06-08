@@ -33,6 +33,31 @@ import {
   PLACEABLE_RESOURCE_TYPE_IDS,
 } from "./resource-constants.js";
 
+type MockRandomFn = (max: number, label: string) => number;
+
+const hashMockRngLabel = (label: string): number => {
+  let hash = 5381;
+  for (let i = 0; i < label.length; i++) {
+    hash = (hash << 5) + hash ^ label.charCodeAt(i);
+  }
+  return hash | 0;
+};
+
+function createDeterministicMockRng(seed = 0): MockRandomFn {
+  const baseSeed = seed | 0;
+  const stateByLabel = new Map<string, number>();
+
+  return (max, label) => {
+    const bound = Math.max(1, max | 0);
+    const key = label && label.length > 0 ? label : "rng";
+    let state = stateByLabel.get(key);
+    if (state == null) state = (baseSeed ^ hashMockRngLabel(key)) >>> 0;
+    state = (state * 1664525 + 1013904223) >>> 0;
+    stateByLabel.set(key, state);
+    return state % bound;
+  };
+}
+
 const DEFAULT_VORONOI_UTILS: VoronoiUtils = {
   createRandomSites(count: number, width: number, height: number): VoronoiSite[] {
     const sites: VoronoiSite[] = [];
@@ -256,8 +281,8 @@ export interface MockAdapterConfig {
   defaultTemperature?: number;
   /** Default biome type for all tiles */
   defaultBiomeType?: number;
-  /** Custom RNG function (default: Math.random) */
-  rng?: (max: number, label: string) => number;
+  /** Custom RNG function (default: deterministic label RNG) */
+  rng?: MockRandomFn;
   /** Custom biome globals (default: DEFAULT_BIOME_GLOBALS) */
   biomeGlobals?: Record<string, number>;
   /** Custom feature type indices (default: DEFAULT_FEATURE_TYPES) */
@@ -409,7 +434,7 @@ export class MockAdapter implements EngineAdapter {
     this.mountainMask = new Uint8Array(size);
     this.riverMask = new Uint8Array(size);
     this.landmassRegionIds = new Uint8Array(size);
-    this.rngFn = config.rng ?? ((max) => Math.floor(Math.random() * max));
+    this.rngFn = config.rng ?? createDeterministicMockRng();
     this.biomeGlobals = config.biomeGlobals ?? { ...DEFAULT_BIOME_GLOBALS };
     this.featureTypes = config.featureTypes ?? { ...DEFAULT_FEATURE_TYPES };
     this.terrainTypeIndices = config.terrainTypeIndices ?? { ...DEFAULT_TERRAIN_TYPE_INDICES };

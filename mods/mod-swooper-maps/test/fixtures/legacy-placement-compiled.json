@@ -2,7 +2,29 @@
   "shattered-ring": {
     "placement": {
       "assign-advanced-starts": {},
-      "assign-starts": {},
+      "assign-starts": {
+        "starts": {
+          "config": {
+            "expansionRadiusTiles": 4,
+            "fertilityWeight": 1.2,
+            "freshwaterWeight": 0.9,
+            "islandClusterRadiusTiles": 5,
+            "largeLandmassWeight": 1,
+            "maxIslandStartCoastDistance": 1,
+            "minContiguousLandTiles": 24,
+            "minExpansionLandTiles": 14,
+            "minIslandClusterLandTiles": 18,
+            "minStartSpacingTiles": 9,
+            "overrides": {
+              "startSectors": []
+            },
+            "resourceSupportRadiusTiles": 4,
+            "resourceSupportWeight": 1,
+            "roughnessPenaltyWeight": 0.6
+          },
+          "strategy": "default"
+        }
+      },
       "derive-placement-inputs": {
         "discoveries": {
           "config": {
@@ -26,74 +48,9 @@
         },
         "resources": {
           "config": {
-            "candidateResourceTypes": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
-              30,
-              31,
-              32,
-              33,
-              34,
-              35,
-              36,
-              37,
-              38,
-              39,
-              40,
-              41,
-              42,
-              43,
-              44,
-              45,
-              46,
-              47,
-              48,
-              49,
-              50,
-              51,
-              52,
-              53,
-              54
-            ],
             "densityPer100Tiles": 9,
             "maxPlacementsPerResourceShare": 0.3,
             "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
-        "starts": {
-          "config": {
-            "overrides": {
-              "startSectors": []
-            }
           },
           "strategy": "default"
         },
@@ -113,7 +70,29 @@
   "sundered-archipelago": {
     "placement": {
       "assign-advanced-starts": {},
-      "assign-starts": {},
+      "assign-starts": {
+        "starts": {
+          "config": {
+            "expansionRadiusTiles": 4,
+            "fertilityWeight": 1.2,
+            "freshwaterWeight": 0.9,
+            "islandClusterRadiusTiles": 5,
+            "largeLandmassWeight": 1,
+            "maxIslandStartCoastDistance": 1,
+            "minContiguousLandTiles": 24,
+            "minExpansionLandTiles": 14,
+            "minIslandClusterLandTiles": 18,
+            "minStartSpacingTiles": 9,
+            "overrides": {
+              "startSectors": []
+            },
+            "resourceSupportRadiusTiles": 4,
+            "resourceSupportWeight": 1,
+            "roughnessPenaltyWeight": 0.6
+          },
+          "strategy": "default"
+        }
+      },
       "derive-placement-inputs": {
         "discoveries": {
           "config": {
@@ -137,74 +116,9 @@
         },
         "resources": {
           "config": {
-            "candidateResourceTypes": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
-              30,
-              31,
-              32,
-              33,
-              34,
-              35,
-              36,
-              37,
-              38,
-              39,
-              40,
-              41,
-              42,
-              43,
-              44,
-              45,
-              46,
-              47,
-              48,
-              49,
-              50,
-              51,
-              52,
-              53,
-              54
-            ],
             "densityPer100Tiles": 9,
             "maxPlacementsPerResourceShare": 0.3,
             "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
-        "starts": {
-          "config": {
-            "overrides": {
-              "startSectors": []
-            }
           },
           "strategy": "default"
         },
@@ -224,7 +138,29 @@
   "swooper-desert-mountains": {
     "placement": {
       "assign-advanced-starts": {},
-      "assign-starts": {},
+      "assign-starts": {
+        "starts": {
+          "config": {
+            "expansionRadiusTiles": 4,
+            "fertilityWeight": 1.2,
+            "freshwaterWeight": 0.9,
+            "islandClusterRadiusTiles": 5,
+            "largeLandmassWeight": 1,
+            "maxIslandStartCoastDistance": 1,
+            "minContiguousLandTiles": 24,
+            "minExpansionLandTiles": 14,
+            "minIslandClusterLandTiles": 18,
+            "minStartSpacingTiles": 9,
+            "overrides": {
+              "startSectors": []
+            },
+            "resourceSupportRadiusTiles": 4,
+            "resourceSupportWeight": 1,
+            "roughnessPenaltyWeight": 0.6
+          },
+          "strategy": "default"
+        }
+      },
       "derive-placement-inputs": {
         "discoveries": {
           "config": {
@@ -248,74 +184,9 @@
         },
         "resources": {
           "config": {
-            "candidateResourceTypes": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
-              30,
-              31,
-              32,
-              33,
-              34,
-              35,
-              36,
-              37,
-              38,
-              39,
-              40,
-              41,
-              42,
-              43,
-              44,
-              45,
-              46,
-              47,
-              48,
-              49,
-              50,
-              51,
-              52,
-              53,
-              54
-            ],
             "densityPer100Tiles": 9,
             "maxPlacementsPerResourceShare": 0.3,
             "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
-        "starts": {
-          "config": {
-            "overrides": {
-              "startSectors": []
-            }
           },
           "strategy": "default"
         },
@@ -335,7 +206,29 @@
   "swooper-earthlike": {
     "placement": {
       "assign-advanced-starts": {},
-      "assign-starts": {},
+      "assign-starts": {
+        "starts": {
+          "config": {
+            "expansionRadiusTiles": 4,
+            "fertilityWeight": 1.2,
+            "freshwaterWeight": 0.9,
+            "islandClusterRadiusTiles": 5,
+            "largeLandmassWeight": 4,
+            "maxIslandStartCoastDistance": 8,
+            "minContiguousLandTiles": 24,
+            "minExpansionLandTiles": 4,
+            "minIslandClusterLandTiles": 3,
+            "minStartSpacingTiles": 9,
+            "overrides": {
+              "startSectors": []
+            },
+            "resourceSupportRadiusTiles": 1,
+            "resourceSupportWeight": 1,
+            "roughnessPenaltyWeight": 0.6
+          },
+          "strategy": "default"
+        }
+      },
       "derive-placement-inputs": {
         "discoveries": {
           "config": {
@@ -359,74 +252,9 @@
         },
         "resources": {
           "config": {
-            "candidateResourceTypes": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
-              30,
-              31,
-              32,
-              33,
-              34,
-              35,
-              36,
-              37,
-              38,
-              39,
-              40,
-              41,
-              42,
-              43,
-              44,
-              45,
-              46,
-              47,
-              48,
-              49,
-              50,
-              51,
-              52,
-              53,
-              54
-            ],
-            "densityPer100Tiles": 9,
+            "densityPer100Tiles": 10,
             "maxPlacementsPerResourceShare": 0.3,
             "minSpacingTiles": 2
-          },
-          "strategy": "default"
-        },
-        "starts": {
-          "config": {
-            "overrides": {
-              "startSectors": []
-            }
           },
           "strategy": "default"
         },

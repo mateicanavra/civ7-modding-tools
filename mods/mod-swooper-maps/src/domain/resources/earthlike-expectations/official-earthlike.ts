@@ -2,6 +2,7 @@ import {
   OFFICIAL_RESOURCE_BY_TYPE,
   OFFICIAL_RESOURCE_CORPUS,
 } from "../corpus/official-base-standard.js";
+import { getInitialMapResourcePolicyForType } from "../initial-map-authoring-policy.js";
 import type { OfficialResourceType } from "../corpus/types.js";
 import type {
   EarthlikeResourceExpectation,
@@ -139,6 +140,10 @@ function deepFreeze<T>(value: T): T {
 function toExpectation(definition: ExpectationDefinition): EarthlikeResourceExpectation {
   const corpusEntry = OFFICIAL_RESOURCE_BY_TYPE[definition.resourceType];
   if (!corpusEntry) throw new Error(`Missing resource corpus entry for ${definition.resourceType}.`);
+  const initialMapPolicy = getInitialMapResourcePolicyForType(definition.resourceType);
+  if (!initialMapPolicy) {
+    throw new Error(`Missing initial map resource authoring policy for ${definition.resourceType}.`);
+  }
 
   const corpusBlocked = corpusEntry.strategyRequired.status === "blocked";
   const status: ResourceExpectationStatus = corpusBlocked ? "blocked" : "expected";
@@ -160,6 +165,11 @@ function toExpectation(definition: ExpectationDefinition): EarthlikeResourceExpe
       runtimeIdStatus: RUNTIME_ID_STATUS,
     },
     status,
+    initialMapAuthoring: {
+      authoringAge: initialMapPolicy.authoringAge,
+      status: initialMapPolicy.status,
+      rationale: initialMapPolicy.rationale,
+    },
     eligibleAges: corpusEntry.validAges,
     officialConstraintSummary: corpusEntry.officialPlacementConstraints,
     earthlikePredicate: definition.earthlikePredicate,

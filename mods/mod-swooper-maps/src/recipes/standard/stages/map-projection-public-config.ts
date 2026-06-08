@@ -60,7 +60,7 @@ export const MapRiversProjectionSchema = Type.Object(
     minLength: Type.Optional(
       Type.Integer({
         description:
-          "Sets the minimum Civ7 river-model length threshold; lower values allow shorter and denser navigable river paths.",
+          "Minimum navigable river trunk length selected from the authored hydrology flow network.",
         default: 5,
         minimum: 1,
         maximum: 40,
@@ -69,7 +69,7 @@ export const MapRiversProjectionSchema = Type.Object(
     maxLength: Type.Optional(
       Type.Integer({
         description:
-          "Sets the maximum Civ7 river-model length threshold; larger values allow longer navigable river paths before the model stops.",
+          "Maximum navigable river trunk length selected from the authored hydrology flow network.",
         default: 15,
         minimum: 1,
         maximum: 80,
@@ -79,7 +79,7 @@ export const MapRiversProjectionSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Civ7 river projection controls. These length thresholds work with riverDensity to tune navigable river density after elevation is finalized.",
+      "Mapgen-owned navigable river stamping controls. This stage satisfies Civ7 terrain policy without calling Civ7's river generator.",
   }
 );
 
@@ -90,7 +90,7 @@ export const MapRiversPublicSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Map river projection controls for Civ7 navigable river modeling after elevation is finalized.",
+      "Map river projection controls for materializing Hydrology river truth into Civ7 terrain after elevation is finalized.",
   }
 );
 

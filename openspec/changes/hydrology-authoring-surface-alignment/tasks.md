@@ -30,5 +30,5 @@
 - [x] 4.1 Run focused MapGen schema/compile/runtime Hydrology tests.
 - [x] 4.2 Run Studio default schema tests.
 - [x] 4.3 Run ledger summary and record the Hydrology counts.
-- [ ] 4.4 Run OpenSpec validation, peer-agent review, repair accepted P1/P2
+- [x] 4.4 Run OpenSpec validation, peer-agent review, repair accepted P1/P2
   findings, and run `git diff --check`.

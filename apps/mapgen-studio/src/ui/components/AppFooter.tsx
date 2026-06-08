@@ -11,6 +11,7 @@ import {
   type RunInGameOperationStatus,
 } from '../../features/runInGame/status';
 import type { RunInGameCurrentRelation } from '../../features/runInGame/clientState';
+import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from '../../features/civ7Setup/seedPolicy';
 import {
   formatMapConfigSaveDeployPhaseLabel,
   type MapConfigSaveDeployStatus,
@@ -195,6 +196,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     runInGameStatus?.materialization?.mapScript ? `Map: ${runInGameStatus.materialization.mapScript}` : null,
     runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
     runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
+    runInGameStatus?.details?.recoveryHint ? `Recovery: ${runInGameStatus.details.recoveryHint}` : null,
   ].filter(Boolean).join("\n");
   const updateSetting = <K extends keyof RecipeSettings,>(
   key: K,
@@ -319,7 +321,11 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           value={currentSettings.seed}
           onChange={(e) => updateSetting('seed', e.target.value)}
           placeholder="Seed"
-          title="Generation seed"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          min={CIV7_STUDIO_SEED_MIN}
+          max={CIV7_STUDIO_SEED_MAX}
+          title={`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}
           disabled={operationControlsDisabled}
           lightMode={lightMode}
           className="w-20 font-mono" />

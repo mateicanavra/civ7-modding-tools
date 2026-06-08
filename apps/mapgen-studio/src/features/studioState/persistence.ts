@@ -1,4 +1,10 @@
 import type { BuiltInPreset } from "../../recipes/catalog";
+import {
+  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
+  normalizeStudioSetupConfig,
+  type Civ7StudioSetupConfig,
+} from "../civ7Setup/setupConfig";
+import { migratePipelineConfig, migratePipelineConfigUnknown } from "../configMigrations/pipelineConfig";
 import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 
 export const STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v1";
@@ -8,6 +14,7 @@ export type StudioAuthoringStateSnapshot = Readonly<{
   savedAt: string;
   worldSettings: WorldSettings;
   recipeSettings: RecipeSettings;
+  setupConfig: Civ7StudioSetupConfig;
   pipelineConfig: PipelineConfig;
   overridesDisabled: boolean;
   repoBackedPresetOverridesByRecipe: Record<string, Record<string, BuiltInPreset>>;
@@ -30,12 +37,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function parseWorldSettings(value: unknown): WorldSettings | null {
   if (!isRecord(value)) return null;
-  if (value.mode !== "browser" && value.mode !== "dump") return null;
   if (typeof value.mapSize !== "string" || typeof value.playerCount !== "number" || typeof value.resources !== "string") {
     return null;
   }
   return {
-    mode: value.mode,
     mapSize: value.mapSize as WorldSettings["mapSize"],
     playerCount: value.playerCount,
     resources: value.resources as WorldSettings["resources"],
@@ -64,7 +69,7 @@ function parseBuiltInPreset(value: unknown): BuiltInPreset | null {
     ...(typeof value.sourcePath === "string" ? { sourcePath: value.sourcePath } : {}),
     ...(typeof value.sortIndex === "number" ? { sortIndex: value.sortIndex } : {}),
     ...(isRecord(value.latitudeBounds) ? { latitudeBounds: value.latitudeBounds as BuiltInPreset["latitudeBounds"] } : {}),
-    config: value.config,
+    config: migratePipelineConfigUnknown(value.config),
   };
 }
 
@@ -96,7 +101,8 @@ export function parseStudioAuthoringState(value: string | null): StudioAuthoring
       savedAt: parsed.savedAt,
       worldSettings,
       recipeSettings,
-      pipelineConfig: parsed.pipelineConfig as PipelineConfig,
+      setupConfig: normalizeStudioSetupConfig(parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG),
+      pipelineConfig: migratePipelineConfig(parsed.pipelineConfig as PipelineConfig),
       overridesDisabled: parsed.overridesDisabled === true,
       repoBackedPresetOverridesByRecipe: parseRepoBackedOverrides(parsed.repoBackedPresetOverridesByRecipe),
     };
@@ -125,7 +131,12 @@ export function saveStudioAuthoringState(
       JSON.stringify({
         schemaVersion: 1,
         savedAt: new Date().toISOString(),
-        ...args,
+        worldSettings: args.worldSettings,
+        recipeSettings: args.recipeSettings,
+        setupConfig: normalizeStudioSetupConfig(args.setupConfig),
+        pipelineConfig: migratePipelineConfig(args.pipelineConfig),
+        overridesDisabled: args.overridesDisabled,
+        repoBackedPresetOverridesByRecipe: parseRepoBackedOverrides(args.repoBackedPresetOverridesByRecipe),
       })
     );
   } catch {

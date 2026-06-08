@@ -8,15 +8,16 @@ export const PlacementInputsConfigSchema = Type.Object(
     discoveries: placement.ops.planDiscoveries.config,
     floodplains: placement.ops.planFloodplains.config,
     resources: placement.ops.planResources.config,
-    starts: placement.ops.planStarts.config,
   },
   { additionalProperties: false }
 );
 
+const PlacementRuntimeStartsSchema = placement.ops.planStarts["input"].properties.baseStarts;
+
 export const PlacementInputsV1Schema = Type.Object(
   {
     mapInfo: placement.ops.planWonders["input"].properties.mapInfo,
-    starts: placement.ops.planStarts["output"],
+    starts: PlacementRuntimeStartsSchema,
     wonders: placement.ops.planWonders["output"],
     naturalWonderPlan: placement.ops.planNaturalWonders["output"],
     discoveryPlan: placement.ops.planDiscoveries["output"],

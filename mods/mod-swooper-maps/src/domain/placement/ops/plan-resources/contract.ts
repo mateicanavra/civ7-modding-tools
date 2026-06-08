@@ -9,11 +9,11 @@ const PlanResourcesContract = defineOp({
     noResourceSentinel: Type.Integer({
       description: "Adapter-level sentinel used to represent an empty resource slot.",
     }),
-    candidateResourceTypes: Type.Array(Type.Integer(), {
-      description:
-        "Adapter-owned deterministic resource candidate catalog.",
-      default: [],
-    }),
+      candidateResourceTypes: Type.Array(Type.Integer(), {
+        description:
+          "Adapter-owned deterministic resource candidate catalog after resource-domain initial-map policy filtering.",
+        default: [],
+      }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     fertility: TypedArraySchemas.f32({ description: "Pedology fertility field (0..1)." }),
     effectiveMoisture: TypedArraySchemas.f32({
@@ -38,6 +38,11 @@ const PlanResourcesContract = defineOp({
     candidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
     targetCount: Type.Integer({ minimum: 0 }),
     plannedCount: Type.Integer({ minimum: 0 }),
+    minSpacingTiles: Type.Integer({
+      minimum: 0,
+      description:
+        "Minimum odd-q hex spacing used while selecting planned resources; materialization must preserve this during legality fallback.",
+    }),
     placements: Type.Array(
       Type.Object({
         plotIndex: Type.Integer({ minimum: 0 }),
@@ -49,17 +54,6 @@ const PlanResourcesContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      candidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 }), {
-        default: [
-          0, 1, 2, 3, 4, 5, 6, 7,
-          8, 9, 10, 11, 12, 13, 14, 15,
-          16, 17, 18, 19, 20, 21, 22, 23,
-          24, 25, 26, 27, 28, 29, 30, 31,
-          32, 33, 34, 35, 36, 37, 38, 39,
-          40, 41, 42, 43, 44, 45, 46, 47,
-          48, 49, 50, 51, 52, 53, 54,
-        ],
-      }),
       densityPer100Tiles: Type.Number({
         minimum: 0,
         maximum: 50,

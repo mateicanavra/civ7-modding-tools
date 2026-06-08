@@ -2,6 +2,7 @@ type ComputeInputs = Readonly<{
   width: number;
   height: number;
   riverClass: Uint8Array;
+  navigableRiverMask: Uint8Array;
   landMask: Uint8Array;
   elevation: Int16Array;
   discharge: Float32Array;
@@ -15,6 +16,12 @@ export function validateFeatureSubstrateInputs(input: ComputeInputs): number {
 
   if (!(input.riverClass instanceof Uint8Array) || input.riverClass.length !== size) {
     throw new Error("[Ecology] Invalid riverClass for compute-feature-substrate.");
+  }
+  if (
+    !(input.navigableRiverMask instanceof Uint8Array) ||
+    input.navigableRiverMask.length !== size
+  ) {
+    throw new Error("[Ecology] Invalid navigableRiverMask for compute-feature-substrate.");
   }
   if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
     throw new Error("[Ecology] Invalid landMask for compute-feature-substrate.");

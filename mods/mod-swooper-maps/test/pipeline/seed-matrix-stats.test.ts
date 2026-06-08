@@ -9,6 +9,7 @@ import { morphologyArtifacts } from "../../src/recipes/standard/stages/morpholog
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
 import { computeEarthMetrics } from "../../src/dev/diagnostics/extract-earth-metrics.js";
 import { standardConfig } from "../support/standard-config.js";
 
@@ -46,21 +47,42 @@ function runMetrics(seed: number, width: number, height: number) {
   const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as
     | { biomeIndex?: Uint8Array }
     | undefined;
+  const startAssignment = context.artifacts.get(placementArtifacts.startAssignment.id) as
+    | {
+        assigned?: number;
+        primaryAssigned?: number;
+        islandClusterAssigned?: number;
+        marginalAssigned?: number;
+        desperationAssigned?: number;
+        candidateCount?: number;
+      }
+    | undefined;
   if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
   if (!(hydrography?.riverClass instanceof Uint8Array)) throw new Error("Missing hydrography.riverClass.");
   if (!(hydrography?.sinkMask instanceof Uint8Array)) throw new Error("Missing hydrography.sinkMask.");
   if (!(engineProjectionLakes?.lakeMask instanceof Uint8Array))
     throw new Error("Missing engineProjectionLakes.lakeMask.");
   if (!(classification?.biomeIndex instanceof Uint8Array)) throw new Error("Missing biomeClassification.biomeIndex.");
+  if (!startAssignment) throw new Error("Missing placement.startAssignment.");
 
-  return computeEarthMetrics({
-    width,
-    height,
-    landMask: topography.landMask,
-    lakeMask: engineProjectionLakes.lakeMask,
-    riverClass: hydrography.riverClass,
-    biomeIndex: classification.biomeIndex,
-  });
+  return {
+    earth: computeEarthMetrics({
+      width,
+      height,
+      landMask: topography.landMask,
+      lakeMask: engineProjectionLakes.lakeMask,
+      riverClass: hydrography.riverClass,
+      biomeIndex: classification.biomeIndex,
+    }),
+    starts: {
+      assigned: startAssignment.assigned ?? 0,
+      primaryAssigned: startAssignment.primaryAssigned ?? 0,
+      islandClusterAssigned: startAssignment.islandClusterAssigned ?? 0,
+      marginalAssigned: startAssignment.marginalAssigned ?? 0,
+      desperationAssigned: startAssignment.desperationAssigned ?? 0,
+      candidateCount: startAssignment.candidateCount ?? 0,
+    },
+  };
 }
 
 describe("pipeline seed matrix stats", () => {
@@ -71,13 +93,20 @@ describe("pipeline seed matrix stats", () => {
       const metricsB = runMetrics(seed, 32, 20);
       expect(metricsA).toEqual(metricsB);
 
-      expect(metricsA.landShare).toBeGreaterThan(0);
-      expect(metricsA.landShare).toBeLessThan(1);
-      expect(metricsA.lakeShare).toBeGreaterThanOrEqual(0);
-      expect(metricsA.lakeShare).toBeLessThan(0.5);
-      expect(metricsA.riverClassShare).toBeGreaterThanOrEqual(0);
-      expect(metricsA.riverClassShare).toBeLessThan(1);
-      expect(metricsA.biomeDiversity).toBeGreaterThanOrEqual(1);
+      expect(metricsA.earth.landShare).toBeGreaterThan(0);
+      expect(metricsA.earth.landShare).toBeLessThan(1);
+      expect(metricsA.earth.lakeShare).toBeGreaterThanOrEqual(0);
+      expect(metricsA.earth.lakeShare).toBeLessThan(0.5);
+      expect(metricsA.earth.riverClassShare).toBeGreaterThanOrEqual(0);
+      expect(metricsA.earth.riverClassShare).toBeLessThan(1);
+      expect(metricsA.earth.biomeDiversity).toBeGreaterThanOrEqual(1);
+      expect(metricsA.starts.assigned, `seed ${seed} assigned starts`).toBe(8);
+      expect(metricsA.starts.desperationAssigned, `seed ${seed} desperation starts`).toBe(0);
+      expect(metricsA.starts.candidateCount, `seed ${seed} start candidate count`).toBeGreaterThan(8);
+      expect(
+        metricsA.starts.primaryAssigned + metricsA.starts.islandClusterAssigned,
+        `seed ${seed} viable starts`
+      ).toBeGreaterThanOrEqual(6);
     }
   });
 });

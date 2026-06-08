@@ -1,6 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import { createLabelRng } from "@swooper/mapgen-core";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeCoastlineMetricsContract from "../contract.js";

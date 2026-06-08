@@ -37,6 +37,13 @@ const PlanRidgesContract = defineOp({
   }),
   output: Type.Object({
     mountainMask: TypedArraySchemas.u8({ description: "Mask (1/0): mountain tiles." }),
+    mountainRegionMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): tectonically supported mountain-region footprint, including peaks, passes, valleys, foothills, and internal rough terrain.",
+    }),
+    mountainRegionIdByTile: TypedArraySchemas.i32({
+      description: "Per-tile mountain-region id (-1 outside mountain-region footprint).",
+    }),
     orogenyPotential: TypedArraySchemas.u8({
       description:
         "Orogeny potential per tile (0..255). Diagnostic driver surface (physics-gated).",

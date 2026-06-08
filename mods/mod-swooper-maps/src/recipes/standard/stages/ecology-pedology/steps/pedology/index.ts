@@ -6,7 +6,7 @@ import { validatePedologyArtifact } from "../../../ecology/artifact-validation.j
 import PedologyStepContract from "./contract.js";
 
 const GROUP_PEDOLOGY = "Ecology / Pedology";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function computeLocalReliefProxy(args: {
   width: number;

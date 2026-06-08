@@ -77,6 +77,20 @@ describe("Run in Game operation store", () => {
     expect(failed.recoveryActions).toContain("restart-civ-process-and-retry");
   });
 
+  it("surfaces Civ notification dismissal recovery for map script fatal failures", () => {
+    const { store } = createStore();
+    store.create("request-1");
+    const failed = store.fail("request-1", "waiting-for-proof", new RunInGameHttpError(500, "Civ7 could not load generated map script", {
+      code: "map-script-load-failed",
+      dismissNotificationRequired: true,
+      recoveryBoundary: "civ-notification-dismiss",
+    }));
+
+    expect(failed.status).toBe("failed");
+    expect(failed.recoveryActions).toContain("dismiss-civ-notification-and-retry");
+    expect(failed.recoveryActions).not.toContain("restart-civ-process-and-retry");
+  });
+
   it("classifies socket uncertainty after start without replaying the mutation", () => {
     const { store } = createStore();
     store.create("request-1");

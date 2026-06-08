@@ -18,8 +18,8 @@
   - Validation exists but does not yet enforce maximal era/provenance budgets and agreements.
 - Why it exists:
   - [ ] Compatibility requirement: current Morphology consumes legacy Foundation tile drivers.
-  - [ ] Partial refactor: maximal mantle forcing + provenance outputs exist only as docs/spec right now.
-  - [ ] Bridge construct: old “eraCount === 3” and other legacy assumptions may exist in current validation.
+  - [x] Partial refactor: maximal mantle forcing + provenance outputs now exist in Foundation truth artifacts.
+  - [x] Bridge construct resolved: the old `eraCount === 3` validation assumption has been replaced by the 5..8 era contract.
 
 ## Target change
 
@@ -53,12 +53,12 @@
 ### Phase 2: Prepare (Dual history/provenance outputs without downstream cutover)
 
 - Changes:
-  - Add/extend `artifact:foundation.tectonicHistory` to the D04r contract (eraCount budget + per-era fields).
-  - Add `artifact:foundation.tectonicProvenance` (mandatory tracerIndex history + scalars).
-  - Add projections:
+  - Keep `artifact:foundation.tectonicHistory` aligned to the D04r contract (eraCount budget + per-era fields).
+  - Keep `artifact:foundation.tectonicProvenance` mandatory (tracerIndex history + scalars).
+  - Maintain projections:
     - `artifact:foundation.tectonicHistoryTiles`
     - `artifact:foundation.tectonicProvenanceTiles`
-  - Replace any legacy “eraCount === 3” validation with D04r/D09r invariants.
+  - Maintain the D04r/D09r 5..8 era validation invariants.
   - Emit per-era viz layers using `variantKey=era:<n>`.
 - Verification:
   - D09r Tier-1 gates pass: history/provenance agree on `eraCount`, tracer indices in-range.
@@ -70,7 +70,7 @@
 ### Phase 3: Cleanup (slice-local)
 
 - Deletion targets:
-  - [ ] Delete the legacy `eraCount === 3` hard assumption wherever it exists (validation/consumers).
+  - [x] Delete the legacy `eraCount === 3` hard assumption wherever it exists (validation/consumers).
   - [ ] Delete any “optional publish” gating for mantle forcing once the next slice consumes it (do not let it linger).
 - Verification:
   - compile-time: no code path still assumes `eraCount === 3`.
@@ -91,4 +91,3 @@
   - none (this slice is required pre-cutover)
 - Tracking gaps (if any):
   - create issues for any calibrated thresholds that must move from diagnostics → gates
-

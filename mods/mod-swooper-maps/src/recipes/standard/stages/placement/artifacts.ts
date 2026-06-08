@@ -81,11 +81,40 @@ const StartAssignmentArtifactSchema = Type.Object(
     regionalAssigned: Type.Integer({ minimum: 0 }),
     openPoolAssigned: Type.Integer({ minimum: 0 }),
     openPoolUsed: Type.Boolean(),
+    primaryAssigned: Type.Integer({ minimum: 0 }),
+    islandClusterAssigned: Type.Integer({ minimum: 0 }),
+    marginalAssigned: Type.Integer({ minimum: 0 }),
+    desperationAssigned: Type.Integer({ minimum: 0 }),
+    candidateCount: Type.Integer({ minimum: 0 }),
+    rejectionCounts: Type.Array(
+      Type.Object(
+        {
+          reason: Type.Union([
+            Type.Literal("water"),
+            Type.Literal("lake"),
+            Type.Literal("single-tile-island"),
+            Type.Literal("insufficient-landmass"),
+            Type.Literal("insufficient-expansion"),
+            Type.Literal("insufficient-island-cluster"),
+          ]),
+          count: Type.Integer({ minimum: 0 }),
+        },
+        { additionalProperties: false }
+      )
+    ),
+    tierCounts: Type.Object(
+      {
+        primary: Type.Integer({ minimum: 0 }),
+        islandCluster: Type.Integer({ minimum: 0 }),
+        marginal: Type.Integer({ minimum: 0 }),
+      },
+      { additionalProperties: false }
+    ),
   },
   {
     additionalProperties: false,
     description:
-      "Verified player start assignment produced by the starts product step. Regional and open-pool counts expose the single deterministic tier policy instead of fallback/recovery telemetry.",
+      "Verified player start assignment produced by the starts product step. Tier and fallback counts expose whether starts came from first-age viable land envelopes, intentional island clusters, or last-resort assignment.",
   }
 );
 
@@ -208,6 +237,7 @@ const ResourcePlacementSummarySchema = Type.Object(
 const ResourceAssignmentResourceSummarySchema = Type.Object(
   {
     resourceType: Type.Integer(),
+    legalPlotCount: Type.Integer({ minimum: 0 }),
     plannedCount: Type.Integer({ minimum: 0 }),
     assignedCount: Type.Integer({ minimum: 0 }),
     reassignedOutCount: Type.Integer({ minimum: 0 }),
@@ -221,6 +251,8 @@ const ResourceAssignmentSummarySchema = Type.Object(
   {
     requestedPlannedCount: Type.Integer({ minimum: 0 }),
     assignedCount: Type.Integer({ minimum: 0 }),
+    minSpacingTiles: Type.Integer({ minimum: 0 }),
+    spacingBlockedCount: Type.Integer({ minimum: 0 }),
     reassignedCount: Type.Integer({ minimum: 0 }),
     unassignedPreferredCount: Type.Integer({ minimum: 0 }),
     candidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
