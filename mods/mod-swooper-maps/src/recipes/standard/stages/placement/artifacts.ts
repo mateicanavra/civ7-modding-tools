@@ -263,10 +263,37 @@ const ResourceAssignmentSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
+const ResourceAssignmentTraceSchema = Type.Object(
+  {
+    plotIndex: Type.Integer(),
+    x: Type.Integer(),
+    y: Type.Integer(),
+    resourceType: Type.Integer(),
+    initialResourceType: Type.Integer(),
+    preferredResourceType: Type.Union([Type.Integer(), Type.Null()]),
+    assignmentPhase: Type.Union([
+      Type.Literal("scarce-floor"),
+      Type.Literal("strict-spacing"),
+      Type.Literal("relaxed-spacing"),
+    ]),
+    reassignedByRebalance: Type.Boolean(),
+    assignmentOrder: Type.Integer({ minimum: 0 }),
+    perTypeCountBefore: Type.Integer({ minimum: 0 }),
+    legalPlotCountForResource: Type.Integer({ minimum: 0 }),
+    targetMinPerType: Type.Integer({ minimum: 0 }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Diagnostic trace for the local resource assignment pass that selected each resource intent before adapter materialization.",
+  }
+);
+
 const ResourcePlacementOutcomesArtifactSchema = Type.Object(
   {
     summary: ResourcePlacementSummarySchema,
     assignment: ResourceAssignmentSummarySchema,
+    assignmentTrace: Type.Array(ResourceAssignmentTraceSchema),
     outcomes: Type.Array(ResourcePlacementOutcomeSchema),
   },
   {
