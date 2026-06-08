@@ -6,7 +6,8 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-studio-log-rewrite-reader-drain`, stacked above
+  `codex/swooper-studio-log-rewrite-reader-drain`, with runtime proof to be
+  recorded in a follow-on proof-record slice, stacked above
   `codex/swooper-sdk-mapgen-completion-marker-drain` and
   `codex/swooper-map-elevation-drift-policy-drain`; this slice repairs the
   locally proven direct-control/Studio fresh-log reader gap after
@@ -41,9 +42,12 @@
   `studio-run-in-game-mq3omoo3-8oj`, but Studio still failed in
   `waiting-for-proof` because the direct-control log waiter sliced a
   Civ-rewritten `Scripting.log` from the stale pre-restart byte offset. The
-  current slice repairs that fresh-log reader boundary locally, but no current
-  final-surface parity proof exists until Studio/Civ is rerun from the
-  committed repair. Resource classes remain pending source-authority
+  current slice repairs that fresh-log reader boundary, and the committed
+  rerun `studio-run-in-game-mq3pfgbe-1doj` completed exact authorship and
+  mapgen-completion proof from head
+  `5537f2a829f8dd1452fec81d002c4afc1f0826a6`. No current final-surface parity
+  proof exists until the verifier is rerun from that completed exact-authorship
+  evidence. Resource classes remain pending source-authority
   classification.
 
 ## Objective
@@ -955,11 +959,40 @@
   This is a source/runtime map-generation blocker, not a parity result: no
   current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet,
   final-surface parity proof, or product acceptance proof was produced.
+  The map-elevation bounded drift, SDK completion-marker, and
+  direct-control/Studio rewritten-log reader repairs then cleared the current
+  runtime proof blocker. Current committed request
+  `studio-run-in-game-mq3pfgbe-1doj` used the same restart request body
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-request.json`
+  (`sha256:0e23b919efba651b49d36bd967218414ace31620dee1c375a13a2c245decf914`),
+  with post response
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-log-rewrite-reader-post.json`
+  (`sha256:e2640bf851b30bfe54f95a96a24867c65068c0cb30d8dbdf89528a2f4e9e1f8d`)
+  and terminal status
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-log-rewrite-reader-status.json`
+  (`sha256:381e25d77639fcf3fe1660524ba7ead72cabb7c60f7dadb53062ca684bbd9ed6`).
+  It completed materialization, deploy, process restart, setup preparation,
+  map-script load, all recipe steps, and `waiting-for-proof`. The status is
+  `complete`; `exactAuthorshipProof.status` is `complete` with no unresolved
+  links; and the exact log proof matches `[mapgen-proof]` and
+  `[mapgen-complete]` for request `studio-run-in-game-mq3pfgbe-1doj`, config
+  hash `ceae9601ee0b856483d0874ee3dfdff4a189eb226d01f8ab9dc8b7484475765f`,
+  envelope hash
+  `f8d81ad1446301c516b4c894ef0142ed4fa5c8c666dd37c49022d2830d4b375f`,
+  seed `138503614`, and dimensions `106x66`. Runtime placement telemetry
+  records `RESOURCE_PLACEMENT_V1` at `251` planned, `250` placed, `1`
+  rejected, `0` mismatched, with placed/rejected coordinate hashes
+  `9c5eaad8`/`af57eb7b`; and `NATURAL_WONDER_PLACEMENT_V1` at `7` planned,
+  `4` placed, `3` rejected, with placed/rejected coordinate hashes
+  `b623433b`/`d6bab8b6`. This is current exact-authorship and runtime
+  completion proof only. It does not run or close current final-surface parity,
+  resource legality/source-authority rows, feature rows, or product acceptance.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
-- Next action: commit the current direct-control/Studio fresh-log reader repair,
-  restart Studio from that committed head, and rerun the same Studio/Civ request
-  before another final-surface parity proof claim. Then continue classifying
-  the remaining feature/resource rows by source authority: official data,
+- Next action: run the current exact-authored final-surface parity verifier
+  from request `studio-run-in-game-mq3pfgbe-1doj`, preserve the verifier
+  artifact, and classify any remaining links before any final-surface parity
+  or product acceptance claim. Then continue classifying the remaining
+  feature/resource rows by source authority: official data,
   adapter/map-policy, MapGen
   planning/materialization, accepted engine materialization, or readback
   limitation. Terrain edge rows may enter this slice only if diagnostics prove
