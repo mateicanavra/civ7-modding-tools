@@ -140,6 +140,18 @@ describe("final-surface parity proof", () => {
     });
 
     expect(proof.status).toBe("complete");
+    expect(proof.resourcePlacementCoordinateProof).toMatchObject({
+      status: "match",
+      mismatchedLinks: [],
+      local: {
+        placed: { count: 2, hash32: "aaaaaaaa" },
+        rejected: { count: 0, hash32: "811c9dc5" },
+      },
+      exact: {
+        placed: { count: 2, hash32: "aaaaaaaa" },
+        rejected: { count: 0, hash32: "811c9dc5" },
+      },
+    });
     expect(proof.unresolvedLinks).toEqual([]);
     expect(proof.diffs.every((diff) => diff.status === "match")).toBe(true);
   });
@@ -160,6 +172,10 @@ describe("final-surface parity proof", () => {
     });
 
     expect(proof.status).toBe("unresolved");
+    expect(proof.resourcePlacementCoordinateProof).toMatchObject({
+      status: "missing-exact-log",
+      mismatchedLinks: ["resource-placement-coordinate-proof.log"],
+    });
     expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.log");
   });
 
@@ -185,6 +201,12 @@ describe("final-surface parity proof", () => {
     });
 
     expect(proof.status).toBe("unresolved");
+    expect(proof.resourcePlacementCoordinateProof).toMatchObject({
+      status: "mismatch",
+      mismatchedLinks: ["resource-placement-coordinate-proof.placed"],
+      local: { placed: { count: 2, hash32: "aaaaaaaa" } },
+      exact: { placed: { count: 2, hash32: "bbbbbbbb" } },
+    });
     expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.placed");
   });
 

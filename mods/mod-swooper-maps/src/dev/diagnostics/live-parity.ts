@@ -83,6 +83,21 @@ export type ParityResidualClassification = Readonly<{
   evidence: string;
 }>;
 
+type ResourcePlacementCoordinateProofComparison = Readonly<{
+  status: "match" | "mismatch" | "missing-exact-log";
+  local: Readonly<{
+    placed?: Readonly<{ count?: number; hash32?: string }>;
+    rejected?: Readonly<{ count?: number; hash32?: string }>;
+    mismatch?: Readonly<{ count?: number; hash32?: string }>;
+  }>;
+  exact?: Readonly<{
+    placed?: Readonly<{ count?: number; hash32?: string }>;
+    rejected?: Readonly<{ count?: number; hash32?: string }>;
+    mismatch?: Readonly<{ count?: number; hash32?: string }>;
+  }>;
+  mismatchedLinks: ReadonlyArray<string>;
+}>;
+
 export type FinalSurfaceParityProof = Readonly<{
   status: "complete" | "unresolved";
   createdAt: string;
@@ -100,6 +115,7 @@ export type FinalSurfaceParityProof = Readonly<{
   local: FinalSurfaceSnapshot;
   live: FinalSurfaceSnapshot;
   diffs: ReadonlyArray<SurfaceDiffSummary>;
+  resourcePlacementCoordinateProof?: ResourcePlacementCoordinateProofComparison;
   residuals: ReadonlyArray<ParityResidualClassification>;
   unresolvedLinks: ReadonlyArray<string>;
 }>;
@@ -608,6 +624,8 @@ export function buildFinalSurfaceParityProof(args: {
   const diffs = diffFinalSurfaceSnapshots(args.local, args.live);
   const unresolvedLinks: string[] = [];
   const exact = args.exactAuthorship;
+  const resourcePlacementCoordinateProof =
+    exact === undefined ? undefined : buildResourcePlacementCoordinateProofComparison(exact, args.local);
 
   unresolvedLinks.push(...validateExactAuthorshipProofPacket(exact).unresolvedLinks);
   addSurfaceShapeLinks(unresolvedLinks, args.local, "local", exact?.runtime?.width, exact?.runtime?.height);
@@ -685,7 +703,9 @@ export function buildFinalSurfaceParityProof(args: {
     ) {
       unresolvedLinks.push("exact-authorship-proof.materialization-envelope-hash.local-envelope-hash");
     }
-    addResourcePlacementCoordinateProofLinks(unresolvedLinks, exact, args.local);
+    if (resourcePlacementCoordinateProof) {
+      unresolvedLinks.push(...resourcePlacementCoordinateProof.mismatchedLinks);
+    }
   }
 
   for (const diff of diffs) {
@@ -719,6 +739,7 @@ export function buildFinalSurfaceParityProof(args: {
     local: args.local,
     live: args.live,
     diffs,
+    ...(resourcePlacementCoordinateProof === undefined ? {} : { resourcePlacementCoordinateProof }),
     residuals,
     unresolvedLinks: [...new Set(unresolvedLinks)].sort((a, b) => a.localeCompare(b)),
   };
@@ -893,50 +914,60 @@ function addFullGridEvidenceLinks(unresolvedLinks: string[], live: FinalSurfaceS
   if (identityCheck?.stable !== true) unresolvedLinks.push("live.full-grid.identity-check");
 }
 
-function addResourcePlacementCoordinateProofLinks(
-  unresolvedLinks: string[],
+function buildResourcePlacementCoordinateProofComparison(
   exact: ExactAuthorshipProofLike,
   local: FinalSurfaceSnapshot
-): void {
+): ResourcePlacementCoordinateProofComparison | undefined {
   const localCoordinateProof = localResourcePlacementCoordinateProof(local);
-  if (!localCoordinateProof) return;
+  if (!localCoordinateProof) return undefined;
   const logCoordinateProof = exact.log?.resourcePlacement?.coordinateProof;
   if (!logCoordinateProof) {
-    unresolvedLinks.push("resource-placement-coordinate-proof.log");
-    return;
+    return {
+      status: "missing-exact-log",
+      local: localCoordinateProof,
+      mismatchedLinks: ["resource-placement-coordinate-proof.log"],
+    };
   }
-  compareCoordinateDigest(
-    unresolvedLinks,
-    localCoordinateProof.placed,
-    logCoordinateProof.placed,
-    "resource-placement-coordinate-proof.placed"
-  );
-  compareCoordinateDigest(
-    unresolvedLinks,
-    localCoordinateProof.rejected,
-    logCoordinateProof.rejected,
-    "resource-placement-coordinate-proof.rejected"
-  );
-  compareCoordinateDigest(
-    unresolvedLinks,
-    localCoordinateProof.mismatch,
-    logCoordinateProof.mismatch,
-    "resource-placement-coordinate-proof.mismatch"
-  );
+  const exactCoordinateProof = {
+    placed: coordinateDigest(logCoordinateProof.placed),
+    rejected: coordinateDigest(logCoordinateProof.rejected),
+    mismatch: coordinateDigest(logCoordinateProof.mismatch),
+  };
+  const mismatchedLinks = [
+    coordinateDigestMismatchLink(
+      localCoordinateProof.placed,
+      exactCoordinateProof.placed,
+      "resource-placement-coordinate-proof.placed"
+    ),
+    coordinateDigestMismatchLink(
+      localCoordinateProof.rejected,
+      exactCoordinateProof.rejected,
+      "resource-placement-coordinate-proof.rejected"
+    ),
+    coordinateDigestMismatchLink(
+      localCoordinateProof.mismatch,
+      exactCoordinateProof.mismatch,
+      "resource-placement-coordinate-proof.mismatch"
+    ),
+  ].filter((link): link is string => link !== undefined);
+  return {
+    status: mismatchedLinks.length === 0 ? "match" : "mismatch",
+    local: localCoordinateProof,
+    exact: exactCoordinateProof,
+    mismatchedLinks,
+  };
 }
 
-function compareCoordinateDigest(
-  unresolvedLinks: string[],
+function coordinateDigestMismatchLink(
   local: { count?: number; hash32?: string } | undefined,
   log: { count?: number; hash32?: string } | undefined,
   link: string
-): void {
-  if (!local) return;
+): string | undefined {
+  if (!local) return undefined;
   if (!log) {
-    if ((local.count ?? 0) > 0) unresolvedLinks.push(link);
-    return;
+    return (local.count ?? 0) > 0 ? link : undefined;
   }
-  if (local.count !== log.count || local.hash32 !== log.hash32) unresolvedLinks.push(link);
+  return local.count !== log.count || local.hash32 !== log.hash32 ? link : undefined;
 }
 
 function localResourcePlacementCoordinateProof(local: FinalSurfaceSnapshot):

@@ -263,6 +263,13 @@
     separation: exact runtime distribution breadth (`34` placed resource types,
     min/max placed count by type `7/8`) is a product-health guard, while
     unresolved coordinate parity is still not product acceptance.
+- [x] 2.44 Expose local-vs-exact resource coordinate proof comparison in
+  final-surface parity artifacts.
+  - This is proof instrumentation only. It makes the existing
+    `resource-placement-coordinate-proof.*` gate self-describing by preserving
+    local and exact coordinate digests plus mismatched links in the parity
+    artifact. It does not change final-surface parity status, resource tuning,
+    scarce-floor assignment, or product acceptance.
 
 ## 3. Verification
 
@@ -307,3 +314,5 @@
   regressions.
 - [x] 3.14 Preserve source-recorded exact-authored final-surface parity after
   post-write footprint telemetry.
+- [x] 3.15 Run focused final-surface parity proof regression for resource
+  coordinate proof comparison.
