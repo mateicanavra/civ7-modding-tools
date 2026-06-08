@@ -137,6 +137,21 @@ describe("Run in Game exact authorship proof identity", () => {
             rejectedHash32: "aaaaaaaa",
           },
         })}`,
+        `[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify({
+          version: 1,
+          wondersCount: 7,
+          targetCount: 7,
+          plannedCount: 2,
+          planRows: [
+            ["p", 1320, 60, 15, 35, 0, 120, 610000],
+            ["p", 1405, 61, 16, 36, 0, 90, 420000],
+          ],
+          coordinateProof: {
+            version: 1,
+            plannedCount: 2,
+            plannedHash32: "bbbbbbbb",
+          },
+        })}`,
         `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 7,
@@ -228,6 +243,39 @@ describe("Run in Game exact authorship proof identity", () => {
         rejected: { count: 1, hash32: "aaaaaaaa" },
       },
     });
+    expect(logProof?.naturalWonderPlan).toMatchObject({
+      marker: "NATURAL_WONDER_PLAN_V1",
+      stats: {
+        version: 1,
+        wondersCount: 7,
+        targetCount: 7,
+        plannedCount: 2,
+      },
+      coordinateProof: {
+        version: 1,
+        planned: { count: 2, hash32: "bbbbbbbb" },
+      },
+      planRows: [
+        {
+          plotIndex: 1320,
+          x: 60,
+          y: 15,
+          featureType: 35,
+          direction: 0,
+          elevation: 120,
+          priorityPpm: 610000,
+        },
+        {
+          plotIndex: 1405,
+          x: 61,
+          y: 16,
+          featureType: 36,
+          direction: 0,
+          elevation: 90,
+          priorityPpm: 420000,
+        },
+      ],
+    });
     expect(logProof?.naturalWonderPlacement).toMatchObject({
       marker: "NATURAL_WONDER_PLACEMENT_V1",
       stats: {
@@ -295,6 +343,14 @@ describe("Run in Game exact authorship proof identity", () => {
           version: 1,
           coordinateProof: { version: 1, placedCount: 4, placedHash32: "aaaaaaaa" },
         })}`,
+        `[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify({
+          version: 1,
+          wondersCount: 1,
+          targetCount: 1,
+          plannedCount: 1,
+          planRows: [["p", 0, 0, 0, 35, 0, 1, 1000000]],
+          coordinateProof: { version: 1, plannedCount: 1, plannedHash32: "aaaaaaaa" },
+        })}`,
         `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 1,
@@ -316,6 +372,7 @@ describe("Run in Game exact authorship proof identity", () => {
 
     expect(logProof?.featureApply).toBeUndefined();
     expect(logProof?.resourcePlacement).toBeUndefined();
+    expect(logProof?.naturalWonderPlan).toBeUndefined();
     expect(logProof?.naturalWonderPlacement).toBeUndefined();
   });
 

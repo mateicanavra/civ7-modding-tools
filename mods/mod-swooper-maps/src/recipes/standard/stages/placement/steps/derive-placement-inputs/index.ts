@@ -2,6 +2,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import DerivePlacementInputsContract from "./contract.js";
 import { buildPlacementInputs } from "./inputs.js";
+import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-telemetry.js";
 import { placementArtifacts } from "../../artifacts.js";
 
 export default createStep(DerivePlacementInputsContract, {
@@ -38,6 +39,7 @@ export default createStep(DerivePlacementInputsContract, {
     deps.artifacts.placementInputs.publish(context, inputs);
     deps.artifacts.resourcePlan.publish(context, inputs.resources);
     deps.artifacts.naturalWonderPlan.publish(context, inputs.naturalWonderPlan);
+    logNaturalWonderPlanRuntimeTelemetry(inputs.naturalWonderPlan);
     deps.artifacts.discoveryPlan.publish(context, inputs.discoveryPlan);
   },
 });

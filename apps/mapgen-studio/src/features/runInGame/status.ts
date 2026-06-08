@@ -88,6 +88,16 @@ export type RunInGameNaturalWonderPlacementCoordinateRow = Readonly<{
   expectedFootprintReadbackStatus?: "empty-expected-footprint" | "partial-expected-footprint";
 }>;
 
+export type RunInGameNaturalWonderPlanRow = Readonly<{
+  plotIndex: number;
+  x: number;
+  y: number;
+  featureType: number;
+  direction: number;
+  elevation?: number;
+  priorityPpm?: number;
+}>;
+
 export type RunInGameRequestStatus = Readonly<{
   recipeId?: string;
   seed?: number;
@@ -214,6 +224,21 @@ export type RunInGameExactAuthorshipProof = Readonly<{
         rejected?: Readonly<{ count: number; hash32: string }>;
         mismatch?: Readonly<{ count: number; hash32: string }>;
       }>;
+    }>;
+    naturalWonderPlan?: Readonly<{
+      marker: "NATURAL_WONDER_PLAN_V1";
+      payload: unknown;
+      stats?: Readonly<{
+        version: number;
+        wondersCount: number;
+        targetCount: number;
+        plannedCount: number;
+      }>;
+      coordinateProof?: Readonly<{
+        version: number;
+        planned: Readonly<{ count: number; hash32: string }>;
+      }>;
+      planRows?: ReadonlyArray<RunInGameNaturalWonderPlanRow>;
     }>;
     naturalWonderPlacement?: Readonly<{
       marker: "NATURAL_WONDER_PLACEMENT_V1";

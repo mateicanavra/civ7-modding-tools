@@ -5,6 +5,7 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { buildPlacementInputs } from "../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
+import { buildNaturalWonderPlanRuntimeTelemetry } from "../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
 
 const { featureTypes, terrainTypeIndices, biomeGlobals } = CIV7_BROWSER_TABLES_V0;
 
@@ -213,5 +214,48 @@ describe("derive placement inputs", () => {
     );
 
     expect(capturedNaturalWonderInput?.featureCatalog).toEqual([]);
+  });
+
+  it("builds compact natural-wonder plan telemetry for exact runtime proof", () => {
+    const telemetry = buildNaturalWonderPlanRuntimeTelemetry({
+      width: 106,
+      height: 66,
+      wondersCount: 7,
+      targetCount: 7,
+      plannedCount: 2,
+      placements: [
+        {
+          plotIndex: 4130,
+          featureType: 30,
+          direction: 0,
+          elevation: 3,
+          priority: 0.6107035471190667,
+        },
+        {
+          plotIndex: 1785,
+          featureType: 36,
+          direction: 0,
+          elevation: 4,
+          priority: 0.8272660786093309,
+        },
+      ],
+    });
+
+    expect(telemetry).toMatchObject({
+      version: 1,
+      wondersCount: 7,
+      targetCount: 7,
+      plannedCount: 2,
+      planRows: [
+        ["p", 4130, 102, 38, 30, 0, 3, 610704],
+        ["p", 1785, 89, 16, 36, 0, 4, 827266],
+      ],
+      coordinateProof: {
+        version: 1,
+        plannedCount: 2,
+      },
+    });
+    expect(telemetry.coordinateProof.plannedHash32).toMatch(/^[0-9a-f]{8}$/);
+    expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(700);
   });
 });

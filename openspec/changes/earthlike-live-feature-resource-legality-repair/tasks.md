@@ -550,6 +550,38 @@
     just a post-write footprint readback row; it also includes exact/local
     plan-input or engine-surface divergence that must be source-owned before
     behavior repair.
+- [x] 2.57 Bind bounded natural-wonder plan rows into future exact-authorship
+  proof packets.
+  - Current branch `codex/swooper-natural-wonder-plan-proof-drain` adds a
+    compact `NATURAL_WONDER_PLAN_V1` runtime marker from the
+    placement-input/natural-wonder-plan owner and expands it in Studio
+    exact-authorship parsing as `naturalWonderPlan`. Rows carry plan status,
+    plot/x/y, feature type, direction, elevation, and priority ppm, plus a
+    compact plan-coordinate digest.
+  - This is proof instrumentation only. It does not change natural-wonder
+    planning, materialization, readback disposition, final-surface parity,
+    product acceptance, resource behavior, feature behavior, terrain behavior,
+    or public config. A fresh exact-authored run must consume this marker
+    before exact/local plan divergence can be source-owned or dispositioned.
+- [x] 2.58 Preserve current exact-authored natural-wonder plan-row proof.
+  - Fresh exact request `studio-run-in-game-mq3ze9g3-1zzu` completed with no
+    exact-authorship unresolved links after consuming
+    `NATURAL_WONDER_PLAN_V1`. POST artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-plan-proof-post.json`
+    has `sha256:8b4d80314bbb06f075148beb2c06253b64e7d8df1a99e4f802e3e98cfce0433f`;
+    terminal status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-plan-proof-status.json`
+    has `sha256:a1e25662685fee91916d27a81021ff5bf7ad90f610a79bd1ae75b27b9057fa39`.
+  - Exact plan rows are now explicit: feature `30` planned at plot `4130`,
+    feature `35` planned at plot `1686`, and feature `36` planned at plot
+    `1785`, while local replay plans those features at plots `1342`, `1624`,
+    and `2065`. Exact placement still places `5/7` and rejects feature `30`
+    at plot `4130` and feature `36` at plot `1785`, both with
+    `readback-mismatch` / `partial-expected-footprint`.
+  - This proves the remaining natural-wonder blocker includes exact/local
+    plan-input or engine-surface divergence before post-write readback repair.
+    It does not authorize tuning, public config changes, local mock shortcuts,
+    final-surface parity, or product acceptance.
 
 ## 3. Verification
 
@@ -756,3 +788,24 @@
   - Verifier log:
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3yo4uq-natural-wonder-rows.log`
     (`sha256:82d75d59305815f64b4f775a2128bb6e8327f3ae120c4ab347dbd2136022dade`).
+- [x] 3.28 Run focused natural-wonder plan-row proof regressions.
+  - Passed `bun test
+    mods/mod-swooper-maps/test/placement/derive-placement-inputs.test.ts
+    apps/mapgen-studio/test/runInGame/proofIdentity.test.ts`.
+  - Passed owner checks `bun run --cwd mods/mod-swooper-maps check` and
+    `bun run --cwd apps/mapgen-studio check`.
+- [x] 3.29 Re-run current exact-authored final-surface parity after
+  natural-wonder plan-row proof parsing.
+  - Verifier input request `studio-run-in-game-mq3ze9g3-1zzu` wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3ze9g3-1zzu-current-final-surface-parity-with-natural-wonder-plan-rows.json`
+    (`sha256:6a16a3273cc0e99120826d5adb74382dad66f0d45fb307c4af073ade9e1fe711`,
+    `proofHash:9c19e242e009dbf89711cba6e5f40ee618e27ea8bdb707d18d2d9d8727d87296`).
+  - The verifier exited `2` as expected for unresolved parity. It preserves
+    unchanged unresolved links: `resource-placement-coordinate-proof.placed`,
+    `resource-placement-coordinate-proof.rejected`, `surface.biome.mismatch`,
+    `surface.feature.mismatch`, `surface.resource.mismatch`, and
+    `surface.terrain.mismatch`. Mismatch counts are terrain `140`, biome
+    `874`, feature `376`, and resource `307`.
+  - Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq3ze9g3-natural-wonder-plan-rows.log`
+    (`sha256:b8a581af6a65a95204b8688e8278ad99eab0a7637ab302cc9cb3537e6d0a21cf`).

@@ -241,6 +241,11 @@ export function parseSwooperMapgenLogProof(args: {
     proofLine.index,
     completionLine.index
   );
+  const naturalWonderPlan = parseNaturalWonderPlanTelemetryBetween(
+    lines,
+    proofLine.index,
+    completionLine.index
+  );
   const naturalWonderPlacement = parseNaturalWonderPlacementTelemetryBetween(
     lines,
     proofLine.index,
@@ -264,6 +269,7 @@ export function parseSwooperMapgenLogProof(args: {
     completionPayload,
     ...(featureApply ? { featureApply } : {}),
     ...(resourcePlacement ? { resourcePlacement } : {}),
+    ...(naturalWonderPlan ? { naturalWonderPlan } : {}),
     ...(naturalWonderPlacement ? { naturalWonderPlacement } : {}),
     matched: ["[mapgen-proof]", args.requestId, args.configHash, args.envelopeHash, "[mapgen-complete]"],
   };
@@ -449,6 +455,27 @@ function parseNaturalWonderPlacementTelemetryBetween(
   return undefined;
 }
 
+function parseNaturalWonderPlanTelemetryBetween(
+  lines: readonly string[],
+  proofIndex: number,
+  completionIndex: number
+): NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]> | undefined {
+  for (let index = completionIndex - 1; index > proofIndex; index -= 1) {
+    const line = lines[index] ?? "";
+    if (!line.includes("NATURAL_WONDER_PLAN_V1")) continue;
+    const payload = parsePayloadAfterMarker(line, "NATURAL_WONDER_PLAN_V1");
+    if (!payload) continue;
+    return {
+      marker: "NATURAL_WONDER_PLAN_V1",
+      payload,
+      ...(naturalWonderPlanStats(payload) ?? {}),
+      ...(naturalWonderPlanCoordinateProof(payload) ?? {}),
+      ...(naturalWonderPlanRows(payload) ?? {}),
+    };
+  }
+  return undefined;
+}
+
 function featureApplyStats(
   payload: Record<string, unknown>
 ):
@@ -477,6 +504,37 @@ function featureApplyStats(
       ...countRecordField(payload, "attemptedByFeature"),
       ...countRecordField(payload, "appliedByFeature"),
       ...countRecordField(payload, "rejectedCanHaveFeatureByFeature"),
+    },
+  };
+}
+
+function naturalWonderPlanStats(
+  payload: Record<string, unknown>
+):
+  | {
+      stats: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]>["stats"]
+      >;
+    }
+  | undefined {
+  const version = numberValue(payload.version);
+  const wondersCount = numberValue(payload.wondersCount);
+  const targetCount = numberValue(payload.targetCount);
+  const plannedCount = numberValue(payload.plannedCount);
+  if (
+    version === undefined ||
+    wondersCount === undefined ||
+    targetCount === undefined ||
+    plannedCount === undefined
+  ) {
+    return undefined;
+  }
+  return {
+    stats: {
+      version,
+      wondersCount,
+      targetCount,
+      plannedCount,
     },
   };
 }
@@ -528,6 +586,76 @@ function naturalWonderPlacementStats(
       ...(rejectionExamples === undefined ? {} : { rejectionExamples }),
     },
   };
+}
+
+function naturalWonderPlanCoordinateProof(
+  payload: Record<string, unknown>
+):
+  | {
+      coordinateProof: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]>["coordinateProof"]
+      >;
+    }
+  | undefined {
+  const coordinateProof = isRecord(payload.coordinateProof) ? payload.coordinateProof : undefined;
+  if (!coordinateProof) return undefined;
+  const version = numberValue(coordinateProof.version);
+  const plannedCount = numberValue(coordinateProof.plannedCount);
+  const plannedHash32 = hash32Value(coordinateProof.plannedHash32);
+  if (version === undefined || plannedCount === undefined || plannedHash32 === undefined) {
+    return undefined;
+  }
+  return {
+    coordinateProof: {
+      version,
+      planned: { count: plannedCount, hash32: plannedHash32 },
+    },
+  };
+}
+
+function naturalWonderPlanRows(
+  payload: Record<string, unknown>
+):
+  | {
+      planRows: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlan"]>["planRows"]
+      >;
+    }
+  | undefined {
+  if (!Array.isArray(payload.planRows)) return undefined;
+  const planRows = payload.planRows.flatMap((row) => {
+    if (!Array.isArray(row)) return [];
+    const status = row[0] === "p" ? "planned" : undefined;
+    const plotIndex = numberValue(row[1]);
+    const x = numberValue(row[2]);
+    const y = numberValue(row[3]);
+    const featureType = numberValue(row[4]);
+    const direction = numberValue(row[5]);
+    const elevation = row[6] === null ? undefined : numberValue(row[6]);
+    const priorityPpm = row[7] === null ? undefined : numberValue(row[7]);
+    if (
+      status === undefined ||
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined ||
+      featureType === undefined ||
+      direction === undefined
+    ) {
+      return [];
+    }
+    return [
+      {
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        ...(elevation === undefined ? {} : { elevation }),
+        ...(priorityPpm === undefined ? {} : { priorityPpm }),
+      },
+    ];
+  }).slice(0, 16);
+  return planRows.length === 0 ? undefined : { planRows };
 }
 
 function resourcePlacementStats(
