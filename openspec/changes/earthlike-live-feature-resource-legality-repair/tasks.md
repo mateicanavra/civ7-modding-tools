@@ -138,6 +138,23 @@
     failed in `waiting-for-proof` as `log-timeout` because `[mapgen-complete]`
     was absent. No exact-authorship packet, final-surface parity proof, or
     product acceptance proof was produced.
+  - Post-SDK-marker request `studio-run-in-game-mq3omoo3-8oj` used the same
+    request body, with post response
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-sdk-completion-marker-post.json`
+    (`sha256:b4771cf60933177152524fa6b2b7f8f5ff4ab9f76c2c6fc4f2613235918c4b1f`)
+    and terminal status
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-sdk-completion-marker-status.json`
+    (`sha256:0e7ce1c2cec43ba6bc482a455af56d620be49e3e0d2d1721fcb3ee7d450e1f7d`).
+    It passed materialize/deploy, process-restart recovery, setup preparation,
+    map-script load, and map generation through all `50/50` recipe steps.
+    Scripting.log records `[mapgen-proof]`, bounded `WATER_DRIFT_POLICY_V1`,
+    `NATURAL_WONDER_PLACEMENT_V1`, `RESOURCE_PLACEMENT_V1`, and
+    `[mapgen-complete]` for request `studio-run-in-game-mq3omoo3-8oj`.
+    Studio still failed in `waiting-for-proof` as `log-timeout` because the
+    direct-control fresh-log waiter carried pre-restart offset `31578` into a
+    Civ-rewritten log file and sliced past the proof markers. No
+    exact-authorship packet, final-surface parity proof, or product acceptance
+    proof was produced.
 - [ ] 2.42 Repair remaining proven package or MapGen owners.
   - Current branch `codex/swooper-map-elevation-drift-policy-drain` repairs the
     locally proven map-elevation owner mismatch: `buildElevation` now applies
@@ -146,7 +163,13 @@
   - Current branch `codex/swooper-sdk-mapgen-completion-marker-drain` repairs
     the locally proven SDK marker gap: `createMap` now emits
     `[mapgen-complete]` after successful recipe execution. Focused SDK
-    tests/checks pass, but runtime proof is still pending.
+    tests/checks pass, and runtime logs prove the marker is emitted, but Studio
+    proof closure is still pending the log-rewrite reader repair.
+  - Current follow-on slice repairs the locally proven direct-control/Studio
+    log reader gap: `snapshotFile` now preserves a log prefix, and fresh-log
+    readers use byte `0` when Civ rewrites `Scripting.log` beyond the old
+    offset. Focused direct-control and Studio tests/checks pass, but a
+    committed post-repair Studio/Civ rerun is still pending.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
@@ -176,6 +199,11 @@
   - Current branch locally repairs the next blocker by emitting the SDK
     `[mapgen-complete]` marker after successful recipe execution. No
     post-repair Studio/Civ rerun has been completed yet.
+  - Post-SDK-marker runtime logs prove `[mapgen-complete]` is emitted, but the
+    Studio operation still timed out because the proof waiter used a stale
+    pre-restart byte offset after Civ rewrote `Scripting.log`. Current
+    follow-on code repairs that log boundary, but no post-repair Studio/Civ
+    rerun has been completed yet.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after

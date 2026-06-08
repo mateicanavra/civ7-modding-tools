@@ -1179,6 +1179,26 @@ describe("Civ7 direct control", () => {
 
     expect(proof.matched).toEqual(["fresh", "marker"]);
   });
+
+  test("waits for markers when Civ rewrites the log beyond the old offset", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
+    const logPath = join(dir, "Scripting.log");
+    await writeFile(logPath, `old\n${"x".repeat(160)}\n`);
+    const snapshot = await snapshotFile(logPath);
+    await writeFile(logPath, `fresh\nmarker\n${"y".repeat(snapshot.size + 40)}\n`);
+    await utimes(logPath, new Date(snapshot.mtimeMs + 1_000), new Date(snapshot.mtimeMs + 1_000));
+
+    const proof = await waitForFreshLogMarkers({
+      logPath,
+      snapshot,
+      markers: ["fresh", "marker"],
+      timeoutMs: 100,
+      pollIntervalMs: 10,
+    });
+
+    expect(proof.startOffset).toBe(0);
+    expect(proof.matched).toEqual(["fresh", "marker"]);
+  });
 });
 
 function extractMapGridInput(message: string):

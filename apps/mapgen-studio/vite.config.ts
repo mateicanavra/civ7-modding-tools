@@ -26,6 +26,7 @@ import {
   runCiv7SinglePlayerFromSetup,
   startCiv7Autoplay,
   stopCiv7Autoplay,
+  logTextFromSnapshot,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
@@ -110,9 +111,7 @@ async function readFreshLogText(logPath: string, snapshot: Awaited<ReturnType<ty
   const current = await snapshotFile(logPath);
   if (!current.exists) return "";
   const fullText = await readFile(logPath, "utf8");
-  if (current.size > snapshot.size) return fullText.slice(snapshot.size);
-  if (current.mtimeMs > snapshot.mtimeMs) return fullText;
-  return "";
+  return logTextFromSnapshot({ fullText, snapshot, current }).text;
 }
 
 function sleep(ms: number): Promise<void> {

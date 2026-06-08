@@ -6,11 +6,13 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-sdk-mapgen-completion-marker-drain`, stacked above
+  `codex/swooper-studio-log-rewrite-reader-drain`, stacked above
+  `codex/swooper-sdk-mapgen-completion-marker-drain` and
   `codex/swooper-map-elevation-drift-policy-drain`; this slice repairs the
-  locally proven SDK completion-marker gap after restart-launch retry,
-  start-log grace, same-size `Scripting.log` rewrite fixes, map-policy bundling
-  for Civ map scripts, and map-elevation bounded drift policy repair.
+  locally proven direct-control/Studio fresh-log reader gap after
+  restart-launch retry, start-log grace, same-size `Scripting.log` rewrite
+  fixes, map-policy bundling for Civ map scripts, map-elevation bounded drift
+  policy repair, and SDK completion-marker repair.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. The natural-wonder
@@ -35,9 +37,14 @@
   `map-elevation/build-elevation`, emitted bounded `WATER_DRIFT_POLICY_V1`
   telemetry, ran all `50/50` recipe steps, and emitted `[mapgen-proof]`.
   It timed out in `waiting-for-proof` because `[mapgen-complete]` was absent.
-  The current branch repairs that SDK marker gap locally, but no current
-  final-surface parity proof exists until Studio/Civ is rerun. Resource classes
-  remain pending source-authority classification.
+  The SDK marker repair was then proven in deployed runtime logs by request
+  `studio-run-in-game-mq3omoo3-8oj`, but Studio still failed in
+  `waiting-for-proof` because the direct-control log waiter sliced a
+  Civ-rewritten `Scripting.log` from the stale pre-restart byte offset. The
+  current slice repairs that fresh-log reader boundary locally, but no current
+  final-surface parity proof exists until Studio/Civ is rerun from the
+  committed repair. Resource classes remain pending source-authority
+  classification.
 
 ## Objective
 
@@ -949,10 +956,11 @@
   current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet,
   final-surface parity proof, or product acceptance proof was produced.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
-- Next action: diagnose and repair the current
-  `map-elevation/build-elevation` drift before another final-surface parity
-  proof attempt, then continue classifying the remaining feature/resource rows
-  by source authority: official data, adapter/map-policy, MapGen
+- Next action: commit the current direct-control/Studio fresh-log reader repair,
+  restart Studio from that committed head, and rerun the same Studio/Civ request
+  before another final-surface parity proof claim. Then continue classifying
+  the remaining feature/resource rows by source authority: official data,
+  adapter/map-policy, MapGen
   planning/materialization, accepted engine materialization, or readback
   limitation. Terrain edge rows may enter this slice only if diagnostics prove
   shared materialization ownership. The unchanged resource mismatch count after
