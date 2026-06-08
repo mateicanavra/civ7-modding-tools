@@ -229,6 +229,19 @@ describe("resource placement diagnostics", () => {
           reason: "cannot-have-resource",
           observedResourceType: -1,
         },
+      ],
+      [
+        {
+          plotIndex: 67,
+          resourceType: 44,
+          initialResourceType: 44,
+          preferredResourceType: 13,
+          assignmentPhase: "scarce-floor",
+          assignmentOrder: 9,
+          perTypeCountBefore: 2,
+          legalPlotCountForResource: 128,
+          targetMinPerType: 7,
+        },
       ]
     );
 
@@ -266,6 +279,13 @@ describe("resource placement diagnostics", () => {
           reason: "cannot-have-resource",
           observedResourceType: -1,
           observedResource: null,
+          phase: "scarce-floor",
+          order: 9,
+          initial: 44,
+          preferred: 13,
+          countBefore: 2,
+          legalPlots: 128,
+          targetMin: 7,
         },
       ],
       byReason: [{ reason: "cannot-have-resource", count: 1 }],

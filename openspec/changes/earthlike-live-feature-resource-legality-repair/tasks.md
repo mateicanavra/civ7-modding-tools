@@ -384,6 +384,20 @@
     source-authority still has to join the exact `RESOURCE_WINE` rejection at
     plot `4838` to the local placement/assignment evidence before selecting an
     owner repair.
+- [x] 2.51 Bind exact resource rejection assignment context into future
+  exact-authorship proof packets.
+  - Current branch `codex/swooper-resource-rejection-assignment-context-drain`
+    adds compact assignment context to `RESOURCE_PLACEMENT_V1.rejectionRows` for
+    non-placed resource outcomes: assignment phase/order, initial resource,
+    preferred resource, per-type count before assignment, legal plot count, and
+    target floor. Studio exact-authorship parsing preserves those optional
+    fields.
+  - This is proof instrumentation only. It does not change resource planning,
+    scarce-floor assignment, ResourceBuilder policy, runtime materialization,
+    final-surface parity, or product acceptance. A fresh exact-authored run is
+    still required to determine whether the exact plot `4838` `RESOURCE_WINE`
+    rejection came from scarce-floor assignment, another assignment phase, or a
+    post-assignment materialization-state transition.
 
 ## 3. Verification
 
@@ -500,3 +514,13 @@
     `0`/`811c9dc5`, exact rejected `1`/`af57eb7b`. Verifier log:
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3twjd7.log`
     (`sha256:28c0e4ee02de4e45348d1cb5d6f919b238d025fbaf2cec85af782a15ee1063d2`).
+- [x] 3.22 Run focused resource rejection assignment-context regressions.
+  - Passed `bun test apps/mapgen-studio/test/runInGame/proofIdentity.test.ts`
+    and
+    `bun test mods/mod-swooper-maps/test/placement/resource-placement-diagnostics.test.ts`.
+  - Passed owner checks `bun run --cwd apps/mapgen-studio check` and
+    `bun run --cwd mods/mod-swooper-maps check`.
+  - Passed strict OpenSpec validation for
+    `earthlike-live-feature-resource-legality-repair`,
+    `swooper-recovery-stack-product-closure`, full OpenSpec validation, and
+    `git diff --check`.

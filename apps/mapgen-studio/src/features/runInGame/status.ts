@@ -61,6 +61,13 @@ export type RunInGameResourcePlacementRejectionRow = Readonly<{
   reason?: string;
   observedResourceType?: number;
   observedResource?: string;
+  assignmentPhase?: string;
+  assignmentOrder?: number;
+  initialResourceType?: number;
+  preferredResourceType?: number | null;
+  perTypeCountBefore?: number;
+  legalPlotCountForResource?: number;
+  targetMinPerType?: number;
 }>;
 
 export type RunInGameRequestStatus = Readonly<{

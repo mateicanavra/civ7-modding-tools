@@ -27,7 +27,8 @@ export default createStep(PlaceResourcesStepContract, {
     logResourcePlacementRuntimeTelemetry(
       outcomes.summary,
       outcomes.assignment,
-      outcomes.outcomes
+      outcomes.outcomes,
+      outcomes.assignmentTrace
     );
     deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes);
   },
