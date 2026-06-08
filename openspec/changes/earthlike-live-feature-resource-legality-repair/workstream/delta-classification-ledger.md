@@ -1192,6 +1192,27 @@ instead of the strict no-drift assert. Focused local proof covers the policy
 boundary only; a fresh Studio/Civ rerun is still required before claiming the
 runtime blocker is cleared.
 
+Post-elevation-policy request `studio-run-in-game-mq3nyiss-8oj` used the same
+request body, with post response
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-elevation-drift-policy-post.json`
+(`sha256:4a7736e1688d1c1eca3763f6e34d403830f7bbf5cf690dadb0671d4166565c39`)
+and terminal status
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-elevation-drift-policy-status.json`
+(`sha256:e34125c5b73ce1fbd11b5f67cff51a196d35cfc45700b95338a967ef61de4c67`).
+It passed materialization, deploy, process restart, setup preparation,
+map-script load, and all `50/50` recipe steps. Scripting.log records
+`[mapgen-proof]`, bounded `WATER_DRIFT_POLICY_V1` at `2/6996` tiles
+(`withinPolicy:true`), `NATURAL_WONDER_PLACEMENT_V1`,
+`RESOURCE_PLACEMENT_V1`, and `Destroying Context -  MapGeneration`, but no
+`[mapgen-complete]`. The current blocker is now the SDK mapgen completion
+marker boundary, not map-elevation.
+
+Local repair on `codex/swooper-sdk-mapgen-completion-marker-drain` emits
+`[mapgen-complete]` from SDK `createMap` after `recipe.run` returns
+successfully. Focused local proof covers marker emission only; a fresh
+Studio/Civ rerun is still required before claiming exact authorship or
+final-surface parity.
+
 Source-recorded post-repair proof:
 request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
 generated parity artifact

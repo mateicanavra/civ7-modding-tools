@@ -122,11 +122,31 @@
     `mtimeIso:2026-06-07T10:33:26.425Z`). No current `[mapgen-proof]`,
     `[mapgen-complete]`, exact-authorship packet, final-surface parity proof,
     or product acceptance proof was produced.
+  - Post-elevation-policy request `studio-run-in-game-mq3nyiss-8oj` used the
+    same request body, with post response
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-elevation-drift-policy-post.json`
+    (`sha256:4a7736e1688d1c1eca3763f6e34d403830f7bbf5cf690dadb0671d4166565c39`)
+    and terminal status
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-elevation-drift-policy-status.json`
+    (`sha256:e34125c5b73ce1fbd11b5f67cff51a196d35cfc45700b95338a967ef61de4c67`).
+    It passed materialize/deploy, process-restart recovery, setup preparation,
+    map-script load, and map generation through all `50/50` recipe steps.
+    Scripting.log records `[mapgen-proof]` for the same request/config/envelope
+    chain, bounded `WATER_DRIFT_POLICY_V1` at `2/6996` tiles
+    (`withinPolicy:true`), `NATURAL_WONDER_PLACEMENT_V1`,
+    `RESOURCE_PLACEMENT_V1`, and `Destroying Context -  MapGeneration`. It
+    failed in `waiting-for-proof` as `log-timeout` because `[mapgen-complete]`
+    was absent. No exact-authorship packet, final-surface parity proof, or
+    product acceptance proof was produced.
 - [ ] 2.42 Repair remaining proven package or MapGen owners.
   - Current branch `codex/swooper-map-elevation-drift-policy-drain` repairs the
     locally proven map-elevation owner mismatch: `buildElevation` now applies
     the accepted bounded water-drift policy instead of the strict no-drift
     assert. Focused local tests/checks pass, but runtime proof is still pending.
+  - Current branch `codex/swooper-sdk-mapgen-completion-marker-drain` repairs
+    the locally proven SDK marker gap: `createMap` now emits
+    `[mapgen-complete]` after successful recipe execution. Focused SDK
+    tests/checks pass, but runtime proof is still pending.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
@@ -153,6 +173,9 @@
   - Current branch locally repairs that blocker through the accepted
     map-elevation bounded drift policy. No post-repair Studio/Civ rerun has
     been completed yet.
+  - Current branch locally repairs the next blocker by emitting the SDK
+    `[mapgen-complete]` marker after successful recipe execution. No
+    post-repair Studio/Civ rerun has been completed yet.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after
