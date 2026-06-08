@@ -1132,8 +1132,34 @@ status artifacts are
 and
 `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-status.json`
 (`sha256:cd2a8ab4df93292819f75f1b81de64cbc5c522dcbda79afef5405ff99dc869f7`).
+Follow-up Studio hardening slices then added start-phase map-script load
+classification, bounded restart-launch retries, process-restart telemetry
+persistence, delayed fatal-log classification, and same-size `Scripting.log`
+rewrite handling. Current request `studio-run-in-game-mq3mojsw-1d0x` used the
+same restart request body
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-request.json`
+(`sha256:0e23b919efba651b49d36bd967218414ace31620dee1c375a13a2c245decf914`),
+with post response
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-same-size-log-fix-post.json`
+(`sha256:eab97153c22465c1a304ea1aa69099c09e4474f4ee5bef5e28e12a36fa97d7ac`)
+and terminal status
+`/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-same-size-log-fix-status.json`
+(`sha256:e43e9c2b93575562f5429919f47ddafa033cd305191d12053bfd1cdacc8e3966`).
+It passed materialization, deploy, process restart, direct-control
+availability, setup-row visibility, and setup preparation. Restart telemetry
+records two Steam launch attempts: attempt `1` did not observe the Civ process
+(`started:false`, `polls:10`, `elapsedMs:20354`) and attempt `2` did
+(`started:true`, `polls:2`, `elapsedMs:2061`). The terminal failure is
+classified as `map-script-load-failed` with recovery boundary
+`civ-notification-dismiss`; matched fresh log line:
+`[2026-06-07 06:19:28] Failed to load file into script system - fs://game/swooper-maps/maps/studio-current.js`.
+The deployed mod script identity in that status is
+`/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+(`sha256:862baf3441a7f98b7a5e38d183a0e64c47890fb1f70385b68e36599e16844a03`,
+`mtimeIso:2026-06-07T10:18:01.268Z`).
 No current exact-authorship, final-surface parity, or product acceptance proof
-is claimed from these attempts.
+is claimed from these attempts. The current blocker is now the Studio/Civ
+generated map-script load boundary, not feature/resource source authority.
 
 Source-recorded post-repair proof:
 request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
@@ -1406,7 +1432,8 @@ mountain-quality work.
   and runtime-bound row evidence where applicable before changing resource
   tuning, scarcity floors, assignment ordering, or static policy; obtain a
   current exact-authored run before final closure. The current config now
-  passes the stale schema key boundary, but Studio/Civ runtime start/reload
-  currently blocks before mapgen proof markers.
+  passes the stale schema key boundary and restart recovery reaches setup
+  preparation with persisted launch telemetry, but Civ currently fails to load
+  `fs://game/swooper-maps/maps/studio-current.js` before mapgen proof markers.
 - For resource rows, preserve resource spacing, age legality, and diversity
   evidence before any repair.

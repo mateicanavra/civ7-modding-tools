@@ -92,6 +92,15 @@
     shell was not ready within `180000ms`. This supersedes the old stale
     `floodplainPlanning` schema blocker but does not produce current exact
     authorship or parity proof.
+  - Current post-restart-hardening request
+    `studio-run-in-game-mq3mojsw-1d0x` passed materialize/deploy,
+    process-restart recovery, direct-control availability, and setup
+    preparation. Restart telemetry recorded two Steam launch attempts
+    (`started:false`, then `started:true`). It still failed in `starting-game`
+    as `map-script-load-failed` with matched fresh Scripting log line
+    `Failed to load file into script system - fs://game/swooper-maps/maps/studio-current.js`.
+    No current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet,
+    final-surface parity proof, or product acceptance proof was produced.
 - [ ] 2.42 Repair remaining proven package or MapGen owners.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
 
@@ -110,6 +119,11 @@
   - Blocked on the current Studio/Civ runtime start/reload boundary above; no
     current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet, or
     final-surface parity artifact exists for the current branch.
+  - Latest bounded retry is
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-same-size-log-fix-status.json`
+    (`sha256:e43e9c2b93575562f5429919f47ddafa033cd305191d12053bfd1cdacc8e3966`).
+    It proves restart retry/status classification behavior, but remains a
+    runtime load blocker rather than final-surface parity proof.
 - [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
   rejection telemetry.
 - [x] 3.10 Preserve source-recorded exact-authored final-surface parity after

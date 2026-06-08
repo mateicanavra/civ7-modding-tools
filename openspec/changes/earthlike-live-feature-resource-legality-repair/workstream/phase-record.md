@@ -6,11 +6,10 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-current-runtime-proof-blocker-drain`, stacked above
-  `codex/swooper-wonder-footprint-proof-record-drain`; this slice records the
-  current checked-in config runtime-proof blocker above the source-recorded
-  post-write footprint proof and expected-footprint readback instrumentation
-  layers.
+  `codex/swooper-current-map-script-load-proof-drain`, stacked above
+  `codex/swooper-studio-start-log-grace-drain`; this slice records the current
+  checked-in config runtime-proof blocker after restart-launch retry,
+  start-log grace, and same-size `Scripting.log` rewrite fixes.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. The natural-wonder
@@ -21,9 +20,11 @@
   Kilimanjaro and Zhangjiajie. The cold-reef feature row is evidence-bound
   because exact live feature-apply telemetry is absent. Current exact proof no
   longer blocks on the stale `floodplainPlanning` key when launched from the
-  current checked-in config, but it now blocks at the Studio/Civ runtime start
-  boundary before mapgen proof markers or parity evaluation. Resource classes
-  remain pending source-authority classification.
+  current checked-in config. It also no longer blocks on unobserved Civ process
+  restart: the latest retry records two Steam launch attempts and reaches setup
+  preparation. It now blocks because Civ fails to load the generated
+  `studio-current.js` map script before mapgen proof markers or parity
+  evaluation. Resource classes remain pending source-authority classification.
 
 ## Objective
 
@@ -881,6 +882,32 @@
   status artifact is
   `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-status.json`
   (`sha256:cd2a8ab4df93292819f75f1b81de64cbc5c522dcbda79afef5405ff99dc869f7`).
+  Follow-up Studio hardening slices then added start-phase map-script load
+  classification, bounded restart-launch retries, process-restart telemetry
+  persistence, a delayed fatal-log grace window, and same-size `Scripting.log`
+  rewrite handling. Current request
+  `studio-run-in-game-mq3mojsw-1d0x` used the same restart request body
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-postwrite-footprint-restart-request.json`
+  (`sha256:0e23b919efba651b49d36bd967218414ace31620dee1c375a13a2c245decf914`),
+  with post response
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-same-size-log-fix-post.json`
+  (`sha256:eab97153c22465c1a304ea1aa69099c09e4474f4ee5bef5e28e12a36fa97d7ac`)
+  and terminal status
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-same-size-log-fix-status.json`
+  (`sha256:e43e9c2b93575562f5429919f47ddafa033cd305191d12053bfd1cdacc8e3966`).
+  It completed materialization, deploy, process restart, direct-control
+  availability, setup-row visibility, and setup preparation. Restart telemetry
+  recorded command
+  `osascript -e 'tell application id "com.2k.civ7" to quit' && open steam://rungameid/1295660 (2 attempts)`;
+  launch attempt `1` had `started:false`, `polls:10`, `elapsedMs:20354`, and
+  launch attempt `2` had `started:true`, `polls:2`, `elapsedMs:2061`.
+  The terminal failure is now classified as `map-script-load-failed` with
+  recovery boundary `civ-notification-dismiss`; matched fresh log line:
+  `[2026-06-07 06:19:28] Failed to load file into script system - fs://game/swooper-maps/maps/studio-current.js`.
+  The deployed script identity in that status is
+  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+  (`sha256:862baf3441a7f98b7a5e38d183a0e64c47890fb1f70385b68e36599e16844a03`,
+  `mtimeIso:2026-06-07T10:18:01.268Z`).
   This is a current runtime/control blocker, not a source parity result: no
   current `[mapgen-proof]`, `[mapgen-complete]`, exact-authorship packet,
   final-surface parity proof, or product acceptance proof was produced.
