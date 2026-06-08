@@ -3,13 +3,13 @@
 - [ ] 1.1 Verify exact-authorship, final-surface parity, product acceptance, and
   activated targeted repairs are closed or explicitly out of scope.
   - Current audit snapshot on
-    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`
+    `codex/swooper-resource-rejection-local-context-drain`
     verifies exact-authorship and mapgen completion are complete for request
     `studio-run-in-game-mq3v6xr9-4w9`, but final-surface parity is still
     unresolved. Refreshed parity artifact
-    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-assignment-context.json`
-    (`sha256:d77c9c4d495be9ea048faa6a6f2f0ce667c933a74cc86b7697b5e1fe094043a9`,
-    `proofHash:0ba7fe430c77b99aae8d6b3c514a9a7fc5136990deb763e89f7203cb11568ca7`)
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-local-context.json`
+    (`sha256:1387bbcc0d645263a068854884acbc7746c7f82a0742650168393e7e3f78e8cf`,
+    `proofHash:66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290`)
     remains `unresolved` with terrain, biome, feature, resource, and
     resource-coordinate proof links open. It records exact resource rejection
     numeric identity: `RESOURCE_WINE`, numeric `resourceType:16`, plot `4838`,
@@ -22,6 +22,11 @@
     rejected) and current `NATURAL_WONDER_PLACEMENT_V1` telemetry (`7`
     planned, `4` placed, `3` rejected). This narrows source-authority work but
     does not close final parity, natural-wonder repair, or product acceptance.
+    Joined local context shows the same coordinate locally placed
+    `RESOURCE_LIMESTONE` (`46`) from scarce-floor assignment order `168`, with
+    original local preferred plan `RESOURCE_SILK` (`13`), so the resource gate
+    is now classified as cross-resource assignment/materialization divergence
+    rather than same-resource local Wine overacceptance.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -32,7 +37,7 @@
     finding remains open inside the closure claim.
 - [ ] 1.3 Audit repo, Graphite, PR, and remote predecessor state.
   - Current repo snapshot is on
-    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`;
+    `codex/swooper-resource-rejection-local-context-drain`;
     Graphite top branch is local and stacked above the Swooper recovery drain.
     PR/remote predecessor disposition remains blocked until proof categories
     close.
@@ -49,12 +54,13 @@
 
 - [ ] 3.1 Run `git status --short --branch`.
   - Current proof-contract slice must leave
-    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`
+    `codex/swooper-resource-rejection-local-context-drain`
     clean before commit or closure.
 - [ ] 3.2 Inspect Graphite branch/stack state.
   - Current audit snapshot: top branch
-    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`
-    above `codex/swooper-resource-rejection-assignment-context-drain`,
+    `codex/swooper-resource-rejection-local-context-drain` above
+    `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
+    `codex/swooper-resource-rejection-assignment-context-drain`,
     `codex/swooper-resource-rejection-identity-rerun-record-drain`,
     `codex/swooper-resource-rejection-proof-identity-drain`, and the current
     feature/resource/source-authority proof-record branches.

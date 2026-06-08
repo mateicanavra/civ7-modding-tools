@@ -6,8 +6,9 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
+  `codex/swooper-resource-rejection-local-context-drain`, stacked above
   `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
-  stacked above `codex/swooper-resource-rejection-assignment-context-drain`,
+  `codex/swooper-resource-rejection-assignment-context-drain`,
   `codex/swooper-resource-rejection-identity-rerun-record-drain`,
   `codex/swooper-resource-rejection-proof-identity-drain`,
   `codex/swooper-resource-rejection-proof-rerun-record-drain`, and the current
@@ -28,13 +29,16 @@
   `assignmentPhase:scarce-floor`, `assignmentOrder:85`,
   `initialResourceType:16`, `preferredResourceType:4`,
   `perTypeCountBefore:1`, `legalPlotCountForResource:313`, and
-  `targetMinPerType:7`. Final-surface parity still remains unresolved on
-  terrain, biome, feature, resource, and resource-coordinate-proof links.
-  Current exact feature telemetry has `1493` attempted, `1491` applied, and
-  `2` `canHaveFeature` rejections; current exact natural-wonder telemetry has
-  `7` planned, `4` placed, and `3` rejected. Resource, feature,
-  natural-wonder, and terrain source-authority classification remains the
-  active work; product acceptance is not closed.
+  `targetMinPerType:7`. The latest proof artifact now joins that exact row to
+  local context and shows the same coordinate locally placed
+  `RESOURCE_LIMESTONE` (`46`) from local scarce-floor order `168`, while the
+  original local preferred plan row was `RESOURCE_SILK` (`13`). Final-surface
+  parity still remains unresolved on terrain, biome, feature, resource, and
+  resource-coordinate-proof links. Current exact feature telemetry has `1493`
+  attempted, `1491` applied, and `2` `canHaveFeature` rejections; current exact
+  natural-wonder telemetry has `7` planned, `4` placed, and `3` rejected.
+  Resource, feature, natural-wonder, and terrain source-authority
+  classification remains the active work; product acceptance is not closed.
 
 ## Objective
 
@@ -1192,9 +1196,23 @@
   assignment selected before materialization. It does not authorize tuning,
   scarce-floor policy repair, ResourceBuilder policy changes, final-surface
   parity, or product acceptance.
+  Current branch `codex/swooper-resource-rejection-local-context-drain` then
+  adds compact `resourcePlacementRejectionContexts` to final-surface parity
+  artifacts. The verifier rerun wrote
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-local-context.json`
+  (`sha256:1387bbcc0d645263a068854884acbc7746c7f82a0742650168393e7e3f78e8cf`,
+  `proofHash:66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290`,
+  created `2026-06-07T14:33:20.850Z`). It exits `2` as expected with the same
+  unresolved links. The new joined row proves exact `RESOURCE_WINE` at plot
+  `4838` was a scarce-floor assignment at order `85`, while local evidence at
+  the same coordinate has final/local placed `RESOURCE_LIMESTONE` (`46`),
+  preferred plan `RESOURCE_SILK` (`13`), local scarce-floor assignment order
+  `168`, local `legalPlotCountForResource:660`, and the same
+  `targetMinPerType:7`. This is cross-resource assignment/materialization
+  divergence at one coordinate, not same-resource local Wine overacceptance.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
-  `studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-assignment-context.json`
+  `studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-local-context.json`
   by proving or rejecting the narrowed repair-owner candidates in order:
   resource local-overacceptance/scarce-floor materialization using the exact
   plot `4838` `RESOURCE_WINE` scarce-floor assignment row plus the local
