@@ -956,6 +956,86 @@ natural-wonder placement/rejection coordinate identity. It does not authorize a
 natural-wonder footprint repair, a global `Direction:-1` policy change, parity
 closure, product acceptance, Earthlike tuning, or mountain-quality claims.
 
+### Natural-Wonder Coordinate Proof Contract
+
+Proof-contract repair:
+`NATURAL_WONDER_PLACEMENT_V1` now includes bounded `rejectionExamples` and a
+compact coordinate proof with deterministic placed/rejected counts and hashes.
+Studio exact-authorship parsing exposes the proof as
+`log.naturalWonderPlacement.coordinateProof`, and the diagnostic boundary
+preserves it alongside local/live placement stats.
+
+Boundary:
+this contract is designed to make the next exact-authored proof row-auditable:
+it should distinguish whether the local and live placement paths rejected the
+same planned natural wonders, or whether the two live rejections identify a
+specific candidate/footprint/materialization owner. The
+`studio-run-in-game-mq2spmz0-1z4g` artifact predates this coordinate proof, so
+it remains count-level evidence only; the next section records the fresh
+`studio-run-in-game-mq2t7nqs-1z4g` coordinate proof that satisfies this
+artifact gate. That newer evidence still requires source-owner classification
+before any repair authority can be claimed.
+
+Current drain validation:
+
+| Proof class | Result |
+|---|---|
+| Studio exact-authorship parser tests | Passed `bun test apps/mapgen-studio/test/runInGame/proofIdentity.test.ts`. |
+| Diagnostics/parity/materialization tests | Passed `bun test mods/mod-swooper-maps/test/diagnostics/surface-delta-context.test.ts mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts mods/mod-swooper-maps/test/placement/natural-wonder-placement.test.ts`. |
+| Owner checks | Passed `bun run --cwd mods/mod-swooper-maps check` and `bun run --cwd apps/mapgen-studio check`. |
+| OpenSpec strict validation | Passed `bun run openspec -- validate earthlike-live-feature-resource-legality-repair --strict` and `bun run openspec:validate`. |
+| Current exact parity proof rerun | Blocked before parity evaluation by stale config key `/config/ecology-features/floodplainPlanning`; no parity closure claimed. |
+
+### Source-Recorded Fresh Natural-Wonder Coordinate Proof
+
+Fresh exact-authored run recorded by the source coordinate branch:
+`studio-run-in-game-mq2t7nqs-1z4g`, launched from the same saved
+`studio-run-in-game-mq20rbzr-1fhc` source snapshot used for the natural-wonder
+telemetry proof. This current drain preserves the source-recorded evidence; it
+has not converted it into a new current-run parity claim.
+
+Artifacts:
+
+| Artifact | Path | Identity |
+|---|---|---|
+| Request body | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-coordinate-run-request.json` | `sha256:a68947c89abca086ca380ee035600b9e7c38a8278a5d895de4fcb64eb398efc2` |
+| Completed Studio status | `/tmp/civ7-recovery-proof/final-surface-parity/fresh-natural-wonder-coordinate-run-status.json` | `sha256:e68a938d32cc919f3886cfec7c057348ee41c8b8c309eee812220100a43ba297` |
+| Full-grid parity proof | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2t7nqs-1z4g-after-natural-wonder-coordinate-proof.json` | `sha256:1f042bf887453e3c0ee49b417d7da4b4eb1381820b849f00c92a8ca40d24c3ed`, `proofHash:ac28cced60b84d1d6f3e8cde90055fd20e5d8ffcb1382ae26740d90e57f70d35` |
+| Natural-wonder coordinate boundary | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq2t7nqs-1z4g-natural-wonder-coordinate-boundary.json` | `sha256:28c0ea7a0e4534181350c5122decf4f4daae763940baa96ccd784009edbf53f0`, `proofHash:6cdde0f4f0143bd6e1adad12ea4de75e999a8dcc94bd751569f95edaeff490bb` |
+
+Exact-authorship facts:
+
+| Fact | Value |
+|---|---|
+| Exact authorship status | `complete`, no unresolved links |
+| Runtime identity | `106x66`, `6996` plots, seed `138503614`, turn `1`, game hash `0`, source snapshot id `status:1:c153eb72`, snapshot hash `c153eb72` |
+| Config/envelope | `c8bf167810f92f9a6096b298d1fcf3bb6b044a0fec22a9ad0ca9b35103982dca` / `a9a7bb73e9dd062e1da658a639bc02602e75b7fda1ca6d88123a1a2e9ac5f790` |
+| Natural-wonder telemetry | `planned:7`, `target:7`, `placed:5`, `rejected:2`, `shortfall:0` |
+| Rejection examples | `feature=35 plot=1320 reason=adapter-rejected`; `feature=36 plot=2171 reason=adapter-rejected` |
+| Coordinate proof | placed `5` / `537c7a40`; rejected `2` / `a6747920` |
+| Local natural-wonder diagnostic stats | placed `7` / `68bda9ed`; rejected `0` / `811c9dc5` |
+
+Fresh parity facts:
+
+| Surface | Boundary |
+|---|---|
+| terrain | Still unresolved and routed to terrain-edge diagnostics. |
+| biome | Matched in the proof summary. |
+| feature | Still unresolved; the natural-wonder class now has row-level rejection identity. |
+| resource | Still unresolved; resource coordinate proof remains a separate blocker. |
+
+Disposition:
+the coordinate-proof artifact resolves the prior row-identity gate for this
+fresh run: exact live materialization rejected the planned Kilimanjaro and
+Zhangjiajie placements, while the local diagnostic path still predicted seven
+placed natural wonders and zero rejections. This supports the next
+source-authority classification step for the natural-wonder feature rows, but
+it is not itself a repair decision. Do not claim a global `Direction:-1`
+policy fix, natural-wonder footprint repair, feature parity closure, product
+acceptance, Earthlike tuning, or mountain-quality closure until the rejected
+row evidence is explicitly assigned to a source owner and checked against the
+supported natural-wonder catalog behavior.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

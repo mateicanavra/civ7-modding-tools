@@ -58,6 +58,11 @@ describe("natural wonder placement materialization", () => {
     expect(adapter.getFeatureType(2, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(adapter.getFeatureType(2, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(stats).toEqual({
+      coordinateProof: {
+        version: 1,
+        placed: { count: 1, hash32: "deae8452" },
+        rejected: { count: 0, hash32: "811c9dc5" },
+      },
       plannedCount: 1,
       targetCount: 1,
       placedCount: 1,
@@ -130,6 +135,12 @@ describe("natural wonder placement materialization", () => {
       rejectedCount: 0,
       shortfallCount: 1,
       rejectionExampleCount: 0,
+      rejectionExamples: [],
+      coordinateProof: {
+        version: 1,
+        placedCount: 1,
+        placedHash32: "deae8452",
+      },
     });
     expect(
       `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify(
@@ -156,6 +167,11 @@ describe("natural wonder placement materialization", () => {
     });
 
     expect(stats).toMatchObject({
+      coordinateProof: {
+        version: 1,
+        placed: { count: 0, hash32: "811c9dc5" },
+        rejected: { count: 1 },
+      },
       plannedCount: 1,
       targetCount: 1,
       placedCount: 0,

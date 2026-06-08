@@ -224,6 +224,12 @@ export type NaturalWonderPlacementStatsContext = Readonly<{
   placedCount: number | null;
   rejectedCount: number | null;
   shortfallCount: number | null;
+  rejectionExamples: ReadonlyArray<string>;
+  coordinateProof: Readonly<{
+    version: number | null;
+    placed: Readonly<{ count: number | null; hash32: string | null }>;
+    rejected: Readonly<{ count: number | null; hash32: string | null }>;
+  }> | null;
 }>;
 
 export type ResourceDeltaPlacementContext = Readonly<{
@@ -1308,14 +1314,27 @@ function naturalWonderLiveProofBoundaryClass(args: {
 
 function readNaturalWonderPlacementStats(value: unknown): NaturalWonderPlacementStatsContext | null {
   if (!isRecord(value)) return null;
+  const coordinateProof = readNaturalWonderCoordinateProof(value.coordinateProof);
+  const rejectionExamples = Array.isArray(value.rejectionExamples)
+    ? value.rejectionExamples.filter((entry): entry is string => typeof entry === "string").slice(0, 8)
+    : [];
   const stats = {
     plannedCount: numberValue(value.plannedCount),
     targetCount: numberValue(value.targetCount),
     placedCount: numberValue(value.placedCount),
     rejectedCount: numberValue(value.rejectedCount),
     shortfallCount: numberValue(value.shortfallCount),
+    rejectionExamples,
+    coordinateProof,
   };
-  return Object.values(stats).some((entry) => entry !== null) ? stats : null;
+  return stats.plannedCount !== null ||
+    stats.targetCount !== null ||
+    stats.placedCount !== null ||
+    stats.rejectedCount !== null ||
+    stats.shortfallCount !== null ||
+    stats.coordinateProof !== null
+    ? stats
+    : null;
 }
 
 function readNaturalWonderPlacementStatsFromLogPayload(
@@ -1334,7 +1353,42 @@ function readNaturalWonderPlacementStatsFromLogTelemetry(
   if (!isRecord(log)) return null;
   const telemetry = log.naturalWonderPlacement;
   if (!isRecord(telemetry)) return null;
-  return readNaturalWonderPlacementStats(telemetry.stats) ?? readNaturalWonderPlacementStats(telemetry.payload);
+  return readNaturalWonderPlacementStats(telemetry.payload) ??
+    readNaturalWonderPlacementStats({
+      ...(isRecord(telemetry.stats) ? telemetry.stats : {}),
+      ...(isRecord(telemetry.coordinateProof) ? { coordinateProof: telemetry.coordinateProof } : {}),
+    });
+}
+
+function readNaturalWonderCoordinateProof(value: unknown): NaturalWonderPlacementStatsContext["coordinateProof"] {
+  if (!isRecord(value)) return null;
+  const nestedPlaced = readCoordinateDigest(value.placed);
+  const nestedRejected = readCoordinateDigest(value.rejected);
+  const flatPlacedCount = numberValue(value.placedCount);
+  const flatPlacedHash32 = hash32Value(value.placedHash32);
+  const flatRejectedCount = numberValue(value.rejectedCount);
+  const flatRejectedHash32 = hash32Value(value.rejectedHash32);
+  const placed = nestedPlaced ?? {
+    count: flatPlacedCount,
+    hash32: flatPlacedHash32,
+  };
+  const rejected = nestedRejected ?? {
+    count: flatRejectedCount,
+    hash32: flatRejectedHash32,
+  };
+  if (
+    placed.count === null &&
+    placed.hash32 === null &&
+    rejected.count === null &&
+    rejected.hash32 === null
+  ) {
+    return null;
+  }
+  return {
+    version: numberValue(value.version),
+    placed,
+    rejected,
+  };
 }
 
 function addResourceSurfaceReasons(
@@ -1930,6 +1984,17 @@ function numberValue(value: unknown): number | null {
 
 function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function hash32Value(value: unknown): string | null {
+  return typeof value === "string" && /^[0-9a-f]{8}$/i.test(value) ? value.toLowerCase() : null;
+}
+
+function readCoordinateDigest(value: unknown): Readonly<{ count: number | null; hash32: string | null }> | null {
+  if (!isRecord(value)) return null;
+  const count = numberValue(value.count);
+  const hash32 = hash32Value(value.hash32);
+  return count === null && hash32 === null ? null : { count, hash32 };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

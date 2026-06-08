@@ -14,6 +14,17 @@ type StampNaturalWondersFromPlanArgs = {
   requestedCount?: number;
 };
 
+export type NaturalWonderPlacementCoordinateDigest = {
+  count: number;
+  hash32: string;
+};
+
+export type NaturalWonderPlacementCoordinateProof = {
+  version: 1;
+  placed: NaturalWonderPlacementCoordinateDigest;
+  rejected: NaturalWonderPlacementCoordinateDigest;
+};
+
 export type NaturalWonderStampingStats = {
   plannedCount: number;
   targetCount: number;
@@ -23,6 +34,7 @@ export type NaturalWonderStampingStats = {
   rejectedCount: number;
   shortfallCount: number;
   rejectionExamples: string[];
+  coordinateProof: NaturalWonderPlacementCoordinateProof;
 };
 
 export type NaturalWonderPlacementRuntimeTelemetry = {
@@ -35,6 +47,14 @@ export type NaturalWonderPlacementRuntimeTelemetry = {
   rejectedCount: number;
   shortfallCount: number;
   rejectionExampleCount: number;
+  rejectionExamples: string[];
+  coordinateProof: {
+    version: 1;
+    placedCount: number;
+    placedHash32: string;
+    rejectedCount?: number;
+    rejectedHash32?: string;
+  };
 };
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as
@@ -44,6 +64,63 @@ const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
   string,
   { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number } | undefined
 >;
+const FNV1A_32_OFFSET = 0x811c9dc5;
+const FNV1A_32_PRIME = 0x01000193;
+type NaturalWonderPlacementCoordinateRow = {
+  status: "placed" | "rejected";
+  plotIndex: number;
+  x: number;
+  y: number;
+  featureType: number;
+  direction: number;
+  reason: string;
+};
+
+function hash32Hex(input: string): string {
+  let hash = FNV1A_32_OFFSET;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function naturalWonderCoordinateDigest(
+  rows: readonly NaturalWonderPlacementCoordinateRow[],
+  status: NaturalWonderPlacementCoordinateRow["status"]
+): NaturalWonderPlacementCoordinateDigest {
+  const coordinateRows = rows
+    .filter((row) => row.status === status)
+    .slice()
+    .sort((a, b) => {
+      if (a.plotIndex !== b.plotIndex) return a.plotIndex - b.plotIndex;
+      if (a.featureType !== b.featureType) return a.featureType - b.featureType;
+      if (a.direction !== b.direction) return a.direction - b.direction;
+      return a.reason.localeCompare(b.reason);
+    })
+    .map((row) =>
+      [
+        row.status,
+        row.plotIndex,
+        row.x,
+        row.y,
+        row.featureType,
+        row.direction,
+        row.reason,
+      ].join(":")
+    );
+  return { count: coordinateRows.length, hash32: hash32Hex(coordinateRows.join("|")) };
+}
+
+function naturalWonderCoordinateProof(
+  rows: readonly NaturalWonderPlacementCoordinateRow[]
+): NaturalWonderPlacementCoordinateProof {
+  return {
+    version: 1,
+    placed: naturalWonderCoordinateDigest(rows, "placed"),
+    rejected: naturalWonderCoordinateDigest(rows, "rejected"),
+  };
+}
 
 function getValidTerrainTypesForFeature(featureType: number): readonly number[] {
   const terrainTypes = FEATURE_VALID_TERRAIN_TYPE_INDICES[String(featureType | 0)];
@@ -113,6 +190,7 @@ export function stampNaturalWondersFromPlan({
   let skippedOutOfBoundsCount = 0;
   let rejectedCount = 0;
   const rejectionDetails: string[] = [];
+  const coordinateRows: NaturalWonderPlacementCoordinateRow[] = [];
 
   for (const placementPlan of wonders.placements) {
     if (!Number.isFinite(placementPlan.plotIndex)) {
@@ -124,6 +202,15 @@ export function stampNaturalWondersFromPlan({
     if (plotIndex < 0 || plotIndex >= width * height) {
       skippedOutOfBoundsCount += 1;
       rejectionDetails.push(`feature=${placementPlan.featureType} plot=${plotIndex} reason=out-of-bounds`);
+      coordinateRows.push({
+        status: "rejected",
+        plotIndex,
+        x: -1,
+        y: -1,
+        featureType: Number.isFinite(placementPlan.featureType) ? Math.trunc(placementPlan.featureType) : -1,
+        direction: Number.isFinite(placementPlan.direction) ? Math.trunc(placementPlan.direction) : -1,
+        reason: "out-of-bounds",
+      });
       continue;
     }
 
@@ -153,6 +240,7 @@ export function stampNaturalWondersFromPlan({
     if (!footprint) {
       rejectedCount += 1;
       rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=unsupported-footprint`);
+      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: "unsupported-footprint" });
       continue;
     }
     let footprintBlocked = false;
@@ -176,6 +264,7 @@ export function stampNaturalWondersFromPlan({
     if (footprintBlocked) {
       rejectedCount += 1;
       rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=${blockedReason}`);
+      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: blockedReason });
       continue;
     }
     const placed = adapter.stampNaturalWonder(
@@ -188,6 +277,7 @@ export function stampNaturalWondersFromPlan({
     if (!placed) {
       rejectedCount += 1;
       rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=adapter-rejected`);
+      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: "adapter-rejected" });
       continue;
     }
     let readbackMismatch = false;
@@ -202,7 +292,11 @@ export function stampNaturalWondersFromPlan({
     if (readbackMismatch) {
       rejectedCount += 1;
       rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=readback-mismatch`);
-    } else placedCount += 1;
+      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: "readback-mismatch" });
+    } else {
+      placedCount += 1;
+      coordinateRows.push({ status: "placed", plotIndex, x, y, featureType, direction, reason: "placed" });
+    }
   }
 
   return {
@@ -214,6 +308,7 @@ export function stampNaturalWondersFromPlan({
     rejectedCount,
     shortfallCount,
     rejectionExamples: rejectionDetails.slice(0, 8),
+    coordinateProof: naturalWonderCoordinateProof(coordinateRows),
   };
 }
 
@@ -246,6 +341,9 @@ export function normalizeNaturalWonderStampingStats(
   const rejectionExamples = Array.isArray(rawRejectionExamples)
     ? rawRejectionExamples.map(String).slice(0, 8)
     : [];
+  const coordinateProof = normalizeNaturalWonderCoordinateProof(
+    (stats as { coordinateProof?: unknown }).coordinateProof
+  );
   return {
     plannedCount,
     targetCount,
@@ -255,7 +353,38 @@ export function normalizeNaturalWonderStampingStats(
     rejectedCount,
     shortfallCount,
     rejectionExamples,
+    coordinateProof,
   };
+}
+
+function normalizeNaturalWonderCoordinateProof(value: unknown): NaturalWonderPlacementCoordinateProof {
+  if (!value || typeof value !== "object") {
+    return {
+      version: 1,
+      placed: { count: 0, hash32: hash32Hex("") },
+      rejected: { count: 0, hash32: hash32Hex("") },
+    };
+  }
+  const record = value as {
+    placed?: Partial<NaturalWonderPlacementCoordinateDigest>;
+    rejected?: Partial<NaturalWonderPlacementCoordinateDigest>;
+  };
+  return {
+    version: 1,
+    placed: normalizeNaturalWonderCoordinateDigest(record.placed),
+    rejected: normalizeNaturalWonderCoordinateDigest(record.rejected),
+  };
+}
+
+function normalizeNaturalWonderCoordinateDigest(
+  digest: Partial<NaturalWonderPlacementCoordinateDigest> | undefined
+): NaturalWonderPlacementCoordinateDigest {
+  const rawCount = digest?.count;
+  const count = Math.max(0, Number.isFinite(rawCount) ? Math.trunc(rawCount as number) : 0);
+  const hash32 = typeof digest?.hash32 === "string" && /^[0-9a-f]{8}$/i.test(digest.hash32)
+    ? digest.hash32.toLowerCase()
+    : hash32Hex("");
+  return { count, hash32 };
 }
 
 export function buildNaturalWonderPlacementRuntimeTelemetry(
@@ -272,6 +401,18 @@ export function buildNaturalWonderPlacementRuntimeTelemetry(
     rejectedCount: normalized.rejectedCount,
     shortfallCount: normalized.shortfallCount,
     rejectionExampleCount: normalized.rejectionExamples.length,
+    rejectionExamples: normalized.rejectionExamples,
+    coordinateProof: {
+      version: normalized.coordinateProof.version,
+      placedCount: normalized.coordinateProof.placed.count,
+      placedHash32: normalized.coordinateProof.placed.hash32,
+      ...(normalized.coordinateProof.rejected.count > 0
+        ? {
+            rejectedCount: normalized.coordinateProof.rejected.count,
+            rejectedHash32: normalized.coordinateProof.rejected.hash32,
+          }
+        : {}),
+    },
   };
 }
 
