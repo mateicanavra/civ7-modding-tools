@@ -16,7 +16,11 @@ import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
 import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
+import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
+import { mapHydrologyArtifacts } from "../../recipes/standard/stages/map-hydrology/artifacts.js";
+import { morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts.js";
 import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
 import { isPlainObject, mergeDeep } from "./shared.js";
 
@@ -181,6 +185,7 @@ type LocalTraceEvidence = {
   naturalWonderPlacement?: unknown;
   resourcePlan?: unknown;
   resourcePlacementOutcomes?: unknown;
+  terrainProjection?: unknown;
 };
 
 function createMemoryTraceSink(events: TraceEvent[]): TraceSink {
@@ -293,6 +298,7 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
   if (resourcePlacementOutcomes !== undefined) {
     evidence.resourcePlacementOutcomes = resourcePlacementOutcomes;
   }
+  evidence.terrainProjection = buildTerrainProjectionEvidence(context);
 
   return {
     source: "local-mapgen",
@@ -309,6 +315,88 @@ export function runLocalFinalSurfaceSnapshot(input: RunLocalFinalSurfaceInput): 
     },
     evidence,
   };
+}
+
+function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtendedMapContext>): unknown {
+  const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id);
+  const hydrologyLakePlan = context.artifacts.get(hydrologyHydrographyArtifacts.lakePlan.id);
+  const mapHydrologyProjection = context.artifacts.get(mapHydrologyArtifacts.engineProjectionLakes.id);
+  const hydrologyTerrainSnapshot = context.artifacts.get(
+    mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot.id
+  );
+  const placementSurfacePreparation = context.artifacts.get(
+    placementArtifacts.placementSurfacePreparation.id
+  );
+  const placementTerrainSnapshot = context.artifacts.get(
+    mapArtifacts.placementEngineTerrainSnapshot.id
+  );
+  return stripUndefined({
+    coastlineMetrics: pickSerializableFields(coastlineMetrics, [
+      "coastalLand",
+      "coastalWater",
+      "shelfMask",
+      "distanceToCoast",
+    ]),
+    hydrologyLakePlan: pickSerializableFields(hydrologyLakePlan, [
+      "lakeMask",
+      "plannedLakeTileCount",
+      "sinkLakeCount",
+    ]),
+    mapHydrologyProjection: pickSerializableFields(mapHydrologyProjection, [
+      "width",
+      "height",
+      "lakeMask",
+      "plannedLakeMask",
+      "engineWaterMask",
+      "engineLakeMask",
+      "engineTerrain",
+      "engineAreaId",
+      "terrainMismatchMask",
+      "sinkMismatchCount",
+      "nonLakeTileCount",
+      "terrainMismatchTileCount",
+      "morphologyProtectedLakeTileCount",
+    ]),
+    hydrologyTerrainSnapshot: pickSerializableFields(hydrologyTerrainSnapshot, [
+      "stage",
+      "width",
+      "height",
+      "landMask",
+      "terrain",
+    ]),
+    placementSurfacePreparation: pickSerializableFields(placementSurfacePreparation, [
+      "acceptedLakeTileCount",
+      "finalLakeWaterDriftCount",
+      "finalLakeClassificationDriftCount",
+    ]),
+    placementTerrainSnapshot: pickSerializableFields(placementTerrainSnapshot, [
+      "stage",
+      "width",
+      "height",
+      "landMask",
+      "terrain",
+    ]),
+  });
+}
+
+function pickSerializableFields(
+  value: unknown,
+  fields: ReadonlyArray<string>
+): Readonly<Record<string, unknown>> | undefined {
+  if (!isPlainObject(value)) return undefined;
+  return stripUndefined(Object.fromEntries(fields.map((field) => [field, serializeEvidenceValue(value[field])])));
+}
+
+function serializeEvidenceValue(value: unknown): unknown {
+  if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
+    return Array.from(value as ArrayLike<number>);
+  }
+  return value;
+}
+
+function stripUndefined(value: Record<string, unknown>): Readonly<Record<string, unknown>> | undefined {
+  const entries = Object.entries(value).filter(([, entryValue]) => entryValue !== undefined);
+  return entries.length === 0 ? undefined : Object.fromEntries(entries);
 }
 
 export function liveGridToFinalSurfaceSnapshot(args: {

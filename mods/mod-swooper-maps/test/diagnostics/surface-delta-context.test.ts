@@ -66,9 +66,53 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("classifies coast/ocean terrain edge swaps with neighborhood context", () => {
-    const local = snapshot({
-      terrain: { width: 3, height: 2, values: [3, 4, 3, 2, 3, 4] },
-    });
+    const local = snapshot(
+      {
+        terrain: { width: 3, height: 2, values: [3, 4, 3, 2, 3, 4] },
+      },
+      {
+        terrainProjection: {
+          coastlineMetrics: {
+            coastalLand: [0, 0, 0, 1, 0, 0],
+            coastalWater: [1, 1, 1, 0, 1, 1],
+            shelfMask: [1, 0, 1, 0, 1, 0],
+            distanceToCoast: [0, 1, 0, 0, 0, 1],
+          },
+          hydrologyLakePlan: {
+            lakeMask: [0, 0, 0, 0, 0, 0],
+            plannedLakeTileCount: 0,
+            sinkLakeCount: 0,
+          },
+          mapHydrologyProjection: {
+            lakeMask: [0, 0, 0, 0, 0, 0],
+            plannedLakeMask: [0, 0, 0, 0, 0, 0],
+            engineWaterMask: [1, 1, 1, 0, 1, 1],
+            engineLakeMask: [0, 0, 0, 0, 0, 0],
+            engineTerrain: [3, 4, 3, 2, 3, 4],
+            engineAreaId: [1, 1, 1, 2, 1, 1],
+            terrainMismatchMask: [0, 0, 0, 0, 0, 0],
+            terrainMismatchTileCount: 0,
+            nonLakeTileCount: 0,
+            morphologyProtectedLakeTileCount: 0,
+          },
+          hydrologyTerrainSnapshot: {
+            stage: "map-hydrology/lakes",
+            landMask: [0, 0, 0, 1, 0, 0],
+            terrain: [3, 4, 3, 2, 3, 4],
+          },
+          placementSurfacePreparation: {
+            acceptedLakeTileCount: 0,
+            finalLakeWaterDriftCount: 0,
+            finalLakeClassificationDriftCount: 0,
+          },
+          placementTerrainSnapshot: {
+            stage: "placement/placement",
+            landMask: [0, 0, 0, 1, 0, 0],
+            terrain: [3, 4, 3, 2, 3, 4],
+          },
+        },
+      }
+    );
     const live = snapshot({
       terrain: { width: 3, height: 2, values: [3, 3, 3, 2, 3, 4] },
     });
@@ -99,6 +143,32 @@ describe("surface delta context diagnostics", () => {
           coast: 3,
           ocean: 1,
           land: 1,
+        },
+      },
+      localProjection: {
+        morphology: {
+          coastalWater: 1,
+          shelfMask: 0,
+          distanceToCoast: 1,
+        },
+        hydrologyLakePlan: {
+          lakeMask: 0,
+          plannedLakeTileCount: 0,
+        },
+        mapHydrologyProjection: {
+          engineWaterMask: 1,
+          engineLakeMask: 0,
+          engineTerrainSymbol: "TERRAIN_OCEAN",
+          engineAreaId: 1,
+        },
+        hydrologyTerrainSnapshot: {
+          stage: "map-hydrology/lakes",
+          landMask: 0,
+          terrainSymbol: "TERRAIN_OCEAN",
+        },
+        placementTerrainSnapshot: {
+          stage: "placement/placement",
+          terrainSymbol: "TERRAIN_OCEAN",
         },
       },
     });
