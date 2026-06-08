@@ -2,6 +2,7 @@ import {
   CIV7_BROWSER_TABLES_V0,
   isResourceAdjacentToLandRuntimeOptional,
 } from "@civ7/map-policy";
+import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import type { FinalSurfaceKey, FinalSurfaceParityProof, FinalSurfaceSnapshot } from "./live-parity.js";
 
@@ -19,6 +20,28 @@ export type StaticSurfaceLegality = Readonly<{
   featureSymbol: string;
   validSurface: boolean;
   reasons: ReadonlyArray<string>;
+  resourcePolicy?: ResourceStaticPolicyContext;
+}>;
+
+export type ResourceStaticPolicyContext = Readonly<{
+  matchingRows: ReadonlyArray<ResourcePlacementRowContext>;
+  flags: ResourcePlacementFlagsContext | null;
+  hasAdjacentLand: boolean;
+}>;
+
+export type ResourcePlacementRowContext = Readonly<{
+  biome: number;
+  biomeSymbol: string;
+  terrain: number;
+  terrainSymbol: string;
+  feature: number | null;
+  featureSymbol: string;
+}>;
+
+export type ResourcePlacementFlagsContext = Readonly<{
+  adjacentToLand: boolean;
+  adjacentToLandRuntimeOptional: boolean;
+  lakeEligible: boolean;
 }>;
 
 export type SurfaceDeltaContext = Readonly<{
@@ -60,12 +83,37 @@ export type ResourceDeltaPlacementContext = Readonly<{
   plannedPreferredResourceType: number | null;
   plannedPreferredResourceSymbol: string;
   localOutcome: ResourcePlacementOutcomeContext | null;
+  resourceNeighborhood: ResourceDeltaNeighborhoodContext;
   evidenceClass:
     | "local-assigned-live-empty"
     | "local-assigned-live-substitution"
     | "live-only-no-local-assignment"
     | "live-only-preferred-but-unassigned"
     | "unclassified";
+}>;
+
+export type ResourceDeltaNeighborhoodContext = Readonly<{
+  minSpacingTiles: number | null;
+  localResourceOnLocal: ResourceNeighborhoodContext | null;
+  localResourceOnLive: ResourceNeighborhoodContext | null;
+  liveResourceOnLocal: ResourceNeighborhoodContext | null;
+  liveResourceOnLive: ResourceNeighborhoodContext | null;
+}>;
+
+export type ResourceNeighborhoodContext = Readonly<{
+  nearestSameType: ResourceNeighborContext | null;
+  nearestAnyResource: ResourceNeighborContext | null;
+  sameTypeWithinMinSpacing: boolean | null;
+  anyResourceWithinMinSpacing: boolean | null;
+}>;
+
+export type ResourceNeighborContext = Readonly<{
+  distance: number;
+  x: number;
+  y: number;
+  plotIndex: number;
+  resourceType: number;
+  resourceSymbol: string;
 }>;
 
 export type ResourceDeltaFeasibilityContext = ResourceDeltaPlacementContext &
@@ -248,6 +296,25 @@ export function buildResourceDeltaPlacementContexts(
       plannedPreferredResourceType,
       plannedPreferredResourceSymbol: symbolFor("resource", plannedPreferredResourceType),
       localOutcome,
+      resourceNeighborhood: {
+        minSpacingTiles: resourcePlan.minSpacingTiles,
+        localResourceOnLocal:
+          localResource === null
+            ? null
+            : resourceNeighborhood(proof.local, x, y, localResource, resourcePlan.minSpacingTiles),
+        localResourceOnLive:
+          localResource === null
+            ? null
+            : resourceNeighborhood(proof.live, x, y, localResource, resourcePlan.minSpacingTiles),
+        liveResourceOnLocal:
+          liveResource === null
+            ? null
+            : resourceNeighborhood(proof.local, x, y, liveResource, resourcePlan.minSpacingTiles),
+        liveResourceOnLive:
+          liveResource === null
+            ? null
+            : resourceNeighborhood(proof.live, x, y, liveResource, resourcePlan.minSpacingTiles),
+      },
       evidenceClass: classifyResourceDeltaPlacement({
         localResource,
         liveResource,
@@ -350,6 +417,9 @@ export function staticSurfaceLegality(
     featureSymbol: context.featureSymbol,
     validSurface: reasons.length === 0,
     reasons,
+    ...(key === "resource"
+      ? { resourcePolicy: resourceStaticPolicyContext(snapshot, x, y, type, context) }
+      : {}),
   };
 }
 
@@ -415,6 +485,103 @@ function addResourceSurfaceReasons(
   }
 }
 
+function resourceStaticPolicyContext(
+  snapshot: FinalSurfaceSnapshot,
+  x: number,
+  y: number,
+  resourceType: number,
+  context: CellSurfaceContext
+): ResourceStaticPolicyContext {
+  const rows = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows[String(resourceType)] ?? [];
+  const matchingRows = rows
+    .filter(
+      (row) =>
+        row[0] === context.biome &&
+        row[1] === context.terrain &&
+        row[2] === (context.feature ?? -1)
+    )
+    .map((row) => ({
+      biome: row[0],
+      biomeSymbol: symbolFor("biome", row[0]),
+      terrain: row[1],
+      terrainSymbol: symbolFor("terrain", row[1]),
+      feature: row[2] < 0 ? null : row[2],
+      featureSymbol: symbolFor("feature", row[2] < 0 ? null : row[2]),
+    }));
+  const flags = CIV7_BROWSER_TABLES_V0.resourcePlacementFlags[String(resourceType)];
+  return {
+    matchingRows,
+    flags:
+      flags === undefined
+        ? null
+        : {
+            adjacentToLand: flags.adjacentToLand,
+            adjacentToLandRuntimeOptional: isResourceAdjacentToLandRuntimeOptional(resourceType),
+            lakeEligible: flags.lakeEligible,
+          },
+    hasAdjacentLand: hasAdjacentLand(snapshot, x, y),
+  };
+}
+
+function resourceNeighborhood(
+  snapshot: SnapshotLike,
+  x: number,
+  y: number,
+  resourceType: number,
+  minSpacingTiles: number | null
+): ResourceNeighborhoodContext {
+  const plotIndex = y * snapshot.width + x;
+  const nearestSameType = nearestResourceNeighbor(snapshot, plotIndex, resourceType);
+  const nearestAnyResource = nearestResourceNeighbor(snapshot, plotIndex, null);
+  return {
+    nearestSameType,
+    nearestAnyResource,
+    sameTypeWithinMinSpacing: isWithinMinSpacing(nearestSameType, minSpacingTiles),
+    anyResourceWithinMinSpacing: isWithinMinSpacing(nearestAnyResource, minSpacingTiles),
+  };
+}
+
+function nearestResourceNeighbor(
+  snapshot: SnapshotLike,
+  originPlotIndex: number,
+  resourceType: number | null
+): ResourceNeighborContext | null {
+  let best: ResourceNeighborContext | null = null;
+  for (let plotIndex = 0; plotIndex < snapshot.width * snapshot.height; plotIndex += 1) {
+    if (plotIndex === originPlotIndex) continue;
+    const value = normalizeSurfaceValue(snapshot.surfaces.resource.values[plotIndex]);
+    if (value === null) continue;
+    if (resourceType !== null && value !== resourceType) continue;
+    const y = Math.floor(plotIndex / snapshot.width);
+    const x = plotIndex - y * snapshot.width;
+    const distance = hexDistanceOddQPeriodicX(originPlotIndex, plotIndex, snapshot.width);
+    const candidate = {
+      distance,
+      x,
+      y,
+      plotIndex,
+      resourceType: value,
+      resourceSymbol: symbolFor("resource", value),
+    };
+    if (
+      best === null ||
+      candidate.distance < best.distance ||
+      (candidate.distance === best.distance && candidate.plotIndex < best.plotIndex)
+    ) {
+      best = candidate;
+    }
+  }
+  return best;
+}
+
+function isWithinMinSpacing(
+  neighbor: ResourceNeighborContext | null,
+  minSpacingTiles: number | null
+): boolean | null {
+  if (minSpacingTiles === null) return null;
+  return neighbor !== null && neighbor.distance < minSpacingTiles;
+}
+
 function hasAdjacentLand(snapshot: SnapshotLike, x: number, y: number): boolean {
   const offsets = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
   for (const [dx, dy] of offsets) {
@@ -429,10 +596,12 @@ function hasAdjacentLand(snapshot: SnapshotLike, x: number, y: number): boolean 
 
 function readResourcePlanEvidence(evidence: unknown): {
   preferredByPlot: ReadonlyMap<number, number>;
+  minSpacingTiles: number | null;
 } {
   const preferredByPlot = new Map<number, number>();
   const plan = isRecord(evidence) ? evidence.resourcePlan : undefined;
   const placements = isRecord(plan) && Array.isArray(plan.placements) ? plan.placements : [];
+  const minSpacingTiles = isRecord(plan) ? finiteInteger(plan.minSpacingTiles) : null;
   for (const placement of placements) {
     if (!isRecord(placement)) continue;
     const plotIndex = finiteInteger(placement.plotIndex);
@@ -442,7 +611,7 @@ function readResourcePlanEvidence(evidence: unknown): {
     }
     preferredByPlot.set(plotIndex, preferredResourceType);
   }
-  return { preferredByPlot };
+  return { preferredByPlot, minSpacingTiles };
 }
 
 function readResourceOutcomeEvidence(evidence: unknown): {

@@ -5,8 +5,8 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-delta-context-drain`
-  stacked above `codex/swooper-resource-feasibility-classification-drain`
+- Branch/Graphite stack: `codex/swooper-resource-policy-live-context-drain`
+  stacked above `codex/swooper-resource-delta-context-drain`
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
@@ -136,16 +136,37 @@
   plot count, seed, turn, or game hash do not match the saved proof identity.
   The current artifact is
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-  (`sha256:2ec76e1329ab0b103e4f210c38d57ea3ea562616bad101ada0825d7cc10f8b6b`,
-  `proofHash:08f5092303026bb0dd3bbc161bd2adff2984c6bb996cba6ab4758fd581118c8e`).
+  (`sha256:e1ae01d0474aa83960f60c4acb73593851a242d06121670fac751664625356bb`,
+  `proofHash:de359a53aa4760c915cfae6dfe9f4d57039e585d85df5892b8c7f6bda80ac932`).
   Request identity resolves to `studio-run-in-game-mq20rbzr-1fhc`; runtime
   identity is matched to the saved proof at `106x66`, `6996` plots, seed
   `138503614`, turn `1`, and game hash `0`. The artifact preserves the
-  strict-readback caveat, carries local/live surface context and static legality
-  reasons for every resource delta row, and records the `ignoreWeight:true`
+  strict-readback caveat, carries local/live surface context, official
+  resource policy row/flag evidence, static legality reasons, and
+  spacing-neighborhood context for every resource delta row, adds live plot
+  runtime context for the same `106` cells, and records the `ignoreWeight:true`
   split: `37` live-feasible/no-local-assignment, `28`
   local-feasible/live-empty, `9` local-overaccepted/live-empty, `31`
   substitution-both-feasible, and `1` substitution-both-infeasible.
+- Official-policy and spacing context progress:
+  the `9` local-overaccepted/live-empty rows all have exactly one official
+  resource placement row matching the local terrain/biome/feature surface, no
+  adjacent-land requirement, `lakeEligible:true`, and no local or live resource
+  neighbor inside the authored `minSpacingTiles:2` spacing bound. This removes
+  simple official row, adjacent-land, and authored spacing explanations for the
+  class, but does not yet prove whether the owner is mock/static policy,
+  runtime materialization state, placement order, or another Civ
+  `ResourceBuilder.canHaveResource` constraint.
+- Live plot context progress:
+  the verifier now reads package-owned `getCiv7MapGrid` context for the same
+  `106` resource delta cells before feasibility probes. For the `9`
+  local-overaccepted/live-empty rows, the live runtime facts confirm the cells
+  are live-empty, unowned, non-water, untagged, and have no river. Their
+  elevations, rainfall, fertility, area ids, region ids, and landmass ids are
+  preserved in the artifact for row-level comparison. This removes obvious
+  owner/water/tag/river explanations, but still does not expose the internal
+  `ResourceBuilder.canHaveResource` rejection reason or authorize mock/static
+  policy repair.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen

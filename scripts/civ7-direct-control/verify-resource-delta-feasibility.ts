@@ -4,8 +4,11 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import {
+  getCiv7MapGrid,
   getCiv7MapSummary,
   getCiv7ResourcePlacementFeasibility,
+  type Civ7MapGridResult,
+  type Civ7PlotSnapshotField,
   type Civ7MapSummaryResult,
   type Civ7ResourcePlacementFeasibilityResult,
   type Civ7RuntimeProbe,
@@ -41,6 +44,18 @@ Options:
   --max-cells <n>     Safety cap for resource delta cells (default: 256)
   --output <path>     Write full proof JSON to path
 `;
+
+const LIVE_RESOURCE_CONTEXT_FIELDS = [
+  "terrain",
+  "biome",
+  "feature",
+  "resource",
+  "climate",
+  "hydrology",
+  "areaRegion",
+  "tags",
+  "owner",
+] as const satisfies ReadonlyArray<Civ7PlotSnapshotField>;
 
 function parseArgs(argv: string[]): Args {
   const args: {
@@ -155,6 +170,14 @@ async function main(): Promise<number> {
     throw new Error(`Resource delta row count ${deltaRows.length} exceeds --max-cells ${args.maxCells}`);
   }
 
+  const livePlotContext = await getCiv7MapGrid(
+    {
+      locations: deltaRows.map((row) => ({ x: row.x, y: row.y })),
+      fields: LIVE_RESOURCE_CONTEXT_FIELDS,
+      maxPlots: args.maxCells,
+    },
+    { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
+  );
   const cells = deltaRows.map((row) => ({
     x: row.x,
     y: row.y,
@@ -179,6 +202,7 @@ async function main(): Promise<number> {
     requestIdentity,
     runtimeIdentity,
     rowCount: deltaRows.length,
+    livePlotContext: summarizeLivePlotContext(livePlotContext),
     strict: summarizeFeasibilityProof(proof, strict),
     ignoreWeight: summarizeFeasibilityProof(proof, ignoreWeight),
   };
@@ -316,6 +340,25 @@ function summarizeFeasibilityProof(
         `${row.evidenceClass}|local:${feasibilityValue(row.localFeasibleInCiv)}|live:${feasibilityValue(row.liveFeasibleInCiv)}`
     ),
     rows,
+  };
+}
+
+function summarizeLivePlotContext(readback: Civ7MapGridResult) {
+  return {
+    readback: {
+      host: readback.host,
+      port: readback.port,
+      state: readback.state,
+      fields: readback.fields,
+      plotCount: readback.plotCount,
+      omitted: readback.omitted,
+      hiddenInfoPolicy: readback.hiddenInfoPolicy,
+    },
+    rows: readback.plots.map((plot) => ({
+      location: plot.location,
+      hiddenInfoPolicy: plot.hiddenInfoPolicy,
+      facts: plot.facts,
+    })),
   };
 }
 

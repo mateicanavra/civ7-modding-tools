@@ -339,8 +339,8 @@ the artifact before row-level feasibility evidence is accepted.
 
 Artifact:
 `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-(`sha256:2ec76e1329ab0b103e4f210c38d57ea3ea562616bad101ada0825d7cc10f8b6b`,
-`proofHash:08f5092303026bb0dd3bbc161bd2adff2984c6bb996cba6ab4758fd581118c8e`).
+(`sha256:e1ae01d0474aa83960f60c4acb73593851a242d06121670fac751664625356bb`,
+`proofHash:de359a53aa4760c915cfae6dfe9f4d57039e585d85df5892b8c7f6bda80ac932`).
 
 Source proof:
 `d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`.
@@ -355,7 +355,10 @@ saved and observed identities match at width `106`, height `66`, plot count
 
 Readback:
 Tuner state `1`, host `127.0.0.1`, port `4318`, `106` cells, `0` omitted
-cells.
+cells. The artifact also includes `getCiv7MapGrid` plot context for the same
+`106` locations with fields `terrain`, `biome`, `feature`, `resource`,
+`climate`, `hydrology`, `areaRegion`, `tags`, and `owner`; this readback also
+returned `106` plots with `0` omitted and `hiddenInfoPolicy:"not-player-scoped"`.
 
 `ignoreWeight:true` row classes:
 
@@ -369,17 +372,23 @@ cells.
 
 Focused `local-overaccepted-live-empty` rows:
 
-| Coordinate | Plot | Local resource | Planned preferred | Surface | Static local legality | Civ loose feasibility |
-|---|---:|---|---|---|---|---|
-| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | true / none | false |
-| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | true / none | false |
-| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `TERRAIN_HILL` / `BIOME_TUNDRA` / empty | true / none | false |
-| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `TERRAIN_HILL` / `BIOME_TROPICAL` / empty | true / none | false |
-| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `TERRAIN_FLAT` / `BIOME_TROPICAL` / empty | true / none | false |
-| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / empty | true / none | false |
-| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | true / none | false |
-| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | true / none | false |
-| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / `FEATURE_MARSH` | true / none | false |
+All rows below have one exact official `Resource_ValidBiomes` row matching the
+local surface, no adjacent-land requirement, `lakeEligible:true`, and no local
+or live resource neighbor inside the authored `minSpacingTiles:2` bound.
+Live plot context additionally confirms these cells are live-empty, unowned,
+non-water, untagged, and have no river.
+
+| Coordinate | Plot | Local resource | Planned preferred | Surface | Official/static policy | Nearest local/live resource distance | Live runtime context | Civ loose feasibility |
+|---|---:|---|---|---|---|---|---|---|
+| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `6` | `elev416 rain185 fert2 area131073 region65536 landmass131073` | false |
+| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TUNDRA` / `FEATURE_TUNDRA_BOG` | row match; no flags blocking | `4` / `5` | `elev238 rain191 fert2 area589832 region524295 landmass589832` | false |
+| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `TERRAIN_HILL` / `BIOME_TUNDRA` / empty | row match; no flags blocking | `4` / `4` | `elev523 rain197 fert0 area1048591 region720906 landmass196610` | false |
+| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `TERRAIN_HILL` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `2` / `5` | `elev208 rain193 fert0 area1835035 region1310739 landmass1179665` | false |
+| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `TERRAIN_FLAT` / `BIOME_TROPICAL` / empty | row match; no flags blocking | `4` / `2` | `elev214 rain194 fert1 area3538997 region2359331 landmass1638424` | false |
+| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / empty | row match; no flags blocking | `4` / `6` | `elev453 rain169 fert1 area3670071 region2555942 landmass1703961` | false |
+| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `4` / `4` | `elev192 rain184 fert2 area4522052 region3670071 landmass2424868` | false |
+| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `TERRAIN_FLAT` / `BIOME_TROPICAL` / `FEATURE_MANGROVE` | row match; no flags blocking | `5` / `5` | `elev232 rain176 fert2 area4915274 region4128830 landmass2752553` | false |
+| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `TERRAIN_FLAT` / `BIOME_GRASSLAND` / `FEATURE_MARSH` | row match; no flags blocking | `8` / `6` | `elev427 rain172 fert2 area5963866 region5898329 landmass3538997` | false |
 
 Individual `substitution-both-infeasible` row:
 
@@ -393,6 +402,11 @@ row-level inspection. It still does not authorize tuning or parity closure.
 The next code repair, if any, must prove whether the `9` focused rows are a
 repo-owned mock/static-policy gap or accepted engine/materialization behavior.
 The single both-infeasible substitution row remains outside that repair class.
+Because the focused rows are not explained by official surface rows,
+adjacent-land flags, authored spacing, owner, water, plot tags, or river state,
+the next authority check should inspect Civ `ResourceBuilder.canHaveResource`
+constraints that are not present in the static browser tables, or prove a
+runtime-state/materialization disposition before changing mock policy.
 
 ## Required Next Diagnostics
 
