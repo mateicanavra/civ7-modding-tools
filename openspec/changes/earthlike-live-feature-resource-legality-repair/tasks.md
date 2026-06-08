@@ -270,6 +270,13 @@
     local and exact coordinate digests plus mismatched links in the parity
     artifact. It does not change final-surface parity status, resource tuning,
     scarce-floor assignment, or product acceptance.
+  - Refreshed artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity-with-resource-coordinate-summary.json`
+    (`sha256:44dee661491ee3d013a9326745fb30825c6155cdbb45af633f57ebb87fda23df`,
+    `proofHash:ce8a5a568bb91678ceb9f108b525d557cbd6b9820f10ebaad0639800cce6d091`)
+    preserves the current mismatch: local placed `251`/`98393a08`, exact
+    placed `250`/`9c5eaad8`; local rejected `0`/`811c9dc5`, exact rejected
+    `1`/`af57eb7b`.
 
 ## 3. Verification
 
@@ -316,3 +323,7 @@
   post-write footprint telemetry.
 - [x] 3.15 Run focused final-surface parity proof regression for resource
   coordinate proof comparison.
+  - Runtime-bound verifier rerun used
+    `current-drain-after-log-rewrite-reader-status.json` as exact-authorship
+    input and wrote the refreshed artifact above. Exit code `2` is expected
+    because parity remains `unresolved`.

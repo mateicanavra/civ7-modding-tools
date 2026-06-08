@@ -1058,6 +1058,20 @@
   `resource-placement-coordinate-proof.*` links. This is proof instrumentation
   only. It does not alter parity status, resource assignment, scarce-floor
   behavior, runtime materialization, or product acceptance.
+  Runtime-bound verifier rerun on committed head
+  `codex/swooper-resource-coordinate-proof-summary-drain` used exact-authorship
+  input
+  `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-log-rewrite-reader-status.json`
+  and wrote
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity-with-resource-coordinate-summary.json`
+  (`sha256:44dee661491ee3d013a9326745fb30825c6155cdbb45af633f57ebb87fda23df`,
+  `proofHash:ce8a5a568bb91678ceb9f108b525d557cbd6b9820f10ebaad0639800cce6d091`,
+  created `2026-06-07T12:25:56.936Z`). The verifier exited `2` as expected
+  for unresolved parity. The refreshed artifact preserves the same surface
+  mismatch counts (`139` terrain, `874` biome, `381` feature, `308` resource)
+  and makes the resource coordinate split explicit: local placed
+  `251`/`98393a08` versus exact placed `250`/`9c5eaad8`; local rejected
+  `0`/`811c9dc5` versus exact rejected `1`/`af57eb7b`.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
   `studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` by
