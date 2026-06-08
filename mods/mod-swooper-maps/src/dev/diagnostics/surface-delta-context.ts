@@ -73,6 +73,7 @@ export type FeatureDeltaPlacementContext = SurfaceDeltaContext &
     plotIndex: number;
     localFeatureIntent: FeatureIntentContext | null;
     naturalWonderFootprint: NaturalWonderFootprintContext | null;
+    naturalWonderDirectionAlternatives: NaturalWonderDirectionAlternativesContext | null;
     pairedSameFeatureDelta: FeatureDeltaPairContext | null;
     evidenceClass:
       | "local-only-ecology-feature"
@@ -106,6 +107,27 @@ export type NaturalWonderFootprintContext = Readonly<{
   direction: number;
   priority: number | null;
   footprintDistanceFromAnchor: number;
+}>;
+
+export type NaturalWonderDirectionAlternativesContext = Readonly<{
+  anchorPlotIndex: number;
+  anchorX: number;
+  anchorY: number;
+  featureType: number;
+  featureSymbol: string;
+  declaredDirection: number;
+  rowPlotIndex: number;
+  pairedPlotIndex: number | null;
+  candidates: ReadonlyArray<NaturalWonderDirectionCandidateContext>;
+  directionsContainingRow: ReadonlyArray<number>;
+  directionsContainingPairedRow: ReadonlyArray<number>;
+}>;
+
+export type NaturalWonderDirectionCandidateContext = Readonly<{
+  direction: number;
+  footprintPlotIndexes: ReadonlyArray<number>;
+  containsRow: boolean;
+  containsPairedRow: boolean | null;
 }>;
 
 export type ResourceDeltaPlacementContext = Readonly<{
@@ -308,6 +330,7 @@ export function buildFeatureDeltaPlacementContexts(
   const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
   const featureIntents = readFeatureIntentEvidence(proof.local);
   const naturalWonderFootprints = readNaturalWonderFootprintEvidence(proof.local);
+  const naturalWonderPlacements = readNaturalWonderPlacementEvidence(proof.local);
   const rows = buildSurfaceDeltaContexts(proof, { keys: ["feature"] }).map((row) => {
     const plotIndex = row.y * proof.local.width + row.x;
     return {
@@ -316,6 +339,7 @@ export function buildFeatureDeltaPlacementContexts(
       plotIndex,
       localFeatureIntent: featureIntents.byPlot.get(plotIndex) ?? null,
       naturalWonderFootprint: naturalWonderFootprints.byPlot.get(plotIndex) ?? null,
+      naturalWonderDirectionAlternatives: null,
       pairedSameFeatureDelta: null,
       evidenceClass: "unclassified" as const,
     };
@@ -325,6 +349,13 @@ export function buildFeatureDeltaPlacementContexts(
     return {
       ...row,
       pairedSameFeatureDelta,
+      naturalWonderDirectionAlternatives: buildNaturalWonderDirectionAlternatives(
+        row,
+        pairedSameFeatureDelta,
+        naturalWonderPlacements.placements,
+        proof.local.width,
+        proof.local.height
+      ),
       evidenceClass: classifyFeatureDelta(row, pairedSameFeatureDelta),
     };
   });
@@ -650,12 +681,48 @@ function readNaturalWonderFootprintEvidence(snapshot: FinalSurfaceSnapshot): {
   byPlot: ReadonlyMap<number, NaturalWonderFootprintContext>;
 } {
   const byPlot = new Map<number, NaturalWonderFootprintContext>();
+  for (const placement of readNaturalWonderPlacementEvidence(snapshot).placements) {
+    const footprint = getNaturalWonderFootprintIndices({
+      x: placement.anchorX,
+      y: placement.anchorY,
+      width: snapshot.width,
+      height: snapshot.height,
+      policy: CIV7_BROWSER_TABLES_V0.featurePolicies[String(placement.featureType)] ?? {},
+      direction: placement.direction,
+    }) ?? [placement.anchorPlotIndex];
+    for (const plotIndex of footprint) {
+      byPlot.set(plotIndex, {
+        anchorPlotIndex: placement.anchorPlotIndex,
+        anchorX: placement.anchorX,
+        anchorY: placement.anchorY,
+        featureType: placement.featureType,
+        featureSymbol: symbolFor("feature", placement.featureType),
+        direction: placement.direction,
+        priority: placement.priority,
+        footprintDistanceFromAnchor: hexDistanceOddQPeriodicX(placement.anchorPlotIndex, plotIndex, snapshot.width),
+      });
+    }
+  }
+  return { byPlot };
+}
+
+function readNaturalWonderPlacementEvidence(snapshot: FinalSurfaceSnapshot): {
+  placements: ReadonlyArray<{
+    anchorPlotIndex: number;
+    anchorX: number;
+    anchorY: number;
+    featureType: number;
+    direction: number;
+    priority: number | null;
+  }>;
+} {
+  const placements = [];
   const evidence = snapshot.evidence;
   const naturalWonderPlan = isRecord(evidence) ? evidence.naturalWonderPlan : undefined;
-  const placements = isRecord(naturalWonderPlan) && Array.isArray(naturalWonderPlan.placements)
+  const rawPlacements = isRecord(naturalWonderPlan) && Array.isArray(naturalWonderPlan.placements)
     ? naturalWonderPlan.placements
     : [];
-  for (const rawPlacement of placements) {
+  for (const rawPlacement of rawPlacements) {
     if (!isRecord(rawPlacement)) continue;
     const anchorPlotIndex = finiteInteger(rawPlacement.plotIndex);
     const featureType = finiteInteger(rawPlacement.featureType);
@@ -663,28 +730,80 @@ function readNaturalWonderFootprintEvidence(snapshot: FinalSurfaceSnapshot): {
     if (anchorPlotIndex === null || featureType === null || direction === null) continue;
     const anchorY = Math.floor(anchorPlotIndex / snapshot.width);
     const anchorX = anchorPlotIndex - anchorY * snapshot.width;
-    const footprint = getNaturalWonderFootprintIndices({
-      x: anchorX,
-      y: anchorY,
-      width: snapshot.width,
-      height: snapshot.height,
-      policy: CIV7_BROWSER_TABLES_V0.featurePolicies[String(featureType)] ?? {},
+    placements.push({
+      anchorPlotIndex,
+      anchorX,
+      anchorY,
+      featureType,
       direction,
-    }) ?? [anchorPlotIndex];
-    for (const plotIndex of footprint) {
-      byPlot.set(plotIndex, {
-        anchorPlotIndex,
-        anchorX,
-        anchorY,
-        featureType,
-        featureSymbol: symbolFor("feature", featureType),
-        direction,
-        priority: numberValue(rawPlacement.priority),
-        footprintDistanceFromAnchor: hexDistanceOddQPeriodicX(anchorPlotIndex, plotIndex, snapshot.width),
-      });
-    }
+      priority: numberValue(rawPlacement.priority),
+    });
   }
-  return { byPlot };
+  return { placements };
+}
+
+function buildNaturalWonderDirectionAlternatives(
+  row: Pick<FeatureDeltaPlacementContext, "plotIndex" | "local" | "live">,
+  pairedSameFeatureDelta: FeatureDeltaPairContext | null,
+  placements: ReadonlyArray<{
+    anchorPlotIndex: number;
+    anchorX: number;
+    anchorY: number;
+    featureType: number;
+    direction: number;
+  }>,
+  width: number,
+  height: number
+): NaturalWonderDirectionAlternativesContext | null {
+  const featureType = row.local.value ?? row.live.value;
+  if (featureType === null || !isNaturalWonderFeature(featureType)) return null;
+  const placement = placements
+    .filter((candidate) => candidate.featureType === featureType)
+    .sort(
+      (left, right) =>
+        hexDistanceOddQPeriodicX(left.anchorPlotIndex, row.plotIndex, width) -
+        hexDistanceOddQPeriodicX(right.anchorPlotIndex, row.plotIndex, width)
+    )[0];
+  if (!placement) return null;
+  const pairedPlotIndex = pairedSameFeatureDelta?.plotIndex ?? null;
+  const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(featureType)] ?? {};
+  const candidates = [0, 1, 2, 3, 4, 5].flatMap((direction) => {
+    const footprintPlotIndexes = getNaturalWonderFootprintIndices({
+      x: placement.anchorX,
+      y: placement.anchorY,
+      width,
+      height,
+      policy,
+      direction,
+    });
+    if (!footprintPlotIndexes) return [];
+    return [
+      {
+        direction,
+        footprintPlotIndexes,
+        containsRow: footprintPlotIndexes.includes(row.plotIndex),
+        containsPairedRow:
+          pairedPlotIndex === null ? null : footprintPlotIndexes.includes(pairedPlotIndex),
+      },
+    ];
+  });
+  return {
+    anchorPlotIndex: placement.anchorPlotIndex,
+    anchorX: placement.anchorX,
+    anchorY: placement.anchorY,
+    featureType,
+    featureSymbol: symbolFor("feature", featureType),
+    declaredDirection: placement.direction,
+    rowPlotIndex: row.plotIndex,
+    pairedPlotIndex,
+    candidates,
+    directionsContainingRow: candidates
+      .filter((candidate) => candidate.containsRow)
+      .map((candidate) => candidate.direction),
+    directionsContainingPairedRow: candidates
+      .filter((candidate) => candidate.containsPairedRow === true)
+      .map((candidate) => candidate.direction),
+  };
 }
 
 function addResourceSurfaceReasons(

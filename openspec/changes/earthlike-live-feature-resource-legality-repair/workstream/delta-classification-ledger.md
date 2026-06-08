@@ -708,6 +708,36 @@ footprint/anchor semantics, runtime state, or readback policy. It does not
 authorize feature repair, natural-wonder repair, parity closure, product
 acceptance, or mountain-quality claims.
 
+### Natural-Wonder Footprint Direction Context
+
+Diagnostic repair:
+`buildFeatureDeltaPlacementContexts` now records all six local map-policy
+footprint direction alternatives for natural-wonder feature delta rows. This
+does not change natural-wonder placement; it makes the direction/footprint
+semantics visible for source-authority classification.
+
+The current footprint direction artifact is
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-feature-footprint-direction-context.json`
+(`sha256:bbb9b1ce680af7e6f456cb7fb594b88d892a1fa3a8e1287982fb9a560b918c42`).
+It is derived from the saved exact parity proof and the prior local
+feature-context artifact; it is not a fresh exact-authored parity proof.
+
+Direction facts:
+
+| Feature | Local row | Live row | Local helper direction evidence | Live offset evidence |
+|---|---|---|---|---|
+| `FEATURE_KILIMANJARO` | `(49,13)` | `(48,13)` | Direction `0` contains the local row. | Directions `4` and `5` contain the live row; direction `5` contains both local and live delta cells. |
+| `FEATURE_ZHANGJIAJIE` | `(52,21)` | `(51,21)` | Direction `0` contains the local row. | Direction `5` contains the live row. |
+
+Disposition:
+the natural-wonder rows now point at a likely `Direction:-1` / footprint
+orientation semantics gap between local map-policy projection and Civ runtime
+materialization. This is still classification evidence, not repair authority:
+a natural-wonder repair must first accept the source owner explicitly, then
+test the supported wonder catalog so one-row offset evidence does not regress
+other footprint classes. No natural-wonder repair, parity closure, product
+acceptance, or mountain-quality claim is authorized from this context alone.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,
