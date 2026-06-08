@@ -234,6 +234,7 @@ async function main(): Promise<number> {
       resourceBuilderDiagnosticsSummary
     ),
     resourcePositionContext: summarizeResourcePositionContext(proof, ignoreWeightProof.rows),
+    localMaterializationContext: summarizeLocalMaterializationContext(proof, ignoreWeightProof.rows),
     assignmentClassSummary: summarizeAssignmentClasses(ignoreWeightProof.rows),
     strict: summarizeFeasibilityProof(proof, strict),
     ignoreWeight: ignoreWeightProof,
@@ -680,6 +681,95 @@ function summarizeResourcePositionContext(
   };
 }
 
+function summarizeLocalMaterializationContext(
+  proof: Pick<FinalSurfaceParityProof, "local">,
+  rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
+) {
+  const outcomes = readLocalResourcePlacementOutcomes(proof.local.evidence);
+  const localResourceValues = proof.local.surfaces.resource.values;
+  const deltaPlotIndexes = new Set(rows.map((row) => row.plotIndex));
+  const placedOutcomes = outcomes.filter((outcome) => outcome.status === "placed");
+  const placedRows = placedOutcomes.map((outcome) => {
+    const finalLocalValue = normalizeResourceSurfaceValue(localResourceValues[outcome.plotIndex]);
+    const matchesFinalSurface = finalLocalValue === outcome.observedResourceType;
+    return {
+      plotIndex: outcome.plotIndex,
+      x: outcome.x,
+      y: outcome.y,
+      resourceType: outcome.resourceType,
+      observedResourceType: outcome.observedResourceType,
+      finalLocalResourceType: finalLocalValue,
+      matchesFinalSurface,
+      inResourceDeltaSet: deltaPlotIndexes.has(outcome.plotIndex),
+    };
+  });
+  const mismatches = placedRows.filter((row) => !row.matchesFinalSurface);
+  const deltaRows = placedRows.filter((row) => row.inResourceDeltaSet);
+  const deltaMismatches = deltaRows.filter((row) => !row.matchesFinalSurface);
+
+  return {
+    evidenceBoundary:
+      "Diagnostic context only: local typed placement outcomes are compared to the local final resource surface; this does not prove live Civ final-surface authorship.",
+    placedOutcomeCount: placedRows.length,
+    placedOutcomesMatchingLocalFinalSurface: placedRows.length - mismatches.length,
+    placedOutcomesMismatchingLocalFinalSurface: mismatches.length,
+    localAuthoredDeltaPlacedOutcomeCount: deltaRows.length,
+    localAuthoredDeltaOutcomesMatchingLocalFinalSurface: deltaRows.length - deltaMismatches.length,
+    localAuthoredDeltaOutcomesMismatchingLocalFinalSurface: deltaMismatches.length,
+    mismatchRows: mismatches.slice(0, 20),
+  };
+}
+
+function readLocalResourcePlacementOutcomes(evidence: unknown): ReadonlyArray<{
+  status: string;
+  plotIndex: number;
+  x: number;
+  y: number;
+  resourceType: number;
+  observedResourceType: number | null;
+}> {
+  const record = isRecord(evidence) ? evidence : {};
+  const resourcePlacementOutcomes = isRecord(record.resourcePlacementOutcomes)
+    ? record.resourcePlacementOutcomes
+    : {};
+  const outcomes = Array.isArray(resourcePlacementOutcomes.outcomes)
+    ? resourcePlacementOutcomes.outcomes
+    : [];
+  return outcomes.flatMap((outcome) => {
+    if (!isRecord(outcome)) return [];
+    const status = stringValue(outcome.status);
+    const plotIndex = numberValue(outcome.plotIndex);
+    const x = numberValue(outcome.x);
+    const y = numberValue(outcome.y);
+    const resourceType = numberValue(outcome.resourceType);
+    const observedResourceType = nullableNumberValue(outcome.observedResourceType);
+    if (
+      status === undefined ||
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined ||
+      resourceType === undefined
+    ) {
+      return [];
+    }
+    return [
+      {
+        status,
+        plotIndex,
+        x,
+        y,
+        resourceType,
+        observedResourceType,
+      },
+    ];
+  });
+}
+
+function normalizeResourceSurfaceValue(value: unknown): number | null {
+  const number = numberValue(value);
+  return number === undefined || number < 0 ? null : number;
+}
+
 function nearestResourceDeltaMatch(
   row: ResourceDeltaFeasibilityContext,
   candidates: ReadonlyArray<ResourceDeltaFeasibilityContext>,
@@ -1014,6 +1104,11 @@ function uniqueNumbers(values: ReadonlyArray<number | null>): number[] {
 
 function numberValue(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function nullableNumberValue(value: unknown): number | null {
+  if (value === null) return null;
+  return numberValue(value) ?? null;
 }
 
 function stringValue(value: unknown): string | undefined {

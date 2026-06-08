@@ -5,17 +5,17 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-position-context-drain`
-  stacked above `codex/swooper-resource-distribution-context-drain`; this
-  slice carries same-resource displacement context for the remaining resource
-  feasibility rows.
+- Branch/Graphite stack: `codex/swooper-resource-local-materialization-context-drain`
+  stacked above `codex/swooper-resource-position-context-drain`; this slice
+  carries local resource materialization consistency context for the remaining
+  resource feasibility rows.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
   feasibility plus row/static-policy/live-plot, assignment-order, and
   ResourceBuilder diagnostic/subclassification/policy context plus
-  assignment-class, distribution-count, and same-resource position summaries
-  now narrow the next resource repair class.
+  assignment-class, distribution-count, same-resource position, and local
+  materialization summaries now narrow the next resource repair class.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -142,8 +142,8 @@
   plot count, seed, turn, or game hash do not match the saved proof identity.
   The current full feasibility artifact is
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-  (`sha256:8770c7f465358a97be9213bbbcbf3ac106efbe34cd9d8745e94cb229176acd55`,
-  `proofHash:4bb5f364bcf6e3b76ad89712aaf285ca006a1543f48a5dd318947a6a5e98b597`).
+  (`sha256:4b6534e577c8d337df66ea42fd33a1d3674b8043a73fbc40c481e16c0cd5324e`,
+  `proofHash:cf91a10f32f8a53297058e5712039227869744d8f6354a59ce06b3dc7a8ac259`).
   Request identity resolves to `studio-run-in-game-mq20rbzr-1fhc`; runtime
   identity is matched to the saved proof at `106x66`, `6996` plots, seed
   `138503614`, turn `1`, and game hash `0`. The artifact preserves the
@@ -189,9 +189,9 @@
   current regenerated runtime-bound artifact
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
   has sha256
-  `8770c7f465358a97be9213bbbcbf3ac106efbe34cd9d8745e94cb229176acd55`
+  `4b6534e577c8d337df66ea42fd33a1d3674b8043a73fbc40c481e16c0cd5324e`
   and proofHash
-  `4bb5f364bcf6e3b76ad89712aaf285ca006a1543f48a5dd318947a6a5e98b597`.
+  `cf91a10f32f8a53297058e5712039227869744d8f6354a59ce06b3dc7a8ac259`.
   It keeps the exact-authored source proof hash
   `e448cad8023b1478aff5fe40d30f23a23f4a71eed47ce614464db88ac01586df`
   and reads ResourceBuilder diagnostics for the `9` focused cells with `0`
@@ -218,9 +218,9 @@
   The regenerated resource feasibility artifact
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
   has sha256
-  `8770c7f465358a97be9213bbbcbf3ac106efbe34cd9d8745e94cb229176acd55`
+  `4b6534e577c8d337df66ea42fd33a1d3674b8043a73fbc40c481e16c0cd5324e`
   and proofHash
-  `4bb5f364bcf6e3b76ad89712aaf285ca006a1543f48a5dd318947a6a5e98b597`.
+  `cf91a10f32f8a53297058e5712039227869744d8f6354a59ce06b3dc7a8ac259`.
   The `9` focused rows are all scarce-floor assignments made before their local
   resource type reached the floor target (`targetMinPerType:7`), with local
   legal plot counts between `66` and `554`. This proves the local reason those
@@ -268,9 +268,9 @@
   runtime-bound full artifact
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
   has sha256
-  `8770c7f465358a97be9213bbbcbf3ac106efbe34cd9d8745e94cb229176acd55`
+  `4b6534e577c8d337df66ea42fd33a1d3674b8043a73fbc40c481e16c0cd5324e`
   and proofHash
-  `4bb5f364bcf6e3b76ad89712aaf285ca006a1543f48a5dd318947a6a5e98b597`.
+  `cf91a10f32f8a53297058e5712039227869744d8f6354a59ce06b3dc7a8ac259`.
   It records `26` local resource types across `69` local-authored delta rows.
   For all `26`, local assigned count equals current ResourceBuilder count
   (`assignedMinusResourceBuilderCount:0`), while `25/26` still have local
@@ -294,6 +294,17 @@
   run. The matching is a classifier over observed local/live delta rows only;
   it does not prove Civ placement authorship, authorize scarce-floor or resource
   tuning repair, close parity, or establish product acceptance.
+- Local resource materialization context progress:
+  the full artifact now compares typed local resource placement outcomes against
+  the local final resource surface. All `252/252` placed outcomes match the
+  local final resource surface, and all `69/69` local-authored resource delta
+  rows match their typed local placement outcome. This rules out local
+  post-resource placement drift inside the local artifact for the resource
+  mismatch class. Combined with same-resource live displacement and matching
+  per-resource counts, the remaining source-authority question is now bounded
+  to live/Civ materialization, live readback timing, or missing immediate
+  post-placement live coordinate evidence. This does not itself prove live Civ
+  final-surface authorship or authorize product repair.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -316,12 +327,15 @@
   assigned counts match current ResourceBuilder counts for all `26` local
   resource types represented by those deltas. The position context now also
   matches all `69` local-authored delta resources to same-resource live delta
-  rows, mostly at long distance. However, the current ResourceBuilder and
-  position facts are still post-materialization/readback classifiers. No
-  resource tuning, static-policy repair, scarce-floor repair, or
-  assignment-order repair is authorized until those subclasses are assigned to a
-  concrete source owner. The single substitution row where both probed values
-  are infeasible remains an individual evidence row with no repair authority
-  until row-level context assigns source ownership.
+  rows, mostly at long distance. Local materialization context proves the local
+  final resource surface still matches every typed local placement outcome.
+  However, the current ResourceBuilder and position facts are still
+  post-materialization/readback classifiers, and immediate post-placement live
+  coordinate evidence is still missing. No resource tuning, static-policy
+  repair, scarce-floor repair, or assignment-order repair is authorized until
+  those subclasses are assigned to a concrete source owner. The single
+  substitution row where both probed values are infeasible remains an individual
+  evidence row with no repair authority until row-level context assigns source
+  ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.
