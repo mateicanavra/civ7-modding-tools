@@ -47,6 +47,12 @@ describe("resource placement diagnostics", () => {
       placedCount: 4,
       rejectedCount: 0,
       mismatchCount: 0,
+      coordinateProof: {
+        version: 1,
+        placed: { count: 4, hash32: "3c3530cb" },
+        rejected: { count: 0, hash32: "811c9dc5" },
+        mismatch: { count: 0, hash32: "811c9dc5" },
+      },
       byResource: [
         {
           resourceType: 4,
@@ -59,6 +65,7 @@ describe("resource placement diagnostics", () => {
       ],
       byReason: [],
     });
+    expect(outcomes.summary.coordinateProof.placed.hash32).toMatch(/^[0-9a-f]{8}$/);
     expect(outcomes.assignment).toMatchObject({
       requestedPlannedCount: 4,
       assignedCount: 4,
@@ -171,6 +178,12 @@ describe("resource placement diagnostics", () => {
         placedCount: 3,
         rejectedCount: 1,
         mismatchCount: 0,
+        coordinateProof: {
+          version: 1,
+          placed: { count: 3, hash32: "12345678" },
+          rejected: { count: 1, hash32: "abcdef12" },
+          mismatch: { count: 0, hash32: "811c9dc5" },
+        },
         byResource: [
           {
             resourceType: 4,
@@ -219,12 +232,19 @@ describe("resource placement diagnostics", () => {
       minPlacedCountByType: 1,
       maxPlacedCountByType: 2,
       runtimeCatalogCount: 2,
-      plannedResourceTypes: [4, 44],
+      coordinateProof: {
+        version: 1,
+        placedCount: 3,
+        placedHash32: "12345678",
+        rejectedCount: 1,
+        rejectedHash32: "abcdef12",
+      },
       placedResourceTypes: [4, 44],
       rejectedResourceTypes: [44],
       unmappedPlacedResourceTypes: [],
       byReason: [{ reason: "cannot-have-resource", count: 1 }],
     });
+    expect(telemetry).not.toHaveProperty("plannedResourceTypes");
     expect(JSON.stringify(telemetry).length).toBeLessThan(900);
   });
 
@@ -243,6 +263,12 @@ describe("resource placement diagnostics", () => {
         placedCount: 159,
         rejectedCount: 0,
         mismatchCount: 0,
+        coordinateProof: {
+          version: 1,
+          placed: { count: 159, hash32: "22222222" },
+          rejected: { count: 0, hash32: "811c9dc5" },
+          mismatch: { count: 0, hash32: "811c9dc5" },
+        },
         byResource: resourceRows,
         byReason: [],
       },
@@ -278,7 +304,11 @@ describe("resource placement diagnostics", () => {
       placedCount: 159,
       rejectedCount: 0,
       runtimeCatalogCount: 55,
-      plannedResourceTypes: placedResourceTypes,
+      coordinateProof: {
+        version: 1,
+        placedCount: 159,
+        placedHash32: "22222222",
+      },
       placedResourceTypes,
       rejectedResourceTypes: [],
       unmappedPlacedResourceTypes: [],
@@ -291,6 +321,7 @@ describe("resource placement diagnostics", () => {
         unassignableResourceTypes: [5, 15],
       },
     });
+    expect(telemetry).not.toHaveProperty("plannedResourceTypes");
     expect(JSON.stringify(telemetry).length).toBeLessThan(900);
     expect(`[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(
       900

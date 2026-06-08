@@ -5,17 +5,18 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-local-materialization-context-drain`
-  stacked above `codex/swooper-resource-position-context-drain`; this slice
-  carries local resource materialization consistency context for the remaining
-  resource feasibility rows.
+- Branch/Graphite stack: `codex/swooper-resource-coordinate-proof-drain`
+  stacked above `codex/swooper-resource-local-materialization-context-drain`;
+  this slice carries immediate resource placement coordinate proof
+  instrumentation for the next exact-authored run.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
   feasibility plus row/static-policy/live-plot, assignment-order, and
   ResourceBuilder diagnostic/subclassification/policy context plus
-  assignment-class, distribution-count, same-resource position, and local
-  materialization summaries now narrow the next resource repair class.
+  assignment-class, distribution-count, same-resource position, local
+  materialization, and future coordinate-proof instrumentation now narrow the
+  next resource repair class.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -305,6 +306,16 @@
   to live/Civ materialization, live readback timing, or missing immediate
   post-placement live coordinate evidence. This does not itself prove live Civ
   final-surface authorship or authorize product repair.
+- Resource placement coordinate proof progress:
+  `placement.resourcePlacementOutcomes.summary` now carries a deterministic
+  `coordinateProof` block for placed, rejected, and mismatch resource outcomes.
+  Runtime `RESOURCE_PLACEMENT_V1` telemetry now emits the compact placed
+  coordinate hash/count, plus rejected or mismatch hashes when present, while
+  omitting redundant planned-type arrays to stay under the Civ scripting-log
+  truncation guard. This creates the missing immediate-placement coordinate
+  identity needed by the next exact-authored run. It does not retroactively
+  classify request `studio-run-in-game-mq20rbzr-1fhc`, because that saved proof
+  predates the coordinate digest.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -329,13 +340,13 @@
   matches all `69` local-authored delta resources to same-resource live delta
   rows, mostly at long distance. Local materialization context proves the local
   final resource surface still matches every typed local placement outcome.
-  However, the current ResourceBuilder and position facts are still
-  post-materialization/readback classifiers, and immediate post-placement live
-  coordinate evidence is still missing. No resource tuning, static-policy
-  repair, scarce-floor repair, or assignment-order repair is authorized until
-  those subclasses are assigned to a concrete source owner. The single
-  substitution row where both probed values are infeasible remains an individual
-  evidence row with no repair authority until row-level context assigns source
-  ownership.
+  Current code now emits immediate placement coordinate digests for future exact
+  runs, but the current `mq20rbzr` artifact still lacks that digest. No resource
+  tuning, static-policy repair, scarce-floor repair, or assignment-order repair
+  is authorized until a fresh exact-authored run binds local and live immediate
+  placement coordinate identity or otherwise assigns those subclasses to a
+  concrete source owner. The single substitution row where both probed values are
+  infeasible remains an individual evidence row with no repair authority until
+  row-level context assigns source ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.

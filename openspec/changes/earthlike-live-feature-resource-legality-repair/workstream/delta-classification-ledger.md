@@ -559,6 +559,25 @@ final resource surface. The next owner decision should therefore evaluate live
 post-placement materialization/readback behavior, or add immediate live
 coordinate evidence, before making any resource-placement repair.
 
+### Resource Placement Coordinate Proof Instrumentation
+
+Diagnostic repair:
+`artifact:placement.resourcePlacementOutcomes` now summarizes placed, rejected,
+and mismatch resource placement outcomes with a deterministic
+`coordinateProof` digest. The digest is computed from sorted typed placement
+outcomes and includes count plus an 8-hex-character `hash32` per status. Runtime
+`RESOURCE_PLACEMENT_V1` telemetry emits the compact placed coordinate
+count/hash, and emits rejected or mismatch hashes when those statuses are
+present.
+
+Boundary:
+this instrumentation is for the next exact-authored live run. It does not
+retroactively classify request `studio-run-in-game-mq20rbzr-1fhc`, because the
+saved proof artifact predates the coordinate digest. The current resource
+source-authority state remains open until a fresh exact-authored run binds local
+typed placement coordinate identity to runtime log evidence, or another bounded
+proof assigns the remaining subclasses to a concrete owner.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,
