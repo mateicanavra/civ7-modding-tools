@@ -6,10 +6,10 @@
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack: current recovery drain tip
-  `codex/swooper-wonder-readback-context-drain`, stacked above
-  `codex/swooper-wonder-named-rejection-proof-drain`; this slice adds
-  readback-mismatch observed-context telemetry and preserves source-recorded
-  exact-authored readback-context evidence.
+  `codex/swooper-wonder-footprint-proof-drain`, stacked above
+  `codex/swooper-wonder-readback-context-drain`; this slice adds complete
+  expected-footprint readback instrumentation above the source-recorded
+  natural-wonder readback-context proof.
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface. The natural-wonder
@@ -794,6 +794,21 @@
   not close natural-wonder repair, feature parity, final-surface parity,
   Earthlike acceptance, product acceptance, generated-output ownership, or
   mountain quality.
+- Natural-wonder post-write footprint proof-contract progress:
+  the active proof-instrumentation layer now extends the adapter
+  `NaturalWonderPlacementOutcome` and Swooper `NATURAL_WONDER_PLACEMENT_V1`
+  telemetry so `readback-mismatch` outcomes can carry the complete expected
+  footprint readback vector (`plotIndex:observedFeatureType`) plus an
+  `empty-expected-footprint` or `partial-expected-footprint` label. The visible
+  rejection example also includes the requested direction and resolved
+  elevation, so a fresh exact log can bind the write call to the footprint
+  readback facts without relying on hidden digest inputs. This is
+  instrumentation only. It does not change `Direction` resolution, placement
+  policy, natural-wonder config, generated output, materialization behavior, or
+  parity status. A fresh exact-authored Studio Run in Game must consume this
+  contract before the expected-empty Kilimanjaro/Zhangjiajie subcondition can
+  be classified to adapter readback, local footprint projection, Civ
+  materialization semantics, or evidence insufficiency.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -856,6 +871,9 @@
   until the expected-empty footprint/readback owner is source-classified and
   repaired or dispositioned from exact-bound evidence that explains the
   adapter's post-write readback oracle versus Civ's materialized footprint.
+  Current proof instrumentation now records the full expected-footprint
+  readback vector needed by that next exact run, but this local schema/test
+  layer does not itself classify the owner.
   The cold-reef local-only row also remains
   evidence-bound pending exact live feature-apply telemetry/readback. Final-
   surface parity remains open on terrain, feature, resource, and any future

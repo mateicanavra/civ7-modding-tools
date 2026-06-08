@@ -78,10 +78,12 @@
 - [x] 2.37 Add natural-wonder readback-mismatch observed-context telemetry.
 - [x] 2.38 Preserve source-recorded exact-authored natural-wonder
   readback-context proof.
-- [ ] 2.39 Produce current exact-authored parity proof after the natural-wonder
+- [x] 2.39 Add complete expected-footprint post-write readback telemetry for
+  natural-wonder `readback-mismatch` classification.
+- [ ] 2.40 Produce current exact-authored parity proof after the natural-wonder
   projection/materialization repair.
-- [ ] 2.40 Repair remaining proven package or MapGen owners.
-- [ ] 2.41 Preserve resource spacing, age legality, and diversity expectations.
+- [ ] 2.41 Repair remaining proven package or MapGen owners.
+- [ ] 2.42 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
@@ -102,3 +104,5 @@
 - [x] 3.11 Run focused natural-wonder telemetry regression for readback context.
 - [x] 3.12 Preserve source-recorded exact-authored final-surface parity after
   readback-context telemetry.
+- [x] 3.13 Run focused adapter/Swooper expected-footprint telemetry
+  regressions.

@@ -178,7 +178,7 @@ describe("natural wonder placement materialization", () => {
       coordinateProof: {
         version: 1,
         placed: { count: 0, hash32: "811c9dc5" },
-        rejected: { count: 1 },
+        rejected: { count: 1, hash32: "55a47896" },
       },
       plannedCount: 1,
       targetCount: 1,
@@ -197,16 +197,23 @@ describe("natural wonder placement materialization", () => {
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainType: FLAT_TERRAIN,
     });
-    adapter.placeNaturalWonder = (x, y, featureType, direction) => ({
+    adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => ({
       status: "rejected",
       plotIndex: y * adapter.width + x,
       x,
       y,
       featureType,
       direction,
+      elevation,
       reason: "readback-mismatch",
       observedPlotIndex: 23,
       observedFeatureType: adapter.NO_FEATURE,
+      expectedFootprintReadback: [
+        { plotIndex: 17, observedFeatureType: featureType },
+        { plotIndex: 23, observedFeatureType: adapter.NO_FEATURE },
+        { plotIndex: 18, observedFeatureType: featureType },
+      ],
+      expectedFootprintReadbackStatus: "partial-expected-footprint",
     });
 
     const stats = stampNaturalWondersFromPlan({
@@ -221,7 +228,7 @@ describe("natural wonder placement materialization", () => {
       coordinateProof: {
         version: 1,
         placed: { count: 0, hash32: "811c9dc5" },
-        rejected: { count: 1, hash32: "5fa1cc6e" },
+        rejected: { count: 1, hash32: "6f806eb2" },
       },
       plannedCount: 1,
       targetCount: 1,
@@ -230,16 +237,16 @@ describe("natural wonder placement materialization", () => {
       shortfallCount: 0,
     });
     expect(stats.rejectionExamples[0]).toBe(
-      "feature=35 plot=17 reason=readback-mismatch observedPlot=23 observedFeature=-1"
+      "feature=35 plot=17 direction=-1 elevation=120 reason=readback-mismatch observedPlot=23 observedFeature=-1 footprint=17:35,23:-1,18:35 readback=partial-expected-footprint"
     );
     expect(buildNaturalWonderPlacementRuntimeTelemetry(stats)).toMatchObject({
       rejectionExampleCount: 1,
       rejectionExamples: [
-        "feature=35 plot=17 reason=readback-mismatch observedPlot=23 observedFeature=-1",
+        "feature=35 plot=17 direction=-1 elevation=120 reason=readback-mismatch observedPlot=23 observedFeature=-1 footprint=17:35,23:-1,18:35 readback=partial-expected-footprint",
       ],
       coordinateProof: {
         rejectedCount: 1,
-        rejectedHash32: "5fa1cc6e",
+        rejectedHash32: "6f806eb2",
       },
     });
   });

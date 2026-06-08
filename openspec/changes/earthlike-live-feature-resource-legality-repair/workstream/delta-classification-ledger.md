@@ -1301,6 +1301,33 @@ repair complete, does not authorize cold-reef repair, and does not close
 feature parity, final-surface parity, Earthlike acceptance, product acceptance,
 generated-output ownership, or mountain-quality work.
 
+### Natural-Wonder Post-Write Footprint Proof Contract
+
+Classification status: proof instrumentation only; source authority remains
+open.
+
+The active `earthlike-natural-wonder-postwrite-footprint-proof` layer adds a
+compact adapter/Swooper readback contract for future exact runs. On
+`readback-mismatch`, the adapter can now return the complete expected
+footprint readback vector as `plotIndex:observedFeatureType`, and Swooper
+telemetry carries that vector with a derived `empty-expected-footprint` or
+`partial-expected-footprint` label. Rejection examples also expose the
+requested direction and resolved elevation so the exact log can bind write-call
+inputs to footprint readback outputs. This is the missing evidence needed after
+`mq2w5548`: the predecessor proof had the first expected-empty cell
+(`1427`, `2278`) plus full-grid adjacent live cells (`1426`, `2277`), but not
+the complete immediate post-write footprint readback.
+
+Boundary:
+the new contract does not change placement direction, footprint policy,
+natural-wonder config, generated output, or Civ materialization behavior. It
+does not retroactively classify `mq2w5548`, close natural-wonder repair, close
+feature parity, authorize a placement repair, or improve product acceptance by
+itself. A fresh exact-authored Studio Run in Game must emit the new footprint
+vector before the expected-empty subcondition can be assigned to adapter
+readback oracle, local footprint projection, Civ engine semantics, or evidence
+insufficiency.
+
 ## Required Next Diagnostics
 
 - Classify the natural-wonder expected-empty footprint/readback owner from the
