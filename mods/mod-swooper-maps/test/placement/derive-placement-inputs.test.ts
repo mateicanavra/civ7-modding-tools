@@ -325,9 +325,22 @@ describe("derive placement inputs", () => {
       },
     });
 
-    expect(telemetry).toEqual({
+    expect(telemetry).toMatchObject({
       version: 1,
       plannedCount: 1,
+      surfaceDigests: {
+        version: 1,
+        plotCount: size,
+        landMaskHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+        elevationHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+        aridityPpmHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+        riverClassHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+        lakeMaskHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+        blockedMaskHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+        terrainTypeHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+        biomeTypeHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+        featureTypeHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
+      },
       inputRows: [
         [
           "p",
@@ -347,6 +360,6 @@ describe("derive placement inputs", () => {
         ],
       ],
     });
-    expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(500);
+    expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(800);
   });
 });

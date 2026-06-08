@@ -155,6 +155,19 @@ describe("Run in Game exact authorship proof identity", () => {
         `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 2,
+          surfaceDigests: {
+            version: 1,
+            plotCount: 10240,
+            landMaskHash32: "11111111",
+            elevationHash32: "22222222",
+            aridityPpmHash32: "33333333",
+            riverClassHash32: "44444444",
+            lakeMaskHash32: "55555555",
+            blockedMaskHash32: "66666666",
+            terrainTypeHash32: "77777777",
+            biomeTypeHash32: "88888888",
+            featureTypeHash32: "99999999",
+          },
           inputRows: [
             ["p", 1320, 60, 15, 35, 2, 5, -1, 120, 330000, 1, 0, 0, 1],
             ["p", 1405, 61, 16, 36, 3, 5, -1, 90, 660000, 0, 1, 0, 1],
@@ -290,6 +303,19 @@ describe("Run in Game exact authorship proof identity", () => {
         version: 1,
         plannedCount: 2,
         rowCount: 2,
+      },
+      surfaceDigests: {
+        version: 1,
+        plotCount: 10240,
+        landMaskHash32: "11111111",
+        elevationHash32: "22222222",
+        aridityPpmHash32: "33333333",
+        riverClassHash32: "44444444",
+        lakeMaskHash32: "55555555",
+        blockedMaskHash32: "66666666",
+        terrainTypeHash32: "77777777",
+        biomeTypeHash32: "88888888",
+        featureTypeHash32: "99999999",
       },
       inputRows: [
         {

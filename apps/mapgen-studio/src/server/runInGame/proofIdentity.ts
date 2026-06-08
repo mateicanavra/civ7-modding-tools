@@ -496,6 +496,7 @@ function parseNaturalWonderPlanInputTelemetryBetween(
       marker: "NATURAL_WONDER_PLAN_INPUT_V1",
       payload,
       ...(naturalWonderPlanInputStats(payload) ?? {}),
+      ...(naturalWonderPlanInputSurfaceDigests(payload) ?? {}),
       ...(naturalWonderPlanInputRows(payload) ?? {}),
     };
   }
@@ -702,6 +703,59 @@ function naturalWonderPlanInputStats(
       version,
       plannedCount,
       rowCount,
+    },
+  };
+}
+
+function naturalWonderPlanInputSurfaceDigests(
+  payload: Record<string, unknown>
+):
+  | {
+      surfaceDigests: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlanInput"]>["surfaceDigests"]
+      >;
+    }
+  | undefined {
+  if (!isRecord(payload.surfaceDigests)) return undefined;
+  const version = numberValue(payload.surfaceDigests.version);
+  const plotCount = numberValue(payload.surfaceDigests.plotCount);
+  const landMaskHash32 = hash32Value(payload.surfaceDigests.landMaskHash32);
+  const elevationHash32 = hash32Value(payload.surfaceDigests.elevationHash32);
+  const aridityPpmHash32 = hash32Value(payload.surfaceDigests.aridityPpmHash32);
+  const riverClassHash32 = hash32Value(payload.surfaceDigests.riverClassHash32);
+  const lakeMaskHash32 = hash32Value(payload.surfaceDigests.lakeMaskHash32);
+  const blockedMaskHash32 = hash32Value(payload.surfaceDigests.blockedMaskHash32);
+  const terrainTypeHash32 = hash32Value(payload.surfaceDigests.terrainTypeHash32);
+  const biomeTypeHash32 = hash32Value(payload.surfaceDigests.biomeTypeHash32);
+  const featureTypeHash32 = hash32Value(payload.surfaceDigests.featureTypeHash32);
+  if (
+    version === undefined ||
+    plotCount === undefined ||
+    landMaskHash32 === undefined ||
+    elevationHash32 === undefined ||
+    aridityPpmHash32 === undefined ||
+    riverClassHash32 === undefined ||
+    lakeMaskHash32 === undefined ||
+    blockedMaskHash32 === undefined ||
+    terrainTypeHash32 === undefined ||
+    biomeTypeHash32 === undefined ||
+    featureTypeHash32 === undefined
+  ) {
+    return undefined;
+  }
+  return {
+    surfaceDigests: {
+      version,
+      plotCount,
+      landMaskHash32,
+      elevationHash32,
+      aridityPpmHash32,
+      riverClassHash32,
+      lakeMaskHash32,
+      blockedMaskHash32,
+      terrainTypeHash32,
+      biomeTypeHash32,
+      featureTypeHash32,
     },
   };
 }

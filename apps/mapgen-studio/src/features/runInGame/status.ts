@@ -114,6 +114,20 @@ export type RunInGameNaturalWonderPlanInputRow = Readonly<{
   landMask: number;
 }>;
 
+export type RunInGameNaturalWonderPlanInputSurfaceDigests = Readonly<{
+  version: number;
+  plotCount: number;
+  landMaskHash32: string;
+  elevationHash32: string;
+  aridityPpmHash32: string;
+  riverClassHash32: string;
+  lakeMaskHash32: string;
+  blockedMaskHash32: string;
+  terrainTypeHash32: string;
+  biomeTypeHash32: string;
+  featureTypeHash32: string;
+}>;
+
 export type RunInGameRequestStatus = Readonly<{
   recipeId?: string;
   seed?: number;
@@ -264,6 +278,7 @@ export type RunInGameExactAuthorshipProof = Readonly<{
         plannedCount: number;
         rowCount: number;
       }>;
+      surfaceDigests?: RunInGameNaturalWonderPlanInputSurfaceDigests;
       inputRows?: ReadonlyArray<RunInGameNaturalWonderPlanInputRow>;
     }>;
     naturalWonderPlacement?: Readonly<{

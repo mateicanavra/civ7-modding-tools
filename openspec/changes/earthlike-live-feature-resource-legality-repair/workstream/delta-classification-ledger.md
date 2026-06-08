@@ -1608,19 +1608,46 @@ link still open.
 ### Natural-Wonder Plan Input Context Proof
 
 Classification status: selected-row input context captured; upstream candidate
-surface/scoring owner still open.
+surface/scoring owner still open; full input-surface digest comparison now
+shows upstream projection/runtime surface drift for non-land/non-elevation
+surfaces.
 
 | Artifact | Path | Identity |
 | --- | --- | --- |
 | Exact status proof | `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-plan-input-status.json` | `sha256:92916fde12abcde0b71d667bb8fdb337b9005ecd8094c8243b487551ad8c9d08` |
 | Final-surface proof with plan-input context | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input.json` | `sha256:f7b3de32589c369c280461d99ad0d1eb9aa0dc1c3806b6f0d67c167a251e2974`, `proofHash:ddf33279f4858dfa1ab0e83ec530720cb5a62b17d35a8d7e9951ce6b595ef595` |
+| Final-surface proof with first-class input comparison | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input-comparison.json` | `sha256:ddc2bd90456a238e4f9952744457fac4d89d22cf3c27729b860c7045e1c0913d`, `proofHash:4868dffcca7b41ac13be1399c545da89b1ba1c53bc5bea2671968a131d3528d1` |
+| Exact status proof with surface digests | `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-input-surface-digest-status.json` | `sha256:7f96e1f6516d354f361bf414df2417557c842bc40d694a15bcc08f41eb683dc2` |
+| Final-surface proof with input-surface digests | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq41wza4-1zzu-current-final-surface-parity-with-natural-wonder-input-surface-digest.json` | `sha256:edb8a88b09f201dd016b510ae3641472032a7dfca34f2032e8db5849b6524d30`, `proofHash:7b1164396c500028a2d63f23b18880a04f7dff362c6976ca66fb578e9f3f9b71` |
 | Verifier log | `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq40o844-natural-wonder-plan-input.log` | `sha256:b551e06b83996ae920238c898afe00381be9f64148233f86d58a15ea05d404ba` |
+| Verifier log with input comparison | `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq40o844-natural-wonder-plan-input-comparison.log` | `sha256:33aca6bfdf6984fc20079774d294f9b20eeb776f8a98d339c406c9e6c630bc4d` |
+| Verifier log with input-surface digest comparison | `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-studio-run-in-game-mq41wza4-1zzu-natural-wonder-input-surface-digest.log` | `sha256:8fefa7750c29b0cb109016a58263d5df9b80047ceb53c46f25a9809e8e8e089f` |
 
 Exact `NATURAL_WONDER_PLAN_INPUT_V1` is now bound in the exact-authorship
 packet for request `studio-run-in-game-mq40o844-1zzu`, and local replay carries
 the matching verbose trace evidence. Rows preserve selected-anchor terrain,
 biome, occupied feature, elevation, aridity ppm, river class, lake mask, polar
 blocked mask, and land mask.
+
+The current final-surface proof now carries
+`naturalWonderPlanInputContextProof.status:"compared"` without adding a new
+unresolved link. The active gating link remains
+`natural-wonder-plan-coordinate-proof.planned`.
+
+Full input-surface digest comparison for fresh request
+`studio-run-in-game-mq41wza4-1zzu`:
+
+| Surface | Exact hash | Local hash | Status |
+| --- | --- | --- | --- |
+| land mask | `c8963145` | `c8963145` | match |
+| elevation | `f86490e0` | `f86490e0` | match |
+| polar blocked mask | `844568c5` | `844568c5` | match |
+| aridity ppm | `e0952008` | `e629213d` | mismatch |
+| river class | `8047dde5` | `fc483f85` | mismatch |
+| lake mask | `8a89ba34` | `c954e385` | mismatch |
+| terrain type | `331c8344` | `e58b1100` | mismatch |
+| biome type | `8ccefeb7` | `a9b31355` | mismatch |
+| feature type | `8eee9833` | `b1b46c04` | mismatch |
 
 Selected diverged-anchor context:
 
@@ -1635,10 +1662,17 @@ the selected exact anchors are not explained by occupied-feature, lake,
 polar-block, or non-land blockers in the selected-row proof. Feature `30` has
 matching terrain/biome/elevation/river masks across exact/local selected
 anchors but a large aridity delta; features `35` and `36` also differ in
-elevation and river class at the selected anchor. This narrows the next owner
-decision toward upstream candidate set/scoring surface divergence, not public
-Earthlike config tuning, static catalog repair, or a simple selected-anchor
-legality failure. Final-surface parity remains `unresolved` with
+elevation and river class at the selected anchor. Same-anchor features
+`32`, `34`, `38`, and `39` also show aridity drift while keeping the selected
+anchor, which points away from a binary terrain/biome/blocked legality
+explanation. The full-surface digest comparison now further separates the
+inputs: land, elevation, and polar-blocked masks match exactly, while aridity,
+river, lake, terrain, biome, and feature input surfaces differ before natural-
+wonder candidate selection is adjudicated. This narrows the next owner
+decision toward upstream projection/runtime surface divergence feeding
+candidate set/scoring, not public Earthlike config tuning, static catalog
+repair, or a simple selected-anchor legality failure. Final-surface parity
+remains `unresolved` with
 `natural-wonder-plan-coordinate-proof.planned`,
 `resource-placement-coordinate-proof.placed`,
 `resource-placement-coordinate-proof.rejected`, and terrain/biome/feature/
@@ -1646,12 +1680,13 @@ resource surface mismatch links still open.
 
 ## Required Next Diagnostics
 
-- Classify the natural-wonder exact/local upstream candidate/scoring or
-  engine-surface divergence from the fresh exact `mq40o844` proof before
-  changing readback behavior. Selected-row input context is now captured for
-  exact and local anchors, but the candidate set, rejection/cut list, and score
-  terms that caused features `30`, `35`, and `36` to choose different anchors
-  are still not source-owned.
+- Classify the natural-wonder exact/local upstream projection/runtime surface
+  divergence from the fresh exact `mq41wza4` digest proof before changing
+  readback behavior. Selected-row input context is captured for exact and local
+  anchors, and full-surface digests now prove aridity, river, lake, terrain,
+  biome, and feature surfaces differ while land/elevation/blocked masks match.
+  The candidate set, rejection/cut list, and score terms that caused features
+  `30`, `35`, and `36` to choose different anchors are still not source-owned.
 - After the plan-input divergence is source-owned or dispositioned, classify
   the partial expected-footprint readback owner for the exact rejected feature
   `30` and `36` rows. A valid repair lane needs an explicit source-authority

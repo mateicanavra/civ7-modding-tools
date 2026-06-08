@@ -637,6 +637,44 @@
     `resource-placement-coordinate-proof.rejected`,
     `surface.biome.mismatch`, `surface.feature.mismatch`,
     `surface.resource.mismatch`, and `surface.terrain.mismatch`.
+- [x] 2.62 Bind natural-wonder plan-input context comparison into the
+  final-surface parity proof.
+  - Current branch
+    `codex/swooper-natural-wonder-plan-input-comparison-drain` adds
+    `naturalWonderPlanInputContextProof` to compare exact runtime
+    `NATURAL_WONDER_PLAN_INPUT_V1` rows against local replay
+    `naturalWonder.planInput` trace rows by feature type. It classifies
+    same-anchor input match/drift, anchor divergence, exact-only, and
+    local-only rows, and records compact input deltas for terrain, biome,
+    occupied feature, elevation, aridity, river, lake, blocked, and land.
+  - This is proof comparison only. It deliberately does not add a new
+    unresolved link; the active gating link remains
+    `natural-wonder-plan-coordinate-proof.planned`. It does not change
+    natural-wonder planning, candidate scoring, materialization, readback
+    disposition, final-surface surfaces, product acceptance, public config, or
+    resource behavior.
+- [x] 2.63 Bind natural-wonder plan-input surface digests into exact-authorship
+  and final-surface parity proof.
+  - Current branch
+    `codex/swooper-natural-wonder-plan-input-comparison-drain` also adds
+    compact full-surface digests to `NATURAL_WONDER_PLAN_INPUT_V1` and
+    preserves them
+    in Studio exact-authorship proof and local final-surface parity evidence.
+    The digests cover land mask, elevation, aridity ppm, river class, lake
+    mask, polar blocked mask, terrain type, biome type, and feature type for
+    the runtime plot count.
+  - Final-surface parity now compares exact/local input surface digests inside
+    `naturalWonderPlanInputContextProof.surfaceDigests`. This is diagnostic
+    proof only and deliberately adds no new unresolved link. It does not change
+    natural-wonder planning, candidate scoring, materialization, readback
+    disposition, final-surface surfaces, product acceptance, public config, or
+    resource behavior.
+  - Fresh exact request `studio-run-in-game-mq41wza4-1zzu` completed and
+    records exact surface digests for `6996` plots. Exact/local land,
+    elevation, and blocked masks match; aridity ppm, river class, lake mask,
+    terrain type, biome type, and feature type digests mismatch. This narrows
+    the next natural-wonder owner decision toward upstream projection/runtime
+    surface divergence before candidate scoring or readback repair.
 
 ## 3. Verification
 
@@ -904,3 +942,47 @@
     and surface mismatch links open. Verifier log:
     `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq40o844-natural-wonder-plan-input.log`
     (`sha256:b551e06b83996ae920238c898afe00381be9f64148233f86d58a15ea05d404ba`).
+- [x] 3.32 Run focused natural-wonder plan-input comparison regression and
+  rerun current exact-authored final-surface parity.
+  - Passed `bun test
+    mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`.
+  - Passed owner check `bun run --cwd mods/mod-swooper-maps check`.
+  - Verifier input request `studio-run-in-game-mq40o844-1zzu` wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input-comparison.json`
+    (`sha256:ddc2bd90456a238e4f9952744457fac4d89d22cf3c27729b860c7045e1c0913d`,
+    `proofHash:4868dffcca7b41ac13be1399c545da89b1ba1c53bc5bea2671968a131d3528d1`).
+  - The verifier exited `2` as expected for unresolved parity. The artifact now
+    carries `naturalWonderPlanInputContextProof.status:"compared"` without
+    adding a new unresolved link. Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-mq40o844-natural-wonder-plan-input-comparison.log`
+    (`sha256:33aca6bfdf6984fc20079774d294f9b20eeb776f8a98d339c406c9e6c630bc4d`).
+- [x] 3.33 Run focused natural-wonder plan-input surface digest regressions and
+  rerun current exact-authored final-surface parity.
+  - Passed `bun test
+    mods/mod-swooper-maps/test/placement/derive-placement-inputs.test.ts
+    apps/mapgen-studio/test/runInGame/proofIdentity.test.ts
+    mods/mod-swooper-maps/test/diagnostics/live-parity.test.ts`.
+  - Passed owner checks `bun run --cwd mods/mod-swooper-maps check` and
+    `bun run --cwd apps/mapgen-studio check`.
+  - Fresh exact request `studio-run-in-game-mq41wza4-1zzu` completed with
+    exact-authorship proof and `NATURAL_WONDER_PLAN_INPUT_V1.surfaceDigests`.
+    POST artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-input-surface-digest-post.json`
+    has `sha256:1dcffc6082fd8b5cbff6939d1ce142d1a1d94aa8ad263e202ef8034b808e5bea`;
+    terminal status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-natural-wonder-input-surface-digest-status.json`
+    has `sha256:7f96e1f6516d354f361bf414df2417557c842bc40d694a15bcc08f41eb683dc2`.
+  - Verifier input request `studio-run-in-game-mq41wza4-1zzu` wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq41wza4-1zzu-current-final-surface-parity-with-natural-wonder-input-surface-digest.json`
+    (`sha256:edb8a88b09f201dd016b510ae3641472032a7dfca34f2032e8db5849b6524d30`,
+    `proofHash:7b1164396c500028a2d63f23b18880a04f7dff362c6976ca66fb578e9f3f9b71`).
+  - The verifier exited `2` as expected for unresolved parity. It preserves
+    mismatch counts terrain `140`, biome `874`, feature `376`, and resource
+    `307`, and keeps the natural-wonder plan-coordinate, resource-coordinate,
+    and surface mismatch links open. The new digest comparison reports exact/
+    local mismatches for `aridityPpmHash32`, `riverClassHash32`,
+    `lakeMaskHash32`, `terrainTypeHash32`, `biomeTypeHash32`, and
+    `featureTypeHash32`, while land, elevation, and blocked masks match.
+    Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-studio-run-in-game-mq41wza4-1zzu-natural-wonder-input-surface-digest.log`
+    (`sha256:8fefa7750c29b0cb109016a58263d5df9b80047ceb53c46f25a9809e8e8e089f`).

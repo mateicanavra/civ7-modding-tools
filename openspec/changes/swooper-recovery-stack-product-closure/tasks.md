@@ -110,6 +110,28 @@
     resource-coordinate, and terrain/biome/feature/resource surface links
     open. This is still proof-input instrumentation, not source-authority
     closure, planner repair, final parity, or product acceptance.
+    Follow-on branch
+    `codex/swooper-natural-wonder-plan-input-comparison-drain` binds the
+    exact/local selected-row input deltas into final-surface parity proof as
+    `naturalWonderPlanInputContextProof`. Refreshed verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq40o844-1zzu-current-final-surface-parity-with-natural-wonder-plan-input-comparison.json`
+    (`sha256:ddc2bd90456a238e4f9952744457fac4d89d22cf3c27729b860c7045e1c0913d`,
+    `proofHash:4868dffcca7b41ac13be1399c545da89b1ba1c53bc5bea2671968a131d3528d1`)
+    remains unresolved with the same gating links. This comparison is
+    explanatory and deliberately adds no new unresolved link.
+    The same plan-input comparison branch also binds full-surface
+    natural-wonder plan-input digests into exact-authorship and parity proof.
+    Fresh exact request `studio-run-in-game-mq41wza4-1zzu`
+    completed with `NATURAL_WONDER_PLAN_INPUT_V1.surfaceDigests` for `6996`
+    plots. Final-surface verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq41wza4-1zzu-current-final-surface-parity-with-natural-wonder-input-surface-digest.json`
+    (`sha256:edb8a88b09f201dd016b510ae3641472032a7dfca34f2032e8db5849b6524d30`,
+    `proofHash:7b1164396c500028a2d63f23b18880a04f7dff362c6976ca66fb578e9f3f9b71`)
+    remains unresolved with the same gating links. Digest comparison matches
+    land, elevation, and blocked masks, but mismatches aridity, river, lake,
+    terrain, biome, and feature surfaces. This narrows the natural-wonder
+    blocker to upstream projection/runtime surface divergence feeding
+    candidate/scoring decisions; it is not a repair or acceptance claim.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -136,8 +158,8 @@
 ## 3. Verification And Closure
 
 - [ ] 3.1 Run `git status --short --branch`.
-  - Current proof-input slice must leave
-    `codex/swooper-natural-wonder-plan-input-context-drain`
+  - Current proof-comparison slice must leave
+    `codex/swooper-natural-wonder-plan-input-comparison-drain`
     clean before commit or closure.
 - [ ] 3.2 Inspect Graphite branch/stack state.
   - Current audit snapshot: top branch
@@ -152,8 +174,9 @@
     `codex/swooper-natural-wonder-supported-catalog-drain`,
     `codex/swooper-natural-wonder-row-proof-drain`,
     `codex/swooper-natural-wonder-plan-proof-drain`,
-    `codex/swooper-natural-wonder-plan-comparison-drain`, then
-    `codex/swooper-natural-wonder-plan-input-context-drain`.
+    `codex/swooper-natural-wonder-plan-comparison-drain`,
+    `codex/swooper-natural-wonder-plan-input-context-drain`, then
+    `codex/swooper-natural-wonder-plan-input-comparison-drain`.
 - [ ] 3.3 Run `git diff --check`.
 - [ ] 3.4 Run `bun run openspec -- validate swooper-recovery-stack-product-closure --strict`.
 - [ ] 3.5 Run `bun run openspec:validate`.
