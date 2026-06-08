@@ -162,8 +162,25 @@ describe("surface delta context diagnostics", () => {
       plotIndex: 0,
       localResource: { symbol: "RESOURCE_FISH" },
       liveResource: { symbol: "empty" },
+      localContext: {
+        terrainSymbol: "TERRAIN_COAST",
+        biomeSymbol: "BIOME_MARINE",
+        resourceSymbol: "RESOURCE_FISH",
+      },
+      liveContext: {
+        terrainSymbol: "TERRAIN_COAST",
+        biomeSymbol: "BIOME_MARINE",
+        resourceSymbol: "empty",
+      },
       plannedPreferredResourceSymbol: "RESOURCE_FISH",
       localOutcome: { status: "placed", resourceSymbol: "RESOURCE_FISH" },
+      legality: {
+        localValueOnLocal: {
+          symbol: "RESOURCE_FISH",
+          validSurface: true,
+          reasons: [],
+        },
+      },
       evidenceClass: "local-assigned-live-empty",
     });
     expect(rows[1]).toMatchObject({

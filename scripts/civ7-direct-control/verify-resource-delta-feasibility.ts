@@ -110,14 +110,34 @@ async function main(): Promise<number> {
   if (!args.proofFile) throw new Error("Expected --proof-file");
 
   const proof = extractFinalSurfaceParityProof(JSON.parse(readFileSync(args.proofFile, "utf8")));
+  const requestIdentity = resolveRequestIdentity(proof);
+  if (requestIdentity.blockedBy.length > 0) {
+    const outputWithoutHash = {
+      ok: false,
+      status: "blocked" as const,
+      requestId: requestIdentity.requestId,
+      sourceProofHash: hashParityValue(proof),
+      blockedBy: requestIdentity.blockedBy,
+      requestIdentity,
+    };
+    const output = {
+      ...outputWithoutHash,
+      proofHash: hashParityValue(outputWithoutHash),
+    };
+    writeOutput(args.output, output);
+    console.log(stableParityProofStringify(output));
+    return 2;
+  }
+
   const runtimeIdentity = await readAndCompareRuntimeIdentity(proof, args);
   if (runtimeIdentity.blockedBy.length > 0) {
     const outputWithoutHash = {
       ok: false,
       status: "blocked" as const,
-      requestId: proof.exactAuthorship?.requestId,
+      requestId: requestIdentity.requestId,
       sourceProofHash: hashParityValue(proof),
       blockedBy: runtimeIdentity.blockedBy,
+      requestIdentity,
       runtimeIdentity,
     };
     const output = {
@@ -154,8 +174,9 @@ async function main(): Promise<number> {
 
   const outputWithoutHash = {
     ok: true,
-    requestId: proof.exactAuthorship?.requestId,
+    requestId: requestIdentity.requestId,
     sourceProofHash: hashParityValue(proof),
+    requestIdentity,
     runtimeIdentity,
     rowCount: deltaRows.length,
     strict: summarizeFeasibilityProof(proof, strict),
@@ -177,6 +198,32 @@ function extractFinalSurfaceParityProof(payload: unknown): FinalSurfaceParityPro
     throw new Error("Expected final-surface parity proof with local/live snapshots");
   }
   return proof as FinalSurfaceParityProof;
+}
+
+function resolveRequestIdentity(proof: FinalSurfaceParityProof) {
+  const packet = isRecord(proof.exactAuthorshipPacket) ? proof.exactAuthorshipPacket : {};
+  const sourceSnapshot = isRecord(packet.sourceSnapshot) ? packet.sourceSnapshot : {};
+  const log = isRecord(packet.log) ? packet.log : {};
+  const sources = {
+    exactAuthorshipSummary: stringValue(proof.exactAuthorshipSummary.requestId),
+    exactAuthorshipPacket: stringValue(packet.requestId),
+    sourceSnapshot: stringValue(sourceSnapshot.requestId),
+    log: stringValue(log.requestId),
+  };
+  const values = Object.values(sources).filter((value): value is string => value !== undefined);
+  const uniqueValues = [...new Set(values)].sort((left, right) => left.localeCompare(right));
+  const blockedBy =
+    uniqueValues.length === 0
+      ? ["request-identity.missing"]
+      : uniqueValues.length > 1
+        ? ["request-identity.conflict"]
+        : [];
+  return {
+    requestId: uniqueValues.length === 1 ? uniqueValues[0] : undefined,
+    status: blockedBy.length === 0 ? "matched" as const : "blocked" as const,
+    blockedBy,
+    sources,
+  };
 }
 
 async function readAndCompareRuntimeIdentity(
@@ -295,6 +342,10 @@ function uniqueNumbers(values: ReadonlyArray<number | null>): number[] {
 
 function numberValue(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 function probeNumber(value: Civ7RuntimeProbe<number>): number | undefined {

@@ -5,12 +5,13 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-feasibility-classification-drain`
-  stacked above `codex/swooper-resource-feasibility-readback-drain`
+- Branch/Graphite stack: `codex/swooper-resource-delta-context-drain`
+  stacked above `codex/swooper-resource-feasibility-classification-drain`
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
-  feasibility classification now narrows the next resource repair class.
+  feasibility plus row/static-policy/live-plot diagnostic context now narrows
+  the next resource repair class.
   Remaining feature/resource classes still need source-authority classification
   before repair.
 
@@ -128,19 +129,23 @@
 - Full feasibility artifact progress:
   `scripts/civ7-direct-control/verify-resource-delta-feasibility.ts` now emits
   a complete row-level resource feasibility proof from a saved final-surface
-  proof using package-owned direct-control readback. It first reads current
+  proof using package-owned direct-control readback. It resolves request id
+  from exact-authorship summary, packet, source snapshot, and log fields, and
+  blocks if those sources are missing or conflicting. It then reads current
   live map identity through `getCiv7MapSummary` and blocks if width, height,
   plot count, seed, turn, or game hash do not match the saved proof identity.
   The current artifact is
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
-  (`sha256:8ea0fcbf898c4cacd7bf1a19f8955e846e4c18631af4a7673ffc7cf058d8c35d`,
-  `proofHash:b066b90c41d89e5be0cec575218b0e14351a18f8a1c416f5948249c5acfbd2b2`).
-  Runtime identity is matched to the saved proof at `106x66`, `6996` plots,
-  seed `138503614`, turn `1`, and game hash `0`. The artifact preserves the
-  strict-readback caveat and records the `ignoreWeight:true` split: `37`
-  live-feasible/no-local-assignment, `28` local-feasible/live-empty, `9`
-  local-overaccepted/live-empty, `31` substitution-both-feasible, and `1`
-  substitution-both-infeasible.
+  (`sha256:2ec76e1329ab0b103e4f210c38d57ea3ea562616bad101ada0825d7cc10f8b6b`,
+  `proofHash:08f5092303026bb0dd3bbc161bd2adff2984c6bb996cba6ab4758fd581118c8e`).
+  Request identity resolves to `studio-run-in-game-mq20rbzr-1fhc`; runtime
+  identity is matched to the saved proof at `106x66`, `6996` plots, seed
+  `138503614`, turn `1`, and game hash `0`. The artifact preserves the
+  strict-readback caveat, carries local/live surface context and static legality
+  reasons for every resource delta row, and records the `ignoreWeight:true`
+  split: `37` live-feasible/no-local-assignment, `28`
+  local-feasible/live-empty, `9` local-overaccepted/live-empty, `31`
+  substitution-both-feasible, and `1` substitution-both-infeasible.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen

@@ -49,6 +49,14 @@ export type ResourceDeltaPlacementContext = Readonly<{
   plotIndex: number;
   localResource: Readonly<{ value: number | null; symbol: string }>;
   liveResource: Readonly<{ value: number | null; symbol: string }>;
+  localContext: CellSurfaceContext;
+  liveContext: CellSurfaceContext;
+  legality: Readonly<{
+    localValueOnLocal?: StaticSurfaceLegality;
+    localValueOnLive?: StaticSurfaceLegality;
+    liveValueOnLocal?: StaticSurfaceLegality;
+    liveValueOnLive?: StaticSurfaceLegality;
+  }>;
   plannedPreferredResourceType: number | null;
   plannedPreferredResourceSymbol: string;
   localOutcome: ResourcePlacementOutcomeContext | null;
@@ -207,6 +215,8 @@ export function buildResourceDeltaPlacementContexts(
     const x = index - y * proof.local.width;
     const plannedPreferredResourceType = resourcePlan.preferredByPlot.get(index) ?? null;
     const localOutcome = outcomes.byPlot.get(index) ?? null;
+    const localContext = cellSurfaceContext(proof.local, x, y);
+    const liveContext = cellSurfaceContext(proof.live, x, y);
     rows.push({
       x,
       y,
@@ -218,6 +228,22 @@ export function buildResourceDeltaPlacementContexts(
       liveResource: {
         value: liveResource,
         symbol: symbolFor("resource", liveResource),
+      },
+      localContext,
+      liveContext,
+      legality: {
+        ...(localResource === null
+          ? {}
+          : { localValueOnLocal: staticSurfaceLegality(proof.local, "resource", x, y, localResource) }),
+        ...(localResource === null
+          ? {}
+          : { localValueOnLive: staticSurfaceLegality(proof.live, "resource", x, y, localResource) }),
+        ...(liveResource === null
+          ? {}
+          : { liveValueOnLocal: staticSurfaceLegality(proof.local, "resource", x, y, liveResource) }),
+        ...(liveResource === null
+          ? {}
+          : { liveValueOnLive: staticSurfaceLegality(proof.live, "resource", x, y, liveResource) }),
       },
       plannedPreferredResourceType,
       plannedPreferredResourceSymbol: symbolFor("resource", plannedPreferredResourceType),
