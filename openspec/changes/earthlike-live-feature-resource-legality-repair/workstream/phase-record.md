@@ -1039,31 +1039,36 @@
   --help`; `bun run openspec -- validate
   earthlike-live-feature-resource-legality-repair --strict`; `bun run
   openspec:validate` (`76` passed, `0` failed); and `git diff --check`.
+  Source-authority synthesis after these diagnostics: current final-surface
+  parity remains open, but the next proof queue is narrowed. Resource
+  local-overaccepted/live-empty rows are first because `62` rows have concrete
+  assignment and ResourceBuilder context, including `56` scarce-floor target
+  `7` rows. Local-only ecology-feature materialization is second because `78`
+  local-only rows are Civ-infeasible and `30` are Civ-feasible but live-omitted.
+  Terrain projection/readback is third because all `139` terrain rows still
+  have unresolved ownership and are dominated by coast/flat/hill/navigable-river
+  projection swaps. Live-only resource additions, both-feasible resource
+  substitutions, live-feature Civ-infeasible rows, and unclassified feature
+  swaps do not authorize tuning or direct repair yet.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the current unresolved links from
-  `studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` before
-  any final-surface parity or product acceptance claim. Then continue
-  classifying the remaining feature/resource rows by source authority:
-  official data,
-  adapter/map-policy, MapGen
-  planning/materialization, accepted engine materialization, or readback
-  limitation. Terrain edge rows may enter this slice only if diagnostics prove
-  shared materialization ownership. The unchanged resource mismatch count after
-  the adjacent-land repair and the assignment-evidence rerun means the next
-  resource authority gap is broad assignment ordering diagnostics for the
-  feasible live-only/local-empty/substitution classes plus hidden runtime
-  feasibility classification for the `9` local-assigned/live-empty rows where
-  Civ rejects the local value with `ignoreWeight:true`. For those `9` rows,
-  assignment trace rules out relaxed spacing and rebalance, and ResourceBuilder
-  diagnostics and the structured subclassification show `6` local resources
-  absent from Civ cut lists while `3` local resources are present in cut lists
-  but still rejected. Assignment-order and policy context show every focused
-  local value came from the scarce-floor quota pass and that the local floor
-  target exceeds the official minimum-per-hemisphere. The assignment-class
-  summary also shows scarce-floor accounts for `64/69` local-authored resource
-  delta rows overall, while the resource distribution context shows local
-  assigned counts match current ResourceBuilder counts for all `26` local
-  resource types represented by those deltas. The position context now also
+  `studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity.json` by
+  proving or rejecting the narrowed repair-owner candidates in order:
+  resource local-overacceptance/scarce-floor materialization, local-only
+  ecology-feature materialization, then terrain projection/readback. Do this
+  before any final-surface parity or product acceptance claim. The older
+  source-recorded context remains useful: for the prior `9` local-assigned
+  live-empty rows, assignment trace ruled out relaxed spacing and rebalance,
+  and ResourceBuilder diagnostics and structured subclassification showed `6`
+  local resources absent from Civ cut lists while `3` local resources were
+  present in cut lists but still rejected. Assignment-order and policy context
+  showed every focused local value came from the scarce-floor quota pass and
+  that the local floor target exceeded the official minimum-per-hemisphere. The
+  assignment-class summary also showed scarce-floor accounted for `64/69`
+  local-authored resource delta rows overall, while resource distribution
+  context showed local assigned counts matched current ResourceBuilder counts
+  for all `26` local resource types represented by those deltas. The position
+  context now also
   matches all `69` local-authored delta resources to same-resource live delta
   rows, mostly at long distance. Local materialization context proves the local
   final resource surface still matches every typed local placement outcome.
@@ -1072,15 +1077,15 @@
   No resource tuning, static-policy repair, scarce-floor repair, or
   assignment-order repair is authorized until a fresh exact-authored run binds
   local and live immediate placement coordinate identity or otherwise assigns
-  those subclasses to a concrete source owner. Feature rows are now split into
-  a reef absence and two natural-wonder one-tile offsets, with local intent,
-  application, footprint evidence, runtime-bound `canHaveFeature` probes,
-  footprint-direction alternatives, and planned-wonder readback context now
-  attached. Supported-catalog context now shows `5` unspecified multi-tile
-  entries where local projection fixes direction `-1` to direction `0`, with
-  exact-run readback for Kilimanjaro and Zhangjiajie only. The direction
-  context points at a real natural-wonder footprint orientation semantics gap
-  in the current readback set. The fresh `mq2spmz0` exact run now carries live
+  those subclasses to a concrete source owner. Older source-recorded feature
+  rows were split into a reef absence and two natural-wonder one-tile offsets,
+  with local intent, application, footprint evidence, runtime-bound
+  `canHaveFeature` probes, footprint-direction alternatives, and planned-wonder
+  readback context attached. Supported-catalog context showed `5` unspecified
+  multi-tile entries where local projection fixed direction `-1` to direction
+  `0`, with exact-run readback for Kilimanjaro and Zhangjiajie only. That
+  direction context pointed at a natural-wonder footprint orientation semantics
+  gap in the older readback set. The fresh `mq2spmz0` exact run now carries live
   natural-wonder placement telemetry and proves Civ placed `5/7` planned
   natural wonders while rejecting `2`, whereas local source diagnostics still
   predict `7/7/0`. This removes the old missing-telemetry blocker. Current code

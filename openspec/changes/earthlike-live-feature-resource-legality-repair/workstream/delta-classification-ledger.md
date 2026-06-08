@@ -1237,6 +1237,19 @@ ResourceBuilder diagnostics in groups of `8`; the batched run produced the
 artifact above. This is a diagnostic robustness repair, not a resource behavior
 change.
 
+Current source-authority synthesis:
+
+| Surface | Current interpretation | Next proof target |
+|---|---|---|
+| Terrain | All `139` rows remain source-authority unresolved. The dominant pairs are coast/flat/hill/navigable-river edge swaps (`24` coast->flat, `24` flat->navigable-river, `23` hill->coast, `21` navigable-river->flat, `15` coast->hill, `13` navigable-river->hill). This is a projection/readback-owner question, not a tuning target. | Prove whether terrain projection/readback belongs to map-rivers, morphology/coast policy, placement-surface validation, or accepted engine materialization before repair. |
+| Feature | `78` local-only ecology features are Civ-infeasible and `30` local-only ecology features are Civ-feasible but live-omitted; these are the strongest local materialization/feature-apply candidate owner buckets. `166` live-only features are Civ-infeasible on the live surface, and `107` swaps remain unclassified, so those do not authorize local tuning. | Prove local-only ecology-feature materialization authority before changing ecology/feature application. |
+| Resource | `62` local-overaccepted/live-empty rows are the strongest repo-owned candidate bucket; `56` come from scarce-floor target `7`, with focused ResourceBuilder classes `39` scarce-floor cut-excluded, `17` scarce-floor cut-included rejected, and `6` non-scarce-floor local overaccepted. `114` live-feasible/no-local-assignment rows and `51` both-feasible substitutions are materialization/projection questions rather than direct scarce-floor tuning authority. | Prove whether scarce-floor target/assignment or local materialization overacceptance owns the `62` local-overaccepted rows while preserving exact runtime resource diversity evidence. |
+
+This synthesis intentionally leaves final-surface parity and product acceptance
+open. It narrows the next repair proof queue to resource local-overacceptance
+first, local-only ecology-feature materialization second, and terrain
+projection/readback third.
+
 Source-recorded post-repair proof:
 request `studio-run-in-game-mq2u6wdg-1z4g` completed exact authorship and
 generated parity artifact

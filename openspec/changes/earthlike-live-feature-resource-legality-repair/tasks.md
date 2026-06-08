@@ -36,6 +36,17 @@
     live-feasible/no-local-assignment, `53` local-feasible/live-empty, `62`
     local-overaccepted/live-empty, `51` substitution-both-feasible, `27`
     substitution-mixed-feasibility, and `1` substitution-both-infeasible.
+  - Current source-authority synthesis does not close this row. It narrows the
+    next proof targets:
+    terrain remains a projection/readback-owner question (`139` unresolved
+    rows, dominated by coast/flat/hill/navigable-river edge swaps); feature
+    repair authority is strongest for the `78` local-only ecology features that
+    Civ reports infeasible and the `30` local-only ecology features that Civ
+    reports feasible but live omits; resource repair authority is strongest for
+    the `62` local-overaccepted/live-empty rows, especially the `56`
+    scarce-floor rows at target `7`. Live-only resource additions (`114`) and
+    both-feasible substitutions (`51`) remain materialization/projection
+    questions, not tuning authority.
 
 ## 2. Repair
 
@@ -234,6 +245,11 @@
     `[mapgen-complete]` evidence. Keep this row open only as the remaining
     bucket for any future package or MapGen owners proven by the open
     source-authority rows.
+  - Current diagnostics do not yet prove a new owner repair. The candidate
+    proof queue is: resource scarce-floor/local-overaccepted authority first,
+    local-only ecology-feature materialization authority second, terrain
+    projection/readback authority third. Do not tune or repair broader
+    live-only/substitution classes until a source owner is proven.
 - [ ] 2.43 Preserve resource spacing, age legality, and diversity expectations.
   - Current exact log proves `251` planned resources, `250` placed, `1`
     rejected, `0` mismatched, `34` unique planned/placed types, min/max placed
@@ -243,6 +259,10 @@
     `scarce-floor`, and `62` local-overaccepted/live-empty rows subclassified
     as `39` scarce-floor cut-excluded, `17` scarce-floor cut-included rejected,
     and `6` non-scarce-floor local overaccepted.
+  - Any accepted resource repair must preserve the current proof-class
+    separation: exact runtime distribution breadth (`34` placed resource types,
+    min/max placed count by type `7/8`) is a product-health guard, while
+    unresolved coordinate parity is still not product acceptance.
 
 ## 3. Verification
 
