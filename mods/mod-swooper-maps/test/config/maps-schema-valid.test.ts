@@ -141,6 +141,7 @@ const ECOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "icePlanning",
     "reefPlanning",
     "wetlandPlanning",
+    "floodplainPlanning",
     "vegetationPlanning",
     "plotEffectScoring",
     "plotEffectCoverage",
@@ -195,7 +196,6 @@ const PLACEMENT_PUBLIC_KEYS = [
   "knobs",
   "naturalWonders",
   "discoveries",
-  "floodplains",
   "resources",
   "starts",
 ] as const;
@@ -1013,7 +1013,6 @@ describe("Shipped map configs", () => {
       const expectedPlacement = stable(expected[id]) as any;
       delete observedPlacement["assign-starts"].starts;
       delete expectedPlacement.placement["derive-placement-inputs"].starts;
-      delete expectedPlacement.placement["assign-starts"].starts;
       expect({ placement: observedPlacement }).toEqual(expectedPlacement);
       expect(compiled.placement["derive-placement-inputs"].starts).toBeUndefined();
       expect(compiled.placement["assign-starts"].starts).toEqual({

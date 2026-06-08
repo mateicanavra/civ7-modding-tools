@@ -600,6 +600,9 @@
       "wetlandPlanning": {
         "minConfidence01": 0.42
       },
+      "floodplainPlanning": {
+        "minConfidence01": 0.5
+      },
       "vegetationPlanning": {
         "forestMinConfidence01": 0.04,
         "rainforestMinConfidence01": 0.29,

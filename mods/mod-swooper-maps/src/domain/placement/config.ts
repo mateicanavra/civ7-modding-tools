@@ -3,7 +3,7 @@ import { Type, type Static } from "@swooper/mapgen-core/authoring";
 import placement from "@mapgen/domain/placement";
 
 /**
- * Late-stage placement config (wonders, floodplains, starts).
+ * Late-stage placement config (wonders, resources, starts).
  * Sourced from placement domain operations to keep schema + logic colocated.
  */
 export const PlacementConfigSchema = Type.Object(
@@ -11,7 +11,6 @@ export const PlacementConfigSchema = Type.Object(
     wonders: placement.ops.planWonders.config,
     naturalWonders: placement.ops.planNaturalWonders.config,
     discoveries: placement.ops.planDiscoveries.config,
-    floodplains: placement.ops.planFloodplains.config,
     resources: placement.ops.planResources.config,
     starts: placement.ops.planStarts.config,
   },

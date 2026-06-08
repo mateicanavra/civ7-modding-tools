@@ -33,9 +33,11 @@ stale duplicate paths, and keep unrelated stacks out of scope.
   metadata for this recovery accounting pass.
 - The recovery stack locally accounts for the predecessor Swooper Earthlike,
   Studio setup/exact-authorship/final-surface, feature/resource, terrain-edge,
-  and natural-wonder proof trains listed in `recovery-accounting-ledger.json`.
-- `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` remains the
-  only Swooper product source adoption still planned for this accounting pass.
+  natural-wonder proof, and final Earthlike floodplain source-boundary trains
+  listed in `recovery-accounting-ledger.json`.
+- `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` is now
+  marked `done/adopt`; it is no longer parked or pending, though cleanup remains
+  blocked until the recovery stack lands.
 - The systematic workstream skill slice remains planned as a separate support
   adoption to main, not as Swooper product work.
 - Live-control and GT stack-inspect/toolkit lanes are explicitly excluded from

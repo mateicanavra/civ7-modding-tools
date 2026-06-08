@@ -60,34 +60,6 @@ export const PlacementDiscoveriesSchema = Type.Object(
   }
 );
 
-export const PlacementFloodplainsSchema = Type.Object(
-  {
-    minLength: Type.Optional(
-      Type.Integer({
-        default: 4,
-        minimum: 1,
-        maximum: 80,
-        description:
-          "Sets the shortest river segment length eligible for floodplain conversion during placement surface preparation.",
-      })
-    ),
-    maxLength: Type.Optional(
-      Type.Integer({
-        default: 10,
-        minimum: 1,
-        maximum: 120,
-        description:
-          "Sets the longest contiguous river length converted to floodplains during placement surface preparation.",
-      })
-    ),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Floodplain placement controls for river segment lengths used before resources, starts, and discoveries read the prepared map.",
-  }
-);
-
 export const PlacementResourcesSchema = Type.Object(
   {
     densityPer100Tiles: Type.Optional(
@@ -251,14 +223,13 @@ export const PlacementPublicSchema = Type.Object(
   {
     naturalWonders: Type.Optional(PlacementNaturalWondersSchema),
     discoveries: Type.Optional(PlacementDiscoveriesSchema),
-    floodplains: Type.Optional(PlacementFloodplainsSchema),
     resources: Type.Optional(PlacementResourcesSchema),
     starts: Type.Optional(PlacementStartsSchema),
   },
   {
     additionalProperties: false,
     description:
-      "Placement authoring controls for late gameplay products: natural wonders, discoveries, floodplains, resources, and first-age viable starts. Runtime map-size start counts and adapter catalogs are supplied by the run environment rather than authored here.",
+      "Placement authoring controls for late gameplay products: natural wonders, discoveries, resources, and first-age viable starts. Runtime map-size start counts and adapter catalogs are supplied by the run environment rather than authored here.",
   }
 );
 
@@ -268,7 +239,6 @@ export function compilePlacementPublicConfig(config: Record<string, unknown>) {
       wonders: defaultEnvelope({}),
       naturalWonders: defaultEnvelope(config.naturalWonders),
       discoveries: defaultEnvelope(config.discoveries),
-      floodplains: defaultEnvelope(config.floodplains),
       resources: defaultEnvelope(config.resources),
     },
     "plot-landmass-regions": {},

@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>System Card — Start Placement (assign-starts)</title>
+<!--
+  ============================================================================
+  PIPELINE SYSTEM CARD  ·  Start Placement (assign-starts)  ·  format v1
+  ----------------------------------------------------------------------------
+  Built with the civ7-pipeline-system-card skill. Content is project state.
+  Cited file:line. Confidence: ✓ read directly · ~ reported, not line-verified.
+  Sibling card: ../mountains/mountains-system-card.html
+  ============================================================================
+-->
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b24; --panel2:#1d2430; --ink:#e6edf3; --muted:#9aa7b5;
+    --line:#2a3340; --accent:#facc15; --accent2:#38bdf8; --good:#34d399;
+    --p1:#f87171; --p2:#fbbf24; --p3:#60a5fa; --refuted:#6b7280;
+    --truth:#a78bfa; --proj:#34d399; --up:#38bdf8;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 24px 80px}
+  code,.mono{font-family:var(--mono);font-size:.82em}
+  a{color:var(--accent2);text-decoration:none}
+  h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+  .cite{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  header.card{background:linear-gradient(135deg,#1a2230,#12161d);border:1px solid var(--line);border-radius:16px;padding:22px 26px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;box-shadow:0 1px 0 #ffffff08 inset}
+  .badge{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .title-block{flex:1 1 360px}
+  .eyebrow{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+  h1{font-size:30px;margin:4px 0 6px}
+  .subtitle{color:var(--muted);font-size:14px}
+  .meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px;font-size:12.5px;min-width:300px}
+  .meta div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+  .meta .k{color:var(--muted)} .meta .v{font-family:var(--mono);text-align:right}
+  section{margin-top:34px}
+  .sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .sec-h .n{font-family:var(--mono);font-size:13px;color:var(--bg);background:var(--accent);width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;flex:0 0 auto}
+  .sec-h h2{font-size:19px}
+  .sec-h .hint{color:var(--muted);font-size:12.5px;margin-left:auto}
+  .ribbon{display:flex;align-items:stretch;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .stage{flex:1 1 0;min-width:150px;padding:12px 14px;border-radius:10px;margin:4px;position:relative}
+  .stage.up{background:#0f2030;border:1px solid #1e3a4f}
+  .stage.truth{background:#1c1733;border:1px solid #34286b}
+  .stage.proj{background:#0f2a20;border:1px solid #1d4d3a}
+  .stage h3{font-size:13px;display:flex;align-items:center;gap:7px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .stage small{color:var(--muted);font-size:11px;display:block;margin-top:5px;line-height:1.45}
+  .arrow{align-self:center;color:var(--muted);font-size:20px;padding:0 2px}
+  .layer-stack{display:flex;flex-direction:column;gap:9px}
+  .origin-group{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+  .origin-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .origin-head .src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .origin-head .tag{font-family:var(--mono);font-size:11px;color:var(--up);text-transform:uppercase;letter-spacing:.06em}
+  .layers{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:1px;background:var(--line)}
+  .layer{background:var(--panel);padding:9px 12px}
+  .layer .nm{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+  .layer .ty{font-family:var(--mono);font-size:10.5px;color:var(--accent2)}
+  .layer .ph{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .panel h3{font-size:14px;margin-bottom:10px;color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  tbody tr:hover{background:#ffffff05}
+  .lossy{color:var(--p2);font-family:var(--mono);font-size:11px}
+  .keep{color:var(--good);font-family:var(--mono);font-size:11px}
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+  ol.steps>li{counter-increment:s;position:relative;padding:12px 14px 12px 50px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  ol.steps>li::before{content:counter(s);position:absolute;left:12px;top:12px;width:26px;height:26px;background:var(--panel2);border:1px solid var(--line);border-radius:7px;display:grid;place-items:center;font-family:var(--mono);font-size:12px;color:var(--accent)}
+  ol.steps>li b{color:var(--ink)} ol.steps>li .cite{display:block;margin-top:3px}
+  .heur{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+  .heur .panel{border-top:3px solid var(--truth)}
+  .heur .eff{margin-top:9px;font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+  .heur .eff b{color:var(--accent)}
+  .knob td:nth-child(1){font-family:var(--mono);color:var(--ink);white-space:nowrap}
+  .knob td:nth-child(2),.knob td:nth-child(3){font-family:var(--mono);text-align:center;white-space:nowrap}
+  .callout{background:linear-gradient(135deg,#1a2230,#141a22);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:14px 16px;font-size:13px}
+  .callout b{color:var(--accent)}
+  .issues{display:flex;flex-direction:column;gap:10px}
+  .issue{display:grid;grid-template-columns:64px 1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .sev{font-family:var(--mono);font-size:11px;font-weight:700;text-align:center;height:fit-content;padding:4px 0;border-radius:7px;letter-spacing:.04em}
+  .sev.P1{background:#3a1416;color:var(--p1);border:1px solid #5b1d20}
+  .sev.P2{background:#3a2c10;color:var(--p2);border:1px solid #5e4717}
+  .sev.P3{background:#11243f;color:var(--p3);border:1px solid #1d3a60}
+  .sev.RF{background:#20242b;color:var(--refuted);border:1px solid #333a44}
+  .issue .body h3{font-size:13.5px;margin-bottom:4px}
+  .issue .body p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
+  .issue .body .ev{font-family:var(--mono);font-size:11px;color:var(--accent2);margin-top:6px}
+  .strike{text-decoration:line-through;color:var(--refuted)}
+  footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:12px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  @media (max-width:760px){.grid2,.heur{grid-template-columns:1fr}.meta{grid-template-columns:1fr}}
+  @media print{body{background:#fff;color:#111}.wrap{max-width:none}header.card,.panel,.stage,.origin-group,ol.steps>li,.issue{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============================ HEADER ============================ -->
+  <header class="card">
+    <div class="title-block">
+      <div class="eyebrow">Pipeline System Card · placement / plan-starts</div>
+      <h1>Start Placement</h1>
+      <div class="subtitle">Decides which tile each player begins on — the pipeline's convergence point and the single most gameplay-determining step.</div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="badge">Deterministic · no RNG</span><span class="badge">11-artifact fan-in</span><span class="badge">Gameplay-critical</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div><span class="k">Subsystem</span><span class="v">placement / plan-starts</span></div>
+      <div><span class="k">Branch</span><span class="v">06-05-fix_studio…seeds</span></div>
+      <div><span class="k">Truth step</span><span class="v">assign-starts/index.ts</span></div>
+      <div><span class="k">Projection</span><span class="v">assign-starts/materialize.ts</span></div>
+      <div><span class="k">Ops</span><span class="v">plan-starts</span></div>
+      <div><span class="k">Output</span><span class="v">startAssignment</span></div>
+      <div><span class="k">Card date</span><span class="v">2026-06-05</span></div>
+      <div><span class="k">Format</span><span class="v">reusable v1</span></div>
+    </div>
+  </header>
+
+  <!-- ============================ RIBBON / DATAFLOW ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">▸</span><h2>End-to-end dataflow</h2>
+      <span class="hint">upstream → truth → projection → engine</span></div>
+    <div class="ribbon">
+      <div class="stage up"><h3><span class="dot" style="background:var(--up)"></span>Morphology · Hydrology · Ecology · Placement siblings</h3>
+        <small>land &amp; coast, rivers &amp; lakes, fertility &amp; climate, region slots, placed resources — 11 artifacts in all</small></div>
+      <div class="arrow">→</div>
+      <div class="stage truth"><h3><span class="dot" style="background:var(--truth)"></span>plan-starts — TRUTH</h3>
+        <small>scores every land tile for habitability, classifies it primary / island / marginal, sorts candidates</small></div>
+      <div class="arrow">→</div>
+      <div class="stage proj"><h3><span class="dot" style="background:var(--proj)"></span>assign-starts — PROJECTION</h3>
+        <small>picks &amp; spaces N winners per hemisphere, then stamps each into the engine via setStartPosition(plot, player)</small></div>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--up)"></span>upstream artifact</span>
+      <span><span class="dot" style="background:var(--truth)"></span>domain truth</span>
+      <span><span class="dot" style="background:var(--proj)"></span>projection</span>
+      <span class="cite">policy: docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md</span>
+    </div>
+  </section>
+
+  <!-- ============================ A · INPUTS AS LAYERS ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">A</span><h2>Inputs as layers &amp; where they originate</h2>
+      <span class="hint">grouped by what they represent — 11 artifacts, 4 origin families</span></div>
+    <div class="layer-stack">
+
+      <div class="origin-group">
+        <div class="origin-head"><span class="tag">land structure</span>
+          <span class="dot" style="background:var(--up)"></span>
+          <span>where solid, expandable, coast-adjacent land is</span>
+          <span class="src">morphology-* · ✓consumed at index.ts:23-25,45-51</span></div>
+        <div class="layers">
+          <div class="layer"><div class="nm">topography.landMask</div><div class="ty">Uint8Array 0/1</div><div class="ph">land(1)/water(0) — the first gate; water tiles never qualify</div></div>
+          <div class="layer"><div class="nm">topography.elevation</div><div class="ty">Int16Array</div><div class="ph">local relief → roughness penalty (range over hex radius 1)</div></div>
+          <div class="layer"><div class="nm">landmasses.landmassIdByTile</div><div class="ty">Int32Array</div><div class="ph">which continent a tile belongs to</div></div>
+          <div class="layer"><div class="nm">landmasses[].tileCount</div><div class="ty">number[]</div><div class="ph">continent size → "big enough to be a primary start?"</div></div>
+          <div class="layer"><div class="nm">coastlineMetrics.distanceToCoast</div><div class="ty">Uint16Array</div><div class="ph">tiles to nearest coast → island-tier gate</div></div>
+          <div class="layer"><div class="nm">coastlineMetrics.coastalLand / shelfMask</div><div class="ty">Uint8Array</div><div class="ph">coast adjacency fallback when distance absent</div></div>
+        </div>
+      </div>
+
+      <div class="origin-group">
+        <div class="origin-head"><span class="tag">fresh water</span>
+          <span class="dot" style="background:var(--up)"></span>
+          <span>rivers &amp; lakes that make a tile habitable</span>
+          <span class="src">hydrology-hydrography · ✓consumed at index.ts:57-58</span></div>
+        <div class="layers">
+          <div class="layer"><div class="nm">hydrography.riverClass</div><div class="ty">Uint8Array 0/1/2</div><div class="ph">none/minor/major — on-tile river → freshwater score (×0.5 cap), neighbor river → 0.8</div></div>
+          <div class="layer"><div class="nm">lakePlan.lakeMask</div><div class="ty">Uint8Array 0/1</div><div class="ph">planned lakes — reject if on the tile; neighbor lake → 0.7 freshwater bonus</div></div>
+        </div>
+      </div>
+
+      <div class="origin-group">
+        <div class="origin-head"><span class="tag">habitability · soil &amp; climate</span>
+          <span class="dot" style="background:var(--up)"></span>
+          <span>how productive &amp; comfortable the surrounding land is</span>
+          <span class="src">ecology-pedology + ecology-biomes · ✓consumed at index.ts:53-56</span></div>
+        <div class="layers">
+          <div class="layer"><div class="nm">pedology.fertility</div><div class="ty">Float32Array 0..1</div><div class="ph">soil yield — radius-2 average; the top-weighted scoring term (1.2)</div></div>
+          <div class="layer"><div class="nm">biomeClassification.effectiveMoisture</div><div class="ty">Float32Array</div><div class="ph">climate score input (wetter = better)</div></div>
+          <div class="layer"><div class="nm">biomeClassification.surfaceTemperature</div><div class="ty">Float32Array °C</div><div class="ph">climate score input (optimal 16°C; ±36 falloff)</div></div>
+          <div class="layer"><div class="nm">biomeClassification.aridityIndex</div><div class="ty">Float32Array 0..1</div><div class="ph">climate score input (drier = worse)</div></div>
+        </div>
+      </div>
+
+      <div class="origin-group">
+        <div class="origin-head"><span class="tag">placement context · prior products</span>
+          <span class="dot" style="background:var(--proj)"></span>
+          <span>who plays where, and what was already placed</span>
+          <span class="src">placement siblings + engine runtime · ✓consumed at index.ts:19-61</span></div>
+        <div class="layers">
+          <div class="layer"><div class="nm">placementInputs → baseStarts</div><div class="ty">{playersLandmass1/2, startSectors…}</div><div class="ph">players-per-hemisphere &amp; sector grid, from engine mapInfo via derive-placement-inputs</div></div>
+          <div class="layer"><div class="nm">landmassRegionSlotByTile.slotByTile</div><div class="ty">Uint8Array 0/1/2</div><div class="ph">west(1)/east(2) bucket per tile (plot-landmass-regions)</div></div>
+          <div class="layer"><div class="nm">resourcePlacementOutcomes → placedResourcePlotIndices</div><div class="ty">number[]</div><div class="ph">already-placed resources → resource-support field (resources run BEFORE starts)</div></div>
+          <div class="layer"><div class="nm">placementSurfacePreparation</div><div class="ty">artifact (read-only)</div><div class="ph">ordering/effect gate — read to enforce it ran, value unused</div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================ B · TRANSFORMS & PHYSICAL LAYERS ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">B</span><h2>What it produces &amp; how it maps to physical layers</h2>
+      <span class="hint">candidate scoring → published assignment → engine</span></div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Published artifact · <code>startAssignment</code> <span class="cite">✓materialize.ts:220-233</span></h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">positions</td><td>int[]</td><td>tile per player (index = player)</td></tr>
+            <tr><td class="mono">assigned</td><td>int</td><td>total players placed (== totalPlayers or it throws)</td></tr>
+            <tr><td class="mono">regionalAssigned</td><td>int</td><td>placed by primary per-hemisphere pass</td></tr>
+            <tr><td class="mono">openPoolAssigned</td><td>int</td><td>placed by cross-region fallback</td></tr>
+            <tr><td class="mono">desperationAssigned</td><td>int</td><td>placed by last-resort fallback</td></tr>
+            <tr><td class="mono">primary/islandCluster/marginalAssigned</td><td>int</td><td>tier mix of the chosen starts</td></tr>
+            <tr><td class="mono">candidateCount · rejectionCounts · tierCounts</td><td>int / map</td><td>diagnostics: pool size &amp; why tiles were rejected</td></tr>
+          </tbody></table>
+      </div>
+      <div class="panel">
+        <h3>Truth → engine <span class="cite">✓materialize.ts:146-218</span></h3>
+        <table><thead><tr><th>Planned</th><th>Engine output</th><th>Fidelity</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">chosen start tile</td><td class="mono">setStartPosition(plot,player)</td><td class="keep">1:1</td></tr>
+            <tr><td>player → hemisphere</td><td>positions[] index order</td><td class="keep">1:1</td></tr>
+            <tr><td>viability score (0..1)</td><td>— ranking only —</td><td class="lossy">dropped</td></tr>
+            <tr><td>tier (primary/island/marginal)</td><td>implicit in pick order</td><td class="lossy">dropped</td></tr>
+            <tr><td>scoreByTile / tierByTile fields</td><td>viz layer</td><td class="lossy">viz-only</td></tr>
+            <tr><td>start sectors / min spacing</td><td>narrow &amp; space the pool</td><td class="lossy">applied, then discarded</td></tr>
+          </tbody></table>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:16px"><b>Physical-layer reading.</b> A start models a <b>habitable home region</b>: the op fuses a loosely-physical
+      habitability surface — land area &amp; expansion room, fresh water, soil fertility, climate comfort, terrain roughness, nearby resources —
+      into one scalar suitability score, then spaces the winners apart for fairness. At the engine boundary all of that collapses to a single
+      <code>(plotIndex, playerIndex)</code> pair: the engine learns <i>where</i> each player starts but nothing about <i>why</i>, which tier it
+      came from, or how close the runner-up was — so nothing downstream can rebalance against start quality.</div>
+  </section>
+
+  <!-- ============================ C · ALGORITHM ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">C</span><h2>The algorithm, in plain language</h2>
+      <span class="hint">✓ verified against source</span></div>
+    <ol class="steps">
+      <li><b>Gather base starts &amp; config.</b> Read players-per-hemisphere and the start-sector grid from the engine mapInfo runtime, and clone the <code>starts</code> knob block. <span class="cite">✓ index.ts:30-44 · runtime via derive-placement-inputs</span></li>
+      <li><b>Scan every tile, gate hard.</b> Reject water (<code>landMask≠1</code>), planned lakes (<code>lakeMask=1</code>), and tiles outside a region slot (<code>slot∉{1,2}</code>) before any scoring. <span class="cite">✓ plan-starts/strategies/default.ts:362-379</span></li>
+      <li><b>Measure the land envelope.</b> Compute continent size, same-continent land within the expansion radius (4), any land within the island radius (5), and distance to coast. <span class="cite">✓ default.ts:381-408</span></li>
+      <li><b>Classify a tier.</b> single-tile → reject; <b>primary</b> if ≥24 contiguous &amp; ≥14 expansion; else <b>islandCluster</b> if ≥18 nearby land &amp; ≤1 from coast; else <b>marginal</b> at 50%/65% of the primary gates; else reject. <span class="cite">✓ default.ts:208-238</span></li>
+      <li><b>Score habitability.</b> Fresh water (neighbor river 0.8 / lake 0.7, on-tile river ≤0.5), resource support (placed resources within radius 4, normalized 0..1), roughness penalty (local elevation range ÷900), and radius-2 averages of fertility / moisture / aridity / temperature. <span class="cite">✓ default.ts:146-206, 436-478</span></li>
+      <li><b>Blend into one composite score.</b> <code>(landScore·largeLandmassW + fertility·fertilityW + resource·resourceW + freshwater·freshwaterW + climate) ÷ (Σweights + 1)</code>, then <code>+ tierBias (±0.08/0.02) − roughness·weight·0.12</code>, clamped 0..1. <span class="cite">✓ default.ts:258-306</span></li>
+      <li><b>Sort candidates deterministically.</b> By tier (primary &gt; island &gt; marginal), then score desc, then plotIndex asc — a stable order with no randomness. <span class="cite">✓ default.ts:509-514 · materialize.ts:105</span></li>
+      <li><b>Select per hemisphere with spacing.</b> Optionally filter a region's pool by active start sectors (fall back to the full region pool if empty), then greedily take the best-ranked tile at least <code>minStartSpacing</code> (9) from everything chosen; relax the spacing by 1 when stuck, down to 0. <span class="cite">✓ materialize.ts:116-144, 482-530</span></li>
+      <li><b>Open-pool fallback.</b> If a region came up short, refill the empty player slots from the combined candidate pool using the same ranked-with-spacing logic. <span class="cite">✓ materialize.ts:165-188</span></li>
+      <li><b>Desperation fallback.</b> If still short, pick from any remaining in-slot land tile by maximum distance only (no quality) so every player is guaranteed a tile. <span class="cite">✓ materialize.ts:190-212, 546-576</span></li>
+      <li><b>Assert &amp; write.</b> Throw if not every player was placed; otherwise each chosen tile has already been stamped into the engine via <code>adapter.setStartPosition(plot, player)</code>. <span class="cite">✓ materialize.ts:146-218</span></li>
+    </ol>
+
+    <h3 style="margin-top:22px;font-size:15px">Key heuristics &amp; what they buy you</h3>
+    <div class="heur">
+      <div class="panel"><h3>Tiered viability gate</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin:0">Splits land into primary / islandCluster / marginal before scoring, with hard size &amp; coast thresholds.</p>
+        <div class="eff"><b>Effect:</b> protects players from tiny-island or cramped starts on continental maps, while still <b>enabling deliberate archipelago starts</b>. <span class="cite">default.ts:208-238</span></div></div>
+      <div class="panel"><h3>Habitability blend, fertility-led</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin:0">A weighted sum where fertility carries the top default weight (1.2); fresh water, resources, land size &amp; climate fill in.</p>
+        <div class="eff"><b>Effect:</b> pulls starts toward <b>fertile, watered, resource-adjacent, expandable land</b> rather than raw geography. <span class="cite">default.ts:258-306</span></div></div>
+      <div class="panel"><h3>Spacing-with-relaxation</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin:0">Greedy max-spacing selection that loosens the minimum distance only when no candidate satisfies it.</p>
+        <div class="eff"><b>Effect:</b> spreads players apart for fairness, but <b>degrades gracefully</b> (toward adjacency) rather than failing on crowded maps. <span class="cite">materialize.ts:482-530</span></div></div>
+    </div>
+
+    <h3 style="margin-top:22px;font-size:15px">Headline knobs <span class="cite">defaults ✓contract.ts:186-271 · preset ✓swooper-earthlike.config.json:757-771</span></h3>
+    <table class="knob"><thead><tr><th>Knob</th><th>Default</th><th>Earthlike</th><th>Controls / effect of raising</th></tr></thead>
+      <tbody>
+        <tr><td>minContiguousLandTiles</td><td>24</td><td>24</td><td>↑ = fewer tiles qualify as primary (stricter "big continent" starts) <span class="cite">:188</span></td></tr>
+        <tr><td>minExpansionLandTiles</td><td>14</td><td>4</td><td>↑ = candidates need more elbow room; Earthlike loosens this hard <span class="cite">:201</span></td></tr>
+        <tr><td>minIslandClusterLandTiles</td><td>18</td><td>3</td><td>↑ = harder for archipelago starts; Earthlike makes tiny clusters viable <span class="cite">:214</span></td></tr>
+        <tr><td>maxIslandStartCoastDistance</td><td>1</td><td>8</td><td>↑ = island-tier starts allowed further inland <span class="cite">:221</span></td></tr>
+        <tr><td>minStartSpacingTiles</td><td>9</td><td>9</td><td>↑ = players forced further apart (may trigger relaxation/fallback) <span class="cite">:228</span></td></tr>
+        <tr><td>largeLandmassWeight</td><td>1</td><td>4</td><td>↑ = land-envelope size dominates the score; Earthlike's 4× makes expansiveness the top factor <span class="cite">:258</span></td></tr>
+        <tr><td>fertilityWeight</td><td>1.2</td><td>1.2</td><td>↑ = soil fertility dominates start choice <span class="cite">:234</span></td></tr>
+        <tr><td>freshwaterWeight</td><td>0.9</td><td>0.9</td><td>↑ = stronger pull toward rivers/lakes <span class="cite">:252</span></td></tr>
+        <tr><td>resourceSupportRadiusTiles</td><td>4</td><td>1</td><td>↑ = wider resource halo counts toward a start; Earthlike tightens it to immediate neighbors <span class="cite">:246</span></td></tr>
+        <tr><td>roughnessPenaltyWeight</td><td>0.6</td><td>0.6</td><td>↑ = rugged tiles penalized harder <span class="cite">:264</span></td></tr>
+      </tbody></table>
+
+    <div class="callout" style="margin-top:16px"><b>Worked example — swooper-earthlike.</b> Earthlike does two things at once. It <b>loosens the viability gates</b>
+      (minExpansion 14→4, island cluster 18→3, coast distance 1→8), so far more tiles survive as candidates — then it <b>quadruples
+      <code>largeLandmassWeight</code> (1→4)</b>, which makes the score denominator <code>4 + 1.2 + 1 + 0.9 + 1 = 8.1</code> and lets land-envelope
+      size alone supply ≈ <b>49%</b> of a tile's base score. Net effect: cast a wide net for viable starts, then strongly prefer the most expansive
+      interior-land starts — while resource pull is dialed back to a radius-1 halo. A clean case of a <b>loosened gate × a dominant single weight</b> compounding.</div>
+    <div class="callout" style="margin-top:12px;border-left-color:var(--good)"><b>Determinism.</b> Start placement uses <b>no randomness at all</b> — a grep
+      of <code>plan-starts</code> and <code>materialize.ts</code> finds zero <code>Math.random</code> / seed / RNG / noise. Candidate order is
+      <code>(tier, score, plotIndex)</code>; selection ties break on <code>(rankingScore, score, plotIndex)</code>; distances use periodic-X hex geometry.
+      Identical upstream artifacts + identical config ⇒ identical starts, every run. <span class="cite">✓ default.ts:509-514 · materialize.ts:105,506-510</span></div>
+  </section>
+
+  <!-- ============================ D · ISSUES / RISKS ============================ -->
+  <section>
+    <div class="sec-h"><span class="n">D</span><h2>Issues, risks &amp; verification notes</h2>
+      <span class="hint">flagged by the team, then adversarially re-read by the owner</span></div>
+    <div class="issues">
+
+      <div class="issue"><div class="sev P2">P2</div><div class="body">
+        <h3>Spacing silently relaxes to adjacency</h3>
+        <p>When no candidate satisfies the minimum spacing, the selector decrements it by 1 and retries — all the way to 0. On sparse-land or high-<code>minStartSpacingTiles</code> maps two starts can end up a single tile apart, with no warning, telemetry, or record that the target spacing was abandoned. Spacing is a soft preference, not the guarantee its name implies.</p>
+        <div class="ev">✓ materialize.ts:491-523</div></div></div>
+
+      <div class="issue"><div class="sev P2">P2</div><div class="body">
+        <h3>Assign-all-or-throw, no graceful degradation</h3>
+        <p>If regional + open-pool + desperation still can't fill every player slot, the step throws and map generation fails outright. Reaching it needs fewer in-slot land tiles than players (a pathological / over-packed map), but there is no partial-placement or relaxed fallback — it is all-or-nothing. <i>(Downgraded from a sub-agent P1: it is a fail-loud guard requiring an unrealistic config, not wrong output on a realistic one.)</i></p>
+        <div class="ev">✓ materialize.ts:214-218</div></div></div>
+
+      <div class="issue"><div class="sev P3">P3</div><div class="body">
+        <h3>Desperation tiles ignore all quality</h3>
+        <p>Once both prior tiers are exhausted, tiles are chosen by maximum spacing distance only — no fertility, fresh water, tier, or score — so a forced start can land on land the planner explicitly rejected. Gated behind an already-rare fallback, but genuinely unfair when it fires.</p>
+        <div class="ev">✓ materialize.ts:546-576</div></div></div>
+
+      <div class="issue"><div class="sev P3">P3</div><div class="body">
+        <h3>Two-region bucketing regardless of continent count</h3>
+        <p>Every landmass is assigned to west(1) or east(2) purely by its bounding-box center x; players are split into exactly two hemispheres even on maps with three or more major continents, and a continent straddling the midline tips to one side wholesale. By design, but load-bearing for any fairness reasoning.</p>
+        <div class="ev">✓ plot-landmass-regions/index.ts:37-38</div></div></div>
+
+      <div class="issue"><div class="sev P3">P3</div><div class="body">
+        <h3>Hardcoded scoring constants without knobs</h3>
+        <p>Several tuning constants are literals, not config: the roughness divisor <code>900</code> (while its <i>weight</i> is a knob), the tier biases <code>+0.08 / +0.02 / −0.08</code>, the selection blend <code>0.86·score + 0.14·spacing</code>, and the marginal-tier ratios <code>0.5× / 0.65×</code>. None can be tuned per preset, so the score/spacing trade-off and roughness calibration are fixed across all maps.</p>
+        <div class="ev">✓ default.ts:179, 231-235, 304-305 · materialize.ts:506</div></div></div>
+
+      <div class="issue"><div class="sev P3">P3</div><div class="body">
+        <h3>Silent neutral fallbacks for missing climate/soil</h3>
+        <p>When a climate/soil layer has no value for a tile, scoring substitutes fertility 0.5 / aridity 0.45 / temperature 16°C and continues. A partially-populated ecology layer biases scoring toward "neutral" rather than failing or flagging, which can quietly distort start choice.</p>
+        <div class="ev">✓ default.ts:447-478</div></div></div>
+
+    </div>
+
+    <h3 style="margin-top:22px;font-size:14px;color:var(--muted)">Refuted during verification
+      <span class="cite">— flagged by a lane, then disproven by direct reading. Kept for diagnostic memory.</span></h3>
+    <div class="issues" style="margin-top:10px">
+
+      <div class="issue"><div class="sev RF">REF</div><div class="body">
+        <h3 class="strike">"P1 — resource-support builder has no bounds check → out-of-bounds writes / corruption"</h3>
+        <p>False. <code>buildResourceSupport</code> coerces each index with <code>raw | 0</code> and <code>continue</code>s on <code>plotIndex &lt; 0 || plotIndex &gt;= size</code> before ever indexing the counts array. Invalid upstream indices are skipped, not written.</p>
+        <div class="ev">✓ default.ts:192-194</div></div></div>
+
+      <div class="issue"><div class="sev RF">REF</div><div class="body">
+        <h3 class="strike">"P2 — inactive start sectors silently starve a region, forcing the open pool"</h3>
+        <p>False. The sector filter is applied as <code>filtered.length ? filtered : regionCandidates</code> — if it yields nothing, selection falls back to the full regional candidate pool, not an empty one. Sector misconfiguration is handled gracefully.</p>
+        <div class="ev">✓ materialize.ts:131</div></div></div>
+
+      <div class="issue"><div class="sev RF">REF</div><div class="body">
+        <h3 class="strike">"P3 — freshwater river/lake bonus logic is inverted in the comments"</h3>
+        <p>False on two counts: there are no comments at the site, and river (0.8) is correctly weighted above lake (0.7). The scoring is internally consistent — rivers are the stronger fresh-water signal.</p>
+        <div class="ev">✓ default.ts:153-161</div></div></div>
+
+      <div class="issue"><div class="sev RF">REF</div><div class="body">
+        <h3 class="strike">"score = landScore·fertilityWeight + fertility·fertilityWeight + …"</h3>
+        <p>Transcription error. The composite weights <code>landScore</code> by <code>largeLandmassWeight</code> and <code>fertility</code> by <code>fertilityWeight</code> — distinct weights. The corrected formula is the one used in section C, step 6.</p>
+        <div class="ev">✓ default.ts:292-303</div></div></div>
+
+    </div>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer>
+    <b>Provenance.</b> Built with the <code>civ7-pipeline-system-card</code> skill: four blind read-only agent lanes
+    (inputs/provenance · algorithm/knobs/seeds · projection/physical mapping · config/presets/risks) produced a cited corpus,
+    then the owner re-read the source behind every algorithm step and every proposed P1/P2. <b>3 of 4 proposed P1s were refuted</b>
+    (bounds check exists; sector filter degrades gracefully; freshwater "inverted comments" false) and the 4th was downgraded to P2;
+    no P1 survived scrutiny. Surviving: 2×P2 + 4×P3 (several hardcoded-constant findings consolidated). Ledger: <code>corpus-ledger.md</code>.
+    <div class="legend">
+      <span><span class="dot" style="background:var(--p1)"></span>P1 blocking</span>
+      <span><span class="dot" style="background:var(--p2)"></span>P2 important</span>
+      <span><span class="dot" style="background:var(--p3)"></span>P3 watch</span>
+      <span><span class="dot" style="background:var(--refuted)"></span>refuted</span>
+      <span>✓ = read directly · ~ = reported, not line-verified</span>
+    </div>
+    <p style="margin-top:12px"><b>Reuse:</b> copy this file, keep the section skeleton + primitives, swap content. Target-state twin (“should” side): <a href="system-card-target.html">system-card-target.html</a> · sibling card: <code>../mountains/mountains-system-card.html</code>.</p>
+  </footer>
+
+</div>
+</body>
+</html>

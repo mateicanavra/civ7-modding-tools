@@ -1,3 +1,5 @@
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+
 export type BiomeSymbol =
   | "snow"
   | "tundra"
@@ -19,40 +21,34 @@ export const BIOME_SYMBOL_ORDER: ReadonlyArray<BiomeSymbol> = [
   "desert",
 ];
 
-export type FeatureKey =
-  | "FEATURE_FOREST"
-  | "FEATURE_RAINFOREST"
-  | "FEATURE_TAIGA"
-  | "FEATURE_SAVANNA_WOODLAND"
-  | "FEATURE_SAGEBRUSH_STEPPE"
-  | "FEATURE_MARSH"
-  | "FEATURE_TUNDRA_BOG"
-  | "FEATURE_MANGROVE"
-  | "FEATURE_OASIS"
-  | "FEATURE_WATERING_HOLE"
-  | "FEATURE_REEF"
-  | "FEATURE_COLD_REEF"
-  | "FEATURE_ATOLL"
-  | "FEATURE_LOTUS"
-  | "FEATURE_ICE";
+export type FeatureKey = Extract<keyof typeof CIV7_BROWSER_TABLES_V0.featureTypes, string>;
 
-export const FEATURE_PLACEMENT_KEYS: ReadonlyArray<FeatureKey> = [
-  "FEATURE_FOREST",
-  "FEATURE_RAINFOREST",
-  "FEATURE_TAIGA",
-  "FEATURE_SAVANNA_WOODLAND",
-  "FEATURE_SAGEBRUSH_STEPPE",
-  "FEATURE_MARSH",
-  "FEATURE_TUNDRA_BOG",
-  "FEATURE_MANGROVE",
-  "FEATURE_OASIS",
-  "FEATURE_WATERING_HOLE",
-  "FEATURE_REEF",
-  "FEATURE_COLD_REEF",
-  "FEATURE_ATOLL",
-  "FEATURE_LOTUS",
-  "FEATURE_ICE",
-];
+function isEcologyPlacedOfficialFeature(featureKey: string): featureKey is FeatureKey {
+  const featureIndex = CIV7_BROWSER_TABLES_V0.featureTypes[featureKey as FeatureKey];
+  if (featureIndex == null) return false;
+  if (featureKey === "FEATURE_VOLCANO") return false;
+  const policy =
+    CIV7_BROWSER_TABLES_V0.featurePolicies[String(featureIndex) as keyof typeof CIV7_BROWSER_TABLES_V0.featurePolicies];
+  if (policy && "naturalWonderTiles" in policy) return false;
+  const validTerrain =
+    CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices[
+      String(featureIndex) as keyof typeof CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices
+    ];
+  const validBiome =
+    CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices[
+      String(featureIndex) as keyof typeof CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices
+    ];
+  return Array.isArray(validTerrain) && validTerrain.length > 0 && Array.isArray(validBiome) && validBiome.length > 0;
+}
+
+export const FEATURE_PLACEMENT_KEYS: ReadonlyArray<FeatureKey> = Object.keys(
+  CIV7_BROWSER_TABLES_V0.featureTypes
+)
+  .filter(isEcologyPlacedOfficialFeature)
+  .sort(
+    (a, b) =>
+      CIV7_BROWSER_TABLES_V0.featureTypes[a] - CIV7_BROWSER_TABLES_V0.featureTypes[b]
+  );
 
 export const FEATURE_KEY_INDEX = FEATURE_PLACEMENT_KEYS.reduce((acc, key, index) => {
   acc[key] = index;

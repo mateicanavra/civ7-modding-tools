@@ -17,7 +17,7 @@ export default createMap({
   description: mapConfig.description,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "ceae9601ee0b856483d0874ee3dfdff4a189eb226d01f8ab9dc8b7484475765f",
-  envelopeHash: "69278bc0babb7fd147761ab4f997d3ab6a4dfac5c03de7ebccf1118a3d30c20c",
+  configHash: "1fc12b546705f96d39a4ae07dae201624a689477fe248efea245dac3cd0c0ee0",
+  envelopeHash: "48c2f2866a5280713c799c65c3c6fa0a562e6bb68831a2a14dc689643c126bc5",
   config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });

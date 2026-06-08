@@ -21,6 +21,7 @@ import scoreReefLotus from "./reef-score-lotus/index.js";
 import scoreIce from "./ice-score-ice/index.js";
 
 import planWetlands from "./features-plan-wetlands/index.js";
+import planFloodplains from "./features-plan-floodplains/index.js";
 import planReefs from "./features-plan-reefs/index.js";
 import planIce from "./features-plan-ice/index.js";
 import planVegetation from "./features-plan-vegetation/index.js";
@@ -68,6 +69,7 @@ const implementations = {
   scorePlotEffectsBurned,
   planPlotEffects,
 
+  planFloodplains,
   planWetlands,
   planReefs,
   planIce,
@@ -99,6 +101,7 @@ export {
   scoreIce,
 
   planWetlands,
+  planFloodplains,
   planReefs,
   planIce,
   planVegetation,

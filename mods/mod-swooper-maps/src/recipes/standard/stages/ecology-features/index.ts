@@ -26,6 +26,7 @@ export default createStage({
   public: EcologyFeaturesPublicSchema,
   steps: [
     steps.scoreLayers,
+    steps.planFloodplains,
     steps.planIce,
     steps.planReefs,
     steps.planWetlands,

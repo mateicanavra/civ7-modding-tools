@@ -510,6 +510,10 @@ export const EcologyFeaturesPublicSchema = Type.Object(
       ecologyOps.planWetlands.strategies.default,
       "wetland planning"
     ),
+    floodplainPlanning: optionalAuthorSchema(
+      ecologyOps.planFloodplains.strategies.default,
+      "floodplain planning"
+    ),
     vegetationPlanning: optionalAuthorSchema(
       ecologyOps.planVegetation.strategies.default,
       "vegetation planning"
@@ -627,6 +631,9 @@ export function compileEcologyFeaturesPublicConfig(config: Record<string, unknow
       scoreReefAtoll: defaultEnvelope(reefScoring.atoll),
       scoreReefLotus: defaultEnvelope(reefScoring.lotus),
       scoreIce: defaultEnvelope(iceScoring.ice),
+    },
+    "plan-floodplains": {
+      planFloodplains: defaultEnvelope(config.floodplainPlanning),
     },
     "plan-ice": {
       planIce: profileEnvelope(config.icePlanning, ICE_PROFILE_TO_MODE, "default"),

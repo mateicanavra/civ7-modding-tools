@@ -83,13 +83,14 @@
   merged, to avoid removing review references before replacement is durable.
 - Current sparse accounting state lives in
   `recovery-accounting-ledger.json` and
-  `recovery-accounting-state.md`. As of `2026-06-07T15:03:52-04:00`, sources
+  `recovery-accounting-state.md`. As of `2026-06-07T18:38:04-04:00`, sources
   represented by merged PRs are done and should not be called parked. Sources
   whose sink is the local recovery stack are still cleanup-blocked until the
   recovery stack lands. `codex/earthlike-natural-wonder-postwrite-footprint-proof-record`
-  remains a planned adoption for the latest Earthlike floodplain config/hash
-  leaf, and the systematic workstream skill support slice remains a separate
-  planned support adoption outside Swooper product recovery.
+  is now a done adoption for the latest Earthlike floodplain config/hash leaf
+  plus the required ecology-features source-boundary correction, and the
+  systematic workstream skill support slice remains a separate planned support
+  adoption outside Swooper product recovery.
 
 ## Cleanup Actions
 

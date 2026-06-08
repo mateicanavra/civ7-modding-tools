@@ -1,4 +1,5 @@
 import scoreLayers from "./score-layers/index.js";
+import planFloodplains from "./plan-floodplains/index.js";
 import planIce from "./plan-ice/index.js";
 import planReefs from "./plan-reefs/index.js";
 import planWetlands from "./plan-wetlands/index.js";
@@ -13,6 +14,7 @@ import planPlotEffects from "./plan-plot-effects/index.js";
  */
 export const steps = {
   scoreLayers,
+  planFloodplains,
   planIce,
   planReefs,
   planWetlands,

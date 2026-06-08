@@ -14,7 +14,7 @@ export default createStep(PlanPlotEffectsStepContract, {
       classification: deps.artifacts.biomeClassification.read(context),
       heightfield: context.buffers.heightfield,
     };
-    const input = buildPlotEffectsInput(context, artifacts);
+    const input = buildPlotEffectsInput(context, artifacts, PlanPlotEffectsStepContract.id);
     const scoreSnow = ops.scoreSnow(
       {
         width: input.width,

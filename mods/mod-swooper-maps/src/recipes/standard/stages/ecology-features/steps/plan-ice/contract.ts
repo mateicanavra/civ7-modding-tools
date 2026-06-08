@@ -12,7 +12,7 @@ const PlanIceStepContract = defineStep({
   artifacts: {
     requires: [
       ecologyArtifacts.scoreLayers,
-      ecologyArtifacts.occupancyBase,
+      ecologyArtifacts.occupancyFloodplains,
       ecologyArtifacts.biomeClassification,
       morphologyArtifacts.topography,
     ],
@@ -31,4 +31,3 @@ const PlanIceStepContract = defineStep({
 });
 
 export default PlanIceStepContract;
-

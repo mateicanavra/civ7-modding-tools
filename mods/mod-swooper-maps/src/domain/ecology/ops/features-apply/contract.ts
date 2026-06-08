@@ -12,6 +12,9 @@ const FeaturesApplyContract = defineOp({
       wetlands: Type.Array(FeaturePlacementSchema, {
         description: "Planned wetland feature placements.",
       }),
+      floodplains: Type.Array(FeaturePlacementSchema, {
+        description: "Planned floodplain feature placements.",
+      }),
       reefs: Type.Array(FeaturePlacementSchema, {
         description: "Planned reef feature placements.",
       }),

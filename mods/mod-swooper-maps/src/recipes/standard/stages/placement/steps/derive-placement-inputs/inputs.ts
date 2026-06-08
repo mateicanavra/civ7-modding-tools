@@ -15,7 +15,6 @@ import DerivePlacementInputsContract from "./contract.js";
 
 type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsContract.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof DerivePlacementInputsContract.ops>>;
-type PlanFloodplainsOutput = Static<typeof placement.ops.planFloodplains["output"]>;
 type PlanStartsBase = Static<typeof placement.ops.planStarts["input"]["properties"]["baseStarts"]>;
 type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
 
@@ -48,7 +47,6 @@ export type PlacementPlanBundle = {
   artifact: DeepReadonly<PlacementInputsV1>;
   starts: DeepReadonly<PlanStartsBase>;
   wonders: DeepReadonly<PlanWondersOutput>;
-  floodplains: DeepReadonly<PlanFloodplainsOutput>;
 };
 
 function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): DiscoveryCatalogEntry[] {
@@ -214,7 +212,6 @@ export function buildPlacementInputs(
     },
     config.discoveries
   );
-  const floodplainsPlan = ops.floodplains({}, config.floodplains);
   const resourcesPlan = ops.resources(
     {
       width,
@@ -238,7 +235,6 @@ export function buildPlacementInputs(
     wonders: wondersPlan,
     naturalWonderPlan,
     discoveryPlan,
-    floodplains: floodplainsPlan,
     resources: resourcesPlan,
     placementConfig: config,
   };
@@ -259,6 +255,5 @@ export function buildPlacementPlanInput(
     artifact: derivedInputs,
     starts: derivedInputs.starts,
     wonders: derivedInputs.wonders,
-    floodplains: derivedInputs.floodplains,
   };
 }
