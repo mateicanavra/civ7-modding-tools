@@ -5,7 +5,7 @@
 - Project: Swooper recovery
 - Phase: product closure planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-studio-parity-proof-drain`
+- Branch/Graphite stack: `codex/swooper-resource-coordinate-proof-rerun-record-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -27,10 +27,22 @@
 
 ## Current State
 
-- Repo/Graphite state: planning branch has new OpenSpec docs; recheck before
-  closure.
-- Dirty files and owner: this planning goal owns current OpenSpec docs.
-- Current code evidence: product proof unresolved.
+- Repo/Graphite state: current top branch is
+  `codex/swooper-resource-coordinate-proof-rerun-record-drain`
+  (`c1c860abe4a9998d96d78b4bc009ce03e00ba25a`), stacked above the current
+  Swooper proof/diagnostic drain branches.
+- Dirty files and owner: current audit snapshot was clean before this closure
+  record update; this planning goal owns the current OpenSpec docs.
+- Current code evidence: exact-authorship and mapgen-completion proof are
+  complete for `studio-run-in-game-mq3pfgbe-1doj`; final-surface parity remains
+  unresolved. The latest parity artifact with resource coordinate proof summary
+  is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3pfgbe-1doj-current-final-surface-parity-with-resource-coordinate-summary.json`
+  (`sha256:44dee661491ee3d013a9326745fb30825c6155cdbb45af633f57ebb87fda23df`,
+  `proofHash:ce8a5a568bb91678ceb9f108b525d557cbd6b9820f10ebaad0639800cce6d091`).
+  It preserves unresolved terrain `139`, biome `874`, feature `381`, and
+  resource `308` mismatch counts plus resource coordinate proof placed/rejected
+  links.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -49,13 +61,14 @@
 
 - Spec/proposal: `proposal.md`, `design.md`.
 - Tasks: `tasks.md`.
-- Validation status: pending.
+- Validation status: pending for this closure-audit record update.
 
 ## Review
 
 - Review lanes: proof ledger, Graphite/remote branch, downstream docs/guards,
   supervisor DRA after implementation categories begin.
-- Blocking findings: proof categories not yet complete.
+- Blocking findings: proof categories not yet complete; final supervisor
+  closure review has not run over the latest proof-state stack.
 - Accepted findings repaired: none yet.
 - Rejected/invalidated/waived/deferred findings: none yet.
 
@@ -71,14 +84,24 @@
 
 ## Implementation
 
-- Completed tasks: planning record created.
-- Remaining tasks: all closure tasks.
+- Completed tasks: planning record created; current proof/Graphite audit
+  snapshot recorded.
+- Remaining tasks: final-surface parity, product acceptance, supervisor
+  P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
+  submit/closure.
 - Stop conditions triggered: blocked until proof categories close.
 
 ## Verification
 
-- Commands run: none for implementation.
-- Results: planning only.
+- Commands run: `git status --short --branch`; `git rev-parse --abbrev-ref
+  HEAD`; `git rev-parse HEAD`; `gt log --no-interactive --stack`; review-ledger
+  `rg` scans for P1/P2 state; bounded final-surface parity verifier rerun from
+  the current exact-authorship proof.
+- Results: repo snapshot clean before this update; latest verifier artifact is
+  unresolved with proof hash
+  `ce8a5a568bb91678ceb9f108b525d557cbd6b9820f10ebaad0639800cce6d091`;
+  broader review-ledger scan found historical P1/P2 entries but no active
+  review ledger under the two current recovery closure changes.
 - Skipped gates and rationale: closure gates wait for proof closure.
 - Evidence boundary: this record proves no product closure.
 
@@ -91,7 +114,9 @@
 
 ## Next Action
 
-- Exact next step: wait for proof categories to close.
+- Exact next step: continue the proof-led drain from
+  `earthlike-live-feature-resource-legality-repair`, starting with the resource
+  coordinate/materialization boundary now summarized in the parity artifact.
 - First files to inspect: recovery OpenSpec proof ledgers and Graphite branch
   state.
 - Stop condition: accepted P1/P2 findings remain open.
