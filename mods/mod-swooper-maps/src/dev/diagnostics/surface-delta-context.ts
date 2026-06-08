@@ -60,6 +60,46 @@ export type ResourceDeltaPlacementContext = Readonly<{
     | "unclassified";
 }>;
 
+export type ResourceDeltaFeasibilityContext = ResourceDeltaPlacementContext &
+  Readonly<{
+    localFeasibleInCiv: ResourceFeasibilityProbe | null;
+    liveFeasibleInCiv: ResourceFeasibilityProbe | null;
+    feasibilityClass:
+      | "live-feasible-no-local-assignment"
+      | "local-feasible-live-empty"
+      | "local-overaccepted-live-empty"
+      | "substitution-both-feasible"
+      | "substitution-both-infeasible"
+      | "substitution-mixed-feasibility"
+      | "feasibility-missing"
+      | "unclassified";
+  }>;
+
+export type ResourceFeasibilityProbe = Readonly<{
+  ok: boolean;
+  value: boolean | null;
+  error: string | null;
+}>;
+
+export type ResourceFeasibilityReadbackLike = Readonly<{
+  cells?: ReadonlyArray<ResourceFeasibilityCellLike>;
+}>;
+
+export type ResourceFeasibilityCellLike = Readonly<{
+  location?: Readonly<{
+    x?: number;
+    y?: number;
+    index?: ResourceFeasibilityRuntimeProbeLike<number>;
+  }>;
+  feasibility?: Readonly<Record<string, ResourceFeasibilityRuntimeProbeLike<boolean>>>;
+}>;
+
+export type ResourceFeasibilityRuntimeProbeLike<T> = Readonly<{
+  ok?: boolean;
+  value?: T;
+  error?: string;
+}>;
+
 export type ResourcePlacementOutcomeContext = Readonly<{
   status: string;
   resourceType: number;
@@ -193,6 +233,35 @@ export function buildResourceDeltaPlacementContexts(
   }
 
   return rows;
+}
+
+export function buildResourceDeltaFeasibilityContexts(
+  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  feasibility: ResourceFeasibilityReadbackLike,
+  options: { maxRows?: number } = {}
+): ReadonlyArray<ResourceDeltaFeasibilityContext> {
+  const byCell = readResourceFeasibilityByCell(feasibility);
+  return buildResourceDeltaPlacementContexts(proof, options).map((row) => {
+    const cell = byCell.get(resourceFeasibilityCellKey(row.x, row.y, row.plotIndex));
+    const localFeasibleInCiv =
+      row.localResource.value === null
+        ? null
+        : readResourceFeasibilityProbe(cell, row.localResource.value);
+    const liveFeasibleInCiv =
+      row.liveResource.value === null
+        ? null
+        : readResourceFeasibilityProbe(cell, row.liveResource.value);
+    return {
+      ...row,
+      localFeasibleInCiv,
+      liveFeasibleInCiv,
+      feasibilityClass: classifyResourceDeltaFeasibility({
+        evidenceClass: row.evidenceClass,
+        localFeasibleInCiv,
+        liveFeasibleInCiv,
+      }),
+    };
+  });
 }
 
 export function buildSurfaceDeltaContext(
@@ -379,6 +448,38 @@ function readResourceOutcomeEvidence(evidence: unknown): {
   return { byPlot };
 }
 
+function readResourceFeasibilityByCell(
+  feasibility: ResourceFeasibilityReadbackLike
+): ReadonlyMap<string, ResourceFeasibilityCellLike> {
+  const byCell = new Map<string, ResourceFeasibilityCellLike>();
+  const cells = Array.isArray(feasibility.cells) ? feasibility.cells : [];
+  for (const cell of cells) {
+    const location = cell.location;
+    const x = finiteInteger(location?.x);
+    const y = finiteInteger(location?.y);
+    const index = finiteInteger(location?.index?.value);
+    if (x === null || y === null || index === null) continue;
+    byCell.set(resourceFeasibilityCellKey(x, y, index), cell);
+  }
+  return byCell;
+}
+
+function readResourceFeasibilityProbe(
+  cell: ResourceFeasibilityCellLike | undefined,
+  resourceType: number
+): ResourceFeasibilityProbe {
+  const probe = cell?.feasibility?.[String(resourceType)];
+  if (probe === undefined) {
+    return { ok: false, value: null, error: "missing-probe" };
+  }
+  const ok = probe.ok === true;
+  return {
+    ok,
+    value: ok && typeof probe.value === "boolean" ? probe.value : null,
+    error: typeof probe.error === "string" ? probe.error : ok ? null : "probe-failed",
+  };
+}
+
 function classifyResourceDeltaPlacement(args: {
   localResource: number | null;
   liveResource: number | null;
@@ -399,6 +500,38 @@ function classifyResourceDeltaPlacement(args: {
       : "live-only-no-local-assignment";
   }
   return "unclassified";
+}
+
+function classifyResourceDeltaFeasibility(args: {
+  evidenceClass: ResourceDeltaPlacementContext["evidenceClass"];
+  localFeasibleInCiv: ResourceFeasibilityProbe | null;
+  liveFeasibleInCiv: ResourceFeasibilityProbe | null;
+}): ResourceDeltaFeasibilityContext["feasibilityClass"] {
+  const local = args.localFeasibleInCiv;
+  const live = args.liveFeasibleInCiv;
+  if ((local !== null && !local.ok) || (live !== null && !live.ok)) return "feasibility-missing";
+  if (
+    args.evidenceClass === "live-only-no-local-assignment" ||
+    args.evidenceClass === "live-only-preferred-but-unassigned"
+  ) {
+    return live?.value === true ? "live-feasible-no-local-assignment" : "feasibility-missing";
+  }
+  if (args.evidenceClass === "local-assigned-live-empty") {
+    if (local?.value === true) return "local-feasible-live-empty";
+    if (local?.value === false) return "local-overaccepted-live-empty";
+    return "feasibility-missing";
+  }
+  if (args.evidenceClass === "local-assigned-live-substitution") {
+    if (local?.value === true && live?.value === true) return "substitution-both-feasible";
+    if (local?.value === false && live?.value === false) return "substitution-both-infeasible";
+    if (local !== null && live !== null) return "substitution-mixed-feasibility";
+    return "feasibility-missing";
+  }
+  return "unclassified";
+}
+
+function resourceFeasibilityCellKey(x: number, y: number, plotIndex: number): string {
+  return `${plotIndex}:${x},${y}`;
 }
 
 function finiteInteger(value: unknown): number | null {

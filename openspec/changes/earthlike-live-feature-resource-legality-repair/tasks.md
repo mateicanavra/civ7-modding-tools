@@ -16,8 +16,12 @@
   resource class.
 - [x] 2.3 Add local resource assignment evidence for remaining resource deltas.
 - [x] 2.4 Add bounded Civ resource feasibility readback for resource deltas.
-- [ ] 2.5 Repair remaining proven package or MapGen owners.
-- [ ] 2.6 Preserve resource spacing, age legality, and diversity expectations.
+- [x] 2.5 Add row-level feasibility classification diagnostics for remaining
+  resource deltas.
+- [x] 2.6 Produce full row-level feasibility artifact for remaining resource
+  deltas.
+- [ ] 2.7 Repair remaining proven package or MapGen owners.
+- [ ] 2.8 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 

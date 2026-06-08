@@ -300,6 +300,95 @@ adapter/map-policy-owned, but it still needs row-level symbol/context
 extraction before a focused policy repair. No resource density, diversity,
 terrain, coast, or Earthlike tuning is authorized.
 
+### Row-Level Feasibility Classification Diagnostic
+
+Diagnostic repair:
+`mods/mod-swooper-maps/src/dev/diagnostics/surface-delta-context.ts` now joins
+local resource delta placement context to a provided Civ resource feasibility
+readback. This is an evidence-classifier only; it does not change resource
+planning, placement, static policy, generated maps, or tuning.
+
+Classification labels:
+
+| Diagnostic class | Source-authority implication |
+|---|---|
+| `live-feasible-no-local-assignment` | Civ says the live resource value is feasible, but local assignment did not place it on that cell; investigate assignment ordering/rebalance before repair. |
+| `local-feasible-live-empty` | Local placed a Civ-feasible resource where live has no resource; investigate assignment ordering/rebalance before repair. |
+| `local-overaccepted-live-empty` | Local placed a resource Civ rejects on that cell under loose feasibility; this is the focused `9`-row mock/static-policy overacceptance investigation class. |
+| `substitution-both-feasible` | Local and live resource values are both Civ-feasible; investigate resource type ordering/fallback selection before repair. |
+| `substitution-both-infeasible` | Preserve as an individual unresolved evidence row; no repair authority exists until row-level context/source authority is classified. |
+
+Disposition:
+the diagnostic enforces the proof boundary from the feasibility artifact. It
+keeps the `9` local-overacceptance rows separate from the single both-infeasible
+substitution row and prevents the latter from being folded into mock/static
+policy repair authority.
+
+### Full Resource Delta Feasibility Artifact
+
+Verifier:
+`scripts/civ7-direct-control/verify-resource-delta-feasibility.ts`.
+
+Runtime binding:
+before probing resource feasibility, the verifier reads current live map
+identity through package-owned `getCiv7MapSummary` and compares it to the saved
+final-surface proof. Missing or mismatched width, height, plot count, seed,
+turn, or game hash blocks the artifact before row-level feasibility evidence is
+accepted.
+
+Artifact:
+`/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
+(`sha256:8ea0fcbf898c4cacd7bf1a19f8955e846e4c18631af4a7673ffc7cf058d8c35d`,
+`proofHash:b066b90c41d89e5be0cec575218b0e14351a18f8a1c416f5948249c5acfbd2b2`).
+
+Source proof:
+`d95d54d2f208436324d7600a0c8a8a35e899ff82c617be4b719dfc954c6897df`.
+
+Runtime identity:
+saved and observed identities match at width `106`, height `66`, plot count
+`6996`, seed `138503614`, turn `1`, and game hash `0`.
+
+Readback:
+Tuner state `1`, host `127.0.0.1`, port `4318`, `106` cells, `0` omitted
+cells.
+
+`ignoreWeight:true` row classes:
+
+| Class | Count | Source-authority status |
+|---|---:|---|
+| `live-feasible-no-local-assignment` | `37` | Assignment ordering/rebalance pending. |
+| `local-feasible-live-empty` | `28` | Assignment ordering/rebalance pending. |
+| `local-overaccepted-live-empty` | `9` | Focused mock/static-policy overacceptance investigation. |
+| `substitution-both-feasible` | `31` | Assignment/type-order divergence pending. |
+| `substitution-both-infeasible` | `1` | Individual unresolved row; no repair authority yet. |
+
+Focused `local-overaccepted-live-empty` rows:
+
+| Coordinate | Plot | Local resource | Planned preferred | Local outcome | Civ loose feasibility |
+|---|---:|---|---|---|---|
+| `(34,2)` | `246` | `RESOURCE_CLAY` | empty | `RESOURCE_CLAY` | false |
+| `(31,4)` | `455` | `RESOURCE_CLAY` | empty | `RESOURCE_CLAY` | false |
+| `(56,6)` | `692` | `RESOURCE_GYPSUM` | empty | `RESOURCE_GYPSUM` | false |
+| `(16,12)` | `1288` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | `RESOURCE_WOOL` | false |
+| `(12,19)` | `2026` | `RESOURCE_JADE` | `RESOURCE_SILK` | `RESOURCE_JADE` | false |
+| `(9,21)` | `2235` | `RESOURCE_HORSES` | `RESOURCE_COWRIE` | `RESOURCE_HORSES` | false |
+| `(72,35)` | `3782` | `RESOURCE_RICE` | empty | `RESOURCE_RICE` | false |
+| `(86,38)` | `4114` | `RESOURCE_CLAY` | empty | `RESOURCE_CLAY` | false |
+| `(67,51)` | `5473` | `RESOURCE_KAOLIN` | `RESOURCE_SILVER` | `RESOURCE_KAOLIN` | false |
+
+Individual `substitution-both-infeasible` row:
+
+| Coordinate | Plot | Local resource | Live resource | Planned preferred | Local outcome | Civ loose feasibility |
+|---|---:|---|---|---|---|---|
+| `(69,32)` | `3461` | `RESOURCE_CLAY` | `RESOURCE_RICE` | empty | `RESOURCE_CLAY` | local false / live false |
+
+Disposition:
+the full artifact supersedes the prior summary-only feasibility evidence for
+row-level inspection. It still does not authorize tuning or parity closure.
+The next code repair, if any, must prove whether the `9` focused rows are a
+repo-owned mock/static-policy gap or accepted engine/materialization behavior.
+The single both-infeasible substitution row remains outside that repair class.
+
 ## Required Next Diagnostics
 
 - Extract local row context for every feature/resource mismatch: terrain,

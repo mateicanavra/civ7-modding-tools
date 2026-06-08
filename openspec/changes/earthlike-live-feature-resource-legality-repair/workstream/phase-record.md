@@ -5,14 +5,14 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-feasibility-readback-drain`
-  stacked above `codex/swooper-resource-assignment-evidence-drain`
+- Branch/Graphite stack: `codex/swooper-resource-feasibility-classification-drain`
+  stacked above `codex/swooper-resource-feasibility-readback-drain`
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
   in the repo-owned adapter/map-policy surface, and bounded Civ resource
-  feasibility readback now narrows the next resource repair class. Remaining
-  feature/resource classes still need source-authority classification before
-  repair.
+  feasibility classification now narrows the next resource repair class.
+  Remaining feature/resource classes still need source-authority classification
+  before repair.
 
 ## Objective
 
@@ -116,6 +116,31 @@
   surface, and `1` substitution row remains feasibility-negative for both
   probed values. This points the next repair investigation at assignment
   ordering/rebalance and a smaller mock feasibility over-acceptance class.
+- Row-level feasibility classification progress:
+  `mods/mod-swooper-maps/src/dev/diagnostics/surface-delta-context.ts` now
+  joins local resource delta plan/outcome context to a provided Civ resource
+  feasibility readback. The diagnostic keeps `live-feasible-no-local-assignment`,
+  `local-feasible-live-empty`, `local-overaccepted-live-empty`,
+  `substitution-both-feasible`, and `substitution-both-infeasible` as separate
+  proof classes. This preserves the `9` local-overacceptance investigation
+  class and prevents the single both-infeasible substitution row from being
+  swept into mock/static-policy repair authority.
+- Full feasibility artifact progress:
+  `scripts/civ7-direct-control/verify-resource-delta-feasibility.ts` now emits
+  a complete row-level resource feasibility proof from a saved final-surface
+  proof using package-owned direct-control readback. It first reads current
+  live map identity through `getCiv7MapSummary` and blocks if width, height,
+  plot count, seed, turn, or game hash do not match the saved proof identity.
+  The current artifact is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-delta-feasibility-full.json`
+  (`sha256:8ea0fcbf898c4cacd7bf1a19f8955e846e4c18631af4a7673ffc7cf058d8c35d`,
+  `proofHash:b066b90c41d89e5be0cec575218b0e14351a18f8a1c416f5948249c5acfbd2b2`).
+  Runtime identity is matched to the saved proof at `106x66`, `6996` plots,
+  seed `138503614`, turn `1`, and game hash `0`. The artifact preserves the
+  strict-readback caveat and records the `ignoreWeight:true` split: `37`
+  live-feasible/no-local-assignment, `28` local-feasible/live-empty, `9`
+  local-overaccepted/live-empty, `31` substitution-both-feasible, and `1`
+  substitution-both-infeasible.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen

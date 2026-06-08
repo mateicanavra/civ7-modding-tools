@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity";
 import {
+  buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   buildSurfaceDeltaContext,
   buildSurfaceDeltaContexts,
@@ -181,4 +182,96 @@ describe("surface delta context diagnostics", () => {
       evidenceClass: "local-assigned-live-substitution",
     });
   });
+
+  test("classifies resource deltas with Civ feasibility readback", () => {
+    const local = snapshot(
+      {
+        resource: {
+          width: 3,
+          height: 2,
+          values: [3, -1, 2, 6, 53, 14],
+        },
+      },
+      {
+        resourcePlan: {
+          placements: [
+            { plotIndex: 0, preferredResourceType: 3 },
+            { plotIndex: 1, preferredResourceType: 3 },
+            { plotIndex: 2, preferredResourceType: 2 },
+            { plotIndex: 3, preferredResourceType: 6 },
+            { plotIndex: 4, preferredResourceType: 53 },
+            { plotIndex: 5, preferredResourceType: 14 },
+          ],
+        },
+        resourcePlacementOutcomes: {
+          outcomes: [
+            { status: "placed", plotIndex: 0, x: 0, y: 0, resourceType: 3, observedResourceType: 3 },
+            { status: "placed", plotIndex: 2, x: 2, y: 0, resourceType: 2, observedResourceType: 2 },
+            { status: "placed", plotIndex: 3, x: 0, y: 1, resourceType: 6, observedResourceType: 6 },
+            { status: "placed", plotIndex: 4, x: 1, y: 1, resourceType: 53, observedResourceType: 53 },
+            { status: "placed", plotIndex: 5, x: 2, y: 1, resourceType: 14, observedResourceType: 14 },
+          ],
+        },
+      }
+    );
+    const live = snapshot({
+      resource: {
+        width: 3,
+        height: 2,
+        values: [-1, 3, 12, -1, -1, 6],
+      },
+    });
+
+    const rows = buildResourceDeltaFeasibilityContexts(
+      { local, live },
+      {
+        cells: [
+          feasibilityCell(0, 0, 0, { 3: true }),
+          feasibilityCell(1, 0, 1, { 3: true }),
+          feasibilityCell(2, 0, 2, { 2: true, 12: true }),
+          feasibilityCell(0, 1, 3, { 6: false }),
+          feasibilityCell(1, 1, 4, { 53: true }),
+          feasibilityCell(2, 1, 5, { 14: false, 6: false }),
+        ],
+      }
+    );
+
+    expect(rows.map((row) => row.feasibilityClass)).toEqual([
+      "local-feasible-live-empty",
+      "live-feasible-no-local-assignment",
+      "substitution-both-feasible",
+      "local-overaccepted-live-empty",
+      "local-feasible-live-empty",
+      "substitution-both-infeasible",
+    ]);
+    expect(rows[3]).toMatchObject({
+      evidenceClass: "local-assigned-live-empty",
+      localResource: { symbol: "RESOURCE_GYPSUM" },
+      liveResource: { symbol: "empty" },
+      localFeasibleInCiv: { ok: true, value: false },
+    });
+    expect(rows[5]).toMatchObject({
+      evidenceClass: "local-assigned-live-substitution",
+      localResource: { symbol: "RESOURCE_SILVER" },
+      liveResource: { symbol: "RESOURCE_GYPSUM" },
+      feasibilityClass: "substitution-both-infeasible",
+    });
+  });
 });
+
+function feasibilityCell(
+  x: number,
+  y: number,
+  index: number,
+  values: Readonly<Record<number, boolean>>
+) {
+  return {
+    location: { x, y, index: { ok: true, value: index } },
+    feasibility: Object.fromEntries(
+      Object.entries(values).map(([resourceType, value]) => [
+        resourceType,
+        { ok: true, value },
+      ])
+    ),
+  };
+}

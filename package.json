@@ -37,6 +37,7 @@
     "verify:studio-run-in-game": "turbo run build check --filter=@civ7/direct-control --filter=@mateicanavra/civ7-sdk --filter=mod-swooper-maps --filter=mapgen-studio && turbo run test --filter=@civ7/direct-control --filter=@mateicanavra/civ7-sdk --filter=mapgen-studio && turbo run test:studio-run-in-game --filter=mod-swooper-maps && bun run openspec -- validate direct-control-new-game-setup --strict && bun run openspec -- validate studio-run-current-map-config --strict && bun run openspec -- validate studio-live-civ7-map-sync --strict && bun run openspec -- validate studio-disposable-setup-reload --strict && bun run openspec -- validate workspace-build-pipeline --strict && bun run openspec -- validate studio-run-in-game-robustness --strict && bun run openspec -- validate studio-operation-state-completion --strict && bun run openspec -- validate studio-save-run-state-machine --strict",
     "verify:studio-run-in-game:live": "bun scripts/civ7-direct-control/verify-studio-run-in-game-live.ts",
     "verify:final-surface-parity": "bun scripts/civ7-direct-control/verify-final-surface-parity.ts",
+    "verify:resource-delta-feasibility": "bun scripts/civ7-direct-control/verify-resource-delta-feasibility.ts",
     "build:mapgen": "turbo run build --filter=@swooper/mapgen-core",
     "lint:adapter-boundary": "./scripts/lint/lint-adapter-boundary.sh",
     "lint:domain-refactor-guardrails": "./scripts/lint/lint-domain-refactor-guardrails.sh",
