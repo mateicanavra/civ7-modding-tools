@@ -25,6 +25,7 @@ import {
   getCiv7MapSummary,
   getCiv7PlotSnapshot,
   getCiv7PlayableStatus,
+  getCiv7ResourcePlacementFeasibility,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   getCiv7VisibilitySummary,
@@ -430,6 +431,45 @@ describe("Civ7 direct control", () => {
         code: "command-failed",
         message: expect.stringContaining("Civ7 full-grid identity changed during read: game.hash 0 -> 1"),
       });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("wraps resource placement feasibility through ResourceBuilder", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const feasibility = await getCiv7ResourcePlacementFeasibility(
+        {
+          cells: [
+            { x: 9, y: 9, resourceTypes: [3, 12] },
+            { x: 10, y: 9, resourceTypes: [53] },
+          ],
+          maxCells: 1,
+          maxResourceTypesPerCell: 1,
+          ignoreWeight: true,
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+
+      expect(feasibility).toMatchObject({
+        cellCount: 2,
+        omittedCells: 1,
+        ignoreWeight: true,
+        cells: [
+          {
+            location: { x: 9, y: 9, index: { ok: true, value: 765 } },
+            resourceTypes: [3],
+            omittedResourceTypes: 1,
+            feasibility: {
+              "3": { ok: true, value: true },
+            },
+          },
+        ],
+      });
+      expect(server.received.some((message) => message.includes("ResourceBuilder"))).toBe(true);
+      expect(server.received.some((message) => message.includes("readResourcePlacementFeasibility"))).toBe(true);
     } finally {
       await server.close();
     }
@@ -1492,6 +1532,26 @@ async function startTunerServer(options: {
                 hiddenInfoPolicy: "not-player-scoped",
                 map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
                 plots: selectedPlots,
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("readResourcePlacementFeasibility")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                cellCount: 2,
+                omittedCells: 1,
+                ignoreWeight: true,
+                cells: [
+                  {
+                    location: { x: 9, y: 9, index: { ok: true, value: 765 } },
+                    resourceTypes: [3],
+                    omittedResourceTypes: 1,
+                    feasibility: {
+                      "3": { ok: true, value: true },
+                    },
+                  },
+                ],
               }),
             ]),
           );

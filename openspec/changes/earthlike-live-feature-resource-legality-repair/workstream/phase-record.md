@@ -5,12 +5,14 @@
 - Project: Swooper recovery
 - Phase: feature/resource legality repair planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-assignment-evidence-drain`
-  stacked above `codex/swooper-feature-resource-legality-drain`
+- Branch/Graphite stack: `codex/swooper-resource-feasibility-readback-drain`
+  stacked above `codex/swooper-resource-assignment-evidence-drain`
 - Started: 2026-06-06
 - Status: active. The adjacent-land resource class is classified and repaired
-  in the repo-owned adapter/map-policy surface. Remaining feature/resource
-  classes are linked but still pending source-authority classification.
+  in the repo-owned adapter/map-policy surface, and bounded Civ resource
+  feasibility readback now narrows the next resource repair class. Remaining
+  feature/resource classes still need source-authority classification before
+  repair.
 
 ## Objective
 
@@ -97,6 +99,23 @@
   resource owner question to placement feasibility/order differences between
   local mock policy and Civ materialization, not static surface legality,
   density/count, or MapGen product tuning.
+- Civ feasibility readback progress:
+  `@civ7/direct-control` now has a package-owned
+  `getCiv7ResourcePlacementFeasibility` read wrapper over
+  `ResourceBuilder.canHaveResource`. Live readback for the `106` resource
+  delta rows is recorded at
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-resource-feasibility-readback.json`
+  (`sha256:139c8e52c2acd91b01415f8daee6b5dd27ee28e2db26857627118d993cc2e96c`).
+  Strict `ignoreWeight:false` is not a clean post-materialization acceptance
+  oracle because all `69` live non-empty delta probes returned false on the
+  already-materialized map. With `ignoreWeight:true`, `68/69` live values and
+  `59/69` local values are Civ-feasible; `37` live-only rows are feasible but
+  were not locally assigned, `28` local-assigned/live-empty rows are feasible,
+  `31` substitution rows have both local and live values feasible, `9`
+  local-assigned/live-empty rows are local-overaccepted by the mock/static
+  surface, and `1` substitution row remains feasibility-negative for both
+  probed values. This points the next repair investigation at assignment
+  ordering/rebalance and a smaller mock feasibility over-acceptance class.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -104,8 +123,11 @@
   limitation. Terrain edge rows may enter this slice only if diagnostics prove
   shared materialization ownership. The unchanged resource mismatch count after
   the adjacent-land repair and the assignment-evidence rerun means the next
-  resource authority gap is a bounded Civ `ResourceBuilder.canHaveResource`
-  / placement-feasibility readback surface for the delta rows, not resource
-  tuning.
+  resource authority gap is assignment ordering/rebalance diagnostics plus
+  focused mock feasibility classification for the `9` local-assigned/live-empty
+  rows where Civ rejects the local value with `ignoreWeight:true`, not resource
+  tuning. The single substitution row where both probed values are infeasible
+  remains an individual evidence row with no repair authority until row-level
+  context assigns source ownership.
 - Stop condition: source authority is not known for any row outside the
   classified adjacent-land resource class.
