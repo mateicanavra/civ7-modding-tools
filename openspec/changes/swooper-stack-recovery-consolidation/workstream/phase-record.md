@@ -38,10 +38,18 @@ stale duplicate paths, and keep unrelated stacks out of scope.
 - `codex/earthlike-natural-wonder-postwrite-footprint-proof-record` is now
   marked `done/adopt`; it is no longer parked or pending, though cleanup remains
   blocked until the recovery stack lands.
-- The systematic workstream skill slice remains planned as a separate support
-  adoption to main, not as Swooper product work.
-- Live-control and GT stack-inspect/toolkit lanes are explicitly excluded from
-  Swooper product recovery accounting.
+- The foundation architecture packet and systematic workstream skill support
+  stacks are merged into `main` through PRs `#1422`-`#1425`; they are not parked
+  and no longer need product-drain attention.
+- The single-branch `agent-watch-civ7-live-play-reference-assembly` reference is
+  patch-equivalent in `codex/local-catalog-enrichment`; it is superseded, not a
+  separate merge target, and its local Graphite branch was deleted.
+- The old source route's control/intelligence documentation train and hotseat
+  leaf are now carried forward on the live-control stack, while the stale
+  embedded oRPC architecture branch is explicitly superseded by
+  `@civ7/control-orpc`.
+- GT stack-inspect/toolkit is explicitly excluded from Swooper product recovery
+  accounting.
 
 ## Verification Plan
 
@@ -53,7 +61,11 @@ stale duplicate paths, and keep unrelated stacks out of scope.
 ## Accounting Verification
 
 - `recovery-accounting-ledger.json` validated against
-  `AccountingMoveSchema`/`WorkSurfaceRowSchema` with 18 moves and 5 work rows.
+  `AccountingMoveSchema`/`WorkSurfaceRowSchema` with 21 moves and 1 work row.
+- `branch-accounting-composition.json`/`.md` now record the deterministic old
+  source-route closure audit: 67 Graphite branches, 2 split points, 3 terminal
+  leaves, 0 unaccounted branches, 0 stale anchor warnings, and branch-internal
+  commit counts from recorded Graphite parent revisions.
 - GT stack-inspect service-core tests passed after stack-slice label projection
   was added so branch/leaf labels are not hidden on aggregate endpoints.
 - GT stack-inspect runner tests and TypeScript check passed for explicit
@@ -76,3 +88,9 @@ stale duplicate paths, and keep unrelated stacks out of scope.
   `gt restack --branch codex/local-catalog-enrichment --only` conflicted in
   live-play support docs and was aborted; resolving that belongs to the
   live-play/control lane, not Swooper cleanup.
+- Removed the clean old Earthlike source worktree at
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-civ7-map-policy-final-surface-parity`.
+  The source branches remain cleanup-gated until the recovery sink lands.
+- Deleted local Graphite metadata/branch
+  `agent-watch-civ7-live-play-reference-assembly` after confirming its branch
+  commit is patch-equivalent against `codex/local-catalog-enrichment`.

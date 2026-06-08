@@ -37,8 +37,10 @@
 - [x] 5.2 Reclassify merged/represented work as `done`, not parked.
 - [x] 5.3 Mark the final Earthlike floodplain config/source-boundary leaf as
   adopted into the recovery stack.
-- [x] 5.4 Add explicit planned support accounting for the systematic
-  workstream skill slice.
-- [x] 5.5 Exclude live-control and GT stack-inspect lanes from Swooper product
+- [x] 5.4 Mark the foundation packet and systematic workstream skill support
+  stacks as merged into `main`.
+- [x] 5.5 Mark the single-branch agent-watch live-play reference as superseded
+  by the live-control/catalog stack and delete its local Graphite branch.
+- [x] 5.6 Exclude live-control and GT stack-inspect lanes from Swooper product
   recovery accounting.
-- [x] 5.6 Validate the ledger against the GT stack-inspect accounting schema.
+- [x] 5.7 Validate the ledger against the GT stack-inspect accounting schema.

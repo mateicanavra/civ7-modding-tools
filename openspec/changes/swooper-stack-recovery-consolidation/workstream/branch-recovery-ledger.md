@@ -32,9 +32,9 @@
 |---|---|
 | resource/morphology/authoring predecessor train through `codex/resource-runtime-proof`, `codex/morphology-live-readback-boundary`, and `codex/morphology-peer-review-repairs` | Done through merged aggregate PR `#1402`; shard PRs `#1414`-`#1419` were closed after the aggregate landed. Not parked and not a wholesale replay source. |
 | Studio/run-in-game predecessor range around `codex/live-play-online-context` | Done through merged PRs `#1407`-`#1413`; local Graphite `needs restack` is stale metadata for this accounting pass, not pending product adoption. |
-| systematic workstream skill support slice | Pending separate support adoption if we want `.agents/skills/civ7-systematic-workstream` durable on main; not product recovery. |
-| live-play/control worktrees | Active non-mapgen/control work; leave alone. |
-| foundation architecture packet worktree | Supporting docs/reference unless a specific current delta is needed. |
+| systematic workstream skill support slice | Done through merged PRs `#1423`-`#1425`; not product recovery and no longer parked. |
+| live-play/control worktrees | Active non-mapgen/control work; leave alone except for explicit old-source-route adoption/supersession rows recorded in `recovery-accounting-ledger.json`. |
+| foundation architecture packet worktree | Done through merged PR `#1422`; no longer parked. |
 | GT stack-inspect/toolkit lane | Active separate tooling stack; excluded from Swooper product cleanup. |
 
 ## Open Evidence Captured During Recovery
@@ -83,14 +83,21 @@
   merged, to avoid removing review references before replacement is durable.
 - Current sparse accounting state lives in
   `recovery-accounting-ledger.json` and
-  `recovery-accounting-state.md`. As of `2026-06-07T18:38:04-04:00`, sources
+  `recovery-accounting-state.md`. As of `2026-06-07T21:30:37-04:00`, sources
   represented by merged PRs are done and should not be called parked. Sources
   whose sink is the local recovery stack are still cleanup-blocked until the
   recovery stack lands. `codex/earthlike-natural-wonder-postwrite-footprint-proof-record`
   is now a done adoption for the latest Earthlike floodplain config/hash leaf
   plus the required ecology-features source-boundary correction, and the
-  systematic workstream skill support slice remains a separate planned support
-  adoption outside Swooper product recovery.
+  foundation architecture packet and systematic workstream skill support stacks
+  are merged into `main`, outside Swooper product recovery.
+- The old source route's hotseat terminal leaf and control/intelligence
+  documentation train are carried forward on the live-control stack. The stale
+  embedded oRPC architecture branch is superseded by the live-control stack's
+  package-owned `@civ7/control-orpc` implementation.
+- The single-branch `agent-watch-civ7-live-play-reference-assembly` reference is
+  patch-equivalent in `codex/local-catalog-enrichment`, which carries later
+  live-play support context. It is done/superseded, not a separate merge target.
 
 ## Cleanup Actions
 
@@ -125,3 +132,10 @@
   `#1413` is merged. This exposed `codex/local-catalog-enrichment` as a
   live-play support branch needing restack; a narrow restack conflicts in
   live-play docs and is deliberately left to the live-play/control lane.
+- Removed the clean old Earthlike source worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-civ7-map-policy-final-surface-parity`.
+  The source branches remain in Graphite until the recovery sink lands.
+- Deleted local Graphite metadata/branch
+  `agent-watch-civ7-live-play-reference-assembly` after confirming its branch
+  commit is patch-equivalent against `codex/local-catalog-enrichment`; do not
+  submit or merge it separately.
