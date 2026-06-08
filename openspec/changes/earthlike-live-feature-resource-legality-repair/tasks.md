@@ -398,6 +398,31 @@
     still required to determine whether the exact plot `4838` `RESOURCE_WINE`
     rejection came from scarce-floor assignment, another assignment phase, or a
     post-assignment materialization-state transition.
+- [x] 2.52 Preserve current exact-authored resource rejection assignment
+  context proof.
+  - Fresh exact request `studio-run-in-game-mq3v6xr9-4w9` completed on current
+    committed head after the assignment-context proof contract. Status artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-assignment-context-status.json`
+    has
+    `sha256:feeb442bb095ce0094faea1fb38695798db5e2034c8486812e10ba8e77c212d7`;
+    post artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-assignment-context-post.json`
+    has
+    `sha256:1126b02788b522f3790976a8b4139f4c757d0b8c522fd0aa9a9cd930a38a7839`.
+  - Exact `RESOURCE_PLACEMENT_V1` still records `251` planned, `250` placed,
+    `1` rejected, and `0` mismatches. The rejected row is
+    `RESOURCE_WINE`/`resourceType:16` at plot `4838` (`x=68`, `y=45`),
+    rejected with `reason:cannot-have-resource`, `observedResourceType:-1`,
+    `assignmentPhase:scarce-floor`, `assignmentOrder:85`,
+    `initialResourceType:16`, `preferredResourceType:4`,
+    `perTypeCountBefore:1`, `legalPlotCountForResource:313`, and
+    `targetMinPerType:7`.
+  - This classifies the exact runtime rejected resource as a scarce-floor Wine
+    assignment selected before materialization. It does not by itself authorize
+    tuning, scarce-floor policy repair, ResourceBuilder policy changes,
+    final-surface parity, or product acceptance; it narrows the next repair
+    owner decision to reconciling exact scarce-floor assignment/materialization
+    with the local resource assignment/resource-builder context.
 
 ## 3. Verification
 
@@ -524,3 +549,29 @@
     `earthlike-live-feature-resource-legality-repair`,
     `swooper-recovery-stack-product-closure`, full OpenSpec validation, and
     `git diff --check`.
+- [x] 3.23 Re-run current exact-authored final-surface parity after resource
+  rejection assignment-context proof.
+  - Verifier input
+    `/tmp/civ7-recovery-proof/final-surface-parity/current-drain-after-resource-rejection-assignment-context-status.json`
+    wrote
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-assignment-context.json`
+    (`sha256:d77c9c4d495be9ea048faa6a6f2f0ce667c933a74cc86b7697b5e1fe094043a9`,
+    `proofHash:0ba7fe430c77b99aae8d6b3c514a9a7fc5136990deb763e89f7203cb11568ca7`,
+    created `2026-06-07T14:18:32.698Z`).
+  - The verifier exited `2` as expected for unresolved parity. Remaining
+    unresolved links are `resource-placement-coordinate-proof.placed`,
+    `resource-placement-coordinate-proof.rejected`, `surface.biome.mismatch`,
+    `surface.feature.mismatch`, `surface.resource.mismatch`, and
+    `surface.terrain.mismatch`.
+  - Exact telemetry also records `FEATURE_APPLY_V1` at `1493` attempted,
+    `1491` applied, `2` `canHaveFeature` rejections
+    (`FEATURE_COLD_REEF:1`, `FEATURE_TAIGA:1`) and
+    `NATURAL_WONDER_PLACEMENT_V1` at `7` planned, `4` placed, `3` rejected
+    (`unsupported-footprint` for features `29` and `33`, plus one feature `30`
+    partial expected-footprint readback mismatch). These are current proof
+    facts, not closure claims.
+  - Resource coordinate proof is still mismatched: local placed
+    `251`/`98393a08`, exact placed `250`/`9c5eaad8`; local rejected
+    `0`/`811c9dc5`, exact rejected `1`/`af57eb7b`. Verifier log:
+    `/tmp/civ7-recovery-proof/final-surface-parity/verify-final-surface-parity-current-mq3v6xr9.log`
+    (`sha256:9479c3028e5e59f3c5d33afdf33d05c2e46e6aca31d0de4cef4a1a985c110d44`).

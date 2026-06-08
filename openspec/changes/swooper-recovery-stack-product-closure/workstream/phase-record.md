@@ -5,7 +5,8 @@
 - Project: Swooper recovery
 - Phase: product closure planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-rejection-assignment-context-drain`
+- Branch/Graphite stack:
+  `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -28,7 +29,8 @@
 ## Current State
 
 - Repo/Graphite state: current top branch is
-  `codex/swooper-resource-rejection-assignment-context-drain`, stacked above
+  `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
+  stacked above `codex/swooper-resource-rejection-assignment-context-drain`,
   `codex/swooper-resource-rejection-identity-rerun-record-drain`,
   `codex/swooper-resource-rejection-proof-identity-drain`, and the current
   Swooper proof/diagnostic drain branches.
@@ -36,22 +38,25 @@
   Swooper/Studio telemetry and OpenSpec files and must leave the branch clean
   before commit or closure.
 - Current code evidence: exact-authorship and mapgen-completion proof are
-  complete for `studio-run-in-game-mq3twjd7-18mg`; final-surface parity remains
-  unresolved. The latest parity artifact with exact resource rejection row
-  identity is
-  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3twjd7-18mg-current-final-surface-parity-with-resource-rejection-identity.json`
-  (`sha256:a8d0c18f155cd60dd13dd80c52961fc3d24bdabe172edf45d8677764c116b115`,
-  `proofHash:b7a32c172ce1e7cf0b26812c551e789a2f246e0e5598f92d5388adc8c116b68c`).
+  complete for `studio-run-in-game-mq3v6xr9-4w9`; final-surface parity remains
+  unresolved. The latest parity artifact with exact resource rejection
+  assignment context is
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-assignment-context.json`
+  (`sha256:d77c9c4d495be9ea048faa6a6f2f0ce667c933a74cc86b7697b5e1fe094043a9`,
+  `proofHash:0ba7fe430c77b99aae8d6b3c514a9a7fc5136990deb763e89f7203cb11568ca7`).
   It preserves unresolved terrain, biome, feature, resource, and
   resource-coordinate proof links. Exact resource telemetry identifies the
   structured numeric rejected row as `RESOURCE_WINE` with `resourceType:16` at
   plot `4838` (`x=68`, `y=45`), rejected by `canHaveResource` with observed
-  resource type `-1`; exact `FEATURE_APPLY_V1` reports `1493` attempted,
-  `1491` applied, and `2` `canHaveFeature` rejections. These narrow but do not
-  close source-authority, final-surface parity, or product acceptance. Current
-  top branch adds exact rejected-row assignment context for future proof
-  packets; it does not supersede the `mq3twjd7` proof until a fresh exact run
-  consumes it.
+  resource type `-1`; the fresh exact context now proves it came from
+  `assignmentPhase:scarce-floor`, `assignmentOrder:85`,
+  `initialResourceType:16`, `preferredResourceType:4`,
+  `perTypeCountBefore:1`, `legalPlotCountForResource:313`, and
+  `targetMinPerType:7`. Exact `FEATURE_APPLY_V1` reports `1493` attempted,
+  `1491` applied, and `2` `canHaveFeature` rejections. Current exact
+  `NATURAL_WONDER_PLACEMENT_V1` reports `7` planned, `4` placed, and `3`
+  rejected. These narrow but do not close source-authority, natural-wonder
+  repair, final-surface parity, or product acceptance.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -94,9 +99,10 @@
 ## Implementation
 
 - Completed tasks: planning record created; current proof/Graphite audit
-  snapshot recorded, including the current exact feature-apply telemetry rerun
-  and resource rejection numeric-identity proof rerun. Current top branch
-  adds resource rejection assignment-context instrumentation only.
+  snapshot recorded, including current exact feature-apply telemetry,
+  natural-wonder telemetry, resource rejection numeric identity, and resource
+  rejection assignment-context proof rerun. Current top branch is a proof-record
+  slice only.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
@@ -110,7 +116,7 @@
   the current exact-authorship proof.
 - Results: repo snapshot clean before this update; latest verifier artifact is
   unresolved with proof hash
-  `b7a32c172ce1e7cf0b26812c551e789a2f246e0e5598f92d5388adc8c116b68c`;
+  `0ba7fe430c77b99aae8d6b3c514a9a7fc5136990deb763e89f7203cb11568ca7`;
   broader review-ledger scan found historical P1/P2 entries but no active
   review ledger under the two current recovery closure changes.
 - Skipped gates and rationale: closure gates wait for proof closure.
@@ -127,10 +133,10 @@
 
 - Exact next step: continue the proof-led drain from
   `earthlike-live-feature-resource-legality-repair`, starting with
-  a fresh exact run that consumes resource rejection assignment context for
-  plot `4838`, then source-authority classification of that exact
-  `RESOURCE_WINE` row and use the current exact `FEATURE_APPLY_V1` telemetry
-  to classify feature materialization/readback ownership.
+  source-authority classification of the exact `RESOURCE_WINE` scarce-floor
+  row at plot `4838`, then current natural-wonder unsupported-footprint/
+  readback ownership, and exact `FEATURE_APPLY_V1` materialization/readback
+  ownership.
 - First files to inspect: recovery OpenSpec proof ledgers and Graphite branch
   state.
 - Stop condition: accepted P1/P2 findings remain open.
