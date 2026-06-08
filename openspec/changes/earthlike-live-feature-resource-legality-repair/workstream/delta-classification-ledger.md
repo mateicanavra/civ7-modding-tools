@@ -1505,6 +1505,61 @@ natural-wonder repair, and does not close feature parity, final-surface parity,
 Earthlike acceptance, product acceptance, generated-output ownership, or
 mountain-quality work.
 
+### Current Resource-Delta Feasibility After Exact/Local Rejection Join
+
+Classification status: current resource source-authority evidence captured;
+repair owner still open.
+
+The current exact/local joined parity proof for request
+`studio-run-in-game-mq3v6xr9-4w9` was fed through
+`scripts/civ7-direct-control/verify-resource-delta-feasibility.ts`.
+
+| Artifact | Path | Identity |
+| --- | --- | --- |
+| Source proof | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-current-final-surface-parity-with-resource-rejection-local-context.json` | `sha256:1387bbcc0d645263a068854884acbc7746c7f82a0742650168393e7e3f78e8cf`, `proofHash:66ed0c2537374e77548ac560eb39434bf481162f3a9024a3986fbf0cc1fc0290` |
+| Resource feasibility proof | `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-resource-delta-feasibility-local-context.json` | `sha256:46bd5b4452000a0696432772f3ea3179efeffd43b80fbfa0947b319e3697842f`, `proofHash:8c41a37e08b3375c02f9f6c732a2c54af564583e1978cabd70237c5b3c03bd35` |
+| Verifier log | `/tmp/civ7-recovery-proof/final-surface-parity/verify-resource-delta-feasibility-mq3v6xr9-local-context.log` | `sha256:014a6f2ceb3f051f393b7fb62579e8de99f3f548056b8c49e05c92caae8491c0` |
+
+Runtime identity matched the saved proof at `106x66`, `6996` plots, seed
+`138503614`, turn `1`, and game hash `0`; both strict and
+`ignoreWeight:true` readbacks covered `308` cells with `0` omitted cells.
+
+Current resource split:
+
+| Class | Count |
+| --- | ---: |
+| live-feasible/no-local-assignment | `114` |
+| local-feasible/live-empty | `53` |
+| local-overaccepted/live-empty | `62` |
+| substitution-both-feasible | `51` |
+| substitution-mixed-feasibility | `27` |
+| substitution-both-infeasible | `1` |
+
+Assignment context:
+
+| Field | Value |
+| --- | --- |
+| Local-assigned resource delta rows | `194` |
+| Scarce-floor local-assigned rows | `183` (`94.33%`) |
+| Local-overaccepted/live-empty scarce-floor rows | `56/62` |
+| Wine delta rows | `7`, all scarce-floor |
+| Wine local assigned count vs ResourceBuilder count | `7/7` |
+| Wine target floor vs official minimum | `7` vs `3` |
+
+Disposition:
+the current proof moves the broad resource question away from missing resource
+quantity, static surface-policy drift, and Earthlike config tuning. The
+dominant evidence is now positional assignment/materialization divergence:
+scarce-floor locally selects and materializes many resource coordinates that
+the current Civ readback either rejects, leaves empty, or substitutes, while
+same-type resource counts can still match ResourceBuilder counts. The exact
+plot `4838` example is especially useful because exact rejected
+`RESOURCE_WINE` at scarce-floor order `85`, while local materialized
+`RESOURCE_LIMESTONE` at the same coordinate from scarce-floor order `168`.
+This is a strong owner hypothesis for assignment/materialization reconciliation,
+not an authorization to tune public Earthlike config, change static resource
+policy, or claim final-surface/product acceptance.
+
 ## Required Next Diagnostics
 
 - Classify the natural-wonder expected-empty footprint/readback owner from the
@@ -1522,11 +1577,15 @@ mountain-quality work.
   and remaining feature materialization/readback classification; do not treat it
   as final-surface parity or product acceptance.
 - Resource rejection row identity is now exact-bound by request
-  `studio-run-in-game-mq3sk0ck-1vl`: `RESOURCE_WINE` at plot `4838`
+  `studio-run-in-game-mq3v6xr9-4w9`: `RESOURCE_WINE` at plot `4838`
   (`x=68`, `y=45`) is rejected by `canHaveResource` with observed readback
-  `-1`. Use this row to classify the resource materialization boundary against
-  local assignment/resource-builder context before changing scarce-floor
-  targets, assignment order, static policy, or resource tuning.
+  `-1`, exact assignment phase `scarce-floor`, assignment order `85`, and
+  target floor `7`. The joined local context shows the same coordinate locally
+  materialized as `RESOURCE_LIMESTONE` from scarce-floor assignment order
+  `168`. Use this row and the current `308`-row resource feasibility artifact
+  to classify the assignment/materialization owner boundary before changing
+  scarce-floor targets, assignment order, static policy, public config, or
+  resource tuning.
 - Continue resource-row classification using source-recorded coordinate proof
   and runtime-bound row evidence where applicable before changing resource
   tuning, scarcity floors, assignment ordering, or static policy; obtain a

@@ -5,7 +5,8 @@
 - Project: Swooper recovery
 - Phase: product closure planning
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-resource-rejection-local-context-drain`
+- Branch/Graphite stack:
+  `codex/swooper-resource-delta-feasibility-current-record-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -28,7 +29,8 @@
 ## Current State
 
 - Repo/Graphite state: current top branch is
-  `codex/swooper-resource-rejection-local-context-drain`, stacked above
+  `codex/swooper-resource-delta-feasibility-current-record-drain`, stacked above
+  `codex/swooper-resource-rejection-local-context-drain`,
   `codex/swooper-resource-rejection-assignment-context-rerun-record-drain`,
   `codex/swooper-resource-rejection-assignment-context-drain`,
   `codex/swooper-resource-rejection-identity-rerun-record-drain`,
@@ -59,7 +61,14 @@
   `RESOURCE_LIMESTONE` (`46`) from scarce-floor assignment order `168`, with
   original local preferred plan `RESOURCE_SILK` (`13`). These narrow but do
   not close source-authority, natural-wonder repair, final-surface parity, or
-  product acceptance.
+  product acceptance. Current resource feasibility artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3v6xr9-4w9-resource-delta-feasibility-local-context.json`
+  (`sha256:46bd5b4452000a0696432772f3ea3179efeffd43b80fbfa0947b319e3697842f`,
+  `proofHash:8c41a37e08b3375c02f9f6c732a2c54af564583e1978cabd70237c5b3c03bd35`)
+  matches runtime identity and records `308` resource rows with `0` omitted
+  cells. Its current resource split is dominated by scarce-floor assignment
+  (`183/194` local-assigned delta rows), so resource closure is now blocked on
+  assignment/materialization owner disposition rather than config cleanup.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -103,9 +112,10 @@
 
 - Completed tasks: planning record created; current proof/Graphite audit
   snapshot recorded, including current exact feature-apply telemetry,
-  natural-wonder telemetry, resource rejection numeric identity, and resource
-  rejection assignment/local-context proof rerun. Current top branch is a
-  diagnostic/proof slice only.
+  natural-wonder telemetry, resource rejection numeric identity, resource
+  rejection assignment/local-context proof rerun, and current resource-delta
+  feasibility proof after the exact/local rejection join. Current top branch is
+  a diagnostic/proof slice only.
 - Remaining tasks: final-surface parity, product acceptance, supervisor
   P1/P2 closure review, PR/remote predecessor disposition, and final Graphite
   submit/closure.
