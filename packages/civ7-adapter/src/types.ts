@@ -126,6 +126,40 @@ export type DiscoveryPlacementOutcome =
     };
 
 /**
+ * Natural-wonder rejection reasons expose which adapter/materialization
+ * boundary failed without changing planner intent.
+ */
+export type NaturalWonderPlacementRejectionReason =
+  | "out-of-bounds"
+  | "unsupported-footprint"
+  | "can-have-feature-param-false"
+  | "set-feature-false"
+  | "readback-mismatch";
+
+export type NaturalWonderPlacementOutcome =
+  | {
+      status: "placed";
+      plotIndex: number;
+      x: number;
+      y: number;
+      featureType: number;
+      direction: number;
+      elevation: number;
+    }
+  | {
+      status: "rejected";
+      plotIndex: number;
+      x: number;
+      y: number;
+      featureType: number;
+      direction: number;
+      elevation?: number;
+      reason: NaturalWonderPlacementRejectionReason;
+      observedFeatureType?: number;
+      observedPlotIndex?: number;
+    };
+
+/**
  * Map dimensions
  */
 export interface MapDimensions {
@@ -579,6 +613,17 @@ export interface EngineAdapter {
     direction: number,
     elevation?: number
   ): boolean;
+
+  /**
+   * Stamp a natural wonder and return a named placement outcome.
+   */
+  placeNaturalWonder(
+    x: number,
+    y: number,
+    featureType: number,
+    direction: number,
+    elevation?: number
+  ): NaturalWonderPlacementOutcome;
 
   /**
    * Stamp a discovery deterministically at a specific tile.

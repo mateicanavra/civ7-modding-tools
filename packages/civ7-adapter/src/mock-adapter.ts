@@ -17,6 +17,7 @@ import type {
   MapInitParams,
   MapSizeId,
   NaturalWonderCatalogEntry,
+  NaturalWonderPlacementOutcome,
   PlotTagName,
   ResourcePlacementIntent,
   ResourcePlacementOutcome,
@@ -1232,7 +1233,28 @@ export class MockAdapter implements EngineAdapter {
     direction: number,
     elevation?: number
   ): boolean {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
+    return this.placeNaturalWonder(x, y, featureType, direction, elevation).status === "placed";
+  }
+
+  placeNaturalWonder(
+    x: number,
+    y: number,
+    featureType: number,
+    direction: number,
+    elevation?: number
+  ): NaturalWonderPlacementOutcome {
+    const plotIndex = y * this.width + x;
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        reason: "out-of-bounds",
+      };
+    }
     const policy = FEATURE_POLICIES[String(featureType | 0)];
     const footprint = getNaturalWonderFootprintIndices({
       x,
@@ -1242,11 +1264,33 @@ export class MockAdapter implements EngineAdapter {
       policy: policy ?? {},
       direction,
     });
-    if (!footprint) return false;
+    if (!footprint) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        reason: "unsupported-footprint",
+      };
+    }
     for (const plotIndex of footprint) {
       const fy = (plotIndex / this.width) | 0;
       const fx = plotIndex - fy * this.width;
-      if (!this.canHaveFeature(fx, fy, featureType)) return false;
+      if (!this.canHaveFeature(fx, fy, featureType)) {
+        return {
+          status: "rejected",
+          plotIndex: y * this.width + x,
+          x,
+          y,
+          featureType,
+          direction,
+          reason: "can-have-feature-param-false",
+          observedFeatureType: this.getFeatureType(fx, fy),
+          observedPlotIndex: plotIndex,
+        };
+      }
     }
 
     const i = this.idx(x, y);
@@ -1270,7 +1314,15 @@ export class MockAdapter implements EngineAdapter {
       elevation: resolvedElevation,
     });
     this.recordPlacementEffect();
-    return true;
+    return {
+      status: "placed",
+      plotIndex,
+      x,
+      y,
+      featureType,
+      direction,
+      elevation: resolvedElevation,
+    };
   }
 
   stampDiscovery(

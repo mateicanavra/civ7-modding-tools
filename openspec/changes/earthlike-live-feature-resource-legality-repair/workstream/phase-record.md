@@ -649,8 +649,8 @@
   `placedCount:5`, `rejectedCount:2`, rejected examples
   `feature=35 plot=1320 reason=adapter-rejected` and
   `feature=36 plot=2171 reason=adapter-rejected`, and coordinate proof
-  `placedHash32:84d971d2` / `rejectedHash32:e69d9860`. The apparent `7/7/0`
-  placement signal came from local verifier generation, not the exact live log,
+  `placedHash32:84d971d2` / `rejectedHash32:e69d9860`. The previously recorded
+  `7/7/0` signal came from local verifier generation, not the exact live log,
   so the rejected-anchor class is not live-proven repaired.
   Remaining parity rows are `terrain:1`, `feature:5`, `resource:61`; these are
   not product acceptance, Earthlike quality, mountain-quality, final parity
@@ -686,6 +686,21 @@
   local direction `0`. Because exact live telemetry for the same request still
   reports `5` placed / `2` rejected, this artifact is a falsifier for the
   prior accepted-residual wording, not closure evidence.
+- Natural-wonder deploy proof-gap instrumentation progress:
+  `@civ7/adapter` now exposes `NaturalWonderPlacementOutcome` through
+  `placeNaturalWonder`, while the existing `stampNaturalWonder` boolean wrapper
+  remains for compatibility. Civ7 and mock adapters distinguish
+  `out-of-bounds`, `unsupported-footprint`, `can-have-feature-param-false`,
+  `set-feature-false`, and `readback-mismatch`; the Swooper natural-wonder
+  materializer records those named reasons in `NATURAL_WONDER_PLACEMENT_V1`
+  rejection examples and coordinate proofs. This is proof instrumentation only:
+  it does not retroactively strengthen `mq2u6wdg`, whose exact log only carried
+  `adapter-rejected`, and it does not prove natural-wonder repair closure.
+  Because the live game has changed since the captured artifacts, the next
+  natural-wonder proof must be a fresh exact-authored Studio request/runtime.
+  Swooper Maps package-local check now resolves both `@civ7/map-policy` and
+  `@civ7/adapter` to workspace source entrypoints so unbuilt adapter source
+  changes are visible to the package check.
 - Protected paths: generated outputs, official resources, unrelated worktrees.
 - Next action: classify the remaining feature/resource rows by source
   authority: official data, adapter/map-policy, MapGen
@@ -733,13 +748,16 @@
   evidence is now classified to repo-owned natural-wonder footprint
   projection/materialization emulation, and the repair now makes the
   materialization direction explicit before the plan/write path. Fresh request
-  `studio-run-in-game-mq2u6wdg-1z4g` verifies the old rejected-placement class
-  no longer occurs (`7/7` planned natural wonders placed, `0` rejected). The
-  remaining natural-wonder offset rows are now classified as final-grid
-  materialization/readback residuals, not an additional natural-wonder repair
-  authorization. The remaining repo-owned feature repair candidate is the
-  cold-reef local-only row, and final-surface parity remains open on terrain,
-  cold-reef feature, resource, and any explicitly accepted residual links.
+  `studio-run-in-game-mq2u6wdg-1z4g` does not verify the old rejected-placement
+  class is repaired: exact live telemetry still reports `5/7` placed and `2`
+  rejected. The remaining natural-wonder offset rows stay tied to the rejected
+  live placement class until a fresh exact-authored run proves the deployed
+  repair path is live-effective and, after this instrumentation, names the
+  adapter rejection subcondition if rejection persists. The cold-reef
+  local-only row also remains
+  evidence-bound pending exact live feature-apply telemetry/readback. Final-
+  surface parity remains open on terrain, feature, resource, and any future
+  owner-classified residual links.
   The single
   substitution row where both probed values are infeasible remains an individual
   evidence row with no repair authority until row-level context assigns source

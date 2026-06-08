@@ -1,4 +1,5 @@
 import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
+import type { NaturalWonderPlacementOutcome } from "@civ7/adapter";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
@@ -267,17 +268,17 @@ export function stampNaturalWondersFromPlan({
       coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: blockedReason });
       continue;
     }
-    const placed = adapter.stampNaturalWonder(
+    const outcome: NaturalWonderPlacementOutcome = adapter.placeNaturalWonder(
       x,
       y,
       featureType,
       direction,
       Number.isFinite(placementPlan.elevation) ? placementPlan.elevation : undefined
     );
-    if (!placed) {
+    if (outcome.status === "rejected") {
       rejectedCount += 1;
-      rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=adapter-rejected`);
-      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: "adapter-rejected" });
+      rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=${outcome.reason}`);
+      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: outcome.reason });
       continue;
     }
     let readbackMismatch = false;

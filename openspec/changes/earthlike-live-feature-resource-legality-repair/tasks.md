@@ -71,10 +71,12 @@
   owner without widening to product tuning.
 - [x] 2.34 Preserve source-recorded exact-authored parity proof after the natural-wonder
   projection/materialization repair.
-- [ ] 2.35 Produce current exact-authored parity proof after the natural-wonder
+- [x] 2.35 Add named adapter rejection telemetry for natural-wonder placement
+  proof-gap classification.
+- [ ] 2.36 Produce current exact-authored parity proof after the natural-wonder
   projection/materialization repair.
-- [ ] 2.36 Repair remaining proven package or MapGen owners.
-- [ ] 2.37 Preserve resource spacing, age legality, and diversity expectations.
+- [ ] 2.37 Repair remaining proven package or MapGen owners.
+- [ ] 2.38 Preserve resource spacing, age legality, and diversity expectations.
 
 ## 3. Verification
 
@@ -88,3 +90,7 @@
   natural-wonder projection/materialization repair.
 - [ ] 3.8 Re-run current exact-authored final-surface parity after natural-wonder
   projection/materialization repair.
+- [x] 3.9 Run focused adapter/Swooper checks and tests for natural-wonder
+  rejection telemetry.
+- [x] 3.8 Run focused adapter/Swooper checks and tests for natural-wonder
+  rejection telemetry.

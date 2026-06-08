@@ -19,6 +19,7 @@ import type {
   MapInitParams,
   MapSizeId,
   NaturalWonderCatalogEntry,
+  NaturalWonderPlacementOutcome,
   PlotTagName,
   ResourcePlacementIntent,
   ResourcePlacementOutcome,
@@ -28,6 +29,18 @@ import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
 import { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
+import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
+
+type FeaturePolicy = Readonly<{
+  noLake: boolean;
+  minimumElevation?: number;
+  placementClass?: string;
+  naturalWonderTiles?: number;
+  naturalWonderDirection?: number;
+}>;
+
+const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as
+  Record<string, FeaturePolicy | undefined>;
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript
@@ -690,6 +703,28 @@ export class Civ7Adapter implements EngineAdapter {
     direction: number,
     elevation?: number
   ): boolean {
+    return this.placeNaturalWonder(x, y, featureType, direction, elevation).status === "placed";
+  }
+
+  placeNaturalWonder(
+    x: number,
+    y: number,
+    featureType: number,
+    direction: number,
+    elevation?: number
+  ): NaturalWonderPlacementOutcome {
+    const plotIndex = y * this.width + x;
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        reason: "out-of-bounds",
+      };
+    }
     const resolvedElevation = Number.isFinite(elevation)
       ? (elevation as number)
       : GameplayMap.getElevation(x, y);
@@ -698,10 +733,80 @@ export class Civ7Adapter implements EngineAdapter {
       Direction: direction,
       Elevation: resolvedElevation,
     };
-    if (!this.canHaveFeatureParam(x, y, featureParam)) return false;
-    TerrainBuilder.setFeatureType(x, y, featureParam);
+    const footprint = getNaturalWonderFootprintIndices({
+      x,
+      y,
+      width: this.width,
+      height: this.height,
+      policy: FEATURE_POLICIES[String(featureType | 0)] ?? {},
+      direction,
+    });
+    if (!footprint) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        elevation: resolvedElevation,
+        reason: "unsupported-footprint",
+      };
+    }
+    if (!this.canHaveFeatureParam(x, y, featureParam)) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        elevation: resolvedElevation,
+        reason: "can-have-feature-param-false",
+      };
+    }
+    const setResult = TerrainBuilder.setFeatureType(x, y, featureParam) as unknown;
+    if (setResult === false) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        elevation: resolvedElevation,
+        reason: "set-feature-false",
+      };
+    }
+    for (const plotIndex of footprint) {
+      const fy = Math.trunc(plotIndex / this.width);
+      const fx = plotIndex - fy * this.width;
+      const observedFeatureType = GameplayMap.getFeatureType(fx, fy) | 0;
+      if (observedFeatureType !== (featureType | 0)) {
+        return {
+          status: "rejected",
+          plotIndex: y * this.width + x,
+          x,
+          y,
+          featureType,
+          direction,
+          elevation: resolvedElevation,
+          reason: "readback-mismatch",
+          observedFeatureType,
+          observedPlotIndex: plotIndex,
+        };
+      }
+    }
     this.recordPlacementEffect();
-    return true;
+    return {
+      status: "placed",
+      plotIndex,
+      x,
+      y,
+      featureType,
+      direction,
+      elevation: resolvedElevation,
+    };
   }
 
   stampDiscovery(

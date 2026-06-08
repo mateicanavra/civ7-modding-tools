@@ -156,7 +156,15 @@ describe("natural wonder placement materialization", () => {
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainType: FLAT_TERRAIN,
     });
-    adapter.stampNaturalWonder = () => false;
+    adapter.placeNaturalWonder = (x, y, featureType, direction) => ({
+      status: "rejected",
+      plotIndex: y * adapter.width + x,
+      x,
+      y,
+      featureType,
+      direction,
+      reason: "can-have-feature-param-false",
+    });
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
@@ -179,7 +187,7 @@ describe("natural wonder placement materialization", () => {
       rejectedCount: 1,
       shortfallCount: 0,
     });
-    expect(stats.rejectionExamples[0]).toContain("adapter-rejected");
+    expect(stats.rejectionExamples[0]).toContain("can-have-feature-param-false");
   });
 
   it("still fails corrupt plan metadata", () => {
