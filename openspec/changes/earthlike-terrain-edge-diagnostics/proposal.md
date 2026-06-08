@@ -31,6 +31,8 @@ The source proof hash is
   runtime-bound terrain-edge verifier that requires successful terrain,
   water/lake/river, and area/region/landmass facts before producing complete
   live context.
+- Add local placement validation-boundary readback for terrain, water, lake,
+  and area facts before/after validation and maintenance.
 - Keep source authority unresolved until shelf/lake/projection-boundary and
   live water/area evidence can distinguish repo projection, hydrology mutation,
   Civ terrain validation, and evidence insufficiency.
@@ -71,6 +73,8 @@ The source proof hash is
 - Focused terrain diagnostic test.
 - Terrain edge context artifact for `studio-run-in-game-mq20rbzr-1fhc`.
 - Runtime-bound terrain-edge live readback artifact for
+  `studio-run-in-game-mq20rbzr-1fhc`.
+- Local placement validation-boundary artifact for
   `studio-run-in-game-mq20rbzr-1fhc`.
 - Fact-completeness regression for terrain-edge live readback.
 - `bun run --cwd mods/mod-swooper-maps check`.

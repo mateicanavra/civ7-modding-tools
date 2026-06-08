@@ -6,13 +6,19 @@ import { runPlacementProductStep } from "../product-runtime.js";
 import { logTerrainStats } from "../terrain-diagnostics.js";
 import { applyLandmassRegionSlots } from "./landmass-regions.js";
 import { readFinalLakeProjection } from "./lake-readback.js";
+import { readTerrainValidationBoundarySnapshot } from "./terrain-validation-readback.js";
 import { placementArtifacts } from "../../artifacts.js";
+import { mapArtifacts } from "../../../../map-artifacts.js";
 import PreparePlacementSurfaceStepContract from "./contract.js";
 
 export default createStep(PreparePlacementSurfaceStepContract, {
-  artifacts: implementArtifacts([placementArtifacts.placementSurfacePreparation], {
-    placementSurfacePreparation: {},
-  }),
+  artifacts: implementArtifacts(
+    [placementArtifacts.placementSurfacePreparation, mapArtifacts.placementSurfaceValidationBoundary],
+    {
+      placementSurfacePreparation: {},
+      placementSurfaceValidationBoundary: {},
+    }
+  ),
   run: (context, _config, _ops, deps) => {
     const placementInputs = deps.artifacts.placementInputs.read(context);
     const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
@@ -35,8 +41,22 @@ export default createStep(PreparePlacementSurfaceStepContract, {
     runPlacementProductStep("placement.floodplains", emit, () => {
       adapter.addFloodplains(floodplains.minLength, floodplains.maxLength);
     });
+
+    const beforeValidate = readTerrainValidationBoundarySnapshot(
+      adapter,
+      width,
+      height,
+      "placement/prepare-surface/before-validate"
+    );
+    let afterValidate = beforeValidate;
     runPlacementProductStep("placement.terrain.validate", emit, () => {
       adapter.validateAndFixTerrain();
+      afterValidate = readTerrainValidationBoundarySnapshot(
+        adapter,
+        width,
+        height,
+        "placement/prepare-surface/after-validate"
+      );
       emit({ type: "placement.terrain.validated" });
       logTerrainStats(trace, adapter, width, height, "After validateAndFixTerrain");
     });
@@ -52,6 +72,12 @@ export default createStep(PreparePlacementSurfaceStepContract, {
       applyLandmassRegionSlots(adapter, width, height, slotByTile);
       emit({ type: "placement.landmassRegion.restamped" });
     });
+    const afterMaintenance = readTerrainValidationBoundarySnapshot(
+      adapter,
+      width,
+      height,
+      "placement/prepare-surface/after-maintenance"
+    );
     const finalLakeReadback = readFinalLakeProjection(
       adapter,
       width,
@@ -67,6 +93,14 @@ export default createStep(PreparePlacementSurfaceStepContract, {
       else if (slot === 2) slotCounts.east += 1;
       else slotCounts.none += 1;
     }
+
+    deps.artifacts.placementSurfaceValidationBoundary.publish(context, {
+      width,
+      height,
+      beforeValidate,
+      afterValidate,
+      afterMaintenance,
+    });
 
     deps.artifacts.placementSurfacePreparation.publish(context, {
       width,

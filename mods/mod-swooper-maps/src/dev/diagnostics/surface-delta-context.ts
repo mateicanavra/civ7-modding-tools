@@ -378,6 +378,7 @@ export type TerrainProjectionRowContext = Readonly<{
   hydrologyTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
   placementSurfacePreparation: TerrainPlacementPreparationContext | null;
   placementTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
+  placementValidationBoundary: TerrainValidationBoundaryRowContext | null;
 }>;
 
 export type TerrainMorphologyProjectionRowContext = Readonly<{
@@ -418,6 +419,21 @@ export type TerrainPlacementPreparationContext = Readonly<{
   acceptedLakeTileCount: number | null;
   finalLakeWaterDriftCount: number | null;
   finalLakeClassificationDriftCount: number | null;
+}>;
+
+export type TerrainValidationBoundaryRowContext = Readonly<{
+  beforeValidate: TerrainValidationBoundaryFactContext | null;
+  afterValidate: TerrainValidationBoundaryFactContext | null;
+  afterMaintenance: TerrainValidationBoundaryFactContext | null;
+}>;
+
+export type TerrainValidationBoundaryFactContext = Readonly<{
+  stage: string | null;
+  terrain: number | null;
+  terrainSymbol: string;
+  waterMask: number | null;
+  lakeMask: number | null;
+  areaId: number | null;
 }>;
 
 export type ResourcePlacementOutcomeContext = Readonly<{
@@ -1550,6 +1566,9 @@ function terrainProjectionRowContext(
   const placementTerrainSnapshot = isRecord(projection.placementTerrainSnapshot)
     ? projection.placementTerrainSnapshot
     : undefined;
+  const placementValidationBoundary = isRecord(projection.placementValidationBoundary)
+    ? projection.placementValidationBoundary
+    : undefined;
   return {
     morphology: morphology
       ? {
@@ -1599,6 +1618,38 @@ function terrainProjectionRowContext(
         }
       : null,
     placementTerrainSnapshot: projectionSnapshotRowContext(placementTerrainSnapshot, plotIndex),
+    placementValidationBoundary: validationBoundaryRowContext(placementValidationBoundary, plotIndex),
+  };
+}
+
+function validationBoundaryRowContext(
+  snapshot: Record<string, unknown> | undefined,
+  plotIndex: number
+): TerrainValidationBoundaryRowContext | null {
+  if (!snapshot) return null;
+  const beforeValidate = isRecord(snapshot.beforeValidate) ? snapshot.beforeValidate : undefined;
+  const afterValidate = isRecord(snapshot.afterValidate) ? snapshot.afterValidate : undefined;
+  const afterMaintenance = isRecord(snapshot.afterMaintenance) ? snapshot.afterMaintenance : undefined;
+  return {
+    beforeValidate: validationBoundaryFactContext(beforeValidate, plotIndex),
+    afterValidate: validationBoundaryFactContext(afterValidate, plotIndex),
+    afterMaintenance: validationBoundaryFactContext(afterMaintenance, plotIndex),
+  };
+}
+
+function validationBoundaryFactContext(
+  snapshot: Record<string, unknown> | undefined,
+  plotIndex: number
+): TerrainValidationBoundaryFactContext | null {
+  if (!snapshot) return null;
+  const terrain = indexedInteger(snapshot.terrain, plotIndex);
+  return {
+    stage: stringValue(snapshot.stage) ?? null,
+    terrain,
+    terrainSymbol: symbolFor("terrain", terrain),
+    waterMask: indexedInteger(snapshot.waterMask, plotIndex),
+    lakeMask: indexedInteger(snapshot.lakeMask, plotIndex),
+    areaId: indexedInteger(snapshot.areaId, plotIndex),
   };
 }
 

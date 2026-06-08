@@ -330,6 +330,9 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtende
   const placementTerrainSnapshot = context.artifacts.get(
     mapArtifacts.placementEngineTerrainSnapshot.id
   );
+  const placementValidationBoundary = context.artifacts.get(
+    mapArtifacts.placementSurfaceValidationBoundary.id
+  );
   return stripUndefined({
     coastlineMetrics: pickSerializableFields(coastlineMetrics, [
       "coastalLand",
@@ -376,6 +379,13 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createExtende
       "landMask",
       "terrain",
     ]),
+    placementValidationBoundary: pickSerializableFields(placementValidationBoundary, [
+      "width",
+      "height",
+      "beforeValidate",
+      "afterValidate",
+      "afterMaintenance",
+    ]),
   });
 }
 
@@ -390,6 +400,12 @@ function pickSerializableFields(
 function serializeEvidenceValue(value: unknown): unknown {
   if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
     return Array.from(value as ArrayLike<number>);
+  }
+  if (Array.isArray(value)) return value.map((entry) => serializeEvidenceValue(entry));
+  if (isPlainObject(value)) {
+    return stripUndefined(
+      Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, serializeEvidenceValue(entry)]))
+    );
   }
   return value;
 }

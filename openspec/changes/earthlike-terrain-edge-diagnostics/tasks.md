@@ -11,7 +11,8 @@
 - [x] 2.3 Produce the terrain-edge context artifact.
 - [x] 2.4 Add or link shelf/coast/lake/projection-boundary mask evidence.
 - [x] 2.5 Add or link live water/lake/area readback evidence.
-- [ ] 2.6 Classify source authority for each row.
+- [x] 2.6 Add placement validation-boundary readback evidence.
+- [ ] 2.7 Classify source authority for each row.
 
 ## 3. Repair
 

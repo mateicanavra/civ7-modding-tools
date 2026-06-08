@@ -5,12 +5,12 @@
 - Project: Swooper recovery
 - Phase: terrain-edge diagnostics
 - Owner: Product/Development DRA
-- Branch/Graphite stack: `codex/swooper-terrain-edge-live-readback-drain`
+- Branch/Graphite stack: `codex/swooper-terrain-validation-boundary-drain`
 - Started: 2026-06-06
-- Status: active. Terrain edge, local projection/mask context, and
-  exact-runtime-bound live terrain/hydrology/area readback exist for the two
-  coast/ocean rows, but source authority remains unresolved and no repair is
-  authorized.
+- Status: active. Terrain edge, local projection/mask context,
+  exact-runtime-bound live terrain/hydrology/area readback, and local placement
+  validation-boundary readback exist for the two coast/ocean rows. Source
+  authority remains unresolved and no repair is authorized.
 
 ## Objective
 
@@ -34,7 +34,7 @@
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
-- Branch: `codex/swooper-terrain-edge-live-readback-drain`.
+- Branch: `codex/swooper-terrain-validation-boundary-drain`.
 - Source proof:
   `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc.json`.
 - Source proof hash:
@@ -63,6 +63,12 @@
   `213134d7020063f53073c2f6f254ae8fc0d153007b0b6e0848c2da4a642262f6`.
 - Live readback proof hash:
   `aa817119c628d1ecc144c5dd7ed4d3227f6fe3301af1ffab501e26751868c2a8`.
+- Source-recorded local validation-boundary artifact:
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc-terrain-edge-validation-boundary-context.json`.
+- Local validation-boundary artifact sha256:
+  `033609d9293faf4b86a1da5862247a4c41762e7917069be3f2af7c8e7f55f263`.
+- Local validation-boundary proof hash:
+  `e906acdcacb002572586379b98cd00d0eb99529c9b86e2384fc6b8e03703da4e`.
 
 ## Findings
 
@@ -108,6 +114,20 @@
     `engineLakeMask:1` and `TERRAIN_COAST`, while live Civ readback reports
     `lake:false` and `TERRAIN_OCEAN`. That narrows the next classification
     question but does not prove the repair owner.
+- Local placement validation-boundary evidence:
+  - New diagnostic artifact records `terrain`, `waterMask`, `lakeMask`, and
+    `areaId` before `placement.terrain.validate`, after
+    `validateAndFixTerrain`, and after area/water-cache maintenance.
+  - `(73,36)` remains `TERRAIN_OCEAN`, `waterMask:1`, `lakeMask:0`,
+    `areaId:1` across `beforeValidate`, `afterValidate`, and
+    `afterMaintenance`.
+  - `(65,39)` remains `TERRAIN_COAST`, `waterMask:1`, `lakeMask:1`,
+    `areaId:1` across `beforeValidate`, `afterValidate`, and
+    `afterMaintenance`.
+  - This narrows the owner: the local placement validation/maintenance step is
+    not rewriting either row. The unresolved boundary is now local
+    mock/materialization expectation versus live Civ terrain/lake
+    materialization, not late local placement mutation.
 
 ## Evidence Boundary
 
@@ -121,8 +141,10 @@
 ## Next Evidence
 
 - If live water/area readback does not resolve ownership, add a more granular
-  projection-boundary snapshot immediately around `validateAndFixTerrain`.
-- Then classify each row before any repair.
+  source-authority classification for the mock/local materialization versus
+  live Civ terrain/lake materialization gap.
+- Classify each row before any repair. Current evidence does not authorize
+  coast/shelf tuning or terrain repair.
 
 ## Verification
 
