@@ -443,6 +443,7 @@ function parseNaturalWonderPlacementTelemetryBetween(
       payload,
       ...(naturalWonderPlacementStats(payload) ?? {}),
       ...(naturalWonderPlacementCoordinateProof(payload) ?? {}),
+      ...(naturalWonderPlacementCoordinateRows(payload) ?? {}),
     };
   }
   return undefined;
@@ -669,6 +670,146 @@ function naturalWonderPlacementCoordinateProof(
         : { rejected: { count: rejectedCount, hash32: rejectedHash32 } }),
     },
   };
+}
+
+function naturalWonderPlacementCoordinateRows(
+  payload: Record<string, unknown>
+):
+  | {
+      coordinateRows: NonNullable<
+        NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["coordinateRows"]
+      >;
+    }
+  | undefined {
+  const coordinateRows = [
+    ...naturalWonderVerboseCoordinateRows(payload.coordinateRows),
+    ...naturalWonderCompactRejectedRows(payload.rejectedRows),
+  ].slice(0, 16);
+  return coordinateRows.length === 0 ? undefined : { coordinateRows };
+}
+
+function naturalWonderVerboseCoordinateRows(
+  value: unknown
+): NonNullable<
+  NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["coordinateRows"]
+> {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((value) => {
+    if (!isRecord(value)) return [];
+    const status: "placed" | "rejected" | undefined =
+      value.status === "placed" || value.status === "rejected" ? value.status : undefined;
+    const featureType = numberValue(value.featureType);
+    const plotIndex = numberValue(value.plotIndex);
+    const x = numberValue(value.x);
+    const y = numberValue(value.y);
+    const direction = numberValue(value.direction);
+    if (
+      status === undefined ||
+      featureType === undefined ||
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined ||
+      direction === undefined ||
+      stringValue(value.reason) === undefined
+    ) {
+      return [];
+    }
+    const elevation = numberValue(value.elevation);
+    const observedFeatureType = numberValue(value.observedFeatureType);
+    const observedPlotIndex = numberValue(value.observedPlotIndex);
+    const expectedFootprintReadback = naturalWonderFootprintReadbackRows(
+      value.expectedFootprintReadback
+    );
+    const expectedFootprintReadbackStatus = naturalWonderFootprintReadbackStatus(
+      value.expectedFootprintReadbackStatus
+    );
+    return [
+      {
+        status,
+        featureType,
+        plotIndex,
+        x,
+        y,
+        direction,
+        ...(elevation === undefined ? {} : { elevation }),
+        reason: stringValue(value.reason) as string,
+        ...(observedFeatureType === undefined ? {} : { observedFeatureType }),
+        ...(observedPlotIndex === undefined ? {} : { observedPlotIndex }),
+        ...(expectedFootprintReadback.length === 0 ? {} : { expectedFootprintReadback }),
+        ...(expectedFootprintReadbackStatus === undefined ? {} : { expectedFootprintReadbackStatus }),
+      },
+    ];
+  });
+}
+
+function naturalWonderCompactRejectedRows(
+  value: unknown
+): NonNullable<
+  NonNullable<NonNullable<RunInGameExactAuthorshipProof["log"]>["naturalWonderPlacement"]>["coordinateRows"]
+> {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((row) => {
+    if (!Array.isArray(row)) return [];
+    const status = row[0] === "r" ? "rejected" : undefined;
+    const plotIndex = numberValue(row[1]);
+    const x = numberValue(row[2]);
+    const y = numberValue(row[3]);
+    const featureType = numberValue(row[4]);
+    const direction = numberValue(row[5]);
+    const elevation = row[6] === null ? undefined : numberValue(row[6]);
+    const reason = stringValue(row[7]);
+    const observedFeatureType = numberValue(row[8]);
+    const observedPlotIndex = numberValue(row[9]);
+    const expectedFootprintReadbackStatus = naturalWonderFootprintReadbackStatus(row[10]);
+    if (
+      status === undefined ||
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined ||
+      featureType === undefined ||
+      direction === undefined ||
+      reason === undefined
+    ) {
+      return [];
+    }
+    return [
+      {
+        status,
+        featureType,
+        plotIndex,
+        x,
+        y,
+        direction,
+        ...(elevation === undefined ? {} : { elevation }),
+        reason,
+        ...(observedFeatureType === undefined ? {} : { observedFeatureType }),
+        ...(observedPlotIndex === undefined ? {} : { observedPlotIndex }),
+        ...(expectedFootprintReadbackStatus === undefined ? {} : { expectedFootprintReadbackStatus }),
+      },
+    ];
+  });
+}
+
+function naturalWonderFootprintReadbackRows(value: unknown): ReadonlyArray<{
+  plotIndex: number;
+  observedFeatureType: number;
+}> {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry) => {
+    if (!isRecord(entry)) return [];
+    const plotIndex = numberValue(entry.plotIndex);
+    const observedFeatureType = numberValue(entry.observedFeatureType);
+    if (plotIndex === undefined || observedFeatureType === undefined) return [];
+    return [{ plotIndex, observedFeatureType }];
+  }).slice(0, 8);
+}
+
+function naturalWonderFootprintReadbackStatus(
+  value: unknown
+): "empty-expected-footprint" | "partial-expected-footprint" | undefined {
+  return value === "empty-expected-footprint" || value === "partial-expected-footprint"
+    ? value
+    : undefined;
 }
 
 function resourcePlacementCoordinateProof(

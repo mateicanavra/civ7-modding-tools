@@ -155,6 +155,9 @@ describe("Run in Game exact authorship proof identity", () => {
             rejectedCount: 1,
             rejectedHash32: "aaaaaaaa",
           },
+          rejectedRows: [
+            ["r", 1320, 60, 15, 35, 0, 120, "readback-mismatch", -1, 1405, "partial-expected-footprint"],
+          ],
         })}`,
         `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
       ].join("\n"),
@@ -244,6 +247,21 @@ describe("Run in Game exact authorship proof identity", () => {
         placed: { count: 6, hash32: "3c3530cb" },
         rejected: { count: 1, hash32: "aaaaaaaa" },
       },
+      coordinateRows: [
+        {
+          status: "rejected",
+          featureType: 35,
+          plotIndex: 1320,
+          x: 60,
+          y: 15,
+          direction: 0,
+          elevation: 120,
+          reason: "readback-mismatch",
+          observedFeatureType: -1,
+          observedPlotIndex: 1405,
+          expectedFootprintReadbackStatus: "partial-expected-footprint",
+        },
+      ],
     });
     expect(parseSwooperMapgenLogProof({
       text: `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 41, dimensions: { width: 84, height: 54 } })}`,

@@ -30,6 +30,21 @@ export type NaturalWonderPlacementCoordinateProof = {
   rejected: NaturalWonderPlacementCoordinateDigest;
 };
 
+export type NaturalWonderPlacementCoordinateRow = {
+  status: "placed" | "rejected";
+  plotIndex: number;
+  x: number;
+  y: number;
+  featureType: number;
+  direction: number;
+  elevation?: number;
+  reason: string;
+  observedFeatureType?: number;
+  observedPlotIndex?: number;
+  expectedFootprintReadback?: NaturalWonderFootprintReadback[];
+  expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
+};
+
 export type NaturalWonderStampingStats = {
   plannedCount: number;
   targetCount: number;
@@ -40,6 +55,7 @@ export type NaturalWonderStampingStats = {
   shortfallCount: number;
   rejectionExamples: string[];
   coordinateProof: NaturalWonderPlacementCoordinateProof;
+  coordinateRows: NaturalWonderPlacementCoordinateRow[];
 };
 
 export type NaturalWonderPlacementRuntimeTelemetry = {
@@ -53,6 +69,7 @@ export type NaturalWonderPlacementRuntimeTelemetry = {
   shortfallCount: number;
   rejectionExampleCount: number;
   rejectionExamples: string[];
+  rejectedRows: NaturalWonderPlacementRuntimeRejectedRow[];
   coordinateProof: {
     version: 1;
     placedCount: number;
@@ -61,6 +78,20 @@ export type NaturalWonderPlacementRuntimeTelemetry = {
     rejectedHash32?: string;
   };
 };
+
+export type NaturalWonderPlacementRuntimeRejectedRow = readonly [
+  status: "r",
+  plotIndex: number,
+  x: number,
+  y: number,
+  featureType: number,
+  direction: number,
+  elevation: number | null,
+  reason: string,
+  observedFeatureType: number | null,
+  observedPlotIndex: number | null,
+  expectedFootprintReadbackStatus: NaturalWonderFootprintReadbackStatus | null,
+];
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES = CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as
   Record<string, readonly number[] | undefined>;
@@ -71,19 +102,6 @@ const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
 >;
 const FNV1A_32_OFFSET = 0x811c9dc5;
 const FNV1A_32_PRIME = 0x01000193;
-type NaturalWonderPlacementCoordinateRow = {
-  status: "placed" | "rejected";
-  plotIndex: number;
-  x: number;
-  y: number;
-  featureType: number;
-  direction: number;
-  reason: string;
-  observedFeatureType?: number;
-  observedPlotIndex?: number;
-  expectedFootprintReadback?: NaturalWonderFootprintReadback[];
-  expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
-};
 
 function hash32Hex(input: string): string {
   let hash = FNV1A_32_OFFSET;
@@ -280,6 +298,7 @@ export function stampNaturalWondersFromPlan({
         y: -1,
         featureType: Number.isFinite(placementPlan.featureType) ? Math.trunc(placementPlan.featureType) : -1,
         direction: Number.isFinite(placementPlan.direction) ? Math.trunc(placementPlan.direction) : -1,
+        ...(Number.isFinite(placementPlan.elevation) ? { elevation: Math.trunc(placementPlan.elevation) } : {}),
         reason: "out-of-bounds",
       });
       continue;
@@ -298,6 +317,9 @@ export function stampNaturalWondersFromPlan({
 
     const featureType = Math.trunc(placementPlan.featureType);
     const direction = Math.trunc(placementPlan.direction);
+    const plannedElevation = Number.isFinite(placementPlan.elevation)
+      ? Math.trunc(placementPlan.elevation)
+      : undefined;
     const y = (plotIndex / width) | 0;
     const x = plotIndex - y * width;
     const footprint = getNaturalWonderFootprintIndices({
@@ -311,7 +333,16 @@ export function stampNaturalWondersFromPlan({
     if (!footprint) {
       rejectedCount += 1;
       rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=unsupported-footprint`);
-      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: "unsupported-footprint" });
+      coordinateRows.push({
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        ...(plannedElevation === undefined ? {} : { elevation: plannedElevation }),
+        reason: "unsupported-footprint",
+      });
       continue;
     }
     let footprintBlocked = false;
@@ -335,7 +366,16 @@ export function stampNaturalWondersFromPlan({
     if (footprintBlocked) {
       rejectedCount += 1;
       rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=${blockedReason}`);
-      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: blockedReason });
+      coordinateRows.push({
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        ...(plannedElevation === undefined ? {} : { elevation: plannedElevation }),
+        reason: blockedReason,
+      });
       continue;
     }
     const outcome: NaturalWonderPlacementOutcome = adapter.placeNaturalWonder(
@@ -367,6 +407,7 @@ export function stampNaturalWondersFromPlan({
         y,
         featureType,
         direction,
+        ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
         reason: outcome.reason,
         ...(outcome.observedPlotIndex === undefined ? {} : { observedPlotIndex: outcome.observedPlotIndex }),
         ...(outcome.observedFeatureType === undefined ? {} : { observedFeatureType: outcome.observedFeatureType }),
@@ -391,10 +432,28 @@ export function stampNaturalWondersFromPlan({
     if (readbackMismatch) {
       rejectedCount += 1;
       rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=readback-mismatch`);
-      coordinateRows.push({ status: "rejected", plotIndex, x, y, featureType, direction, reason: "readback-mismatch" });
+      coordinateRows.push({
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
+        reason: "readback-mismatch",
+      });
     } else {
       placedCount += 1;
-      coordinateRows.push({ status: "placed", plotIndex, x, y, featureType, direction, reason: "placed" });
+      coordinateRows.push({
+        status: "placed",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
+        reason: "placed",
+      });
     }
   }
 
@@ -408,6 +467,7 @@ export function stampNaturalWondersFromPlan({
     shortfallCount,
     rejectionExamples: rejectionDetails.slice(0, 8),
     coordinateProof: naturalWonderCoordinateProof(coordinateRows),
+    coordinateRows,
   };
 }
 
@@ -443,6 +503,9 @@ export function normalizeNaturalWonderStampingStats(
   const coordinateProof = normalizeNaturalWonderCoordinateProof(
     (stats as { coordinateProof?: unknown }).coordinateProof
   );
+  const coordinateRows = normalizeNaturalWonderCoordinateRows(
+    (stats as { coordinateRows?: unknown }).coordinateRows
+  );
   return {
     plannedCount,
     targetCount,
@@ -453,6 +516,7 @@ export function normalizeNaturalWonderStampingStats(
     shortfallCount,
     rejectionExamples,
     coordinateProof,
+    coordinateRows,
   };
 }
 
@@ -486,6 +550,103 @@ function normalizeNaturalWonderCoordinateDigest(
   return { count, hash32 };
 }
 
+function normalizeNaturalWonderCoordinateRows(value: unknown): NaturalWonderPlacementCoordinateRow[] {
+  if (!Array.isArray(value)) return [];
+  const rows: NaturalWonderPlacementCoordinateRow[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== "object") continue;
+    const record = entry as Partial<NaturalWonderPlacementCoordinateRow>;
+    if (record.status !== "placed" && record.status !== "rejected") continue;
+    const plotIndex = normalizeInteger(record.plotIndex);
+    const x = normalizeInteger(record.x);
+    const y = normalizeInteger(record.y);
+    const featureType = normalizeInteger(record.featureType);
+    const direction = normalizeInteger(record.direction);
+    if (
+      plotIndex === undefined ||
+      x === undefined ||
+      y === undefined ||
+      featureType === undefined ||
+      direction === undefined ||
+      typeof record.reason !== "string" ||
+      record.reason.length === 0
+    ) {
+      continue;
+    }
+    const elevation = normalizeInteger(record.elevation);
+    const observedFeatureType = normalizeInteger(record.observedFeatureType);
+    const observedPlotIndex = normalizeInteger(record.observedPlotIndex);
+    const expectedFootprintReadback = normalizeNaturalWonderFootprintReadback(
+      record.expectedFootprintReadback
+    );
+    const expectedFootprintReadbackStatus = normalizeNaturalWonderFootprintReadbackStatus(
+      record.expectedFootprintReadbackStatus
+    );
+    rows.push({
+      status: record.status,
+      plotIndex,
+      x,
+      y,
+      featureType,
+      direction,
+      ...(elevation === undefined ? {} : { elevation }),
+      reason: record.reason,
+      ...(observedFeatureType === undefined ? {} : { observedFeatureType }),
+      ...(observedPlotIndex === undefined ? {} : { observedPlotIndex }),
+      ...(expectedFootprintReadback === undefined ? {} : { expectedFootprintReadback }),
+      ...(expectedFootprintReadbackStatus === undefined ? {} : { expectedFootprintReadbackStatus }),
+    });
+  }
+  return rows;
+}
+
+function normalizeNaturalWonderFootprintReadback(
+  value: unknown
+): NaturalWonderFootprintReadback[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const rows = value.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const record = entry as Partial<NaturalWonderFootprintReadback>;
+    const plotIndex = normalizeInteger(record.plotIndex);
+    const observedFeatureType = normalizeInteger(record.observedFeatureType);
+    if (plotIndex === undefined || observedFeatureType === undefined) return [];
+    return [{ plotIndex, observedFeatureType }];
+  });
+  return rows.length > 0 ? rows : undefined;
+}
+
+function normalizeNaturalWonderFootprintReadbackStatus(
+  value: unknown
+): NaturalWonderFootprintReadbackStatus | undefined {
+  return value === "empty-expected-footprint" || value === "partial-expected-footprint"
+    ? value
+    : undefined;
+}
+
+function normalizeInteger(value: unknown): number | undefined {
+  return Number.isFinite(value) ? Math.trunc(value as number) : undefined;
+}
+
+function buildNaturalWonderRuntimeRejectedRows(
+  rows: readonly NaturalWonderPlacementCoordinateRow[]
+): NaturalWonderPlacementRuntimeRejectedRow[] {
+  return rows
+    .filter((row) => row.status === "rejected")
+    .map((row) => [
+      "r",
+      row.plotIndex,
+      row.x,
+      row.y,
+      row.featureType,
+      row.direction,
+      row.elevation ?? null,
+      row.reason,
+      row.observedFeatureType ?? null,
+      row.observedPlotIndex ?? null,
+      row.expectedFootprintReadbackStatus ?? null,
+    ]);
+}
+
 export function buildNaturalWonderPlacementRuntimeTelemetry(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): NaturalWonderPlacementRuntimeTelemetry {
@@ -501,6 +662,7 @@ export function buildNaturalWonderPlacementRuntimeTelemetry(
     shortfallCount: normalized.shortfallCount,
     rejectionExampleCount: normalized.rejectionExamples.length,
     rejectionExamples: normalized.rejectionExamples,
+    rejectedRows: buildNaturalWonderRuntimeRejectedRows(normalized.coordinateRows),
     coordinateProof: {
       version: normalized.coordinateProof.version,
       placedCount: normalized.coordinateProof.placed.count,

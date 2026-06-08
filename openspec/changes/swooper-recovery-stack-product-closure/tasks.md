@@ -51,6 +51,26 @@
     `proofHash:ea9a8d88f8fbbe7b86d1b06f1f5893acaf579b46ddf534ae9a5f328277fdc5ee`)
     remains unresolved with terrain, biome, feature, resource, and resource
     coordinate proof links still open.
+    Follow-on branch `codex/swooper-natural-wonder-row-proof-drain` is a
+    proof-contract slice for the next exact run: it exposes bounded
+    natural-wonder row identity through placement artifact `coordinateRows`,
+    compact runtime rejected-row telemetry, and expanded Studio
+    exact-authorship `coordinateRows`. It does not close natural-wonder
+    readback mismatch, exact/local natural-wonder plan divergence,
+    final-surface parity, product acceptance, or any resource / feature /
+    terrain claim.
+    Fresh exact request `studio-run-in-game-mq3yo4uq-20js` consumes the row
+    contract and preserves exact natural-wonder rejected rows: feature `30` at
+    plot `4130` and feature `36` at plot `1785`, both
+    `readback-mismatch` with `partial-expected-footprint`. The corresponding
+    final-surface verifier artifact
+    `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3yo4uq-20js-current-final-surface-parity-with-natural-wonder-rows.json`
+    (`sha256:b1d7033ef3b8b9e7cf55407ab9cf854dac331ac68953d568515ff19dda91923e`,
+    `proofHash:4abcfde0e6a242395611586e501d6b872b1943d6a3c45f6e09d38c8ffb430a46`)
+    remains unresolved. Local replay in that same artifact plans feature `30`
+    at plot `1342` and feature `36` at plot `2065`, so natural-wonder closure
+    is blocked on source-owning exact/local plan-input or engine-surface
+    divergence before behavior repair.
 - [ ] 1.2 Audit accepted P1/P2 review findings across recovery changes.
   - Current audit pass found no active review-disposition ledger inside
     `earthlike-live-feature-resource-legality-repair` or
@@ -89,8 +109,9 @@
     `codex/swooper-resource-rejection-identity-rerun-record-drain`,
     `codex/swooper-resource-rejection-proof-identity-drain`, and the current
     feature/resource/source-authority proof-record branches.
-  - Follow-on implementation branch:
-    `codex/swooper-natural-wonder-supported-catalog-drain`.
+  - Follow-on implementation branches:
+    `codex/swooper-natural-wonder-supported-catalog-drain`, then
+    `codex/swooper-natural-wonder-row-proof-drain`.
 - [ ] 3.3 Run `git diff --check`.
 - [ ] 3.4 Run `bun run openspec -- validate swooper-recovery-stack-product-closure --strict`.
 - [ ] 3.5 Run `bun run openspec:validate`.

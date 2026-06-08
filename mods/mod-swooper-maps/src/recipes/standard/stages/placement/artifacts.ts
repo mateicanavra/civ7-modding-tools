@@ -151,6 +151,41 @@ const NaturalWonderPlacementCoordinateProofSchema = Type.Object(
   }
 );
 
+const NaturalWonderFootprintReadbackSchema = Type.Object(
+  {
+    plotIndex: Type.Integer({ minimum: 0 }),
+    observedFeatureType: Type.Integer(),
+  },
+  { additionalProperties: false }
+);
+
+const NaturalWonderPlacementCoordinateRowSchema = Type.Object(
+  {
+    status: Type.Union([Type.Literal("placed"), Type.Literal("rejected")]),
+    plotIndex: Type.Integer({ minimum: 0 }),
+    x: Type.Integer(),
+    y: Type.Integer(),
+    featureType: Type.Integer(),
+    direction: Type.Integer(),
+    elevation: Type.Optional(Type.Integer()),
+    reason: Type.String(),
+    observedFeatureType: Type.Optional(Type.Integer()),
+    observedPlotIndex: Type.Optional(Type.Integer({ minimum: 0 })),
+    expectedFootprintReadback: Type.Optional(Type.Array(NaturalWonderFootprintReadbackSchema)),
+    expectedFootprintReadbackStatus: Type.Optional(
+      Type.Union([
+        Type.Literal("empty-expected-footprint"),
+        Type.Literal("partial-expected-footprint"),
+      ])
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Bounded natural-wonder placement row identity for exact/local proof comparison.",
+  }
+);
+
 const NaturalWonderPlacementArtifactSchema = Type.Object(
   {
     plannedCount: Type.Integer({ minimum: 0 }),
@@ -162,6 +197,7 @@ const NaturalWonderPlacementArtifactSchema = Type.Object(
     shortfallCount: Type.Integer({ minimum: 0 }),
     rejectionExamples: Type.Array(Type.String()),
     coordinateProof: NaturalWonderPlacementCoordinateProofSchema,
+    coordinateRows: Type.Array(NaturalWonderPlacementCoordinateRowSchema),
   },
   {
     additionalProperties: false,

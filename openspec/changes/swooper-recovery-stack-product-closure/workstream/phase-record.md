@@ -6,7 +6,7 @@
 - Phase: product closure planning
 - Owner: Product/Development DRA
 - Branch/Graphite stack:
-  `codex/swooper-natural-wonder-supported-catalog-drain`
+  `codex/swooper-natural-wonder-row-proof-drain`
 - Started: 2026-06-06
 - Status: blocked until proof and activated repair changes close
 
@@ -78,7 +78,23 @@
   changed: exact authorship completed with no unresolved exact links, and
   natural-wonder telemetry is `7` planned / `5` placed / `2` rejected, with the
   two previous unsupported-footprint rejections gone. Final-surface parity and
-  product acceptance remain open.
+  product acceptance remain open. Current follow-on proof-contract branch
+  `codex/swooper-natural-wonder-row-proof-drain` exposes bounded
+  natural-wonder row identity through local placement artifact
+  `coordinateRows`, compact runtime rejected-row telemetry, and expanded
+  Studio exact-authorship `coordinateRows`. It is not a behavior repair or
+  closure claim. Fresh exact request `studio-run-in-game-mq3yo4uq-20js`
+  consumed the row contract and preserves exact rejected rows for feature `30`
+  at plot `4130` and feature `36` at plot `1785`, both
+  `readback-mismatch` with `partial-expected-footprint`. The final-surface
+  verifier artifact
+  `/tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq3yo4uq-20js-current-final-surface-parity-with-natural-wonder-rows.json`
+  (`sha256:b1d7033ef3b8b9e7cf55407ab9cf854dac331ac68953d568515ff19dda91923e`,
+  `proofHash:4abcfde0e6a242395611586e501d6b872b1943d6a3c45f6e09d38c8ffb430a46`)
+  remains unresolved. Local replay in that artifact plans feature `30` at
+  plot `1342` and feature `36` at plot `2065`, so the next natural-wonder
+  decision is exact/local plan-input or engine-surface divergence before any
+  further readback behavior repair.
 - Generated outputs affected: none expected.
 - Tests/guards affected: validation and closure audits.
 
@@ -169,11 +185,13 @@
 
 ## Next Action
 
-- Exact next step: run strict OpenSpec/git checks and amend this bounded
-  natural-wonder source repair with the fresh proof record. Then continue the
-  remaining queue: natural-wonder readback-mismatch ownership, cross-resource
-  scarce-floor divergence at plot `4838`, and exact `FEATURE_APPLY_V1`
-  materialization/readback ownership.
+- Exact next step: classify why exact natural-wonder planning/materialization
+  rejects feature `30` at plot `4130` and feature `36` at plot `1785` while
+  local replay plans those feature types at plots `1342` and `2065` and places
+  all `7`. Do not repair readback behavior until that exact/local plan-input
+  or engine-surface divergence is source-owned. Then continue the remaining
+  queue: cross-resource scarce-floor divergence at plot `4838`, and exact
+  `FEATURE_APPLY_V1` materialization/readback ownership.
 - First files to inspect: recovery OpenSpec proof ledgers and Graphite branch
   state.
 - Stop condition: accepted P1/P2 findings remain open.
