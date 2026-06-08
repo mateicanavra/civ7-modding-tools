@@ -10,6 +10,7 @@ import {
   buildResourceDeltaPlacementContexts,
   buildSurfaceDeltaContext,
   buildSurfaceDeltaContexts,
+  buildTerrainDeltaEdgeContexts,
   staticSurfaceLegality,
 } from "../../src/dev/diagnostics/surface-delta-context";
 
@@ -62,6 +63,59 @@ describe("surface delta context diagnostics", () => {
       local: { value: 3, symbol: "RESOURCE_FISH" },
       live: { value: null, symbol: "empty" },
     });
+  });
+
+  test("classifies coast/ocean terrain edge swaps with neighborhood context", () => {
+    const local = snapshot({
+      terrain: { width: 3, height: 2, values: [3, 4, 3, 2, 3, 4] },
+    });
+    const live = snapshot({
+      terrain: { width: 3, height: 2, values: [3, 3, 3, 2, 3, 4] },
+    });
+
+    const rows = buildTerrainDeltaEdgeContexts({ local, live });
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      x: 1,
+      y: 0,
+      plotIndex: 1,
+      localTerrain: { symbol: "TERRAIN_OCEAN" },
+      liveTerrain: { symbol: "TERRAIN_COAST" },
+      evidenceClass: "local-ocean-live-coast",
+      sourceAuthorityStatus: "unresolved",
+      ownerCandidates: expect.arrayContaining([
+        "map-morphology-coast-shelf-projection",
+        "civ-engine-terrain-validation",
+        "evidence-insufficient",
+      ]),
+      neighborhood: {
+        localCounts: {
+          coast: 3,
+          ocean: 1,
+          land: 1,
+        },
+        liveCounts: {
+          coast: 3,
+          ocean: 1,
+          land: 1,
+        },
+      },
+    });
+    expect(rows[0].neighborhood.neighbors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          x: 0,
+          y: 0,
+          localTerrain: expect.objectContaining({ symbol: "TERRAIN_COAST", waterClass: "coast" }),
+        }),
+        expect.objectContaining({
+          x: 0,
+          y: 1,
+          localTerrain: expect.objectContaining({ symbol: "TERRAIN_FLAT", waterClass: "land" }),
+        }),
+      ])
+    );
   });
 
   test("classifies feature deltas into reef absences and nearby natural-wonder offsets", () => {
