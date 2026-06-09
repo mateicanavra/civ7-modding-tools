@@ -7,7 +7,7 @@
 
 ## 2. Visible Proof Runner
 
-- [ ] 2.1 Select sampled live river tiles/chains from final-surface readback.
+- [x] 2.1 Select sampled live river tiles/chains from final-surface readback.
 - [ ] 2.2 Center camera on samples, capture screenshots, hash artifacts, and
   emit visual verdict fields.
 - [ ] 2.3 Add negative controls for wrong map/seed, off-target camera, and
