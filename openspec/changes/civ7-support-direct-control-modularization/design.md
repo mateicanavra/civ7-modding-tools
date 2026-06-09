@@ -400,14 +400,20 @@ Responsibilities:
 8. Plan the Effect/Bun implementation model for direct-control atoms,
    procedure cores, and tests before source rewrites depend on Effect
    affordances.
-9. Import or explicitly cite the oRPC architecture skill/source authority from
-   the relevant stack branches.
+9. Explicitly cite the oRPC architecture skill/source authority from the
+   relevant stack branches. Current authority is
+   `civ7-orpc-control-architecture` from
+   `codex/civ7-orpc-control-architecture-skill`: oRPC is typed
+   procedure/router/context/middleware composition over repo-owned
+   direct-control atoms, not raw command tunneling, caller-owned socket state,
+   or transport-first architecture. This citation does not import or accept
+   tracked procedure-core source.
 10. Add Effect/oRPC procedure cores over stable atoms.
 
-The current support branch does not track
-`.agents/skills/civ7-orpc-control-architecture` or `packages/civ7-control-orpc`.
-The oRPC lane is therefore planning-only here until that authority is imported
-or cited, and it remains downstream of direct-control atoms.
+The oRPC lane is therefore planning-only here after authority citation, and it
+remains downstream of direct-control atoms, Task 2.9.4 matrix-row acceptance,
+schema/type ownership, telemetry/proof vocabulary, and semantic/debug consumer
+classification.
 
 ## Proof Boundaries
 

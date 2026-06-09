@@ -65,7 +65,7 @@ titles, and parent reports to close the loop.
 | `019e8ad7-dc15-76a0-88f8-bb5210bfd7e9`                                                | Add notification HUD test                   | framed `/goal` implementation | completed, idle                                                                      | yes                                         | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `@civ7/direct-control` build artifacts were unavailable there. | Created local/mode-named `game/play/notification/hud.test.ts`; DRA performed single-writer monolith removal, package wiring, and final gates in the support worktree.                                                                                                  |
 | `019e8ae4-8b20-79a0-8553-41b71bccb63f`                                                | Add priorities play test                    | framed `/goal` implementation | completed, idle                                                                      | yes                                         | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest` was unavailable there.                                | Created local `game/play/priorities.test.ts` with priority HUD/ready-unit/ready-city/battlefield fixtures; DRA performed single-writer monolith deletion, package wiring, and final gates in the support worktree.                                                     |
 | `019e8af1-0303-7ce2-b059-6178542f833e`                                                | Plan direct-control test boundaries         | framed `/goal` report-only    | completed, idle                                                                      | yes                                         | Accepted as package-test boundary evidence; no mutation authority.                                                                                                      | Identified one broad `packages/civ7-direct-control/test/direct-control.test.ts` suite, missing per-atom package tests, missing atom rows for map/setup/autoplay/turn/root/catalog surfaces, and recommended public API/primitives as first source-adjacent test slice. |
-| `019e8af1-427e-7463-a9be-dbdeabbccfdf`                                                | Assess oRPC authority lane                  | framed `/goal` report-only    | completed, idle                                                                      | yes                                         | Accepted as authority disposition; no mutation authority.                                                                                                               | Confirms current support branch lacks tracked `.agents/skills/civ7-orpc-control-architecture` and `packages/civ7-control-orpc`; oRPC stays downstream until authority/source is imported or cited from the relevant branches.                                          |
+| `019e8af1-427e-7463-a9be-dbdeabbccfdf`                                                | Assess oRPC authority lane                  | framed `/goal` report-only    | completed, idle                                                                      | yes                                         | Accepted as authority disposition; no mutation authority.                                                                                                               | Historical finding: support previously lacked tracked `.agents/skills/civ7-orpc-control-architecture` and `packages/civ7-control-orpc`. Superseded by the 4.9 authority citation to `codex/civ7-orpc-control-architecture-skill`; implementation still remains downstream. |
 | `019e8afb-f1c2-7a22-83b4-5d934658d92e`                                                | Add public API tests                        | framed `/goal` implementation | completed, idle                                                                      | yes                                         | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest` was unavailable there.                                | Created pure `packages/civ7-direct-control/test/public-api.test.ts`; DRA performed broad-suite ownership removal and final package gates in the support worktree.                                                                                                      |
 | `019e8b01-475a-7f70-a94d-b671fd61e013`                                                | Add unit move preview test                  | framed `/goal` implementation | completed, idle                                                                      | yes                                         | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest`/`tsc` were unavailable there.                         | Created local `packages/civ7-direct-control/test/unit-move-preview.test.ts`; DRA corrected the limit-contract assertion and ran final package gates in the support worktree.                                                                                           |
 | `pendingWorktreeId local:699af531-ba6e-49e6-8f36-021dd3e27721` / disk worktree `6e69` | Add session/framing package tests           | framed `/goal` implementation | candidate visible on disk; app thread read/archive tools unavailable in this session | yes, from disk candidate and worktree state | Accepted as boundary-clean net-new candidate only; DRA retained integration, broad-suite removal, docs, and final gates.                                                | Created local `packages/civ7-direct-control/test/session.test.ts`; DRA added health/env-host coverage, removed duplicate broad-suite assertions, and ran package gates in the support worktree.                                                                        |
@@ -1242,6 +1242,16 @@ All future agent waves must be framed before delegation:
   hotseat runtime proof, Effect/oRPC procedure-core work, or Task 2.9.4
   matrix-row acceptance. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Direct-control oRPC architecture authority citation slice: completed as a
+  docs-only gate repair. The support OpenSpec now cites
+  `civ7-orpc-control-architecture` from
+  `codex/civ7-orpc-control-architecture-skill` as the oRPC
+  procedure/router/context/middleware authority. This closes only the 4.9
+  authority-citation blocker. It does not import tracked
+  `packages/civ7-control-orpc` source, define procedure-core schemas, implement
+  Effect/Bun resource or schedule handling, create telemetry hooks, change CLI
+  semantic envelopes, close hotseat runtime proof, close AI ingestion, or accept
+  Task 2.9.4 matrix rows.
 - Direct-control command-result parser slice: completed as a narrow session
   helper relocation. It moves the command-result JSON payload parser into
   `src/session/command-result.ts` while preserving host/port/state merge
@@ -1575,8 +1585,10 @@ All future agent waves must be framed before delegation:
 - Next implementation lane: direct-control atom planning/tests. Source edits
   remain blocked until atom rows name owners, consumers, proof class, and package
   test coverage.
-- oRPC/Effect lane: planning-only in this support branch. Current tracked files
-  do not include `.agents/skills/civ7-orpc-control-architecture` or
-  `packages/civ7-control-orpc`; later work must import or explicitly cite the
-  oRPC authority branch before implementation and must include the CLI semantic
-  surface and Effect/Bun planning phases before changing hierarchy/source shape.
+- oRPC/Effect lane: planning-only in this support branch. The OpenSpec now
+  explicitly cites `civ7-orpc-control-architecture` from
+  `codex/civ7-orpc-control-architecture-skill` as the oRPC
+  procedure/router/context/middleware authority, but tracked
+  `packages/civ7-control-orpc` source, procedure-core schemas, CLI semantic
+  surface work, telemetry hooks, and Effect/Bun implementation planning remain
+  pending before changing hierarchy/source shape.
