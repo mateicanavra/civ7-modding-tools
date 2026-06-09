@@ -77,6 +77,17 @@ const PlacementSurfacePreparationSchema = Type.Object(
 const StartAssignmentArtifactSchema = Type.Object(
   {
     positions: Type.Array(Type.Integer()),
+    seatPaths: Type.Array(
+      Type.Union([
+        Type.Literal("regional"),
+        Type.Literal("openPool"),
+        Type.Literal("desperation"),
+      ]),
+      {
+        description:
+          "Assignment path per seat index (aligned with positions). Non-regional paths are surfaced as warnings when they fire.",
+      }
+    ),
     assigned: Type.Integer({ minimum: 0 }),
     regionalAssigned: Type.Integer({ minimum: 0 }),
     openPoolAssigned: Type.Integer({ minimum: 0 }),
@@ -92,6 +103,9 @@ const StartAssignmentArtifactSchema = Type.Object(
           reason: Type.Union([
             Type.Literal("water"),
             Type.Literal("lake"),
+            Type.Literal("mountain"),
+            Type.Literal("volcano"),
+            Type.Literal("natural-wonder"),
             Type.Literal("single-tile-island"),
             Type.Literal("insufficient-landmass"),
             Type.Literal("insufficient-expansion"),
@@ -338,6 +352,11 @@ const ResourceAssignmentSummarySchema = Type.Object(
     assignedCount: Type.Integer({ minimum: 0 }),
     minSpacingTiles: Type.Integer({ minimum: 0 }),
     spacingBlockedCount: Type.Integer({ minimum: 0 }),
+    spacingShortfallCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Planned intents that could not be assigned without violating the authored spacing floor. Recorded instead of decaying spacing toward 0 (spacing-preserving fallback).",
+    }),
     reassignedCount: Type.Integer({ minimum: 0 }),
     unassignedPreferredCount: Type.Integer({ minimum: 0 }),
     candidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
@@ -359,7 +378,6 @@ const ResourceAssignmentTraceSchema = Type.Object(
     assignmentPhase: Type.Union([
       Type.Literal("scarce-floor"),
       Type.Literal("strict-spacing"),
-      Type.Literal("relaxed-spacing"),
     ]),
     reassignedByRebalance: Type.Boolean(),
     assignmentOrder: Type.Integer({ minimum: 0 }),

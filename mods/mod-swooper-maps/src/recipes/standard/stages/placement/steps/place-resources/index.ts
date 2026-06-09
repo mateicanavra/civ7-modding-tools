@@ -24,6 +24,22 @@ export default createStep(PlaceResourcesStepContract, {
     const outcomes = runPlacementProductStep("placement.resources", emit, () =>
       placeResourcesWithTypedOutcomes({ adapter: context.adapter, width, height, resources })
     );
+    if (outcomes.assignment.spacingShortfallCount > 0) {
+      // Spacing-preserving fallback (S1d): shortfalls are recorded, not forced.
+      console.warn(
+        `[Placement] Resource assignment recorded a spacing shortfall of ` +
+          `${outcomes.assignment.spacingShortfallCount}/${outcomes.assignment.requestedPlannedCount} planned intents ` +
+          `(authored minSpacingTiles=${outcomes.assignment.minSpacingTiles} preserved instead of decaying to 0).`
+      );
+      context.trace?.event(() => ({
+        type: "placement.resources.spacingShortfall",
+        level: "warn",
+        spacingShortfallCount: outcomes.assignment.spacingShortfallCount,
+        requestedPlannedCount: outcomes.assignment.requestedPlannedCount,
+        assignedCount: outcomes.assignment.assignedCount,
+        minSpacingTiles: outcomes.assignment.minSpacingTiles,
+      }));
+    }
     logResourcePlacementRuntimeTelemetry(
       outcomes.summary,
       outcomes.assignment,

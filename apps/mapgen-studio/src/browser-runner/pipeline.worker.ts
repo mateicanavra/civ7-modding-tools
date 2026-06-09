@@ -142,6 +142,10 @@ async function runRecipe(
     },
   };
 
+  // PlayersLandmass1/2 are PER-HEMISPHERE counts (base-game mapInfo semantics);
+  // duplicating the total into both slots doubled seating (E1.2). Split the
+  // intended total across hemispheres like the base game does.
+  const totalPlayers = request.playerCount ?? 8;
   const adapter = createMockAdapter({
     width: dimensions.width,
     height: dimensions.height,
@@ -149,8 +153,8 @@ async function runRecipe(
     mapInfo: {
       GridWidth: dimensions.width,
       GridHeight: dimensions.height,
-      PlayersLandmass1: request.playerCount ?? 4,
-      PlayersLandmass2: request.playerCount ?? 4,
+      PlayersLandmass1: Math.ceil(totalPlayers / 2),
+      PlayersLandmass2: Math.floor(totalPlayers / 2),
       StudioResourcesMode: request.resourcesMode ?? "balanced",
     },
     rng: createLabelRng(seed),
