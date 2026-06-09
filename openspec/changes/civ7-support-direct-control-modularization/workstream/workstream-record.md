@@ -351,6 +351,19 @@ All future agent waves must be framed before delegation:
   guidance. `test/unit-target-action.test.ts` and the focused CLI unit-target
   suite remain proof owners. This is local package/source relocation proof
   only, not runtime proof.
+- Unit-target action facade dependency cleanup:
+  `src/play/operations/unit-target-action.ts` now imports existing non-facade
+  approval, Tuner execution, and payload parser owners directly for
+  `getCiv7UnitTargetAction` and `requestCiv7UnitTargetAction`. The public
+  facade exports remain stable, but `index.ts` no longer assembles the
+  unit-target action dependency object. This preserves the read-vs-send split,
+  approval-first send behavior, parser label, default verification timing,
+  bounded no-repeat-after-unverified polling, unit-target postcondition
+  classification, and package/CLI proof. This is local package/source
+  relocation proof only: it does not claim runtime/live-game proof, accept Task
+  2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
 - Direct-control diplomacy/narrative test slice: completed as additive
   test-only package coverage with two parallel net-new agents, DRA-owned
   integration, official-resource/doc checks for native path fit, local package
@@ -476,6 +489,18 @@ All future agent waves must be framed before delegation:
   runtime proof, AI ingestion, CLI semantic projection, and Effect/oRPC
   procedure-core work stay out of this slice. This is local read-only
   package/source relocation proof only, not runtime proof.
+- Direct-control runtime API inspection facade dependency cleanup: completed as
+  a narrow debug/internal service dependency pruning slice.
+  `src/runtime/inspection.ts` now imports existing non-facade command
+  execution, state-name, and runtime inspection default-root owners directly for
+  its default wrapper path while the public facade stays a call-through. This
+  preserves caller-provided roots, normalized App UI/Tuner default-root
+  selection, selected-state execution, generated inspection command semantics,
+  and raw debug/internal diagnostic projection. It does not claim runtime/live
+  proof, expose runtime reflection as product authority, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure ownership, Effect/Bun resource composition, Effect/oRPC
+  implementation, or Task 2.9.4 matrix-row acceptance.
 - Direct-control App UI snapshot source/wrapper slice: completed as a narrow
   read-only runtime-status support relocation. It moves only
   `getCiv7AppUiSnapshot`, the generated App UI snapshot command, and
@@ -487,6 +512,17 @@ All future agent waves must be framed before delegation:
   AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
   stay out of this slice. This is local read-only package/source relocation
   proof only, not runtime proof.
+- Direct-control App UI snapshot facade dependency cleanup: completed as a
+  narrow owner-local dependency pruning slice. `src/runtime/app-ui-snapshot.ts`
+  now imports existing non-facade App UI command execution directly for the
+  default wrapper path while the public facade stays a call-through and
+  restart/setup lifecycle loops still reuse the same internal builder/parser
+  helpers. This preserves the generated snapshot command, parse label/result
+  shape, and debug/internal-only raw snapshot classification. It does not move
+  lifecycle orchestration, claim runtime/live-game proof, expose raw snapshots
+  as normal CLI output, or unblock telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, schema/procedure-core work, Effect/oRPC
+  implementation, or Task 2.9.4 matrix-row acceptance.
 - Direct-control Tuner health source/wrapper slice: completed as a narrow
   runtime-status support relocation. It moves only `checkCiv7TunerHealth`, the
   generated Tuner health command, `tunerHealthFromCommandResult`, and the
@@ -497,6 +533,19 @@ All future agent waves must be framed before delegation:
   telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection, and
   Effect/oRPC procedure-core work stay pending. This is local package/source
   relocation proof only, not runtime proof.
+- Direct-control Tuner health facade dependency cleanup: completed as a narrow
+  runtime-status dependency pruning slice. `src/runtime/tuner-health.ts` now
+  imports existing non-facade session and reconnect execution owners directly
+  for public `checkCiv7TunerHealth` and `waitForCiv7TunerReady` defaults,
+  while setup/start and setup/restart lifecycle loops still pass the same
+  session-scoped dependency explicitly through their owner-local composition.
+  This preserves Tuner state selection, retry/count behavior, readiness wait
+  timing, parse label/result shape, and debug/internal-only readiness
+  classification. It does not move lifecycle orchestration, claim runtime/live
+  proof, expose raw Tuner health as normal CLI output, or unblock telemetry, AI
+  ingestion, semantic CLI projection, hotseat runtime proof, schema/procedure
+  ownership, Effect/Bun resource composition, Effect/oRPC implementation, or
+  Task 2.9.4 matrix-row acceptance.
 - Direct-control proof/log helper slice: completed as a narrow local helper
   relocation. It moves only `FileSnapshot`, `FreshLogMarkerProof`,
   `snapshotFile`, `waitForFreshLogMarkers`, and private ordered-marker/file
@@ -528,6 +577,17 @@ All future agent waves must be framed before delegation:
   semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
   matrix-row acceptance stay pending. This is local package/source relocation
   proof only, not runtime proof or AI/hotseat product-path support.
+- Direct-control playable-status facade dependency cleanup: completed as a
+  narrow runtime-status dependency pruning slice. `src/runtime/playable-status.ts`
+  now imports existing non-facade App UI snapshot, Tuner health, and
+  error-message owners directly for its default composition while the public
+  facade remains a call-through. This preserves App UI/Tuner composition,
+  shell/playable/readiness classification, unready error capture, and
+  debug/internal-only status classification. It does not expose raw runtime
+  status as normal CLI output, claim runtime/live proof, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure ownership, Effect/Bun resource composition, Effect/oRPC
+  implementation, or Task 2.9.4 matrix-row acceptance.
 - Direct-control bounded root inspection slice: completed as a narrow
   debug/internal inspection relocation. It moves only `inspectCiv7Root` and the
   generated bounded root inspection command builder into
@@ -562,6 +622,17 @@ All future agent waves must be framed before delegation:
   CLI semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
   package/source cleanup proof only, not runtime/live-game proof.
+- Capability catalog facade dependency cleanup:
+  `src/catalog/capabilities.ts` now imports existing non-facade bounded root
+  inspection and catalog default owners directly for runtime catalog
+  generation. The public facade export remains stable, but `index.ts` no
+  longer assembles the capability catalog dependency object. This preserves
+  static/runtime catalog construction, runtime root caps,
+  generated-output-as-evidence policy, official-resource scanner behavior, and
+  package proof. This is local package/source relocation proof only: it does not
+  claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
+  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control runtime inspection constants slice: completed as a narrow
   constants ownership relocation. It moves only the default App UI/Tuner API
   root catalogs and bounded root `maxKeys`/`maxMethods` defaults into
@@ -898,6 +969,17 @@ All future agent waves must be framed before delegation:
   2.9.4 matrix-row acceptance, telemetry, AI ingestion, CLI semantic
   projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Autoplay facade dependency cleanup: `src/play/autoplay.ts` now imports
+  existing non-facade App UI snapshot, App UI execution, approval,
+  validation/bounds, serializer, sleep, and timing/default owners directly for
+  status, configure, start, and stop wrappers. The public facade in
+  `src/index.ts` remains stable but no longer assembles the autoplay dependency
+  object. This preserves approval gates, bounded turn/player validation,
+  explicit unbounded start semantics, stop-settling/pause behavior, command
+  strings, and result shapes. This is local package/source relocation proof
+  only: it does not claim hotseat runtime proof, runtime/live-game proof, accept
+  Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
+  projection, schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
@@ -939,8 +1021,9 @@ All future agent waves must be framed before delegation:
   narrow progression closeout command-builder relocation. It moves only the
   App UI technology choice closeout command builder into
   `src/play/progression/technology.ts` while keeping the public facade wrapper
-  in `index.ts`. The facade still owns approval, App UI execution, player-id and
-  node validation, payload parsing, and serialization injection. This preserves
+  in `index.ts`. At that slice boundary, the facade still owned approval, App UI
+  execution, player-id and node validation, payload parsing, and serialization
+  injection. This preserves
   optional notification activation, SET_TECH_TREE_NODE and
   SET_TECH_TREE_TARGET_NODE send behavior, focused technology package/CLI proof,
   and existing pending runtime/live-game proof. Telemetry, AI ingestion,
@@ -950,9 +1033,9 @@ All future agent waves must be framed before delegation:
 - Direct-control culture choice closeout builder slice: completed as a narrow
   progression closeout command-builder relocation. It moves only the App UI
   culture choice closeout command builder into `src/play/progression/culture.ts`
-  while keeping the public facade wrapper in `index.ts`. The facade still owns
-  approval, App UI execution, player-id and node validation, payload parsing,
-  and serialization injection. This preserves optional notification activation,
+  while keeping the public facade wrapper in `index.ts`. At that slice boundary,
+  the facade still owned approval, App UI execution, player-id and node
+  validation, payload parsing, and serialization injection. This preserves optional notification activation,
   SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE send behavior, focused
   culture package/CLI proof, and existing pending runtime/live-game proof.
   Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
@@ -972,6 +1055,32 @@ All future agent waves must be framed before delegation:
   Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
   pending. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Technology/culture closeout facade dependency cleanup:
+  `src/play/progression/{technology,culture}.ts` now import existing
+  non-facade approval, App UI execution, payload parser, serializer, player
+  validation, and direct-control error owners directly. The public facade in
+  `src/index.ts` remains stable but no longer assembles the technology/culture
+  closeout dependency objects. This preserves approval-first checks, player/node
+  validation, App UI execution, payload parse labels, command serialization,
+  optional notification activation, SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE
+  send behavior, and focused package/CLI proof. This is local package/source
+  relocation proof only: it does not claim runtime/live-game proof, accept Task
+  2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
+- Production-choice facade dependency cleanup:
+  `src/play/operations/production-choice.ts` now imports existing non-facade
+  approval, component-id assertion, city-operation validation, App UI execution,
+  payload parser, and serializer owners directly. The public facade in
+  `src/index.ts` remains stable but no longer assembles the production-choice
+  dependency object. This preserves approval-first BUILD request orchestration,
+  cityId and production-args validation, validator-first behavior, read-only
+  status payload for invalid pre-validation, bounded post-send polling,
+  production postcondition classification, and package/CLI proof. This is local
+  package/source relocation proof only: it does not claim runtime/live-game
+  proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, schema/procedure-core work, or
+  Effect/oRPC implementation.
 - Direct-control session acquire/release helper slice: completed as a narrow
   session resource-helper relocation. It moves the repeated facade-local
   `new Civ7DirectControlSession(options)` plus `finally` close pattern into
@@ -1291,9 +1400,10 @@ All future agent waves must be framed before delegation:
   source relocation. It moves only `startPreparedCiv7SinglePlayerGame`, the
   generated prepared-start command, begin polling, setup pre-readback, Tuner/map
   verification, and post-start seed assertion into `src/setup/start.ts` while
-  keeping the public facade export in `index.ts`. The facade still injects
-  session creation/close, reconnect execution, Tuner readiness, map summary
-  reads, approval assertion, command parsing, and constants. This preserves
+  keeping the public facade export in `index.ts`. Later dependency pruning moves
+  the default session creation/close, reconnect execution, Tuner readiness, map
+  summary read, approval assertion, command parsing, and constants into
+  `src/setup/start.ts`. This preserves
   approval-first start, host-game command source, one-attempt begin send,
   no-replay-after-begin-close package proof, setup-start timeout details, and
   seed mismatch classification. `runCiv7SinglePlayerFromSetup`, restart/begin
@@ -1306,9 +1416,10 @@ All future agent waves must be framed before delegation:
   active-game rejection unless `fromRunningGame: "exit-to-shell"` is supplied,
   exit-to-main-menu command routing, shell wait, prepare/start chaining, and
   verified result shape into `src/setup/run.ts` while keeping the public facade
-  export in `index.ts`. The facade still injects App UI execution, setup
-  snapshot reads, setup phase waits, prepare/start wrappers, approval assertion,
-  validation helpers, and constants. This preserves approval-first run
+  export in `index.ts`. Later dependency pruning moves the default App UI
+  execution, setup snapshot reads, setup phase waits, prepare/start wrappers,
+  approval assertion, validation helpers, and constants into `src/setup/run.ts`.
+  This preserves approval-first run
   orchestration, shell-exit behavior, existing prepare/start proof, and
   no-replay package proof. Restart/begin lifecycle orchestration, remaining
   no-replay ownership, hotseat runtime proof, AI ingestion, semantic CLI
@@ -1318,9 +1429,10 @@ All future agent waves must be framed before delegation:
 - Direct-control restart/begin slice: completed as a narrow setup/lifecycle
   source relocation. It moves only `beginCiv7Game`, `restartCiv7Game`, and
   `restartCiv7GameAndBegin` orchestration into `src/setup/restart.ts` while
-  keeping public facade exports in `index.ts`. The facade still injects App UI
-  execution, command execution, session creation/close, reconnect execution,
-  Tuner readiness, loading-state constants, and command constants. This
+  keeping public facade exports in `index.ts`. Later dependency pruning moves
+  the default App UI execution, command execution, session creation/close,
+  reconnect execution, Tuner readiness, loading-state constants, and command
+  constants into `src/setup/restart.ts`. This
   preserves App UI restart command routing, restart-output rejection,
   begin-notification command routing, GameStarted polling, one-attempt begin
   send, optional Tuner readiness wait, and restart lifecycle package proof.
@@ -1328,6 +1440,14 @@ All future agent waves must be framed before delegation:
   projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
   matrix-row acceptance remain pending. This is local package/source relocation
   proof only, not runtime/live-game proof.
+- Setup-read facade helper cleanup: completed as a narrow facade cleanup after
+  setup-read dependency ownership moved into `src/setup/reads.ts`. It removes
+  the stale `setupReadDependencies` helper and unused validation/setup-read
+  dependency imports from `index.ts` while keeping public facade exports stable.
+  This is local package/source relocation proof only: it does not claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control production-choice wrapper slice: completed as a narrow
   operation source relocation. It moves only `requestCiv7ProductionChoice`
   orchestration, the private production-choice command builder, production
@@ -1729,6 +1849,78 @@ All future agent waves must be framed before delegation:
   contracts, public procedure schemas, semantic CLI projection, AI ingestion,
   hotseat runtime proof, or Effect/oRPC procedure-core work. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Setup-read facade dependency cleanup: `src/setup/reads.ts` now imports
+  existing non-facade approval, App UI execution, command-result parser,
+  serializer, runtime probe helper, setup constants, and bounds helper owners
+  directly for setup snapshot, setup map rows, setup map-row refresh, and
+  setup-phase waits. The public facade exports remain stable, but `index.ts`
+  no longer assembles the default setup-read dependency object for those read
+  and refresh paths. Setup prepare/start/run/restart lifecycle composition stays
+  separate and still uses narrow dependency seams until a named Effect/Bun
+  resource/schedule/layer pass is accepted. This preserves setup source text,
+  parse labels, approval-first refresh behavior, setup map-row polling, and
+  `setup-phase-invalid` classification. This is local package/source relocation
+  proof only: it does not claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
+- Setup-preparation facade dependency cleanup: `src/setup/prepare.ts` now
+  imports existing non-facade setup-read defaults, command-result parser, and
+  setup option identifier validation directly for
+  `prepareCiv7SinglePlayerSetup`. The public facade export remains stable, but
+  `index.ts` no longer assembles the preparation parser/validation dependency
+  object for the direct prepare call. Prepared-start, setup-run, and
+  restart/begin lifecycle composition stay separate and still use narrow
+  dependency seams for session/reconnect/map/Tuner dependencies. This preserves
+  approval-first setup mutation, setup snapshot readback, map-row proof, setup
+  option validation, prepare command source, and no-replay package proof. This
+  is local package/source relocation proof only: it does not claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
+- Prepared-start facade dependency cleanup: `src/setup/start.ts` now imports
+  existing non-facade setup-read defaults, session/reconnect execution,
+  Tuner-ready wait, map-summary read, command-result parser, setup
+  loading-state constants, begin command constant, and setup option identifier
+  validation directly for `startPreparedCiv7SinglePlayerGame`. The public
+  facade export remains stable, but `index.ts` no longer assembles the
+  prepared-start dependency object for the direct start call. Setup-run and
+  restart/begin lifecycle composition stay separate and still use narrow
+  injection seams for their higher-level orchestration. This preserves
+  approval-first start, pre-start setup readback, host-game command source,
+  begin polling, one-attempt begin send, Tuner/map verification, seed mismatch
+  classification, and no-replay package proof. This is local package/source
+  relocation proof only: it does not claim runtime/live-game proof, accept Task
+  2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
+- Setup-run facade dependency cleanup: `src/setup/run.ts` now imports existing
+  non-facade setup read, setup prepare, prepared-start, App UI execution, setup
+  constants, approval, bounds, and setup option identifier validation owners
+  directly for `runCiv7SinglePlayerFromSetup`. The public facade export remains
+  stable, but `index.ts` no longer assembles the setup-run dependency object for
+  the direct run call. Restart/begin lifecycle composition stays separate and
+  still uses narrow injection seams for its higher-level orchestration. This
+  preserves approval-first run orchestration, active-game exit-to-shell guard,
+  exit-to-main-menu routing, shell wait, prepare/start chaining, verified result
+  shape, and no-replay package proof. This is local package/source relocation
+  proof only: it does not claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
+- Restart/begin facade dependency cleanup: `src/setup/restart.ts` now imports
+  existing non-facade App UI execution, command execution, session/reconnect,
+  Tuner-ready wait, restart/begin command constants, and UI loading-state
+  constants directly for `beginCiv7Game`, `restartCiv7Game`, and
+  `restartCiv7GameAndBegin`. The public facade exports remain stable, but
+  `index.ts` no longer assembles restart/begin dependency objects for those
+  direct lifecycle calls. This preserves begin command routing, restart-output
+  rejection, begin-ready polling, one-attempt begin send, optional Tuner
+  readiness wait, restart lifecycle package proof, and no-replay package proof.
+  This is local package/source relocation proof only: it does not claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
@@ -1742,6 +1934,20 @@ All future agent waves must be framed before delegation:
   ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
   Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Diplomacy response facade dependency cleanup:
+  `src/play/operations/diplomacy-request.ts` now imports existing non-facade
+  approval, player validation, App UI execution, notification view,
+  player-operation validation, payload parser, serializer, and direct-control
+  error owners directly for `requestCiv7DiplomacyResponse`. The public facade
+  export remains stable, but `index.ts` no longer assembles the diplomacy
+  response dependency object. This preserves approval-first
+  RESPOND_DIPLOMATIC_ACTION orchestration, action/response integer validation,
+  validator-first no-send behavior, App UI closeout command serialization,
+  diplomacy postcondition classification, and package/CLI proof. This is local
+  package/source relocation proof only: it does not claim runtime/live-game
+  proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, schema/procedure-core work,
+  or Effect/oRPC implementation.
 - Direct-control narrative choice source slice: completed as a narrow
   operation source relocation. It moves only the App UI narrative choice
   command builder and embedded source into
@@ -1754,6 +1960,20 @@ All future agent waves must be framed before delegation:
   proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
   procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending. This
   is local package/source relocation proof only, not runtime/live-game proof.
+- Narrative choice facade dependency cleanup:
+  `src/play/operations/narrative-request.ts` now imports existing non-facade
+  approval, player validation, ComponentID assertion, App UI execution,
+  notification view, player-operation validation, payload parser, serializer,
+  and direct-control error owners directly for `requestCiv7NarrativeChoice`.
+  The public facade export remains stable, but `index.ts` no longer assembles
+  the narrative choice dependency object. This preserves approval-first
+  CHOOSE_NARRATIVE_STORY_DIRECTION orchestration, target/action validation,
+  validator-first no-send behavior, App UI closeout command serialization,
+  narrative postcondition classification, and package/CLI proof. This is local
+  package/source relocation proof only: it does not claim runtime/live-game
+  proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, schema/procedure-core work,
+  or Effect/oRPC implementation.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

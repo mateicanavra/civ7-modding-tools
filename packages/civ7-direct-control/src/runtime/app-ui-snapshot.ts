@@ -1,4 +1,5 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
+import { executeCiv7AppUiCommand } from "../session/execute.js";
 
 import type {
   Civ7CommandResult,
@@ -76,7 +77,7 @@ type AppUiSnapshotDependencies = Readonly<{
 
 export async function getCiv7AppUiSnapshot(
   options: Civ7DirectControlOptions = {},
-  dependencies: AppUiSnapshotDependencies,
+  dependencies: AppUiSnapshotDependencies = defaultAppUiSnapshotDependencies,
 ): Promise<Civ7AppUiSnapshotResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
@@ -84,6 +85,10 @@ export async function getCiv7AppUiSnapshot(
   });
   return appUiSnapshotFromCommandResult(result);
 }
+
+const defaultAppUiSnapshotDependencies: AppUiSnapshotDependencies = {
+  executeAppUiCommand: executeCiv7AppUiCommand,
+};
 
 export function buildAppUiSnapshotCommand(): string {
   return `(() => {

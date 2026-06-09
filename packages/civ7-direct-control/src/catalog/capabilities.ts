@@ -7,6 +7,7 @@ import type {
   Civ7RootInspectionInput,
   Civ7RootInspectionResult,
 } from "../runtime/root-inspection.js";
+import { inspectCiv7Root } from "../runtime/root-inspection.js";
 import { DEFAULT_CIV7_GAMEINFO_TABLES } from "../play/map/constants.js";
 
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
@@ -121,7 +122,7 @@ export function createStaticCiv7CapabilityCatalog(options: {
 
 export async function generateCiv7CapabilityCatalog(
   options: Civ7CapabilityCatalogOptions = {},
-  dependencies: CapabilityCatalogDependencies,
+  dependencies: CapabilityCatalogDependencies = defaultCapabilityCatalogDependencies,
 ): Promise<Civ7CapabilityCatalog> {
   const includeStatic = options.includeStatic !== false;
   const includeRuntime = options.includeRuntime !== false;
@@ -157,6 +158,13 @@ export async function generateCiv7CapabilityCatalog(
     entries,
   });
 }
+
+const defaultCapabilityCatalogDependencies: CapabilityCatalogDependencies = {
+  appUiRoots: DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
+  gameinfoTables: DEFAULT_CIV7_GAMEINFO_TABLES,
+  inspectRoot: inspectCiv7Root,
+  tunerRoots: DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
+};
 
 export async function loadCiv7OfficialResourceCapabilities(options: {
   resourcesRoot: string;

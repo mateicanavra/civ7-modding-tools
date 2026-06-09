@@ -1,4 +1,5 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
+import { getCiv7MapSummary } from "../play/map/reads.js";
 import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
@@ -6,21 +7,31 @@ import {
   type Civ7AppUiSnapshotResult,
 } from "../runtime/app-ui-snapshot.js";
 import {
+  waitForCiv7TunerReadyWithSession,
+  type Civ7TunerHealthResult,
+} from "../runtime/tuner-health.js";
+import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
+import { withCiv7DirectControlSession, type Civ7DirectControlSession } from "../session/session.js";
+import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import { validateIdentifier } from "../validation.js";
+import {
   assertPreparedSetupMatches,
   normalizeSinglePlayerSetupInput,
   type Civ7SinglePlayerSetupInput,
 } from "./prepare.js";
 import {
   buildSetupSnapshotCommand,
+  defaultSetupReadDependencies,
   type Civ7SetupSnapshotResult,
   type SetupReadDependencies,
 } from "./reads.js";
 import type { Civ7MapSummaryResult } from "../play/map/types.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
-import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
 import type { Civ7ActionApproval } from "../action-approval.js";
-
-import type { Civ7DirectControlSession } from "../session/session.js";
+import {
+  CIV7_BEGIN_GAME_COMMAND,
+  CIV7_UI_LOADING_STATES,
+} from "./constants.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -85,7 +96,7 @@ export async function startPreparedCiv7SinglePlayerGame(
   input: Civ7PreparedStartInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: SetupStartDependencies,
+  dependencies: SetupStartDependencies = defaultSetupStartDependencies,
 ): Promise<Civ7SinglePlayerStartResult> {
   dependencies.assertApproved(approval, "starting a prepared Civ7 single-player game");
   const expected = normalizeSinglePlayerSetupInput(input.expected, dependencies);
@@ -231,3 +242,20 @@ function errorMessage(err: unknown): string {
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+const defaultSetupStartDependencies: SetupStartDependencies = {
+  ...defaultSetupReadDependencies,
+  appUiState: { role: "app-ui" },
+  beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
+  executeSessionCommandWithReconnect,
+  getMapSummary: getCiv7MapSummary,
+  parseStartPayload: (result, label) =>
+    jsonPayloadFromCommandResult<{ ok: unknown }>(result, label),
+  uiLoadingStates: CIV7_UI_LOADING_STATES,
+  validateIdentifier,
+  waitForTunerReadyWithSession: async (session, options) =>
+    await waitForCiv7TunerReadyWithSession(session, options, {
+      executeSessionCommandWithReconnect,
+    }),
+  withSession: withCiv7DirectControlSession,
+};

@@ -86,9 +86,7 @@ import {
 } from "./runtime/root-inspection.js";
 import {
   checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
-  checkCiv7TunerHealthWithSession,
   waitForCiv7TunerReady as waitForCiv7TunerReadyFromModule,
-  waitForCiv7TunerReadyWithSession,
   type Civ7TunerHealthResult,
   type Civ7TunerHealthSnapshot,
 } from "./runtime/tuner-health.js";
@@ -97,10 +95,10 @@ import {
   type Civ7PlayableStatusResult,
 } from "./runtime/playable-status.js";
 import {
+  defaultSetupReadDependencies,
   ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
   getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
   getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
-  waitForCiv7SetupPhase as waitForCiv7SetupPhaseFromModule,
   type Civ7PlayerSetupParameterSnapshot,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsInput,
@@ -109,7 +107,6 @@ import {
   type Civ7SetupMapRowVisibilityResult,
   type Civ7SetupParameterSnapshot,
   type Civ7SetupParameterValue,
-  type Civ7SetupPhase,
   type Civ7SetupSnapshot,
   type Civ7SetupSnapshotResult,
 } from "./setup/reads.js";
@@ -146,19 +143,11 @@ import {
 import {
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-  CIV7_RELOAD_UI_COMMAND,
   CIV7_RESTART_COMMAND,
   CIV7_UI_LOADING_STATES,
-  DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
-  DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
 import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
-  DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
-  DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
-  DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS,
-  DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
-  DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
   startCiv7Autoplay as startCiv7AutoplayFromModule,
   stopCiv7Autoplay as stopCiv7AutoplayFromModule,
@@ -222,7 +211,6 @@ import {
 } from "./play/summaries.js";
 import {
   requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule,
-  type Civ7DiplomacyResponseCommandPayload,
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
 } from "./play/operations/diplomacy-request.js";
@@ -237,7 +225,6 @@ import {
 } from "./play/operations/unit-target-action.js";
 import {
   requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule,
-  type Civ7NarrativeChoiceCommandPayload,
   type Civ7NarrativeChoiceInput,
   type Civ7NarrativeChoiceResult,
 } from "./play/operations/narrative-request.js";
@@ -813,46 +800,29 @@ export async function inspectCiv7RuntimeApi(options: Civ7DirectControlOptions & 
   state?: Civ7TunerStateSelection;
   roots?: ReadonlyArray<string>;
 } = {}): Promise<Civ7RuntimeApiInspection> {
-  return await inspectCiv7RuntimeApiFromModule(options, {
-    appUiStateName: CIV7_TUNER_APP_UI_STATE_NAME,
-    defaultAppUiApiRoots: DEFAULT_CIV7_APP_UI_API_ROOTS,
-    defaultTunerApiRoots: DEFAULT_CIV7_TUNER_API_ROOTS,
-    executeCommand: executeCiv7Command,
-    tunerStateName: CIV7_TUNER_STATE_NAME,
-  });
+  return await inspectCiv7RuntimeApiFromModule(options);
 }
 
 export async function getCiv7AppUiSnapshot(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7AppUiSnapshotResult> {
-  return await getCiv7AppUiSnapshotFromModule(options, {
-    executeAppUiCommand: executeCiv7AppUiCommand,
-  });
+  return await getCiv7AppUiSnapshotFromModule(options);
 }
 
 export async function beginCiv7Game(options: Civ7DirectControlOptions = {}): Promise<Civ7CommandResult> {
-  return await beginCiv7GameFromModule(options, {
-    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-  });
+  return await beginCiv7GameFromModule(options);
 }
 
 export async function checkCiv7TunerHealth(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TunerHealthResult> {
-  return await checkCiv7TunerHealthFromModule(options, {
-    withSession: withCiv7DirectControlSession,
-    executeSessionCommandWithReconnect,
-  });
+  return await checkCiv7TunerHealthFromModule(options);
 }
 
 export async function restartCiv7Game(options: Civ7DirectControlOptions & {
   state?: Civ7TunerStateSelection;
 } = {}): Promise<Civ7CommandResult> {
-  return await restartCiv7GameFromModule(options, {
-    executeCommand: executeCiv7Command,
-    restartCommand: CIV7_RESTART_COMMAND,
-  });
+  return await restartCiv7GameFromModule(options);
 }
 
 export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions & {
@@ -860,43 +830,20 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
   waitTimeoutMs?: number;
   pollIntervalMs?: number;
 } = {}): Promise<Civ7RestartAndBeginResult> {
-  return await restartCiv7GameAndBeginFromModule(options, {
-    appUiState: { role: "app-ui" },
-    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    executeCommand: executeCiv7Command,
-    executeSessionCommandWithReconnect,
-    restartCommand: CIV7_RESTART_COMMAND,
-    uiLoadingStates: CIV7_UI_LOADING_STATES,
-    waitForTunerReadyWithSession: async (
-      session: Civ7DirectControlSession,
-      waitOptions: { timeoutMs?: number; waitTimeoutMs?: number; pollIntervalMs?: number },
-    ) =>
-      await waitForCiv7TunerReadyWithSession(session, waitOptions, {
-        executeSessionCommandWithReconnect,
-      }),
-    withSession: withCiv7DirectControlSession,
-  });
+  return await restartCiv7GameAndBeginFromModule(options);
 }
 
 export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & {
   waitTimeoutMs?: number;
   pollIntervalMs?: number;
 } = {}): Promise<Civ7TunerHealthResult & { ready: true }> {
-  return await waitForCiv7TunerReadyFromModule(options, {
-    withSession: withCiv7DirectControlSession,
-    executeSessionCommandWithReconnect,
-  });
+  return await waitForCiv7TunerReadyFromModule(options);
 }
 
 export async function getCiv7PlayableStatus(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7PlayableStatusResult> {
-  return await getCiv7PlayableStatusFromModule(options, {
-    checkTunerHealth: checkCiv7TunerHealth,
-    errorMessage,
-    getAppUiSnapshot: getCiv7AppUiSnapshot,
-  });
+  return await getCiv7PlayableStatusFromModule(options);
 }
 
 export async function getCiv7MapSummary(
@@ -1143,78 +1090,27 @@ export async function getCiv7GameInfoRows(
 export async function getCiv7SetupSnapshot(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SetupSnapshotResult> {
-  return await getCiv7SetupSnapshotFromModule(options, setupReadDependencies());
+  return await getCiv7SetupSnapshotFromModule(options);
 }
 
 export async function getCiv7SetupMapRows(
   input: Civ7SetupMapRowsInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SetupMapRowsResult> {
-  return await getCiv7SetupMapRowsFromModule(input, options, setupReadDependencies());
+  return await getCiv7SetupMapRowsFromModule(input, options);
 }
 
 function setupReadDependencies() {
   return {
-    assertApproved,
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-    jsLiteral,
+    ...defaultSetupReadDependencies,
     loadSavedGameConfiguration: loadCiv7SavedGameConfiguration,
-    parseSetupMapRows: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, label),
     parseSetupPreparation: (result: Civ7CommandResult, label: string) =>
       jsonPayloadFromCommandResult<{
         before: Civ7SetupSnapshot;
         after: Civ7SetupSnapshot;
         applied: Record<string, Civ7SetupOptionValue>;
       }>(result, label),
-    parseSetupSnapshot: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<Civ7SetupSnapshotResult>(result, label),
-    probeHelperSource,
-    playerSetupParameterIds: DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
-    reloadUiCommand: CIV7_RELOAD_UI_COMMAND,
-    setupParameterIds: DEFAULT_CIV7_SETUP_PARAMETER_IDS,
     validateIdentifier,
-  } as const;
-}
-
-function setupStartDependencies() {
-  return {
-    ...setupReadDependencies(),
-    appUiState: { role: "app-ui" } as const,
-    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
-    executeSessionCommandWithReconnect,
-    getMapSummary: getCiv7MapSummary,
-    parseStartPayload: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<{ ok: unknown }>(result, label),
-    uiLoadingStates: CIV7_UI_LOADING_STATES,
-    waitForTunerReadyWithSession: async (
-      session: Civ7DirectControlSession,
-      waitOptions: { timeoutMs?: number; waitTimeoutMs?: number; pollIntervalMs?: number },
-    ) =>
-      await waitForCiv7TunerReadyWithSession(session, waitOptions, {
-        executeSessionCommandWithReconnect,
-      }),
-    withSession: withCiv7DirectControlSession,
-  } as const;
-}
-
-function setupRunDependencies() {
-  return {
-    assertApproved,
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-    getSetupSnapshot: getCiv7SetupSnapshot,
-    prepareSetup: prepareCiv7SinglePlayerSetup,
-    startPreparedGame: startPreparedCiv7SinglePlayerGame,
-    validateIdentifier,
-    waitForSetupPhase: async (
-      phase: Civ7SetupPhase,
-      options: Civ7DirectControlOptions,
-      wait: { waitTimeoutMs: number; pollIntervalMs: number },
-    ) => await waitForCiv7SetupPhaseFromModule(phase, options, wait, setupReadDependencies()),
   } as const;
 }
 
@@ -1258,7 +1154,7 @@ export async function ensureCiv7SetupMapRowVisible(
   options: Civ7DirectControlOptions = {},
   approval?: Civ7ActionApproval,
 ): Promise<Civ7SetupMapRowVisibilityResult> {
-  return await ensureCiv7SetupMapRowVisibleFromModule(input, options, approval, setupReadDependencies());
+  return await ensureCiv7SetupMapRowVisibleFromModule(input, options, approval);
 }
 
 export async function prepareCiv7SinglePlayerSetup(
@@ -1266,7 +1162,7 @@ export async function prepareCiv7SinglePlayerSetup(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7PreparedSetupResult> {
-  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval, setupReadDependencies());
+  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval);
 }
 
 export async function startPreparedCiv7SinglePlayerGame(
@@ -1274,7 +1170,7 @@ export async function startPreparedCiv7SinglePlayerGame(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerStartResult> {
-  return await startPreparedCiv7SinglePlayerGameFromModule(input, options, approval, setupStartDependencies());
+  return await startPreparedCiv7SinglePlayerGameFromModule(input, options, approval);
 }
 
 export async function runCiv7SinglePlayerFromSetup(
@@ -1282,7 +1178,7 @@ export async function runCiv7SinglePlayerFromSetup(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
-  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval, setupRunDependencies());
+  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
 }
 
 export async function inspectCiv7Root(
@@ -1295,47 +1191,28 @@ export async function inspectCiv7Root(
 export async function getCiv7AutoplayStatus(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7AutoplayStatusResult> {
-  return await getCiv7AutoplayStatusFromModule(options, {
-    getAppUiSnapshot: getCiv7AppUiSnapshot,
-  });
+  return await getCiv7AutoplayStatusFromModule(options);
 }
 
 export async function configureCiv7Autoplay(
   options: Civ7AutoplayOptions,
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  return await configureCiv7AutoplayFromModule(options, approval, autoplayDependencies());
+  return await configureCiv7AutoplayFromModule(options, approval);
 }
 
 export async function startCiv7Autoplay(
   options: Civ7AutoplayOptions,
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  return await startCiv7AutoplayFromModule(options, approval, autoplayDependencies());
+  return await startCiv7AutoplayFromModule(options, approval);
 }
 
 export async function stopCiv7Autoplay(
   options: Civ7AutoplayOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  return await stopCiv7AutoplayFromModule(options, approval, autoplayDependencies());
-}
-
-function autoplayDependencies() {
-  return {
-    assertApproved,
-    boundedInteger,
-    defaultMaxTurns: DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
-    defaultPollIntervalMs: DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
-    defaultStopStabilityMs: DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS,
-    defaultStopWaitMs: DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
-    defaultWaitMs: DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    getAppUiSnapshot: getCiv7AppUiSnapshot,
-    jsLiteral,
-    sleep,
-    validatePlayerId,
-  };
+  return await stopCiv7AutoplayFromModule(options, approval);
 }
 
 export async function revealCiv7MapForPlayer(
@@ -1437,14 +1314,7 @@ export async function requestCiv7ProductionChoice(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7ProductionChoiceResult> {
-  return await requestCiv7ProductionChoiceFromModule(input, options, approval, {
-    assertApproved,
-    assertComponentId: assertCiv7ComponentId,
-    canStartCityOperation: canStartCiv7CityOperation,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await requestCiv7ProductionChoiceFromModule(input, options, approval);
 }
 export async function canStartCiv7CityCommand(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
@@ -1481,21 +1351,7 @@ export async function requestCiv7TechnologyChoiceCloseout(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7TechnologyChoiceCloseoutResult> {
-  return await requestCiv7TechnologyChoiceCloseoutFromModule(input, options, approval, {
-    assertApproved,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    invalidNodeError: () => {
-      throw new Civ7DirectControlError("command-failed", "node must be an integer");
-    },
-    jsLiteral,
-    parseTechnologyChoiceCloseout: (result, label) =>
-      jsonPayloadFromCommandResult<{
-        sent?: boolean;
-        chooseResult?: { ok?: boolean };
-        clearTargetResult?: { ok?: boolean };
-      }>(result, label),
-    validatePlayerId,
-  });
+  return await requestCiv7TechnologyChoiceCloseoutFromModule(input, options, approval);
 }
 
 export async function requestCiv7CultureChoiceCloseout(
@@ -1503,21 +1359,7 @@ export async function requestCiv7CultureChoiceCloseout(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7CultureChoiceCloseoutResult> {
-  return await requestCiv7CultureChoiceCloseoutFromModule(input, options, approval, {
-    assertApproved,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    invalidNodeError: () => {
-      throw new Civ7DirectControlError("command-failed", "node must be an integer");
-    },
-    jsLiteral,
-    parseCultureChoiceCloseout: (result, label) =>
-      jsonPayloadFromCommandResult<{
-        sent?: boolean;
-        chooseResult?: { ok?: boolean };
-        clearTargetResult?: { ok?: boolean };
-      }>(result, label),
-    validatePlayerId,
-  });
+  return await requestCiv7CultureChoiceCloseoutFromModule(input, options, approval);
 }
 
 export async function requestCiv7DiplomacyResponse(
@@ -1525,22 +1367,7 @@ export async function requestCiv7DiplomacyResponse(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7DiplomacyResponseResult> {
-  return await requestCiv7DiplomacyResponseFromModule(input, options, approval, {
-    assertApproved,
-    validatePlayerId,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    getPlayNotificationView: getCiv7PlayNotificationView,
-    canStartPlayerOperation: canStartCiv7PlayerOperation,
-    parseDiplomacyPayload: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(result, label),
-    jsLiteral,
-    invalidActionIdError: () => {
-      throw new Civ7DirectControlError("command-failed", "actionId must be an integer");
-    },
-    invalidResponseTypeError: () => {
-      throw new Civ7DirectControlError("command-failed", "responseType must be an integer");
-    },
-  });
+  return await requestCiv7DiplomacyResponseFromModule(input, options, approval);
 }
 
 export async function requestCiv7NarrativeChoice(
@@ -1548,37 +1375,14 @@ export async function requestCiv7NarrativeChoice(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7NarrativeChoiceResult> {
-  return await requestCiv7NarrativeChoiceFromModule(input, options, approval, {
-    assertApproved,
-    validatePlayerId,
-    assertComponentId: assertCiv7ComponentId,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    getPlayNotificationView: getCiv7PlayNotificationView,
-    canStartPlayerOperation: canStartCiv7PlayerOperation,
-    parseNarrativePayload: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7NarrativeChoiceCommandPayload>(result, label),
-    jsLiteral,
-    invalidTargetTypeError: () => {
-      throw new Civ7DirectControlError("command-failed", "targetType is required");
-    },
-    invalidActionError: () => {
-      throw new Civ7DirectControlError("command-failed", "action must be an integer");
-    },
-  });
+  return await requestCiv7NarrativeChoiceFromModule(input, options, approval);
 }
 
 export async function getCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitTargetActionResult> {
-  return await getCiv7UnitTargetActionFromModule(input, options, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseUnitTargetAction: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, label),
-    verificationWaitMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
-    verificationPollIntervalMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
-  });
+  return await getCiv7UnitTargetActionFromModule(input, options);
 }
 
 export async function getCiv7ReadyUnitView(
@@ -1649,25 +1453,13 @@ export async function requestCiv7UnitTargetAction(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7UnitTargetActionResult> {
-  return await requestCiv7UnitTargetActionFromModule(input, options, approval, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseUnitTargetAction: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, label),
-    verificationWaitMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
-    verificationPollIntervalMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
-  });
+  return await requestCiv7UnitTargetActionFromModule(input, options, approval);
 }
 
 export async function generateCiv7CapabilityCatalog(
   options: Civ7CapabilityCatalogOptions = {},
 ): Promise<Civ7CapabilityCatalog> {
-  return await generateCiv7CapabilityCatalogFromModule(options, {
-    appUiRoots: DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
-    gameinfoTables: DEFAULT_CIV7_GAMEINFO_TABLES,
-    inspectRoot: inspectCiv7Root,
-    tunerRoots: DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
-  });
+  return await generateCiv7CapabilityCatalogFromModule(options);
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {

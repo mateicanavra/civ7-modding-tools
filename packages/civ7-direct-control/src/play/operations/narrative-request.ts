@@ -8,12 +8,25 @@ import type {
   Civ7OperationValidationResult,
 } from "./types.js";
 
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import {
+  assertCiv7ComponentId,
+  type Civ7ComponentId,
+} from "../../civ7-component-id.js";
+import { assertApproved } from "../../action-approval.js";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
 } from "../../session/types.js";
-import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
+import { validatePlayerId } from "../../validation.js";
+import {
+  getCiv7PlayNotificationView,
+  type Civ7PlayNotificationViewResult,
+} from "../notifications/view.js";
+import { canStartCiv7PlayerOperation } from "./validate-request.js";
 
 export type Civ7NarrativeChoiceInput = Readonly<{
   playerId: number;
@@ -79,7 +92,7 @@ export async function requestCiv7NarrativeChoice(
   input: Civ7NarrativeChoiceInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: NarrativeChoiceRequestDependencies,
+  dependencies: NarrativeChoiceRequestDependencies = defaultNarrativeChoiceRequestDependencies,
 ): Promise<Civ7NarrativeChoiceResult> {
   dependencies.assertApproved(approval, "choosing a narrative story direction");
   dependencies.validatePlayerId(input.playerId);
@@ -147,6 +160,24 @@ export async function requestCiv7NarrativeChoice(
     postcondition,
   };
 }
+
+const defaultNarrativeChoiceRequestDependencies: NarrativeChoiceRequestDependencies = {
+  assertApproved,
+  validatePlayerId,
+  assertComponentId: assertCiv7ComponentId,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  getPlayNotificationView: getCiv7PlayNotificationView,
+  canStartPlayerOperation: canStartCiv7PlayerOperation,
+  parseNarrativePayload: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7NarrativeChoiceCommandPayload>(result, label),
+  jsLiteral,
+  invalidTargetTypeError: () => {
+    throw new Civ7DirectControlError("command-failed", "targetType is required");
+  },
+  invalidActionError: () => {
+    throw new Civ7DirectControlError("command-failed", "action must be an integer");
+  },
+};
 
 export function buildNarrativeChoiceRequestCommand(
   input: Civ7NarrativeChoiceInput,

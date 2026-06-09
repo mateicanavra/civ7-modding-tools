@@ -1,13 +1,25 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import {
+  executeCiv7AppUiCommand,
+  executeCiv7Command,
+} from "../session/execute.js";
+import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
+import { withCiv7DirectControlSession } from "../session/session.js";
+import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
   type Civ7AppUiSnapshot,
   type Civ7AppUiSnapshotResult,
 } from "../runtime/app-ui-snapshot.js";
+import { waitForCiv7TunerReadyWithSession } from "../runtime/tuner-health.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
 import type { Civ7DirectControlSession } from "../session/session.js";
+import {
+  CIV7_BEGIN_GAME_COMMAND,
+  CIV7_RESTART_COMMAND,
+  CIV7_UI_LOADING_STATES,
+} from "./constants.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -63,7 +75,7 @@ type RestartBeginDependencies = Readonly<{
 
 export async function beginCiv7Game(
   options: Civ7DirectControlOptions = {},
-  dependencies: Pick<RestartBeginDependencies, "beginGameCommand" | "executeAppUiCommand">,
+  dependencies: Pick<RestartBeginDependencies, "beginGameCommand" | "executeAppUiCommand"> = defaultRestartBeginDependencies,
 ): Promise<Civ7CommandResult> {
   return await dependencies.executeAppUiCommand({
     ...options,
@@ -75,7 +87,7 @@ export async function restartCiv7Game(
   options: Civ7DirectControlOptions & {
     state?: Civ7TunerStateSelection;
   } = {},
-  dependencies: Pick<RestartBeginDependencies, "executeCommand" | "restartCommand">,
+  dependencies: Pick<RestartBeginDependencies, "executeCommand" | "restartCommand"> = defaultRestartBeginDependencies,
 ): Promise<Civ7CommandResult> {
   const result = await dependencies.executeCommand({
     ...options,
@@ -92,7 +104,7 @@ export async function restartCiv7GameAndBegin(
     waitTimeoutMs?: number;
     pollIntervalMs?: number;
   } = {},
-  dependencies: RestartBeginDependencies,
+  dependencies: RestartBeginDependencies = defaultRestartBeginDependencies,
 ): Promise<Civ7RestartAndBeginResult> {
   const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? 120_000;
   const pollIntervalMs = options.pollIntervalMs ?? 1_000;
@@ -206,3 +218,18 @@ function errorMessage(err: unknown): string {
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+const defaultRestartBeginDependencies: RestartBeginDependencies = {
+  appUiState: { role: "app-ui" },
+  beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  executeCommand: executeCiv7Command,
+  executeSessionCommandWithReconnect,
+  restartCommand: CIV7_RESTART_COMMAND,
+  uiLoadingStates: CIV7_UI_LOADING_STATES,
+  waitForTunerReadyWithSession: async (session, options) =>
+    await waitForCiv7TunerReadyWithSession(session, options, {
+      executeSessionCommandWithReconnect,
+    }),
+  withSession: withCiv7DirectControlSession,
+};

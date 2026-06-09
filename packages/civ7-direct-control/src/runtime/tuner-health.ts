@@ -1,7 +1,8 @@
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "../direct-control-error.js";
 
 import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "../session/constants.js";
-import type { Civ7DirectControlSession } from "../session/session.js";
+import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
+import { withCiv7DirectControlSession, type Civ7DirectControlSession } from "../session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -57,7 +58,7 @@ type TunerHealthDependencies = TunerHealthSessionDependencies & Readonly<{
 
 export async function checkCiv7TunerHealth(
   options: Civ7DirectControlOptions = {},
-  dependencies: TunerHealthDependencies,
+  dependencies: TunerHealthDependencies = defaultTunerHealthDependencies,
 ): Promise<Civ7TunerHealthResult> {
   return await dependencies.withSession(options, async (session) =>
     await checkCiv7TunerHealthWithSession(session, options.timeoutMs, dependencies)
@@ -69,12 +70,17 @@ export async function waitForCiv7TunerReady(
     waitTimeoutMs?: number;
     pollIntervalMs?: number;
   } = {},
-  dependencies: TunerHealthDependencies,
+  dependencies: TunerHealthDependencies = defaultTunerHealthDependencies,
 ): Promise<Civ7TunerHealthResult & { ready: true }> {
   return await dependencies.withSession(options, async (session) =>
     await waitForCiv7TunerReadyWithSession(session, options, dependencies)
   );
 }
+
+const defaultTunerHealthDependencies: TunerHealthDependencies = {
+  withSession: withCiv7DirectControlSession,
+  executeSessionCommandWithReconnect,
+};
 
 export function buildTunerHealthCommand(): string {
   return `(() => {

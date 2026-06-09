@@ -359,6 +359,61 @@ runtime/direct-control claims.
         composition, package/CLI proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.21 Prune technology/culture closeout facade dependency injection by
+        letting `src/play/progression/{technology,culture}.ts` import existing
+        non-facade approval, App UI execution, payload parser, serializer,
+        player validation, and direct-control error owners directly, while
+        keeping public facade exports stable, preserving approval-first checks,
+        player/node validation, App UI execution, payload parse labels, command
+        serialization, optional notification activation, SET_*_TREE_NODE /
+        SET_*_TREE_TARGET_NODE send behavior, focused package/CLI proof, and
+        leaving runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.6.22 Prune production-choice facade dependency injection by letting
+        `src/play/operations/production-choice.ts` import existing non-facade
+        approval, component-id assertion, city-operation validation, App UI
+        execution, payload parser, and serializer owners directly, while keeping
+        public facade exports stable, preserving approval-first BUILD request
+        orchestration, cityId and production-args validation, validator-first
+        behavior, read-only status payload for invalid pre-validation, bounded
+        post-send polling, production postcondition classification, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.6.23 Prune diplomacy response facade dependency injection by letting
+        `src/play/operations/diplomacy-request.ts` import existing non-facade
+        approval, player validation, App UI execution, notification view,
+        player-operation validation, payload parser, serializer, and
+        direct-control error owners directly, while keeping public facade
+        exports stable, preserving approval-first RESPOND_DIPLOMATIC_ACTION
+        orchestration, action/response integer validation, validator-first
+        no-send behavior, App UI closeout command serialization, diplomacy
+        postcondition classification, package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.6.24 Prune narrative choice facade dependency injection by letting
+        `src/play/operations/narrative-request.ts` import existing non-facade
+        approval, player validation, ComponentID assertion, App UI execution,
+        notification view, player-operation validation, payload parser,
+        serializer, and direct-control error owners directly, while keeping
+        public facade exports stable, preserving approval-first
+        CHOOSE_NARRATIVE_STORY_DIRECTION orchestration, target/action
+        validation, validator-first no-send behavior, App UI closeout command
+        serialization, narrative postcondition classification, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.6.25 Prune unit-target action facade dependency injection by letting
+        `src/play/operations/unit-target-action.ts` import existing non-facade
+        approval, Tuner execution, and payload parser owners directly, while
+        keeping public facade exports stable, preserving read-vs-send split,
+        approval-first send behavior, parser label, default verification timing,
+        bounded no-repeat-after-unverified polling, unit-target postcondition
+        classification, package/CLI proof, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
@@ -998,6 +1053,49 @@ runtime/direct-control claims.
         classification, and leaving telemetry, AI ingestion, CLI semantic
         projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.15 Prune capability catalog facade dependency injection by letting
+        `src/catalog/capabilities.ts` import existing non-facade bounded root
+        inspection and catalog default owners directly, while keeping public
+        facade exports stable, preserving static/runtime catalog construction,
+        runtime root caps, generated-output-as-evidence policy,
+        official-resource scanner behavior, and leaving telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.16 Prune App UI snapshot facade dependency injection by letting
+        `src/runtime/app-ui-snapshot.ts` import existing non-facade App UI
+        command execution directly, while keeping public facade exports stable,
+        preserving the generated snapshot command, parse label/result shape,
+        lifecycle helper reuse of the builder/parser, debug/internal-only raw
+        snapshot classification, and leaving telemetry, AI ingestion, CLI
+        semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.17 Prune Tuner health facade dependency injection by letting
+        `src/runtime/tuner-health.ts` import existing non-facade session and
+        reconnect execution owners directly for public health/readiness wrappers,
+        while setup/restart lifecycle loops still pass the same session-scoped
+        dependency explicitly, preserving Tuner state selection, retry/count
+        behavior, readiness wait timing, parse label/result shape, and leaving
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/Bun resource composition, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.18 Prune playable-status facade dependency injection by letting
+        `src/runtime/playable-status.ts` import existing non-facade App UI
+        snapshot, Tuner health, and error-message owners directly, while keeping
+        public facade exports stable, preserving App UI/Tuner composition,
+        shell/playable/readiness classification, unready error capture, and
+        debug/internal-only status classification, and leaving telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.12.19 Prune runtime API inspection facade dependency injection by
+        letting `src/runtime/inspection.ts` import existing non-facade command
+        execution, state-name, and runtime inspection default-root owners
+        directly, while keeping public facade exports stable, preserving App
+        UI/Tuner default-root selection, caller-provided roots, selected state
+        execution, generated inspection command semantics, raw debug/internal
+        projection, and leaving telemetry, AI ingestion, CLI semantic
+        projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
@@ -1022,6 +1120,16 @@ runtime/direct-control claims.
         shape, and leaving hotseat runtime proof, AI ingestion, CLI semantic
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.13.4 Prune autoplay facade dependency injection by letting
+        `src/play/autoplay.ts` import existing non-facade App UI snapshot,
+        App UI execution, approval, validation/bounds, serializer, sleep, and
+        timing/default owners directly, while keeping public facade exports
+        stable, preserving approval gates, bounded turn/player validation,
+        explicit unbounded start semantics, stop-settling/pause behavior,
+        command strings, result shapes, and local package proof, and leaving
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.14 Extract setup/start lifecycle atoms.
   - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts` and leaving
@@ -1079,6 +1187,65 @@ runtime/direct-control claims.
         runtime proof, hotseat runtime proof, AI ingestion, semantic CLI
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.14.8 Prune setup-read facade dependency injection by letting
+        `src/setup/reads.ts` import existing non-facade approval, App UI
+        execution, parser, serializer, probe, constants, and bounds owners
+        directly for setup snapshot, setup map rows, setup map-row refresh, and
+        setup-phase waits, while keeping public facade exports stable,
+        preserving setup source text/parse labels/approval-first refresh
+        behavior, and leaving setup prepare/start/run/restart lifecycle
+        composition, runtime proof, hotseat runtime proof, AI ingestion,
+        semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.9 Prune setup-preparation facade dependency injection by letting
+        `src/setup/prepare.ts` import existing non-facade setup-read defaults,
+        command-result parser, and setup option identifier validation directly,
+        while keeping public facade exports stable, preserving approval-first
+        setup mutation, setup snapshot readback, map-row proof, setup option
+        validation, prepare command source, and no-replay package proof, and
+        leaving prepared-start/setup-run/restart lifecycle composition, runtime
+        proof, hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.14.10 Prune prepared-start facade dependency injection by letting
+        `src/setup/start.ts` import existing non-facade setup-read defaults,
+        session/reconnect, Tuner-ready wait, map-summary, command-result
+        parser, setup constants, and setup option identifier validation
+        directly, while keeping public facade exports stable, preserving
+        approval-first start, pre-start setup readback, host-game command
+        source, begin polling, one-attempt begin send, Tuner/map verification,
+        seed mismatch classification, and no-replay package proof, and leaving
+        setup-run/restart lifecycle composition, runtime proof, hotseat runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.11 Prune setup-run facade dependency injection by letting
+        `src/setup/run.ts` import existing non-facade setup read, setup
+        prepare, prepared-start, App UI execution, setup constants, approval,
+        bounds, and setup option identifier validation owners directly, while
+        keeping public facade exports stable, preserving approval-first run
+        orchestration, active-game exit-to-shell guard, exit-to-main-menu
+        routing, shell wait, prepare/start chaining, verified result shape, and
+        no-replay package proof, and leaving restart/begin lifecycle
+        composition, runtime proof, hotseat runtime proof, AI ingestion,
+        semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.12 Prune restart/begin facade dependency injection by letting
+        `src/setup/restart.ts` import existing non-facade App UI execution,
+        command execution, session/reconnect, Tuner-ready wait, and setup
+        command/loading-state constant owners directly, while keeping public
+        facade exports stable, preserving begin command routing, restart-output
+        rejection, begin-ready polling, one-attempt begin send, optional Tuner
+        readiness wait, restart lifecycle package proof, and no-replay package
+        proof, and leaving runtime proof, hotseat runtime proof, AI ingestion,
+        semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.13 Prune the stale setup-read facade helper/import left after
+        setup-read dependency ownership moved into `src/setup/reads.ts`, while
+        keeping public facade exports stable, preserving setup read/source
+        behavior, and leaving setup lifecycle behavior, runtime proof, hotseat
+        runtime proof, AI ingestion, semantic CLI projection, telemetry,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 
 ## 5. CLI Semantic Surface Lane
 

@@ -1,4 +1,7 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { assertApproved } from "../../action-approval.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7TunerCommand } from "../../session/execute.js";
 
 import type { Civ7ActionApproval } from "./types.js";
 import type {
@@ -76,7 +79,7 @@ type UnitTargetActionDependencies = Readonly<{
 export async function getCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: UnitTargetActionDependencies,
+  dependencies: UnitTargetActionDependencies = defaultUnitTargetActionDependencies,
 ): Promise<Civ7UnitTargetActionResult> {
   const result = await dependencies.executeTunerCommand({
     ...options,
@@ -89,7 +92,7 @@ export async function requestCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: UnitTargetActionDependencies,
+  dependencies: UnitTargetActionDependencies = defaultUnitTargetActionDependencies,
 ): Promise<Civ7UnitTargetActionResult> {
   dependencies.assertApproved(approval, "sending Civ7 unit target action");
   const result = await dependencies.executeTunerCommand({
@@ -99,6 +102,15 @@ export async function requestCiv7UnitTargetAction(
   const immediate = dependencies.parseUnitTargetAction(result, "Civ7 unit target action");
   return await stabilizeCiv7UnitTargetAction(input, options, immediate, dependencies);
 }
+
+const defaultUnitTargetActionDependencies: UnitTargetActionDependencies = {
+  assertApproved,
+  executeTunerCommand: executeCiv7TunerCommand,
+  parseUnitTargetAction: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, label),
+  verificationWaitMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
+  verificationPollIntervalMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
+};
 
 async function stabilizeCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,

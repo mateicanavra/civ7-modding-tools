@@ -1,8 +1,17 @@
+import {
+  CIV7_TUNER_APP_UI_STATE_NAME,
+  CIV7_TUNER_STATE_NAME,
+} from "../session/constants.js";
+import { executeCiv7Command } from "../session/execute.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
+import {
+  DEFAULT_CIV7_APP_UI_API_ROOTS,
+  DEFAULT_CIV7_TUNER_API_ROOTS,
+} from "./inspection-constants.js";
 
 export type Civ7RuntimeApiRoot = Readonly<{
   name: string;
@@ -45,7 +54,7 @@ export async function inspectCiv7RuntimeApi(
     state?: Civ7TunerStateSelection;
     roots?: ReadonlyArray<string>;
   } = {},
-  dependencies: RuntimeInspectionDependencies,
+  dependencies: RuntimeInspectionDependencies = defaultRuntimeInspectionDependencies,
 ): Promise<Civ7RuntimeApiInspection> {
   const selection = options.state ?? { role: "app-ui" };
   const roots = options.roots ?? defaultRootsForSelection(selection, dependencies);
@@ -62,6 +71,14 @@ export async function inspectCiv7RuntimeApi(
     roots: parsed,
   };
 }
+
+const defaultRuntimeInspectionDependencies: RuntimeInspectionDependencies = {
+  appUiStateName: CIV7_TUNER_APP_UI_STATE_NAME,
+  defaultAppUiApiRoots: DEFAULT_CIV7_APP_UI_API_ROOTS,
+  defaultTunerApiRoots: DEFAULT_CIV7_TUNER_API_ROOTS,
+  executeCommand: executeCiv7Command,
+  tunerStateName: CIV7_TUNER_STATE_NAME,
+};
 
 function defaultRootsForSelection(
   selection: Civ7TunerStateSelection,
