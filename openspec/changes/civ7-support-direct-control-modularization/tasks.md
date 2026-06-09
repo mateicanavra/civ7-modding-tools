@@ -113,11 +113,43 @@ runtime/direct-control claims.
   - [ ] 4.2.13 Add full-grid map identity and resource/feature builder
     readback edge coverage to owning package suites before source extraction.
 - [ ] 4.3 Extract notification view/materialization atom.
+  - [x] 4.3.1 Extract notification view/materialization embedded source owner
+        while keeping the public wrapper in the facade.
 - [ ] 4.4 Extract notification dismissal/verification atom.
-- [ ] 4.5 Extract ready unit/city view atoms.
+  - [x] 4.4.1 Extract notification dismissal embedded source owner while
+        keeping wrapper-level polling and verification helpers in the facade.
+- [x] 4.5 Extract ready unit/city view atoms.
+  - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
+        the public wrapper in the facade.
+  - [x] 4.5.2 Extract ready-unit embedded source owner while keeping the public
+        wrapper in the facade.
+  - [x] 4.5.3 Extract ready-city embedded source owner while keeping the public
+        wrapper in the facade.
 - [ ] 4.6 Extract operation validation/send/postcondition atoms.
-- [ ] 4.7 Extract settlement/tactical/progression read atoms.
+  - [x] 4.6.1 Extract operation router embedded validation/send source owner
+        while keeping wrapper-level postconditions and specialized closeouts in
+        the facade.
+  - [x] 4.6.2 Extract technology and culture chooser closeout embedded source
+        owners while keeping public wrappers in the facade.
+  - [x] 4.6.3 Extract production-choice embedded source owner while keeping
+        the public wrapper/build command and production postcondition helpers
+        in the facade.
+- [x] 4.7 Extract settlement/tactical/progression read atoms.
+  - [x] 4.7.1 Extract settlement recommendation embedded source owner while
+        keeping the public wrapper in the facade.
+  - [x] 4.7.2 Extract traditions view embedded source owner while keeping the
+        public wrapper in the facade.
+  - [x] 4.7.3 Extract progress dashboard embedded source owner while keeping
+        the public wrapper in the facade.
+  - [x] 4.7.4 Extract target-candidates embedded source owner while keeping the
+        public wrapper in the facade.
+  - [x] 4.7.5 Extract battlefield scan embedded source owner while keeping the
+        public wrapper in the facade.
+  - [x] 4.7.6 Extract destination analysis embedded source owner while keeping
+        the public wrapper in the facade.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
+  - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
+        modules behind the existing package facade.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
@@ -125,6 +157,8 @@ runtime/direct-control claims.
 - [ ] 4.10 Classify direct-control service outputs by consumer before command
       hierarchy rewrites: internal service machinery, debug-only diagnostics,
       or semantic player-agent output.
+  - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
+        existing package facade.
 
 ## 5. CLI Semantic Surface Lane
 

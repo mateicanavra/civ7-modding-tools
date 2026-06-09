@@ -81,6 +81,10 @@ titles, and parent reports to close the loop.
 | `019e8b4a-0c0c-75b2-914b-928f25827122`                                                | Add setup/lifecycle package test            | framed `/goal` implementation | completed, reported up                                                               | yes                                         | Accepted as boundary-clean net-new candidate only; DRA retained integration, broad-suite removal, records, and final package gates.                                     | Created `packages/civ7-direct-control/test/setup-and-lifecycle.test.ts`; DRA moved setup/start ownership out of the broad suite while leaving restart/begin lifecycle as the last broad-suite owner.                                                                   |
 | `019e8b4a-4300-7d42-bbc1-d9fc11317351`                                                | Add autoplay and turn package test          | framed `/goal` implementation | completed, reported up                                                               | yes                                         | Accepted as boundary-clean net-new candidate only; DRA retained integration, broad-suite removal, records, and final package gates.                                     | Created `packages/civ7-direct-control/test/autoplay-and-turn.test.ts` for autoplay approval/configure/start/stop plus turn-completion status/complete/unready coverage.                                                                                                |
 | `019e8b4a-7c6a-7f42-9e48-b45a6d9da427`                                                | Add runtime and catalog package test        | framed `/goal` implementation | completed, reported up                                                               | yes                                         | Accepted as boundary-clean net-new candidate only; DRA retained integration, broad-suite removal, records, and final package gates.                                     | Created `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` for runtime routing, snapshots, playable status, GameInfo rows, capability catalogs, official-resource scanner fixture, and fresh-log marker helpers.                                          |
+| `019e8b68-ec12-7a20-bb90-2cf46574d189`                                                | Extract direct-control primitives           | framed `/goal` source candidate | completed, idle; disk worktree `9c68` dirty at old parent                            | yes                                         | Partially accepted by evidence. DRA integrated only the smaller ComponentID/error owner subset on current disk; broader constants/runtime/map/player/numeric candidate remains superseded planning evidence, not accepted code. | Candidate proved the direction but was too broad for the first source-owner slice and could not run tests in its isolated worktree. DRA kept package config/docs ownership and final gates in the support worktree.                                                     |
+| `019e8b69-465d-7a71-8ef1-1f75f96799c2`                                                | Extract direct-control seams                | framed `/goal` source candidate | completed, idle; disk worktree `fd1b` dirty at old parent                            | yes                                         | Accepted as a narrow source candidate only. DRA integrated tuner frame encode/parse ownership on current disk after ComponentID/error moved first and reran package gates. | Contributed `src/session/framing.ts` boundary for `Civ7TunerFrame`, `encodeCiv7TunerRequest`, and `parseCiv7TunerFrame`; broader session/config/reconnect and restart/setup loops stay pending.                                             |
+| `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`                                                | Identify read-only atoms                    | framed `/goal` report-only     | completed report read; later empty active turn observed; disk worktree `1044` clean  | yes                                         | Accepted as read-only planning evidence. No code candidate was integrated from this lane. Later refined finding supersedes its earlier ready-unit suggestion.             | Recommends `settlementRecommendationsSource` as the safest first read-only embedded-source relocation, followed by traditions, move-preview, progress dashboard, ready-unit, tactical reads, ready-city, and notification view last.                                    |
+| `019e8be1-db1e-7c80-ad37-471a48cd520f`                                                | Identify first postcondition-helper slice   | framed `/goal` report-only     | completed, reported up                                                               | yes                                         | Accepted as sequencing guidance only; no mutation authority.                                                                                                               | Recommends the first postcondition-helper move be the synchronous unit-operation classifier group (`unitOperationPostcondition`, `classifyUnitOperationPostcondition`, `unitOperationPostconditionReason`) into `src/play/operations/unit-postconditions.ts`; narrative/diplomacy waiters stay later because they pull in notification matching, polling, and App UI reader dependencies. |
 
 ## Parallelization Rule
 
@@ -89,6 +93,19 @@ must have a disjoint write set before editing. The spec owner coordinates
 Graphite; no lane may restack, submit, or mutate unrelated stacks. `package.json`
 play-script wiring and `packages/cli/test/commands/game.play.test.ts` are
 single-owner files for each active slice.
+
+## DRA Correction Channel
+
+Direct thread communication is the primary channel for supervisor/watcher
+corrections to the active DRA thread. If direct thread access is unavailable,
+that is not a silent failure condition: keep trying the direct thread path. If a
+material correction still cannot be delivered after repeated attempts, write a
+visible fallback `NOTE-TO-DRA.md` in the DRA/workstream tree that includes the
+missed correction payloads, not just a note that communication failed. When
+direct thread access returns, read and disposition the fallback note, send any
+still-relevant correction directly, then remove or mark the note resolved
+according to repo hygiene. Do not send unresolved DRA correction payloads only
+back to user chat when the intended recipient is the DRA thread.
 
 ## Service And CLI Surface Rule
 
@@ -212,6 +229,98 @@ All future agent waves must be framed before delegation:
   begin, wait-for-Tuner readiness, and restart-output rejection coverage; the
   broad `direct-control.test.ts` file has been removed. This is local
   fake-tuner package proof only, not runtime proof.
+- Direct-control ComponentID primitive slice: completed as the first
+  source-owner extraction after package-test ownership completed. It moves
+  ComponentID schema/guard/assertion plus the direct-control error class/type
+  into focused owner modules behind the existing package facade. This is
+  type/source ownership proof only, not runtime proof. Disposition for protected
+  stash `preserve user direct-control modularization note before dismiss queue
+  slice`: compatible and preserved. The note requires tests first, then
+  principled modularization/export of constants/types; this slice follows the
+  completed package-test coverage and creates named primitive/error owners
+  rather than a broad facade or dumping ground.
+- Direct-control tuner framing slice: completed from the completed
+  `019e8b69-465d-7a71-8ef1-1f75f96799c2` source candidate. It moves only
+  `Civ7TunerFrame`, `encodeCiv7TunerRequest`, and `parseCiv7TunerFrame` into
+  `src/session/framing.ts` behind the existing package facade. Broader
+  session/config/reconnect and restart/setup lifecycle source extraction stays
+  pending because those seams have additional helper dependencies.
+- Direct-control settlement recommendation source slice: completed from the
+  refined read-only atom report in `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`.
+  It moves only the settlement recommendation embedded source into
+  `src/play/tactical/settlement.ts`. Wrapper/builder ownership stays in
+  `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control traditions view source slice: completed as the next
+  progression read source relocation. It moves only the traditions embedded
+  source into `src/play/progression/traditions.ts`. Wrapper/builder ownership
+  stays in `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control unit move preview source slice: completed as the next ready
+  read source relocation. It moves only the unit move preview embedded source
+  into `src/play/ready/move-preview.ts`. Wrapper/builder ownership stays in
+  `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control progress dashboard source slice: completed as the next
+  progression read source relocation. It moves only the progress dashboard
+  embedded source into `src/play/progression/progress-dashboard.ts`.
+  Wrapper/builder ownership stays in `index.ts`; this is source relocation proof
+  only, not runtime proof.
+- Direct-control ready-unit source slice: completed as the next ready read
+  source relocation. It moves only the ready-unit embedded source into
+  `src/play/ready/unit.ts`. Wrapper/builder ownership stays in `index.ts`; this
+  is source relocation proof only, not runtime proof.
+- Direct-control ready-city source slice: completed as the final ready read
+  source relocation. It moves only the ready-city embedded source into
+  `src/play/ready/city.ts`. Ready-city's internal production, town-focus, and
+  population-placement helpers stay inside that owner; wrapper/builder
+  ownership stays in `index.ts`. This is source relocation proof only, not
+  runtime proof.
+- Direct-control target-candidates source slice: completed as the next
+  tactical read source relocation. It moves only the target-candidates embedded
+  source into `src/play/tactical/target-candidates.ts`. Wrapper/builder ownership
+  stays in `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control battlefield scan source slice: completed as the next
+  tactical read source relocation. It moves only the battlefield scan embedded
+  source into `src/play/tactical/battlefield.ts`. Wrapper/builder ownership stays
+  in `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control destination analysis source slice: completed as the final
+  tactical/progression read source relocation. It moves only the destination
+  analysis embedded source into `src/play/tactical/destination.ts`, importing
+  the battlefield source owner because destination analysis composes the
+  battlefield read policy. Wrapper/builder ownership stays in `index.ts`; this
+  is source relocation proof only, not runtime proof.
+- Direct-control notification dismissal source slice: completed as the
+  notification action source relocation. It moves only the embedded App UI
+  notification dismissal source into `src/play/notifications/dismissal.ts`.
+  Wrapper-level polling and identity verification helpers stay in `index.ts`;
+  this is source relocation proof only, not runtime proof.
+- Direct-control notification view source slice: completed as the
+  notification materialization source relocation. It moves only the embedded
+  `readPlayNotifications` source into `src/play/notifications/view.ts`.
+  Wrapper/build-command ownership stays in `index.ts`; this is source
+  relocation proof only, not runtime proof.
+- Direct-control operation router source slice: completed as the generic
+  operation validation/send source relocation. It moves only the embedded
+  operation router source into `src/play/operations/router.ts`. Wrapper-level
+  postconditions and specialized closeout sources stay in `index.ts`; this is
+  source relocation proof only, not runtime proof.
+- Direct-control technology/culture closeout source slice: completed as the
+  progression chooser closeout source relocation. It moves only the embedded
+  technology and culture chooser closeout sources into
+  `src/play/progression/{technology,culture}.ts`. Public wrapper ownership stays
+  in `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control production-choice source slice: completed as the next
+  operation action source relocation. It moves only the embedded production
+  choice source into `src/play/operations/production-choice.ts`. The public
+  wrapper/build command plus production postcondition helpers stay in `index.ts`;
+  this is source relocation proof only, not runtime proof.
+- Ready-domain note artifact disposition: the temporary user note
+  `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
+  package source and must not be committed. Its control feedback is now
+  recorded here and in the direct-control atom corpus: the current
+  `src/play/ready/{unit,city,move-preview}.ts` split is only an interim
+  extraction seam. A later domain-shape pass should regroup around topic-first
+  owners such as city/unit ready modules and movement-local preview ownership
+  instead of treating `play/ready` or standalone `move-preview.ts` as final
+  authority.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
