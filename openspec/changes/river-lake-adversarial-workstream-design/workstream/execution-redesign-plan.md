@@ -41,6 +41,10 @@ Use these sources in this order for the remaining work:
 - Current same-run terrain proof shows that `TERRAIN_NAVIGABLE_RIVER` can be
   present while live river metadata remains zero. This keeps terrain-readback
   and metadata-readback as separate proof classes.
+- Fresh live read-only probe on 2026-06-09 observed `terrainNavigableRiver=69`
+  with `river=0`, `navigableRiver=0`, and `minorRiver=0` across `6996` plots.
+  This remains the clearest live evidence that terrain rows do not yet prove
+  runtime river behavior or rendered visibility.
 - Official scripts still expose `TerrainBuilder.modelRivers(...)`,
   `defineNamedRivers()`, and `storeWaterData()`; no stable public per-tile minor
   river writer has yet been proven.
@@ -84,6 +88,18 @@ train starts from:
   rather than failure by default.
 - Global lake inventories, which constrain plausible lake abundance and area.
 
+Benchmark usage rule from the adversarial pass:
+
+- do not collapse Earth hydrology to one scalar river-density target;
+- use benchmark families by proof surface (`hydrology-truth`,
+  `projectedVisibleRivers`, `lakeMaterialization`, `renderedCivVisibility`);
+- accepted numeric anchors are low-band and definition-aware:
+  - non-perennial channels must remain the majority globally;
+  - headwaters should dominate total network length;
+  - lake area should stay in the low single digits of land area, not near-zero
+    and not tens of percent;
+  - endorheic / closed drainage must remain materially present.
+
 ## Locked Ownership Boundary
 
 | Concern | Owner | Forbidden owners |
@@ -118,11 +134,12 @@ Knobs stay where the product model is real and decoupled:
 | --- | --- | --- | --- |
 | `hydrology-hydrography.knobs` | `riverDensity` | physical river-network classification density | affects Hydrology truth only |
 | `hydrology-hydrography.knobs` | `lakeiness` | sink-derived lake expansion/posture | physical hydrology truth |
-| `map-rivers.knobs` | `navigableRiverDensity` | Civ-visible navigable trunk projection density | projection-only; may accept legacy alias `riverDensity` only as migration behavior |
+| `map-rivers.knobs` | `navigableRiverDensity` | Civ-visible navigable trunk projection density | projection-only; legacy alias `riverDensity` is debt to retire, not a contract to preserve |
 
 Not public knobs:
 
 - raw route-conditioning internals,
+- legacy visibility aliases,
 - selector length bounds,
 - endpoint discharge percentiles,
 - target major-tile fractions,
@@ -190,10 +207,16 @@ The remaining train must keep these labels separate:
   readback.
 - Owner: direct-control / Studio proof tooling.
 - Required proof:
+  - exact-authorship proof must already be pass for the same run,
   - sampled live river coordinates,
   - camera target + zoom + visibility state,
-  - screenshot paths + hashes,
+  - screenshot paths + hashes tied to the same run,
   - explicit visual verdict.
+- Closure policy:
+  - manual screenshots and manual verdicts may support debugging, but they do
+    not satisfy closure-capable `civ-rendered` proof by themselves;
+  - the verifier must not report closure-capable success without
+    `exact-authorship=pass`.
 - Must not claim: whole-product acceptance by itself.
 
 ### 5. `studio-river-lake-inspector-dx`
@@ -207,7 +230,8 @@ The remaining train must keep these labels separate:
   - projected navigable,
   - engine terrain readback,
   - metadata divergence,
-  - mismatch/no-signal explanations.
+  - mismatch/no-signal explanations,
+  - whether the current run is eligible for visual/product acceptance.
 
 ### 6. `river-catalog-adapter-contract-hardening`
 
@@ -248,11 +272,13 @@ The remaining train must keep these labels separate:
 1. Finish and validate Hydrology routing truth.
 2. Publish Hydrology metrics and physical expectations.
 3. Repair navigable projection coherence using the corrected Hydrology truth.
-4. Add runtime rendered-visibility proof.
-5. Add Studio inspector/status ladder.
-6. Harden catalog/adapter/runtime evidence boundaries.
-7. Close lake/floodplain gates with active exact rows.
-8. Run Earthlike product acceptance and open only targeted repair rows from
+4. Tighten stale owner wording and retire legacy public alias debt that still
+   teaches the wrong model.
+5. Add runtime rendered-visibility proof.
+6. Add Studio inspector/status ladder.
+7. Harden catalog/adapter/runtime evidence boundaries.
+8. Close lake/floodplain gates with active exact rows.
+9. Run Earthlike product acceptance and open only targeted repair rows from
    failing evidence.
 
 ## Non-Negotiable Closure Boundary

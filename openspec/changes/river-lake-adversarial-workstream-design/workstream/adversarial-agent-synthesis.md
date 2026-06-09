@@ -2,7 +2,7 @@
 
 Date: 2026-06-09
 Worktree: `wt-agent-mapgen-physical-rivers`
-Active branch during synthesis: `codex/map-rivers-navigable-coherence`
+Active branch during synthesis: `codex/river-lake-adversarial-synthesis`
 Controlling execution authority:
 `openspec/changes/river-lake-adversarial-workstream-design/workstream/execution-redesign-plan.md`
 
@@ -40,6 +40,21 @@ Authority order for this pass matched the execution redesign plan:
 8. active OpenSpec execution records
 9. code, tests, runtime probes, and official resources as evidence only
 
+## Durable Evidence Pack
+
+The adversarial pass now has six durable lane notes:
+
+- `agent-notes/agent-1-hydrology-root-cause.md`
+- `agent-notes/agent-2-runtime-materialization.md`
+- `agent-notes/agent-3-earth-benchmarks.md`
+- `agent-notes/agent-4-architecture-product-surface.md`
+- `agent-notes/agent-5-verification-dx-closure.md`
+- `agent-notes/agent-6-history-archaeology.md`
+
+These notes are part of the workstream evidence, not optional side chatter.
+Future execution slices should cite them directly when they tighten or retire a
+surface.
+
 ## Six Adversarial Lanes
 
 ### 1. Hydrology Root-Cause Prosecutor
@@ -76,6 +91,9 @@ Wrong-owner findings:
 - `projection-policies/` was an invented owner for river selector logic.
 - Public `map-rivers.riverProjection.minLength/maxLength` was a wrong product
   surface.
+- Legacy `map-rivers.knobs.riverDensity` is also a wrong public surface; shipped
+  configs already do not need it, so it is debt to retire rather than a
+  product contract to preserve.
 - Step-local routing logic hidden inside `hydrology-hydrography/steps/rivers.ts`
   is structurally suspicious whenever it stands in for a Hydrology-owned op.
 - The river-type constant fix in `@civ7/map-policy` is correct and should stay.
@@ -96,8 +114,9 @@ Load-bearing findings:
 - `TERRAIN_NAVIGABLE_RIVER` is a terrain row, not equivalent to `GameplayMap`
   river metadata.
 - Official gameplay/tooltips read river metadata separately.
-- Current evidence already allows the bad state: navigable-river terrain exists
-  while `riverType` remains `NO_RIVER`.
+- Fresh live evidence on 2026-06-09 already allows the bad state:
+  `terrainNavigableRiver=69` while `river=0`, `navigableRiver=0`, and
+  `minorRiver=0` across `6996` plots.
 - Minor-river stamping remains unproven. It must stay unclaimed until a real
   writer is discovered and verified.
 
@@ -124,6 +143,8 @@ Testing implications:
 
 - Minor/headwater channels should dominate full truth-network length.
 - Navigable trunks should be a coherent minority.
+- Earthlike closure should use benchmark families, not a single scalar river
+  density target.
 - Arid or endorheic maps need typed low/no-signal outcomes rather than being
   forced to show visible rivers.
 
@@ -142,6 +163,9 @@ Load-bearing findings:
   `hydrology-truth` -> `projection-plan` -> `terrain-readback` ->
   `metadata-readback` -> `studio-visible` -> `civ-rendered` ->
   `product-acceptance`.
+- The current visible-proof verifier is still too weak for closure because it
+  does not require `exact-authorship=pass` and can accept manual screenshot +
+  manual verdict evidence as success-capable proof.
 - Rivers are not "done" because terrain rows exist.
 - Users need a same-run ladder in Studio explaining:
   planned physical rivers, planned major rivers, projected navigable trunks,
@@ -194,6 +218,25 @@ by exposing selector internals as the public model.
 | navigable terrain subset selection from Hydrology truth | `map-rivers` consuming a Hydrology op contract | projection-policy dumping grounds, policy package |
 | runtime writes/readback, camera proof | adapter + direct-control + Studio proof tooling | Hydrology truth logic |
 
+### Public Knob Map
+
+The adversarial pass converged on one decoupled public model:
+
+| Surface | Knob | Owner | Status |
+| --- | --- | --- | --- |
+| `hydrology-hydrography.knobs` | `riverDensity` | Hydrology | keep |
+| `hydrology-hydrography.knobs` | `lakeiness` | Hydrology | keep |
+| `map-rivers.knobs` | `navigableRiverDensity` | `map-rivers` | keep |
+| `map-rivers.knobs` | `riverDensity` | `map-rivers` | retire legacy alias |
+
+Not public:
+
+- `minLength` / `maxLength`
+- selector length bounds
+- endpoint discharge percentiles
+- target major tile fractions
+- fallback thresholds
+
 ### Runtime Reality
 
 - Lakes have a stronger direct authored path today.
@@ -230,6 +273,29 @@ Additional rule from this synthesis:
 - generic `projection-policies` is not a lawful owner. Any surviving helper in
   that area must either be deleted or moved under a real owner as the execution
   slices land.
+
+Additional corrections that are now accepted:
+
+- retire the legacy `map-rivers.knobs.riverDensity` alias instead of preserving
+  it as part of the public model;
+- tighten `river-runtime-visible-proof` so closure-capable proof requires
+  `exact-authorship=pass` and non-manual runtime capture, with manual files
+  demoted to exploratory evidence only;
+- treat Morphology proxy-routing names/docs as architecture debt if they can be
+  mistaken for canonical drainage truth;
+- use benchmark families by proof surface and climate cohort rather than one
+  scalar river-density target.
+
+## Immediate Next-Slice Priority
+
+The six-lane pass changes execution priority in one important way:
+
+1. Keep upstream Hydrology truth and benchmark work authoritative.
+2. Tighten `river-runtime-visible-proof` before any new closure claim, because
+   the current verifier is still permissive enough to overclaim rendered proof.
+3. Retire the `map-rivers.knobs.riverDensity` alias and any stale owner wording
+   while the workstream is still design-hot, rather than dragging the wrong
+   model into later product acceptance work.
 
 ## Closure Rules Reaffirmed
 
