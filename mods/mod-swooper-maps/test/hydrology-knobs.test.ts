@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
+import { createMockAdapter } from "@civ7/adapter";
+import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../src/recipes/standard/recipe.js";
+import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
+import { hydrologyHydrographyArtifacts } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 
 const env = {
   seed: 123,
@@ -11,6 +16,43 @@ const env = {
 const foundationConfig = {
   knobs: { plateCount: 28, plateActivity: 0.5 },
 };
+
+function runHydrologyTruth(config: Record<string, unknown>) {
+  const width = env.dimensions.width;
+  const height = env.dimensions.height;
+  const mapInfo = {
+    GridWidth: width,
+    GridHeight: height,
+    MinLatitude: env.latitudeBounds.bottomLatitude,
+    MaxLatitude: env.latitudeBounds.topLatitude,
+    PlayersLandmass1: 4,
+    PlayersLandmass2: 4,
+    StartSectorRows: 4,
+    StartSectorCols: 4,
+  };
+
+  const adapter = createMockAdapter({
+    width,
+    height,
+    mapInfo,
+    mapSizeId: 1,
+    rng: createLabelRng(env.seed),
+  });
+  const context = createExtendedMapContext({ width, height }, adapter, env);
+  initializeStandardRuntime(context, { mapInfo, logPrefix: "[hydrology-knobs]", storyEnabled: false });
+  standardRecipe.run(context, env, withFoundation(config), { log: () => {} });
+
+  return context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
+    | {
+        runoff?: Float32Array;
+        discharge?: Float32Array;
+        riverClass?: Uint8Array;
+        flowDir?: Int32Array;
+        sinkMask?: Uint8Array;
+        outletMask?: Uint8Array;
+      }
+    | undefined;
+}
 
 const withFoundation = (config: Record<string, unknown>) => ({
   foundation: foundationConfig,
@@ -199,6 +241,24 @@ describe("hydrology knobs compilation", () => {
     );
 
     expect(duplicate["map-rivers"]).toEqual(current["map-rivers"]);
+  });
+
+  it("changes navigable projection without rewriting Hydrology truth artifacts", () => {
+    const sparseVisible = runHydrologyTruth({
+      "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
+      "map-rivers": { knobs: { navigableRiverDensity: "sparse" } },
+    });
+    const denseVisible = runHydrologyTruth({
+      "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
+      "map-rivers": { knobs: { navigableRiverDensity: "dense" } },
+    });
+
+    expect(sparseVisible?.runoff).toEqual(denseVisible?.runoff);
+    expect(sparseVisible?.discharge).toEqual(denseVisible?.discharge);
+    expect(sparseVisible?.riverClass).toEqual(denseVisible?.riverClass);
+    expect(sparseVisible?.flowDir).toEqual(denseVisible?.flowDir);
+    expect(sparseVisible?.sinkMask).toEqual(denseVisible?.sinkMask);
+    expect(sparseVisible?.outletMask).toEqual(denseVisible?.outletMask);
   });
 
   it("allows optional semantic public config in hydrology stages", () => {

@@ -90,6 +90,7 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
     const targetMajorTileFraction = clamp01(config.targetMajorTileFraction);
     const targetTileCount =
       eligibleTileCount === 0 ? 0 : Math.max(1, Math.round(eligibleTileCount * targetMajorTileFraction));
+    const nonProjectableMajorTileCount = Math.max(0, plannedMajorRiverTileCount - eligibleTileCount);
 
     if (eligibleTileCount === 0 || targetTileCount === 0) {
       return {
@@ -102,9 +103,14 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
         plannedMajorRiverTileCount,
         candidateEndpointCount: 0,
         selectedChainCount: 0,
+        selectedChainLengths: new Uint16Array(0),
+        longestSelectedChainLength: 0,
+        meanSelectedChainLength: 0,
         targetTileCount,
         targetMajorTileFraction,
         selectedEndpointDischargeFloor: Infinity,
+        nonProjectableMajorTileCount,
+        unselectedEligibleMajorTileCount: eligibleTileCount,
       } as const;
     }
 
@@ -134,6 +140,7 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
 
     let selectedTileCount = 0;
     let selectedChainCount = 0;
+    const selectedChainLengths: number[] = [];
 
     for (const endpoint of candidateEndpoints) {
       if (selectedTileCount >= targetTileCount && selectedChainCount > 0) break;
@@ -156,12 +163,20 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
 
       if (chain.length === 0) continue;
       selectedChainCount += 1;
+      selectedChainLengths.push(chain.length);
       for (const index of chain) {
         if (riverMask[index] === 1) continue;
         riverMask[index] = 1;
         selectedTileCount += 1;
       }
     }
+
+    const longestSelectedChainLength =
+      selectedChainLengths.length === 0 ? 0 : Math.max(...selectedChainLengths);
+    const meanSelectedChainLength =
+      selectedChainLengths.length === 0
+        ? 0
+        : selectedChainLengths.reduce((sum, length) => sum + length, 0) / selectedChainLengths.length;
 
     return {
       riverMask,
@@ -173,9 +188,14 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
       plannedMajorRiverTileCount,
       candidateEndpointCount: candidateEndpoints.length,
       selectedChainCount,
+      selectedChainLengths: Uint16Array.from(selectedChainLengths),
+      longestSelectedChainLength,
+      meanSelectedChainLength,
       targetTileCount,
       targetMajorTileFraction,
       selectedEndpointDischargeFloor,
+      nonProjectableMajorTileCount,
+      unselectedEligibleMajorTileCount: Math.max(0, eligibleTileCount - selectedTileCount),
     } as const;
   },
 });

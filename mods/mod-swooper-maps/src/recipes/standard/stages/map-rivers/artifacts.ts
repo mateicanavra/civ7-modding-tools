@@ -1,5 +1,18 @@
 import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
 
+const NavigableRiverSignalStatusSchema = Type.Union(
+  [
+    Type.Literal("normal-signal"),
+    Type.Literal("arid-low-signal"),
+    Type.Literal("closed-basin-low-signal"),
+    Type.Literal("terrain-constrained-low-signal"),
+  ],
+  {
+    description:
+      "Typed interpretation of why a map may legitimately project few navigable rivers, instead of silently treating low projection as either pass or failure.",
+  }
+);
+
 const MapRiversEngineProjectionArtifactSchema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
@@ -127,6 +140,18 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
       minimum: 0,
       description: "Count of selected navigable-river chains.",
     }),
+    selectedChainLengths: TypedArraySchemas.u16({
+      description:
+        "Length in tiles of each selected navigable-river chain, ordered by endpoint selection priority.",
+    }),
+    longestSelectedChainLength: Type.Integer({
+      minimum: 0,
+      description: "Length in tiles of the longest selected navigable-river chain.",
+    }),
+    meanSelectedChainLength: Type.Number({
+      minimum: 0,
+      description: "Mean selected navigable-river chain length in tiles.",
+    }),
     targetTileCount: Type.Integer({
       minimum: 0,
       description: "Policy target count for navigable-river terrain tiles.",
@@ -139,6 +164,47 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
     selectedEndpointDischargeFloor: Type.Number({
       minimum: 0,
       description: "Discharge floor imposed on candidate major-river endpoints for this selection run.",
+    }),
+    nonProjectableMajorTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of Hydrology major-river intent tiles blocked from navigable projection by engine terrain/materialization constraints.",
+    }),
+    unselectedEligibleMajorTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of eligible major-river truth tiles not selected into the navigable subset.",
+    }),
+    selectedEligibleMajorTileFraction: Type.Number({
+      minimum: 0,
+      maximum: 1,
+      description: "Share of eligible major-river truth tiles selected as navigable terrain.",
+    }),
+    majorDurableTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of planned major-river truth tiles with at least intermittent flow permanence in Hydrology metrics.",
+    }),
+    majorPerennialTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of planned major-river truth tiles with perennial flow permanence in Hydrology metrics.",
+    }),
+    majorClosedBasinTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of planned major-river truth tiles whose Hydrology mouth classification is closed-basin.",
+    }),
+    majorOceanMouthTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of planned major-river truth tiles whose Hydrology mouth classification reaches ocean or spill-path ocean/lake exits.",
+    }),
+    projectionSignalStatus: NavigableRiverSignalStatusSchema,
+    projectionSignalReason: Type.String({
+      minLength: 1,
+      description:
+        "Human-readable explanation for the current navigable-river signal classification.",
     }),
   },
   {

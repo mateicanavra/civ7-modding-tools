@@ -5,12 +5,103 @@ import {
   defineVizMeta,
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
+import {
+  HYDROLOGY_FLOW_INTERMITTENT,
+  HYDROLOGY_FLOW_PERENNIAL,
+  HYDROLOGY_MOUTH_CLOSED_BASIN,
+  HYDROLOGY_MOUTH_OCEAN,
+  HYDROLOGY_MOUTH_SPILL_PATH,
+} from "@mapgen/domain/hydrology/river-network-metrics.js";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 import { mapRiversArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
+
+type ProjectionSignalStatus =
+  | "normal-signal"
+  | "arid-low-signal"
+  | "closed-basin-low-signal"
+  | "terrain-constrained-low-signal";
+
+function classifyProjectionSignal(input: {
+  plannedMajorRiverTileCount: number;
+  eligibleTileCount: number;
+  selectedChainCount: number;
+  longestSelectedChainLength: number;
+  selectedEligibleMajorTileFraction: number;
+  majorDurableTileCount: number;
+  majorPerennialTileCount: number;
+  majorClosedBasinTileCount: number;
+  majorOceanMouthTileCount: number;
+  nonProjectableMajorTileCount: number;
+}): { status: ProjectionSignalStatus; reason: string } {
+  const {
+    plannedMajorRiverTileCount,
+    eligibleTileCount,
+    selectedChainCount,
+    longestSelectedChainLength,
+    selectedEligibleMajorTileFraction,
+    majorDurableTileCount,
+    majorPerennialTileCount,
+    majorClosedBasinTileCount,
+    majorOceanMouthTileCount,
+    nonProjectableMajorTileCount,
+  } = input;
+
+  if (plannedMajorRiverTileCount === 0) {
+    if (majorClosedBasinTileCount > 0 && majorOceanMouthTileCount === 0) {
+      return {
+        status: "closed-basin-low-signal",
+        reason:
+          "Hydrology major-river truth is dominated by closed-basin termini, so low visible navigable projection is expected.",
+      };
+    }
+    return {
+      status: "arid-low-signal",
+      reason:
+        "Hydrology major-river truth has low durable/perennial support at this map scale, so few visible navigable trunks are expected.",
+    };
+  }
+
+  if (
+    plannedMajorRiverTileCount < 32 &&
+    selectedEligibleMajorTileFraction <= 0.3 &&
+    longestSelectedChainLength <= 4
+  ) {
+    return {
+      status: "arid-low-signal",
+      reason:
+        "Hydrology major-river truth exists, but the projected navigable subset stays sparse and short at this compact arid scale.",
+    };
+  }
+
+  if (
+    eligibleTileCount <= Math.max(1, Math.floor(plannedMajorRiverTileCount * 0.35)) &&
+    nonProjectableMajorTileCount > eligibleTileCount &&
+    selectedChainCount <= 2
+  ) {
+    return {
+      status: "terrain-constrained-low-signal",
+      reason:
+        "Engine terrain/materialization constraints block most major-river truth from navigable projection on this run.",
+    };
+  }
+
+  if (majorPerennialTileCount === 0 && plannedMajorRiverTileCount < 48) {
+    return {
+      status: "arid-low-signal",
+      reason:
+        "Hydrology major-river truth is present, but it remains non-perennial at this scale so visible navigable coverage is legitimately sparse.",
+    };
+  }
+
+  return {
+    status: "normal-signal",
+    reason: "Hydrology major-river truth provides a normal Earthlike navigable-river signal.",
+  };
+}
 
 export default createStep(PlotRiversStepContract, {
   artifacts: implementArtifacts(
@@ -27,6 +118,7 @@ export default createStep(PlotRiversStepContract, {
   ),
   run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
+    const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
     const { width, height } = context.dimensions;
 
     // Map-stage visualization: hydrology river fields are inputs to engine river modeling (not 1:1 with engine results).
@@ -114,6 +206,39 @@ export default createStep(PlotRiversStepContract, {
       config.selectNavigableRiverTerrain
     );
 
+    let majorDurableTileCount = 0;
+    let majorPerennialTileCount = 0;
+    let majorClosedBasinTileCount = 0;
+    let majorOceanMouthTileCount = 0;
+    for (let i = 0; i < size; i++) {
+      if (materialized.plannedMajorRiverMask[i] !== 1) continue;
+      const permanence = riverNetworkMetrics.flowPermanenceProxy[i] ?? 0;
+      if (permanence >= HYDROLOGY_FLOW_INTERMITTENT) majorDurableTileCount += 1;
+      if (permanence >= HYDROLOGY_FLOW_PERENNIAL) majorPerennialTileCount += 1;
+      const mouthType = riverNetworkMetrics.mouthType[i] ?? 0;
+      if (mouthType === HYDROLOGY_MOUTH_CLOSED_BASIN) majorClosedBasinTileCount += 1;
+      if (mouthType === HYDROLOGY_MOUTH_OCEAN || mouthType === HYDROLOGY_MOUTH_SPILL_PATH) {
+        majorOceanMouthTileCount += 1;
+      }
+    }
+
+    const selectedEligibleMajorTileFraction =
+      materialized.eligibleTileCount === 0
+        ? 0
+        : materialized.selectedTileCount / materialized.eligibleTileCount;
+    const projectionSignal = classifyProjectionSignal({
+      plannedMajorRiverTileCount: materialized.plannedMajorRiverTileCount,
+      eligibleTileCount: materialized.eligibleTileCount,
+      selectedChainCount: materialized.selectedChainCount,
+      longestSelectedChainLength: materialized.longestSelectedChainLength,
+      selectedEligibleMajorTileFraction,
+      majorDurableTileCount,
+      majorPerennialTileCount,
+      majorClosedBasinTileCount,
+      majorOceanMouthTileCount,
+      nonProjectableMajorTileCount: materialized.nonProjectableMajorTileCount,
+    });
+
     deps.artifacts.projectedNavigableRivers.publish(context, {
       width,
       height,
@@ -126,9 +251,21 @@ export default createStep(PlotRiversStepContract, {
       plannedMajorRiverTileCount: materialized.plannedMajorRiverTileCount,
       candidateEndpointCount: materialized.candidateEndpointCount,
       selectedChainCount: materialized.selectedChainCount,
+      selectedChainLengths: materialized.selectedChainLengths,
+      longestSelectedChainLength: materialized.longestSelectedChainLength,
+      meanSelectedChainLength: materialized.meanSelectedChainLength,
       targetTileCount: materialized.targetTileCount,
       targetMajorTileFraction: materialized.targetMajorTileFraction,
       selectedEndpointDischargeFloor: materialized.selectedEndpointDischargeFloor,
+      nonProjectableMajorTileCount: materialized.nonProjectableMajorTileCount,
+      unselectedEligibleMajorTileCount: materialized.unselectedEligibleMajorTileCount,
+      selectedEligibleMajorTileFraction,
+      majorDurableTileCount,
+      majorPerennialTileCount,
+      majorClosedBasinTileCount,
+      majorOceanMouthTileCount,
+      projectionSignalStatus: projectionSignal.status,
+      projectionSignalReason: projectionSignal.reason,
     });
 
     context.trace.event(() => ({
@@ -143,6 +280,18 @@ export default createStep(PlotRiversStepContract, {
       plannedMajorRiverTileCount: materialized.plannedMajorRiverTileCount,
       targetMajorTileFraction: materialized.targetMajorTileFraction,
       selectedEndpointDischargeFloor: materialized.selectedEndpointDischargeFloor,
+      selectedChainLengths: Array.from(materialized.selectedChainLengths),
+      longestSelectedChainLength: materialized.longestSelectedChainLength,
+      meanSelectedChainLength: Number(materialized.meanSelectedChainLength.toFixed(2)),
+      nonProjectableMajorTileCount: materialized.nonProjectableMajorTileCount,
+      unselectedEligibleMajorTileCount: materialized.unselectedEligibleMajorTileCount,
+      selectedEligibleMajorTileFraction: Number(selectedEligibleMajorTileFraction.toFixed(4)),
+      majorDurableTileCount,
+      majorPerennialTileCount,
+      majorClosedBasinTileCount,
+      majorOceanMouthTileCount,
+      projectionSignalStatus: projectionSignal.status,
+      projectionSignalReason: projectionSignal.reason,
     }));
 
     logStats("PRE-RIVERS");

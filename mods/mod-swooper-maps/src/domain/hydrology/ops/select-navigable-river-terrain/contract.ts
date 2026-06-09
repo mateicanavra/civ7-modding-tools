@@ -60,6 +60,18 @@ const SelectNavigableRiverTerrainOutputSchema = Type.Object(
       minimum: 0,
       description: "Count of selected navigable-river chains.",
     }),
+    selectedChainLengths: TypedArraySchemas.u16({
+      description:
+        "Length in tiles of each selected navigable-river chain, ordered by endpoint selection priority.",
+    }),
+    longestSelectedChainLength: Type.Integer({
+      minimum: 0,
+      description: "Length in tiles of the longest selected navigable-river chain.",
+    }),
+    meanSelectedChainLength: Type.Number({
+      minimum: 0,
+      description: "Mean selected navigable-river chain length in tiles.",
+    }),
     targetTileCount: Type.Integer({
       minimum: 0,
       description: "Selection target in tiles for the navigable-river subset.",
@@ -72,6 +84,16 @@ const SelectNavigableRiverTerrainOutputSchema = Type.Object(
     selectedEndpointDischargeFloor: Type.Number({
       minimum: 0,
       description: "Discharge floor imposed on candidate major-river endpoints for this selection run.",
+    }),
+    nonProjectableMajorTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of Hydrology major-river intent tiles blocked from navigable projection by engine terrain/materialization constraints.",
+    }),
+    unselectedEligibleMajorTileCount: Type.Integer({
+      minimum: 0,
+      description:
+        "Count of eligible major-river truth tiles that were not selected into the navigable subset.",
     }),
   },
   {

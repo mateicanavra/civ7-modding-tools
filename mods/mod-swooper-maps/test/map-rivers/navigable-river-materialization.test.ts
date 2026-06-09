@@ -49,8 +49,13 @@ describe("select navigable river terrain", () => {
 
     expect(result.selectedTileCount).toBe(3);
     expect(result.selectedChainCount).toBe(1);
+    expect(Array.from(result.selectedChainLengths)).toEqual([3]);
+    expect(result.longestSelectedChainLength).toBe(3);
+    expect(result.meanSelectedChainLength).toBe(3);
     expect(result.plannedMinorRiverTileCount).toBe(0);
     expect(result.plannedMajorRiverTileCount).toBe(8);
+    expect(result.nonProjectableMajorTileCount).toBe(0);
+    expect(result.unselectedEligibleMajorTileCount).toBe(5);
     expect(result.candidateEndpointCount).toBe(2);
     for (let x = 0; x < 5; x++) expect(result.riverMask[x]).toBe(0);
     for (let x = 0; x < 3; x++) expect(result.riverMask[width + x]).toBe(1);
@@ -92,7 +97,12 @@ describe("select navigable river terrain", () => {
     expect(result.candidateEndpointCount).toBe(3);
     expect(result.targetTileCount).toBe(4);
     expect(result.selectedChainCount).toBe(2);
+    expect(Array.from(result.selectedChainLengths)).toEqual([2, 2]);
+    expect(result.longestSelectedChainLength).toBe(2);
+    expect(result.meanSelectedChainLength).toBe(2);
     expect(result.selectedTileCount).toBe(4);
+    expect(result.nonProjectableMajorTileCount).toBe(0);
+    expect(result.unselectedEligibleMajorTileCount).toBe(2);
     expect(Array.from(result.riverMask)).toEqual([
       1, 1,
       1, 1,
@@ -135,6 +145,11 @@ describe("select navigable river terrain", () => {
     expect(result.plannedMajorRiverTileCount).toBe(0);
     expect(result.eligibleTileCount).toBe(0);
     expect(result.selectedTileCount).toBe(0);
+    expect(Array.from(result.selectedChainLengths)).toEqual([]);
+    expect(result.longestSelectedChainLength).toBe(0);
+    expect(result.meanSelectedChainLength).toBe(0);
+    expect(result.nonProjectableMajorTileCount).toBe(0);
+    expect(result.unselectedEligibleMajorTileCount).toBe(0);
     expect([...result.riverMask]).toEqual(new Array(size).fill(0));
     for (let x = 0; x < width; x++) expect(result.plannedMinorRiverMask[x]).toBe(1);
   });

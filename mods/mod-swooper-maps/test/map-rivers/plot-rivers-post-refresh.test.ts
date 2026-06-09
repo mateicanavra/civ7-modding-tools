@@ -118,6 +118,16 @@ describe("map-rivers/plot-rivers", () => {
       sinkMask: new Uint8Array(size),
       outletMask: new Uint8Array(size),
     });
+    context.artifacts.set("artifact:hydrology.riverNetworkMetrics", {
+      upstreamArea: Int32Array.from({ length: size }, (_value, index) => (index < width ? index + 1 : 1)),
+      streamOrderProxy: new Uint8Array(size),
+      mouthType: Uint8Array.from({ length: size }, (_value, index) => (index < width ? 1 : 0)),
+      slopeClass: new Uint8Array(size),
+      flowPermanenceProxy: Uint8Array.from(
+        { length: size },
+        (_value, index) => (index < width ? 3 : index < width * 2 ? 2 : 0)
+      ),
+    });
 
     expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);
 
@@ -150,6 +160,14 @@ describe("map-rivers/plot-rivers", () => {
           plannedMajorRiverMask?: Uint8Array;
           plannedMinorRiverTileCount?: number;
           plannedMajorRiverTileCount?: number;
+          selectedChainLengths?: Uint16Array;
+          longestSelectedChainLength?: number;
+          meanSelectedChainLength?: number;
+          selectedEligibleMajorTileFraction?: number;
+          majorDurableTileCount?: number;
+          majorPerennialTileCount?: number;
+          projectionSignalStatus?: string;
+          projectionSignalReason?: string;
         }
       | undefined;
     const readback = context.artifacts.get(mapRiversArtifacts.engineProjectionRivers.id) as
@@ -169,6 +187,14 @@ describe("map-rivers/plot-rivers", () => {
     expect(projected?.plannedMinorRiverMask?.[width]).toBe(1);
     expect(projected?.plannedMajorRiverTileCount).toBe(5);
     expect(projected?.plannedMinorRiverTileCount).toBe(5);
+    expect(Array.from(projected?.selectedChainLengths ?? [])).toEqual([5]);
+    expect(projected?.longestSelectedChainLength).toBe(5);
+    expect(projected?.meanSelectedChainLength).toBe(5);
+    expect(projected?.selectedEligibleMajorTileFraction).toBe(1);
+    expect(projected?.majorDurableTileCount).toBe(5);
+    expect(projected?.majorPerennialTileCount).toBe(5);
+    expect(projected?.projectionSignalStatus).toBe("normal-signal");
+    expect(projected?.projectionSignalReason).toContain("normal Earthlike");
     expect(readback?.riverMask?.[0]).toBe(1);
     expect(readback?.riverMask?.[width]).toBe(0);
     expect(readback?.engineNavigableRiverMask?.[0]).toBe(0);

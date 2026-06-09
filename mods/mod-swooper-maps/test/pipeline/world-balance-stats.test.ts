@@ -247,6 +247,34 @@ function expectNavigableRiverDiagnostics(stats: WorldBalanceStats): void {
     stats.projectedNavigableRiverChains,
     `${stats.label} selected navigable river chains`
   ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverLongestChain,
+    `${stats.label} navigable river longest chain`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverMeanChainLength,
+    `${stats.label} navigable river mean chain length`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverSelectedEligibleFraction,
+    `${stats.label} selected eligible major fraction`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverNonProjectableMajorTiles,
+    `${stats.label} blocked major-river count`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.projectedNavigableRiverUnselectedEligibleMajorTiles,
+    `${stats.label} unselected eligible major count`
+  ).toBeGreaterThanOrEqual(0);
+  expect(
+    stats.projectedNavigableRiverMajorDurableTiles,
+    `${stats.label} durable major-river truth`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverSignalStatus,
+    `${stats.label} projection signal status`
+  ).toBeDefined();
   expect(stats.terrainNavigableRiverTiles, `${stats.label} terrain river readback`).toBe(
     stats.projectedNavigableRiverTiles
   );
@@ -387,9 +415,51 @@ describe("world balance stats", () => {
         `${stats.label} navigable projection should fill the target budget on strong-signal Earthlike seeds`
       ).toBeGreaterThanOrEqual(stats.projectedNavigableRiverTargetTiles);
       expect(
-        stats.projectedNavigableRiverTiles,
-        `${stats.label} navigable projection should contain multi-tile trunks, not only singleton outlet selections`
-      ).toBeGreaterThan(stats.projectedNavigableRiverChains);
+        stats.projectedNavigableRiverSignalStatus,
+        `${stats.label} Earthlike seeds should remain normal-signal`
+      ).toBe("normal-signal");
+      expect(
+        stats.projectedNavigableRiverSelectedEligibleFraction,
+        `${stats.label} navigable projection should keep a coherent minority of eligible major truth`
+      ).toBeGreaterThanOrEqual(0.12);
+      expect(
+        stats.projectedNavigableRiverChains,
+        `${stats.label} navigable projection should expose multiple coherent trunks`
+      ).toBeGreaterThanOrEqual(2);
+      expect(
+        stats.projectedNavigableRiverLongestChain,
+        `${stats.label} navigable projection should expose multi-tile trunks, not singleton outlets`
+      ).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("classifies compact arid controls as low-signal rather than projection failures", {
+    timeout: 30_000,
+  }, () => {
+    const seeds = [42, 99];
+
+    for (const seed of seeds) {
+      const stats = collectWorldBalanceStats({
+        label: `swooper-desert-mountains:low-signal:${seed}`,
+        config: recipeConfig(swooperDesertMountainsRaw),
+        seed,
+        width: 24,
+        height: 16,
+      });
+
+      expectNavigableRiverDiagnostics(stats);
+      expect(
+        stats.projectedNavigableRiverSignalStatus,
+        `${stats.label} compact desert controls should be typed as low-signal`
+      ).toBe("arid-low-signal");
+      expect(
+        stats.projectedNavigableRiverLongestChain,
+        `${stats.label} compact desert controls should not project long navigable trunks`
+      ).toBeLessThanOrEqual(4);
+      expect(
+        stats.projectedNavigableRiverSelectedEligibleFraction,
+        `${stats.label} compact desert controls should keep a sparse visible navigable subset`
+      ).toBeLessThanOrEqual(0.3);
     }
   });
 

@@ -20,7 +20,10 @@ const PlotRiversStepContract = defineStep({
     MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
   ],
   artifacts: {
-    requires: [hydrologyHydrographyArtifacts.hydrography],
+    requires: [
+      hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.riverNetworkMetrics,
+    ],
     provides: [
       mapRiversArtifacts.projectedNavigableRivers,
       mapRiversArtifacts.engineProjectionRivers,

@@ -127,6 +127,16 @@ export type WorldBalanceStats = Readonly<{
   projectedNavigableRiverTargetTiles: number;
   projectedNavigableRiverEligibleTiles: number;
   projectedNavigableRiverChains: number;
+  projectedNavigableRiverLongestChain: number;
+  projectedNavigableRiverMeanChainLength: number;
+  projectedNavigableRiverSelectedEligibleFraction: number;
+  projectedNavigableRiverNonProjectableMajorTiles: number;
+  projectedNavigableRiverUnselectedEligibleMajorTiles: number;
+  projectedNavigableRiverMajorDurableTiles: number;
+  projectedNavigableRiverMajorPerennialTiles: number;
+  projectedNavigableRiverMajorClosedBasinTiles: number;
+  projectedNavigableRiverMajorOceanMouthTiles: number;
+  projectedNavigableRiverSignalStatus: string;
   projectedPlannedMajorRiverTiles: number;
   terrainNavigableRiverTiles: number;
   riverProjectionMismatchCount: number;
@@ -674,6 +684,16 @@ export function collectWorldBalanceStats(args: Readonly<{
         targetTileCount?: number;
         eligibleTileCount?: number;
         selectedChainCount?: number;
+        longestSelectedChainLength?: number;
+        meanSelectedChainLength?: number;
+        selectedEligibleMajorTileFraction?: number;
+        nonProjectableMajorTileCount?: number;
+        unselectedEligibleMajorTileCount?: number;
+        majorDurableTileCount?: number;
+        majorPerennialTileCount?: number;
+        majorClosedBasinTileCount?: number;
+        majorOceanMouthTileCount?: number;
+        projectionSignalStatus?: string;
         plannedMajorRiverTileCount?: number;
       }
     | undefined;
@@ -1256,6 +1276,26 @@ export function collectWorldBalanceStats(args: Readonly<{
     projectedNavigableRiverTargetTiles: projectedNavigableRivers.targetTileCount ?? 0,
     projectedNavigableRiverEligibleTiles: projectedNavigableRivers.eligibleTileCount ?? 0,
     projectedNavigableRiverChains: projectedNavigableRivers.selectedChainCount ?? 0,
+    projectedNavigableRiverLongestChain: projectedNavigableRivers.longestSelectedChainLength ?? 0,
+    projectedNavigableRiverMeanChainLength: roundMetric(
+      projectedNavigableRivers.meanSelectedChainLength ?? 0
+    ),
+    projectedNavigableRiverSelectedEligibleFraction: roundMetric(
+      projectedNavigableRivers.selectedEligibleMajorTileFraction ?? 0
+    ),
+    projectedNavigableRiverNonProjectableMajorTiles:
+      projectedNavigableRivers.nonProjectableMajorTileCount ?? 0,
+    projectedNavigableRiverUnselectedEligibleMajorTiles:
+      projectedNavigableRivers.unselectedEligibleMajorTileCount ?? 0,
+    projectedNavigableRiverMajorDurableTiles: projectedNavigableRivers.majorDurableTileCount ?? 0,
+    projectedNavigableRiverMajorPerennialTiles:
+      projectedNavigableRivers.majorPerennialTileCount ?? 0,
+    projectedNavigableRiverMajorClosedBasinTiles:
+      projectedNavigableRivers.majorClosedBasinTileCount ?? 0,
+    projectedNavigableRiverMajorOceanMouthTiles:
+      projectedNavigableRivers.majorOceanMouthTileCount ?? 0,
+    projectedNavigableRiverSignalStatus:
+      projectedNavigableRivers.projectionSignalStatus ?? "normal-signal",
     projectedPlannedMajorRiverTiles: projectedNavigableRivers.plannedMajorRiverTileCount ?? 0,
     terrainNavigableRiverTiles: engineRiverProjection.terrainNavigableRiverTileCount ?? 0,
     riverProjectionMismatchCount: engineRiverProjection.riverMismatchCount ?? 0,
