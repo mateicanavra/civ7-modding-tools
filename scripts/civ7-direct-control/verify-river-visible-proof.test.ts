@@ -11,7 +11,7 @@ import {
 } from "./verify-river-visible-proof";
 
 describe("river visible proof verifier", () => {
-  test("passes only when screenshot, camera target, verdict, and same-run river samples are bound", () => {
+  test("passes only when exact authorship, direct-control camera, closure-capable capture, and same-run river samples are bound", () => {
     const temp = mkdtempSync(join(tmpdir(), "river-visible-proof-"));
     try {
       const screenshot = join(temp, "river.png");
@@ -20,18 +20,19 @@ describe("river visible proof verifier", () => {
       const output = buildRiverVisibleProofOutput({
         parity: parityProof({
           terrainReadbackStatus: "pass",
+          exactAuthorshipStatus: "pass",
           projected: [0, 1, 0, 1],
           liveTerrain: [0, 1, 0, 1],
           liveNavigable: [0, 1, 0, 0],
         }),
         screenshots: [screenshot],
         cameraTarget: { x: 1, y: 0 },
-        cameraSource: "manual",
+        cameraSource: "direct-control",
         cameraZoom: "river-review",
         visibilityState: "revealed",
         verdict: "visible",
         verdictSource: "manual-review",
-        captureMode: "manual-file",
+        captureMode: "direct-control",
         now: () => new Date("2026-06-09T20:00:00.000Z"),
       });
 
@@ -46,14 +47,14 @@ describe("river visible proof verifier", () => {
       });
       expect(output.proof.camera).toMatchObject({
         status: "bound-to-sample",
-        source: "manual",
+        source: "direct-control",
         target: { x: 1, y: 0 },
       });
       expect(output.proof.screenshots.status).toBe("bound");
       expect(output.proof.screenshots.items[0]).toMatchObject({
         path: screenshot,
         sha256: createHash("sha256").update("fake image bytes").digest("hex"),
-        captureMode: "manual-file",
+        captureMode: "direct-control",
         target: { x: 1, y: 0 },
       });
       expect(output.proof.visualVerdict).toEqual({
@@ -74,14 +75,16 @@ describe("river visible proof verifier", () => {
       const output = buildRiverVisibleProofOutput({
         parity: parityProof({
           terrainReadbackStatus: "pass",
+          exactAuthorshipStatus: "pass",
           projected: [0, 1, 0, 0],
           liveTerrain: [0, 1, 0, 0],
         }),
         screenshots: [screenshot],
         cameraTarget: { x: 0, y: 1 },
-        cameraSource: "manual",
+        cameraSource: "direct-control",
         verdict: "visible",
         verdictSource: "manual-review",
+        captureMode: "direct-control",
       });
 
       expect(output.ok).toBe(false);
@@ -100,13 +103,15 @@ describe("river visible proof verifier", () => {
     const output = buildRiverVisibleProofOutput({
       parity: parityProof({
         terrainReadbackStatus: "pass",
+        exactAuthorshipStatus: "pass",
         projected: [0, 0, 0, 0],
         liveTerrain: [0, 0, 0, 0],
       }),
       cameraTarget: { x: 1, y: 0 },
-      cameraSource: "manual",
+      cameraSource: "direct-control",
       verdict: "visible",
       verdictSource: "manual-review",
+      captureMode: "direct-control",
     });
 
     expect(output.ok).toBe(false);
@@ -119,18 +124,98 @@ describe("river visible proof verifier", () => {
     const output = buildRiverVisibleProofOutput({
       parity: parityProof({
         terrainReadbackStatus: "fail",
+        exactAuthorshipStatus: "pass",
         projected: [0, 1, 0, 0],
         liveTerrain: [0, 1, 0, 0],
       }),
       cameraTarget: { x: 1, y: 0 },
-      cameraSource: "manual",
+      cameraSource: "direct-control",
       verdict: "visible",
       verdictSource: "manual-review",
+      captureMode: "direct-control",
     });
 
     expect(output.ok).toBe(false);
     expect(output.status).toBe("blocked");
     expect(output.proof.blockedBy).toContain("final-surface-parity.terrain-readback-pass");
+  });
+
+  test("blocks when exact authorship did not pass", () => {
+    const output = buildRiverVisibleProofOutput({
+      parity: parityProof({
+        terrainReadbackStatus: "pass",
+        exactAuthorshipStatus: "fail",
+        projected: [0, 1, 0, 0],
+        liveTerrain: [0, 1, 0, 0],
+      }),
+      cameraTarget: { x: 1, y: 0 },
+      cameraSource: "direct-control",
+      verdict: "visible",
+      verdictSource: "manual-review",
+      captureMode: "direct-control",
+    });
+
+    expect(output.ok).toBe(false);
+    expect(output.status).toBe("blocked");
+    expect(output.proof.blockedBy).toContain("final-surface-parity.exact-authorship-pass");
+  });
+
+  test("blocks manual-file capture as non-closure evidence", () => {
+    const temp = mkdtempSync(join(tmpdir(), "river-visible-proof-"));
+    try {
+      const screenshot = join(temp, "manual.png");
+      writeFileSync(screenshot, "manual bytes");
+
+      const output = buildRiverVisibleProofOutput({
+        parity: parityProof({
+          terrainReadbackStatus: "pass",
+          exactAuthorshipStatus: "pass",
+          projected: [0, 1, 0, 0],
+          liveTerrain: [0, 1, 0, 0],
+        }),
+        screenshots: [screenshot],
+        cameraTarget: { x: 1, y: 0 },
+        cameraSource: "direct-control",
+        verdict: "visible",
+        verdictSource: "manual-review",
+        captureMode: "manual-file",
+      });
+
+      expect(output.ok).toBe(false);
+      expect(output.status).toBe("blocked");
+      expect(output.proof.blockedBy).toContain("river-visible.capture-mode-closure-capable");
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  });
+
+  test("blocks non-direct-control camera sources for closure-capable proof", () => {
+    const temp = mkdtempSync(join(tmpdir(), "river-visible-proof-"));
+    try {
+      const screenshot = join(temp, "fallback.png");
+      writeFileSync(screenshot, "fallback bytes");
+
+      const output = buildRiverVisibleProofOutput({
+        parity: parityProof({
+          terrainReadbackStatus: "pass",
+          exactAuthorshipStatus: "pass",
+          projected: [0, 1, 0, 0],
+          liveTerrain: [0, 1, 0, 0],
+        }),
+        screenshots: [screenshot],
+        cameraTarget: { x: 1, y: 0 },
+        cameraSource: "manual",
+        verdict: "visible",
+        verdictSource: "manual-review",
+        captureMode: "os-fallback",
+      });
+
+      expect(output.ok).toBe(false);
+      expect(output.status).toBe("blocked");
+      expect(output.proof.blockedBy).toContain("river-visible.camera-source-direct-control");
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
   });
 
   test("extracts proof from verifier output envelopes", () => {
@@ -147,6 +232,7 @@ describe("river visible proof verifier", () => {
 
 function parityProof(args: {
   terrainReadbackStatus: "pass" | "fail" | "unresolved" | "out-of-scope";
+  exactAuthorshipStatus?: "pass" | "fail" | "unresolved" | "out-of-scope";
   projected: ReadonlyArray<number | null>;
   liveTerrain: ReadonlyArray<number | null>;
   liveNavigable?: ReadonlyArray<number | null>;
@@ -202,7 +288,7 @@ function parityProof(args: {
       claims: {
         "exact-authorship": {
           label: "exact-authorship",
-          status: "pass",
+          status: args.exactAuthorshipStatus ?? "pass",
           reason: "test",
           evidenceLinks: [],
         },

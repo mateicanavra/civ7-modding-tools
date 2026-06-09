@@ -16,6 +16,14 @@ The visible proof runner emits one packet with:
 The runner may use OS screenshot only as a labeled fallback. Direct-control
 should own runtime map/camera operations.
 
+Closure-capable `civ-rendered` proof also requires:
+
+- `exact-authorship=pass` for the same run before visible proof can pass;
+- direct-control camera targeting/state capture, even when screenshot capture
+  falls back to OS capture;
+- manual-file screenshots to remain debug-only evidence rather than
+  closure-capable proof.
+
 ## Review Lanes
 
 - Direct-control runtime API review.

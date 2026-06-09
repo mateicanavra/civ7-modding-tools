@@ -102,13 +102,13 @@ const usage = `Usage:
 Required for a passing visible proof:
   --parity-proof <path>          Final-surface parity proof JSON
   --camera-target <x,y>          Camera target that must be one sampled live river tile
-  --camera-source <source>       direct-control | manual | unknown
+  --camera-source <source>       direct-control | manual | unknown (passing proof requires direct-control)
   --screenshot <path>            Repeatable screenshot artifact path
   --verdict <verdict>            visible | not-visible | obscured | inconclusive
   --verdict-source <source>      manual-review | classifier
 
 Options:
-  --capture-mode <mode>          direct-control | os-fallback | manual-file (default: manual-file)
+  --capture-mode <mode>          direct-control | os-fallback | manual-file (default: manual-file; passing proof rejects manual-file)
   --camera-zoom <value>          Captured zoom label/value
   --visibility-state <value>     Captured visibility/layer/graphics state
   --max-samples <n>              Number of live river tiles to sample (default: 8)
@@ -249,15 +249,24 @@ export function buildRiverVisibleProofOutput(args: {
   if (args.parity.proofClaims.claims["terrain-readback"]?.status !== "pass") {
     blockedBy.add("final-surface-parity.terrain-readback-pass");
   }
+  if (args.parity.proofClaims.claims["exact-authorship"]?.status !== "pass") {
+    blockedBy.add("final-surface-parity.exact-authorship-pass");
+  }
   if (allLiveSamples.length === 0) blockedBy.add("river-visible.live-terrain-river-samples");
   if (target === undefined) blockedBy.add("river-visible.camera-target");
   if (target !== undefined && !targetIsSampled) blockedBy.add("river-visible.camera-target-sampled-live-river");
   if (args.cameraSource === undefined || args.cameraSource === "unknown") {
     blockedBy.add("river-visible.camera-source");
   }
+  if (args.cameraSource !== "direct-control") {
+    blockedBy.add("river-visible.camera-source-direct-control");
+  }
   if (screenshots.length === 0) blockedBy.add("river-visible.screenshot");
   if (missingPaths.length > 0) blockedBy.add("river-visible.screenshot-file");
   if (screenshots.length > 0 && !targetIsSampled) blockedBy.add("river-visible.screenshot-target");
+  if ((args.captureMode ?? "manual-file") === "manual-file") {
+    blockedBy.add("river-visible.capture-mode-closure-capable");
+  }
   if (args.verdict === undefined) blockedBy.add("river-visible.verdict");
   if (args.verdictSource === undefined) blockedBy.add("river-visible.verdict-source");
 
