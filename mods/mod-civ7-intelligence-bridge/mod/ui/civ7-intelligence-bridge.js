@@ -27083,20 +27083,6 @@ function isRecord(value2) {
   return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
 }
 
-// ../../packages/civ7-direct-control/dist/chunk-35BKMMLH.js
-function progressionTargetProofPostcondition(result) {
-  return {
-    classification: result.postcondition.classification,
-    reason: result.postcondition.reason,
-    outcome: progressionTargetProofOutcome(result.postcondition),
-    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
-    noRepeatAfterUnverified: true
-  };
-}
-function progressionTargetProofOutcome(postcondition) {
-  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
-}
-
 // ../../packages/civ7-direct-control/dist/chunk-H6VSHXDZ.js
 function progressionPlayerChoiceProofPostcondition(result) {
   return {
@@ -27111,7 +27097,21 @@ function progressionPlayerChoiceProofOutcome(postcondition) {
   return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
 }
 
-// ../../packages/civ7-direct-control/dist/chunk-CVJ5ZYJP.js
+// ../../packages/civ7-direct-control/dist/chunk-35BKMMLH.js
+function progressionTargetProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: progressionTargetProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function progressionTargetProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
+}
+
+// ../../packages/civ7-direct-control/dist/chunk-PVXD7MSE.js
 function turnCompletionProofPostcondition(result, proofBoundary) {
   const classification = turnCompletionPostconditionClassification(result);
   if (proofBoundary === "pending-runtime-proof") {
@@ -27179,7 +27179,7 @@ function turnCompletionPostconditionReason(classification) {
     case "turn-advanced":
       return "The turn advanced after the turn completion send.";
     case "turn-complete-sent":
-      return "GameContext reports that turn completion was sent; wait for a fresh turn/read before sending again.";
+      return "GameContext reports that turn completion was sent; wait for fresh turn evidence before another mutation.";
     case "already-complete":
       return "GameContext reported turn completion before and after the send; do not repeat without fresh turn evidence.";
     case "no-state-change":
@@ -27262,7 +27262,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-FQTQS3NB.js
+// ../../packages/civ7-control-orpc/dist/chunk-CQ4KG2XM.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -33068,7 +33068,7 @@ function priorityItems(input) {
       priority: 10,
       kind: "clean-read",
       summary: "no HUD, ready-unit, ready-city, or battlefield priority surfaced",
-      reason: "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before sending.",
+      reason: "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before mutation.",
       blocking: false,
       nextStep: {
         kind: "end-turn",
@@ -33211,7 +33211,7 @@ function staleUnitCommandPriority(nextDecision) {
     return {
       kind: "hud:unit-command",
       summary: "COMMAND_UNITS closeout candidate needs validator-backed review",
-      reason: "Official command-units evidence exposes an enabled unit command candidate; validate it before any send.",
+      reason: "Official command-units evidence exposes an enabled unit command candidate; validate it before mutation.",
       nextStep: {
         kind: "validate-unit-command",
         source: "notification",
@@ -33465,6 +33465,35 @@ function hasDoNotRepeatNextStep(output) {
 function isRecord2(value2) {
   return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
 }
+var Civ7ControllerMutationProofSchema = typebox_exports.Object(
+  {
+    lifecycle: typebox_exports.Object(
+      {
+        source: typebox_exports.Literal("controller-runtime"),
+        status: typebox_exports.Literal("game-controller-ready")
+      },
+      { additionalProperties: false }
+    ),
+    localPlayer: typebox_exports.Object(
+      {
+        source: typebox_exports.Literal("GameContext.localPlayerID"),
+        playerId: typebox_exports.Integer({ minimum: 0, maximum: 255 })
+      },
+      { additionalProperties: false }
+    ),
+    hotseat: typebox_exports.Object(
+      {
+        source: typebox_exports.Literal("controller-runtime"),
+        status: typebox_exports.Literal("single-local-player")
+      },
+      { additionalProperties: false }
+    )
+  },
+  { additionalProperties: false }
+);
+function isCiv7ControllerMutationProof(proof) {
+  return value_exports.Check(Civ7ControllerMutationProofSchema, proof);
+}
 var civ7MutationReadinessMiddleware = civ7ControlOrpcImplementer.middleware(async ({ context: context5, errors, next, path, procedure }) => {
   const procedureKey = civ7MutationProcedureKey(procedure["~orpc"].meta, path);
   const status = await context5.directControl.getCiv7PlayableStatus(
@@ -33479,7 +33508,7 @@ var civ7MutationReadinessMiddleware = civ7ControlOrpcImplementer.middleware(asyn
       }
     });
   });
-  if (!status.playable && !context5.controller?.supportedMutationProcedures?.includes(procedureKey)) {
+  if (!status.playable && !civ7ControllerMutationReadinessBypass(context5, procedureKey)) {
     throw errors.MUTATION_READINESS_REQUIRED({
       data: {
         procedureKey,
@@ -33493,6 +33522,9 @@ var civ7MutationReadinessMiddleware = civ7ControlOrpcImplementer.middleware(asyn
   }
   return next();
 });
+function civ7ControllerMutationReadinessBypass(context5, procedureKey) {
+  return context5.controller?.supportedMutationProcedures?.includes(procedureKey) === true && isCiv7ControllerMutationProof(context5.controllerProof);
+}
 function civ7ControlOrpcMutationProcedure(procedure) {
   return procedure.use(civ7MutationReadinessMiddleware).use(civ7MutationProofBoundaryMiddleware);
 }
@@ -34395,8 +34427,8 @@ function notificationQueueResult(view) {
     nextSteps: schedule2.map((item) => item.nextStep).filter((item) => item != null),
     notes: [
       "Read-only notification queue scheduler; it does not dismiss notifications or send player/unit/city operations.",
-      "Informational dismissal candidates require summary and context review plus the specialized validator-backed dismissal request before any send.",
-      "Operation steps are templates. Re-read live inputs and use the specialized validator-backed command before sending."
+      "Informational dismissal candidates require summary and context review plus item-scoped validator-backed dismissal.",
+      "Operation steps are templates. Re-read live inputs and validate against the current surface before mutating."
     ]
   };
 }
@@ -34458,7 +34490,7 @@ function notificationQueueDismissResult(input) {
       {
         kind: "inspect-notification",
         source: "notifications.queue.dismiss.request",
-        label: "Inspect candidate notifications before sending dismissals."
+        label: "Inspect selected notification evidence before any repeat attempt."
       }
     ],
     notes: [
@@ -34526,7 +34558,7 @@ function dispositionFor(item) {
     return "reviewed-dismissal-candidate";
   }
   if (item.category === "unit-command") return "inspect-ready-unit";
-  if (item.operationFamily || item.cli) return "operate-with-live-inputs";
+  if (item.operationFamily) return "operate-with-live-inputs";
   if (item.category === "notification" || item.category === "blocking-notification") {
     return "inspect-handler";
   }
@@ -34590,7 +34622,7 @@ function guardrailsFor(item, disposition, requiredInputs) {
     guardrails.push("Use the reported location as tactical context, not as proof of a valid operation target.");
   }
   if (disposition === "operate-with-live-inputs") {
-    guardrails.push("Validate with the specialized command before sending; this schedule does not prove the args.");
+    guardrails.push("Validate against the current domain surface; this schedule does not prove the args.");
   }
   if (disposition === "inspect-handler") {
     guardrails.push("Do not dismiss unclassified notifications in bulk.");
@@ -34624,7 +34656,7 @@ function nextStepFor(item, disposition, operationFamily, operationType) {
     return {
       kind: operationFamily === "city-command" ? "inspect-ready-city" : "validate-operation",
       source: "notifications.queue.current",
-      label: "Read the specialized current surface and validator evidence before any send.",
+      label: "Read current domain evidence and validation before mutating.",
       parameters: baseParameters
     };
   }
@@ -34987,7 +35019,7 @@ function progressionDashboardNextSteps(dashboard) {
     steps.push({
       kind: "inspect-progression-choice",
       source: "progression.dashboard.current",
-      label: "Inspect available technology, culture, attribute, or tradition choices before sending a progression mutation."
+      label: "Inspect available technology, culture, attribute, or tradition choices before mutating progression."
     });
   }
   if (dashboard.victories.rows.length > 0) {
@@ -35077,15 +35109,15 @@ function progressionTraditionsResult(_input, view) {
     traditions,
     omitted: [
       {
-        path: "directControl.cliCommandSuggestions",
-        reason: "CLI command strings are caller presentation, not progression service output."
+        path: "presentation.commandSuggestions",
+        reason: "Command-string suggestions are caller presentation, not progression service output."
       },
       {
-        path: "tradition.actionHints[].cli",
-        reason: "Tradition action hints are projected as semantic action descriptors with parameters."
+        path: "presentation.actionDirections",
+        reason: "Action directions are projected as semantic descriptors with parameters."
       },
       {
-        path: "tradition.actionHints[].validation",
+        path: "runtime.validationProbe",
         reason: "Validation probe details remain low-level runtime evidence; service rows expose validationSuccess."
       }
     ],
@@ -35168,107 +35200,6 @@ function validationSuccess(validation) {
   const value2 = probe14.value;
   return value2 && typeof value2 === "object" && "Success" in value2 ? value2.Success === true : null;
 }
-var progressionTechnologyTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
-  civ7ControlOrpcImplementer.progression.technology.target.request
-).effect(function* ({
-  context: context5,
-  errors,
-  input
-}) {
-  const kind = "technology";
-  const source2 = "progression.technology.target.request";
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const localPlayerId = await readLocalPlayerId7(context5);
-      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
-      const result = await requestProgressionTarget(kind, requestInput, context5);
-      return progressionTargetResult(source2, requestInput, result);
-    },
-    catch: () => errors.PROGRESSION_TARGET_UNAVAILABLE({
-      data: {
-        procedureKey: source2,
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-var progressionCultureTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
-  civ7ControlOrpcImplementer.progression.culture.target.request
-).effect(function* ({
-  context: context5,
-  errors,
-  input
-}) {
-  const kind = "culture";
-  const source2 = "progression.culture.target.request";
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const localPlayerId = await readLocalPlayerId7(context5);
-      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
-      const result = await requestProgressionTarget(kind, requestInput, context5);
-      return progressionTargetResult(source2, requestInput, result);
-    },
-    catch: () => errors.PROGRESSION_TARGET_UNAVAILABLE({
-      data: {
-        procedureKey: source2,
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-async function readLocalPlayerId7(context5) {
-  const view = await context5.directControl.getCiv7PlayNotificationView(
-    context5.endpointDefaults
-  );
-  return view.localPlayerId;
-}
-function progressionTargetRuntimeInput(input, localPlayerId) {
-  return {
-    playerId: localPlayerId,
-    node: input.node
-  };
-}
-async function requestProgressionTarget(kind, input, context5) {
-  if (kind === "technology") {
-    return context5.directControl.requestCiv7TechnologyTarget(
-      input,
-      context5.endpointDefaults
-    );
-  }
-  return context5.directControl.requestCiv7CultureTarget(
-    input,
-    context5.endpointDefaults
-  );
-}
-function progressionTargetResult(source2, input, result) {
-  const projection = civ7CloseoutMutationProjection({
-    sent: result.sent,
-    postcondition: progressionTargetProofPostcondition(result),
-    missing: {
-      classification: "missing-postcondition",
-      reason: "The progression target request result did not include explicit postcondition evidence.",
-      outcome: result.sent ? "unknown" : "not-sent"
-    },
-    source: source2,
-    inspectKind: "inspect-progression-target",
-    inspectLabel: "Inspect current progression target state before attempting another target request.",
-    doNotRepeatLabel: "Do not repeat this progression target request until fresh progression target evidence is read."
-  });
-  return {
-    playerId: result.playerId,
-    node: input.node,
-    sent: result.sent,
-    status: projection.status,
-    validation: {
-      beforeValid: result.beforeValidation.valid,
-      afterValid: result.afterValidation.valid
-    },
-    postcondition: projection.postcondition,
-    nextSteps: projection.nextSteps
-  };
-}
 var progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.progression.attribute.purchase.request
 ).effect(function* ({
@@ -35279,7 +35210,7 @@ var progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProced
   const source2 = "progression.attribute.purchase.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId8(context5);
+      const localPlayerId = await readLocalPlayerId7(context5);
       const requestInput = {
         playerId: localPlayerId,
         node: input.node
@@ -35308,7 +35239,7 @@ var progressionAttributeReviewRequestProcedure = civ7ControlOrpcMutationProcedur
   const source2 = "progression.attribute.review.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId8(context5);
+      const localPlayerId = await readLocalPlayerId7(context5);
       const requestInput = { playerId: localPlayerId };
       const result = await context5.directControl.requestCiv7AttributeReviewCloseout(
         requestInput,
@@ -35335,7 +35266,7 @@ var progressionTraditionChangeRequestProcedure = civ7ControlOrpcMutationProcedur
   const source2 = "progression.tradition.change.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId8(context5);
+      const localPlayerId = await readLocalPlayerId7(context5);
       const requestInput = {
         playerId: localPlayerId,
         traditionType: input.traditionType,
@@ -35365,7 +35296,7 @@ var progressionTraditionReviewRequestProcedure = civ7ControlOrpcMutationProcedur
   const source2 = "progression.tradition.review.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId8(context5);
+      const localPlayerId = await readLocalPlayerId7(context5);
       const requestInput = { playerId: localPlayerId };
       const result = await context5.directControl.requestCiv7TraditionReviewCloseout(
         requestInput,
@@ -35382,7 +35313,7 @@ var progressionTraditionReviewRequestProcedure = civ7ControlOrpcMutationProcedur
     })
   });
 });
-async function readLocalPlayerId8(context5) {
+async function readLocalPlayerId7(context5) {
   const view = await context5.directControl.getCiv7PlayNotificationView(
     context5.endpointDefaults
   );
@@ -35433,6 +35364,107 @@ function progressionPlayerChoiceResult(source2, input, result) {
     return base;
   }
   throw new Error("invalid progression player-choice projection");
+}
+var progressionTechnologyTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.technology.target.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const kind = "technology";
+  const source2 = "progression.technology.target.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId8(context5);
+      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
+      const result = await requestProgressionTarget(kind, requestInput, context5);
+      return progressionTargetResult(source2, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_TARGET_UNAVAILABLE({
+      data: {
+        procedureKey: source2,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionCultureTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.culture.target.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const kind = "culture";
+  const source2 = "progression.culture.target.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId8(context5);
+      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
+      const result = await requestProgressionTarget(kind, requestInput, context5);
+      return progressionTargetResult(source2, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_TARGET_UNAVAILABLE({
+      data: {
+        procedureKey: source2,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+async function readLocalPlayerId8(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
+function progressionTargetRuntimeInput(input, localPlayerId) {
+  return {
+    playerId: localPlayerId,
+    node: input.node
+  };
+}
+async function requestProgressionTarget(kind, input, context5) {
+  if (kind === "technology") {
+    return context5.directControl.requestCiv7TechnologyTarget(
+      input,
+      context5.endpointDefaults
+    );
+  }
+  return context5.directControl.requestCiv7CultureTarget(
+    input,
+    context5.endpointDefaults
+  );
+}
+function progressionTargetResult(source2, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: progressionTargetProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The progression target request result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source: source2,
+    inspectKind: "inspect-progression-target",
+    inspectLabel: "Inspect current progression target state before attempting another target request.",
+    doNotRepeatLabel: "Do not repeat this progression target request until fresh progression target evidence is read."
+  });
+  return {
+    playerId: result.playerId,
+    node: input.node,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
 }
 var progressionRouter = {
   dashboard: {
@@ -35788,7 +35820,7 @@ function civilianRouteTriageResult({
     notes: [
       "Read-only civilian route triage. It does not move, found, buy, or reserve routes.",
       "Settlement recommendations are site hints, not movement orders.",
-      "Use validator-backed unit procedures before any concrete movement or target send.",
+      "Use validator-backed unit procedures before moving or targeting.",
       "Relationship labels stay relationship-unproven unless official diplomatic evidence proves more."
     ],
     nextSteps
@@ -35871,7 +35903,7 @@ function triageNextSteps({
   }, {
     kind: "validate-unit-action",
     source: "strategy.civilianRouteTriage",
-    label: "Use unit action validation before any movement or target send.",
+    label: "Use unit action validation before moving or targeting.",
     parameters: { destination: destination ?? void 0 }
   });
   return nextSteps;
@@ -36141,7 +36173,7 @@ function formationNextSteps({
   nextSteps.push({
     kind: "validate-unit-action",
     source: "strategy.formationSnapshot",
-    label: posture === "screen-civilian" || posture === "stabilize-front" ? "Validate a screen or contact action before any unit send." : "Validate a concrete unit action before any unit send.",
+    label: posture === "screen-civilian" || posture === "stabilize-front" ? "Validate a screen or contact unit action." : "Validate a concrete unit action.",
     parameters: {}
   });
   return uniqueNextSteps(nextSteps);
@@ -36461,7 +36493,7 @@ function strategyNextSteps({
     nextSteps.push({
       kind: "validate-unit-action",
       source: "strategy.frontSummary",
-      label: "Use unit action validation before any movement or target send."
+      label: "Use unit action validation before moving or targeting."
     });
   }
   if (nextSteps.length === 0) {
@@ -36912,7 +36944,7 @@ function battlefieldNextSteps(input) {
     {
       kind: "validate-unit-action",
       source: "strategy.battlefieldScan",
-      label: "Use unit action validation before any movement or target send.",
+      label: "Use unit action validation before moving or targeting.",
       parameters: point.location ? { location: point.location } : {}
     }
   ];
@@ -36946,7 +36978,7 @@ function targetCandidateNextSteps(candidates) {
     {
       kind: "validate-unit-action",
       source: "strategy.targetCandidates",
-      label: "Use unit action validation before any movement or target send.",
+      label: "Use unit action validation before moving or targeting.",
       parameters: candidate2.approach.targetLocation ? { target: candidate2.approach.targetLocation } : {}
     }
   ];
@@ -36976,7 +37008,7 @@ function destinationNextSteps(input) {
     {
       kind: "validate-unit-action",
       source: "strategy.destinationAnalysis",
-      label: "Use unit action validation before any movement or target send.",
+      label: "Use unit action validation before moving or targeting.",
       parameters: { origin: input.origin ?? void 0, destination: input.destination }
     }
   ];
@@ -37431,153 +37463,6 @@ var unitRouter = {
     request: unitUpgradeRequestProcedure
   }
 };
-var worldCurrentProcedure = civ7ControlOrpcImplementer.world.current.effect(function* ({
-  context: context5,
-  errors
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => worldCurrentResult(
-      await context5.directControl.getCiv7PlayableStatus(
-        context5.endpointDefaults
-      )
-    ),
-    catch: () => errors.WORLD_CURRENT_UNAVAILABLE({
-      data: {
-        procedureKey: "world.current",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-function worldCurrentResult(status) {
-  const inGame = status.playable || status.readiness === "app-ui-game";
-  const snapshot = status.appUi.snapshot;
-  const map16 = inGame ? worldMapFacts(status) : emptyMapFacts();
-  const players = inGame ? worldPlayerFacts(status) : emptyPlayerFacts();
-  const nextSteps = worldCurrentNextSteps(status, map16);
-  return {
-    playable: status.playable,
-    readiness: status.readiness,
-    sourceStatus: {
-      playableStatus: "read",
-      game: inGame ? "read" : "skipped-not-playable",
-      map: inGame ? mapSourceStatus(snapshot.map) : "skipped-not-playable",
-      players: inGame ? playersSourceStatus(snapshot.players) : "skipped-not-playable"
-    },
-    turn: inGame ? {
-      current: status.appUi.snapshot.game.turn,
-      date: probeValue11(status.appUi.snapshot.game.turnDate),
-      age: status.appUi.snapshot.game.age,
-      maxTurns: status.appUi.snapshot.game.maxTurns,
-      hash: probeValue11(status.appUi.snapshot.game.hash)
-    } : {
-      current: null,
-      date: null,
-      age: null,
-      maxTurns: null,
-      hash: null
-    },
-    localPlayer: inGame ? {
-      playerId: playerIdOrNull(status.appUi.snapshot.gameContext.localPlayerID),
-      observerId: playerIdOrNull(
-        status.appUi.snapshot.gameContext.localObserverID
-      )
-    } : {
-      playerId: null,
-      observerId: null
-    },
-    map: map16,
-    players,
-    summary: {
-      hasMapDimensions: map16.width != null && map16.height != null && map16.width > 0 && map16.height > 0,
-      alivePlayerCount: players.alivePlayerIds.length,
-      nextStepCount: nextSteps.length
-    },
-    nextSteps
-  };
-}
-function worldMapFacts(status) {
-  const map16 = status.appUi.snapshot.map;
-  return {
-    width: probeValue11(map16.width),
-    height: probeValue11(map16.height),
-    plotCount: probeValue11(map16.plotCount),
-    mapSize: probeValue11(map16.mapSize),
-    randomSeed: probeValue11(map16.randomSeed)
-  };
-}
-function emptyMapFacts() {
-  return {
-    width: null,
-    height: null,
-    plotCount: null,
-    mapSize: null,
-    randomSeed: null
-  };
-}
-function worldPlayerFacts(status) {
-  const players = status.appUi.snapshot.players;
-  return {
-    maxPlayers: status.appUi.snapshot.players.maxPlayers,
-    alivePlayerIds: integerArrayOrEmpty(probeValue11(players.aliveIds)),
-    aliveHumanIds: integerArrayOrEmpty(probeValue11(players.aliveHumanIds)),
-    aliveHumanCount: probeValue11(players.numAliveHumans)
-  };
-}
-function emptyPlayerFacts() {
-  return {
-    maxPlayers: null,
-    alivePlayerIds: [],
-    aliveHumanIds: [],
-    aliveHumanCount: null
-  };
-}
-function worldCurrentNextSteps(status, map16) {
-  if (status.playable || status.readiness === "app-ui-game") {
-    if (map16.width == null || map16.height == null) {
-      return [{
-        kind: "inspect-world",
-        source: "world.current",
-        label: "World map facts are incomplete; inspect current world evidence before acting."
-      }];
-    }
-    return [{
-      kind: "read-attention",
-      source: "world.current",
-      label: "Read current attention before choosing support actions."
-    }];
-  }
-  if (status.readiness === "shell") {
-    return [{
-      kind: "enter-game",
-      source: "world.current",
-      label: "Enter an active game before reading current world facts."
-    }];
-  }
-  return [{
-    kind: "restore-readiness",
-    source: "world.current",
-    label: "Restore playable or game UI readiness before reading current world facts."
-  }];
-}
-function mapSourceStatus(map16) {
-  return map16.width.ok || map16.height.ok || map16.plotCount.ok || map16.mapSize.ok ? "read" : "skipped-unavailable";
-}
-function playersSourceStatus(players) {
-  return players.aliveIds.ok || players.aliveHumanIds.ok || players.numAliveHumans.ok ? "read" : "skipped-unavailable";
-}
-function probeValue11(probe14) {
-  return probe14.ok ? probe14.value : null;
-}
-function integerArrayOrEmpty(value2) {
-  return Array.isArray(value2) ? value2.filter(
-    (item) => Number.isInteger(item) && item >= 0
-  ) : [];
-}
-function playerIdOrNull(value2) {
-  return Number.isInteger(value2) && Number(value2) >= 0 ? Number(value2) : null;
-}
 var worldPlotReadProcedure = civ7ControlOrpcImplementer.world.plot.effect(function* ({
   context: context5,
   errors,
@@ -37652,7 +37537,7 @@ function worldGridReadResult(result) {
   return {
     sourceStatus: {
       grid: result.omitted > 0 ? "read-with-omissions" : probeErrorCount > 0 ? "read-with-probe-errors" : "read",
-      map: probeValue12(result.map?.width) != null || probeValue12(result.map?.height) != null ? "read" : "skipped-unavailable"
+      map: probeValue11(result.map?.width) != null || probeValue11(result.map?.height) != null ? "read" : "skipped-unavailable"
     },
     bounds: result.bounds ?? boundsFromPlots(plots),
     fields: Array.from(result.fields),
@@ -37660,8 +37545,8 @@ function worldGridReadResult(result) {
     omitted: result.omitted,
     hiddenInfoPolicy: result.hiddenInfoPolicy,
     map: {
-      width: probeValue12(result.map?.width),
-      height: probeValue12(result.map?.height)
+      width: probeValue11(result.map?.width),
+      height: probeValue11(result.map?.height)
     },
     plots,
     summary: {
@@ -37680,7 +37565,7 @@ function worldPlotSnapshot(plot) {
     location: {
       x: plot.location.x,
       y: plot.location.y,
-      index: probeValue12(plot.location.index)
+      index: probeValue11(plot.location.index)
     },
     visibility,
     hiddenInfoPolicy: plot.hiddenInfoPolicy,
@@ -37702,7 +37587,7 @@ function probeRecord(facts) {
     Object.entries(facts).map(([key, value2]) => [key, publicProbe(value2)])
   );
 }
-function probeValue12(probe14) {
+function probeValue11(probe14) {
   return probe14?.ok ? probe14.value : null;
 }
 function probeErrorCountForRecord(record) {
@@ -37722,6 +37607,153 @@ function boundsFromPlots(plots) {
     width: Math.max(...xs) - minX + 1,
     height: Math.max(...ys) - minY + 1
   };
+}
+var worldCurrentProcedure = civ7ControlOrpcImplementer.world.current.effect(function* ({
+  context: context5,
+  errors
+}) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => worldCurrentResult(
+      await context5.directControl.getCiv7PlayableStatus(
+        context5.endpointDefaults
+      )
+    ),
+    catch: () => errors.WORLD_CURRENT_UNAVAILABLE({
+      data: {
+        procedureKey: "world.current",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+function worldCurrentResult(status) {
+  const inGame = status.playable || status.readiness === "app-ui-game";
+  const snapshot = status.appUi.snapshot;
+  const map16 = inGame ? worldMapFacts(status) : emptyMapFacts();
+  const players = inGame ? worldPlayerFacts(status) : emptyPlayerFacts();
+  const nextSteps = worldCurrentNextSteps(status, map16);
+  return {
+    playable: status.playable,
+    readiness: status.readiness,
+    sourceStatus: {
+      playableStatus: "read",
+      game: inGame ? "read" : "skipped-not-playable",
+      map: inGame ? mapSourceStatus(snapshot.map) : "skipped-not-playable",
+      players: inGame ? playersSourceStatus(snapshot.players) : "skipped-not-playable"
+    },
+    turn: inGame ? {
+      current: status.appUi.snapshot.game.turn,
+      date: probeValue12(status.appUi.snapshot.game.turnDate),
+      age: status.appUi.snapshot.game.age,
+      maxTurns: status.appUi.snapshot.game.maxTurns,
+      hash: probeValue12(status.appUi.snapshot.game.hash)
+    } : {
+      current: null,
+      date: null,
+      age: null,
+      maxTurns: null,
+      hash: null
+    },
+    localPlayer: inGame ? {
+      playerId: playerIdOrNull(status.appUi.snapshot.gameContext.localPlayerID),
+      observerId: playerIdOrNull(
+        status.appUi.snapshot.gameContext.localObserverID
+      )
+    } : {
+      playerId: null,
+      observerId: null
+    },
+    map: map16,
+    players,
+    summary: {
+      hasMapDimensions: map16.width != null && map16.height != null && map16.width > 0 && map16.height > 0,
+      alivePlayerCount: players.alivePlayerIds.length,
+      nextStepCount: nextSteps.length
+    },
+    nextSteps
+  };
+}
+function worldMapFacts(status) {
+  const map16 = status.appUi.snapshot.map;
+  return {
+    width: probeValue12(map16.width),
+    height: probeValue12(map16.height),
+    plotCount: probeValue12(map16.plotCount),
+    mapSize: probeValue12(map16.mapSize),
+    randomSeed: probeValue12(map16.randomSeed)
+  };
+}
+function emptyMapFacts() {
+  return {
+    width: null,
+    height: null,
+    plotCount: null,
+    mapSize: null,
+    randomSeed: null
+  };
+}
+function worldPlayerFacts(status) {
+  const players = status.appUi.snapshot.players;
+  return {
+    maxPlayers: status.appUi.snapshot.players.maxPlayers,
+    alivePlayerIds: integerArrayOrEmpty(probeValue12(players.aliveIds)),
+    aliveHumanIds: integerArrayOrEmpty(probeValue12(players.aliveHumanIds)),
+    aliveHumanCount: probeValue12(players.numAliveHumans)
+  };
+}
+function emptyPlayerFacts() {
+  return {
+    maxPlayers: null,
+    alivePlayerIds: [],
+    aliveHumanIds: [],
+    aliveHumanCount: null
+  };
+}
+function worldCurrentNextSteps(status, map16) {
+  if (status.playable || status.readiness === "app-ui-game") {
+    if (map16.width == null || map16.height == null) {
+      return [{
+        kind: "inspect-world",
+        source: "world.current",
+        label: "World map facts are incomplete; inspect current world evidence before acting."
+      }];
+    }
+    return [{
+      kind: "read-attention",
+      source: "world.current",
+      label: "Read current attention before choosing support actions."
+    }];
+  }
+  if (status.readiness === "shell") {
+    return [{
+      kind: "enter-game",
+      source: "world.current",
+      label: "Enter an active game before reading current world facts."
+    }];
+  }
+  return [{
+    kind: "restore-readiness",
+    source: "world.current",
+    label: "Restore playable or game UI readiness before reading current world facts."
+  }];
+}
+function mapSourceStatus(map16) {
+  return map16.width.ok || map16.height.ok || map16.plotCount.ok || map16.mapSize.ok ? "read" : "skipped-unavailable";
+}
+function playersSourceStatus(players) {
+  return players.aliveIds.ok || players.aliveHumanIds.ok || players.numAliveHumans.ok ? "read" : "skipped-unavailable";
+}
+function probeValue12(probe14) {
+  return probe14.ok ? probe14.value : null;
+}
+function integerArrayOrEmpty(value2) {
+  return Array.isArray(value2) ? value2.filter(
+    (item) => Number.isInteger(item) && item >= 0
+  ) : [];
+}
+function playerIdOrNull(value2) {
+  return Number.isInteger(value2) && Number(value2) >= 0 ? Number(value2) : null;
 }
 var worldRouter = {
   current: worldCurrentProcedure,
@@ -37903,32 +37935,6 @@ var Civ7ProgressionTraditionChangeResultSchema2 = typeboxOutputSchemaFromContrac
 );
 var Civ7ProgressionTraditionReviewResultSchema2 = typeboxOutputSchemaFromContractProcedure(
   Civ7ControlOrpcContract.progression.tradition.review.request
-);
-var Civ7ControllerBridgeMutationProofSchema = typebox_exports.Object(
-  {
-    lifecycle: typebox_exports.Object(
-      {
-        source: typebox_exports.Literal("controller-runtime"),
-        status: typebox_exports.Literal("game-controller-ready")
-      },
-      { additionalProperties: false }
-    ),
-    localPlayer: typebox_exports.Object(
-      {
-        source: typebox_exports.Literal("GameContext.localPlayerID"),
-        playerId: typebox_exports.Integer({ minimum: 0, maximum: 255 })
-      },
-      { additionalProperties: false }
-    ),
-    hotseat: typebox_exports.Object(
-      {
-        source: typebox_exports.Literal("controller-runtime"),
-        status: typebox_exports.Literal("single-local-player")
-      },
-      { additionalProperties: false }
-    )
-  },
-  { additionalProperties: false }
 );
 var Civ7ControllerBridgeReadinessCurrentRequestSchema = typebox_exports.Object(
   {
@@ -38815,7 +38821,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
   }
 }
 function controllerProofFromContext(context5) {
-  if (!value_exports.Check(Civ7ControllerBridgeMutationProofSchema, context5.controllerProof)) {
+  if (!isCiv7ControllerMutationProof(context5.controllerProof)) {
     return null;
   }
   return context5.controllerProof;
@@ -39267,7 +39273,7 @@ async function getCiv7GameUiReadyUnitView(input = {}, target = globalThis) {
     notes: [
       "Game UI controller attention adapter treats UI.Player.getFirstReadyUnit as ready-unit evidence.",
       "Requested and selected unit ids are carried only as hints; they are not ready-unit proof.",
-      "Operation lists remain empty in game UI scope; use validator-backed mutation procedures before any send."
+      "Operation lists remain empty in game UI scope; validator-backed mutation procedures own action execution."
     ]
   };
 }
@@ -39296,7 +39302,7 @@ async function getCiv7GameUiReadyCityView(input = {}, target = globalThis) {
     notes: [
       "Game UI controller attention adapter treats end-turn-blocking notification target or population-ready city evidence as ready-city evidence.",
       "Requested, selected, and unrelated notification-target city ids are hints only; they are not ready-city proof.",
-      "Production and city-operation candidates remain empty in game UI scope; use validator-backed mutation procedures before any send."
+      "Production and city-operation candidates remain empty in game UI scope; validator-backed mutation procedures own action execution."
     ]
   };
 }
@@ -39394,7 +39400,6 @@ function gameUiNotificationSummary(id, target) {
 function notificationDecisionHint(input) {
   return {
     category: input.category,
-    cli: void 0,
     requiredInputs: [],
     commonActions: [],
     confidence: "official-ui",
@@ -39416,7 +39421,6 @@ function notificationDecisionQueueItem(notification) {
     location: notification.location,
     player: notification.player,
     category: notification.decision.category,
-    cli: notification.decision.cli,
     requiredInputs: notification.decision.requiredInputs,
     commonActions: notification.decision.commonActions,
     notes: notification.decision.notes
@@ -42560,7 +42564,7 @@ async function getCiv7GameUiTargetCandidates(input = {}, target = globalThis) {
     notes: [
       "Read-only game UI target-candidate runtime port for strategy.frontSummary.",
       "Other-owner candidates stay relationship-unproven until official relationship evidence proves more.",
-      "Use unit action validation before any movement or target send."
+      "Use unit action validation before moving or targeting."
     ]
   };
 }
@@ -42608,7 +42612,7 @@ async function getCiv7GameUiBattlefieldScan(input = {}, target = globalThis) {
     notes: [
       "Read-only game UI battlefield runtime port for strategy.frontSummary.",
       "Owner mismatch is contact evidence, not relationship proof.",
-      "Use unit action validation before any movement or target send."
+      "Use unit action validation before moving or targeting."
     ]
   };
 }
