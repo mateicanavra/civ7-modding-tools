@@ -7,6 +7,9 @@
 - [x] 1.3 Synthesize all six peer-agent findings into one design packet.
 - [x] 1.4 Define standalone OpenSpec execution changes for the full river/lake
   scope.
+- [x] 1.5 Publish the owner-corrected execution redesign packet tying the
+      remaining changes to physical expectations, knob posture, proof classes,
+      and closure criteria.
 
 ## 2. Validation
 

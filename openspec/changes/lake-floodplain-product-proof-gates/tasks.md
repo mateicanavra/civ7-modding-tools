@@ -11,6 +11,10 @@
 
 - [ ] 2.1 Define fixture, fast seed, Earthlike, holdout, contrast,
   floodplain-active, and arid/no-signal rows.
+  - The shared row taxonomy is now seeded in
+    `../swooper-earthlike-product-acceptance-proof/workstream/acceptance-matrix.md`;
+    lake/floodplain-specific closure still needs the exact row assignments and
+    reviewer dispositions.
 - [ ] 2.2 Require proof labels and reviewer disposition for each row.
 - [ ] 2.3 Update closure ledgers so no row can close from a narrower proof class.
 

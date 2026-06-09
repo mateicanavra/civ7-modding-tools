@@ -24,7 +24,7 @@ not create projection-only route connectors to satisfy visible-river budgets.
 
 #### Scenario: Routed major-river signal is too fragmented
 - **WHEN** Hydrology major-river intent contains no route-valid chain meeting the
-  configured length threshold
+  projection eligibility criteria
 - **THEN** `map-rivers` selects no such fallback chain
 - **AND** the selected-vs-target shortfall remains visible in projection metrics
 - **AND** downstream projection cannot count disconnected fallback corridors as

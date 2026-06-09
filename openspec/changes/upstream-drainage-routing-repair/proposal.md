@@ -43,7 +43,7 @@ inventing projection-only connectors or fallback corridors.
 
 - `mods/mod-swooper-maps/src/domain/hydrology/**`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/**`
-- `mods/mod-swooper-maps/src/recipes/standard/projection-policies/**`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/**`
 - Hydrology and map-rivers tests
 
 ## Forbidden Owners

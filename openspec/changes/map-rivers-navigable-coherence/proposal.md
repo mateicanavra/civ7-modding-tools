@@ -18,6 +18,9 @@ normal maps visibly rivered while preserving arid/no-signal exceptions.
 - Predeclare minimum visible terrain thresholds for normal wet Earthlike maps.
 - Keep `map-rivers.navigableRiverDensity` as the projection knob and preserve
   Hydrology `riverDensity` as physical classification.
+- Retire legacy length-threshold projection contracts and keep selector
+  internals inside the Hydrology-backed op/profile envelope unless product
+  authority later promotes a better public knob.
 
 ## Requires
 
@@ -33,7 +36,7 @@ normal maps visibly rivered while preserving arid/no-signal exceptions.
 ## Affected Owners
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/**`
-- `mods/mod-swooper-maps/src/recipes/standard/projection-policies/**`
+- `mods/mod-swooper-maps/src/domain/hydrology/**` for the consumed selection op
 - Map config fixtures and hydrology knobs tests
 
 ## Forbidden Owners

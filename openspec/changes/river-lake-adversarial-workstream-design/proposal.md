@@ -23,6 +23,9 @@ player-obvious rivers.
   stack that separates hydrology truth, projection plan, engine terrain
   readback, Civ river metadata, Studio display, in-game rendered visibility, and
   product acceptance.
+- Publish an owner-corrected execution redesign packet that re-grounds the
+  physical hydrology model, rejects broken legacy river projection contracts,
+  and sequences the remaining execution changes under explicit proof gates.
 - Define standalone OpenSpec execution slices for physical hydrology,
   architecture/DX hardening, runtime visual proof, and closure gates.
 - Declare proof labels and closure blockers before the execution goal starts.

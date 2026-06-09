@@ -4,10 +4,14 @@
   - River/floodplain seed inputs are recorded in
     `workstream/acceptance-seed-matrix.md`: `24681357`/`84x54` for existing
     river terrain proof, and `1018`/`84x54` as the floodplain-producing live
-    visibility proof. Full product matrix selection remains open.
+    visibility proof. `workstream/acceptance-matrix.md` now records the broader
+    required row classes, but holdout, contrast, no-signal, and rendered-visual
+    seeds remain open.
 - [ ] 1.2 Convert the takeover hard core into acceptance rows with proof fields.
   - Started in `workstream/acceptance-row-ledger.md` for the current
-    river/floodplain proof input. The full takeover hard core remains open.
+    river/floodplain proof input, and `workstream/acceptance-matrix.md` now
+    defines the full row taxonomy and required proof labels. Remaining rows are
+    still open.
 - [ ] 1.3 Link existing diagnostic gates and identify missing acceptance tests.
   - Added `test/pipeline/world-balance-stats.test.ts` coverage that keeps the
     `swooper-earthlike` `1018`/`84x54` floodplain-producing seed from silently
