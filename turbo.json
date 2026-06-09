@@ -10,10 +10,19 @@
       "outputs": ["dist/**", "mod/**", "src/maps/generated/**"]
     },
     "deploy": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "@mateicanavra/civ7-cli#build"],
+      "cache": false
+    },
+    "deploy:studio": {
+      "dependsOn": ["build", "@mateicanavra/civ7-cli#build"],
       "cache": false
     },
     "dev": { "cache": false, "persistent": true },
+    "@civ7/docs#dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
     "mapgen-studio#dev": {
       "cache": false,
       "persistent": true,

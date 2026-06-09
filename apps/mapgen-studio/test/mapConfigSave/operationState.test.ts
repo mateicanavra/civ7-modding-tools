@@ -28,7 +28,7 @@ describe("Map config save/deploy operation store", () => {
     });
     const complete = store.complete("studio-save-deploy-test", {
       path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
-      deploy: { command: "bun run --cwd mods/mod-swooper-maps deploy:studio" },
+      deploy: { command: "bunx turbo run deploy:studio --filter=mod-swooper-maps" },
     });
 
     expect(complete.status).toBe("complete");
