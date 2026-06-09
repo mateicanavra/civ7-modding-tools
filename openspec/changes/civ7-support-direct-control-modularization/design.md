@@ -40,10 +40,14 @@ strategy/playbook/cookbook generation from human play patterns, and possible
 static native-AI profile shaping. Live play remains routed through
 `@civ7/direct-control`; static native-AI shaping belongs to generated SQL/XML
 profiles. The in-game App UI companion direction is subordinate to
-direct-control: its future shape is a small versioned JSON-envelope RPC such as
-`globalThis.Civ7IntelligenceBridge.invoke(...)`, not a third control plane and
-not the external oRPC boundary. oRPC belongs outside the game at the external
-direct-control boundary. Raw `game exec` remains a diagnostic/probe substrate.
+direct-control: the accepted controller bridge substrate is an in-process
+oRPC/Effect callable router loaded through Civ7 native `scope="game"`
+`UIScripts`. `globalThis.Civ7IntelligenceBridge.invoke(...)` is serialized
+ingress through the existing tuner/App UI command boundary into that router, not
+a hand-maintained App UI method table or ad hoc JSON-envelope product API.
+oRPC/Effect is the shared substrate for the game controller, the external
+direct-control bridge, and future AI services. Raw `game exec` remains a
+diagnostic/probe substrate.
 
 A fuller in-game controller can reduce repeated transport verification only by
 moving proof into lifecycle certification, method allowlists, approval tokens,
@@ -270,7 +274,7 @@ Compatibility matrix seed:
 | Strategy/intelligence ingestion | AI-intelligence database/model layer | stable machine-readable turn state, observations, decisions, action outcomes, playbook/cookbook signals, and proof/telemetry references | do not depend on presentation strings or one-off CLI formatting |
 | Debug/internal service output | direct-control service/debug hierarchy | transport/session state, raw probes, route selection, closeout traces, correlation, and diagnostics | do not expose as normal player-agent or strategy-ingestion output |
 | Operation/proof telemetry | support proof and future procedure middleware | evidence class, approval, validation, send, postcondition, blocker deltas, and runtime observation links | do not claim live/runtime proof from local tests or target-thread evidence alone |
-| Effect/oRPC procedure cores | external direct-control boundary | typed atoms, schemas, context, middleware, approval gates, errors, correlation IDs, and telemetry hooks | do not implement transport-first raw command tunneling |
+| Effect/oRPC procedure cores | shared oRPC/Effect procedure/router substrate over stable direct-control atoms for the in-game controller router, external direct-control bridge, and future AI services | typed atoms, schemas, context, middleware, approval gates, errors, correlation IDs, and telemetry hooks | do not implement transport-first raw command tunneling |
 
 Future atom and envelope rows classify `playerScope`, `consumerClass`,
 `evidenceClass`, `procedureCandidate`, `normalCliProjection`, and
@@ -390,9 +394,11 @@ in-game observations each prove different claims. A later full in-game
 controller can reduce repeated transport verification only by moving proof to
 lifecycle certification, method allowlists, local-player identity, approval
 tokens, and semantic outcome checks; it does not remove proof. If that
-controller exposes an App UI companion bridge, the bridge remains a subordinate
-JSON-envelope endpoint such as `globalThis.Civ7IntelligenceBridge.invoke(...)`;
-oRPC remains outside the game at the external direct-control boundary.
+controller exposes an App UI companion bridge, `Civ7IntelligenceBridge.invoke`
+is only the serialized ingress adapter across the existing tuner/App UI command
+boundary into the in-process oRPC/Effect router. The router/runtime substrate,
+procedure definitions, schemas, policy context, approval checks, proof sinks,
+and future controller internals belong to the shared oRPC/Effect model.
 
 ### Lane H: Review / Gate Lane
 
