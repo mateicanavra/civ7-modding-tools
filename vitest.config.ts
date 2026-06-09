@@ -48,6 +48,9 @@ export default defineConfig({
       {
         extends: true,
         root: r('apps/mapgen-studio'),
+        // Mirror the app's `@/*` -> src alias (tsconfig + vite) so vitest resolves
+        // the shadcn `components/ui` -> `@/lib/utils` import chain.
+        resolve: { alias: { '@': r('apps/mapgen-studio/src') } },
         test: { name: 'mapgen-studio' }
       },
       {
