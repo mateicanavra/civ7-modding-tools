@@ -12,6 +12,7 @@ import {
   getCiv7TurnCompletionStatus,
   requestCiv7AttributePurchase,
   requestCiv7AttributeReviewCloseout,
+  requestCiv7AdvisorWarningViewed,
   requestCiv7TurnComplete,
   requestCiv7DiplomacyResponse,
   requestCiv7FirstMeetResponse,
@@ -37,6 +38,8 @@ import {
   Civ7DestinationAnalysisResultSchema,
   type Civ7AttributePurchaseInput,
   type Civ7AttributeReviewInput,
+  type Civ7AdvisorWarningViewedInput,
+  type Civ7AdvisorWarningViewedResult,
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
   type Civ7FirstMeetResponseInput,
@@ -96,6 +99,8 @@ import type {
 
 export type Civ7ControlOrpcNotificationDismissalResult =
   Civ7NotificationDismissalResult;
+export type Civ7ControlOrpcAdvisorWarningViewedResult =
+  Civ7AdvisorWarningViewedResult;
 export type Civ7ControlOrpcDiplomacyResponseResult =
   Civ7DiplomacyResponseResult;
 export type Civ7ControlOrpcFirstMeetResponseResult =
@@ -171,6 +176,10 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7NotificationDismissInput,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcNotificationDismissalResult>;
+  requestCiv7AdvisorWarningViewed(
+    input: Civ7AdvisorWarningViewedInput,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcAdvisorWarningViewedResult>;
   requestCiv7NarrativeChoice(
     input: Civ7NarrativeChoiceInput,
     options: Civ7DirectControlOptions | undefined,
@@ -307,6 +316,8 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7NotificationDismissal(input, options) as Promise<
       Civ7ControlOrpcNotificationDismissalResult
     >,
+  requestCiv7AdvisorWarningViewed: async (input, options) =>
+    requestCiv7AdvisorWarningViewed(input, options),
   requestCiv7NarrativeChoice: async (input, options) =>
     requestCiv7NarrativeChoice(input, options),
   requestCiv7DiplomacyResponse: async (input, options) =>

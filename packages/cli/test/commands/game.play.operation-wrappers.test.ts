@@ -1,83 +1,58 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayAdvisorWarning from '../../src/commands/game/play/advisor-warning';
-import GamePlayOperation from '../../src/commands/game/play/operation';
 import GamePlayResettleUnit from '../../src/commands/game/play/resettle-unit';
 import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play operation wrapper commands', () => {
-  test('validates friendlier operation family aliases without sending', async () => {
+  test('routes advisor warning acknowledgement through the notifications service', async () => {
     const server = await startOperationTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayAdvisorWarning.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
-      await runCommand(GamePlayOperation, [
+      await GamePlayAdvisorWarning.run([
         '--host',
         '127.0.0.1',
         '--port',
         String(port),
-        '--family',
-        'unit',
-        '--type',
-        'SKIP_TURN',
-        '--unit-id',
-        '{"owner":0,"id":65536,"type":26}',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('validateOperation("unit-operation"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('sends unit operations through direct-control once', async () => {
-    const server = await startOperationTunerServer();
-    try {
-      const { port } = server.address();
-      await runCommand(GamePlayOperation, [
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--family',
-        'unit',
-        '--type',
-        'SKIP_TURN',
-        '--unit-id',
-        '{"owner":0,"id":65536,"type":26}',
-        '--send',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('sendOperation("unit-operation"'))).toBe(true);
-      expect(server.received.filter((message) => message.includes('return JSON.stringify(sendOperation'))).toHaveLength(1);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps advisor warning acknowledgement as an player operation', async () => {
-    const server = await startOperationTunerServer();
-    try {
-      const { port } = server.address();
-      await runCommand(GamePlayAdvisorWarning, [
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
         '--target',
         '{"owner":0,"id":12345,"type":99}',
         '--send',
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          playerId: number;
+          target: { owner: number; id: number; type: number };
+          sent: boolean;
+          status: string;
+          postcondition: {
+            classification: string;
+            noRepeatAfterUnverified: boolean;
+          };
+        };
+      };
+      expect(payload.result).toMatchObject({
+        playerId: 0,
+        target: { owner: 0, id: 12345, type: 99 },
+        sent: true,
+        status: 'sent-unverified',
+        postcondition: {
+          classification: 'pending-runtime-proof',
+          noRepeatAfterUnverified: true,
+        },
+      });
+      expectSemanticAdvisorWarningOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('VIEWED_ADVISOR_WARNING'))).toBe(true);
       expect(server.received.some((message) => message.includes('"Target":{"owner":0,"id":12345,"type":99}'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -265,6 +240,9 @@ async function startOperationTunerServer(): Promise<OperationTunerServer> {
       if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
+      if (message.includes('GameContext.localPlayerID') && message.includes('decisionQueue')) {
+        return [JSON.stringify(playNotificationView())];
+      }
       if (message.includes('return JSON.stringify(validateOperation')) {
         return [JSON.stringify(operationValidation(message))];
       }
@@ -274,6 +252,40 @@ async function startOperationTunerServer(): Promise<OperationTunerServer> {
       return undefined;
     },
   });
+}
+
+function playNotificationView() {
+  return {
+    host: '127.0.0.1',
+    port: 0,
+    state: { id: '65535', name: 'App UI' },
+    localPlayerId: 0,
+    turn: { ok: true, value: 1 },
+    turnDate: { ok: true, value: '4000 BCE' },
+    loadingStateName: null,
+    blocker: { ok: true, value: 0 },
+    blockingNotificationId: { ok: true, value: { owner: 0, id: 12345, type: 99 } },
+    selectedUnitId: { ok: true, value: null },
+    selectedCityId: { ok: true, value: null },
+    firstReadyUnitId: { ok: true, value: null },
+    nextDecision: null,
+    hud: {
+      decisionQueue: [],
+      currentBlocker: null,
+      advisories: [],
+      units: [],
+      cities: [],
+      localPlayer: { ok: true, value: 0 },
+      selectedUnit: { ok: true, value: null },
+      selectedCity: { ok: true, value: null },
+      firstReadyUnit: { ok: true, value: null },
+    },
+    limits: {
+      maxNotifications: 25,
+      truncated: false,
+    },
+    notes: [],
+  };
 }
 
 function appUiSnapshot() {
@@ -444,6 +456,26 @@ function expectSemanticUnitRequestOmitsRawRuntimeDetails(result: unknown) {
   expect(serialized).not.toContain('"command"');
   expect(serialized).not.toContain('"operationType"');
   expect(serialized).not.toContain('"sendResult"');
+  expect(serialized).not.toContain('"result"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
+}
+
+function expectSemanticAdvisorWarningOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('CMD');
+  expect(serialized).not.toContain('sendOperation');
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operation"');
+  expect(serialized).not.toContain('"operationType"');
+  expect(serialized).not.toContain('VIEWED_ADVISOR_WARNING');
+  expect(serialized).not.toContain('"Target"');
   expect(serialized).not.toContain('"result"');
   expect(serialized).not.toContain('"verified"');
   expect(serialized).not.toContain('"before"');

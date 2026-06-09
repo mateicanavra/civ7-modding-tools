@@ -963,6 +963,15 @@ export {
   Civ7PlayNotificationViewResultSchema,
   getCiv7PlayNotificationView,
 } from "./play/notifications/view.js";
+export type {
+  Civ7AdvisorWarningViewedInput,
+  Civ7AdvisorWarningViewedPostcondition,
+  Civ7AdvisorWarningViewedPostconditionClassification,
+  Civ7AdvisorWarningViewedResult,
+} from "./play/notifications/advisor-warning-request.js";
+export {
+  requestCiv7AdvisorWarningViewed,
+} from "./play/notifications/advisor-warning-request.js";
 export {
   callCiv7PlayNotificationViewProcedure,
   Civ7PlayNotificationViewProcedureDescriptor,
@@ -996,7 +1005,14 @@ export {
 export {
   notificationDismissalProofOutcome,
   notificationDismissalProofPostcondition,
-} from "./proof/notification-dismissal-proof-policy";
+} from "./proof/notification-dismissal-proof-policy.js";
+export {
+  advisorWarningProofPostcondition,
+} from "./proof/advisor-warning-proof-policy.js";
+export type {
+  Civ7AdvisorWarningProofOutcome,
+  Civ7AdvisorWarningProofPostcondition,
+} from "./proof/advisor-warning-proof-policy.js";
 export {
   callCiv7NotificationDismissRequestProcedure,
   Civ7NotificationDismissRequestProcedureDescriptor,

@@ -219,6 +219,33 @@ export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7NotificationAdvisorWarningUnavailableErrorDataSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal(
+        "notifications.advisorWarning.viewed.request",
+      ),
+      source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorCorrelationProperties,
+    },
+    { additionalProperties: false },
+  );
+export type Civ7NotificationAdvisorWarningUnavailableErrorData = Static<
+  typeof Civ7NotificationAdvisorWarningUnavailableErrorDataSchema
+>;
+
+export class Civ7NotificationAdvisorWarningUnavailableError extends ORPCTaggedError(
+  "Civ7NotificationAdvisorWarningUnavailableError",
+  {
+    code: "NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE",
+    message: "Advisor warning viewed request failed.",
+    schema: toStandardSchema(
+      Civ7NotificationAdvisorWarningUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationQueueUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
@@ -663,6 +690,8 @@ export const civ7ControlOrpcErrorMap = {
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
+  NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE:
+    Civ7NotificationAdvisorWarningUnavailableError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   NOTIFICATION_QUEUE_UNAVAILABLE: Civ7NotificationQueueUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,

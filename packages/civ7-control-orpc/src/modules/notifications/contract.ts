@@ -21,6 +21,19 @@ const Civ7NotificationDismissInputStandardSchema = toStandardSchema(
   Civ7NotificationDismissInputSchema,
 );
 
+const Civ7NotificationAdvisorWarningViewedInputSchema = Type.Object(
+  {
+    target: Civ7ControlOrpcComponentIdSchema,
+  },
+  { additionalProperties: false },
+);
+export type Civ7NotificationAdvisorWarningViewedInput = Static<
+  typeof Civ7NotificationAdvisorWarningViewedInputSchema
+>;
+
+const Civ7NotificationAdvisorWarningViewedInputStandardSchema =
+  toStandardSchema(Civ7NotificationAdvisorWarningViewedInputSchema);
+
 const Civ7NotificationQueueInputSchema = Type.Object(
   {
     maxNotifications: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
@@ -120,6 +133,69 @@ export const Civ7NotificationDismissalNextStepSchema = Type.Object(
   },
   { additionalProperties: false },
 );
+
+const Civ7NotificationAdvisorWarningViewedStatusSchema = Type.Union([
+  Type.Literal("not-sent"),
+  Type.Literal("sent-unverified"),
+]);
+
+const Civ7NotificationAdvisorWarningViewedValidationSchema = Type.Object(
+  {
+    beforeValid: Type.Boolean(),
+    afterValid: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7NotificationAdvisorWarningViewedPostconditionSchema = Type.Object(
+  {
+    classification: Type.Union([
+      Type.Literal("not-sent"),
+      Type.Literal("pending-runtime-proof"),
+      Type.Literal("missing-postcondition"),
+    ]),
+    reason: Type.String(),
+    outcome: Type.Union([
+      Type.Literal("not-sent"),
+      Type.Literal("unknown"),
+    ]),
+    confidence: Type.Union([
+      Type.Literal("unverified"),
+      Type.Literal("pending-runtime-proof"),
+    ]),
+    confirmed: Type.Boolean(),
+    noRepeatAfterUnverified: Type.Boolean(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7NotificationAdvisorWarningViewedNextStepSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("do-not-repeat"),
+      Type.Literal("inspect-notification"),
+    ]),
+    source: Type.Literal("notifications.advisorWarning.viewed.request"),
+    label: Type.String(),
+  },
+  { additionalProperties: false },
+);
+
+const Civ7NotificationAdvisorWarningViewedResultSchema = Type.Object(
+  {
+    playerId: Type.Integer({ minimum: 0 }),
+    target: Civ7ControlOrpcComponentIdSchema,
+    sent: Type.Boolean(),
+    status: Civ7NotificationAdvisorWarningViewedStatusSchema,
+    validation: Civ7NotificationAdvisorWarningViewedValidationSchema,
+    postcondition: Civ7NotificationAdvisorWarningViewedPostconditionSchema,
+    nextSteps: Type.Array(Civ7NotificationAdvisorWarningViewedNextStepSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7NotificationAdvisorWarningViewedResult = Static<
+  typeof Civ7NotificationAdvisorWarningViewedResultSchema
+>;
 
 const Civ7NotificationQueueDispositionSchema = Type.Union([
   Type.Literal("operate-with-live-inputs"),
@@ -303,6 +379,8 @@ export type Civ7NotificationQueueDismissResult = Static<
 const Civ7NotificationDismissalResultStandardSchema = toStandardSchema(
   Civ7NotificationDismissalResultSchema,
 );
+const Civ7NotificationAdvisorWarningViewedResultStandardSchema =
+  toStandardSchema(Civ7NotificationAdvisorWarningViewedResultSchema);
 const Civ7NotificationQueueResultStandardSchema = toStandardSchema(
   Civ7NotificationQueueResultSchema,
 );
@@ -324,6 +402,24 @@ export const Civ7NotificationDismissalContract: Civ7NotificationDismissalContrac
     .meta({
       family: "notifications",
       procedureKey: "notifications.dismiss.request",
+      proofBoundary: "local-package-test",
+      risk: "mutation",
+    });
+
+type Civ7NotificationAdvisorWarningViewedContract = ContractProcedure<
+  typeof Civ7NotificationAdvisorWarningViewedInputStandardSchema,
+  typeof Civ7NotificationAdvisorWarningViewedResultStandardSchema,
+  Civ7ControlOrpcErrorMap,
+  Civ7ControlOrpcProcedureMeta
+>;
+
+const Civ7NotificationAdvisorWarningViewedContract:
+  Civ7NotificationAdvisorWarningViewedContract = civ7ControlOrpcContractBase
+    .input(Civ7NotificationAdvisorWarningViewedInputStandardSchema)
+    .output(Civ7NotificationAdvisorWarningViewedResultStandardSchema)
+    .meta({
+      family: "notifications",
+      procedureKey: "notifications.advisorWarning.viewed.request",
       proofBoundary: "local-package-test",
       risk: "mutation",
     });
@@ -365,6 +461,11 @@ const Civ7NotificationQueueDismissContract:
     });
 
 export type Civ7NotificationsContract = Readonly<{
+  advisorWarning: Readonly<{
+    viewed: Readonly<{
+      request: Civ7NotificationAdvisorWarningViewedContract;
+    }>;
+  }>;
   dismiss: Readonly<{
     request: Civ7NotificationDismissalContract;
   }>;
@@ -377,6 +478,11 @@ export type Civ7NotificationsContract = Readonly<{
 }>;
 
 export const Civ7NotificationsContract: Civ7NotificationsContract = {
+  advisorWarning: {
+    viewed: {
+      request: Civ7NotificationAdvisorWarningViewedContract,
+    },
+  },
   dismiss: {
     request: Civ7NotificationDismissalContract,
   },
