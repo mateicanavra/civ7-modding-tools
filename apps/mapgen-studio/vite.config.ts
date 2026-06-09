@@ -31,7 +31,6 @@ import {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
-import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
 import { loadCiv7SetupCatalog } from "./src/server/civ7Resources/catalog";
 import {
   RunInGameHttpError,
@@ -42,21 +41,18 @@ import { waitForCiv7MapgenLogFailure } from "./src/server/runInGame/logFailure";
 import {
   buildRunInGameExactAuthorshipProof,
   buildRunInGameSourceSnapshotProof,
-  fileContentMarkerProof,
   fileIdentity,
+  parseDeployTargetDir,
   parseSwooperMapgenLogProof,
-  runInGameMaterializationScriptUnresolvedLinks,
-  runInGameRequiredMaterializationMarkers,
 } from "./src/server/runInGame/proofIdentity";
 import { parseRunInGameSetupRequest } from "./src/server/runInGame/requestValidation";
 import {
   launchCiv7MacViaSteamWithRetries,
   shutdownCiv7MacProcess,
 } from "./src/server/runInGame/macosProcessRestart";
-import { buildSwooperMapsStudioDeployPlan } from "./src/server/mapConfigs/deploy";
+import { buildSwooperMapsStudioDeployCommand } from "./src/server/mapConfigs/deploy";
 import { createMapConfigSaveDeployOperationStore } from "./src/server/mapConfigs/operationState";
 import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValidation";
-import { isStudioServerRpcPath } from "./src/server/studioServer/rpcPath";
 import type { RunInGamePhase, RunInGameRequestStatus } from "./src/features/runInGame/status";
 import { buildLiveRuntimeStatusState } from "./src/features/liveRuntime/model";
 import { handleStudioCiv7ControlOrpcRequest } from "./src/server/civ7ControlOrpc";
@@ -200,72 +196,43 @@ async function restartCiv7ProcessViaSteam(): Promise<{
 }
 
 async function deploySwooperMaps(repoRoot: string): Promise<{
-  build: {
-    task: string;
-    stdout: string;
-    stderr: string;
-  };
-  targetDir: string;
-  modsDir: string;
-  filesCopied: number;
+  command: string;
+  stdout: string;
+  stderr: string;
 }> {
-  const plan = buildSwooperMapsStudioDeployPlan();
-  const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
+  const deploy = buildSwooperMapsStudioDeployCommand();
+  const { stdout, stderr } = await execFileAsync("bun", [...deploy.args], {
     cwd: repoRoot,
     timeout: DEPLOY_TIMEOUT_MS,
     maxBuffer: 16 * 1024 * 1024,
-    env: plan.env,
-  });
-  const modsDir = resolveModsDir().modsDir;
-  const deployed = deployMod({
-    inputDir: resolve(repoRoot, "mods/mod-swooper-maps/mod"),
-    modId: "mod-swooper-maps",
-    modsDir,
+    env: deploy.env,
   });
   return {
-    build: {
-      task: plan.buildTask,
-      stdout: tail(stdout),
-      stderr: tail(stderr),
-    },
-    targetDir: deployed.targetDir,
-    modsDir: deployed.modsDir,
-    filesCopied: deployed.filesCopied,
+    command: deploy.command,
+    stdout: tail(stdout),
+    stderr: tail(stderr),
   };
 }
 
 async function deploySwooperMapsForRun(repoRoot: string, requestId: string): Promise<{
-  build: {
-    task: string;
-    stdout: string;
-    stderr: string;
-  };
-  targetDir: string;
-  modsDir: string;
-  filesCopied: number;
+  command: string;
+  stdout: string;
+  stderr: string;
+  targetDir?: string;
 }> {
-  const plan = buildSwooperMapsStudioDeployPlan({ requestId });
-  const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
+  const deploy = buildSwooperMapsStudioDeployCommand({ requestId });
+  const { stdout, stderr } = await execFileAsync("bun", [...deploy.args], {
     cwd: repoRoot,
     timeout: DEPLOY_TIMEOUT_MS,
     maxBuffer: 16 * 1024 * 1024,
-    env: plan.env,
+    env: deploy.env,
   });
-  const modsDir = resolveModsDir().modsDir;
-  const deployed = deployMod({
-    inputDir: resolve(repoRoot, "mods/mod-swooper-maps/mod"),
-    modId: "mod-swooper-maps",
-    modsDir,
-  });
+  const targetDir = parseDeployTargetDir(stdout);
   return {
-    build: {
-      task: plan.buildTask,
-      stdout: tail(stdout),
-      stderr: tail(stderr),
-    },
-    targetDir: deployed.targetDir,
-    modsDir: deployed.modsDir,
-    filesCopied: deployed.filesCopied,
+    command: deploy.command,
+    stdout: tail(stdout),
+    stderr: tail(stderr),
+    ...(targetDir ? { targetDir } : {}),
   };
 }
 
@@ -275,10 +242,6 @@ async function optionalFileIdentity(args: {
   exposeAs?: "relative-to-repo" | "absolute";
 }) {
   return await fileIdentity(args).catch(() => undefined);
-}
-
-async function optionalFileContentMarkerProof(args: Parameters<typeof fileContentMarkerProof>[0]) {
-  return await fileContentMarkerProof(args).catch(() => undefined);
 }
 
 function generatedSourceScriptPath(repoRoot: string, id: string): string {
@@ -405,7 +368,10 @@ async function materializeRunInGameConfig(args: {
 async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage): Promise<Request> {
   const method = req.method ?? "GET";
   const host = (req.headers.host as string | undefined) ?? "localhost";
-  const path = req.url ?? "/";
+  // Connect's path-mounted middleware (`use("/rpc", …)`) STRIPS the mount prefix
+  // from `req.url`, but the oRPC handler matches against the full `/rpc/...` path
+  // (its `prefix`). Use `originalUrl` (the un-rewritten path) so the prefix matches.
+  const path = (req as { originalUrl?: string }).originalUrl ?? req.url ?? "/";
   const url = `http://${host}${path}`;
   const headers = new Headers();
   for (const [key, value] of Object.entries(req.headers)) {
@@ -702,50 +668,13 @@ async function runRunInGameStartEngine(body: {
             exposeAs: "absolute",
           })
         : undefined;
-      const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
-        requestId,
-        configHash,
-        envelopeHash,
-      });
-      const localModScriptContent = await optionalFileContentMarkerProof({
-        repoRoot,
-        path: localModScriptPath(repoRoot, id),
-        markers: requiredMaterializationMarkers,
-      });
-      const deployedModScriptContent = deploy.targetDir
-        ? await optionalFileContentMarkerProof({
-            repoRoot,
-            path: deployedModScriptPath(deploy.targetDir, id),
-            exposeAs: "absolute",
-            markers: requiredMaterializationMarkers,
-          })
-        : undefined;
       materialization = {
         ...materialization,
         ...(generatedSourceScript ? { generatedSourceScript } : {}),
         ...(localModScript ? { localModScript } : {}),
         ...(deployedModScript ? { deployedModScript } : {}),
-        ...(localModScriptContent ? { localModScriptContent } : {}),
-        ...(deployedModScriptContent ? { deployedModScriptContent } : {}),
       };
       runInGameOperations.update(requestId, { phase, materialization });
-      const materializationScriptUnresolvedLinks = runInGameMaterializationScriptUnresolvedLinks({
-        materialization,
-        localModScript,
-        deployedModScript,
-        requiredMarkers: requiredMaterializationMarkers,
-      });
-      if (materializationScriptUnresolvedLinks.length > 0) {
-        throw new RunInGameHttpError(
-          500,
-          "Generated Swooper map script is missing current materialization proof markers",
-          {
-            code: "map-script-materialization-proof-missing",
-            unresolvedLinks: materializationScriptUnresolvedLinks,
-            materialization,
-          },
-        );
-      }
 
       let processRestart;
       if (restartCivProcess) {
@@ -1466,11 +1395,7 @@ export default defineConfig(({ command }) => ({
         // divergence). The standalone Bun server is DEFERRED (FRAME §4.7).
         // -------------------------------------------------------------------
         const studioRpc = createStudioRpcHandler(createStudioServerContextForApp(command));
-        server.middlewares.use(async (req, res, next) => {
-          if (!isStudioServerRpcPath(req.url)) {
-            next();
-            return;
-          }
+        server.middlewares.use("/rpc", async (req, res, next) => {
           const request = await nodeRequestToWebRequest(req);
           const { matched, response } = await studioRpc.handle(request, { prefix: "/rpc" });
           if (!matched || !response) {

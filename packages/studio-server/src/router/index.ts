@@ -1,9 +1,9 @@
-import type { Router } from "@orpc/server";
+import type { AnyRouter } from "@orpc/server";
 import { ORPCError } from "@orpc/server";
 import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
 
-import { contract, type StudioContract } from "../contract/index.js";
+import { contract } from "../contract/index.js";
 import { errorMessage, orpcError } from "../errors.js";
 import type { StudioRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
@@ -32,15 +32,7 @@ import { StudioConfig } from "../services/StudioConfig.js";
  * Query parsing parity (clamps, csv split/trim/filter, playerId omit) that the
  * legacy handlers did from the URL is reproduced here against the typed input.
  */
-// Return type is the CONTRACT-DERIVED `Router<StudioContract, …>` rather than the
-// lossy `AnyRouter`: the effect-orpc `oe.router(...)` result is pinned to
-// `StudioContract`, and its initial context is fully provided by the injected
-// `ManagedRuntime` (so `Record<never, never>`). Annotating it portably (instead of
-// inferring `EnhancedRouter<…>`, which would reference effect-orpc internals and
-// trip TS2742 in the emitted `.d.ts`) keeps `StudioRouter` contract-typed.
-export function createStudioRouter(
-  runtime: StudioRuntime,
-): Router<StudioContract, Record<never, never>> {
+export function createStudioRouter(runtime: StudioRuntime): AnyRouter {
   const oe = implementEffect(contract, runtime);
 
   return oe.router({
@@ -303,12 +295,7 @@ export function createStudioRouter(
   });
 }
 
-/**
- * The studio router type, contract-derived (`Router<StudioContract, …>`) rather
- * than the lossy `AnyRouter`. `RPCHandler` accepts it (`AnyRouter` is its lower
- * bound), and the handler module re-exports it.
- */
-export type StudioRouter = ReturnType<typeof createStudioRouter>;
+export type StudioRouter = AnyRouter;
 
 /**
  * Map a `civ7.live.status` per-field result to the contract's

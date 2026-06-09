@@ -1,7 +1,7 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
 
-import { gameInfoRow, isoTimestamp, unknownRecord } from "./shared.js";
+import { isoTimestamp, unknownRecord } from "./shared.js";
 
 /**
  * `civ7.*` namespace — FireTuner socket reads + autoplay mutation.
@@ -51,6 +51,13 @@ export const mapSummary = oc
 // Query: table (string, REQUIRED), limit (number, default 100).
 // Success 200: { ok:true, rows }. Error 400 (incl. missing table): { ok:false, error }.
 // NOTE: error status is 400 here, NOT 500.
+//
+// PARITY REFINEMENT (A3): the legacy handler assigns `rows = await
+// getCiv7GameInfoRows(...)` and writes `{ ok:true, rows }` — i.e. `rows` is the
+// WHOLE `Civ7GameInfoRowsResult` object (`{ host, port, table, source, rows,
+// total, … }`), NOT a bare row array. The A1 contract modelled it as
+// `array(gameInfoRow)`, which does not match `/api`. Refined to the opaque result
+// record to preserve current behavior (the deep payload is internal, per shared.ts).
 export const gameInfo = oc
   .input(
     z.object({
@@ -61,7 +68,8 @@ export const gameInfo = oc
   .output(
     z.object({
       ok: z.literal(true),
-      rows: z.array(gameInfoRow),
+      // Civ7GameInfoRowsResult (@civ7/direct-control). Opaque payload (see shared.ts).
+      rows: unknownRecord,
     }),
   );
 
