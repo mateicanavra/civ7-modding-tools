@@ -13,9 +13,9 @@ export function buildSwooperMapsStudioDeployCommand(options: {
     : (options.env ?? process.env);
   return {
     command: options.requestId
-      ? "SWOOPER_STUDIO_RUN_ID=<request> bun run --cwd mods/mod-swooper-maps deploy:studio"
-      : "bun run --cwd mods/mod-swooper-maps deploy:studio",
-    args: ["run", "--cwd", "mods/mod-swooper-maps", "deploy:studio"],
+      ? "SWOOPER_STUDIO_RUN_ID=<request> bunx turbo run deploy:studio --filter=mod-swooper-maps"
+      : "bunx turbo run deploy:studio --filter=mod-swooper-maps",
+    args: ["x", "turbo", "run", "deploy:studio", "--filter=mod-swooper-maps"],
     env,
   };
 }

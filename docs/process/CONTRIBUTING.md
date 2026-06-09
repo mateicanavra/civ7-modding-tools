@@ -43,6 +43,11 @@ bun run test
   ```bash
   bun run dev:playground
   ```
+- MapGen Studio:
+  ```bash
+  bun run dev:mapgen-studio
+  bunx turbo run build --filter=mapgen-studio
+  ```
 
 ### Root convenience scripts
 - Dev per package:
@@ -100,6 +105,17 @@ stale `dist/` output.
 `bun run link:cli` follows the same rule: it builds `@mateicanavra/civ7-cli`
 through Turborepo first, including the oclif manifest generation in the package
 build, then registers the package binary as the global `civ7` command.
+
+Normal package-local `dev`, `build`, `check`, and `test` scripts must stay
+leaf-local. They should not call `scripts/preflight`, run `bun --filter`, run
+`bun --cwd` against sibling workspaces, or invoke Turbo recursively. If a task
+needs workspace dependency freshness, add the dependency edge in `turbo.json`
+and expose a root script. Package-local deploy scripts follow the same
+dependency-authority rule: they perform the deploy action only, while root
+Turbo tasks provide build prerequisites such as mod builds and the Civ7 CLI.
+Explicit diagnostics may perform domain-specific setup when that setup is part
+of the named diagnostic path, but not by hiding dependency freshness inside
+normal app entrypoints.
 
 ### Publishing via tags (CI)
 Prerequisite: In GitHub → Settings → Secrets and variables → Actions, add secrets `NPM_TOKEN_SDK` and `NPM_TOKEN_CLI` (publish tokens for GitHub Packages).
