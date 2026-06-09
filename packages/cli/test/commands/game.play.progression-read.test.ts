@@ -39,7 +39,7 @@ describe('game play progression reads', () => {
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.view.slots.active).toBe(1);
-      expect(payload.view.slots.available).toBe(1);
+      expect(payload.view.slots.available).toBe(2);
       expect(payload.view.actions.activate).toBe(-1326475004);
       expect(payload.view.actions.deactivate).toBe(1318334332);
       expect(payload.view.active[0].name).toBe('Honor');
@@ -79,34 +79,78 @@ describe('game play progression reads', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        command: string;
-        active: Array<{ id: number; name: string; sendCloseoutCli: string | null }>;
-        available: Array<{ id: number; name: string; validationSuccess: boolean; sendCloseoutCli: string | null; validateCli: string | null }>;
+        surface: string;
+        active: Array<{ id: number; name: string; nextAction: { kind: string; closeout: boolean } | null }>;
+        available: Array<{
+          id: number;
+          name: string;
+          validationSuccess: boolean;
+          nextAction: {
+            kind: string;
+            parameters: { traditionType: number; action: number };
+            validationSuccess: boolean;
+            closeout: boolean;
+            sendsMutation: boolean;
+          } | null;
+        }>;
+        recommendedActions: Array<{ kind: string; parameters: { traditionType: number; action: number } }>;
         enabledAvailableCount: number;
         disabledAvailableCount: number;
         omitted: Array<{ path: string }>;
         traditions?: unknown;
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
-      expect(payload.command).toBe('game play traditions');
+      expect(payload.surface).toBe('traditions');
       expect(payload.traditions).toBeUndefined();
       expect(payload.active[0]).toMatchObject({
         id: -331546976,
         name: 'Honor',
-        sendCloseoutCli: null,
+        nextAction: {
+          kind: 'deactivate',
+          closeout: false,
+        },
       });
       expect(payload.available[0]).toMatchObject({
         id: 90243567,
         name: 'Oratory',
         validationSuccess: true,
+        nextAction: {
+          kind: 'activate',
+          parameters: {
+            traditionType: 90243567,
+            action: -1326475004,
+          },
+          validationSuccess: true,
+          closeout: true,
+          sendsMutation: true,
+        },
       });
-      expect(payload.available[0].validateCli).toContain('game play change-tradition --player-id 0 --tradition-type 90243567 --action -1326475004 --json');
-      expect(payload.available[0].sendCloseoutCli).toContain('game play change-tradition --tradition-type 90243567 --action -1326475004 --send --closeout');
+      expect(payload.recommendedActions[0]).toMatchObject({
+        kind: 'activate',
+        parameters: {
+          traditionType: 90243567,
+          action: -1326475004,
+        },
+      });
+      expect(payload.recommendedActions).toHaveLength(1);
+      expect(payload.available.find((tradition) => tradition.id === 111222333)).toMatchObject({
+        name: 'Discipline',
+        validationSuccess: false,
+        nextAction: {
+          kind: 'validate-tradition-change',
+          validationSuccess: false,
+          readOnly: true,
+          sendsMutation: false,
+        },
+      });
+      expect(payload.recommendedActions.every((action) => action.kind !== 'validate-tradition-change')).toBe(true);
+      expect(JSON.stringify(payload.recommendedActions)).not.toContain('111222333');
+      expect(JSON.stringify(payload)).not.toContain('game play change-tradition');
       expect(payload.enabledAvailableCount).toBe(1);
-      expect(payload.disabledAvailableCount).toBe(0);
-      expect(payload.omitted.map((item) => item.path)).toContain('directControl.cliCommandSuggestions');
-      expect(payload.omitted.map((item) => item.path)).toContain('tradition.actionHints[].cli');
-      expect(payload.omitted.map((item) => item.path)).toContain('tradition.actionHints[].validation');
+      expect(payload.disabledAvailableCount).toBe(1);
+      expect(payload.omitted.map((item) => item.path)).toContain('presentation.commandSuggestions');
+      expect(payload.omitted.map((item) => item.path)).toContain('presentation.actionDirections');
+      expect(payload.omitted.map((item) => item.path)).toContain('runtime.validationProbe');
       expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
       expect(server.received.some((message) => message.includes('sendRequest('))).toBe(false);
@@ -136,13 +180,13 @@ describe('game play progression reads', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         contractVersion: string;
-        command: string;
+        surface: string;
         summary: string;
         age: { ageType: string; ageProgressPercent: number };
         legacyPaths: Array<{ classType: string; score: number; finalRequiredPathPoints: number; progressPercent: number; nextMilestone: string }>;
         triumphs: { count: number };
         proof: { sources: string[] };
-        next: string | null;
+        nextAction: { kind: string; label: string } | null;
         nextSteps: Array<{ kind: string; label: string }>;
         warnings: string[];
         omitted: Array<{ path: string }>;
@@ -150,7 +194,7 @@ describe('game play progression reads', () => {
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.contractVersion).toBe('play-agent-v0');
-      expect(payload.command).toBe('game play progress-dashboard');
+      expect(payload.surface).toBe('progress-dashboard');
       expect(payload.summary).toContain('AGE_ANTIQUITY progress');
       expect(payload.age.ageType).toBe('AGE_ANTIQUITY');
       expect(payload.age.ageProgressPercent).toBe(2.1);
@@ -159,9 +203,10 @@ describe('game play progression reads', () => {
       expect(payload.legacyPaths.find((path) => path.classType === 'science')?.progressPercent).toBe(10);
       expect(payload.triumphs.count).toBe(0);
       expect(payload.proof.sources).toContain('player.LegacyPaths.getScore');
-      expect(payload.next).toBe('game play priorities --compact --json');
+      expect(payload.nextAction).toMatchObject({ kind: 'read-attention-priorities' });
       expect(payload.nextSteps[0].kind).toBe('read-attention-priorities');
       expect(JSON.stringify(payload.nextSteps)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.warnings.join(' ')).toContain('VictoryManager is module-local');
       expect(payload.omitted.some((item) => item.path === 'dashboard.legacyPaths[].milestones')).toBe(true);
       expect(payload.view).toBeUndefined();
@@ -214,6 +259,29 @@ function traditionsView() {
       },
     ],
   };
+  const disabledAvailable = {
+    id: 111222333,
+    type: 'TRADITION_DISCIPLINE',
+    name: 'Discipline',
+    description: 'Military-facing policy.',
+    ageType: null,
+    cultureSlotType: null,
+    traitType: null,
+    isCrisis: false,
+    active: false,
+    unlocked: true,
+    recentUnlock: false,
+    actionHints: [
+      {
+        kind: 'activate',
+        action: activate,
+        operationType: 'CHANGE_TRADITION',
+        args: { TraditionType: 111222333, Action: activate },
+        validation: { ok: true, value: { Success: false } },
+        cli: `game play change-tradition --player-id 0 --tradition-type 111222333 --action ${activate}`,
+      },
+    ],
+  };
   const active = {
     id: -331546976,
     type: 'TRADITION_HONOR',
@@ -251,15 +319,15 @@ function traditionsView() {
       normal: { ok: true, value: 1 },
       crisis: { ok: true, value: 0 },
       active: 1,
-      unlocked: 2,
-      available: 1,
+      unlocked: 3,
+      available: 2,
       open: 0,
     },
     actions: { activate, deactivate },
     active: [active],
-    available: [available],
+    available: [available, disabledAvailable],
     recentUnlocks: [available],
-    traditions: [active, available],
+    traditions: [active, available, disabledAvailable],
     recommendedCli: [available.actionHints[0].cli],
     hiddenInfoPolicy: 'player-culture-runtime',
     notes: ['Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.'],

@@ -94,7 +94,7 @@ export default class GamePlayUnitMovePreview extends Command {
 function buildCompactView(view: UnitMovePreviewView): {
   ok: true;
   contractVersion: 'play-agent-v0';
-  command: 'game play unit-move-preview';
+  surface: 'unit-move-preview';
   summary: string;
   unitId: UnitMovePreviewView['unitId'];
   unit: Record<string, unknown> | null;
@@ -115,7 +115,7 @@ function buildCompactView(view: UnitMovePreviewView): {
     requested: Record<string, unknown> | null;
     queued: Record<string, unknown> | null;
   };
-  next: string | null;
+  nextAction: UnitMoveActionDescriptor | null;
   warnings: string[];
   omitted: Array<{ path: string; reason: string }>;
   hiddenInfoPolicy: string;
@@ -143,7 +143,7 @@ function buildCompactView(view: UnitMovePreviewView): {
   return {
     ok: true,
     contractVersion: 'play-agent-v0',
-    command: 'game play unit-move-preview',
+    surface: 'unit-move-preview',
     summary: unit
       ? `${String(unit.typeName ?? 'unit')} at ${formatLocation(unit.location)}`
       : 'no selected or ready unit for movement preview',
@@ -166,9 +166,7 @@ function buildCompactView(view: UnitMovePreviewView): {
       requested: requestedPath,
       queued: queuedPath,
     },
-    next: requestedDestination && view.unitId
-      ? `game play unit-target --unit-id '${JSON.stringify(view.unitId)}' --x ${requestedDestination.x} --y ${requestedDestination.y} --json`
-      : null,
+    nextAction: movementValidationDescriptor(view.unitId, requestedDestination),
     warnings,
     omitted: [
       { path: 'view.reachableMovement', reason: `compact includes up to ${candidateLimit} candidate rows; use --json without --compact for the full reachable movement plot list` },
@@ -240,10 +238,35 @@ function compactPlotCandidates(value: unknown, unitId: UnitMovePreviewView['unit
       y: plot.y,
       currentLocation: sameLocation(plot, unitLocation),
       distanceFromUnit: hexApproxDistance(plot, unitLocation),
-      validateCli: unitId && typeof plot.x === 'number' && typeof plot.y === 'number'
-        ? `game play unit-target --unit-id '${JSON.stringify(unitId)}' --x ${plot.x} --y ${plot.y} --json`
-        : null,
+      nextAction: movementValidationDescriptor(
+        unitId,
+        typeof plot.x === 'number' && typeof plot.y === 'number'
+          ? { x: plot.x, y: plot.y }
+          : null,
+      ),
     }));
+}
+
+type UnitMoveActionDescriptor = {
+  kind: 'validate-unit-action';
+  label: string;
+  unitId: UnitMovePreviewView['unitId'];
+  destination: { x: number; y: number };
+  sendReady: false;
+};
+
+function movementValidationDescriptor(
+  unitId: UnitMovePreviewView['unitId'],
+  destination: { x: number; y: number } | null,
+): UnitMoveActionDescriptor | null {
+  if (!unitId || !destination) return null;
+  return {
+    kind: 'validate-unit-action',
+    label: `validate unit action at (${destination.x},${destination.y}) before sending`,
+    unitId,
+    destination,
+    sendReady: false,
+  };
 }
 
 function flattenPlots(value: unknown): Array<{ index?: number; x?: number; y?: number }> {

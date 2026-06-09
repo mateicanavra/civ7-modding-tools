@@ -140,11 +140,11 @@ export default class GamePlayFrontSummary extends Command {
       origin: result.origins[0] ?? null,
       summary: {
         ...result.front,
-        nextInspections: frontInspectionCommands(result),
+        nextInspections: frontInspectionLabels(result),
       },
       notes: [
         ...result.notes,
-        'Use this to pick the next inspection, then validate concrete unit actions with game play unit-target.',
+        'Use this to pick the next inspection, then validate concrete unit actions before sending.',
       ],
     };
 
@@ -159,7 +159,7 @@ export default class GamePlayFrontSummary extends Command {
     for (const item of result.front.pressure.slice(0, 8)) {
       this.log(`- [${item.severity}] ${item.kind}: ${item.summary}`);
     }
-    for (const command of frontInspectionCommands(result)) this.log(`Next: ${command}`);
+    for (const next of frontInspectionLabels(result)) this.log(`Next: ${next}`);
   }
 }
 
@@ -185,22 +185,6 @@ function resolveFrontTarget(flags: {
   }) ?? null;
 }
 
-function frontInspectionCommands(result: Civ7StrategyFrontSummaryResult): string[] {
-  const origin = result.origins[0] ?? null;
-  const target = result.target;
-  const commands: string[] = ['game play priorities --json'];
-  if (origin) commands.push(`game play battlefield-scan --x ${origin.x} --y ${origin.y} --json`);
-  if (origin && target) {
-    commands.push(`game play destination-analysis --origin ${origin.x},${origin.y} --destination ${target.x},${target.y} --json`);
-  }
-  const highestLocated = result.front.pressure.find((item) => item.location);
-  if (highestLocated?.location) {
-    commands.push(`game play battlefield-scan --x ${highestLocated.location.x} --y ${highestLocated.location.y} --json`);
-  }
-  if (result.front.nextInspections.some((step) => step.kind === 'observe')) {
-    commands.push('game play attention --json');
-  }
-  commands.push('game play ready-unit --json');
-  commands.push("game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json");
-  return [...new Set(commands)];
+function frontInspectionLabels(result: Civ7StrategyFrontSummaryResult): string[] {
+  return result.front.nextInspections.map((step) => step.label);
 }

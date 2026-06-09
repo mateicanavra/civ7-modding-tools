@@ -7,6 +7,13 @@ import {
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
 type ReadyCityView = Awaited<ReturnType<typeof getCiv7ReadyCityView>>;
+type ReadyCityActionDescriptor = {
+  kind: string;
+  label: string;
+  parameters: Record<string, unknown>;
+  readOnly: false;
+  sendsMutation: true;
+};
 
 export default class GamePlayReadyCity extends Command {
   static id = 'game play ready-city';
@@ -74,7 +81,7 @@ export default class GamePlayReadyCity extends Command {
 function buildCompactView(view: ReadyCityView): {
   ok: true;
   contractVersion: 'play-agent-v0';
-  command: 'game play ready-city';
+  surface: 'ready-city';
   summary: string;
   cityId: ReadyCityView['cityId'];
   city: Record<string, unknown> | null;
@@ -89,7 +96,7 @@ function buildCompactView(view: ReadyCityView): {
     workablePlots: Array<Record<string, unknown>>;
     expansionCandidates: Array<Record<string, unknown>>;
   } | null;
-  next: string | null;
+  nextAction: ReadyCityActionDescriptor | null;
   warnings: string[];
   omitted: Array<{ path: string; reason: string }>;
 } {
@@ -98,14 +105,14 @@ function buildCompactView(view: ReadyCityView): {
   const workablePlots = compactWorkerPlots(probeArray(populationPlacement?.workablePlots));
   const expansionCandidates = compactExpansionCandidates(probeArray(populationPlacement?.expansionCandidates));
   const productionCandidates = compactProductionCandidates(probeArray(view.productionCandidates));
-  const next = stringField(workablePlots[0], 'cli')
-    ?? stringField(expansionCandidates[0], 'cli')
-    ?? stringField(productionCandidates[0], 'cli');
+  const nextAction = actionField(workablePlots[0])
+    ?? actionField(expansionCandidates[0])
+    ?? actionField(productionCandidates[0]);
 
   return {
     ok: true,
     contractVersion: 'play-agent-v0',
-    command: 'game play ready-city',
+    surface: 'ready-city',
     summary: city?.name
       ? `${String(city.name)}: ${workablePlots.length} assign-worker plots, ${expansionCandidates.length} expansion candidates`
       : 'no selected, requested, or blocker-target city',
@@ -124,7 +131,7 @@ function buildCompactView(view: ReadyCityView): {
           expansionCandidates,
         }
       : null,
-    next,
+    nextAction,
     warnings: [
       'Read-only city dashboard; validate and postcondition-check assign-worker, expand-city, production, or town-focus sends separately.',
       'Expansion candidate plot yields are map yield facts plus constructible context, not a post-send yield guarantee.',
@@ -166,7 +173,7 @@ function compactProductionCandidates(values: ReadonlyArray<Record<string, unknow
     baseYieldSummary: candidate.baseYieldSummary,
     valid: candidate.valid,
     placementPlots: candidate.placementPlots,
-    cli: candidate.cli,
+    nextAction: productionAction(candidate),
   }));
 }
 
@@ -179,7 +186,7 @@ function compactWorkerPlots(values: ReadonlyArray<Record<string, unknown>>): Arr
     nextYieldSummary: plot.nextYieldSummary,
     yieldDelta: plot.yieldDelta,
     maintenance: plot.maintenance,
-    cli: plot.cli,
+    nextAction: workerAction(plot),
   }));
 }
 
@@ -200,9 +207,54 @@ function compactExpansionCandidates(values: ReadonlyArray<Record<string, unknown
       resourceName: facts?.resourceName,
       yieldSource: facts?.yieldSource,
       yieldSummary: facts?.yieldSummary,
-      cli: candidate.cli,
+      nextAction: expansionAction(candidate),
     };
   });
+}
+
+function productionAction(candidate: Record<string, unknown>): ReadyCityActionDescriptor {
+  return {
+    kind: 'choose-production',
+    label: 'Choose this production candidate after reviewing placement and validation evidence.',
+    parameters: {
+      candidateKind: candidate.kind,
+      type: candidate.type,
+      typeName: candidate.typeName,
+      placementPlots: candidate.placementPlots,
+    },
+    readOnly: false,
+    sendsMutation: true,
+  };
+}
+
+function workerAction(plot: Record<string, unknown>): ReadyCityActionDescriptor {
+  return {
+    kind: 'assign-worker',
+    label: 'Assign one worker to this plot after reviewing the yield delta.',
+    parameters: {
+      location: plot.index,
+      x: plot.x,
+      y: plot.y,
+    },
+    readOnly: false,
+    sendsMutation: true,
+  };
+}
+
+function expansionAction(candidate: Record<string, unknown>): ReadyCityActionDescriptor {
+  return {
+    kind: 'expand-city',
+    label: 'Expand the city to this plot after reviewing map yield evidence.',
+    parameters: {
+      index: candidate.index,
+      x: candidate.x,
+      y: candidate.y,
+      constructibleType: candidate.constructibleType,
+      constructibleName: candidate.constructibleName,
+    },
+    readOnly: false,
+    sendsMutation: true,
+  };
 }
 
 function probeValue<T>(probe: Probe<T> | null | undefined): T | null {
@@ -214,8 +266,9 @@ function probeArray(probe: Probe<unknown> | null | undefined): Array<Record<stri
   return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => item !== null && typeof item === 'object') : [];
 }
 
-function stringField(value: Record<string, unknown> | undefined, key: string): string | null {
-  return typeof value?.[key] === 'string' ? value[key] : null;
+function actionField(value: Record<string, unknown> | undefined): ReadyCityActionDescriptor | null {
+  const action = value?.nextAction;
+  return action && typeof action === 'object' ? action as ReadyCityActionDescriptor : null;
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {

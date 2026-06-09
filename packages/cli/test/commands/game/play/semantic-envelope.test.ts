@@ -42,7 +42,7 @@ describe('semantic CLI envelope owner', () => {
       state: { summary: 'ready unit needs a safe action' },
       blockers: [{ kind: 'ready-unit', summary: 'scout is ready' }],
       actions: [{ family: 'unit', target: { owner: 0, id: 458752, type: 26 }, readOnly: true }],
-      nextSteps: ['game play ready-unit --json'],
+      nextSteps: [{ kind: 'inspect-ready-unit', label: 'Inspect the ready unit before choosing an action.' }],
       evidence: [{ label: 'local-cli-test' }],
       notes: ['local tests do not prove live runtime behavior'],
     };
@@ -55,10 +55,10 @@ describe('semantic CLI envelope owner', () => {
       scope: { surface: 'game play priorities' },
       state: { turn: { ok: true, value: 80 } },
       blockers: [{ kind: 'ready-unit', summary: 'unit needs orders' }],
-      decisions: [{ kind: 'ready-unit', command: 'game play ready-unit --json' }],
-      actions: [{ family: 'ready-unit', command: 'game play ready-unit --json', readOnly: true }],
+      decisions: [{ kind: 'ready-unit', nextAction: { kind: 'inspect-ready-unit' } }],
+      actions: [{ family: 'ready-unit', kind: 'inspect-ready-unit', readOnly: true }],
       result: { status: 'read-only', sent: false },
-      nextSteps: ['game play ready-unit --json'],
+      nextSteps: [{ kind: 'inspect-ready-unit', label: 'Inspect the ready unit before choosing an action.' }],
       evidence: [{ label: 'local-cli-test', proofClass: 'local-cli-output' }],
       notes: ['local tests do not prove live runtime behavior'],
     });

@@ -23,7 +23,9 @@ describe('game play notification queue command', () => {
       expect(payload.view.schedule[0].disposition).toBe('operate-with-live-inputs');
       expect(payload.view.schedule.some((step) => step.disposition === 'reviewed-dismissal-candidate')).toBe(true);
       expect(payload.view.schedule.some((step) => step.safeToBatch === true)).toBe(true);
-      expect(payload.view.schedule.some((step) => step.command?.includes('dismiss-notification'))).toBe(true);
+      expect(payload.view.schedule.some((step) => step.nextStep?.kind === 'dismiss-notification')).toBe(true);
+      expect(JSON.stringify(payload.view.schedule)).not.toContain('"command"');
+      expect(JSON.stringify(payload.view.schedule)).not.toContain('game play ');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
       expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(false);
@@ -34,13 +36,16 @@ describe('game play notification queue command', () => {
     }
   });
 
-  test('schedules recommended operation commands from notification details', async () => {
+  test('schedules semantic operation next steps from notification details', async () => {
     const { payload, server } = await runNotificationQueue('first-meet');
     try {
       const step = payload.view.schedule[0];
       expect(step.category).toBe('first-meet-diplomacy');
       expect(step.disposition).toBe('operate-with-live-inputs');
-      expect(step.command).toBe('game play respond-first-meet --json');
+      expect(step.nextStep).toMatchObject({
+        kind: 'validate-operation',
+        label: 'Read the specialized current surface and validator evidence before any send.',
+      });
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -48,17 +53,17 @@ describe('game play notification queue command', () => {
   });
 
   test.each([
-    ['tech-choice', 'NOTIFICATION_CHOOSE_TECH', 'game play choose-tech --options --json'],
-    ['culture-choice', 'NOTIFICATION_CHOOSE_CULTURE_NODE', 'game play choose-culture --options --json'],
-    ['celebration-choice', 'NOTIFICATION_CHOOSE_GOLDEN_AGE', 'game play choose-celebration --options --json'],
-    ['government-choice', 'NOTIFICATION_CHOOSE_GOVERNMENT', 'game play choose-government --options --json'],
-    ['narrative-choice', 'NOTIFICATION_CHOOSE_DISCOVERY_STORY_DIRECTION', 'game play choose-narrative --options --json'],
-  ] as const)('routes %s notification queue entries to compact option readers', async (mode, typeName, command) => {
+    ['tech-choice', 'NOTIFICATION_CHOOSE_TECH'],
+    ['culture-choice', 'NOTIFICATION_CHOOSE_CULTURE_NODE'],
+    ['celebration-choice', 'NOTIFICATION_CHOOSE_GOLDEN_AGE'],
+    ['government-choice', 'NOTIFICATION_CHOOSE_GOVERNMENT'],
+    ['narrative-choice', 'NOTIFICATION_CHOOSE_DISCOVERY_STORY_DIRECTION'],
+  ] as const)('routes %s notification queue entries to semantic operation validation', async (mode, typeName) => {
     const { payload, server } = await runNotificationQueue(mode);
     try {
       const step = payload.view.schedule.find((item) => item.typeName === typeName);
       expect(step?.disposition).toBe('operate-with-live-inputs');
-      expect(step?.command).toBe(command);
+      expect(step?.nextStep?.kind).toBe('validate-operation');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -72,7 +77,8 @@ describe('game play notification queue command', () => {
       expect(step.typeName).toBe('NOTIFICATION_LEGACY_COMPLETED');
       expect(step.disposition).toBe('reviewed-dismissal-candidate');
       expect(step.safeToBatch).toBe(true);
-      expect(step.command).toContain('dismiss-notification');      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(step.nextStep?.kind).toBe('dismiss-notification');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
     }
@@ -84,7 +90,8 @@ describe('game play notification queue command', () => {
       const step = payload.view.schedule[0];
       expect(step.disposition).toBe('reviewed-dismissal-candidate');
       expect(step.typeName).toBe('NOTIFICATION_UNIT_LOST');
-      expect(step.command).toContain("game play dismiss-notification --target '{\"owner\":0,\"id\":34,\"type\":20}'");      expect(step.command).not.toMatch(/enemy|hostile|opponent/i);
+      expect(step.nextStep?.kind).toBe('dismiss-notification');
+      expect(step.nextStep?.label).not.toMatch(/enemy|hostile|opponent/i);
       expect(step.safeToBatch).toBe(false);
     } finally {
       await server.close();
@@ -117,9 +124,9 @@ async function runNotificationQueue(mode: QueueMode) {
       queueLength: number;
       schedule: Array<{
         category: string;
-        command: string | null;
         disposition: string;
         isEndTurnBlocking: boolean;
+        nextStep: { kind: string; label: string } | null;
         safeToBatch: boolean;
         typeName: string | null;
       }>;
@@ -171,7 +178,6 @@ function decisionQueueFor(mode: QueueMode) {
         summary: 'Lafayette has started a Diplomatic Action with you.',
         category: 'diplomacy-response',
         operationType: 'RESPOND_DIPLOMATIC_ACTION',
-        cli: 'game play respond-diplomacy',
         requiredInputs: [{ name: 'ID', source: 'live diplomatic action', required: true }],
         isEndTurnBlocking: true,
       }),
@@ -207,7 +213,6 @@ function decisionQueueFor(mode: QueueMode) {
         summary: 'You have met Ashoka, World Renouncer of Mauryan Empire.',
         category: 'first-meet-diplomacy',
         operationType: 'RESPOND_DIPLOMATIC_FIRST_MEET',
-        cli: 'game play respond-first-meet',
         isEndTurnBlocking: true,
         details: {
           kind: 'first-meet-diplomacy',
@@ -249,7 +254,6 @@ function decisionQueueFor(mode: QueueMode) {
       summary: optionModeSummary(mode),
       category: optionModeCategory(mode),
       operationType: optionModeOperation(mode),
-      cli: optionModeCli(mode),
       isEndTurnBlocking: true,
       details: {
         kind: optionModeDetailsKind(mode),
@@ -265,7 +269,6 @@ function operationDecision(input: {
   summary: string;
   category: string;
   operationType: string;
-  cli: string;
   requiredInputs?: Array<{ name: string; source: string; required: boolean }>;
   isEndTurnBlocking: boolean;
   details?: unknown;
@@ -282,7 +285,6 @@ function operationDecision(input: {
     operationFamily: 'player-operation',
     operationType: input.operationType,
     requiredInputs: input.requiredInputs ?? [],
-    cli: input.cli,
     details: input.details,
   };
 }
@@ -358,16 +360,6 @@ function optionModeOperation(mode: Exclude<QueueMode, 'mixed-queue' | 'first-mee
     'celebration-choice': 'CHOOSE_GOLDEN_AGE',
     'government-choice': 'CHANGE_GOVERNMENT',
     'narrative-choice': 'CHOOSE_NARRATIVE_STORY_DIRECTION',
-  }[mode];
-}
-
-function optionModeCli(mode: Exclude<QueueMode, 'mixed-queue' | 'first-meet' | 'legacy-completed' | 'unit-lost-report'>): string {
-  return {
-    'tech-choice': 'game play choose-tech',
-    'culture-choice': 'game play choose-culture',
-    'celebration-choice': 'game play choose-celebration',
-    'government-choice': 'game play choose-government',
-    'narrative-choice': 'game play choose-narrative',
   }[mode];
 }
 

@@ -10,8 +10,8 @@ Route `civ7 game play priorities` through the native in-process
 `attention.priorities` server-side client. The control-oRPC service owns
 priority ranking, source-status, current HUD/ready actor, optional battlefield,
 and semantic next-step composition. The CLI remains an edge adapter that builds
-endpoint context and maps semantic next-step descriptors into command
-suggestions for CLI presentation only.
+endpoint context and presents semantic next-step descriptors without making CLI
+command syntax part of normal priority output.
 
 ## Write Set
 
@@ -32,9 +32,8 @@ suggestions for CLI presentation only.
 
 - CLI endpoint flags construct oRPC context; endpoint/session/state/raw command
   fields are not procedure input.
-- CLI output may include command suggestions, but those strings are mapped
-  locally from semantic service descriptors and are not part of the native
-  service contract.
+- CLI compact output presents semantic `nextAction` descriptors. Command help
+  remains the place for exact flag combinations.
 - The command stays read-only. It does not send unit/city/turn/progression
   operations or claim live runtime proof.
 - Normal JSON omits raw host, port, state, session, command, rawCommand, Tuner

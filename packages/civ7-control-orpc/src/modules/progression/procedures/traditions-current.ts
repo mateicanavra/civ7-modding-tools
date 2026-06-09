@@ -74,15 +74,15 @@ function progressionTraditionsResult(
     traditions,
     omitted: [
       {
-        path: "directControl.cliCommandSuggestions",
-        reason: "CLI command strings are caller presentation, not progression service output.",
+        path: "presentation.commandSuggestions",
+        reason: "Command-string suggestions are caller presentation, not progression service output.",
       },
       {
-        path: "tradition.actionHints[].cli",
-        reason: "Tradition action hints are projected as semantic action descriptors with parameters.",
+        path: "presentation.actionDirections",
+        reason: "Action directions are projected as semantic descriptors with parameters.",
       },
       {
-        path: "tradition.actionHints[].validation",
+        path: "runtime.validationProbe",
         reason: "Validation probe details remain low-level runtime evidence; service rows expose validationSuccess.",
       },
     ],

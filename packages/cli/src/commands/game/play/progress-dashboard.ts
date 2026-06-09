@@ -69,7 +69,7 @@ export default class GamePlayProgressDashboard extends Command {
 function buildCompactView(view: Civ7ProgressionDashboardResult): {
   ok: true;
   contractVersion: 'play-agent-v0';
-  command: 'game play progress-dashboard';
+  surface: 'progress-dashboard';
   summary: string;
   turn: Probe;
   turnDate: Probe;
@@ -78,7 +78,7 @@ function buildCompactView(view: Civ7ProgressionDashboardResult): {
   legacyPaths: Civ7ProgressionDashboardResult['legacyPaths'];
   victories: Civ7ProgressionDashboardResult['victories'];
   triumphs: Civ7ProgressionDashboardResult['triumphs'];
-  next: string | null;
+  nextAction: Civ7ProgressionDashboardResult['nextSteps'][number] | null;
   nextSteps: Civ7ProgressionDashboardResult['nextSteps'];
   warnings: string[];
   omitted: Array<{ path: string; reason: string }>;
@@ -88,7 +88,7 @@ function buildCompactView(view: Civ7ProgressionDashboardResult): {
   return {
     ok: true,
     contractVersion: 'play-agent-v0',
-    command: 'game play progress-dashboard',
+    surface: 'progress-dashboard',
     summary: view.summary.headline,
     turn: view.turn,
     turnDate: view.turnDate,
@@ -101,20 +101,11 @@ function buildCompactView(view: Civ7ProgressionDashboardResult): {
       source: view.triumphs.source,
       rows: view.triumphs.rows,
     },
-    next: cliCommandForNextStep(view.nextSteps[0]?.kind ?? null),
+    nextAction: view.nextSteps[0] ?? null,
     nextSteps: view.nextSteps,
     warnings: view.warnings,
     omitted: view.omitted,
     hiddenInfoPolicy: view.hiddenInfoPolicy,
     proof: view.proof,
   };
-}
-
-function cliCommandForNextStep(
-  kind: Civ7ProgressionDashboardResult['nextSteps'][number]['kind'] | null,
-): string | null {
-  if (kind === 'read-attention-priorities') {
-    return 'game play priorities --compact --json';
-  }
-  return null;
 }

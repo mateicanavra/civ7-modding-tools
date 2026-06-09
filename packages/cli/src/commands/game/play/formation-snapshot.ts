@@ -108,8 +108,8 @@ export default class GamePlayFormationSnapshot extends Command {
     this.log(view.formation.headline);
     this.log(`Posture: ${view.formation.posture}`);
     for (const reason of view.formation.reasons) this.log(`Reason: ${reason}`);
-    for (const command of view.formation.nextInspections) {
-      this.log(`Next: ${command}`);
+    for (const next of view.formation.nextInspections) {
+      this.log(`Next: ${next}`);
     }
   }
 }
@@ -121,31 +121,11 @@ function formationCliView(
     ...result,
     formation: {
       ...result.formation,
-      nextInspections: result.formation.nextSteps.map(nextInspectionCommand),
+      nextInspections: result.formation.nextSteps.map(nextInspectionLabel),
     },
   };
 }
 
-function nextInspectionCommand(step: FormationNextStep): string {
-  if (step.kind === 'read-priorities') return 'game play priorities --json';
-  if (step.kind === 'inspect-ready-unit') return 'game play ready-unit --json';
-  if (step.kind === 'inspect-civilian-route') {
-    const civilian = step.parameters.civilian;
-    return civilian == null
-      ? 'game play civilian-route-triage --json'
-      : `game play civilian-route-triage --x ${civilian.x} --y ${civilian.y} --json`;
-  }
-  if (step.kind === 'inspect-battlefield') {
-    const location = step.parameters.origin ?? step.parameters.contact;
-    return location == null
-      ? 'game play battlefield-scan --json'
-      : `game play battlefield-scan --x ${location.x} --y ${location.y} --json`;
-  }
-  return unitTargetCommand(step);
-}
-
-function unitTargetCommand(step: FormationNextStep): string {
-  return step.label.includes('screen or contact')
-    ? "game play unit-target --unit-id '<unit-id>' --x <screen-or-contact-x> --y <screen-or-contact-y> --json"
-    : "game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json";
+function nextInspectionLabel(step: FormationNextStep): string {
+  return step.label;
 }

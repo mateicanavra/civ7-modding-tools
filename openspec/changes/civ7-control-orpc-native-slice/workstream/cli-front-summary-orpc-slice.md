@@ -13,8 +13,9 @@ battlefield, optional destination-analysis, source-status, front posture, risk,
 relationship-safe wording, and semantic next-step descriptors.
 
 The CLI remains an edge adapter: it builds endpoint context, parses command
-flags, calls the server-side client, and maps semantic next-step descriptors
-into CLI command suggestions for CLI output only.
+flags, calls the server-side client, and presents semantic next-step
+descriptors without making CLI command syntax part of the front-summary JSON
+contract.
 
 ## Write Set
 
@@ -41,8 +42,9 @@ into CLI command suggestions for CLI output only.
 - The service output uses semantic next-step descriptors and relationship-safe
   planning language. It does not emit literal `game play ...` CLI command
   strings.
-- The CLI may still present command suggestions, but that translation is a CLI
-  presentation concern and not part of the native service contract.
+- `civ7 game play front-summary` presents service next-step labels as concise
+  follow-up guidance; command help remains the source for exhaustive
+  flag/interface detail.
 - The game-UI strategy adapter exposes destination-analysis evidence through
   the same low-level ambient owner/unit/city reads so the existing controller
   `strategy.frontSummary` path remains coherent after the richer service

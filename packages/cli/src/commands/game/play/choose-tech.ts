@@ -12,6 +12,14 @@ import {
 
 const SET_TECH_TREE_NODE = 'SET_TECH_TREE_NODE';
 
+type ProgressionOptionAction = {
+  kind: 'choose-technology' | 'target-technology' | 'validate-technology-choice';
+  label: string;
+  parameters: Record<string, unknown>;
+  readOnly: boolean;
+  sendsMutation: boolean;
+};
+
 export default class GamePlayChooseTech extends Command {
   static id = 'game play choose-tech';
   static summary = 'Validate or choose a technology node';
@@ -70,18 +78,18 @@ export default class GamePlayChooseTech extends Command {
       const surfaces = details.map(compactTechnologyChoiceSurface);
       const enabledOptionCount = surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0);
       emitPlayResult(this.log.bind(this), flags.json, {
-        command: 'game play choose-tech --options',
+        surface: 'technology-choice-options',
         surfaces,
         enabledOptionCount,
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use game play notifications --json for raw option and validation evidence' },
+          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
           { path: 'details[].disabledOptions', reason: 'disabled nodes are counted here; use notifications --json when disabled-node evidence matters' },
           { path: 'details[].techTrees', reason: 'tree proof is summarized per enabled row' },
         ],
         notes: [
           'Options come from the live notification HUD materializer, which validates SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE through official PlayerOperations checks.',
-          'Use a returned enabled option cli for one caller-level technology selection, or validate a specific node before sending.',
+          'Action guidance is semantic; command help owns exact flag combinations.',
         ],
       });
       return;
@@ -159,9 +167,9 @@ function compactTechnologyChoiceSurface(details: Record<string, unknown>): {
       maxDepth: option.maxDepth,
       turns: probeValue(option.turns),
       cost: probeValue(option.cost),
-      chooseCli: option.cli,
-      targetCli: option.targetCli,
-      validateCli: option.validateCli,
+      nextAction: progressionOptionAction('choose-technology', option),
+      targetAction: progressionOptionAction('target-technology', option),
+      validationAction: progressionOptionAction('validate-technology-choice', option),
     }));
   return {
     kind: 'technology-choice-options',
@@ -172,6 +180,27 @@ function compactTechnologyChoiceSurface(details: Record<string, unknown>): {
     enabledOptions,
     enabledOptionCount: enabledOptions.length,
     disabledOptionCount: asArray(details.disabledOptions).length,
+  };
+}
+
+function progressionOptionAction(
+  kind: ProgressionOptionAction['kind'],
+  option: Record<string, unknown>,
+): ProgressionOptionAction {
+  const readOnly = kind === 'validate-technology-choice';
+  return {
+    kind,
+    label: kind === 'choose-technology'
+      ? 'Choose this technology after reviewing validation evidence.'
+      : kind === 'target-technology'
+        ? 'Set this technology as the current target.'
+        : 'Validate this technology choice before sending.',
+    parameters: {
+      node: option.nodeType,
+      nodeTypeName: option.nodeTypeName,
+    },
+    readOnly,
+    sendsMutation: !readOnly,
   };
 }
 

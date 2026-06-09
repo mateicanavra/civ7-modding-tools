@@ -10,8 +10,9 @@ Route `civ7 game play civilian-route-triage` through the native in-process
 `strategy.civilianRouteTriage` server-side client. The control-oRPC service
 owns route-status composition over current notification, ready-unit, settlement
 recommendation, battlefield, and destination evidence. The CLI remains an edge
-adapter that builds endpoint context and maps semantic next-step descriptors
-into command suggestions for CLI presentation only.
+adapter that builds endpoint context and presents semantic next-step
+descriptors without making CLI command syntax part of the route-triage JSON
+contract.
 
 ## Write Set
 
@@ -33,6 +34,9 @@ into command suggestions for CLI presentation only.
 - `strategy.civilianRouteTriage` owns route status, source status, route
   reasons, safe settlement/battlefield/destination summaries, and semantic
   next-step descriptors.
+- `civ7 game play civilian-route-triage` presents the service next-step labels
+  as concise follow-up guidance; command help remains the source for exhaustive
+  flag/interface detail.
 - Direct-control remains the low-level runtime/read port provider for
   notification, ready-unit, settlement recommendation, battlefield, and
   destination evidence.

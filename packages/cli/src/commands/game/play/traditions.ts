@@ -6,6 +6,16 @@ import {
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
+type CompactTraditionAction = {
+  kind: string;
+  label: string;
+  parameters: Record<string, unknown>;
+  validationSuccess: boolean | null;
+  readOnly: boolean;
+  sendsMutation: boolean;
+  closeout: boolean;
+};
+
 export default class GamePlayTraditions extends Command {
   static id = 'game play traditions';
   static summary = 'Read current tradition slots and available policy actions';
@@ -77,7 +87,7 @@ export default class GamePlayTraditions extends Command {
 function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
   ok: true;
   contractVersion: 'play-agent-v0';
-  command: 'game play traditions';
+  surface: 'traditions';
   playerId: number;
   turn: unknown;
   turnDate: unknown;
@@ -89,7 +99,7 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
   recentUnlocks: Array<Record<string, unknown>>;
   enabledAvailableCount: number;
   disabledAvailableCount: number;
-  recommendedCli: ReadonlyArray<string>;
+  recommendedActions: CompactTraditionAction[];
   nextSteps: Civ7ProgressionTraditionsResult['nextSteps'];
   omitted: Array<{ path: string; reason: string }>;
   hiddenInfoPolicy: unknown;
@@ -97,23 +107,20 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
 } {
   const active = view.active.map((tradition) =>
     compactTraditionRow(tradition, {
-      playerId: view.playerId,
       sendCloseout: false,
     }));
   const available = view.available.map((tradition) =>
     compactTraditionRow(tradition, {
-      playerId: view.playerId,
       sendCloseout: true,
     }));
   const recentUnlocks = view.recentUnlocks.map((tradition) =>
     compactTraditionRow(tradition, {
-      playerId: view.playerId,
       sendCloseout: true,
     }));
   return {
     ok: true,
     contractVersion: 'play-agent-v0',
-    command: 'game play traditions',
+    surface: 'traditions',
     playerId: view.playerId,
     turn: view.turn,
     turnDate: view.turnDate,
@@ -125,15 +132,16 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
     recentUnlocks,
     enabledAvailableCount: available.filter((tradition) => tradition.validationSuccess === true).length,
     disabledAvailableCount: available.filter((tradition) => tradition.validationSuccess !== true).length,
-    recommendedCli: available
-      .map((tradition) => tradition.validateCli)
-      .filter((command): command is string => Boolean(command)),
+    recommendedActions: available
+      .map((tradition) => tradition.nextAction)
+      .filter((action): action is CompactTraditionAction => action != null)
+      .filter((action) => action.sendsMutation && action.validationSuccess === true),
     nextSteps: view.nextSteps,
     omitted: view.omitted,
     hiddenInfoPolicy: view.hiddenInfoPolicy,
     notes: [
       'Read-only compact tradition option surface. It does not choose or send CHANGE_TRADITION.',
-      'Use validateCli before mutation when proof matters; use sendCloseoutCli only after selecting a tradition for the review blocker.',
+      'Action guidance is semantic; command help owns exact flag combinations.',
       'If slots are full, deactivate an active tradition first, re-read, then activate the selected available tradition.',
     ],
   };
@@ -141,18 +149,11 @@ function buildCompactTraditionsView(view: Civ7ProgressionTraditionsResult): {
 
 function compactTraditionRow(
   tradition: Civ7ProgressionTraditionsResult['traditions'][number],
-  options: { playerId: number; sendCloseout: boolean },
+  options: { sendCloseout: boolean },
 ): Record<string, unknown> {
   const action = tradition.actions[0];
-  const sendCli = action
-    ? traditionChangeCli(action.parameters.traditionType, action.parameters.action)
-    : null;
-  const validateCli = action
-    ? traditionValidationCli(
-        options.playerId,
-        action.parameters.traditionType,
-        action.parameters.action,
-      )
+  const nextAction = action
+    ? compactTraditionAction(action, options.sendCloseout)
     : null;
   return {
     id: tradition.id,
@@ -168,11 +169,29 @@ function compactTraditionRow(
     actionKind: action?.kind ?? null,
     action: action?.action ?? null,
     validationSuccess: action?.validationSuccess ?? null,
-    validateCli: validateCli ? `${validateCli} --json` : null,
-    sendCli: sendCli ? `${sendCli} --send` : null,
-    sendCloseoutCli: options.sendCloseout && sendCli
-      ? `${sendCli} --send --closeout`
-      : null,
+    nextAction,
+  };
+}
+
+function compactTraditionAction(
+  action: Civ7ProgressionTraditionsResult['traditions'][number]['actions'][number],
+  closeout: boolean,
+): CompactTraditionAction {
+  return {
+    kind: action.validationSuccess === true ? action.kind : 'validate-tradition-change',
+    label: action.validationSuccess === true
+      ? action.kind === 'activate'
+        ? 'Activate this tradition.'
+        : 'Deactivate this tradition.'
+      : 'Review validation before treating this tradition as send-ready.',
+    parameters: {
+      traditionType: action.parameters.traditionType,
+      action: action.parameters.action,
+    },
+    validationSuccess: action.validationSuccess,
+    readOnly: action.validationSuccess !== true,
+    sendsMutation: action.validationSuccess === true,
+    closeout,
   };
 }
 
@@ -191,21 +210,4 @@ function formatTradition(tradition: {
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {
   if (!probe.ok) return `<error: ${probe.error}>`;
   return String(probe.value);
-}
-
-function traditionChangeCli(
-  traditionType: number,
-  action: number | null,
-): string | null {
-  if (action == null) return null;
-  return `game play change-tradition --tradition-type ${traditionType} --action ${action}`;
-}
-
-function traditionValidationCli(
-  playerId: number,
-  traditionType: number,
-  action: number | null,
-): string | null {
-  if (action == null) return null;
-  return `game play change-tradition --player-id ${playerId} --tradition-type ${traditionType} --action ${action}`;
 }

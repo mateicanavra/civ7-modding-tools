@@ -29,7 +29,8 @@ describe('game play tactical read commands', () => {
       expect(payload.view.origin).toEqual({ x: 15, y: 23 });
       expect(payload.view.destination).toEqual({ x: 20, y: 20 });
       expect(payload.view.triage.status).toMatch(/hold|reroute|proceed|inspect/);
-      expect(payload.view.triage.nextInspections.some((item) => item.includes('unit-target'))).toBe(true);
+      expect(payload.view.triage.nextInspections.some((item) => item.includes('unit action validation'))).toBe(true);
+      expect(JSON.stringify(payload.view.triage.nextInspections)).not.toContain('game play ');
       expect(payload.view.triage.reasons.length).toBeGreaterThan(0);
       expectPositiveRelationshipLabels(payload.view.triage.reasons);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -96,7 +97,8 @@ describe('game play tactical read commands', () => {
       expect(payload.view.target).toEqual({ x: 13, y: 17 });
       expect(payload.view.summary.pressure.some((item) => item.source === 'battlefield')).toBe(true);
       expect(payload.view.summary.pressure.some((item) => item.source === 'destination')).toBe(true);
-      expect(payload.view.summary.nextInspections.some((item) => item.includes('unit-target'))).toBe(true);
+      expect(payload.view.summary.nextInspections.some((item) => item.includes('unit action validation'))).toBe(true);
+      expect(JSON.stringify(payload.view.summary.nextInspections)).not.toContain('game play ');
       expectPositiveRelationshipLabels([
         ...payload.view.summary.pressure.map((item) => item.summary ?? ''),
         ...payload.view.summary.risks,
@@ -176,7 +178,8 @@ describe('game play tactical read commands', () => {
         ...payload.view.formation.reasons,
         ...payload.view.formation.nextInspections,
       ]);
-      expect(payload.view.formation.nextInspections).toContain('game play civilian-route-triage --x 16 --y 18 --json');
+      expect(payload.view.formation.nextInspections).toContain('Inspect route options for the civilian before moving.');
+      expect(JSON.stringify(payload.view.formation.nextInspections)).not.toContain('game play ');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
       expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);

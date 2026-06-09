@@ -6,7 +6,6 @@ import {
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
-type Location = Readonly<{ x: number; y: number }>;
 type TriageNextStep = Civ7StrategyCivilianRouteTriageResult['nextSteps'][number];
 type CivilianRouteTriageCliView = Omit<Civ7StrategyCivilianRouteTriageResult, 'triage'> & {
   triage: Civ7StrategyCivilianRouteTriageResult['triage'] & {
@@ -127,7 +126,7 @@ export default class GamePlayCivilianRouteTriage extends Command {
     this.log(view.triage.summary);
     this.log(`Status: ${view.triage.status}`);
     for (const reason of view.triage.reasons) this.log(`Reason: ${reason}`);
-    for (const command of view.triage.nextInspections) this.log(`Next: ${command}`);
+    for (const next of view.triage.nextInspections) this.log(`Next: ${next}`);
   }
 }
 
@@ -139,37 +138,22 @@ function buildCliView(
     triage: {
       ...result.triage,
       nextInspections: result.nextSteps
-        .map(commandForNextStep)
+        .map(nextInspectionLabel)
         .filter((item): item is string => item != null),
     },
   };
 }
 
-function commandForNextStep(step: TriageNextStep): string | null {
+function nextInspectionLabel(step: TriageNextStep): string | null {
   switch (step.kind) {
     case 'read-priorities':
-      return 'game play priorities --json';
     case 'inspect-battlefield':
-      return step.parameters.origin == null
-        ? 'game play battlefield-scan --json'
-        : `game play battlefield-scan ${locationFlags(step.parameters.origin)} --json`;
     case 'inspect-settlement':
-      return step.parameters.origin == null
-        ? 'game play settlement-recommendations --json'
-        : `game play settlement-recommendations ${locationFlags(step.parameters.origin)} --json`;
     case 'inspect-destination':
-      return step.parameters.origin != null && step.parameters.destination != null
-        ? `game play destination-analysis --from-x ${step.parameters.origin.x} --from-y ${step.parameters.origin.y} --to-x ${step.parameters.destination.x} --to-y ${step.parameters.destination.y} --json`
-        : 'game play destination-analysis --json';
     case 'inspect-front':
-      return 'game play front-summary --x <screen-x> --y <screen-y> --json';
     case 'inspect-ready-unit':
-      return 'game play ready-unit --json';
     case 'validate-unit-action':
-      return "game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json";
+      return step.label;
   }
-}
-
-function locationFlags(location: Location): string {
-  return `--x ${location.x} --y ${location.y}`;
+  return null;
 }

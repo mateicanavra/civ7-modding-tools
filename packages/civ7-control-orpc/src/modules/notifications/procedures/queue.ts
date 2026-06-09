@@ -296,7 +296,7 @@ function dispositionFor(item: QueueItem): QueueStep["disposition"] {
     return "reviewed-dismissal-candidate";
   }
   if (item.category === "unit-command") return "inspect-ready-unit";
-  if (item.operationFamily || item.cli) return "operate-with-live-inputs";
+  if (item.operationFamily) return "operate-with-live-inputs";
   if (item.category === "notification" || item.category === "blocking-notification") {
     return "inspect-handler";
   }

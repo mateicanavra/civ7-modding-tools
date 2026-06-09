@@ -105,12 +105,19 @@ describe('game play celebration and government commands', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         result: {
+          surface: string;
           enabledOptionCount: number;
           disabledOptionCount: number;
           omitted: Array<{ path: string; reason: string }>;
           surfaces: Array<{
             kind: string;
-            enabledOptions: Array<{ goldenAgeType: number; name: string; chooseCli: string | null; duration: number }>;
+            enabledOptions: Array<{
+              goldenAgeType: number;
+              name: string;
+              nextAction: { kind: string; parameters: { goldenAgeType: number }; sendsMutation: boolean };
+              validationAction: { kind: string; parameters: { goldenAgeType: number }; readOnly: boolean };
+              duration: number;
+            }>;
             options?: unknown;
             disabledOptions?: unknown;
           }>;
@@ -118,6 +125,7 @@ describe('game play celebration and government commands', () => {
         };
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
+      expect(payload.result.surface).toBe('celebration-choice-options');
       expect(payload.result.enabledOptionCount).toBe(2);
       expect(payload.result.disabledOptionCount).toBe(0);
       expect(payload.result.details).toBeUndefined();
@@ -127,7 +135,17 @@ describe('game play celebration and government commands', () => {
       const culture = payload.result.surfaces[0].enabledOptions.find((option) => option.goldenAgeType === -340825966);
       expect(culture?.name).toBe('Cultural Celebration');
       expect(culture?.duration).toBe(10);
-      expect(culture?.chooseCli).toContain('game play choose-celebration --golden-age-type -340825966 --send');
+      expect(culture?.nextAction).toMatchObject({
+        kind: 'choose-celebration',
+        parameters: { goldenAgeType: -340825966 },
+        sendsMutation: true,
+      });
+      expect(culture?.validationAction).toMatchObject({
+        kind: 'validate-celebration-choice',
+        parameters: { goldenAgeType: -340825966 },
+        readOnly: true,
+      });
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -240,12 +258,19 @@ describe('game play celebration and government commands', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         result: {
+          surface: string;
           enabledOptionCount: number;
           disabledOptionCount: number;
           omitted: Array<{ path: string; reason: string }>;
           surfaces: Array<{
             kind: string;
-            enabledOptions: Array<{ governmentType: number; name: string; chooseCli: string | null; celebrationOptions: Array<{ name: string }> }>;
+            enabledOptions: Array<{
+              governmentType: number;
+              name: string;
+              nextAction: { kind: string; parameters: { governmentType: number; action: number }; sendsMutation: boolean };
+              validationAction: { kind: string; parameters: { governmentType: number; action: number }; readOnly: boolean };
+              celebrationOptions: Array<{ name: string }>;
+            }>;
             options?: unknown;
             disabledOptions?: unknown;
           }>;
@@ -253,6 +278,7 @@ describe('game play celebration and government commands', () => {
         };
       };
       expectNormalPlayPayloadToOmitDebugInternals(payload);
+      expect(payload.result.surface).toBe('government-choice-options');
       expect(payload.result.enabledOptionCount).toBe(3);
       expect(payload.result.disabledOptionCount).toBe(0);
       expect(payload.result.details).toBeUndefined();
@@ -261,8 +287,24 @@ describe('game play celebration and government commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       const republic = payload.result.surfaces[0].enabledOptions.find((option) => option.governmentType === 0);
       expect(republic?.name).toBe('Classical Republic');
-      expect(republic?.chooseCli).toContain('game play choose-government --government-type 0 --action -1326475004 --send');
+      expect(republic?.nextAction).toMatchObject({
+        kind: 'choose-government',
+        parameters: {
+          governmentType: 0,
+          action: -1326475004,
+        },
+        sendsMutation: true,
+      });
+      expect(republic?.validationAction).toMatchObject({
+        kind: 'validate-government-choice',
+        parameters: {
+          governmentType: 0,
+          action: -1326475004,
+        },
+        readOnly: true,
+      });
       expect(republic?.celebrationOptions[0].name).toBe('Cultural Celebration');
+      expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
