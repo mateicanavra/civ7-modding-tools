@@ -101,10 +101,13 @@ not include raw telemetry/debug slots. The summary keeps status and
 no-repeat-after-unverified guidance aligned: sent records without confirmed
 postcondition proof, including missing postconditions, unverified confidence,
 stale/unknown outcomes, and pending runtime proof, remain no-repeat guarded.
-The owner also seeds proof-label guards: non-live boundaries reject
-`live-runtime-proof` and `in-game-observation` evidence labels, while
-`pending-runtime-proof` remains a pending proof class instead of a live proof
-claim.
+The owner also seeds proof-label guards and projection separation: non-live
+boundaries reject `live-runtime-proof` and `in-game-observation` evidence
+labels, while `pending-runtime-proof` remains a pending proof class instead of
+a live proof claim; normal CLI/player-agent consumers receive only the summary,
+debug/internal and raw telemetry consumers may receive the raw record, and
+AI/procedure consumers stay blocked until their accepted contract or middleware
+owner exists.
 
 `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` is the first
 operation-atom adapter owner seed. Its focused proof owner is
@@ -126,6 +129,43 @@ keeps missing postcondition, validator-blocked no-send, no-state-change,
 production-state-changed-blocker-still-live, `validation-changed`, and pending
 runtime proof paths no-repeat guarded.
 
+`packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts` is the
+third operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`. It
+adapts one diplomacy-response result shape into separated telemetry approval,
+`validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, `outcome_delta`, `blocker_delta`, and evidence-policy slots
+while using the source-owned diplomacy response postcondition as the
+proof/classification owner. It treats the legacy top-level `verified` boolean
+as source evidence only and keeps missing postcondition, validator-blocked
+no-send, `no-state-change`, `validation-changed`, and pending runtime proof
+paths no-repeat guarded.
+
+`packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts` is the
+fourth operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`. It
+adapts one narrative-choice result shape into separated telemetry approval,
+`validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+postcondition, `outcome_delta`, `blocker_delta`, and evidence-policy slots
+while using the source-owned narrative choice postcondition as the
+proof/classification owner. It treats the legacy top-level `verified` boolean
+as source evidence only and keeps missing postcondition, validator-blocked
+no-send, `no-state-change`, `validation-changed`, and pending runtime proof
+paths no-repeat guarded.
+
+`packages/civ7-direct-control/src/proof/notification-dismissal-telemetry.ts`
+is the fifth operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/test/notification-dismissal-telemetry.test.ts`.
+It adapts one notification-dismissal App UI action result shape into separated
+telemetry approval, `validation_pre`, `send_receipt`, `post_read`,
+`validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+evidence-policy slots while using
+`packages/civ7-direct-control/src/play/notifications/postconditions.ts` as the
+proof/classification owner. It treats the legacy top-level `verified` boolean
+as source evidence only and keeps missing postcondition, validator-blocked
+no-send, `not-sent`, `missing-after`, `engine-front-still-live`,
+`no-state-change`, and pending runtime proof paths no-repeat guarded.
+
 These are TypeScript structural owner seeds only. They do not choose TypeBox or
 Effect Schema, attach broad telemetry adapters to every operation atom,
 implement telemetry persistence, implement AI-ingestion, add procedure
@@ -143,9 +183,11 @@ it does not accept the row. Acceptance still needs:
   cases;
 - broader operation-atom adapters that produce records from existing
   direct-control approval, validation, send, post-read, and postcondition owners
-  beyond the seeded unit-target and production-choice result adapters;
-- projection separation tests proving normal CLI, debug/internal service,
-  AI-ingestion, and procedure-core outputs remain distinct;
+  beyond the seeded unit-target, production-choice, diplomacy-response,
+  narrative-choice, and notification-dismissal result adapters;
+- final projection implementation tests at the normal CLI, debug/internal
+  service, AI-ingestion, and procedure-core owners, beyond the local telemetry
+  projection-separation owner seed;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or
   resources from being labeled as live runtime proof across all future
   producers and projections;

@@ -1,3 +1,5 @@
+import { Type, type Static } from "typebox";
+
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "../direct-control-error.js";
 
 import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "../session/constants.js";
@@ -8,7 +10,33 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
-import { probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
+
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7TunerHealthInputSchema = Type.Object({}, { additionalProperties: false });
+
+export const Civ7TunerHealthSnapshotSchema = Type.Object({
+  evalOk: Type.Number(),
+  ready: Type.Boolean(),
+  globals: Type.Object({
+    Game: Type.String(),
+    Autoplay: Type.String(),
+    GameplayMap: Type.String(),
+    Players: Type.String(),
+    Network: Type.String(),
+  }, { additionalProperties: false }),
+  turn: Civ7RuntimeProbeSchema(Type.Number()),
+  turnDate: Civ7RuntimeProbeSchema(Type.String()),
+  width: Civ7RuntimeProbeSchema(Type.Number()),
+  height: Civ7RuntimeProbeSchema(Type.Number()),
+  aliveIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
+  aliveHumanIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
+  autoplayActive: Civ7RuntimeProbeSchema(Type.Boolean()),
+}, { additionalProperties: false });
 
 export type Civ7TunerHealthSnapshot = Readonly<{
   evalOk: number;
@@ -29,6 +57,14 @@ export type Civ7TunerHealthSnapshot = Readonly<{
   autoplayActive: Civ7RuntimeProbe<boolean>;
 }>;
 
+export const Civ7TunerHealthResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  ready: Type.Boolean(),
+  snapshot: Civ7TunerHealthSnapshotSchema,
+}, { additionalProperties: false });
+
 export type Civ7TunerHealthResult = Readonly<{
   host: string;
   port: number;
@@ -37,7 +73,11 @@ export type Civ7TunerHealthResult = Readonly<{
   snapshot: Civ7TunerHealthSnapshot;
 }>;
 
-type TunerHealthSessionDependencies = Readonly<{
+export type Civ7TunerHealthInput = Readonly<Static<typeof Civ7TunerHealthInputSchema>>;
+export type Civ7TunerHealthSnapshotContract = Readonly<Static<typeof Civ7TunerHealthSnapshotSchema>>;
+export type Civ7TunerHealthResultContract = Readonly<Static<typeof Civ7TunerHealthResultSchema>>;
+
+export type TunerHealthSessionDependencies = Readonly<{
   executeSessionCommandWithReconnect: (
     session: Civ7DirectControlSession,
     options: Readonly<{
@@ -49,7 +89,7 @@ type TunerHealthSessionDependencies = Readonly<{
   ) => Promise<Civ7CommandResult>;
 }>;
 
-type TunerHealthDependencies = TunerHealthSessionDependencies & Readonly<{
+export type TunerHealthDependencies = TunerHealthSessionDependencies & Readonly<{
   withSession: <T>(
     options: Civ7DirectControlOptions,
     run: (session: Civ7DirectControlSession) => Promise<T>,

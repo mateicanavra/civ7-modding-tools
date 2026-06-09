@@ -556,15 +556,19 @@ Intake rejection conditions:
 - `sourceOwner`: `packages/civ7-direct-control/src/proof/operation-telemetry.ts`
   owner seed for record slot vocabulary, structural constructor, and normal
   summary boundary; `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
-  and `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
-  seed the first two operation-result adapters while broader
+  `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`,
+  `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`, and
+  `packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts` seed
+  the first four operation-result adapters while broader
   operation-specific adapters remain under their existing operation/proof atom
   owners
 - `proofOwner`: `packages/civ7-direct-control/test/operation-telemetry.test.ts`
   owner-seed proof plus
-  `packages/civ7-direct-control/test/unit-target-telemetry.test.ts` and
-  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts` for
-  the current adapter seeds; final row proof/gate owner remains pending
+  `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`,
+  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
+  `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`, and
+  `packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`
+  for the current adapter seeds; final row proof/gate owner remains pending
 - `playerScope`: operation-local, player-scoped, and agent-slot-scoped for
   mutation-facing records; observer/debug scoped for diagnostics
 - `consumerClass`: proof telemetry; AI-intelligence ingestion; debug/internal
@@ -582,10 +586,10 @@ Intake rejection conditions:
   deltas, runtime observation links, and stale/unknown classification
 - `proofLabel`: `pending-telemetry-contract`
 - `acceptanceStatus`: `pending-telemetry-contract`; source/proof owner seed plus
-  unit-target and production-choice operation-result adapter seeds exist, but
-  telemetry schema owner, broader operation-atom adapters,
-  normal/debug/AI/procedure projection separation tests, and final runtime
-  proof boundary gates are not assigned
+  unit-target, production-choice, diplomacy-response, and narrative-choice
+  operation-result adapter seeds exist, but telemetry schema owner, broader
+  operation-atom adapters, normal/debug/AI/procedure projection separation
+  tests, and final runtime proof boundary gates are not assigned
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
   middleware, action audit vocabulary, semantic CLI proof summaries
 - `stopCondition`: stop if telemetry trains or acts on vague `verified: true`,
@@ -619,7 +623,15 @@ Intake rejection conditions:
   `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` with
   focused proof in
   `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
-  adapting one production-choice result shape into separated telemetry slots.
+  adapting one production-choice result shape into separated telemetry slots,
+  and `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`
+  with focused proof in
+  `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`,
+  adapting one diplomacy-response result shape into separated telemetry slots,
+  and `packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts`
+  with focused proof in
+  `packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`,
+  adapting one narrative-choice result shape into separated telemetry slots.
   Missing before acceptance: a final schema/test owner, broader operation-atom
   adapter owners, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
@@ -638,10 +650,12 @@ Intake rejection conditions:
   correlation id, source/freshness label, stale/unknown classification, proof
   classes, projection boundaries, acceptance gaps, and stop conditions. The
   current source artifact adds the internal record slot vocabulary,
-  constructor, postcondition sanitizer, normal summary boundary, and first
-  unit-target plus production-choice operation-result adapters. Missing before
-  acceptance: a schema/test owner, broader operation-atom adapters, and
-  projection-separation implementation tests over that record contract.
+  constructor, postcondition sanitizer, normal summary/projection boundary, and first
+  unit-target, production-choice, diplomacy-response, narrative-choice, and
+  notification-dismissal operation-result adapters. Missing before acceptance:
+  a schema/test owner, broader operation-atom adapters, and
+  final consumer-owned projection implementation tests over that record
+  contract.
 - `proofPlan`: existing local proof covers approval-first behavior,
   validator-first no-send paths, focused send/read split, postcondition
   classification, no-repeat-after-unverified guidance, notification identity
@@ -663,13 +677,39 @@ Intake rejection conditions:
   slots while using `productionPostcondition` as the classification owner;
   missing postcondition, validator-blocked no-send, no-state-change,
   blocker-still-live, `validation-changed`, and pending-runtime-proof paths
+  remain no-repeat guarded. Diplomacy-response
+  adapter proof verifies that a diplomacy result shape maps approval,
+  `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+  postcondition, `outcome_delta`, and `blocker_delta` into separate telemetry
+  slots while using the source-owned diplomacy response postcondition as the
+  classification owner; missing postcondition, validator-blocked no-send,
+  `no-state-change`, `validation-changed`, and pending-runtime-proof paths
+  remain no-repeat guarded. Narrative-choice adapter proof verifies that a
+  narrative result shape maps approval, `validation_pre`, `send_receipt`,
+  `post_read`, `validation_post`, postcondition, `outcome_delta`, and
+  `blocker_delta` into separate telemetry slots while using the source-owned
+  narrative choice postcondition as the classification owner; missing
+  postcondition, validator-blocked no-send, `no-state-change`,
+  `validation-changed`, and pending-runtime-proof paths remain no-repeat
+  guarded. Notification-dismissal adapter proof verifies that an App UI action
+  result shape maps approval, `validation_pre`, `send_receipt`, `post_read`,
+  `validation_post`, postcondition, `outcome_delta`, and `blocker_delta` into
+  separate telemetry slots while using the source-owned notification dismissal
+  postcondition as the classification owner; missing postcondition,
+  validator-blocked no-send, `not-sent`, `missing-after`,
+  `engine-front-still-live`, `no-state-change`, and pending-runtime-proof paths
   remain no-repeat guarded. Proof-label guard coverage now rejects local,
   planning, pending, and other non-live telemetry records that try to carry
   `live-runtime-proof` or `in-game-observation` labels, while allowing those
-  labels only under an explicit `live-runtime-proof` boundary. Missing proof
-  before acceptance: broader adapter fixtures for stale/unknown/outcome evidence,
-  normal/debug/AI/procedure projection separation tests, and runtime-proof
-  labeling tests that prevent local tests or docs from becoming live proof.
+  labels only under an explicit `live-runtime-proof` boundary. Projection
+  separation proof now routes normal CLI/player-agent consumers to the semantic
+  summary only, permits raw records only for debug/internal or raw telemetry
+  consumers, and keeps AI-ingestion/procedure consumers blocked until their
+  accepted contract or middleware owner exists. Missing proof before
+  acceptance: broader adapter fixtures for stale/unknown/outcome evidence,
+  final normal/debug/AI/procedure consumer implementation tests, and
+  runtime-proof labeling tests that prevent local tests or docs from becoming
+  live proof.
 - `projectionPlan`: normal CLI may receive only summarized state-machine
   status and explicit stale/unknown/postcondition classifications through the
   semantic CLI row; debug/internal service output may expose raw proof detail
@@ -679,13 +719,14 @@ Intake rejection conditions:
 - `stopConditionCoverage`: partial owner-seed coverage now proves the structural
   telemetry constructor does not carry a legacy `verified` boolean as the
   postcondition contract and keeps raw telemetry slots out of the normal
-  summary boundary. It also rejects live-runtime and in-game proof labels under
-  non-live proof boundaries. Required coverage before acceptance must still
-  fail if telemetry collapses approval, validation, send, postcondition,
-  post-read, and outcome evidence into `verified: true`; if AI ingestion or
-  procedure cores consume raw CLI/debug strings; or if future producers or
-  projections relabel local tests, target threads, peer reports, logs, or docs
-  as live runtime proof.
+  summary/projection boundary. It also rejects live-runtime and in-game proof
+  labels under non-live proof boundaries, and blocks local AI/procedure
+  projection until those owners accept contracts. Required coverage before
+  acceptance must still fail if telemetry collapses approval, validation, send,
+  postcondition, post-read, and outcome evidence into `verified: true`; if AI
+  ingestion or procedure cores consume raw CLI/debug strings; or if future
+  producers or projections relabel local tests, target threads, peer reports,
+  logs, or docs as live runtime proof.
 - `downstreamUnblock`: none yet. Acceptance would unblock only explicitly named
   telemetry contract, action-audit vocabulary, and later procedure middleware
   slices after schema/proof owners and separation tests are recorded; it would
@@ -707,23 +748,58 @@ Intake rejection conditions:
 - `primaryConsumer`: shared oRPC/Effect procedure substrate over stable atoms,
   including the in-game controller router, external direct-control bridge, and
   future AI services
-- `sourceOwner`: pending procedure-core schema owner
-- `proofOwner`: pending procedure-core schema proof owner
+- `sourceOwner`: `packages/civ7-direct-control/src/procedure-core.ts` owner
+  seed for direct-control procedure descriptors, TypeBox descriptor schema,
+  projection policy slots, proof boundary slots, player scope, consumer class,
+  mutation gate metadata, and no-raw-command-tunnel guards over generic raw
+  fields plus repo-local command serialization and session execute owners, and
+  a local guard refusing `live-runtime-proof` claims before a runtime-proof
+  owner exists; descriptor context-policy metadata, payload validation, and a
+  local injected-handler call primitive now exist for current schema/descriptor
+  seeds; concrete ready-unit, ready-city, unit move-preview, playable-status,
+  and App UI snapshot procedure call wrappers exist adjacent to their
+  direct-control atoms; final procedure-core/schema/runtime-context,
+  middleware, error, and correlation owners remain pending
+- `proofOwner`: `packages/civ7-direct-control/test/procedure-core.test.ts`
+  owner-seed proof for descriptor construction, generic raw tunnel rejection,
+  `runtime/command-serialization` / `jsLiteral` rejection,
+  `session/execute` / `executeCiv7Command` rejection, mutation gate
+  requirements, local `live-runtime-proof` rejection, payload validation,
+  injected-handler call sequencing, correlation-id policy, handler failure
+  normalization, and telemetry-as-Effect/oRPC-middleware projection; final row
+  proof/gate owner remains pending.
+  `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`,
+  `packages/civ7-direct-control/test/ready-city-procedure.test.ts`, and
+  `packages/civ7-direct-control/test/unit-move-preview-procedure.test.ts` now
+  also prove adjacent concrete read procedure call wrappers with fake atom
+  dependencies. `packages/civ7-direct-control/test/playable-status-procedure.test.ts`
+  now also proves the adjacent concrete runtime-support procedure call wrapper
+  with fake App UI/Tuner dependencies.
+  `packages/civ7-direct-control/test/app-ui-snapshot-procedure.test.ts` now
+  also proves the adjacent concrete App UI snapshot procedure call wrapper with
+  a fake App UI command dependency.
+  `packages/civ7-direct-control/test/tuner-health-procedure.test.ts` now also
+  proves the adjacent concrete Tuner health procedure call wrapper with fake
+  session/reconnect dependencies.
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
 - `consumerClass`: Effect/oRPC procedure core; in-game controller service
   boundary; external direct-control service boundary; future AI-intelligence
   and player-agent clients through typed contracts
-- `evidenceClass`: repo docs; target-thread evidence; peer reports; local tests
-  pending; runtime proof pending for live claims
-- `procedureCandidate`: needs schema/type extraction first
+- `evidenceClass`: repo docs; target-thread evidence; peer reports; local
+  package tests for the descriptor owner seed; runtime proof pending for live
+  claims
+- `procedureCandidate`: descriptor owner seed exists; concrete procedure
+  inputs/outputs still need schema/type ownership before typed oRPC cores
 - `normalCliProjection`: omitted field; CLI shell remains oclif and semantic
   CLI output is a separate surface
 - `debugServiceProjection`: correlation/audit detail, typed errors, approval
   gates, telemetry hooks, resource/schedule/stream diagnostics where appropriate
 - `proofLabel`: `pending-procedure-core-schema`
-- `acceptanceStatus`: `pending-procedure-core-schema`; schema owner, proof
-  owner, procedure contract, middleware boundary, and tests not assigned
+- `acceptanceStatus`: `pending-procedure-core-schema`; descriptor source/proof
+  owner seed exists, but final schema owner, proof owner, concrete procedure
+  contracts, middleware boundary, final runtime context/error/correlation
+  owners, and integration tests are not assigned
 - `blockingDependents`: tasks 6.1-6.9, in-game controller router modules,
   transport adapters, procedure middleware, Effect/Bun resource/concurrency
   implementation, oRPC package behavior
@@ -746,15 +822,87 @@ Intake rejection conditions:
 
 - `ownerAssignment`: partial planning evidence exists from the oRPC authority
   citation, controller-bridge substrate repair, TypeBox versus Effect Schema
-  report disposition, and current direct-control atom owners. Missing before
-  acceptance: named procedure-core source owner, schema owner, proof owner,
-  context/middleware/error/correlation owner, and explicit owner boundaries for
-  the in-game controller router, external direct-control bridge, and future AI
-  services.
-- `writeSet`: current write set is docs/OpenSpec only. Future implementation
-  write sets must name the exact procedure-core module or package, typed schema
-  artifact, middleware/context/error/correlation tests, and narrow adapters to
-  stable direct-control atom owners. No transport adapter,
+  report disposition, and current direct-control atom owners. The current
+  descriptor source/proof owner seed is
+  `packages/civ7-direct-control/src/procedure-core.ts` with proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts`. The first
+  concrete read-atom schema owner seed is
+  `packages/civ7-direct-control/src/play/ready/unit.ts` with focused proof in
+  `packages/civ7-direct-control/test/ready-unit-view.test.ts` and public
+  facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+  The second concrete read-atom schema owner seed is
+  `packages/civ7-direct-control/src/play/ready/city.ts` with focused proof in
+  `packages/civ7-direct-control/test/ready-city-view.test.ts` and public
+  facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+  The third concrete read-atom schema owner seed is
+  `packages/civ7-direct-control/src/play/ready/move-preview.ts`, with the
+  shared map-location schema owner in
+  `packages/civ7-direct-control/src/play/map/types.ts`, focused proof in
+  `packages/civ7-direct-control/test/unit-move-preview.test.ts`, and public
+  facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+  The first concrete runtime-support schema owner seed is
+  `packages/civ7-direct-control/src/runtime/playable-status.ts`, with
+  supporting App UI snapshot and Tuner health schema owners in
+  `packages/civ7-direct-control/src/runtime/{app-ui-snapshot,tuner-health}.ts`,
+  focused proof in
+  `packages/civ7-direct-control/test/runtime-and-catalog.test.ts`, and public
+  facade proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+  The descriptor owner now binds procedure descriptors to schema references
+  with `inputSchema` and `outputSchema` owner/export slots, and current proof
+  binds `unit.ready.view` to the ready-unit schema exports and resolves those
+  references against explicit schema artifacts. The first concrete adjacent
+  descriptor artifact is now
+  `packages/civ7-direct-control/src/play/ready/unit-procedure.ts`, with proof
+  in `packages/civ7-direct-control/test/ready-unit-procedure.test.ts`. The
+  second concrete adjacent descriptor artifact is now
+  `packages/civ7-direct-control/src/play/ready/city-procedure.ts`, with proof
+  in `packages/civ7-direct-control/test/ready-city-procedure.test.ts`. The
+  third concrete adjacent descriptor artifact is now
+  `packages/civ7-direct-control/src/play/ready/move-preview-procedure.ts`,
+  with proof in
+  `packages/civ7-direct-control/test/unit-move-preview-procedure.test.ts`. The
+  first adjacent runtime-support descriptor artifact is now
+  `packages/civ7-direct-control/src/runtime/playable-status-procedure.ts`,
+  with proof in
+  `packages/civ7-direct-control/test/playable-status-procedure.test.ts`. The
+  second adjacent runtime-support descriptor artifact is now
+  `packages/civ7-direct-control/src/runtime/app-ui-snapshot-procedure.ts`,
+  with proof in
+  `packages/civ7-direct-control/test/app-ui-snapshot-procedure.test.ts`. The
+  third adjacent runtime-support descriptor artifact is now
+  `packages/civ7-direct-control/src/runtime/tuner-health-procedure.ts`, with
+  proof in `packages/civ7-direct-control/test/tuner-health-procedure.test.ts`.
+  The descriptor owner also records `schemaTechnology`, requires current
+  adjacent descriptors to declare `typebox`, and rejects unaccepted
+  `effect-schema` or `zod-adapter` claims before procedure promotion. The
+  descriptor resolver now validates descriptor field lists against resolved
+  schema root properties. The procedure-core owner now also validates local
+  procedure input/output payloads against explicitly resolved TypeBox schema
+  artifacts, with proof in
+  `packages/civ7-direct-control/test/procedure-core.test.ts` and public facade
+  export proof in `packages/civ7-direct-control/test/public-api.test.ts`.
+  The procedure-core owner now also has a no-network call primitive over an
+  injected handler, with focused proof for input-before-handler validation,
+  output-after-handler validation, separated output/diagnostics, generated and
+  caller-provided correlation IDs, and handler failure normalization. The
+  concrete ready-unit, ready-city, unit move-preview, playable-status, App UI
+  snapshot, and Tuner health procedure call wrappers now compose that primitive with
+  `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
+  `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`, and
+  `getCiv7AppUiSnapshot`, and `checkCiv7TunerHealth` through fake
+  direct-control dependencies in focused proof.
+  Missing before acceptance: final procedure-core schema owner, proof owner,
+  accepted TypeBox versus Effect Schema disposition for final procedure
+  contracts, runtime-context/middleware/error/correlation owner, broader
+  concrete procedure owners, and explicit owner boundaries for the in-game
+  controller router, external direct-control bridge, and future AI services.
+- `writeSet`: current write set is the direct-control procedure descriptor
+  owner, adjacent descriptor metadata declaring current TypeBox schema
+  technology, focused descriptor/public facade proof, and docs/OpenSpec
+  records.
+  Future implementation write sets must name the exact procedure-core module or
+  package, typed schema artifact, middleware/context/error/correlation tests,
+  and narrow adapters to stable direct-control atom owners. No transport adapter,
   `packages/civ7-control-orpc` behavior, in-game controller router source,
   CLI shell rewrite, AI ingestion, telemetry persistence, raw JS command
   tunnel, broad `common`/`utils`/`types` bucket, or hand-maintained App UI
@@ -768,25 +916,225 @@ Intake rejection conditions:
   ownership, middleware boundaries, acceptance gaps, and stop conditions.
   Missing before acceptance: named source/schema/proof owners,
   context/middleware/error/correlation owners, explicit controller/external/AI
-  service boundaries, and implementation tests over that procedure contract.
-- `proofPlan`: current proof is planning evidence and local atom test evidence
-  only. Missing before acceptance: oRPC schema/procedure validation test
-  against `workstream/procedure-core-contract.md`, error-shape snapshot,
-  encode/decode round trip, Bun runtime check, CLI semantic projection test,
-  AI-ingestion contract fixture test, middleware approval/correlation/error
-  tests, and no-raw-command-tunnel tests over stable direct-control atoms.
+  service boundaries, and implementation tests over concrete procedure
+  contracts. The current source artifact adds a TypeBox-backed descriptor
+  schema and guard owner for procedure keys, stable atom owners, projection
+  policy, proof boundary, player scope, consumer class, and mutation gate
+  metadata, including command-source/session-execute owner rejection and local
+  `live-runtime-proof` claim rejection. The descriptor artifact now also
+  records `inputSchema` and `outputSchema` references with direct-control owner
+  guards, simple export-name guards, and raw command-source/session-execute
+  rejection for schema references, plus local schema-reference resolution
+  against explicit caller-provided schema artifacts. The descriptor artifact now
+  also records context requirements for the direct-control facade, endpoint
+  defaults, state selection, logger, evidence sink, and live-session policy on
+  current descriptor seeds, and rejects host/port/state fields from procedure
+  input when those concerns are context-owned. The current source
+  artifact also adds TypeBox input/output schemas for the existing
+  `getCiv7ReadyUnitView` read atom, including bounded
+  `radius`/`maxOperations` input and root-level output shape separation from
+  raw command fields. The adjacent ready-unit descriptor artifact records that
+  read atom's procedure metadata and schema artifact map without registering a
+  router. The current source artifact now also adds TypeBox input/output
+  schemas for the existing `getCiv7ReadyCityView` read atom, including bounded
+  `cityId`/`maxOperations` input and root-level output shape separation from
+  raw command fields. The adjacent ready-city descriptor artifact records that
+  read atom's procedure metadata and schema artifact map without registering a
+  router. The current source artifact now also adds TypeBox input/output
+  schemas for the existing `getCiv7UnitMovePreview` read atom, including
+  bounded `unitId`/`destination`/`maxPlots`/`maxPathPlots` input,
+  validator-equivalent `Civ7MapLocationSchema` bounds, neutral
+  `relationshipPolicy`, and root-level output shape separation from raw command
+  fields. The adjacent unit move-preview descriptor artifact records that read
+  atom's procedure metadata and schema artifact map without registering a
+  router. The current source artifact now also adds TypeBox input/output
+  schemas for the existing `getCiv7PlayableStatus` runtime-support atom,
+  including an empty input schema that keeps endpoint/session selection in
+  procedure context instead of host/port/state/raw-command procedure input,
+  App UI snapshot and Tuner health result schemas, and composed
+  playable-status result schema coverage for tuner-ready and non-ready
+  shell/unavailable/error shapes. The adjacent playable-status descriptor
+  artifact records that runtime-support atom's procedure metadata and schema
+  artifact map without registering a router. The current source artifact now
+  also adds an empty TypeBox input schema for the existing
+  `getCiv7AppUiSnapshot` runtime-support atom, keeping endpoint/session/state
+  selection in procedure context rather than procedure input. The adjacent
+  App UI snapshot descriptor artifact records that runtime-support atom's
+  procedure metadata and schema artifact map without registering a router. The
+  current procedure-core source
+  artifact now also validates input/output payloads against resolved TypeBox
+  schema artifacts, returning typed direct-control errors with local
+  input/output schema-invalid reasons when payloads do not match, without
+  executing atoms or registering a router. The current procedure-core source
+  artifact now also adds a no-network call primitive that validates input before
+  an injected handler, validates output after the handler, returns procedure
+  output separately from debug/telemetry diagnostics, resolves correlation IDs
+  according to descriptor policy, and normalizes handler failures with typed
+  direct-control error details, without executing live atoms or registering a
+  router. The adjacent ready-unit, ready-city, and unit move-preview procedure
+  artifacts now also export concrete `unit.ready.view`, `city.ready.view`, and
+  `unit.move.preview` call wrappers that use the local call primitive to
+  validate input, invoke the stable read atoms, validate output, and return
+  diagnostics separately from the atom output. The adjacent playable-status
+  procedure artifact now also exports a concrete `runtime.playable.status` call
+  wrapper that uses the same primitive to validate empty input, invoke the
+  stable runtime-support atom, validate ready and unavailable output shapes, and
+  return diagnostics separately from the atom output. The adjacent App UI
+  snapshot procedure artifact now also exports a concrete
+  `runtime.app.ui.snapshot` call wrapper that uses the same primitive to
+  validate empty input, invoke the stable runtime-support atom, validate raw
+  App UI diagnostic output, and return diagnostics separately from the atom
+  output.
+- `schemaOwner`: current TypeBox descriptor shape is now runtime-validated in
+  the direct-control descriptor owner before semantic guards, with local proof
+  for malformed projection, consumer-class, array-field, and extra-property
+  cases. Current TypeBox read-atom schema ownership is seeded for
+  `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`, and
+  `getCiv7UnitMovePreview`, with focused proof that the existing fake Tuner
+  results match their result schemas and raw-command fields are rejected at the
+  result root. The map-location schema now matches the existing
+  `validateMapLocation` bounded-integer `0..1_000_000` validator boundary, with
+  fractional, negative, over-bound, and extra-property proof both at the shared
+  schema and inherited unit move-preview input schema. Current descriptor
+  schema references bind `unit.ready.view`, `city.ready.view`, and
+  `unit.move.preview` procedure descriptors to those schema exports and reject
+  schema owners outside `@civ7/direct-control`, expression-like export names,
+  raw command-source/session schema references, and unresolved referenced
+  schema artifacts. Current focused proof also checks the concrete ready-unit,
+  ready-city, and unit move-preview descriptors' input/output field lists
+  against resolved TypeBox schema root properties, including ready-unit
+  `legalOperations` instead of the stale `operationCandidates` fixture name,
+  ready-city `legalOperations`/`productionCandidates`/`townFocusOptions`/
+  `populationPlacement`, and unit move-preview reachability,
+  queued/requested destination/path, plus neutral `relationshipPolicy`, through
+  the generic descriptor resolver guard. Current TypeBox runtime-support schema
+  ownership is also seeded for `getCiv7PlayableStatus`, with focused proof that
+  existing fake App UI/Tuner results match the App UI snapshot, Tuner health,
+  and playable-status result schemas, that non-ready shell and unavailable
+  error shapes validate with omitted optional `tuner`, failed probes, and
+  `errors` evidence, and that the empty procedure input rejects host/port/state
+  and raw command/session selection. Current App UI snapshot procedure proof
+  also checks the empty input schema rejects host/port/state and raw
+  command/session selection while the output field list resolves against the
+  App UI snapshot result schema. Current procedure-core payload validation
+  proof validates ready-unit input/output payloads and unit move-preview
+  validator-equivalent map-location inputs against resolved descriptor schema
+  artifacts, including raw root-field rejection. Current procedure-call proof
+  runs the same resolved schema artifacts around an injected handler, proving
+  input-before-handler and output-after-handler sequencing. Current descriptor
+  proof also records TypeBox as the accepted local schema technology and
+  rejects unaccepted Effect Schema/Zod adapter descriptor claims before
+  promotion. This is not a TypeBox versus Effect Schema migration decision and
+  does not prove broader concrete procedure input/output schemas or runtime
+  router schema registration.
+- `concreteProcedureOwner`: current concrete procedure proof exists for
+  `unit.ready.view`, `city.ready.view`, `unit.move.preview`,
+  `runtime.playable.status`, and `runtime.app.ui.snapshot`, where the adjacent
+  procedure wrappers compose
+  `getCiv7ReadyUnitView`, `getCiv7ReadyCityView`,
+  `getCiv7UnitMovePreview`, `getCiv7PlayableStatus`, and
+  `getCiv7AppUiSnapshot` with the
+  procedure-core call primitive through fake dependencies. They prove input
+  rejection before atom dependencies run, direct-control option forwarding into
+  the atoms, atom output validation, separated diagnostics, neutral
+  move-preview relationship-policy preservation, and playable-status
+  readiness/error/tuner-absence output validation, and App UI snapshot raw
+  diagnostic output validation. Broader concrete procedures, runtime router
+  registration, and oRPC handler registration remain pending.
+- `errorOwner`: current descriptor-owner failures now use
+  `Civ7DirectControlError` with code `procedure-descriptor-invalid` and
+  structured reason/details for schema mismatch, raw command tunnel, missing
+  mutation gates, local input/output schema-invalid payload validation, and
+  local correlation-id policy failures. The injected-handler call primitive
+  wraps handler failures with `procedure-call-failed` and structured
+  procedure/correlation/source-error details. This is not final router/procedure
+  middleware error shaping and does not prove external transport error formats.
+- `correlationOwner`: current descriptor-owner shape now records correlation
+  policy: generated-per-call or caller-provided-and-validated IDs, normal CLI
+  omitted by default, debug diagnostics included, and telemetry attached only
+  when procedure telemetry is enabled. The local injected-handler call primitive
+  now generates or validates correlation IDs according to that policy and keeps
+  correlation in diagnostics rather than the returned procedure output. This
+  does not implement final procedure middleware correlation propagation or
+  external transport formatting.
+- `contextOwner`: current descriptor-owner shape now records local context
+  requirements for direct-control facade access, endpoint defaults, state
+  selection, logger, evidence sink, and playable-status live-session policy,
+  with local proof that host/port/state procedure input fields are rejected
+  when endpoint/state selection is context-owned. This is not final runtime
+  context construction, dependency injection, resource/layer setup, middleware,
+  or external transport context formatting.
+- `proofPlan`: current proof is planning evidence, local atom test evidence,
+  and focused descriptor-owner tests proving read atom descriptors, raw
+  command tunnel rejection for generic raw fields and repo-local
+  `command-serialization`/`session/execute` owners, malformed descriptor-shape
+  rejection through TypeBox runtime validation, descriptor typed-error
+  details, descriptor correlation policy with normal CLI omission by default,
+  local `live-runtime-proof` claim rejection before runtime-proof ownership,
+  descriptor context requirements with endpoint/state input rejection,
+  ready-unit, ready-city, and unit move-preview read-atom input/output schemas
+  over stable direct-control atoms, shared map-location schema proof aligned to
+  the atom validator boundary, ready-unit, ready-city, and unit move-preview
+  descriptor schema-reference binding plus local schema artifact resolution,
+  adjacent ready-unit, ready-city, and unit move-preview procedure descriptor
+  artifacts with generic resolver schema-root field-list proof, playable-status
+  runtime-support input/output schemas over the composed App UI/Tuner status
+  atom including non-ready shell/unavailable/error shape proof, an adjacent
+  playable-status procedure descriptor artifact with generic resolver
+  schema-root field-list proof, App UI snapshot runtime-support empty-input
+  schema and adjacent procedure descriptor artifact with generic resolver
+  schema-root field-list proof, local procedure-core input/output payload
+  validation against resolved TypeBox schema artifacts for ready-unit and unit
+  move-preview descriptors, local injected-handler procedure-call proof for
+  input-before-handler/output-after-handler sequencing, separated
+  output/diagnostics, correlation-id policy, and handler failure normalization,
+  adjacent ready-unit, ready-city, unit move-preview, playable-status, and
+  App UI snapshot procedure call proof over stable direct-control atoms with
+  fake dependencies,
+  mutation approval/validator/postcondition/no-repeat gate requirements,
+  telemetry projection as an Effect/oRPC middleware hook rather than a separate
+  transport surface, and schema-technology proof that current descriptors
+  declare TypeBox while unaccepted Effect Schema/Zod adapter claims fail before
+  promotion. Missing before acceptance: final oRPC schema/procedure
+  validation tests beyond this local TypeBox payload/call helper, final
+  router/procedure error-shape snapshot, encode/decode round trip, Bun runtime
+  check, CLI semantic projection test, AI-ingestion contract
+  fixture test,
+  final middleware approval/correlation/error tests, and no-raw-command-tunnel
+  tests in the final router/procedure owner.
 - `projectionPlan`: normal CLI remains omitted here and belongs to the
   semantic CLI row; the oclif shell remains separate. Debug/internal service
   diagnostics belong to the debug row. AI ingestion consumes typed contracts
   only through the AI row. Telemetry hooks compose only after the telemetry row.
   `globalThis.Civ7IntelligenceBridge.invoke(...)` is serialized ingress into
   the in-process oRPC/Effect router, not the product API.
-- `stopConditionCoverage`: missing before acceptance. Required coverage must
-  fail if transport adapters or `packages/civ7-control-orpc` behavior precede
-  procedure-core contracts/tests, if raw command strings become procedure
-  architecture, if the App UI bridge is treated as the product API, if Zod
-  becomes an accidental durable schema authority, or if procedure-core schema
-  work starts without TypeBox / Effect Schema / adapter disposition and tests.
+- `stopConditionCoverage`: partial owner-seed coverage now fails generic raw
+  command tunnel descriptors and descriptors over the repo-local command
+  serializer/session execution owners before they can become procedure cores,
+  fails malformed descriptor shapes before semantic promotion, and fails
+  mutation descriptors without approval, validator-first, postcondition, and
+  no-repeat-after-unverified gate metadata, with typed descriptor errors for
+  those local owner checks, rejects local `live-runtime-proof` descriptor
+  claims, rejects descriptor policies that make correlation visible in
+  normal output, rejects host/port/state input fields when endpoint/state
+  selection is context-owned by the descriptor, and rejects invalid local
+  procedure input/output payloads against resolved descriptor schema artifacts.
+  It also fails local calls before handler execution on invalid input, fails
+  after handler execution on invalid output, requires caller-provided
+  correlation IDs where descriptor policy says so, and wraps injected-handler
+  failures with procedure/correlation details. The adjacent ready-unit,
+  ready-city, unit move-preview, playable-status, and App UI snapshot wrappers
+  fail before their atom dependencies run when procedure input is invalid.
+  Current descriptors also fail before promotion if they claim unaccepted
+  `effect-schema` or `zod-adapter` ownership instead of the current TypeBox
+  descriptor contract.
+  Required coverage before acceptance must still fail if
+  transport adapters or `packages/civ7-control-orpc`
+  behavior precede concrete procedure-core contracts/tests, if raw command
+  strings become router architecture, if the App UI bridge is treated as the
+  product API, if Zod becomes an accidental durable schema authority, or if
+  procedure-core schema work starts without TypeBox / Effect Schema / adapter
+  ownership and tests.
 - `downstreamUnblock`: none yet. Acceptance would unblock only specifically
   named 6.x procedure-core schema, middleware, context, error, and correlation
   slices after owners/proofs are assigned. It would not unblock transport
@@ -794,7 +1142,8 @@ Intake rejection conditions:
   persistence, CLI semantic implementation, hotseat runtime proof, or runtime
   proof by itself.
 - `nonProofClaims`: this intake does not implement Effect/oRPC, migrate
-  schemas, add procedure-core source, add transport adapters, implement the
-  in-game controller router, claim runtime/live-game proof, accept Task 2.9.4,
-  or unblock CLI semantic output, debug hierarchy implementation, telemetry,
-  AI ingestion, hotseat runtime proof, or product-path support.
+  schemas, add concrete router/procedure behavior, add transport adapters,
+  implement the in-game controller router, claim runtime/live-game proof,
+  accept Task 2.9.4, or unblock CLI semantic output, debug hierarchy
+  implementation, telemetry, AI ingestion, hotseat runtime proof, or
+  product-path support.

@@ -1117,7 +1117,7 @@ export function playNotificationViewSource(): string {
           "Discovery notifications are checked against getFirstPendingDiscoveryLastMetID before the regular pending met story id.",
           "When the official panel is already visible, options can be sourced from small-narrative-event._component.targetStoryId and fxs-reward-button choice keys, then validated through CHOOSE_NARRATIVE_STORY_DIRECTION.",
           "When a real story has no linked choices, the official UI emits a CLOSE option with CHOOSE_NARRATIVE_STORY_DIRECTION.",
-          "If no pending story id exists, no narrative operation is materialized. Notification dismissal is a separate closeout attempt and is only proven when its postcondition reports verified:true.",
+          "If no pending story id exists, no narrative operation is materialized. Notification dismissal is a separate closeout attempt and is only proven by explicit postcondition classification.",
         ],
       };
     };

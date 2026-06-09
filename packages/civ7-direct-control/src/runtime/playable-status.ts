@@ -1,10 +1,42 @@
+import { Type, type Static } from "typebox";
+
 import { errorMessage } from "../error-message.js";
 import type {
   Civ7DirectControlOptions,
 } from "../session/types.js";
-import { getCiv7AppUiSnapshot, type Civ7AppUiSnapshotResult } from "./app-ui-snapshot.js";
+import {
+  Civ7AppUiSnapshotResultSchema,
+  getCiv7AppUiSnapshot,
+  type Civ7AppUiSnapshotResult,
+} from "./app-ui-snapshot.js";
 import type { Civ7RuntimeProbe } from "./probe.js";
-import { checkCiv7TunerHealth, type Civ7TunerHealthResult } from "./tuner-health.js";
+import {
+  checkCiv7TunerHealth,
+  Civ7TunerHealthResultSchema,
+  type Civ7TunerHealthResult,
+} from "./tuner-health.js";
+
+export const Civ7PlayableStatusInputSchema = Type.Object({}, { additionalProperties: false });
+export type Civ7PlayableStatusInput = Readonly<Static<typeof Civ7PlayableStatusInputSchema>>;
+
+export const Civ7PlayableReadinessSchema = Type.Union([
+  Type.Literal("tuner-ready"),
+  Type.Literal("app-ui-game"),
+  Type.Literal("begin-ready"),
+  Type.Literal("loading"),
+  Type.Literal("shell"),
+  Type.Literal("unavailable"),
+]);
+
+export const Civ7PlayableStatusResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  playable: Type.Boolean(),
+  readiness: Civ7PlayableReadinessSchema,
+  appUi: Civ7AppUiSnapshotResultSchema,
+  tuner: Type.Optional(Civ7TunerHealthResultSchema),
+  errors: Type.Array(Type.String()),
+}, { additionalProperties: false });
 
 export type Civ7PlayableStatusResult = Readonly<{
   host: string;
@@ -21,8 +53,9 @@ export type Civ7PlayableStatusResult = Readonly<{
   tuner?: Civ7TunerHealthResult;
   errors: ReadonlyArray<string>;
 }>;
+export type Civ7PlayableStatusResultContract = Readonly<Static<typeof Civ7PlayableStatusResultSchema>>;
 
-type PlayableStatusDependencies = Readonly<{
+export type PlayableStatusDependencies = Readonly<{
   checkTunerHealth: (options?: Civ7DirectControlOptions) => Promise<Civ7TunerHealthResult>;
   errorMessage: (err: unknown) => string;
   getAppUiSnapshot: (options?: Civ7DirectControlOptions) => Promise<Civ7AppUiSnapshotResult>;

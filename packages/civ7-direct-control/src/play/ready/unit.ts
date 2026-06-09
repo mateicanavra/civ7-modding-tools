@@ -1,5 +1,8 @@
+import { Type, type Static } from "typebox";
+
+import { Civ7ComponentIdSchema } from "../../civ7-component-id.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { probeHelperSource } from "../../runtime/probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { boundedInteger } from "../../validation.js";
@@ -7,71 +10,78 @@ import { boundedInteger } from "../../validation.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7TunerState,
 } from "../../session/types.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
-export type Civ7ReadyUnitViewInput = Readonly<{
-  unitId?: Civ7ComponentId;
-  radius?: number;
-  maxOperations?: number;
-}>;
+const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
 
-export type Civ7ReadyUnitOperationCandidate = Readonly<{
-  family: "unit-operation" | "unit-command";
-  operationType: string;
-  enumValue: unknown;
-  valid: boolean;
-  result: unknown;
-}>;
+export const Civ7ReadyUnitViewInputSchema = Type.Object({
+  unitId: Type.Optional(Civ7ComponentIdSchema),
+  radius: Type.Optional(Type.Integer({ minimum: 0, maximum: 5 })),
+  maxOperations: Type.Optional(Type.Integer({ minimum: 1, maximum: 256 })),
+}, { additionalProperties: false });
+export type Civ7ReadyUnitViewInput = Static<typeof Civ7ReadyUnitViewInputSchema>;
 
-export type Civ7ReadyUnitNearbyPlot = Readonly<{
-  x: number;
-  y: number;
-  units: unknown;
-}>;
+export const Civ7ReadyUnitOperationCandidateSchema = Type.Object({
+  family: Type.Union([Type.Literal("unit-operation"), Type.Literal("unit-command")]),
+  operationType: Type.String(),
+  enumValue: Type.Unknown(),
+  valid: Type.Boolean(),
+  result: Type.Unknown(),
+}, { additionalProperties: false });
+export type Civ7ReadyUnitOperationCandidate = Static<typeof Civ7ReadyUnitOperationCandidateSchema>;
 
-export type Civ7ReadyUnitPromotionReadiness = Readonly<{
-  hasExperience: boolean;
-  canPromote: unknown;
-  promotionClass: string | null;
-  level: unknown;
-  experiencePoints: unknown;
-  experienceToNextLevel: unknown;
-  totalPromotionsEarned: unknown;
-  storedPromotionPoints: unknown;
-  storedCommendations: unknown;
-  canPurchase: boolean;
-  availablePromotions: ReadonlyArray<Readonly<{
-    disciplineType: string;
-    promotionType: string;
-    name: string | null;
-    description: string | null;
-    commendation: boolean;
-    args: unknown;
-    validation: unknown;
-  }>>;
-  notes: ReadonlyArray<string>;
-}>;
+export const Civ7ReadyUnitNearbyPlotSchema = Type.Object({
+  x: Type.Number(),
+  y: Type.Number(),
+  units: Type.Unknown(),
+}, { additionalProperties: false });
+export type Civ7ReadyUnitNearbyPlot = Static<typeof Civ7ReadyUnitNearbyPlotSchema>;
 
-export type Civ7ReadyUnitViewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  requestedUnitId: Civ7ComponentId | null;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  unitId: Civ7ComponentId | null;
-  unit: Civ7RuntimeProbe<unknown>;
-  legalOperations: ReadonlyArray<Civ7ReadyUnitOperationCandidate>;
-  promotionReadiness: Civ7RuntimeProbe<Civ7ReadyUnitPromotionReadiness | null>;
-  nearby: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyUnitNearbyPlot>>;
-  notes: ReadonlyArray<string>;
-}>;
+export const Civ7ReadyUnitPromotionReadinessSchema = Type.Object({
+  hasExperience: Type.Boolean(),
+  canPromote: Type.Unknown(),
+  promotionClass: Type.Union([Type.String(), Type.Null()]),
+  level: Type.Unknown(),
+  experiencePoints: Type.Unknown(),
+  experienceToNextLevel: Type.Unknown(),
+  totalPromotionsEarned: Type.Unknown(),
+  storedPromotionPoints: Type.Unknown(),
+  storedCommendations: Type.Unknown(),
+  canPurchase: Type.Boolean(),
+  availablePromotions: Type.Array(Type.Object({
+    disciplineType: Type.String(),
+    promotionType: Type.String(),
+    name: Type.Union([Type.String(), Type.Null()]),
+    description: Type.Union([Type.String(), Type.Null()]),
+    commendation: Type.Boolean(),
+    args: Type.Unknown(),
+    validation: Type.Unknown(),
+  }, { additionalProperties: false })),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
+export type Civ7ReadyUnitPromotionReadiness = Static<typeof Civ7ReadyUnitPromotionReadinessSchema>;
 
-type ReadyUnitViewDependencies = Readonly<{
+export const Civ7ReadyUnitViewResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: Type.Object({
+    id: Type.String(),
+    name: Type.String(),
+  }, { additionalProperties: false }),
+  localPlayerId: Type.Number(),
+  requestedUnitId: nullableComponentIdSchema,
+  selectedUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+  firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
+  unitId: nullableComponentIdSchema,
+  unit: Civ7RuntimeProbeSchema(Type.Unknown()),
+  legalOperations: Type.Array(Civ7ReadyUnitOperationCandidateSchema),
+  promotionReadiness: Civ7RuntimeProbeSchema(Type.Union([Civ7ReadyUnitPromotionReadinessSchema, Type.Null()])),
+  nearby: Civ7RuntimeProbeSchema(Type.Array(Civ7ReadyUnitNearbyPlotSchema)),
+  notes: Type.Array(Type.String()),
+}, { additionalProperties: false });
+export type Civ7ReadyUnitViewResult = Static<typeof Civ7ReadyUnitViewResultSchema>;
+
+export type ReadyUnitViewDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,

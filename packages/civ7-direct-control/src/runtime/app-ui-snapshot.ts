@@ -1,3 +1,5 @@
+import { Type, type Static } from "typebox";
+
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
 
@@ -5,7 +7,70 @@ import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
 } from "../session/types.js";
-import { probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
+
+const civ7TunerStateSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+}, { additionalProperties: false });
+
+export const Civ7AppUiSnapshotInputSchema = Type.Object({}, { additionalProperties: false });
+export type Civ7AppUiSnapshotInput = Static<typeof Civ7AppUiSnapshotInputSchema>;
+
+export const Civ7AppUiSnapshotSchema = Type.Object({
+  network: Type.Object({
+    isInSession: Civ7RuntimeProbeSchema(Type.Boolean()),
+    numPlayers: Civ7RuntimeProbeSchema(Type.Number()),
+    hostPlayerId: Civ7RuntimeProbeSchema(Type.Number()),
+    isConnectedToNetwork: Civ7RuntimeProbeSchema(Type.Boolean()),
+    isAuthenticated: Civ7RuntimeProbeSchema(Type.Boolean()),
+    isLoggedIn: Civ7RuntimeProbeSchema(Type.Boolean()),
+  }, { additionalProperties: false }),
+  autoplay: Type.Object({
+    isActive: Type.Boolean(),
+    turns: Type.Number(),
+    isPaused: Type.Boolean(),
+    isPausedOrPending: Type.Boolean(),
+    observeAsPlayer: Type.Number(),
+    returnAsPlayer: Type.Number(),
+  }, { additionalProperties: false }),
+  game: Type.Object({
+    turn: Type.Number(),
+    age: Type.Number(),
+    maxTurns: Type.Number(),
+    turnDate: Civ7RuntimeProbeSchema(Type.String()),
+    hash: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false }),
+  ui: Type.Object({
+    inGame: Civ7RuntimeProbeSchema(Type.Boolean()),
+    inShell: Civ7RuntimeProbeSchema(Type.Boolean()),
+    inLoading: Civ7RuntimeProbeSchema(Type.Boolean()),
+    loadingState: Civ7RuntimeProbeSchema(Type.Number()),
+    loadingStateName: Type.Union([Type.String(), Type.Null()]),
+    canBeginGame: Civ7RuntimeProbeSchema(Type.Boolean()),
+    canNotifyUIReady: Type.String(),
+    skipStartButton: Civ7RuntimeProbeSchema(Type.Boolean()),
+    automationActive: Civ7RuntimeProbeSchema(Type.Boolean()),
+  }, { additionalProperties: false }),
+  gameContext: Type.Object({
+    localPlayerID: Type.Number(),
+    localObserverID: Type.Number(),
+    hasRequestedPause: Civ7RuntimeProbeSchema(Type.Boolean()),
+  }, { additionalProperties: false }),
+  players: Type.Object({
+    maxPlayers: Type.Number(),
+    aliveIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
+    aliveHumanIds: Civ7RuntimeProbeSchema(Type.Array(Type.Number())),
+    numAliveHumans: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false }),
+  map: Type.Object({
+    width: Civ7RuntimeProbeSchema(Type.Number()),
+    height: Civ7RuntimeProbeSchema(Type.Number()),
+    plotCount: Civ7RuntimeProbeSchema(Type.Number()),
+    mapSize: Civ7RuntimeProbeSchema(Type.Number()),
+    randomSeed: Civ7RuntimeProbeSchema(Type.Number()),
+  }, { additionalProperties: false }),
+}, { additionalProperties: false });
 
 export type Civ7AppUiSnapshot = Readonly<{
   network: Readonly<{
@@ -62,6 +127,13 @@ export type Civ7AppUiSnapshot = Readonly<{
   }>;
 }>;
 
+export const Civ7AppUiSnapshotResultSchema = Type.Object({
+  host: Type.String(),
+  port: Type.Number(),
+  state: civ7TunerStateSchema,
+  snapshot: Civ7AppUiSnapshotSchema,
+}, { additionalProperties: false });
+
 export type Civ7AppUiSnapshotResult = Readonly<{
   host: string;
   port: number;
@@ -69,7 +141,10 @@ export type Civ7AppUiSnapshotResult = Readonly<{
   snapshot: Civ7AppUiSnapshot;
 }>;
 
-type AppUiSnapshotDependencies = Readonly<{
+export type Civ7AppUiSnapshotContract = Readonly<Static<typeof Civ7AppUiSnapshotSchema>>;
+export type Civ7AppUiSnapshotResultContract = Readonly<Static<typeof Civ7AppUiSnapshotResultSchema>>;
+
+export type AppUiSnapshotDependencies = Readonly<{
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,
   ) => Promise<Civ7CommandResult>;

@@ -1,3 +1,5 @@
+import { Type, type Static } from "typebox";
+
 import type {
   Civ7DirectControlOptions,
   Civ7TunerState,
@@ -5,10 +7,11 @@ import type {
 } from "../../session/types.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
-export type Civ7MapLocation = Readonly<{
-  x: number;
-  y: number;
-}>;
+export const Civ7MapLocationSchema = Type.Object({
+  x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+}, { additionalProperties: false });
+export type Civ7MapLocation = Readonly<Static<typeof Civ7MapLocationSchema>>;
 
 export type Civ7MapBounds = Readonly<Civ7MapLocation & {
   width: number;

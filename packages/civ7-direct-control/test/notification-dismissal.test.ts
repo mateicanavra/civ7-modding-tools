@@ -40,6 +40,9 @@ describe("notification dismissal", () => {
         notificationId,
         canDismiss: true,
         sent: false,
+        postcondition: {
+          classification: "not-sent",
+        },
         before: {
           typeName: "NOTIFICATION_WONDER_COMPLETED",
           canUserDismiss: true,
@@ -50,6 +53,9 @@ describe("notification dismissal", () => {
         notificationId,
         sent: true,
         verified: true,
+        postcondition: {
+          classification: "notification-disappeared",
+        },
         after: {
           isEndTurnBlocking: { ok: true, value: false },
         },
@@ -77,6 +83,9 @@ describe("notification dismissal", () => {
 
       expect(request.sent).toBe(true);
       expect(request.verified).toBe(false);
+      expect(request.postcondition).toMatchObject({
+        classification: "engine-front-still-live",
+      });
       expect(request.after).toMatchObject({
         engineQueueContains: { ok: true, value: true },
         isEngineQueueFront: { ok: true, value: true },
@@ -102,6 +111,9 @@ describe("notification dismissal", () => {
 
       expect(request.sent).toBe(true);
       expect(request.verified).toBe(false);
+      expect(request.postcondition).toMatchObject({
+        classification: "engine-front-still-live",
+      });
       expect(request.after).toMatchObject({
         dismissed: true,
         engineQueueContains: { ok: true, value: true },
@@ -126,6 +138,9 @@ describe("notification dismissal", () => {
 
       expect(request.sent).toBe(true);
       expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        classification: "notification-disappeared",
+      });
       const requestResult = request.result as { panelCloseControl?: unknown } | null;
       expect(requestResult?.panelCloseControl).toMatchObject({
         ok: true,
@@ -173,6 +188,9 @@ describe("notification dismissal", () => {
       });
       expect(request.sent).toBe(true);
       expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        classification: "notification-disappeared",
+      });
       const requestResult = request.result as { panelCloseControl?: unknown } | null;
       expect(requestResult?.panelCloseControl).toMatchObject({
         ok: true,

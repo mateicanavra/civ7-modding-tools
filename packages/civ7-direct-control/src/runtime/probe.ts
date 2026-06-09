@@ -1,3 +1,5 @@
+import { Type, type TSchema } from "typebox";
+
 export type Civ7RuntimeProbe<T> = Readonly<
   | {
       ok: true;
@@ -8,6 +10,19 @@ export type Civ7RuntimeProbe<T> = Readonly<
       error: string;
     }
 >;
+
+export function Civ7RuntimeProbeSchema<T extends TSchema>(value: T) {
+  return Type.Union([
+    Type.Object({
+      ok: Type.Literal(true),
+      value,
+    }, { additionalProperties: false }),
+    Type.Object({
+      ok: Type.Literal(false),
+      error: Type.String(),
+    }, { additionalProperties: false }),
+  ]);
+}
 
 export function probeHelperSource(): string {
   return `const probe = (fn) => {

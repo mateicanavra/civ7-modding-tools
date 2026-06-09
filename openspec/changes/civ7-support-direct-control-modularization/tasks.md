@@ -184,6 +184,10 @@
         `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
         with proof in
         `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
+        the third operation-atom adapter owner seed is now recorded in
+        `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`
+        with proof in
+        `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`,
         and the telemetry proof-label guard seed is now recorded in
         `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with
         proof in
@@ -219,8 +223,24 @@
         error, and correlation owners, schema/procedure validation tests,
         encode/decode and typed-error tests, projection-separation tests, and
         no-raw-command-tunnel tests are assigned and passing. The planning
-        contract is now recorded in `workstream/procedure-core-contract.md`,
-        but it does not assign owners or accept the row.
+        contract is recorded in `workstream/procedure-core-contract.md`, and the
+        first direct-control procedure descriptor owner seed is now recorded in
+        `packages/civ7-direct-control/src/procedure-core.ts` with proof in
+        `packages/civ7-direct-control/test/procedure-core.test.ts`, but this
+        reduces only the source/proof/descriptor-runtime-validation/
+        descriptor-typed-error/descriptor-correlation/no-raw-tunnel gap for
+        the current TypeBox descriptor shape, generic raw fields, and
+        repo-local command serialization and session execute owners; adjacent
+        ready-unit, ready-city, unit move-preview, and playable-status
+        schema/descriptor seeds reduce only local stable-atom input/output
+        proof gaps, and the procedure payload validation seed reduces only the
+        local resolved TypeBox input/output validation proof gap. The
+        descriptor context-policy seed now records direct
+        control facade, endpoint default, state-selection, logger, evidence
+        sink, and live-session policy requirements on current descriptors, and
+        rejects endpoint/state fields from procedure input when those concerns
+        are context-owned; this reduces only the descriptor-context gap and
+        does not accept the row.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
@@ -231,9 +251,10 @@
       outcome evidence fixtures; Effect/oRPC procedure cores still need
       procedure/schema/proof ownership, TypeBox/Effect Schema/Zod adapter
       ownership for a concrete schema slice, and procedure-core tests over
-      stable atoms. The TypeBox versus Effect Schema report disposition is
-      already recorded as bounded-hybrid planning evidence; it is not enough to
-      accept the row without owners and tests.
+      stable atoms. The TypeBox runtime descriptor-validation seed, typed
+      descriptor-error seed, descriptor-correlation seed, and TypeBox versus
+      Effect Schema report disposition are bounded planning/source evidence;
+      they are not enough to accept the row without owners and tests.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.
@@ -383,6 +404,17 @@ runtime/direct-control claims.
         notification dismissal proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.4.8 Seed a notification dismissal postcondition classification
+        owner in `src/play/notifications/postconditions.ts` and attach the
+        explicit postcondition to wrapper results, preserving approval-first
+        dismissal behavior, final identity-based verification ordering, and
+        focused package proof that stale engine-front train-absent or
+        dismissed-flag evidence remains unverified. This is a source-owned
+        postcondition prerequisite for future telemetry/procedure consumers; it
+        does not add a telemetry adapter, change normal CLI/debug/AI
+        projections, add persistence, add router/registry/transport or
+        Effect/oRPC source, claim runtime/live-game proof, or accept Task 2.9.4
+        or Tasks 6.1-6.9.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.
@@ -1893,6 +1925,362 @@ runtime/direct-control claims.
       schema technology, add persistence, implement AI ingestion, change
       CLI/debug projections, add Effect/oRPC middleware, claim runtime/live-game
       proof, accept Task 2.9.4, or create broad telemetry middleware.
+- [x] 4.17.1 Seed a diplomacy-response operation telemetry adapter owner in
+      `src/proof/diplomacy-response-telemetry.ts` with focused local proof in
+      `test/diplomacy-response-telemetry.test.ts`, preserving approval,
+      `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+      postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
+      separate telemetry slots while treating legacy `verified` booleans as
+      source evidence only. This seeds the operation/proof telemetry row's
+      operation-atom adapter gap for one diplomacy-response shape only; source
+      postcondition classifications `turn-unblocked`,
+      `diplomacy-blocker-cleared`, and `blocking-notification-changed` can
+      summarize confirmed, while missing postcondition, validator-blocked
+      no-send, `no-state-change`, `validation-changed`, and
+      pending-runtime-proof paths remain no-repeat guarded. It does not choose
+      schema technology, add persistence, implement AI ingestion, change
+      CLI/debug projections, add Effect/oRPC middleware, claim
+      runtime/live-game proof, accept Task 2.9.4, or create broad adapters for
+      every operation family.
+- [x] 4.17.2 Seed a narrative-choice operation telemetry adapter owner in
+      `src/proof/narrative-choice-telemetry.ts` with focused local proof in
+      `test/narrative-choice-telemetry.test.ts`, preserving approval,
+      `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
+      postcondition, `outcome_delta`, `blocker_delta`, and evidence policy as
+      separate telemetry slots while treating legacy `verified` booleans as
+      source evidence only. This seeds the operation/proof telemetry row's
+      operation-atom adapter gap for one narrative-choice shape only; source
+      postcondition classifications `turn-unblocked`,
+      `narrative-blocker-cleared`, and `narrative-panel-cleared` can summarize
+      confirmed, while missing postcondition, validator-blocked no-send,
+      `no-state-change`, `validation-changed`, and pending-runtime-proof paths
+      remain no-repeat guarded. It does not choose schema technology, add
+      persistence, implement AI ingestion, change CLI/debug projections, add
+      Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
+      or create broad adapters for every operation family.
+- [x] 4.17.3 Seed a notification-dismissal operation telemetry adapter owner
+      in `src/proof/notification-dismissal-telemetry.ts` with focused local
+      proof in `test/notification-dismissal-telemetry.test.ts`, preserving
+      approval, `validation_pre`, `send_receipt`, `post_read`,
+      `validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
+      evidence policy as separate telemetry slots while treating legacy
+      `verified` booleans as source evidence only. This seeds the
+      operation/proof telemetry row's operation-atom adapter gap for one
+      notification-dismissal App UI action shape only; the source-owned
+      postcondition classifications `notification-disappeared`,
+      `notification-dismissed`, `engine-queue-cleared`,
+      `notification-train-cleared`, `engine-front-moved`, and
+      `notification-train-front-moved` can summarize confirmed, while missing
+      postcondition, validator-blocked no-send, `not-sent`, `missing-after`,
+      `engine-front-still-live`, `no-state-change`, and pending-runtime-proof
+      paths remain no-repeat guarded. It does not choose schema technology, add
+      persistence, implement AI ingestion, change CLI/debug projections, add
+      Effect/oRPC middleware, claim runtime/live-game proof, accept Task 2.9.4,
+      or create broad adapters for every operation family.
+- [x] 4.17.4 Seed operation telemetry projection-separation proof in
+      `src/proof/operation-telemetry.ts` with focused proof in
+      `test/operation-telemetry.test.ts`, explicitly routing normal
+      CLI/player-agent consumers to the semantic telemetry summary, raw records
+      to debug/internal or raw telemetry consumers only, and AI/procedure
+      consumers to blocked-until-owned projection states. This preserves useful
+      normal action/status/postcondition/no-repeat guidance while keeping raw
+      transport/session/proof/debug slots out of normal output. It does not
+      change CLI behavior, add telemetry persistence, implement AI ingestion,
+      add router/registry/transport code, add Effect/oRPC source, claim
+      runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.18 Seed a direct-control procedure-core descriptor owner in
+      `src/procedure-core.ts` with focused proof in
+      `test/procedure-core.test.ts`, defining TypeBox-backed descriptor slots
+      for stable atom owners, projection policy, proof boundary, player scope,
+      consumer class, and mutation gate metadata. The proof rejects generic raw
+      command tunnel descriptors plus repo-local command-source/session
+      execution descriptors such as `runtime/command-serialization` /
+      `jsLiteral` and `session/execute` / `executeCiv7Command` before they can
+      become oRPC procedures, requires mutation descriptors to carry approval,
+      validator-first, postcondition, and no-repeat-after-unverified gates, and
+      rejects local `live-runtime-proof` claims before runtime-proof ownership
+      exists.
+      This task also records descriptor runtime validation, typed descriptor
+      errors, and correlation policy owner seeds, while keeping telemetry as an
+      Effect/oRPC middleware hook rather than a separate transport surface.
+      This reduces the Effect/oRPC Procedure Cores row's source/proof owner
+      and no-raw-tunnel/proof-label guard gaps only; it does not collect
+      runtime evidence, implement Effect/oRPC source, add
+      `packages/civ7-control-orpc`, add transport adapters, migrate schemas,
+      implement the in-game controller router, claim runtime/live-game proof,
+      accept Task 2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.18.1 Record procedure descriptor schema-technology ownership in
+        `src/procedure-core.ts` with focused proof in
+        `test/procedure-core.test.ts` and public facade proof in
+        `test/public-api.test.ts`. Current adjacent procedure descriptors
+        declare `schemaTechnology: "typebox"`, while the descriptor guard
+        rejects unaccepted `effect-schema` and `zod-adapter` claims before
+        procedure promotion. This records the current TypeBox descriptor
+        contract and keeps the TypeBox versus Effect Schema disposition
+        pending; it does not migrate schemas, deprecate TypeBox, add Effect
+        Schema artifacts, implement Effect/oRPC source, add
+        `packages/civ7-control-orpc`, add transport adapters, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.19 Seed ready-unit read-atom TypeBox schemas in
+      `src/play/ready/unit.ts` with focused proof in
+      `test/ready-unit-view.test.ts` and public facade proof in
+      `test/public-api.test.ts`. This records one concrete read atom's
+      bounded input and result schema owner for future procedure-core
+      composition while rejecting out-of-bound input and root-level raw command
+      fields. It does not choose Effect Schema, migrate broader contracts,
+      implement Effect/oRPC source, add `packages/civ7-control-orpc`, add
+      transport adapters, implement the in-game controller router, claim
+      runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.20 Bind procedure descriptors to schema references in
+      `src/procedure-core.ts` with focused proof in
+      `test/procedure-core.test.ts` and public facade proof in
+      `test/public-api.test.ts`. The descriptor owner now records
+      `inputSchema` and `outputSchema` owner/export slots, binds the
+      `unit.ready.view` descriptor to the ready-unit TypeBox schema exports,
+      rejects schema owners outside `@civ7/direct-control`, rejects
+      expression-like schema export names, and rejects schema references to raw
+      command-source/session owners. This is descriptor/schema-reference proof
+      only; it does not resolve runtime router registration, choose Effect
+      Schema, migrate broader contracts, implement Effect/oRPC source, add
+      `packages/civ7-control-orpc`, add transport adapters, implement the
+      in-game controller router, claim runtime/live-game proof, accept Task
+      2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.21 Resolve procedure descriptor schema references against explicit
+      schema artifacts in `src/procedure-core.ts` with focused proof in
+      `test/procedure-core.test.ts` and public facade proof in
+      `test/public-api.test.ts`. The descriptor owner now resolves
+      `unit.ready.view` input/output schema references to the actual ready-unit
+      TypeBox schema artifacts and rejects unresolved referenced artifacts with
+      typed descriptor-error details. This is local schema-reference resolution
+      proof only; it does not implement runtime router/procedure registration,
+      choose Effect Schema, migrate broader contracts, implement Effect/oRPC
+      source, add `packages/civ7-control-orpc`, add transport adapters,
+      implement the in-game controller router, claim runtime/live-game proof,
+      accept Task 2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.22 Add an adjacent ready-unit procedure descriptor artifact in
+      `src/play/ready/unit-procedure.ts` with focused proof in
+      `test/ready-unit-procedure.test.ts` and public facade proof in
+      `test/public-api.test.ts`. The descriptor records `unit.ready.view`
+      metadata beside the ready-unit atom and schema exports, resolves through
+      the existing schema artifact map, and proves its input/output field lists
+      name root fields on the resolved TypeBox schemas, including
+      `legalOperations` instead of the stale copied fixture field
+      `operationCandidates`. This is one local descriptor artifact only; it
+      does not implement runtime router/procedure registration, choose Effect
+      Schema, migrate broader contracts, implement Effect/oRPC source, add
+      `packages/civ7-control-orpc`, add transport adapters, implement the
+      in-game controller router, claim runtime/live-game proof, accept Task
+      2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.23 Guard resolved procedure descriptor field lists in
+      `src/procedure-core.ts` with focused proof in
+      `test/procedure-core.test.ts`. Schema resolution now rejects
+      `inputFields` or `outputFields` that do not exist on the resolved TypeBox
+      schema root properties, proving the stale `operationCandidates` fixture
+      field cannot be promoted when the ready-unit descriptor output schema
+      exposes `legalOperations`. This is local descriptor resolver proof only;
+      it does not implement runtime router/procedure registration, choose
+      Effect Schema, migrate broader contracts, implement Effect/oRPC source,
+      add `packages/civ7-control-orpc`, add transport adapters, implement the
+      in-game controller router, claim runtime/live-game proof, accept Task
+      2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.24 Add ready-city read-atom TypeBox schemas and an adjacent procedure
+      descriptor artifact in `src/play/ready/city.ts` and
+      `src/play/ready/city-procedure.ts`, with focused proof in
+      `test/ready-city-view.test.ts`, `test/ready-city-procedure.test.ts`, and
+      public facade proof in `test/public-api.test.ts`. This records
+      `city.ready.view` beside the existing ready-city atom, validates bounded
+      `cityId`/`maxOperations` input, validates the ready-city result root
+      including `legalOperations`, `productionCandidates`, `townFocusOptions`,
+      and `populationPlacement`, rejects root-level raw command fields, and
+      resolves the descriptor's schema references through the generic
+      schema-root field-list guard. Complex nested runtime values remain
+      bounded TypeBox owner fields with `unknown` where no stable nested
+      contract is accepted yet. This is a second local read-atom
+      schema/descriptor artifact only; it does not implement runtime
+      router/procedure registration, choose Effect Schema, migrate broader
+      contracts, implement Effect/oRPC source, add `packages/civ7-control-orpc`,
+      add transport adapters, implement the in-game controller router, claim
+      runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
+- [x] 4.25 Add unit move-preview read-atom TypeBox schemas and an adjacent
+      procedure descriptor artifact in `src/play/ready/move-preview.ts` and
+      `src/play/ready/move-preview-procedure.ts`, with focused proof in
+      `test/unit-move-preview.test.ts`,
+      `test/unit-move-preview-procedure.test.ts`, and public facade proof in
+      `test/public-api.test.ts`. This records `unit.move.preview` beside the
+      existing read-only unit move-preview atom, validates bounded
+      `unitId`/`destination`/`maxPlots`/`maxPathPlots` input, exports a shared
+      `Civ7MapLocationSchema` from the map type owner that matches the existing
+      `validateMapLocation` integer `0..1_000_000` boundary, validates the
+      move-preview result root including reachability, queued/requested
+      destination/path, and neutral `relationshipPolicy`, rejects root-level
+      raw command fields, and resolves the descriptor's schema references
+      through the generic schema-root field-list guard. Complex engine-derived
+      movement/path values remain bounded TypeBox owner fields with `unknown`
+      where no stable nested contract is accepted yet. This is a third local
+      read-atom schema/descriptor artifact only; it does not implement runtime
+      router/procedure registration, choose Effect Schema, migrate broader
+      contracts, implement Effect/oRPC source, add `packages/civ7-control-orpc`,
+      add transport adapters, implement the in-game controller router, claim
+      runtime/live-game proof, accept Task 2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.26 Add playable-status runtime-support TypeBox schemas and an adjacent
+      procedure descriptor artifact in
+      `src/runtime/{app-ui-snapshot,tuner-health,playable-status}.ts` and
+      `src/runtime/playable-status-procedure.ts`, with focused proof in
+      `test/runtime-and-catalog.test.ts`,
+      `test/playable-status-procedure.test.ts`, and public facade proof in
+      `test/public-api.test.ts`. This records `runtime.playable.status` beside
+      the existing `getCiv7PlayableStatus` atom, keeps endpoint/session
+      selection out of the empty procedure input schema so host/port/state/raw
+      command remain context/debug-owned, validates App UI snapshot, Tuner
+      health, and composed playable-status result shapes, validates both
+      `tuner-ready` and non-ready shell/unavailable/error shapes including
+      optional omitted `tuner`, failed probes, and `errors` evidence, rejects
+      root-level raw command fields, and resolves the descriptor's schema
+      references through the generic schema-root field-list guard. This is a
+      local runtime-support schema/descriptor artifact only; it does not
+      implement runtime router/procedure registration, choose Effect Schema,
+      migrate broader contracts, implement Effect/oRPC source, add
+      `packages/civ7-control-orpc`, add transport adapters, implement the
+      in-game controller router, claim runtime/live-game proof, accept Task
+      2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.27 Add procedure-core context-policy metadata to the direct-control
+        descriptor owner and current adjacent descriptors, with focused proof in
+        `test/procedure-core.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This records context requirements for the
+        direct-control facade, endpoint defaults, Tuner/App UI state selection,
+        logger, evidence sink, and playable-status live-session policy, and
+        rejects host/port/state procedure input fields when endpoint/state
+        selection is declared context-owned while leaving raw command/session
+        fields under the existing no-raw-command-tunnel guard. This is local
+        descriptor metadata/proof only; it does not implement middleware,
+        generate correlation IDs at runtime, add router/procedure behavior,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, add transport adapters, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.28 Add local procedure-core payload validation helpers in
+        `src/procedure-core.ts` with focused proof in
+        `test/procedure-core.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This validates procedure input and output
+        payloads against explicit resolved TypeBox schema artifacts for current
+        descriptors, proving ready-unit bounded input, unit move-preview
+        validator-equivalent map-location bounds, ready-unit output shape, and
+        raw root-field rejection without executing atoms or registering a
+        router. This is local schema-payload validation proof only; it does not
+        implement runtime router/procedure registration, choose Effect Schema,
+        migrate broader contracts, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, add transport adapters, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.29 Add a no-network procedure-core call primitive in
+        `src/procedure-core.ts` with focused proof in
+        `test/procedure-core.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This validates input before an injected
+        handler, validates output after the handler, attaches debug/telemetry
+        diagnostics separately from the returned output, generates or validates
+        correlation IDs according to descriptor policy, and normalizes handler
+        failures with typed direct-control error details. This is local
+        injected-handler procedure-core proof only; it does not execute live
+        direct-control atoms, implement runtime router/procedure registration,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, add transport adapters, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.30 Add the first concrete ready-unit procedure call wrapper in
+        `src/play/ready/unit-procedure.ts`, with focused proof in
+        `test/ready-unit-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7ReadyUnitView` atom, validates
+        procedure input before atom dependencies run, validates the atom output
+        through the descriptor schema artifacts, forwards direct-control
+        options to the atom, and keeps procedure diagnostics separate from the
+        ready-unit output. This is local no-network proof over fake atom
+        dependencies only; it does not execute live direct-control atoms, add a
+        router/registry/transport adapter, choose Effect Schema, add
+        Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.31 Add the adjacent ready-city procedure call wrapper in
+        `src/play/ready/city-procedure.ts`, with focused proof in
+        `test/ready-city-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7ReadyCityView` atom, validates
+        procedure input before atom dependencies run, validates the atom output
+        through the descriptor schema artifacts, forwards direct-control
+        options to the atom, and keeps procedure diagnostics separate from the
+        ready-city output. This is local no-network proof over fake atom
+        dependencies only; it does not execute live direct-control atoms, add a
+        router/registry/transport adapter, choose Effect Schema, add
+        Effect/oRPC source, add `packages/civ7-control-orpc`, implement the
+        in-game controller router, claim runtime/live-game proof, accept Task
+        2.9.4, or start Tasks 6.1-6.9.
+  - [x] 4.32 Add the adjacent unit move-preview procedure call wrapper in
+        `src/play/ready/move-preview-procedure.ts`, with focused proof in
+        `test/unit-move-preview-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7UnitMovePreview` atom, validates
+        procedure input before atom dependencies run, validates the atom output
+        through the descriptor schema artifacts, forwards direct-control
+        options to the atom, preserves the neutral relationship-policy output,
+        and keeps procedure diagnostics separate from the move-preview output.
+        This is local no-network proof over fake atom dependencies only; it
+        does not execute live direct-control atoms, add a router/registry/
+        transport adapter, choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        6.1-6.9.
+  - [x] 4.33 Add the adjacent playable-status procedure call wrapper in
+        `src/runtime/playable-status-procedure.ts`, with focused proof in
+        `test/playable-status-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This composes the local procedure-core call
+        primitive with the existing `getCiv7PlayableStatus` runtime-support
+        atom, keeps endpoint/session selection in procedure context rather than
+        input, validates procedure input before runtime dependencies run,
+        validates ready and unavailable outputs through the descriptor schema
+        artifacts, forwards direct-control options to the atom, and keeps
+        procedure diagnostics separate from playable-status output. This is
+        local no-network proof over fake App UI/Tuner dependencies only; it
+        does not execute live direct-control atoms, construct final runtime
+        context, add middleware, add a router/registry/transport adapter,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        6.1-6.9.
+  - [x] 4.34 Add the adjacent App UI snapshot procedure call wrapper in
+        `src/runtime/app-ui-snapshot-procedure.ts`, with focused proof in
+        `test/app-ui-snapshot-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This adds an empty procedure input schema
+        beside the existing `getCiv7AppUiSnapshot` runtime-support atom,
+        keeps endpoint/session/state selection in procedure context rather than
+        input, validates procedure input before fake command dependencies run,
+        validates raw App UI diagnostic output through descriptor schema
+        artifacts, forwards direct-control options to the atom, and keeps
+        procedure diagnostics separate from App UI snapshot output. This is
+        local no-network proof over a fake App UI command dependency only; it
+        does not execute live direct-control atoms, construct final runtime
+        context, add middleware, add a router/registry/transport adapter,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        6.1-6.9.
+  - [x] 4.35 Add the adjacent Tuner health procedure call wrapper in
+        `src/runtime/tuner-health-procedure.ts`, with focused proof in
+        `test/tuner-health-procedure.test.ts` and public facade proof in
+        `test/public-api.test.ts`. This adds an empty procedure input schema
+        beside the existing `checkCiv7TunerHealth` runtime-support atom, keeps
+        endpoint/session/state selection in procedure context rather than
+        input, validates procedure input before fake session dependencies run,
+        validates raw Tuner diagnostic output through descriptor schema
+        artifacts, forwards direct-control options to the atom, and keeps
+        procedure diagnostics separate from Tuner health output. This is local
+        no-network proof over fake session/reconnect dependencies only; it
+        does not execute live direct-control atoms, construct final runtime
+        context, add middleware, add a router/registry/transport adapter,
+        choose Effect Schema, add Effect/oRPC source, add
+        `packages/civ7-control-orpc`, implement the in-game controller router,
+        claim runtime/live-game proof, accept Task 2.9.4, or start Tasks
+        6.1-6.9.
 
 ## 5. CLI Semantic Surface Lane
 
@@ -1929,6 +2317,38 @@ service projections, telemetry contract boundaries, and external direct-control
 authority are recorded.
 
 - [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
+  - The descriptor owner seed in Task 4.18 provides local package proof for
+    procedure keys, projection policy, mutation gate metadata, generic raw
+    tunnel rejection, command-source/session-execute owner rejection, and
+    local rejection of `live-runtime-proof` claims over example stable atoms.
+    Task 4.19 adds one concrete ready-unit read-atom TypeBox input/output
+    schema seed for future procedure-core composition.
+    Task 4.20 binds the ready-unit descriptor to those schema exports through
+    guarded descriptor schema references.
+    Task 4.21 resolves those references against explicit TypeBox schema
+    artifacts in local descriptor-owner proof.
+    Task 4.22 adds the first adjacent ready-unit descriptor artifact and proves
+    its field lists match the resolved ready-unit schema root fields.
+    Task 4.23 moves that field-list guard into the generic descriptor resolver.
+    Task 4.24 adds the second adjacent read-atom schema/descriptor artifact for
+    `city.ready.view` over the ready-city decision view.
+    Task 4.25 adds the third adjacent read-atom schema/descriptor artifact for
+    `unit.move.preview` over the read-only unit movement preview, including a
+    map-location schema that matches the existing atom validator boundary.
+    Task 4.26 adds an adjacent runtime-support schema/descriptor artifact for
+    `runtime.playable.status` over the composed App UI/Tuner playable-status
+    atom, including non-ready shell/unavailable/error shape proof and an empty
+    procedure input schema that leaves endpoint/session selection in context.
+    Task 4.34 adds an adjacent runtime-support schema/descriptor/call artifact
+    for `runtime.app.ui.snapshot` over the App UI snapshot atom, including an
+    empty procedure input schema that leaves endpoint/session/state selection
+    in context and local no-network proof over a fake App UI command
+    dependency.
+    Task 6.1 remains blocked until Task 2.9.4 row acceptance names final
+    procedure/schema/proof owners and tests over concrete procedure
+    inputs/outputs beyond the ready-unit, ready-city, unit move-preview, and
+    runtime-support schema seeds, descriptor schema-reference binding/resolution,
+    adjacent descriptor/call artifacts, and resolver field-list guard.
 - [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
       procedure-core/direct-control contract schemas. The decision must cover
       encode/decode affordances, typed errors, oRPC compatibility, test

@@ -1,8 +1,13 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
+import { Value } from "typebox/value";
 
-import { getCiv7ReadyCityView } from "../src/index";
+import {
+  Civ7ReadyCityViewInputSchema,
+  Civ7ReadyCityViewResultSchema,
+  getCiv7ReadyCityView,
+} from "../src/index";
 
 type FakeTunerServer = {
   received: string[];
@@ -58,6 +63,17 @@ describe("getCiv7ReadyCityView", () => {
       expect(server.received.some((message) => message.includes('source: "Players.Cities.getCityIds"'))).toBe(true);
       expect(server.received.some((message) => message.includes("toComponentId(city.id ?? cityId) ?? cityId"))).toBe(false);
       expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
+      expect(Value.Check(Civ7ReadyCityViewInputSchema, {
+        cityId: { owner: 0, id: 131073, type: 1 },
+        maxOperations: 96,
+      })).toBe(true);
+      expect(Value.Check(Civ7ReadyCityViewInputSchema, { maxOperations: 257 })).toBe(false);
+      expect(Value.Check(Civ7ReadyCityViewInputSchema, { rawCommand: "readReadyCityView()" })).toBe(false);
+      expect(Value.Check(Civ7ReadyCityViewResultSchema, view)).toBe(true);
+      expect(Value.Check(Civ7ReadyCityViewResultSchema, {
+        ...view,
+        command: "readReadyCityView()",
+      })).toBe(false);
     } finally {
       await server.close();
     }
@@ -166,9 +182,13 @@ function readyCityView() {
       value: {
         isReadyToPlacePopulation: { ok: true, value: true },
         cityWorkerCap: { ok: true, value: 4 },
+        yieldTypeOrder: ["Food", "Production", "Gold"],
         allPlacementInfo: { ok: true, value: [{ PlotIndex: 1457, IsBlocked: false }] },
         workablePlotIndexes: { ok: true, value: [1457] },
         blockedPlotIndexes: { ok: true, value: [] },
+        workablePlots: { ok: true, value: [{ index: 1457, x: 22, y: 31 }] },
+        expansionCandidates: { ok: true, value: [{ index: 1458, x: 23, y: 31 }] },
+        expansionResult: { ok: true, value: { Success: true, Plots: [1458] } },
         cliHints: [
           "game play assign-worker --player-id <id> --location <plot-index>",
           "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
