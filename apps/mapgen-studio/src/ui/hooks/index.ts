@@ -4,7 +4,7 @@
 // Re-exports all custom hooks.
 // ============================================================================
 
-export { useThemePreference, createTheme } from './useTheme';
+export { useThemePreference } from './useTheme';
 export {
   useGeneration,
   type UseGenerationOptions,

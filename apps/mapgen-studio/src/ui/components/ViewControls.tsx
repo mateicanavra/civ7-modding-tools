@@ -21,8 +21,6 @@ export interface ViewControlsProps {
   themePreference: ThemePreference;
   /** Callback to cycle theme preference */
   onThemeCycle: () => void;
-  /** Light mode flag (retained for call-site compatibility; styling is token-driven) */
-  isLightMode?: boolean;
   /** Whether grid is visible */
   showGrid: boolean;
   /** Callback when grid visibility changes */

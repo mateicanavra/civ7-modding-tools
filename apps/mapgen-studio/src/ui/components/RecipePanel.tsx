@@ -37,7 +37,6 @@ import {
 import { OptionSelect } from './OptionSelect';
 import type {
   PipelineConfig,
-  Theme,
   RecipeSettings,
   SelectOption } from
 '../types';
@@ -57,10 +56,6 @@ export interface RecipePanelProps {
   recipeOptions: ReadonlyArray<SelectOption>;
   /** Available preset options */
   presetOptions: ReadonlyArray<SelectOption>;
-  /** Theme object (kept for API compatibility) */
-  theme: Theme;
-  /** Light mode flag for styling */
-  lightMode: boolean;
   /** Currently selected step (for focus mode) */
   selectedStep: string;
   /** Current recipe settings */
@@ -116,8 +111,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   onConfigReset,
   recipeOptions,
   presetOptions,
-  theme,
-  lightMode,
   selectedStep,
   settings,
   onSettingsChange,
@@ -414,8 +407,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               value={config}
               focusPath={focusPath}
               disabled={overridesDisabled}
-              lightMode={lightMode}
-              theme={theme}
               onChange={(next) => onConfigChange(next)}
             />
 
