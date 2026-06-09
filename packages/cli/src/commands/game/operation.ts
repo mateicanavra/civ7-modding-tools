@@ -10,6 +10,7 @@ import {
   requestCiv7PlayerOperation,
   requestCiv7UnitCommand,
   requestCiv7UnitOperation,
+  assertCiv7ComponentId,
   type Civ7ComponentId,
   type Civ7OperationInput,
 } from '@civ7/direct-control';
@@ -136,7 +137,14 @@ async function sendOperation(
 
 function parseComponentId(value: string | undefined, flag: string): Civ7ComponentId {
   if (!value) throw new Error(`--${flag} is required`);
-  return JSON.parse(value) as Civ7ComponentId;
+  try {
+    return assertCiv7ComponentId(JSON.parse(value) as unknown, `--${flag}`);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error(`--${flag} must be valid JSON: ${error.message}`);
+    }
+    throw error;
+  }
 }
 
 function assertUnitInput(input: Civ7OperationInput): Civ7OperationInput & { unitId: Civ7ComponentId } {

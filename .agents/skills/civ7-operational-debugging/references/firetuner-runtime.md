@@ -2,7 +2,8 @@
 
 Use the Civ7 tuner socket when the proof requires live Civ7 runtime behavior,
 JS globals, or fast in-game iteration. Repo tooling should call
-`@civ7/direct-control`; FireTuner is reference-client evidence only.
+`@civ7/direct-control`; FireTuner is reference-client and native-control
+evidence, not a parallel caller-local transport.
 
 ## Connection
 
@@ -71,6 +72,11 @@ Run direct JavaScript:
 civ7 game exec "1+1"
 ```
 
+Treat raw exec as a maintainer/debugging instrument, not a play-agent surface.
+When a raw probe discovers a useful native primitive, promote that primitive
+into `@civ7/direct-control` or a CLI command instead of teaching players to
+repeat the probe.
+
 Run bounded autoplay from `App UI` unless a fresh probe proves a different
 state exposes the required `Autoplay` methods:
 
@@ -116,8 +122,31 @@ Inspect sibling logs when the question is not purely map script execution:
 - Installed game Tuner panels may live under
   `Base/Platforms/Windows/Config/TunerPanels`; the repo resource mirror may not
   include that directory.
+- Local official development-tool communication panels can also reveal native
+  patterns. On this machine, inspect
+  `/Users/mateicanavra/Parallels Tunnel/Sid Meier's Civilization VII Development Tools/Comms/Modifiers.ltp`
+  when researching how FireTuner invokes game/UI operations.
 - Official automation scripts demonstrate `Autoplay.setTurns`,
   `setReturnAsPlayer`, `setObserveAsPlayer`, and `setActive`.
 - Official pause-menu UI calls `Network.restartGame()` for restart.
 - Official map scripts import `maps/map-debug-helpers.js` to dump terrain,
   elevation, rainfall, biomes, features, resources, and related map diagnostics.
+
+## Native Control Discovery
+
+When operation-bearing blockers, popups, or screens behave like a split between
+game state and App UI state, exhaust native control paths before adding
+repo-owned orchestration:
+
+1. Find the shipped notification handler, screen/panel module, and model or
+   manager used by the official UI.
+2. Identify the primary game mutation primitive, usually
+   `Game.PlayerOperations`, `Game.CityOperations`, `Game.UnitOperations`,
+   `Game.UnitCommands`, or a domain-specific manager.
+3. Identify the UI/display primitive, such as `DisplayQueueManager`,
+   `NotificationModel.manager`, `NarrativePopupManager`, or the screen manager
+   used by the official handler.
+4. Compose those primitives inside one repo command only when the official UI
+   composes them for the same player decision.
+5. Verify repo composition at the command boundary. Do not make the play agent
+   run separate closeout, refresh, or proof commands for normal forward play.

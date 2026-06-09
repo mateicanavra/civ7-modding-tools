@@ -87,6 +87,7 @@ Outputs:
   - `game play set-tech-target`
   - `game play choose-culture`
   - `game play set-culture-target`
+  - `game play choose-celebration`
   - `game play respond-diplomacy`
   - `game play choose-narrative`
   - `game play buy-attribute`
@@ -101,19 +102,41 @@ Outputs:
   - `game play ready-city`
   - `game play build-unit`
   - `game play ready-unit`
+  - `game play promotion-readiness`
   - `game play unit-target`
+  - `game play settlement-recommendations`
+  - `game play target-candidates`
+  - `game play battlefield-scan`
+  - `game play destination-analysis`
+  - `game watch`
+  - `game play topics`
+  - `game ai loaded-levers`
+  - `game local-data inspect`
 - Evidence packs and topic/reference artifacts:
   - `SKILL-ASSET-ASSEMBLY.md`
+  - `agent-thread-ledger.md`
   - `topics/end-turn-blockers.md`
   - `topics/early-game-decision-context.md`
   - `topics/unit-target-actions.md`
   - `topics/notification-decision-hud.md`
+  - `topics/play-priorities.md`
   - `topics/ready-unit-commander-actions.md`
   - `topics/production-build-placement.md`
   - `topics/ready-city-decision-view.md`
   - `topics/population-placement-expansion.md`
   - `topics/progression-tree-targets.md`
+  - `topics/celebration-choice.md`
   - `topics/runtime-state-sources.md`
+  - `topics/command-surface-design.md`
+  - `topics/settlement-recommendations.md`
+  - `topics/strategic-planning-snapshot.md`
+  - `topics/target-candidates.md`
+  - `topics/battlefield-scan.md`
+  - `topics/front-summary.md`
+  - `topics/destination-analysis.md`
+  - `topics/civilian-route-triage.md`
+  - `topics/tactical-lens-api-roadmap.md`
+  - `topics/rhq-ai-mod-baseline.md`
   - `evidence-packs/current-online-play-context.md`
   - `evidence-packs/agent-evidence-summary.md`
 - Watcher notes sent to the active play thread when useful.
@@ -262,6 +285,41 @@ Evidence:
   capture the authority split in `topics/local-catalog-enrichment.md`; use
   local DBs to enrich HUD labels and shortcuts, not to replace live runtime
   blockers, validators, or postcondition reads.
+- Turn 82 after the restart recovery exposed a reviewed natural-disaster report
+  blocker: `NOTIFICATION_VOLCANO_ACTIVE`, `canUserDismiss:true`, reported plot
+  `(6,27)`, no ready unit, and blocker enum `0`. Official resources define
+  active/inactive volcano and river flood notices as expiring, non-auto-notify
+  report notifications with no specialized handler. Disposition: classify these
+  default-handler disaster reports as `informational-notification` so the HUD
+  points to reviewed `game play dismiss-notification` closeout instead of a
+  generic unknown operation.
+- Turn 100 after a human-side restart exposed another default-handler closeout:
+  `NOTIFICATION_GRIEVANCES_AGAINST_YOU` id
+  `{"owner":0,"id":459,"type":20}`. Live rehydration proved a turn mismatch
+  from expected turn `97` to live turn `100 / 1620 BCE`. Official handler
+  registration has specialized entries for ordinary diplomatic actions,
+  responses, relationship changes, war, and espionage, but not grievances
+  against you. A read-only dismissal probe showed the grievance notice was
+  user-dismissible and not a `RESPOND_DIPLOMATIC_ACTION` operation.
+  Disposition: classify grievance reports as reviewed informational closeout
+  while preserving the strategic relationship/Influence context in the summary.
+- Turn 101 exposed a targetless `NOTIFICATION_NEW_POPULATION` gap. The HUD
+  correctly classified the blocker, but `ready-city` initially returned no city
+  because the notification target and selected city were empty. Official
+  `NewPopulationHandler` does not rely on the target in that case; it scans the
+  local player's cities for `Growth.isReadyToPlacePopulation`. Disposition:
+  add the same fallback to `game play ready-city`. A live re-read resolved city
+  `{"owner":0,"id":131073,"type":1}`, returned workable plots `2623` and
+  `2708`, and validate-only `assign-worker --location 2708` succeeded.
+- Strategy-snapshot research refined the next read gaps: official XML gives
+  age legacy/victory thresholds and AI strategy hints, but live victory
+  progress, diplomacy relationships, Influence income/cost, and rival
+  comparison need first-class UI-equivalent direct-control wrappers before a
+  deterministic `game play strategic-snapshot` can be promoted.
+- Observer-mode research refined the watcher product shape: trust App UI first
+  after restart, re-prove Tuner with a canary before gameplay reads, and keep
+  passive human-turn watch at low-impact polling rather than broad map/entity
+  reads. Foreground focus remains an inference, not a proven OS-level signal.
 
 Review findings and disposition:
 
@@ -286,7 +344,9 @@ Review findings and disposition:
 - Finding: validator-success unit actions can still be tactical no-ops.
   Disposition: added `game play unit-target`, which resolves target actions
   through official right-click order and returns before/after probes so agents
-  can treat postconditions, not send plumbing, as proof.
+  can treat postconditions, not send plumbing, as proof. The result now includes
+  `verification.status`, so sent-but-unchanged actions are explicit
+  `no-state-change` postcondition misses rather than ambiguous command success.
 - Finding: stale combat coordinates are now the dominant play-quality risk
   during the active agent's wartime turns.
   Disposition: added an early-war stale-state tactical guard topic that combines
@@ -379,7 +439,9 @@ Residual objective gaps:
   norms for play agents.
 - A watcher-latency observer-mode evidence pack now captures low-impact polling,
   slow-read thresholds, restart recovery, and future timing instrumentation
-  candidates without overclaiming focus causality.
+  candidates without overclaiming focus causality. It now also records the
+  App UI first / Tuner canary restart discipline and the candidate
+  `game watch --jsonl --human-aware` product shape.
 - A first-meet diplomacy topic now captures `NOTIFICATION_PLAYER_MET` as a real
   greeting operation, including the conservative neutral-greeting norm and the
   new `game play respond-first-meet` shortcut. The notification HUD now carries
@@ -389,11 +451,20 @@ Residual objective gaps:
   static support evidence rather than current live-turn authority, plus the
   candidate local-data and local-catalog shortcuts that can reduce UI polling
   without bypassing validators.
+- The informational-notification rules now include active/inactive volcano and
+  river-flood report notices alongside volcano eruptions, unit attacks, district
+  attacks, district attacks, wonder reports, and grievance-against-you reports.
 - A production placement topic now captures the ordinary production `BUILD`
   item-kind split, the official placement-mode `X`/`Y` commit path, and the
   turn-78 Ancient Walls proof.
 - A progression tree target topic now captures the current-node vs target-node
   operation split and the row-index-vs-node-hash failure mode.
+- A celebration-choice topic and `game play choose-celebration` shortcut now
+  capture the turn-98 `NOTIFICATION_CHOOSE_GOLDEN_AGE` blocker. Official UI
+  evidence shows the chooser sends `player-operation CHOOSE_GOLDEN_AGE`
+  with `{ GoldenAgeType: Database.makeHash(goldenAgeType) }`; the live culture
+  and wonder choices both validated, with culture recommended for the current
+  expansion/defense plan.
 - A runtime-state-sources topic now captures why local SQLite should enrich
   play support while direct-control remains the live blocker and validator
   authority, including the materialized-HUD source split.
@@ -405,20 +476,273 @@ Residual objective gaps:
   town focus options, and population placement evidence without sending.
 - A population-placement topic and `game play expand-city` shortcut now capture
   the proven `NEW_POPULATION` expansion branch alongside `assign-worker`.
+  `ready-city` also now resolves targetless population blockers by mirroring the
+  official city scan fallback.
 - A current-online-context evidence pack now captures Test of Time / Update
   1.4.0 as advisory patch context and warns future agents not to promote older
   launch-era guides above live tooltips, local official rows, or validators.
-- Remaining gaps are promotion/hardening work: richer ready-entity reads,
-  stronger live postcondition polling, civic choice proof, acquire-tile
-  candidate cataloging, and eventual promotion into canonical docs/skills.
+- A restart-rehydration shortcut and topic now capture the restart/reconnect
+  guard: `game play rehydrate` composes live notifications with ready-unit state
+  and optional expected turn/date/unit checks, so agents discard stale
+  pre-restart assumptions before sending.
+- A multi-turn strategy and AI-levers topic now captures the architecture split
+  between external strategy runner, static AI/resource mods, native autoplay,
+  and possible telemetry-only JS bridge. It folds in play-style heuristics,
+  official AI schema/resource levers, and RHQ's Workshop/changelog claims as a
+  baseline for static AI manipulation over autoplay.
+- A strategic-planning snapshot topic now defines the read-only 5-10 turn
+  planning contract: compose live blocker/ready views with settlement posture,
+  met-civ comparison, and victory/legacy context, then expire the plan after
+  turn advance, restart, human input, mutation, or long-latency reads.
+- An RHQ AI MOD baseline topic now separates static AI/resource tuning from the
+  direct-control strategy runner. RHQ's public changelog maps to official AI
+  tables and behavior-tree surfaces, but actual RHQ mod files still need
+  source-level comparison before we treat any specific SQL/XML change as
+  verified implementation.
+- A unit-command topic and two thin CLI wrappers now capture live-exercised
+  `RESETTLE` and `UPGRADE` shapes. `resettle-unit` sends
+  `unit-command UNITCOMMAND_RESETTLE { X, Y }`; `upgrade-unit` sends
+  `unit-command UNITCOMMAND_UPGRADE {}`. The wrappers prevent family/args
+  mistakes, but richer postcondition polling remains open.
+- Turn 102-104 added two expansion/support improvements. Storm-arrival,
+  storm-moved, and storm-dissipated reports now follow the same reviewed
+  natural-disaster closeout path as flood and volcano reports. `game play
+  settlement-recommendations` wraps the official settlement lens API as a
+  read-only expansion planning shortcut, so agents can compare candidate sites
+  before moving Settlers through the unit validator path.
+- The unit-target topic now records why `MOVE_TO` plus `no-state-change` is
+  unresolved rather than successful: adjacent enemy plots may require the
+  official war-confirmation callback path, and naval moves may need queued
+  destination/path probes beyond the current unit/target summaries.
+- The RHQ AI MOD baseline now records public status caveats observed on June 1,
+  2026: the Steam page still exposes author claims/changelogs but also showed
+  removal/incompatibility warnings, so RHQ should be treated as an experimental
+  comparator measured by bounded autoplay telemetry, not as canonical current
+  behavior.
+- Commander promotion readiness now has a read-only support path:
+  `ready-unit` reports the unit `Experience` slice, and
+  `game play promotion-readiness` extracts it directly. The live Turtanu proof
+  showed `PROMOTE` can be visible while stored promotion points and
+  commendations are both zero, so the norm is to treat PROMOTE as UI-open proof
+  until `availablePromotions` carries validator-backed args.
+- Passive observer mode now has a first CLI surface: `game watch` polls the
+  read-only notification HUD, optionally composes the ready-unit and ready-city
+  views, and emits or appends JSONL observations with duration and stale-risk
+  labels for human-aware watching.
+- RHQ follow-up research refined the AI experiment candidates: add loaded
+  `GameInfo` AI-row inspection before static mod comparisons, then summarize
+  bounded autoplay with settlement, naval, air, repair, war, assault, raid, and
+  independent/city-state attack telemetry.
+- The Steam Workshop RHQ link was re-checked as a source-status item. It still
+  exposes current title/description/changelog/comment metadata, but also shows
+  removal and Civ VII incompatibility warnings; the CivFanatics mirror is useful
+  lineage but stale relative to Steam v3.x. Disposition: keep RHQ as an
+  advisory comparator, add Workshop refresh/one-AI-mod verification as support
+  norms, and require loaded-row or downloaded-file proof before attributing
+  local behavior to RHQ.
+- A categorical CLI index now exists as `game play topics`. It maps play
+  families such as blockers, progression, cities, tactics, diplomacy,
+  runtime-sources, restart-watch, strategy, and RHQ/static AI to their reference
+  docs, relevant CLI shortcuts, load conditions, and proof boundaries without
+  touching the live game runtime.
+- The first static-AI comparison shortcut now exists as
+  `game ai loaded-levers`. It samples bounded runtime `GameInfo` rows for AI
+  operation definitions, allowed operations, operation teams, unit priorities,
+  favored items, pseudo-yields, behavior-tree rows, and strategy rows. The
+  command is intentionally read-only and records the proof boundary: loaded
+  rows prove the current policy substrate, not actual native AI behavior.
+- Live smoke on 2026-06-01 with
+  `game ai loaded-levers --family rhq --limit-per-table 2 --json` succeeded
+  against the current runtime. It found loaded totals for RHQ-relevant tables:
+  11 `AiOperationDefs`, 12 `AllowedOperations`, 4
+  `AIUnitPrioritizedActions`, 855 `AiFavoredItems`, 79 `PseudoYields`, 20
+  `BehaviorTrees`, and 303 `TreeData` rows. Targeted `AiFavoredItems`
+  spotlights found 7 `PSEUDOYIELD_NEW_CITY` rows and 0
+  `PSEUDOYIELD_REPAIR_BONUS` rows in the current loaded policy substrate.
+- Turn 112 exposed why passive watch needs optional ready-city composition:
+  `NOTIFICATION_NEW_POPULATION` had no direct operation shortcut in the HUD,
+  but `game play ready-city --json` resolved blocking town
+  `{"owner":0,"id":262147,"type":1}` at `(20,20)`, proved
+  `workablePlotIndexes:[]`, and showed legal `city-command EXPAND` candidate
+  plots. Disposition: `game watch --include-ready-city` now appends a compact
+  ready-city projection to watcher observations so population and production
+  blockers can be triaged from the passive JSONL stream. A follow-up live smoke
+  after the blocker enum returned to `0` showed the old notification id still
+  visible while ready-city returned `cityId:null`; treat that as a stale
+  closeout boundary, not an active expansion proof.
+- The same turn-112 population branch gap drove ready-city enrichment:
+  `populationPlacement.workablePlots` now materializes already-workable
+  assignment candidates, and `populationPlacement.expansionCandidates` maps
+  `EXPAND` result plots to map coordinates plus best-effort constructible
+  labels. This removes the manual plot-index conversion step from watcher
+  support notes while preserving the live validator as action authority.
+- Two read-only background lanes rechecked the RHQ/static-AI frame and the
+  playstyle-to-strategy frame. Both converged on the same split: use RHQ-style
+  AI/resource changes as an autoplay/static-policy comparator, and use an
+  external direct-control runner for adaptive player strategy. The most useful
+  next materializations are strategic snapshots, target-candidate ranking, and
+  formation/settler-siege snapshots.
+- Turn 113 exposed the next strategy-materialization need: the active agent had
+  to inspect opponent settlements and choose a first conquest target from
+  distance, apparent strength, and approach. `game play target-candidates` now
+  wraps that read-only pattern as a named shortcut. It ranks runtime target
+  owners from a supplied formation origin and labels the result as planning
+  support, not movement/combat authority. Live context at implementation time
+  favored independent owner `9` near `(13,17)` as the first staging conquest,
+  with Napoleon northwest as a later major-civ target.
+- Turn 115 and the ongoing campaign frame exposed a broader tactical-lens gap:
+  per-unit legal operations are too narrow for military planning and
+  advancement. `game play battlefield-scan` now materializes a read-only radius
+  scan around a front, formation, city, or destination. It summarizes nearby
+  units, cities, owner pressure, wounded friendly units, civilian risk, and
+  city/front POIs. It is deliberately not pathfinding, strategy selection,
+  movement, attack, or war authority; it should guide which ready-unit,
+  target-candidate, path, or validator read comes next.
+- Live smoke on turn 115 with
+  `game play battlefield-scan --x 17 --y 20 --radius 8 --json` succeeded. It
+  found the friendly formation around `(17,20)`, the independent city front at
+  `(13,17)`, a civilian-risk POI for the friendly Settler near `(17,14)`, and
+  owner-pressure from nearby independent units around `(12,20)`.
+- The same turn exposed `NOTIFICATION_ASSIGN_NEW_RESOURCES` as the current
+  blocker. Official UI handler evidence shows it opens
+  `screen-resource-allocation`, so the HUD now classifies it as
+  `resource-assignment` instead of an unknown generic blocker. No
+  validator-backed resource assignment shortcut is proven yet.
+- The follow-on tactical-lens slice adds `game play destination-analysis`, a
+  read-only endpoint and corridor-pressure lens. It takes an intended
+  destination, optionally takes an origin, samples a straight-line grid
+  corridor, and reports destination pressure, corridor contact, sampled plot
+  state, and POIs such as unsupported endpoints or civilian route risk. This is
+  deliberately a cheap deterministic inspection lens: it helps the active agent
+  decide what to inspect before moving, but it is not pathfinding, reachability
+  proof, movement authority, or strategy selection.
+- Live smoke on turn 116 with
+  `game play destination-analysis --from-x 20 --from-y 14 --to-x 13 --to-y 17 --corridor-radius 2 --destination-radius 4 --json`
+  succeeded. It found a high-pressure destination around the independent city
+  at `(13,17)`, corridor contact along the Galley-to-city line, and
+  civilian-route risk for the friendly Settler near `(17,14)`. This supports
+  the lens as heads-up context before movement, not as proof that any specific
+  unit can reach or safely occupy the endpoint.
+- A later turn-116 read showed the ready unit had become the Settler at
+  `(17,13)` with valid `MOVE_TO`, while scans still reported civilian exposure:
+  non-friendly naval pressure at `(15,13)`, a scout near `(13,14)`, and the
+  independent city/front at `(13,17)`. `settlement-recommendations --x 17 --y 13`
+  returned distant official sites such as `(26,9)`, `(27,30)`, and `(23,38)`;
+  `destination-analysis --from-x 17 --from-y 13 --to-x 20 --to-y 20` still
+  reported civilian-route risk. This became `topics/civilian-route-triage.md`:
+  a read-stack that separates good settlement sites, safe near-term movement,
+  and fresh movement validation.
+- A concurrent explorer check explained a watcher ambiguity from an earlier
+  Ballista read: `readyUnit.legalOperationCount: 0` in `game watch` was only the
+  no-target ready-unit candidate count, not proof that the Ballista had no plot
+  move or attack. `game watch` now emits `legalOperationScope: "no-target"` and
+  `legalNoTargetOperationCount` so agents know when to follow up with
+  `game play unit-target` for target-arg operations.
+- Three read-only sidecars converged on the next tactical-lens layer. The RHQ
+  lane remains a static AI/resource-policy comparator; the local playstyle lane
+  favors a supervised runner with validator-first mutations; and the tactical
+  API lane recommends bounded read-only commands for priorities, actors,
+  proximity scans, pressure maps, route analysis, civilian routes, and
+  tactical-plan dry runs. Disposition: `topics/tactical-lens-api-roadmap.md`
+  now records the command build order, current usable lenses, hidden-info
+  boundary, and proof labels before this becomes implementation work.
+- A turn-117 watcher read showed the first ready unit as Warrior
+  `{"owner":0,"id":589830,"type":26}` at `(16,22)`, with zero no-target
+  operations in `game watch` but a valid `MOVE_TO` from `game play unit-target`
+  toward the independent city at `(13,17)`. Wider tactical reads changed the
+  interpretation: `battlefield-scan` showed a strong friendly siege cluster,
+  `target-candidates` kept owner `9` at `(13,17)` as the first city objective,
+  and `destination-analysis` flagged high endpoint and corridor pressure. The
+  active play thread was notified to stage/screen rather than overextend just
+  because direct movement validated.
+- Turn 118 exposed the need for a first turn-level priority dashboard: the HUD
+  reported `NOTIFICATION_UNIT_ATTACKED` for a Settler attacked by La Venta while
+  the ready unit was Ballista `{"owner":0,"id":1638414,"type":26}` at `(17,19)`.
+  Battlefield and destination reads showed a high-risk Settler at `(17,15)` and
+  a hot owner `9` city front at `(13,17)`, while Ballista target probes selected
+  `MOVE_TO` rather than ranged/bombard actions. Disposition:
+  `game play priorities` now composes HUD, ready-unit/city, and bounded
+  battlefield POIs into ranked read priorities, and `topics/play-priorities.md`
+  records the proof boundary.
+- Turn 120 exposed the next formation-level gap: the HUD still carried an
+  end-turn-blocking `NOTIFICATION_UNIT_ATTACKED` for a Galley at `(17,13)`,
+  while the ready unit had shifted to Ballista `{"owner":0,"id":1572876,"type":26}`
+  at `(15,21)`. The local read showed five non-friendly units within three
+  tiles, continued civilian risk for the Settler at `(18,16)`, owner pressure
+  near `(14,20)`, and the La Venta city front at `(13,17)`. Disposition:
+  `game play front-summary` now composes target candidates, battlefield scan,
+  and destination/corridor pressure into a read-only front posture and
+  next-inspection list.
+- Turn 121 made the civilian route gap immediate: the live priority read showed
+  a ready Settler `{"owner":0,"id":1441800,"type":26}` at `(18,16)`, with
+  nearby non-friendly pressure around `(17,18)` and `(17,14)`, plus the La
+  Venta city front at `(13,17)`. A sidecar research pass confirmed the intended
+  proof boundary: settlement recommendations are advisory site ranking,
+  battlefield scan is tactical orientation, destination analysis is cheap
+  endpoint/corridor pressure, and `unit-target` plus postcondition reads remain
+  required before claiming movement success. Disposition:
+  `game play civilian-route-triage` now materializes that stack into a
+  read-only `proceed-with-validation`, `hold-or-screen`,
+  `reroute-or-stage`, or `inspect-candidate` label.
+- Turn 123 exposed queue-management and eventing gaps at the same time: the
+  HUD queue held a Lafayette diplomatic response blocker, non-blocking
+  informational reports such as volcano/great-work notifications, narrative
+  and culture choices, tradition review, and a command-units notice while the
+  ready-unit/front state continued to move. Disposition:
+  `game play notification-queue` now turns the live HUD queue into a read-only
+  schedule with guarded dispositions, and
+  `game play dismiss-notification-queue` bulk-clears eligible informational
+  App UI closeout candidates through the existing direct-control dismissal
+  wrapper. The evented-stream baseline was also reframed to use Effect
+  (`effect@3.21.2` as observed from npm on 2026-06-01) for
+  Stream/PubSub/Queue/reducer work rather than hand-rolled pub/sub.
+- A later tradition blocker showed the play agent spending too much time
+  mining logs/autosaves for active policy state. Official UI code already
+  exposes the needed surface: the player `Culture` object reports
+  active/unlocked/recent traditions, while the policy screen sends
+  `CHANGE_TRADITION` with `PlayerOperationParameters.Activate` or
+  `Deactivate`. Disposition: `game play traditions` now returns a read-only
+  policy packet with slot counts, localized names/descriptions, action enum
+  values, per-tradition action hints, and recommended validation commands.
+- Repeated tactical movement work exposed a verification-contract bug: callers
+  saw immediate `no-state-change` results after valid sends and then spent turn
+  context manually re-reading the same state. Disposition:
+  `game play unit-target --send` now performs bounded post-send polling after
+  an immediate `no-state-change`, returns delayed successes as verified, and
+  exposes `verification.source`, `attempts`, and `observedAfterMs`. A remaining
+  `no-state-change` means the bounded poll window also failed to prove unit or
+  target-plot change.
+- Turn-137/138 front-line play exposed a resolver mismatch: `ready-unit` could
+  expose `RANGE_ATTACK` while `unit-target` tried the `UNITOPERATION_*` string
+  spelling and could fall through to movement. Disposition: runtime operation
+  enum resolution now accepts both official spellings, so target resolution,
+  ready-unit operations, and generic operation sends share the same enum value
+  when Civ7 exposes only one form in `UnitOperationTypes` or related enums.
+- The turn-112 population blocker left an open postcondition gap for
+  `ASSIGN_WORKER` and `EXPAND`: sends needed to prove more than validator
+  success. Disposition: generic operation sends now attach
+  `populationPostcondition` for those two branches, including before/after
+  `Growth.isReadyToPlacePopulation`, worker-cap, workable/blocked plot indexes,
+  expansion plot indexes, and a classification such as
+  `population-ready-cleared` or `no-state-change`.
+- Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
+  queued destination/path evidence, civic choice proof, visibility-filtered
+  path/front analysis beyond the cheap destination lens, AI autoplay telemetry
+  shortcuts, and eventual promotion into canonical docs/skills.
 
 Deferred items:
 
 - Prove whether any future civic surface differs from `game play
   choose-culture`.
 - Prove ordinary non-town city-project production postconditions.
-- Improve acquire-tile candidate cataloging so future reads show whether each
-  plot should use `assign-worker` or `expand-city`.
+- Add visibility/pathing and diplomacy context to target-candidate ranking so
+  future siege plans can distinguish public knowledge, debug summaries, and
+  unwanted multi-front war risk.
+- Add terrain-aware destination/path analysis so `destination-analysis` can
+  separate cheap corridor pressure, visible reachable movement, road/river
+  constraints, and validator-backed unit-specific movement options.
+- Specify the first strategy-runner dry run and the first fixed-seed AI
+  resource-mod A/B experiment before implementing multi-turn automation.
 - Promote stable topic docs into canonical docs and skill assets after review.
 
 Next Packet:

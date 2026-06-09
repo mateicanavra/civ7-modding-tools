@@ -64,14 +64,27 @@ catalog every time.
 5. Invalidate live-layer HUD data after every send, visible human input, turn
    advance, or long-latency read. Static catalog enrichment can stay cached.
 
+## Implemented Shortcut
+
+`game local-data inspect --json` is the read-only inventory shortcut for the
+local evidence layer. It reports the app-support directory, discovered SQLite
+files, optional SQLite table counts, save files, and log files, and it carries
+authority labels that say what the data can and cannot prove.
+
+Use it when the play agent or watcher needs to answer "what disk evidence do we
+have?" without asking the live App UI for static catalog facts and without
+pretending the disk files are current-turn validators.
+
+Example:
+
+```bash
+civ7 game local-data inspect --json
+```
+
 ## Shortcut Candidates
 
 Good next CLI surfaces:
 
-- `game local-data inspect --json`: read-only app-support inventory with
-  database paths, mtimes, sizes, table counts, save inventory, and useful log
-  mtimes. This answers "what local evidence exists?" without implying live
-  control.
 - `game local-catalog lookup <table> <key> --json`: bounded local catalog lookup
   for common tables such as `Types`, `Units`, `Constructibles`, `Notifications`,
   `Traditions`, and localization text.

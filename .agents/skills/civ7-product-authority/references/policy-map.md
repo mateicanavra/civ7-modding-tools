@@ -28,6 +28,28 @@ For MapGen recipe config, the default accepted stage surface is flat:
 migration concern unless a controlling decision names a genuine public surface
 transform.
 
+## Native Control Primitive Policy
+
+For live Civ7 play-control behavior, official native primitives are the first
+authority. Before inventing a workaround, inspect the shipped App UI scripts,
+official GameInfo/runtime APIs, FireTuner/dev-tool resources, and relevant
+community mod scripts as evidence for the native state machine and control
+surface.
+
+- Prefer official operations, commands, UI managers, display queues, notification
+  managers, and story/progression/city/unit controllers over caller-side
+  reconciliation.
+- A CLI mutation should be one forward player decision. If Civ7 uses multiple
+  native primitives for that decision, compose them inside the command.
+- Do not expose "closeout", duplicate verification, or manual state repair as
+  the default play-agent task. Keep those as diagnostics or compatibility debt
+  only until the native workflow is owned by one command.
+- Verification exists to prove repo-owned composition, newly modeled surfaces,
+  or non-native lenses. Do not build verification theater around native state
+  transitions that Civ7 itself already owns and trusts.
+- If no native primitive exists, state that proof boundary explicitly before
+  adding repo-owned orchestration.
+
 ## MapGen Truth/Projection Policy
 
 - Truth stages publish deterministic domain artifacts and fields.

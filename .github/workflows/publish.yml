@@ -102,35 +102,35 @@ jobs:
 
       - name: Build SDK
         if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
-        run: bun run --filter @mateicanavra/civ7-sdk build
+        run: bun run build:sdk
 
       - name: Build CLI
         if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        run: bun run --filter @mateicanavra/civ7-cli build
+        run: bun run build:cli
 
       - name: Lint SDK
         if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
-        run: bun run --filter @mateicanavra/civ7-sdk lint
+        run: bun run lint:sdk
 
       - name: Lint CLI
         if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        run: bun run --filter @mateicanavra/civ7-cli lint
+        run: bun run lint:cli
 
       - name: Test SDK
         if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
-        run: bun run --filter @mateicanavra/civ7-sdk test
+        run: bun run test:sdk
 
       - name: Test CLI
         if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        run: bun run --filter @mateicanavra/civ7-cli test
+        run: bun run test:cli
 
       - name: Typecheck SDK
         if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
-        run: bun run --filter @mateicanavra/civ7-sdk check
+        run: bun run check:sdk
 
       - name: Typecheck CLI
         if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        run: bun run --filter @mateicanavra/civ7-cli check
+        run: bun run check:cli
 
       - name: Publish SDK
         if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'

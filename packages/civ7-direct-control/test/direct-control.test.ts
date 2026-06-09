@@ -8,6 +8,7 @@ import {
   CIV7_SIGNED_INT_SEED_MAX,
   CIV7_RESTART_COMMAND,
   Civ7DirectControlError,
+  assertCiv7ComponentId,
   DEFAULT_CIV7_TUNER_HOST,
   DEFAULT_CIV7_TUNER_PORT,
   checkCiv7DirectControlHealth,
@@ -24,12 +25,17 @@ import {
   getCiv7FullMapGrid,
   getCiv7MapGrid,
   getCiv7MapSummary,
+  getCiv7PlayNotificationView,
+  getCiv7NotificationDismissal,
   getCiv7PlotSnapshot,
   getCiv7PlayableStatus,
   getCiv7ResourceBuilderDiagnostics,
   getCiv7ResourcePlacementFeasibility,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
+  getCiv7UnitTargetAction,
+  getCiv7ReadyUnitView,
+  getCiv7ReadyCityView,
   getCiv7VisibilitySummary,
   getCiv7AppUiSnapshot,
   inspectCiv7RuntimeApi,
@@ -38,8 +44,13 @@ import {
   prepareCiv7SinglePlayerSetup,
   parseCiv7TunerFrame,
   planCiv7MapGridReadBounds,
+  requestCiv7CultureChoiceCloseout,
+  requestCiv7TechnologyChoiceCloseout,
+  requestCiv7ProductionChoice,
   queryCiv7TunerStates,
   requestCiv7UnitOperation,
+  requestCiv7UnitTargetAction,
+  requestCiv7NotificationDismissal,
   revealCiv7MapForPlayer,
   runCiv7SinglePlayerFromSetup,
   startPreparedCiv7SinglePlayerGame,
@@ -53,6 +64,11 @@ import {
 } from "../src/index";
 
 describe("Civ7 direct control", () => {
+  test("validates Civ7 ComponentID payloads through the shared TypeBox schema", () => {
+    expect(assertCiv7ComponentId({ owner: 0, id: 131073, type: 1 })).toEqual({ owner: 0, id: 131073, type: 1 });
+    expect(() => assertCiv7ComponentId({ owner: 0, type: 1 }, "--city-id")).toThrow(/--city-id must be a Civ7 ComponentID/);
+  });
+
   test("uses defaults and env hosts when resolving health", async () => {
     const server = await startTunerServer();
     try {
@@ -259,6 +275,425 @@ describe("Civ7 direct control", () => {
           ready: true,
         },
       });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("materializes play notifications with decision hints", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const view = await getCiv7PlayNotificationView({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
+
+      expect(view).toMatchObject({
+        state: { id: "65535", name: "App UI" },
+        localPlayerId: 0,
+        blocker: { ok: true, value: -2026570723 },
+        blockingNotificationId: { ok: true, value: { owner: 0, id: 42, type: 20 } },
+        notifications: [
+          {
+            typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+            isEndTurnBlocking: true,
+            decision: {
+              category: "town-focus",
+              operationFamily: "city-command",
+              operationType: "CHANGE_GROWTH_MODE",
+              requiredInputs: expect.arrayContaining([
+                expect.objectContaining({ name: "City" }),
+              ]),
+              commonActions: expect.arrayContaining([
+                expect.objectContaining({ cli: expect.stringContaining("game play set-town-focus") }),
+              ]),
+            },
+          },
+        ],
+        hud: {
+          nextDecision: {
+            category: "town-focus",
+            isEndTurnBlocking: true,
+          },
+        },
+      });
+      expect(view.decisions.some((decision) => decision.category === "town-focus")).toBe(true);
+      expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(true);
+      const notificationRead = server.received.find((message) => message.includes("readPlayNotifications")) ?? "";
+      expect(notificationRead).toContain("CHOOSE_AUTO_NARRATIVE_STORY_DIRECTION");
+      expect(notificationRead).toContain("getFirstPendingDiscoveryLastMetID");
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("plans and sends guarded notification dismissal", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const plan = await getCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test reviewed notification dismissal" },
+      );
+
+      expect(plan).toMatchObject({
+        notificationId,
+        canDismiss: true,
+        sent: false,
+        before: {
+          typeName: "NOTIFICATION_WONDER_COMPLETED",
+          canUserDismiss: true,
+          isEndTurnBlocking: { ok: true, value: true },
+        },
+      });
+      expect(request).toMatchObject({
+        notificationId,
+        sent: true,
+        verified: true,
+        after: {
+          isEndTurnBlocking: { ok: true, value: false },
+        },
+      });
+      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
+      const dismissalReads = server.received.filter((message) => message.includes("readNotificationDismissal"));
+      expect(dismissalReads.length).toBeGreaterThan(2);
+      expect(dismissalReads.filter((message) => message.includes('"send":true'))).toHaveLength(1);
+      expect(dismissalReads.filter((message) => message.includes('"send":false')).length).toBeGreaterThan(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("reports culture App UI closeout sends without direct verification", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7CultureChoiceCloseout(
+        {
+          playerId: 0,
+          node: -1404789184,
+          notificationId: { owner: 0, id: 62, type: 20 },
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test culture App UI closeout" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request).not.toHaveProperty("verified");
+      expect(request.payload).toMatchObject({
+        notificationId: { owner: 0, id: 62, type: 20 },
+        canChoose: { ok: true, value: { Success: true } },
+        chooseResult: { ok: true, value: true },
+        canClearTarget: { ok: true, value: { Success: true } },
+        clearTargetResult: { ok: true, value: true },
+        sent: true,
+      });
+      const command = server.received.find((message) => message.includes("sendCultureChoiceCloseout")) ?? "";
+      expect(command).toContain("Game.Notifications.activate");
+      expect(command).toContain("SET_CULTURE_TREE_NODE");
+      expect(command).toContain("SET_CULTURE_TREE_TARGET_NODE");
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("reports technology App UI closeout sends without direct verification", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7TechnologyChoiceCloseout(
+        {
+          playerId: 0,
+          node: -1255676052,
+          notificationId: { owner: 0, id: 52, type: 20 },
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test technology App UI closeout" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request).not.toHaveProperty("verified");
+      expect(request.payload).toMatchObject({
+        notificationId: { owner: 0, id: 52, type: 20 },
+        canChoose: { ok: true, value: { Success: true } },
+        chooseResult: { ok: true, value: true },
+        canClearTarget: { ok: true, value: { Success: true } },
+        clearTargetResult: { ok: true, value: true },
+        sent: true,
+      });
+      const command = server.received.find((message) => message.includes("sendTechnologyChoiceCloseout")) ?? "";
+      expect(command).toContain("Game.Notifications.activate");
+      expect(command).toContain("SET_TECH_TREE_NODE");
+      expect(command).toContain("SET_TECH_TREE_TARGET_NODE");
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not verify dismissal from train absence while engine queue still fronts the target", async () => {
+    const server = await startTunerServer({ notificationDismissalMode: "engine-front-train-absent" });
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test stale engine-front notification dismissal" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(false);
+      expect(request.after).toMatchObject({
+        engineQueueContains: { ok: true, value: true },
+        isEngineQueueFront: { ok: true, value: true },
+        notificationTrainContains: { ok: true, value: false },
+        isNotificationTrainFront: { ok: true, value: false },
+      });
+      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not verify dismissal from dismissed flag while engine queue still fronts the target", async () => {
+    const server = await startTunerServer({ notificationDismissalMode: "engine-front-dismissed" });
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test dismissed flag with stale engine-front notification" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(false);
+      expect(request.after).toMatchObject({
+        dismissed: true,
+        engineQueueContains: { ok: true, value: true },
+        isEngineQueueFront: { ok: true, value: true },
+      });
+      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("uses panel dismiss when blocker enum is none despite stale engine-front identity", async () => {
+    const server = await startTunerServer({ notificationDismissalMode: "engine-front-none-blocker" });
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test panel close control for none blocker enum" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.result?.panelCloseControl).toMatchObject({
+        ok: true,
+        attempted: true,
+        available: true,
+        path: "Game.Notifications.dismiss",
+      });
+      expect(request.before).toMatchObject({
+        endTurnBlockingType: { ok: true, value: 0 },
+        isEngineQueueFront: { ok: true, value: true },
+      });
+      expect(request.after).toMatchObject({
+        exists: false,
+        engineQueueContains: { ok: true, value: false },
+        isEngineQueueFront: { ok: true, value: false },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("uses panel dismiss for expired non-user-dismissible stale front notifications when blocker enum is none", async () => {
+    const server = await startTunerServer({ notificationDismissalMode: "expired-engine-front-none-blocker" });
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const plan = await getCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test expired stale front panel close control" },
+      );
+
+      expect(plan).toMatchObject({
+        canDismiss: true,
+        before: {
+          canUserDismiss: false,
+          expired: true,
+          endTurnBlockingType: { ok: true, value: 0 },
+          isEngineQueueFront: { ok: true, value: true },
+        },
+      });
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.result?.panelCloseControl).toMatchObject({
+        ok: true,
+        attempted: true,
+        available: true,
+        path: "Game.Notifications.dismiss",
+      });
+      expect(request.after).toMatchObject({
+        exists: false,
+        engineQueueContains: { ok: true, value: false },
+        isEngineQueueFront: { ok: true, value: false },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("plans and sends unit target actions through official target order", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const unitId = { owner: 0, id: 65536, type: 26 };
+      const plan = await getCiv7UnitTargetAction(
+        { unitId, x: 23, y: 33 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+      const request = await requestCiv7UnitTargetAction(
+        { unitId, x: 23, y: 33 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test unit target action" },
+      );
+
+      expect(plan).toMatchObject({
+        unitId,
+        target: { x: 23, y: 33 },
+        selected: {
+          family: "unit-operation",
+          operationType: "UNITOPERATION_RANGE_ATTACK",
+        },
+        sent: false,
+      });
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(server.received.filter((message) => message.includes("readUnitTargetAction"))).toHaveLength(2);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("reports sent unit target no-ops as unverified postcondition misses", async () => {
+    const server = await startTunerServer({ unitTargetMode: "no-op-after-send" });
+    try {
+      const { port } = server.address();
+      const unitId = { owner: 0, id: 65536, type: 26 };
+      const request = await requestCiv7UnitTargetAction(
+        { unitId, x: 23, y: 33 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test no-op unit target action" },
+      );
+
+      expect(request.selected).toMatchObject({
+        family: "unit-operation",
+        operationType: "UNITOPERATION_NAVAL_ATTACK",
+      });
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(false);
+      expect(request.verification).toMatchObject({
+        status: "no-state-change",
+        unitChanged: false,
+        targetUnitsChanged: false,
+      });
+      expect(request.verification?.reason).toMatch(/re-read .* before repeating/);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("reads the first ready unit view without sending operations", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const view = await getCiv7ReadyUnitView({}, {
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
+
+      expect(view).toMatchObject({
+        state: { id: "65535", name: "App UI" },
+        unitId: { owner: 0, id: 458752, type: 26 },
+        legalOperations: [
+          {
+            family: "unit-operation",
+            operationType: "SKIP_TURN",
+            valid: true,
+          },
+        ],
+      });
+      expect(server.received.some((message) => message.includes("readReadyUnitView"))).toBe(true);
+      expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("reads ready-city view for city blockers without sending operations", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const view = await getCiv7ReadyCityView({}, {
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
+
+      expect(view).toMatchObject({
+        state: { id: "65535", name: "App UI" },
+        localPlayerId: 0,
+        requestedCityId: null,
+        selectedCityId: { ok: true, value: { owner: 0, id: 131073, type: 1 } },
+        cityId: { owner: 0, id: 131073, type: 1 },
+        city: {
+          ok: true,
+          value: {
+            id: { owner: 0, id: 131073, type: 1 },
+            identity: {
+              source: "Players.Cities.getCityIds",
+              ok: true,
+            },
+            name: "Dur-Sharrukin",
+            isTown: true,
+            population: 4,
+          },
+        },
+        legalOperations: [
+          expect.objectContaining({
+            family: "city-operation",
+            operationType: "CONSIDER_TOWN_PROJECT",
+          }),
+        ],
+      });
+      expect(view.notes.some((note) => note.includes("does not choose production"))).toBe(true);
+      expect(view.populationPlacement.ok && view.populationPlacement.value?.cliHints).toContain(
+        "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+      );
+      expect(server.received.some((message) => message.includes("readReadyCityView"))).toBe(true);
+      expect(server.received.some((message) => message.includes('source: "Players.Cities.getCityIds"'))).toBe(true);
+      expect(server.received.some((message) => message.includes("toComponentId(city.id ?? cityId) ?? cityId"))).toBe(false);
+      expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
     } finally {
       await server.close();
     }
@@ -1002,7 +1437,41 @@ describe("Civ7 direct control", () => {
         valid: true,
       });
       expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        family: "unit-operation",
+        operationType: "SKIP_TURN",
+        classification: "queue-advanced",
+      });
       expect(server.received.filter((message) => message.includes("return JSON.stringify(sendOperation")).length).toBe(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("requests production choices through the official App UI production path", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const cityId = { owner: 0, id: 65536, type: 1 };
+      const request = await requestCiv7ProductionChoice(
+        { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test official production choice" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.productionPostcondition).toMatchObject({
+        classification: "production-choice-cleared",
+        blockerStillLive: false,
+      });
+      expect(request.payload?.ui?.cityActivation).toMatchObject({ ok: true });
+      expect(request.payload?.ui?.interfaceClose).toMatchObject({ ok: true });
+      expect(server.received.some((message) => message.includes("readProductionChoice"))).toBe(true);
+      expect(server.received.some((message) => message.includes("UI?.Player?.selectCity"))).toBe(true);
+      expect(server.received.some((message) => message.includes("InterfaceMode?.switchToDefault"))).toBe(true);
+      expect(server.received.some((message) => message.includes("return JSON.stringify(sendOperation"))).toBe(false);
     } finally {
       await server.close();
     }
@@ -1236,17 +1705,19 @@ async function startTunerServer(options: {
   savedConfigLoadOk?: boolean;
   postStartSeedOverride?: number;
   hiddenMapScript?: string;
-	  revealHiddenMapRowOnShellExit?: boolean;
-	  appUiOnlyStates?: boolean;
-	  appUiSnapshotWithoutGameplayGlobals?: boolean;
-	  tunerReady?: boolean;
-	  mapSummaryHashes?: ReadonlyArray<number>;
-	} = {}) {
-	  const received: string[] = [];
-	  let loadingState = 6;
-	  let inShell = options.initialInShell ?? true;
-	  let revealedCount = 10;
-	  let mapSummaryReadCount = 0;
+  revealHiddenMapRowOnShellExit?: boolean;
+  appUiOnlyStates?: boolean;
+  appUiSnapshotWithoutGameplayGlobals?: boolean;
+  tunerReady?: boolean;
+  mapSummaryHashes?: ReadonlyArray<number>;
+  unitTargetMode?: "verified" | "no-op-after-send";
+  notificationDismissalMode?: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker" | "expired-engine-front-none-blocker";
+} = {}) {
+  const received: string[] = [];
+  let loadingState = 6;
+  let inShell = options.initialInShell ?? true;
+  let revealedCount = 10;
+  let mapSummaryReadCount = 0;
   let autoplayActive = false;
   let autoplayPaused = false;
   let autoplayStopPendingReads = 0;
@@ -1260,6 +1731,8 @@ async function startTunerServer(options: {
   let setupPlayerDifficulty = "DIFFICULTY_PRINCE";
   let setupRevision = 19;
   let hiddenMapRowVisible = false;
+  let notificationDismissalSent = false;
+  let productionChoiceSent = false;
   const visibleSetupRows = () => [
     {
       Domain: "StandardMaps",
@@ -1480,6 +1953,174 @@ async function startTunerServer(options: {
           autoplayStopPendingReads = 1;
           autoplayPaused = true;
           socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"isActive":true,"turns":-1,"isPaused":true,"isPausedOrPending":true}']));
+        } else if (frame.message.includes("readPlayNotifications")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                localPlayerId: 0,
+                turn: { ok: true, value: 80 },
+                turnDate: { ok: true, value: "2025 BCE" },
+                hasSentTurnComplete: { ok: true, value: false },
+                canEndTurn: { ok: true, value: false },
+                blocker: { ok: true, value: -2026570723 },
+                blockingNotificationId: { ok: true, value: { owner: 0, id: 42, type: 20 } },
+                selectedUnitId: { ok: true, value: null },
+                selectedCityId: { ok: true, value: { owner: 0, id: 131073, type: 1 } },
+                firstReadyUnitId: { ok: true, value: null },
+                notifications: [
+                  {
+                    id: { owner: 0, id: 42, type: 20 },
+                    type: -123,
+                    typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+                    groupType: null,
+                    summary: "Choose Town Project",
+                    message: "Choose a town focus project",
+                    target: { owner: 0, id: 131073, type: 1 },
+                    location: null,
+                    canUserDismiss: false,
+                    expired: false,
+                    dismissed: false,
+                    isEndTurnBlocking: true,
+                    decision: {
+                      category: "town-focus",
+                      operationFamily: "city-command",
+                      operationType: "CHANGE_GROWTH_MODE",
+                      argsShape: "{ Type, ProjectType, City }",
+                      cli: "game play set-town-focus",
+                      requiredInputs: [
+                        { name: "City", source: "notification target or selected city", required: true },
+                        { name: "Type", source: "live town focus option", required: true },
+                        { name: "ProjectType", source: "live town focus option", required: true },
+                      ],
+                      commonActions: [
+                        {
+                          label: "set town focus and close review",
+                          cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
+                          operationFamily: "sequence",
+                          operationType: "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT",
+                          argsShape: "{ Type, ProjectType, City } then {}",
+                          when: "when the selected focus should be applied and the blocker closed as one caller workflow",
+                        },
+                        {
+                          label: "set town focus",
+                          cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
+                          operationFamily: "city-command",
+                          operationType: "CHANGE_GROWTH_MODE",
+                          argsShape: "{ Type, ProjectType, City }",
+                          when: "after selecting the focus from live options",
+                        },
+                      ],
+                      confidence: "live-proof",
+                      notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
+                    },
+                  },
+                ],
+                decisions: [
+                  {
+                    category: "town-focus",
+                    operationFamily: "city-command",
+                    operationType: "CHANGE_GROWTH_MODE",
+                    argsShape: "{ Type, ProjectType, City }",
+                    cli: "game play set-town-focus",
+                    requiredInputs: [
+                      { name: "City", source: "notification target or selected city", required: true },
+                      { name: "Type", source: "live town focus option", required: true },
+                      { name: "ProjectType", source: "live town focus option", required: true },
+                    ],
+                    commonActions: [
+                      {
+                        label: "set town focus and close review",
+                        cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
+                        operationFamily: "sequence",
+                        operationType: "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT",
+                        argsShape: "{ Type, ProjectType, City } then {}",
+                        when: "when the selected focus should be applied and the blocker closed as one caller workflow",
+                      },
+                      {
+                        label: "set town focus",
+                        cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
+                        operationFamily: "city-command",
+                        operationType: "CHANGE_GROWTH_MODE",
+                        argsShape: "{ Type, ProjectType, City }",
+                        when: "after selecting the focus from live options",
+                      },
+                    ],
+                    confidence: "live-proof",
+                    notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
+                  },
+                ],
+                hud: {
+                  nextDecision: {
+                    notificationId: { owner: 0, id: 42, type: 20 },
+                    isEndTurnBlocking: true,
+                    typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+                    summary: "Choose Town Project",
+                    message: "Choose a town focus project",
+                    target: { owner: 0, id: 131073, type: 1 },
+                    location: null,
+                    category: "town-focus",
+                    operationFamily: "city-command",
+                    operationType: "CHANGE_GROWTH_MODE",
+                    argsShape: "{ Type, ProjectType, City }",
+                    cli: "game play set-town-focus",
+                    requiredInputs: [
+                      { name: "City", source: "notification target or selected city", required: true },
+                      { name: "Type", source: "live town focus option", required: true },
+                      { name: "ProjectType", source: "live town focus option", required: true },
+                    ],
+                    commonActions: [],
+                    notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
+                  },
+                  decisionQueue: [
+                    {
+                      notificationId: { owner: 0, id: 42, type: 20 },
+                      isEndTurnBlocking: true,
+                      typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+                      summary: "Choose Town Project",
+                      message: "Choose a town focus project",
+                      target: { owner: 0, id: 131073, type: 1 },
+                      location: null,
+                      category: "town-focus",
+                      operationFamily: "city-command",
+                      operationType: "CHANGE_GROWTH_MODE",
+                      argsShape: "{ Type, ProjectType, City }",
+                      cli: "game play set-town-focus",
+                      requiredInputs: [
+                        { name: "City", source: "notification target or selected city", required: true },
+                        { name: "Type", source: "live town focus option", required: true },
+                        { name: "ProjectType", source: "live town focus option", required: true },
+                      ],
+                      commonActions: [],
+                      notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
+                    },
+                  ],
+                },
+                limits: { maxNotifications: 25, truncated: false },
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("readUnitTargetAction")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(frame.message.includes('"send":true'), options.unitTargetMode))]));
+        } else if (frame.message.includes("readReadyUnitView")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
+        } else if (frame.message.includes("readReadyCityView")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyCityView())]));
+        } else if (frame.message.includes("sendTechnologyChoiceCloseout")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(technologyChoiceCloseout())]));
+        } else if (frame.message.includes("sendCultureChoiceCloseout")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
+        } else if (frame.message.includes("readNotificationDismissal")) {
+          const send = frame.message.includes('"send":true');
+          if (send) notificationDismissalSent = true;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(
+            send,
+            notificationDismissalSent && !send,
+            options.notificationDismissalMode ?? "verified",
+          ))]));
+        } else if (frame.message.includes("readProductionChoice")) {
+          const send = frame.message.includes('"send":true');
+          if (send) productionChoiceSent = true;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(productionChoicePayload(send, productionChoiceSent && !send))]));
         } else if (frame.message.includes("Network.isInSession")) {
           const snapshotAutoplayActive = autoplayStopPendingReads > 0 ? true : autoplayActive;
           const snapshotAutoplayPaused = autoplayStopPendingReads > 0 ? true : autoplayPaused;
@@ -1853,6 +2494,8 @@ async function startTunerServer(options: {
                   result: { Success: true },
                 },
                 result: { accepted: true },
+                beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
+                afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
               }),
             ]),
           );
@@ -1906,6 +2549,437 @@ async function startTunerServer(options: {
     close: async () => {
       server.close();
       await once(server, "close");
+    },
+  };
+}
+
+function unitTargetAction(send: boolean, mode: "verified" | "no-op-after-send" = "verified") {
+  const unitId = { owner: 0, id: 65536, type: 26 };
+  const beforeUnit = { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 1 } };
+  const beforeTargetUnits = { ok: true, value: [{ owner: 62, id: 123, type: 26 }] };
+  const noOp = mode === "no-op-after-send";
+  return {
+    unitId,
+    target: { x: 23, y: 33, index: { ok: true, value: 1457 } },
+    beforeUnit,
+    beforeTargetUnits,
+    candidates: [
+      {
+        family: "unit-operation",
+        operationType: "UNITOPERATION_NAVAL_ATTACK",
+        args: { X: 23, Y: 33, Modifiers: 3 },
+        valid: noOp,
+        result: { Success: noOp, ...(noOp ? { Plots: [1457] } : {}) },
+        targetInReturnedPlots: noOp ? true : null,
+      },
+      {
+        family: "unit-operation",
+        operationType: "UNITOPERATION_RANGE_ATTACK",
+        args: { X: 23, Y: 33, Modifiers: 3 },
+        valid: true,
+        result: { Success: true, Plots: [1457] },
+        targetInReturnedPlots: true,
+      },
+    ],
+    selected: {
+      family: "unit-operation",
+      operationType: noOp ? "UNITOPERATION_NAVAL_ATTACK" : "UNITOPERATION_RANGE_ATTACK",
+      args: { X: 23, Y: 33, Modifiers: 3 },
+      valid: true,
+      result: { Success: true, Plots: [1457] },
+      targetInReturnedPlots: true,
+    },
+    sent: send,
+    ...(send
+      ? {
+          sendResult: { accepted: true },
+          afterUnit: noOp
+            ? beforeUnit
+            : { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 0 } },
+          afterTargetUnits: beforeTargetUnits,
+          verified: !noOp,
+          verification: {
+            status: noOp ? "no-state-change" : "verified",
+            unitChanged: !noOp,
+            targetUnitsChanged: false,
+            reason: noOp
+              ? "send returned but unit and target-plot probes did not change; re-read before repeating"
+              : "unit or target-plot state changed after send",
+          },
+        }
+      : {
+          verification: {
+            status: "not-sent",
+            unitChanged: false,
+            targetUnitsChanged: false,
+            reason: "read-only target resolution; use --send with an approval reason to mutate",
+          },
+        }),
+    notes: ["Selection follows the official right-click WorldInput target order."],
+  };
+}
+
+function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; id: number; type: number }) {
+  return {
+    unit: {
+      ok: true,
+      value: {
+        id: { owner: 0, id: 65536, type: 26 },
+        location: { x: 22, y: 33 },
+        movement: 2,
+        activity: "UNIT_ACTIVITY_AWAKE",
+        damage: 0,
+        attacks: 1,
+      },
+    },
+    selectedUnitId: { ok: true, value: { owner: 0, id: 65536, type: 26 } },
+    firstReadyUnitId: { ok: true, value: firstReadyUnitId },
+    blocker: { ok: true, value: 0 },
+  };
+}
+
+function readyUnitView() {
+  const unitId = { owner: 0, id: 458752, type: 26 };
+  return {
+    localPlayerId: 0,
+    requestedUnitId: null,
+    selectedUnitId: { ok: true, value: null },
+    firstReadyUnitId: { ok: true, value: unitId },
+    unitId,
+    unit: {
+      ok: true,
+      value: {
+        id: unitId,
+        owner: 0,
+        type: 111,
+        typeName: "UNIT_ARMY_COMMANDER",
+        location: { x: 22, y: 31 },
+        movementMovesRemaining: 2,
+        attacksRemaining: 0,
+        damage: 0,
+        hitPoints: 100,
+      },
+    },
+    legalOperations: [
+      {
+        family: "unit-operation",
+        operationType: "SKIP_TURN",
+        enumValue: 1,
+        valid: true,
+        result: { Success: true },
+      },
+    ],
+    nearby: {
+      ok: true,
+      value: [
+        {
+          x: 22,
+          y: 31,
+          units: [{ id: unitId, owner: 0, typeName: "UNIT_ARMY_COMMANDER" }],
+        },
+      ],
+    },
+    notes: ["Read-only ready-unit view. Use operation validation before any send."],
+  };
+}
+
+function readyCityView() {
+  const cityId = { owner: 0, id: 131073, type: 1 };
+  return {
+    localPlayerId: 0,
+    requestedCityId: null,
+    selectedCityId: { ok: true, value: cityId },
+    blockingCityId: { ok: true, value: cityId },
+    cityId,
+    city: {
+      ok: true,
+      value: {
+        id: cityId,
+        owner: 0,
+        identity: {
+          source: "Players.Cities.getCityIds",
+          ok: true,
+          observedCityId: cityId,
+          reason: null,
+        },
+        name: "Dur-Sharrukin",
+        location: { x: 22, y: 31 },
+        population: 4,
+        isTown: true,
+        growth: { growthType: -284569333, turnsUntilGrowth: 3 },
+        buildQueue: { currentProductionTypeHash: null, turnsLeft: null },
+      },
+    },
+    legalOperations: [
+      {
+        family: "city-operation",
+        operationType: "CONSIDER_TOWN_PROJECT",
+        enumValue: 1,
+        valid: true,
+        result: { Success: true },
+      },
+    ],
+    productionCandidates: {
+      ok: true,
+      value: [
+        {
+          kind: "constructible",
+          type: 713967338,
+          typeName: "BUILDING_WALLS",
+          name: "LOC_BUILDING_WALLS_NAME",
+          args: { ConstructibleType: 713967338 },
+          valid: true,
+          result: { Success: true, Plots: [1457] },
+          placementPlots: [{ index: 1457, x: 22, y: 31 }],
+          cli: "game play build-production --city-id '<city-id>' --constructible-type 713967338 --x <x> --y <y>",
+        },
+      ],
+    },
+    townFocusOptions: {
+      ok: true,
+      value: [
+        {
+          name: "LOC_PROJECT_FISHING_TOWN_NAME",
+          description: "LOC_PROJECT_FISHING_TOWN_DESCRIPTION",
+          args: { Type: -284569333, ProjectType: -548685232, City: 131073 },
+          valid: true,
+          result: { Success: true },
+          cli: "game play set-town-focus --city-id '<city-id>' --growth-type -284569333 --project-type -548685232",
+        },
+      ],
+    },
+    populationPlacement: {
+      ok: true,
+      value: {
+        isReadyToPlacePopulation: { ok: true, value: true },
+        cityWorkerCap: { ok: true, value: 4 },
+        allPlacementInfo: { ok: true, value: [{ PlotIndex: 1457, IsBlocked: false }] },
+        workablePlotIndexes: { ok: true, value: [1457] },
+        blockedPlotIndexes: { ok: true, value: [] },
+        cliHints: [
+          "game play assign-worker --player-id <id> --location <plot-index>",
+          "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+        ],
+      },
+    },
+    notes: ["Read-only ready-city view. This view intentionally does not choose production."],
+  };
+}
+
+function technologyChoiceCloseout() {
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    node: -1255676052,
+    notificationId: { owner: 0, id: 52, type: 20 },
+    beforeTechnology: {
+      currentResearching: { ok: true, value: null },
+      targetNode: { ok: true, value: null },
+    },
+    activationResult: { ok: true, value: true },
+    canChoose: { ok: true, value: { Success: true } },
+    chooseResult: { ok: true, value: true },
+    canClearTarget: { ok: true, value: { Success: true } },
+    clearTargetResult: { ok: true, value: true },
+    afterTechnology: {
+      currentResearching: { ok: true, value: -1255676052 },
+      targetNode: { ok: true, value: -1 },
+    },
+    sent: true,
+    notes: [
+      "This uses the App UI owner for technology chooser closeout; notification re-read remains the caller-level verifier.",
+    ],
+  };
+}
+
+function cultureChoiceCloseout() {
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    node: -1404789184,
+    notificationId: { owner: 0, id: 62, type: 20 },
+    beforeCulture: {
+      currentResearching: { ok: true, value: null },
+      targetNode: { ok: true, value: null },
+      availableNodeTypes: { ok: true, value: [-869902342, -1404789184, 1643868894] },
+    },
+    activationResult: { ok: true, value: true },
+    canChoose: { ok: true, value: { Success: true } },
+    chooseResult: { ok: true, value: true },
+    canClearTarget: { ok: true, value: { Success: true } },
+    clearTargetResult: { ok: true, value: true },
+    afterCulture: {
+      currentResearching: { ok: true, value: -1404789184 },
+      targetNode: { ok: true, value: -1 },
+      availableNodeTypes: { ok: true, value: [-869902342, -1404789184, 1643868894] },
+    },
+    sent: true,
+    notes: [
+      "This uses the App UI owner for culture chooser closeout; notification re-read remains the caller-level verifier.",
+    ],
+  };
+}
+
+function notificationDismissal(
+  send: boolean,
+  settled = false,
+  mode: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker" | "expired-engine-front-none-blocker" = "verified",
+) {
+  const notificationId = { owner: 0, id: 113, type: 20 };
+  const trainAbsent = mode === "engine-front-train-absent";
+  const noneBlocker = mode === "engine-front-none-blocker" || mode === "expired-engine-front-none-blocker";
+  const expiredNonDismissible = mode === "expired-engine-front-none-blocker";
+  const present = {
+    id: notificationId,
+    exists: true,
+    type: 2091697919,
+    typeName: "NOTIFICATION_WONDER_COMPLETED",
+    summary: "An unmet player has finished constructing the World Wonder Great Stele.",
+    message: "Wonder Completed",
+    target: { owner: -1, id: -1, type: 0 },
+    location: { x: -9999, y: -9999 },
+    canUserDismiss: !expiredNonDismissible,
+    expired: expiredNonDismissible,
+    dismissed: false,
+    blocksTurnAdvancement: { ok: true, value: true },
+    endTurnBlockingType: { ok: true, value: noneBlocker ? 0 : 2091697919 },
+    isEndTurnBlocking: { ok: true, value: true },
+    engineQueueCount: { ok: true, value: 1 },
+    engineQueueContains: { ok: true, value: true },
+    engineQueueFirstId: { ok: true, value: notificationId },
+    isEngineQueueFront: { ok: true, value: true },
+    notificationTrainCount: { ok: true, value: trainAbsent ? 0 : 1 },
+    notificationTrainContains: { ok: true, value: !trainAbsent },
+    notificationTrainFirstId: { ok: true, value: trainAbsent ? null : notificationId },
+    isNotificationTrainFront: { ok: true, value: !trainAbsent },
+  };
+  const cleared = {
+    ...present,
+    exists: false,
+    dismissed: true,
+    blocksTurnAdvancement: { ok: true, value: false },
+    endTurnBlockingType: { ok: true, value: 0 },
+    isEndTurnBlocking: { ok: true, value: false },
+    engineQueueCount: { ok: true, value: 0 },
+    engineQueueContains: { ok: true, value: false },
+    engineQueueFirstId: { ok: true, value: null },
+    isEngineQueueFront: { ok: true, value: false },
+    notificationTrainCount: { ok: true, value: 0 },
+    notificationTrainContains: { ok: true, value: false },
+    notificationTrainFirstId: { ok: true, value: null },
+    isNotificationTrainFront: { ok: true, value: false },
+  };
+  const engineFrontDismissed = {
+    ...present,
+    dismissed: true,
+  };
+  const current = mode === "engine-front-train-absent"
+    ? present
+    : mode === "engine-front-dismissed"
+      ? engineFrontDismissed
+      : settled
+        ? cleared
+        : present;
+  return {
+    notificationId,
+    before: current,
+    after: send ? present : null,
+    canDismiss: true,
+    sent: send,
+    result: send
+      ? {
+          notificationTrainManager: {
+            ok: true,
+            attempted: true,
+            available: true,
+            path: "NotificationModel.manager.dismiss",
+          },
+          panelCloseControl: noneBlocker
+            ? {
+                ok: true,
+                attempted: true,
+                available: true,
+                path: "Game.Notifications.dismiss",
+                value: true,
+              }
+            : {
+                ok: false,
+                attempted: false,
+                available: false,
+                path: "Game.Notifications.dismiss",
+                reason: "official panel close control does not dismiss the active end-turn blocker",
+              },
+        }
+      : null,
+    verificationAttempts: send ? [present] : [],
+    verified: false,
+    notes: ["This is an App UI notification action, not a gameplay operation family."],
+  };
+}
+
+function productionChoicePayload(send: boolean, settled = false) {
+  const cityId = { owner: 0, id: 65536, type: 1 };
+  const before = productionPostconditionSnapshot("before", "cleared");
+  const after = productionPostconditionSnapshot(settled || send ? "after" : "before", "cleared");
+  return {
+    cityId,
+    args: { ConstructibleType: 713967338, X: 22, Y: 31 },
+    beforeValidation: { ok: true, value: { Success: true } },
+    afterValidation: { ok: true, value: { Success: true } },
+    sent: send,
+    sendResult: send ? { ok: true, value: true } : { ok: false, skipped: true, reason: "send not requested" },
+    beforeProductionPostcondition: before,
+    afterProductionPostcondition: after,
+    ui: {
+      cityActivation: send ? { ok: true, value: { selectedCityId: cityId } } : { ok: false, skipped: true, reason: "read-only production choice status" },
+      interfaceClose: send ? { ok: true, value: { selectedCityId: null, interfaceMode: "INTERFACEMODE_DEFAULT" } } : { ok: false, skipped: true, reason: "send not requested" },
+    },
+    notes: ["This mirrors the official production chooser path."],
+  };
+}
+
+function productionPostconditionSnapshot(
+  phase: "before" | "after",
+  mode: "cleared" | "blocker-still-live",
+) {
+  const cityId = { owner: 0, id: 65536, type: 1 };
+  const notification = {
+    id: { owner: 0, id: 6, type: 20 },
+    type: 1090224621,
+    typeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
+    target: cityId,
+    matchesCity: true,
+    canUserDismiss: false,
+    expired: true,
+    dismissed: false,
+  };
+  return {
+    cityId,
+    city: {
+      ok: true,
+      value: {
+        id: cityId,
+        population: 3,
+        isTown: false,
+        location: { x: 26, y: 36 },
+      },
+    },
+    buildQueue: {
+      ok: true,
+      value: {
+        currentProductionTypeHash: phase === "before" ? 713967338 : 1558890441,
+        previousProductionTypeHash: 0,
+        productionProgress: phase === "before" ? 12 : 0,
+        turnsLeftForRequestedItem: phase === "before" ? -1 : 4,
+        queueLength: 1,
+      },
+    },
+    selectedCityId: { ok: true, value: phase === "before" ? cityId : null },
+    blocker: { ok: true, value: mode === "cleared" && phase === "after" ? 0 : 1090224621 },
+    canEndTurn: { ok: true, value: mode === "cleared" && phase === "after" },
+    blockingProductionNotification: {
+      ok: true,
+      value: mode === "blocker-still-live" || phase === "before" ? notification : null,
     },
   };
 }

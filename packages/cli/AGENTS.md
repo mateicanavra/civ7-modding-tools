@@ -100,10 +100,22 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 
 - Prereqs: Node 22.14+ and Bun.
 - Install from repo root: `bun install --frozen-lockfile`
-- Build this package:
-  - `bun run --filter @mateicanavra/civ7-cli build`
-  - Generates `dist/` and refreshes `oclif.manifest.json`.
-- Local linking (optional): `bun run link:cli` (from repo root) to expose the `civ7` binary.
+- Build this package from the repo root:
+  - `bun run build:cli`
+  - Generates `dist/` and refreshes `oclif.manifest.json` after Turborepo
+    builds workspace dependencies.
+- Test this package from the repo root:
+  - `bun run test:cli`
+  - `bun run test:cli:play` for the live-play command suite.
+  - Avoid `bun run --cwd packages/cli test` unless dependency packages have
+    already been built; the CLI imports compiled workspace packages such as
+    `@civ7/direct-control`.
+- Local linking (optional): `bun run link:cli` (from repo root) to expose the
+  `civ7` binary. This builds the CLI through Turborepo first, including oclif
+  manifest generation, then registers the package `bin` entry globally.
+- Live Civ7 play should use the linked `civ7 game ...` command. Package-local
+  `node packages/cli/bin/run.js` is for development/debugging of this package,
+  not active turn execution.
 - Dev run:
   - Via bin: `node packages/cli/bin/run.js <command>`
   - Via scripts: `bun run --filter @mateicanavra/civ7-cli dev -- data:crawl --help`
@@ -151,7 +163,7 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 
 ### Testing
 
-- A minimal [Vitest](https://vitest.dev/) suite lives in `test/` (`test/commands` for CLI surfaces, `test/utils` for helpers). Run `bun run --filter @mateicanavra/civ7-cli test`.
+- A minimal [Vitest](https://vitest.dev/) suite lives in `test/` (`test/commands` for CLI surfaces, `test/utils` for helpers). Run `bun run test:cli` from the repo root so Turborepo builds workspace dependencies first.
 - Recommended strategy for expanding coverage:
   - Unit‑test seed parsing, index construction, and expander rules.
   - Snapshot DOT/JSON for a small sample seed.

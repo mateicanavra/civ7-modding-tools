@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { once } from 'node:events';
 import { type AddressInfo, createServer } from 'node:net';
 import GameExec from '../../src/commands/game/exec';
@@ -7,6 +7,7 @@ import GameInspect from '../../src/commands/game/inspect';
 import GameStatus from '../../src/commands/game/status';
 import GameMap from '../../src/commands/game/map';
 import GameGameInfo from '../../src/commands/game/gameinfo';
+import GameAiLoadedLevers from '../../src/commands/game/ai/loaded-levers';
 import GameOperation from '../../src/commands/game/operation';
 
 describe('game direct-control commands', () => {
@@ -44,6 +45,63 @@ describe('game direct-control commands', () => {
     } finally {
       await server.close();
     }
+  });
+
+  test('reports structured tuner socket diagnostics when disconnected', async () => {
+    const port = await findUnusedPort();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameHealth.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      await GameHealth.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--timeout-ms',
+        '200',
+        '--tuner',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: boolean;
+        health: {
+          ready: boolean;
+          status: string;
+          host: string;
+          port: number;
+          error: { code?: string; message: string };
+          recoveryHints: string[];
+        };
+      };
+      expect(payload.ok).toBe(false);
+      expect(payload.health.ready).toBe(false);
+      expect(payload.health.status).toBe('unavailable');
+      expect(payload.health.host).toBe('127.0.0.1');
+      expect(payload.health.port).toBe(port);
+      expect(payload.health.error.code).toBe('all-hosts-unavailable');
+      expect(payload.health.error.message).toContain('Unable to reach Civ7 tuner socket');
+      expect(payload.health.recoveryHints.join(' ')).toContain(`lsof -nP -iTCP:${port}`);
+      expect(payload.health.recoveryHints.join(' ')).toContain('CIV7_TUNER_HOST');
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  test('reports tuner socket unavailability in non-json output', async () => {
+    const port = await findUnusedPort();
+
+    await expect(GameHealth.run([
+      '--host',
+      '127.0.0.1',
+      '--port',
+      String(port),
+      '--timeout-ms',
+      '200',
+      '--tuner',
+    ])).rejects.toThrow(/Civ7 tuner unavailable: Unable to reach Civ7 tuner socket/);
   });
 
   test('inspects runtime API roots in a selected state', async () => {
@@ -118,6 +176,32 @@ describe('game direct-control commands', () => {
     }
   });
 
+  test('samples loaded AI levers through bounded GameInfo reads', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GameAiLoadedLevers.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--family',
+        'rhq',
+        '--limit-per-table',
+        '2',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('"table":"AiOperationDefs"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"table":"AllowedOperations"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"table":"AiFavoredItems"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"equals":"PSEUDOYIELD_NEW_CITY"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation'))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('validates operation commands through the canonical package boundary', async () => {
     const server = await startTunerServer();
     try {
@@ -143,6 +227,15 @@ describe('game direct-control commands', () => {
     }
   });
 });
+
+async function findUnusedPort(): Promise<number> {
+  const server = createServer();
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const port = (server.address() as AddressInfo).port;
+  server.close();
+  await once(server, 'close');
+  return port;
+}
 
 async function startTunerServer() {
   const received: string[] = [];
@@ -257,12 +350,13 @@ async function startTunerServer() {
             ])
           );
         } else if (frame.message.includes('GameInfo[input.table]')) {
+          const table = gameInfoTableFromCommand(frame.message) ?? 'Resources';
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
-                table: 'Resources',
+                table,
                 source: 'GameInfo',
-                rows: [{ ResourceType: 'RESOURCE_COTTON' }],
+                rows: [sampleGameInfoRow(table)],
                 limit: 2,
                 offset: 0,
                 total: { ok: true, value: 1 },
@@ -348,4 +442,31 @@ function encodeResponse(listenerId: number, parts: string[]): Buffer {
   frame.writeUInt32LE(listenerId, 4);
   messageBytes.copy(frame, 8);
   return frame;
+}
+
+function gameInfoTableFromCommand(message: string): string | null {
+  return message.match(/"table":"([^"]+)"/)?.[1] ?? null;
+}
+
+function sampleGameInfoRow(table: string): Record<string, unknown> {
+  switch (table) {
+    case 'Resources':
+      return { ResourceType: 'RESOURCE_COTTON' };
+    case 'AiOperationDefs':
+      return { OperationName: 'NAVAL_CITY_ATTACK', BehaviorTree: 'Naval City Attack', TargetType: 'CITY' };
+    case 'AllowedOperations':
+      return { ListType: 'BaseOperations', OperationDef: 'NAVAL_CITY_ATTACK' };
+    case 'AIUnitPrioritizedActions':
+      return { UnitType: 'UNIT_BOMBER', OperationType: 'UNITOPERATION_AIR_ATTACK' };
+    case 'AiFavoredItems':
+      return { ListType: 'Test PseudoYield Biases', Item: 'PSEUDOYIELD_NEW_CITY', Value: 50 };
+    case 'PseudoYields':
+      return { PseudoYieldType: 'PSEUDOYIELD_REPAIR_BONUS', DefaultValue: 10000 };
+    case 'BehaviorTrees':
+      return { TreeName: 'Naval City Attack' };
+    case 'TreeData':
+      return { TreeName: 'Naval City Attack', NodeId: 1, Name: 'Create Units' };
+    default:
+      return { RowType: table };
+  }
 }
