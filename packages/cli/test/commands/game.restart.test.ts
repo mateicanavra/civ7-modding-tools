@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { once } from 'node:events';
 import { type AddressInfo, createServer } from 'node:net';
 import GameRestart from '../../src/commands/game/restart';
@@ -99,8 +99,12 @@ describe('game restart command', () => {
   });
 
   test('dry-run validates direct config without sending', async () => {
-    await expect(
-      GameRestart.run([
+    const writes: string[] = [];
+    const log = vi.spyOn(GameRestart.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      await expect(GameRestart.run([
         '--host',
         '127.0.0.1',
         '--port',
@@ -110,8 +114,38 @@ describe('game restart command', () => {
         '--agent',
         'Codex',
         '--dry-run',
-      ])
-    ).resolves.toBeUndefined();
+        '--json',
+      ])).resolves.toBeUndefined();
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        dryRun: true;
+        line: string;
+        request: {
+          requestId: string;
+          agent: string;
+          command: string;
+          hosts: string[];
+          port: number;
+          state: string;
+        };
+      };
+      expect(payload).toEqual({
+        ok: true,
+        dryRun: true,
+        line: `DIRECT codex-dry-run AGENT=Codex HOSTS=127.0.0.1 PORT=4318 STATE=App UI RUN ${CIV7_RESTART_COMMAND}`,
+        request: {
+          requestId: 'codex-dry-run',
+          agent: 'Codex',
+          command: CIV7_RESTART_COMMAND,
+          hosts: ['127.0.0.1'],
+          port: 4318,
+          state: 'App UI',
+        },
+      });
+    } finally {
+      log.mockRestore();
+    }
   });
 });
 

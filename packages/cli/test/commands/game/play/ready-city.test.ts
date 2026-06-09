@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayReadyCity from '../../../../src/commands/game/play/ready-city';
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
 describe('game play ready-city command', () => {
   test('reads ready-city decision view without sending operations', async () => {
@@ -105,6 +106,7 @@ describe('game play ready-city command', () => {
       expect(payload.omitted.some((item) => item.path === 'view.productionCandidates[].result')).toBe(true);
       expect(payload.omitted.some((item) => item.path === 'view.populationPlacement.allPlacementInfo')).toBe(true);
       expect(payload.view).toBeUndefined();
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
     } finally {
       log.mockRestore();

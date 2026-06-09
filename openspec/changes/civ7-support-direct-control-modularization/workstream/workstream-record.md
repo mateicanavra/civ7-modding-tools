@@ -44,6 +44,22 @@ implementation.
   transport/proof internals as normal play output; relationship labels outrun
   official evidence.
 
+Debug/internal service projection partial proof: completed as a narrow
+normal/debug separation test over compact `game play priorities` output. The
+focused CLI test now asserts that the normal play projection omits raw
+transport/session/probe/correlation command internals while preserving the
+existing compact player-agent priority summary. Follow-up compact
+`game play ready-city` proof now asserts that another normal play projection
+omits those same raw internals while preserving the player-agent city decision
+summary. Follow-up focused `game health --json` and `game inspect --json`
+proof now asserts that debug-owned commands emit raw readiness and runtime
+inspection fields including host/port/state, state discovery, selected state,
+own/prototype/enumerable keys, and method owner/length/signature diagnostics.
+These reduce the debug/internal service row proof gap but do not accept Task
+2.9.4, assign a debug projection owner, prove AI-ingestion or telemetry
+separation, implement debug/service hierarchy, or claim runtime/live-game
+proof.
+
 ## Current State
 
 - Worktree:
@@ -2855,6 +2871,80 @@ All future agent waves must be framed before delegation:
   AI-ingestion contract, assign source/proof owners, or unblock normal CLI
   semantic envelopes, hotseat runtime, schema migration, or Effect/oRPC
   procedure-core implementation.
+- Debug projection proof increment:
+  focused `game status --json` coverage now joins `game health --json` and
+  `game inspect --json` in proving that debug-owned commands can emit raw
+  host/port/state, composed playable status, App UI snapshot probes, Tuner
+  health globals, and runtime inspection diagnostics. This remains partial
+  local CLI/package proof for the Debug/Internal Service Output row only; it
+  does not accept Task 2.9.4, claim runtime/live-game proof, create telemetry
+  or AI-ingestion contracts, or unblock normal CLI semantic envelopes,
+  hotseat runtime, schema migration, or Effect/oRPC procedure-core work.
+- App UI snapshot debug proof increment:
+  focused `game inspect --app-ui-snapshot --json` coverage now proves the
+  debug-owned inspect command emits the package-owned raw App UI snapshot shape,
+  including host/port/state, network, UI, game, player, and map probes. This
+  remains partial local CLI/package proof for the Debug/Internal Service Output
+  row only; it does not accept Task 2.9.4, claim runtime/live-game proof,
+  create telemetry or AI-ingestion contracts, or unblock normal CLI semantic
+  envelopes, hotseat runtime, schema migration, or Effect/oRPC procedure-core
+  work.
+- Capability catalog debug proof increment:
+  focused `game catalog --static --json` coverage now proves the debug-owned
+  catalog command emits raw package capability provenance fields, including
+  owner, risk, provenance, confidence, wrapper, and GameInfo table source
+  evidence. This remains partial local CLI/package proof for the Debug/Internal
+  Service Output row only; it does not accept Task 2.9.4, claim
+  runtime/live-game proof, create telemetry or AI-ingestion contracts, or
+  unblock normal CLI semantic envelopes, hotseat runtime, schema migration, or
+  Effect/oRPC procedure-core work.
+- Exec dry-run debug proof increment:
+  focused `game exec --dry-run --json` coverage now proves the debug-owned exec
+  command can emit raw request routing fields, including raw command text,
+  hosts, port, and state, without sending to the tuner socket. This remains
+  partial local CLI proof for the Debug/Internal Service Output row only; it
+  does not accept Task 2.9.4, claim runtime/live-game proof, create telemetry
+  or AI-ingestion contracts, promote raw command strings to product authority,
+  or unblock normal CLI semantic envelopes, hotseat runtime, schema migration,
+  or Effect/oRPC procedure-core work.
+- Visibility debug proof increment:
+  focused `game visibility --json` coverage now proves the debug-owned
+  visibility command emits raw visibility summary fields, including
+  host/port/state, revealed/visible counts, bounds, grid states, and omitted
+  count. This remains partial local CLI/package proof for the Debug/Internal
+  Service Output row only; it does not exercise reveal mutation, accept Task
+  2.9.4, claim runtime/live-game proof, create telemetry or AI-ingestion
+  contracts, or unblock normal CLI semantic envelopes, hotseat runtime, schema
+  migration, or Effect/oRPC procedure-core work.
+- Restart dry-run debug proof increment:
+  focused `game restart --dry-run --json` coverage now proves the
+  support/lifecycle restart command emits raw dry-run request routing fields,
+  including request id, agent, host/port/state, and the restart command text,
+  without sending to the tuner socket. This remains partial local CLI proof for
+  the Debug/Internal Service Output row only; it does not exercise restart or
+  begin-game mutation, accept Task 2.9.4, claim runtime/live-game proof, create
+  telemetry or AI-ingestion contracts, promote raw command strings to product
+  authority, or unblock normal CLI semantic envelopes, hotseat runtime, schema
+  migration, or Effect/oRPC procedure-core work.
+- Unit-move compact normal-output boundary proof increment:
+  focused `game play unit-move-preview --compact --json` coverage now proves a
+  third normal player-agent projection omits raw transport/session/probe,
+  correlation, closeout, and command-internal markers while preserving the
+  compact official movement-preview fields and neutral relationship policy.
+  This remains partial local CLI proof for the Debug/Internal Service Output
+  row only; it does not accept Task 2.9.4, claim runtime/live-game proof,
+  create telemetry or AI-ingestion contracts, promote raw debug fields to
+  product output, or unblock normal CLI semantic envelopes, hotseat runtime,
+  schema migration, or Effect/oRPC procedure-core work.
+- Normal-output boundary test-helper ownership:
+  `packages/cli/test/commands/game/play/normal-output-boundary.ts` now owns the
+  shared compact play projection marker-omission assertion used by priorities,
+  ready-city, and unit-move-preview proof. This removes duplicated marker lists
+  from focused tests and gives later normal/debug separation proof a named test
+  helper, but it remains local CLI test-helper ownership only: it does not
+  accept Task 2.9.4, assign a production source owner, claim runtime/live-game
+  proof, implement semantic envelopes, create telemetry or AI-ingestion
+  contracts, or unblock Effect/oRPC procedure-core work.
 - Operation/proof telemetry contract planning:
   `workstream/operation-proof-telemetry-contract.md` now records the planned
   action/proof telemetry record slots, projection boundaries, proof-class

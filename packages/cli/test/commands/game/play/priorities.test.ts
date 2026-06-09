@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayPriorities from '../../../../src/commands/game/play/priorities';
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
 type PriorityHudMode =
   | 'ready-unit'
@@ -75,6 +76,7 @@ describe('game play priorities command', () => {
       expect(payload.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
       expect(payload.priorities.every((item) => item.evidence === undefined)).toBe(true);
       expect(payload.view).toBeUndefined();
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();

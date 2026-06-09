@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayUnitMovePreview from '../../../../src/commands/game/play/unit-move-preview';
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
 describe('game play unit-move-preview command', () => {
   test('reads official unit move preview with neutral relationship policy', async () => {
@@ -108,6 +109,7 @@ describe('game play unit-move-preview command', () => {
       expect(payload.warnings.join(' ')).toContain('does not classify other-owner relationships');
       expect(payload.omitted.some((item) => item.path === 'view.reachableMovement')).toBe(true);
       expect(payload.view).toBeUndefined();
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
     } finally {
       log.mockRestore();

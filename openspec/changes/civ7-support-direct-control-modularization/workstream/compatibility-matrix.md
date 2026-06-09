@@ -448,8 +448,24 @@ Intake rejection conditions:
   `game.control.test.ts` coverage for health diagnostics, runtime inspection,
   App UI snapshot, playable status, map/GameInfo reads, AI loaded-lever reads,
   and operation validation through the package boundary; package proof includes
-  `runtime-and-catalog.test.ts` and `session.test.ts`. Missing proof before
-  acceptance: tests proving the raw field classes in
+  `runtime-and-catalog.test.ts` and `session.test.ts`. Focused compact
+  `game play priorities`, compact `game play ready-city`, and compact
+  `game play unit-move-preview` proof now assert through the shared
+  `packages/cli/test/commands/game/play/normal-output-boundary.ts` helper that
+  three normal play projections omit raw
+  transport/session/probe/correlation command internals. Focused `game health
+  --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
+  `game status --json`, `game catalog --static --json`,
+  `game exec --dry-run --json`, `game visibility --json`, and
+  `game restart --dry-run --json` proof now assert that debug-owned commands
+  emit raw readiness, composed playable-status, App UI snapshot, runtime
+  inspection, capability catalog provenance fields, explicit exec/restart
+  dry-run request routing fields, and visibility counts/grid probes including
+  host/port/state, request id, agent, raw command text, state discovery,
+  selected state, network/UI/player/map probes, Tuner health globals, catalog
+  owner/provenance/confidence, visibility revealed/visible counts, grid states,
+  own/prototype/enumerable keys, and method owner/length/signature diagnostics.
+  Missing proof before acceptance: broader tests proving the raw field classes in
   `workstream/debug-service-projection-contract.md` are reachable only through
   debug-owned commands, flags, or future debug procedures and are not emitted
   by normal play output or accepted AI-ingestion contracts.

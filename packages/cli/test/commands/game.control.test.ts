@@ -5,8 +5,10 @@ import GameExec from '../../src/commands/game/exec';
 import GameHealth from '../../src/commands/game/health';
 import GameInspect from '../../src/commands/game/inspect';
 import GameStatus from '../../src/commands/game/status';
+import GameCatalog from '../../src/commands/game/catalog';
 import GameMap from '../../src/commands/game/map';
 import GameGameInfo from '../../src/commands/game/gameinfo';
+import GameVisibility from '../../src/commands/game/visibility';
 import GameAiLoadedLevers from '../../src/commands/game/ai/loaded-levers';
 import GameOperation from '../../src/commands/game/operation';
 
@@ -23,14 +25,85 @@ describe('game direct-control commands', () => {
     }
   });
 
+  test('prints exec dry-run request routing as debug projection', async () => {
+    const writes: string[] = [];
+    const log = vi.spyOn(GameExec.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      await GameExec.run([
+        'Network.restartGame()',
+        '--host',
+        '127.0.0.1',
+        '--port',
+        '4318',
+        '--state',
+        'App UI',
+        '--dry-run',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        dryRun: true;
+        request: {
+          command: string;
+          hosts: string[];
+          port: number;
+          state: string;
+        };
+      };
+      expect(payload).toEqual({
+        ok: true,
+        dryRun: true,
+        request: {
+          command: 'Network.restartGame()',
+          hosts: ['127.0.0.1'],
+          port: 4318,
+          state: 'App UI',
+        },
+      });
+    } finally {
+      log.mockRestore();
+    }
+  });
+
   test('reports direct-control health and available states', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameHealth.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameHealth.run(['--host', '127.0.0.1', '--port', String(port), '--state', 'App UI', '--json']);
 
       expect(server.received).toEqual(['LSQ:']);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        health: {
+          ok: true;
+          status: string;
+          host: string;
+          port: number;
+          states: Array<{ id: string; name: string }>;
+          selectedState: { id: string; name: string };
+        };
+      };
+      expect(payload.ok).toBe(true);
+      expect(payload.health).toMatchObject({
+        ok: true,
+        status: 'ready',
+        host: '127.0.0.1',
+        port,
+        selectedState: { id: '65535', name: 'App UI' },
+      });
+      expect(payload.health.states).toEqual([
+        { id: '65535', name: 'App UI' },
+        { id: '1', name: 'Tuner' },
+      ]);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -106,6 +179,10 @@ describe('game direct-control commands', () => {
 
   test('inspects runtime API roots in a selected state', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameInspect.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameInspect.run([
@@ -121,13 +198,57 @@ describe('game direct-control commands', () => {
       ]);
 
       expect(server.received).toEqual(['LSQ:', expect.stringContaining('CMD:65535:(() =>')]);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        inspection: {
+          host: string;
+          port: number;
+          state: { id: string; name: string };
+          roots: Array<{
+            name: string;
+            ownKeys: string[];
+            prototypeKeys: string[];
+            enumerableKeys: string[];
+            methods: Array<{
+              name: string;
+              owner: string;
+              length: number;
+              signature: string;
+            }>;
+          }>;
+        };
+      };
+      expect(payload.inspection).toMatchObject({
+        host: '127.0.0.1',
+        port,
+        state: { id: '65535', name: 'App UI' },
+      });
+      expect(payload.inspection.roots[0]).toMatchObject({
+        name: 'Network',
+        ownKeys: ['isInSession'],
+        prototypeKeys: ['restartGame'],
+        enumerableKeys: ['isInSession', 'restartGame'],
+        methods: [
+          {
+            name: 'restartGame',
+            owner: 'prototype',
+            length: 0,
+            signature: 'function restartGame() { [native code] }',
+          },
+        ],
+      });
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
 
   test('prints the package-owned App UI snapshot', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameInspect.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameInspect.run([
@@ -140,13 +261,84 @@ describe('game direct-control commands', () => {
       ]);
 
       expect(server.received).toEqual(['LSQ:', expect.stringContaining('CMD:65535:(() =>')]);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        snapshot: {
+          host: string;
+          port: number;
+          state: { id: string; name: string };
+          snapshot: {
+            network: {
+              isInSession: { ok: true; value: boolean };
+              hostPlayerId: { ok: true; value: number };
+            };
+            game: {
+              turn: number;
+              turnDate: { ok: true; value: string };
+            };
+            ui: {
+              inGame: { ok: true; value: boolean };
+              loadingStateName: string;
+              canNotifyUIReady: string;
+            };
+            gameContext: { localPlayerID: number; localObserverID: number };
+            players: {
+              aliveIds: { ok: true; value: number[] };
+              aliveHumanIds: { ok: true; value: number[] };
+            };
+            map: {
+              width: { ok: true; value: number };
+              height: { ok: true; value: number };
+              plotCount: { ok: true; value: number };
+            };
+          };
+        };
+      };
+      expect(payload).toMatchObject({
+        ok: true,
+        snapshot: {
+          host: '127.0.0.1',
+          port,
+          state: { id: '65535', name: 'App UI' },
+        },
+      });
+      expect(payload.snapshot.snapshot).toMatchObject({
+        network: {
+          isInSession: { ok: true, value: true },
+          hostPlayerId: { ok: true, value: 0 },
+        },
+        game: {
+          turn: 1,
+          turnDate: { ok: true, value: '4000 BCE' },
+        },
+        ui: {
+          inGame: { ok: true, value: true },
+          loadingStateName: 'WaitingForUIReady',
+          canNotifyUIReady: 'function',
+        },
+        gameContext: { localPlayerID: 0, localObserverID: 0 },
+        players: {
+          aliveIds: { ok: true, value: [0] },
+          aliveHumanIds: { ok: true, value: [0] },
+        },
+        map: {
+          width: { ok: true, value: 84 },
+          height: { ok: true, value: 54 },
+          plotCount: { ok: true, value: 4536 },
+        },
+      });
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
 
   test('reports composed playable status', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameStatus.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GameStatus.run(['--host', '127.0.0.1', '--port', String(port), '--json']);
@@ -157,7 +349,199 @@ describe('game direct-control commands', () => {
         'LSQ:',
         expect.stringContaining('CMD:1:(() =>'),
       ]);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        status: {
+          host: string;
+          port: number;
+          playable: true;
+          readiness: string;
+          errors: string[];
+          appUi: {
+            host: string;
+            port: number;
+            state: { id: string; name: string };
+            snapshot: {
+              network: { isInSession: { ok: true; value: boolean } };
+              ui: { loadingStateName: string; canBeginGame: { ok: true; value: boolean } };
+              gameContext: { localPlayerID: number };
+              players: { aliveHumanIds: { ok: true; value: number[] } };
+              map: { width: { ok: true; value: number }; height: { ok: true; value: number } };
+            };
+          };
+          tuner: {
+            host: string;
+            port: number;
+            state: { id: string; name: string };
+            ready: true;
+            snapshot: {
+              ready: true;
+              globals: Record<string, string>;
+              turnDate: { ok: true; value: string };
+            };
+          };
+        };
+      };
+      expect(payload).toMatchObject({
+        ok: true,
+        status: {
+          host: '127.0.0.1',
+          port,
+          playable: true,
+          readiness: 'tuner-ready',
+          errors: [],
+        },
+      });
+      expect(payload.status.appUi).toMatchObject({
+        host: '127.0.0.1',
+        port,
+        state: { id: '65535', name: 'App UI' },
+      });
+      expect(payload.status.appUi.snapshot).toMatchObject({
+        network: { isInSession: { ok: true, value: true } },
+        ui: { loadingStateName: 'WaitingForUIReady', canBeginGame: { ok: true, value: true } },
+        gameContext: { localPlayerID: 0 },
+        players: { aliveHumanIds: { ok: true, value: [0] } },
+        map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
+      });
+      expect(payload.status.tuner).toMatchObject({
+        host: '127.0.0.1',
+        port,
+        state: { id: '1', name: 'Tuner' },
+        ready: true,
+        snapshot: {
+          ready: true,
+          globals: { Game: 'object', Network: 'undefined' },
+          turnDate: { ok: true, value: '4000 BCE' },
+        },
+      });
     } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('prints the static capability catalog debug projection', async () => {
+    const writes: string[] = [];
+    const log = vi.spyOn(GameCatalog.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      await GameCatalog.run(['--static', '--json']);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        catalog: {
+          source: string;
+          version: string;
+          entries: Array<{
+            id: string;
+            kind: string;
+            role: string;
+            owner: string;
+            risk: string;
+            provenance: string[];
+            confidence: string;
+            wrapper?: string;
+          }>;
+        };
+      };
+      expect(payload.ok).toBe(true);
+      expect(payload.catalog).toMatchObject({
+        source: 'static',
+        version: 'direct-control-v1',
+      });
+      expect(payload.catalog.entries).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          id: 'wrapper.playable-status',
+          kind: 'read-wrapper',
+          role: 'shared',
+          owner: '@civ7/direct-control',
+          risk: 'read',
+          provenance: ['getCiv7AppUiSnapshot', 'checkCiv7TunerHealth'],
+          confidence: 'runtime',
+          wrapper: 'getCiv7PlayableStatus',
+        }),
+        expect.objectContaining({
+          id: 'gameinfo.Resources',
+          kind: 'gameinfo-table',
+          role: 'tuner',
+          owner: '@civ7/direct-control',
+          risk: 'read',
+          provenance: ['DEFAULT_CIV7_GAMEINFO_TABLES', 'capability-inventory'],
+          confidence: 'source',
+        }),
+      ]));
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  test('prints visibility summary as debug projection', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameVisibility.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GameVisibility.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--bounds',
+        '0,0,2,1',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('GameplayMap.getRevealedState'))).toBe(true);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          host: string;
+          port: number;
+          state: { id: string; name: string };
+          playerId: number;
+          numPlotsRevealed: { ok: true; value: number };
+          numPlotsVisible: { ok: true; value: number };
+          counts: Record<string, number>;
+          grid?: {
+            bounds: { x: number; y: number; width: number; height: number };
+            plotCount: number;
+            omitted: number;
+            states: Array<{
+              x: number;
+              y: number;
+              state: { ok: true; value: number };
+              visible: { ok: true; value: boolean };
+            }>;
+          };
+        };
+      };
+      expect(payload.ok).toBe(true);
+      expect(payload.result).toMatchObject({
+        host: '127.0.0.1',
+        port,
+        state: { id: '1', name: 'Tuner' },
+        playerId: 0,
+        numPlotsRevealed: { ok: true, value: 10 },
+        numPlotsVisible: { ok: true, value: 8 },
+        counts: { '1': 2 },
+        grid: {
+          bounds: { x: 0, y: 0, width: 2, height: 1 },
+          plotCount: 2,
+          omitted: 0,
+          states: [
+            { x: 0, y: 0, state: { ok: true, value: 1 }, visible: { ok: true, value: true } },
+            { x: 1, y: 0, state: { ok: true, value: 1 }, visible: { ok: true, value: false } },
+          ],
+        },
+      });
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -345,6 +729,36 @@ async function startTunerServer() {
                   resource: { ok: true, value: -1 },
                   revealedState: { ok: true, value: 1 },
                   visible: { ok: true, value: true },
+                },
+              }),
+            ])
+          );
+        } else if (frame.message.includes('GameplayMap.getRevealedState')) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                playerId: 0,
+                numPlotsRevealed: { ok: true, value: 10 },
+                numPlotsVisible: { ok: true, value: 8 },
+                counts: { '1': 2 },
+                grid: {
+                  bounds: { x: 0, y: 0, width: 2, height: 1 },
+                  plotCount: 2,
+                  omitted: 0,
+                  states: [
+                    {
+                      x: 0,
+                      y: 0,
+                      state: { ok: true, value: 1 },
+                      visible: { ok: true, value: true },
+                    },
+                    {
+                      x: 1,
+                      y: 0,
+                      state: { ok: true, value: 1 },
+                      visible: { ok: true, value: false },
+                    },
+                  ],
                 },
               }),
             ])
