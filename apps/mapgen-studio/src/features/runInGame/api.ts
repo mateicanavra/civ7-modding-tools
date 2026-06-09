@@ -12,7 +12,7 @@
 // `ORPCError.data`, which we read back below.
 import { ORPCError } from "@orpc/client";
 
-import { orpcClient } from "../../lib/orpc";
+import { orpcClient, readErrorData } from "../../lib/orpc";
 import { normalizeStudioSetupConfig, type Civ7StudioSetupConfig } from "../civ7Setup/setupConfig";
 import type { RunInGameFailureDetails, RunInGameOperationStatus } from "./status";
 
@@ -28,7 +28,9 @@ function runInGameFailure(
   fallback: string,
 ): { error: string; details?: RunInGameFailureDetails; statusCode?: number } {
   if (err instanceof ORPCError) {
-    const data = (err.data ?? undefined) as { details?: RunInGameFailureDetails } | undefined;
+    // `details` (the `RunInGameFailureDetails` the engine attached) rides in the
+    // error body; the router carries it via `ORPCError.data`.
+    const data = readErrorData<{ details: RunInGameFailureDetails }>(err);
     return {
       error: err.message || `HTTP ${err.status}`,
       statusCode: err.status,
