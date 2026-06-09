@@ -59,7 +59,7 @@ async function filePrefixSnapshot(path: string, size: number): Promise<Pick<File
   }
 }
 
-function logTextFromSnapshot(args: {
+export function logTextFromSnapshot(args: {
   fullText: string;
   snapshot: FileSnapshot;
   current: FileSnapshot;

@@ -56,6 +56,28 @@ export class Civ7AttentionCurrentUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7StrategyFrontSummaryUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("strategy.frontSummary"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7StrategyFrontSummaryUnavailableErrorData = Static<
+  typeof Civ7StrategyFrontSummaryUnavailableErrorDataSchema
+>;
+
+export class Civ7StrategyFrontSummaryUnavailableError extends ORPCTaggedError(
+  "Civ7StrategyFrontSummaryUnavailableError",
+  {
+    code: "STRATEGY_FRONT_SUMMARY_UNAVAILABLE",
+    message: "Strategy front summary failed.",
+    schema: toStandardSchema(Civ7StrategyFrontSummaryUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
@@ -96,6 +118,50 @@ export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
     code: "UNIT_TARGET_ACTION_UNAVAILABLE",
     message: "Direct-control unit target action request failed.",
     schema: toStandardSchema(Civ7UnitTargetActionUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("decisions.narrative.choice.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7NarrativeChoiceUnavailableErrorData = Static<
+  typeof Civ7NarrativeChoiceUnavailableErrorDataSchema
+>;
+
+export class Civ7NarrativeChoiceUnavailableError extends ORPCTaggedError(
+  "Civ7NarrativeChoiceUnavailableError",
+  {
+    code: "NARRATIVE_CHOICE_UNAVAILABLE",
+    message: "Direct-control narrative choice request failed.",
+    schema: toStandardSchema(Civ7NarrativeChoiceUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7DiplomacyResponseUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("decisions.diplomacy.response.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7DiplomacyResponseUnavailableErrorData = Static<
+  typeof Civ7DiplomacyResponseUnavailableErrorDataSchema
+>;
+
+export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
+  "Civ7DiplomacyResponseUnavailableError",
+  {
+    code: "DIPLOMACY_RESPONSE_UNAVAILABLE",
+    message: "Direct-control diplomacy response request failed.",
+    schema: toStandardSchema(Civ7DiplomacyResponseUnavailableErrorDataSchema),
     status: 503,
   },
 ) {}
@@ -239,13 +305,16 @@ export class Civ7CorrelationIdInvalidError extends ORPCTaggedError(
 export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
+  NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
+  STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
 } satisfies EffectErrorMap;
 

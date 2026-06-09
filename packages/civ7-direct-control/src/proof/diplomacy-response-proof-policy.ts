@@ -1,10 +1,10 @@
-import type { Civ7DiplomacyResponseResult } from "../play/operations/diplomacy-request";
-import type { Civ7DiplomacyResponsePostconditionClassification } from "../play/operations/diplomacy-postconditions";
+import type { Civ7DiplomacyResponseResult } from "../play/operations/diplomacy-request.js";
+import type { Civ7DiplomacyResponsePostconditionClassification } from "../play/operations/diplomacy-postconditions.js";
 import type {
   Civ7OperationProofBoundary,
   Civ7OperationTelemetryPostcondition,
   Civ7OperationTelemetryPostconditionOutcome,
-} from "./operation-telemetry";
+} from "./operation-telemetry.js";
 
 export function diplomacyResponseProofPostcondition(
   result: Civ7DiplomacyResponseResult,

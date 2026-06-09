@@ -54,6 +54,7 @@ import { createMapConfigSaveDeployOperationStore } from "./src/server/mapConfigs
 import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValidation";
 import type { RunInGamePhase, RunInGameRequestStatus } from "./src/features/runInGame/status";
 import { buildLiveRuntimeStatusState } from "./src/features/liveRuntime/model";
+import { handleStudioCiv7ControlOrpcRequest } from "./src/server/civ7ControlOrpc";
 
 const execFileAsync = promisify(execFile);
 const DEPLOY_TIMEOUT_MS = 120_000;
@@ -377,6 +378,7 @@ export default defineConfig(({ command }) => ({
     {
       name: "repo-backed-map-configs",
       configureServer(server) {
+        server.middlewares.use(handleStudioCiv7ControlOrpcRequest);
         server.middlewares.use("/api/civ7/status", async (req, res, next) => {
           if (req.method !== "GET") return next();
           try {

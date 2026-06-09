@@ -18,7 +18,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs && tsc -p tsconfig.json --emitDeclarationOnly",
+    "build": "tsup --config tsup.config.ts && rimraf tsconfig.tsbuildinfo && tsc -p tsconfig.json --emitDeclarationOnly --noEmit false",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config vitest.config.ts",
     "clean": "rimraf dist"

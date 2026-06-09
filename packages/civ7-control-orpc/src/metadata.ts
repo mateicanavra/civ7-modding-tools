@@ -6,6 +6,7 @@ export type Civ7ControlOrpcProcedureMeta = Readonly<{
     | "notifications"
     | "unit"
     | "city"
+    | "decisions"
     | "map"
     | "player"
     | "strategy";

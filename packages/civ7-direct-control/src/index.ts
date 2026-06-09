@@ -41,6 +41,7 @@ import {
 import { executeSessionCommandWithReconnect } from "./session/reconnect.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
+  logTextFromSnapshot,
   snapshotFile,
   waitForFreshLogMarkers,
   type FileSnapshot,
@@ -398,6 +399,7 @@ export { createCiv7ControlRequestId } from "./session/request-id.js";
 export { selectCiv7TunerState } from "./session/state.js";
 export {
   DEFAULT_CIV7_SCRIPTING_LOG,
+  logTextFromSnapshot,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
@@ -1142,6 +1144,10 @@ export type {
   Civ7DiplomacyResponsePostcondition,
   Civ7DiplomacyResponsePostconditionClassification,
 } from "./play/operations/diplomacy-postconditions.js";
+export {
+  diplomacyResponseProofOutcome,
+  diplomacyResponseProofPostcondition,
+} from "./proof/diplomacy-response-proof-policy.js";
 export type {
   Civ7NarrativeChoiceCommandPayload,
   Civ7NarrativeChoiceInput,
@@ -1152,6 +1158,10 @@ export type {
   Civ7NarrativeChoicePostcondition,
   Civ7NarrativeChoicePostconditionClassification,
 } from "./play/operations/narrative-postconditions.js";
+export {
+  narrativeChoiceProofOutcome,
+  narrativeChoiceProofPostcondition,
+} from "./proof/narrative-choice-proof-policy.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;

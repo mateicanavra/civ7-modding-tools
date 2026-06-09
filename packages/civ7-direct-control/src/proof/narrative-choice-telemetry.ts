@@ -8,13 +8,13 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
-} from "./operation-telemetry";
-import { narrativeChoiceProofPostcondition } from "./narrative-choice-proof-policy";
+} from "./operation-telemetry.js";
+import { narrativeChoiceProofPostcondition } from "./narrative-choice-proof-policy.js";
 
 import type {
   Civ7NarrativeChoiceInput,
   Civ7NarrativeChoiceResult,
-} from "../play/operations/narrative-request";
+} from "../play/operations/narrative-request.js";
 
 export type Civ7NarrativeChoiceTelemetryAdapterInput = Readonly<{
   input: Civ7NarrativeChoiceInput;

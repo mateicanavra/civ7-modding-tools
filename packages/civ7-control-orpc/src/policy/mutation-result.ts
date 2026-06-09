@@ -4,9 +4,30 @@ export type Civ7MutationRequestStatus =
   | "sent-guarded"
   | "sent-unverified";
 
+export type Civ7MutationProofConfidence =
+  | "confirmed"
+  | "pending-runtime-proof"
+  | "unverified";
+
 export type Civ7MutationPostconditionState = Readonly<{
-  confidence: "confirmed" | "pending-runtime-proof" | "unverified";
+  confidence: Civ7MutationProofConfidence;
   noRepeatAfterUnverified: boolean;
+}>;
+
+export type Civ7MutationProofPostcondition<
+  Classification extends string,
+  Outcome extends string,
+> = Civ7MutationPostconditionState & Readonly<{
+  classification: Classification;
+  reason: string;
+  outcome: Outcome;
+}>;
+
+export type Civ7MutationPostconditionSummary<
+  Classification extends string,
+  Outcome extends string,
+> = Civ7MutationProofPostcondition<Classification, Outcome> & Readonly<{
+  confirmed: boolean;
 }>;
 
 export type Civ7MutationNextStep<
@@ -38,6 +59,49 @@ export function civ7MutationRequestStatusWithoutGuarded(
 ): Exclude<Civ7MutationRequestStatus, "sent-guarded"> {
   const status = civ7MutationRequestStatus(input);
   return status === "sent-guarded" ? "sent-unverified" : status;
+}
+
+export function civ7MutationPostconditionSummary<
+  Classification extends string,
+  Outcome extends string,
+  MissingClassification extends string,
+  MissingOutcome extends string,
+>(
+  input: Readonly<{
+    postcondition:
+      | Civ7MutationProofPostcondition<Classification, Outcome>
+      | null
+      | undefined;
+    missing: Readonly<{
+      classification: MissingClassification;
+      reason: string;
+      outcome: MissingOutcome;
+    }>;
+  }>,
+): Civ7MutationPostconditionSummary<
+  Classification | MissingClassification,
+  Outcome | MissingOutcome
+> {
+  if (input.postcondition == null) {
+    return {
+      classification: input.missing.classification,
+      reason: input.missing.reason,
+      outcome: input.missing.outcome,
+      confidence: "unverified",
+      confirmed: false,
+      noRepeatAfterUnverified: true,
+    };
+  }
+
+  return {
+    classification: input.postcondition.classification,
+    reason: input.postcondition.reason,
+    outcome: input.postcondition.outcome,
+    confidence: input.postcondition.confidence,
+    confirmed: input.postcondition.confidence === "confirmed"
+      && !input.postcondition.noRepeatAfterUnverified,
+    noRepeatAfterUnverified: input.postcondition.noRepeatAfterUnverified,
+  };
 }
 
 export function civ7MutationNextSteps<

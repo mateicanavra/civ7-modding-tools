@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.plugins.json",
   "compilerOptions": {
+    "noEmit": false,
     "rootDir": "./src",
     "outDir": "./dist",
     "tsBuildInfoFile": "./tsconfig.tsbuildinfo"

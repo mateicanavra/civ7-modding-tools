@@ -16,6 +16,18 @@ errors, and server-side callers.
   postcondition classifiers, command serialization, proof facts, and other
   low-level authority that must remain runtime-owned
 
+#### Scenario: Strategy planning view is added
+- **WHEN** a strategy planning procedure is implemented
+- **THEN** it composes planning evidence from bounded runtime/read ports into a
+  service-owned projection
+- **AND** normal output excludes host, port, state, session, raw command, and
+  debug transport details
+- **AND** planning candidates remain read-only evidence and are not promoted to
+  approved movement, attack, war, or send authority
+- **AND** other-owner contact, proximity, ranking, and action legality preserve
+  relationship-unproven semantics unless official relationship, team, war, or
+  suzerain evidence proves stronger labels
+
 #### Scenario: Transitional facade-only procedure remains
 - **WHEN** a current facade-only read leaf is retained while the native service
   shape is being corrected
@@ -106,6 +118,50 @@ boundaries.
 - **AND** postcondition and proof telemetry classify sent, unverified, stale,
   unknown, missing-postcondition, and pending-runtime-proof outcomes honestly
 - **AND** unverified or pending proof paths remain no-repeat guarded
+
+#### Scenario: Closeout-style mutation projection is shared
+- **WHEN** notification dismissal, narrative choice, or diplomacy response
+  procedures receive source-owned direct-control postcondition evidence
+- **THEN** the shared control-oRPC mutation projection policy derives the
+  caller-facing postcondition confirmation and no-repeat summary
+- **AND** direct-control remains the source authority for domain
+  classifications, outcomes, and proof-boundary confidence
+- **AND** missing postcondition and pending-runtime-proof inputs project as
+  unconfirmed and no-repeat guarded
+- **AND** this shared projection helper does not accept shared
+  validator/postcondition middleware or parent Task 6.x completion by
+  implication
+
+#### Scenario: Narrative decision request procedure is implemented
+- **WHEN** a narrative choice decision procedure requests a player choice
+- **THEN** it is offered under the semantic `decisions` router
+- **AND** it checks mutation approval and playable readiness before invoking
+  direct-control runtime authority
+- **AND** it consumes direct-control narrative validators and proof helpers as
+  runtime/proof ports rather than reimplementing postcondition truth
+- **AND** its normal output projects semantic status, validation summary,
+  postcondition summary, and next steps
+- **AND** it excludes endpoint, session, state, raw command, payload, and
+  legacy `verified` details from caller-facing input and output
+- **AND** unverified, stale, missing-postcondition, no-state-change, and
+  not-sent paths remain no-repeat guarded
+
+#### Scenario: Diplomacy response request procedure is implemented
+- **WHEN** a diplomacy response decision procedure requests a player response
+- **THEN** it is offered under the semantic `decisions` router
+- **AND** it checks mutation approval and playable readiness before invoking
+  direct-control runtime authority
+- **AND** it consumes direct-control diplomacy validators and proof helpers as
+  runtime/proof ports rather than inferring proof from legacy `verified`
+- **AND** its normal input exposes player, action, response, and optional
+  notification identity rather than direct-control UI toggles
+- **AND** its normal output projects semantic status, validation summary,
+  postcondition summary, and next steps
+- **AND** it excludes endpoint, session, state, raw command, payload,
+  notification internals, UI closeout internals, and legacy `verified` details
+  from caller-facing input and output
+- **AND** unverified, missing-postcondition, no-state-change, validation-changed,
+  and not-sent paths remain no-repeat guarded
 
 #### Scenario: Local procedure test passes
 - **WHEN** a local fake-context procedure test passes

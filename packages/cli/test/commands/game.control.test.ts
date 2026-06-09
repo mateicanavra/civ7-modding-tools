@@ -395,76 +395,57 @@ describe('game direct-control commands', () => {
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
         status: {
-          host: string;
-          port: number;
           playable: true;
           readiness: string;
-          errors: string[];
-          appUi: {
-            host: string;
-            port: number;
-            state: { id: string; name: string };
-            snapshot: {
-              network: { isInSession: { ok: true; value: boolean } };
-              ui: { loadingStateName: string; canBeginGame: { ok: true; value: boolean } };
-              gameContext: { localPlayerID: number };
-              players: { aliveHumanIds: { ok: true; value: number[] } };
-              map: { width: { ok: true; value: number }; height: { ok: true; value: number } };
-            };
+          capability: {
+            canObserve: boolean;
+            canMutate: boolean;
+            reason: string;
           };
-          tuner: {
-            host: string;
-            port: number;
-            state: { id: string; name: string };
-            ready: true;
-            snapshot: {
-              ready: true;
-              globals: Record<string, string>;
-              turnDate: { ok: true; value: string };
+          sources: {
+            gameUi: {
+              inGame: true;
+              inShell: false;
+              inLoading: false;
+              canBeginGame: true;
             };
+            runtimeControl: { ready: true };
           };
+          errorCount: number;
+          nextSteps: Array<{ kind: string; source: string; label: string }>;
         };
       };
       expect(payload).toMatchObject({
         ok: true,
         status: {
-          host: '127.0.0.1',
-          port,
           playable: true,
           readiness: 'tuner-ready',
-          errors: [],
+          capability: {
+            canObserve: true,
+            canMutate: true,
+          },
+          sources: {
+            gameUi: {
+              inGame: true,
+              inShell: false,
+              inLoading: false,
+              canBeginGame: true,
+            },
+            runtimeControl: { ready: true },
+          },
+          errorCount: 0,
+          nextSteps: [{
+            kind: 'read-attention',
+            source: 'readiness.current',
+          }],
         },
       });
-      expect(payload.status.appUi).toMatchObject({
-        host: '127.0.0.1',
-        port,
-        state: { id: '65535', name: 'App UI' },
-      });
-      expect(payload.status.appUi.snapshot).toMatchObject({
-        network: { isInSession: { ok: true, value: true } },
-        ui: { loadingStateName: 'WaitingForUIReady', canBeginGame: { ok: true, value: true } },
-        gameContext: { localPlayerID: 0 },
-        players: { aliveHumanIds: { ok: true, value: [0] } },
-        map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
-      });
-      expect(payload.status.tuner).toMatchObject({
-        host: '127.0.0.1',
-        port,
-        state: { id: '1', name: 'Tuner' },
-        ready: true,
-        snapshot: {
-          ready: true,
-          globals: { Game: 'object', Network: 'undefined' },
-          turnDate: { ok: true, value: '4000 BCE' },
-        },
-      });
-      expectDebugProjectionFields(payload, [
-        { fieldClass: 'transport-session-state', path: ['status', 'host'] },
-        { fieldClass: 'transport-session-state', path: ['status', 'port'] },
-        { fieldClass: 'raw-probe', path: ['status', 'appUi', 'snapshot'] },
-        { fieldClass: 'raw-probe', path: ['status', 'tuner', 'snapshot', 'globals'] },
-        { fieldClass: 'correlation-diagnostic', path: ['status', 'errors'] },
-      ]);
+      expect(JSON.stringify(payload)).not.toContain('"host"');
+      expect(JSON.stringify(payload)).not.toContain('"port"');
+      expect(JSON.stringify(payload)).not.toContain('"state"');
+      expect(JSON.stringify(payload)).not.toContain('App UI');
+      expect(JSON.stringify(payload)).not.toContain('Tuner');
+      expect(JSON.stringify(payload)).not.toContain('globals');
     } finally {
       log.mockRestore();
       await server.close();

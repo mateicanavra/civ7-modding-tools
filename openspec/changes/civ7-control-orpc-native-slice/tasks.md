@@ -118,6 +118,24 @@ adding more read-only facade shells.
     either decompose lower-level Tuner/probe resources first or move semantic
     summary behavior into the control-oRPC service owner. See
     `workstream/world-runtime-resource-boundary.md`.
+  - [x] 5.4.4 Record `strategy.frontSummary` as a service-owned planning
+    composition over target-candidate and battlefield-scan runtime/read ports.
+    The service owns the normal projection, next-step wording, raw-output
+    exclusion, and relationship-unproven policy; no strategy catalog, action
+    authority, runtime proof, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.5 Record `decisions.narrative.choice.request` as a service-owned
+    decision boundary over direct-control narrative runtime, validator, and
+    proof ports. The service owns the caller-facing semantic choice shape,
+    normal proof projection, raw-output exclusion, and no-repeat next steps;
+    no direct-control procedure core, broad decisions catalog, runtime proof,
+    or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.6 Record `decisions.diplomacy.response.request` as a
+    service-owned decision boundary over direct-control diplomacy runtime,
+    validator, and proof ports. The service owns the caller-facing semantic
+    response shape, normal proof projection, raw-output exclusion, and
+    no-repeat next steps; direct-control-only UI toggles, broad decisions
+    catalogs, runtime proof, and parent Task 5.x/6.x acceptance remain out of
+    scope.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -151,6 +169,21 @@ adding more read-only facade shells.
     direct-control proof classifiers, validator summaries, and
     postcondition/no-repeat authority procedure-local; shared
     validator/postcondition middleware remains pending.
+  - [x] 5.5.9 Seed `strategy.frontSummary` as a native service-owned planning
+    procedure that composes target-candidate and battlefield-scan evidence into
+    neutral front planning output without adding same-shaped read wrappers,
+    operation sends, strategy catalogs, relationship labels beyond official
+    evidence, or runtime/live proof claims.
+  - [x] 5.5.10 Seed `decisions.narrative.choice.request` as a native
+    service-owned decision procedure that composes approval, playable
+    readiness, direct-control narrative request authority, and source-owned
+    narrative proof classification into semantic output without exposing raw
+    command/session/payload details or claiming runtime/live proof.
+  - [x] 5.5.11 Seed `decisions.diplomacy.response.request` as a native
+    service-owned decision procedure that composes approval, playable
+    readiness, direct-control diplomacy response authority, and source-owned
+    diplomacy proof classification into semantic output without exposing raw
+    command/session/payload/UI-closeout details or claiming runtime/live proof.
 
 ## 6. Native Policy Layering
 
@@ -181,6 +214,12 @@ adding more read-only facade shells.
   - [x] 6.2.5 Reuse shared native approval middleware for
     `city.population.place.request` while keeping validator-first and
     postcondition/proof middleware pending.
+  - [x] 6.2.6 Reuse shared native approval middleware for
+    `decisions.narrative.choice.request` while keeping validator-first and
+    postcondition/proof middleware pending.
+  - [x] 6.2.7 Reuse shared native approval middleware for
+    `decisions.diplomacy.response.request` while keeping validator-first and
+    postcondition/proof middleware pending.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
   - [x] 6.3.1 Compose `city.production.choice.request` through the
@@ -199,6 +238,19 @@ adding more read-only facade shells.
     direct-control validator-first player-operation/city-command runtime ports
     and project source-owned population-placement proof/no-repeat semantics
     into normal output; keep shared validator/postcondition middleware pending.
+  - [x] 6.3.5 Compose `decisions.narrative.choice.request` through the
+    direct-control narrative request runtime port and project source-owned
+    narrative proof/no-repeat semantics into normal output; keep shared
+    validator/postcondition middleware pending.
+  - [x] 6.3.6 Compose `decisions.diplomacy.response.request` through the
+    direct-control diplomacy response runtime port and project source-owned
+    diplomacy proof/no-repeat semantics into normal output; keep shared
+    validator/postcondition middleware pending.
+  - [x] 6.3.7 Extract repeated closeout-style postcondition projection into a
+    shared control-oRPC mutation policy helper reused by notification,
+    narrative, and diplomacy mutation procedures. Keep direct-control proof
+    classifiers as source authority and keep shared validator/postcondition
+    middleware pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -222,13 +274,29 @@ adding more read-only facade shells.
   - [x] 6.4.5 Use native effect-orpc tagged error constructors for
     `city.population.place.request` direct-control runtime-port failures while
     shared safe-error middleware remains pending.
+  - [x] 6.4.7 Use native effect-orpc tagged error constructors for
+    `decisions.narrative.choice.request` direct-control runtime-port failures
+    while keeping raw direct-control cause, command, session, and payload
+    details out of public error data.
+  - [x] 6.4.8 Use native effect-orpc tagged error constructors for
+    `decisions.diplomacy.response.request` direct-control runtime-port
+    failures while keeping raw direct-control cause, command, session, payload,
+    and UI-closeout details out of public error data.
 
 ## 7. Edge Adapters
 
-- [ ] 7.1 Route one CLI caller through the in-process procedure client only
+- [x] 7.1 Route one CLI caller through the in-process procedure client only
   after the service-owned router shape is stable.
-- [ ] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
+  - [x] 7.1.1 Route `civ7 game status` through the in-process
+    `readiness.current` server-side client. Keep CLI endpoint flags as context
+    construction, emit the semantic readiness projection, and keep raw
+    direct-control playable-status internals out of normal status output.
+- [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
+  - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
+    Node middleware with native `RPCHandler`, add a browser `RPCLink` client,
+    and route the live footer readiness member through
+    `readiness.current` while preserving existing map/autoplay REST fields.
 - [ ] 7.3 Add in-game controller bridge only as serialized ingress into the
   in-process router.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
@@ -241,4 +309,15 @@ adding more read-only facade shells.
 - [x] 8.2 Run `git diff --check`.
 - [x] 8.3 Run focused package tests/check/build when source implementation is
   added.
-- [ ] 8.4 Run CLI play tests/check when CLI callers change.
+- [x] 8.4 Run CLI play tests/check when a CLI caller is routed through
+  procedures.
+- [x] 8.5 Run direct-control narrative proof, control-oRPC narrative decision,
+  package check/build, OpenSpec strict validation, and diff hygiene gates for
+  `decisions.narrative.choice.request` before closing that slice.
+- [x] 8.6 Run direct-control diplomacy proof, control-oRPC diplomacy response,
+  package check/build, OpenSpec strict validation, and diff hygiene gates for
+  `decisions.diplomacy.response.request` before closing that slice.
+- [x] 8.7 Run focused control-oRPC mutation projection policy and affected
+  notification/narrative/diplomacy procedure tests, package check/build,
+  strict OpenSpec validates, and diff hygiene when the shared closeout
+  projection helper is extracted.

@@ -5,6 +5,7 @@ import {
   RunInGameHttpError,
   createRunInGameOperationStore,
 } from "../../src/server/runInGame/operationState";
+import { formatRunInGameDiagnostics } from "../../src/features/runInGame/status";
 
 function createStore() {
   let nowMs = Date.parse("2026-06-01T00:00:00.000Z");
@@ -129,6 +130,56 @@ describe("Run in Game operation store", () => {
     expect(failed.status).toBe("uncertain");
     expect(failed.details?.directControlCode).toBe("socket-closed");
     expect(store.findActive()).toBeUndefined();
+  });
+
+  it("keeps raw tuner command payloads out of public timeout status", () => {
+    const { store } = createStore();
+    store.create("request-1");
+    const failed = store.fail(
+      "request-1",
+      "starting-game",
+      new Civ7DirectControlError(
+        "response-timeout",
+        "Timed out waiting for Civ7 tuner response to CMD:65535:(() => { Game.turn; UI.notifyUIReady(); })()",
+        {
+          details: {
+            message: "Civ7 tuner socket is closed before CMD:1:Game.turn",
+            command: "Game.turn",
+            state: { id: 1, name: "Tuner" },
+            session: { stateName: "App UI", listenerId: 65_535 },
+            nested: {
+              rawCommand: "CMD:65535:UI.notifyUIReady()",
+              sessionSelection: { state: "Tuner" },
+              output: "before LSQ:state-list",
+            },
+          },
+        },
+      ),
+    );
+
+    expect(failed.status).toBe("uncertain");
+    expect(failed.error).toBe("Civ7 did not respond during game start; status is uncertain.");
+    expect(failed.details).toMatchObject({
+      code: "response-timeout",
+      directControlCode: "response-timeout",
+      failureClass: "uncertain",
+      phase: "starting-game",
+    });
+
+    const diagnostics = formatRunInGameDiagnostics(failed);
+    expect(diagnostics).toContain("response-timeout");
+    expect(diagnostics).toContain("redacted-runtime-command");
+    expect(diagnostics).not.toContain("CMD:");
+    expect(diagnostics).not.toContain("Game.turn");
+    expect(diagnostics).not.toContain("UI.notifyUIReady");
+    expect(diagnostics).not.toContain("rawCommand");
+    expect(diagnostics).not.toContain('"command"');
+    expect(diagnostics).not.toContain('"state"');
+    expect(diagnostics).not.toContain('"stateName"');
+    expect(diagnostics).not.toContain('"session"');
+    expect(diagnostics).not.toContain('"sessionSelection"');
+    expect(diagnostics).not.toContain('"Tuner"');
+    expect(diagnostics).not.toContain('"App UI"');
   });
 
   it("prunes stale operation records after the configured ttl", () => {

@@ -19,12 +19,16 @@ export {
   Civ7AttentionCurrentUnavailableErrorDataSchema,
   Civ7CorrelationIdInvalidError,
   Civ7CorrelationIdInvalidErrorDataSchema,
+  Civ7DiplomacyResponseUnavailableError,
+  Civ7DiplomacyResponseUnavailableErrorDataSchema,
   Civ7MutationApprovalRequiredError,
   Civ7MutationApprovalRequiredErrorDataSchema,
   Civ7MutationReadinessRequiredError,
   Civ7MutationReadinessRequiredErrorDataSchema,
   Civ7MutationReadinessUnavailableError,
   Civ7MutationReadinessUnavailableErrorDataSchema,
+  Civ7NarrativeChoiceUnavailableError,
+  Civ7NarrativeChoiceUnavailableErrorDataSchema,
   Civ7NotificationDismissalUnavailableError,
   Civ7NotificationDismissalUnavailableErrorDataSchema,
   Civ7PopulationPlacementUnavailableError,
@@ -33,6 +37,8 @@ export {
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7ReadinessCurrentUnavailableError,
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
+  Civ7StrategyFrontSummaryUnavailableError,
+  Civ7StrategyFrontSummaryUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
@@ -40,13 +46,16 @@ export {
   type Civ7ControlOrpcErrorMap,
   type Civ7ControlOrpcEffectErrorMap,
   type Civ7CorrelationIdInvalidErrorData,
+  type Civ7DiplomacyResponseUnavailableErrorData,
   type Civ7MutationApprovalRequiredErrorData,
   type Civ7MutationReadinessRequiredErrorData,
   type Civ7MutationReadinessUnavailableErrorData,
+  type Civ7NarrativeChoiceUnavailableErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
+  type Civ7StrategyFrontSummaryUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
 } from "./errors";
 export {
@@ -116,6 +125,43 @@ export { cityRouter } from "./modules/city/router";
 export { cityPopulationPlaceRequestProcedure } from "./modules/city/procedures/population-place-request";
 export { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/production-choice-request";
 export {
+  Civ7DecisionsContract,
+  Civ7DecisionsDiplomacyResponseContract,
+  Civ7DecisionsDiplomacyResponseInputSchema,
+  Civ7DecisionsDiplomacyResponseInputStandardSchema,
+  Civ7DecisionsDiplomacyResponseNextStepSchema,
+  Civ7DecisionsDiplomacyResponsePostconditionClassificationSchema,
+  Civ7DecisionsDiplomacyResponsePostconditionSummarySchema,
+  Civ7DecisionsDiplomacyResponseProofOutcomeSchema,
+  Civ7DecisionsDiplomacyResponseRequestStatusSchema,
+  Civ7DecisionsDiplomacyResponseResultSchema,
+  Civ7DecisionsDiplomacyResponseResultStandardSchema,
+  Civ7DecisionsDiplomacyResponseValidationSummarySchema,
+  Civ7DecisionsNarrativeChoiceContract,
+  Civ7DecisionsNarrativeChoiceInputSchema,
+  Civ7DecisionsNarrativeChoiceInputStandardSchema,
+  Civ7DecisionsNarrativeChoiceNextStepSchema,
+  Civ7DecisionsNarrativeChoicePostconditionClassificationSchema,
+  Civ7DecisionsNarrativeChoicePostconditionSummarySchema,
+  Civ7DecisionsNarrativeChoiceProofOutcomeSchema,
+  Civ7DecisionsNarrativeChoiceRequestStatusSchema,
+  Civ7DecisionsNarrativeChoiceResultSchema,
+  Civ7DecisionsNarrativeChoiceResultStandardSchema,
+  Civ7DecisionsNarrativeChoiceValidationSummarySchema,
+} from "./modules/decisions/contract";
+export type {
+  Civ7DecisionsContract as Civ7DecisionsContractType,
+  Civ7DecisionsDiplomacyResponseContract as Civ7DecisionsDiplomacyResponseContractType,
+  Civ7DecisionsDiplomacyResponseInput,
+  Civ7DecisionsDiplomacyResponseResult,
+  Civ7DecisionsNarrativeChoiceContract as Civ7DecisionsNarrativeChoiceContractType,
+  Civ7DecisionsNarrativeChoiceInput,
+  Civ7DecisionsNarrativeChoiceResult,
+} from "./modules/decisions/contract";
+export { decisionsRouter } from "./modules/decisions/router";
+export { decisionsDiplomacyResponseRequestProcedure } from "./modules/decisions/procedures/diplomacy-response-request";
+export { decisionsNarrativeChoiceRequestProcedure } from "./modules/decisions/procedures/narrative-choice-request";
+export {
   Civ7NotificationsContract,
   Civ7NotificationDismissalContract,
   Civ7NotificationDismissInputStandardSchema,
@@ -154,6 +200,29 @@ export type {
 } from "./modules/readiness/contract";
 export { readinessRouter } from "./modules/readiness/router";
 export { readinessCurrentProcedure } from "./modules/readiness/procedures/current";
+export {
+  Civ7StrategyContract,
+  Civ7StrategyFrontSummaryContract,
+  Civ7StrategyFrontSummaryInputSchema,
+  Civ7StrategyFrontSummaryInputStandardSchema,
+  Civ7StrategyFrontSummaryNextStepSchema,
+  Civ7StrategyFrontPointOfInterestSchema,
+  Civ7StrategyFrontSummaryResultSchema,
+  Civ7StrategyFrontSummaryResultStandardSchema,
+  Civ7StrategyFrontSourceStatusSchema,
+  Civ7StrategyFrontTargetCandidateSchema,
+  Civ7StrategyObservedOwnerSchema,
+  Civ7StrategyRelationshipClassificationSchema,
+  Civ7StrategyRelationshipLabelPolicySchema,
+} from "./modules/strategy/contract";
+export type {
+  Civ7StrategyContract as Civ7StrategyContractType,
+  Civ7StrategyFrontSummaryContract as Civ7StrategyFrontSummaryContractType,
+  Civ7StrategyFrontSummaryInput,
+  Civ7StrategyFrontSummaryResult,
+} from "./modules/strategy/contract";
+export { strategyRouter } from "./modules/strategy/router";
+export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
 export {
   Civ7UnitContract,
   Civ7UnitTargetActionContract,

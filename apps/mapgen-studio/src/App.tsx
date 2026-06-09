@@ -50,6 +50,7 @@ import {
   type RunInGameFailureDetails,
   type RunInGameOperationStatus,
 } from "./features/runInGame/status";
+import { createStudioCiv7ControlOrpcClient } from "./features/runInGame/civ7ControlOrpcClient";
 import {
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   getLocalPlayerSetup,
@@ -123,6 +124,8 @@ import {
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
 import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
+
+const civ7ControlOrpcClient = createStudioCiv7ControlOrpcClient();
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -1039,13 +1042,25 @@ function AppContent(props: AppContentProps) {
       statusAbortController?.abort();
       statusAbortController = new AbortController();
       try {
-        const res = await fetch("/api/civ7/live/status", { signal: statusAbortController.signal });
+        const [res, readinessResult] = await Promise.all([
+          fetch("/api/civ7/live/status", { signal: statusAbortController.signal }),
+          civ7ControlOrpcClient.readiness.current({}),
+        ]);
         const body = (await res.json().catch(() => null)) as unknown;
         if (cancelled) return;
         if (!res.ok || !body) throw new Error(isPlainObject(body) && typeof body.error === "string" ? body.error : `HTTP ${res.status}`);
+        const bodyWithOrpcReadiness = isPlainObject(body)
+          ? {
+              ...body,
+              status: {
+                ...(isPlainObject(body.status) ? body.status : {}),
+                readiness: readinessResult.readiness,
+              },
+            }
+          : body;
 
         const statusState = buildLiveRuntimeStatusState({
-          body,
+          body: bodyWithOrpcReadiness,
           observedAtFallback: new Date().toISOString(),
           failureCount: 0,
         });

@@ -28,6 +28,15 @@ mutating phase
 - **THEN** the operation becomes `uncertain` or `failed`
 - **AND** no further mutating command is sent without a new explicit request
 
+#### Scenario: Start timeout includes raw tuner command text
+- **WHEN** direct-control reports a Run in Game timeout or socket failure whose
+  internal error message contains a raw Tuner `CMD:` request
+- **THEN** Studio reports bounded public operation status text
+- **AND** status details preserve phase, failure class, direct-control code,
+  completed phases, and materialization evidence needed for recovery
+- **AND** public status and copyable diagnostics omit raw command, payload,
+  state/session, and JavaScript probe text
+
 ## ADDED Requirements
 
 ### Requirement: Studio Run In Game Is Resumable And Phase-Aware
