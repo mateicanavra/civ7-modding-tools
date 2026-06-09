@@ -1,149 +1,249 @@
 # Adversarial Agent Synthesis
 
 Date: 2026-06-09
-Branch: `codex/mapgen-physical-rivers`
-Commit under review: `77b200c7c`
+Worktree: `wt-agent-mapgen-physical-rivers`
+Active branch during synthesis: `codex/map-rivers-navigable-coherence`
+Controlling execution authority:
+`openspec/changes/river-lake-adversarial-workstream-design/workstream/execution-redesign-plan.md`
 
-## Skills And Process Artifacts Gathered First
+## Why This Packet Exists
 
-- `create-goal` framed a new design-only objective after the previous goal was
-  incorrectly closed.
-- `civ7-systematic-workstream` supplied the 12-gate systematic method:
-  diagnose before design, corpus/expectations before tuning, separate proof
-  classes, bounded runtime proof, and clean closure.
-- `civ7-open-spec-workstream` supplied the phase loop and OpenSpec artifact
-  contract.
-- `civ7-product-authority` supplied the rule that product behavior and proof
-  claims must be explicitly scoped.
-- `civ7-architecture-authority` supplied the truth/projection boundary and owner
-  map: Hydrology truth, `map-*` projection/materialization, adapter/runtime at
-  Civ boundary, generated outputs as evidence.
-- `civ7-operational-debugging` supplied the in-game proof boundary: deploy,
-  logs, readback, and visible behavior are separate observations.
-- `framing-design`, `perspective`, `investigation-design`, `solution-design`,
-  `testing-design`, and `team-design` shaped the adversarial roles and closure
-  criteria.
+The prior river/lake work repeatedly confused partial technical proof with
+product closure. This packet records the six-agent adversarial pass that
+reframed the work against:
 
-Repository grounding:
+- the repo's actual owner boundaries,
+- the physical behavior of Earth drainage systems,
+- the actual Civ runtime/materialization surfaces,
+- and the proof ladder required to say "rivers work" without lying.
 
-- `bun run resources:init` and `bun run resources:status` left
-  `.civ7/outputs/resources` clean at `fbc38ef8a041d469cad3800011074379ccd5a179`.
-- Narsil was consulted as a supporting search rail, but it indexes the primary
-  checkout, not this worktree. Direct worktree `rg` and file reads are the
-  branch-authoritative evidence.
-- The current branch is clean and ahead of `origin/main` by one commit.
+## Skills And Control Artifacts Used Up Front
 
-## Agent Findings
+- `framing-design`
+- `investigation-design`
+- local `create-goal`
+- `civ7-architecture-authority`
+- `civ7-product-authority`
+- `civ7-systematic-workstream`
+- `civ7-open-spec-workstream`
+- `civ7-operational-debugging`
 
-### Agent 1: Prior-Work Prosecutor
+Authority order for this pass matched the execution redesign plan:
 
-- Product closure is not actually closed in the durable product-closure ledger,
-  but `earthlike-visible-river-acceptance/tasks.md` looks too closed for a slice
-  that still lacks visual product proof.
-- The original failure was product-visible: users reported effectively no
-  visible rivers while local tests could pass.
-- The current proof is terrain-row materialization: six projected/live
-  `TERRAIN_NAVIGABLE_RIVER` tiles with metadata still zero.
-- The top-level parity status can be `complete` while river metadata is
-  divergent. A proof-scope/status taxonomy is required.
+1. current thread decisions
+2. root and subtree `AGENTS.md`
+3. architecture normalization packet
+4. `TRUTH-VS-PROJECTION.md`
+5. Hydrology reference
+6. Swooper architecture docs
+7. `ADR-008`
+8. active OpenSpec execution records
+9. code, tests, runtime probes, and official resources as evidence only
 
-### Agent 2: Runtime/In-Game Visibility Breaker
+## Six Adversarial Lanes
 
-- Current tooling proves generation, deployed script identity, fresh logs, and
-  full-grid terrain-row readback, but not rendered in-game visibility.
-- A live session on the current branch had `terrainNavigableRiver=11` while
-  `river=0`, `navigableRiver=0`, and `minorRiver=0`.
-- Missing proof primitive: choose sampled live river tiles/chains, center the
-  Civ camera on them, capture screenshots, hash them, and record an explicit
-  visual verdict tied to the same request/session identity.
+### 1. Hydrology Root-Cause Prosecutor
 
-### Agent 3: Physical Hydrology Critic
+Verdict:
 
-- Civ-scale rivers need a hierarchy: hidden drainage network, planned minor
-  stream intent, planned major river intent, and a smaller Civ-visible navigable
-  trunk subset.
-- Tiny fixtures are not enough. Generated-map hydrology metrics should include
-  basin identity, upstream area, stream-order proxy, mouth type, slope class, and
-  ephemeral/perennial proxy.
-- Minor/headwater channels should dominate physical network length; navigable
-  trunks should be a small coherent subset.
-- Arid and endorheic systems must allow expected no-visible-river outcomes
-  without turning them into failures.
+- The deeper failure is upstream, not primarily in downstream river stamping.
+- Canonical drainage truth belongs in Hydrology.
+- Morphology may still need routing-like helpers for erosion or terrain
+  planning, but those are not the same thing as canonical water-routing truth.
 
-### Agent 4: Architecture Prosecutor
+Load-bearing findings:
 
-- The high-level owner split is defensible: Hydrology truth, map-rivers
-  projection, adapter/direct-control runtime readback, Studio display.
-- Contract holes remain:
-  - mock adapter still risks conflating navigable terrain with metadata;
-  - generated catalog wording should say source evidence, not source of truth;
-  - `EngineAdapter.modelRivers()` should be labeled engine-generator
-    compatibility, not authored river truth;
-  - `riverClass` value validation needs a stronger contract.
+- The active execution plan already rejects projection-only fallback corridors
+  and public `minLength/maxLength`.
+- The current broken behavior came from fragmented upstream drainage truth
+  forcing downstream compensation layers.
+- Hydrology truth must own conditioned routing, terminal typing, basin ids,
+  discharge, and river hierarchy before `map-rivers` selects the Civ-visible
+  subset.
 
-### Agent 5: DX/Studio Critic
+### 2. Architecture Boundary Prosecutor
 
-- Studio needs a River Inspector, not only generic data layers.
-- Users need a ladder that answers: any physical rivers, any major rivers, any
-  selected navigable projection, any engine terrain readback, any mismatch, or
-  only metadata missing.
-- Normal Studio mode should expose planned minor, planned major, projected
-  navigable, and engine terrain river layers. Metadata and mismatch layers can
-  sit behind a debug toggle.
-- Legacy `map-rivers.knobs.riverDensity` should migrate to
-  `navigableRiverDensity` when safe and fail precisely on conflicts.
+Verdict:
 
-### Agent 6: Testing And Closure Auditor
+- The repo already has a decided architecture; previous wrong-owner moves were
+  drift, not unresolved design.
+- The policy package is the owner for Civ facts and constants only.
+- MapGen domains own domain logic and policies.
+- Stages sequence ops and publish artifacts.
 
-- A test that passes while the user sees no useful rivers is not an acceptance
-  test.
-- Six live terrain tiles on `84x54` Earthlike is too weak for product closure.
-  Start with adversarial thresholds such as at least 20 live
-  `TERRAIN_NAVIGABLE_RIVER` tiles or at least two connected visible chains when
-  planned major rivers exceed 100, and refine only with documented rationale.
-- Product acceptance needs fixture tests, fast deterministic seeds, an Earthlike
-  acceptance seed, holdout seeds, mountain config contrast, floodplain active
-  seed, and arid/no-signal controls.
-- Lake exact proof cannot close from `missing-exact-log`; exact logs need final
-  lake counters.
+Wrong-owner findings:
 
-## Rebuilt Full-Scope Plan
+- `projection-policies/` was an invented owner for river selector logic.
+- Public `map-rivers.riverProjection.minLength/maxLength` was a wrong product
+  surface.
+- Step-local routing logic hidden inside `hydrology-hydrography/steps/rivers.ts`
+  is structurally suspicious whenever it stands in for a Hydrology-owned op.
+- The river-type constant fix in `@civ7/map-policy` is correct and should stay.
 
-1. Define proof taxonomy first so no slice can close from the wrong evidence.
-2. Harden physical hydrology truth with generated-map network metrics and
-   adversarial seed matrices.
-3. Repair navigable-river projection defaults and coherence so normal Earthlike
-   maps produce player-obvious river trunks, while arid controls can validly
-   produce few or none.
-4. Add runtime visual proof tooling: exact-authored run, live readback,
-   sampled coordinates, camera targeting, screenshot hashes, visual verdict.
-5. Add Studio River/Lake Inspector and knob migration so users can understand
-   absence, rejection, metadata divergence, and tuning targets.
-6. Harden architecture contracts around catalog evidence, mock/live divergence,
-   river-class validation, and `modelRivers()` ownership.
-7. Add lake exact counters, floodplain active-seed regression, and product
-   closure gates.
+### 3. Civ Runtime / Materialization Prosecutor
 
-## Execution Change Set
+Verdict:
 
-- `river-lake-proof-class-ledger`
-- `hydrology-river-network-metrics`
-- `map-rivers-navigable-coherence`
-- `river-runtime-visible-proof`
-- `studio-river-lake-inspector-dx`
-- `river-catalog-adapter-contract-hardening`
-- `lake-floodplain-product-proof-gates`
+- We do directly stamp navigable-river terrain ourselves in the current MapGen
+  path.
+- Official Civ scripts also expose `TerrainBuilder.modelRivers(...)`, which is a
+  different runtime path.
+- Terrain-readback, river metadata, and rendered visibility are separate proof
+  surfaces, and they can diverge.
 
-## Non-Negotiable Closure Boundary
+Load-bearing findings:
 
-The execution goal is not complete until same-run evidence proves:
+- `TERRAIN_NAVIGABLE_RIVER` is a terrain row, not equivalent to `GameplayMap`
+  river metadata.
+- Official gameplay/tooltips read river metadata separately.
+- Current evidence already allows the bad state: navigable-river terrain exists
+  while `riverType` remains `NO_RIVER`.
+- Minor-river stamping remains unproven. It must stay unclaimed until a real
+  writer is discovered and verified.
 
-- physical hydrology meets declared network metrics;
-- selected navigable projection is coherent and dense enough for normal maps;
-- Civ terrain readback matches projected navigable terrain;
-- Civ metadata divergence is either repaired or explicitly scoped out;
-- Studio displays the relevant river/lake/floodplain layers and status ladder;
-- Civ screenshots centered on sampled live river tiles show visible rivers;
-- lake and floodplain acceptance rows have exact counters and active seeds;
-- product acceptance rows and peer review disposition agree with the proof
-  labels.
+### 4. Earth Hydrology Benchmark Prosecutor
+
+Verdict:
+
+- Representative Earthlike thresholds must come from external Earth evidence,
+  never from current generator output.
+- Some expectations can be numeric bands; others must remain typed or
+  qualitative because they are scale-sensitive.
+
+Externally anchored constraints:
+
+- Non-perennial channels are globally common, not exceptional.
+- Endorheic basins are a normal Earth surface mode, on the order of one-fifth
+  of global land area.
+- Drainage density varies strongly by climate, terrain, and network definition;
+  there is no single universal Earth number to hard-code as a target.
+- Lakes occupy a small minority of land area globally, and closed-basin
+  termini can be lakes, seasonal lakes, or dry depressions.
+
+Testing implications:
+
+- Minor/headwater channels should dominate full truth-network length.
+- Navigable trunks should be a coherent minority.
+- Arid or endorheic maps need typed low/no-signal outcomes rather than being
+  forced to show visible rivers.
+
+### 5. Verification, DX, and Closure Prosecutor
+
+Verdict:
+
+- The proof taxonomy is now structurally correct in the active redesign plan,
+  but product closure still depends on proof classes that are not yet complete.
+- No amount of unit tests, OpenSpec validation, or terrain parity can stand in
+  for rendered same-run Civ visibility.
+
+Load-bearing findings:
+
+- The correct ladder is:
+  `hydrology-truth` -> `projection-plan` -> `terrain-readback` ->
+  `metadata-readback` -> `studio-visible` -> `civ-rendered` ->
+  `product-acceptance`.
+- Rivers are not "done" because terrain rows exist.
+- Users need a same-run ladder in Studio explaining:
+  planned physical rivers, planned major rivers, projected navigable trunks,
+  engine terrain readback, metadata divergence, and typed no-signal reasons.
+
+### 6. Semantic Git / Spec Archaeology Prosecutor
+
+Verdict:
+
+- The active worktree direction is already much closer to the correct design
+  than the stale main-checkout topology.
+- Several past confusions were already explicitly rejected in the current
+  execution plan and ADRs; they must not be revived under the excuse of history.
+
+Load-bearing findings:
+
+- The accepted owner split now exists in `ADR-008` and the active execution
+  redesign plan.
+- Old assumptions that `map-rivers` should preserve public selector internals,
+  or that terrain-readback can close the product, are now stale and should be
+  treated as rejected history.
+- `TerrainBuilder.modelRivers(...)` remains official runtime evidence, but not
+  authored truth or a license to blur boundaries.
+
+## Consolidated Verdict
+
+### Root Cause
+
+The missing visible-river outcome is not just a downstream stamping bug. The
+deeper issue is that river visibility cannot be trustworthy until Hydrology
+publishes coherent canonical drainage truth:
+
+- conditioned routes,
+- typed terminals,
+- coherent major/minor hierarchy,
+- basin-aware lake intent,
+- and explicit no-signal cases.
+
+Downstream river projection is allowed to choose a Civ-visible subset from that
+truth. It is not allowed to repair broken hydrology by inventing corridors or
+by exposing selector internals as the public model.
+
+### Owner Map
+
+| Concern | Owner | Explicit non-owners |
+| --- | --- | --- |
+| terrain, land/water form, depressions as terrain precursors | Morphology | Hydrology projection, policy package |
+| canonical drainage graph, basin ids, terminal typing, discharge, river class, lake intent | Hydrology | Morphology glue, `map-rivers`, `@civ7/map-policy` |
+| Civ constants, enums, runtime identifiers | `@civ7/map-policy` + generated `@civ7/types` | Hydrology algorithms, projection rules |
+| navigable terrain subset selection from Hydrology truth | `map-rivers` consuming a Hydrology op contract | projection-policy dumping grounds, policy package |
+| runtime writes/readback, camera proof | adapter + direct-control + Studio proof tooling | Hydrology truth logic |
+
+### Runtime Reality
+
+- Lakes have a stronger direct authored path today.
+- Navigable rivers are currently stamped as terrain in MapGen.
+- Civ river metadata can still remain zero after that stamping.
+- Minor-river runtime stamping is not yet proven.
+
+### Product Reality
+
+The product goal is not "terrain rows exist." The product goal is:
+
+- physically grounded hydrology truth,
+- coherent Civ-visible river projection,
+- same-run Studio/Civ parity,
+- rendered in-game visible rivers,
+- and closure records that cannot overclaim.
+
+## Workstream Implications
+
+The active execution redesign plan remains the correct full-scope train. This
+adversarial pass sharpens, rather than replaces, that train:
+
+1. `upstream-drainage-routing-repair`
+2. `hydrology-river-network-metrics`
+3. `map-rivers-navigable-coherence`
+4. `river-runtime-visible-proof`
+5. `studio-river-lake-inspector-dx`
+6. `river-catalog-adapter-contract-hardening`
+7. `lake-floodplain-product-proof-gates`
+8. `swooper-earthlike-product-acceptance-proof`
+
+Additional rule from this synthesis:
+
+- generic `projection-policies` is not a lawful owner. Any surviving helper in
+  that area must either be deleted or moved under a real owner as the execution
+  slices land.
+
+## Closure Rules Reaffirmed
+
+The workstream stays open until same-run evidence proves all of the following:
+
+1. Hydrology routing truth is canonical, acyclic, and physically benchmarked.
+2. Normal Earthlike maps produce coherent visible navigable trunks without
+   fallback corridor repair.
+3. Terrain-readback matches projected navigable terrain.
+4. River metadata is either proven or explicitly scoped out as unsupported.
+5. Studio exposes same-run river/lake/floodplain state and mismatch reasons.
+6. Camera-targeted Civ screenshots show visible rivers on sampled live tiles.
+7. Lakes and floodplains have exact active proof rows.
+8. Product-acceptance rows and peer review disposition agree with the proof
+   labels.
+
+If any one of those is missing, the work is not complete.
