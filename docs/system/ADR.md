@@ -172,3 +172,25 @@ promotion.
   direct-control has
   created an exact approved action record and rereads the resulting
   postcondition.
+
+## ADR-008: domain/resources owns resource planning
+
+**Status:** Accepted
+**Date:** 2026-06-09
+**Context:** Two recorded authorities for resource placement were never reconciled: the engine-refactor Gameplay-absorption appendix (`docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/gameplay/APPENDIX-SCOPE-AND-ABSORPTION.md`, which planned to absorb the legacy `domain/placement` into a Gameplay domain that "oversees" resources by invoking the engine generator), and the newer `domain/resources` (official corpus, earthlike expectations, family demand planners) introduced by the resource-distribution-policy project. The placement-realignment workstream (D2, S3 entry gate) requires deciding ownership BEFORE wiring, so the decision lands in code and in this record at the same time instead of being retrofitted (the RC1 anti-pattern diagnosed in `docs/projects/placement-realignment/diagnosis.md`).
+**Decision:** `mods/mod-swooper-maps/src/domain/resources` is the owning domain for resource planning: demand/eligibility planning (family planners + group rollup), habitat-lane derivation, and site selection emitting typed per-plot intents. Recipe-layer placement steps are thin wiring + stamp/reconcile shells. The Gameplay-absorption appendix now points at `domain/resources` for resource planning; a future Gameplay domain consolidation may absorb starts/discoveries/wonders orchestration but does not re-own resource planning logic.
+**Consequences:**
+- `domain/placement/ops/plan-resources` (generic scalar scorer) is superseded and deleted in the S3 slice; no dual path remains.
+- Resource policy grounding (Weight, MinimumPerHemisphere, legality rows, required-for-age) flows from `@civ7/map-policy` generated tables into `domain/resources` planning; the engine oracle (`canHaveResource`) is a reconcile-time check, not a planning authority.
+- The absorption appendix's "invoke the engine resource generator" posture is superseded for resources by the deterministic typed plan+stamp pipeline (ADR-009).
+
+## ADR-009: Deterministic typed reconciliation is the placement regime; engine readbacks are evidence-only
+
+**Status:** Accepted
+**Date:** 2026-06-09
+**Context:** Placement survived three regime reversals in four months (engine-RNG delegation → deterministic plan+stamp → official-generator-primary → deterministic typed reconciliation via the normalization packet D3/D4, implemented 2026-05-30) and none of those decisions reached this record, which is part of why each regime's scaffolding accreted (diagnosis RC1). The placement-realignment workstream depends on the current posture being durable, so it is recorded here as the S3 entry gate (D2) requires.
+**Decision:** (a) The deterministic plan is the authority for typed intent: materializers stamp intents through the adapter and reconcile engine feasibility with per-tile typed rejection reasons — never re-deciding types, never falling back to official generators as truth (D4 posture, guardrail G8 in `docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md`). (b) Engine readbacks are evidence-only: they verify outcomes (readback assertions, parity snapshots) and may project current engine surface state into a declared planning input, but they are never undeclared planning truth; planning consumes pipeline artifacts and policy tables. Remaining declared engine-surface reads (e.g. post-maintenance legality masks) are tracked for artifact-based reconstruction in the S6 slice.
+**Consequences:**
+- Shortfalls and rejections are recorded as typed outcomes instead of being silently rescued (no whole-map fallback, no least-used-type rebalance, no spacing decay).
+- Live-game proof compares plan vs engine state at milestone boundaries; per-slice proof runs on artifacts + mock policy emulation.
+- Future regime changes require a superseding entry here before implementation.
