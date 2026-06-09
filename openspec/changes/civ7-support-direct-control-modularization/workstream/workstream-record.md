@@ -59,6 +59,8 @@ titles, and parent reports to close the loop.
 | `019e8ac9-2992-73f2-b9dd-0226205390c5` | Investigate CLI play topology | framed `/goal` | completed, archived | yes | Accepted as current CLI corpus evidence. | Provides exact test names, fixture strategy, focused/adjacent gates, and relationship-label scans. |
 | `019e8ac9-296c-74a3-9d30-f4e3a4f51545` | Investigate direct-control atoms | framed `/goal` | completed, archived | yes | Accepted as current direct-control corpus evidence; source edits remain blocked. | Provides source regions, proposed owners, forbidden owners, needed tests, and proof boundaries. |
 | `019e8ac9-2938-7a50-87b9-a1915f35d427` | Review OpenSpec workstream | framed `/goal` | completed, archived | yes | Accepted as current pre-code review. | Confirms implementation remains blocked until row detail and single-writer gates are present. |
+| `019e8ad7-dc15-76a0-88f8-bb5210bfd7e9` | Add notification HUD test | framed `/goal` implementation | completed, idle | yes | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `@civ7/direct-control` build artifacts were unavailable there. | Created local/mode-named `game/play/notification/hud.test.ts`; DRA performed single-writer monolith removal, package wiring, and final gates in the support worktree. |
+| `019e8ae4-8b20-79a0-8553-41b71bccb63f` | Add priorities play test | framed `/goal` implementation | completed, idle | yes | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest` was unavailable there. | Created local `game/play/priorities.test.ts` with priority HUD/ready-unit/ready-city/battlefield fixtures; DRA performed single-writer monolith deletion, package wiring, and final gates in the support worktree. |
 
 ## Parallelization Rule
 
@@ -94,11 +96,23 @@ All future agent waves must be framed before delegation:
 - Gate 2: repo isolated at skill review-fix commit before draft validation.
 - OpenSpec validation: passed with
   `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
-- CLI corpus ledger: report findings merged for remaining monolith owners; full
-  per-slice rows still need validation/removal status before implementation.
+- CLI corpus ledger: report findings merged for remaining monolith owners;
+  notification HUD and priorities rows completed with parallel candidate
+  handoffs and DRA integration proof; `game.play.test.ts` monolith ownership is
+  removed.
 - Direct-control atom corpus: report findings merged for top-level atom
   boundaries; exact atom rows still need package-test and source-region proof
   before source edits.
 - Review-disposition ledger: agent/reviewer findings recorded.
-- Next implementation lane: blocked until corpus ledgers and fixture strategy
-  are filled.
+- Exact dismiss-notification CLI slice: completed as test-only extraction with
+  local fixture ownership and no runtime claim.
+- Notification HUD CLI slice: completed as test-only extraction with a
+  boundary-clean parallel net-new test candidate, DRA-owned monolith/package
+  integration, local HUD fixture ownership, and no runtime claim.
+- Priorities CLI slice: completed as test-only extraction with a
+  boundary-clean parallel net-new test candidate, DRA-owned monolith/package
+  integration, local priority fixture ownership, relationship-label guards, and
+  no runtime claim.
+- Next implementation lane: direct-control atom planning/tests. Source edits
+  remain blocked until atom rows name owners, consumers, proof class, and package
+  test coverage.
