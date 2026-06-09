@@ -680,9 +680,6 @@ export class MockAdapter implements EngineAdapter {
     this.terrainTypes[index] = terrainType;
     this.waterMask[index] =
       terrainType === this.coastTerrainId || terrainType === this.oceanTerrainId ? 1 : 0;
-    const isNavigableRiverTerrain =
-      terrainType === this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
-    this.riverMask[index] = isNavigableRiverTerrain ? 1 : 0;
     this.mountainMask[index] = terrainType === this.mountainTerrainId ? 1 : 0;
     this.validationMaterializedCoastMask[index] = 0;
     if (terrainType !== this.coastTerrainId) {

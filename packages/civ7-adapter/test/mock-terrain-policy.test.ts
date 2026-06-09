@@ -152,6 +152,7 @@ describe("mock adapter terrain policy", () => {
     adapter.setTerrainType(2, 0, navigableRiverTerrain);
     adapter.setTerrainType(4, 0, navigableRiverTerrain);
     (adapter as unknown as { riverTypes: Int8Array }).riverTypes[3] = RIVER_TYPE_NAVIGABLE;
+    (adapter as unknown as { riverMask: Uint8Array }).riverMask[3] = 1;
 
     const projection = adapter.readRiverProjection(5, 2, planned);
 
@@ -160,6 +161,8 @@ describe("mock adapter terrain policy", () => {
     expect(adapter.getRiverType(1, 0)).toBe(NO_RIVER_TYPE);
     expect(adapter.isRiver(1, 0)).toBe(false);
     expect(adapter.isNavigableRiver(1, 0)).toBe(false);
+    expect(adapter.isAdjacentToRivers(1, 1)).toBe(false);
+    expect(adapter.isAdjacentToRivers(3, 1)).toBe(true);
     expect(projection.stampedNavigableRiverTileCount).toBe(2);
     expect(projection.rejectedNavigableRiverTileCount).toBe(1);
     expect(projection.extraNavigableRiverTileCount).toBe(1);
