@@ -1,11 +1,57 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7SettlementRecommendationInput,
-  Civ7SettlementRecommendationResult,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+
+export type Civ7SettlementRecommendationInput = Readonly<{
+  playerId?: number;
+  locations?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  count?: number;
+  includeSettlers?: boolean;
+  includeCities?: boolean;
+}>;
+
+export type Civ7SettlementRecommendationFactor = Readonly<{
+  positive: boolean;
+  title: string | null;
+  description: string | null;
+}>;
+
+export type Civ7SettlementRecommendationOrigin = Readonly<{
+  kind: "requested" | "settler" | "city";
+  location: Readonly<{ x: number; y: number }>;
+  plotIndex: Civ7RuntimeProbe<number>;
+  unitId?: Civ7ComponentId;
+  cityId?: Civ7ComponentId;
+  name?: string | null;
+}>;
+
+export type Civ7SettlementRecommendation = Readonly<{
+  origin: Civ7SettlementRecommendationOrigin;
+  suggestions: Civ7RuntimeProbe<ReadonlyArray<Readonly<{
+    location: Readonly<{ x: number; y: number }> | null;
+    plotIndex: Civ7RuntimeProbe<number>;
+    factors: ReadonlyArray<Civ7SettlementRecommendationFactor>;
+  }>>>;
+}>;
+
+export type Civ7SettlementRecommendationResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  playerId: number;
+  count: number;
+  requestedLocations: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  origins: ReadonlyArray<Civ7SettlementRecommendationOrigin>;
+  recommendations: ReadonlyArray<Civ7SettlementRecommendation>;
+  notes: ReadonlyArray<string>;
+}>;
 
 type SettlementRecommendationDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

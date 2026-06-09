@@ -1,4 +1,21 @@
-import type { Civ7TechnologyChoiceCloseoutInput } from "../../index";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7CommandResult, Civ7TunerState } from "../../session/types.js";
+
+export type Civ7TechnologyChoiceCloseoutInput = Readonly<{
+  playerId: number;
+  node: number;
+  notificationId?: Civ7ComponentId;
+  activateNotification?: boolean;
+}>;
+
+export type Civ7TechnologyChoiceCloseoutResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  command: Civ7CommandResult;
+  payload: unknown;
+  sent: boolean;
+}>;
 
 type TechnologyChoiceCloseoutCommandDependencies = Readonly<{
   jsLiteral: (value: unknown) => string;

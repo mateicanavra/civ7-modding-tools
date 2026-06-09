@@ -8,8 +8,8 @@ import type {
   Civ7DiplomacyResponseInput,
   Civ7DiplomacyResponseResult,
   Civ7OperationValidationResult,
-  Civ7PlayNotificationViewResult,
-} from "../../index";
+} from "../../index.js";
+import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
 
 type DiplomacyResponseRequestDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

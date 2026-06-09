@@ -1,10 +1,15 @@
 import { basename, extname } from "node:path";
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
 import { assessCiv7SignedIntSeed } from "../policy/setup.js";
 import {
   buildSetupSnapshotCommand,
   setupSnapshotScriptSource,
   validateMapScript,
+  type Civ7SetupMapRow,
+  type Civ7SetupParameterSnapshot,
+  type Civ7SetupParameterValue,
+  type Civ7SetupSnapshot,
+  type Civ7SetupSnapshotResult,
   type SetupReadDependencies,
 } from "./reads.js";
 
@@ -12,17 +17,57 @@ import type {
   Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7PlayerSetupOptions,
-  Civ7PreparedSetupResult,
-  Civ7SavedGameConfigurationLoadResult,
-  Civ7SavedGameConfigurationRef,
-  Civ7SetupMapRow,
-  Civ7SetupOptionValue,
-  Civ7SetupParameterSnapshot,
-  Civ7SetupParameterValue,
-  Civ7SetupSnapshot,
-  Civ7SinglePlayerSetupInput,
-} from "../index";
+} from "../index.js";
+import type { Civ7TunerState } from "../session/types.js";
+
+export type Civ7SetupOptionValue = string | number | boolean;
+
+export type Civ7PlayerSetupOptions = Readonly<{
+  playerId: number;
+  options: Readonly<Record<string, Civ7SetupOptionValue>>;
+}>;
+
+export type Civ7SavedGameConfigurationRef = Readonly<{
+  id: string;
+  displayName: string;
+  fileName: string;
+  path: string;
+}>;
+
+export type Civ7SavedGameConfigurationLoadResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  savedConfig: Civ7SavedGameConfigurationRef;
+  before: Civ7SetupSnapshotResult;
+  after: Civ7SetupSnapshotResult;
+  command: Civ7CommandResult;
+  loaded: boolean;
+}>;
+
+export type Civ7SinglePlayerSetupInput = Readonly<{
+  mapScript: string;
+  mapSize: string;
+  seed: number;
+  gameSeed?: number;
+  playerCount?: number;
+  savedConfig?: Civ7SavedGameConfigurationRef;
+  options?: Readonly<Record<string, Civ7SetupOptionValue>>;
+  playerOptions?: ReadonlyArray<Civ7PlayerSetupOptions>;
+  requireShell?: boolean;
+}>;
+
+export type Civ7PreparedSetupResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  before: Civ7SetupSnapshotResult;
+  after: Civ7SetupSnapshotResult;
+  command: Civ7CommandResult;
+  savedConfigLoad?: Civ7SavedGameConfigurationLoadResult;
+  applied: Readonly<Record<string, Civ7SetupOptionValue>>;
+  verified: boolean;
+}>;
 
 type SetupPreparePayload = Readonly<{
   before: Civ7SetupSnapshot;

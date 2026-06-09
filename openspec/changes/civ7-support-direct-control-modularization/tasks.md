@@ -362,6 +362,121 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.8.9 Extract session endpoint/state/command-result type owner while
+        keeping public facade type re-exports in `index.ts`, preserving tuner
+        state selection, direct-control endpoint/options, and command-result
+        public contracts while leaving broader public result/input types,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.10 Extract runtime inspection/snapshot/status type owners into the
+        existing runtime atom modules while keeping public facade type
+        re-exports in `index.ts`, preserving runtime probe/result/input public
+        contracts and leaving broader public result/input types, procedure
+        schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.11 Extract map primitive type owner while keeping public facade
+        type re-exports in `index.ts`, preserving map location, map bounds, and
+        hidden-info policy public contracts while leaving broader map/result
+        types, procedure schemas, operation/proof telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.12 Extract map read type owner while keeping public facade type
+        re-exports in `index.ts`, preserving map summary, plot snapshot, map
+        grid input/result, and full-map-grid chunk/input/result public
+        contracts while leaving visibility, GameInfo, summary, setup,
+        tactical, operation, and ready result types, procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.13 Extract summary read type owner while keeping public facade type
+        re-exports in `index.ts`, preserving player/unit/city summary
+        input/result public contracts while leaving visibility, GameInfo,
+        setup, tactical, operation, and ready result types, procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.14 Extract GameInfo row type owner while keeping public facade type
+        re-exports in `index.ts`, preserving GameInfo row input/result public
+        contracts while leaving visibility, setup, tactical, operation, and
+        ready result types, procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.15 Extract visibility/reveal type owner while keeping public facade
+        type re-exports in `index.ts`, preserving visibility summary and reveal
+        map result public contracts while leaving setup, tactical, operation,
+        and ready result types, procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.16 Extract setup read type owner while keeping public facade type
+        re-exports in `index.ts`, preserving setup snapshot/map-row read and
+        setup map-row visibility result public contracts while leaving setup
+        prepare/start/run lifecycle input/result types, tactical, operation,
+        and ready result types, procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.17 Extract setup lifecycle type owners while keeping public facade
+        type re-exports in `index.ts`, preserving prepare/start/run
+        input/result public contracts while leaving tactical, operation, and
+        ready result types, procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.18 Extract autoplay and turn-completion type owners while keeping
+        public facade type re-exports in `index.ts`, preserving autoplay
+        status/options/action and turn-completion status/action public
+        contracts while leaving tactical, operation, and ready result types,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.19 Extract notification view/dismissal type owners while keeping
+        public facade type re-exports in `index.ts`, preserving notification
+        view, decision hint/queue, dismissal input/summary/result public
+        contracts while leaving diplomacy/narrative/progression closeout,
+        tactical, operation, and ready result types, procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.20 Extract progression read type owner while keeping public facade
+        type re-exports in `index.ts`, preserving traditions view and progress
+        dashboard input/result/action public contracts while leaving
+        diplomacy/narrative closeout, tactical, operation, and ready result
+        types, procedure schemas, operation/proof telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.21 Extract tactical read type owners while keeping public facade
+        type re-exports in `index.ts`, preserving settlement recommendation,
+        target-candidates, battlefield scan, and destination analysis public
+        contracts and conservative relationship-label policy while leaving
+        diplomacy/narrative closeout, operation, and ready result types,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.22 Extract ready read type owners while keeping public facade type
+        re-exports in `index.ts`, preserving ready-unit, unit-move-preview, and
+        ready-city public contracts and conservative relationship-label policy
+        while leaving diplomacy/narrative closeout, operation, public procedure
+        schemas, operation/proof telemetry, hotseat runtime proof, AI ingestion,
+        CLI semantic projection, Effect/oRPC procedure-core work, and Task
+        2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.23 Extract progression chooser closeout type owners while keeping
+        public facade type re-exports in `index.ts`, preserving technology and
+        culture closeout input/result contracts while leaving
+        diplomacy/narrative closeout, operation, public procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.24 Extract unit-target action type owner while keeping public
+        facade type re-exports in `index.ts`, preserving unit-target
+        input/candidate/result contracts while leaving generic operation,
+        diplomacy/narrative closeout, public procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
@@ -371,6 +486,11 @@ runtime/direct-control claims.
       or semantic player-agent output.
   - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
         existing package facade.
+  - [x] 4.10.2 Extract session endpoint/state/options/command-result type owner
+        behind the existing package facade, leaving session config/socket,
+        lifecycle/reconnect, procedure schemas, telemetry, semantic CLI, AI
+        ingestion, hotseat runtime proof, and Effect/oRPC procedure-core work
+        pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
@@ -464,6 +584,14 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.12.10 Extract runtime result/input/probe type owners while keeping
+        public facade type re-exports in `index.ts`, preserving runtime API
+        inspection, bounded root inspection, App UI snapshot, Tuner health,
+        playable status, and runtime probe type contracts without moving source
+        strings, command execution, lifecycle/session orchestration, procedure
+        schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, or Task 2.9.4
+        matrix-row acceptance.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

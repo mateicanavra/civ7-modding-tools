@@ -1,10 +1,10 @@
 import type {
-  Civ7DirectControlOptions,
   Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissalSummary,
-  Civ7RuntimeProbe,
-} from "../../index";
+} from "./dismissal-request.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import type { Civ7DirectControlOptions } from "../../session/types.js";
 
 const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS = 2_000;
 const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_POLL_MS = 250;

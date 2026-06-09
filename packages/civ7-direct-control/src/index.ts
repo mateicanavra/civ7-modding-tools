@@ -14,6 +14,14 @@ import {
   parseCiv7TunerFrame,
   type Civ7TunerFrame,
 } from "./session/framing.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlEndpoint,
+  Civ7DirectControlOptions,
+  Civ7TunerState,
+  Civ7TunerStateRole,
+  Civ7TunerStateSelection,
+} from "./session/types.js";
 import {
   CIV7_TUNER_APP_UI_STATE_NAME,
   CIV7_TUNER_STATE_NAME,
@@ -42,33 +50,75 @@ import {
 } from "./catalog/capabilities.js";
 import {
   getCiv7AppUiSnapshot as getCiv7AppUiSnapshotFromModule,
+  type Civ7AppUiSnapshot,
+  type Civ7AppUiSnapshotResult,
 } from "./runtime/app-ui-snapshot.js";
-import { inspectCiv7RuntimeApi as inspectCiv7RuntimeApiFromModule } from "./runtime/inspection.js";
+import {
+  inspectCiv7RuntimeApi as inspectCiv7RuntimeApiFromModule,
+  type Civ7RuntimeApiInspection,
+  type Civ7RuntimeApiMethod,
+  type Civ7RuntimeApiRoot,
+} from "./runtime/inspection.js";
 import {
   DEFAULT_CIV7_APP_UI_API_ROOTS,
   DEFAULT_CIV7_ROOT_MAX_KEYS,
   DEFAULT_CIV7_ROOT_MAX_METHODS,
   DEFAULT_CIV7_TUNER_API_ROOTS,
 } from "./runtime/inspection-constants.js";
-import { inspectCiv7Root as inspectCiv7RootFromModule } from "./runtime/root-inspection.js";
+import type { Civ7RuntimeProbe } from "./runtime/probe.js";
+import {
+  inspectCiv7Root as inspectCiv7RootFromModule,
+  type Civ7RootInspectionInput,
+  type Civ7RootInspectionResult,
+} from "./runtime/root-inspection.js";
 import {
   checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
   checkCiv7TunerHealthWithSession,
+  type Civ7TunerHealthResult,
+  type Civ7TunerHealthSnapshot,
 } from "./runtime/tuner-health.js";
-import { getCiv7PlayableStatus as getCiv7PlayableStatusFromModule } from "./runtime/playable-status.js";
+import {
+  getCiv7PlayableStatus as getCiv7PlayableStatusFromModule,
+  type Civ7PlayableStatusResult,
+} from "./runtime/playable-status.js";
 import {
   ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
   getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
   getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
+  type Civ7PlayerSetupParameterSnapshot,
+  type Civ7SetupMapRow,
+  type Civ7SetupMapRowsInput,
+  type Civ7SetupMapRowsResult,
+  type Civ7SetupMapRowVisibilityInput,
+  type Civ7SetupMapRowVisibilityResult,
+  type Civ7SetupParameterSnapshot,
+  type Civ7SetupParameterValue,
+  type Civ7SetupPhase,
+  type Civ7SetupSnapshot,
+  type Civ7SetupSnapshotResult,
 } from "./setup/reads.js";
 import {
   assertPreparedSetupMatches,
   normalizeSavedGameConfigurationRef,
   normalizeSinglePlayerSetupInput as normalizeSinglePlayerSetupInputFromModule,
   prepareCiv7SinglePlayerSetup as prepareCiv7SinglePlayerSetupFromModule,
+  type Civ7PlayerSetupOptions,
+  type Civ7PreparedSetupResult,
+  type Civ7SavedGameConfigurationLoadResult,
+  type Civ7SavedGameConfigurationRef,
+  type Civ7SetupOptionValue,
+  type Civ7SinglePlayerSetupInput,
 } from "./setup/prepare.js";
-import { startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule } from "./setup/start.js";
-import { runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule } from "./setup/run.js";
+import {
+  startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule,
+  type Civ7PreparedStartInput,
+  type Civ7SinglePlayerStartResult,
+} from "./setup/start.js";
+import {
+  runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule,
+  type Civ7SinglePlayerRunInput,
+  type Civ7SinglePlayerRunResult,
+} from "./setup/run.js";
 import {
   beginCiv7Game as beginCiv7GameFromModule,
   restartCiv7Game as restartCiv7GameFromModule,
@@ -93,29 +143,62 @@ import {
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
   startCiv7Autoplay as startCiv7AutoplayFromModule,
   stopCiv7Autoplay as stopCiv7AutoplayFromModule,
+  type Civ7AutoplayActionResult,
+  type Civ7AutoplayOptions,
+  type Civ7AutoplayPollOptions,
+  type Civ7AutoplayStatusResult,
 } from "./play/autoplay.js";
 import {
   getCiv7TurnCompletionStatus as getCiv7TurnCompletionStatusFromModule,
   sendCiv7TurnComplete as sendCiv7TurnCompleteFromModule,
   sendCiv7TurnUnready as sendCiv7TurnUnreadyFromModule,
+  type Civ7TurnCompletionActionResult,
+  type Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
 import {
   getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
   requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
+  type Civ7NotificationDismissInput,
+  type Civ7NotificationDismissalResult,
+  type Civ7NotificationDismissalSummary,
 } from "./play/notifications/dismissal-request.js";
+import type {
+  Civ7PlayDecisionAction,
+  Civ7PlayDecisionHint,
+  Civ7PlayDecisionInput,
+  Civ7PlayDecisionQueueItem,
+  Civ7PlayNotificationSummary,
+  Civ7PlayNotificationViewResult,
+} from "./play/notifications/view.js";
 import {
   getCiv7MapGrid as getCiv7MapGridFromModule,
   getCiv7MapSummary as getCiv7MapSummaryFromModule,
   getCiv7PlotSnapshot as getCiv7PlotSnapshotFromModule,
 } from "./play/map/reads.js";
-import { getCiv7GameInfoRows as getCiv7GameInfoRowsFromModule } from "./play/map/gameinfo.js";
+import {
+  getCiv7GameInfoRows as getCiv7GameInfoRowsFromModule,
+  type Civ7GameInfoRowsInput,
+  type Civ7GameInfoRowsResult,
+} from "./play/map/gameinfo.js";
 import {
   getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule,
   revealCiv7MapForPlayer as revealCiv7MapForPlayerFromModule,
+  type Civ7RevealMapResult,
+  type Civ7VisibilitySummaryInput,
+  type Civ7VisibilitySummaryResult,
 } from "./play/map/visibility.js";
 import {
+  type Civ7CitySummary,
+  type Civ7CitySummaryInput,
+  type Civ7CitySummaryResult,
   getCiv7CitySummary as getCiv7CitySummaryFromModule,
+  type Civ7PlayerSummary,
+  type Civ7PlayerSummaryInput,
+  type Civ7PlayerSummaryResult,
   getCiv7PlayerSummary as getCiv7PlayerSummaryFromModule,
+  type Civ7UnitSummary,
+  type Civ7UnitSummaryInput,
+  type Civ7UnitSummaryResult,
   getCiv7UnitSummary as getCiv7UnitSummaryFromModule,
 } from "./play/summaries.js";
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
@@ -125,6 +208,8 @@ import {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
   getCiv7UnitTargetAction as getCiv7UnitTargetActionFromModule,
   requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
+  type Civ7UnitTargetActionInput,
+  type Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
 import { requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule } from "./play/operations/narrative-request.js";
 import { requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule } from "./play/operations/production-choice.js";
@@ -147,19 +232,91 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./play/map/constants.js";
+import type {
+  Civ7FullMapGridIdentityCheck,
+  Civ7FullMapGridInput,
+  Civ7FullMapGridResult,
+  Civ7HiddenInfoPolicy,
+  Civ7MapBounds,
+  Civ7MapGridInput,
+  Civ7MapGridReadChunk,
+  Civ7MapGridResult,
+  Civ7MapLocation,
+  Civ7MapSummaryOptions,
+  Civ7MapSummaryResult,
+  Civ7PlotSnapshot,
+  Civ7PlotSnapshotField,
+  Civ7PlotSnapshotInput,
+  Civ7PlotSnapshotResult,
+} from "./play/map/types.js";
 import {
   getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
   getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
+  type Civ7ProgressDashboardInput,
+  type Civ7ProgressDashboardLegacyPath,
+  type Civ7ProgressDashboardResult,
+  type Civ7TraditionAction,
+  type Civ7TraditionActionKind,
+  type Civ7TraditionSummary,
+  type Civ7TraditionsViewInput,
+  type Civ7TraditionsViewResult,
 } from "./play/progression/reads.js";
-import { buildCultureChoiceCloseoutCommand } from "./play/progression/culture.js";
-import { buildTechnologyChoiceCloseoutCommand } from "./play/progression/technology.js";
-import { getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule } from "./play/ready/city.js";
-import { getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule } from "./play/ready/move-preview.js";
-import { getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule } from "./play/ready/unit.js";
-import { getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule } from "./play/tactical/battlefield.js";
-import { getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule } from "./play/tactical/destination.js";
-import { getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule } from "./play/tactical/settlement.js";
-import { getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule } from "./play/tactical/target-candidates.js";
+import {
+  buildCultureChoiceCloseoutCommand,
+  type Civ7CultureChoiceCloseoutInput,
+  type Civ7CultureChoiceCloseoutResult,
+} from "./play/progression/culture.js";
+import {
+  buildTechnologyChoiceCloseoutCommand,
+  type Civ7TechnologyChoiceCloseoutInput,
+  type Civ7TechnologyChoiceCloseoutResult,
+} from "./play/progression/technology.js";
+import {
+  getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule,
+  type Civ7ReadyCityOperationCandidate,
+  type Civ7ReadyCityPopulationPlacement,
+  type Civ7ReadyCityProductionCandidate,
+  type Civ7ReadyCityTownFocusOption,
+  type Civ7ReadyCityViewInput,
+  type Civ7ReadyCityViewResult,
+} from "./play/ready/city.js";
+import {
+  getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule,
+  type Civ7UnitMovePreviewInput,
+  type Civ7UnitMovePreviewResult,
+} from "./play/ready/move-preview.js";
+import {
+  getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule,
+  type Civ7ReadyUnitNearbyPlot,
+  type Civ7ReadyUnitOperationCandidate,
+  type Civ7ReadyUnitPromotionReadiness,
+  type Civ7ReadyUnitViewInput,
+  type Civ7ReadyUnitViewResult,
+} from "./play/ready/unit.js";
+import {
+  getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule,
+  type Civ7BattlefieldScanInput,
+  type Civ7BattlefieldScanResult,
+} from "./play/tactical/battlefield.js";
+import {
+  getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule,
+  type Civ7DestinationAnalysisInput,
+  type Civ7DestinationAnalysisResult,
+} from "./play/tactical/destination.js";
+import {
+  getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule,
+  type Civ7SettlementRecommendation,
+  type Civ7SettlementRecommendationFactor,
+  type Civ7SettlementRecommendationInput,
+  type Civ7SettlementRecommendationOrigin,
+  type Civ7SettlementRecommendationResult,
+} from "./play/tactical/settlement.js";
+import {
+  getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule,
+  type Civ7TargetCandidate,
+  type Civ7TargetCandidatesInput,
+  type Civ7TargetCandidatesResult,
+} from "./play/tactical/target-candidates.js";
 
 export {
   assertCiv7ComponentId,
@@ -174,6 +331,14 @@ export {
   parseCiv7TunerFrame,
 } from "./session/framing.js";
 export type { Civ7TunerFrame } from "./session/framing.js";
+export type {
+  Civ7CommandResult,
+  Civ7DirectControlEndpoint,
+  Civ7DirectControlOptions,
+  Civ7TunerState,
+  Civ7TunerStateRole,
+  Civ7TunerStateSelection,
+} from "./session/types.js";
 export {
   CIV7_TUNER_APP_UI_STATE_NAME,
   CIV7_TUNER_STATE_NAME,
@@ -208,6 +373,25 @@ export {
   DEFAULT_CIV7_ROOT_MAX_METHODS,
   DEFAULT_CIV7_TUNER_API_ROOTS,
 } from "./runtime/inspection-constants.js";
+export type {
+  Civ7AppUiSnapshot,
+  Civ7AppUiSnapshotResult,
+} from "./runtime/app-ui-snapshot.js";
+export type {
+  Civ7RuntimeApiInspection,
+  Civ7RuntimeApiMethod,
+  Civ7RuntimeApiRoot,
+} from "./runtime/inspection.js";
+export type { Civ7RuntimeProbe } from "./runtime/probe.js";
+export type {
+  Civ7RootInspectionInput,
+  Civ7RootInspectionResult,
+} from "./runtime/root-inspection.js";
+export type {
+  Civ7TunerHealthResult,
+  Civ7TunerHealthSnapshot,
+} from "./runtime/tuner-health.js";
+export type { Civ7PlayableStatusResult } from "./runtime/playable-status.js";
 export {
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
@@ -217,6 +401,35 @@ export {
   DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
   DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
+export type {
+  Civ7PlayerSetupParameterSnapshot,
+  Civ7SetupMapRow,
+  Civ7SetupMapRowsInput,
+  Civ7SetupMapRowsResult,
+  Civ7SetupMapRowVisibilityInput,
+  Civ7SetupMapRowVisibilityResult,
+  Civ7SetupParameterSnapshot,
+  Civ7SetupParameterValue,
+  Civ7SetupPhase,
+  Civ7SetupSnapshot,
+  Civ7SetupSnapshotResult,
+} from "./setup/reads.js";
+export type {
+  Civ7PlayerSetupOptions,
+  Civ7PreparedSetupResult,
+  Civ7SavedGameConfigurationLoadResult,
+  Civ7SavedGameConfigurationRef,
+  Civ7SetupOptionValue,
+  Civ7SinglePlayerSetupInput,
+} from "./setup/prepare.js";
+export type {
+  Civ7PreparedStartInput,
+  Civ7SinglePlayerStartResult,
+} from "./setup/start.js";
+export type {
+  Civ7SinglePlayerRunInput,
+  Civ7SinglePlayerRunResult,
+} from "./setup/run.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -224,6 +437,61 @@ export {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./play/map/constants.js";
+export type {
+  Civ7GameInfoRowsInput,
+  Civ7GameInfoRowsResult,
+} from "./play/map/gameinfo.js";
+export type {
+  Civ7RevealMapResult,
+  Civ7VisibilitySummaryInput,
+  Civ7VisibilitySummaryResult,
+} from "./play/map/visibility.js";
+export type {
+  Civ7CitySummary,
+  Civ7CitySummaryInput,
+  Civ7CitySummaryResult,
+  Civ7PlayerSummary,
+  Civ7PlayerSummaryInput,
+  Civ7PlayerSummaryResult,
+  Civ7UnitSummary,
+  Civ7UnitSummaryInput,
+  Civ7UnitSummaryResult,
+} from "./play/summaries.js";
+export type {
+  Civ7ProgressDashboardInput,
+  Civ7ProgressDashboardLegacyPath,
+  Civ7ProgressDashboardResult,
+  Civ7TraditionAction,
+  Civ7TraditionActionKind,
+  Civ7TraditionSummary,
+  Civ7TraditionsViewInput,
+  Civ7TraditionsViewResult,
+} from "./play/progression/reads.js";
+export type {
+  Civ7TechnologyChoiceCloseoutInput,
+  Civ7TechnologyChoiceCloseoutResult,
+} from "./play/progression/technology.js";
+export type {
+  Civ7CultureChoiceCloseoutInput,
+  Civ7CultureChoiceCloseoutResult,
+} from "./play/progression/culture.js";
+export type {
+  Civ7FullMapGridIdentityCheck,
+  Civ7FullMapGridInput,
+  Civ7FullMapGridResult,
+  Civ7HiddenInfoPolicy,
+  Civ7MapBounds,
+  Civ7MapGridInput,
+  Civ7MapGridReadChunk,
+  Civ7MapGridResult,
+  Civ7MapLocation,
+  Civ7MapSummaryOptions,
+  Civ7MapSummaryResult,
+  Civ7PlotSnapshot,
+  Civ7PlotSnapshotField,
+  Civ7PlotSnapshotInput,
+  Civ7PlotSnapshotResult,
+} from "./play/map/types.js";
 export {
   DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
   DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
@@ -231,9 +499,76 @@ export {
   DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
   DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
 } from "./play/autoplay.js";
+export type {
+  Civ7AutoplayActionResult,
+  Civ7AutoplayOptions,
+  Civ7AutoplayPollOptions,
+  Civ7AutoplayStatusResult,
+} from "./play/autoplay.js";
+export type {
+  Civ7TurnCompletionActionResult,
+  Civ7TurnCompletionStatusResult,
+} from "./play/turn-completion.js";
+export type {
+  Civ7ReadyUnitNearbyPlot,
+  Civ7ReadyUnitOperationCandidate,
+  Civ7ReadyUnitPromotionReadiness,
+  Civ7ReadyUnitViewInput,
+  Civ7ReadyUnitViewResult,
+} from "./play/ready/unit.js";
+export type {
+  Civ7UnitMovePreviewInput,
+  Civ7UnitMovePreviewResult,
+} from "./play/ready/move-preview.js";
+export type {
+  Civ7ReadyCityOperationCandidate,
+  Civ7ReadyCityPopulationPlacement,
+  Civ7ReadyCityProductionCandidate,
+  Civ7ReadyCityTownFocusOption,
+  Civ7ReadyCityViewInput,
+  Civ7ReadyCityViewResult,
+} from "./play/ready/city.js";
+export type {
+  Civ7PlayDecisionAction,
+  Civ7PlayDecisionHint,
+  Civ7PlayDecisionInput,
+  Civ7PlayDecisionQueueItem,
+  Civ7PlayNotificationSummary,
+  Civ7PlayNotificationViewResult,
+} from "./play/notifications/view.js";
+export type {
+  Civ7NotificationDismissInput,
+  Civ7NotificationDismissalResult,
+  Civ7NotificationDismissalSummary,
+} from "./play/notifications/dismissal-request.js";
+export type {
+  Civ7BattlefieldScanInput,
+  Civ7BattlefieldScanResult,
+} from "./play/tactical/battlefield.js";
+export type {
+  Civ7DestinationAnalysisInput,
+  Civ7DestinationAnalysisResult,
+} from "./play/tactical/destination.js";
+export type {
+  Civ7SettlementRecommendation,
+  Civ7SettlementRecommendationFactor,
+  Civ7SettlementRecommendationInput,
+  Civ7SettlementRecommendationOrigin,
+  Civ7SettlementRecommendationResult,
+} from "./play/tactical/settlement.js";
+export type {
+  Civ7TargetCandidate,
+  Civ7TargetCandidatesInput,
+  Civ7TargetCandidatesResult,
+} from "./play/tactical/target-candidates.js";
 export {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
+} from "./play/operations/unit-target-action.js";
+export type {
+  Civ7UnitTargetActionCandidate,
+  Civ7UnitTargetActionInput,
+  Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
@@ -254,291 +589,7 @@ export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
   "Single",
 );
 
-export type Civ7TunerState = Readonly<{
-  id: string;
-  name: string;
-}>;
-
-export type Civ7TunerStateRole = "app-ui" | "tuner";
-
-export type Civ7TunerStateSelection =
-  | string
-  | Readonly<{
-      id?: string;
-      name?: string;
-      role?: Civ7TunerStateRole;
-    }>;
-
-export type Civ7DirectControlEndpoint = Readonly<{
-  host: string;
-  port: number;
-}>;
-
-export type Civ7DirectControlOptions = Readonly<{
-  host?: string;
-  hosts?: ReadonlyArray<string>;
-  port?: number;
-  timeoutMs?: number;
-  env?: NodeJS.ProcessEnv;
-}>;
-
 export type Civ7UiLoadingStateName = keyof typeof CIV7_UI_LOADING_STATES;
-
-export type Civ7CommandResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  output: ReadonlyArray<string>;
-}>;
-
-export type Civ7RuntimeApiRoot = Readonly<{
-  name: string;
-  type: string;
-  exists: boolean;
-  ownKeys: ReadonlyArray<string>;
-  prototypeKeys: ReadonlyArray<string>;
-  enumerableKeys: ReadonlyArray<string>;
-  methods: ReadonlyArray<Civ7RuntimeApiMethod>;
-  error?: string;
-}>;
-
-export type Civ7RuntimeApiMethod = Readonly<{
-  name: string;
-  owner: "own" | "prototype";
-  length: number;
-  signature: string;
-  error?: string;
-}>;
-
-export type Civ7RuntimeApiInspection = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  roots: ReadonlyArray<Civ7RuntimeApiRoot>;
-}>;
-
-export type Civ7RuntimeProbe<T> = Readonly<
-  | {
-      ok: true;
-      value: T;
-    }
-  | {
-      ok: false;
-      error: string;
-    }
->;
-
-export type Civ7AppUiSnapshot = Readonly<{
-  network: Readonly<{
-    isInSession: Civ7RuntimeProbe<boolean>;
-    numPlayers: Civ7RuntimeProbe<number>;
-    hostPlayerId: Civ7RuntimeProbe<number>;
-    isConnectedToNetwork: Civ7RuntimeProbe<boolean>;
-    isAuthenticated: Civ7RuntimeProbe<boolean>;
-    isLoggedIn: Civ7RuntimeProbe<boolean>;
-  }>;
-  autoplay: Readonly<{
-    isActive: boolean;
-    turns: number;
-    isPaused: boolean;
-    isPausedOrPending: boolean;
-    observeAsPlayer: number;
-    returnAsPlayer: number;
-  }>;
-  game: Readonly<{
-    turn: number;
-    age: number;
-    maxTurns: number;
-    turnDate: Civ7RuntimeProbe<string>;
-    hash: Civ7RuntimeProbe<number>;
-  }>;
-  ui: Readonly<{
-    inGame: Civ7RuntimeProbe<boolean>;
-    inShell: Civ7RuntimeProbe<boolean>;
-    inLoading: Civ7RuntimeProbe<boolean>;
-    loadingState: Civ7RuntimeProbe<number>;
-    loadingStateName: string | null;
-    canBeginGame: Civ7RuntimeProbe<boolean>;
-    canNotifyUIReady: string;
-    skipStartButton: Civ7RuntimeProbe<boolean>;
-    automationActive: Civ7RuntimeProbe<boolean>;
-  }>;
-  gameContext: Readonly<{
-    localPlayerID: number;
-    localObserverID: number;
-    hasRequestedPause: Civ7RuntimeProbe<boolean>;
-  }>;
-  players: Readonly<{
-    maxPlayers: number;
-    aliveIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
-    aliveHumanIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
-    numAliveHumans: Civ7RuntimeProbe<number>;
-  }>;
-  map: Readonly<{
-    width: Civ7RuntimeProbe<number>;
-    height: Civ7RuntimeProbe<number>;
-    plotCount: Civ7RuntimeProbe<number>;
-    mapSize: Civ7RuntimeProbe<number>;
-    randomSeed: Civ7RuntimeProbe<number>;
-  }>;
-}>;
-
-export type Civ7AppUiSnapshotResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  snapshot: Civ7AppUiSnapshot;
-}>;
-
-export type Civ7TunerHealthSnapshot = Readonly<{
-  evalOk: number;
-  ready: boolean;
-  globals: Readonly<{
-    Game: string;
-    Autoplay: string;
-    GameplayMap: string;
-    Players: string;
-    Network: string;
-  }>;
-  turn: Civ7RuntimeProbe<number>;
-  turnDate: Civ7RuntimeProbe<string>;
-  width: Civ7RuntimeProbe<number>;
-  height: Civ7RuntimeProbe<number>;
-  aliveIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
-  aliveHumanIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
-  autoplayActive: Civ7RuntimeProbe<boolean>;
-}>;
-
-export type Civ7TunerHealthResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  ready: boolean;
-  snapshot: Civ7TunerHealthSnapshot;
-}>;
-
-export type Civ7MapLocation = Readonly<{
-  x: number;
-  y: number;
-}>;
-
-export type Civ7MapBounds = Readonly<Civ7MapLocation & {
-  width: number;
-  height: number;
-}>;
-
-export type Civ7HiddenInfoPolicy = "include-hidden" | "visibility-filtered" | "not-player-scoped";
-
-export type Civ7PlayableStatusResult = Readonly<{
-  host: string;
-  port: number;
-  playable: boolean;
-  readiness:
-    | "tuner-ready"
-    | "app-ui-game"
-    | "begin-ready"
-    | "loading"
-    | "shell"
-    | "unavailable";
-  appUi: Civ7AppUiSnapshotResult;
-  tuner?: Civ7TunerHealthResult;
-  errors: ReadonlyArray<string>;
-}>;
-
-export type Civ7MapSummaryOptions = Civ7DirectControlOptions & Readonly<{
-  state?: Civ7TunerStateSelection;
-  includeAreaRegionCounts?: boolean;
-  maxIds?: number;
-}>;
-
-export type Civ7MapSummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  map: Readonly<{
-    width: Civ7RuntimeProbe<number>;
-    height: Civ7RuntimeProbe<number>;
-    plotCount: Civ7RuntimeProbe<number>;
-    mapSize: Civ7RuntimeProbe<number | string>;
-    randomSeed: Civ7RuntimeProbe<number>;
-  }>;
-  game: Readonly<{
-    turn: Civ7RuntimeProbe<number>;
-    age: Civ7RuntimeProbe<number>;
-    maxTurns: Civ7RuntimeProbe<number>;
-    turnDate: Civ7RuntimeProbe<string>;
-    hash: Civ7RuntimeProbe<number>;
-  }>;
-  areas?: Readonly<{
-    areaIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
-    regionIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
-    truncated: boolean;
-  }>;
-}>;
-
-export type Civ7PlotSnapshotField =
-  | "terrain"
-  | "biome"
-  | "feature"
-  | "resource"
-  | "climate"
-  | "hydrology"
-  | "yields"
-  | "owner"
-  | "visibility"
-  | "areaRegion"
-  | "tags"
-  | "city"
-  | "units";
-
-export type Civ7PlotSnapshotInput = Readonly<Civ7MapLocation & {
-  playerId?: number;
-  fields?: ReadonlyArray<Civ7PlotSnapshotField>;
-  includeHidden?: boolean;
-}>;
-
-export type Civ7PlotSnapshot = Readonly<{
-  location: Readonly<Civ7MapLocation & {
-    index: Civ7RuntimeProbe<number>;
-  }>;
-  revealedState?: Civ7RuntimeProbe<number | string>;
-  visible?: Civ7RuntimeProbe<boolean>;
-  hiddenInfoPolicy: Civ7HiddenInfoPolicy;
-  facts: Readonly<Record<string, Civ7RuntimeProbe<unknown>>>;
-}>;
-
-export type Civ7PlotSnapshotResult = Civ7PlotSnapshot & Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-}>;
-
-export type Civ7MapGridInput = Readonly<{
-  bounds?: Civ7MapBounds;
-  locations?: ReadonlyArray<Civ7MapLocation>;
-  fields: ReadonlyArray<Civ7PlotSnapshotField>;
-  playerId?: number;
-  includeHidden?: boolean;
-  maxPlots?: number;
-}>;
-
-export type Civ7MapGridResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  bounds?: Civ7MapBounds;
-  fields: ReadonlyArray<Civ7PlotSnapshotField>;
-  plotCount: number;
-  omitted: number;
-  hiddenInfoPolicy: Civ7HiddenInfoPolicy;
-  plots: ReadonlyArray<Civ7PlotSnapshot>;
-}>;
-
-export type Civ7MapGridReadChunk = Readonly<{
-  bounds: Civ7MapBounds;
-  plotCount: number;
-  omitted: number;
-}>;
 
 export type Civ7ResourcePlacementFeasibilityCellInput = Readonly<Civ7MapLocation & {
   resourceTypes: ReadonlyArray<number>;
@@ -652,401 +703,6 @@ export type Civ7ResourceBuilderDiagnosticsResult = Readonly<{
   cells: ReadonlyArray<Civ7ResourceBuilderDiagnosticsCell>;
 }>;
 
-export type Civ7FullMapGridIdentityCheck = Readonly<{
-  stable: boolean;
-  checked: ReadonlyArray<string>;
-}>;
-
-export type Civ7FullMapGridInput = Readonly<{
-  bounds?: Civ7MapBounds;
-  fields: ReadonlyArray<Civ7PlotSnapshotField>;
-  playerId?: number;
-  includeHidden?: boolean;
-  maxPlotsPerRead?: number;
-}>;
-
-export type Civ7FullMapGridResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  bounds: Civ7MapBounds;
-  fields: ReadonlyArray<Civ7PlotSnapshotField>;
-  plotCount: number;
-  omitted: number;
-  hiddenInfoPolicy: Civ7HiddenInfoPolicy;
-  map: Readonly<{ width: number; height: number }>;
-  summary: Civ7MapSummaryResult;
-  postReadSummary: Civ7MapSummaryResult;
-  identityCheck: Civ7FullMapGridIdentityCheck;
-  chunks: ReadonlyArray<Civ7MapGridReadChunk>;
-  plots: ReadonlyArray<Civ7PlotSnapshot>;
-}>;
-
-export type Civ7PlayerSummaryInput = Readonly<{
-  playerIds?: ReadonlyArray<number>;
-  includeUnits?: boolean;
-  includeCities?: boolean;
-  maxItems?: number;
-}>;
-
-export type Civ7PlayerSummary = Readonly<{
-  id: number;
-  leaderName: Civ7RuntimeProbe<string>;
-  civilizationName: Civ7RuntimeProbe<string>;
-  isHuman: Civ7RuntimeProbe<boolean>;
-  isAlive: Civ7RuntimeProbe<boolean>;
-  isTurnActive: Civ7RuntimeProbe<boolean>;
-  unitIds: Civ7RuntimeProbe<ReadonlyArray<Civ7ComponentId>>;
-  cityIds: Civ7RuntimeProbe<ReadonlyArray<Civ7ComponentId>>;
-}>;
-
-export type Civ7PlayerSummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  players: ReadonlyArray<Civ7PlayerSummary>;
-  omitted: number;
-}>;
-
-export type Civ7TraditionActionKind = "activate" | "deactivate";
-
-export type Civ7TraditionAction = Readonly<{
-  kind: Civ7TraditionActionKind;
-  action: number | null;
-  operationType: "CHANGE_TRADITION";
-  args: Readonly<{
-    TraditionType: number;
-    Action: number | null;
-  }>;
-  validation: Civ7RuntimeProbe<unknown>;
-  cli: string;
-}>;
-
-export type Civ7TraditionSummary = Readonly<{
-  id: number;
-  type: string | null;
-  name: string | null;
-  description: string | null;
-  ageType: string | null;
-  cultureSlotType: string | null;
-  traitType: string | null;
-  isCrisis: boolean;
-  active: boolean;
-  unlocked: boolean;
-  recentUnlock: boolean;
-  actionHints: ReadonlyArray<Civ7TraditionAction>;
-}>;
-
-export type Civ7TraditionsViewInput = Readonly<{
-  playerId?: number;
-}>;
-
-export type Civ7TraditionsViewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  playerId: number;
-  turn: Civ7RuntimeProbe<number>;
-  turnDate: Civ7RuntimeProbe<string>;
-  governmentType: Civ7RuntimeProbe<number>;
-  government: Readonly<{
-    type: string | null;
-    name: string | null;
-  }>;
-  slots: Readonly<{
-    total: Civ7RuntimeProbe<number>;
-    normal: Civ7RuntimeProbe<number>;
-    crisis: Civ7RuntimeProbe<number>;
-    active: number;
-    unlocked: number;
-    available: number;
-    open: number;
-  }>;
-  actions: Readonly<{
-    activate: number | null;
-    deactivate: number | null;
-  }>;
-  active: ReadonlyArray<Civ7TraditionSummary>;
-  available: ReadonlyArray<Civ7TraditionSummary>;
-  recentUnlocks: ReadonlyArray<Civ7TraditionSummary>;
-  traditions: ReadonlyArray<Civ7TraditionSummary>;
-  recommendedCli: ReadonlyArray<string>;
-  hiddenInfoPolicy: "player-culture-runtime";
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ProgressDashboardInput = Readonly<{
-  playerId?: number;
-}>;
-
-export type Civ7ProgressDashboardLegacyPath = Readonly<{
-  legacyPathType: string | null;
-  legacyPathClassType: string | null;
-  ageType: string | null;
-  name: string | null;
-  description: string | null;
-  enabledByDefault: boolean;
-  enabledForPlayer: boolean | null;
-  score: Civ7RuntimeProbe<number>;
-  finalRequiredPathPoints: number | null;
-  nextMilestone: unknown;
-  milestones: ReadonlyArray<unknown>;
-}>;
-
-export type Civ7ProgressDashboardResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  turn: Civ7RuntimeProbe<number>;
-  turnDate: Civ7RuntimeProbe<string>;
-  age: Readonly<{
-    hash: unknown;
-    ageType: string | null;
-    name: string | null;
-    chronologyIndex: unknown;
-    isFinalAge: Civ7RuntimeProbe<boolean>;
-    isSingleAge: Civ7RuntimeProbe<boolean>;
-    isExtendedGame: Civ7RuntimeProbe<boolean>;
-    isAgeOver: Civ7RuntimeProbe<boolean>;
-    currentAgeProgressionPoints: Civ7RuntimeProbe<number>;
-    maxAgeProgressionPoints: Civ7RuntimeProbe<number>;
-    primaryAgeProgression: Civ7RuntimeProbe<unknown>;
-  }>;
-  player: Readonly<{
-    team: unknown;
-    historicalLegacyPointCountForTeam: Civ7RuntimeProbe<number>;
-  }>;
-  legacyPaths: ReadonlyArray<Civ7ProgressDashboardLegacyPath>;
-  victories: Readonly<{
-    rows: ReadonlyArray<unknown>;
-  }>;
-  triumphs: Readonly<{
-    count: number;
-    rows: ReadonlyArray<unknown>;
-    source: "runtime-gameinfo";
-  }>;
-  proof: Readonly<{
-    victoryManagerGlobal: Civ7RuntimeProbe<string>;
-    sources: ReadonlyArray<string>;
-  }>;
-  hiddenInfoPolicy: "local-player-runtime-progress";
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7UnitSummaryInput = Readonly<{
-  playerIds?: ReadonlyArray<number>;
-  unitIds?: ReadonlyArray<Civ7ComponentId>;
-  playerId?: number;
-  maxItems?: number;
-  includeHidden?: boolean;
-}>;
-
-export type Civ7UnitSummary = Readonly<{
-  id: Civ7ComponentId;
-  owner: Civ7RuntimeProbe<number>;
-  name: Civ7RuntimeProbe<string>;
-  type: Civ7RuntimeProbe<number | string>;
-  location: Civ7RuntimeProbe<Civ7MapLocation>;
-  health: Civ7RuntimeProbe<number>;
-  damage: Civ7RuntimeProbe<number>;
-  movement: Civ7RuntimeProbe<number>;
-  activity: Civ7RuntimeProbe<number | string>;
-}>;
-
-export type Civ7UnitSummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  units: ReadonlyArray<Civ7UnitSummary>;
-  omitted: number;
-}>;
-
-export type Civ7CitySummaryInput = Readonly<{
-  playerIds?: ReadonlyArray<number>;
-  cityIds?: ReadonlyArray<Civ7ComponentId>;
-  playerId?: number;
-  maxItems?: number;
-  includeHidden?: boolean;
-}>;
-
-export type Civ7CitySummary = Readonly<{
-  id: Civ7ComponentId;
-  owner: Civ7RuntimeProbe<number>;
-  name: Civ7RuntimeProbe<string>;
-  location: Civ7RuntimeProbe<Civ7MapLocation>;
-  population: Civ7RuntimeProbe<number>;
-  growth: Civ7RuntimeProbe<unknown>;
-  production: Civ7RuntimeProbe<unknown>;
-}>;
-
-export type Civ7CitySummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  cities: ReadonlyArray<Civ7CitySummary>;
-  omitted: number;
-}>;
-
-export type Civ7VisibilitySummaryInput = Readonly<{
-  playerId: number;
-  bounds?: Civ7MapBounds;
-  includeGrid?: boolean;
-  maxPlots?: number;
-}>;
-
-export type Civ7VisibilitySummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  playerId: number;
-  numPlotsRevealed: Civ7RuntimeProbe<number>;
-  numPlotsVisible: Civ7RuntimeProbe<number>;
-  counts: Record<string, number>;
-  grid?: Readonly<{
-    bounds: Civ7MapBounds;
-    plotCount: number;
-    omitted: number;
-    states: ReadonlyArray<Readonly<Civ7MapLocation & {
-      state: Civ7RuntimeProbe<number | string>;
-      visible: Civ7RuntimeProbe<boolean>;
-    }>>;
-  }>;
-}>;
-
-export type Civ7GameInfoRowsInput = Readonly<{
-  table: string;
-  lookup?: string | number | ReadonlyArray<string | number>;
-  filter?: Readonly<{
-    key: string;
-    equals: string | number | boolean;
-  }>;
-  limit?: number;
-  offset?: number;
-  includeSchema?: boolean;
-  includePrimaryKeys?: boolean;
-}>;
-
-export type Civ7GameInfoRowsResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  table: string;
-  source: "GameInfo";
-  rows: ReadonlyArray<Record<string, unknown>>;
-  limit: number;
-  offset: number;
-  total: Civ7RuntimeProbe<number>;
-  omittedUnknown: boolean;
-  schema?: Civ7RuntimeProbe<unknown>;
-  primaryKeys?: Civ7RuntimeProbe<unknown>;
-}>;
-
-export type Civ7SetupPhase = "shell" | "running-game" | "loading" | "begin-ready" | "unavailable";
-
-export type Civ7SetupParameterValue = string | number | boolean | null;
-
-export type Civ7SetupMapRow = Readonly<{
-  source: "setup-domain" | "config-db";
-  domain?: string;
-  file: string;
-  value?: string;
-  name?: string;
-  description?: string;
-  sortIndex?: number;
-}>;
-
-export type Civ7SetupParameterSnapshot = Readonly<{
-  id: string;
-  exists: boolean;
-  hidden?: boolean;
-  readOnly?: boolean;
-  invalidReason?: number | string | null;
-  value?: Civ7SetupParameterValue;
-  rawValue?: unknown;
-  possibleValues?: ReadonlyArray<unknown>;
-}>;
-
-export type Civ7PlayerSetupParameterSnapshot = Readonly<{
-  playerId: number;
-  parameters: ReadonlyArray<Civ7SetupParameterSnapshot>;
-}>;
-
-export type Civ7SetupSnapshot = Readonly<{
-  phase: Civ7SetupPhase;
-  ui: Pick<Civ7AppUiSnapshot["ui"], "inGame" | "inShell" | "inLoading" | "loadingState" | "loadingStateName" | "canBeginGame">;
-  setup: Readonly<{
-    revision: Civ7RuntimeProbe<number>;
-    parameters: ReadonlyArray<Civ7SetupParameterSnapshot>;
-    playerParameters: ReadonlyArray<Civ7PlayerSetupParameterSnapshot>;
-    localPlayerId: Civ7RuntimeProbe<number>;
-  }>;
-  selectedMapRow?: Civ7SetupMapRow;
-  mapRows: ReadonlyArray<Civ7SetupMapRow>;
-  config: Readonly<{
-    mapScript: Civ7RuntimeProbe<string>;
-    mapSize: Civ7RuntimeProbe<string>;
-    mapSeed: Civ7RuntimeProbe<number>;
-    gameSeed: Civ7RuntimeProbe<number>;
-    playerCount: Civ7RuntimeProbe<number>;
-  }>;
-}>;
-
-export type Civ7SetupSnapshotResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  snapshot: Civ7SetupSnapshot;
-}>;
-
-export type Civ7SetupMapRowsInput = Readonly<{
-  file?: string;
-  limit?: number;
-}>;
-
-export type Civ7SetupMapRowsResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  rows: ReadonlyArray<Civ7SetupMapRow>;
-  limit: number;
-  matchedFile?: string;
-}>;
-
-export type Civ7SetupMapRowVisibilityInput = Readonly<{
-  file: string;
-  limit?: number;
-  reloadIfMissing?: "none" | "exit-to-shell";
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-}>;
-
-export type Civ7SetupMapRowVisibilityResult = Readonly<{
-  initial: Civ7SetupMapRowsResult;
-  final: Civ7SetupMapRowsResult;
-  shellBefore?: Civ7SetupSnapshotResult;
-  shellAfter?: Civ7SetupSnapshotResult;
-  shellExit?: Civ7CommandResult;
-  reload?: Civ7CommandResult;
-  refreshed: boolean;
-  verified: boolean;
-}>;
-
-export type Civ7SetupOptionValue = string | number | boolean;
-
-export type Civ7PlayerSetupOptions = Readonly<{
-  playerId: number;
-  options: Readonly<Record<string, Civ7SetupOptionValue>>;
-}>;
-
-export type Civ7SavedGameConfigurationRef = Readonly<{
-  id: string;
-  displayName: string;
-  fileName: string;
-  path: string;
-}>;
-
 export type Civ7SavedGameConfigurationSummary = Readonly<{
   gameSpeed?: string;
   mapSize?: string;
@@ -1075,296 +731,6 @@ export type Civ7SavedGameConfigurationListInput = Readonly<{
 export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
-export type Civ7SavedGameConfigurationLoadResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  savedConfig: Civ7SavedGameConfigurationRef;
-  before: Civ7SetupSnapshotResult;
-  after: Civ7SetupSnapshotResult;
-  command: Civ7CommandResult;
-  loaded: boolean;
-}>;
-
-export type Civ7SinglePlayerSetupInput = Readonly<{
-  mapScript: string;
-  mapSize: string;
-  seed: number;
-  gameSeed?: number;
-  playerCount?: number;
-  savedConfig?: Civ7SavedGameConfigurationRef;
-  options?: Readonly<Record<string, Civ7SetupOptionValue>>;
-  playerOptions?: ReadonlyArray<Civ7PlayerSetupOptions>;
-  requireShell?: boolean;
-}>;
-
-export type Civ7PreparedSetupResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  before: Civ7SetupSnapshotResult;
-  after: Civ7SetupSnapshotResult;
-  command: Civ7CommandResult;
-  savedConfigLoad?: Civ7SavedGameConfigurationLoadResult;
-  applied: Readonly<Record<string, Civ7SetupOptionValue>>;
-  verified: boolean;
-}>;
-
-export type Civ7PreparedStartInput = Readonly<{
-  expected: Civ7SinglePlayerSetupInput;
-  waitForTuner?: boolean;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-}>;
-
-export type Civ7SinglePlayerStartResult = Readonly<{
-  command: Civ7CommandResult;
-  begin?: Civ7CommandResult;
-  beginAttempted: boolean;
-  beginError?: string;
-  before: Civ7SetupSnapshotResult;
-  finalAppUi: Civ7AppUiSnapshotResult;
-  tunerHealth?: Civ7TunerHealthResult;
-  mapSummary?: Civ7MapSummaryResult;
-  observations: ReadonlyArray<Civ7AppUiSnapshot>;
-  verified: boolean;
-}>;
-
-export type Civ7SinglePlayerRunInput = Civ7SinglePlayerSetupInput & Readonly<{
-  fromRunningGame?: "reject" | "exit-to-shell";
-  waitForTuner?: boolean;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-}>;
-
-export type Civ7SinglePlayerRunResult = Readonly<{
-  shellExit?: Civ7CommandResult;
-  prepare: Civ7PreparedSetupResult;
-  start: Civ7SinglePlayerStartResult;
-  verified: boolean;
-}>;
-
-export type Civ7RootInspectionInput = Readonly<{
-  state?: Civ7TunerStateSelection;
-  roots: ReadonlyArray<string>;
-  maxRoots?: number;
-  maxKeys?: number;
-  maxMethods?: number;
-  includeEnumerableKeys?: boolean;
-  includePrototypeKeys?: boolean;
-  includeSignatures?: boolean;
-}>;
-
-export type Civ7RootInspectionResult = Civ7RuntimeApiInspection & Readonly<{
-  limits: Readonly<{
-    maxRoots: number;
-    maxKeys: number;
-    maxMethods: number;
-    truncated: boolean;
-  }>;
-}>;
-
-export type Civ7AutoplayStatusResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  autoplay: Civ7AppUiSnapshot["autoplay"];
-  game: Civ7AppUiSnapshot["game"];
-  gameContext: Civ7AppUiSnapshot["gameContext"];
-}>;
-
-export type Civ7AutoplayPollOptions = Civ7DirectControlOptions & Readonly<{
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-  stabilityWindowMs?: number;
-}>;
-
-export type Civ7AutoplayOptions = Civ7AutoplayPollOptions & Readonly<{
-  turns?: number;
-  observeAsPlayer?: number;
-  returnAsPlayer?: number;
-  pause?: boolean;
-  maxTurns?: number;
-}>;
-
-export type Civ7AutoplayActionResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  before: Civ7AutoplayStatusResult;
-  after: Civ7AutoplayStatusResult;
-  commands: ReadonlyArray<Civ7CommandResult>;
-  verified: boolean;
-}>;
-
-export type Civ7RevealMapResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  playerId: number;
-  before: Civ7VisibilitySummaryResult;
-  after: Civ7VisibilitySummaryResult;
-  command: Civ7CommandResult;
-  classification: "revealed" | "already-revealed" | "unverified";
-}>;
-
-export type Civ7TurnCompletionStatusResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  turn: Civ7RuntimeProbe<number>;
-  turnDate: Civ7RuntimeProbe<string>;
-  hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
-  canEndTurn: Civ7RuntimeProbe<boolean>;
-  blocker: Civ7RuntimeProbe<unknown>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-}>;
-
-export type Civ7TurnCompletionActionResult = Readonly<{
-  before: Civ7TurnCompletionStatusResult;
-  after: Civ7TurnCompletionStatusResult;
-  command: Civ7CommandResult;
-  verified: boolean;
-}>;
-
-export type Civ7PlayDecisionHint = Readonly<{
-  category: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
-  operationType?: string;
-  argsShape?: string;
-  cli?: string;
-  requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
-  commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
-  confidence: "live-proof" | "official-ui" | "heuristic";
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7PlayDecisionInput = Readonly<{
-  name: string;
-  source: string;
-  required: boolean;
-  note?: string;
-}>;
-
-export type Civ7PlayDecisionAction = Readonly<{
-  label: string;
-  cli?: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
-  operationType?: string;
-  argsShape?: string;
-  when: string;
-}>;
-
-export type Civ7PlayNotificationSummary = Readonly<{
-  id: Civ7ComponentId | null;
-  type: unknown;
-  typeName: string | null;
-  groupType: unknown;
-  player: unknown;
-  summary: string | null;
-  message: string | null;
-  target: unknown;
-  location: unknown;
-  canUserDismiss: unknown;
-  expired: unknown;
-  dismissed: unknown;
-  isEndTurnBlocking: boolean;
-  decision: Civ7PlayDecisionHint;
-  details?: unknown;
-}>;
-
-export type Civ7PlayDecisionQueueItem = Readonly<{
-  notificationId: Civ7ComponentId | null;
-  isEndTurnBlocking: boolean;
-  typeName: string | null;
-  summary: string | null;
-  message: string | null;
-  target: unknown;
-  location: unknown;
-  player: unknown;
-  category: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
-  operationType?: string;
-  argsShape?: string;
-  cli?: string;
-  requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
-  commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
-  notes: ReadonlyArray<string>;
-  details?: unknown;
-}>;
-
-export type Civ7PlayNotificationViewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  turn: Civ7RuntimeProbe<number>;
-  turnDate: Civ7RuntimeProbe<string>;
-  hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
-  canEndTurn: Civ7RuntimeProbe<boolean>;
-  blocker: Civ7RuntimeProbe<unknown>;
-  blockingNotificationId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  notifications: ReadonlyArray<Civ7PlayNotificationSummary>;
-  decisions: ReadonlyArray<Civ7PlayDecisionHint>;
-  hud: Readonly<{
-    nextDecision: Civ7PlayDecisionQueueItem | null;
-    decisionQueue: ReadonlyArray<Civ7PlayDecisionQueueItem>;
-  }>;
-  limits: Readonly<{
-    maxNotifications: number;
-    truncated: boolean;
-  }>;
-}>;
-
-export type Civ7NotificationDismissInput = Readonly<{
-  notificationId: Civ7ComponentId;
-}>;
-
-export type Civ7NotificationDismissalSummary = Readonly<{
-  id: Civ7ComponentId | null;
-  exists: boolean;
-  type: unknown;
-  typeName: string | null;
-  summary: string | null;
-  message: string | null;
-  target: unknown;
-  location: unknown;
-  canUserDismiss: unknown;
-  expired: unknown;
-  dismissed: unknown;
-  blocksTurnAdvancement: Civ7RuntimeProbe<unknown>;
-  endTurnBlockingType: Civ7RuntimeProbe<unknown>;
-  isEndTurnBlocking: Civ7RuntimeProbe<boolean>;
-  engineQueueCount: Civ7RuntimeProbe<number>;
-  engineQueueContains: Civ7RuntimeProbe<boolean>;
-  engineQueueFirstId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  isEngineQueueFront: Civ7RuntimeProbe<boolean>;
-  notificationTrainCount: Civ7RuntimeProbe<number>;
-  notificationTrainContains: Civ7RuntimeProbe<boolean>;
-  notificationTrainFirstId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  isNotificationTrainFront: Civ7RuntimeProbe<boolean>;
-}>;
-
-export type Civ7NotificationDismissalResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  notificationId: Civ7ComponentId;
-  before: Civ7NotificationDismissalSummary;
-  after: Civ7NotificationDismissalSummary | null;
-  canDismiss: boolean;
-  sent: boolean;
-  result: unknown;
-  closeoutPath?: string | null;
-  verificationAttempts?: ReadonlyArray<Civ7NotificationDismissalSummary>;
-  verified: boolean;
-  notes: ReadonlyArray<string>;
 }>;
 
 export type Civ7DiplomacyResponseInput = Readonly<{
@@ -1473,38 +839,6 @@ export type Civ7NarrativeChoiceResult = Readonly<{
   sent: boolean;
   verified: boolean;
   postcondition: Civ7NarrativeChoicePostcondition;
-}>;
-
-export type Civ7TechnologyChoiceCloseoutInput = Readonly<{
-  playerId: number;
-  node: number;
-  notificationId?: Civ7ComponentId;
-  activateNotification?: boolean;
-}>;
-
-export type Civ7TechnologyChoiceCloseoutResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  command: Civ7CommandResult;
-  payload: unknown;
-  sent: boolean;
-}>;
-
-export type Civ7CultureChoiceCloseoutInput = Readonly<{
-  playerId: number;
-  node: number;
-  notificationId?: Civ7ComponentId;
-  activateNotification?: boolean;
-}>;
-
-export type Civ7CultureChoiceCloseoutResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  command: Civ7CommandResult;
-  payload: unknown;
-  sent: boolean;
 }>;
 
 export type Civ7OperationFamily =
@@ -1660,363 +994,6 @@ export type Civ7ProductionChoiceCommandPayload = Readonly<{
 
 export type Civ7ProductionChoiceResult = Civ7OperationRequestResult & Readonly<{
   payload?: Civ7ProductionChoiceCommandPayload;
-}>;
-
-export type Civ7UnitTargetActionInput = Readonly<{
-  unitId: Civ7ComponentId;
-  x: number;
-  y: number;
-}>;
-
-export type Civ7UnitTargetActionCandidate = Readonly<{
-  family: "unit-operation" | "unit-command";
-  operationType: string;
-  args: unknown;
-  valid: boolean;
-  result: unknown;
-  targetInReturnedPlots: boolean | null;
-  rejectedReason?: string;
-}>;
-
-export type Civ7UnitTargetActionResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  unitId: Civ7ComponentId;
-  target: Readonly<{ x: number; y: number; index: Civ7RuntimeProbe<number> }>;
-  beforeUnit: Civ7RuntimeProbe<unknown>;
-  beforeTargetUnits: Civ7RuntimeProbe<unknown>;
-  candidates: ReadonlyArray<Civ7UnitTargetActionCandidate>;
-  selected: Civ7UnitTargetActionCandidate | null;
-  sent: boolean;
-  sendResult?: unknown;
-  afterUnit?: Civ7RuntimeProbe<unknown>;
-  afterTargetUnits?: Civ7RuntimeProbe<unknown>;
-  verified?: boolean;
-  verification?: Readonly<{
-    status: "verified" | "no-state-change" | "not-sent";
-    classification: "target-reached" | "path-shortfall" | "unit-state-changed" | "target-state-changed" | "no-state-change" | "not-sent";
-    unitChanged: boolean;
-    targetUnitsChanged: boolean;
-    destinationReached: boolean | null;
-    requestedLocation: Civ7MapLocation;
-    landedLocation?: Civ7MapLocation | null;
-    source?: "immediate" | "bounded-poll";
-    attempts?: number;
-    observedAfterMs?: number;
-    reason: string;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ReadyUnitViewInput = Readonly<{
-  unitId?: Civ7ComponentId;
-  radius?: number;
-  maxOperations?: number;
-}>;
-
-export type Civ7ReadyUnitOperationCandidate = Readonly<{
-  family: "unit-operation" | "unit-command";
-  operationType: string;
-  enumValue: unknown;
-  valid: boolean;
-  result: unknown;
-}>;
-
-export type Civ7ReadyUnitNearbyPlot = Readonly<{
-  x: number;
-  y: number;
-  units: unknown;
-}>;
-
-export type Civ7ReadyUnitPromotionReadiness = Readonly<{
-  hasExperience: boolean;
-  canPromote: unknown;
-  promotionClass: string | null;
-  level: unknown;
-  experiencePoints: unknown;
-  experienceToNextLevel: unknown;
-  totalPromotionsEarned: unknown;
-  storedPromotionPoints: unknown;
-  storedCommendations: unknown;
-  canPurchase: boolean;
-  availablePromotions: ReadonlyArray<Readonly<{
-    disciplineType: string;
-    promotionType: string;
-    name: string | null;
-    description: string | null;
-    commendation: boolean;
-    args: unknown;
-    validation: unknown;
-  }>>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ReadyUnitViewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  requestedUnitId: Civ7ComponentId | null;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  unitId: Civ7ComponentId | null;
-  unit: Civ7RuntimeProbe<unknown>;
-  legalOperations: ReadonlyArray<Civ7ReadyUnitOperationCandidate>;
-  promotionReadiness: Civ7RuntimeProbe<Civ7ReadyUnitPromotionReadiness | null>;
-  nearby: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyUnitNearbyPlot>>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7UnitMovePreviewInput = Readonly<{
-  unitId?: Civ7ComponentId;
-  destination?: Civ7MapLocation;
-  maxPlots?: number;
-  maxPathPlots?: number;
-}>;
-
-export type Civ7UnitMovePreviewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  requestedUnitId: Civ7ComponentId | null;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  unitId: Civ7ComponentId | null;
-  unit: Civ7RuntimeProbe<unknown>;
-  reachableMovement: Civ7RuntimeProbe<unknown>;
-  reachableZonesOfControl: Civ7RuntimeProbe<unknown>;
-  reachableTargets: Civ7RuntimeProbe<unknown>;
-  queuedDestination: Civ7RuntimeProbe<Civ7MapLocation | null>;
-  queuedPath: Civ7RuntimeProbe<unknown>;
-  requestedDestination: Civ7MapLocation | null;
-  requestedPath: Civ7RuntimeProbe<unknown>;
-  relationshipPolicy: Readonly<{
-    relationshipSource: "not-classified";
-    relationshipProof: "none";
-    unprovenLabel: "relationship-unproven";
-    guidance: string;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ReadyCityViewInput = Readonly<{
-  cityId?: Civ7ComponentId;
-  maxOperations?: number;
-}>;
-
-export type Civ7ReadyCityOperationCandidate = Readonly<{
-  family: "city-operation" | "city-command";
-  operationType: string;
-  enumValue: unknown;
-  valid: boolean;
-  result: unknown;
-}>;
-
-export type Civ7ReadyCityProductionCandidate = Readonly<{
-  kind: "unit" | "constructible" | "project";
-  type: unknown;
-  typeName: string | null;
-  name: string | null;
-  args: unknown;
-  cost?: unknown;
-  turns?: unknown;
-  productionBasis?: unknown;
-  baseYieldSummary?: unknown;
-  valid: boolean;
-  result: unknown;
-  placementPlots?: ReadonlyArray<unknown>;
-  cli: string;
-}>;
-
-export type Civ7ReadyCityTownFocusOption = Readonly<{
-  name: string | null;
-  description: string | null;
-  args: unknown;
-  valid: boolean;
-  result: unknown;
-  cli: string;
-}>;
-
-export type Civ7ReadyCityPopulationPlacement = Readonly<{
-  isReadyToPlacePopulation: Civ7RuntimeProbe<unknown>;
-  cityWorkerCap: Civ7RuntimeProbe<unknown>;
-  yieldTypeOrder: ReadonlyArray<string>;
-  allPlacementInfo: Civ7RuntimeProbe<unknown>;
-  workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  workablePlots: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  expansionCandidates: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  expansionResult: Civ7RuntimeProbe<unknown>;
-  cliHints: ReadonlyArray<string>;
-}>;
-
-export type Civ7ReadyCityViewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  requestedCityId: Civ7ComponentId | null;
-  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  blockingCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  cityId: Civ7ComponentId | null;
-  city: Civ7RuntimeProbe<unknown>;
-  legalOperations: ReadonlyArray<Civ7ReadyCityOperationCandidate>;
-  productionCandidates: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityProductionCandidate>>;
-  townFocusOptions: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityTownFocusOption>>;
-  populationPlacement: Civ7RuntimeProbe<Civ7ReadyCityPopulationPlacement>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7SettlementRecommendationInput = Readonly<{
-  playerId?: number;
-  locations?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  count?: number;
-  includeSettlers?: boolean;
-  includeCities?: boolean;
-}>;
-
-export type Civ7SettlementRecommendationFactor = Readonly<{
-  positive: boolean;
-  title: string | null;
-  description: string | null;
-}>;
-
-export type Civ7SettlementRecommendationOrigin = Readonly<{
-  kind: "requested" | "settler" | "city";
-  location: Readonly<{ x: number; y: number }>;
-  plotIndex: Civ7RuntimeProbe<number>;
-  unitId?: Civ7ComponentId;
-  cityId?: Civ7ComponentId;
-  name?: string | null;
-}>;
-
-export type Civ7SettlementRecommendation = Readonly<{
-  origin: Civ7SettlementRecommendationOrigin;
-  suggestions: Civ7RuntimeProbe<ReadonlyArray<Readonly<{
-    location: Readonly<{ x: number; y: number }> | null;
-    plotIndex: Civ7RuntimeProbe<number>;
-    factors: ReadonlyArray<Civ7SettlementRecommendationFactor>;
-  }>>>;
-}>;
-
-export type Civ7SettlementRecommendationResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  count: number;
-  requestedLocations: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  origins: ReadonlyArray<Civ7SettlementRecommendationOrigin>;
-  recommendations: ReadonlyArray<Civ7SettlementRecommendation>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7TargetCandidatesInput = Readonly<{
-  playerId?: number;
-  origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  maxCandidates?: number;
-  maxPlayers?: number;
-  unitRadius?: number;
-}>;
-
-export type Civ7TargetCandidate = Readonly<{
-  owner: number;
-  leaderName: Civ7RuntimeProbe<unknown>;
-  civilizationName: Civ7RuntimeProbe<unknown>;
-  isHuman: Civ7RuntimeProbe<unknown>;
-  cityCount: number;
-  unitCount: number;
-  cities: unknown;
-  nearestCity: unknown;
-  nearestDistance: number | null;
-  nearbyUnits: unknown;
-  nearbyUnitCount: number;
-  apparentStrength: number;
-  approach: Readonly<{
-    nearestOrigin: Readonly<{ x: number; y: number }> | null;
-    targetLocation: Readonly<{ x: number; y: number }> | null;
-    directGridDistance: number | null;
-    routeHint: string;
-    routeKind: string;
-    originWater: Civ7RuntimeProbe<unknown> | null;
-    targetWater: Civ7RuntimeProbe<unknown> | null;
-    waterSampleCount: number;
-    landSampleCount: number;
-    notes: ReadonlyArray<string>;
-  }>;
-  reasons: ReadonlyArray<string>;
-}>;
-
-export type Civ7TargetCandidatesResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  unitRadius: number;
-  hiddenInfoPolicy: string;
-  relationshipLabelPolicy: unknown;
-  candidates: ReadonlyArray<Civ7TargetCandidate>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7BattlefieldScanInput = Readonly<{
-  playerId?: number;
-  origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  radius?: number;
-  maxPlayers?: number;
-  maxUnits?: number;
-  maxCities?: number;
-}>;
-
-export type Civ7BattlefieldScanResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  radius: number;
-  hiddenInfoPolicy: string;
-  relationshipLabelPolicy: unknown;
-  units: unknown;
-  cities: unknown;
-  owners: unknown;
-  pointsOfInterest: unknown;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7DestinationAnalysisInput = Readonly<{
-  playerId?: number;
-  origin?: Readonly<{ x: number; y: number }>;
-  destination: Readonly<{ x: number; y: number }>;
-  corridorRadius?: number;
-  destinationRadius?: number;
-  maxPlayers?: number;
-  maxUnits?: number;
-  maxCities?: number;
-}>;
-
-export type Civ7DestinationAnalysisResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  origin: Readonly<{ x: number; y: number }> | null;
-  destination: Readonly<{ x: number; y: number }>;
-  corridorRadius: number;
-  destinationRadius: number;
-  hiddenInfoPolicy: string;
-  relationshipLabelPolicy: unknown;
-  corridor: unknown;
-  destinationPressure: unknown;
-  pointsOfInterest: unknown;
-  notes: ReadonlyArray<string>;
 }>;
 
 export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions & Readonly<{

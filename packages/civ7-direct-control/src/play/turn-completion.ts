@@ -1,15 +1,39 @@
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
+import type { Civ7ComponentId } from "../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7TunerState,
+} from "../session/types.js";
 
 import type {
   Civ7ActionApproval,
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
+} from "../index.js";
+import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
-  Civ7RuntimeProbe,
-  Civ7TurnCompletionActionResult,
-  Civ7TurnCompletionStatusResult,
-} from "../index";
+} from "./notifications/view.js";
+
+export type Civ7TurnCompletionStatusResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  turn: Civ7RuntimeProbe<number>;
+  turnDate: Civ7RuntimeProbe<string>;
+  hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
+  canEndTurn: Civ7RuntimeProbe<boolean>;
+  blocker: Civ7RuntimeProbe<unknown>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+}>;
+
+export type Civ7TurnCompletionActionResult = Readonly<{
+  before: Civ7TurnCompletionStatusResult;
+  after: Civ7TurnCompletionStatusResult;
+  command: Civ7CommandResult;
+  verified: boolean;
+}>;
 
 type TurnCompletionDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

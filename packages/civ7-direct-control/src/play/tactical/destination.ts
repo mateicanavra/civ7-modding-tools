@@ -1,13 +1,41 @@
-import { battlefieldScanSource } from "./battlefield";
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { battlefieldScanSource } from "./battlefield.js";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
-  Civ7DestinationAnalysisInput,
-  Civ7DestinationAnalysisResult,
   Civ7DirectControlOptions,
-  Civ7MapLocation,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7MapLocation } from "../map/types.js";
+
+export type Civ7DestinationAnalysisInput = Readonly<{
+  playerId?: number;
+  origin?: Readonly<{ x: number; y: number }>;
+  destination: Readonly<{ x: number; y: number }>;
+  corridorRadius?: number;
+  destinationRadius?: number;
+  maxPlayers?: number;
+  maxUnits?: number;
+  maxCities?: number;
+}>;
+
+export type Civ7DestinationAnalysisResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  playerId: number;
+  origin: Readonly<{ x: number; y: number }> | null;
+  destination: Readonly<{ x: number; y: number }>;
+  corridorRadius: number;
+  destinationRadius: number;
+  hiddenInfoPolicy: string;
+  relationshipLabelPolicy: unknown;
+  corridor: unknown;
+  destinationPressure: unknown;
+  pointsOfInterest: unknown;
+  notes: ReadonlyArray<string>;
+}>;
 
 type DestinationAnalysisDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;

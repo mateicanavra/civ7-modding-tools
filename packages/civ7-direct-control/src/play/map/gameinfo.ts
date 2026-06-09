@@ -1,9 +1,37 @@
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7GameInfoRowsInput,
-  Civ7GameInfoRowsResult,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+
+export type Civ7GameInfoRowsInput = Readonly<{
+  table: string;
+  limit?: number;
+  offset?: number;
+  lookup?: string | number | ReadonlyArray<string | number>;
+  filter?: Readonly<{
+    key: string;
+    equals: string | number | boolean;
+  }>;
+  includeSchema?: boolean;
+  includePrimaryKeys?: boolean;
+}>;
+
+export type Civ7GameInfoRowsResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  table: string;
+  source: "GameInfo";
+  rows: ReadonlyArray<Record<string, unknown>>;
+  limit: number;
+  offset: number;
+  total: Civ7RuntimeProbe<number>;
+  omittedUnknown: boolean;
+  schema?: Civ7RuntimeProbe<unknown>;
+  primaryKeys?: Civ7RuntimeProbe<unknown>;
+}>;
 
 type GameInfoReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

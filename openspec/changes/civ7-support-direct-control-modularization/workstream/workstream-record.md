@@ -586,6 +586,212 @@ All future agent waves must be framed before delegation:
   procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
   is local package/constants relocation proof only, not runtime proof,
   AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control session types slice: completed as a narrow public type
+  ownership relocation. It moves only tuner state, tuner state selection,
+  direct-control endpoint/options, and command-result public types into
+  `src/session/types.ts` while keeping facade type re-exports in `index.ts`.
+  This preserves public type contracts and does not move session config, socket
+  lifecycle, command execution, reconnect, runtime inspection, setup lifecycle,
+  procedure schemas, telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. This is local package/type relocation proof only, not
+  runtime proof, AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control runtime types slice: completed as a narrow public/runtime type
+  ownership relocation. It moves only runtime API inspection, bounded root
+  inspection, App UI snapshot, Tuner health, playable status, and runtime probe
+  result/input types into existing runtime atom owners while keeping facade
+  type re-exports in `index.ts`. This preserves public type contracts and does
+  not move source strings, command execution, session/lifecycle orchestration,
+  procedure schemas, telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. This is local package/type relocation proof only, not
+  runtime proof, AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control map primitive types slice: completed as a narrow public type
+  ownership relocation. It moves only `Civ7MapLocation`, `Civ7MapBounds`, and
+  `Civ7HiddenInfoPolicy` into `src/play/map/types.ts` while keeping facade type
+  re-exports in `index.ts` and switching direct internal map/ready/tactical
+  users to the map owner. This preserves public type contracts and does not
+  change map validation, source strings, runtime behavior, procedure schemas,
+  telemetry, AI ingestion, hotseat runtime proof, CLI semantic projection,
+  Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance. This is
+  local package/type relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
+- Direct-control map read types slice: completed as a narrow public type
+  ownership relocation. It moves only map summary, plot snapshot, map grid
+  input/result, and full-map-grid chunk/input/result types into
+  `src/play/map/types.ts` while keeping facade type re-exports in `index.ts`
+  and switching `src/play/map/reads.ts` to the map and session type owners.
+  This preserves public type contracts and does not change map read validation,
+  source strings, runtime behavior, visibility or GameInfo types, procedure
+  schemas, telemetry, AI ingestion, hotseat runtime proof, CLI semantic
+  projection, Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row
+  acceptance. This is local package/type relocation proof only, not runtime
+  proof, AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control summary read types slice: completed as a narrow public type
+  ownership relocation. It moves only player, unit, and city summary
+  input/result types into `src/play/summaries.ts` while keeping facade type
+  re-exports in `index.ts` and replacing the summary module's type-only facade
+  imports with concrete owner imports. This preserves public type contracts and
+  does not change summary validation, component-id pass-through behavior,
+  source strings, runtime behavior, relationship-label policy, visibility or
+  GameInfo types, procedure schemas, telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, or Task
+  2.9.4 matrix-row acceptance. This is local package/type relocation proof
+  only, not runtime proof, AI/hotseat product-path support, or procedure-core
+  readiness.
+- Direct-control GameInfo row types slice: completed as a narrow public type
+  ownership relocation. It moves only GameInfo row input/result types into
+  `src/play/map/gameinfo.ts` while keeping facade type re-exports in `index.ts`
+  and replacing the GameInfo module's type-only facade imports with concrete
+  owner imports. This preserves public type contracts and does not change
+  GameInfo table or filter validation, lookup/filter semantics, source strings,
+  runtime behavior, AI ingestion, static profile shaping, procedure schemas,
+  telemetry, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, or Task 2.9.4 matrix-row acceptance. This is local
+  package/type relocation proof only, not runtime proof, AI/hotseat product-path
+  support, or procedure-core readiness.
+- Direct-control visibility/reveal types slice: completed as a narrow public
+  type ownership relocation. It moves only visibility summary input/result types
+  and the reveal-map result type into `src/play/map/visibility.ts` while keeping
+  facade type re-exports in `index.ts` and replacing moved visibility type
+  imports with concrete owner imports. This preserves public type contracts and
+  does not change visibility validation, bounded-grid semantics, approval-first
+  disposable reveal behavior, reveal classification, source strings, runtime
+  behavior, relationship-label policy, telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. This is local package/type relocation proof only, not
+  runtime proof, AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control setup read types slice: completed as a narrow public type
+  ownership relocation. It moves only setup phase, setup snapshot/map-row,
+  setup map-row read, and setup map-row visibility result types into
+  `src/setup/reads.ts` while keeping facade type re-exports in `index.ts` and
+  replacing moved setup read type imports in setup modules with concrete owner
+  imports. This preserves public type contracts and does not change setup
+  snapshot/map-row source strings, map-script validation, setup map-row refresh
+  behavior, setup lifecycle mutation behavior, runtime proof status, telemetry,
+  AI ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, or Task 2.9.4 matrix-row acceptance. Setup
+  prepare/start/run lifecycle input/result types remain pending separate owner
+  slices. This is local package/type relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control setup lifecycle types slice: completed as a narrow public type
+  ownership relocation. It moves only single-player setup input, setup option
+  value, prepared-setup result, prepared-start input, single-player start
+  result, and single-player run input/result types into the concrete setup
+  owners (`src/setup/prepare.ts`, `src/setup/start.ts`, and `src/setup/run.ts`)
+  while keeping facade type re-exports in `index.ts` and replacing moved setup
+  lifecycle type imports with concrete owner imports. This preserves public type
+  contracts and does not change setup preparation/start/run source strings,
+  approval behavior, readback verification, setup lifecycle mutation behavior,
+  runtime proof status, telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. Tactical, operation, ready, public procedure schema,
+  and telemetry type ownership remain pending separate owner slices. This is
+  local package/type relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
+- Direct-control autoplay/turn types slice: completed as a narrow public type
+  ownership relocation. It moves only autoplay status/options/action result
+  types into `src/play/autoplay.ts` and turn-completion status/action result
+  types into `src/play/turn-completion.ts` while keeping facade type re-exports
+  in `index.ts` and replacing moved autoplay/turn type imports with concrete
+  owner imports. This preserves public type contracts and does not change
+  autoplay command source, approval behavior, stop-settling/pause behavior,
+  turn-completion command strings, stale notification fallback classification,
+  runtime proof status, telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. Tactical, operation, ready, public procedure schema,
+  and telemetry type ownership remain pending separate owner slices. This is
+  local package/type relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
+- Direct-control notification types slice: completed as a narrow public type
+  ownership relocation. It moves only notification view/decision/queue public
+  types into `src/play/notifications/view.ts` and notification dismissal
+  input/summary/result types into `src/play/notifications/dismissal-request.ts`
+  while keeping facade type re-exports in `index.ts` and replacing moved
+  notification type imports in package internals with concrete owner imports.
+  This preserves public type contracts and does not change notification
+  materialization source strings, decision hint classification,
+  `maxNotifications` behavior, dismissal command source, approval-first
+  dismissal behavior, dismissal verification polling, CLI queue or bulk-dismiss
+  policy, runtime proof status, telemetry, AI ingestion, hotseat runtime proof,
+  CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. Diplomacy/narrative/progression closeout, tactical,
+  operation, ready, public procedure schema, and telemetry type ownership remain
+  pending separate owner slices. This is local package/type relocation proof
+  only, not runtime proof, AI/hotseat product-path support, or procedure-core
+  readiness.
+- Direct-control progression read types slice: completed as a narrow public
+  type ownership relocation. It moves only traditions view input/action/summary
+  result types and progress dashboard input/legacy-path/result types into
+  `src/play/progression/reads.ts` while keeping facade type re-exports in
+  `index.ts` and replacing moved progression type imports with concrete
+  session/runtime-probe owner imports. This preserves public type contracts and
+  does not change traditions/progress dashboard source strings, command
+  serialization, parser labels, read-only/no-send behavior, runtime proof
+  status, telemetry, AI ingestion, hotseat runtime proof, CLI semantic
+  projection, Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row
+  acceptance. Diplomacy/narrative closeout, tactical, operation, ready, public
+  procedure schema, and telemetry type ownership remain pending separate owner
+  slices. This is local package/type relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control tactical read types slice: completed as a narrow public type
+  ownership relocation. It moves only settlement recommendation input/factor/
+  origin/result types into `src/play/tactical/settlement.ts`, target-candidates
+  input/candidate/result types into `src/play/tactical/target-candidates.ts`,
+  battlefield scan input/result types into `src/play/tactical/battlefield.ts`,
+  and destination analysis input/result types into
+  `src/play/tactical/destination.ts` while keeping facade type re-exports in
+  `index.ts`. This preserves public type contracts and does not change tactical
+  source strings, command serialization, parser labels, read-only/no-send
+  behavior, conservative relationship-label policy, runtime proof status,
+  telemetry, AI ingestion, hotseat runtime proof, CLI semantic projection,
+  Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance.
+  Diplomacy/narrative closeout, operation, ready, public procedure schema, and
+  telemetry type ownership remain pending separate owner slices. This is local
+  package/type relocation proof only, not runtime proof, AI/hotseat product-path
+  support, or procedure-core readiness.
+- Direct-control ready read types slice: completed as a narrow public type
+  ownership relocation. It moves only ready-unit input/operation/nearby/
+  promotion/result types into `src/play/ready/unit.ts`, unit-move-preview
+  input/result types into `src/play/ready/move-preview.ts`, and ready-city
+  input/operation/production/town-focus/population-placement/result types into
+  `src/play/ready/city.ts` while keeping facade type re-exports in `index.ts`.
+  This preserves public type contracts and does not change ready-unit,
+  unit-move-preview, or ready-city source strings, command serialization,
+  parser labels, validator/default/bounds behavior, read-only/no-send behavior,
+  conservative relationship-label policy, runtime proof status, telemetry, AI
+  ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, or Task 2.9.4 matrix-row acceptance.
+  Diplomacy/narrative closeout, operation, public procedure schema, and
+  telemetry type ownership remain pending separate owner slices. This is local
+  package/type relocation proof only, not runtime proof, AI/hotseat product-path
+  support, or procedure-core readiness.
+- Direct-control progression chooser closeout types slice: completed as a
+  narrow public type ownership relocation. It moves only technology closeout
+  input/result types into `src/play/progression/technology.ts` and culture
+  closeout input/result types into `src/play/progression/culture.ts` while
+  keeping facade type re-exports in `index.ts`. This preserves public type
+  contracts and does not change technology/culture closeout source strings,
+  command serialization, parser labels, wrapper ownership, mutation behavior,
+  runtime proof status, telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. Diplomacy/narrative closeout, operation, public
+  procedure schema, and telemetry type ownership remain pending separate owner
+  slices. This is local package/type relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control unit-target action types slice: completed as a narrow public
+  type ownership relocation. It moves only unit-target action input/candidate/
+  result types into `src/play/operations/unit-target-action.ts` while keeping
+  facade type re-exports in `index.ts`. This preserves public type contracts
+  and does not change unit-target source strings, command serialization, parser
+  labels, wrapper ownership, approval-first behavior, post-send verification
+  timing/wording, no-repeat-after-unverified guidance, runtime proof status,
+  telemetry, AI ingestion, hotseat runtime proof, CLI semantic projection,
+  Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance. Generic
+  operation, diplomacy/narrative closeout, public procedure schema, and
+  telemetry type ownership remain pending separate owner slices. This is local
+  package/type relocation proof only, not runtime proof, AI/hotseat product-path
+  support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

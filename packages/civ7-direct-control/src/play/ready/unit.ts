@@ -1,11 +1,71 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7ReadyUnitViewInput,
-  Civ7ReadyUnitViewResult,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+
+export type Civ7ReadyUnitViewInput = Readonly<{
+  unitId?: Civ7ComponentId;
+  radius?: number;
+  maxOperations?: number;
+}>;
+
+export type Civ7ReadyUnitOperationCandidate = Readonly<{
+  family: "unit-operation" | "unit-command";
+  operationType: string;
+  enumValue: unknown;
+  valid: boolean;
+  result: unknown;
+}>;
+
+export type Civ7ReadyUnitNearbyPlot = Readonly<{
+  x: number;
+  y: number;
+  units: unknown;
+}>;
+
+export type Civ7ReadyUnitPromotionReadiness = Readonly<{
+  hasExperience: boolean;
+  canPromote: unknown;
+  promotionClass: string | null;
+  level: unknown;
+  experiencePoints: unknown;
+  experienceToNextLevel: unknown;
+  totalPromotionsEarned: unknown;
+  storedPromotionPoints: unknown;
+  storedCommendations: unknown;
+  canPurchase: boolean;
+  availablePromotions: ReadonlyArray<Readonly<{
+    disciplineType: string;
+    promotionType: string;
+    name: string | null;
+    description: string | null;
+    commendation: boolean;
+    args: unknown;
+    validation: unknown;
+  }>>;
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7ReadyUnitViewResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  requestedUnitId: Civ7ComponentId | null;
+  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  unitId: Civ7ComponentId | null;
+  unit: Civ7RuntimeProbe<unknown>;
+  legalOperations: ReadonlyArray<Civ7ReadyUnitOperationCandidate>;
+  promotionReadiness: Civ7RuntimeProbe<Civ7ReadyUnitPromotionReadiness | null>;
+  nearby: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyUnitNearbyPlot>>;
+  notes: ReadonlyArray<string>;
+}>;
 
 type ReadyUnitViewDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

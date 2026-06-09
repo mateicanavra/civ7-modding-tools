@@ -3,11 +3,59 @@ import { waitForCiv7NotificationDismissal } from "./verification.js";
 
 import type {
   Civ7ActionApproval,
+} from "../../index.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7NotificationDismissInput,
-  Civ7NotificationDismissalResult,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+
+export type Civ7NotificationDismissInput = Readonly<{
+  notificationId: Civ7ComponentId;
+}>;
+
+export type Civ7NotificationDismissalSummary = Readonly<{
+  id: Civ7ComponentId | null;
+  exists: boolean;
+  type: unknown;
+  typeName: string | null;
+  summary: string | null;
+  message: string | null;
+  target: unknown;
+  location: unknown;
+  canUserDismiss: unknown;
+  expired: unknown;
+  dismissed: unknown;
+  blocksTurnAdvancement: Civ7RuntimeProbe<unknown>;
+  endTurnBlockingType: Civ7RuntimeProbe<unknown>;
+  isEndTurnBlocking: Civ7RuntimeProbe<boolean>;
+  engineQueueCount: Civ7RuntimeProbe<number>;
+  engineQueueContains: Civ7RuntimeProbe<boolean>;
+  engineQueueFirstId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  isEngineQueueFront: Civ7RuntimeProbe<boolean>;
+  notificationTrainCount: Civ7RuntimeProbe<number>;
+  notificationTrainContains: Civ7RuntimeProbe<boolean>;
+  notificationTrainFirstId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  isNotificationTrainFront: Civ7RuntimeProbe<boolean>;
+}>;
+
+export type Civ7NotificationDismissalResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  notificationId: Civ7ComponentId;
+  before: Civ7NotificationDismissalSummary;
+  after: Civ7NotificationDismissalSummary | null;
+  canDismiss: boolean;
+  sent: boolean;
+  result: unknown;
+  closeoutPath?: string | null;
+  verificationAttempts?: ReadonlyArray<Civ7NotificationDismissalSummary>;
+  verified: boolean;
+  notes: ReadonlyArray<string>;
+}>;
 
 type NotificationDismissalRequestDependencies = Readonly<{
   executeAppUiCommand: (

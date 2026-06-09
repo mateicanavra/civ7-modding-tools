@@ -1,19 +1,54 @@
 import type {
   Civ7ActionApproval,
+} from "../index.js";
+import type {
+  Civ7AppUiSnapshot,
   Civ7AppUiSnapshotResult,
-  Civ7AutoplayActionResult,
-  Civ7AutoplayOptions,
-  Civ7AutoplayPollOptions,
-  Civ7AutoplayStatusResult,
+} from "../runtime/app-ui-snapshot.js";
+import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../index";
+  Civ7TunerState,
+} from "../session/types.js";
 
 export const DEFAULT_CIV7_AUTOPLAY_MAX_TURNS = 50;
 export const DEFAULT_CIV7_AUTOPLAY_WAIT_MS = 5_000;
 export const DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS = 30_000;
 export const DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS = 250;
 export const DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS = 10_000;
+
+export type Civ7AutoplayStatusResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  autoplay: Civ7AppUiSnapshot["autoplay"];
+  game: Civ7AppUiSnapshot["game"];
+  gameContext: Civ7AppUiSnapshot["gameContext"];
+}>;
+
+export type Civ7AutoplayPollOptions = Civ7DirectControlOptions & Readonly<{
+  waitTimeoutMs?: number;
+  pollIntervalMs?: number;
+  stabilityWindowMs?: number;
+}>;
+
+export type Civ7AutoplayOptions = Civ7AutoplayPollOptions & Readonly<{
+  turns?: number;
+  observeAsPlayer?: number;
+  returnAsPlayer?: number;
+  pause?: boolean;
+  maxTurns?: number;
+}>;
+
+export type Civ7AutoplayActionResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  before: Civ7AutoplayStatusResult;
+  after: Civ7AutoplayStatusResult;
+  commands: ReadonlyArray<Civ7CommandResult>;
+  verified: boolean;
+}>;
 
 type AutoplayDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

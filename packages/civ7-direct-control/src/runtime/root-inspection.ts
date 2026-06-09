@@ -1,10 +1,29 @@
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7RootInspectionInput,
-  Civ7RootInspectionResult,
   Civ7TunerStateSelection,
-} from "../index";
+} from "../session/types.js";
+import type { Civ7RuntimeApiInspection } from "./inspection.js";
+
+export type Civ7RootInspectionInput = Readonly<{
+  state?: Civ7TunerStateSelection;
+  roots: ReadonlyArray<string>;
+  maxRoots?: number;
+  maxKeys?: number;
+  maxMethods?: number;
+  includeEnumerableKeys?: boolean;
+  includePrototypeKeys?: boolean;
+  includeSignatures?: boolean;
+}>;
+
+export type Civ7RootInspectionResult = Civ7RuntimeApiInspection & Readonly<{
+  limits: Readonly<{
+    maxRoots: number;
+    maxKeys: number;
+    maxMethods: number;
+    truncated: boolean;
+  }>;
+}>;
 
 type RootInspectionDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

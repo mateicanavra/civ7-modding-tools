@@ -8,8 +8,8 @@ import type {
   Civ7NarrativeChoiceInput,
   Civ7NarrativeChoiceResult,
   Civ7OperationValidationResult,
-  Civ7PlayNotificationViewResult,
-} from "../../index";
+} from "../../index.js";
+import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
 
 type NarrativeChoiceRequestDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

@@ -1,11 +1,80 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7ReadyCityViewInput,
-  Civ7ReadyCityViewResult,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+
+export type Civ7ReadyCityViewInput = Readonly<{
+  cityId?: Civ7ComponentId;
+  maxOperations?: number;
+}>;
+
+export type Civ7ReadyCityOperationCandidate = Readonly<{
+  family: "city-operation" | "city-command";
+  operationType: string;
+  enumValue: unknown;
+  valid: boolean;
+  result: unknown;
+}>;
+
+export type Civ7ReadyCityProductionCandidate = Readonly<{
+  kind: "unit" | "constructible" | "project";
+  type: unknown;
+  typeName: string | null;
+  name: string | null;
+  args: unknown;
+  cost?: unknown;
+  turns?: unknown;
+  productionBasis?: unknown;
+  baseYieldSummary?: unknown;
+  valid: boolean;
+  result: unknown;
+  placementPlots?: ReadonlyArray<unknown>;
+  cli: string;
+}>;
+
+export type Civ7ReadyCityTownFocusOption = Readonly<{
+  name: string | null;
+  description: string | null;
+  args: unknown;
+  valid: boolean;
+  result: unknown;
+  cli: string;
+}>;
+
+export type Civ7ReadyCityPopulationPlacement = Readonly<{
+  isReadyToPlacePopulation: Civ7RuntimeProbe<unknown>;
+  cityWorkerCap: Civ7RuntimeProbe<unknown>;
+  yieldTypeOrder: ReadonlyArray<string>;
+  allPlacementInfo: Civ7RuntimeProbe<unknown>;
+  workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  workablePlots: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  expansionCandidates: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  expansionResult: Civ7RuntimeProbe<unknown>;
+  cliHints: ReadonlyArray<string>;
+}>;
+
+export type Civ7ReadyCityViewResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  requestedCityId: Civ7ComponentId | null;
+  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  blockingCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  cityId: Civ7ComponentId | null;
+  city: Civ7RuntimeProbe<unknown>;
+  legalOperations: ReadonlyArray<Civ7ReadyCityOperationCandidate>;
+  productionCandidates: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityProductionCandidate>>;
+  townFocusOptions: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityTownFocusOption>>;
+  populationPlacement: Civ7RuntimeProbe<Civ7ReadyCityPopulationPlacement>;
+  notes: ReadonlyArray<string>;
+}>;
 
 type ReadyCityViewDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

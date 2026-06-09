@@ -1,10 +1,34 @@
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7RuntimeApiInspection,
-  Civ7RuntimeApiRoot,
   Civ7TunerStateSelection,
-} from "../index";
+} from "../session/types.js";
+
+export type Civ7RuntimeApiRoot = Readonly<{
+  name: string;
+  type: string;
+  exists: boolean;
+  ownKeys: ReadonlyArray<string>;
+  prototypeKeys: ReadonlyArray<string>;
+  enumerableKeys: ReadonlyArray<string>;
+  methods: ReadonlyArray<Civ7RuntimeApiMethod>;
+  error?: string;
+}>;
+
+export type Civ7RuntimeApiMethod = Readonly<{
+  name: string;
+  owner: "own" | "prototype";
+  length: number;
+  signature: string;
+  error?: string;
+}>;
+
+export type Civ7RuntimeApiInspection = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7CommandResult["state"];
+  roots: ReadonlyArray<Civ7RuntimeApiRoot>;
+}>;
 
 type RuntimeInspectionDependencies = Readonly<{
   appUiStateName: string;

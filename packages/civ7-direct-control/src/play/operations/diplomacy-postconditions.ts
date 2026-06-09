@@ -5,10 +5,12 @@ import type {
   Civ7DiplomacyResponsePostconditionClassification,
   Civ7DirectControlOptions,
   Civ7OperationValidationResult,
+  Civ7RuntimeProbe,
+} from "../../index.js";
+import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
-  Civ7RuntimeProbe,
-} from "../../index";
+} from "../notifications/view.js";
 
 export async function waitForCiv7DiplomacyResponseAfter(
   input: Civ7DiplomacyResponseInput,

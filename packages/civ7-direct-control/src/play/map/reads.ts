@@ -1,8 +1,11 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
+  Civ7TunerStateSelection,
+} from "../../session/types.js";
+import type {
   Civ7MapBounds,
   Civ7MapGridInput,
   Civ7MapGridResult,
@@ -12,8 +15,7 @@ import type {
   Civ7PlotSnapshotField,
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
-  Civ7TunerStateSelection,
-} from "../../index";
+} from "./types.js";
 
 type MapReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

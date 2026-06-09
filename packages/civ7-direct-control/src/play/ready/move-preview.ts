@@ -1,12 +1,46 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7MapLocation,
-  Civ7UnitMovePreviewInput,
-  Civ7UnitMovePreviewResult,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import type { Civ7MapLocation } from "../map/types.js";
+
+export type Civ7UnitMovePreviewInput = Readonly<{
+  unitId?: Civ7ComponentId;
+  destination?: Civ7MapLocation;
+  maxPlots?: number;
+  maxPathPlots?: number;
+}>;
+
+export type Civ7UnitMovePreviewResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  requestedUnitId: Civ7ComponentId | null;
+  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  unitId: Civ7ComponentId | null;
+  unit: Civ7RuntimeProbe<unknown>;
+  reachableMovement: Civ7RuntimeProbe<unknown>;
+  reachableZonesOfControl: Civ7RuntimeProbe<unknown>;
+  reachableTargets: Civ7RuntimeProbe<unknown>;
+  queuedDestination: Civ7RuntimeProbe<Civ7MapLocation | null>;
+  queuedPath: Civ7RuntimeProbe<unknown>;
+  requestedDestination: Civ7MapLocation | null;
+  requestedPath: Civ7RuntimeProbe<unknown>;
+  relationshipPolicy: Readonly<{
+    relationshipSource: "not-classified";
+    relationshipProof: "none";
+    unprovenLabel: "relationship-unproven";
+    guidance: string;
+  }>;
+  notes: ReadonlyArray<string>;
+}>;
 
 type UnitMovePreviewDependencies = Readonly<{
   validateMapLocation: (location: Civ7MapLocation) => void;

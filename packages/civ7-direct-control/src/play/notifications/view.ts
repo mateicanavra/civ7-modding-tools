@@ -1,10 +1,107 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
+import type {
+  Civ7OperationFamily,
+} from "../../index.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7PlayNotificationViewResult,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+
+export type Civ7PlayDecisionHint = Readonly<{
+  category: string;
+  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationType?: string;
+  argsShape?: string;
+  cli?: string;
+  requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
+  commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
+  confidence: "live-proof" | "official-ui" | "heuristic";
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7PlayDecisionInput = Readonly<{
+  name: string;
+  source: string;
+  required: boolean;
+  note?: string;
+}>;
+
+export type Civ7PlayDecisionAction = Readonly<{
+  label: string;
+  cli?: string;
+  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationType?: string;
+  argsShape?: string;
+  when: string;
+}>;
+
+export type Civ7PlayNotificationSummary = Readonly<{
+  id: Civ7ComponentId | null;
+  type: unknown;
+  typeName: string | null;
+  groupType: unknown;
+  player: unknown;
+  summary: string | null;
+  message: string | null;
+  target: unknown;
+  location: unknown;
+  canUserDismiss: unknown;
+  expired: unknown;
+  dismissed: unknown;
+  isEndTurnBlocking: boolean;
+  decision: Civ7PlayDecisionHint;
+  details?: unknown;
+}>;
+
+export type Civ7PlayDecisionQueueItem = Readonly<{
+  notificationId: Civ7ComponentId | null;
+  isEndTurnBlocking: boolean;
+  typeName: string | null;
+  summary: string | null;
+  message: string | null;
+  target: unknown;
+  location: unknown;
+  player: unknown;
+  category: string;
+  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationType?: string;
+  argsShape?: string;
+  cli?: string;
+  requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
+  commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
+  notes: ReadonlyArray<string>;
+  details?: unknown;
+}>;
+
+export type Civ7PlayNotificationViewResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  turn: Civ7RuntimeProbe<number>;
+  turnDate: Civ7RuntimeProbe<string>;
+  hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
+  canEndTurn: Civ7RuntimeProbe<boolean>;
+  blocker: Civ7RuntimeProbe<unknown>;
+  blockingNotificationId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  notifications: ReadonlyArray<Civ7PlayNotificationSummary>;
+  decisions: ReadonlyArray<Civ7PlayDecisionHint>;
+  hud: Readonly<{
+    nextDecision: Civ7PlayDecisionQueueItem | null;
+    decisionQueue: ReadonlyArray<Civ7PlayDecisionQueueItem>;
+  }>;
+  limits: Readonly<{
+    maxNotifications: number;
+    truncated: boolean;
+  }>;
+}>;
 
 type PlayNotificationViewOptions = Civ7DirectControlOptions & Readonly<{
   maxNotifications?: number;
