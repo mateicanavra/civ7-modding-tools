@@ -258,7 +258,11 @@ describe("AppFooter Run in Game status", () => {
     );
 
     expect(html).toContain("Apply live game suggestion to Studio");
-    expect(html).toContain("border-orange-400");
+    // The stale-live-game emphasis is token-driven (`warning`), not a raw
+    // `border-orange-400` palette class — the design system forbids hardcoded
+    // hex/named-color utilities. The assertion still verifies the stale ring is
+    // present, now via the token.
+    expect(html).toContain("border-warning");
     expect(html).toContain("Seed 123");
   });
 });

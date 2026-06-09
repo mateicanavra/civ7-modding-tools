@@ -1,12 +1,29 @@
 import type { WidgetProps, RJSFSchema } from "@rjsf/utils";
-import { Checkbox, Input, Select, Switch, Textarea } from "../../ui/components/ui";
+
+import { Checkbox, Input, Switch, Textarea } from "../../components/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui";
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
 
-function getLightMode(props: ConfigWidgetProps): boolean {
-  return Boolean(props.formContext?.lightMode);
-}
+/**
+ * RJSF widgets re-skinned onto the canonical design-system primitives
+ * (`src/components/ui/*`) — token-driven, dark-first, no `lightMode` prop and no
+ * off-token `ring-gray-400`. Only presentation changed: the value plumbing
+ * (`onChange`, `emptyValue` normalization, enum mapping) is preserved, so the
+ * authored config the form emits is byte-for-byte what it produced before.
+ */
+
+// Radix Select disallows an empty `value`; the schema enum's "no selection"
+// placeholder maps to this reserved sentinel internally and round-trips back to
+// the real empty selection on change.
+const SELECT_EMPTY_SENTINEL = "__rjsf-select-empty__";
 
 function normalizeEmptyValue(
   next: string,
@@ -16,7 +33,6 @@ function normalizeEmptyValue(
 }
 
 export function TextWidget(props: ConfigWidgetProps) {
-  const lightMode = getLightMode(props);
   const {
     id,
     name,
@@ -36,13 +52,12 @@ export function TextWidget(props: ConfigWidgetProps) {
       id={id}
       name={name}
       autoComplete={autoComplete ?? "off"}
-      lightMode={lightMode}
       type={type ?? "text"}
       spellCheck={false}
       required={required}
       autoFocus={autofocus}
       disabled={disabled || readonly}
-      value={value ?? ""}
+      value={(value as string | undefined) ?? ""}
       placeholder={placeholder}
       onChange={(event) => {
         onChange(normalizeEmptyValue(event.target.value, options.emptyValue));
@@ -52,7 +67,6 @@ export function TextWidget(props: ConfigWidgetProps) {
 }
 
 export function TextareaWidget(props: ConfigWidgetProps) {
-  const lightMode = getLightMode(props);
   const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder } =
     props;
   return (
@@ -60,12 +74,11 @@ export function TextareaWidget(props: ConfigWidgetProps) {
       id={id}
       name={name}
       autoComplete={autoComplete ?? "off"}
-      lightMode={lightMode}
       spellCheck={false}
       required={required}
       autoFocus={autofocus}
       disabled={disabled || readonly}
-      value={value ?? ""}
+      value={(value as string | undefined) ?? ""}
       placeholder={placeholder}
       onChange={(event) => {
         onChange(normalizeEmptyValue(event.target.value, options.emptyValue));
@@ -75,7 +88,6 @@ export function TextareaWidget(props: ConfigWidgetProps) {
 }
 
 export function NumberWidget(props: ConfigWidgetProps) {
-  const lightMode = getLightMode(props);
   const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder } =
     props;
   return (
@@ -83,14 +95,13 @@ export function NumberWidget(props: ConfigWidgetProps) {
       id={id}
       name={name}
       autoComplete={autoComplete ?? "off"}
-      lightMode={lightMode}
       type="number"
       inputMode="decimal"
       spellCheck={false}
       required={required}
       autoFocus={autofocus}
       disabled={disabled || readonly}
-      value={value ?? ""}
+      value={(value as number | string | undefined) ?? ""}
       placeholder={placeholder}
       onChange={(event) => {
         const next = event.target.value;
@@ -106,66 +117,56 @@ export function NumberWidget(props: ConfigWidgetProps) {
 }
 
 export function SelectWidget(props: ConfigWidgetProps) {
-  const lightMode = getLightMode(props);
-  const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder } =
-    props;
+  const { id, name, value, disabled, readonly, onChange, options, placeholder } = props;
   const enumOptions = (options.enumOptions ?? []) as Array<{ value: unknown; label: string }>;
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
   const selectedKey = value === undefined || value === null ? "" : String(value);
+  const toRadix = (raw: string) => (raw === "" ? SELECT_EMPTY_SENTINEL : raw);
 
   return (
     <Select
-      id={id}
       name={name}
-      autoComplete={autoComplete ?? "off"}
-      lightMode={lightMode}
-      required={required}
-      autoFocus={autofocus}
       disabled={disabled || readonly}
-      value={selectedKey}
-      onChange={(event) => {
-        const next = event.target.value;
-        onChange(map.has(next) ? map.get(next) : next);
+      value={toRadix(selectedKey)}
+      onValueChange={(next) => {
+        const key = next === SELECT_EMPTY_SENTINEL ? "" : next;
+        onChange(map.has(key) ? map.get(key) : key);
       }}
     >
-      {placeholder ? (
-        <option value="" disabled>
-          {placeholder}
-        </option>
-      ) : null}
-      {enumOptions.map((opt) => (
-        <option key={String(opt.value)} value={String(opt.value)}>
-          {opt.label}
-        </option>
-      ))}
+      <SelectTrigger id={id} aria-label={placeholder ?? name}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {enumOptions.map((opt) => (
+          <SelectItem key={String(opt.value)} value={toRadix(String(opt.value))}>
+            {opt.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
     </Select>
   );
 }
 
 export function CheckboxWidget(props: ConfigWidgetProps) {
-  const lightMode = getLightMode(props);
   const { id, name, value, disabled, readonly, autofocus, onChange } = props;
   return (
     <Checkbox
       id={id}
       name={name}
-      lightMode={lightMode}
       checked={Boolean(value)}
       autoFocus={autofocus}
       disabled={disabled || readonly}
-      onCheckedChange={(checked) => onChange(checked)}
+      onCheckedChange={(checked) => onChange(checked === true)}
     />
   );
 }
 
 export function SwitchWidget(props: ConfigWidgetProps) {
-  const lightMode = getLightMode(props);
   const { id, name, value, disabled, readonly, autofocus, onChange } = props;
   return (
     <Switch
       id={id}
       name={name}
-      lightMode={lightMode}
       checked={Boolean(value)}
       autoFocus={autofocus}
       disabled={disabled || readonly}
@@ -176,19 +177,16 @@ export function SwitchWidget(props: ConfigWidgetProps) {
 
 export function TagSelectWidget(props: ConfigWidgetProps) {
   const { value, disabled, readonly, onChange, options } = props;
-  const lightMode = getLightMode(props);
   const enumOptions = (options.enumOptions ?? []) as Array<{ value: unknown; label: string }>;
   const allowMutations = !disabled && !readonly;
   const selected = Array.isArray(value) ? value : [];
   const selectedKeys = new Set(selected.map((entry) => String(entry)));
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
-  const baseTag = [
-    "px-2 py-1 text-[11px] rounded-full border transition-colors",
-    lightMode
-      ? "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
-      : "bg-[#222228] text-[#e8e8ed] border-[#2a2a32] hover:bg-[#2a2a32]",
-  ].join(" ");
-  const activeTag = "bg-[#4b5563] text-white border-[#4b5563]";
+  // Token-driven pill: muted inset substrate, primary fill when active, the
+  // luminance contour ring on focus.
+  const baseTag =
+    "px-2 py-1 text-data rounded-full border border-input bg-input-background text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+  const activeTag = "bg-primary text-primary-foreground border-primary hover:bg-primary/90";
 
   return (
     <div className="flex flex-wrap gap-2">

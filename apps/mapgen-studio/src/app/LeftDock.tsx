@@ -16,8 +16,8 @@ export type LeftDockProps = {
  */
 export function LeftDock({ top, children }: LeftDockProps) {
   return (
-    <div className="absolute left-4 z-10" style={{ top }}>
+    <aside aria-label="Recipe and configuration" className="absolute left-4 z-10" style={{ top }}>
       {children}
-    </div>
+    </aside>
   );
 }

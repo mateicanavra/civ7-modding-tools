@@ -325,6 +325,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         <button
           type="button"
           onClick={() => setIsStageExpanded(!isStageExpanded)}
+          aria-expanded={isStageExpanded}
+          aria-controls="explore-stage-list"
           className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
 
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
@@ -340,7 +342,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-[10px] ${textMuted}`}>
+            <span className={`text-label ${textMuted}`}>
               {stages.length}
             </span>
             <ChevronDown
@@ -350,11 +352,12 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         </button>
       </div>
       {isStageExpanded ? (
-        <div className={`flex-shrink-0 py-1 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+        <div id="explore-stage-list" className={`flex-shrink-0 py-1 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
           {stages.map((stage, index) => (
             <button
               key={stage.value}
               onClick={() => handleSelectStage(stage.value)}
+              aria-current={stage.value === selectedStage ? "true" : undefined}
               className={`${stageItemBase} ${stage.value === selectedStage ? stageItemActive : stageItemInactive}`}>
 
               <span className={stageBadge(stage.value === selectedStage)}>
@@ -371,32 +374,35 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         <button
           type="button"
           onClick={() => setIsStepExpanded(!isStepExpanded)}
+          aria-expanded={isStepExpanded}
+          aria-controls="explore-step-list"
           className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}>
 
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <Layers className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
-            <span className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
+            <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
               Step
             </span>
             {!isStepExpanded ? (
-              <span className={`text-[11px] font-mono ${textPrimary} truncate`}>
+              <span className={`text-data font-mono ${textPrimary} truncate`}>
                 {currentStep?.label ?? ""}
               </span>
             ) : null}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-[10px] ${textMuted}`}>{steps.length}</span>
+            <span className={`text-label ${textMuted}`}>{steps.length}</span>
             <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isStepExpanded ? "rotate-180" : ""}`} />
           </div>
         </button>
       </div>
       {isStepExpanded ? (
-        <div className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+        <div id="explore-step-list" className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
           {steps.length > 0 ? (
             steps.map((step, index) => (
               <button
                 key={`${step.category}-${step.value}`}
                 onClick={() => handleSelectStep(step.value)}
+                aria-current={step.value === selectedStep ? "true" : undefined}
                 className={`${stepItemBase} ${step.value === selectedStep ? stepItemActive : stepItemInactive}`}>
 
                 <span className={stepBadge(step.value === selectedStep)}>
@@ -406,7 +412,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
               </button>
             ))
           ) : (
-            <div className={`px-3 py-2 text-[11px] ${textMuted} italic`}>No steps available</div>
+            <div className={`px-3 py-2 text-data ${textMuted} italic`}>No steps available</div>
           )}
         </div>
       ) : null}
@@ -416,27 +422,29 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         <button
           type="button"
           onClick={() => setIsLayersExpanded(!isLayersExpanded)}
+          aria-expanded={isLayersExpanded}
+          aria-controls="explore-layers-list"
           className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}>
 
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
-            <span className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
+            <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
               Data
             </span>
             {!isLayersExpanded ? (
-              <span className={`text-[11px] font-mono ${textPrimary} truncate`}>
+              <span className={`text-data font-mono ${textPrimary} truncate`}>
                 {currentLayer?.label ?? ""}
               </span>
             ) : null}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-[10px] ${textMuted}`}>{dataTypeOptions.length}</span>
+            <span className={`text-label ${textMuted}`}>{dataTypeOptions.length}</span>
             <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isLayersExpanded ? "rotate-180" : ""}`} />
           </div>
         </button>
       </div>
       {isLayersExpanded ? (
-        <div className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+        <div id="explore-layers-list" className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
           {groupedDataTypes.map((group) => {
             const expanded = !group.key || isGroupExpanded(group.key);
             return (
@@ -447,10 +455,11 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                     onClick={() => toggleGroupExpanded(group.key)}
                     className={`w-full px-3 pt-2 pb-1 flex items-center justify-between text-label uppercase tracking-wider ${textMuted} ${hoverBg}`}
                     aria-label={expanded ? "Collapse group" : "Expand group"}
+                    aria-expanded={expanded}
                   >
                     <span className="truncate">{group.label}</span>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] ${textMuted}`}>{group.items.length}</span>
+                      <span className={`text-label ${textMuted}`}>{group.items.length}</span>
                       <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`} />
                     </div>
                   </button>
@@ -462,6 +471,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                         <button
                           key={dataType.value}
                           onClick={() => handleSelectLayer(dataType.value)}
+                          aria-current={dataType.value === selectedDataType ? "true" : undefined}
                           className={`${stepItemBase} ${
                             dataType.value === selectedDataType ? stepItemActive : stepItemInactive
                           }`}
@@ -517,6 +527,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                     <button
                       onClick={() => onSelectedRenderModeChange(option.value)}
                       aria-label={option.label}
+                      aria-pressed={selectedRenderMode === option.value}
                       className={selectedRenderMode === option.value ? iconBtnActive : iconBtn}
                     >
                       {getRenderModeIcon(option.value)}
@@ -540,6 +551,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                     <button
                       onClick={() => onSelectedSpaceChange(option.value)}
                       aria-label={option.label}
+                      aria-pressed={selectedSpace === option.value}
                       className={selectedSpace === option.value ? iconBtnActive : iconBtn}
                     >
                       {getSpaceIcon(option.value)}
