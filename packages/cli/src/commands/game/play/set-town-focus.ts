@@ -1,10 +1,11 @@
 import { Command, Flags } from '@oclif/core';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
   buildDirectControlOptions,
   emitPlayResult,
   executePlayOperationSequence,
   parseComponentId,
-  sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
@@ -64,7 +65,35 @@ export default class GamePlaySetTownFocus extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlaySetTownFocus);    const cityId = parseComponentId(flags['city-id'], 'city-id');
+    const { flags } = await this.parse(GamePlaySetTownFocus);
+    const cityId = parseComponentId(flags['city-id'], 'city-id');
+    const options = buildDirectControlOptions(flags);
+    if (flags.send) {
+      const client = createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      });
+      const change = await client.city.townFocus.change.request({
+        cityId,
+        growthType: flags['growth-type'],
+        projectType: flags['project-type'],
+        ...(flags.city === undefined ? {} : { city: flags.city }),
+      });
+      if (flags.closeout) {
+        const review = change.status === 'not-sent'
+          ? null
+          : await client.city.townFocus.review.request({ cityId });
+        emitPlayResult(this.log.bind(this), flags.json, townFocusWorkflow([
+          { label: 'set town focus', result: change },
+          ...(review === null ? [] : [{ label: 'close town project review', result: review }]),
+        ]));
+        return;
+      }
+
+      emitPlayResult(this.log.bind(this), flags.json, change);
+      return;
+    }
+
     const input = {
       operationType: CHANGE_GROWTH_MODE,
       cityId,
@@ -74,7 +103,6 @@ export default class GamePlaySetTownFocus extends Command {
         City: flags.city ?? cityId.id,
       },
     };
-    const options = buildDirectControlOptions(flags);
     if (flags.closeout) {
       const result = await executePlayOperationSequence([
         {
@@ -97,10 +125,31 @@ export default class GamePlaySetTownFocus extends Command {
       return;
     }
 
-    const result = flags.send
-      ? await sendPlayOperation('city-command', input, options)
-      : await validatePlayOperation('city-command', input, options);
+    const result = await validatePlayOperation('city-command', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
+}
+
+function townFocusWorkflow(
+  steps: Array<{ label: string; result: unknown }>,
+) {
+  return {
+    mode: 'send',
+    stepCount: steps.length,
+    status: steps.some((step) =>
+      typeof step.result === 'object'
+      && step.result !== null
+      && 'status' in step.result
+      && step.result.status === 'sent-unverified'
+    )
+      ? 'sent-unverified'
+      : 'not-sent',
+    steps,
+    nextSteps: [{
+      kind: 'do-not-repeat',
+      source: 'city.townFocus.change.request',
+      label: 'Do not repeat this town focus workflow until fresh city readiness evidence is read.',
+    }],
+  };
 }

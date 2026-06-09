@@ -191,6 +191,53 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7FirstMeetResponseUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("diplomacy.firstMeet.response.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7FirstMeetResponseUnavailableErrorData = Static<
+  typeof Civ7FirstMeetResponseUnavailableErrorDataSchema
+>;
+
+export class Civ7FirstMeetResponseUnavailableError extends ORPCTaggedError(
+  "Civ7FirstMeetResponseUnavailableError",
+  {
+    code: "FIRST_MEET_RESPONSE_UNAVAILABLE",
+    message: "Direct-control first-meet response request failed.",
+    schema: toStandardSchema(Civ7FirstMeetResponseUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7GovernmentChoiceUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("government.choice.request"),
+      Type.Literal("government.celebration.choice.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7GovernmentChoiceUnavailableErrorData = Static<
+  typeof Civ7GovernmentChoiceUnavailableErrorDataSchema
+>;
+
+export class Civ7GovernmentChoiceUnavailableError extends ORPCTaggedError(
+  "Civ7GovernmentChoiceUnavailableError",
+  {
+    code: "GOVERNMENT_CHOICE_UNAVAILABLE",
+    message: "Direct-control government-domain choice request failed.",
+    schema: toStandardSchema(Civ7GovernmentChoiceUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7ProgressionChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
@@ -212,6 +259,61 @@ export class Civ7ProgressionChoiceUnavailableError extends ORPCTaggedError(
     code: "PROGRESSION_CHOICE_UNAVAILABLE",
     message: "Direct-control progression choice request failed.",
     schema: toStandardSchema(Civ7ProgressionChoiceUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Union([
+        Type.Literal("progression.attribute.purchase.request"),
+        Type.Literal("progression.attribute.review.request"),
+        Type.Literal("progression.tradition.change.request"),
+        Type.Literal("progression.tradition.review.request"),
+      ]),
+      source: Type.Literal("direct-control-facade"),
+      ...Civ7ControlOrpcErrorCorrelationProperties,
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ProgressionPlayerChoiceUnavailableErrorData = Static<
+  typeof Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema
+>;
+
+export class Civ7ProgressionPlayerChoiceUnavailableError extends ORPCTaggedError(
+  "Civ7ProgressionPlayerChoiceUnavailableError",
+  {
+    code: "PROGRESSION_PLAYER_CHOICE_UNAVAILABLE",
+    message: "Direct-control progression player-choice request failed.",
+    schema: toStandardSchema(
+      Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
+export const Civ7ProgressionTargetUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("progression.technology.target.request"),
+      Type.Literal("progression.culture.target.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTargetUnavailableErrorData = Static<
+  typeof Civ7ProgressionTargetUnavailableErrorDataSchema
+>;
+
+export class Civ7ProgressionTargetUnavailableError extends ORPCTaggedError(
+  "Civ7ProgressionTargetUnavailableError",
+  {
+    code: "PROGRESSION_TARGET_UNAVAILABLE",
+    message: "Direct-control progression target request failed.",
+    schema: toStandardSchema(Civ7ProgressionTargetUnavailableErrorDataSchema),
     status: 503,
   },
 ) {}
@@ -338,6 +440,31 @@ export class Civ7ProductionChoiceUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7TownFocusUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("city.townFocus.change.request"),
+      Type.Literal("city.townFocus.review.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7TownFocusUnavailableErrorData = Static<
+  typeof Civ7TownFocusUnavailableErrorDataSchema
+>;
+
+export class Civ7TownFocusUnavailableError extends ORPCTaggedError(
+  "Civ7TownFocusUnavailableError",
+  {
+    code: "TOWN_FOCUS_UNAVAILABLE",
+    message: "Direct-control town focus request failed.",
+    schema: toStandardSchema(Civ7TownFocusUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7PopulationPlacementUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("city.population.place.request"),
@@ -385,6 +512,8 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
+  FIRST_MEET_RESPONSE_UNAVAILABLE: Civ7FirstMeetResponseUnavailableError,
+  GOVERNMENT_CHOICE_UNAVAILABLE: Civ7GovernmentChoiceUnavailableError,
   MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
@@ -392,9 +521,12 @@ export const civ7ControlOrpcErrorMap = {
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
+  PROGRESSION_PLAYER_CHOICE_UNAVAILABLE: Civ7ProgressionPlayerChoiceUnavailableError,
+  PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
+  TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
   UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,

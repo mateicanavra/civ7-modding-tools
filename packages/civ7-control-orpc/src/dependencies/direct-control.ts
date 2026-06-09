@@ -6,23 +6,41 @@ import {
   getCiv7ReadyUnitView,
   getCiv7TargetCandidates,
   getCiv7TurnCompletionStatus,
+  requestCiv7AttributePurchase,
+  requestCiv7AttributeReviewCloseout,
   requestCiv7TurnComplete,
   requestCiv7DiplomacyResponse,
+  requestCiv7FirstMeetResponse,
+  requestCiv7CelebrationChoice,
   requestCiv7CultureChoiceCloseout,
+  requestCiv7GovernmentChoice,
   requestCiv7NarrativeChoice,
   requestCiv7NotificationDismissal,
   requestCiv7CityCommand,
   requestCiv7PlayerOperation,
   requestCiv7ProductionChoice,
   requestCiv7TechnologyChoiceCloseout,
+  requestCiv7TechnologyTarget,
+  requestCiv7TownFocusChange,
+  requestCiv7TownFocusReviewCloseout,
+  requestCiv7TraditionChange,
+  requestCiv7TraditionReviewCloseout,
   requestCiv7UnitCommand,
   requestCiv7UnitTargetAction,
+  requestCiv7CultureTarget,
   type Civ7DirectControlOptions,
   Civ7BattlefieldScanResultSchema,
+  type Civ7AttributePurchaseInput,
+  type Civ7AttributeReviewInput,
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
+  type Civ7FirstMeetResponseInput,
+  type Civ7FirstMeetResponseResult,
+  type Civ7CelebrationChoiceInput,
   type Civ7CultureChoiceCloseoutInput,
   type Civ7CultureChoiceCloseoutResult,
+  type Civ7GovernmentChoiceInput,
+  type Civ7GovernmentDomainChoiceResult,
   type Civ7NarrativeChoiceInput,
   type Civ7NarrativeChoiceResult,
   Civ7PlayNotificationViewResultSchema,
@@ -45,6 +63,14 @@ import {
   type Civ7TargetCandidatesInput,
   type Civ7TechnologyChoiceCloseoutInput,
   type Civ7TechnologyChoiceCloseoutResult,
+  type Civ7TownFocusChangeInput,
+  type Civ7TownFocusRequestResult,
+  type Civ7TownFocusReviewInput,
+  type Civ7ProgressionTargetInput,
+  type Civ7ProgressionTargetResult,
+  type Civ7ProgressionPlayerChoiceResult,
+  type Civ7TraditionChangeInput,
+  type Civ7TraditionReviewInput,
   type Civ7TurnCompletionRequestResult,
   type Civ7UnitTargetActionInput,
   type PlayNotificationViewOptions,
@@ -60,11 +86,19 @@ export type Civ7ControlOrpcNotificationDismissalResult =
   Civ7NotificationDismissalResult;
 export type Civ7ControlOrpcDiplomacyResponseResult =
   Civ7DiplomacyResponseResult;
+export type Civ7ControlOrpcFirstMeetResponseResult =
+  Civ7FirstMeetResponseResult;
+export type Civ7ControlOrpcGovernmentChoiceResult =
+  Civ7GovernmentDomainChoiceResult;
 export type Civ7ControlOrpcCultureChoiceCloseoutResult =
   Civ7CultureChoiceCloseoutResult;
 export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
 export type Civ7ControlOrpcTechnologyChoiceCloseoutResult =
   Civ7TechnologyChoiceCloseoutResult;
+export type Civ7ControlOrpcProgressionTargetResult =
+  Civ7ProgressionTargetResult;
+export type Civ7ControlOrpcProgressionPlayerChoiceResult =
+  Civ7ProgressionPlayerChoiceResult;
 export type Civ7ControlOrpcTurnCompletionRequestResult =
   Civ7TurnCompletionRequestResult;
 type Civ7ControlOrpcPopulationPlacementRuntimeResult =
@@ -125,6 +159,18 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7DiplomacyResponseInput,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcDiplomacyResponseResult>;
+  requestCiv7FirstMeetResponse(
+    input: Civ7FirstMeetResponseInput,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcFirstMeetResponseResult>;
+  requestCiv7GovernmentChoice(
+    input: Omit<Civ7GovernmentChoiceInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcGovernmentChoiceResult>;
+  requestCiv7CelebrationChoice(
+    input: Omit<Civ7CelebrationChoiceInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcGovernmentChoiceResult>;
   requestCiv7TechnologyChoiceCloseout(
     input: Civ7TechnologyChoiceCloseoutInput,
     options: Civ7DirectControlOptions | undefined,
@@ -133,6 +179,38 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7CultureChoiceCloseoutInput,
     options: Civ7DirectControlOptions | undefined,
   ): Promise<Civ7ControlOrpcCultureChoiceCloseoutResult>;
+  requestCiv7TechnologyTarget(
+    input: Omit<Civ7ProgressionTargetInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionTargetResult>;
+  requestCiv7CultureTarget(
+    input: Omit<Civ7ProgressionTargetInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionTargetResult>;
+  requestCiv7AttributePurchase(
+    input: Omit<Civ7AttributePurchaseInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
+  requestCiv7AttributeReviewCloseout(
+    input: Omit<Civ7AttributeReviewInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
+  requestCiv7TraditionChange(
+    input: Omit<Civ7TraditionChangeInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
+  requestCiv7TraditionReviewCloseout(
+    input: Omit<Civ7TraditionReviewInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
+  requestCiv7TownFocusChange(
+    input: Omit<Civ7TownFocusChangeInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7TownFocusRequestResult>;
+  requestCiv7TownFocusReviewCloseout(
+    input: Omit<Civ7TownFocusReviewInput, "kind">,
+    options: Civ7DirectControlOptions | undefined,
+  ): Promise<Civ7TownFocusRequestResult>;
   requestCiv7AssignWorkerPlacement(
     input: Civ7ControlOrpcAssignWorkerPlacementInput,
     options: Civ7DirectControlOptions | undefined,
@@ -197,10 +275,32 @@ export const liveCiv7ControlOrpcDirectControlFacade:
     requestCiv7NarrativeChoice(input, options),
   requestCiv7DiplomacyResponse: async (input, options) =>
     requestCiv7DiplomacyResponse(input, options),
+  requestCiv7FirstMeetResponse: async (input, options) =>
+    requestCiv7FirstMeetResponse(input, options),
+  requestCiv7GovernmentChoice: async (input, options) =>
+    requestCiv7GovernmentChoice(input, options),
+  requestCiv7CelebrationChoice: async (input, options) =>
+    requestCiv7CelebrationChoice(input, options),
   requestCiv7TechnologyChoiceCloseout: async (input, options) =>
     requestCiv7TechnologyChoiceCloseout(input, options),
   requestCiv7CultureChoiceCloseout: async (input, options) =>
     requestCiv7CultureChoiceCloseout(input, options),
+  requestCiv7TechnologyTarget: async (input, options) =>
+    requestCiv7TechnologyTarget(input, options),
+  requestCiv7CultureTarget: async (input, options) =>
+    requestCiv7CultureTarget(input, options),
+  requestCiv7AttributePurchase: async (input, options) =>
+    requestCiv7AttributePurchase(input, options),
+  requestCiv7AttributeReviewCloseout: async (input, options) =>
+    requestCiv7AttributeReviewCloseout(input, options),
+  requestCiv7TraditionChange: async (input, options) =>
+    requestCiv7TraditionChange(input, options),
+  requestCiv7TraditionReviewCloseout: async (input, options) =>
+    requestCiv7TraditionReviewCloseout(input, options),
+  requestCiv7TownFocusChange: async (input, options) =>
+    requestCiv7TownFocusChange(input, options),
+  requestCiv7TownFocusReviewCloseout: async (input, options) =>
+    requestCiv7TownFocusReviewCloseout(input, options),
   requestCiv7AssignWorkerPlacement: async (input, options) =>
     requestCiv7PlayerOperation({
       playerId: input.playerId,

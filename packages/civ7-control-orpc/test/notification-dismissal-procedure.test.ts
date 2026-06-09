@@ -5,15 +5,18 @@ import { Value } from "typebox/value";
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  Civ7NotificationDismissInputSchema,
-  Civ7NotificationDismissalPostconditionClassificationSchema,
   Civ7NotificationDismissalUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcNotificationDismissalResult,
 } from "../src/index";
+import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const notificationId = { owner: 0, id: 113, type: 20 };
+const Civ7NotificationDismissInputSchema =
+  typeboxInputSchemaFromContractProcedure(
+    Civ7ControlOrpcContract.notifications.dismiss.request,
+  );
 
 describe("notifications.dismiss.request control-oRPC procedure", () => {
   test("owns the caller-facing notification dismiss contract without raw fields", () => {
@@ -24,14 +27,6 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
       notificationId,
       rawCommand: "Game.turn",
     })).toBe(false);
-    expect(Value.Check(
-      Civ7NotificationDismissalPostconditionClassificationSchema,
-      "engine-front-still-live",
-    )).toBe(true);
-    expect(Value.Check(
-      Civ7NotificationDismissalPostconditionClassificationSchema,
-      "pending-runtime-proof",
-    )).toBe(false);
   });
 
   test("calls notification dismissal through native Effect/oRPC ", async () => {

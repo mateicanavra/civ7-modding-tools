@@ -19,8 +19,11 @@ errors, and server-side callers.
 #### Scenario: Package root exposes service-owned surface
 - **WHEN** `@civ7/control-orpc` publishes its root entrypoint
 - **THEN** root exports include service contracts, routers, server-side clients,
-  bridge ingress/bindings, semantic procedure input/output schemas, typed
-  errors, and the context type needed by native callers
+  bridge ingress/bindings, typed errors, and the context type needed by
+  native callers
+- **AND** procedure input/output schemas and their Standard Schema adapters
+  live as contract-owned implementation details consumed through the aggregate
+  `Civ7ControlOrpcContract`, not as caller utility exports
 - **AND** root exports do not publish direct-control runtime-port result
   aliases such as playable-status, notification, ready-actor, production,
   target-action, or closeout request result envelopes
@@ -35,7 +38,7 @@ errors, and server-side callers.
   `@civ7/control-orpc/runtime` entrypoint
 - **AND** the root `@civ7/control-orpc` entrypoint remains focused on
   caller-facing service contracts, routers, clients, bridge ingress/bindings,
-  typed errors, and semantic procedure schemas/results
+  typed errors, and aggregate contract access
 - **AND** the runtime entrypoint does not expose raw command/session/tuner
   payloads or make direct-control result envelopes normal service output
 
@@ -114,6 +117,30 @@ errors, and server-side callers.
   source postcondition classification, and no-repeat proof evidence consumed by
   the procedures
 
+#### Scenario: City town-focus service contracts are offered
+- **WHEN** `city.townFocus.change.request` and
+  `city.townFocus.review.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the contract-local input, output,
+  postcondition, and next-step schemas for those service procedures under the
+  `city` router
+- **AND** change input admits only city ID, growth type, project type, and an
+  optional numeric city arg override, while review input admits only city ID
+- **AND** town-focus change versus review is expressed by the city-domain
+  procedure path rather than a generic operation root, operation type, or raw
+  args input
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, and legacy `verified` remain
+  excluded from procedure input and normal output
+- **AND** sent town-focus results remain pending-runtime-proof and
+  no-repeat guarded until a future source-owned city read/postcondition proves
+  the live town project review state changed
+- **AND** these new per-leaf input/result schemas and Standard Schema adapters
+  stay private to the contract module and are not exported as caller utilities;
+  callers use the aggregate contract/router/server client
+- **AND** direct-control remains the low-level runtime/proof owner for
+  city-command/city-operation town-focus sends, command serialization,
+  validator output, and no-repeat proof facts consumed by the procedures
+
 #### Scenario: Progression choice service contract is offered
 - **WHEN** `progression.technology.choice.request` and
   `progression.culture.choice.request` expose their caller-facing contracts
@@ -130,6 +157,73 @@ errors, and server-side callers.
 - **AND** direct-control remains the runtime/proof owner for technology/culture
   closeout sends, command serialization, notification postcondition
   classifiers, and no-repeat proof semantics consumed by the procedure
+
+#### Scenario: Progression target service contract is offered
+- **WHEN** `progression.technology.target.request` and
+  `progression.culture.target.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the input, output, postcondition, and next-step
+  schemas for those service procedures under the `progression` router
+- **AND** the input admits only player ID and node ID, with technology versus
+  culture expressed by the domain procedure path rather than a generic
+  operation root or operation enum input
+- **AND** the procedure reads current local-player evidence before send and
+  does not treat caller-provided player ID as mutation authority by itself
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, and legacy `verified` remain
+  excluded from procedure input and normal output
+- **AND** sent target-setting results remain pending-runtime-proof and
+  no-repeat guarded until a future source-owned progression read/postcondition
+  proves the live target state changed
+- **AND** direct-control remains the low-level runtime/proof owner for
+  player-operation target sends, command serialization, validator output, and
+  no-repeat proof facts consumed by the procedures
+
+#### Scenario: Government-domain choice service contract is offered
+- **WHEN** `government.choice.request` and
+  `government.celebration.choice.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the input, output, postcondition, and next-step
+  schemas for those service procedures under the `government` router
+- **AND** the input admits only player ID plus government type/action or player
+  ID plus golden-age type, with government versus celebration expressed by the
+  domain procedure path rather than a generic operation root or operation enum
+  input
+- **AND** the procedure reads current local-player evidence before send and
+  does not treat caller-provided player ID as mutation authority by itself
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, and legacy `verified` remain
+  excluded from procedure input and normal output
+- **AND** sent government-domain choices remain pending-runtime-proof and
+  no-repeat guarded until a future source-owned read/postcondition proves the
+  live government or celebration blocker cleared
+- **AND** direct-control remains the low-level runtime/proof owner for
+  player-operation government-domain sends, command serialization, validator
+  output, and no-repeat proof facts consumed by the procedures
+
+#### Scenario: Progression player-choice service contracts are offered
+- **WHEN** `progression.attribute.purchase.request`,
+  `progression.attribute.review.request`,
+  `progression.tradition.change.request`, and
+  `progression.tradition.review.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the contract-local input, output,
+  postcondition, and next-step schemas for those service procedures under the
+  `progression` router
+- **AND** the new public inputs omit caller `playerId`; purchase input admits
+  only an attribute node, tradition change input admits only tradition type and
+  action, and review inputs are closed empty objects
+- **AND** the procedures read current local-player evidence before send and
+  do not treat caller-provided player ID as mutation authority
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, and legacy `verified` remain
+  excluded from procedure input and normal output
+- **AND** sent attribute/tradition player-choice results remain
+  pending-runtime-proof and no-repeat guarded until a future source-owned
+  progression read/postcondition proves the live review state changed
+- **AND** these new per-leaf input/result schemas and Standard Schema adapters
+  stay private to the contract module and are not exported as caller utilities;
+  callers use the aggregate contract/router/server client
+- **AND** direct-control remains the low-level runtime/proof owner for
+  player-operation attribute/tradition sends, command serialization, validator
+  output, and no-repeat proof facts consumed by the procedures
 
 #### Scenario: Service contract ownership is guarded
 - **WHEN** control-oRPC service contracts are checked
@@ -334,6 +428,28 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   authority
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
+#### Scenario: CLI town-focus sends use native city procedures
+- **WHEN** `game play set-town-focus --send` or
+  `game play consider-town-project --send` requests a town-focus mutation
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send paths call the in-process `city.townFocus.change.request`
+  or `city.townFocus.review.request` server-side clients under the `city`
+  router
+- **AND** the procedures' readiness, direct-control city-command/city-operation
+  runtime ports, town-focus proof projection, and no-repeat policy remain
+  authoritative for the sends
+- **AND** the normal JSON result is the semantic city town-focus procedure
+  projection without raw command/session/state/Tuner details, generic
+  operation type or args fields, direct-control operation envelopes, or legacy
+  `verified`
+- **AND** `set-town-focus --closeout --send` composes the native change leaf
+  with the native review leaf instead of falling back to raw direct-control
+  send branches
+- **AND** read-only validation paths remain direct-control
+  city-command/city-operation validation until separate accepted service reads
+  exist
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
 #### Scenario: CLI diplomacy response send uses native diplomacy procedure
 - **WHEN** `game play respond-diplomacy --send` requests a diplomacy response
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
@@ -355,6 +471,28 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   read exists
 - **AND** `game play respond-first-meet` remains outside this slice until a
   separate first-meet service procedure exists
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI first-meet response send uses native diplomacy first-meet procedure
+- **WHEN** `game play respond-first-meet --send` requests a first-meet diplomacy greeting
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process
+  `diplomacy.firstMeet.response.request` server-side client under the
+  `diplomacy` router
+- **AND** the procedure's readiness, direct-control first-meet response proof
+  port, first-meet notification postcondition projection, and no-repeat policy
+  remain authoritative for the send
+- **AND** the procedure keeps first-meet `{ Player1, Player2, Type }` behavior
+  distinct from ordinary `diplomacy.response.request` closeout semantics
+- **AND** the normal JSON result is the semantic first-meet response procedure
+  projection without raw command/session/state/Tuner details,
+  direct-control operation envelopes, before/after notification snapshots, or
+  legacy `verified`
+- **AND** sticky or unmatched first-meet blocker evidence remains
+  sent-unverified and no-repeat guarded
+- **AND** the read-only `game play respond-first-meet` validation path remains
+  direct-control player-operation validation until a separate accepted service
+  read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI narrative choice send uses native narrative procedure
@@ -402,6 +540,79 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   validation until separate accepted service reads exist
 - **AND** caller-visible `--closeout` workflow guidance is retired because send
   mode uses the native service closeout workflow
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI progression target sends use native progression procedures
+- **WHEN** `game play set-tech-target --send` or
+  `game play set-culture-target --send` requests a technology or culture
+  target-setting mutation
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process
+  `progression.technology.target.request` or
+  `progression.culture.target.request` server-side client under the
+  `progression` router
+- **AND** the procedure's readiness, fresh local-player read,
+  direct-control progression target runtime port, target proof projection, and
+  no-repeat policy remain authoritative for the send
+- **AND** the send result uses live local-player evidence rather than treating
+  caller validation `--player-id` as send authority
+- **AND** the normal JSON result is the semantic progression target procedure
+  projection without raw command/session/state/Tuner details, generic
+  operation type or args fields, direct-control operation envelopes, or legacy
+  `verified`
+- **AND** sent target-setting results remain `sent-unverified` with
+  do-not-repeat next steps because local tests do not prove the live
+  progression target changed
+- **AND** the read-only validation paths remain direct-control
+  player-operation validation until separate accepted service reads exist
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI government-domain sends use native government procedures
+- **WHEN** `game play choose-government --send` or
+  `game play choose-celebration --send` requests a government-domain mutation
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send path calls the in-process `government.choice.request` or
+  `government.celebration.choice.request` server-side client under the
+  `government` router
+- **AND** the procedure's readiness, fresh local-player read,
+  direct-control government-domain runtime port, proof projection, and
+  no-repeat policy remain authoritative for the send
+- **AND** the send result uses live local-player evidence rather than treating
+  caller validation `--player-id` as send authority
+- **AND** the normal JSON result is the semantic government-domain procedure
+  projection without raw command/session/state/Tuner details, generic
+  operation type or args fields, direct-control operation envelopes, or legacy
+  `verified`
+- **AND** sent government-domain choices remain `sent-unverified` with
+  do-not-repeat next steps because local tests do not prove the live government
+  or celebration blocker cleared
+- **AND** the read-only validation and option-read paths remain direct-control
+  owned until separate accepted service reads exist
+- **AND** focused CLI tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI attribute/tradition player-choice sends use native progression procedures
+- **WHEN** `game play buy-attribute --send`,
+  `game play consider-attributes --send`,
+  `game play change-tradition --send`, or
+  `game play consider-traditions --send` requests an attribute/tradition
+  progression mutation
+- **THEN** the CLI constructs native control-oRPC context from endpoint flags
+- **AND** the send paths call the in-process progression player-choice
+  server-side client leaves under the `progression` router
+- **AND** send mode does not accept or pass caller `--player-id`; the
+  procedure's readiness, fresh local-player read, direct-control
+  player-operation runtime port, proof projection, and no-repeat policy remain
+  authoritative for the send
+- **AND** the normal JSON result is the semantic progression player-choice
+  procedure projection without raw command/session/state/Tuner details,
+  generic operation type or args fields, direct-control operation envelopes,
+  or legacy `verified`
+- **AND** `--closeout` workflows compose the relevant native purchase/change
+  leaf with its matching native review leaf instead of falling back to raw
+  direct-control send branches
+- **AND** read-only validation paths continue to require `--player-id` and
+  remain direct-control player-operation validation until separate accepted
+  service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: In-game controller bridge preflight is recorded
@@ -689,11 +900,11 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 
 #### Scenario: Game UI controller supports notification dismissal
 - **WHEN** the game-scoped controller context exposes notification dismissal
-  runtime APIs
+  game UI APIs
 - **THEN** the context may execute the service-owned
   `notifications.dismiss.request` procedure through the existing in-process
   router and native readiness and proof procedure middleware
-- **AND** the game UI notification-dismissal access path executes against
+- **AND** the service-owned game UI notification-dismissal access path executes against
   ambient `Game.Notifications`, `NotificationModel`, `GameContext`, and
   notification queue evidence without tuner socket/session command
   serialization
@@ -728,9 +939,13 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** first-ready-unit evidence may project as ready-unit source coverage,
   but selected-unit ids are only hints and MUST NOT become ready-unit blockers
 - **AND** ready-city source reads remain `skipped-unsupported` in game UI
-  context until an official ready-city source exists; selected-city ids and
-  notification target ids are only hints and MUST NOT become ready-city
-  blockers
+  context when official ready-city source evidence is absent
+- **AND** the game UI controller adapter MAY project ready-city source coverage
+  from official evidence only: an end-turn-blocking notification target that
+  resolves to a city, or local-player `Players.Cities` plus
+  `Cities.get(...).Growth.isReadyToPlacePopulation` evidence
+- **AND** selected-city ids, requested city ids, and unrelated notification
+  target ids are only hints and MUST NOT become ready-city blockers
 - **AND** `attention.current` does not recommend `end-turn` without ready actor
   source coverage
 - **AND** truncated notification coverage is marked in the controller read

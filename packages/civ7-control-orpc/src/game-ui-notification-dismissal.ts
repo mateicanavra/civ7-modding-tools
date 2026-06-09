@@ -1,18 +1,25 @@
 import {
-  assertCiv7ComponentId,
-  type Civ7ComponentId,
-} from "../../civ7-component-id.js";
-import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
-
-import type {
-  Civ7NotificationDismissalResult,
-  Civ7NotificationDismissalSummary,
-  Civ7NotificationDismissInput,
-} from "./dismissal-request.js";
-import {
   notificationDismissalPostcondition,
   notificationDismissalPostconditionConfirmed,
-} from "./postconditions.js";
+} from "@civ7/direct-control/play/notifications/postconditions";
+
+import type {
+  Civ7ControlOrpcNotificationDismissalResult,
+} from "./dependencies/direct-control";
+import type { Civ7ControlOrpcComponentId } from "./model/primitives";
+
+type Civ7ComponentId = Civ7ControlOrpcComponentId;
+type Civ7NotificationDismissInput = Readonly<{
+  notificationId: Civ7ComponentId;
+}>;
+type Civ7NotificationDismissalResult =
+  Civ7ControlOrpcNotificationDismissalResult;
+type Civ7NotificationDismissalSummary =
+  Civ7NotificationDismissalResult["before"];
+type Civ7RuntimeProbe<T> = Readonly<
+  | { ok: true; value: T }
+  | { ok: false; error: string }
+>;
 
 type DismissRouteResult = Readonly<{
   ok: boolean;
@@ -60,7 +67,7 @@ export async function requestCiv7GameUiNotificationDismissal(
   input: Civ7NotificationDismissInput,
   target: Civ7GameUiNotificationDismissalTarget = globalThis as Civ7GameUiNotificationDismissalTarget,
 ): Promise<Civ7NotificationDismissalResult> {
-  assertCiv7ComponentId(input.notificationId, "notificationId");
+  assertGameUiComponentId(input.notificationId, "notificationId");
   return notificationDismissalResult(
     input.notificationId,
     { send: true },
@@ -386,6 +393,16 @@ function toComponentId(value: unknown): Civ7ComponentId | null {
   return typeof candidate.type === "number"
     ? { owner: candidate.owner, id: candidate.id, type: candidate.type }
     : { owner: candidate.owner, id: candidate.id };
+}
+
+function assertGameUiComponentId(
+  value: unknown,
+  label = "ComponentID",
+): asserts value is Civ7ComponentId {
+  if (toComponentId(value)) return;
+  throw new Error(
+    `${label} must be a Civ7 ComponentID object with numeric owner, id, and optional type`,
+  );
 }
 
 function componentKey(value: unknown): string {

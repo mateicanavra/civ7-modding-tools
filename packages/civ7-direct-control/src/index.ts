@@ -679,6 +679,25 @@ export {
 } from "./play/unit-summary-procedure.js";
 export type { Civ7UnitSummaryProcedureCallOptions } from "./play/unit-summary-procedure.js";
 export type {
+  Civ7CelebrationChoiceInput,
+  Civ7GovernmentChoiceInput,
+  Civ7GovernmentChoiceKind,
+  Civ7GovernmentChoicePostcondition,
+  Civ7GovernmentChoicePostconditionClassification,
+  Civ7GovernmentDomainChoiceInput,
+  Civ7GovernmentDomainChoiceResult,
+} from "./play/government/choice-request";
+export {
+  CIV7_GOVERNMENT_ACTIVATE_ACTION,
+  requestCiv7CelebrationChoice,
+  requestCiv7GovernmentChoice,
+  requestCiv7GovernmentDomainChoice,
+} from "./play/government/choice-request";
+export {
+  governmentChoiceProofOutcome,
+  governmentChoiceProofPostcondition,
+} from "./proof/government-choice-proof-policy";
+export type {
   Civ7ProgressDashboardInput,
   Civ7ProgressDashboardLegacyPath,
   Civ7ProgressDashboardResult,
@@ -704,7 +723,45 @@ export {
 export {
   getCiv7ProgressDashboard,
   getCiv7TraditionsView,
-};
+} from "./play/progression/reads.js";
+export type {
+  Civ7AttributePurchaseInput,
+  Civ7AttributeReviewInput,
+  Civ7ProgressionPlayerChoiceInput,
+  Civ7ProgressionPlayerChoiceKind,
+  Civ7ProgressionPlayerChoicePostcondition,
+  Civ7ProgressionPlayerChoicePostconditionClassification,
+  Civ7ProgressionPlayerChoiceResult,
+  Civ7TraditionChangeInput,
+  Civ7TraditionReviewInput,
+} from "./play/progression/player-choice-request";
+export {
+  requestCiv7AttributePurchase,
+  requestCiv7AttributeReviewCloseout,
+  requestCiv7ProgressionPlayerChoice,
+  requestCiv7TraditionChange,
+  requestCiv7TraditionReviewCloseout,
+} from "./play/progression/player-choice-request";
+export {
+  progressionPlayerChoiceProofOutcome,
+  progressionPlayerChoiceProofPostcondition,
+} from "./proof/progression-player-choice-proof-policy";
+export type {
+  Civ7ProgressionTargetInput,
+  Civ7ProgressionTargetKind,
+  Civ7ProgressionTargetPostcondition,
+  Civ7ProgressionTargetPostconditionClassification,
+  Civ7ProgressionTargetResult,
+} from "./play/progression/target-request.js";
+export {
+  requestCiv7CultureTarget,
+  requestCiv7ProgressionTarget,
+  requestCiv7TechnologyTarget,
+} from "./play/progression/target-request.js";
+export {
+  progressionTargetProofOutcome,
+  progressionTargetProofPostcondition,
+} from "./proof/progression-target-proof-policy.js";
 export {
   callCiv7TraditionsViewProcedure,
   Civ7TraditionsViewProcedureDescriptor,
@@ -1138,6 +1195,28 @@ export {
   Civ7ProductionChoiceResultSchema,
   requestCiv7ProductionChoice,
 } from "./play/operations/production-choice.js";
+export type {
+  Civ7TownFocusChangeInput,
+  Civ7TownFocusPostcondition,
+  Civ7TownFocusPostconditionClassification,
+  Civ7TownFocusRequestInput,
+  Civ7TownFocusRequestKind,
+  Civ7TownFocusRequestResult,
+  Civ7TownFocusReviewInput,
+} from "./play/city/town-focus-request.js";
+export {
+  requestCiv7TownFocus,
+  requestCiv7TownFocusChange,
+  requestCiv7TownFocusReviewCloseout,
+} from "./play/city/town-focus-request.js";
+export {
+  townFocusProofOutcome,
+  townFocusProofPostcondition,
+} from "./proof/town-focus-proof-policy.js";
+export type {
+  Civ7TownFocusProofOutcome,
+  Civ7TownFocusProofPostcondition,
+} from "./proof/town-focus-proof-policy.js";
 export {
   productionChoicePostconditionConfirmed,
   productionChoicePostconditionOutcome,
@@ -1168,6 +1247,19 @@ export {
   diplomacyResponseProofOutcome,
   diplomacyResponseProofPostcondition,
 } from "./proof/diplomacy-response-proof-policy.js";
+export type {
+  Civ7FirstMeetResponseInput,
+  Civ7FirstMeetResponseResult,
+} from "./play/operations/first-meet-request";
+export { requestCiv7FirstMeetResponse } from "./play/operations/first-meet-request";
+export type {
+  Civ7FirstMeetResponsePostcondition,
+  Civ7FirstMeetResponsePostconditionClassification,
+} from "./play/operations/first-meet-postconditions";
+export {
+  firstMeetResponseProofOutcome,
+  firstMeetResponseProofPostcondition,
+} from "./proof/first-meet-response-proof-policy";
 export type {
   Civ7NarrativeChoiceCommandPayload,
   Civ7NarrativeChoiceInput,

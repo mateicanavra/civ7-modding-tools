@@ -8,16 +8,19 @@ import {
   Civ7CorrelationIdInvalidError,
   Civ7MutationReadinessRequiredError,
   Civ7MutationReadinessUnavailableError,
-  Civ7CityProductionChoiceInputSchema,
-  Civ7CityProductionChoicePostconditionClassificationSchema,
   Civ7ProductionChoiceUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcProductionChoiceResult,
 } from "../src/index";
+import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const cityId = { owner: 0, id: 65_536, type: 1 };
 const args = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
+const Civ7CityProductionChoiceInputSchema =
+  typeboxInputSchemaFromContractProcedure(
+    Civ7ControlOrpcContract.city.production.choice.request,
+  );
 
 describe("city.production.choice.request control-oRPC procedure", () => {
   test("owns the caller-facing production choice contract without raw fields", () => {
@@ -39,14 +42,6 @@ describe("city.production.choice.request control-oRPC procedure", () => {
       cityId,
       args: { UnitType: 102, ConstructibleType: 713_967_338 },
     })).toBe(false);
-    expect(Value.Check(
-      Civ7CityProductionChoicePostconditionClassificationSchema,
-      "production-state-changed-blocker-still-live",
-    )).toBe(true);
-    expect(Value.Check(
-      Civ7CityProductionChoicePostconditionClassificationSchema,
-      "pending-runtime-proof",
-    )).toBe(false);
   });
 
   test("calls the production choice mutation through native Effect/oRPC ", async () => {

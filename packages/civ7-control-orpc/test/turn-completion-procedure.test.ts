@@ -5,13 +5,17 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  Civ7TurnCompletionInputSchema,
   Civ7TurnCompletionUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
   type Civ7TurnCompletionResult,
 } from "../src/index";
 import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../src/dependencies/direct-control";
+import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+
+const Civ7TurnCompletionInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.turn.complete.request,
+);
 
 describe("turn.complete.request control-oRPC procedure", () => {
   test("owns the caller-facing turn completion input without runtime controls", () => {

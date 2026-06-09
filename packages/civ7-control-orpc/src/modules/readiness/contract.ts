@@ -6,7 +6,7 @@ import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7ReadinessCurrentInputSchema = Type.Object(
+const Civ7ReadinessCurrentInputSchema = Type.Object(
   {},
   { additionalProperties: false },
 );
@@ -90,7 +90,7 @@ export const Civ7ReadinessNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7ReadinessCurrentResultSchema = Type.Object(
+const Civ7ReadinessCurrentResultSchema = Type.Object(
   {
     playable: Type.Boolean(),
     readiness: Civ7ReadinessLevelSchema,
@@ -106,10 +106,10 @@ export type Civ7ReadinessCurrentResult = Static<
   typeof Civ7ReadinessCurrentResultSchema
 >;
 
-export const Civ7ReadinessCurrentInputStandardSchema = toStandardSchema(
+const Civ7ReadinessCurrentInputStandardSchema = toStandardSchema(
   Civ7ReadinessCurrentInputSchema,
 );
-export const Civ7ReadinessCurrentResultStandardSchema = toStandardSchema(
+const Civ7ReadinessCurrentResultStandardSchema = toStandardSchema(
   Civ7ReadinessCurrentResultSchema,
 );
 

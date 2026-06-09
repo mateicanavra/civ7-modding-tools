@@ -84,27 +84,60 @@ describe('game play culture commands', () => {
     }
   });
 
-  test('wraps culture target as SET_CULTURE_TREE_TARGET_NODE', async () => {
+  test('routes culture target sends through progression oRPC with local-player evidence', async () => {
     const server = await startCultureTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlaySetCultureTarget.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
-      await runCommand(GamePlaySetCultureTarget, [
+      await GamePlaySetCultureTarget.run([
         '--host',
         '127.0.0.1',
         '--port',
         String(port),
         '--player-id',
-        '0',
+        '2',
         '--node',
         '-1677668973',
         '--send',
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: ProgressionTargetSendResult;
+      };
+      expect(payload.result).toMatchObject({
+        playerId: 0,
+        node: -1677668973,
+        sent: true,
+        status: 'sent-unverified',
+        validation: {
+          beforeValid: true,
+          afterValid: true,
+        },
+        postcondition: {
+          classification: 'pending-runtime-proof',
+          outcome: 'unknown',
+          confidence: 'pending-runtime-proof',
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'progression.culture.target.request',
+      });
+      expectSemanticProgressionTargetOmitsRawRuntimeDetails(payload.result);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":-1677668973'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"playerId":0'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"playerId":2'))).toBe(false);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -309,6 +342,26 @@ type ProgressionChoiceSendResult = {
   nextSteps: Array<{ kind: string; source: string; label: string }>;
 };
 
+type ProgressionTargetSendResult = {
+  playerId: number;
+  node: number;
+  sent: boolean;
+  status: string;
+  validation: {
+    beforeValid: boolean;
+    afterValid: boolean;
+  };
+  postcondition: {
+    classification: string;
+    reason: string;
+    outcome: string;
+    confidence: string;
+    confirmed: boolean;
+    noRepeatAfterUnverified: boolean;
+  };
+  nextSteps: Array<{ kind: string; source: string; label: string }>;
+};
+
 function expectSemanticProgressionChoiceOmitsRawRuntimeDetails(result: unknown) {
   const serialized = JSON.stringify(result);
   expect(serialized).not.toContain('"host"');
@@ -324,6 +377,22 @@ function expectSemanticProgressionChoiceOmitsRawRuntimeDetails(result: unknown) 
   expect(serialized).not.toContain('"appUiCloseout"');
   expect(serialized).not.toContain('Game.PlayerOperations');
   expect(serialized).not.toContain('sendCultureChoiceCloseout');
+}
+
+function expectSemanticProgressionTargetOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"operation"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
+  expect(serialized).not.toContain('Game.PlayerOperations');
+  expect(serialized).not.toContain('SET_CULTURE_TREE_TARGET_NODE');
 }
 
 type CommandClass = {

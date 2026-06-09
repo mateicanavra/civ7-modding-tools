@@ -7,7 +7,7 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcMapLocationSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7StrategyFrontSummaryInputSchema = Type.Object(
+const Civ7StrategyFrontSummaryInputSchema = Type.Object(
   {
     playerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 1024 })),
     origins: Type.Optional(Type.Array(Civ7ControlOrpcMapLocationSchema)),
@@ -99,7 +99,7 @@ export const Civ7StrategyFrontSummaryNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7StrategyFrontSummaryResultSchema = Type.Object(
+const Civ7StrategyFrontSummaryResultSchema = Type.Object(
   {
     playerId: Type.Integer({ minimum: 0 }),
     localPlayerId: Type.Integer({ minimum: 0 }),
@@ -127,10 +127,10 @@ export type Civ7StrategyFrontSummaryResult = Static<
   typeof Civ7StrategyFrontSummaryResultSchema
 >;
 
-export const Civ7StrategyFrontSummaryInputStandardSchema = toStandardSchema(
+const Civ7StrategyFrontSummaryInputStandardSchema = toStandardSchema(
   Civ7StrategyFrontSummaryInputSchema,
 );
-export const Civ7StrategyFrontSummaryResultStandardSchema = toStandardSchema(
+const Civ7StrategyFrontSummaryResultStandardSchema = toStandardSchema(
   Civ7StrategyFrontSummaryResultSchema,
 );
 

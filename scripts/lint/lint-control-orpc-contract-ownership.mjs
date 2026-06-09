@@ -12,6 +12,10 @@ const contractRoot = join(
 
 const contractFiles = collectContractFiles(contractRoot);
 const violations = [];
+const contractSchemaExportViolations = [];
+const publicSurfaceViolations = [];
+const procedureSchemaExportPattern =
+  /^export\s+const\s+(Civ7[A-Za-z0-9]+(?:Input|Result|Output)Schema|Civ7[A-Za-z0-9]+StandardSchema)\b/;
 
 for (const file of contractFiles) {
   const source = readFileSync(file, "utf8");
@@ -22,6 +26,46 @@ for (const file of contractFiles) {
         path: relative(repoRoot, file),
         line: index + 1,
         text: line.trim(),
+      });
+    }
+    const procedureSchemaExport = line.match(procedureSchemaExportPattern);
+    if (procedureSchemaExport) {
+      contractSchemaExportViolations.push({
+        path: relative(repoRoot, file),
+        line: index + 1,
+        symbol: procedureSchemaExport[1],
+      });
+    }
+  });
+}
+
+const publicIndex = join(
+  repoRoot,
+  "packages/civ7-control-orpc/src/index.ts",
+);
+const publicIndexSource = readFileSync(publicIndex, "utf8");
+const exportBlockPattern = /export\s*\{([\s\S]*?)\}\s*from\s*"([^"]+)";/g;
+const moduleContractSchemaPattern = /\bCiv7[A-Za-z0-9]+Schema\b/g;
+
+for (const block of publicIndexSource.matchAll(exportBlockPattern)) {
+  const exportedNames = block[1];
+  const modulePath = block[2];
+  if (!/^\.\/modules\/[^"]+\/contract$/.test(modulePath)) continue;
+
+  const startLine = publicIndexSource.slice(0, block.index).split(/\r?\n/)
+    .length;
+  const blockLines = exportedNames.split(/\r?\n/);
+
+  blockLines.forEach((line, offset) => {
+    const matches = [...line.matchAll(moduleContractSchemaPattern)];
+    for (const match of matches) {
+      const symbol = match[0];
+      const lineNumber = startLine + offset + 1;
+      publicSurfaceViolations.push({
+        path: relative(repoRoot, publicIndex),
+        line: lineNumber,
+        symbol,
+        modulePath,
       });
     }
   });
@@ -36,6 +80,32 @@ if (violations.length > 0) {
   }
   console.error(
     "Move caller-facing contract schemas into packages/civ7-control-orpc, or keep direct-control imports in runtime/proof procedures instead.",
+  );
+  process.exit(1);
+}
+
+if (contractSchemaExportViolations.length > 0) {
+  console.error("control-oRPC module contract schema guard failed:");
+  for (const violation of contractSchemaExportViolations) {
+    console.error(
+      `- ${violation.path}:${violation.line} exports procedure schema ${violation.symbol}`,
+    );
+  }
+  console.error(
+    "Keep procedure input/result/output schemas and Standard Schema wrappers private to their contract module; expose the aggregate contract, DTO types, and real entity/bridge schemas instead.",
+  );
+  process.exit(1);
+}
+
+if (publicSurfaceViolations.length > 0) {
+  console.error("control-oRPC public contract surface guard failed:");
+  for (const violation of publicSurfaceViolations) {
+    console.error(
+      `- ${violation.path}:${violation.line} exports contract-local schema ${violation.symbol} from ${violation.modulePath}`,
+    );
+  }
+  console.error(
+    "Expose the aggregate contract/router/client surface from the package root; keep module schemas with their contract modules.",
   );
   process.exit(1);
 }

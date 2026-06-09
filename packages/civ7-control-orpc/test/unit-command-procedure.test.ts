@@ -6,14 +6,19 @@ import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7UnitRequestUnavailableError,
-  Civ7UnitResettleInputSchema,
-  Civ7UnitUpgradeInputSchema,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
 } from "../src/index";
+import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
 
 const unitId = { owner: 0, id: 1769488, type: 26 };
 const destination = { x: 17, y: 25 };
+const Civ7UnitUpgradeInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.upgrade.request,
+);
+const Civ7UnitResettleInputSchema = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.resettle.request,
+);
 
 type UnitCommandRuntimeResult = Awaited<
   ReturnType<Civ7ControlOrpcContext["directControl"]["requestCiv7UnitCommand"]>

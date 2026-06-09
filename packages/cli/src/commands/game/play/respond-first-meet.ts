@@ -1,13 +1,13 @@
 import { Command, Flags } from '@oclif/core';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
   buildDirectControlOptions,
   emitPlayResult,
-  sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 import {
   executeCiv7AppUiCommand,
-  getCiv7PlayNotificationView,
   type Civ7DirectControlOptions,
 } from '@civ7/direct-control';
 
@@ -70,8 +70,22 @@ export default class GamePlayRespondFirstMeet extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayRespondFirstMeet);    const options = buildDirectControlOptions(flags);
+    const { flags } = await this.parse(GamePlayRespondFirstMeet);
+    const options = buildDirectControlOptions(flags);
     const responseType = flags['response-type'] ?? await resolveFirstMeetResponseType(flags.response as FirstMeetResponse | undefined, options);
+    if (flags.send) {
+      const result = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        endpointDefaults: options,
+      }).diplomacy.firstMeet.response.request({
+        playerId: flags['player-id'],
+        metPlayerId: flags['met-player-id'],
+        responseType,
+      });
+      emitPlayResult(this.log.bind(this), flags.json, result);
+      return;
+    }
+
     const input = {
       operationType: RESPOND_DIPLOMATIC_FIRST_MEET,
       playerId: flags['player-id'],
@@ -81,125 +95,10 @@ export default class GamePlayRespondFirstMeet extends Command {
         Type: responseType,
       },
     };
-    const before = flags.send ? await getCiv7PlayNotificationView(options) : null;
-    const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options)
-      : await validatePlayOperation('player-operation', input, options);
-
-    if (flags.send && before) {
-      const after = await waitForFirstMeetPostcondition(before, options, flags['met-player-id']);
-      const postcondition = firstMeetPostcondition(before, after, flags['met-player-id']);
-      emitPlayResult(this.log.bind(this), flags.json, {
-        ...result,
-        verified: operationSent(result) && postcondition.verified,
-        before,
-        after,
-        postcondition,
-      });
-      return;
-    }
+    const result = await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
-}
-
-async function waitForFirstMeetPostcondition(
-  before: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-  options: Civ7DirectControlOptions,
-  metPlayerId: number,
-): Promise<Awaited<ReturnType<typeof getCiv7PlayNotificationView>>> {
-  const startedAt = Date.now();
-  const timeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
-  let last = await getCiv7PlayNotificationView(options);
-  while (Date.now() - startedAt <= timeoutMs) {
-    const postcondition = firstMeetPostcondition(before, last, metPlayerId);
-    if (postcondition.classification !== 'first-meet-sticky-blocker') return last;
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    last = await getCiv7PlayNotificationView(options);
-  }
-  return last;
-}
-
-function firstMeetPostcondition(
-  before: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-  after: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-  metPlayerId: number,
-): {
-  classification:
-    | 'turn-unblocked'
-    | 'first-meet-cleared'
-    | 'first-meet-blocker-transitioned'
-    | 'first-meet-sticky-blocker'
-    | 'first-meet-blocker-unmatched';
-  verified: boolean;
-  reason: string;
-} {
-  if (probeValue(after.canEndTurn) === true) {
-    return {
-      classification: 'turn-unblocked',
-      verified: true,
-      reason: 'The first-meet response left the turn unblocked.',
-    };
-  }
-  const beforeBlocker = findFirstMeetNotification(before, metPlayerId);
-  if (!beforeBlocker) {
-    return {
-      classification: 'first-meet-blocker-unmatched',
-      verified: false,
-      reason: 'No matching end-turn-blocking first-meet notification was captured before the send.',
-    };
-  }
-  const afterBlocker = findFirstMeetNotification(after, metPlayerId);
-  if (!afterBlocker) {
-    return {
-      classification: 'first-meet-cleared',
-      verified: true,
-      reason: 'The matching first-meet notification is no longer end-turn-blocking.',
-    };
-  }
-  if (!sameNotificationId(beforeBlocker.id, afterBlocker.id)) {
-    return {
-      classification: 'first-meet-blocker-transitioned',
-      verified: false,
-      reason: 'A matching first-meet blocker changed identity after the response but still blocks turn flow.',
-    };
-  }
-  return {
-    classification: 'first-meet-sticky-blocker',
-    verified: false,
-    reason: 'The first-meet operation returned, but the same first-meet notification still blocks turn flow.',
-  };
-}
-
-function findFirstMeetNotification(
-  view: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-  metPlayerId: number,
-): { id?: unknown } | null {
-  return view.notifications.find((notification) => {
-    const typeName = String(notification.typeName ?? '').toUpperCase();
-    if (notification.isEndTurnBlocking !== true || !typeName.includes('PLAYER_MET')) return false;
-    const player = notificationPlayerId(notification);
-    return player === null || player === metPlayerId;
-  }) ?? null;
-}
-
-function notificationPlayerId(value: unknown): number | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.player === 'number') return value.player;
-  const details = value.details;
-  if (isRecord(details) && typeof details.player2 === 'number') return details.player2;
-  const decision = value.decision;
-  if (isRecord(decision) && typeof decision.player === 'number') return decision.player;
-  return null;
-}
-
-function sameNotificationId(left: unknown, right: unknown): boolean {
-  if (!isRecord(left) || !isRecord(right)) return left == null && right == null;
-  return left.owner === right.owner && left.id === right.id && left.type === right.type;
-}
-
-function operationSent(value: unknown): boolean {
-  return isRecord(value) && value.sent === true;
 }
 
 async function resolveFirstMeetResponseType(
@@ -230,15 +129,4 @@ async function resolveFirstMeetResponseType(
     throw new Error(`Could not resolve first-meet response enum ${key}: ${String(payload.value)}`);
   }
   return payload.value;
-}
-
-function probeValue(value: unknown): unknown {
-  if (isRecord(value) && 'ok' in value) {
-    return value.ok === true ? value.value ?? null : null;
-  }
-  return value ?? null;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

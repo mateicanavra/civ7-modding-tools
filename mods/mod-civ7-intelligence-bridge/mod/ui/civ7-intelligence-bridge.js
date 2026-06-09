@@ -4567,4210 +4567,6 @@ __export(typebox_exports, {
   Void: () => Void
 });
 
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/_guard.mjs
-function IsGuardInterface(value2) {
-  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, "check") && guard_exports.HasPropertyKey(value2, "errors") && guard_exports.IsFunction(value2.check) && guard_exports.IsFunction(value2.errors);
-}
-function IsGuard2(value2) {
-  return guard_exports.HasPropertyKey(value2, "~guard") && IsGuardInterface(value2["~guard"]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/_refine.mjs
-function IsRefine2(value2) {
-  return guard_exports.HasPropertyKey(value2, "~refine") && guard_exports.IsArray(value2["~refine"]) && guard_exports.Every(value2["~refine"], 0, (value3) => guard_exports.IsObject(value3) && guard_exports.HasPropertyKey(value3, "refine") && guard_exports.HasPropertyKey(value3, "message") && guard_exports.IsFunction(value3.refine) && guard_exports.IsString(value3.message));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/schema.mjs
-function IsSchemaObject(value2) {
-  return guard_exports.IsObject(value2) && !guard_exports.IsArray(value2);
-}
-function IsBooleanSchema(value2) {
-  return guard_exports.IsBoolean(value2);
-}
-function IsSchema2(value2) {
-  return IsSchemaObject(value2) || IsBooleanSchema(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/additionalItems.mjs
-function IsAdditionalItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "additionalItems") && IsSchema2(schema.additionalItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/additionalProperties.mjs
-function IsAdditionalProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "additionalProperties") && IsSchema2(schema.additionalProperties);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/allOf.mjs
-function IsAllOf(schema) {
-  return guard_exports.HasPropertyKey(schema, "allOf") && guard_exports.IsArray(schema.allOf) && schema.allOf.every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/anchor.mjs
-function IsAnchor(schema) {
-  return guard_exports.HasPropertyKey(schema, "$anchor") && guard_exports.IsString(schema.$anchor);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/anyOf.mjs
-function IsAnyOf(schema) {
-  return guard_exports.HasPropertyKey(schema, "anyOf") && guard_exports.IsArray(schema.anyOf) && schema.anyOf.every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/const.mjs
-function IsConst(value2) {
-  return guard_exports.HasPropertyKey(value2, "const");
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/contains.mjs
-function IsContains(schema) {
-  return guard_exports.HasPropertyKey(schema, "contains") && IsSchema2(schema.contains);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/default.mjs
-function IsDefault(schema) {
-  return guard_exports.HasPropertyKey(schema, "default");
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependencies.mjs
-function IsDependencies(schema) {
-  return guard_exports.HasPropertyKey(schema, "dependencies") && guard_exports.IsObject(schema.dependencies) && Object.values(schema.dependencies).every((value2) => IsSchema2(value2) || guard_exports.IsArray(value2) && value2.every((value3) => guard_exports.IsString(value3)));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependentRequired.mjs
-function IsDependentRequired(schema) {
-  return guard_exports.HasPropertyKey(schema, "dependentRequired") && guard_exports.IsObject(schema.dependentRequired) && Object.values(schema.dependentRequired).every((value2) => guard_exports.IsArray(value2) && value2.every((value3) => guard_exports.IsString(value3)));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependentSchemas.mjs
-function IsDependentSchemas(schema) {
-  return guard_exports.HasPropertyKey(schema, "dependentSchemas") && guard_exports.IsObject(schema.dependentSchemas) && Object.values(schema.dependentSchemas).every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dynamicAnchor.mjs
-function IsDynamicAnchor(schema) {
-  return guard_exports.HasPropertyKey(schema, "$dynamicAnchor") && guard_exports.IsString(schema.$dynamicAnchor);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/else.mjs
-function IsElse(schema) {
-  return guard_exports.HasPropertyKey(schema, "else") && IsSchema2(schema.else);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/enum.mjs
-function IsEnum2(schema) {
-  return guard_exports.HasPropertyKey(schema, "enum") && guard_exports.IsArray(schema.enum);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/exclusiveMaximum.mjs
-function IsExclusiveMaximum(schema) {
-  return guard_exports.HasPropertyKey(schema, "exclusiveMaximum") && (guard_exports.IsNumber(schema.exclusiveMaximum) || guard_exports.IsBigInt(schema.exclusiveMaximum));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/exclusiveMinimum.mjs
-function IsExclusiveMinimum(schema) {
-  return guard_exports.HasPropertyKey(schema, "exclusiveMinimum") && (guard_exports.IsNumber(schema.exclusiveMinimum) || guard_exports.IsBigInt(schema.exclusiveMinimum));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/format.mjs
-function IsFormat(schema) {
-  return guard_exports.HasPropertyKey(schema, "format") && guard_exports.IsString(schema.format);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/id.mjs
-function IsId(schema) {
-  return guard_exports.HasPropertyKey(schema, "$id") && guard_exports.IsString(schema.$id);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/if.mjs
-function IsIf(schema) {
-  return guard_exports.HasPropertyKey(schema, "if") && IsSchema2(schema.if);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/items.mjs
-function IsItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "items") && (IsSchema2(schema.items) || guard_exports.IsArray(schema.items) && schema.items.every((value2) => {
-    return IsSchema2(value2);
-  }));
-}
-function IsItemsSized(schema) {
-  return IsItems(schema) && guard_exports.IsArray(schema.items);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maximum.mjs
-function IsMaximum(schema) {
-  return guard_exports.HasPropertyKey(schema, "maximum") && (guard_exports.IsNumber(schema.maximum) || guard_exports.IsBigInt(schema.maximum));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxContains.mjs
-function IsMaxContains(schema) {
-  return guard_exports.HasPropertyKey(schema, "maxContains") && guard_exports.IsNumber(schema.maxContains);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxItems.mjs
-function IsMaxItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "maxItems") && guard_exports.IsNumber(schema.maxItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxLength.mjs
-function IsMaxLength4(schema) {
-  return guard_exports.HasPropertyKey(schema, "maxLength") && guard_exports.IsNumber(schema.maxLength);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxProperties.mjs
-function IsMaxProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "maxProperties") && guard_exports.IsNumber(schema.maxProperties);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minimum.mjs
-function IsMinimum(schema) {
-  return guard_exports.HasPropertyKey(schema, "minimum") && (guard_exports.IsNumber(schema.minimum) || guard_exports.IsBigInt(schema.minimum));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minContains.mjs
-function IsMinContains(schema) {
-  return guard_exports.HasPropertyKey(schema, "minContains") && guard_exports.IsNumber(schema.minContains);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minItems.mjs
-function IsMinItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "minItems") && guard_exports.IsNumber(schema.minItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minLength.mjs
-function IsMinLength4(schema) {
-  return guard_exports.HasPropertyKey(schema, "minLength") && guard_exports.IsNumber(schema.minLength);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minProperties.mjs
-function IsMinProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "minProperties") && guard_exports.IsNumber(schema.minProperties);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/multipleOf.mjs
-function IsMultipleOf2(schema) {
-  return guard_exports.HasPropertyKey(schema, "multipleOf") && (guard_exports.IsNumber(schema.multipleOf) || guard_exports.IsBigInt(schema.multipleOf));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/not.mjs
-function IsNot(schema) {
-  return guard_exports.HasPropertyKey(schema, "not") && IsSchema2(schema.not);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/oneOf.mjs
-function IsOneOf(schema) {
-  return guard_exports.HasPropertyKey(schema, "oneOf") && guard_exports.IsArray(schema.oneOf) && schema.oneOf.every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/pattern.mjs
-function IsPattern(schema) {
-  return guard_exports.HasPropertyKey(schema, "pattern") && (guard_exports.IsString(schema.pattern) || schema.pattern instanceof RegExp);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/patternProperties.mjs
-function IsPatternProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "patternProperties") && guard_exports.IsObject(schema.patternProperties) && Object.values(schema.patternProperties).every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/prefixItems.mjs
-function IsPrefixItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "prefixItems") && guard_exports.IsArray(schema.prefixItems) && schema.prefixItems.every((schema2) => IsSchema2(schema2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/properties.mjs
-function IsProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "properties") && guard_exports.IsObject(schema.properties) && Object.values(schema.properties).every((value2) => IsSchema2(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/propertyNames.mjs
-function IsPropertyNames(schema) {
-  return guard_exports.HasPropertyKey(schema, "propertyNames") && (guard_exports.IsObject(schema.propertyNames) || IsSchema2(schema.propertyNames));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/recursiveAnchor.mjs
-function IsRecursiveAnchor(schema) {
-  return guard_exports.HasPropertyKey(schema, "$recursiveAnchor") && guard_exports.IsBoolean(schema.$recursiveAnchor);
-}
-function IsRecursiveAnchorTrue(schema) {
-  return IsRecursiveAnchor(schema) && guard_exports.IsEqual(schema.$recursiveAnchor, true);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/recursiveRef.mjs
-function IsRecursiveRef(schema) {
-  return guard_exports.HasPropertyKey(schema, "$recursiveRef") && guard_exports.IsString(schema.$recursiveRef);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/ref.mjs
-function IsRef2(schema) {
-  return guard_exports.HasPropertyKey(schema, "$ref") && guard_exports.IsString(schema.$ref);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/required.mjs
-function IsRequired(schema) {
-  return guard_exports.HasPropertyKey(schema, "required") && guard_exports.IsArray(schema.required) && schema.required.every((value2) => guard_exports.IsString(value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/then.mjs
-function IsThen(schema) {
-  return guard_exports.HasPropertyKey(schema, "then") && IsSchema2(schema.then);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/type.mjs
-function IsType(schema) {
-  return guard_exports.HasPropertyKey(schema, "type") && (guard_exports.IsString(schema.type) || guard_exports.IsArray(schema.type) && schema.type.every((value2) => guard_exports.IsString(value2)));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/uniqueItems.mjs
-function IsUniqueItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "uniqueItems") && guard_exports.IsBoolean(schema.uniqueItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/unevaluatedItems.mjs
-function IsUnevaluatedItems(schema) {
-  return guard_exports.HasPropertyKey(schema, "unevaluatedItems") && IsSchema2(schema.unevaluatedItems);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/unevaluatedProperties.mjs
-function IsUnevaluatedProperties(schema) {
-  return guard_exports.HasPropertyKey(schema, "unevaluatedProperties") && IsSchema2(schema.unevaluatedProperties);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_context.mjs
-function HasUnevaluatedFromObject(value2) {
-  return IsUnevaluatedItems(value2) || IsUnevaluatedProperties(value2) || guard_exports.Keys(value2).some((key) => HasUnevaluatedFromUnknown(value2[key]));
-}
-function HasUnevaluatedFromArray(value2) {
-  return value2.some((value3) => HasUnevaluatedFromUnknown(value3));
-}
-function HasUnevaluatedFromUnknown(value2) {
-  return guard_exports.IsArray(value2) ? HasUnevaluatedFromArray(value2) : guard_exports.IsObject(value2) ? HasUnevaluatedFromObject(value2) : false;
-}
-function HasUnevaluated(context5, schema) {
-  return HasUnevaluatedFromUnknown(schema) || guard_exports.Keys(context5).some((key) => HasUnevaluatedFromUnknown(context5[key]));
-}
-var BuildContext = class {
-  constructor(hasUnevaluated) {
-    this.hasUnevaluated = hasUnevaluated;
-  }
-  UseUnevaluated() {
-    return this.hasUnevaluated;
-  }
-  AddIndex(index2) {
-    return emit_exports.Call(emit_exports.Member("context", "AddIndex"), [index2]);
-  }
-  AddKey(key) {
-    return emit_exports.Call(emit_exports.Member("context", "AddKey"), [key]);
-  }
-  Merge(results) {
-    return emit_exports.Call(emit_exports.Member("context", "Merge"), [results]);
-  }
-};
-var CheckContext = class {
-  constructor() {
-    this.indices = /* @__PURE__ */ new Set();
-    this.keys = /* @__PURE__ */ new Set();
-  }
-  AddIndex(index2) {
-    this.indices.add(index2);
-    return true;
-  }
-  AddKey(key) {
-    this.keys.add(key);
-    return true;
-  }
-  GetIndices() {
-    return this.indices;
-  }
-  GetKeys() {
-    return this.keys;
-  }
-  Merge(results) {
-    for (const context5 of results) {
-      context5.indices.forEach((value2) => this.indices.add(value2));
-      context5.keys.forEach((value2) => this.keys.add(value2));
-    }
-    return true;
-  }
-};
-var ErrorContext = class extends CheckContext {
-  constructor(callback) {
-    super();
-    this.callback = callback;
-  }
-  AddError(error) {
-    this.callback(error);
-    return false;
-  }
-};
-var AccumulatedErrorContext = class extends ErrorContext {
-  constructor() {
-    super((error) => this.errors.push(error));
-    this.errors = [];
-  }
-  AddError(error) {
-    this.errors.push(error);
-    return false;
-  }
-  GetErrors() {
-    return this.errors;
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_externals.mjs
-var identifier = "external_";
-var resetCount = 0;
-var state = {
-  identifier: `${identifier}${resetCount}`,
-  variables: []
-};
-function ResetExternal() {
-  state.identifier = `${identifier}${resetCount}`;
-  state.variables = [];
-  resetCount += 1;
-}
-function CreateVariable(value2) {
-  const call2 = `${state.identifier}[${state.variables.length}]`;
-  state.variables.push(value2);
-  return call2;
-}
-function GetExternal() {
-  return state;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_guard.mjs
-function BuildGuard(stack, context5, schema, value2) {
-  return emit_exports.Call(emit_exports.Member(emit_exports.Member(CreateVariable(schema), "~guard"), "check"), [value2]);
-}
-function CheckGuard(stack, context5, schema, value2) {
-  return schema["~guard"].check(value2);
-}
-function ErrorGuard(stack, context5, schemaPath, instancePath, schema, value2) {
-  return schema["~guard"].check(value2) || context5.AddError({
-    keyword: "~guard",
-    schemaPath,
-    instancePath,
-    params: { errors: schema["~guard"].errors(value2) }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_refine.mjs
-function BuildRefine(stack, context5, schema, value2) {
-  const refinements = CreateVariable(schema["~refine"].map((refinement) => refinement));
-  return emit_exports.Every(refinements, emit_exports.Constant(0), ["refinement", "_"], emit_exports.Call(emit_exports.Member("refinement", "refine"), [value2]));
-}
-function CheckRefine(stack, context5, schema, value2) {
-  return guard_exports.Every(schema["~refine"], 0, (refinement, _) => refinement.refine(value2));
-}
-function ErrorRefine(stack, context5, schemaPath, instancePath, schema, value2) {
-  return guard_exports.EveryAll(schema["~refine"], 0, (refinement, index2) => {
-    return refinement.refine(value2) || context5.AddError({
-      keyword: "~refine",
-      schemaPath,
-      instancePath,
-      params: { index: index2, message: refinement.message }
-    });
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_unique.mjs
-var index = 0;
-function Unique() {
-  return `var_${index++}`;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/additionalItems.mjs
-function IsValid(schema) {
-  return IsItems(schema) && guard_exports.IsArray(schema.items);
-}
-function BuildAdditionalItems(stack, context5, schema, value2) {
-  if (!IsValid(schema))
-    return emit_exports.Constant(true);
-  const [item, index2] = [Unique(), Unique()];
-  const isSchema = BuildSchema(stack, context5, schema.additionalItems, item);
-  const isLength = emit_exports.IsLessThan(index2, emit_exports.Constant(schema.items.length));
-  const addIndex = context5.AddIndex(index2);
-  const guarded = context5.UseUnevaluated() ? emit_exports.Or(isLength, emit_exports.And(isSchema, addIndex)) : emit_exports.Or(isLength, isSchema);
-  return emit_exports.Call(emit_exports.Member(value2, "every"), [emit_exports.ArrowFunction([item, index2], guarded)]);
-}
-function CheckAdditionalItems(stack, context5, schema, value2) {
-  if (!IsValid(schema))
-    return true;
-  const isAdditionalItems = value2.every((item, index2) => {
-    return guard_exports.IsLessThan(index2, schema.items.length) || CheckSchema(stack, context5, schema.additionalItems, item) && context5.AddIndex(index2);
-  });
-  return isAdditionalItems;
-}
-function ErrorAdditionalItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  if (!IsValid(schema))
-    return true;
-  const isAdditionalItems = value2.every((item, index2) => {
-    const nextSchemaPath = `${schemaPath}/additionalItems`;
-    const nextInstancePath = `${instancePath}/${index2}`;
-    return guard_exports.IsLessThan(index2, schema.items.length) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema.additionalItems, item) && context5.AddIndex(index2);
-  });
-  return isAdditionalItems;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/additionalProperties.mjs
-function GetPropertyKeyAsPattern(key) {
-  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return `^${escaped}$`;
-}
-function GetPropertiesPattern(schema) {
-  const patterns = [];
-  if (IsPatternProperties(schema))
-    patterns.push(...guard_exports.Keys(schema.patternProperties));
-  if (IsProperties(schema))
-    patterns.push(...guard_exports.Keys(schema.properties).map(GetPropertyKeyAsPattern));
-  return guard_exports.IsEqual(patterns.length, 0) ? "(?!)" : `(${patterns.join("|")})`;
-}
-function CanAdditionalPropertiesFast(context5, schema, value2) {
-  return IsRequired(schema) && IsProperties(schema) && !IsPatternProperties(schema) && guard_exports.IsEqual(schema.additionalProperties, false) && guard_exports.IsEqual(guard_exports.Keys(schema.properties).length, schema.required.length);
-}
-function BuildAdditionalPropertiesFast(context5, schema, value2) {
-  return emit_exports.IsEqual(emit_exports.Member(emit_exports.Call(emit_exports.Member("Object", "getOwnPropertyNames"), [value2]), "length"), emit_exports.Constant(schema.required.length));
-}
-function BuildAdditionalPropertiesStandard(stack, context5, schema, value2) {
-  const [key, _index] = [Unique(), Unique()];
-  const regexp = CreateVariable(new RegExp(GetPropertiesPattern(schema)));
-  const isSchema = BuildSchema(stack, context5, schema.additionalProperties, `${value2}[${key}]`);
-  const isKey = emit_exports.Call(emit_exports.Member(regexp, "test"), [key]);
-  const addKey = context5.AddKey(key);
-  const guarded = context5.UseUnevaluated() ? emit_exports.Or(isKey, emit_exports.And(isSchema, addKey)) : emit_exports.Or(isKey, isSchema);
-  const result = emit_exports.Every(emit_exports.Keys(value2), emit_exports.Constant(0), [key, _index], guarded);
-  return result;
-}
-function BuildAdditionalProperties(stack, context5, schema, value2) {
-  return CanAdditionalPropertiesFast(context5, schema, value2) ? BuildAdditionalPropertiesFast(context5, schema, value2) : BuildAdditionalPropertiesStandard(stack, context5, schema, value2);
-}
-function CheckAdditionalProperties(stack, context5, schema, value2) {
-  const regexp = new RegExp(GetPropertiesPattern(schema));
-  const isAdditionalProperties = guard_exports.Every(guard_exports.Keys(value2), 0, (key, _index) => {
-    return regexp.test(key) || CheckSchema(stack, context5, schema.additionalProperties, value2[key]) && context5.AddKey(key);
-  });
-  return isAdditionalProperties;
-}
-function ErrorAdditionalProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  const regexp = new RegExp(GetPropertiesPattern(schema));
-  const additionalProperties = [];
-  const isAdditionalProperties = guard_exports.EveryAll(guard_exports.Keys(value2), 0, (key, _index) => {
-    const nextSchemaPath = `${schemaPath}/additionalProperties`;
-    const nextInstancePath = `${instancePath}/${key}`;
-    const nextContext = new AccumulatedErrorContext();
-    const isAdditionalProperty = regexp.test(key) || ErrorSchema(stack, nextContext, nextSchemaPath, nextInstancePath, schema.additionalProperties, value2[key]) && context5.AddKey(key);
-    if (!isAdditionalProperty)
-      additionalProperties.push(key);
-    return isAdditionalProperty;
-  });
-  return isAdditionalProperties || context5.AddError({
-    keyword: "additionalProperties",
-    schemaPath,
-    instancePath,
-    params: { additionalProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_reducer.mjs
-function Reducer(stack, context5, schemas, value2, check2) {
-  const results = emit_exports.ConstDeclaration("results", "[]");
-  const context_n = schemas.map((_schema, index2) => emit_exports.ConstDeclaration(`context_${index2}`, emit_exports.New("CheckContext", [])));
-  const condition_n = schemas.map((schema, index2) => emit_exports.ConstDeclaration(`condition_${index2}`, emit_exports.Call(emit_exports.ArrowFunction(["context"], BuildSchema(stack, context5, schema, value2)), [`context_${index2}`])));
-  const checks = schemas.map((_schema, index2) => emit_exports.If(`condition_${index2}`, emit_exports.Call(emit_exports.Member("results", "push"), [`context_${index2}`])));
-  const returns = emit_exports.Return(emit_exports.And(check2, context5.Merge("results")));
-  return emit_exports.Call(emit_exports.ArrowFunction([], emit_exports.Statements([results, ...context_n, ...condition_n, ...checks, returns])), []);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/allOf.mjs
-function BuildAllOfStandard(stack, context5, schema, value2) {
-  return Reducer(stack, context5, schema.allOf, value2, emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(schema.allOf.length)));
-}
-function BuildAllOfFast(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(schema.allOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
-}
-function BuildAllOf(stack, context5, schema, value2) {
-  return context5.UseUnevaluated() ? BuildAllOfStandard(stack, context5, schema, value2) : BuildAllOfFast(stack, context5, schema, value2);
-}
-function CheckAllOf(stack, context5, schema, value2) {
-  const results = schema.allOf.reduce((result, schema2) => {
-    const nextContext = new CheckContext();
-    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
-  }, []);
-  return guard_exports.IsEqual(results.length, schema.allOf.length) && context5.Merge(results);
-}
-function ErrorAllOf(stack, context5, schemaPath, instancePath, schema, value2) {
-  const failedContexts = [];
-  const results = schema.allOf.reduce((result, schema2, index2) => {
-    const nextSchemaPath = `${schemaPath}/allOf/${index2}`;
-    const nextContext = new AccumulatedErrorContext();
-    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
-    if (!isSchema)
-      failedContexts.push(nextContext);
-    return isSchema ? [...result, nextContext] : result;
-  }, []);
-  const isAllOf = guard_exports.IsEqual(results.length, schema.allOf.length) && context5.Merge(results);
-  if (!isAllOf)
-    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
-  return isAllOf;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/anyOf.mjs
-function BuildAnyOfStandard(stack, context5, schema, value2) {
-  return Reducer(stack, context5, schema.anyOf, value2, emit_exports.IsGreaterThan(emit_exports.Member("results", "length"), emit_exports.Constant(0)));
-}
-function BuildAnyOfFast(stack, context5, schema, value2) {
-  return emit_exports.ReduceOr(schema.anyOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
-}
-function BuildAnyOf(stack, context5, schema, value2) {
-  return context5.UseUnevaluated() ? BuildAnyOfStandard(stack, context5, schema, value2) : BuildAnyOfFast(stack, context5, schema, value2);
-}
-function CheckAnyOf(stack, context5, schema, value2) {
-  const results = schema.anyOf.reduce((result, schema2, index2) => {
-    const nextContext = new CheckContext();
-    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
-  }, []);
-  return guard_exports.IsGreaterThan(results.length, 0) && context5.Merge(results);
-}
-function ErrorAnyOf(stack, context5, schemaPath, instancePath, schema, value2) {
-  const failedContexts = [];
-  const results = schema.anyOf.reduce((result, schema2, index2) => {
-    const nextContext = new AccumulatedErrorContext();
-    const nextSchemaPath = `${schemaPath}/anyOf/${index2}`;
-    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
-    if (!isSchema)
-      failedContexts.push(nextContext);
-    return isSchema ? [...result, nextContext] : result;
-  }, []);
-  const isAnyOf = guard_exports.IsGreaterThan(results.length, 0) && context5.Merge(results);
-  if (!isAnyOf)
-    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
-  return isAnyOf || context5.AddError({
-    keyword: "anyOf",
-    schemaPath,
-    instancePath,
-    params: {}
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/boolean.mjs
-function BuildBooleanSchema(stack, context5, schema, value2) {
-  return schema ? emit_exports.Constant(true) : emit_exports.Constant(false);
-}
-function CheckBooleanSchema(stack, context5, schema, value2) {
-  return schema;
-}
-function ErrorBooleanSchema(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckBooleanSchema(stack, context5, schema, value2) || context5.AddError({
-    keyword: "boolean",
-    schemaPath,
-    instancePath,
-    params: {}
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/const.mjs
-function BuildConst(stack, context5, schema, value2) {
-  return guard_exports.IsValueLike(schema.const) ? emit_exports.IsEqual(value2, emit_exports.Constant(schema.const)) : emit_exports.IsDeepEqual(value2, CreateVariable(schema.const));
-}
-function CheckConst(stack, context5, schema, value2) {
-  return guard_exports.IsValueLike(schema.const) ? guard_exports.IsEqual(value2, schema.const) : guard_exports.IsDeepEqual(value2, schema.const);
-}
-function ErrorConst(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckConst(stack, context5, schema, value2) || context5.AddError({
-    keyword: "const",
-    schemaPath,
-    instancePath,
-    params: { allowedValue: schema.const }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/contains.mjs
-function IsValid2(schema) {
-  return !(IsMinContains(schema) && guard_exports.IsEqual(schema.minContains, 0));
-}
-function BuildContains(stack, context5, schema, value2) {
-  if (!IsValid2(schema))
-    return emit_exports.Constant(true);
-  const item = Unique();
-  const isLength = emit_exports.Not(emit_exports.IsEqual(emit_exports.Member(value2, "length"), emit_exports.Constant(0)));
-  const isSome3 = emit_exports.Call(emit_exports.Member(value2, "some"), [emit_exports.ArrowFunction([item], BuildSchema(stack, context5, schema.contains, item))]);
-  return emit_exports.And(isLength, isSome3);
-}
-function CheckContains(stack, context5, schema, value2) {
-  if (!IsValid2(schema))
-    return true;
-  return !guard_exports.IsEqual(value2.length, 0) && value2.some((item) => CheckSchema(stack, context5, schema.contains, item));
-}
-function ErrorContains(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckContains(stack, context5, schema, value2) || context5.AddError({
-    keyword: "contains",
-    schemaPath,
-    instancePath,
-    params: { minContains: 1 }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependencies.mjs
-function BuildDependencies(stack, context5, schema, value2) {
-  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
-  const isEveryDependency = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependencies).map(([key, schema2]) => {
-    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
-    const isSchema = BuildSchema(stack, context5, schema2, value2);
-    const isEveryKey = (schema3) => emit_exports.ReduceAnd(schema3.map((key2) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key2))));
-    return emit_exports.Or(notKey, guard_exports.IsArray(schema2) ? isEveryKey(schema2) : isSchema);
-  }));
-  return emit_exports.Or(isLength, isEveryDependency);
-}
-function CheckDependencies(stack, context5, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependencies), 0, ([key, schema2]) => {
-    return !guard_exports.HasPropertyKey(value2, key) || (guard_exports.IsArray(schema2) ? schema2.every((key2) => guard_exports.HasPropertyKey(value2, key2)) : CheckSchema(stack, context5, schema2, value2));
-  });
-  return isLength || isEvery;
-}
-function ErrorDependencies(stack, context5, schemaPath, instancePath, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.EveryAll(guard_exports.Entries(schema.dependencies), 0, ([key, schema2]) => {
-    const nextSchemaPath = `${schemaPath}/dependencies/${key}`;
-    return !guard_exports.HasPropertyKey(value2, key) || (guard_exports.IsArray(schema2) ? schema2.every((dependency) => guard_exports.HasPropertyKey(value2, dependency) || context5.AddError({
-      keyword: "dependencies",
-      schemaPath,
-      instancePath,
-      params: { property: key, dependencies: schema2 }
-    })) : ErrorSchema(stack, context5, nextSchemaPath, instancePath, schema2, value2));
-  });
-  return isLength || isEvery;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependentRequired.mjs
-function BuildDependentRequired(stack, context5, schema, value2) {
-  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
-  const isEvery = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependentRequired).map(([key, keys5]) => {
-    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
-    const everyKey = emit_exports.ReduceAnd(keys5.map((key2) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key2))));
-    return emit_exports.Or(notKey, everyKey);
-  }));
-  return emit_exports.Or(isLength, isEvery);
-}
-function CheckDependentRequired(stack, context5, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependentRequired), 0, ([key, keys5]) => {
-    return !guard_exports.HasPropertyKey(value2, key) || keys5.every((key2) => guard_exports.HasPropertyKey(value2, key2));
-  });
-  return isLength || isEvery;
-}
-function ErrorDependentRequired(stack, context5, schemaPath, instancePath, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEveryEntry = guard_exports.EveryAll(guard_exports.Entries(schema.dependentRequired), 0, ([key, keys5]) => {
-    return !guard_exports.HasPropertyKey(value2, key) || guard_exports.EveryAll(keys5, 0, (dependency) => guard_exports.HasPropertyKey(value2, dependency) || context5.AddError({
-      keyword: "dependentRequired",
-      schemaPath,
-      instancePath,
-      params: { property: key, dependencies: keys5 }
-    }));
-  });
-  return isLength || isEveryEntry;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependentSchemas.mjs
-function BuildDependentSchemas(stack, context5, schema, value2) {
-  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
-  const isEvery = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependentSchemas).map(([key, schema2]) => {
-    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
-    const isSchema = BuildSchema(stack, context5, schema2, value2);
-    return emit_exports.Or(notKey, isSchema);
-  }));
-  return emit_exports.Or(isLength, isEvery);
-}
-function CheckDependentSchemas(stack, context5, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependentSchemas), 0, ([key, schema2]) => {
-    return !guard_exports.HasPropertyKey(value2, key) || CheckSchema(stack, context5, schema2, value2);
-  });
-  return isLength || isEvery;
-}
-function ErrorDependentSchemas(stack, context5, schemaPath, instancePath, schema, value2) {
-  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
-  const isEvery = guard_exports.EveryAll(guard_exports.Entries(schema.dependentSchemas), 0, ([key, schema2]) => {
-    const nextSchemaPath = `${schemaPath}/dependentSchemas/${key}`;
-    return !guard_exports.HasPropertyKey(value2, key) || ErrorSchema(stack, context5, nextSchemaPath, instancePath, schema2, value2);
-  });
-  return isLength || isEvery;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/enum.mjs
-function BuildEnum(stack, context5, schema, value2) {
-  return emit_exports.ReduceOr(schema.enum.map((option3) => {
-    if (guard_exports.IsValueLike(option3))
-      return emit_exports.IsEqual(value2, emit_exports.Constant(option3));
-    const variable = CreateVariable(option3);
-    return emit_exports.IsDeepEqual(value2, variable);
-  }));
-}
-function CheckEnum(stack, context5, schema, value2) {
-  return schema.enum.some((option3) => guard_exports.IsValueLike(option3) ? guard_exports.IsEqual(value2, option3) : guard_exports.IsDeepEqual(value2, option3));
-}
-function ErrorEnum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckEnum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "enum",
-    schemaPath,
-    instancePath,
-    params: { allowedValues: schema.enum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/exclusiveMaximum.mjs
-function BuildExclusiveMaximum(stack, context5, schema, value2) {
-  return emit_exports.IsLessThan(value2, emit_exports.Constant(schema.exclusiveMaximum));
-}
-function CheckExclusiveMaximum(stack, context5, schema, value2) {
-  return guard_exports.IsLessThan(value2, schema.exclusiveMaximum);
-}
-function ErrorExclusiveMaximum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckExclusiveMaximum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "exclusiveMaximum",
-    schemaPath,
-    instancePath,
-    params: { comparison: "<", limit: schema.exclusiveMaximum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/exclusiveMinimum.mjs
-function BuildExclusiveMinimum(stack, context5, schema, value2) {
-  return emit_exports.IsGreaterThan(value2, emit_exports.Constant(schema.exclusiveMinimum));
-}
-function CheckExclusiveMinimum(stack, context5, schema, value2) {
-  return guard_exports.IsGreaterThan(value2, schema.exclusiveMinimum);
-}
-function ErrorExclusiveMinimum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckExclusiveMinimum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "exclusiveMinimum",
-    schemaPath,
-    instancePath,
-    params: { comparison: ">", limit: schema.exclusiveMinimum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/format.mjs
-var format_exports = {};
-__export(format_exports, {
-  Clear: () => Clear,
-  Entries: () => Entries3,
-  Get: () => Get3,
-  Has: () => Has,
-  IsDate: () => IsDate2,
-  IsDateTime: () => IsDateTime,
-  IsDuration: () => IsDuration,
-  IsEmail: () => IsEmail,
-  IsHostname: () => IsHostname,
-  IsIPv4: () => IsIPv4,
-  IsIPv6: () => IsIPv6,
-  IsIdnEmail: () => IsIdnEmail,
-  IsIdnHostname: () => IsIdnHostname,
-  IsIri: () => IsIri,
-  IsIriReference: () => IsIriReference,
-  IsJsonPointer: () => IsJsonPointer,
-  IsJsonPointerUriFragment: () => IsJsonPointerUriFragment,
-  IsRegex: () => IsRegex,
-  IsRelativeJsonPointer: () => IsRelativeJsonPointer,
-  IsTime: () => IsTime,
-  IsUri: () => IsUri,
-  IsUriReference: () => IsUriReference,
-  IsUriTemplate: () => IsUriTemplate,
-  IsUrl: () => IsUrl,
-  IsUuid: () => IsUuid,
-  Reset: () => Reset2,
-  Set: () => Set3,
-  Test: () => Test
-});
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/date.mjs
-var DAYS = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-var DATE = /^(\d\d\d\d)-(\d\d)-(\d\d)$/;
-function IsLeapYear(year) {
-  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-}
-function IsDate2(value2) {
-  const matches = DATE.exec(value2);
-  if (!matches)
-    return false;
-  const year = +matches[1];
-  const month = +matches[2];
-  const day = +matches[3];
-  return month >= 1 && month <= 12 && day >= 1 && day <= (month === 2 && IsLeapYear(year) ? 29 : DAYS[month]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/time.mjs
-var TIME = /^(\d\d):(\d\d):(\d\d(?:\.\d+)?)(?:Z|([+-])(\d\d):(\d\d))?$/i;
-function IsTime(value2, strictTimeZone = true) {
-  const matches = TIME.exec(value2);
-  if (!matches)
-    return false;
-  const hr = +matches[1];
-  const min3 = +matches[2];
-  const sec = +matches[3];
-  const tzSign = matches[4] === "-" ? -1 : 1;
-  const tzH = +(matches[5] || 0);
-  const tzM = +(matches[6] || 0);
-  if (tzH > 23 || tzM > 59)
-    return false;
-  if (strictTimeZone && !matches[4] && value2.toLowerCase().indexOf("z") === -1) {
-    return false;
-  }
-  if (hr <= 23 && min3 <= 59 && sec < 60)
-    return true;
-  const utcMin = min3 - tzM * tzSign;
-  const utcHr = hr - tzH * tzSign - (utcMin < 0 ? 1 : 0);
-  return (utcHr === 23 || utcHr === -1) && (utcMin === 59 || utcMin === -1) && sec < 61;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/date-time.mjs
-function IsDateTime(value2, strictTimeZone = true) {
-  const dateTime = value2.split(/T/i);
-  return dateTime.length === 2 && IsDate2(dateTime[0]) && IsTime(dateTime[1], strictTimeZone);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/duration.mjs
-var Duration = /^P(?!$)((\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+S)?)?|(\d+W)?)$/;
-function IsDuration(value2) {
-  return Duration.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/email.mjs
-var Email = /^(?!.*\.\.)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/i;
-function IsEmail(value2) {
-  return Email.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/hostname.mjs
-var Hostname = /^(?=.{1,253}\.?$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[-0-9a-z]{0,61}[0-9a-z])?)*\.?$/i;
-function IsHostname(value2) {
-  return Hostname.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/idn-email.mjs
-var IdnEmail = /^(?!.*\.\.)[\p{L}\p{N}!#$%&'*+/=?^_`{|}~-]+(?:\.[\p{L}\p{N}!#$%&'*+/=?^_`{|}~-]+)*@[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?)*$/iu;
-function IsIdnEmail(value2) {
-  return IdnEmail.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/idn-hostname.mjs
-function IsValidAdjacentForKatakanaMiddleDot(char) {
-  const codePoint = char.codePointAt(0);
-  if (codePoint === void 0)
-    return false;
-  return codePoint >= 12352 && codePoint <= 12447 || // Hiragana
-  codePoint >= 12448 && codePoint <= 12543 && codePoint !== 12539 || // Katakana (excluding U+30FB)
-  codePoint >= 19968 && codePoint <= 40959;
-}
-function IsIdnHostname(value2) {
-  if (value2.length === 0)
-    return false;
-  if (value2.includes(" "))
-    return false;
-  const separators = /[\u002E\u3002\uFF0E\uFF61]/g;
-  const normalized = value2.normalize("NFC").replace(separators, ".");
-  if (normalized.length > 253)
-    return false;
-  const labels = normalized.split(".");
-  if (labels.some((label) => label.length === 0))
-    return false;
-  for (const label of labels) {
-    if (label.length > 63)
-      return false;
-    if (label.startsWith("-") || label.endsWith("-"))
-      return false;
-    if (/^xn--/i.test(label)) {
-      const punycodePart = label.slice(4);
-      if (punycodePart.length < 2)
-        return false;
-      if (punycodePart.includes("---"))
-        return false;
-      continue;
-    }
-    if (/[\u302E\u302F\u3031\u3032\u3033\u3034\u3035\u303B\u0640\u07FA]/.test(label)) {
-      return false;
-    }
-    const firstChar = label.charAt(0);
-    if (/[\u0903\u0300\u0488]/.test(firstChar))
-      return false;
-    for (let i = 0; i < label.length; i++) {
-      const char = label.charAt(i);
-      if (char === "\xB7") {
-        if (i === 0 || i === label.length - 1)
-          return false;
-        const prev = label.charAt(i - 1);
-        const next = label.charAt(i + 1);
-        if (!/^[lL]$/.test(prev) || !/^[lL]$/.test(next))
-          return false;
-      }
-      if (char === "\u30FB") {
-        if (label.length === 1)
-          return false;
-        if (i === 0) {
-          const next = label.charAt(i + 1);
-          if (!IsValidAdjacentForKatakanaMiddleDot(next))
-            return false;
-        } else {
-          const prev = label.charAt(i - 1);
-          const next = label.charAt(i + 1);
-          if (!IsValidAdjacentForKatakanaMiddleDot(prev) || !IsValidAdjacentForKatakanaMiddleDot(next)) {
-            return false;
-          }
-        }
-      }
-      if (char === "\u0375") {
-        if (i === label.length - 1)
-          return false;
-        const next = label.charAt(i + 1);
-        if (!/[\u0370-\u03FF]/.test(next))
-          return false;
-      }
-      if (char === "\u05F3" || char === "\u05F4") {
-        if (i === 0)
-          return false;
-        const prev = label.charAt(i - 1);
-        if (!/[\u05D0-\u05EA]/.test(prev))
-          return false;
-      }
-      if (char === "\u200D") {
-        if (i === 0)
-          return false;
-        const prev = label.charAt(i - 1);
-        if (prev !== "\u094D")
-          return false;
-      }
-    }
-    let hasArabicIndic = false;
-    let hasExtendedArabicIndic = false;
-    for (let i = 0; i < label.length; i++) {
-      const char = label.charAt(i);
-      if (/[\u0660-\u0669]/.test(char))
-        hasArabicIndic = true;
-      if (/[\u06F0-\u06F9]/.test(char))
-        hasExtendedArabicIndic = true;
-    }
-    if (hasArabicIndic && hasExtendedArabicIndic)
-      return false;
-  }
-  return true;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/ipv4.mjs
-var IPv4 = /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/;
-function IsIPv4(value2) {
-  return IPv4.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/ipv6.mjs
-var IPv6 = /^((([0-9a-f]{1,4}:){7}([0-9a-f]{1,4}|:))|(([0-9a-f]{1,4}:){6}(:[0-9a-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){5}(((:[0-9a-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){4}(((:[0-9a-f]{1,4}){1,3})|((:[0-9a-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){3}(((:[0-9a-f]{1,4}){1,4})|((:[0-9a-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){2}(((:[0-9a-f]{1,4}){1,5})|((:[0-9a-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){1}(((:[0-9a-f]{1,4}){1,6})|((:[0-9a-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9a-f]{1,4}){1,7})|((:[0-9a-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))$/i;
-function IsIPv6(value2) {
-  return IPv6.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/iri-reference.mjs
-function TryUrl(value2) {
-  try {
-    new URL(value2, "http://example.com");
-    return true;
-  } catch {
-    return false;
-  }
-}
-function IsIriReference(value2) {
-  if (value2.includes(" ")) {
-    return false;
-  }
-  if (value2.includes("\\")) {
-    return false;
-  }
-  if (/[\x00-\x1F\x7F]/.test(value2)) {
-    return false;
-  }
-  if (/%(?![0-9a-fA-F]{2})/.test(value2)) {
-    return false;
-  }
-  if (value2 === "") {
-    return true;
-  }
-  const colonIndex = value2.indexOf(":");
-  const hasValidSchemePrefix = colonIndex > 0 && // Colon must not be at the very beginning (e.g., ":foo")
-  /^[a-zA-Z][a-zA-Z0-9+\-.]*$/.test(value2.substring(0, colonIndex));
-  if (hasValidSchemePrefix) {
-    return TryUrl(value2);
-  } else {
-    const looksLikeMalformedSchemeAndAuthority = value2.match(/^([a-zA-Z][a-zA-Z0-9+\-.]*)(\/\/)/);
-    if (looksLikeMalformedSchemeAndAuthority && colonIndex === -1) {
-      return false;
-    }
-    return TryUrl(value2);
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/iri.mjs
-function IsIri(value2) {
-  try {
-    new URL(value2);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/json-pointer-uri-fragment.mjs
-var JsonPointerUriFragment = /^#(?:\/(?:[a-z0-9_\-.!$&'()*+,;:=@]|%[0-9a-f]{2}|~0|~1)*)*$/i;
-function IsJsonPointerUriFragment(value2) {
-  return JsonPointerUriFragment.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/json-pointer.mjs
-var JsonPointer = /^(?:\/(?:[^~/]|~0|~1)*)*$/;
-function IsJsonPointer(value2) {
-  return JsonPointer.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/regex.mjs
-function IsRegex(value2) {
-  if (value2.length === 0) {
-    return false;
-  }
-  try {
-    new RegExp(value2);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/relative-json-pointer.mjs
-var RelativeJsonPointer = /^(?:0|[1-9][0-9]*)(?:#|(?:\/(?:[^~/]|~0|~1)*)*)$/;
-function IsRelativeJsonPointer(value2) {
-  return RelativeJsonPointer.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri-reference.mjs
-var UriReference = /^(?:(?:[a-z][a-z0-9+\-.]*:)?\/?\/)?(?:[^\\\s#][^\s#]*)?(?:#[^\\\s]*)?$/i;
-function IsUriReference(value2) {
-  return UriReference.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri-template.mjs
-var UriTemplate = /^(?:(?:[^\x00-\x20"'<>%\\^`{|}]|%[0-9a-f]{2})|\{[+#./;?&=,!@|]?(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?(?:,(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?)*\})*$/i;
-function IsUriTemplate(value2) {
-  return UriTemplate.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri.mjs
-var Uri = /^(?:[a-z][a-z0-9+\-.]*:)(?:\/?\/)?[^\s]*$/i;
-function IsUri(value2) {
-  return Uri.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/url.mjs
-var Url = /^(?:https?|ftp):\/\/(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\u{00a1}-\u{ffff}]+-)*[a-z0-9\u{00a1}-\u{ffff}]+)(?:\.(?:[a-z0-9\u{00a1}-\u{ffff}]+-)*[a-z0-9\u{00a1}-\u{ffff}]+)*(?:\.(?:[a-z\u{00a1}-\u{ffff}]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/iu;
-function IsUrl(value2) {
-  return Url.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uuid.mjs
-var Uuid = /^(?:urn:uuid:)?[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
-function IsUuid(value2) {
-  return Uuid.test(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/_registry.mjs
-var formats = /* @__PURE__ */ new Map();
-function Clear() {
-  formats.clear();
-}
-function Entries3() {
-  return [...formats.entries()];
-}
-function Set3(format4, check2) {
-  formats.set(format4, check2);
-}
-function Has(format4) {
-  return formats.has(format4);
-}
-function Get3(format4) {
-  return formats.get(format4);
-}
-function Test(format4, value2) {
-  return formats.get(format4)?.(value2) ?? true;
-}
-function Reset2() {
-  Clear();
-  formats.set("date-time", IsDateTime);
-  formats.set("date", IsDate2);
-  formats.set("duration", IsDuration);
-  formats.set("email", IsEmail);
-  formats.set("hostname", IsHostname);
-  formats.set("idn-email", IsIdnEmail);
-  formats.set("idn-hostname", IsIdnHostname);
-  formats.set("ipv4", IsIPv4);
-  formats.set("ipv6", IsIPv6);
-  formats.set("iri-reference", IsIriReference);
-  formats.set("iri", IsIri);
-  formats.set("json-pointer-uri-fragment", IsJsonPointerUriFragment);
-  formats.set("json-pointer", IsJsonPointer);
-  formats.set("regex", IsRegex);
-  formats.set("relative-json-pointer", IsRelativeJsonPointer);
-  formats.set("time", IsTime);
-  formats.set("uri-reference", IsUriReference);
-  formats.set("uri-template", IsUriTemplate);
-  formats.set("uri", IsUri);
-  formats.set("url", IsUrl);
-  formats.set("uuid", IsUuid);
-}
-Reset2();
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/format.mjs
-function BuildFormat(stack, context5, schema, value2) {
-  return emit_exports.Call(emit_exports.Member("Format", "Test"), [emit_exports.Constant(schema.format), value2]);
-}
-function CheckFormat(stack, context5, schema, value2) {
-  return format_exports.Test(schema.format, value2);
-}
-function ErrorFormat(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckFormat(stack, context5, schema, value2) || context5.AddError({
-    keyword: "format",
-    schemaPath,
-    instancePath,
-    params: { format: schema.format }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/if.mjs
-function BuildIf(stack, context5, schema, value2) {
-  const thenSchema = IsThen(schema) ? schema.then : true;
-  const elseSchema = IsElse(schema) ? schema.else : true;
-  return emit_exports.Ternary(BuildSchema(stack, context5, schema.if, value2), BuildSchema(stack, context5, thenSchema, value2), BuildSchema(stack, context5, elseSchema, value2));
-}
-function CheckIf(stack, context5, schema, value2) {
-  const thenSchema = IsThen(schema) ? schema.then : true;
-  const elseSchema = IsElse(schema) ? schema.else : true;
-  return CheckSchema(stack, context5, schema.if, value2) ? CheckSchema(stack, context5, thenSchema, value2) : CheckSchema(stack, context5, elseSchema, value2);
-}
-function ErrorIf(stack, context5, schemaPath, instancePath, schema, value2) {
-  const thenSchema = IsThen(schema) ? schema.then : true;
-  const elseSchema = IsElse(schema) ? schema.else : true;
-  const trueContext = new AccumulatedErrorContext();
-  const isIf = ErrorSchema(stack, trueContext, `${schemaPath}/if`, instancePath, schema.if, value2) ? ErrorSchema(stack, trueContext, `${schemaPath}/then`, instancePath, thenSchema, value2) || context5.AddError({
-    keyword: "if",
-    schemaPath,
-    instancePath,
-    params: { failingKeyword: "then" }
-  }) : ErrorSchema(stack, context5, `${schemaPath}/else`, instancePath, elseSchema, value2) || context5.AddError({
-    keyword: "if",
-    schemaPath,
-    instancePath,
-    params: { failingKeyword: "else" }
-  });
-  if (isIf)
-    context5.Merge([trueContext]);
-  return isIf;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/items.mjs
-function BuildItemsSized(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(schema.items.map((schema2, index2) => {
-    const isLength = emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(index2));
-    const isSchema = BuildSchema(stack, context5, schema2, `${value2}[${index2}]`);
-    const addIndex = context5.AddIndex(emit_exports.Constant(index2));
-    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
-    return emit_exports.Or(isLength, guarded);
-  }));
-}
-function CheckItemsSized(stack, context5, schema, value2) {
-  return guard_exports.Every(schema.items, 0, (schema2, index2) => {
-    return guard_exports.IsLessEqualThan(value2.length, index2) || CheckSchema(stack, context5, schema2, value2[index2]) && context5.AddIndex(index2);
-  });
-}
-function ErrorItemsSized(stack, context5, schemaPath, instancePath, schema, value2) {
-  return guard_exports.EveryAll(schema.items, 0, (schema2, index2) => {
-    const nextSchemaPath = `${schemaPath}/items/${index2}`;
-    const nextInstancePath = `${instancePath}/${index2}`;
-    return guard_exports.IsLessEqualThan(value2.length, index2) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[index2]) && context5.AddIndex(index2);
-  });
-}
-function BuildItemsUnsized(stack, context5, schema, value2) {
-  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
-  const isSchema = BuildSchema(stack, context5, schema.items, "element");
-  const addIndex = context5.AddIndex("index");
-  const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
-  return emit_exports.Every(value2, emit_exports.Constant(offset), ["element", "index"], guarded);
-}
-function CheckItemsUnsized(stack, context5, schema, value2) {
-  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
-  return guard_exports.Every(value2, offset, (element, index2) => {
-    return CheckSchema(stack, context5, schema.items, element) && context5.AddIndex(index2);
-  });
-}
-function ErrorItemsUnsized(stack, context5, schemaPath, instancePath, schema, value2) {
-  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
-  return guard_exports.EveryAll(value2, offset, (element, index2) => {
-    const nextSchemaPath = `${schemaPath}/items`;
-    const nextInstancePath = `${instancePath}/${index2}`;
-    return ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema.items, element) && context5.AddIndex(index2);
-  });
-}
-function BuildItems(stack, context5, schema, value2) {
-  return IsItemsSized(schema) ? BuildItemsSized(stack, context5, schema, value2) : BuildItemsUnsized(stack, context5, schema, value2);
-}
-function CheckItems(stack, context5, schema, value2) {
-  return IsItemsSized(schema) ? CheckItemsSized(stack, context5, schema, value2) : CheckItemsUnsized(stack, context5, schema, value2);
-}
-function ErrorItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  return IsItemsSized(schema) ? ErrorItemsSized(stack, context5, schemaPath, instancePath, schema, value2) : ErrorItemsUnsized(stack, context5, schemaPath, instancePath, schema, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxContains.mjs
-function IsValid3(schema) {
-  return IsContains(schema);
-}
-function BuildMaxContains(stack, context5, schema, value2) {
-  if (!IsValid3(schema))
-    return emit_exports.Constant(true);
-  const [result, item] = [Unique(), Unique()];
-  const count = emit_exports.Call(emit_exports.Member(value2, "reduce"), [emit_exports.ArrowFunction([result, item], emit_exports.Ternary(BuildSchema(stack, context5, schema.contains, item), emit_exports.PrefixIncrement(result), result)), emit_exports.Constant(0)]);
-  return emit_exports.IsLessEqualThan(count, emit_exports.Constant(schema.maxContains));
-}
-function CheckMaxContains(stack, context5, schema, value2) {
-  if (!IsValid3(schema))
-    return true;
-  const count = value2.reduce((result, item) => CheckSchema(stack, context5, schema.contains, item) ? ++result : result, 0);
-  return guard_exports.IsLessEqualThan(count, schema.maxContains);
-}
-function ErrorMaxContains(stack, context5, schemaPath, instancePath, schema, value2) {
-  const minContains = IsMinContains(schema) ? schema.minContains : 1;
-  return CheckMaxContains(stack, context5, schema, value2) || context5.AddError({
-    keyword: "contains",
-    schemaPath,
-    instancePath,
-    params: { minContains, maxContains: schema.maxContains }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maximum.mjs
-function BuildMaximum(stack, context5, schema, value2) {
-  return emit_exports.IsLessEqualThan(value2, emit_exports.Constant(schema.maximum));
-}
-function CheckMaximum(stack, context5, schema, value2) {
-  return guard_exports.IsLessEqualThan(value2, schema.maximum);
-}
-function ErrorMaximum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMaximum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "maximum",
-    schemaPath,
-    instancePath,
-    params: { comparison: "<=", limit: schema.maximum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxItems.mjs
-function BuildMaxItems(stack, context5, schema, value2) {
-  return emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(schema.maxItems));
-}
-function CheckMaxItems(stack, context5, schema, value2) {
-  return guard_exports.IsLessEqualThan(value2.length, schema.maxItems);
-}
-function ErrorMaxItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMaxItems(stack, context5, schema, value2) || context5.AddError({
-    keyword: "maxItems",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.maxItems }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxLength.mjs
-function BuildMaxLength(stack, context5, schema, value2) {
-  return emit_exports.IsMaxLength(value2, emit_exports.Constant(schema.maxLength));
-}
-function CheckMaxLength(stack, context5, schema, value2) {
-  return guard_exports.IsMaxLength(value2, schema.maxLength);
-}
-function ErrorMaxLength(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMaxLength(stack, context5, schema, value2) || context5.AddError({
-    keyword: "maxLength",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.maxLength }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxProperties.mjs
-function BuildMaxProperties(stack, context5, schema, value2) {
-  return emit_exports.IsLessEqualThan(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(schema.maxProperties));
-}
-function CheckMaxProperties(stack, context5, schema, value2) {
-  return guard_exports.IsLessEqualThan(guard_exports.Keys(value2).length, schema.maxProperties);
-}
-function ErrorMaxProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMaxProperties(stack, context5, schema, value2) || context5.AddError({
-    keyword: "maxProperties",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.maxProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minContains.mjs
-function IsValid4(schema) {
-  return IsContains(schema);
-}
-function BuildMinContains(stack, context5, schema, value2) {
-  if (!IsValid4(schema))
-    return emit_exports.Constant(true);
-  const [result, item] = [Unique(), Unique()];
-  const count = emit_exports.Call(emit_exports.Member(value2, "reduce"), [emit_exports.ArrowFunction([result, item], emit_exports.Ternary(BuildSchema(stack, context5, schema.contains, item), emit_exports.PrefixIncrement(result), result)), emit_exports.Constant(0)]);
-  return emit_exports.IsGreaterEqualThan(count, emit_exports.Constant(schema.minContains));
-}
-function CheckMinContains(stack, context5, schema, value2) {
-  if (!IsValid4(schema))
-    return true;
-  const count = value2.reduce((result, item) => CheckSchema(stack, context5, schema.contains, item) ? ++result : result, 0);
-  return guard_exports.IsGreaterEqualThan(count, schema.minContains);
-}
-function ErrorMinContains(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinContains(stack, context5, schema, value2) || context5.AddError({
-    keyword: "contains",
-    schemaPath,
-    instancePath,
-    params: { minContains: schema.minContains }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minimum.mjs
-function BuildMinimum(stack, context5, schema, value2) {
-  return emit_exports.IsGreaterEqualThan(value2, emit_exports.Constant(schema.minimum));
-}
-function CheckMinimum(stack, context5, schema, value2) {
-  return guard_exports.IsGreaterEqualThan(value2, schema.minimum);
-}
-function ErrorMinimum(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinimum(stack, context5, schema, value2) || context5.AddError({
-    keyword: "minimum",
-    schemaPath,
-    instancePath,
-    params: { comparison: ">=", limit: schema.minimum }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minItems.mjs
-function BuildMinItems(stack, context5, schema, value2) {
-  return emit_exports.IsGreaterEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(schema.minItems));
-}
-function CheckMinItems(stack, context5, schema, value2) {
-  return guard_exports.IsGreaterEqualThan(value2.length, schema.minItems);
-}
-function ErrorMinItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinItems(stack, context5, schema, value2) || context5.AddError({
-    keyword: "minItems",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.minItems }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minLength.mjs
-function BuildMinLength(stack, context5, schema, value2) {
-  return emit_exports.IsMinLength(value2, emit_exports.Constant(schema.minLength));
-}
-function CheckMinLength(stack, context5, schema, value2) {
-  return guard_exports.IsMinLength(value2, schema.minLength);
-}
-function ErrorMinLength(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinLength(stack, context5, schema, value2) || context5.AddError({
-    keyword: "minLength",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.minLength }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minProperties.mjs
-function BuildMinProperties(stack, context5, schema, value2) {
-  return emit_exports.IsGreaterEqualThan(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(schema.minProperties));
-}
-function CheckMinProperties(stack, context5, schema, value2) {
-  return guard_exports.IsGreaterEqualThan(guard_exports.Keys(value2).length, schema.minProperties);
-}
-function ErrorMinProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMinProperties(stack, context5, schema, value2) || context5.AddError({
-    keyword: "minProperties",
-    schemaPath,
-    instancePath,
-    params: { limit: schema.minProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/multipleOf.mjs
-function BuildMultipleOf(stack, context5, schema, value2) {
-  return emit_exports.MultipleOf(value2, emit_exports.Constant(schema.multipleOf));
-}
-function CheckMultipleOf(stack, context5, schema, value2) {
-  return guard_exports.IsMultipleOf(value2, schema.multipleOf);
-}
-function ErrorMultipleOf(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckMultipleOf(stack, context5, schema, value2) || context5.AddError({
-    keyword: "multipleOf",
-    schemaPath,
-    instancePath,
-    params: { multipleOf: schema.multipleOf }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/not.mjs
-function BuildNotUnevaluated(stack, context5, schema, value2) {
-  return Reducer(stack, context5, [schema.not], value2, emit_exports.Not(emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(1))));
-}
-function BuildNotFast(stack, context5, schema, value2) {
-  return emit_exports.Not(BuildSchema(stack, context5, schema.not, value2));
-}
-function BuildNot(stack, context5, schema, value2) {
-  return context5.UseUnevaluated() ? BuildNotUnevaluated(stack, context5, schema, value2) : BuildNotFast(stack, context5, schema, value2);
-}
-function CheckNot(stack, context5, schema, value2) {
-  const nextContext = new CheckContext();
-  const isSchema = !CheckSchema(stack, nextContext, schema.not, value2);
-  const isNot = isSchema && context5.Merge([nextContext]);
-  return isNot;
-}
-function ErrorNot(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckNot(stack, context5, schema, value2) || context5.AddError({
-    keyword: "not",
-    schemaPath,
-    instancePath,
-    params: {}
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/oneOf.mjs
-function BuildOneOfUnevaluated(stack, context5, schema, value2) {
-  return Reducer(stack, context5, schema.oneOf, value2, emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(1)));
-}
-function BuildOneOfFast(stack, context5, schema, value2) {
-  const results = emit_exports.ArrayLiteral(schema.oneOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
-  const count = emit_exports.Call(emit_exports.Member(results, "reduce"), [
-    emit_exports.ArrowFunction(["count", "result"], emit_exports.Ternary(emit_exports.IsEqual("result", emit_exports.Constant(true)), emit_exports.PrefixIncrement("count"), "count")),
-    emit_exports.Constant(0)
-  ]);
-  return emit_exports.IsEqual(count, emit_exports.Constant(1));
-}
-function BuildOneOf(stack, context5, schema, value2) {
-  return context5.UseUnevaluated() ? BuildOneOfUnevaluated(stack, context5, schema, value2) : BuildOneOfFast(stack, context5, schema, value2);
-}
-function CheckOneOf(stack, context5, schema, value2) {
-  const passedContexts = schema.oneOf.reduce((result, schema2) => {
-    const nextContext = new CheckContext();
-    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
-  }, []);
-  return guard_exports.IsEqual(passedContexts.length, 1) && context5.Merge(passedContexts);
-}
-function ErrorOneOf(stack, context5, schemaPath, instancePath, schema, value2) {
-  const failedContexts = [];
-  const passingSchemas = [];
-  const passedContexts = schema.oneOf.reduce((result, schema2, index2) => {
-    const nextContext = new AccumulatedErrorContext();
-    const nextSchemaPath = `${schemaPath}/oneOf/${index2}`;
-    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
-    if (isSchema)
-      passingSchemas.push(index2);
-    if (!isSchema)
-      failedContexts.push(nextContext);
-    return isSchema ? [...result, nextContext] : result;
-  }, []);
-  const isOneOf = guard_exports.IsEqual(passedContexts.length, 1) && context5.Merge(passedContexts);
-  if (!isOneOf && guard_exports.IsEqual(passingSchemas.length, 0))
-    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
-  return isOneOf || context5.AddError({
-    keyword: "oneOf",
-    schemaPath,
-    instancePath,
-    params: { passingSchemas }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/pattern.mjs
-function BuildPattern(stack, context5, schema, value2) {
-  const regexp = CreateVariable(guard_exports.IsString(schema.pattern) ? new RegExp(schema.pattern) : schema.pattern);
-  return emit_exports.Call(emit_exports.Member(regexp, "test"), [value2]);
-}
-function CheckPattern(stack, context5, schema, value2) {
-  const regexp = guard_exports.IsString(schema.pattern) ? new RegExp(schema.pattern) : schema.pattern;
-  return regexp.test(value2);
-}
-function ErrorPattern(stack, context5, schemaPath, instancePath, schema, value2) {
-  return CheckPattern(stack, context5, schema, value2) || context5.AddError({
-    keyword: "pattern",
-    schemaPath,
-    instancePath,
-    params: { pattern: schema.pattern }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/patternProperties.mjs
-function BuildPatternProperties(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(guard_exports.Entries(schema.patternProperties).map(([pattern, schema2]) => {
-    const [key, prop] = [Unique(), Unique()];
-    const regexp = CreateVariable(new RegExp(pattern));
-    const notKey = emit_exports.Not(emit_exports.Call(emit_exports.Member(regexp, "test"), [key]));
-    const isSchema = BuildSchema(stack, context5, schema2, prop);
-    const addKey = context5.AddKey(key);
-    const guarded = context5.UseUnevaluated() ? emit_exports.Or(notKey, emit_exports.And(isSchema, addKey)) : emit_exports.Or(notKey, isSchema);
-    return emit_exports.Every(emit_exports.Entries(value2), emit_exports.Constant(0), [`[${key}, ${prop}]`, "_"], guarded);
-  }));
-}
-function CheckPatternProperties(stack, context5, schema, value2) {
-  return guard_exports.Every(guard_exports.Entries(schema.patternProperties), 0, ([pattern, schema2]) => {
-    const regexp = new RegExp(pattern);
-    return guard_exports.Every(guard_exports.Entries(value2), 0, ([key, prop]) => {
-      return !regexp.test(key) || CheckSchema(stack, context5, schema2, prop) && context5.AddKey(key);
-    });
-  });
-}
-function ErrorPatternProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  return guard_exports.EveryAll(guard_exports.Entries(schema.patternProperties), 0, ([pattern, schema2]) => {
-    const nextSchemaPath = `${schemaPath}/patternProperties/${pattern}`;
-    const regexp = new RegExp(pattern);
-    return guard_exports.EveryAll(guard_exports.Entries(value2), 0, ([key, value3]) => {
-      const nextInstancePath = `${instancePath}/${key}`;
-      const notKey = !regexp.test(key);
-      return notKey || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value3) && context5.AddKey(key);
-    });
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/prefixItems.mjs
-function BuildPrefixItems(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(schema.prefixItems.map((schema2, index2) => {
-    const isLength = emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(index2));
-    const isSchema = BuildSchema(stack, context5, schema2, `${value2}[${index2}]`);
-    const addIndex = context5.AddIndex(emit_exports.Constant(index2));
-    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
-    return emit_exports.Or(isLength, guarded);
-  }));
-}
-function CheckPrefixItems(stack, context5, schema, value2) {
-  return guard_exports.IsEqual(value2.length, 0) || guard_exports.Every(schema.prefixItems, 0, (schema2, index2) => {
-    return guard_exports.IsLessEqualThan(value2.length, index2) || CheckSchema(stack, context5, schema2, value2[index2]) && context5.AddIndex(index2);
-  });
-}
-function ErrorPrefixItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  return guard_exports.IsEqual(value2.length, 0) || guard_exports.EveryAll(schema.prefixItems, 0, (schema2, index2) => {
-    const nextSchemaPath = `${schemaPath}/prefixItems/${index2}`;
-    const nextInstancePath = `${instancePath}/${index2}`;
-    return guard_exports.IsLessEqualThan(value2.length, index2) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[index2]) && context5.AddIndex(index2);
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_exact_optional.mjs
-function IsExactOptional(required, key) {
-  return required.includes(key) || settings_exports.Get().exactOptionalPropertyTypes;
-}
-function InexactOptionalBuild(value2, key) {
-  return emit_exports.IsUndefined(emit_exports.Member(value2, key));
-}
-function InexactOptionalCheck(value2, key) {
-  return guard_exports.IsUndefined(value2[key]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/properties.mjs
-function BuildProperties(stack, context5, schema, value2) {
-  const required = IsRequired(schema) ? schema.required : [];
-  const everyKey = guard_exports.Entries(schema.properties).map(([key, schema2]) => {
-    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
-    const isSchema = BuildSchema(stack, context5, schema2, emit_exports.Member(value2, key));
-    const addKey = context5.AddKey(emit_exports.Constant(key));
-    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addKey) : isSchema;
-    const isProperty = required.includes(key) ? guarded : emit_exports.Or(notKey, guarded);
-    return IsExactOptional(required, key) ? isProperty : emit_exports.Or(InexactOptionalBuild(value2, key), isProperty);
-  });
-  return emit_exports.ReduceAnd(everyKey);
-}
-function CheckProperties(stack, context5, schema, value2) {
-  const required = IsRequired(schema) ? schema.required : [];
-  const isProperties = guard_exports.Every(guard_exports.Entries(schema.properties), 0, ([key, schema2]) => {
-    const isProperty = !guard_exports.HasPropertyKey(value2, key) || CheckSchema(stack, context5, schema2, value2[key]) && context5.AddKey(key);
-    return IsExactOptional(required, key) ? isProperty : InexactOptionalCheck(value2, key) || isProperty;
-  });
-  return isProperties;
-}
-function ErrorProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  const required = IsRequired(schema) ? schema.required : [];
-  const isProperties = guard_exports.EveryAll(guard_exports.Entries(schema.properties), 0, ([key, schema2]) => {
-    const nextSchemaPath = `${schemaPath}/properties/${key}`;
-    const nextInstancePath = `${instancePath}/${key}`;
-    const isProperty = () => !guard_exports.HasPropertyKey(value2, key) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[key]) && context5.AddKey(key);
-    return IsExactOptional(required, key) ? isProperty() : InexactOptionalCheck(value2, key) || isProperty();
-  });
-  return isProperties;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/propertyNames.mjs
-function BuildPropertyNames(stack, context5, schema, value2) {
-  const [key, _index] = [Unique(), Unique()];
-  return emit_exports.Every(emit_exports.Keys(value2), emit_exports.Constant(0), [key, _index], BuildSchema(stack, context5, schema.propertyNames, key));
-}
-function CheckPropertyNames(stack, context5, schema, value2) {
-  return guard_exports.Every(guard_exports.Keys(value2), 0, (key, _index) => CheckSchema(stack, context5, schema.propertyNames, key));
-}
-function ErrorPropertyNames(stack, context5, schemaPath, instancePath, schema, value2) {
-  const propertyNames = [];
-  const isPropertyNames = guard_exports.EveryAll(guard_exports.Keys(value2), 0, (key, _index) => {
-    const nextInstancePath = `${instancePath}/${key}`;
-    const nextSchemaPath = `${schemaPath}/propertyNames`;
-    const nextContext = new AccumulatedErrorContext();
-    const isPropertyName = ErrorSchema(stack, nextContext, nextSchemaPath, nextInstancePath, schema.propertyNames, key);
-    if (!isPropertyName)
-      propertyNames.push(key);
-    return isPropertyName;
-  });
-  return isPropertyNames || context5.AddError({
-    keyword: "propertyNames",
-    schemaPath,
-    instancePath,
-    params: { propertyNames }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/recursiveRef.mjs
-function BuildRecursiveRef(stack, context5, schema, value2) {
-  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
-  return CreateFunction(stack, context5, target, value2);
-}
-function CheckRecursiveRef(stack, context5, schema, value2) {
-  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
-  return IsSchema2(target) && CheckSchema(stack, context5, target, value2);
-}
-function ErrorRecursiveRef(stack, context5, schemaPath, instancePath, schema, value2) {
-  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
-  return IsSchema2(target) && ErrorSchema(stack, context5, "#", instancePath, target, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/ref.mjs
-function BuildRefStandard(stack, context5, target, value2) {
-  const interior = emit_exports.ArrowFunction(["context", "value"], CreateFunction(stack, context5, target, "value"));
-  const exterior = emit_exports.ArrowFunction(["context", "value"], emit_exports.Statements([
-    emit_exports.ConstDeclaration("nextContext", emit_exports.New("CheckContext", [])),
-    emit_exports.ConstDeclaration("result", emit_exports.Call(interior, ["nextContext", "value"])),
-    emit_exports.If("result", context5.Merge("[nextContext]")),
-    emit_exports.Return("result")
-  ]));
-  return emit_exports.Call(exterior, ["context", value2]);
-}
-function BuildRefFast(stack, context5, target, value2) {
-  return CreateFunction(stack, context5, target, value2);
-}
-function BuildRef(stack, context5, schema, value2) {
-  const target = stack.Ref(schema.$ref) ?? false;
-  return context5.UseUnevaluated() ? BuildRefStandard(stack, context5, target, value2) : BuildRefFast(stack, context5, target, value2);
-}
-function CheckRef(stack, context5, schema, value2) {
-  const target = stack.Ref(schema.$ref) ?? false;
-  const nextContext = new CheckContext();
-  const result = IsSchema2(target) && CheckSchema(stack, nextContext, target, value2);
-  if (result)
-    context5.Merge([nextContext]);
-  return result;
-}
-function ErrorRef(stack, context5, schemaPath, instancePath, schema, value2) {
-  const target = stack.Ref(schema.$ref) ?? false;
-  const nextContext = new AccumulatedErrorContext();
-  const result = IsSchema2(target) && ErrorSchema(stack, nextContext, "#", instancePath, target, value2);
-  if (result)
-    context5.Merge([nextContext]);
-  if (!result)
-    nextContext.GetErrors().forEach((error) => context5.AddError(error));
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/required.mjs
-function BuildRequired(stack, context5, schema, value2) {
-  return emit_exports.ReduceAnd(schema.required.map((key) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key))));
-}
-function CheckRequired(stack, context5, schema, value2) {
-  return guard_exports.Every(schema.required, 0, (key) => guard_exports.HasPropertyKey(value2, key));
-}
-function ErrorRequired(stack, context5, schemaPath, instancePath, schema, value2) {
-  const requiredProperties = [];
-  const isRequired = guard_exports.EveryAll(schema.required, 0, (key) => {
-    const hasKey = guard_exports.HasPropertyKey(value2, key);
-    if (!hasKey)
-      requiredProperties.push(key);
-    return hasKey;
-  });
-  return isRequired || context5.AddError({
-    keyword: "required",
-    schemaPath,
-    instancePath,
-    params: { requiredProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/type.mjs
-function BuildTypeName(stack, context5, type, value2) {
-  return (
-    // jsonschema
-    guard_exports.IsEqual(type, "object") ? emit_exports.IsObjectNotArray(value2) : guard_exports.IsEqual(type, "array") ? emit_exports.IsArray(value2) : guard_exports.IsEqual(type, "boolean") ? emit_exports.IsBoolean(value2) : guard_exports.IsEqual(type, "integer") ? emit_exports.IsInteger(value2) : guard_exports.IsEqual(type, "number") ? emit_exports.IsNumber(value2) : guard_exports.IsEqual(type, "null") ? emit_exports.IsNull(value2) : guard_exports.IsEqual(type, "string") ? emit_exports.IsString(value2) : (
-      // xschema
-      guard_exports.IsEqual(type, "asyncIterator") ? emit_exports.IsAsyncIterator(value2) : guard_exports.IsEqual(type, "bigint") ? emit_exports.IsBigInt(value2) : guard_exports.IsEqual(type, "constructor") ? emit_exports.IsConstructor(value2) : guard_exports.IsEqual(type, "function") ? emit_exports.IsFunction(value2) : guard_exports.IsEqual(type, "iterator") ? emit_exports.IsIterator(value2) : guard_exports.IsEqual(type, "symbol") ? emit_exports.IsSymbol(value2) : guard_exports.IsEqual(type, "undefined") ? emit_exports.IsUndefined(value2) : guard_exports.IsEqual(type, "void") ? emit_exports.IsUndefined(value2) : emit_exports.Constant(true)
-    )
-  );
-}
-function CheckTypeName(stack, context5, type, schema, value2) {
-  return (
-    // jsonschema
-    guard_exports.IsEqual(type, "object") ? guard_exports.IsObjectNotArray(value2) : guard_exports.IsEqual(type, "array") ? guard_exports.IsArray(value2) : guard_exports.IsEqual(type, "boolean") ? guard_exports.IsBoolean(value2) : guard_exports.IsEqual(type, "integer") ? guard_exports.IsInteger(value2) : guard_exports.IsEqual(type, "number") ? guard_exports.IsNumber(value2) : guard_exports.IsEqual(type, "null") ? guard_exports.IsNull(value2) : guard_exports.IsEqual(type, "string") ? guard_exports.IsString(value2) : (
-      // xschema
-      guard_exports.IsEqual(type, "asyncIterator") ? guard_exports.IsAsyncIterator(value2) : guard_exports.IsEqual(type, "bigint") ? guard_exports.IsBigInt(value2) : guard_exports.IsEqual(type, "constructor") ? guard_exports.IsConstructor(value2) : guard_exports.IsEqual(type, "function") ? guard_exports.IsFunction(value2) : guard_exports.IsEqual(type, "iterator") ? guard_exports.IsIterator(value2) : guard_exports.IsEqual(type, "symbol") ? guard_exports.IsSymbol(value2) : guard_exports.IsEqual(type, "undefined") ? guard_exports.IsUndefined(value2) : guard_exports.IsEqual(type, "void") ? guard_exports.IsUndefined(value2) : true
-    )
-  );
-}
-function BuildTypeNames(stack, context5, typenames, value2) {
-  return emit_exports.ReduceOr(typenames.map((type) => BuildTypeName(stack, context5, type, value2)));
-}
-function CheckTypeNames(stack, context5, types, schema, value2) {
-  return types.some((type) => CheckTypeName(stack, context5, type, schema, value2));
-}
-function BuildType(stack, context5, schema, value2) {
-  return guard_exports.IsArray(schema.type) ? BuildTypeNames(stack, context5, schema.type, value2) : BuildTypeName(stack, context5, schema.type, value2);
-}
-function CheckType(stack, context5, schema, value2) {
-  return guard_exports.IsArray(schema.type) ? CheckTypeNames(stack, context5, schema.type, schema, value2) : CheckTypeName(stack, context5, schema.type, schema, value2);
-}
-function ErrorType(stack, context5, schemaPath, instancePath, schema, value2) {
-  const isType = guard_exports.IsArray(schema.type) ? CheckTypeNames(stack, context5, schema.type, schema, value2) : CheckTypeName(stack, context5, schema.type, schema, value2);
-  return isType || context5.AddError({
-    keyword: "type",
-    schemaPath,
-    instancePath,
-    params: { type: schema.type }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/unevaluatedItems.mjs
-function BuildUnevaluatedItems(stack, context5, schema, value2) {
-  const [index2, item] = [Unique(), Unique()];
-  const indices = emit_exports.Call(emit_exports.Member("context", "GetIndices"), []);
-  const hasIndex = emit_exports.Call(emit_exports.Member("indices", "has"), [index2]);
-  const isSchema = BuildSchema(stack, context5, schema.unevaluatedItems, item);
-  const addIndex = emit_exports.Call(emit_exports.Member("context", "AddIndex"), [index2]);
-  const isEvery = emit_exports.Every(value2, emit_exports.Constant(0), [item, index2], emit_exports.And(emit_exports.Or(hasIndex, isSchema), addIndex));
-  return emit_exports.Call(emit_exports.ArrowFunction(["context"], emit_exports.Statements([
-    emit_exports.ConstDeclaration("indices", indices),
-    emit_exports.Return(isEvery)
-  ])), ["context"]);
-}
-function CheckUnevaluatedItems(stack, context5, schema, value2) {
-  const indices = context5.GetIndices();
-  return guard_exports.Every(value2, 0, (item, index2) => {
-    return (indices.has(index2) || CheckSchema(stack, context5, schema.unevaluatedItems, item)) && context5.AddIndex(index2);
-  });
-}
-function ErrorUnevaluatedItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  const indices = context5.GetIndices();
-  const unevaluatedItems = [];
-  const isUnevaluatedItems = guard_exports.EveryAll(value2, 0, (item, index2) => {
-    const nextContext = new AccumulatedErrorContext();
-    const isEvaluatedItem = (indices.has(index2) || ErrorSchema(stack, nextContext, schemaPath, instancePath, schema.unevaluatedItems, item)) && context5.AddIndex(index2);
-    if (!isEvaluatedItem)
-      unevaluatedItems.push(index2);
-    return isEvaluatedItem;
-  });
-  return isUnevaluatedItems || context5.AddError({
-    keyword: "unevaluatedItems",
-    schemaPath,
-    instancePath,
-    params: { unevaluatedItems }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/unevaluatedProperties.mjs
-function BuildUnevaluatedProperties(stack, context5, schema, value2) {
-  const [key, prop] = [Unique(), Unique()];
-  const keys5 = emit_exports.Call(emit_exports.Member("context", "GetKeys"), []);
-  const hasKey = emit_exports.Call(emit_exports.Member("keys", "has"), [key]);
-  const addKey = emit_exports.Call(emit_exports.Member("context", "AddKey"), [key]);
-  const isSchema = BuildSchema(stack, context5, schema.unevaluatedProperties, prop);
-  const isEvery = emit_exports.Every(emit_exports.Entries(value2), emit_exports.Constant(0), [`[${key}, ${prop}]`, "_"], emit_exports.Or(hasKey, emit_exports.And(isSchema, addKey)));
-  return emit_exports.Call(emit_exports.ArrowFunction(["context"], emit_exports.Statements([
-    emit_exports.ConstDeclaration("keys", keys5),
-    emit_exports.Return(isEvery)
-  ])), ["context"]);
-}
-function CheckUnevaluatedProperties(stack, context5, schema, value2) {
-  const keys5 = context5.GetKeys();
-  return guard_exports.Every(guard_exports.Entries(value2), 0, ([key, prop]) => {
-    return keys5.has(key) || CheckSchema(stack, context5, schema.unevaluatedProperties, prop) && context5.AddKey(key);
-  });
-}
-function ErrorUnevaluatedProperties(stack, context5, schemaPath, instancePath, schema, value2) {
-  const keys5 = context5.GetKeys();
-  const unevaluatedProperties = [];
-  const isUnevaluatedProperties = guard_exports.EveryAll(guard_exports.Entries(value2), 0, ([key, prop]) => {
-    const nextContext = new AccumulatedErrorContext();
-    const isEvaluatedProperty = keys5.has(key) || ErrorSchema(stack, nextContext, schemaPath, instancePath, schema.unevaluatedProperties, prop) && context5.AddKey(key);
-    if (!isEvaluatedProperty)
-      unevaluatedProperties.push(key);
-    return isEvaluatedProperty;
-  });
-  return isUnevaluatedProperties || context5.AddError({
-    keyword: "unevaluatedProperties",
-    schemaPath,
-    instancePath,
-    params: { unevaluatedProperties }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/uniqueItems.mjs
-function IsValid5(schema) {
-  return !guard_exports.IsEqual(schema.uniqueItems, false);
-}
-function BuildUniqueItems(stack, context5, schema, value2) {
-  if (!IsValid5(schema))
-    return emit_exports.Constant(true);
-  const set6 = emit_exports.Member(emit_exports.New("Set", [emit_exports.Call(emit_exports.Member(value2, "map"), [emit_exports.Member("Hashing", "Hash")])]), "size");
-  const isLength = emit_exports.Member(value2, "length");
-  return emit_exports.IsEqual(set6, isLength);
-}
-function CheckUniqueItems(stack, context5, schema, value2) {
-  if (!IsValid5(schema))
-    return true;
-  const set6 = new Set(value2.map(hash_exports.Hash)).size;
-  const isLength = value2.length;
-  return guard_exports.IsEqual(set6, isLength);
-}
-function ErrorUniqueItems(stack, context5, schemaPath, instancePath, schema, value2) {
-  if (!IsValid5(schema))
-    return true;
-  const set6 = /* @__PURE__ */ new Set();
-  const duplicateItems = value2.reduce((result, value3, index2) => {
-    const hash2 = hash_exports.Hash(value3);
-    if (set6.has(hash2))
-      return [...result, index2];
-    set6.add(hash2);
-    return result;
-  }, []);
-  const isUniqueItems = guard_exports.IsEqual(duplicateItems.length, 0);
-  return isUniqueItems || context5.AddError({
-    keyword: "uniqueItems",
-    schemaPath,
-    instancePath,
-    params: { duplicateItems }
-  });
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/schema.mjs
-function HasTypeName(schema, typename) {
-  return IsType(schema) && (guard_exports.IsArray(schema.type) && schema.type.includes(typename) || guard_exports.IsEqual(schema.type, typename));
-}
-function HasObjectType(schema) {
-  return HasTypeName(schema, "object");
-}
-function HasObjectKeywords(schema) {
-  return IsSchemaObject(schema) && (IsAdditionalProperties(schema) || IsDependencies(schema) || IsDependentRequired(schema) || IsDependentSchemas(schema) || IsProperties(schema) || IsPatternProperties(schema) || IsPropertyNames(schema) || IsMinProperties(schema) || IsMaxProperties(schema) || IsRequired(schema) || IsUnevaluatedProperties(schema));
-}
-function HasArrayType(schema) {
-  return HasTypeName(schema, "array");
-}
-function HasArrayKeywords(schema) {
-  return IsSchemaObject(schema) && (IsAdditionalItems(schema) || IsItems(schema) || IsContains(schema) || IsMaxContains(schema) || IsMaxItems(schema) || IsMinContains(schema) || IsMinItems(schema) || IsPrefixItems(schema) || IsUnevaluatedItems(schema) || IsUniqueItems(schema));
-}
-function HasStringType(schema) {
-  return HasTypeName(schema, "string");
-}
-function HasStringKeywords(schema) {
-  return IsSchemaObject(schema) && (IsMinLength4(schema) || IsMaxLength4(schema) || IsFormat(schema) || IsPattern(schema));
-}
-function HasNumberType(schema) {
-  return HasTypeName(schema, "number") || HasTypeName(schema, "bigint");
-}
-function HasNumberKeywords(schema) {
-  return IsSchemaObject(schema) && (IsMinimum(schema) || IsMaximum(schema) || IsExclusiveMaximum(schema) || IsExclusiveMinimum(schema) || IsMultipleOf2(schema));
-}
-function BuildSchema(stack, context5, schema, value2) {
-  stack.Push(schema);
-  const conditions = [];
-  if (IsBooleanSchema(schema))
-    return BuildBooleanSchema(stack, context5, schema, value2);
-  if (IsType(schema))
-    conditions.push(BuildType(stack, context5, schema, value2));
-  if (HasObjectKeywords(schema)) {
-    const constraints = [];
-    if (IsRequired(schema))
-      constraints.push(BuildRequired(stack, context5, schema, value2));
-    if (IsAdditionalProperties(schema))
-      constraints.push(BuildAdditionalProperties(stack, context5, schema, value2));
-    if (IsDependencies(schema))
-      constraints.push(BuildDependencies(stack, context5, schema, value2));
-    if (IsDependentRequired(schema))
-      constraints.push(BuildDependentRequired(stack, context5, schema, value2));
-    if (IsDependentSchemas(schema))
-      constraints.push(BuildDependentSchemas(stack, context5, schema, value2));
-    if (IsPatternProperties(schema))
-      constraints.push(BuildPatternProperties(stack, context5, schema, value2));
-    if (IsProperties(schema))
-      constraints.push(BuildProperties(stack, context5, schema, value2));
-    if (IsPropertyNames(schema))
-      constraints.push(BuildPropertyNames(stack, context5, schema, value2));
-    if (IsMinProperties(schema))
-      constraints.push(BuildMinProperties(stack, context5, schema, value2));
-    if (IsMaxProperties(schema))
-      constraints.push(BuildMaxProperties(stack, context5, schema, value2));
-    const reduced = emit_exports.ReduceAnd(constraints);
-    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsObjectNotArray(value2)), reduced);
-    conditions.push(HasObjectType(schema) ? reduced : guarded);
-  }
-  if (HasArrayKeywords(schema)) {
-    const constraints = [];
-    if (IsAdditionalItems(schema))
-      constraints.push(BuildAdditionalItems(stack, context5, schema, value2));
-    if (IsContains(schema))
-      constraints.push(BuildContains(stack, context5, schema, value2));
-    if (IsItems(schema))
-      constraints.push(BuildItems(stack, context5, schema, value2));
-    if (IsMaxContains(schema))
-      constraints.push(BuildMaxContains(stack, context5, schema, value2));
-    if (IsMaxItems(schema))
-      constraints.push(BuildMaxItems(stack, context5, schema, value2));
-    if (IsMinContains(schema))
-      constraints.push(BuildMinContains(stack, context5, schema, value2));
-    if (IsMinItems(schema))
-      constraints.push(BuildMinItems(stack, context5, schema, value2));
-    if (IsPrefixItems(schema))
-      constraints.push(BuildPrefixItems(stack, context5, schema, value2));
-    if (IsUniqueItems(schema))
-      constraints.push(BuildUniqueItems(stack, context5, schema, value2));
-    const reduced = emit_exports.ReduceAnd(constraints);
-    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsArray(value2)), reduced);
-    conditions.push(HasArrayType(schema) ? reduced : guarded);
-  }
-  if (HasStringKeywords(schema)) {
-    const constraints = [];
-    if (IsFormat(schema))
-      constraints.push(BuildFormat(stack, context5, schema, value2));
-    if (IsMaxLength4(schema))
-      constraints.push(BuildMaxLength(stack, context5, schema, value2));
-    if (IsMinLength4(schema))
-      constraints.push(BuildMinLength(stack, context5, schema, value2));
-    if (IsPattern(schema))
-      constraints.push(BuildPattern(stack, context5, schema, value2));
-    const reduced = emit_exports.ReduceAnd(constraints);
-    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsString(value2)), reduced);
-    conditions.push(HasStringType(schema) ? reduced : guarded);
-  }
-  if (HasNumberKeywords(schema)) {
-    const constraints = [];
-    if (IsExclusiveMaximum(schema))
-      constraints.push(BuildExclusiveMaximum(stack, context5, schema, value2));
-    if (IsExclusiveMinimum(schema))
-      constraints.push(BuildExclusiveMinimum(stack, context5, schema, value2));
-    if (IsMaximum(schema))
-      constraints.push(BuildMaximum(stack, context5, schema, value2));
-    if (IsMinimum(schema))
-      constraints.push(BuildMinimum(stack, context5, schema, value2));
-    if (IsMultipleOf2(schema))
-      constraints.push(BuildMultipleOf(stack, context5, schema, value2));
-    const reduced = emit_exports.ReduceAnd(constraints);
-    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.Or(emit_exports.IsNumber(value2), emit_exports.IsBigInt(value2))), reduced);
-    conditions.push(HasNumberType(schema) ? reduced : guarded);
-  }
-  if (IsRecursiveRef(schema))
-    conditions.push(BuildRecursiveRef(stack, context5, schema, value2));
-  if (IsRef2(schema))
-    conditions.push(BuildRef(stack, context5, schema, value2));
-  if (IsGuard2(schema))
-    conditions.push(BuildGuard(stack, context5, schema, value2));
-  if (IsConst(schema))
-    conditions.push(BuildConst(stack, context5, schema, value2));
-  if (IsEnum2(schema))
-    conditions.push(BuildEnum(stack, context5, schema, value2));
-  if (IsIf(schema))
-    conditions.push(BuildIf(stack, context5, schema, value2));
-  if (IsNot(schema))
-    conditions.push(BuildNot(stack, context5, schema, value2));
-  if (IsAllOf(schema))
-    conditions.push(BuildAllOf(stack, context5, schema, value2));
-  if (IsAnyOf(schema))
-    conditions.push(BuildAnyOf(stack, context5, schema, value2));
-  if (IsOneOf(schema))
-    conditions.push(BuildOneOf(stack, context5, schema, value2));
-  if (IsUnevaluatedItems(schema))
-    conditions.push(emit_exports.Or(emit_exports.Not(emit_exports.IsArray(value2)), BuildUnevaluatedItems(stack, context5, schema, value2)));
-  if (IsUnevaluatedProperties(schema))
-    conditions.push(emit_exports.Or(emit_exports.Not(emit_exports.IsObject(value2)), BuildUnevaluatedProperties(stack, context5, schema, value2)));
-  if (IsRefine2(schema))
-    conditions.push(BuildRefine(stack, context5, schema, value2));
-  const result = emit_exports.ReduceAnd(conditions);
-  stack.Pop(schema);
-  return result;
-}
-function CheckSchema(stack, context5, schema, value2) {
-  stack.Push(schema);
-  const result = IsBooleanSchema(schema) ? CheckBooleanSchema(stack, context5, schema, value2) : (!IsType(schema) || CheckType(stack, context5, schema, value2)) && (!(guard_exports.IsObject(value2) && !guard_exports.IsArray(value2)) || (!IsRequired(schema) || CheckRequired(stack, context5, schema, value2)) && (!IsAdditionalProperties(schema) || CheckAdditionalProperties(stack, context5, schema, value2)) && (!IsDependencies(schema) || CheckDependencies(stack, context5, schema, value2)) && (!IsDependentRequired(schema) || CheckDependentRequired(stack, context5, schema, value2)) && (!IsDependentSchemas(schema) || CheckDependentSchemas(stack, context5, schema, value2)) && (!IsPatternProperties(schema) || CheckPatternProperties(stack, context5, schema, value2)) && (!IsProperties(schema) || CheckProperties(stack, context5, schema, value2)) && (!IsPropertyNames(schema) || CheckPropertyNames(stack, context5, schema, value2)) && (!IsMinProperties(schema) || CheckMinProperties(stack, context5, schema, value2)) && (!IsMaxProperties(schema) || CheckMaxProperties(stack, context5, schema, value2))) && (!guard_exports.IsArray(value2) || (!IsAdditionalItems(schema) || CheckAdditionalItems(stack, context5, schema, value2)) && (!IsContains(schema) || CheckContains(stack, context5, schema, value2)) && (!IsItems(schema) || CheckItems(stack, context5, schema, value2)) && (!IsMaxContains(schema) || CheckMaxContains(stack, context5, schema, value2)) && (!IsMaxItems(schema) || CheckMaxItems(stack, context5, schema, value2)) && (!IsMinContains(schema) || CheckMinContains(stack, context5, schema, value2)) && (!IsMinItems(schema) || CheckMinItems(stack, context5, schema, value2)) && (!IsPrefixItems(schema) || CheckPrefixItems(stack, context5, schema, value2)) && (!IsUniqueItems(schema) || CheckUniqueItems(stack, context5, schema, value2))) && (!guard_exports.IsString(value2) || (!IsFormat(schema) || CheckFormat(stack, context5, schema, value2)) && (!IsMaxLength4(schema) || CheckMaxLength(stack, context5, schema, value2)) && (!IsMinLength4(schema) || CheckMinLength(stack, context5, schema, value2)) && (!IsPattern(schema) || CheckPattern(stack, context5, schema, value2))) && (!(guard_exports.IsNumber(value2) || guard_exports.IsBigInt(value2)) || (!IsExclusiveMaximum(schema) || CheckExclusiveMaximum(stack, context5, schema, value2)) && (!IsExclusiveMinimum(schema) || CheckExclusiveMinimum(stack, context5, schema, value2)) && (!IsMaximum(schema) || CheckMaximum(stack, context5, schema, value2)) && (!IsMinimum(schema) || CheckMinimum(stack, context5, schema, value2)) && (!IsMultipleOf2(schema) || CheckMultipleOf(stack, context5, schema, value2))) && (!IsRecursiveRef(schema) || CheckRecursiveRef(stack, context5, schema, value2)) && (!IsRef2(schema) || CheckRef(stack, context5, schema, value2)) && (!IsGuard2(schema) || CheckGuard(stack, context5, schema, value2)) && (!IsConst(schema) || CheckConst(stack, context5, schema, value2)) && (!IsEnum2(schema) || CheckEnum(stack, context5, schema, value2)) && (!IsIf(schema) || CheckIf(stack, context5, schema, value2)) && (!IsNot(schema) || CheckNot(stack, context5, schema, value2)) && (!IsAllOf(schema) || CheckAllOf(stack, context5, schema, value2)) && (!IsAnyOf(schema) || CheckAnyOf(stack, context5, schema, value2)) && (!IsOneOf(schema) || CheckOneOf(stack, context5, schema, value2)) && (!IsUnevaluatedItems(schema) || (!guard_exports.IsArray(value2) || CheckUnevaluatedItems(stack, context5, schema, value2))) && (!IsUnevaluatedProperties(schema) || (!guard_exports.IsObject(value2) || CheckUnevaluatedProperties(stack, context5, schema, value2))) && (!IsRefine2(schema) || CheckRefine(stack, context5, schema, value2));
-  stack.Pop(schema);
-  return result;
-}
-function ErrorSchema(stack, context5, schemaPath, instancePath, schema, value2) {
-  stack.Push(schema);
-  const result = IsBooleanSchema(schema) ? ErrorBooleanSchema(stack, context5, schemaPath, instancePath, schema, value2) : !!(+(!IsType(schema) || ErrorType(stack, context5, schemaPath, instancePath, schema, value2)) & +(!(guard_exports.IsObject(value2) && !guard_exports.IsArray(value2)) || !!(+(!IsRequired(schema) || ErrorRequired(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAdditionalProperties(schema) || ErrorAdditionalProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependencies(schema) || ErrorDependencies(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependentRequired(schema) || ErrorDependentRequired(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependentSchemas(schema) || ErrorDependentSchemas(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPatternProperties(schema) || ErrorPatternProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsProperties(schema) || ErrorProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPropertyNames(schema) || ErrorPropertyNames(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinProperties(schema) || ErrorMinProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxProperties(schema) || ErrorMaxProperties(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!guard_exports.IsArray(value2) || !!(+(!IsAdditionalItems(schema) || ErrorAdditionalItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsContains(schema) || ErrorContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsItems(schema) || ErrorItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxContains(schema) || ErrorMaxContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxItems(schema) || ErrorMaxItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinContains(schema) || ErrorMinContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinItems(schema) || ErrorMinItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPrefixItems(schema) || ErrorPrefixItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsUniqueItems(schema) || ErrorUniqueItems(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!guard_exports.IsString(value2) || !!(+(!IsFormat(schema) || ErrorFormat(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxLength4(schema) || ErrorMaxLength(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinLength4(schema) || ErrorMinLength(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPattern(schema) || ErrorPattern(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!(guard_exports.IsNumber(value2) || guard_exports.IsBigInt(value2)) || !!(+(!IsExclusiveMaximum(schema) || ErrorExclusiveMaximum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsExclusiveMinimum(schema) || ErrorExclusiveMinimum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaximum(schema) || ErrorMaximum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinimum(schema) || ErrorMinimum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMultipleOf2(schema) || ErrorMultipleOf(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!IsRecursiveRef(schema) || ErrorRecursiveRef(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsRef2(schema) || ErrorRef(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsGuard2(schema) || ErrorGuard(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsConst(schema) || ErrorConst(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsEnum2(schema) || ErrorEnum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsIf(schema) || ErrorIf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsNot(schema) || ErrorNot(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAllOf(schema) || ErrorAllOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAnyOf(schema) || ErrorAnyOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsOneOf(schema) || ErrorOneOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsUnevaluatedItems(schema) || (!guard_exports.IsArray(value2) || ErrorUnevaluatedItems(stack, context5, schemaPath, instancePath, schema, value2))) & +(!IsUnevaluatedProperties(schema) || (!guard_exports.IsObject(value2) || ErrorUnevaluatedProperties(stack, context5, schemaPath, instancePath, schema, value2)))) && (!IsRefine2(schema) || ErrorRefine(stack, context5, schemaPath, instancePath, schema, value2));
-  stack.Pop(schema);
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_functions.mjs
-var functions = /* @__PURE__ */ new Map();
-function CreateCallExpression(context5, schema, hash2, value2) {
-  return context5.UseUnevaluated() ? emit_exports.Call(`check_${hash2}`, ["context", value2]) : emit_exports.Call(`check_${hash2}`, [value2]);
-}
-function CreateFunctionExpression(stack, context5, schema, hash2) {
-  const expression = BuildSchema(stack, context5, schema, "value");
-  return context5.UseUnevaluated() ? emit_exports.ConstDeclaration(`check_${hash2}`, emit_exports.ArrowFunction(["context", "value"], expression)) : emit_exports.ConstDeclaration(`check_${hash2}`, emit_exports.ArrowFunction(["value"], expression));
-}
-function ResetFunctions() {
-  functions.clear();
-}
-function GetFunctions() {
-  return [...functions.values()];
-}
-function CreateFunction(stack, context5, schema, value2) {
-  const hash2 = IsSchemaObject(schema) ? hash_exports.Hash({ __baseURL: stack.BaseURL().href, ...schema }) : hash_exports.Hash(schema);
-  const call2 = CreateCallExpression(context5, schema, hash2, value2);
-  if (functions.has(hash2))
-    return call2;
-  functions.set(hash2, "");
-  functions.set(hash2, CreateFunctionExpression(stack, context5, schema, hash2));
-  return call2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/resolve/resolve.mjs
-var resolve_exports = {};
-__export(resolve_exports, {
-  Ref: () => Ref2
-});
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/pointer/pointer.mjs
-var pointer_exports = {};
-__export(pointer_exports, {
-  Delete: () => Delete,
-  Get: () => Get4,
-  Has: () => Has2,
-  Indices: () => Indices,
-  Set: () => Set4
-});
-function AssertNotRoot(indices) {
-  if (indices.length === 0)
-    throw Error("Cannot set root");
-}
-function AssertCanSet(value2) {
-  if (!guard_exports.IsObject(value2))
-    throw Error("Cannot set value");
-}
-function IsNumericIndex(index2) {
-  return /^(0|[1-9]\d*)$/.test(index2);
-}
-function TakeIndexRight(indices) {
-  return [
-    indices.slice(0, indices.length - 1),
-    indices.slice(indices.length - 1)[0]
-  ];
-}
-function HasIndex(index2, value2) {
-  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, index2);
-}
-function GetIndex(index2, value2) {
-  return guard_exports.IsObject(value2) ? value2[index2] : void 0;
-}
-function GetIndices(indices, value2) {
-  return indices.reduce((value3, index2) => GetIndex(index2, value3), value2);
-}
-function Indices(pointer) {
-  if (guard_exports.IsEqual(pointer.length, 0))
-    return [];
-  const indices = pointer.split("/").map((index2) => index2.replace(/~1/g, "/").replace(/~0/g, "~"));
-  return indices.length > 0 && indices[0] === "" ? indices.slice(1) : indices;
-}
-function Has2(value2, pointer) {
-  let current = value2;
-  return Indices(pointer).every((index2) => {
-    if (!HasIndex(index2, current))
-      return false;
-    current = current[index2];
-    return true;
-  });
-}
-function Get4(value2, pointer) {
-  const indices = Indices(pointer);
-  return GetIndices(indices, value2);
-}
-function Set4(value2, pointer, next) {
-  const indices = Indices(pointer);
-  AssertNotRoot(indices);
-  const [head5, index2] = TakeIndexRight(indices);
-  const parent = GetIndices(head5, value2);
-  AssertCanSet(parent);
-  parent[index2] = next;
-  return value2;
-}
-function Delete(value2, pointer) {
-  const indices = Indices(pointer);
-  AssertNotRoot(indices);
-  const [head5, index2] = TakeIndexRight(indices);
-  const parent = GetIndices(head5, value2);
-  AssertCanSet(parent);
-  if (guard_exports.IsArray(parent) && IsNumericIndex(index2)) {
-    parent.splice(+index2, 1);
-  } else {
-    delete parent[index2];
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/resolve/ref.mjs
-function MatchId(schema, base, ref) {
-  if (schema.$id === ref.hash)
-    return schema;
-  const absoluteId = new URL(schema.$id, base.href);
-  const absoluteRef = new URL(ref.href, base.href);
-  if (guard_exports.IsEqual(absoluteId.pathname, absoluteRef.pathname)) {
-    return ref.hash.startsWith("#") ? MatchHash(schema, base, ref) : schema;
-  }
-  return void 0;
-}
-function MatchAnchor(schema, base, ref) {
-  const absoluteAnchor = new URL(`#${schema.$anchor}`, base.href);
-  const absoluteRef = new URL(ref.href, base.href);
-  if (guard_exports.IsEqual(absoluteAnchor.href, absoluteRef.href))
-    return schema;
-  return void 0;
-}
-function MatchHash(schema, base, ref) {
-  if (ref.href.endsWith("#"))
-    return schema;
-  return ref.hash.startsWith("#") ? pointer_exports.Get(schema, decodeURIComponent(ref.hash.slice(1))) : void 0;
-}
-function Match2(schema, base, ref) {
-  if (IsId(schema)) {
-    const result = MatchId(schema, base, ref);
-    if (!guard_exports.IsUndefined(result))
-      return result;
-  }
-  if (IsAnchor(schema)) {
-    const result = MatchAnchor(schema, base, ref);
-    if (!guard_exports.IsUndefined(result))
-      return result;
-  }
-  return MatchHash(schema, base, ref);
-}
-function FromArray6(schema, base, ref) {
-  return schema.reduce((result, item) => {
-    const match14 = FromValue3(item, base, ref);
-    return !guard_exports.IsUndefined(match14) ? match14 : result;
-  }, void 0);
-}
-function FromObject9(schema, base, ref) {
-  return guard_exports.Keys(schema).reduce((result, key) => {
-    const match14 = FromValue3(schema[key], base, ref);
-    return !guard_exports.IsUndefined(match14) ? match14 : result;
-  }, void 0);
-}
-function FromValue3(schema, base, ref) {
-  base = IsSchemaObject(schema) && IsId(schema) ? new URL(schema.$id, base.href) : base;
-  if (IsSchemaObject(schema)) {
-    const result = Match2(schema, base, ref);
-    if (!guard_exports.IsUndefined(result))
-      return result;
-  }
-  if (guard_exports.IsArray(schema))
-    return FromArray6(schema, base, ref);
-  if (guard_exports.IsObject(schema))
-    return FromObject9(schema, base, ref);
-  return void 0;
-}
-function Ref2(schema, ref) {
-  const defaultBase = new URL("http://unknown");
-  const initialBase = IsId(schema) ? new URL(schema.$id, defaultBase.href) : defaultBase;
-  const initialRef = new URL(ref, initialBase.href);
-  return FromValue3(schema, initialBase, initialRef);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_stack.mjs
-var Stack = class {
-  constructor(context5, schema) {
-    this.context = context5;
-    this.schema = schema;
-    this.ids = [];
-    this.anchors = [];
-    this.recursiveAnchors = [];
-    this.dynamicAnchors = [];
-  }
-  // ----------------------------------------------------------------
-  // Base
-  // ----------------------------------------------------------------
-  BaseURL() {
-    return this.ids.reduce((result, schema) => new URL(schema.$id, result), new URL("http://unknown"));
-  }
-  Base() {
-    return this.ids[this.ids.length - 1] ?? this.schema;
-  }
-  // ----------------------------------------------------------------
-  // Stack
-  // ----------------------------------------------------------------
-  Push(schema) {
-    if (!IsSchemaObject(schema))
-      return;
-    if (IsId(schema))
-      this.ids.push(schema);
-    if (IsAnchor(schema))
-      this.anchors.push(schema);
-    if (IsRecursiveAnchorTrue(schema))
-      this.recursiveAnchors.push(schema);
-    if (IsDynamicAnchor(schema))
-      this.dynamicAnchors.push(schema);
-  }
-  Pop(schema) {
-    if (!IsSchemaObject(schema))
-      return;
-    if (IsId(schema))
-      this.ids.pop();
-    if (IsAnchor(schema))
-      this.anchors.pop();
-    if (IsRecursiveAnchorTrue(schema))
-      this.recursiveAnchors.pop();
-    if (IsDynamicAnchor(schema))
-      this.dynamicAnchors.pop();
-  }
-  // ----------------------------------------------------------------
-  // Ref
-  // ----------------------------------------------------------------
-  FromContext(ref) {
-    return guard_exports.HasPropertyKey(this.context, ref) ? this.context[ref] : void 0;
-  }
-  FromRef(ref) {
-    return !ref.startsWith("#") ? resolve_exports.Ref(this.schema, ref) : resolve_exports.Ref(this.Base(), ref);
-  }
-  Ref(ref) {
-    return this.FromContext(ref) ?? this.FromRef(ref);
-  }
-  // ----------------------------------------------------------------
-  // RecursiveRef
-  // ----------------------------------------------------------------
-  RecursiveRef(recursiveRef) {
-    if (IsRecursiveAnchorTrue(this.Base())) {
-      return resolve_exports.Ref(this.recursiveAnchors[0], recursiveRef);
-    }
-    return resolve_exports.Ref(this.Base(), recursiveRef);
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/build.mjs
-function CreateCode(build3) {
-  const functions2 = build3.Functions().join(";\n");
-  const statements = build3.UseUnevaluated() ? ["const context = new CheckContext({}, {})", `return ${build3.Call()}`] : [`return ${build3.Call()}`];
-  return `${functions2}; return (value) => { ${statements.join("; ")} }`;
-}
-function CreateEvaluatedCheck(build3, code) {
-  const factory = new globalThis.Function("CheckContext", "Guard", "Format", "Hashing", build3.External().identifier, code);
-  return factory(CheckContext, guard_exports, format_exports, hash_exports, build3.External().variables);
-}
-function CreateDynamicCheck(build3) {
-  const stack = new Stack(build3.Context(), build3.Schema());
-  const context5 = new CheckContext();
-  return (value2) => CheckSchema(stack, context5, build3.Schema(), value2);
-}
-function CreateCheck(build3, code) {
-  return environment_exports.CanEvaluate() ? CreateEvaluatedCheck(build3, code) : CreateDynamicCheck(build3);
-}
-var BuildResult = class {
-  constructor(context5, schema, external, functions2, call2, useUnevaluated) {
-    this.context = context5;
-    this.schema = schema;
-    this.external = external;
-    this.functions = functions2;
-    this.call = call2;
-    this.useUnevaluated = useUnevaluated;
-  }
-  /** Returns the Context used for this build */
-  Context() {
-    return this.context;
-  }
-  /** Returns the Schema used for this build */
-  Schema() {
-    return this.schema;
-  }
-  /** Returns true if this build requires a Unevaluated context */
-  UseUnevaluated() {
-    return this.useUnevaluated;
-  }
-  /** Returns external variables */
-  External() {
-    return this.external;
-  }
-  /** Returns check functions */
-  Functions() {
-    return this.functions;
-  }
-  /** Return entry function call. */
-  Call() {
-    return this.call;
-  }
-  /** Evaluates the build into a validation function */
-  Evaluate() {
-    const Code2 = CreateCode(this);
-    const Check3 = CreateCheck(this, Code2);
-    return { IsEvaluated: environment_exports.CanEvaluate(), Code: Code2, Check: Check3 };
-  }
-};
-function Build(...args2) {
-  const [context5, schema] = arguments_exports.Match(args2, {
-    2: (context6, schema2) => [context6, schema2],
-    1: (schema2) => [{}, schema2]
-  });
-  ResetExternal();
-  ResetFunctions();
-  const stack = new Stack(context5, schema);
-  const build3 = new BuildContext(HasUnevaluated(context5, schema));
-  const call2 = CreateFunction(stack, build3, schema, "value");
-  const functions2 = GetFunctions();
-  const externals = GetExternal();
-  return new BuildResult(context5, schema, externals, functions2, call2, build3.UseUnevaluated());
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/check.mjs
-function Check(...args2) {
-  const [context5, schema, value2] = arguments_exports.Match(args2, {
-    3: (context6, schema2, value3) => [context6, schema2, value3],
-    2: (schema2, value3) => [{}, schema2, value3]
-  });
-  const stack = new Stack(context5, schema);
-  const checkContext = new CheckContext();
-  return CheckSchema(stack, checkContext, schema, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/errors.mjs
-function Errors(...args2) {
-  const [context5, schema, value2] = arguments_exports.Match(args2, {
-    3: (context6, schema2, value3) => [context6, schema2, value3],
-    2: (schema2, value3) => [{}, schema2, value3]
-  });
-  const settings2 = settings_exports.Get();
-  const locale2 = Get2();
-  const errors = [];
-  const stack = new Stack(context5, schema);
-  const errorContext = new ErrorContext((error) => {
-    if (guard_exports.IsGreaterEqualThan(errors.length, settings2.maxErrors))
-      return;
-    return errors.push({ ...error, message: locale2(error) });
-  });
-  const result = ErrorSchema(stack, errorContext, "#", "", schema, value2);
-  return [result, errors];
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/check/check.mjs
-function Check2(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return Check(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/errors/errors.mjs
-function Errors2(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  const [_, errors] = Errors(context5, type, value2);
-  return errors;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/assert/assert.mjs
-var AssertError = class extends Error {
-  constructor(source, value2, errors) {
-    super(source);
-    Object.defineProperty(this, "cause", {
-      value: { source, errors, value: value2 },
-      writable: false,
-      configurable: false,
-      enumerable: false
-    });
-  }
-};
-function Assert(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  const check2 = Check2(context5, type, value2);
-  if (!check2)
-    throw new AssertError("Assert", value2, Errors2(context5, type, value2));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-array.mjs
-function FromArray7(context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  return value2.map((value3) => FromType14(context5, type.items, value3));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-base.mjs
-function FromBase(context5, type, value2) {
-  return type.Clean(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-cyclic.mjs
-function FromCyclic6(context5, type, value2) {
-  return FromType14({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-intersect.mjs
-function EvaluateIntersection(type) {
-  const additionalProperties = guard_exports.HasPropertyKey(type, "unevaluatedProperties") ? { additionalProperties: type.unevaluatedProperties } : {};
-  const evaluated = Evaluate(type);
-  return IsObject3(evaluated) ? Options2(evaluated, additionalProperties) : evaluated;
-}
-function FromIntersect6(context5, type, value2) {
-  const evaluated = EvaluateIntersection(type);
-  return FromType14(context5, evaluated, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/additional.mjs
-function GetAdditionalProperties(type) {
-  const additionalProperties = guard_exports.HasPropertyKey(type, "additionalProperties") ? type.additionalProperties : void 0;
-  return additionalProperties;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-object.mjs
-function FromObject10(context5, type, value2) {
-  if (!guard_exports.IsObject(value2) || guard_exports.IsArray(value2))
-    return value2;
-  const additionalProperties = GetAdditionalProperties(type);
-  for (const key of guard_exports.Keys(value2)) {
-    if (guard_exports.HasPropertyKey(type.properties, key)) {
-      value2[key] = FromType14(context5, type.properties[key], value2[key]);
-      continue;
-    }
-    const unknownCheck = (
-      // 1. additionalProperties: true
-      guard_exports.IsBoolean(additionalProperties) && guard_exports.IsEqual(additionalProperties, true) || IsSchema(additionalProperties) && Check2(context5, additionalProperties, value2[key])
-    );
-    if (unknownCheck) {
-      value2[key] = FromType14(context5, additionalProperties, value2[key]);
-      continue;
-    }
-    delete value2[key];
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-record.mjs
-function FromRecord2(context5, type, value2) {
-  if (!guard_exports.IsObject(value2))
-    return value2;
-  const additionalProperties = GetAdditionalProperties(type);
-  const [recordPattern, recordValue2] = [new RegExp(RecordPattern(type)), RecordValue(type)];
-  for (const key of guard_exports.Keys(value2)) {
-    if (recordPattern.test(key)) {
-      value2[key] = FromType14(context5, recordValue2, value2[key]);
-      continue;
-    }
-    const unknownCheck = (
-      // 1. additionalProperties: true
-      guard_exports.IsBoolean(additionalProperties) && guard_exports.IsEqual(additionalProperties, true) || IsSchema(additionalProperties) && Check2(context5, additionalProperties, value2[key])
-    );
-    if (unknownCheck) {
-      value2[key] = FromType14(context5, additionalProperties, value2[key]);
-      continue;
-    }
-    delete value2[key];
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-ref.mjs
-function FromRef5(context5, type, value2) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType14(context5, context5[type.$ref], value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-tuple.mjs
-function FromTuple5(context5, schema, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  const length2 = Math.min(value2.length, schema.items.length);
-  for (let index2 = 0; index2 < length2; index2++) {
-    value2[index2] = FromType14(context5, schema.items[index2], value2[index2]);
-  }
-  return guard_exports.IsGreaterThan(value2.length, length2) ? value2.slice(0, length2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clone/clone.mjs
-function FromClassInstance(value2) {
-  return value2;
-}
-function FromObjectInstance(value2) {
-  const result = {};
-  for (const key of Object.getOwnPropertyNames(value2)) {
-    result[key] = Clone2(value2[key]);
-  }
-  for (const key of Object.getOwnPropertySymbols(value2)) {
-    result[key] = Clone2(value2[key]);
-  }
-  return result;
-}
-function FromObject11(value2) {
-  return guard_exports.IsClassInstance(value2) ? FromClassInstance(value2) : FromObjectInstance(value2);
-}
-function FromArray8(value2) {
-  return value2.map((element) => Clone2(element));
-}
-function FromTypedArray(value2) {
-  return value2.slice();
-}
-function FromMap(value2) {
-  return new Map(Clone2([...value2.entries()]));
-}
-function FromSet(value2) {
-  return new Set(Clone2([...value2.values()]));
-}
-function FromValue4(value2) {
-  return value2;
-}
-function Clone2(value2) {
-  return globals_exports.IsTypeArray(value2) ? FromTypedArray(value2) : globals_exports.IsMap(value2) ? FromMap(value2) : globals_exports.IsSet(value2) ? FromSet(value2) : guard_exports.IsArray(value2) ? FromArray8(value2) : guard_exports.IsObject(value2) ? FromObject11(value2) : FromValue4(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-union.mjs
-function FromUnion9(context5, type, value2) {
-  for (const schema of type.anyOf) {
-    const clean = FromType14(context5, schema, Clone2(value2));
-    if (Check2(context5, schema, clean))
-      return clean;
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-type.mjs
-function FromType14(context5, type, value2) {
-  return IsArray3(type) ? FromArray7(context5, type, value2) : IsBase(type) ? FromBase(context5, type, value2) : IsCyclic(type) ? FromCyclic6(context5, type, value2) : IsIntersect(type) ? FromIntersect6(context5, type, value2) : IsObject3(type) ? FromObject10(context5, type, value2) : IsRecord(type) ? FromRecord2(context5, type, value2) : IsRef(type) ? FromRef5(context5, type, value2) : IsTuple(type) ? FromTuple5(context5, type, value2) : IsUnion(type) ? FromUnion9(context5, type, value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/clean.mjs
-function Clean(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return FromType14(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-array.mjs
-function FromArray9(context5, type, value2) {
-  return guard_exports.IsArray(value2) ? value2.map((value3) => FromType15(context5, type.items, value3)) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-base.mjs
-function FromBase2(context5, type, value2) {
-  return type.Convert(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try.mjs
-var try_exports = {};
-__export(try_exports, {
-  Fail: () => Fail,
-  IsOk: () => IsOk,
-  Ok: () => Ok,
-  TryBigInt: () => TryBigInt,
-  TryBoolean: () => TryBoolean,
-  TryNull: () => TryNull,
-  TryNumber: () => TryNumber,
-  TryString: () => TryString,
-  TryUndefined: () => TryUndefined
-});
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-result.mjs
-function IsOk(value2) {
-  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, "value");
-}
-function Ok(value2) {
-  return { value: value2 };
-}
-function Fail() {
-  return void 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-bigint.mjs
-function FromBigInt2(value2) {
-  return Ok(value2);
-}
-function FromBoolean2(value2) {
-  return guard_exports.IsEqual(value2, true) ? Ok(BigInt(1)) : Ok(BigInt(0));
-}
-function FromNumber2(value2) {
-  return Ok(BigInt(Math.trunc(value2)));
-}
-function FromNull2(value2) {
-  return Ok(BigInt(0));
-}
-var bigintPattern = /^-?(0|[1-9]\d*)n$/;
-var decimalPattern = /^-?(0|[1-9]\d*)\.\d+$/;
-var integerPattern = /^-?(0|[1-9]\d*)$/;
-function IsStringBigIntLike(value2) {
-  return bigintPattern.test(value2);
-}
-function IsStringDecimalLike(value2) {
-  return decimalPattern.test(value2);
-}
-function IsStringIntegerLike(value2) {
-  return integerPattern.test(value2);
-}
-function FromString2(value2) {
-  const lowercase = value2.toLowerCase();
-  return IsStringBigIntLike(value2) ? Ok(BigInt(value2.slice(0, value2.length - 1))) : IsStringDecimalLike(value2) ? Ok(BigInt(value2.split(".")[0])) : IsStringIntegerLike(value2) ? Ok(BigInt(value2)) : guard_exports.IsEqual(lowercase, "false") ? Ok(BigInt(0)) : guard_exports.IsEqual(lowercase, "true") ? Ok(BigInt(1)) : Fail();
-}
-function FromUndefined2(value2) {
-  return Ok(BigInt(0));
-}
-function TryBigInt(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt2(value2) : guard_exports.IsBoolean(value2) ? FromBoolean2(value2) : guard_exports.IsNumber(value2) ? FromNumber2(value2) : guard_exports.IsNull(value2) ? FromNull2(value2) : guard_exports.IsString(value2) ? FromString2(value2) : guard_exports.IsUndefined(value2) ? FromUndefined2(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-boolean.mjs
-function FromBigInt3(value2) {
-  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(false) : guard_exports.IsEqual(value2, BigInt(1)) ? Ok(true) : Fail();
-}
-function FromBoolean3(value2) {
-  return Ok(value2);
-}
-function FromNumber3(value2) {
-  return guard_exports.IsEqual(value2, 0) ? Ok(false) : guard_exports.IsEqual(value2, 1) ? Ok(true) : Fail();
-}
-function FromNull3(value2) {
-  return Ok(false);
-}
-function FromString3(value2) {
-  return guard_exports.IsEqual(value2.toLowerCase(), "false") ? Ok(false) : guard_exports.IsEqual(value2.toLowerCase(), "true") ? Ok(true) : guard_exports.IsEqual(value2, "0") ? Ok(false) : guard_exports.IsEqual(value2, "1") ? Ok(true) : Fail();
-}
-function FromUndefined3(value2) {
-  return Ok(false);
-}
-function TryBoolean(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt3(value2) : guard_exports.IsBoolean(value2) ? FromBoolean3(value2) : guard_exports.IsNumber(value2) ? FromNumber3(value2) : guard_exports.IsNull(value2) ? FromNull3(value2) : guard_exports.IsString(value2) ? FromString3(value2) : guard_exports.IsUndefined(value2) ? FromUndefined3(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-null.mjs
-function FromBigInt4(value2) {
-  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(null) : Fail();
-}
-function FromBoolean4(value2) {
-  return guard_exports.IsEqual(value2, false) ? Ok(null) : Fail();
-}
-function FromNumber4(value2) {
-  return guard_exports.IsEqual(value2, 0) ? Ok(null) : Fail();
-}
-function FromNull4(value2) {
-  return Ok(null);
-}
-function FromString4(value2) {
-  const lowercase = value2.toLowerCase();
-  const predicate = guard_exports.IsEqual(lowercase, "undefined") || guard_exports.IsEqual(lowercase, "null") || guard_exports.IsEqual(value2, "") || guard_exports.IsEqual(value2, "0");
-  return predicate ? Ok(null) : Fail();
-}
-function FromUndefined4(value2) {
-  return Ok(null);
-}
-function TryNull(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt4(value2) : guard_exports.IsBoolean(value2) ? FromBoolean4(value2) : guard_exports.IsNumber(value2) ? FromNumber4(value2) : guard_exports.IsNull(value2) ? FromNull4(value2) : guard_exports.IsString(value2) ? FromString4(value2) : guard_exports.IsUndefined(value2) ? FromUndefined4(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-number.mjs
-var maxBigInt = BigInt(Number.MAX_SAFE_INTEGER);
-var minBigInt = BigInt(Number.MIN_SAFE_INTEGER);
-function CanBigIntDowncast(value2) {
-  return value2 <= maxBigInt && value2 >= minBigInt;
-}
-function FromBigInt5(value2) {
-  return CanBigIntDowncast(value2) ? Ok(Number(value2)) : Fail();
-}
-function FromBoolean5(value2) {
-  return value2 ? Ok(1) : Ok(0);
-}
-function FromNumber5(value2) {
-  return Ok(value2);
-}
-function FromNull5(value2) {
-  return Ok(0);
-}
-function FromString5(value2) {
-  const coerced = +value2;
-  if (guard_exports.IsNumber(coerced))
-    return Ok(coerced);
-  const lowercase = value2.toLowerCase();
-  if (guard_exports.IsEqual(lowercase, "false"))
-    return Ok(0);
-  if (guard_exports.IsEqual(lowercase, "true"))
-    return Ok(1);
-  const result = TryBigInt(value2);
-  if (IsOk(result))
-    return FromBigInt5(result.value);
-  return Fail();
-}
-function FromUndefined5(value2) {
-  return Ok(0);
-}
-function TryNumber(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt5(value2) : guard_exports.IsBoolean(value2) ? FromBoolean5(value2) : guard_exports.IsNumber(value2) ? FromNumber5(value2) : guard_exports.IsNull(value2) ? FromNull5(value2) : guard_exports.IsString(value2) ? FromString5(value2) : guard_exports.IsUndefined(value2) ? FromUndefined5(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-string.mjs
-function FromBigInt6(value2) {
-  return Ok(value2.toString());
-}
-function FromBoolean6(value2) {
-  return Ok(value2.toString());
-}
-function FromNumber6(value2) {
-  return Ok(value2.toString());
-}
-function FromNull6(value2) {
-  return Ok("null");
-}
-function FromString6(value2) {
-  return Ok(value2);
-}
-function FromUndefined6(value2) {
-  return Ok("");
-}
-function TryString(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt6(value2) : guard_exports.IsBoolean(value2) ? FromBoolean6(value2) : guard_exports.IsNumber(value2) ? FromNumber6(value2) : guard_exports.IsNull(value2) ? FromNull6(value2) : guard_exports.IsString(value2) ? FromString6(value2) : guard_exports.IsUndefined(value2) ? FromUndefined6(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-undefined.mjs
-function FromBigInt7(value2) {
-  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(void 0) : Fail();
-}
-function FromBoolean7(value2) {
-  return guard_exports.IsEqual(value2, false) ? Ok(void 0) : Fail();
-}
-function FromNumber7(value2) {
-  return guard_exports.IsEqual(value2, 0) ? Ok(void 0) : Fail();
-}
-function FromNull7(value2) {
-  return Ok(void 0);
-}
-function FromString7(value2) {
-  const lowercase = value2.toLowerCase();
-  const predicate = guard_exports.IsEqual(lowercase, "undefined") || guard_exports.IsEqual(lowercase, "null") || guard_exports.IsEqual(value2, "") || guard_exports.IsEqual(value2, "0");
-  return predicate ? Ok(void 0) : Fail();
-}
-function FromUndefined7(value2) {
-  return Ok(void 0);
-}
-function TryUndefined(value2) {
-  return guard_exports.IsBigInt(value2) ? FromBigInt7(value2) : guard_exports.IsBoolean(value2) ? FromBoolean7(value2) : guard_exports.IsNumber(value2) ? FromNumber7(value2) : guard_exports.IsNull(value2) ? FromNull7(value2) : guard_exports.IsString(value2) ? FromString7(value2) : guard_exports.IsUndefined(value2) ? FromUndefined7(value2) : Fail();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-bigint.mjs
-function FromBigInt8(context5, type, value2) {
-  if (guard_exports.IsBigInt(value2))
-    return value2;
-  const result = try_exports.TryBigInt(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-boolean.mjs
-function FromBoolean8(context5, type, value2) {
-  if (guard_exports.IsBoolean(value2))
-    return value2;
-  const result = try_exports.TryBoolean(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-cyclic.mjs
-function FromCyclic7(context5, type, value2) {
-  return FromType15({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-union.mjs
-function FromUnion10(context5, type, value2) {
-  const matched = type.anyOf.some((type2) => Check2(context5, type2, value2));
-  if (matched)
-    return value2;
-  const candidates = type.anyOf.map((type2) => FromType15(context5, type2, Clone2(value2)));
-  const selected = candidates.find((value3) => Check2(context5, type, value3));
-  return guard_exports.IsUndefined(selected) ? value2 : selected;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-enum.mjs
-function FromEnum2(context5, type, value2) {
-  const union8 = EnumToUnion(type);
-  return FromUnion10(context5, union8, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-integer.mjs
-function FromInteger(context5, type, value2) {
-  if (guard_exports.IsInteger(value2))
-    return value2;
-  const result = try_exports.TryNumber(value2);
-  return try_exports.IsOk(result) ? Math.trunc(result.value) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-intersect.mjs
-function FromIntersect7(context5, type, value2) {
-  const evaluatedType = Evaluate(type);
-  return FromType15(context5, evaluatedType, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-literal.mjs
-function FromLiteralBigInt(context5, type, value2) {
-  const result = try_exports.TryBigInt(value2);
-  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
-}
-function FromLiteralBoolean(context5, type, value2) {
-  const result = try_exports.TryBoolean(value2);
-  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
-}
-function FromLiteralNumber(context5, type, value2) {
-  const result = try_exports.TryNumber(value2);
-  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
-}
-function FromLiteralString(context5, type, value2) {
-  const result = try_exports.TryString(value2);
-  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
-}
-function FromLiteral5(context5, type, value2) {
-  if (guard_exports.IsEqual(type.const, value2))
-    return value2;
-  return IsLiteralBigInt(type) ? FromLiteralBigInt(context5, type, value2) : IsLiteralBoolean(type) ? FromLiteralBoolean(context5, type, value2) : IsLiteralNumber(type) ? FromLiteralNumber(context5, type, value2) : IsLiteralString(type) ? FromLiteralString(context5, type, value2) : Unreachable();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-null.mjs
-function FromNull8(context5, type, value2) {
-  if (guard_exports.IsNull(value2))
-    return value2;
-  const result = try_exports.TryNull(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-number.mjs
-function FromNumber8(context5, type, value2) {
-  if (guard_exports.IsNumber(value2))
-    return value2;
-  const result = try_exports.TryNumber(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-additional.mjs
-function FromAdditionalProperties(context5, entries2, additionalProperties, value2) {
-  const keys5 = guard_exports.Keys(value2);
-  for (const [regexp, _] of entries2) {
-    for (const key of keys5) {
-      if (!regexp.test(key)) {
-        value2[key] = FromType15(context5, additionalProperties, value2[key]);
-      }
-    }
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/shared/optional-undefined.mjs
-function IsOptionalUndefined(property, key, value2) {
-  return IsOptional(property) && guard_exports.IsUndefined(value2[key]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-object.mjs
-function FromProperties4(context5, type, value2) {
-  const entries2 = guard_exports.EntriesRegExp(type.properties);
-  const keys5 = guard_exports.Keys(value2);
-  for (const [regexp, property] of entries2) {
-    for (const key of keys5) {
-      if (!regexp.test(key) || IsOptionalUndefined(property, key, value2))
-        continue;
-      value2[key] = FromType15(context5, property, value2[key]);
-    }
-  }
-  return guard_exports.HasPropertyKey(type, "additionalProperties") && guard_exports.IsObject(type.additionalProperties) ? FromAdditionalProperties(context5, entries2, type.additionalProperties, value2) : value2;
-}
-function FromObject12(context5, type, value2) {
-  return guard_exports.IsObjectNotArray(value2) ? FromProperties4(context5, type, value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-record.mjs
-function FromPatternProperties(context5, type, value2) {
-  const entries2 = guard_exports.EntriesRegExp(type.patternProperties);
-  const keys5 = guard_exports.Keys(value2);
-  for (const [regexp, schema] of entries2) {
-    for (const key of keys5) {
-      if (regexp.test(key)) {
-        value2[key] = FromType15(context5, schema, value2[key]);
-      }
-    }
-  }
-  return guard_exports.HasPropertyKey(type, "additionalProperties") && guard_exports.IsObject(type.additionalProperties) ? FromAdditionalProperties(context5, entries2, type.additionalProperties, value2) : value2;
-}
-function FromRecord3(context5, type, value2) {
-  return guard_exports.IsObjectNotArray(value2) ? FromPatternProperties(context5, type, value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-ref.mjs
-function FromRef6(context5, type, value2) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType15(context5, context5[type.$ref], value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-string.mjs
-function FromString8(context5, type, value2) {
-  if (guard_exports.IsString(value2))
-    return value2;
-  const result = try_exports.TryString(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-template-literal.mjs
-function FromTemplateLiteral4(context5, type, value2) {
-  const decoded = TemplateLiteralDecode(type.pattern);
-  return FromType15(context5, decoded, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-tuple.mjs
-function FromTuple6(context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  for (let index2 = 0; index2 < Math.min(type.items.length, value2.length); index2++) {
-    value2[index2] = FromType15(context5, type.items[index2], value2[index2]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-undefined.mjs
-function FromUndefined8(context5, type, value2) {
-  if (guard_exports.IsUndefined(value2))
-    return value2;
-  const result = try_exports.TryUndefined(value2);
-  return try_exports.IsOk(result) ? result.value : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-void.mjs
-function FromVoid(context5, type, value2) {
-  if (guard_exports.IsUndefined(value2))
-    return value2;
-  const result = try_exports.TryUndefined(value2);
-  return try_exports.IsOk(result) ? void 0 : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-type.mjs
-function FromType15(context5, type, value2) {
-  return IsArray3(type) ? FromArray9(context5, type, value2) : IsBase(type) ? FromBase2(context5, type, value2) : IsBigInt3(type) ? FromBigInt8(context5, type, value2) : IsBoolean4(type) ? FromBoolean8(context5, type, value2) : IsCyclic(type) ? FromCyclic7(context5, type, value2) : IsEnum(type) ? FromEnum2(context5, type, value2) : IsInteger3(type) ? FromInteger(context5, type, value2) : IsIntersect(type) ? FromIntersect7(context5, type, value2) : IsLiteral(type) ? FromLiteral5(context5, type, value2) : IsNull3(type) ? FromNull8(context5, type, value2) : IsNumber4(type) ? FromNumber8(context5, type, value2) : IsObject3(type) ? FromObject12(context5, type, value2) : IsRecord(type) ? FromRecord3(context5, type, value2) : IsRef(type) ? FromRef6(context5, type, value2) : IsString4(type) ? FromString8(context5, type, value2) : IsTemplateLiteral(type) ? FromTemplateLiteral4(context5, type, value2) : IsTuple(type) ? FromTuple6(context5, type, value2) : IsUndefined3(type) ? FromUndefined8(context5, type, value2) : IsUnion(type) ? FromUnion10(context5, type, value2) : IsVoid(type) ? FromVoid(context5, type, value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/convert.mjs
-function Convert(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return FromType15(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-array.mjs
-function FromArray10(context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  for (let i = 0; i < value2.length; i++) {
-    value2[i] = FromType16(context5, type.items, value2[i]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-base.mjs
-function FromBase3(context5, type, value2) {
-  return type.Default(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-cyclic.mjs
-function FromCyclic8(context5, type, value2) {
-  return FromType16({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-default.mjs
-function FromDefault(type, value2) {
-  if (!guard_exports.IsUndefined(value2))
-    return value2;
-  return guard_exports.IsFunction(type.default) ? type.default() : Clone2(type.default);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-intersect.mjs
-function FromIntersect8(context5, type, value2) {
-  const evaluted = Evaluate(type);
-  return FromType16(context5, evaluted, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-object.mjs
-function FromObject13(context5, type, value2) {
-  if (!guard_exports.IsObject(value2))
-    return value2;
-  const knownPropertyKeys = guard_exports.Keys(type.properties);
-  for (const key of knownPropertyKeys) {
-    const propertyValue = FromType16(context5, type.properties[key], value2[key]);
-    const isUnassignableUndefined = guard_exports.IsUndefined(propertyValue) && (IsOptional(type.properties[key]) || !guard_exports.HasPropertyKey(type.properties[key], "default"));
-    if (isUnassignableUndefined)
-      continue;
-    value2[key] = FromType16(context5, type.properties[key], value2[key]);
-  }
-  if (!IsAdditionalProperties(type) || guard_exports.IsBoolean(type.additionalProperties))
-    return value2;
-  for (const key of guard_exports.Keys(value2)) {
-    if (knownPropertyKeys.includes(key))
-      continue;
-    value2[key] = FromType16(context5, type.additionalProperties, value2[key]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-record.mjs
-function FromRecord4(context5, type, value2) {
-  if (!guard_exports.IsObject(value2))
-    return value2;
-  const [recordKey, recordValue2] = [new RegExp(RecordPattern(type)), RecordValue(type)];
-  for (const key of guard_exports.Keys(value2)) {
-    if (!(recordKey.test(key) && IsDefault(recordValue2)))
-      continue;
-    value2[key] = FromType16(context5, recordValue2, value2[key]);
-  }
-  if (!IsAdditionalProperties(type))
-    return value2;
-  for (const key of guard_exports.Keys(value2)) {
-    if (recordKey.test(key))
-      continue;
-    value2[key] = FromType16(context5, type.additionalProperties, value2[key]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-ref.mjs
-function FromRef7(context5, type, value2) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType16(context5, context5[type.$ref], value2) : value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-tuple.mjs
-function FromTuple7(context5, schema, value2) {
-  if (!guard_exports.IsArray(value2))
-    return value2;
-  const [items, max5] = [schema.items, Math.max(schema.items.length, value2.length)];
-  for (let i = 0; i < max5; i++) {
-    if (i < items.length)
-      value2[i] = FromType16(context5, items[i], value2[i]);
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-union.mjs
-function FromUnion11(context5, schema, value2) {
-  for (const inner of schema.anyOf) {
-    const result = FromType16(context5, inner, Clone2(value2));
-    if (Check2(context5, inner, result)) {
-      return result;
-    }
-  }
-  return value2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-type.mjs
-function FromType16(context5, type, value2) {
-  const defaulted = IsDefault(type) ? FromDefault(type, value2) : value2;
-  return IsArray3(type) ? FromArray10(context5, type, defaulted) : IsBase(type) ? FromBase3(context5, type, defaulted) : IsCyclic(type) ? FromCyclic8(context5, type, defaulted) : IsIntersect(type) ? FromIntersect8(context5, type, defaulted) : IsObject3(type) ? FromObject13(context5, type, defaulted) : IsRecord(type) ? FromRecord4(context5, type, defaulted) : IsRef(type) ? FromRef7(context5, type, defaulted) : IsTuple(type) ? FromTuple7(context5, type, defaulted) : IsUnion(type) ? FromUnion11(context5, type, defaulted) : defaulted;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/default.mjs
-function Default(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return FromType16(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/pipeline/pipeline.mjs
-function Pipeline(pipeline) {
-  return (...args2) => {
-    const [context5, type, value2] = arguments_exports.Match(args2, {
-      3: (context6, type2, value3) => [context6, type2, value3],
-      2: (type2, value3) => [{}, type2, value3]
-    });
-    return pipeline.reduce((result, func) => func(context5, type, result), value2);
-  };
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/callback.mjs
-function Decode2(context5, type, value2) {
-  return type["~codec"].decode(value2);
-}
-function Encode2(context5, type, value2) {
-  return type["~codec"].encode(value2);
-}
-function Callback(direction, context5, type, value2) {
-  if (!IsCodec(type))
-    return value2;
-  return guard_exports.IsEqual(direction, "Decode") ? Decode2(context5, type, value2) : Encode2(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-array.mjs
-function Decode3(direction, context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return Unreachable();
-  for (let i = 0; i < value2.length; i++) {
-    value2[i] = FromType17(direction, context5, type.items, value2[i]);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode3(direction, context5, type, value2) {
-  const exterior = Callback(direction, context5, type, value2);
-  if (!guard_exports.IsArray(exterior))
-    return exterior;
-  for (let i = 0; i < exterior.length; i++) {
-    exterior[i] = FromType17(direction, context5, type.items, exterior[i]);
-  }
-  return exterior;
-}
-function FromArray11(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode3(direction, context5, type, value2) : Encode3(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-cyclic.mjs
-function FromCyclic9(direction, context5, type, value2) {
-  value2 = FromType17(direction, { ...context5, ...type.$defs }, Ref(type.$ref), value2);
-  return Callback(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-intersect.mjs
-function Decode4(direction, context5, type, value2) {
-  for (const schema of type.allOf) {
-    value2 = FromType17(direction, context5, schema, value2);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode4(direction, context5, type, value2) {
-  let exterior = Callback(direction, context5, type, value2);
-  for (const schema of type.allOf) {
-    exterior = FromType17(direction, context5, schema, exterior);
-  }
-  return exterior;
-}
-function FromIntersect9(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode4(direction, context5, type, value2) : Encode4(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-object.mjs
-function Decode5(direction, context5, type, value2) {
-  if (!guard_exports.IsObjectNotArray(value2))
-    return Unreachable();
-  for (const key of guard_exports.Keys(type.properties)) {
-    if (!guard_exports.HasPropertyKey(value2, key) || IsOptionalUndefined(type.properties[key], key, value2))
-      continue;
-    value2[key] = FromType17(direction, context5, type.properties[key], value2[key]);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode5(direction, context5, type, value2) {
-  const exterior = Callback(direction, context5, type, value2);
-  if (!guard_exports.IsObjectNotArray(exterior))
-    return exterior;
-  for (const key of guard_exports.Keys(type.properties)) {
-    if (!guard_exports.HasPropertyKey(exterior, key) || IsOptionalUndefined(type.properties[key], key, exterior))
-      continue;
-    exterior[key] = FromType17(direction, context5, type.properties[key], exterior[key]);
-  }
-  return exterior;
-}
-function FromObject14(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode5(direction, context5, type, value2) : Encode5(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-record.mjs
-function Decode6(direction, context5, type, value2) {
-  if (!guard_exports.IsObjectNotArray(value2))
-    return Unreachable();
-  const regexp = new RegExp(RecordPattern(type));
-  for (const key of guard_exports.Keys(value2)) {
-    if (!regexp.test(key))
-      Unreachable();
-    value2[key] = FromType17(direction, context5, RecordValue(type), value2[key]);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode6(direction, context5, type, value2) {
-  const exterior = Callback(direction, context5, type, value2);
-  if (!guard_exports.IsObjectNotArray(exterior))
-    return exterior;
-  const regexp = new RegExp(RecordPattern(type));
-  for (const key of guard_exports.Keys(exterior)) {
-    if (!regexp.test(key))
-      continue;
-    exterior[key] = FromType17(direction, context5, RecordValue(type), exterior[key]);
-  }
-  return exterior;
-}
-function FromRecord5(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode6(direction, context5, type, value2) : Encode6(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-ref.mjs
-function FromRef8(direction, context5, type, value2) {
-  value2 = guard_exports.HasPropertyKey(context5, type.$ref) ? FromType17(direction, context5, context5[type.$ref], value2) : value2;
-  return Callback(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-tuple.mjs
-function Decode7(direction, context5, type, value2) {
-  if (!guard_exports.IsArray(value2))
-    return Unreachable();
-  for (let i = 0; i < Math.min(type.items.length, value2.length); i++) {
-    value2[i] = FromType17(direction, context5, type.items[i], value2[i]);
-  }
-  return Callback(direction, context5, type, value2);
-}
-function Encode7(direction, context5, type, value2) {
-  const exterior = Callback(direction, context5, type, value2);
-  if (!guard_exports.IsArray(exterior))
-    return value2;
-  for (let i = 0; i < Math.min(type.items.length, exterior.length); i++) {
-    exterior[i] = FromType17(direction, context5, type.items[i], exterior[i]);
-  }
-  return exterior;
-}
-function FromTuple8(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode7(direction, context5, type, value2) : Encode7(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-union.mjs
-function Decode8(direction, context5, type, value2) {
-  for (const schema of type.anyOf) {
-    if (!Check2(context5, schema, value2))
-      continue;
-    const variant = FromType17(direction, context5, schema, value2);
-    return Callback(direction, context5, type, variant);
-  }
-  return Unreachable();
-}
-function Encode8(direction, context5, type, value2) {
-  let exterior = Callback(direction, context5, type, value2);
-  for (const schema of type.anyOf) {
-    const variant = FromType17(direction, context5, schema, Clone2(exterior));
-    if (!Check2(context5, schema, variant))
-      continue;
-    return variant;
-  }
-  return exterior;
-}
-function FromUnion12(direction, context5, type, value2) {
-  return guard_exports.IsEqual(direction, "Decode") ? Decode8(direction, context5, type, value2) : Encode8(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-type.mjs
-function FromType17(direction, context5, type, value2) {
-  return IsArray3(type) ? FromArray11(direction, context5, type, value2) : IsCyclic(type) ? FromCyclic9(direction, context5, type, value2) : IsIntersect(type) ? FromIntersect9(direction, context5, type, value2) : IsObject3(type) ? FromObject14(direction, context5, type, value2) : IsRecord(type) ? FromRecord5(direction, context5, type, value2) : IsRef(type) ? FromRef8(direction, context5, type, value2) : IsTuple(type) ? FromTuple8(direction, context5, type, value2) : IsUnion(type) ? FromUnion12(direction, context5, type, value2) : Callback(direction, context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/decode.mjs
-var DecodeError = class extends AssertError {
-  constructor(value2, errors) {
-    super("Decode", value2, errors);
-  }
-};
-function Assert2(context5, type, value2) {
-  if (!Check2(context5, type, value2))
-    throw new DecodeError(value2, Errors2(context5, type, value2));
-  return value2;
-}
-function DecodeUnsafe(context5, type, value2) {
-  return FromType17("Decode", context5, type, value2);
-}
-var Decoder = Pipeline([
-  (_context, _type, value2) => Clone2(value2),
-  (context5, type, value2) => Default(context5, type, value2),
-  (context5, type, value2) => Convert(context5, type, value2),
-  (context5, type, value2) => Clean(context5, type, value2),
-  (context5, type, value2) => Assert2(context5, type, value2),
-  (context5, type, value2) => DecodeUnsafe(context5, type, value2)
-]);
-function Decode9(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return Decoder(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/encode.mjs
-var EncodeError = class extends AssertError {
-  constructor(value2, errors) {
-    super("Encode", value2, errors);
-  }
-};
-function Assert3(context5, type, value2) {
-  if (!Check2(context5, type, value2))
-    throw new EncodeError(value2, Errors2(context5, type, value2));
-  return value2;
-}
-function EncodeUnsafe(context5, type, value2) {
-  return FromType17("Encode", context5, type, value2);
-}
-var Encoder = Pipeline([
-  (_context, _type, value2) => Clone2(value2),
-  (context5, type, value2) => EncodeUnsafe(context5, type, value2),
-  (context5, type, value2) => Default(context5, type, value2),
-  (context5, type, value2) => Convert(context5, type, value2),
-  (context5, type, value2) => Clean(context5, type, value2),
-  (context5, type, value2) => Assert3(context5, type, value2)
-]);
-function Encode9(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  return Encoder(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/has.mjs
-function FromArray12(context5, type) {
-  return IsCodec(type) || FromType18(context5, type.items);
-}
-function FromCyclic10(context5, type) {
-  return IsCodec(type) || FromRef9({ ...context5, ...type.$defs }, Ref(type.$ref));
-}
-function FromIntersect10(context5, type) {
-  return IsCodec(type) || type.allOf.some((type2) => FromType18(context5, type2));
-}
-function FromObject15(context5, type) {
-  return IsCodec(type) || guard_exports.Keys(type.properties).some((key) => {
-    return FromType18(context5, type.properties[key]);
-  });
-}
-function FromRecord6(context5, type) {
-  return IsCodec(type) || FromType18(context5, RecordValue(type));
-}
-function FromRef9(context5, type) {
-  if (visited.has(type.$ref))
-    return false;
-  visited.add(type.$ref);
-  return IsCodec(type) || guard_exports.HasPropertyKey(context5, type.$ref) && FromType18(context5, context5[type.$ref]);
-}
-function FromTuple9(context5, type) {
-  return IsCodec(type) || type.items.some((type2) => FromType18(context5, type2));
-}
-function FromUnion13(context5, type) {
-  return IsCodec(type) || type.anyOf.some((type2) => FromType18(context5, type2));
-}
-function FromType18(context5, type) {
-  return IsArray3(type) ? FromArray12(context5, type) : IsCyclic(type) ? FromCyclic10(context5, type) : IsIntersect(type) ? FromIntersect10(context5, type) : IsObject3(type) ? FromObject15(context5, type) : IsRecord(type) ? FromRecord6(context5, type) : IsRef(type) ? FromRef9(context5, type) : IsTuple(type) ? FromTuple9(context5, type) : IsUnion(type) ? FromUnion13(context5, type) : IsCodec(type);
-}
-var visited = /* @__PURE__ */ new Set();
-function HasCodec(...args2) {
-  const [context5, type] = arguments_exports.Match(args2, {
-    2: (context6, type2) => [context6, type2],
-    1: (type2) => [{}, type2]
-  });
-  visited.clear();
-  return FromType18(context5, type);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/error.mjs
-var CreateError = class extends Error {
-  constructor(type, message) {
-    super(message);
-    this.type = type;
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-default.mjs
-function FromDefault2(context5, schema) {
-  return guard_exports.IsFunction(schema.default) ? schema.default(schema) : guard_exports.IsObject(schema.default) ? Clone2(schema.default) : schema.default;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-array.mjs
-function FromArray13(context5, type) {
-  if (IsUniqueItems(type) && !IsDefault(type))
-    throw new CreateError(type, "Arrays with uniqueItems constraints must specify a default annotation");
-  const length2 = IsMinItems(type) ? type.minItems : 0;
-  return Array.from({ length: length2 }, () => FromType19(context5, type.items));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-async-iterator.mjs
-async function* CreateAsyncIterator() {
-}
-function FromAsyncIterator(context5, type) {
-  return CreateAsyncIterator();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-base.mjs
-function FromBase4(context5, type) {
-  return type.Create();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-bigint.mjs
-function FromBigInt9(context5, type) {
-  return IsExclusiveMinimum(type) ? BigInt(type.exclusiveMinimum) + BigInt(1) : IsMinimum(type) ? BigInt(type.minimum) : BigInt(0);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-boolean.mjs
-function FromBoolean9(context5, type) {
-  return false;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-constructor.mjs
-function FromConstructor2(context5, type) {
-  const instanceType = FromType19(context5, type.instanceType);
-  return class {
-    constructor() {
-      Object.assign(this, instanceType);
-    }
-  };
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-cyclic.mjs
-function FromCyclic11(context5, type) {
-  return FromType19({ ...context5, ...type.$defs }, Ref(type.$ref));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-enum.mjs
-function FromEnum3(context5, type) {
-  return FromType19(context5, EnumToUnion(type));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-function.mjs
-function FromFunction2(context5, type) {
-  const returnType = FromType19(context5, type.returnType);
-  return () => returnType;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-integer.mjs
-function FromInteger2(context5, type) {
-  return IsExclusiveMinimum(type) && guard_exports.IsNumber(type.exclusiveMinimum) ? type.exclusiveMinimum + 1 : IsMinimum(type) ? type.minimum : 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-intersect.mjs
-function FromIntersect11(context5, type) {
-  return FromType19(context5, Evaluate(type));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-iterator.mjs
-function* CreateIterator() {
-}
-function FromIterator(context5, type) {
-  return CreateIterator();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-literal.mjs
-function FromLiteral6(context5, type) {
-  return type.const;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-never.mjs
-function FromNever(context5, type) {
-  throw new CreateError(type, "Cannot create TNever types");
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-null.mjs
-function FromNull9(context5, type) {
-  return null;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-number.mjs
-function FromNumber9(context5, type) {
-  return IsExclusiveMinimum(type) && guard_exports.IsNumber(type.exclusiveMinimum) ? type.exclusiveMinimum + 1 : IsMinimum(type) ? type.minimum : 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-object.mjs
-function FromObject16(context5, type) {
-  const required = guard_exports.IsUndefined(type.required) ? [] : type.required;
-  return required.reduce((result, key) => {
-    return { ...result, [key]: FromType19(context5, type.properties[key]) };
-  }, {});
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-promise.mjs
-function FromPromise(context5, type) {
-  return Promise.resolve(FromType19(context5, type.item));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-record.mjs
-function FromRecord7(context5, type) {
-  if (IsMinProperties(type) && !IsDefault(type))
-    throw new CreateError(type, "Record with the minProperties constraint must have a default annotation");
-  return {};
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-ref.mjs
-function FromRef10(context5, type) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType19(context5, context5[type.$ref]) : (() => {
-    throw new CreateError(type, "Unable to deref Ref");
-  })();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-string.mjs
-function FromString9(context5, type) {
-  const needsDefault = (IsPattern(type) || IsFormat(type)) && !IsDefault(type);
-  if (needsDefault)
-    throw Error("Strings with format or pattern constraints must specify default");
-  const minLength = IsMinLength4(type) ? type.minLength : 0;
-  return "".padEnd(minLength);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-symbol.mjs
-function FromSymbol2(context5, type) {
-  return /* @__PURE__ */ Symbol();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-template-literal.mjs
-function FromTemplateLiteral5(context5, type) {
-  const decoded = TemplateLiteralDecode(type.pattern);
-  if (IsString4(decoded))
-    throw new CreateError(type, "Unable to create TemplateLiteral due to infinite type expansion");
-  return FromType19(context5, decoded);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-tuple.mjs
-function FromTuple10(context5, type) {
-  return Array.from({ length: type.minItems }, (_, i) => FromType19(context5, type.items[i]));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-undefined.mjs
-function FromUndefined9(context5, type) {
-  return void 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-union.mjs
-function FromUnion14(context5, type) {
-  if (guard_exports.IsEqual(type.anyOf.length, 0)) {
-    throw Error("Unable to create Union with no variants");
-  }
-  return FromType19(context5, type.anyOf[0]);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-void.mjs
-function FromVoid2(context5, type) {
-  return void 0;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-type.mjs
-function FromType19(context5, type) {
-  return (
-    // -----------------------------------------------------
-    // Default
-    // -----------------------------------------------------
-    IsDefault(type) ? FromDefault2(context5, type) : (
-      // -----------------------------------------------------
-      // Types
-      // -----------------------------------------------------
-      IsArray3(type) ? FromArray13(context5, type) : IsAsyncIterator3(type) ? FromAsyncIterator(context5, type) : IsBase(type) ? FromBase4(context5, type) : IsBigInt3(type) ? FromBigInt9(context5, type) : IsBoolean4(type) ? FromBoolean9(context5, type) : IsConstructor3(type) ? FromConstructor2(context5, type) : IsCyclic(type) ? FromCyclic11(context5, type) : IsEnum(type) ? FromEnum3(context5, type) : IsFunction3(type) ? FromFunction2(context5, type) : IsInteger3(type) ? FromInteger2(context5, type) : IsIntersect(type) ? FromIntersect11(context5, type) : IsIterator3(type) ? FromIterator(context5, type) : IsLiteral(type) ? FromLiteral6(context5, type) : IsNever(type) ? FromNever(context5, type) : IsNull3(type) ? FromNull9(context5, type) : IsNumber4(type) ? FromNumber9(context5, type) : IsObject3(type) ? FromObject16(context5, type) : IsPromise(type) ? FromPromise(context5, type) : IsRecord(type) ? FromRecord7(context5, type) : IsRef(type) ? FromRef10(context5, type) : IsString4(type) ? FromString9(context5, type) : IsSymbol3(type) ? FromSymbol2(context5, type) : IsTemplateLiteral(type) ? FromTemplateLiteral5(context5, type) : IsTuple(type) ? FromTuple10(context5, type) : IsUndefined3(type) ? FromUndefined9(context5, type) : IsUnion(type) ? FromUnion14(context5, type) : IsVoid(type) ? FromVoid2(context5, type) : void 0
-    )
-  );
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/create.mjs
-function Create2(...args2) {
-  const [context5, type] = arguments_exports.Match(args2, {
-    2: (context6, type2) => [context6, type2],
-    1: (type2) => [{}, type2]
-  });
-  return FromType19(context5, type);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/equal/equal.mjs
-function Equal(left3, right3) {
-  return guard_exports.IsDeepEqual(left3, right3);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/hash/hash.mjs
-function Hash2(value2) {
-  return hash_exports.Hash(value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/error.mjs
-var MutateError = class extends Error {
-  constructor(message) {
-    super(message);
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-array.mjs
-function FromArray14(root, path, current, next) {
-  if (!guard_exports.IsArray(current)) {
-    pointer_exports.Set(root, path, Clone2(next));
-  } else {
-    for (let index2 = 0; index2 < next.length; index2++) {
-      FromValue5(root, `${path}/${index2}`, current[index2], next[index2]);
-    }
-    current.splice(next.length);
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-object.mjs
-function FromObject17(root, path, current, next) {
-  if (!guard_exports.IsObjectNotArray(current)) {
-    pointer_exports.Set(root, path, Clone2(next));
-  } else {
-    const currentKeys = guard_exports.Keys(current);
-    const nextKeys = guard_exports.Keys(next);
-    for (const currentKey of currentKeys) {
-      if (!nextKeys.includes(currentKey)) {
-        delete current[currentKey];
-      }
-    }
-    for (const nextKey of nextKeys) {
-      if (!currentKeys.includes(nextKey)) {
-        current[nextKey] = next[nextKey];
-      }
-    }
-    for (const nextKey of nextKeys) {
-      FromValue5(root, `${path}/${nextKey}`, current[nextKey], next[nextKey]);
-    }
-  }
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-unknown.mjs
-function FromUnknown2(root, path, current, next) {
-  if (current === next)
-    return;
-  pointer_exports.Set(root, path, next);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-value.mjs
-function FromValue5(root, path, current, next) {
-  if (guard_exports.IsArray(next))
-    return FromArray14(root, path, current, next);
-  if (guard_exports.IsObject(next))
-    return FromObject17(root, path, current, next);
-  return FromUnknown2(root, path, current, next);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/mutate.mjs
-function IsNonMutableValue(value2) {
-  return globals_exports.IsTypeArray(value2) || globals_exports.IsDate(value2) || globals_exports.IsMap(value2) || globals_exports.IsSet(value2) || guard_exports.IsNumber(value2) || guard_exports.IsString(value2) || guard_exports.IsBoolean(value2) || guard_exports.IsSymbol(value2);
-}
-function IsMismatchedValue(left3, right3) {
-  return guard_exports.IsObjectNotArray(left3) && guard_exports.IsArray(right3) || guard_exports.IsArray(left3) && guard_exports.IsObjectNotArray(right3);
-}
-function Mutate(current, next) {
-  if (IsNonMutableValue(current) || IsNonMutableValue(next))
-    throw new MutateError("Only object and array types can be mutated at the root level");
-  if (IsMismatchedValue(current, next))
-    throw new MutateError("Cannot assign due type mismatch of assignable values");
-  FromValue5(current, "", current, next);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/parse/parse.mjs
-var ParseError = class extends AssertError {
-  constructor(value2, errors) {
-    super("Parse", value2, errors);
-  }
-};
-function Assert4(context5, type, value2) {
-  if (!Check2(context5, type, value2))
-    throw new ParseError(value2, Errors2(context5, type, value2));
-  return value2;
-}
-var Parser = Pipeline([
-  (_context, _type, value2) => Clone2(value2),
-  (context5, type, value2) => Default(context5, type, value2),
-  (context5, type, value2) => Convert(context5, type, value2),
-  (context5, type, value2) => Clean(context5, type, value2),
-  (context5, type, value2) => Assert4(context5, type, value2)
-]);
-function Parse(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  const result = Check2(context5, type, value2) ? value2 : Parser(context5, type, value2);
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/diff.mjs
-function CreateUpdate(path, value2) {
-  return { type: "update", path, value: value2 };
-}
-function CreateInsert(path, value2) {
-  return { type: "insert", path, value: value2 };
-}
-function CreateDelete(path) {
-  return { type: "delete", path };
-}
-function AssertCanDiffObject(value2) {
-  if (guard_exports.IsObject(value2) && guard_exports.IsEqual(guard_exports.Symbols(value2).length, 0))
-    return;
-  throw new Error("Cannot create diffs for objects with symbols keys");
-}
-function* FromObject18(path, left3, right3) {
-  if (!guard_exports.IsObject(right3) || guard_exports.IsArray(right3))
-    return yield CreateUpdate(path, right3);
-  AssertCanDiffObject(left3);
-  AssertCanDiffObject(right3);
-  const leftKeys = guard_exports.Keys(left3);
-  const rightKeys = guard_exports.Keys(right3);
-  for (const key of rightKeys) {
-    if (guard_exports.HasPropertyKey(left3, key))
-      continue;
-    yield CreateInsert(`${path}/${key}`, right3[key]);
-  }
-  for (const key of leftKeys) {
-    if (!guard_exports.HasPropertyKey(right3, key))
-      continue;
-    if (Equal(left3, right3))
-      continue;
-    yield* FromValue6(`${path}/${key}`, left3[key], right3[key]);
-  }
-  for (const key of leftKeys) {
-    if (guard_exports.HasPropertyKey(right3, key))
-      continue;
-    yield CreateDelete(`${path}/${key}`);
-  }
-}
-function* FromArray15(path, left3, right3) {
-  if (!guard_exports.IsArray(right3))
-    return yield CreateUpdate(path, right3);
-  for (let i = 0; i < Math.min(left3.length, right3.length); i++) {
-    yield* FromValue6(`${path}/${i}`, left3[i], right3[i]);
-  }
-  for (let i = 0; i < right3.length; i++) {
-    if (i < left3.length)
-      continue;
-    yield CreateInsert(`${path}/${i}`, right3[i]);
-  }
-  for (let i = left3.length - 1; i >= 0; i--) {
-    if (i < right3.length)
-      continue;
-    yield CreateDelete(`${path}/${i}`);
-  }
-}
-function* FromTypedArray2(path, left3, right3) {
-  const typeLeft = globalThis.Object.getPrototypeOf(left3).constructor.name;
-  const typeRight = globalThis.Object.getPrototypeOf(right3).constructor.name;
-  const predicate = globals_exports.IsTypeArray(right3) && guard_exports.IsEqual(left3.length, right3.length) && guard_exports.IsEqual(typeLeft, typeRight);
-  if (predicate) {
-    for (let index2 = 0; index2 < Math.min(left3.length, right3.length); index2++) {
-      yield* FromValue6(`${path}/${index2}`, left3[index2], right3[index2]);
-    }
-  } else {
-    return yield CreateUpdate(path, right3);
-  }
-}
-function* FromUnknown3(path, left3, right3) {
-  if (left3 === right3)
-    return;
-  yield CreateUpdate(path, right3);
-}
-function* FromValue6(path, left3, right3) {
-  return globals_exports.IsTypeArray(left3) ? yield* FromTypedArray2(path, left3, right3) : guard_exports.IsArray(left3) ? yield* FromArray15(path, left3, right3) : guard_exports.IsObject(left3) ? yield* FromObject18(path, left3, right3) : yield* FromUnknown3(path, left3, right3);
-}
-function Diff(current, next) {
-  return [...FromValue6("", current, next)];
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/edit.mjs
-var Insert = _Object_({
-  type: Literal("insert"),
-  path: String2(),
-  value: Unknown()
-});
-var Update2 = Object({
-  type: Literal("update"),
-  path: String2(),
-  value: Unknown()
-});
-var Delete2 = _Object_({
-  type: Literal("delete"),
-  path: String2()
-});
-var Edit = Union([Insert, Update2, Delete2]);
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/patch.mjs
-function IsRoot(edits) {
-  return edits.length > 0 && edits[0].path === "" && edits[0].type === "update";
-}
-function IsEmpty(edits) {
-  return edits.length === 0;
-}
-function Patch(current, edits) {
-  if (IsRoot(edits))
-    return Clone2(edits[0].value);
-  if (IsEmpty(edits))
-    return Clone2(current);
-  const clone2 = Clone2(current);
-  for (const edit of edits) {
-    switch (edit.type) {
-      case "insert": {
-        pointer_exports.Set(clone2, edit.path, edit.value);
-        break;
-      }
-      case "update": {
-        pointer_exports.Set(clone2, edit.path, edit.value);
-        break;
-      }
-      case "delete": {
-        pointer_exports.Delete(clone2, edit.path);
-        break;
-      }
-    }
-  }
-  return clone2;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/error.mjs
-var RepairError = class extends Error {
-  constructor(context5, type, value2, message) {
-    super(message);
-    this.context = context5;
-    this.type = type;
-    this.value = value2;
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-array.mjs
-function MakeUnique(values3) {
-  const [hashes, result] = [/* @__PURE__ */ new Set(), []];
-  for (const value2 of values3) {
-    const hash2 = Hash2(value2);
-    if (hashes.has(hash2))
-      continue;
-    hashes.add(hash2);
-    result.push(value2);
-  }
-  return result;
-}
-function FromArray16(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return value2;
-  const created = guard_exports.IsArray(value2) ? value2 : Create2(context5, type);
-  const minimum = IsMinItems(type) && created.length < type.minItems ? [...created, ...Array.from({ length: type.minItems - created.length }, () => Create2(context5, type))] : created;
-  const maximum = IsMaxItems(type) && minimum.length > type.maxItems ? minimum.slice(0, type.maxItems) : minimum;
-  const repaired = maximum.map((value3) => FromType20(context5, type.items, value3));
-  if (!IsUniqueItems(type) || IsUniqueItems(type) && !guard_exports.IsEqual(type.uniqueItems, true))
-    return repaired;
-  const unique = MakeUnique(repaired);
-  if (!Check2(context5, type, unique))
-    throw new RepairError(context5, type, value2, "Failed to repair Array due to uniqueItems constraint");
-  return unique;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-unknown.mjs
-function FromUnknown4(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return value2;
-  const converted = Convert(context5, type, value2);
-  if (Check2(context5, type, converted))
-    return converted;
-  return Create2(context5, type);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-base.mjs
-function FromBase5(context5, type, value2) {
-  return FromUnknown4(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-enum.mjs
-function FromEnum4(context5, type, value2) {
-  const union8 = EnumToUnion(type);
-  return FromType20(context5, union8, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-intersect.mjs
-function FromIntersect12(context5, type, value2) {
-  const evaluated = Evaluate(type);
-  return FromType20(context5, evaluated, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-object.mjs
-function FromObject19(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return value2;
-  if (!guard_exports.IsObjectNotArray(value2))
-    return Create2(context5, type);
-  const required = new Set(guard_exports.IsUndefined(type.required) ? [] : type.required);
-  const result = {};
-  for (const [key, schema] of guard_exports.Entries(type.properties)) {
-    if (!required.has(key) && guard_exports.IsUndefined(value2[key]))
-      continue;
-    result[key] = key in value2 ? FromType20(context5, schema, value2[key]) : Create2(context5, schema);
-  }
-  const evaluatedKeys = guard_exports.Keys(type.properties);
-  if (IsAdditionalProperties(type) && guard_exports.IsObject(type.additionalProperties)) {
-    for (const key of guard_exports.Keys(value2)) {
-      if (evaluatedKeys.includes(key))
-        continue;
-      result[key] = FromType20(context5, type.additionalProperties, value2[key]);
-    }
-  }
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-record.mjs
-function FromRecord8(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return value2;
-  if (guard_exports.IsNull(value2) || !guard_exports.IsObject(value2) || guard_exports.IsArray(value2))
-    return Create2(context5, type);
-  const recordKey = new RegExp(RecordPattern(type));
-  const recordValue2 = RecordValue(type);
-  const evaluatedKeys = /* @__PURE__ */ new Set();
-  const result = {};
-  for (const [key, value_] of guard_exports.Entries(value2)) {
-    if (!recordKey.test(key))
-      continue;
-    result[key] = FromType20(context5, recordValue2, value_);
-    evaluatedKeys.add(key);
-  }
-  if (IsAdditionalProperties(type)) {
-    for (const key of guard_exports.Keys(value2)) {
-      if (evaluatedKeys.has(key))
-        continue;
-      result[key] = FromType20(context5, type.additionalProperties, value2[key]);
-    }
-  }
-  return result;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-ref.mjs
-function FromRef11(context5, type, value2) {
-  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType20(context5, context5[type.$ref], value2) : (() => {
-    throw new RepairError(context5, type, value2, "Unable to de-reference target type");
-  })();
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-template-literal.mjs
-function FromTemplateLiteral6(context5, type, value2) {
-  const decoded = TemplateLiteralDecode(type.pattern);
-  return FromType20(context5, decoded, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-tuple.mjs
-function FromTuple11(context5, schema, value2) {
-  if (Check2(context5, schema, value2))
-    return value2;
-  if (!guard_exports.IsArray(value2))
-    return Create2(context5, schema);
-  return schema.items.map((schema2, index2) => FromType20(context5, schema2, value2[index2]));
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-union.mjs
-function Deref(context5, type, value2) {
-  return IsRef(type) ? guard_exports.HasPropertyKey(context5, type.$ref) ? Deref(context5, context5[type.$ref], value2) : (() => {
-    throw new RepairError(context5, type, value2, "Unable to Deref target on Union repair");
-  })() : type;
-}
-function ScoreVariant(context5, type, value2) {
-  if (!(IsObject3(type) && guard_exports.IsObject(value2)))
-    return 0;
-  const keys5 = guard_exports.Keys(value2);
-  const entries2 = guard_exports.Entries(type.properties);
-  return entries2.reduce((result, [key, schema]) => {
-    const literal = IsLiteral(schema) && guard_exports.IsEqual(schema.const, value2[key]) ? 100 : 0;
-    const checks = Check2(context5, schema, value2[key]) ? 10 : 0;
-    const exists4 = keys5.includes(key) ? 1 : 0;
-    return result + (literal + checks + exists4);
-  }, 0);
-}
-function SelectVariant(context5, type, value2) {
-  const schemas = type.anyOf.map((schema) => Deref(context5, schema, value2));
-  let [select, best] = [schemas[0], 0];
-  for (const schema of schemas) {
-    const score = ScoreVariant(context5, schema, value2);
-    if (score > best) {
-      select = schema;
-      best = score;
-    }
-  }
-  return select;
-}
-function RepairUnion(context5, type, value2) {
-  const union8 = Union(Flatten(type.anyOf));
-  const schema = SelectVariant(context5, union8, value2);
-  return FromType20(context5, schema, value2);
-}
-function FromUnion15(context5, type, value2) {
-  if (Check2(context5, type, value2))
-    return Clone2(value2);
-  if (IsDefault(type))
-    return Create2(context5, type);
-  return RepairUnion(context5, type, value2);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-type.mjs
-function AssertRepairableValue(context5, type, value2) {
-  const unsupported = globals_exports.IsDate(value2) || globals_exports.IsMap(value2) || globals_exports.IsSet(value2) || globals_exports.IsTypeArray(value2) || guard_exports.IsConstructor(value2) || guard_exports.IsFunction(value2);
-  if (unsupported) {
-    throw new RepairError(context5, type, value2, "Value is not repairable");
-  }
-}
-function AssertRepairableType(context5, type, value2) {
-  const unsupported = IsAsyncIterator3(type) || IsIterator3(type) || IsConstructor3(type) || IsFunction3(type) || IsNever(type) || IsPromise(type);
-  if (unsupported) {
-    throw new RepairError(context5, type, value2, "Type is not repairable");
-  }
-}
-function FinalizeRepair(context5, type, repaired) {
-  return IsRefine(type) ? Check2(context5, type, repaired) ? repaired : Create2(context5, type) : repaired;
-}
-function FromType20(context5, type, value2) {
-  if (IsBase(type)) {
-    const repaired2 = FromBase5(context5, type, value2);
-    return FinalizeRepair(context5, type, repaired2);
-  }
-  AssertRepairableValue(context5, type, value2);
-  AssertRepairableType(context5, type, value2);
-  const repaired = IsArray3(type) ? FromArray16(context5, type, value2) : IsEnum(type) ? FromEnum4(context5, type, value2) : IsIntersect(type) ? FromIntersect12(context5, type, value2) : IsObject3(type) ? FromObject19(context5, type, value2) : IsRecord(type) ? FromRecord8(context5, type, value2) : IsRef(type) ? FromRef11(context5, type, value2) : IsTemplateLiteral(type) ? FromTemplateLiteral6(context5, type, value2) : IsTuple(type) ? FromTuple11(context5, type, value2) : IsUnion(type) ? FromUnion15(context5, type, value2) : FromUnknown4(context5, type, value2);
-  return FinalizeRepair(context5, type, repaired);
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/repair.mjs
-function Repair(...args2) {
-  const [context5, type, value2] = arguments_exports.Match(args2, {
-    3: (context6, type2, value3) => [context6, type2, value3],
-    2: (type2, value3) => [{}, type2, value3]
-  });
-  const repaired = FromType20(context5, type, value2);
-  Assert(context5, type, repaired);
-  return repaired;
-}
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/value.mjs
-var value_exports = {};
-__export(value_exports, {
-  Assert: () => Assert,
-  Check: () => Check2,
-  Clean: () => Clean,
-  Clone: () => Clone2,
-  Convert: () => Convert,
-  Create: () => Create2,
-  Decode: () => Decode9,
-  Default: () => Default,
-  Diff: () => Diff,
-  Encode: () => Encode9,
-  Equal: () => Equal,
-  Errors: () => Errors2,
-  HasCodec: () => HasCodec,
-  Hash: () => Hash2,
-  Mutate: () => Mutate,
-  Parse: () => Parse,
-  Patch: () => Patch,
-  Pointer: () => pointer_exports,
-  Repair: () => Repair
-});
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/compile/validator.mjs
-var Validator = class _Validator extends Base {
-  /** Constructs a Validator. */
-  constructor(...args2) {
-    super();
-    const matched = arguments_exports.Match(args2, {
-      6: (context5, type, isEvalulated, hasCodec, code, check2) => [context5, type, isEvalulated, hasCodec, code, check2],
-      2: (context5, type) => [context5, type]
-    });
-    if (matched.length === 6) {
-      const [context5, type, isEvaluated, hasCodec, code, check2] = matched;
-      this.context = context5;
-      this.type = type;
-      this.isEvaluated = isEvaluated;
-      this.hasCodec = hasCodec;
-      this.code = code;
-      this.check = check2;
-    } else {
-      const [context5, type] = matched;
-      const result = Build(context5, type).Evaluate();
-      this.hasCodec = HasCodec(context5, type);
-      this.context = context5;
-      this.type = type;
-      this.isEvaluated = result.IsEvaluated;
-      this.code = result.Code;
-      this.check = result.Check;
-    }
-  }
-  // ----------------------------------------------------------------
-  // IsEvaluated
-  // ----------------------------------------------------------------
-  /** Returns true if this validator is using runtime eval optimizations. */
-  IsEvaluated() {
-    return this.isEvaluated;
-  }
-  // ----------------------------------------------------------------
-  // Context | Type
-  // ----------------------------------------------------------------
-  /** Returns the Context for this validator. */
-  Context() {
-    return this.context;
-  }
-  /** Returns the Type for this validator. */
-  Type() {
-    return this.type;
-  }
-  // ----------------------------------------------------------------
-  // Code
-  // ----------------------------------------------------------------
-  /** Returns the generated code for this validator. */
-  Code() {
-    return this.code;
-  }
-  // ----------------------------------------------------------------
-  // Base<...>
-  // ----------------------------------------------------------------
-  /** Checks a value matches the Validator type. */
-  Check(value2) {
-    return this.check(value2);
-  }
-  /** Returns errors for the given value. */
-  Errors(value2) {
-    if (environment_exports.CanEvaluate() && this.check(value2))
-      return [];
-    return Errors2(this.context, this.type, value2);
-  }
-  /** Cleans a value using the Validator type. */
-  Clean(value2) {
-    return Clean(this.context, this.type, value2);
-  }
-  /** Converts a value using the Validator type. */
-  Convert(value2) {
-    return Convert(this.context, this.type, value2);
-  }
-  /** Creates a value using the Validator type. */
-  Create() {
-    return Create2(this.context, this.type);
-  }
-  /** Creates defaults using the Validator type. */
-  Default(value2) {
-    return Default(this.context, this.type, value2);
-  }
-  /** Clones this validator. */
-  Clone() {
-    return new _Validator(this.context, this.type, this.isEvaluated, this.hasCodec, this.code, this.check);
-  }
-  // ----------------------------------------------------------------
-  // Parse | Decode | Encode
-  // ----------------------------------------------------------------
-  /** Parses a value */
-  Parse(value2) {
-    const result = this.Check(value2) ? value2 : Parser(this.context, this.type, value2);
-    return result;
-  }
-  /** Decodes a value */
-  Decode(value2) {
-    const result = this.hasCodec ? Decode9(this.context, this.type, value2) : this.Parse(value2);
-    return result;
-  }
-  /** Encodes a value */
-  Encode(value2) {
-    const result = this.hasCodec ? Encode9(this.context, this.type, value2) : this.Parse(value2);
-    return result;
-  }
-};
-
-// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/compile/compile.mjs
-function Compile(...args2) {
-  const [context5, type] = arguments_exports.Match(args2, {
-    2: (context6, type2) => [context6, type2],
-    1: (type2) => [{}, type2]
-  });
-  return new Validator(context5, type);
-}
-
 // ../../node_modules/.bun/@orpc+shared@1.14.4/node_modules/@orpc/shared/dist/index.mjs
 function resolveMaybeOptionalOptions(rest) {
   return rest[0] ?? {};
@@ -18484,7 +14280,7 @@ var fiberInterruptAll = (fibers) => suspend2(() => {
   });
   return wait;
 });
-var identifier2 = /* @__PURE__ */ Symbol.for("effect/Micro/identifier");
+var identifier = /* @__PURE__ */ Symbol.for("effect/Micro/identifier");
 var args = /* @__PURE__ */ Symbol.for("effect/Micro/args");
 var evaluate = /* @__PURE__ */ Symbol.for("effect/Micro/evaluate");
 var successCont = /* @__PURE__ */ Symbol.for("effect/Micro/successCont");
@@ -18509,7 +14305,7 @@ var MicroProto = {
   toJSON() {
     return {
       _id: "Micro",
-      op: this[identifier2],
+      op: this[identifier],
       ...args in this ? {
         args: this[args]
       } : void 0
@@ -18527,7 +14323,7 @@ function defaultEvaluate(_fiber) {
 }
 var makePrimitiveProto = (options) => ({
   ...MicroProto,
-  [identifier2]: options.op,
+  [identifier]: options.op,
   [evaluate]: options.eval ?? defaultEvaluate,
   [successCont]: options.contA,
   [failureCont]: options.contE,
@@ -26460,6 +22256,4210 @@ var TypeId16 = TypeId15;
 var isManagedRuntime2 = isManagedRuntime;
 var make40 = make39;
 
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/_guard.mjs
+function IsGuardInterface(value2) {
+  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, "check") && guard_exports.HasPropertyKey(value2, "errors") && guard_exports.IsFunction(value2.check) && guard_exports.IsFunction(value2.errors);
+}
+function IsGuard2(value2) {
+  return guard_exports.HasPropertyKey(value2, "~guard") && IsGuardInterface(value2["~guard"]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/_refine.mjs
+function IsRefine2(value2) {
+  return guard_exports.HasPropertyKey(value2, "~refine") && guard_exports.IsArray(value2["~refine"]) && guard_exports.Every(value2["~refine"], 0, (value3) => guard_exports.IsObject(value3) && guard_exports.HasPropertyKey(value3, "refine") && guard_exports.HasPropertyKey(value3, "message") && guard_exports.IsFunction(value3.refine) && guard_exports.IsString(value3.message));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/schema.mjs
+function IsSchemaObject(value2) {
+  return guard_exports.IsObject(value2) && !guard_exports.IsArray(value2);
+}
+function IsBooleanSchema(value2) {
+  return guard_exports.IsBoolean(value2);
+}
+function IsSchema2(value2) {
+  return IsSchemaObject(value2) || IsBooleanSchema(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/additionalItems.mjs
+function IsAdditionalItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "additionalItems") && IsSchema2(schema.additionalItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/additionalProperties.mjs
+function IsAdditionalProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "additionalProperties") && IsSchema2(schema.additionalProperties);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/allOf.mjs
+function IsAllOf(schema) {
+  return guard_exports.HasPropertyKey(schema, "allOf") && guard_exports.IsArray(schema.allOf) && schema.allOf.every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/anchor.mjs
+function IsAnchor(schema) {
+  return guard_exports.HasPropertyKey(schema, "$anchor") && guard_exports.IsString(schema.$anchor);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/anyOf.mjs
+function IsAnyOf(schema) {
+  return guard_exports.HasPropertyKey(schema, "anyOf") && guard_exports.IsArray(schema.anyOf) && schema.anyOf.every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/const.mjs
+function IsConst(value2) {
+  return guard_exports.HasPropertyKey(value2, "const");
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/contains.mjs
+function IsContains(schema) {
+  return guard_exports.HasPropertyKey(schema, "contains") && IsSchema2(schema.contains);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/default.mjs
+function IsDefault(schema) {
+  return guard_exports.HasPropertyKey(schema, "default");
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependencies.mjs
+function IsDependencies(schema) {
+  return guard_exports.HasPropertyKey(schema, "dependencies") && guard_exports.IsObject(schema.dependencies) && Object.values(schema.dependencies).every((value2) => IsSchema2(value2) || guard_exports.IsArray(value2) && value2.every((value3) => guard_exports.IsString(value3)));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependentRequired.mjs
+function IsDependentRequired(schema) {
+  return guard_exports.HasPropertyKey(schema, "dependentRequired") && guard_exports.IsObject(schema.dependentRequired) && Object.values(schema.dependentRequired).every((value2) => guard_exports.IsArray(value2) && value2.every((value3) => guard_exports.IsString(value3)));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dependentSchemas.mjs
+function IsDependentSchemas(schema) {
+  return guard_exports.HasPropertyKey(schema, "dependentSchemas") && guard_exports.IsObject(schema.dependentSchemas) && Object.values(schema.dependentSchemas).every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/dynamicAnchor.mjs
+function IsDynamicAnchor(schema) {
+  return guard_exports.HasPropertyKey(schema, "$dynamicAnchor") && guard_exports.IsString(schema.$dynamicAnchor);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/else.mjs
+function IsElse(schema) {
+  return guard_exports.HasPropertyKey(schema, "else") && IsSchema2(schema.else);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/enum.mjs
+function IsEnum2(schema) {
+  return guard_exports.HasPropertyKey(schema, "enum") && guard_exports.IsArray(schema.enum);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/exclusiveMaximum.mjs
+function IsExclusiveMaximum(schema) {
+  return guard_exports.HasPropertyKey(schema, "exclusiveMaximum") && (guard_exports.IsNumber(schema.exclusiveMaximum) || guard_exports.IsBigInt(schema.exclusiveMaximum));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/exclusiveMinimum.mjs
+function IsExclusiveMinimum(schema) {
+  return guard_exports.HasPropertyKey(schema, "exclusiveMinimum") && (guard_exports.IsNumber(schema.exclusiveMinimum) || guard_exports.IsBigInt(schema.exclusiveMinimum));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/format.mjs
+function IsFormat(schema) {
+  return guard_exports.HasPropertyKey(schema, "format") && guard_exports.IsString(schema.format);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/id.mjs
+function IsId(schema) {
+  return guard_exports.HasPropertyKey(schema, "$id") && guard_exports.IsString(schema.$id);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/if.mjs
+function IsIf(schema) {
+  return guard_exports.HasPropertyKey(schema, "if") && IsSchema2(schema.if);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/items.mjs
+function IsItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "items") && (IsSchema2(schema.items) || guard_exports.IsArray(schema.items) && schema.items.every((value2) => {
+    return IsSchema2(value2);
+  }));
+}
+function IsItemsSized(schema) {
+  return IsItems(schema) && guard_exports.IsArray(schema.items);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maximum.mjs
+function IsMaximum(schema) {
+  return guard_exports.HasPropertyKey(schema, "maximum") && (guard_exports.IsNumber(schema.maximum) || guard_exports.IsBigInt(schema.maximum));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxContains.mjs
+function IsMaxContains(schema) {
+  return guard_exports.HasPropertyKey(schema, "maxContains") && guard_exports.IsNumber(schema.maxContains);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxItems.mjs
+function IsMaxItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "maxItems") && guard_exports.IsNumber(schema.maxItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxLength.mjs
+function IsMaxLength4(schema) {
+  return guard_exports.HasPropertyKey(schema, "maxLength") && guard_exports.IsNumber(schema.maxLength);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/maxProperties.mjs
+function IsMaxProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "maxProperties") && guard_exports.IsNumber(schema.maxProperties);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minimum.mjs
+function IsMinimum(schema) {
+  return guard_exports.HasPropertyKey(schema, "minimum") && (guard_exports.IsNumber(schema.minimum) || guard_exports.IsBigInt(schema.minimum));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minContains.mjs
+function IsMinContains(schema) {
+  return guard_exports.HasPropertyKey(schema, "minContains") && guard_exports.IsNumber(schema.minContains);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minItems.mjs
+function IsMinItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "minItems") && guard_exports.IsNumber(schema.minItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minLength.mjs
+function IsMinLength4(schema) {
+  return guard_exports.HasPropertyKey(schema, "minLength") && guard_exports.IsNumber(schema.minLength);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/minProperties.mjs
+function IsMinProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "minProperties") && guard_exports.IsNumber(schema.minProperties);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/multipleOf.mjs
+function IsMultipleOf2(schema) {
+  return guard_exports.HasPropertyKey(schema, "multipleOf") && (guard_exports.IsNumber(schema.multipleOf) || guard_exports.IsBigInt(schema.multipleOf));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/not.mjs
+function IsNot(schema) {
+  return guard_exports.HasPropertyKey(schema, "not") && IsSchema2(schema.not);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/oneOf.mjs
+function IsOneOf(schema) {
+  return guard_exports.HasPropertyKey(schema, "oneOf") && guard_exports.IsArray(schema.oneOf) && schema.oneOf.every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/pattern.mjs
+function IsPattern(schema) {
+  return guard_exports.HasPropertyKey(schema, "pattern") && (guard_exports.IsString(schema.pattern) || schema.pattern instanceof RegExp);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/patternProperties.mjs
+function IsPatternProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "patternProperties") && guard_exports.IsObject(schema.patternProperties) && Object.values(schema.patternProperties).every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/prefixItems.mjs
+function IsPrefixItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "prefixItems") && guard_exports.IsArray(schema.prefixItems) && schema.prefixItems.every((schema2) => IsSchema2(schema2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/properties.mjs
+function IsProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "properties") && guard_exports.IsObject(schema.properties) && Object.values(schema.properties).every((value2) => IsSchema2(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/propertyNames.mjs
+function IsPropertyNames(schema) {
+  return guard_exports.HasPropertyKey(schema, "propertyNames") && (guard_exports.IsObject(schema.propertyNames) || IsSchema2(schema.propertyNames));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/recursiveAnchor.mjs
+function IsRecursiveAnchor(schema) {
+  return guard_exports.HasPropertyKey(schema, "$recursiveAnchor") && guard_exports.IsBoolean(schema.$recursiveAnchor);
+}
+function IsRecursiveAnchorTrue(schema) {
+  return IsRecursiveAnchor(schema) && guard_exports.IsEqual(schema.$recursiveAnchor, true);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/recursiveRef.mjs
+function IsRecursiveRef(schema) {
+  return guard_exports.HasPropertyKey(schema, "$recursiveRef") && guard_exports.IsString(schema.$recursiveRef);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/ref.mjs
+function IsRef2(schema) {
+  return guard_exports.HasPropertyKey(schema, "$ref") && guard_exports.IsString(schema.$ref);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/required.mjs
+function IsRequired(schema) {
+  return guard_exports.HasPropertyKey(schema, "required") && guard_exports.IsArray(schema.required) && schema.required.every((value2) => guard_exports.IsString(value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/then.mjs
+function IsThen(schema) {
+  return guard_exports.HasPropertyKey(schema, "then") && IsSchema2(schema.then);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/type.mjs
+function IsType(schema) {
+  return guard_exports.HasPropertyKey(schema, "type") && (guard_exports.IsString(schema.type) || guard_exports.IsArray(schema.type) && schema.type.every((value2) => guard_exports.IsString(value2)));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/uniqueItems.mjs
+function IsUniqueItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "uniqueItems") && guard_exports.IsBoolean(schema.uniqueItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/unevaluatedItems.mjs
+function IsUnevaluatedItems(schema) {
+  return guard_exports.HasPropertyKey(schema, "unevaluatedItems") && IsSchema2(schema.unevaluatedItems);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/types/unevaluatedProperties.mjs
+function IsUnevaluatedProperties(schema) {
+  return guard_exports.HasPropertyKey(schema, "unevaluatedProperties") && IsSchema2(schema.unevaluatedProperties);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_context.mjs
+function HasUnevaluatedFromObject(value2) {
+  return IsUnevaluatedItems(value2) || IsUnevaluatedProperties(value2) || guard_exports.Keys(value2).some((key) => HasUnevaluatedFromUnknown(value2[key]));
+}
+function HasUnevaluatedFromArray(value2) {
+  return value2.some((value3) => HasUnevaluatedFromUnknown(value3));
+}
+function HasUnevaluatedFromUnknown(value2) {
+  return guard_exports.IsArray(value2) ? HasUnevaluatedFromArray(value2) : guard_exports.IsObject(value2) ? HasUnevaluatedFromObject(value2) : false;
+}
+function HasUnevaluated(context5, schema) {
+  return HasUnevaluatedFromUnknown(schema) || guard_exports.Keys(context5).some((key) => HasUnevaluatedFromUnknown(context5[key]));
+}
+var BuildContext = class {
+  constructor(hasUnevaluated) {
+    this.hasUnevaluated = hasUnevaluated;
+  }
+  UseUnevaluated() {
+    return this.hasUnevaluated;
+  }
+  AddIndex(index2) {
+    return emit_exports.Call(emit_exports.Member("context", "AddIndex"), [index2]);
+  }
+  AddKey(key) {
+    return emit_exports.Call(emit_exports.Member("context", "AddKey"), [key]);
+  }
+  Merge(results) {
+    return emit_exports.Call(emit_exports.Member("context", "Merge"), [results]);
+  }
+};
+var CheckContext = class {
+  constructor() {
+    this.indices = /* @__PURE__ */ new Set();
+    this.keys = /* @__PURE__ */ new Set();
+  }
+  AddIndex(index2) {
+    this.indices.add(index2);
+    return true;
+  }
+  AddKey(key) {
+    this.keys.add(key);
+    return true;
+  }
+  GetIndices() {
+    return this.indices;
+  }
+  GetKeys() {
+    return this.keys;
+  }
+  Merge(results) {
+    for (const context5 of results) {
+      context5.indices.forEach((value2) => this.indices.add(value2));
+      context5.keys.forEach((value2) => this.keys.add(value2));
+    }
+    return true;
+  }
+};
+var ErrorContext = class extends CheckContext {
+  constructor(callback) {
+    super();
+    this.callback = callback;
+  }
+  AddError(error) {
+    this.callback(error);
+    return false;
+  }
+};
+var AccumulatedErrorContext = class extends ErrorContext {
+  constructor() {
+    super((error) => this.errors.push(error));
+    this.errors = [];
+  }
+  AddError(error) {
+    this.errors.push(error);
+    return false;
+  }
+  GetErrors() {
+    return this.errors;
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_externals.mjs
+var identifier2 = "external_";
+var resetCount = 0;
+var state = {
+  identifier: `${identifier2}${resetCount}`,
+  variables: []
+};
+function ResetExternal() {
+  state.identifier = `${identifier2}${resetCount}`;
+  state.variables = [];
+  resetCount += 1;
+}
+function CreateVariable(value2) {
+  const call2 = `${state.identifier}[${state.variables.length}]`;
+  state.variables.push(value2);
+  return call2;
+}
+function GetExternal() {
+  return state;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_guard.mjs
+function BuildGuard(stack, context5, schema, value2) {
+  return emit_exports.Call(emit_exports.Member(emit_exports.Member(CreateVariable(schema), "~guard"), "check"), [value2]);
+}
+function CheckGuard(stack, context5, schema, value2) {
+  return schema["~guard"].check(value2);
+}
+function ErrorGuard(stack, context5, schemaPath, instancePath, schema, value2) {
+  return schema["~guard"].check(value2) || context5.AddError({
+    keyword: "~guard",
+    schemaPath,
+    instancePath,
+    params: { errors: schema["~guard"].errors(value2) }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_refine.mjs
+function BuildRefine(stack, context5, schema, value2) {
+  const refinements = CreateVariable(schema["~refine"].map((refinement) => refinement));
+  return emit_exports.Every(refinements, emit_exports.Constant(0), ["refinement", "_"], emit_exports.Call(emit_exports.Member("refinement", "refine"), [value2]));
+}
+function CheckRefine(stack, context5, schema, value2) {
+  return guard_exports.Every(schema["~refine"], 0, (refinement, _) => refinement.refine(value2));
+}
+function ErrorRefine(stack, context5, schemaPath, instancePath, schema, value2) {
+  return guard_exports.EveryAll(schema["~refine"], 0, (refinement, index2) => {
+    return refinement.refine(value2) || context5.AddError({
+      keyword: "~refine",
+      schemaPath,
+      instancePath,
+      params: { index: index2, message: refinement.message }
+    });
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_unique.mjs
+var index = 0;
+function Unique() {
+  return `var_${index++}`;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/additionalItems.mjs
+function IsValid(schema) {
+  return IsItems(schema) && guard_exports.IsArray(schema.items);
+}
+function BuildAdditionalItems(stack, context5, schema, value2) {
+  if (!IsValid(schema))
+    return emit_exports.Constant(true);
+  const [item, index2] = [Unique(), Unique()];
+  const isSchema = BuildSchema(stack, context5, schema.additionalItems, item);
+  const isLength = emit_exports.IsLessThan(index2, emit_exports.Constant(schema.items.length));
+  const addIndex = context5.AddIndex(index2);
+  const guarded = context5.UseUnevaluated() ? emit_exports.Or(isLength, emit_exports.And(isSchema, addIndex)) : emit_exports.Or(isLength, isSchema);
+  return emit_exports.Call(emit_exports.Member(value2, "every"), [emit_exports.ArrowFunction([item, index2], guarded)]);
+}
+function CheckAdditionalItems(stack, context5, schema, value2) {
+  if (!IsValid(schema))
+    return true;
+  const isAdditionalItems = value2.every((item, index2) => {
+    return guard_exports.IsLessThan(index2, schema.items.length) || CheckSchema(stack, context5, schema.additionalItems, item) && context5.AddIndex(index2);
+  });
+  return isAdditionalItems;
+}
+function ErrorAdditionalItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  if (!IsValid(schema))
+    return true;
+  const isAdditionalItems = value2.every((item, index2) => {
+    const nextSchemaPath = `${schemaPath}/additionalItems`;
+    const nextInstancePath = `${instancePath}/${index2}`;
+    return guard_exports.IsLessThan(index2, schema.items.length) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema.additionalItems, item) && context5.AddIndex(index2);
+  });
+  return isAdditionalItems;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/additionalProperties.mjs
+function GetPropertyKeyAsPattern(key) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return `^${escaped}$`;
+}
+function GetPropertiesPattern(schema) {
+  const patterns = [];
+  if (IsPatternProperties(schema))
+    patterns.push(...guard_exports.Keys(schema.patternProperties));
+  if (IsProperties(schema))
+    patterns.push(...guard_exports.Keys(schema.properties).map(GetPropertyKeyAsPattern));
+  return guard_exports.IsEqual(patterns.length, 0) ? "(?!)" : `(${patterns.join("|")})`;
+}
+function CanAdditionalPropertiesFast(context5, schema, value2) {
+  return IsRequired(schema) && IsProperties(schema) && !IsPatternProperties(schema) && guard_exports.IsEqual(schema.additionalProperties, false) && guard_exports.IsEqual(guard_exports.Keys(schema.properties).length, schema.required.length);
+}
+function BuildAdditionalPropertiesFast(context5, schema, value2) {
+  return emit_exports.IsEqual(emit_exports.Member(emit_exports.Call(emit_exports.Member("Object", "getOwnPropertyNames"), [value2]), "length"), emit_exports.Constant(schema.required.length));
+}
+function BuildAdditionalPropertiesStandard(stack, context5, schema, value2) {
+  const [key, _index] = [Unique(), Unique()];
+  const regexp = CreateVariable(new RegExp(GetPropertiesPattern(schema)));
+  const isSchema = BuildSchema(stack, context5, schema.additionalProperties, `${value2}[${key}]`);
+  const isKey = emit_exports.Call(emit_exports.Member(regexp, "test"), [key]);
+  const addKey = context5.AddKey(key);
+  const guarded = context5.UseUnevaluated() ? emit_exports.Or(isKey, emit_exports.And(isSchema, addKey)) : emit_exports.Or(isKey, isSchema);
+  const result = emit_exports.Every(emit_exports.Keys(value2), emit_exports.Constant(0), [key, _index], guarded);
+  return result;
+}
+function BuildAdditionalProperties(stack, context5, schema, value2) {
+  return CanAdditionalPropertiesFast(context5, schema, value2) ? BuildAdditionalPropertiesFast(context5, schema, value2) : BuildAdditionalPropertiesStandard(stack, context5, schema, value2);
+}
+function CheckAdditionalProperties(stack, context5, schema, value2) {
+  const regexp = new RegExp(GetPropertiesPattern(schema));
+  const isAdditionalProperties = guard_exports.Every(guard_exports.Keys(value2), 0, (key, _index) => {
+    return regexp.test(key) || CheckSchema(stack, context5, schema.additionalProperties, value2[key]) && context5.AddKey(key);
+  });
+  return isAdditionalProperties;
+}
+function ErrorAdditionalProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  const regexp = new RegExp(GetPropertiesPattern(schema));
+  const additionalProperties = [];
+  const isAdditionalProperties = guard_exports.EveryAll(guard_exports.Keys(value2), 0, (key, _index) => {
+    const nextSchemaPath = `${schemaPath}/additionalProperties`;
+    const nextInstancePath = `${instancePath}/${key}`;
+    const nextContext = new AccumulatedErrorContext();
+    const isAdditionalProperty = regexp.test(key) || ErrorSchema(stack, nextContext, nextSchemaPath, nextInstancePath, schema.additionalProperties, value2[key]) && context5.AddKey(key);
+    if (!isAdditionalProperty)
+      additionalProperties.push(key);
+    return isAdditionalProperty;
+  });
+  return isAdditionalProperties || context5.AddError({
+    keyword: "additionalProperties",
+    schemaPath,
+    instancePath,
+    params: { additionalProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_reducer.mjs
+function Reducer(stack, context5, schemas, value2, check2) {
+  const results = emit_exports.ConstDeclaration("results", "[]");
+  const context_n = schemas.map((_schema, index2) => emit_exports.ConstDeclaration(`context_${index2}`, emit_exports.New("CheckContext", [])));
+  const condition_n = schemas.map((schema, index2) => emit_exports.ConstDeclaration(`condition_${index2}`, emit_exports.Call(emit_exports.ArrowFunction(["context"], BuildSchema(stack, context5, schema, value2)), [`context_${index2}`])));
+  const checks = schemas.map((_schema, index2) => emit_exports.If(`condition_${index2}`, emit_exports.Call(emit_exports.Member("results", "push"), [`context_${index2}`])));
+  const returns = emit_exports.Return(emit_exports.And(check2, context5.Merge("results")));
+  return emit_exports.Call(emit_exports.ArrowFunction([], emit_exports.Statements([results, ...context_n, ...condition_n, ...checks, returns])), []);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/allOf.mjs
+function BuildAllOfStandard(stack, context5, schema, value2) {
+  return Reducer(stack, context5, schema.allOf, value2, emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(schema.allOf.length)));
+}
+function BuildAllOfFast(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(schema.allOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
+}
+function BuildAllOf(stack, context5, schema, value2) {
+  return context5.UseUnevaluated() ? BuildAllOfStandard(stack, context5, schema, value2) : BuildAllOfFast(stack, context5, schema, value2);
+}
+function CheckAllOf(stack, context5, schema, value2) {
+  const results = schema.allOf.reduce((result, schema2) => {
+    const nextContext = new CheckContext();
+    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
+  }, []);
+  return guard_exports.IsEqual(results.length, schema.allOf.length) && context5.Merge(results);
+}
+function ErrorAllOf(stack, context5, schemaPath, instancePath, schema, value2) {
+  const failedContexts = [];
+  const results = schema.allOf.reduce((result, schema2, index2) => {
+    const nextSchemaPath = `${schemaPath}/allOf/${index2}`;
+    const nextContext = new AccumulatedErrorContext();
+    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
+    if (!isSchema)
+      failedContexts.push(nextContext);
+    return isSchema ? [...result, nextContext] : result;
+  }, []);
+  const isAllOf = guard_exports.IsEqual(results.length, schema.allOf.length) && context5.Merge(results);
+  if (!isAllOf)
+    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
+  return isAllOf;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/anyOf.mjs
+function BuildAnyOfStandard(stack, context5, schema, value2) {
+  return Reducer(stack, context5, schema.anyOf, value2, emit_exports.IsGreaterThan(emit_exports.Member("results", "length"), emit_exports.Constant(0)));
+}
+function BuildAnyOfFast(stack, context5, schema, value2) {
+  return emit_exports.ReduceOr(schema.anyOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
+}
+function BuildAnyOf(stack, context5, schema, value2) {
+  return context5.UseUnevaluated() ? BuildAnyOfStandard(stack, context5, schema, value2) : BuildAnyOfFast(stack, context5, schema, value2);
+}
+function CheckAnyOf(stack, context5, schema, value2) {
+  const results = schema.anyOf.reduce((result, schema2, index2) => {
+    const nextContext = new CheckContext();
+    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
+  }, []);
+  return guard_exports.IsGreaterThan(results.length, 0) && context5.Merge(results);
+}
+function ErrorAnyOf(stack, context5, schemaPath, instancePath, schema, value2) {
+  const failedContexts = [];
+  const results = schema.anyOf.reduce((result, schema2, index2) => {
+    const nextContext = new AccumulatedErrorContext();
+    const nextSchemaPath = `${schemaPath}/anyOf/${index2}`;
+    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
+    if (!isSchema)
+      failedContexts.push(nextContext);
+    return isSchema ? [...result, nextContext] : result;
+  }, []);
+  const isAnyOf = guard_exports.IsGreaterThan(results.length, 0) && context5.Merge(results);
+  if (!isAnyOf)
+    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
+  return isAnyOf || context5.AddError({
+    keyword: "anyOf",
+    schemaPath,
+    instancePath,
+    params: {}
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/boolean.mjs
+function BuildBooleanSchema(stack, context5, schema, value2) {
+  return schema ? emit_exports.Constant(true) : emit_exports.Constant(false);
+}
+function CheckBooleanSchema(stack, context5, schema, value2) {
+  return schema;
+}
+function ErrorBooleanSchema(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckBooleanSchema(stack, context5, schema, value2) || context5.AddError({
+    keyword: "boolean",
+    schemaPath,
+    instancePath,
+    params: {}
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/const.mjs
+function BuildConst(stack, context5, schema, value2) {
+  return guard_exports.IsValueLike(schema.const) ? emit_exports.IsEqual(value2, emit_exports.Constant(schema.const)) : emit_exports.IsDeepEqual(value2, CreateVariable(schema.const));
+}
+function CheckConst(stack, context5, schema, value2) {
+  return guard_exports.IsValueLike(schema.const) ? guard_exports.IsEqual(value2, schema.const) : guard_exports.IsDeepEqual(value2, schema.const);
+}
+function ErrorConst(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckConst(stack, context5, schema, value2) || context5.AddError({
+    keyword: "const",
+    schemaPath,
+    instancePath,
+    params: { allowedValue: schema.const }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/contains.mjs
+function IsValid2(schema) {
+  return !(IsMinContains(schema) && guard_exports.IsEqual(schema.minContains, 0));
+}
+function BuildContains(stack, context5, schema, value2) {
+  if (!IsValid2(schema))
+    return emit_exports.Constant(true);
+  const item = Unique();
+  const isLength = emit_exports.Not(emit_exports.IsEqual(emit_exports.Member(value2, "length"), emit_exports.Constant(0)));
+  const isSome3 = emit_exports.Call(emit_exports.Member(value2, "some"), [emit_exports.ArrowFunction([item], BuildSchema(stack, context5, schema.contains, item))]);
+  return emit_exports.And(isLength, isSome3);
+}
+function CheckContains(stack, context5, schema, value2) {
+  if (!IsValid2(schema))
+    return true;
+  return !guard_exports.IsEqual(value2.length, 0) && value2.some((item) => CheckSchema(stack, context5, schema.contains, item));
+}
+function ErrorContains(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckContains(stack, context5, schema, value2) || context5.AddError({
+    keyword: "contains",
+    schemaPath,
+    instancePath,
+    params: { minContains: 1 }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependencies.mjs
+function BuildDependencies(stack, context5, schema, value2) {
+  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
+  const isEveryDependency = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependencies).map(([key, schema2]) => {
+    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
+    const isSchema = BuildSchema(stack, context5, schema2, value2);
+    const isEveryKey = (schema3) => emit_exports.ReduceAnd(schema3.map((key2) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key2))));
+    return emit_exports.Or(notKey, guard_exports.IsArray(schema2) ? isEveryKey(schema2) : isSchema);
+  }));
+  return emit_exports.Or(isLength, isEveryDependency);
+}
+function CheckDependencies(stack, context5, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependencies), 0, ([key, schema2]) => {
+    return !guard_exports.HasPropertyKey(value2, key) || (guard_exports.IsArray(schema2) ? schema2.every((key2) => guard_exports.HasPropertyKey(value2, key2)) : CheckSchema(stack, context5, schema2, value2));
+  });
+  return isLength || isEvery;
+}
+function ErrorDependencies(stack, context5, schemaPath, instancePath, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.EveryAll(guard_exports.Entries(schema.dependencies), 0, ([key, schema2]) => {
+    const nextSchemaPath = `${schemaPath}/dependencies/${key}`;
+    return !guard_exports.HasPropertyKey(value2, key) || (guard_exports.IsArray(schema2) ? schema2.every((dependency) => guard_exports.HasPropertyKey(value2, dependency) || context5.AddError({
+      keyword: "dependencies",
+      schemaPath,
+      instancePath,
+      params: { property: key, dependencies: schema2 }
+    })) : ErrorSchema(stack, context5, nextSchemaPath, instancePath, schema2, value2));
+  });
+  return isLength || isEvery;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependentRequired.mjs
+function BuildDependentRequired(stack, context5, schema, value2) {
+  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
+  const isEvery = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependentRequired).map(([key, keys5]) => {
+    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
+    const everyKey = emit_exports.ReduceAnd(keys5.map((key2) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key2))));
+    return emit_exports.Or(notKey, everyKey);
+  }));
+  return emit_exports.Or(isLength, isEvery);
+}
+function CheckDependentRequired(stack, context5, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependentRequired), 0, ([key, keys5]) => {
+    return !guard_exports.HasPropertyKey(value2, key) || keys5.every((key2) => guard_exports.HasPropertyKey(value2, key2));
+  });
+  return isLength || isEvery;
+}
+function ErrorDependentRequired(stack, context5, schemaPath, instancePath, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEveryEntry = guard_exports.EveryAll(guard_exports.Entries(schema.dependentRequired), 0, ([key, keys5]) => {
+    return !guard_exports.HasPropertyKey(value2, key) || guard_exports.EveryAll(keys5, 0, (dependency) => guard_exports.HasPropertyKey(value2, dependency) || context5.AddError({
+      keyword: "dependentRequired",
+      schemaPath,
+      instancePath,
+      params: { property: key, dependencies: keys5 }
+    }));
+  });
+  return isLength || isEveryEntry;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/dependentSchemas.mjs
+function BuildDependentSchemas(stack, context5, schema, value2) {
+  const isLength = emit_exports.IsEqual(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(0));
+  const isEvery = emit_exports.ReduceAnd(guard_exports.Entries(schema.dependentSchemas).map(([key, schema2]) => {
+    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
+    const isSchema = BuildSchema(stack, context5, schema2, value2);
+    return emit_exports.Or(notKey, isSchema);
+  }));
+  return emit_exports.Or(isLength, isEvery);
+}
+function CheckDependentSchemas(stack, context5, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.Every(guard_exports.Entries(schema.dependentSchemas), 0, ([key, schema2]) => {
+    return !guard_exports.HasPropertyKey(value2, key) || CheckSchema(stack, context5, schema2, value2);
+  });
+  return isLength || isEvery;
+}
+function ErrorDependentSchemas(stack, context5, schemaPath, instancePath, schema, value2) {
+  const isLength = guard_exports.IsEqual(guard_exports.Keys(value2).length, 0);
+  const isEvery = guard_exports.EveryAll(guard_exports.Entries(schema.dependentSchemas), 0, ([key, schema2]) => {
+    const nextSchemaPath = `${schemaPath}/dependentSchemas/${key}`;
+    return !guard_exports.HasPropertyKey(value2, key) || ErrorSchema(stack, context5, nextSchemaPath, instancePath, schema2, value2);
+  });
+  return isLength || isEvery;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/enum.mjs
+function BuildEnum(stack, context5, schema, value2) {
+  return emit_exports.ReduceOr(schema.enum.map((option3) => {
+    if (guard_exports.IsValueLike(option3))
+      return emit_exports.IsEqual(value2, emit_exports.Constant(option3));
+    const variable = CreateVariable(option3);
+    return emit_exports.IsDeepEqual(value2, variable);
+  }));
+}
+function CheckEnum(stack, context5, schema, value2) {
+  return schema.enum.some((option3) => guard_exports.IsValueLike(option3) ? guard_exports.IsEqual(value2, option3) : guard_exports.IsDeepEqual(value2, option3));
+}
+function ErrorEnum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckEnum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "enum",
+    schemaPath,
+    instancePath,
+    params: { allowedValues: schema.enum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/exclusiveMaximum.mjs
+function BuildExclusiveMaximum(stack, context5, schema, value2) {
+  return emit_exports.IsLessThan(value2, emit_exports.Constant(schema.exclusiveMaximum));
+}
+function CheckExclusiveMaximum(stack, context5, schema, value2) {
+  return guard_exports.IsLessThan(value2, schema.exclusiveMaximum);
+}
+function ErrorExclusiveMaximum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckExclusiveMaximum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "exclusiveMaximum",
+    schemaPath,
+    instancePath,
+    params: { comparison: "<", limit: schema.exclusiveMaximum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/exclusiveMinimum.mjs
+function BuildExclusiveMinimum(stack, context5, schema, value2) {
+  return emit_exports.IsGreaterThan(value2, emit_exports.Constant(schema.exclusiveMinimum));
+}
+function CheckExclusiveMinimum(stack, context5, schema, value2) {
+  return guard_exports.IsGreaterThan(value2, schema.exclusiveMinimum);
+}
+function ErrorExclusiveMinimum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckExclusiveMinimum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "exclusiveMinimum",
+    schemaPath,
+    instancePath,
+    params: { comparison: ">", limit: schema.exclusiveMinimum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/format.mjs
+var format_exports = {};
+__export(format_exports, {
+  Clear: () => Clear,
+  Entries: () => Entries3,
+  Get: () => Get3,
+  Has: () => Has,
+  IsDate: () => IsDate2,
+  IsDateTime: () => IsDateTime,
+  IsDuration: () => IsDuration,
+  IsEmail: () => IsEmail,
+  IsHostname: () => IsHostname,
+  IsIPv4: () => IsIPv4,
+  IsIPv6: () => IsIPv6,
+  IsIdnEmail: () => IsIdnEmail,
+  IsIdnHostname: () => IsIdnHostname,
+  IsIri: () => IsIri,
+  IsIriReference: () => IsIriReference,
+  IsJsonPointer: () => IsJsonPointer,
+  IsJsonPointerUriFragment: () => IsJsonPointerUriFragment,
+  IsRegex: () => IsRegex,
+  IsRelativeJsonPointer: () => IsRelativeJsonPointer,
+  IsTime: () => IsTime,
+  IsUri: () => IsUri,
+  IsUriReference: () => IsUriReference,
+  IsUriTemplate: () => IsUriTemplate,
+  IsUrl: () => IsUrl,
+  IsUuid: () => IsUuid,
+  Reset: () => Reset2,
+  Set: () => Set3,
+  Test: () => Test
+});
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/date.mjs
+var DAYS = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+var DATE = /^(\d\d\d\d)-(\d\d)-(\d\d)$/;
+function IsLeapYear(year) {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+function IsDate2(value2) {
+  const matches = DATE.exec(value2);
+  if (!matches)
+    return false;
+  const year = +matches[1];
+  const month = +matches[2];
+  const day = +matches[3];
+  return month >= 1 && month <= 12 && day >= 1 && day <= (month === 2 && IsLeapYear(year) ? 29 : DAYS[month]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/time.mjs
+var TIME = /^(\d\d):(\d\d):(\d\d(?:\.\d+)?)(?:Z|([+-])(\d\d):(\d\d))?$/i;
+function IsTime(value2, strictTimeZone = true) {
+  const matches = TIME.exec(value2);
+  if (!matches)
+    return false;
+  const hr = +matches[1];
+  const min3 = +matches[2];
+  const sec = +matches[3];
+  const tzSign = matches[4] === "-" ? -1 : 1;
+  const tzH = +(matches[5] || 0);
+  const tzM = +(matches[6] || 0);
+  if (tzH > 23 || tzM > 59)
+    return false;
+  if (strictTimeZone && !matches[4] && value2.toLowerCase().indexOf("z") === -1) {
+    return false;
+  }
+  if (hr <= 23 && min3 <= 59 && sec < 60)
+    return true;
+  const utcMin = min3 - tzM * tzSign;
+  const utcHr = hr - tzH * tzSign - (utcMin < 0 ? 1 : 0);
+  return (utcHr === 23 || utcHr === -1) && (utcMin === 59 || utcMin === -1) && sec < 61;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/date-time.mjs
+function IsDateTime(value2, strictTimeZone = true) {
+  const dateTime = value2.split(/T/i);
+  return dateTime.length === 2 && IsDate2(dateTime[0]) && IsTime(dateTime[1], strictTimeZone);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/duration.mjs
+var Duration = /^P(?!$)((\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+S)?)?|(\d+W)?)$/;
+function IsDuration(value2) {
+  return Duration.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/email.mjs
+var Email = /^(?!.*\.\.)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/i;
+function IsEmail(value2) {
+  return Email.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/hostname.mjs
+var Hostname = /^(?=.{1,253}\.?$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[-0-9a-z]{0,61}[0-9a-z])?)*\.?$/i;
+function IsHostname(value2) {
+  return Hostname.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/idn-email.mjs
+var IdnEmail = /^(?!.*\.\.)[\p{L}\p{N}!#$%&'*+/=?^_`{|}~-]+(?:\.[\p{L}\p{N}!#$%&'*+/=?^_`{|}~-]+)*@[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?)*$/iu;
+function IsIdnEmail(value2) {
+  return IdnEmail.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/idn-hostname.mjs
+function IsValidAdjacentForKatakanaMiddleDot(char) {
+  const codePoint = char.codePointAt(0);
+  if (codePoint === void 0)
+    return false;
+  return codePoint >= 12352 && codePoint <= 12447 || // Hiragana
+  codePoint >= 12448 && codePoint <= 12543 && codePoint !== 12539 || // Katakana (excluding U+30FB)
+  codePoint >= 19968 && codePoint <= 40959;
+}
+function IsIdnHostname(value2) {
+  if (value2.length === 0)
+    return false;
+  if (value2.includes(" "))
+    return false;
+  const separators = /[\u002E\u3002\uFF0E\uFF61]/g;
+  const normalized = value2.normalize("NFC").replace(separators, ".");
+  if (normalized.length > 253)
+    return false;
+  const labels = normalized.split(".");
+  if (labels.some((label) => label.length === 0))
+    return false;
+  for (const label of labels) {
+    if (label.length > 63)
+      return false;
+    if (label.startsWith("-") || label.endsWith("-"))
+      return false;
+    if (/^xn--/i.test(label)) {
+      const punycodePart = label.slice(4);
+      if (punycodePart.length < 2)
+        return false;
+      if (punycodePart.includes("---"))
+        return false;
+      continue;
+    }
+    if (/[\u302E\u302F\u3031\u3032\u3033\u3034\u3035\u303B\u0640\u07FA]/.test(label)) {
+      return false;
+    }
+    const firstChar = label.charAt(0);
+    if (/[\u0903\u0300\u0488]/.test(firstChar))
+      return false;
+    for (let i = 0; i < label.length; i++) {
+      const char = label.charAt(i);
+      if (char === "\xB7") {
+        if (i === 0 || i === label.length - 1)
+          return false;
+        const prev = label.charAt(i - 1);
+        const next = label.charAt(i + 1);
+        if (!/^[lL]$/.test(prev) || !/^[lL]$/.test(next))
+          return false;
+      }
+      if (char === "\u30FB") {
+        if (label.length === 1)
+          return false;
+        if (i === 0) {
+          const next = label.charAt(i + 1);
+          if (!IsValidAdjacentForKatakanaMiddleDot(next))
+            return false;
+        } else {
+          const prev = label.charAt(i - 1);
+          const next = label.charAt(i + 1);
+          if (!IsValidAdjacentForKatakanaMiddleDot(prev) || !IsValidAdjacentForKatakanaMiddleDot(next)) {
+            return false;
+          }
+        }
+      }
+      if (char === "\u0375") {
+        if (i === label.length - 1)
+          return false;
+        const next = label.charAt(i + 1);
+        if (!/[\u0370-\u03FF]/.test(next))
+          return false;
+      }
+      if (char === "\u05F3" || char === "\u05F4") {
+        if (i === 0)
+          return false;
+        const prev = label.charAt(i - 1);
+        if (!/[\u05D0-\u05EA]/.test(prev))
+          return false;
+      }
+      if (char === "\u200D") {
+        if (i === 0)
+          return false;
+        const prev = label.charAt(i - 1);
+        if (prev !== "\u094D")
+          return false;
+      }
+    }
+    let hasArabicIndic = false;
+    let hasExtendedArabicIndic = false;
+    for (let i = 0; i < label.length; i++) {
+      const char = label.charAt(i);
+      if (/[\u0660-\u0669]/.test(char))
+        hasArabicIndic = true;
+      if (/[\u06F0-\u06F9]/.test(char))
+        hasExtendedArabicIndic = true;
+    }
+    if (hasArabicIndic && hasExtendedArabicIndic)
+      return false;
+  }
+  return true;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/ipv4.mjs
+var IPv4 = /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/;
+function IsIPv4(value2) {
+  return IPv4.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/ipv6.mjs
+var IPv6 = /^((([0-9a-f]{1,4}:){7}([0-9a-f]{1,4}|:))|(([0-9a-f]{1,4}:){6}(:[0-9a-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){5}(((:[0-9a-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){4}(((:[0-9a-f]{1,4}){1,3})|((:[0-9a-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){3}(((:[0-9a-f]{1,4}){1,4})|((:[0-9a-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){2}(((:[0-9a-f]{1,4}){1,5})|((:[0-9a-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){1}(((:[0-9a-f]{1,4}){1,6})|((:[0-9a-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9a-f]{1,4}){1,7})|((:[0-9a-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))$/i;
+function IsIPv6(value2) {
+  return IPv6.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/iri-reference.mjs
+function TryUrl(value2) {
+  try {
+    new URL(value2, "http://example.com");
+    return true;
+  } catch {
+    return false;
+  }
+}
+function IsIriReference(value2) {
+  if (value2.includes(" ")) {
+    return false;
+  }
+  if (value2.includes("\\")) {
+    return false;
+  }
+  if (/[\x00-\x1F\x7F]/.test(value2)) {
+    return false;
+  }
+  if (/%(?![0-9a-fA-F]{2})/.test(value2)) {
+    return false;
+  }
+  if (value2 === "") {
+    return true;
+  }
+  const colonIndex = value2.indexOf(":");
+  const hasValidSchemePrefix = colonIndex > 0 && // Colon must not be at the very beginning (e.g., ":foo")
+  /^[a-zA-Z][a-zA-Z0-9+\-.]*$/.test(value2.substring(0, colonIndex));
+  if (hasValidSchemePrefix) {
+    return TryUrl(value2);
+  } else {
+    const looksLikeMalformedSchemeAndAuthority = value2.match(/^([a-zA-Z][a-zA-Z0-9+\-.]*)(\/\/)/);
+    if (looksLikeMalformedSchemeAndAuthority && colonIndex === -1) {
+      return false;
+    }
+    return TryUrl(value2);
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/iri.mjs
+function IsIri(value2) {
+  try {
+    new URL(value2);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/json-pointer-uri-fragment.mjs
+var JsonPointerUriFragment = /^#(?:\/(?:[a-z0-9_\-.!$&'()*+,;:=@]|%[0-9a-f]{2}|~0|~1)*)*$/i;
+function IsJsonPointerUriFragment(value2) {
+  return JsonPointerUriFragment.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/json-pointer.mjs
+var JsonPointer = /^(?:\/(?:[^~/]|~0|~1)*)*$/;
+function IsJsonPointer(value2) {
+  return JsonPointer.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/regex.mjs
+function IsRegex(value2) {
+  if (value2.length === 0) {
+    return false;
+  }
+  try {
+    new RegExp(value2);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/relative-json-pointer.mjs
+var RelativeJsonPointer = /^(?:0|[1-9][0-9]*)(?:#|(?:\/(?:[^~/]|~0|~1)*)*)$/;
+function IsRelativeJsonPointer(value2) {
+  return RelativeJsonPointer.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri-reference.mjs
+var UriReference = /^(?:(?:[a-z][a-z0-9+\-.]*:)?\/?\/)?(?:[^\\\s#][^\s#]*)?(?:#[^\\\s]*)?$/i;
+function IsUriReference(value2) {
+  return UriReference.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri-template.mjs
+var UriTemplate = /^(?:(?:[^\x00-\x20"'<>%\\^`{|}]|%[0-9a-f]{2})|\{[+#./;?&=,!@|]?(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?(?:,(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?)*\})*$/i;
+function IsUriTemplate(value2) {
+  return UriTemplate.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uri.mjs
+var Uri = /^(?:[a-z][a-z0-9+\-.]*:)(?:\/?\/)?[^\s]*$/i;
+function IsUri(value2) {
+  return Uri.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/url.mjs
+var Url = /^(?:https?|ftp):\/\/(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\u{00a1}-\u{ffff}]+-)*[a-z0-9\u{00a1}-\u{ffff}]+)(?:\.(?:[a-z0-9\u{00a1}-\u{ffff}]+-)*[a-z0-9\u{00a1}-\u{ffff}]+)*(?:\.(?:[a-z\u{00a1}-\u{ffff}]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/iu;
+function IsUrl(value2) {
+  return Url.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/uuid.mjs
+var Uuid = /^(?:urn:uuid:)?[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+function IsUuid(value2) {
+  return Uuid.test(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/format/_registry.mjs
+var formats = /* @__PURE__ */ new Map();
+function Clear() {
+  formats.clear();
+}
+function Entries3() {
+  return [...formats.entries()];
+}
+function Set3(format4, check2) {
+  formats.set(format4, check2);
+}
+function Has(format4) {
+  return formats.has(format4);
+}
+function Get3(format4) {
+  return formats.get(format4);
+}
+function Test(format4, value2) {
+  return formats.get(format4)?.(value2) ?? true;
+}
+function Reset2() {
+  Clear();
+  formats.set("date-time", IsDateTime);
+  formats.set("date", IsDate2);
+  formats.set("duration", IsDuration);
+  formats.set("email", IsEmail);
+  formats.set("hostname", IsHostname);
+  formats.set("idn-email", IsIdnEmail);
+  formats.set("idn-hostname", IsIdnHostname);
+  formats.set("ipv4", IsIPv4);
+  formats.set("ipv6", IsIPv6);
+  formats.set("iri-reference", IsIriReference);
+  formats.set("iri", IsIri);
+  formats.set("json-pointer-uri-fragment", IsJsonPointerUriFragment);
+  formats.set("json-pointer", IsJsonPointer);
+  formats.set("regex", IsRegex);
+  formats.set("relative-json-pointer", IsRelativeJsonPointer);
+  formats.set("time", IsTime);
+  formats.set("uri-reference", IsUriReference);
+  formats.set("uri-template", IsUriTemplate);
+  formats.set("uri", IsUri);
+  formats.set("url", IsUrl);
+  formats.set("uuid", IsUuid);
+}
+Reset2();
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/format.mjs
+function BuildFormat(stack, context5, schema, value2) {
+  return emit_exports.Call(emit_exports.Member("Format", "Test"), [emit_exports.Constant(schema.format), value2]);
+}
+function CheckFormat(stack, context5, schema, value2) {
+  return format_exports.Test(schema.format, value2);
+}
+function ErrorFormat(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckFormat(stack, context5, schema, value2) || context5.AddError({
+    keyword: "format",
+    schemaPath,
+    instancePath,
+    params: { format: schema.format }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/if.mjs
+function BuildIf(stack, context5, schema, value2) {
+  const thenSchema = IsThen(schema) ? schema.then : true;
+  const elseSchema = IsElse(schema) ? schema.else : true;
+  return emit_exports.Ternary(BuildSchema(stack, context5, schema.if, value2), BuildSchema(stack, context5, thenSchema, value2), BuildSchema(stack, context5, elseSchema, value2));
+}
+function CheckIf(stack, context5, schema, value2) {
+  const thenSchema = IsThen(schema) ? schema.then : true;
+  const elseSchema = IsElse(schema) ? schema.else : true;
+  return CheckSchema(stack, context5, schema.if, value2) ? CheckSchema(stack, context5, thenSchema, value2) : CheckSchema(stack, context5, elseSchema, value2);
+}
+function ErrorIf(stack, context5, schemaPath, instancePath, schema, value2) {
+  const thenSchema = IsThen(schema) ? schema.then : true;
+  const elseSchema = IsElse(schema) ? schema.else : true;
+  const trueContext = new AccumulatedErrorContext();
+  const isIf = ErrorSchema(stack, trueContext, `${schemaPath}/if`, instancePath, schema.if, value2) ? ErrorSchema(stack, trueContext, `${schemaPath}/then`, instancePath, thenSchema, value2) || context5.AddError({
+    keyword: "if",
+    schemaPath,
+    instancePath,
+    params: { failingKeyword: "then" }
+  }) : ErrorSchema(stack, context5, `${schemaPath}/else`, instancePath, elseSchema, value2) || context5.AddError({
+    keyword: "if",
+    schemaPath,
+    instancePath,
+    params: { failingKeyword: "else" }
+  });
+  if (isIf)
+    context5.Merge([trueContext]);
+  return isIf;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/items.mjs
+function BuildItemsSized(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(schema.items.map((schema2, index2) => {
+    const isLength = emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(index2));
+    const isSchema = BuildSchema(stack, context5, schema2, `${value2}[${index2}]`);
+    const addIndex = context5.AddIndex(emit_exports.Constant(index2));
+    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
+    return emit_exports.Or(isLength, guarded);
+  }));
+}
+function CheckItemsSized(stack, context5, schema, value2) {
+  return guard_exports.Every(schema.items, 0, (schema2, index2) => {
+    return guard_exports.IsLessEqualThan(value2.length, index2) || CheckSchema(stack, context5, schema2, value2[index2]) && context5.AddIndex(index2);
+  });
+}
+function ErrorItemsSized(stack, context5, schemaPath, instancePath, schema, value2) {
+  return guard_exports.EveryAll(schema.items, 0, (schema2, index2) => {
+    const nextSchemaPath = `${schemaPath}/items/${index2}`;
+    const nextInstancePath = `${instancePath}/${index2}`;
+    return guard_exports.IsLessEqualThan(value2.length, index2) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[index2]) && context5.AddIndex(index2);
+  });
+}
+function BuildItemsUnsized(stack, context5, schema, value2) {
+  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
+  const isSchema = BuildSchema(stack, context5, schema.items, "element");
+  const addIndex = context5.AddIndex("index");
+  const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
+  return emit_exports.Every(value2, emit_exports.Constant(offset), ["element", "index"], guarded);
+}
+function CheckItemsUnsized(stack, context5, schema, value2) {
+  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
+  return guard_exports.Every(value2, offset, (element, index2) => {
+    return CheckSchema(stack, context5, schema.items, element) && context5.AddIndex(index2);
+  });
+}
+function ErrorItemsUnsized(stack, context5, schemaPath, instancePath, schema, value2) {
+  const offset = IsPrefixItems(schema) ? schema.prefixItems.length : 0;
+  return guard_exports.EveryAll(value2, offset, (element, index2) => {
+    const nextSchemaPath = `${schemaPath}/items`;
+    const nextInstancePath = `${instancePath}/${index2}`;
+    return ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema.items, element) && context5.AddIndex(index2);
+  });
+}
+function BuildItems(stack, context5, schema, value2) {
+  return IsItemsSized(schema) ? BuildItemsSized(stack, context5, schema, value2) : BuildItemsUnsized(stack, context5, schema, value2);
+}
+function CheckItems(stack, context5, schema, value2) {
+  return IsItemsSized(schema) ? CheckItemsSized(stack, context5, schema, value2) : CheckItemsUnsized(stack, context5, schema, value2);
+}
+function ErrorItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  return IsItemsSized(schema) ? ErrorItemsSized(stack, context5, schemaPath, instancePath, schema, value2) : ErrorItemsUnsized(stack, context5, schemaPath, instancePath, schema, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxContains.mjs
+function IsValid3(schema) {
+  return IsContains(schema);
+}
+function BuildMaxContains(stack, context5, schema, value2) {
+  if (!IsValid3(schema))
+    return emit_exports.Constant(true);
+  const [result, item] = [Unique(), Unique()];
+  const count = emit_exports.Call(emit_exports.Member(value2, "reduce"), [emit_exports.ArrowFunction([result, item], emit_exports.Ternary(BuildSchema(stack, context5, schema.contains, item), emit_exports.PrefixIncrement(result), result)), emit_exports.Constant(0)]);
+  return emit_exports.IsLessEqualThan(count, emit_exports.Constant(schema.maxContains));
+}
+function CheckMaxContains(stack, context5, schema, value2) {
+  if (!IsValid3(schema))
+    return true;
+  const count = value2.reduce((result, item) => CheckSchema(stack, context5, schema.contains, item) ? ++result : result, 0);
+  return guard_exports.IsLessEqualThan(count, schema.maxContains);
+}
+function ErrorMaxContains(stack, context5, schemaPath, instancePath, schema, value2) {
+  const minContains = IsMinContains(schema) ? schema.minContains : 1;
+  return CheckMaxContains(stack, context5, schema, value2) || context5.AddError({
+    keyword: "contains",
+    schemaPath,
+    instancePath,
+    params: { minContains, maxContains: schema.maxContains }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maximum.mjs
+function BuildMaximum(stack, context5, schema, value2) {
+  return emit_exports.IsLessEqualThan(value2, emit_exports.Constant(schema.maximum));
+}
+function CheckMaximum(stack, context5, schema, value2) {
+  return guard_exports.IsLessEqualThan(value2, schema.maximum);
+}
+function ErrorMaximum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMaximum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "maximum",
+    schemaPath,
+    instancePath,
+    params: { comparison: "<=", limit: schema.maximum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxItems.mjs
+function BuildMaxItems(stack, context5, schema, value2) {
+  return emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(schema.maxItems));
+}
+function CheckMaxItems(stack, context5, schema, value2) {
+  return guard_exports.IsLessEqualThan(value2.length, schema.maxItems);
+}
+function ErrorMaxItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMaxItems(stack, context5, schema, value2) || context5.AddError({
+    keyword: "maxItems",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.maxItems }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxLength.mjs
+function BuildMaxLength(stack, context5, schema, value2) {
+  return emit_exports.IsMaxLength(value2, emit_exports.Constant(schema.maxLength));
+}
+function CheckMaxLength(stack, context5, schema, value2) {
+  return guard_exports.IsMaxLength(value2, schema.maxLength);
+}
+function ErrorMaxLength(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMaxLength(stack, context5, schema, value2) || context5.AddError({
+    keyword: "maxLength",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.maxLength }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/maxProperties.mjs
+function BuildMaxProperties(stack, context5, schema, value2) {
+  return emit_exports.IsLessEqualThan(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(schema.maxProperties));
+}
+function CheckMaxProperties(stack, context5, schema, value2) {
+  return guard_exports.IsLessEqualThan(guard_exports.Keys(value2).length, schema.maxProperties);
+}
+function ErrorMaxProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMaxProperties(stack, context5, schema, value2) || context5.AddError({
+    keyword: "maxProperties",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.maxProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minContains.mjs
+function IsValid4(schema) {
+  return IsContains(schema);
+}
+function BuildMinContains(stack, context5, schema, value2) {
+  if (!IsValid4(schema))
+    return emit_exports.Constant(true);
+  const [result, item] = [Unique(), Unique()];
+  const count = emit_exports.Call(emit_exports.Member(value2, "reduce"), [emit_exports.ArrowFunction([result, item], emit_exports.Ternary(BuildSchema(stack, context5, schema.contains, item), emit_exports.PrefixIncrement(result), result)), emit_exports.Constant(0)]);
+  return emit_exports.IsGreaterEqualThan(count, emit_exports.Constant(schema.minContains));
+}
+function CheckMinContains(stack, context5, schema, value2) {
+  if (!IsValid4(schema))
+    return true;
+  const count = value2.reduce((result, item) => CheckSchema(stack, context5, schema.contains, item) ? ++result : result, 0);
+  return guard_exports.IsGreaterEqualThan(count, schema.minContains);
+}
+function ErrorMinContains(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinContains(stack, context5, schema, value2) || context5.AddError({
+    keyword: "contains",
+    schemaPath,
+    instancePath,
+    params: { minContains: schema.minContains }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minimum.mjs
+function BuildMinimum(stack, context5, schema, value2) {
+  return emit_exports.IsGreaterEqualThan(value2, emit_exports.Constant(schema.minimum));
+}
+function CheckMinimum(stack, context5, schema, value2) {
+  return guard_exports.IsGreaterEqualThan(value2, schema.minimum);
+}
+function ErrorMinimum(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinimum(stack, context5, schema, value2) || context5.AddError({
+    keyword: "minimum",
+    schemaPath,
+    instancePath,
+    params: { comparison: ">=", limit: schema.minimum }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minItems.mjs
+function BuildMinItems(stack, context5, schema, value2) {
+  return emit_exports.IsGreaterEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(schema.minItems));
+}
+function CheckMinItems(stack, context5, schema, value2) {
+  return guard_exports.IsGreaterEqualThan(value2.length, schema.minItems);
+}
+function ErrorMinItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinItems(stack, context5, schema, value2) || context5.AddError({
+    keyword: "minItems",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.minItems }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minLength.mjs
+function BuildMinLength(stack, context5, schema, value2) {
+  return emit_exports.IsMinLength(value2, emit_exports.Constant(schema.minLength));
+}
+function CheckMinLength(stack, context5, schema, value2) {
+  return guard_exports.IsMinLength(value2, schema.minLength);
+}
+function ErrorMinLength(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinLength(stack, context5, schema, value2) || context5.AddError({
+    keyword: "minLength",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.minLength }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/minProperties.mjs
+function BuildMinProperties(stack, context5, schema, value2) {
+  return emit_exports.IsGreaterEqualThan(emit_exports.Member(emit_exports.Keys(value2), "length"), emit_exports.Constant(schema.minProperties));
+}
+function CheckMinProperties(stack, context5, schema, value2) {
+  return guard_exports.IsGreaterEqualThan(guard_exports.Keys(value2).length, schema.minProperties);
+}
+function ErrorMinProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMinProperties(stack, context5, schema, value2) || context5.AddError({
+    keyword: "minProperties",
+    schemaPath,
+    instancePath,
+    params: { limit: schema.minProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/multipleOf.mjs
+function BuildMultipleOf(stack, context5, schema, value2) {
+  return emit_exports.MultipleOf(value2, emit_exports.Constant(schema.multipleOf));
+}
+function CheckMultipleOf(stack, context5, schema, value2) {
+  return guard_exports.IsMultipleOf(value2, schema.multipleOf);
+}
+function ErrorMultipleOf(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckMultipleOf(stack, context5, schema, value2) || context5.AddError({
+    keyword: "multipleOf",
+    schemaPath,
+    instancePath,
+    params: { multipleOf: schema.multipleOf }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/not.mjs
+function BuildNotUnevaluated(stack, context5, schema, value2) {
+  return Reducer(stack, context5, [schema.not], value2, emit_exports.Not(emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(1))));
+}
+function BuildNotFast(stack, context5, schema, value2) {
+  return emit_exports.Not(BuildSchema(stack, context5, schema.not, value2));
+}
+function BuildNot(stack, context5, schema, value2) {
+  return context5.UseUnevaluated() ? BuildNotUnevaluated(stack, context5, schema, value2) : BuildNotFast(stack, context5, schema, value2);
+}
+function CheckNot(stack, context5, schema, value2) {
+  const nextContext = new CheckContext();
+  const isSchema = !CheckSchema(stack, nextContext, schema.not, value2);
+  const isNot = isSchema && context5.Merge([nextContext]);
+  return isNot;
+}
+function ErrorNot(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckNot(stack, context5, schema, value2) || context5.AddError({
+    keyword: "not",
+    schemaPath,
+    instancePath,
+    params: {}
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/oneOf.mjs
+function BuildOneOfUnevaluated(stack, context5, schema, value2) {
+  return Reducer(stack, context5, schema.oneOf, value2, emit_exports.IsEqual(emit_exports.Member("results", "length"), emit_exports.Constant(1)));
+}
+function BuildOneOfFast(stack, context5, schema, value2) {
+  const results = emit_exports.ArrayLiteral(schema.oneOf.map((schema2) => BuildSchema(stack, context5, schema2, value2)));
+  const count = emit_exports.Call(emit_exports.Member(results, "reduce"), [
+    emit_exports.ArrowFunction(["count", "result"], emit_exports.Ternary(emit_exports.IsEqual("result", emit_exports.Constant(true)), emit_exports.PrefixIncrement("count"), "count")),
+    emit_exports.Constant(0)
+  ]);
+  return emit_exports.IsEqual(count, emit_exports.Constant(1));
+}
+function BuildOneOf(stack, context5, schema, value2) {
+  return context5.UseUnevaluated() ? BuildOneOfUnevaluated(stack, context5, schema, value2) : BuildOneOfFast(stack, context5, schema, value2);
+}
+function CheckOneOf(stack, context5, schema, value2) {
+  const passedContexts = schema.oneOf.reduce((result, schema2) => {
+    const nextContext = new CheckContext();
+    return CheckSchema(stack, nextContext, schema2, value2) ? [...result, nextContext] : result;
+  }, []);
+  return guard_exports.IsEqual(passedContexts.length, 1) && context5.Merge(passedContexts);
+}
+function ErrorOneOf(stack, context5, schemaPath, instancePath, schema, value2) {
+  const failedContexts = [];
+  const passingSchemas = [];
+  const passedContexts = schema.oneOf.reduce((result, schema2, index2) => {
+    const nextContext = new AccumulatedErrorContext();
+    const nextSchemaPath = `${schemaPath}/oneOf/${index2}`;
+    const isSchema = ErrorSchema(stack, nextContext, nextSchemaPath, instancePath, schema2, value2);
+    if (isSchema)
+      passingSchemas.push(index2);
+    if (!isSchema)
+      failedContexts.push(nextContext);
+    return isSchema ? [...result, nextContext] : result;
+  }, []);
+  const isOneOf = guard_exports.IsEqual(passedContexts.length, 1) && context5.Merge(passedContexts);
+  if (!isOneOf && guard_exports.IsEqual(passingSchemas.length, 0))
+    failedContexts.forEach((failed) => failed.GetErrors().forEach((error) => context5.AddError(error)));
+  return isOneOf || context5.AddError({
+    keyword: "oneOf",
+    schemaPath,
+    instancePath,
+    params: { passingSchemas }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/pattern.mjs
+function BuildPattern(stack, context5, schema, value2) {
+  const regexp = CreateVariable(guard_exports.IsString(schema.pattern) ? new RegExp(schema.pattern) : schema.pattern);
+  return emit_exports.Call(emit_exports.Member(regexp, "test"), [value2]);
+}
+function CheckPattern(stack, context5, schema, value2) {
+  const regexp = guard_exports.IsString(schema.pattern) ? new RegExp(schema.pattern) : schema.pattern;
+  return regexp.test(value2);
+}
+function ErrorPattern(stack, context5, schemaPath, instancePath, schema, value2) {
+  return CheckPattern(stack, context5, schema, value2) || context5.AddError({
+    keyword: "pattern",
+    schemaPath,
+    instancePath,
+    params: { pattern: schema.pattern }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/patternProperties.mjs
+function BuildPatternProperties(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(guard_exports.Entries(schema.patternProperties).map(([pattern, schema2]) => {
+    const [key, prop] = [Unique(), Unique()];
+    const regexp = CreateVariable(new RegExp(pattern));
+    const notKey = emit_exports.Not(emit_exports.Call(emit_exports.Member(regexp, "test"), [key]));
+    const isSchema = BuildSchema(stack, context5, schema2, prop);
+    const addKey = context5.AddKey(key);
+    const guarded = context5.UseUnevaluated() ? emit_exports.Or(notKey, emit_exports.And(isSchema, addKey)) : emit_exports.Or(notKey, isSchema);
+    return emit_exports.Every(emit_exports.Entries(value2), emit_exports.Constant(0), [`[${key}, ${prop}]`, "_"], guarded);
+  }));
+}
+function CheckPatternProperties(stack, context5, schema, value2) {
+  return guard_exports.Every(guard_exports.Entries(schema.patternProperties), 0, ([pattern, schema2]) => {
+    const regexp = new RegExp(pattern);
+    return guard_exports.Every(guard_exports.Entries(value2), 0, ([key, prop]) => {
+      return !regexp.test(key) || CheckSchema(stack, context5, schema2, prop) && context5.AddKey(key);
+    });
+  });
+}
+function ErrorPatternProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  return guard_exports.EveryAll(guard_exports.Entries(schema.patternProperties), 0, ([pattern, schema2]) => {
+    const nextSchemaPath = `${schemaPath}/patternProperties/${pattern}`;
+    const regexp = new RegExp(pattern);
+    return guard_exports.EveryAll(guard_exports.Entries(value2), 0, ([key, value3]) => {
+      const nextInstancePath = `${instancePath}/${key}`;
+      const notKey = !regexp.test(key);
+      return notKey || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value3) && context5.AddKey(key);
+    });
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/prefixItems.mjs
+function BuildPrefixItems(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(schema.prefixItems.map((schema2, index2) => {
+    const isLength = emit_exports.IsLessEqualThan(emit_exports.Member(value2, "length"), emit_exports.Constant(index2));
+    const isSchema = BuildSchema(stack, context5, schema2, `${value2}[${index2}]`);
+    const addIndex = context5.AddIndex(emit_exports.Constant(index2));
+    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addIndex) : isSchema;
+    return emit_exports.Or(isLength, guarded);
+  }));
+}
+function CheckPrefixItems(stack, context5, schema, value2) {
+  return guard_exports.IsEqual(value2.length, 0) || guard_exports.Every(schema.prefixItems, 0, (schema2, index2) => {
+    return guard_exports.IsLessEqualThan(value2.length, index2) || CheckSchema(stack, context5, schema2, value2[index2]) && context5.AddIndex(index2);
+  });
+}
+function ErrorPrefixItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  return guard_exports.IsEqual(value2.length, 0) || guard_exports.EveryAll(schema.prefixItems, 0, (schema2, index2) => {
+    const nextSchemaPath = `${schemaPath}/prefixItems/${index2}`;
+    const nextInstancePath = `${instancePath}/${index2}`;
+    return guard_exports.IsLessEqualThan(value2.length, index2) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[index2]) && context5.AddIndex(index2);
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_exact_optional.mjs
+function IsExactOptional(required, key) {
+  return required.includes(key) || settings_exports.Get().exactOptionalPropertyTypes;
+}
+function InexactOptionalBuild(value2, key) {
+  return emit_exports.IsUndefined(emit_exports.Member(value2, key));
+}
+function InexactOptionalCheck(value2, key) {
+  return guard_exports.IsUndefined(value2[key]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/properties.mjs
+function BuildProperties(stack, context5, schema, value2) {
+  const required = IsRequired(schema) ? schema.required : [];
+  const everyKey = guard_exports.Entries(schema.properties).map(([key, schema2]) => {
+    const notKey = emit_exports.Not(emit_exports.HasPropertyKey(value2, emit_exports.Constant(key)));
+    const isSchema = BuildSchema(stack, context5, schema2, emit_exports.Member(value2, key));
+    const addKey = context5.AddKey(emit_exports.Constant(key));
+    const guarded = context5.UseUnevaluated() ? emit_exports.And(isSchema, addKey) : isSchema;
+    const isProperty = required.includes(key) ? guarded : emit_exports.Or(notKey, guarded);
+    return IsExactOptional(required, key) ? isProperty : emit_exports.Or(InexactOptionalBuild(value2, key), isProperty);
+  });
+  return emit_exports.ReduceAnd(everyKey);
+}
+function CheckProperties(stack, context5, schema, value2) {
+  const required = IsRequired(schema) ? schema.required : [];
+  const isProperties = guard_exports.Every(guard_exports.Entries(schema.properties), 0, ([key, schema2]) => {
+    const isProperty = !guard_exports.HasPropertyKey(value2, key) || CheckSchema(stack, context5, schema2, value2[key]) && context5.AddKey(key);
+    return IsExactOptional(required, key) ? isProperty : InexactOptionalCheck(value2, key) || isProperty;
+  });
+  return isProperties;
+}
+function ErrorProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  const required = IsRequired(schema) ? schema.required : [];
+  const isProperties = guard_exports.EveryAll(guard_exports.Entries(schema.properties), 0, ([key, schema2]) => {
+    const nextSchemaPath = `${schemaPath}/properties/${key}`;
+    const nextInstancePath = `${instancePath}/${key}`;
+    const isProperty = () => !guard_exports.HasPropertyKey(value2, key) || ErrorSchema(stack, context5, nextSchemaPath, nextInstancePath, schema2, value2[key]) && context5.AddKey(key);
+    return IsExactOptional(required, key) ? isProperty() : InexactOptionalCheck(value2, key) || isProperty();
+  });
+  return isProperties;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/propertyNames.mjs
+function BuildPropertyNames(stack, context5, schema, value2) {
+  const [key, _index] = [Unique(), Unique()];
+  return emit_exports.Every(emit_exports.Keys(value2), emit_exports.Constant(0), [key, _index], BuildSchema(stack, context5, schema.propertyNames, key));
+}
+function CheckPropertyNames(stack, context5, schema, value2) {
+  return guard_exports.Every(guard_exports.Keys(value2), 0, (key, _index) => CheckSchema(stack, context5, schema.propertyNames, key));
+}
+function ErrorPropertyNames(stack, context5, schemaPath, instancePath, schema, value2) {
+  const propertyNames = [];
+  const isPropertyNames = guard_exports.EveryAll(guard_exports.Keys(value2), 0, (key, _index) => {
+    const nextInstancePath = `${instancePath}/${key}`;
+    const nextSchemaPath = `${schemaPath}/propertyNames`;
+    const nextContext = new AccumulatedErrorContext();
+    const isPropertyName = ErrorSchema(stack, nextContext, nextSchemaPath, nextInstancePath, schema.propertyNames, key);
+    if (!isPropertyName)
+      propertyNames.push(key);
+    return isPropertyName;
+  });
+  return isPropertyNames || context5.AddError({
+    keyword: "propertyNames",
+    schemaPath,
+    instancePath,
+    params: { propertyNames }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/recursiveRef.mjs
+function BuildRecursiveRef(stack, context5, schema, value2) {
+  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
+  return CreateFunction(stack, context5, target, value2);
+}
+function CheckRecursiveRef(stack, context5, schema, value2) {
+  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
+  return IsSchema2(target) && CheckSchema(stack, context5, target, value2);
+}
+function ErrorRecursiveRef(stack, context5, schemaPath, instancePath, schema, value2) {
+  const target = stack.RecursiveRef(schema.$recursiveRef) ?? false;
+  return IsSchema2(target) && ErrorSchema(stack, context5, "#", instancePath, target, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/ref.mjs
+function BuildRefStandard(stack, context5, target, value2) {
+  const interior = emit_exports.ArrowFunction(["context", "value"], CreateFunction(stack, context5, target, "value"));
+  const exterior = emit_exports.ArrowFunction(["context", "value"], emit_exports.Statements([
+    emit_exports.ConstDeclaration("nextContext", emit_exports.New("CheckContext", [])),
+    emit_exports.ConstDeclaration("result", emit_exports.Call(interior, ["nextContext", "value"])),
+    emit_exports.If("result", context5.Merge("[nextContext]")),
+    emit_exports.Return("result")
+  ]));
+  return emit_exports.Call(exterior, ["context", value2]);
+}
+function BuildRefFast(stack, context5, target, value2) {
+  return CreateFunction(stack, context5, target, value2);
+}
+function BuildRef(stack, context5, schema, value2) {
+  const target = stack.Ref(schema.$ref) ?? false;
+  return context5.UseUnevaluated() ? BuildRefStandard(stack, context5, target, value2) : BuildRefFast(stack, context5, target, value2);
+}
+function CheckRef(stack, context5, schema, value2) {
+  const target = stack.Ref(schema.$ref) ?? false;
+  const nextContext = new CheckContext();
+  const result = IsSchema2(target) && CheckSchema(stack, nextContext, target, value2);
+  if (result)
+    context5.Merge([nextContext]);
+  return result;
+}
+function ErrorRef(stack, context5, schemaPath, instancePath, schema, value2) {
+  const target = stack.Ref(schema.$ref) ?? false;
+  const nextContext = new AccumulatedErrorContext();
+  const result = IsSchema2(target) && ErrorSchema(stack, nextContext, "#", instancePath, target, value2);
+  if (result)
+    context5.Merge([nextContext]);
+  if (!result)
+    nextContext.GetErrors().forEach((error) => context5.AddError(error));
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/required.mjs
+function BuildRequired(stack, context5, schema, value2) {
+  return emit_exports.ReduceAnd(schema.required.map((key) => emit_exports.HasPropertyKey(value2, emit_exports.Constant(key))));
+}
+function CheckRequired(stack, context5, schema, value2) {
+  return guard_exports.Every(schema.required, 0, (key) => guard_exports.HasPropertyKey(value2, key));
+}
+function ErrorRequired(stack, context5, schemaPath, instancePath, schema, value2) {
+  const requiredProperties = [];
+  const isRequired = guard_exports.EveryAll(schema.required, 0, (key) => {
+    const hasKey = guard_exports.HasPropertyKey(value2, key);
+    if (!hasKey)
+      requiredProperties.push(key);
+    return hasKey;
+  });
+  return isRequired || context5.AddError({
+    keyword: "required",
+    schemaPath,
+    instancePath,
+    params: { requiredProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/type.mjs
+function BuildTypeName(stack, context5, type, value2) {
+  return (
+    // jsonschema
+    guard_exports.IsEqual(type, "object") ? emit_exports.IsObjectNotArray(value2) : guard_exports.IsEqual(type, "array") ? emit_exports.IsArray(value2) : guard_exports.IsEqual(type, "boolean") ? emit_exports.IsBoolean(value2) : guard_exports.IsEqual(type, "integer") ? emit_exports.IsInteger(value2) : guard_exports.IsEqual(type, "number") ? emit_exports.IsNumber(value2) : guard_exports.IsEqual(type, "null") ? emit_exports.IsNull(value2) : guard_exports.IsEqual(type, "string") ? emit_exports.IsString(value2) : (
+      // xschema
+      guard_exports.IsEqual(type, "asyncIterator") ? emit_exports.IsAsyncIterator(value2) : guard_exports.IsEqual(type, "bigint") ? emit_exports.IsBigInt(value2) : guard_exports.IsEqual(type, "constructor") ? emit_exports.IsConstructor(value2) : guard_exports.IsEqual(type, "function") ? emit_exports.IsFunction(value2) : guard_exports.IsEqual(type, "iterator") ? emit_exports.IsIterator(value2) : guard_exports.IsEqual(type, "symbol") ? emit_exports.IsSymbol(value2) : guard_exports.IsEqual(type, "undefined") ? emit_exports.IsUndefined(value2) : guard_exports.IsEqual(type, "void") ? emit_exports.IsUndefined(value2) : emit_exports.Constant(true)
+    )
+  );
+}
+function CheckTypeName(stack, context5, type, schema, value2) {
+  return (
+    // jsonschema
+    guard_exports.IsEqual(type, "object") ? guard_exports.IsObjectNotArray(value2) : guard_exports.IsEqual(type, "array") ? guard_exports.IsArray(value2) : guard_exports.IsEqual(type, "boolean") ? guard_exports.IsBoolean(value2) : guard_exports.IsEqual(type, "integer") ? guard_exports.IsInteger(value2) : guard_exports.IsEqual(type, "number") ? guard_exports.IsNumber(value2) : guard_exports.IsEqual(type, "null") ? guard_exports.IsNull(value2) : guard_exports.IsEqual(type, "string") ? guard_exports.IsString(value2) : (
+      // xschema
+      guard_exports.IsEqual(type, "asyncIterator") ? guard_exports.IsAsyncIterator(value2) : guard_exports.IsEqual(type, "bigint") ? guard_exports.IsBigInt(value2) : guard_exports.IsEqual(type, "constructor") ? guard_exports.IsConstructor(value2) : guard_exports.IsEqual(type, "function") ? guard_exports.IsFunction(value2) : guard_exports.IsEqual(type, "iterator") ? guard_exports.IsIterator(value2) : guard_exports.IsEqual(type, "symbol") ? guard_exports.IsSymbol(value2) : guard_exports.IsEqual(type, "undefined") ? guard_exports.IsUndefined(value2) : guard_exports.IsEqual(type, "void") ? guard_exports.IsUndefined(value2) : true
+    )
+  );
+}
+function BuildTypeNames(stack, context5, typenames, value2) {
+  return emit_exports.ReduceOr(typenames.map((type) => BuildTypeName(stack, context5, type, value2)));
+}
+function CheckTypeNames(stack, context5, types, schema, value2) {
+  return types.some((type) => CheckTypeName(stack, context5, type, schema, value2));
+}
+function BuildType(stack, context5, schema, value2) {
+  return guard_exports.IsArray(schema.type) ? BuildTypeNames(stack, context5, schema.type, value2) : BuildTypeName(stack, context5, schema.type, value2);
+}
+function CheckType(stack, context5, schema, value2) {
+  return guard_exports.IsArray(schema.type) ? CheckTypeNames(stack, context5, schema.type, schema, value2) : CheckTypeName(stack, context5, schema.type, schema, value2);
+}
+function ErrorType(stack, context5, schemaPath, instancePath, schema, value2) {
+  const isType = guard_exports.IsArray(schema.type) ? CheckTypeNames(stack, context5, schema.type, schema, value2) : CheckTypeName(stack, context5, schema.type, schema, value2);
+  return isType || context5.AddError({
+    keyword: "type",
+    schemaPath,
+    instancePath,
+    params: { type: schema.type }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/unevaluatedItems.mjs
+function BuildUnevaluatedItems(stack, context5, schema, value2) {
+  const [index2, item] = [Unique(), Unique()];
+  const indices = emit_exports.Call(emit_exports.Member("context", "GetIndices"), []);
+  const hasIndex = emit_exports.Call(emit_exports.Member("indices", "has"), [index2]);
+  const isSchema = BuildSchema(stack, context5, schema.unevaluatedItems, item);
+  const addIndex = emit_exports.Call(emit_exports.Member("context", "AddIndex"), [index2]);
+  const isEvery = emit_exports.Every(value2, emit_exports.Constant(0), [item, index2], emit_exports.And(emit_exports.Or(hasIndex, isSchema), addIndex));
+  return emit_exports.Call(emit_exports.ArrowFunction(["context"], emit_exports.Statements([
+    emit_exports.ConstDeclaration("indices", indices),
+    emit_exports.Return(isEvery)
+  ])), ["context"]);
+}
+function CheckUnevaluatedItems(stack, context5, schema, value2) {
+  const indices = context5.GetIndices();
+  return guard_exports.Every(value2, 0, (item, index2) => {
+    return (indices.has(index2) || CheckSchema(stack, context5, schema.unevaluatedItems, item)) && context5.AddIndex(index2);
+  });
+}
+function ErrorUnevaluatedItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  const indices = context5.GetIndices();
+  const unevaluatedItems = [];
+  const isUnevaluatedItems = guard_exports.EveryAll(value2, 0, (item, index2) => {
+    const nextContext = new AccumulatedErrorContext();
+    const isEvaluatedItem = (indices.has(index2) || ErrorSchema(stack, nextContext, schemaPath, instancePath, schema.unevaluatedItems, item)) && context5.AddIndex(index2);
+    if (!isEvaluatedItem)
+      unevaluatedItems.push(index2);
+    return isEvaluatedItem;
+  });
+  return isUnevaluatedItems || context5.AddError({
+    keyword: "unevaluatedItems",
+    schemaPath,
+    instancePath,
+    params: { unevaluatedItems }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/unevaluatedProperties.mjs
+function BuildUnevaluatedProperties(stack, context5, schema, value2) {
+  const [key, prop] = [Unique(), Unique()];
+  const keys5 = emit_exports.Call(emit_exports.Member("context", "GetKeys"), []);
+  const hasKey = emit_exports.Call(emit_exports.Member("keys", "has"), [key]);
+  const addKey = emit_exports.Call(emit_exports.Member("context", "AddKey"), [key]);
+  const isSchema = BuildSchema(stack, context5, schema.unevaluatedProperties, prop);
+  const isEvery = emit_exports.Every(emit_exports.Entries(value2), emit_exports.Constant(0), [`[${key}, ${prop}]`, "_"], emit_exports.Or(hasKey, emit_exports.And(isSchema, addKey)));
+  return emit_exports.Call(emit_exports.ArrowFunction(["context"], emit_exports.Statements([
+    emit_exports.ConstDeclaration("keys", keys5),
+    emit_exports.Return(isEvery)
+  ])), ["context"]);
+}
+function CheckUnevaluatedProperties(stack, context5, schema, value2) {
+  const keys5 = context5.GetKeys();
+  return guard_exports.Every(guard_exports.Entries(value2), 0, ([key, prop]) => {
+    return keys5.has(key) || CheckSchema(stack, context5, schema.unevaluatedProperties, prop) && context5.AddKey(key);
+  });
+}
+function ErrorUnevaluatedProperties(stack, context5, schemaPath, instancePath, schema, value2) {
+  const keys5 = context5.GetKeys();
+  const unevaluatedProperties = [];
+  const isUnevaluatedProperties = guard_exports.EveryAll(guard_exports.Entries(value2), 0, ([key, prop]) => {
+    const nextContext = new AccumulatedErrorContext();
+    const isEvaluatedProperty = keys5.has(key) || ErrorSchema(stack, nextContext, schemaPath, instancePath, schema.unevaluatedProperties, prop) && context5.AddKey(key);
+    if (!isEvaluatedProperty)
+      unevaluatedProperties.push(key);
+    return isEvaluatedProperty;
+  });
+  return isUnevaluatedProperties || context5.AddError({
+    keyword: "unevaluatedProperties",
+    schemaPath,
+    instancePath,
+    params: { unevaluatedProperties }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/uniqueItems.mjs
+function IsValid5(schema) {
+  return !guard_exports.IsEqual(schema.uniqueItems, false);
+}
+function BuildUniqueItems(stack, context5, schema, value2) {
+  if (!IsValid5(schema))
+    return emit_exports.Constant(true);
+  const set6 = emit_exports.Member(emit_exports.New("Set", [emit_exports.Call(emit_exports.Member(value2, "map"), [emit_exports.Member("Hashing", "Hash")])]), "size");
+  const isLength = emit_exports.Member(value2, "length");
+  return emit_exports.IsEqual(set6, isLength);
+}
+function CheckUniqueItems(stack, context5, schema, value2) {
+  if (!IsValid5(schema))
+    return true;
+  const set6 = new Set(value2.map(hash_exports.Hash)).size;
+  const isLength = value2.length;
+  return guard_exports.IsEqual(set6, isLength);
+}
+function ErrorUniqueItems(stack, context5, schemaPath, instancePath, schema, value2) {
+  if (!IsValid5(schema))
+    return true;
+  const set6 = /* @__PURE__ */ new Set();
+  const duplicateItems = value2.reduce((result, value3, index2) => {
+    const hash2 = hash_exports.Hash(value3);
+    if (set6.has(hash2))
+      return [...result, index2];
+    set6.add(hash2);
+    return result;
+  }, []);
+  const isUniqueItems = guard_exports.IsEqual(duplicateItems.length, 0);
+  return isUniqueItems || context5.AddError({
+    keyword: "uniqueItems",
+    schemaPath,
+    instancePath,
+    params: { duplicateItems }
+  });
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/schema.mjs
+function HasTypeName(schema, typename) {
+  return IsType(schema) && (guard_exports.IsArray(schema.type) && schema.type.includes(typename) || guard_exports.IsEqual(schema.type, typename));
+}
+function HasObjectType(schema) {
+  return HasTypeName(schema, "object");
+}
+function HasObjectKeywords(schema) {
+  return IsSchemaObject(schema) && (IsAdditionalProperties(schema) || IsDependencies(schema) || IsDependentRequired(schema) || IsDependentSchemas(schema) || IsProperties(schema) || IsPatternProperties(schema) || IsPropertyNames(schema) || IsMinProperties(schema) || IsMaxProperties(schema) || IsRequired(schema) || IsUnevaluatedProperties(schema));
+}
+function HasArrayType(schema) {
+  return HasTypeName(schema, "array");
+}
+function HasArrayKeywords(schema) {
+  return IsSchemaObject(schema) && (IsAdditionalItems(schema) || IsItems(schema) || IsContains(schema) || IsMaxContains(schema) || IsMaxItems(schema) || IsMinContains(schema) || IsMinItems(schema) || IsPrefixItems(schema) || IsUnevaluatedItems(schema) || IsUniqueItems(schema));
+}
+function HasStringType(schema) {
+  return HasTypeName(schema, "string");
+}
+function HasStringKeywords(schema) {
+  return IsSchemaObject(schema) && (IsMinLength4(schema) || IsMaxLength4(schema) || IsFormat(schema) || IsPattern(schema));
+}
+function HasNumberType(schema) {
+  return HasTypeName(schema, "number") || HasTypeName(schema, "bigint");
+}
+function HasNumberKeywords(schema) {
+  return IsSchemaObject(schema) && (IsMinimum(schema) || IsMaximum(schema) || IsExclusiveMaximum(schema) || IsExclusiveMinimum(schema) || IsMultipleOf2(schema));
+}
+function BuildSchema(stack, context5, schema, value2) {
+  stack.Push(schema);
+  const conditions = [];
+  if (IsBooleanSchema(schema))
+    return BuildBooleanSchema(stack, context5, schema, value2);
+  if (IsType(schema))
+    conditions.push(BuildType(stack, context5, schema, value2));
+  if (HasObjectKeywords(schema)) {
+    const constraints = [];
+    if (IsRequired(schema))
+      constraints.push(BuildRequired(stack, context5, schema, value2));
+    if (IsAdditionalProperties(schema))
+      constraints.push(BuildAdditionalProperties(stack, context5, schema, value2));
+    if (IsDependencies(schema))
+      constraints.push(BuildDependencies(stack, context5, schema, value2));
+    if (IsDependentRequired(schema))
+      constraints.push(BuildDependentRequired(stack, context5, schema, value2));
+    if (IsDependentSchemas(schema))
+      constraints.push(BuildDependentSchemas(stack, context5, schema, value2));
+    if (IsPatternProperties(schema))
+      constraints.push(BuildPatternProperties(stack, context5, schema, value2));
+    if (IsProperties(schema))
+      constraints.push(BuildProperties(stack, context5, schema, value2));
+    if (IsPropertyNames(schema))
+      constraints.push(BuildPropertyNames(stack, context5, schema, value2));
+    if (IsMinProperties(schema))
+      constraints.push(BuildMinProperties(stack, context5, schema, value2));
+    if (IsMaxProperties(schema))
+      constraints.push(BuildMaxProperties(stack, context5, schema, value2));
+    const reduced = emit_exports.ReduceAnd(constraints);
+    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsObjectNotArray(value2)), reduced);
+    conditions.push(HasObjectType(schema) ? reduced : guarded);
+  }
+  if (HasArrayKeywords(schema)) {
+    const constraints = [];
+    if (IsAdditionalItems(schema))
+      constraints.push(BuildAdditionalItems(stack, context5, schema, value2));
+    if (IsContains(schema))
+      constraints.push(BuildContains(stack, context5, schema, value2));
+    if (IsItems(schema))
+      constraints.push(BuildItems(stack, context5, schema, value2));
+    if (IsMaxContains(schema))
+      constraints.push(BuildMaxContains(stack, context5, schema, value2));
+    if (IsMaxItems(schema))
+      constraints.push(BuildMaxItems(stack, context5, schema, value2));
+    if (IsMinContains(schema))
+      constraints.push(BuildMinContains(stack, context5, schema, value2));
+    if (IsMinItems(schema))
+      constraints.push(BuildMinItems(stack, context5, schema, value2));
+    if (IsPrefixItems(schema))
+      constraints.push(BuildPrefixItems(stack, context5, schema, value2));
+    if (IsUniqueItems(schema))
+      constraints.push(BuildUniqueItems(stack, context5, schema, value2));
+    const reduced = emit_exports.ReduceAnd(constraints);
+    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsArray(value2)), reduced);
+    conditions.push(HasArrayType(schema) ? reduced : guarded);
+  }
+  if (HasStringKeywords(schema)) {
+    const constraints = [];
+    if (IsFormat(schema))
+      constraints.push(BuildFormat(stack, context5, schema, value2));
+    if (IsMaxLength4(schema))
+      constraints.push(BuildMaxLength(stack, context5, schema, value2));
+    if (IsMinLength4(schema))
+      constraints.push(BuildMinLength(stack, context5, schema, value2));
+    if (IsPattern(schema))
+      constraints.push(BuildPattern(stack, context5, schema, value2));
+    const reduced = emit_exports.ReduceAnd(constraints);
+    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.IsString(value2)), reduced);
+    conditions.push(HasStringType(schema) ? reduced : guarded);
+  }
+  if (HasNumberKeywords(schema)) {
+    const constraints = [];
+    if (IsExclusiveMaximum(schema))
+      constraints.push(BuildExclusiveMaximum(stack, context5, schema, value2));
+    if (IsExclusiveMinimum(schema))
+      constraints.push(BuildExclusiveMinimum(stack, context5, schema, value2));
+    if (IsMaximum(schema))
+      constraints.push(BuildMaximum(stack, context5, schema, value2));
+    if (IsMinimum(schema))
+      constraints.push(BuildMinimum(stack, context5, schema, value2));
+    if (IsMultipleOf2(schema))
+      constraints.push(BuildMultipleOf(stack, context5, schema, value2));
+    const reduced = emit_exports.ReduceAnd(constraints);
+    const guarded = emit_exports.Or(emit_exports.Not(emit_exports.Or(emit_exports.IsNumber(value2), emit_exports.IsBigInt(value2))), reduced);
+    conditions.push(HasNumberType(schema) ? reduced : guarded);
+  }
+  if (IsRecursiveRef(schema))
+    conditions.push(BuildRecursiveRef(stack, context5, schema, value2));
+  if (IsRef2(schema))
+    conditions.push(BuildRef(stack, context5, schema, value2));
+  if (IsGuard2(schema))
+    conditions.push(BuildGuard(stack, context5, schema, value2));
+  if (IsConst(schema))
+    conditions.push(BuildConst(stack, context5, schema, value2));
+  if (IsEnum2(schema))
+    conditions.push(BuildEnum(stack, context5, schema, value2));
+  if (IsIf(schema))
+    conditions.push(BuildIf(stack, context5, schema, value2));
+  if (IsNot(schema))
+    conditions.push(BuildNot(stack, context5, schema, value2));
+  if (IsAllOf(schema))
+    conditions.push(BuildAllOf(stack, context5, schema, value2));
+  if (IsAnyOf(schema))
+    conditions.push(BuildAnyOf(stack, context5, schema, value2));
+  if (IsOneOf(schema))
+    conditions.push(BuildOneOf(stack, context5, schema, value2));
+  if (IsUnevaluatedItems(schema))
+    conditions.push(emit_exports.Or(emit_exports.Not(emit_exports.IsArray(value2)), BuildUnevaluatedItems(stack, context5, schema, value2)));
+  if (IsUnevaluatedProperties(schema))
+    conditions.push(emit_exports.Or(emit_exports.Not(emit_exports.IsObject(value2)), BuildUnevaluatedProperties(stack, context5, schema, value2)));
+  if (IsRefine2(schema))
+    conditions.push(BuildRefine(stack, context5, schema, value2));
+  const result = emit_exports.ReduceAnd(conditions);
+  stack.Pop(schema);
+  return result;
+}
+function CheckSchema(stack, context5, schema, value2) {
+  stack.Push(schema);
+  const result = IsBooleanSchema(schema) ? CheckBooleanSchema(stack, context5, schema, value2) : (!IsType(schema) || CheckType(stack, context5, schema, value2)) && (!(guard_exports.IsObject(value2) && !guard_exports.IsArray(value2)) || (!IsRequired(schema) || CheckRequired(stack, context5, schema, value2)) && (!IsAdditionalProperties(schema) || CheckAdditionalProperties(stack, context5, schema, value2)) && (!IsDependencies(schema) || CheckDependencies(stack, context5, schema, value2)) && (!IsDependentRequired(schema) || CheckDependentRequired(stack, context5, schema, value2)) && (!IsDependentSchemas(schema) || CheckDependentSchemas(stack, context5, schema, value2)) && (!IsPatternProperties(schema) || CheckPatternProperties(stack, context5, schema, value2)) && (!IsProperties(schema) || CheckProperties(stack, context5, schema, value2)) && (!IsPropertyNames(schema) || CheckPropertyNames(stack, context5, schema, value2)) && (!IsMinProperties(schema) || CheckMinProperties(stack, context5, schema, value2)) && (!IsMaxProperties(schema) || CheckMaxProperties(stack, context5, schema, value2))) && (!guard_exports.IsArray(value2) || (!IsAdditionalItems(schema) || CheckAdditionalItems(stack, context5, schema, value2)) && (!IsContains(schema) || CheckContains(stack, context5, schema, value2)) && (!IsItems(schema) || CheckItems(stack, context5, schema, value2)) && (!IsMaxContains(schema) || CheckMaxContains(stack, context5, schema, value2)) && (!IsMaxItems(schema) || CheckMaxItems(stack, context5, schema, value2)) && (!IsMinContains(schema) || CheckMinContains(stack, context5, schema, value2)) && (!IsMinItems(schema) || CheckMinItems(stack, context5, schema, value2)) && (!IsPrefixItems(schema) || CheckPrefixItems(stack, context5, schema, value2)) && (!IsUniqueItems(schema) || CheckUniqueItems(stack, context5, schema, value2))) && (!guard_exports.IsString(value2) || (!IsFormat(schema) || CheckFormat(stack, context5, schema, value2)) && (!IsMaxLength4(schema) || CheckMaxLength(stack, context5, schema, value2)) && (!IsMinLength4(schema) || CheckMinLength(stack, context5, schema, value2)) && (!IsPattern(schema) || CheckPattern(stack, context5, schema, value2))) && (!(guard_exports.IsNumber(value2) || guard_exports.IsBigInt(value2)) || (!IsExclusiveMaximum(schema) || CheckExclusiveMaximum(stack, context5, schema, value2)) && (!IsExclusiveMinimum(schema) || CheckExclusiveMinimum(stack, context5, schema, value2)) && (!IsMaximum(schema) || CheckMaximum(stack, context5, schema, value2)) && (!IsMinimum(schema) || CheckMinimum(stack, context5, schema, value2)) && (!IsMultipleOf2(schema) || CheckMultipleOf(stack, context5, schema, value2))) && (!IsRecursiveRef(schema) || CheckRecursiveRef(stack, context5, schema, value2)) && (!IsRef2(schema) || CheckRef(stack, context5, schema, value2)) && (!IsGuard2(schema) || CheckGuard(stack, context5, schema, value2)) && (!IsConst(schema) || CheckConst(stack, context5, schema, value2)) && (!IsEnum2(schema) || CheckEnum(stack, context5, schema, value2)) && (!IsIf(schema) || CheckIf(stack, context5, schema, value2)) && (!IsNot(schema) || CheckNot(stack, context5, schema, value2)) && (!IsAllOf(schema) || CheckAllOf(stack, context5, schema, value2)) && (!IsAnyOf(schema) || CheckAnyOf(stack, context5, schema, value2)) && (!IsOneOf(schema) || CheckOneOf(stack, context5, schema, value2)) && (!IsUnevaluatedItems(schema) || (!guard_exports.IsArray(value2) || CheckUnevaluatedItems(stack, context5, schema, value2))) && (!IsUnevaluatedProperties(schema) || (!guard_exports.IsObject(value2) || CheckUnevaluatedProperties(stack, context5, schema, value2))) && (!IsRefine2(schema) || CheckRefine(stack, context5, schema, value2));
+  stack.Pop(schema);
+  return result;
+}
+function ErrorSchema(stack, context5, schemaPath, instancePath, schema, value2) {
+  stack.Push(schema);
+  const result = IsBooleanSchema(schema) ? ErrorBooleanSchema(stack, context5, schemaPath, instancePath, schema, value2) : !!(+(!IsType(schema) || ErrorType(stack, context5, schemaPath, instancePath, schema, value2)) & +(!(guard_exports.IsObject(value2) && !guard_exports.IsArray(value2)) || !!(+(!IsRequired(schema) || ErrorRequired(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAdditionalProperties(schema) || ErrorAdditionalProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependencies(schema) || ErrorDependencies(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependentRequired(schema) || ErrorDependentRequired(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsDependentSchemas(schema) || ErrorDependentSchemas(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPatternProperties(schema) || ErrorPatternProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsProperties(schema) || ErrorProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPropertyNames(schema) || ErrorPropertyNames(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinProperties(schema) || ErrorMinProperties(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxProperties(schema) || ErrorMaxProperties(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!guard_exports.IsArray(value2) || !!(+(!IsAdditionalItems(schema) || ErrorAdditionalItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsContains(schema) || ErrorContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsItems(schema) || ErrorItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxContains(schema) || ErrorMaxContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxItems(schema) || ErrorMaxItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinContains(schema) || ErrorMinContains(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinItems(schema) || ErrorMinItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPrefixItems(schema) || ErrorPrefixItems(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsUniqueItems(schema) || ErrorUniqueItems(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!guard_exports.IsString(value2) || !!(+(!IsFormat(schema) || ErrorFormat(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaxLength4(schema) || ErrorMaxLength(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinLength4(schema) || ErrorMinLength(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsPattern(schema) || ErrorPattern(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!(guard_exports.IsNumber(value2) || guard_exports.IsBigInt(value2)) || !!(+(!IsExclusiveMaximum(schema) || ErrorExclusiveMaximum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsExclusiveMinimum(schema) || ErrorExclusiveMinimum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMaximum(schema) || ErrorMaximum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMinimum(schema) || ErrorMinimum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsMultipleOf2(schema) || ErrorMultipleOf(stack, context5, schemaPath, instancePath, schema, value2)))) & +(!IsRecursiveRef(schema) || ErrorRecursiveRef(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsRef2(schema) || ErrorRef(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsGuard2(schema) || ErrorGuard(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsConst(schema) || ErrorConst(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsEnum2(schema) || ErrorEnum(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsIf(schema) || ErrorIf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsNot(schema) || ErrorNot(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAllOf(schema) || ErrorAllOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsAnyOf(schema) || ErrorAnyOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsOneOf(schema) || ErrorOneOf(stack, context5, schemaPath, instancePath, schema, value2)) & +(!IsUnevaluatedItems(schema) || (!guard_exports.IsArray(value2) || ErrorUnevaluatedItems(stack, context5, schemaPath, instancePath, schema, value2))) & +(!IsUnevaluatedProperties(schema) || (!guard_exports.IsObject(value2) || ErrorUnevaluatedProperties(stack, context5, schemaPath, instancePath, schema, value2)))) && (!IsRefine2(schema) || ErrorRefine(stack, context5, schemaPath, instancePath, schema, value2));
+  stack.Pop(schema);
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_functions.mjs
+var functions = /* @__PURE__ */ new Map();
+function CreateCallExpression(context5, schema, hash2, value2) {
+  return context5.UseUnevaluated() ? emit_exports.Call(`check_${hash2}`, ["context", value2]) : emit_exports.Call(`check_${hash2}`, [value2]);
+}
+function CreateFunctionExpression(stack, context5, schema, hash2) {
+  const expression = BuildSchema(stack, context5, schema, "value");
+  return context5.UseUnevaluated() ? emit_exports.ConstDeclaration(`check_${hash2}`, emit_exports.ArrowFunction(["context", "value"], expression)) : emit_exports.ConstDeclaration(`check_${hash2}`, emit_exports.ArrowFunction(["value"], expression));
+}
+function ResetFunctions() {
+  functions.clear();
+}
+function GetFunctions() {
+  return [...functions.values()];
+}
+function CreateFunction(stack, context5, schema, value2) {
+  const hash2 = IsSchemaObject(schema) ? hash_exports.Hash({ __baseURL: stack.BaseURL().href, ...schema }) : hash_exports.Hash(schema);
+  const call2 = CreateCallExpression(context5, schema, hash2, value2);
+  if (functions.has(hash2))
+    return call2;
+  functions.set(hash2, "");
+  functions.set(hash2, CreateFunctionExpression(stack, context5, schema, hash2));
+  return call2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/resolve/resolve.mjs
+var resolve_exports = {};
+__export(resolve_exports, {
+  Ref: () => Ref2
+});
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/pointer/pointer.mjs
+var pointer_exports = {};
+__export(pointer_exports, {
+  Delete: () => Delete,
+  Get: () => Get4,
+  Has: () => Has2,
+  Indices: () => Indices,
+  Set: () => Set4
+});
+function AssertNotRoot(indices) {
+  if (indices.length === 0)
+    throw Error("Cannot set root");
+}
+function AssertCanSet(value2) {
+  if (!guard_exports.IsObject(value2))
+    throw Error("Cannot set value");
+}
+function IsNumericIndex(index2) {
+  return /^(0|[1-9]\d*)$/.test(index2);
+}
+function TakeIndexRight(indices) {
+  return [
+    indices.slice(0, indices.length - 1),
+    indices.slice(indices.length - 1)[0]
+  ];
+}
+function HasIndex(index2, value2) {
+  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, index2);
+}
+function GetIndex(index2, value2) {
+  return guard_exports.IsObject(value2) ? value2[index2] : void 0;
+}
+function GetIndices(indices, value2) {
+  return indices.reduce((value3, index2) => GetIndex(index2, value3), value2);
+}
+function Indices(pointer) {
+  if (guard_exports.IsEqual(pointer.length, 0))
+    return [];
+  const indices = pointer.split("/").map((index2) => index2.replace(/~1/g, "/").replace(/~0/g, "~"));
+  return indices.length > 0 && indices[0] === "" ? indices.slice(1) : indices;
+}
+function Has2(value2, pointer) {
+  let current = value2;
+  return Indices(pointer).every((index2) => {
+    if (!HasIndex(index2, current))
+      return false;
+    current = current[index2];
+    return true;
+  });
+}
+function Get4(value2, pointer) {
+  const indices = Indices(pointer);
+  return GetIndices(indices, value2);
+}
+function Set4(value2, pointer, next) {
+  const indices = Indices(pointer);
+  AssertNotRoot(indices);
+  const [head5, index2] = TakeIndexRight(indices);
+  const parent = GetIndices(head5, value2);
+  AssertCanSet(parent);
+  parent[index2] = next;
+  return value2;
+}
+function Delete(value2, pointer) {
+  const indices = Indices(pointer);
+  AssertNotRoot(indices);
+  const [head5, index2] = TakeIndexRight(indices);
+  const parent = GetIndices(head5, value2);
+  AssertCanSet(parent);
+  if (guard_exports.IsArray(parent) && IsNumericIndex(index2)) {
+    parent.splice(+index2, 1);
+  } else {
+    delete parent[index2];
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/resolve/ref.mjs
+function MatchId(schema, base, ref) {
+  if (schema.$id === ref.hash)
+    return schema;
+  const absoluteId = new URL(schema.$id, base.href);
+  const absoluteRef = new URL(ref.href, base.href);
+  if (guard_exports.IsEqual(absoluteId.pathname, absoluteRef.pathname)) {
+    return ref.hash.startsWith("#") ? MatchHash(schema, base, ref) : schema;
+  }
+  return void 0;
+}
+function MatchAnchor(schema, base, ref) {
+  const absoluteAnchor = new URL(`#${schema.$anchor}`, base.href);
+  const absoluteRef = new URL(ref.href, base.href);
+  if (guard_exports.IsEqual(absoluteAnchor.href, absoluteRef.href))
+    return schema;
+  return void 0;
+}
+function MatchHash(schema, base, ref) {
+  if (ref.href.endsWith("#"))
+    return schema;
+  return ref.hash.startsWith("#") ? pointer_exports.Get(schema, decodeURIComponent(ref.hash.slice(1))) : void 0;
+}
+function Match2(schema, base, ref) {
+  if (IsId(schema)) {
+    const result = MatchId(schema, base, ref);
+    if (!guard_exports.IsUndefined(result))
+      return result;
+  }
+  if (IsAnchor(schema)) {
+    const result = MatchAnchor(schema, base, ref);
+    if (!guard_exports.IsUndefined(result))
+      return result;
+  }
+  return MatchHash(schema, base, ref);
+}
+function FromArray6(schema, base, ref) {
+  return schema.reduce((result, item) => {
+    const match14 = FromValue3(item, base, ref);
+    return !guard_exports.IsUndefined(match14) ? match14 : result;
+  }, void 0);
+}
+function FromObject9(schema, base, ref) {
+  return guard_exports.Keys(schema).reduce((result, key) => {
+    const match14 = FromValue3(schema[key], base, ref);
+    return !guard_exports.IsUndefined(match14) ? match14 : result;
+  }, void 0);
+}
+function FromValue3(schema, base, ref) {
+  base = IsSchemaObject(schema) && IsId(schema) ? new URL(schema.$id, base.href) : base;
+  if (IsSchemaObject(schema)) {
+    const result = Match2(schema, base, ref);
+    if (!guard_exports.IsUndefined(result))
+      return result;
+  }
+  if (guard_exports.IsArray(schema))
+    return FromArray6(schema, base, ref);
+  if (guard_exports.IsObject(schema))
+    return FromObject9(schema, base, ref);
+  return void 0;
+}
+function Ref2(schema, ref) {
+  const defaultBase = new URL("http://unknown");
+  const initialBase = IsId(schema) ? new URL(schema.$id, defaultBase.href) : defaultBase;
+  const initialRef = new URL(ref, initialBase.href);
+  return FromValue3(schema, initialBase, initialRef);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/engine/_stack.mjs
+var Stack = class {
+  constructor(context5, schema) {
+    this.context = context5;
+    this.schema = schema;
+    this.ids = [];
+    this.anchors = [];
+    this.recursiveAnchors = [];
+    this.dynamicAnchors = [];
+  }
+  // ----------------------------------------------------------------
+  // Base
+  // ----------------------------------------------------------------
+  BaseURL() {
+    return this.ids.reduce((result, schema) => new URL(schema.$id, result), new URL("http://unknown"));
+  }
+  Base() {
+    return this.ids[this.ids.length - 1] ?? this.schema;
+  }
+  // ----------------------------------------------------------------
+  // Stack
+  // ----------------------------------------------------------------
+  Push(schema) {
+    if (!IsSchemaObject(schema))
+      return;
+    if (IsId(schema))
+      this.ids.push(schema);
+    if (IsAnchor(schema))
+      this.anchors.push(schema);
+    if (IsRecursiveAnchorTrue(schema))
+      this.recursiveAnchors.push(schema);
+    if (IsDynamicAnchor(schema))
+      this.dynamicAnchors.push(schema);
+  }
+  Pop(schema) {
+    if (!IsSchemaObject(schema))
+      return;
+    if (IsId(schema))
+      this.ids.pop();
+    if (IsAnchor(schema))
+      this.anchors.pop();
+    if (IsRecursiveAnchorTrue(schema))
+      this.recursiveAnchors.pop();
+    if (IsDynamicAnchor(schema))
+      this.dynamicAnchors.pop();
+  }
+  // ----------------------------------------------------------------
+  // Ref
+  // ----------------------------------------------------------------
+  FromContext(ref) {
+    return guard_exports.HasPropertyKey(this.context, ref) ? this.context[ref] : void 0;
+  }
+  FromRef(ref) {
+    return !ref.startsWith("#") ? resolve_exports.Ref(this.schema, ref) : resolve_exports.Ref(this.Base(), ref);
+  }
+  Ref(ref) {
+    return this.FromContext(ref) ?? this.FromRef(ref);
+  }
+  // ----------------------------------------------------------------
+  // RecursiveRef
+  // ----------------------------------------------------------------
+  RecursiveRef(recursiveRef) {
+    if (IsRecursiveAnchorTrue(this.Base())) {
+      return resolve_exports.Ref(this.recursiveAnchors[0], recursiveRef);
+    }
+    return resolve_exports.Ref(this.Base(), recursiveRef);
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/build.mjs
+function CreateCode(build3) {
+  const functions2 = build3.Functions().join(";\n");
+  const statements = build3.UseUnevaluated() ? ["const context = new CheckContext({}, {})", `return ${build3.Call()}`] : [`return ${build3.Call()}`];
+  return `${functions2}; return (value) => { ${statements.join("; ")} }`;
+}
+function CreateEvaluatedCheck(build3, code) {
+  const factory = new globalThis.Function("CheckContext", "Guard", "Format", "Hashing", build3.External().identifier, code);
+  return factory(CheckContext, guard_exports, format_exports, hash_exports, build3.External().variables);
+}
+function CreateDynamicCheck(build3) {
+  const stack = new Stack(build3.Context(), build3.Schema());
+  const context5 = new CheckContext();
+  return (value2) => CheckSchema(stack, context5, build3.Schema(), value2);
+}
+function CreateCheck(build3, code) {
+  return environment_exports.CanEvaluate() ? CreateEvaluatedCheck(build3, code) : CreateDynamicCheck(build3);
+}
+var BuildResult = class {
+  constructor(context5, schema, external, functions2, call2, useUnevaluated) {
+    this.context = context5;
+    this.schema = schema;
+    this.external = external;
+    this.functions = functions2;
+    this.call = call2;
+    this.useUnevaluated = useUnevaluated;
+  }
+  /** Returns the Context used for this build */
+  Context() {
+    return this.context;
+  }
+  /** Returns the Schema used for this build */
+  Schema() {
+    return this.schema;
+  }
+  /** Returns true if this build requires a Unevaluated context */
+  UseUnevaluated() {
+    return this.useUnevaluated;
+  }
+  /** Returns external variables */
+  External() {
+    return this.external;
+  }
+  /** Returns check functions */
+  Functions() {
+    return this.functions;
+  }
+  /** Return entry function call. */
+  Call() {
+    return this.call;
+  }
+  /** Evaluates the build into a validation function */
+  Evaluate() {
+    const Code2 = CreateCode(this);
+    const Check3 = CreateCheck(this, Code2);
+    return { IsEvaluated: environment_exports.CanEvaluate(), Code: Code2, Check: Check3 };
+  }
+};
+function Build(...args2) {
+  const [context5, schema] = arguments_exports.Match(args2, {
+    2: (context6, schema2) => [context6, schema2],
+    1: (schema2) => [{}, schema2]
+  });
+  ResetExternal();
+  ResetFunctions();
+  const stack = new Stack(context5, schema);
+  const build3 = new BuildContext(HasUnevaluated(context5, schema));
+  const call2 = CreateFunction(stack, build3, schema, "value");
+  const functions2 = GetFunctions();
+  const externals = GetExternal();
+  return new BuildResult(context5, schema, externals, functions2, call2, build3.UseUnevaluated());
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/check.mjs
+function Check(...args2) {
+  const [context5, schema, value2] = arguments_exports.Match(args2, {
+    3: (context6, schema2, value3) => [context6, schema2, value3],
+    2: (schema2, value3) => [{}, schema2, value3]
+  });
+  const stack = new Stack(context5, schema);
+  const checkContext = new CheckContext();
+  return CheckSchema(stack, checkContext, schema, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/schema/errors.mjs
+function Errors(...args2) {
+  const [context5, schema, value2] = arguments_exports.Match(args2, {
+    3: (context6, schema2, value3) => [context6, schema2, value3],
+    2: (schema2, value3) => [{}, schema2, value3]
+  });
+  const settings2 = settings_exports.Get();
+  const locale2 = Get2();
+  const errors = [];
+  const stack = new Stack(context5, schema);
+  const errorContext = new ErrorContext((error) => {
+    if (guard_exports.IsGreaterEqualThan(errors.length, settings2.maxErrors))
+      return;
+    return errors.push({ ...error, message: locale2(error) });
+  });
+  const result = ErrorSchema(stack, errorContext, "#", "", schema, value2);
+  return [result, errors];
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/check/check.mjs
+function Check2(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return Check(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/errors/errors.mjs
+function Errors2(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  const [_, errors] = Errors(context5, type, value2);
+  return errors;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/assert/assert.mjs
+var AssertError = class extends Error {
+  constructor(source, value2, errors) {
+    super(source);
+    Object.defineProperty(this, "cause", {
+      value: { source, errors, value: value2 },
+      writable: false,
+      configurable: false,
+      enumerable: false
+    });
+  }
+};
+function Assert(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  const check2 = Check2(context5, type, value2);
+  if (!check2)
+    throw new AssertError("Assert", value2, Errors2(context5, type, value2));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-array.mjs
+function FromArray7(context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  return value2.map((value3) => FromType14(context5, type.items, value3));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-base.mjs
+function FromBase(context5, type, value2) {
+  return type.Clean(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-cyclic.mjs
+function FromCyclic6(context5, type, value2) {
+  return FromType14({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-intersect.mjs
+function EvaluateIntersection(type) {
+  const additionalProperties = guard_exports.HasPropertyKey(type, "unevaluatedProperties") ? { additionalProperties: type.unevaluatedProperties } : {};
+  const evaluated = Evaluate(type);
+  return IsObject3(evaluated) ? Options2(evaluated, additionalProperties) : evaluated;
+}
+function FromIntersect6(context5, type, value2) {
+  const evaluated = EvaluateIntersection(type);
+  return FromType14(context5, evaluated, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/additional.mjs
+function GetAdditionalProperties(type) {
+  const additionalProperties = guard_exports.HasPropertyKey(type, "additionalProperties") ? type.additionalProperties : void 0;
+  return additionalProperties;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-object.mjs
+function FromObject10(context5, type, value2) {
+  if (!guard_exports.IsObject(value2) || guard_exports.IsArray(value2))
+    return value2;
+  const additionalProperties = GetAdditionalProperties(type);
+  for (const key of guard_exports.Keys(value2)) {
+    if (guard_exports.HasPropertyKey(type.properties, key)) {
+      value2[key] = FromType14(context5, type.properties[key], value2[key]);
+      continue;
+    }
+    const unknownCheck = (
+      // 1. additionalProperties: true
+      guard_exports.IsBoolean(additionalProperties) && guard_exports.IsEqual(additionalProperties, true) || IsSchema(additionalProperties) && Check2(context5, additionalProperties, value2[key])
+    );
+    if (unknownCheck) {
+      value2[key] = FromType14(context5, additionalProperties, value2[key]);
+      continue;
+    }
+    delete value2[key];
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-record.mjs
+function FromRecord2(context5, type, value2) {
+  if (!guard_exports.IsObject(value2))
+    return value2;
+  const additionalProperties = GetAdditionalProperties(type);
+  const [recordPattern, recordValue2] = [new RegExp(RecordPattern(type)), RecordValue(type)];
+  for (const key of guard_exports.Keys(value2)) {
+    if (recordPattern.test(key)) {
+      value2[key] = FromType14(context5, recordValue2, value2[key]);
+      continue;
+    }
+    const unknownCheck = (
+      // 1. additionalProperties: true
+      guard_exports.IsBoolean(additionalProperties) && guard_exports.IsEqual(additionalProperties, true) || IsSchema(additionalProperties) && Check2(context5, additionalProperties, value2[key])
+    );
+    if (unknownCheck) {
+      value2[key] = FromType14(context5, additionalProperties, value2[key]);
+      continue;
+    }
+    delete value2[key];
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-ref.mjs
+function FromRef5(context5, type, value2) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType14(context5, context5[type.$ref], value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-tuple.mjs
+function FromTuple5(context5, schema, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  const length2 = Math.min(value2.length, schema.items.length);
+  for (let index2 = 0; index2 < length2; index2++) {
+    value2[index2] = FromType14(context5, schema.items[index2], value2[index2]);
+  }
+  return guard_exports.IsGreaterThan(value2.length, length2) ? value2.slice(0, length2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clone/clone.mjs
+function FromClassInstance(value2) {
+  return value2;
+}
+function FromObjectInstance(value2) {
+  const result = {};
+  for (const key of Object.getOwnPropertyNames(value2)) {
+    result[key] = Clone2(value2[key]);
+  }
+  for (const key of Object.getOwnPropertySymbols(value2)) {
+    result[key] = Clone2(value2[key]);
+  }
+  return result;
+}
+function FromObject11(value2) {
+  return guard_exports.IsClassInstance(value2) ? FromClassInstance(value2) : FromObjectInstance(value2);
+}
+function FromArray8(value2) {
+  return value2.map((element) => Clone2(element));
+}
+function FromTypedArray(value2) {
+  return value2.slice();
+}
+function FromMap(value2) {
+  return new Map(Clone2([...value2.entries()]));
+}
+function FromSet(value2) {
+  return new Set(Clone2([...value2.values()]));
+}
+function FromValue4(value2) {
+  return value2;
+}
+function Clone2(value2) {
+  return globals_exports.IsTypeArray(value2) ? FromTypedArray(value2) : globals_exports.IsMap(value2) ? FromMap(value2) : globals_exports.IsSet(value2) ? FromSet(value2) : guard_exports.IsArray(value2) ? FromArray8(value2) : guard_exports.IsObject(value2) ? FromObject11(value2) : FromValue4(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-union.mjs
+function FromUnion9(context5, type, value2) {
+  for (const schema of type.anyOf) {
+    const clean = FromType14(context5, schema, Clone2(value2));
+    if (Check2(context5, schema, clean))
+      return clean;
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/from-type.mjs
+function FromType14(context5, type, value2) {
+  return IsArray3(type) ? FromArray7(context5, type, value2) : IsBase(type) ? FromBase(context5, type, value2) : IsCyclic(type) ? FromCyclic6(context5, type, value2) : IsIntersect(type) ? FromIntersect6(context5, type, value2) : IsObject3(type) ? FromObject10(context5, type, value2) : IsRecord(type) ? FromRecord2(context5, type, value2) : IsRef(type) ? FromRef5(context5, type, value2) : IsTuple(type) ? FromTuple5(context5, type, value2) : IsUnion(type) ? FromUnion9(context5, type, value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/clean/clean.mjs
+function Clean(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return FromType14(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-array.mjs
+function FromArray9(context5, type, value2) {
+  return guard_exports.IsArray(value2) ? value2.map((value3) => FromType15(context5, type.items, value3)) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-base.mjs
+function FromBase2(context5, type, value2) {
+  return type.Convert(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try.mjs
+var try_exports = {};
+__export(try_exports, {
+  Fail: () => Fail,
+  IsOk: () => IsOk,
+  Ok: () => Ok,
+  TryBigInt: () => TryBigInt,
+  TryBoolean: () => TryBoolean,
+  TryNull: () => TryNull,
+  TryNumber: () => TryNumber,
+  TryString: () => TryString,
+  TryUndefined: () => TryUndefined
+});
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-result.mjs
+function IsOk(value2) {
+  return guard_exports.IsObject(value2) && guard_exports.HasPropertyKey(value2, "value");
+}
+function Ok(value2) {
+  return { value: value2 };
+}
+function Fail() {
+  return void 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-bigint.mjs
+function FromBigInt2(value2) {
+  return Ok(value2);
+}
+function FromBoolean2(value2) {
+  return guard_exports.IsEqual(value2, true) ? Ok(BigInt(1)) : Ok(BigInt(0));
+}
+function FromNumber2(value2) {
+  return Ok(BigInt(Math.trunc(value2)));
+}
+function FromNull2(value2) {
+  return Ok(BigInt(0));
+}
+var bigintPattern = /^-?(0|[1-9]\d*)n$/;
+var decimalPattern = /^-?(0|[1-9]\d*)\.\d+$/;
+var integerPattern = /^-?(0|[1-9]\d*)$/;
+function IsStringBigIntLike(value2) {
+  return bigintPattern.test(value2);
+}
+function IsStringDecimalLike(value2) {
+  return decimalPattern.test(value2);
+}
+function IsStringIntegerLike(value2) {
+  return integerPattern.test(value2);
+}
+function FromString2(value2) {
+  const lowercase = value2.toLowerCase();
+  return IsStringBigIntLike(value2) ? Ok(BigInt(value2.slice(0, value2.length - 1))) : IsStringDecimalLike(value2) ? Ok(BigInt(value2.split(".")[0])) : IsStringIntegerLike(value2) ? Ok(BigInt(value2)) : guard_exports.IsEqual(lowercase, "false") ? Ok(BigInt(0)) : guard_exports.IsEqual(lowercase, "true") ? Ok(BigInt(1)) : Fail();
+}
+function FromUndefined2(value2) {
+  return Ok(BigInt(0));
+}
+function TryBigInt(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt2(value2) : guard_exports.IsBoolean(value2) ? FromBoolean2(value2) : guard_exports.IsNumber(value2) ? FromNumber2(value2) : guard_exports.IsNull(value2) ? FromNull2(value2) : guard_exports.IsString(value2) ? FromString2(value2) : guard_exports.IsUndefined(value2) ? FromUndefined2(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-boolean.mjs
+function FromBigInt3(value2) {
+  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(false) : guard_exports.IsEqual(value2, BigInt(1)) ? Ok(true) : Fail();
+}
+function FromBoolean3(value2) {
+  return Ok(value2);
+}
+function FromNumber3(value2) {
+  return guard_exports.IsEqual(value2, 0) ? Ok(false) : guard_exports.IsEqual(value2, 1) ? Ok(true) : Fail();
+}
+function FromNull3(value2) {
+  return Ok(false);
+}
+function FromString3(value2) {
+  return guard_exports.IsEqual(value2.toLowerCase(), "false") ? Ok(false) : guard_exports.IsEqual(value2.toLowerCase(), "true") ? Ok(true) : guard_exports.IsEqual(value2, "0") ? Ok(false) : guard_exports.IsEqual(value2, "1") ? Ok(true) : Fail();
+}
+function FromUndefined3(value2) {
+  return Ok(false);
+}
+function TryBoolean(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt3(value2) : guard_exports.IsBoolean(value2) ? FromBoolean3(value2) : guard_exports.IsNumber(value2) ? FromNumber3(value2) : guard_exports.IsNull(value2) ? FromNull3(value2) : guard_exports.IsString(value2) ? FromString3(value2) : guard_exports.IsUndefined(value2) ? FromUndefined3(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-null.mjs
+function FromBigInt4(value2) {
+  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(null) : Fail();
+}
+function FromBoolean4(value2) {
+  return guard_exports.IsEqual(value2, false) ? Ok(null) : Fail();
+}
+function FromNumber4(value2) {
+  return guard_exports.IsEqual(value2, 0) ? Ok(null) : Fail();
+}
+function FromNull4(value2) {
+  return Ok(null);
+}
+function FromString4(value2) {
+  const lowercase = value2.toLowerCase();
+  const predicate = guard_exports.IsEqual(lowercase, "undefined") || guard_exports.IsEqual(lowercase, "null") || guard_exports.IsEqual(value2, "") || guard_exports.IsEqual(value2, "0");
+  return predicate ? Ok(null) : Fail();
+}
+function FromUndefined4(value2) {
+  return Ok(null);
+}
+function TryNull(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt4(value2) : guard_exports.IsBoolean(value2) ? FromBoolean4(value2) : guard_exports.IsNumber(value2) ? FromNumber4(value2) : guard_exports.IsNull(value2) ? FromNull4(value2) : guard_exports.IsString(value2) ? FromString4(value2) : guard_exports.IsUndefined(value2) ? FromUndefined4(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-number.mjs
+var maxBigInt = BigInt(Number.MAX_SAFE_INTEGER);
+var minBigInt = BigInt(Number.MIN_SAFE_INTEGER);
+function CanBigIntDowncast(value2) {
+  return value2 <= maxBigInt && value2 >= minBigInt;
+}
+function FromBigInt5(value2) {
+  return CanBigIntDowncast(value2) ? Ok(Number(value2)) : Fail();
+}
+function FromBoolean5(value2) {
+  return value2 ? Ok(1) : Ok(0);
+}
+function FromNumber5(value2) {
+  return Ok(value2);
+}
+function FromNull5(value2) {
+  return Ok(0);
+}
+function FromString5(value2) {
+  const coerced = +value2;
+  if (guard_exports.IsNumber(coerced))
+    return Ok(coerced);
+  const lowercase = value2.toLowerCase();
+  if (guard_exports.IsEqual(lowercase, "false"))
+    return Ok(0);
+  if (guard_exports.IsEqual(lowercase, "true"))
+    return Ok(1);
+  const result = TryBigInt(value2);
+  if (IsOk(result))
+    return FromBigInt5(result.value);
+  return Fail();
+}
+function FromUndefined5(value2) {
+  return Ok(0);
+}
+function TryNumber(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt5(value2) : guard_exports.IsBoolean(value2) ? FromBoolean5(value2) : guard_exports.IsNumber(value2) ? FromNumber5(value2) : guard_exports.IsNull(value2) ? FromNull5(value2) : guard_exports.IsString(value2) ? FromString5(value2) : guard_exports.IsUndefined(value2) ? FromUndefined5(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-string.mjs
+function FromBigInt6(value2) {
+  return Ok(value2.toString());
+}
+function FromBoolean6(value2) {
+  return Ok(value2.toString());
+}
+function FromNumber6(value2) {
+  return Ok(value2.toString());
+}
+function FromNull6(value2) {
+  return Ok("null");
+}
+function FromString6(value2) {
+  return Ok(value2);
+}
+function FromUndefined6(value2) {
+  return Ok("");
+}
+function TryString(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt6(value2) : guard_exports.IsBoolean(value2) ? FromBoolean6(value2) : guard_exports.IsNumber(value2) ? FromNumber6(value2) : guard_exports.IsNull(value2) ? FromNull6(value2) : guard_exports.IsString(value2) ? FromString6(value2) : guard_exports.IsUndefined(value2) ? FromUndefined6(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/try/try-undefined.mjs
+function FromBigInt7(value2) {
+  return guard_exports.IsEqual(value2, BigInt(0)) ? Ok(void 0) : Fail();
+}
+function FromBoolean7(value2) {
+  return guard_exports.IsEqual(value2, false) ? Ok(void 0) : Fail();
+}
+function FromNumber7(value2) {
+  return guard_exports.IsEqual(value2, 0) ? Ok(void 0) : Fail();
+}
+function FromNull7(value2) {
+  return Ok(void 0);
+}
+function FromString7(value2) {
+  const lowercase = value2.toLowerCase();
+  const predicate = guard_exports.IsEqual(lowercase, "undefined") || guard_exports.IsEqual(lowercase, "null") || guard_exports.IsEqual(value2, "") || guard_exports.IsEqual(value2, "0");
+  return predicate ? Ok(void 0) : Fail();
+}
+function FromUndefined7(value2) {
+  return Ok(void 0);
+}
+function TryUndefined(value2) {
+  return guard_exports.IsBigInt(value2) ? FromBigInt7(value2) : guard_exports.IsBoolean(value2) ? FromBoolean7(value2) : guard_exports.IsNumber(value2) ? FromNumber7(value2) : guard_exports.IsNull(value2) ? FromNull7(value2) : guard_exports.IsString(value2) ? FromString7(value2) : guard_exports.IsUndefined(value2) ? FromUndefined7(value2) : Fail();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-bigint.mjs
+function FromBigInt8(context5, type, value2) {
+  if (guard_exports.IsBigInt(value2))
+    return value2;
+  const result = try_exports.TryBigInt(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-boolean.mjs
+function FromBoolean8(context5, type, value2) {
+  if (guard_exports.IsBoolean(value2))
+    return value2;
+  const result = try_exports.TryBoolean(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-cyclic.mjs
+function FromCyclic7(context5, type, value2) {
+  return FromType15({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-union.mjs
+function FromUnion10(context5, type, value2) {
+  const matched = type.anyOf.some((type2) => Check2(context5, type2, value2));
+  if (matched)
+    return value2;
+  const candidates = type.anyOf.map((type2) => FromType15(context5, type2, Clone2(value2)));
+  const selected = candidates.find((value3) => Check2(context5, type, value3));
+  return guard_exports.IsUndefined(selected) ? value2 : selected;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-enum.mjs
+function FromEnum2(context5, type, value2) {
+  const union8 = EnumToUnion(type);
+  return FromUnion10(context5, union8, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-integer.mjs
+function FromInteger(context5, type, value2) {
+  if (guard_exports.IsInteger(value2))
+    return value2;
+  const result = try_exports.TryNumber(value2);
+  return try_exports.IsOk(result) ? Math.trunc(result.value) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-intersect.mjs
+function FromIntersect7(context5, type, value2) {
+  const evaluatedType = Evaluate(type);
+  return FromType15(context5, evaluatedType, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-literal.mjs
+function FromLiteralBigInt(context5, type, value2) {
+  const result = try_exports.TryBigInt(value2);
+  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
+}
+function FromLiteralBoolean(context5, type, value2) {
+  const result = try_exports.TryBoolean(value2);
+  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
+}
+function FromLiteralNumber(context5, type, value2) {
+  const result = try_exports.TryNumber(value2);
+  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
+}
+function FromLiteralString(context5, type, value2) {
+  const result = try_exports.TryString(value2);
+  return try_exports.IsOk(result) && guard_exports.IsEqual(type.const, result.value) ? result.value : value2;
+}
+function FromLiteral5(context5, type, value2) {
+  if (guard_exports.IsEqual(type.const, value2))
+    return value2;
+  return IsLiteralBigInt(type) ? FromLiteralBigInt(context5, type, value2) : IsLiteralBoolean(type) ? FromLiteralBoolean(context5, type, value2) : IsLiteralNumber(type) ? FromLiteralNumber(context5, type, value2) : IsLiteralString(type) ? FromLiteralString(context5, type, value2) : Unreachable();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-null.mjs
+function FromNull8(context5, type, value2) {
+  if (guard_exports.IsNull(value2))
+    return value2;
+  const result = try_exports.TryNull(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-number.mjs
+function FromNumber8(context5, type, value2) {
+  if (guard_exports.IsNumber(value2))
+    return value2;
+  const result = try_exports.TryNumber(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-additional.mjs
+function FromAdditionalProperties(context5, entries2, additionalProperties, value2) {
+  const keys5 = guard_exports.Keys(value2);
+  for (const [regexp, _] of entries2) {
+    for (const key of keys5) {
+      if (!regexp.test(key)) {
+        value2[key] = FromType15(context5, additionalProperties, value2[key]);
+      }
+    }
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/shared/optional-undefined.mjs
+function IsOptionalUndefined(property, key, value2) {
+  return IsOptional(property) && guard_exports.IsUndefined(value2[key]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-object.mjs
+function FromProperties4(context5, type, value2) {
+  const entries2 = guard_exports.EntriesRegExp(type.properties);
+  const keys5 = guard_exports.Keys(value2);
+  for (const [regexp, property] of entries2) {
+    for (const key of keys5) {
+      if (!regexp.test(key) || IsOptionalUndefined(property, key, value2))
+        continue;
+      value2[key] = FromType15(context5, property, value2[key]);
+    }
+  }
+  return guard_exports.HasPropertyKey(type, "additionalProperties") && guard_exports.IsObject(type.additionalProperties) ? FromAdditionalProperties(context5, entries2, type.additionalProperties, value2) : value2;
+}
+function FromObject12(context5, type, value2) {
+  return guard_exports.IsObjectNotArray(value2) ? FromProperties4(context5, type, value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-record.mjs
+function FromPatternProperties(context5, type, value2) {
+  const entries2 = guard_exports.EntriesRegExp(type.patternProperties);
+  const keys5 = guard_exports.Keys(value2);
+  for (const [regexp, schema] of entries2) {
+    for (const key of keys5) {
+      if (regexp.test(key)) {
+        value2[key] = FromType15(context5, schema, value2[key]);
+      }
+    }
+  }
+  return guard_exports.HasPropertyKey(type, "additionalProperties") && guard_exports.IsObject(type.additionalProperties) ? FromAdditionalProperties(context5, entries2, type.additionalProperties, value2) : value2;
+}
+function FromRecord3(context5, type, value2) {
+  return guard_exports.IsObjectNotArray(value2) ? FromPatternProperties(context5, type, value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-ref.mjs
+function FromRef6(context5, type, value2) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType15(context5, context5[type.$ref], value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-string.mjs
+function FromString8(context5, type, value2) {
+  if (guard_exports.IsString(value2))
+    return value2;
+  const result = try_exports.TryString(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-template-literal.mjs
+function FromTemplateLiteral4(context5, type, value2) {
+  const decoded = TemplateLiteralDecode(type.pattern);
+  return FromType15(context5, decoded, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-tuple.mjs
+function FromTuple6(context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  for (let index2 = 0; index2 < Math.min(type.items.length, value2.length); index2++) {
+    value2[index2] = FromType15(context5, type.items[index2], value2[index2]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-undefined.mjs
+function FromUndefined8(context5, type, value2) {
+  if (guard_exports.IsUndefined(value2))
+    return value2;
+  const result = try_exports.TryUndefined(value2);
+  return try_exports.IsOk(result) ? result.value : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-void.mjs
+function FromVoid(context5, type, value2) {
+  if (guard_exports.IsUndefined(value2))
+    return value2;
+  const result = try_exports.TryUndefined(value2);
+  return try_exports.IsOk(result) ? void 0 : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/from-type.mjs
+function FromType15(context5, type, value2) {
+  return IsArray3(type) ? FromArray9(context5, type, value2) : IsBase(type) ? FromBase2(context5, type, value2) : IsBigInt3(type) ? FromBigInt8(context5, type, value2) : IsBoolean4(type) ? FromBoolean8(context5, type, value2) : IsCyclic(type) ? FromCyclic7(context5, type, value2) : IsEnum(type) ? FromEnum2(context5, type, value2) : IsInteger3(type) ? FromInteger(context5, type, value2) : IsIntersect(type) ? FromIntersect7(context5, type, value2) : IsLiteral(type) ? FromLiteral5(context5, type, value2) : IsNull3(type) ? FromNull8(context5, type, value2) : IsNumber4(type) ? FromNumber8(context5, type, value2) : IsObject3(type) ? FromObject12(context5, type, value2) : IsRecord(type) ? FromRecord3(context5, type, value2) : IsRef(type) ? FromRef6(context5, type, value2) : IsString4(type) ? FromString8(context5, type, value2) : IsTemplateLiteral(type) ? FromTemplateLiteral4(context5, type, value2) : IsTuple(type) ? FromTuple6(context5, type, value2) : IsUndefined3(type) ? FromUndefined8(context5, type, value2) : IsUnion(type) ? FromUnion10(context5, type, value2) : IsVoid(type) ? FromVoid(context5, type, value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/convert/convert.mjs
+function Convert(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return FromType15(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-array.mjs
+function FromArray10(context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  for (let i = 0; i < value2.length; i++) {
+    value2[i] = FromType16(context5, type.items, value2[i]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-base.mjs
+function FromBase3(context5, type, value2) {
+  return type.Default(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-cyclic.mjs
+function FromCyclic8(context5, type, value2) {
+  return FromType16({ ...context5, ...type.$defs }, Ref(type.$ref), value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-default.mjs
+function FromDefault(type, value2) {
+  if (!guard_exports.IsUndefined(value2))
+    return value2;
+  return guard_exports.IsFunction(type.default) ? type.default() : Clone2(type.default);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-intersect.mjs
+function FromIntersect8(context5, type, value2) {
+  const evaluted = Evaluate(type);
+  return FromType16(context5, evaluted, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-object.mjs
+function FromObject13(context5, type, value2) {
+  if (!guard_exports.IsObject(value2))
+    return value2;
+  const knownPropertyKeys = guard_exports.Keys(type.properties);
+  for (const key of knownPropertyKeys) {
+    const propertyValue = FromType16(context5, type.properties[key], value2[key]);
+    const isUnassignableUndefined = guard_exports.IsUndefined(propertyValue) && (IsOptional(type.properties[key]) || !guard_exports.HasPropertyKey(type.properties[key], "default"));
+    if (isUnassignableUndefined)
+      continue;
+    value2[key] = FromType16(context5, type.properties[key], value2[key]);
+  }
+  if (!IsAdditionalProperties(type) || guard_exports.IsBoolean(type.additionalProperties))
+    return value2;
+  for (const key of guard_exports.Keys(value2)) {
+    if (knownPropertyKeys.includes(key))
+      continue;
+    value2[key] = FromType16(context5, type.additionalProperties, value2[key]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-record.mjs
+function FromRecord4(context5, type, value2) {
+  if (!guard_exports.IsObject(value2))
+    return value2;
+  const [recordKey, recordValue2] = [new RegExp(RecordPattern(type)), RecordValue(type)];
+  for (const key of guard_exports.Keys(value2)) {
+    if (!(recordKey.test(key) && IsDefault(recordValue2)))
+      continue;
+    value2[key] = FromType16(context5, recordValue2, value2[key]);
+  }
+  if (!IsAdditionalProperties(type))
+    return value2;
+  for (const key of guard_exports.Keys(value2)) {
+    if (recordKey.test(key))
+      continue;
+    value2[key] = FromType16(context5, type.additionalProperties, value2[key]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-ref.mjs
+function FromRef7(context5, type, value2) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType16(context5, context5[type.$ref], value2) : value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-tuple.mjs
+function FromTuple7(context5, schema, value2) {
+  if (!guard_exports.IsArray(value2))
+    return value2;
+  const [items, max5] = [schema.items, Math.max(schema.items.length, value2.length)];
+  for (let i = 0; i < max5; i++) {
+    if (i < items.length)
+      value2[i] = FromType16(context5, items[i], value2[i]);
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-union.mjs
+function FromUnion11(context5, schema, value2) {
+  for (const inner of schema.anyOf) {
+    const result = FromType16(context5, inner, Clone2(value2));
+    if (Check2(context5, inner, result)) {
+      return result;
+    }
+  }
+  return value2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/from-type.mjs
+function FromType16(context5, type, value2) {
+  const defaulted = IsDefault(type) ? FromDefault(type, value2) : value2;
+  return IsArray3(type) ? FromArray10(context5, type, defaulted) : IsBase(type) ? FromBase3(context5, type, defaulted) : IsCyclic(type) ? FromCyclic8(context5, type, defaulted) : IsIntersect(type) ? FromIntersect8(context5, type, defaulted) : IsObject3(type) ? FromObject13(context5, type, defaulted) : IsRecord(type) ? FromRecord4(context5, type, defaulted) : IsRef(type) ? FromRef7(context5, type, defaulted) : IsTuple(type) ? FromTuple7(context5, type, defaulted) : IsUnion(type) ? FromUnion11(context5, type, defaulted) : defaulted;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/default/default.mjs
+function Default(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return FromType16(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/pipeline/pipeline.mjs
+function Pipeline(pipeline) {
+  return (...args2) => {
+    const [context5, type, value2] = arguments_exports.Match(args2, {
+      3: (context6, type2, value3) => [context6, type2, value3],
+      2: (type2, value3) => [{}, type2, value3]
+    });
+    return pipeline.reduce((result, func) => func(context5, type, result), value2);
+  };
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/callback.mjs
+function Decode2(context5, type, value2) {
+  return type["~codec"].decode(value2);
+}
+function Encode2(context5, type, value2) {
+  return type["~codec"].encode(value2);
+}
+function Callback(direction, context5, type, value2) {
+  if (!IsCodec(type))
+    return value2;
+  return guard_exports.IsEqual(direction, "Decode") ? Decode2(context5, type, value2) : Encode2(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-array.mjs
+function Decode3(direction, context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return Unreachable();
+  for (let i = 0; i < value2.length; i++) {
+    value2[i] = FromType17(direction, context5, type.items, value2[i]);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode3(direction, context5, type, value2) {
+  const exterior = Callback(direction, context5, type, value2);
+  if (!guard_exports.IsArray(exterior))
+    return exterior;
+  for (let i = 0; i < exterior.length; i++) {
+    exterior[i] = FromType17(direction, context5, type.items, exterior[i]);
+  }
+  return exterior;
+}
+function FromArray11(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode3(direction, context5, type, value2) : Encode3(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-cyclic.mjs
+function FromCyclic9(direction, context5, type, value2) {
+  value2 = FromType17(direction, { ...context5, ...type.$defs }, Ref(type.$ref), value2);
+  return Callback(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-intersect.mjs
+function Decode4(direction, context5, type, value2) {
+  for (const schema of type.allOf) {
+    value2 = FromType17(direction, context5, schema, value2);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode4(direction, context5, type, value2) {
+  let exterior = Callback(direction, context5, type, value2);
+  for (const schema of type.allOf) {
+    exterior = FromType17(direction, context5, schema, exterior);
+  }
+  return exterior;
+}
+function FromIntersect9(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode4(direction, context5, type, value2) : Encode4(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-object.mjs
+function Decode5(direction, context5, type, value2) {
+  if (!guard_exports.IsObjectNotArray(value2))
+    return Unreachable();
+  for (const key of guard_exports.Keys(type.properties)) {
+    if (!guard_exports.HasPropertyKey(value2, key) || IsOptionalUndefined(type.properties[key], key, value2))
+      continue;
+    value2[key] = FromType17(direction, context5, type.properties[key], value2[key]);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode5(direction, context5, type, value2) {
+  const exterior = Callback(direction, context5, type, value2);
+  if (!guard_exports.IsObjectNotArray(exterior))
+    return exterior;
+  for (const key of guard_exports.Keys(type.properties)) {
+    if (!guard_exports.HasPropertyKey(exterior, key) || IsOptionalUndefined(type.properties[key], key, exterior))
+      continue;
+    exterior[key] = FromType17(direction, context5, type.properties[key], exterior[key]);
+  }
+  return exterior;
+}
+function FromObject14(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode5(direction, context5, type, value2) : Encode5(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-record.mjs
+function Decode6(direction, context5, type, value2) {
+  if (!guard_exports.IsObjectNotArray(value2))
+    return Unreachable();
+  const regexp = new RegExp(RecordPattern(type));
+  for (const key of guard_exports.Keys(value2)) {
+    if (!regexp.test(key))
+      Unreachable();
+    value2[key] = FromType17(direction, context5, RecordValue(type), value2[key]);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode6(direction, context5, type, value2) {
+  const exterior = Callback(direction, context5, type, value2);
+  if (!guard_exports.IsObjectNotArray(exterior))
+    return exterior;
+  const regexp = new RegExp(RecordPattern(type));
+  for (const key of guard_exports.Keys(exterior)) {
+    if (!regexp.test(key))
+      continue;
+    exterior[key] = FromType17(direction, context5, RecordValue(type), exterior[key]);
+  }
+  return exterior;
+}
+function FromRecord5(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode6(direction, context5, type, value2) : Encode6(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-ref.mjs
+function FromRef8(direction, context5, type, value2) {
+  value2 = guard_exports.HasPropertyKey(context5, type.$ref) ? FromType17(direction, context5, context5[type.$ref], value2) : value2;
+  return Callback(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-tuple.mjs
+function Decode7(direction, context5, type, value2) {
+  if (!guard_exports.IsArray(value2))
+    return Unreachable();
+  for (let i = 0; i < Math.min(type.items.length, value2.length); i++) {
+    value2[i] = FromType17(direction, context5, type.items[i], value2[i]);
+  }
+  return Callback(direction, context5, type, value2);
+}
+function Encode7(direction, context5, type, value2) {
+  const exterior = Callback(direction, context5, type, value2);
+  if (!guard_exports.IsArray(exterior))
+    return value2;
+  for (let i = 0; i < Math.min(type.items.length, exterior.length); i++) {
+    exterior[i] = FromType17(direction, context5, type.items[i], exterior[i]);
+  }
+  return exterior;
+}
+function FromTuple8(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode7(direction, context5, type, value2) : Encode7(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-union.mjs
+function Decode8(direction, context5, type, value2) {
+  for (const schema of type.anyOf) {
+    if (!Check2(context5, schema, value2))
+      continue;
+    const variant = FromType17(direction, context5, schema, value2);
+    return Callback(direction, context5, type, variant);
+  }
+  return Unreachable();
+}
+function Encode8(direction, context5, type, value2) {
+  let exterior = Callback(direction, context5, type, value2);
+  for (const schema of type.anyOf) {
+    const variant = FromType17(direction, context5, schema, Clone2(exterior));
+    if (!Check2(context5, schema, variant))
+      continue;
+    return variant;
+  }
+  return exterior;
+}
+function FromUnion12(direction, context5, type, value2) {
+  return guard_exports.IsEqual(direction, "Decode") ? Decode8(direction, context5, type, value2) : Encode8(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/from-type.mjs
+function FromType17(direction, context5, type, value2) {
+  return IsArray3(type) ? FromArray11(direction, context5, type, value2) : IsCyclic(type) ? FromCyclic9(direction, context5, type, value2) : IsIntersect(type) ? FromIntersect9(direction, context5, type, value2) : IsObject3(type) ? FromObject14(direction, context5, type, value2) : IsRecord(type) ? FromRecord5(direction, context5, type, value2) : IsRef(type) ? FromRef8(direction, context5, type, value2) : IsTuple(type) ? FromTuple8(direction, context5, type, value2) : IsUnion(type) ? FromUnion12(direction, context5, type, value2) : Callback(direction, context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/decode.mjs
+var DecodeError = class extends AssertError {
+  constructor(value2, errors) {
+    super("Decode", value2, errors);
+  }
+};
+function Assert2(context5, type, value2) {
+  if (!Check2(context5, type, value2))
+    throw new DecodeError(value2, Errors2(context5, type, value2));
+  return value2;
+}
+function DecodeUnsafe(context5, type, value2) {
+  return FromType17("Decode", context5, type, value2);
+}
+var Decoder = Pipeline([
+  (_context, _type, value2) => Clone2(value2),
+  (context5, type, value2) => Default(context5, type, value2),
+  (context5, type, value2) => Convert(context5, type, value2),
+  (context5, type, value2) => Clean(context5, type, value2),
+  (context5, type, value2) => Assert2(context5, type, value2),
+  (context5, type, value2) => DecodeUnsafe(context5, type, value2)
+]);
+function Decode9(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return Decoder(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/encode.mjs
+var EncodeError = class extends AssertError {
+  constructor(value2, errors) {
+    super("Encode", value2, errors);
+  }
+};
+function Assert3(context5, type, value2) {
+  if (!Check2(context5, type, value2))
+    throw new EncodeError(value2, Errors2(context5, type, value2));
+  return value2;
+}
+function EncodeUnsafe(context5, type, value2) {
+  return FromType17("Encode", context5, type, value2);
+}
+var Encoder = Pipeline([
+  (_context, _type, value2) => Clone2(value2),
+  (context5, type, value2) => EncodeUnsafe(context5, type, value2),
+  (context5, type, value2) => Default(context5, type, value2),
+  (context5, type, value2) => Convert(context5, type, value2),
+  (context5, type, value2) => Clean(context5, type, value2),
+  (context5, type, value2) => Assert3(context5, type, value2)
+]);
+function Encode9(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  return Encoder(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/codec/has.mjs
+function FromArray12(context5, type) {
+  return IsCodec(type) || FromType18(context5, type.items);
+}
+function FromCyclic10(context5, type) {
+  return IsCodec(type) || FromRef9({ ...context5, ...type.$defs }, Ref(type.$ref));
+}
+function FromIntersect10(context5, type) {
+  return IsCodec(type) || type.allOf.some((type2) => FromType18(context5, type2));
+}
+function FromObject15(context5, type) {
+  return IsCodec(type) || guard_exports.Keys(type.properties).some((key) => {
+    return FromType18(context5, type.properties[key]);
+  });
+}
+function FromRecord6(context5, type) {
+  return IsCodec(type) || FromType18(context5, RecordValue(type));
+}
+function FromRef9(context5, type) {
+  if (visited.has(type.$ref))
+    return false;
+  visited.add(type.$ref);
+  return IsCodec(type) || guard_exports.HasPropertyKey(context5, type.$ref) && FromType18(context5, context5[type.$ref]);
+}
+function FromTuple9(context5, type) {
+  return IsCodec(type) || type.items.some((type2) => FromType18(context5, type2));
+}
+function FromUnion13(context5, type) {
+  return IsCodec(type) || type.anyOf.some((type2) => FromType18(context5, type2));
+}
+function FromType18(context5, type) {
+  return IsArray3(type) ? FromArray12(context5, type) : IsCyclic(type) ? FromCyclic10(context5, type) : IsIntersect(type) ? FromIntersect10(context5, type) : IsObject3(type) ? FromObject15(context5, type) : IsRecord(type) ? FromRecord6(context5, type) : IsRef(type) ? FromRef9(context5, type) : IsTuple(type) ? FromTuple9(context5, type) : IsUnion(type) ? FromUnion13(context5, type) : IsCodec(type);
+}
+var visited = /* @__PURE__ */ new Set();
+function HasCodec(...args2) {
+  const [context5, type] = arguments_exports.Match(args2, {
+    2: (context6, type2) => [context6, type2],
+    1: (type2) => [{}, type2]
+  });
+  visited.clear();
+  return FromType18(context5, type);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/error.mjs
+var CreateError = class extends Error {
+  constructor(type, message) {
+    super(message);
+    this.type = type;
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-default.mjs
+function FromDefault2(context5, schema) {
+  return guard_exports.IsFunction(schema.default) ? schema.default(schema) : guard_exports.IsObject(schema.default) ? Clone2(schema.default) : schema.default;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-array.mjs
+function FromArray13(context5, type) {
+  if (IsUniqueItems(type) && !IsDefault(type))
+    throw new CreateError(type, "Arrays with uniqueItems constraints must specify a default annotation");
+  const length2 = IsMinItems(type) ? type.minItems : 0;
+  return Array.from({ length: length2 }, () => FromType19(context5, type.items));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-async-iterator.mjs
+async function* CreateAsyncIterator() {
+}
+function FromAsyncIterator(context5, type) {
+  return CreateAsyncIterator();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-base.mjs
+function FromBase4(context5, type) {
+  return type.Create();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-bigint.mjs
+function FromBigInt9(context5, type) {
+  return IsExclusiveMinimum(type) ? BigInt(type.exclusiveMinimum) + BigInt(1) : IsMinimum(type) ? BigInt(type.minimum) : BigInt(0);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-boolean.mjs
+function FromBoolean9(context5, type) {
+  return false;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-constructor.mjs
+function FromConstructor2(context5, type) {
+  const instanceType = FromType19(context5, type.instanceType);
+  return class {
+    constructor() {
+      Object.assign(this, instanceType);
+    }
+  };
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-cyclic.mjs
+function FromCyclic11(context5, type) {
+  return FromType19({ ...context5, ...type.$defs }, Ref(type.$ref));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-enum.mjs
+function FromEnum3(context5, type) {
+  return FromType19(context5, EnumToUnion(type));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-function.mjs
+function FromFunction2(context5, type) {
+  const returnType = FromType19(context5, type.returnType);
+  return () => returnType;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-integer.mjs
+function FromInteger2(context5, type) {
+  return IsExclusiveMinimum(type) && guard_exports.IsNumber(type.exclusiveMinimum) ? type.exclusiveMinimum + 1 : IsMinimum(type) ? type.minimum : 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-intersect.mjs
+function FromIntersect11(context5, type) {
+  return FromType19(context5, Evaluate(type));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-iterator.mjs
+function* CreateIterator() {
+}
+function FromIterator(context5, type) {
+  return CreateIterator();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-literal.mjs
+function FromLiteral6(context5, type) {
+  return type.const;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-never.mjs
+function FromNever(context5, type) {
+  throw new CreateError(type, "Cannot create TNever types");
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-null.mjs
+function FromNull9(context5, type) {
+  return null;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-number.mjs
+function FromNumber9(context5, type) {
+  return IsExclusiveMinimum(type) && guard_exports.IsNumber(type.exclusiveMinimum) ? type.exclusiveMinimum + 1 : IsMinimum(type) ? type.minimum : 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-object.mjs
+function FromObject16(context5, type) {
+  const required = guard_exports.IsUndefined(type.required) ? [] : type.required;
+  return required.reduce((result, key) => {
+    return { ...result, [key]: FromType19(context5, type.properties[key]) };
+  }, {});
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-promise.mjs
+function FromPromise(context5, type) {
+  return Promise.resolve(FromType19(context5, type.item));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-record.mjs
+function FromRecord7(context5, type) {
+  if (IsMinProperties(type) && !IsDefault(type))
+    throw new CreateError(type, "Record with the minProperties constraint must have a default annotation");
+  return {};
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-ref.mjs
+function FromRef10(context5, type) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType19(context5, context5[type.$ref]) : (() => {
+    throw new CreateError(type, "Unable to deref Ref");
+  })();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-string.mjs
+function FromString9(context5, type) {
+  const needsDefault = (IsPattern(type) || IsFormat(type)) && !IsDefault(type);
+  if (needsDefault)
+    throw Error("Strings with format or pattern constraints must specify default");
+  const minLength = IsMinLength4(type) ? type.minLength : 0;
+  return "".padEnd(minLength);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-symbol.mjs
+function FromSymbol2(context5, type) {
+  return /* @__PURE__ */ Symbol();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-template-literal.mjs
+function FromTemplateLiteral5(context5, type) {
+  const decoded = TemplateLiteralDecode(type.pattern);
+  if (IsString4(decoded))
+    throw new CreateError(type, "Unable to create TemplateLiteral due to infinite type expansion");
+  return FromType19(context5, decoded);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-tuple.mjs
+function FromTuple10(context5, type) {
+  return Array.from({ length: type.minItems }, (_, i) => FromType19(context5, type.items[i]));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-undefined.mjs
+function FromUndefined9(context5, type) {
+  return void 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-union.mjs
+function FromUnion14(context5, type) {
+  if (guard_exports.IsEqual(type.anyOf.length, 0)) {
+    throw Error("Unable to create Union with no variants");
+  }
+  return FromType19(context5, type.anyOf[0]);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-void.mjs
+function FromVoid2(context5, type) {
+  return void 0;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/from-type.mjs
+function FromType19(context5, type) {
+  return (
+    // -----------------------------------------------------
+    // Default
+    // -----------------------------------------------------
+    IsDefault(type) ? FromDefault2(context5, type) : (
+      // -----------------------------------------------------
+      // Types
+      // -----------------------------------------------------
+      IsArray3(type) ? FromArray13(context5, type) : IsAsyncIterator3(type) ? FromAsyncIterator(context5, type) : IsBase(type) ? FromBase4(context5, type) : IsBigInt3(type) ? FromBigInt9(context5, type) : IsBoolean4(type) ? FromBoolean9(context5, type) : IsConstructor3(type) ? FromConstructor2(context5, type) : IsCyclic(type) ? FromCyclic11(context5, type) : IsEnum(type) ? FromEnum3(context5, type) : IsFunction3(type) ? FromFunction2(context5, type) : IsInteger3(type) ? FromInteger2(context5, type) : IsIntersect(type) ? FromIntersect11(context5, type) : IsIterator3(type) ? FromIterator(context5, type) : IsLiteral(type) ? FromLiteral6(context5, type) : IsNever(type) ? FromNever(context5, type) : IsNull3(type) ? FromNull9(context5, type) : IsNumber4(type) ? FromNumber9(context5, type) : IsObject3(type) ? FromObject16(context5, type) : IsPromise(type) ? FromPromise(context5, type) : IsRecord(type) ? FromRecord7(context5, type) : IsRef(type) ? FromRef10(context5, type) : IsString4(type) ? FromString9(context5, type) : IsSymbol3(type) ? FromSymbol2(context5, type) : IsTemplateLiteral(type) ? FromTemplateLiteral5(context5, type) : IsTuple(type) ? FromTuple10(context5, type) : IsUndefined3(type) ? FromUndefined9(context5, type) : IsUnion(type) ? FromUnion14(context5, type) : IsVoid(type) ? FromVoid2(context5, type) : void 0
+    )
+  );
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/create/create.mjs
+function Create2(...args2) {
+  const [context5, type] = arguments_exports.Match(args2, {
+    2: (context6, type2) => [context6, type2],
+    1: (type2) => [{}, type2]
+  });
+  return FromType19(context5, type);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/equal/equal.mjs
+function Equal(left3, right3) {
+  return guard_exports.IsDeepEqual(left3, right3);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/hash/hash.mjs
+function Hash2(value2) {
+  return hash_exports.Hash(value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/error.mjs
+var MutateError = class extends Error {
+  constructor(message) {
+    super(message);
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-array.mjs
+function FromArray14(root, path, current, next) {
+  if (!guard_exports.IsArray(current)) {
+    pointer_exports.Set(root, path, Clone2(next));
+  } else {
+    for (let index2 = 0; index2 < next.length; index2++) {
+      FromValue5(root, `${path}/${index2}`, current[index2], next[index2]);
+    }
+    current.splice(next.length);
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-object.mjs
+function FromObject17(root, path, current, next) {
+  if (!guard_exports.IsObjectNotArray(current)) {
+    pointer_exports.Set(root, path, Clone2(next));
+  } else {
+    const currentKeys = guard_exports.Keys(current);
+    const nextKeys = guard_exports.Keys(next);
+    for (const currentKey of currentKeys) {
+      if (!nextKeys.includes(currentKey)) {
+        delete current[currentKey];
+      }
+    }
+    for (const nextKey of nextKeys) {
+      if (!currentKeys.includes(nextKey)) {
+        current[nextKey] = next[nextKey];
+      }
+    }
+    for (const nextKey of nextKeys) {
+      FromValue5(root, `${path}/${nextKey}`, current[nextKey], next[nextKey]);
+    }
+  }
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-unknown.mjs
+function FromUnknown2(root, path, current, next) {
+  if (current === next)
+    return;
+  pointer_exports.Set(root, path, next);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/from-value.mjs
+function FromValue5(root, path, current, next) {
+  if (guard_exports.IsArray(next))
+    return FromArray14(root, path, current, next);
+  if (guard_exports.IsObject(next))
+    return FromObject17(root, path, current, next);
+  return FromUnknown2(root, path, current, next);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/mutate/mutate.mjs
+function IsNonMutableValue(value2) {
+  return globals_exports.IsTypeArray(value2) || globals_exports.IsDate(value2) || globals_exports.IsMap(value2) || globals_exports.IsSet(value2) || guard_exports.IsNumber(value2) || guard_exports.IsString(value2) || guard_exports.IsBoolean(value2) || guard_exports.IsSymbol(value2);
+}
+function IsMismatchedValue(left3, right3) {
+  return guard_exports.IsObjectNotArray(left3) && guard_exports.IsArray(right3) || guard_exports.IsArray(left3) && guard_exports.IsObjectNotArray(right3);
+}
+function Mutate(current, next) {
+  if (IsNonMutableValue(current) || IsNonMutableValue(next))
+    throw new MutateError("Only object and array types can be mutated at the root level");
+  if (IsMismatchedValue(current, next))
+    throw new MutateError("Cannot assign due type mismatch of assignable values");
+  FromValue5(current, "", current, next);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/parse/parse.mjs
+var ParseError = class extends AssertError {
+  constructor(value2, errors) {
+    super("Parse", value2, errors);
+  }
+};
+function Assert4(context5, type, value2) {
+  if (!Check2(context5, type, value2))
+    throw new ParseError(value2, Errors2(context5, type, value2));
+  return value2;
+}
+var Parser = Pipeline([
+  (_context, _type, value2) => Clone2(value2),
+  (context5, type, value2) => Default(context5, type, value2),
+  (context5, type, value2) => Convert(context5, type, value2),
+  (context5, type, value2) => Clean(context5, type, value2),
+  (context5, type, value2) => Assert4(context5, type, value2)
+]);
+function Parse(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  const result = Check2(context5, type, value2) ? value2 : Parser(context5, type, value2);
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/diff.mjs
+function CreateUpdate(path, value2) {
+  return { type: "update", path, value: value2 };
+}
+function CreateInsert(path, value2) {
+  return { type: "insert", path, value: value2 };
+}
+function CreateDelete(path) {
+  return { type: "delete", path };
+}
+function AssertCanDiffObject(value2) {
+  if (guard_exports.IsObject(value2) && guard_exports.IsEqual(guard_exports.Symbols(value2).length, 0))
+    return;
+  throw new Error("Cannot create diffs for objects with symbols keys");
+}
+function* FromObject18(path, left3, right3) {
+  if (!guard_exports.IsObject(right3) || guard_exports.IsArray(right3))
+    return yield CreateUpdate(path, right3);
+  AssertCanDiffObject(left3);
+  AssertCanDiffObject(right3);
+  const leftKeys = guard_exports.Keys(left3);
+  const rightKeys = guard_exports.Keys(right3);
+  for (const key of rightKeys) {
+    if (guard_exports.HasPropertyKey(left3, key))
+      continue;
+    yield CreateInsert(`${path}/${key}`, right3[key]);
+  }
+  for (const key of leftKeys) {
+    if (!guard_exports.HasPropertyKey(right3, key))
+      continue;
+    if (Equal(left3, right3))
+      continue;
+    yield* FromValue6(`${path}/${key}`, left3[key], right3[key]);
+  }
+  for (const key of leftKeys) {
+    if (guard_exports.HasPropertyKey(right3, key))
+      continue;
+    yield CreateDelete(`${path}/${key}`);
+  }
+}
+function* FromArray15(path, left3, right3) {
+  if (!guard_exports.IsArray(right3))
+    return yield CreateUpdate(path, right3);
+  for (let i = 0; i < Math.min(left3.length, right3.length); i++) {
+    yield* FromValue6(`${path}/${i}`, left3[i], right3[i]);
+  }
+  for (let i = 0; i < right3.length; i++) {
+    if (i < left3.length)
+      continue;
+    yield CreateInsert(`${path}/${i}`, right3[i]);
+  }
+  for (let i = left3.length - 1; i >= 0; i--) {
+    if (i < right3.length)
+      continue;
+    yield CreateDelete(`${path}/${i}`);
+  }
+}
+function* FromTypedArray2(path, left3, right3) {
+  const typeLeft = globalThis.Object.getPrototypeOf(left3).constructor.name;
+  const typeRight = globalThis.Object.getPrototypeOf(right3).constructor.name;
+  const predicate = globals_exports.IsTypeArray(right3) && guard_exports.IsEqual(left3.length, right3.length) && guard_exports.IsEqual(typeLeft, typeRight);
+  if (predicate) {
+    for (let index2 = 0; index2 < Math.min(left3.length, right3.length); index2++) {
+      yield* FromValue6(`${path}/${index2}`, left3[index2], right3[index2]);
+    }
+  } else {
+    return yield CreateUpdate(path, right3);
+  }
+}
+function* FromUnknown3(path, left3, right3) {
+  if (left3 === right3)
+    return;
+  yield CreateUpdate(path, right3);
+}
+function* FromValue6(path, left3, right3) {
+  return globals_exports.IsTypeArray(left3) ? yield* FromTypedArray2(path, left3, right3) : guard_exports.IsArray(left3) ? yield* FromArray15(path, left3, right3) : guard_exports.IsObject(left3) ? yield* FromObject18(path, left3, right3) : yield* FromUnknown3(path, left3, right3);
+}
+function Diff(current, next) {
+  return [...FromValue6("", current, next)];
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/edit.mjs
+var Insert = _Object_({
+  type: Literal("insert"),
+  path: String2(),
+  value: Unknown()
+});
+var Update2 = Object({
+  type: Literal("update"),
+  path: String2(),
+  value: Unknown()
+});
+var Delete2 = _Object_({
+  type: Literal("delete"),
+  path: String2()
+});
+var Edit = Union([Insert, Update2, Delete2]);
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/delta/patch.mjs
+function IsRoot(edits) {
+  return edits.length > 0 && edits[0].path === "" && edits[0].type === "update";
+}
+function IsEmpty(edits) {
+  return edits.length === 0;
+}
+function Patch(current, edits) {
+  if (IsRoot(edits))
+    return Clone2(edits[0].value);
+  if (IsEmpty(edits))
+    return Clone2(current);
+  const clone2 = Clone2(current);
+  for (const edit of edits) {
+    switch (edit.type) {
+      case "insert": {
+        pointer_exports.Set(clone2, edit.path, edit.value);
+        break;
+      }
+      case "update": {
+        pointer_exports.Set(clone2, edit.path, edit.value);
+        break;
+      }
+      case "delete": {
+        pointer_exports.Delete(clone2, edit.path);
+        break;
+      }
+    }
+  }
+  return clone2;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/error.mjs
+var RepairError = class extends Error {
+  constructor(context5, type, value2, message) {
+    super(message);
+    this.context = context5;
+    this.type = type;
+    this.value = value2;
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-array.mjs
+function MakeUnique(values3) {
+  const [hashes, result] = [/* @__PURE__ */ new Set(), []];
+  for (const value2 of values3) {
+    const hash2 = Hash2(value2);
+    if (hashes.has(hash2))
+      continue;
+    hashes.add(hash2);
+    result.push(value2);
+  }
+  return result;
+}
+function FromArray16(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return value2;
+  const created = guard_exports.IsArray(value2) ? value2 : Create2(context5, type);
+  const minimum = IsMinItems(type) && created.length < type.minItems ? [...created, ...Array.from({ length: type.minItems - created.length }, () => Create2(context5, type))] : created;
+  const maximum = IsMaxItems(type) && minimum.length > type.maxItems ? minimum.slice(0, type.maxItems) : minimum;
+  const repaired = maximum.map((value3) => FromType20(context5, type.items, value3));
+  if (!IsUniqueItems(type) || IsUniqueItems(type) && !guard_exports.IsEqual(type.uniqueItems, true))
+    return repaired;
+  const unique = MakeUnique(repaired);
+  if (!Check2(context5, type, unique))
+    throw new RepairError(context5, type, value2, "Failed to repair Array due to uniqueItems constraint");
+  return unique;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-unknown.mjs
+function FromUnknown4(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return value2;
+  const converted = Convert(context5, type, value2);
+  if (Check2(context5, type, converted))
+    return converted;
+  return Create2(context5, type);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-base.mjs
+function FromBase5(context5, type, value2) {
+  return FromUnknown4(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-enum.mjs
+function FromEnum4(context5, type, value2) {
+  const union8 = EnumToUnion(type);
+  return FromType20(context5, union8, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-intersect.mjs
+function FromIntersect12(context5, type, value2) {
+  const evaluated = Evaluate(type);
+  return FromType20(context5, evaluated, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-object.mjs
+function FromObject19(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return value2;
+  if (!guard_exports.IsObjectNotArray(value2))
+    return Create2(context5, type);
+  const required = new Set(guard_exports.IsUndefined(type.required) ? [] : type.required);
+  const result = {};
+  for (const [key, schema] of guard_exports.Entries(type.properties)) {
+    if (!required.has(key) && guard_exports.IsUndefined(value2[key]))
+      continue;
+    result[key] = key in value2 ? FromType20(context5, schema, value2[key]) : Create2(context5, schema);
+  }
+  const evaluatedKeys = guard_exports.Keys(type.properties);
+  if (IsAdditionalProperties(type) && guard_exports.IsObject(type.additionalProperties)) {
+    for (const key of guard_exports.Keys(value2)) {
+      if (evaluatedKeys.includes(key))
+        continue;
+      result[key] = FromType20(context5, type.additionalProperties, value2[key]);
+    }
+  }
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-record.mjs
+function FromRecord8(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return value2;
+  if (guard_exports.IsNull(value2) || !guard_exports.IsObject(value2) || guard_exports.IsArray(value2))
+    return Create2(context5, type);
+  const recordKey = new RegExp(RecordPattern(type));
+  const recordValue2 = RecordValue(type);
+  const evaluatedKeys = /* @__PURE__ */ new Set();
+  const result = {};
+  for (const [key, value_] of guard_exports.Entries(value2)) {
+    if (!recordKey.test(key))
+      continue;
+    result[key] = FromType20(context5, recordValue2, value_);
+    evaluatedKeys.add(key);
+  }
+  if (IsAdditionalProperties(type)) {
+    for (const key of guard_exports.Keys(value2)) {
+      if (evaluatedKeys.has(key))
+        continue;
+      result[key] = FromType20(context5, type.additionalProperties, value2[key]);
+    }
+  }
+  return result;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-ref.mjs
+function FromRef11(context5, type, value2) {
+  return guard_exports.HasPropertyKey(context5, type.$ref) ? FromType20(context5, context5[type.$ref], value2) : (() => {
+    throw new RepairError(context5, type, value2, "Unable to de-reference target type");
+  })();
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-template-literal.mjs
+function FromTemplateLiteral6(context5, type, value2) {
+  const decoded = TemplateLiteralDecode(type.pattern);
+  return FromType20(context5, decoded, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-tuple.mjs
+function FromTuple11(context5, schema, value2) {
+  if (Check2(context5, schema, value2))
+    return value2;
+  if (!guard_exports.IsArray(value2))
+    return Create2(context5, schema);
+  return schema.items.map((schema2, index2) => FromType20(context5, schema2, value2[index2]));
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-union.mjs
+function Deref(context5, type, value2) {
+  return IsRef(type) ? guard_exports.HasPropertyKey(context5, type.$ref) ? Deref(context5, context5[type.$ref], value2) : (() => {
+    throw new RepairError(context5, type, value2, "Unable to Deref target on Union repair");
+  })() : type;
+}
+function ScoreVariant(context5, type, value2) {
+  if (!(IsObject3(type) && guard_exports.IsObject(value2)))
+    return 0;
+  const keys5 = guard_exports.Keys(value2);
+  const entries2 = guard_exports.Entries(type.properties);
+  return entries2.reduce((result, [key, schema]) => {
+    const literal = IsLiteral(schema) && guard_exports.IsEqual(schema.const, value2[key]) ? 100 : 0;
+    const checks = Check2(context5, schema, value2[key]) ? 10 : 0;
+    const exists4 = keys5.includes(key) ? 1 : 0;
+    return result + (literal + checks + exists4);
+  }, 0);
+}
+function SelectVariant(context5, type, value2) {
+  const schemas = type.anyOf.map((schema) => Deref(context5, schema, value2));
+  let [select, best] = [schemas[0], 0];
+  for (const schema of schemas) {
+    const score = ScoreVariant(context5, schema, value2);
+    if (score > best) {
+      select = schema;
+      best = score;
+    }
+  }
+  return select;
+}
+function RepairUnion(context5, type, value2) {
+  const union8 = Union(Flatten(type.anyOf));
+  const schema = SelectVariant(context5, union8, value2);
+  return FromType20(context5, schema, value2);
+}
+function FromUnion15(context5, type, value2) {
+  if (Check2(context5, type, value2))
+    return Clone2(value2);
+  if (IsDefault(type))
+    return Create2(context5, type);
+  return RepairUnion(context5, type, value2);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/from-type.mjs
+function AssertRepairableValue(context5, type, value2) {
+  const unsupported = globals_exports.IsDate(value2) || globals_exports.IsMap(value2) || globals_exports.IsSet(value2) || globals_exports.IsTypeArray(value2) || guard_exports.IsConstructor(value2) || guard_exports.IsFunction(value2);
+  if (unsupported) {
+    throw new RepairError(context5, type, value2, "Value is not repairable");
+  }
+}
+function AssertRepairableType(context5, type, value2) {
+  const unsupported = IsAsyncIterator3(type) || IsIterator3(type) || IsConstructor3(type) || IsFunction3(type) || IsNever(type) || IsPromise(type);
+  if (unsupported) {
+    throw new RepairError(context5, type, value2, "Type is not repairable");
+  }
+}
+function FinalizeRepair(context5, type, repaired) {
+  return IsRefine(type) ? Check2(context5, type, repaired) ? repaired : Create2(context5, type) : repaired;
+}
+function FromType20(context5, type, value2) {
+  if (IsBase(type)) {
+    const repaired2 = FromBase5(context5, type, value2);
+    return FinalizeRepair(context5, type, repaired2);
+  }
+  AssertRepairableValue(context5, type, value2);
+  AssertRepairableType(context5, type, value2);
+  const repaired = IsArray3(type) ? FromArray16(context5, type, value2) : IsEnum(type) ? FromEnum4(context5, type, value2) : IsIntersect(type) ? FromIntersect12(context5, type, value2) : IsObject3(type) ? FromObject19(context5, type, value2) : IsRecord(type) ? FromRecord8(context5, type, value2) : IsRef(type) ? FromRef11(context5, type, value2) : IsTemplateLiteral(type) ? FromTemplateLiteral6(context5, type, value2) : IsTuple(type) ? FromTuple11(context5, type, value2) : IsUnion(type) ? FromUnion15(context5, type, value2) : FromUnknown4(context5, type, value2);
+  return FinalizeRepair(context5, type, repaired);
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/repair/repair.mjs
+function Repair(...args2) {
+  const [context5, type, value2] = arguments_exports.Match(args2, {
+    3: (context6, type2, value3) => [context6, type2, value3],
+    2: (type2, value3) => [{}, type2, value3]
+  });
+  const repaired = FromType20(context5, type, value2);
+  Assert(context5, type, repaired);
+  return repaired;
+}
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/value/value.mjs
+var value_exports = {};
+__export(value_exports, {
+  Assert: () => Assert,
+  Check: () => Check2,
+  Clean: () => Clean,
+  Clone: () => Clone2,
+  Convert: () => Convert,
+  Create: () => Create2,
+  Decode: () => Decode9,
+  Default: () => Default,
+  Diff: () => Diff,
+  Encode: () => Encode9,
+  Equal: () => Equal,
+  Errors: () => Errors2,
+  HasCodec: () => HasCodec,
+  Hash: () => Hash2,
+  Mutate: () => Mutate,
+  Parse: () => Parse,
+  Patch: () => Patch,
+  Pointer: () => pointer_exports,
+  Repair: () => Repair
+});
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/compile/validator.mjs
+var Validator = class _Validator extends Base {
+  /** Constructs a Validator. */
+  constructor(...args2) {
+    super();
+    const matched = arguments_exports.Match(args2, {
+      6: (context5, type, isEvalulated, hasCodec, code, check2) => [context5, type, isEvalulated, hasCodec, code, check2],
+      2: (context5, type) => [context5, type]
+    });
+    if (matched.length === 6) {
+      const [context5, type, isEvaluated, hasCodec, code, check2] = matched;
+      this.context = context5;
+      this.type = type;
+      this.isEvaluated = isEvaluated;
+      this.hasCodec = hasCodec;
+      this.code = code;
+      this.check = check2;
+    } else {
+      const [context5, type] = matched;
+      const result = Build(context5, type).Evaluate();
+      this.hasCodec = HasCodec(context5, type);
+      this.context = context5;
+      this.type = type;
+      this.isEvaluated = result.IsEvaluated;
+      this.code = result.Code;
+      this.check = result.Check;
+    }
+  }
+  // ----------------------------------------------------------------
+  // IsEvaluated
+  // ----------------------------------------------------------------
+  /** Returns true if this validator is using runtime eval optimizations. */
+  IsEvaluated() {
+    return this.isEvaluated;
+  }
+  // ----------------------------------------------------------------
+  // Context | Type
+  // ----------------------------------------------------------------
+  /** Returns the Context for this validator. */
+  Context() {
+    return this.context;
+  }
+  /** Returns the Type for this validator. */
+  Type() {
+    return this.type;
+  }
+  // ----------------------------------------------------------------
+  // Code
+  // ----------------------------------------------------------------
+  /** Returns the generated code for this validator. */
+  Code() {
+    return this.code;
+  }
+  // ----------------------------------------------------------------
+  // Base<...>
+  // ----------------------------------------------------------------
+  /** Checks a value matches the Validator type. */
+  Check(value2) {
+    return this.check(value2);
+  }
+  /** Returns errors for the given value. */
+  Errors(value2) {
+    if (environment_exports.CanEvaluate() && this.check(value2))
+      return [];
+    return Errors2(this.context, this.type, value2);
+  }
+  /** Cleans a value using the Validator type. */
+  Clean(value2) {
+    return Clean(this.context, this.type, value2);
+  }
+  /** Converts a value using the Validator type. */
+  Convert(value2) {
+    return Convert(this.context, this.type, value2);
+  }
+  /** Creates a value using the Validator type. */
+  Create() {
+    return Create2(this.context, this.type);
+  }
+  /** Creates defaults using the Validator type. */
+  Default(value2) {
+    return Default(this.context, this.type, value2);
+  }
+  /** Clones this validator. */
+  Clone() {
+    return new _Validator(this.context, this.type, this.isEvaluated, this.hasCodec, this.code, this.check);
+  }
+  // ----------------------------------------------------------------
+  // Parse | Decode | Encode
+  // ----------------------------------------------------------------
+  /** Parses a value */
+  Parse(value2) {
+    const result = this.Check(value2) ? value2 : Parser(this.context, this.type, value2);
+    return result;
+  }
+  /** Decodes a value */
+  Decode(value2) {
+    const result = this.hasCodec ? Decode9(this.context, this.type, value2) : this.Parse(value2);
+    return result;
+  }
+  /** Encodes a value */
+  Encode(value2) {
+    const result = this.hasCodec ? Encode9(this.context, this.type, value2) : this.Parse(value2);
+    return result;
+  }
+};
+
+// ../../node_modules/.bun/typebox@1.0.80/node_modules/typebox/build/compile/compile.mjs
+function Compile(...args2) {
+  const [context5, type] = arguments_exports.Match(args2, {
+    2: (context6, type2) => [context6, type2],
+    1: (type2) => [{}, type2]
+  });
+  return new Validator(context5, type);
+}
+
 // ../../packages/civ7-direct-control/dist/chunk-TIGRIXS6.js
 function productionChoicePostconditionConfirmed(classification) {
   switch (classification) {
@@ -26562,6 +26562,49 @@ function populationPlacementProofNoRepeatAfterConfirmed(classification) {
   return classification === "placement-state-changed";
 }
 
+// ../../packages/civ7-direct-control/dist/chunk-SBJ4NEBA.js
+function townFocusProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: townFocusProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function townFocusProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
+}
+
+// ../../packages/civ7-direct-control/dist/chunk-NRZVGPXC.js
+function firstMeetResponseProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: firstMeetResponseProofOutcome(result.postcondition),
+    confidence: firstMeetResponseProofConfirmed(result.postcondition) ? "confirmed" : "unverified",
+    noRepeatAfterUnverified: !firstMeetResponseProofConfirmed(result.postcondition)
+  };
+}
+function firstMeetResponseProofOutcome(postcondition) {
+  switch (postcondition.classification) {
+    case "turn-unblocked":
+    case "first-meet-cleared":
+      return "cleared";
+    case "first-meet-blocker-transitioned":
+      return "state-changed";
+    case "first-meet-sticky-blocker":
+      return "still-blocked";
+    case "not-sent":
+      return "not-sent";
+    case "first-meet-blocker-unmatched":
+      return "unknown";
+  }
+}
+function firstMeetResponseProofConfirmed(postcondition) {
+  return postcondition.classification === "turn-unblocked" || postcondition.classification === "first-meet-cleared";
+}
+
 // ../../packages/civ7-direct-control/dist/chunk-B2HNLYNP.js
 function diplomacyResponseProofPostcondition(result, proofBoundary) {
   if (!result.sent && !result.postcondition) return void 0;
@@ -26626,6 +26669,20 @@ function diplomacyResponseProofOutcome(classification) {
     case "no-state-change":
       return "no-state-change";
   }
+}
+
+// ../../packages/civ7-direct-control/dist/chunk-FFKDRHLA.js
+function governmentChoiceProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: governmentChoiceProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function governmentChoiceProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-U2GTLZMO.js
@@ -26694,17 +26751,15 @@ function narrativeChoiceProofOutcome(classification) {
   }
 }
 
-// ../../packages/civ7-direct-control/dist/chunk-GZKXOHBY.js
-var Civ7DirectControlError = class extends Error {
-  code;
-  details;
-  constructor(code, message, options) {
-    super(message, options?.cause !== void 0 ? { cause: options.cause } : void 0);
-    this.name = "Civ7DirectControlError";
-    this.code = code;
-    this.details = options?.details;
-  }
-};
+// ../../packages/civ7-direct-control/dist/chunk-GQU3VDSJ.js
+var Civ7ComponentIdSchema = typebox_exports.Object(
+  {
+    owner: typebox_exports.Number(),
+    id: typebox_exports.Number(),
+    type: typebox_exports.Optional(typebox_exports.Number())
+  },
+  { additionalProperties: false }
+);
 function Civ7RuntimeProbeSchema(value2) {
   return typebox_exports.Union([
     typebox_exports.Object({
@@ -26716,25 +26771,6 @@ function Civ7RuntimeProbeSchema(value2) {
       error: typebox_exports.String()
     }, { additionalProperties: false })
   ]);
-}
-var Civ7ComponentIdSchema = typebox_exports.Object(
-  {
-    owner: typebox_exports.Number(),
-    id: typebox_exports.Number(),
-    type: typebox_exports.Optional(typebox_exports.Number())
-  },
-  { additionalProperties: false }
-);
-function isCiv7ComponentId(value2) {
-  return value_exports.Check(Civ7ComponentIdSchema, value2);
-}
-function assertCiv7ComponentId(value2, label = "ComponentID") {
-  if (isCiv7ComponentId(value2)) return value2;
-  throw new Civ7DirectControlError(
-    "command-failed",
-    `${label} must be a Civ7 ComponentID object with numeric owner, id, and optional type`,
-    { details: { value: value2 } }
-  );
 }
 var Civ7NotificationDismissalPostconditionClassificationSchema = typebox_exports.Union([
   typebox_exports.Literal("not-sent"),
@@ -26845,11 +26881,11 @@ function notificationDismissalPostconditionReason(classification) {
       return "The dismissal was sent, but notification identity evidence did not confirm disappearance, queue removal, or front movement.";
   }
 }
-function probeValue2(probe10) {
-  return probe10.ok ? probe10.value : void 0;
+function probeValue2(probe13) {
+  return probe13.ok ? probe13.value : void 0;
 }
 
-// ../../packages/civ7-direct-control/dist/chunk-ZXTU55QH.js
+// ../../packages/civ7-direct-control/dist/chunk-DO73ZQ4V.js
 function notificationDismissalProofPostcondition(result, proofBoundary) {
   const postcondition = notificationDismissalPostconditionOf(result);
   if (!result.sent && !postcondition) return void 0;
@@ -27003,8 +27039,8 @@ function progressionChoiceDetailsChanged(left3, right3) {
 }
 function probeValue(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe10 = value2;
-    return probe10.ok === true ? probe10.value ?? null : null;
+    const probe13 = value2;
+    return probe13.ok === true ? probe13.value ?? null : null;
   }
   return value2 ?? null;
 }
@@ -27025,6 +27061,34 @@ function flattenKeys(value2, keys5 = {}) {
 }
 function isRecord(value2) {
   return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
+}
+
+// ../../packages/civ7-direct-control/dist/chunk-35BKMMLH.js
+function progressionTargetProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: progressionTargetProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function progressionTargetProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
+}
+
+// ../../packages/civ7-direct-control/dist/chunk-H6VSHXDZ.js
+function progressionPlayerChoiceProofPostcondition(result) {
+  return {
+    classification: result.postcondition.classification,
+    reason: result.postcondition.reason,
+    outcome: progressionPlayerChoiceProofOutcome(result.postcondition),
+    confidence: result.postcondition.classification === "pending-runtime-proof" ? "pending-runtime-proof" : "unverified",
+    noRepeatAfterUnverified: true
+  };
+}
+function progressionPlayerChoiceProofOutcome(postcondition) {
+  return postcondition.classification === "not-sent" ? "not-sent" : "unknown";
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-CVJ5ZYJP.js
@@ -27118,8 +27182,8 @@ function turnCompletionNoRepeatAfterUnverified(classification) {
       return true;
   }
 }
-function probeValue3(probe10) {
-  return probe10.ok ? probe10.value : void 0;
+function probeValue3(probe13) {
+  return probe13.ok ? probe13.value : void 0;
 }
 
 // ../../packages/civ7-direct-control/dist/chunk-ZGRAA6DD.js
@@ -27178,7 +27242,7 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-5FKFXI2S.js
+// ../../packages/civ7-control-orpc/dist/chunk-CR22UR4G.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -27188,36 +27252,6 @@ function isCiv7ControlOrpcCorrelationId(correlationId) {
 function civ7ControlOrpcErrorCorrelationData(context5) {
   const correlationId = context5.correlation?.correlationId;
   return isCiv7ControlOrpcCorrelationId(correlationId) ? { correlationId } : {};
-}
-function toStandardSchema(schema) {
-  const validator = Compile(schema);
-  return {
-    "~standard": {
-      version: 1,
-      vendor: "typebox",
-      validate(value2) {
-        if (validator.Check(value2)) {
-          return { value: value2 };
-        }
-        return {
-          issues: [...validator.Errors(value2)].map((error) => ({
-            message: error.message,
-            path: pathSegments(error.instancePath)
-          }))
-        };
-      }
-    }
-  };
-}
-function pathSegments(path) {
-  if (path.length === 0) {
-    return [];
-  }
-  return path.split("/").slice(1).map((segment) => ({ key: pathKey(segment) }));
-}
-function pathKey(segment) {
-  const decoded = segment.replace(/~1/g, "/").replace(/~0/g, "~");
-  return /^\d+$/.test(decoded) ? Number(decoded) : decoded;
 }
 function composeSurfaceProxy(surface, target) {
   return new Proxy(target, {
@@ -28033,6 +28067,60 @@ function implementEffect(contract, runtime4) {
     runtime4
   );
 }
+var TYPEBOX_SCHEMA = /* @__PURE__ */ Symbol.for("@civ7/control-orpc/typebox-schema");
+function toStandardSchema(schema) {
+  const validator = Compile(schema);
+  const standardSchema = {
+    "~standard": {
+      version: 1,
+      vendor: "typebox",
+      validate(value2) {
+        if (validator.Check(value2)) {
+          return { value: value2 };
+        }
+        return {
+          issues: [...validator.Errors(value2)].map((error) => ({
+            message: error.message,
+            path: pathSegments(error.instancePath)
+          }))
+        };
+      }
+    }
+  };
+  Object.defineProperty(standardSchema, TYPEBOX_SCHEMA, {
+    value: schema
+  });
+  return standardSchema;
+}
+function typeboxInputSchemaFromContractProcedure(procedure) {
+  return typeboxSchemaFromStandard(
+    procedure["~orpc"].inputSchema,
+    "input"
+  );
+}
+function typeboxOutputSchemaFromContractProcedure(procedure) {
+  return typeboxSchemaFromStandard(
+    procedure["~orpc"].outputSchema,
+    "output"
+  );
+}
+function typeboxSchemaFromStandard(value2, label) {
+  const schema = value2?.[TYPEBOX_SCHEMA];
+  if (schema == null) {
+    throw new Error(`Civ7 control-oRPC contract ${label} schema is not TypeBox-backed.`);
+  }
+  return schema;
+}
+function pathSegments(path) {
+  if (path.length === 0) {
+    return [];
+  }
+  return path.split("/").slice(1).map((segment) => ({ key: pathKey(segment) }));
+}
+function pathKey(segment) {
+  const decoded = segment.replace(/~1/g, "/").replace(/~0/g, "~");
+  return /^\d+$/.test(decoded) ? Number(decoded) : decoded;
+}
 var Civ7ControlOrpcErrorCorrelationProperties = {
   correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
 };
@@ -28126,6 +28214,27 @@ var Civ7UnitTargetActionUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7UnitRequestUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("unit.upgrade.request"),
+      typebox_exports.Literal("unit.resettle.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitRequestUnavailableError = class extends ORPCTaggedError(
+  "Civ7UnitRequestUnavailableError",
+  {
+    code: "UNIT_REQUEST_UNAVAILABLE",
+    message: "Direct-control unit request failed.",
+    schema: toStandardSchema(Civ7UnitRequestUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
 var Civ7NarrativeChoiceUnavailableErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("narrative.choice.request"),
@@ -28162,6 +28271,45 @@ var Civ7DiplomacyResponseUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7FirstMeetResponseUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("diplomacy.firstMeet.response.request"),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponseUnavailableError = class extends ORPCTaggedError(
+  "Civ7FirstMeetResponseUnavailableError",
+  {
+    code: "FIRST_MEET_RESPONSE_UNAVAILABLE",
+    message: "Direct-control first-meet response request failed.",
+    schema: toStandardSchema(Civ7FirstMeetResponseUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
+var Civ7GovernmentChoiceUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("government.choice.request"),
+      typebox_exports.Literal("government.celebration.choice.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoiceUnavailableError = class extends ORPCTaggedError(
+  "Civ7GovernmentChoiceUnavailableError",
+  {
+    code: "GOVERNMENT_CHOICE_UNAVAILABLE",
+    message: "Direct-control government-domain choice request failed.",
+    schema: toStandardSchema(Civ7GovernmentChoiceUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
 var Civ7ProgressionChoiceUnavailableErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Union([
@@ -28179,6 +28327,52 @@ var Civ7ProgressionChoiceUnavailableError = class extends ORPCTaggedError(
     code: "PROGRESSION_CHOICE_UNAVAILABLE",
     message: "Direct-control progression choice request failed.",
     schema: toStandardSchema(Civ7ProgressionChoiceUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
+var Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("progression.attribute.purchase.request"),
+      typebox_exports.Literal("progression.attribute.review.request"),
+      typebox_exports.Literal("progression.tradition.change.request"),
+      typebox_exports.Literal("progression.tradition.review.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerChoiceUnavailableError = class extends ORPCTaggedError(
+  "Civ7ProgressionPlayerChoiceUnavailableError",
+  {
+    code: "PROGRESSION_PLAYER_CHOICE_UNAVAILABLE",
+    message: "Direct-control progression player-choice request failed.",
+    schema: toStandardSchema(
+      Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema
+    ),
+    status: 503
+  }
+) {
+};
+var Civ7ProgressionTargetUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("progression.technology.target.request"),
+      typebox_exports.Literal("progression.culture.target.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTargetUnavailableError = class extends ORPCTaggedError(
+  "Civ7ProgressionTargetUnavailableError",
+  {
+    code: "PROGRESSION_TARGET_UNAVAILABLE",
+    message: "Direct-control progression target request failed.",
+    schema: toStandardSchema(Civ7ProgressionTargetUnavailableErrorDataSchema),
     status: 503
   }
 ) {
@@ -28285,6 +28479,27 @@ var Civ7ProductionChoiceUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7TownFocusUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Union([
+      typebox_exports.Literal("city.townFocus.change.request"),
+      typebox_exports.Literal("city.townFocus.review.request")
+    ]),
+    source: typebox_exports.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7TownFocusUnavailableError = class extends ORPCTaggedError(
+  "Civ7TownFocusUnavailableError",
+  {
+    code: "TOWN_FOCUS_UNAVAILABLE",
+    message: "Direct-control town focus request failed.",
+    schema: toStandardSchema(Civ7TownFocusUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
 var Civ7PopulationPlacementUnavailableErrorDataSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.population.place.request"),
@@ -28324,6 +28539,8 @@ var civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
+  FIRST_MEET_RESPONSE_UNAVAILABLE: Civ7FirstMeetResponseUnavailableError,
+  GOVERNMENT_CHOICE_UNAVAILABLE: Civ7GovernmentChoiceUnavailableError,
   MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
@@ -28331,10 +28548,14 @@ var civ7ControlOrpcErrorMap = {
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
+  PROGRESSION_PLAYER_CHOICE_UNAVAILABLE: Civ7ProgressionPlayerChoiceUnavailableError,
+  PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
+  TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
+  UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError
 };
 var civ7ControlOrpcContractBase = eoc.$meta({}).errors(civ7ControlOrpcErrorMap);
@@ -28575,6 +28796,21 @@ var Civ7CityPopulationPlacementInputSchema = typebox_exports.Union([
 var Civ7CityPopulationPlacementInputStandardSchema = toStandardSchema(
   Civ7CityPopulationPlacementInputSchema
 );
+var Civ7CityTownFocusChangeInputSchema = typebox_exports.Object(
+  {
+    cityId: Civ7ControlOrpcComponentIdSchema,
+    growthType: typebox_exports.Integer(),
+    projectType: typebox_exports.Integer(),
+    city: typebox_exports.Optional(typebox_exports.Integer())
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusReviewInputSchema = typebox_exports.Object(
+  {
+    cityId: Civ7ControlOrpcComponentIdSchema
+  },
+  { additionalProperties: false }
+);
 var Civ7CityPopulationPlacementModeSchema = typebox_exports.Union([
   typebox_exports.Literal("assign-worker"),
   typebox_exports.Literal("expand-city")
@@ -28739,6 +28975,98 @@ var Civ7CityProductionChoiceResultSchema = typebox_exports.Object(
 var Civ7CityProductionChoiceResultStandardSchema = toStandardSchema(
   Civ7CityProductionChoiceResultSchema
 );
+var Civ7CityTownFocusPostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("pending-runtime-proof"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7CityTownFocusProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7CityTownFocusRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7CityTownFocusValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusPostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7CityTownFocusPostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7CityTownFocusProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("unverified"),
+      typebox_exports.Literal("pending-runtime-proof")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusChangeNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-town-focus")
+    ]),
+    source: typebox_exports.Literal("city.townFocus.change.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusReviewNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-town-focus")
+    ]),
+    source: typebox_exports.Literal("city.townFocus.review.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusResultBaseSchema = {
+  cityId: Civ7ControlOrpcComponentIdSchema,
+  sent: typebox_exports.Boolean(),
+  status: Civ7CityTownFocusRequestStatusSchema,
+  validation: Civ7CityTownFocusValidationSummarySchema,
+  postcondition: Civ7CityTownFocusPostconditionSummarySchema
+};
+var Civ7CityTownFocusChangeResultSchema = typebox_exports.Object(
+  {
+    ...Civ7CityTownFocusResultBaseSchema,
+    growthType: typebox_exports.Integer(),
+    projectType: typebox_exports.Integer(),
+    city: typebox_exports.Integer(),
+    nextSteps: typebox_exports.Array(Civ7CityTownFocusChangeNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusReviewResultSchema = typebox_exports.Object(
+  {
+    ...Civ7CityTownFocusResultBaseSchema,
+    nextSteps: typebox_exports.Array(Civ7CityTownFocusReviewNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7CityTownFocusChangeInputStandardSchema = toStandardSchema(
+  Civ7CityTownFocusChangeInputSchema
+);
+var Civ7CityTownFocusReviewInputStandardSchema = toStandardSchema(
+  Civ7CityTownFocusReviewInputSchema
+);
+var Civ7CityTownFocusChangeResultStandardSchema = toStandardSchema(
+  Civ7CityTownFocusChangeResultSchema
+);
+var Civ7CityTownFocusReviewResultStandardSchema = toStandardSchema(
+  Civ7CityTownFocusReviewResultSchema
+);
 var Civ7CityPopulationPlacementContract = civ7ControlOrpcContractBase.input(Civ7CityPopulationPlacementInputStandardSchema).output(Civ7CityPopulationPlacementResultStandardSchema).meta({
   family: "city",
   procedureKey: "city.population.place.request",
@@ -28751,6 +29079,18 @@ var Civ7CityProductionChoiceContract = civ7ControlOrpcContractBase.input(Civ7Cit
   proofBoundary: "local-package-test",
   risk: "mutation"
 });
+var Civ7CityTownFocusChangeContract = civ7ControlOrpcContractBase.input(Civ7CityTownFocusChangeInputStandardSchema).output(Civ7CityTownFocusChangeResultStandardSchema).meta({
+  family: "city",
+  procedureKey: "city.townFocus.change.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7CityTownFocusReviewContract = civ7ControlOrpcContractBase.input(Civ7CityTownFocusReviewInputStandardSchema).output(Civ7CityTownFocusReviewResultStandardSchema).meta({
+  family: "city",
+  procedureKey: "city.townFocus.review.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
 var Civ7CityContract = {
   population: {
     place: {
@@ -28760,6 +29100,14 @@ var Civ7CityContract = {
   production: {
     choice: {
       request: Civ7CityProductionChoiceContract
+    }
+  },
+  townFocus: {
+    change: {
+      request: Civ7CityTownFocusChangeContract
+    },
+    review: {
+      request: Civ7CityTownFocusReviewContract
     }
   }
 };
@@ -28843,11 +29191,92 @@ var Civ7DiplomacyResponseResultSchema = typebox_exports.Object(
   },
   { additionalProperties: false }
 );
+var Civ7FirstMeetResponseInputSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    metPlayerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    responseType: typebox_exports.Integer()
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponsePostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("turn-unblocked"),
+  typebox_exports.Literal("first-meet-cleared"),
+  typebox_exports.Literal("first-meet-blocker-transitioned"),
+  typebox_exports.Literal("first-meet-sticky-blocker"),
+  typebox_exports.Literal("first-meet-blocker-unmatched"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7FirstMeetResponseProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("cleared"),
+  typebox_exports.Literal("state-changed"),
+  typebox_exports.Literal("still-blocked"),
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7FirstMeetResponseRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-confirmed"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7FirstMeetResponseValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponsePostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7FirstMeetResponsePostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7FirstMeetResponseProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("confirmed"),
+      typebox_exports.Literal("unverified")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponseNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("refresh-attention"),
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-first-meet-response")
+    ]),
+    source: typebox_exports.Literal("diplomacy.firstMeet.response.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7FirstMeetResponseResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    metPlayerId: typebox_exports.Integer({ minimum: 0 }),
+    responseType: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7FirstMeetResponseRequestStatusSchema,
+    validation: Civ7FirstMeetResponseValidationSummarySchema,
+    postcondition: Civ7FirstMeetResponsePostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7FirstMeetResponseNextStepSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7DiplomacyResponseInputStandardSchema = toStandardSchema(
   Civ7DiplomacyResponseInputSchema
 );
 var Civ7DiplomacyResponseResultStandardSchema = toStandardSchema(
   Civ7DiplomacyResponseResultSchema
+);
+var Civ7FirstMeetResponseInputStandardSchema = toStandardSchema(
+  Civ7FirstMeetResponseInputSchema
+);
+var Civ7FirstMeetResponseResultStandardSchema = toStandardSchema(
+  Civ7FirstMeetResponseResultSchema
 );
 var Civ7DiplomacyResponseContract = civ7ControlOrpcContractBase.input(Civ7DiplomacyResponseInputStandardSchema).output(Civ7DiplomacyResponseResultStandardSchema).meta({
   family: "diplomacy",
@@ -28855,9 +29284,142 @@ var Civ7DiplomacyResponseContract = civ7ControlOrpcContractBase.input(Civ7Diplom
   proofBoundary: "local-package-test",
   risk: "mutation"
 });
+var Civ7FirstMeetResponseContract = civ7ControlOrpcContractBase.input(Civ7FirstMeetResponseInputStandardSchema).output(Civ7FirstMeetResponseResultStandardSchema).meta({
+  family: "diplomacy",
+  procedureKey: "diplomacy.firstMeet.response.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
 var Civ7DiplomacyContract = {
+  firstMeet: {
+    response: {
+      request: Civ7FirstMeetResponseContract
+    }
+  },
   response: {
     request: Civ7DiplomacyResponseContract
+  }
+};
+var Civ7GovernmentChoiceInputSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    governmentType: typebox_exports.Integer(),
+    action: typebox_exports.Optional(typebox_exports.Integer())
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentCelebrationChoiceInputSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    goldenAgeType: typebox_exports.Integer()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoicePostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("pending-runtime-proof"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7GovernmentChoiceProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7GovernmentChoiceRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7GovernmentChoiceValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoicePostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7GovernmentChoicePostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7GovernmentChoiceProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("unverified"),
+      typebox_exports.Literal("pending-runtime-proof")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoiceNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-government-choice")
+    ]),
+    source: typebox_exports.Literal("government.choice.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentCelebrationChoiceNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-government-choice")
+    ]),
+    source: typebox_exports.Literal("government.celebration.choice.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoiceResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    governmentType: typebox_exports.Integer(),
+    action: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7GovernmentChoiceRequestStatusSchema,
+    validation: Civ7GovernmentChoiceValidationSummarySchema,
+    postcondition: Civ7GovernmentChoicePostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7GovernmentChoiceNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentCelebrationChoiceResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    goldenAgeType: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7GovernmentChoiceRequestStatusSchema,
+    validation: Civ7GovernmentChoiceValidationSummarySchema,
+    postcondition: Civ7GovernmentChoicePostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7GovernmentCelebrationChoiceNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7GovernmentChoiceInputStandardSchema = toStandardSchema(Civ7GovernmentChoiceInputSchema);
+var Civ7GovernmentCelebrationChoiceInputStandardSchema = toStandardSchema(Civ7GovernmentCelebrationChoiceInputSchema);
+var Civ7GovernmentChoiceResultStandardSchema = toStandardSchema(Civ7GovernmentChoiceResultSchema);
+var Civ7GovernmentCelebrationChoiceResultStandardSchema = toStandardSchema(Civ7GovernmentCelebrationChoiceResultSchema);
+var Civ7GovernmentChoiceContract = civ7ControlOrpcContractBase.input(Civ7GovernmentChoiceInputStandardSchema).output(Civ7GovernmentChoiceResultStandardSchema).meta({
+  family: "government",
+  procedureKey: "government.choice.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7GovernmentCelebrationChoiceContract = civ7ControlOrpcContractBase.input(Civ7GovernmentCelebrationChoiceInputStandardSchema).output(Civ7GovernmentCelebrationChoiceResultStandardSchema).meta({
+  family: "government",
+  procedureKey: "government.celebration.choice.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7GovernmentContract = {
+  choice: {
+    request: Civ7GovernmentChoiceContract
+  },
+  celebration: {
+    choice: {
+      request: Civ7GovernmentCelebrationChoiceContract
+    }
   }
 };
 var Civ7NarrativeChoiceInputSchema = typebox_exports.Object(
@@ -28958,6 +29520,30 @@ var Civ7ProgressionChoiceInputSchema = typebox_exports.Object(
     playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
     node: typebox_exports.Integer(),
     notificationId: typebox_exports.Optional(Civ7ControlOrpcComponentIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTargetInputSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0, maximum: 1024 }),
+    node: typebox_exports.Integer()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionAttributePurchaseInputSchema = typebox_exports.Object(
+  {
+    node: typebox_exports.Integer()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerReviewInputSchema = typebox_exports.Object(
+  {},
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionChangeInputSchema = typebox_exports.Object(
+  {
+    traditionType: typebox_exports.Integer(),
+    action: typebox_exports.Integer()
   },
   { additionalProperties: false }
 );
@@ -29066,9 +29652,215 @@ var Civ7ProgressionCultureChoiceResultSchema = typebox_exports.Object(
   },
   { additionalProperties: false }
 );
+var Civ7ProgressionTargetPostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("pending-runtime-proof"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7ProgressionTargetProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7ProgressionTargetRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7ProgressionTargetValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTargetPostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7ProgressionTargetPostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7ProgressionTargetProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("unverified"),
+      typebox_exports.Literal("pending-runtime-proof")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTechnologyTargetNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-target")
+    ]),
+    source: typebox_exports.Literal("progression.technology.target.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionCultureTargetNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-target")
+    ]),
+    source: typebox_exports.Literal("progression.culture.target.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTechnologyTargetResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    node: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7ProgressionTargetRequestStatusSchema,
+    validation: Civ7ProgressionTargetValidationSummarySchema,
+    postcondition: Civ7ProgressionTargetPostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7ProgressionTechnologyTargetNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionCultureTargetResultSchema = typebox_exports.Object(
+  {
+    playerId: typebox_exports.Integer({ minimum: 0 }),
+    node: typebox_exports.Integer(),
+    sent: typebox_exports.Boolean(),
+    status: Civ7ProgressionTargetRequestStatusSchema,
+    validation: Civ7ProgressionTargetValidationSummarySchema,
+    postcondition: Civ7ProgressionTargetPostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7ProgressionCultureTargetNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerChoicePostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("pending-runtime-proof"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7ProgressionPlayerChoiceProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7ProgressionPlayerChoiceRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7ProgressionPlayerChoiceValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerChoicePostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7ProgressionPlayerChoicePostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7ProgressionPlayerChoiceProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("unverified"),
+      typebox_exports.Literal("pending-runtime-proof")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionAttributePurchaseNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-attribute")
+    ]),
+    source: typebox_exports.Literal("progression.attribute.purchase.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionAttributeReviewNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-attribute")
+    ]),
+    source: typebox_exports.Literal("progression.attribute.review.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionChangeNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-tradition")
+    ]),
+    source: typebox_exports.Literal("progression.tradition.change.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionReviewNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-progression-tradition")
+    ]),
+    source: typebox_exports.Literal("progression.tradition.review.request"),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionPlayerChoiceResultBaseSchema = {
+  playerId: typebox_exports.Integer({ minimum: 0 }),
+  sent: typebox_exports.Boolean(),
+  status: Civ7ProgressionPlayerChoiceRequestStatusSchema,
+  validation: Civ7ProgressionPlayerChoiceValidationSummarySchema,
+  postcondition: Civ7ProgressionPlayerChoicePostconditionSummarySchema
+};
+var Civ7ProgressionAttributePurchaseResultSchema = typebox_exports.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    node: typebox_exports.Integer(),
+    nextSteps: typebox_exports.Array(Civ7ProgressionAttributePurchaseNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionAttributeReviewResultSchema = typebox_exports.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    nextSteps: typebox_exports.Array(Civ7ProgressionAttributeReviewNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionChangeResultSchema = typebox_exports.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    traditionType: typebox_exports.Integer(),
+    action: typebox_exports.Integer(),
+    nextSteps: typebox_exports.Array(Civ7ProgressionTraditionChangeNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ProgressionTraditionReviewResultSchema = typebox_exports.Object(
+  {
+    ...Civ7ProgressionPlayerChoiceResultBaseSchema,
+    nextSteps: typebox_exports.Array(Civ7ProgressionTraditionReviewNextStepSchema)
+  },
+  { additionalProperties: false }
+);
 var Civ7ProgressionChoiceInputStandardSchema = toStandardSchema(Civ7ProgressionChoiceInputSchema);
+var Civ7ProgressionTargetInputStandardSchema = toStandardSchema(Civ7ProgressionTargetInputSchema);
+var Civ7ProgressionAttributePurchaseInputStandardSchema = toStandardSchema(Civ7ProgressionAttributePurchaseInputSchema);
+var Civ7ProgressionPlayerReviewInputStandardSchema = toStandardSchema(Civ7ProgressionPlayerReviewInputSchema);
+var Civ7ProgressionTraditionChangeInputStandardSchema = toStandardSchema(Civ7ProgressionTraditionChangeInputSchema);
 var Civ7ProgressionTechnologyChoiceResultStandardSchema = toStandardSchema(Civ7ProgressionTechnologyChoiceResultSchema);
 var Civ7ProgressionCultureChoiceResultStandardSchema = toStandardSchema(Civ7ProgressionCultureChoiceResultSchema);
+var Civ7ProgressionTechnologyTargetResultStandardSchema = toStandardSchema(Civ7ProgressionTechnologyTargetResultSchema);
+var Civ7ProgressionCultureTargetResultStandardSchema = toStandardSchema(Civ7ProgressionCultureTargetResultSchema);
+var Civ7ProgressionAttributePurchaseResultStandardSchema = toStandardSchema(Civ7ProgressionAttributePurchaseResultSchema);
+var Civ7ProgressionAttributeReviewResultStandardSchema = toStandardSchema(Civ7ProgressionAttributeReviewResultSchema);
+var Civ7ProgressionTraditionChangeResultStandardSchema = toStandardSchema(Civ7ProgressionTraditionChangeResultSchema);
+var Civ7ProgressionTraditionReviewResultStandardSchema = toStandardSchema(Civ7ProgressionTraditionReviewResultSchema);
 var Civ7ProgressionTechnologyChoiceContract = civ7ControlOrpcContractBase.input(Civ7ProgressionChoiceInputStandardSchema).output(Civ7ProgressionTechnologyChoiceResultStandardSchema).meta({
   family: "progression",
   procedureKey: "progression.technology.choice.request",
@@ -29081,15 +29873,73 @@ var Civ7ProgressionCultureChoiceContract = civ7ControlOrpcContractBase.input(Civ
   proofBoundary: "local-package-test",
   risk: "mutation"
 });
+var Civ7ProgressionTechnologyTargetContract = civ7ControlOrpcContractBase.input(Civ7ProgressionTargetInputStandardSchema).output(Civ7ProgressionTechnologyTargetResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.technology.target.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionCultureTargetContract = civ7ControlOrpcContractBase.input(Civ7ProgressionTargetInputStandardSchema).output(Civ7ProgressionCultureTargetResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.culture.target.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionAttributePurchaseContract = civ7ControlOrpcContractBase.input(Civ7ProgressionAttributePurchaseInputStandardSchema).output(Civ7ProgressionAttributePurchaseResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.attribute.purchase.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionAttributeReviewContract = civ7ControlOrpcContractBase.input(Civ7ProgressionPlayerReviewInputStandardSchema).output(Civ7ProgressionAttributeReviewResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.attribute.review.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionTraditionChangeContract = civ7ControlOrpcContractBase.input(Civ7ProgressionTraditionChangeInputStandardSchema).output(Civ7ProgressionTraditionChangeResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.tradition.change.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7ProgressionTraditionReviewContract = civ7ControlOrpcContractBase.input(Civ7ProgressionPlayerReviewInputStandardSchema).output(Civ7ProgressionTraditionReviewResultStandardSchema).meta({
+  family: "progression",
+  procedureKey: "progression.tradition.review.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
 var Civ7ProgressionContract = {
   technology: {
     choice: {
       request: Civ7ProgressionTechnologyChoiceContract
+    },
+    target: {
+      request: Civ7ProgressionTechnologyTargetContract
     }
   },
   culture: {
     choice: {
       request: Civ7ProgressionCultureChoiceContract
+    },
+    target: {
+      request: Civ7ProgressionCultureTargetContract
+    }
+  },
+  attribute: {
+    purchase: {
+      request: Civ7ProgressionAttributePurchaseContract
+    },
+    review: {
+      request: Civ7ProgressionAttributeReviewContract
+    }
+  },
+  tradition: {
+    change: {
+      request: Civ7ProgressionTraditionChangeContract
+    },
+    review: {
+      request: Civ7ProgressionTraditionReviewContract
     }
   }
 };
@@ -29615,23 +30465,152 @@ var Civ7UnitTargetActionResultSchema = typebox_exports.Object(
 var Civ7UnitTargetActionResultStandardSchema = toStandardSchema(
   Civ7UnitTargetActionResultSchema
 );
+var Civ7UnitUpgradeInputSchema = typebox_exports.Object(
+  {
+    unitId: Civ7ControlOrpcComponentIdSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitUpgradeInputStandardSchema = toStandardSchema(
+  Civ7UnitUpgradeInputSchema
+);
+var Civ7UnitResettleInputSchema = typebox_exports.Object(
+  {
+    unitId: Civ7ControlOrpcComponentIdSchema,
+    destination: Civ7ControlOrpcMapLocationSchema
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitResettleInputStandardSchema = toStandardSchema(
+  Civ7UnitResettleInputSchema
+);
+var Civ7UnitCommandPostconditionClassificationSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("queue-advanced"),
+  typebox_exports.Literal("selected-unit-changed"),
+  typebox_exports.Literal("activity-changed"),
+  typebox_exports.Literal("unit-state-changed"),
+  typebox_exports.Literal("blocker-changed"),
+  typebox_exports.Literal("validation-changed"),
+  typebox_exports.Literal("no-state-change"),
+  typebox_exports.Literal("missing-postcondition")
+]);
+var Civ7UnitCommandProofOutcomeSchema = typebox_exports.Union([
+  typebox_exports.Literal("cleared"),
+  typebox_exports.Literal("state-changed"),
+  typebox_exports.Literal("no-state-change"),
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("unknown")
+]);
+var Civ7UnitCommandRequestStatusSchema = typebox_exports.Union([
+  typebox_exports.Literal("not-sent"),
+  typebox_exports.Literal("sent-confirmed"),
+  typebox_exports.Literal("sent-guarded"),
+  typebox_exports.Literal("sent-unverified")
+]);
+var Civ7UnitCommandSummarySchema = typebox_exports.Union([
+  typebox_exports.Object(
+    {
+      kind: typebox_exports.Literal("upgrade"),
+      unitId: Civ7ControlOrpcComponentIdSchema
+    },
+    { additionalProperties: false }
+  ),
+  typebox_exports.Object(
+    {
+      kind: typebox_exports.Literal("resettle"),
+      unitId: Civ7ControlOrpcComponentIdSchema,
+      destination: Civ7ControlOrpcMapLocationSchema
+    },
+    { additionalProperties: false }
+  )
+]);
+var Civ7UnitCommandValidationSummarySchema = typebox_exports.Object(
+  {
+    beforeValid: typebox_exports.Boolean(),
+    afterValid: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitCommandPostconditionSummarySchema = typebox_exports.Object(
+  {
+    classification: Civ7UnitCommandPostconditionClassificationSchema,
+    reason: typebox_exports.String(),
+    outcome: Civ7UnitCommandProofOutcomeSchema,
+    confidence: typebox_exports.Union([
+      typebox_exports.Literal("confirmed"),
+      typebox_exports.Literal("unverified")
+    ]),
+    confirmed: typebox_exports.Boolean(),
+    noRepeatAfterUnverified: typebox_exports.Boolean()
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitCommandNextStepSchema = typebox_exports.Object(
+  {
+    kind: typebox_exports.Union([
+      typebox_exports.Literal("refresh-attention"),
+      typebox_exports.Literal("do-not-repeat"),
+      typebox_exports.Literal("inspect-unit-command")
+    ]),
+    source: typebox_exports.Union([
+      typebox_exports.Literal("unit.upgrade.request"),
+      typebox_exports.Literal("unit.resettle.request")
+    ]),
+    label: typebox_exports.String()
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitCommandResultSchema = typebox_exports.Object(
+  {
+    action: Civ7UnitCommandSummarySchema,
+    sent: typebox_exports.Boolean(),
+    status: Civ7UnitCommandRequestStatusSchema,
+    validation: Civ7UnitCommandValidationSummarySchema,
+    postcondition: Civ7UnitCommandPostconditionSummarySchema,
+    nextSteps: typebox_exports.Array(Civ7UnitCommandNextStepSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7UnitCommandResultStandardSchema = toStandardSchema(
+  Civ7UnitCommandResultSchema
+);
 var Civ7UnitTargetActionContract = civ7ControlOrpcContractBase.input(Civ7UnitTargetActionInputStandardSchema).output(Civ7UnitTargetActionResultStandardSchema).meta({
   family: "unit",
   procedureKey: "unit.target.action.request",
   proofBoundary: "local-package-test",
   risk: "mutation"
 });
+var Civ7UnitUpgradeContract = civ7ControlOrpcContractBase.input(Civ7UnitUpgradeInputStandardSchema).output(Civ7UnitCommandResultStandardSchema).meta({
+  family: "unit",
+  procedureKey: "unit.upgrade.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
+var Civ7UnitResettleContract = civ7ControlOrpcContractBase.input(Civ7UnitResettleInputStandardSchema).output(Civ7UnitCommandResultStandardSchema).meta({
+  family: "unit",
+  procedureKey: "unit.resettle.request",
+  proofBoundary: "local-package-test",
+  risk: "mutation"
+});
 var Civ7UnitContract = {
+  resettle: {
+    request: Civ7UnitResettleContract
+  },
   target: {
     action: {
       request: Civ7UnitTargetActionContract
     }
+  },
+  upgrade: {
+    request: Civ7UnitUpgradeContract
   }
 };
 var Civ7ControlOrpcContract = civ7ControlOrpcContractBase.router({
   attention: Civ7AttentionContract,
   city: Civ7CityContract,
   diplomacy: Civ7DiplomacyContract,
+  government: Civ7GovernmentContract,
   narrative: Civ7NarrativeContract,
   notifications: Civ7NotificationsContract,
   progression: Civ7ProgressionContract,
@@ -29975,7 +30954,8 @@ function sourceReadStatus(attempted, result) {
   if ("unitId" in result) {
     return result.firstReadyUnitId.ok === true ? "read" : "skipped-unsupported";
   }
-  return "skipped-unsupported";
+  const readyCityId = result.cityId ?? probeValue4(result.blockingCityId);
+  return readyCityId == null ? "skipped-unsupported" : "read";
 }
 function canRecommendEndTurn(turnCompletion) {
   if (probeValue4(turnCompletion?.canEndTurn) !== true) return false;
@@ -30000,11 +30980,11 @@ function skippedSourceStatus(playableStatus) {
     readyCity: skipped
   };
 }
-function probeValue4(probe10) {
-  if (probe10 == null || typeof probe10 !== "object") return null;
-  if (!("ok" in probe10) || probe10.ok !== true) return null;
-  if (!("value" in probe10)) return null;
-  return probe10.value;
+function probeValue4(probe13) {
+  if (probe13 == null || typeof probe13 !== "object") return null;
+  if (!("ok" in probe13) || probe13.ok !== true) return null;
+  if (!("value" in probe13)) return null;
+  return probe13.value;
 }
 function componentIdFromUnknown(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
@@ -30355,6 +31335,94 @@ function cityPopulationPlacementPostconditionSummary(result) {
     placementStateChanged: sourcePostcondition?.placementStateChanged ?? null
   };
 }
+var cityTownFocusChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.city.townFocus.change.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "city.townFocus.change.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const result = await context5.directControl.requestCiv7TownFocusChange(
+        input,
+        context5.endpointDefaults
+      );
+      return townFocusResult(source, input, result);
+    },
+    catch: () => errors.TOWN_FOCUS_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var cityTownFocusReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.city.townFocus.review.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "city.townFocus.review.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const result = await context5.directControl.requestCiv7TownFocusReviewCloseout(
+        input,
+        context5.endpointDefaults
+      );
+      return townFocusResult(source, input, result);
+    },
+    catch: () => errors.TOWN_FOCUS_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+function townFocusResult(source, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: townFocusProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The town focus result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source,
+    inspectKind: "inspect-town-focus",
+    inspectLabel: "Inspect current ready-city town focus evidence before attempting another town focus request.",
+    doNotRepeatLabel: "Do not repeat this town focus request until fresh city readiness evidence is read."
+  });
+  const base = {
+    cityId: result.cityId,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+  if (source === "city.townFocus.change.request" && result.kind === "town-focus-change" && "growthType" in input) {
+    return {
+      ...base,
+      growthType: result.growthType,
+      projectType: result.projectType,
+      city: result.city
+    };
+  }
+  if (source === "city.townFocus.review.request") {
+    return base;
+  }
+  throw new Error("invalid town focus projection");
+}
 var cityRouter = {
   population: {
     place: {
@@ -30365,8 +31433,80 @@ var cityRouter = {
     choice: {
       request: cityProductionChoiceRequestProcedure
     }
+  },
+  townFocus: {
+    change: {
+      request: cityTownFocusChangeRequestProcedure
+    },
+    review: {
+      request: cityTownFocusReviewRequestProcedure
+    }
   }
 };
+var firstMeetResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.diplomacy.firstMeet.response.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        metPlayerId: input.metPlayerId,
+        responseType: input.responseType
+      };
+      const result = await context5.directControl.requestCiv7FirstMeetResponse(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return firstMeetResponseResult(requestInput, result);
+    },
+    catch: () => errors.FIRST_MEET_RESPONSE_UNAVAILABLE({
+      data: {
+        procedureKey: "diplomacy.firstMeet.response.request",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+async function readLocalPlayerId(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
+function firstMeetResponseResult(input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: firstMeetResponseProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The first-meet response result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source: "diplomacy.firstMeet.response.request",
+    inspectKind: "inspect-first-meet-response",
+    inspectLabel: "Inspect current attention and first-meet diplomacy state before attempting another first-meet response.",
+    doNotRepeatLabel: "Do not repeat this first-meet response until fresh attention and first-meet evidence is read."
+  });
+  return {
+    playerId: result.playerId,
+    metPlayerId: result.metPlayerId,
+    responseType: input.responseType,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+}
 var diplomacyResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.diplomacy.response.request
 ).effect(function* ({
@@ -30421,8 +31561,130 @@ function diplomacyResponseResult(input, result) {
   };
 }
 var diplomacyRouter = {
+  firstMeet: {
+    response: {
+      request: firstMeetResponseRequestProcedure
+    }
+  },
   response: {
     request: diplomacyResponseRequestProcedure
+  }
+};
+var governmentChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.government.choice.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "government.choice.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId2(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        governmentType: input.governmentType,
+        ...input.action === void 0 ? {} : { action: input.action }
+      };
+      const result = await context5.directControl.requestCiv7GovernmentChoice(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return governmentChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.GOVERNMENT_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var governmentCelebrationChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.government.celebration.choice.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "government.celebration.choice.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId2(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        goldenAgeType: input.goldenAgeType
+      };
+      const result = await context5.directControl.requestCiv7CelebrationChoice(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return governmentChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.GOVERNMENT_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+async function readLocalPlayerId2(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
+function governmentChoiceResult(source, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: governmentChoiceProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The government-domain choice result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source,
+    inspectKind: "inspect-government-choice",
+    inspectLabel: "Inspect current government or celebration choice state before attempting another request.",
+    doNotRepeatLabel: "Do not repeat this government-domain choice request until fresh attention evidence is read."
+  });
+  const base = {
+    playerId: result.playerId,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+  if (source === "government.choice.request" && "governmentType" in input && result.kind === "government") {
+    return {
+      ...base,
+      governmentType: result.governmentType,
+      action: result.action
+    };
+  }
+  if ("goldenAgeType" in input && result.kind === "celebration") {
+    return {
+      ...base,
+      goldenAgeType: result.goldenAgeType
+    };
+  }
+  throw new Error("invalid government-domain choice projection");
+}
+var governmentRouter = {
+  choice: {
+    request: governmentChoiceRequestProcedure
+  },
+  celebration: {
+    choice: {
+      request: governmentCelebrationChoiceRequestProcedure
+    }
   }
 };
 var narrativeChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
@@ -30725,20 +31987,308 @@ function booleanProbeValue(value2) {
 }
 function probeValue22(value2) {
   if (value2 && typeof value2 === "object" && "ok" in value2) {
-    const probe10 = value2;
-    return probe10.ok === true ? probe10.value ?? null : null;
+    const probe13 = value2;
+    return probe13.ok === true ? probe13.value ?? null : null;
   }
   return value2 ?? null;
+}
+var progressionTechnologyTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.technology.target.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const kind = "technology";
+  const source = "progression.technology.target.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId3(context5);
+      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
+      const result = await requestProgressionTarget(kind, requestInput, context5);
+      return progressionTargetResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_TARGET_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionCultureTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.culture.target.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const kind = "culture";
+  const source = "progression.culture.target.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId3(context5);
+      const requestInput = progressionTargetRuntimeInput(input, localPlayerId);
+      const result = await requestProgressionTarget(kind, requestInput, context5);
+      return progressionTargetResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_TARGET_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+async function readLocalPlayerId3(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
+function progressionTargetRuntimeInput(input, localPlayerId) {
+  return {
+    playerId: localPlayerId,
+    node: input.node
+  };
+}
+async function requestProgressionTarget(kind, input, context5) {
+  if (kind === "technology") {
+    return context5.directControl.requestCiv7TechnologyTarget(
+      input,
+      context5.endpointDefaults
+    );
+  }
+  return context5.directControl.requestCiv7CultureTarget(
+    input,
+    context5.endpointDefaults
+  );
+}
+function progressionTargetResult(source, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: progressionTargetProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The progression target request result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source,
+    inspectKind: "inspect-progression-target",
+    inspectLabel: "Inspect current progression target state before attempting another target request.",
+    doNotRepeatLabel: "Do not repeat this progression target request until fresh progression target evidence is read."
+  });
+  return {
+    playerId: result.playerId,
+    node: input.node,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+}
+var progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.attribute.purchase.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "progression.attribute.purchase.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId4(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        node: input.node
+      };
+      const result = await context5.directControl.requestCiv7AttributePurchase(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionAttributeReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.attribute.review.request
+).effect(function* ({
+  context: context5,
+  errors
+}) {
+  const source = "progression.attribute.review.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId4(context5);
+      const requestInput = { playerId: localPlayerId };
+      const result = await context5.directControl.requestCiv7AttributeReviewCloseout(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionTraditionChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.tradition.change.request
+).effect(function* ({
+  context: context5,
+  errors,
+  input
+}) {
+  const source = "progression.tradition.change.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId4(context5);
+      const requestInput = {
+        playerId: localPlayerId,
+        traditionType: input.traditionType,
+        action: input.action
+      };
+      const result = await context5.directControl.requestCiv7TraditionChange(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var progressionTraditionReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.progression.tradition.review.request
+).effect(function* ({
+  context: context5,
+  errors
+}) {
+  const source = "progression.tradition.review.request";
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const localPlayerId = await readLocalPlayerId4(context5);
+      const requestInput = { playerId: localPlayerId };
+      const result = await context5.directControl.requestCiv7TraditionReviewCloseout(
+        requestInput,
+        context5.endpointDefaults
+      );
+      return progressionPlayerChoiceResult(source, requestInput, result);
+    },
+    catch: () => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
+      data: {
+        procedureKey: source,
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+async function readLocalPlayerId4(context5) {
+  const view = await context5.directControl.getCiv7PlayNotificationView(
+    context5.endpointDefaults
+  );
+  return view.localPlayerId;
+}
+function progressionPlayerChoiceResult(source, input, result) {
+  const projection = civ7CloseoutMutationProjection({
+    sent: result.sent,
+    postcondition: progressionPlayerChoiceProofPostcondition(result),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The progression player-choice result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent"
+    },
+    source,
+    inspectKind: source.includes("attribute") ? "inspect-progression-attribute" : "inspect-progression-tradition",
+    inspectLabel: source.includes("attribute") ? "Inspect current attribute review state before attempting another request." : "Inspect current tradition review state before attempting another request.",
+    doNotRepeatLabel: "Do not repeat this progression player-choice request until fresh attention evidence is read."
+  });
+  const base = {
+    playerId: result.playerId,
+    sent: result.sent,
+    status: projection.status,
+    validation: {
+      beforeValid: result.beforeValidation.valid,
+      afterValid: result.afterValidation.valid
+    },
+    postcondition: projection.postcondition,
+    nextSteps: projection.nextSteps
+  };
+  if (source === "progression.attribute.purchase.request" && "node" in input && result.kind === "attribute-purchase") {
+    return {
+      ...base,
+      node: result.node
+    };
+  }
+  if (source === "progression.attribute.review.request") {
+    return base;
+  }
+  if (source === "progression.tradition.change.request" && "traditionType" in input && result.kind === "tradition-change") {
+    return {
+      ...base,
+      traditionType: result.traditionType,
+      action: result.action
+    };
+  }
+  if (source === "progression.tradition.review.request") {
+    return base;
+  }
+  throw new Error("invalid progression player-choice projection");
 }
 var progressionRouter = {
   technology: {
     choice: {
       request: progressionTechnologyChoiceRequestProcedure
+    },
+    target: {
+      request: progressionTechnologyTargetRequestProcedure
     }
   },
   culture: {
     choice: {
       request: progressionCultureChoiceRequestProcedure
+    },
+    target: {
+      request: progressionCultureTargetRequestProcedure
+    }
+  },
+  attribute: {
+    purchase: {
+      request: progressionAttributePurchaseRequestProcedure
+    },
+    review: {
+      request: progressionAttributeReviewRequestProcedure
+    }
+  },
+  tradition: {
+    change: {
+      request: progressionTraditionChangeRequestProcedure
+    },
+    review: {
+      request: progressionTraditionReviewRequestProcedure
     }
   }
 };
@@ -30906,8 +32456,8 @@ function supportsStrategyFront(context5) {
 function supportedReadProcedures(context5) {
   return context5.controller?.supportedReadProcedures ?? [];
 }
-function probeValue32(probe10) {
-  return probe10.ok ? probe10.value : null;
+function probeValue32(probe13) {
+  return probe13.ok ? probe13.value : null;
 }
 var readinessRouter = {
   current: readinessCurrentProcedure
@@ -31027,7 +32577,7 @@ function strategyFrontSummaryResult({
     pointsOfInterest: pointsOfInterest2,
     observedOwners,
     notes: [
-      "Read-only strategy front summary. It does not move, attack, approve sends, or change diplomacy.",
+      "Read-only strategy front summary. It does not move, attack, send actions, or change diplomacy.",
       "Use visibility and validator-backed unit action procedures before any mutation.",
       "Relationship labels stay relationship-unproven unless official diplomatic evidence proves more."
     ],
@@ -31202,19 +32752,174 @@ function turnCompletionProbeSummary(status) {
     firstReadyUnitId: probeValue42(status.firstReadyUnitId)
   };
 }
-function blockerValue(probe10) {
-  const value2 = probeValue42(probe10);
+function blockerValue(probe13) {
+  const value2 = probeValue42(probe13);
   if (typeof value2 === "number" || typeof value2 === "string") return value2;
   return null;
 }
-function probeValue42(probe10) {
-  return probe10.ok ? probe10.value : null;
+function probeValue42(probe13) {
+  return probe13.ok ? probe13.value : null;
 }
 var turnRouter = {
   complete: {
     request: turnCompleteRequestProcedure
   }
 };
+var unitUpgradeRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.unit.upgrade.request
+).effect(function* ({ context: context5, errors, input }) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const procedureInput = {
+        mode: "upgrade",
+        ...input
+      };
+      const result = await context5.directControl.requestCiv7UnitCommand(
+        unitCommandRuntimeRequest(procedureInput),
+        context5.endpointDefaults
+      );
+      return unitCommandResult(
+        procedureInput,
+        result,
+        "unit.upgrade.request"
+      );
+    },
+    catch: () => errors.UNIT_REQUEST_UNAVAILABLE({
+      data: {
+        procedureKey: "unit.upgrade.request",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+var unitResettleRequestProcedure = civ7ControlOrpcMutationProcedure(
+  civ7ControlOrpcImplementer.unit.resettle.request
+).effect(function* ({ context: context5, errors, input }) {
+  return yield* Effect_exports.tryPromise({
+    try: async () => {
+      const procedureInput = {
+        mode: "resettle",
+        ...input
+      };
+      const result = await context5.directControl.requestCiv7UnitCommand(
+        unitCommandRuntimeRequest(procedureInput),
+        context5.endpointDefaults
+      );
+      return unitCommandResult(
+        procedureInput,
+        result,
+        "unit.resettle.request"
+      );
+    },
+    catch: () => errors.UNIT_REQUEST_UNAVAILABLE({
+      data: {
+        procedureKey: "unit.resettle.request",
+        source: "direct-control-facade",
+        ...civ7ControlOrpcErrorCorrelationData(context5)
+      }
+    })
+  });
+});
+function unitCommandRuntimeRequest(input) {
+  if (input.mode === "upgrade") {
+    return {
+      unitId: input.unitId,
+      operationType: "UNITCOMMAND_UPGRADE",
+      args: {}
+    };
+  }
+  return {
+    unitId: input.unitId,
+    operationType: "UNITCOMMAND_RESETTLE",
+    args: {
+      X: input.destination.x,
+      Y: input.destination.y
+    }
+  };
+}
+function unitCommandResult(input, result, procedureKey) {
+  const postcondition = unitCommandPostconditionSummary(result);
+  const status = civ7MutationRequestStatus({
+    sent: result.sent,
+    postcondition
+  });
+  return {
+    action: unitCommandSummary(input),
+    sent: result.sent,
+    status,
+    validation: {
+      beforeValid: result.before.valid,
+      afterValid: result.after.valid
+    },
+    postcondition,
+    nextSteps: civ7MutationNextSteps({
+      status,
+      postcondition,
+      source: procedureKey,
+      inspectKind: "inspect-unit-command",
+      inspectLabel: "Inspect ready-unit and unit command evidence before attempting another unit command request.",
+      doNotRepeatLabel: "Do not repeat this unit command until fresh unit readiness and postcondition evidence is read."
+    })
+  };
+}
+function unitCommandSummary(input) {
+  if (input.mode === "upgrade") {
+    return {
+      kind: "upgrade",
+      unitId: input.unitId
+    };
+  }
+  return {
+    kind: "resettle",
+    unitId: input.unitId,
+    destination: {
+      x: input.destination.x,
+      y: input.destination.y
+    }
+  };
+}
+function unitCommandPostconditionSummary(result) {
+  const source = result.postcondition;
+  if (source == null) {
+    return {
+      classification: "missing-postcondition",
+      reason: "The unit command request did not include source-owned unit postcondition evidence.",
+      outcome: "unknown",
+      confidence: "unverified",
+      confirmed: false,
+      noRepeatAfterUnverified: true
+    };
+  }
+  const guarded = source.classification === "not-sent" || source.classification === "no-state-change" || source.classification === "validation-changed";
+  const confidence = guarded ? "unverified" : "confirmed";
+  return {
+    classification: source.classification,
+    reason: source.reason,
+    outcome: unitCommandProofOutcome(source.classification),
+    confidence,
+    confirmed: confidence === "confirmed",
+    noRepeatAfterUnverified: guarded
+  };
+}
+function unitCommandProofOutcome(classification) {
+  switch (classification) {
+    case "not-sent":
+      return "not-sent";
+    case "no-state-change":
+      return "no-state-change";
+    case "missing-postcondition":
+      return "unknown";
+    case "queue-advanced":
+      return "cleared";
+    case "selected-unit-changed":
+    case "activity-changed":
+    case "unit-state-changed":
+    case "blocker-changed":
+    case "validation-changed":
+      return "state-changed";
+  }
+}
 var unitTargetActionRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.unit.target.action.request
 ).effect(function* ({
@@ -31312,16 +33017,23 @@ function unitTargetActionPostconditionSummary(result) {
   };
 }
 var unitRouter = {
+  resettle: {
+    request: unitResettleRequestProcedure
+  },
   target: {
     action: {
       request: unitTargetActionRequestProcedure
     }
+  },
+  upgrade: {
+    request: unitUpgradeRequestProcedure
   }
 };
 var Civ7ControlOrpcRouter = civ7ControlOrpcImplementer.router({
   attention: attentionRouter,
   city: cityRouter,
   diplomacy: diplomacyRouter,
+  government: governmentRouter,
   narrative: narrativeRouter,
   notifications: notificationsRouter,
   progression: progressionRouter,
@@ -31333,6 +33045,147 @@ var Civ7ControlOrpcRouter = civ7ControlOrpcImplementer.router({
 function createCiv7ControlOrpcServerClient(context5) {
   return createRouterClient(Civ7ControlOrpcRouter, { context: context5 });
 }
+var Civ7ReadinessCurrentInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.readiness.current
+);
+var Civ7ReadinessCurrentResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.readiness.current
+);
+var Civ7AttentionCurrentInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.attention.current
+);
+var Civ7AttentionCurrentResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.attention.current
+);
+var Civ7StrategyFrontSummaryInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.strategy.frontSummary
+);
+var Civ7StrategyFrontSummaryResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.strategy.frontSummary
+);
+var Civ7NotificationDismissInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.notifications.dismiss.request
+);
+var Civ7NotificationDismissalResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.notifications.dismiss.request
+);
+var Civ7TurnCompletionInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.turn.complete.request
+);
+var Civ7TurnCompletionResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.turn.complete.request
+);
+var Civ7CityProductionChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.production.choice.request
+);
+var Civ7CityProductionChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.production.choice.request
+);
+var Civ7CityPopulationPlacementInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.population.place.request
+);
+var Civ7CityPopulationPlacementResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.population.place.request
+);
+var Civ7CityTownFocusChangeInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.townFocus.change.request
+);
+var Civ7CityTownFocusChangeResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.townFocus.change.request
+);
+var Civ7CityTownFocusReviewInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.townFocus.review.request
+);
+var Civ7CityTownFocusReviewResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.city.townFocus.review.request
+);
+var Civ7NarrativeChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.narrative.choice.request
+);
+var Civ7NarrativeChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.narrative.choice.request
+);
+var Civ7DiplomacyResponseInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.diplomacy.response.request
+);
+var Civ7DiplomacyResponseResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.diplomacy.response.request
+);
+var Civ7FirstMeetResponseInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.diplomacy.firstMeet.response.request
+);
+var Civ7FirstMeetResponseResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.diplomacy.firstMeet.response.request
+);
+var Civ7GovernmentChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.choice.request
+);
+var Civ7GovernmentChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.choice.request
+);
+var Civ7GovernmentCelebrationChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.celebration.choice.request
+);
+var Civ7GovernmentCelebrationChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.government.celebration.choice.request
+);
+var Civ7UnitTargetActionInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.target.action.request
+);
+var Civ7UnitTargetActionResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.target.action.request
+);
+var Civ7UnitUpgradeInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.upgrade.request
+);
+var Civ7UnitUpgradeResultSchema = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.upgrade.request
+);
+var Civ7UnitResettleInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.resettle.request
+);
+var Civ7UnitResettleResultSchema = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.unit.resettle.request
+);
+var Civ7ProgressionChoiceInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.technology.choice.request
+);
+var Civ7ProgressionTargetInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.technology.target.request
+);
+var Civ7ProgressionTechnologyChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.technology.choice.request
+);
+var Civ7ProgressionCultureChoiceResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.culture.choice.request
+);
+var Civ7ProgressionTechnologyTargetResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.technology.target.request
+);
+var Civ7ProgressionCultureTargetResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.culture.target.request
+);
+var Civ7ProgressionAttributePurchaseInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.attribute.purchase.request
+);
+var Civ7ProgressionAttributePurchaseResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.attribute.purchase.request
+);
+var Civ7ProgressionPlayerReviewInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.attribute.review.request
+);
+var Civ7ProgressionAttributeReviewResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.attribute.review.request
+);
+var Civ7ProgressionTraditionChangeInputSchema2 = typeboxInputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.tradition.change.request
+);
+var Civ7ProgressionTraditionChangeResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.tradition.change.request
+);
+var Civ7ProgressionTraditionReviewResultSchema2 = typeboxOutputSchemaFromContractProcedure(
+  Civ7ControlOrpcContract.progression.tradition.review.request
+);
 var Civ7ControllerBridgeMutationProofSchema = typebox_exports.Object(
   {
     lifecycle: typebox_exports.Object(
@@ -31362,7 +33215,7 @@ var Civ7ControllerBridgeMutationProofSchema = typebox_exports.Object(
 var Civ7ControllerBridgeReadinessCurrentRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("readiness.current"),
-    input: Civ7ReadinessCurrentInputSchema,
+    input: Civ7ReadinessCurrentInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31370,7 +33223,7 @@ var Civ7ControllerBridgeReadinessCurrentRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeAttentionCurrentRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("attention.current"),
-    input: Civ7AttentionCurrentInputSchema,
+    input: Civ7AttentionCurrentInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31378,7 +33231,7 @@ var Civ7ControllerBridgeAttentionCurrentRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeStrategyFrontSummaryRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("strategy.frontSummary"),
-    input: Civ7StrategyFrontSummaryInputSchema,
+    input: Civ7StrategyFrontSummaryInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31386,7 +33239,7 @@ var Civ7ControllerBridgeStrategyFrontSummaryRequestSchema = typebox_exports.Obje
 var Civ7ControllerBridgeNotificationDismissRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("notifications.dismiss.request"),
-    input: Civ7NotificationDismissInputSchema,
+    input: Civ7NotificationDismissInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31394,7 +33247,7 @@ var Civ7ControllerBridgeNotificationDismissRequestSchema = typebox_exports.Objec
 var Civ7ControllerBridgeTurnCompleteRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("turn.complete.request"),
-    input: Civ7TurnCompletionInputSchema,
+    input: Civ7TurnCompletionInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31402,7 +33255,7 @@ var Civ7ControllerBridgeTurnCompleteRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeCityProductionChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.production.choice.request"),
-    input: Civ7CityProductionChoiceInputSchema,
+    input: Civ7CityProductionChoiceInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31410,7 +33263,23 @@ var Civ7ControllerBridgeCityProductionChoiceRequestSchema = typebox_exports.Obje
 var Civ7ControllerBridgeCityPopulationPlacementRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("city.population.place.request"),
-    input: Civ7CityPopulationPlacementInputSchema,
+    input: Civ7CityPopulationPlacementInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeCityTownFocusChangeRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("city.townFocus.change.request"),
+    input: Civ7CityTownFocusChangeInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeCityTownFocusReviewRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("city.townFocus.review.request"),
+    input: Civ7CityTownFocusReviewInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31418,7 +33287,7 @@ var Civ7ControllerBridgeCityPopulationPlacementRequestSchema = typebox_exports.O
 var Civ7ControllerBridgeNarrativeChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("narrative.choice.request"),
-    input: Civ7NarrativeChoiceInputSchema,
+    input: Civ7NarrativeChoiceInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31426,7 +33295,31 @@ var Civ7ControllerBridgeNarrativeChoiceRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeDiplomacyResponseRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("diplomacy.response.request"),
-    input: Civ7DiplomacyResponseInputSchema,
+    input: Civ7DiplomacyResponseInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeFirstMeetResponseRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("diplomacy.firstMeet.response.request"),
+    input: Civ7FirstMeetResponseInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeGovernmentChoiceRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("government.choice.request"),
+    input: Civ7GovernmentChoiceInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("government.celebration.choice.request"),
+    input: Civ7GovernmentCelebrationChoiceInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31434,7 +33327,23 @@ var Civ7ControllerBridgeDiplomacyResponseRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeUnitTargetActionRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("unit.target.action.request"),
-    input: Civ7UnitTargetActionInputSchema,
+    input: Civ7UnitTargetActionInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeUnitUpgradeRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("unit.upgrade.request"),
+    input: Civ7UnitUpgradeInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeUnitResettleRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("unit.resettle.request"),
+    input: Civ7UnitResettleInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31442,7 +33351,7 @@ var Civ7ControllerBridgeUnitTargetActionRequestSchema = typebox_exports.Object(
 var Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("progression.technology.choice.request"),
-    input: Civ7ProgressionChoiceInputSchema,
+    input: Civ7ProgressionChoiceInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31450,7 +33359,55 @@ var Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema = typebox_expor
 var Civ7ControllerBridgeProgressionCultureChoiceRequestSchema = typebox_exports.Object(
   {
     procedureKey: typebox_exports.Literal("progression.culture.choice.request"),
-    input: Civ7ProgressionChoiceInputSchema,
+    input: Civ7ProgressionChoiceInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTechnologyTargetRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.technology.target.request"),
+    input: Civ7ProgressionTargetInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionCultureTargetRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.culture.target.request"),
+    input: Civ7ProgressionTargetInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionAttributePurchaseRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.attribute.purchase.request"),
+    input: Civ7ProgressionAttributePurchaseInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionAttributeReviewRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.attribute.review.request"),
+    input: Civ7ProgressionPlayerReviewInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTraditionChangeRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.tradition.change.request"),
+    input: Civ7ProgressionTraditionChangeInputSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTraditionReviewRequestSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.Literal("progression.tradition.review.request"),
+    input: Civ7ProgressionPlayerReviewInputSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31463,11 +33420,24 @@ var Civ7ControllerBridgeRequestSchema = typebox_exports.Union([
   Civ7ControllerBridgeTurnCompleteRequestSchema,
   Civ7ControllerBridgeCityProductionChoiceRequestSchema,
   Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
+  Civ7ControllerBridgeCityTownFocusChangeRequestSchema,
+  Civ7ControllerBridgeCityTownFocusReviewRequestSchema,
   Civ7ControllerBridgeNarrativeChoiceRequestSchema,
   Civ7ControllerBridgeDiplomacyResponseRequestSchema,
+  Civ7ControllerBridgeFirstMeetResponseRequestSchema,
+  Civ7ControllerBridgeGovernmentChoiceRequestSchema,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
+  Civ7ControllerBridgeUnitUpgradeRequestSchema,
+  Civ7ControllerBridgeUnitResettleRequestSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
-  Civ7ControllerBridgeProgressionCultureChoiceRequestSchema
+  Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
+  Civ7ControllerBridgeProgressionTechnologyTargetRequestSchema,
+  Civ7ControllerBridgeProgressionCultureTargetRequestSchema,
+  Civ7ControllerBridgeProgressionAttributePurchaseRequestSchema,
+  Civ7ControllerBridgeProgressionAttributeReviewRequestSchema,
+  Civ7ControllerBridgeProgressionTraditionChangeRequestSchema,
+  Civ7ControllerBridgeProgressionTraditionReviewRequestSchema
 ]);
 var Civ7ControllerBridgeErrorSchema = typebox_exports.Object(
   {
@@ -31486,7 +33456,7 @@ var Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema = typebox_exports.
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("readiness.current"),
-    output: Civ7ReadinessCurrentResultSchema,
+    output: Civ7ReadinessCurrentResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31495,7 +33465,7 @@ var Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema = typebox_exports.
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("attention.current"),
-    output: Civ7AttentionCurrentResultSchema,
+    output: Civ7AttentionCurrentResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31504,7 +33474,7 @@ var Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema = typebox_expo
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("strategy.frontSummary"),
-    output: Civ7StrategyFrontSummaryResultSchema,
+    output: Civ7StrategyFrontSummaryResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31513,7 +33483,7 @@ var Civ7ControllerBridgeNotificationDismissSuccessResponseSchema = typebox_expor
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("notifications.dismiss.request"),
-    output: Civ7NotificationDismissalResultSchema,
+    output: Civ7NotificationDismissalResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31522,7 +33492,7 @@ var Civ7ControllerBridgeTurnCompleteSuccessResponseSchema = typebox_exports.Obje
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("turn.complete.request"),
-    output: Civ7TurnCompletionResultSchema,
+    output: Civ7TurnCompletionResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31531,7 +33501,7 @@ var Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema = typebox_expo
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("city.production.choice.request"),
-    output: Civ7CityProductionChoiceResultSchema,
+    output: Civ7CityProductionChoiceResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31540,7 +33510,25 @@ var Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema = typebox_e
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("city.population.place.request"),
-    output: Civ7CityPopulationPlacementResultSchema,
+    output: Civ7CityPopulationPlacementResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("city.townFocus.change.request"),
+    output: Civ7CityTownFocusChangeResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("city.townFocus.review.request"),
+    output: Civ7CityTownFocusReviewResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31549,7 +33537,7 @@ var Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema = typebox_exports.O
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("narrative.choice.request"),
-    output: Civ7NarrativeChoiceResultSchema,
+    output: Civ7NarrativeChoiceResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31558,7 +33546,34 @@ var Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema = typebox_exports
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("diplomacy.response.request"),
-    output: Civ7DiplomacyResponseResultSchema,
+    output: Civ7DiplomacyResponseResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("diplomacy.firstMeet.response.request"),
+    output: Civ7FirstMeetResponseResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("government.choice.request"),
+    output: Civ7GovernmentChoiceResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("government.celebration.choice.request"),
+    output: Civ7GovernmentCelebrationChoiceResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31567,7 +33582,25 @@ var Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema = typebox_exports.
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("unit.target.action.request"),
-    output: Civ7UnitTargetActionResultSchema,
+    output: Civ7UnitTargetActionResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("unit.upgrade.request"),
+    output: Civ7UnitUpgradeResultSchema,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeUnitResettleSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("unit.resettle.request"),
+    output: Civ7UnitResettleResultSchema,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31576,7 +33609,7 @@ var Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema = typeb
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("progression.technology.choice.request"),
-    output: Civ7ProgressionTechnologyChoiceResultSchema,
+    output: Civ7ProgressionTechnologyChoiceResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31585,7 +33618,61 @@ var Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema = typebox_
   {
     ok: typebox_exports.Literal(true),
     procedureKey: typebox_exports.Literal("progression.culture.choice.request"),
-    output: Civ7ProgressionCultureChoiceResultSchema,
+    output: Civ7ProgressionCultureChoiceResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.technology.target.request"),
+    output: Civ7ProgressionTechnologyTargetResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionCultureTargetSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.culture.target.request"),
+    output: Civ7ProgressionCultureTargetResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.attribute.purchase.request"),
+    output: Civ7ProgressionAttributePurchaseResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionAttributeReviewSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.attribute.review.request"),
+    output: Civ7ProgressionAttributeReviewResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTraditionChangeSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.tradition.change.request"),
+    output: Civ7ProgressionTraditionChangeResultSchema2,
+    correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
+  },
+  { additionalProperties: false }
+);
+var Civ7ControllerBridgeProgressionTraditionReviewSuccessResponseSchema = typebox_exports.Object(
+  {
+    ok: typebox_exports.Literal(true),
+    procedureKey: typebox_exports.Literal("progression.tradition.review.request"),
+    output: Civ7ProgressionTraditionReviewResultSchema2,
     correlationId: typebox_exports.Optional(Civ7ControlOrpcCorrelationIdSchema)
   },
   { additionalProperties: false }
@@ -31598,11 +33685,24 @@ var Civ7ControllerBridgeSuccessResponseSchema = typebox_exports.Union([
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
   Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
   Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+  Civ7ControllerBridgeCityTownFocusChangeSuccessResponseSchema,
+  Civ7ControllerBridgeCityTownFocusReviewSuccessResponseSchema,
   Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
   Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
+  Civ7ControllerBridgeFirstMeetResponseSuccessResponseSchema,
+  Civ7ControllerBridgeGovernmentChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeGovernmentCelebrationChoiceSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
+  Civ7ControllerBridgeUnitUpgradeSuccessResponseSchema,
+  Civ7ControllerBridgeUnitResettleSuccessResponseSchema,
   Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
-  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema
+  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTechnologyTargetSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionCultureTargetSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionAttributePurchaseSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionAttributeReviewSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTraditionChangeSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTraditionReviewSuccessResponseSchema
 ]);
 var Civ7ControllerBridgeFailureResponseSchema = typebox_exports.Object(
   {
@@ -31660,8 +33760,9 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         correlationId: request2.correlationId
       }
     });
+    const validatedInput = request2.input;
     if (request2.procedureKey === "readiness.current") {
-      const output2 = await client.readiness.current(request2.input);
+      const output2 = await client.readiness.current(validatedInput);
       return {
         ok: true,
         procedureKey: "readiness.current",
@@ -31670,7 +33771,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "strategy.frontSummary") {
-      const output2 = await client.strategy.frontSummary(request2.input);
+      const output2 = await client.strategy.frontSummary(validatedInput);
       return {
         ok: true,
         procedureKey: "strategy.frontSummary",
@@ -31679,7 +33780,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "notifications.dismiss.request") {
-      const output2 = await client.notifications.dismiss.request(request2.input);
+      const output2 = await client.notifications.dismiss.request(validatedInput);
       return {
         ok: true,
         procedureKey: "notifications.dismiss.request",
@@ -31688,7 +33789,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "turn.complete.request") {
-      const output2 = await client.turn.complete.request(request2.input);
+      const output2 = await client.turn.complete.request(validatedInput);
       return {
         ok: true,
         procedureKey: "turn.complete.request",
@@ -31697,7 +33798,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "city.production.choice.request") {
-      const output2 = await client.city.production.choice.request(request2.input);
+      const output2 = await client.city.production.choice.request(validatedInput);
       return {
         ok: true,
         procedureKey: "city.production.choice.request",
@@ -31706,7 +33807,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "city.population.place.request") {
-      const output2 = await client.city.population.place.request(request2.input);
+      const output2 = await client.city.population.place.request(validatedInput);
       return {
         ok: true,
         procedureKey: "city.population.place.request",
@@ -31714,8 +33815,30 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
     }
+    if (request2.procedureKey === "city.townFocus.change.request") {
+      const output2 = await client.city.townFocus.change.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "city.townFocus.change.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "city.townFocus.review.request") {
+      const output2 = await client.city.townFocus.review.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "city.townFocus.review.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
     if (request2.procedureKey === "narrative.choice.request") {
-      const output2 = await client.narrative.choice.request(request2.input);
+      const output2 = await client.narrative.choice.request(validatedInput);
       return {
         ok: true,
         procedureKey: "narrative.choice.request",
@@ -31724,7 +33847,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
       };
     }
     if (request2.procedureKey === "diplomacy.response.request") {
-      const output2 = await client.diplomacy.response.request(request2.input);
+      const output2 = await client.diplomacy.response.request(validatedInput);
       return {
         ok: true,
         procedureKey: "diplomacy.response.request",
@@ -31732,8 +33855,39 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
     }
+    if (request2.procedureKey === "diplomacy.firstMeet.response.request") {
+      const output2 = await client.diplomacy.firstMeet.response.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "diplomacy.firstMeet.response.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "government.choice.request") {
+      const output2 = await client.government.choice.request(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "government.choice.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "government.celebration.choice.request") {
+      const output2 = await client.government.celebration.choice.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "government.celebration.choice.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
     if (request2.procedureKey === "unit.target.action.request") {
-      const output2 = await client.unit.target.action.request(request2.input);
+      const output2 = await client.unit.target.action.request(validatedInput);
       return {
         ok: true,
         procedureKey: "unit.target.action.request",
@@ -31741,9 +33895,27 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
     }
+    if (request2.procedureKey === "unit.upgrade.request") {
+      const output2 = await client.unit.upgrade.request(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "unit.upgrade.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "unit.resettle.request") {
+      const output2 = await client.unit.resettle.request(validatedInput);
+      return {
+        ok: true,
+        procedureKey: "unit.resettle.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
     if (request2.procedureKey === "progression.technology.choice.request") {
       const output2 = await client.progression.technology.choice.request(
-        request2.input
+        validatedInput
       );
       return {
         ok: true,
@@ -31754,7 +33926,7 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
     }
     if (request2.procedureKey === "progression.culture.choice.request") {
       const output2 = await client.progression.culture.choice.request(
-        request2.input
+        validatedInput
       );
       return {
         ok: true,
@@ -31763,7 +33935,73 @@ async function invokeCiv7ControllerBridgeRequest(request2, options) {
         ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
       };
     }
-    const output = await client.attention.current(request2.input);
+    if (request2.procedureKey === "progression.technology.target.request") {
+      const output2 = await client.progression.technology.target.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.technology.target.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.culture.target.request") {
+      const output2 = await client.progression.culture.target.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.culture.target.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.attribute.purchase.request") {
+      const output2 = await client.progression.attribute.purchase.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.attribute.purchase.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.attribute.review.request") {
+      const output2 = await client.progression.attribute.review.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.attribute.review.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.tradition.change.request") {
+      const output2 = await client.progression.tradition.change.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.tradition.change.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    if (request2.procedureKey === "progression.tradition.review.request") {
+      const output2 = await client.progression.tradition.review.request(
+        validatedInput
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.tradition.review.request",
+        output: output2,
+        ...request2.correlationId == null ? {} : { correlationId: request2.correlationId }
+      };
+    }
+    const output = await client.attention.current(validatedInput);
     return {
       ok: true,
       procedureKey: "attention.current",
@@ -31783,10 +34021,10 @@ function controllerProofFromContext(context5) {
 function isUnsupportedProcedureRequest(request2) {
   if (request2 == null || typeof request2 !== "object") return false;
   if (!("procedureKey" in request2)) return false;
-  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request";
+  return typeof request2.procedureKey === "string" && request2.procedureKey !== "readiness.current" && request2.procedureKey !== "attention.current" && request2.procedureKey !== "strategy.frontSummary" && request2.procedureKey !== "notifications.dismiss.request" && request2.procedureKey !== "turn.complete.request" && request2.procedureKey !== "city.production.choice.request" && request2.procedureKey !== "city.population.place.request" && request2.procedureKey !== "city.townFocus.change.request" && request2.procedureKey !== "city.townFocus.review.request" && request2.procedureKey !== "narrative.choice.request" && request2.procedureKey !== "diplomacy.response.request" && request2.procedureKey !== "diplomacy.firstMeet.response.request" && request2.procedureKey !== "government.choice.request" && request2.procedureKey !== "government.celebration.choice.request" && request2.procedureKey !== "unit.target.action.request" && request2.procedureKey !== "unit.upgrade.request" && request2.procedureKey !== "unit.resettle.request" && request2.procedureKey !== "progression.technology.choice.request" && request2.procedureKey !== "progression.culture.choice.request" && request2.procedureKey !== "progression.technology.target.request" && request2.procedureKey !== "progression.culture.target.request" && request2.procedureKey !== "progression.attribute.purchase.request" && request2.procedureKey !== "progression.attribute.review.request" && request2.procedureKey !== "progression.tradition.change.request" && request2.procedureKey !== "progression.tradition.review.request";
 }
 function isControllerBridgeMutationRequest(request2) {
-  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request";
+  return request2.procedureKey === "notifications.dismiss.request" || request2.procedureKey === "turn.complete.request" || request2.procedureKey === "city.production.choice.request" || request2.procedureKey === "city.population.place.request" || request2.procedureKey === "city.townFocus.change.request" || request2.procedureKey === "city.townFocus.review.request" || request2.procedureKey === "narrative.choice.request" || request2.procedureKey === "diplomacy.response.request" || request2.procedureKey === "diplomacy.firstMeet.response.request" || request2.procedureKey === "government.choice.request" || request2.procedureKey === "government.celebration.choice.request" || request2.procedureKey === "unit.target.action.request" || request2.procedureKey === "unit.upgrade.request" || request2.procedureKey === "unit.resettle.request" || request2.procedureKey === "progression.technology.choice.request" || request2.procedureKey === "progression.culture.choice.request" || request2.procedureKey === "progression.technology.target.request" || request2.procedureKey === "progression.culture.target.request" || request2.procedureKey === "progression.attribute.purchase.request" || request2.procedureKey === "progression.attribute.review.request" || request2.procedureKey === "progression.tradition.change.request" || request2.procedureKey === "progression.tradition.review.request";
 }
 function controllerSupportsRequest(context5, request2) {
   if (request2.procedureKey === "readiness.current") return true;
@@ -31840,17 +34078,17 @@ function installCiv7IntelligenceBridge(options) {
   return bridge2;
 }
 
-// ../../packages/civ7-direct-control/dist/play/notifications/game-ui-dismissal.js
+// ../../packages/civ7-control-orpc/dist/game-ui.js
 async function requestCiv7GameUiNotificationDismissal(input, target = globalThis) {
-  assertCiv7ComponentId(input.notificationId, "notificationId");
+  assertGameUiComponentId(input.notificationId, "notificationId");
   return notificationDismissalResult2(
     input.notificationId,
     { send: true },
     target
   );
 }
-function notificationDismissalResult2(notificationId, options, target) {
-  const before2 = summarizeNotification(notificationId, target);
+function notificationDismissalResult2(notificationId2, options, target) {
+  const before2 = summarizeNotification(notificationId2, target);
   const noneBlocker = target.EndTurnBlockingTypes?.NONE ?? 0;
   const blockerType = before2.endTurnBlockingType.ok ? before2.endTurnBlockingType.value : null;
   const canUseExpiredPanelCloseControl = before2.exists === true && before2.expired === true && blockerType === noneBlocker;
@@ -31866,7 +34104,7 @@ function notificationDismissalResult2(notificationId, options, target) {
       host: "game-ui",
       port: 0,
       state: { id: "game-ui", name: "Game UI" },
-      notificationId,
+      notificationId: notificationId2,
       before: before2,
       after: options.send ? before2 : null,
       canDismiss,
@@ -31880,13 +34118,13 @@ function notificationDismissalResult2(notificationId, options, target) {
       ])
     });
   }
-  const managerResult = notificationTrainManagerDismiss(notificationId, target);
+  const managerResult = notificationTrainManagerDismiss(notificationId2, target);
   const panelCloseControlResult = panelCloseControlDismiss(
-    notificationId,
+    notificationId2,
     before2,
     target
   );
-  const after3 = summarizeNotification(notificationId, target);
+  const after3 = summarizeNotification(notificationId2, target);
   const closeoutPath = [managerResult, panelCloseControlResult].filter((value2) => value2.attempted && value2.path).map((value2) => value2.path).join("+") || null;
   const result = {
     notificationTrainManager: managerResult,
@@ -31901,7 +34139,7 @@ function notificationDismissalResult2(notificationId, options, target) {
     host: "game-ui",
     port: 0,
     state: { id: "game-ui", name: "Game UI" },
-    notificationId,
+    notificationId: notificationId2,
     before: before2,
     after: after3,
     canDismiss,
@@ -31989,7 +34227,7 @@ function summarizeNotification(id, target) {
     )
   };
 }
-function notificationTrainManagerDismiss(notificationId, target) {
+function notificationTrainManagerDismiss(notificationId2, target) {
   const manager = target.NotificationModel?.manager;
   if (!manager) {
     return {
@@ -32002,13 +34240,13 @@ function notificationTrainManagerDismiss(notificationId, target) {
   if (typeof manager.dismiss === "function") {
     return callDismiss(
       "NotificationModel.manager.dismiss",
-      () => manager.dismiss?.(notificationId)
+      () => manager.dismiss?.(notificationId2)
     );
   }
   if (typeof manager.onDismiss === "function") {
     return callDismiss(
       "NotificationModel.manager.onDismiss",
-      () => manager.onDismiss?.(notificationId)
+      () => manager.onDismiss?.(notificationId2)
     );
   }
   return {
@@ -32018,7 +34256,7 @@ function notificationTrainManagerDismiss(notificationId, target) {
     reason: "NotificationModel.manager exposes no dismiss/onDismiss function"
   };
 }
-function panelCloseControlDismiss(notificationId, before2, target) {
+function panelCloseControlDismiss(notificationId2, before2, target) {
   const dismiss = target.Game?.Notifications?.dismiss;
   if (typeof dismiss !== "function") {
     return {
@@ -32039,7 +34277,7 @@ function panelCloseControlDismiss(notificationId, before2, target) {
       reason: "official panel close control does not dismiss the active end-turn blocker"
     };
   }
-  return callDismiss("Game.Notifications.dismiss", () => dismiss(notificationId));
+  return callDismiss("Game.Notifications.dismiss", () => dismiss(notificationId2));
 }
 function callDismiss(path, fn2) {
   try {
@@ -32093,6 +34331,12 @@ function toComponentId(value2) {
   }
   return typeof candidate2.type === "number" ? { owner: candidate2.owner, id: candidate2.id, type: candidate2.type } : { owner: candidate2.owner, id: candidate2.id };
 }
+function assertGameUiComponentId(value2, label = "ComponentID") {
+  if (toComponentId(value2)) return;
+  throw new Error(
+    `${label} must be a Civ7 ComponentID object with numeric owner, id, and optional type`
+  );
+}
 function componentKey(value2) {
   const id = toComponentId(value2);
   return id ? [id.owner, id.id, id.type ?? ""].join(":") : "";
@@ -32125,8 +34369,6 @@ function safeStringValue(fn2) {
 function isPresent(value2) {
   return value2 != null;
 }
-
-// ../../packages/civ7-control-orpc/dist/game-ui.js
 async function getCiv7GameUiPlayNotificationView(options = {}, target = globalThis) {
   const localPlayerId = target.GameContext?.localPlayerID ?? -1;
   const maxNotifications = clampMaxNotifications(options.maxNotifications);
@@ -32228,27 +34470,30 @@ async function getCiv7GameUiReadyUnitView(input = {}, target = globalThis) {
   };
 }
 async function getCiv7GameUiReadyCityView(input = {}, target = globalThis) {
+  const localPlayerId = target.GameContext?.localPlayerID ?? -1;
   const selectedCityId = probe2(
     () => toComponentId2(target.UI?.Player?.getHeadSelectedCity?.())
   );
   const requestedCityId = toComponentId2(input.cityId);
+  const blockingCityId = gameUiReadyCityId(target, localPlayerId);
+  const cityId = blockingCityId.ok ? blockingCityId.value : null;
   return {
     host: "game-ui",
     port: 0,
     state: { id: "game-ui", name: "Game UI" },
-    localPlayerId: target.GameContext?.localPlayerID ?? -1,
+    localPlayerId,
     requestedCityId,
     selectedCityId,
-    blockingCityId: ok(null),
-    cityId: null,
-    city: ok(null),
+    blockingCityId,
+    cityId,
+    city: probe2(() => cityId == null ? null : target.Cities?.get?.(cityId) ?? null),
     legalOperations: [],
     productionCandidates: ok([]),
     townFocusOptions: ok([]),
     populationPlacement: ok(null),
     notes: [
-      "Game UI controller attention adapter does not have official ready-city evidence yet.",
-      "Requested, selected, and notification-target city ids are hints only; they are not ready-city proof.",
+      "Game UI controller attention adapter treats end-turn-blocking notification target or population-ready city evidence as ready-city evidence.",
+      "Requested, selected, and unrelated notification-target city ids are hints only; they are not ready-city proof.",
       "Production and city-operation candidates remain empty in game UI scope; use validator-backed mutation procedures before any send."
     ]
   };
@@ -32389,6 +34634,40 @@ function gameUiEndTurnBlocker(target, playerId) {
     () => target.Game?.Notifications?.getEndTurnBlockingType?.(playerId) ?? null
   );
 }
+function gameUiReadyCityId(target, playerId) {
+  return probe2(() => {
+    const blockerCityId = gameUiBlockingNotificationCityId(target, playerId);
+    if (blockerCityId != null) return blockerCityId;
+    return gameUiPopulationReadyCityId(target, playerId);
+  });
+}
+function gameUiBlockingNotificationCityId(target, playerId) {
+  const notifications = target.Game?.Notifications;
+  const blockerType = notifications?.getEndTurnBlockingType?.(playerId);
+  const blockerId = notifications?.findEndTurnBlocking?.(playerId, blockerType);
+  const blocker = blockerId == null ? null : notifications?.find?.(blockerId);
+  const targetId = toComponentId2(notificationValue2(blocker, "Target"));
+  if (targetId == null) return null;
+  return target.Cities?.get?.(targetId) == null ? null : targetId;
+}
+function gameUiPopulationReadyCityId(target, playerId) {
+  const cities = target.Players?.Cities?.get?.(playerId);
+  const cityIds = readCityIds(cities);
+  for (const cityId of cityIds) {
+    const city = target.Cities?.get?.(cityId);
+    if (city == null || typeof city !== "object") continue;
+    const growth = city.Growth;
+    if (growth?.isReadyToPlacePopulation === true) return cityId;
+  }
+  return null;
+}
+function readCityIds(value2) {
+  if (value2 == null || typeof value2 !== "object") return [];
+  const candidate2 = value2;
+  const ids3 = safeValue2(() => candidate2.getCityIds?.(), []);
+  if (!Array.isArray(ids3)) return [];
+  return ids3.map(toComponentId2).filter(isPresent2);
+}
 function clampMaxNotifications(value2) {
   if (value2 == null) return 25;
   if (!Number.isInteger(value2)) return 25;
@@ -32433,8 +34712,8 @@ function ok(value2) {
 function gameUiTurnCompletionAllowed(status) {
   return probeValue5(status.canEndTurn) === true && probeValue5(status.hasSentTurnComplete) !== true;
 }
-function probeValue5(probe10) {
-  return probe10.ok ? probe10.value : void 0;
+function probeValue5(probe13) {
+  return probe13.ok ? probe13.value : void 0;
 }
 function isPresent2(value2) {
   return value2 != null;
@@ -32443,7 +34722,7 @@ function civ7GameUiProductionChoiceAvailable(target) {
   return typeof target.Game?.CityOperations?.canStart === "function" && typeof target.Game.CityOperations.sendRequest === "function" && target.CityOperationTypes?.BUILD !== void 0 && typeof target.Game?.Notifications?.getEndTurnBlockingType === "function" && typeof target.Game.Notifications.findEndTurnBlocking === "function" && typeof target.Game.Notifications.find === "function";
 }
 async function requestCiv7GameUiProductionChoice(input, target = globalThis) {
-  const cityId = toComponentId22(input.cityId);
+  const cityId = toComponentId3(input.cityId);
   if (cityId == null) {
     throw new Error("Production choice cityId must be a ComponentID.");
   }
@@ -32484,7 +34763,7 @@ async function requestCiv7GameUiProductionChoice(input, target = globalThis) {
     };
   }
   const sendArgs = productionSendArgs(cityId, before2.result, args2, target);
-  const sendResult = probe22(
+  const sendResult = probe3(
     () => target.Game?.CityOperations?.sendRequest?.(
       cityId,
       target.CityOperationTypes?.BUILD,
@@ -32526,7 +34805,7 @@ async function requestCiv7GameUiProductionChoice(input, target = globalThis) {
   };
 }
 function gameUiProductionValidation(cityId, args2, target) {
-  const result = safeValue22(
+  const result = safeValue3(
     () => target.Game?.CityOperations?.canStart?.(
       cityId,
       target.CityOperationTypes?.BUILD,
@@ -32550,30 +34829,30 @@ function gameUiProductionValidation(cityId, args2, target) {
 }
 function gameUiProductionSnapshot(cityId, target) {
   const localPlayerId = target.GameContext?.localPlayerID ?? -1;
-  const blocker = probe22(
+  const blocker = probe3(
     () => target.Game?.Notifications?.getEndTurnBlockingType?.(localPlayerId) ?? null
   );
-  const blockingNotification = probe22(() => {
+  const blockingNotification = probe3(() => {
     const blockerValue2 = blocker.ok ? blocker.value : null;
-    const notificationId = target.Game?.Notifications?.findEndTurnBlocking?.(
+    const notificationId2 = target.Game?.Notifications?.findEndTurnBlocking?.(
       localPlayerId,
       blockerValue2
     ) ?? null;
-    const notification = notificationId == null ? null : target.Game?.Notifications?.find?.(notificationId) ?? null;
+    const notification = notificationId2 == null ? null : target.Game?.Notifications?.find?.(notificationId2) ?? null;
     return {
-      notificationId,
+      notificationId: notificationId2,
       matchesCity: notificationMatchesCity(notification, cityId)
     };
   });
   return {
     cityId,
-    city: probe22(() => target.Cities?.get?.(cityId) ?? null),
-    buildQueue: probe22(() => cityBuildQueue(target.Cities?.get?.(cityId))),
-    selectedCityId: probe22(
-      () => toComponentId22(target.UI?.Player?.getHeadSelectedCity?.())
+    city: probe3(() => target.Cities?.get?.(cityId) ?? null),
+    buildQueue: probe3(() => cityBuildQueue(target.Cities?.get?.(cityId))),
+    selectedCityId: probe3(
+      () => toComponentId3(target.UI?.Player?.getHeadSelectedCity?.())
     ),
     blocker,
-    canEndTurn: probe22(() => target.canEndTurn?.() ?? false),
+    canEndTurn: probe3(() => target.canEndTurn?.() ?? false),
     blockingProductionNotification: blockingNotification
   };
 }
@@ -32707,7 +34986,7 @@ function notificationMatchesCity(notification, cityId) {
   const record = notification;
   for (const key of ["Target", "target", "City", "city", "CityID", "cityId"]) {
     const value2 = typeof record[key] === "function" ? record[key].call(notification) : record[key];
-    if (componentIdEqual(toComponentId22(value2), cityId)) return true;
+    if (componentIdEqual(toComponentId3(value2), cityId)) return true;
   }
   return false;
 }
@@ -32716,7 +34995,7 @@ function cityBuildQueue(city) {
   const record = city;
   return record.BuildQueue ?? record.buildQueue ?? record.buildQueueManager ?? null;
 }
-function toComponentId22(value2) {
+function toComponentId3(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const candidate2 = value2;
   if (typeof candidate2.owner !== "number" || typeof candidate2.id !== "number") {
@@ -32727,22 +35006,22 @@ function toComponentId22(value2) {
 function componentIdEqual(left3, right3) {
   return left3?.owner === right3.owner && left3.id === right3.id && (left3.type ?? null) === (right3.type ?? null);
 }
-function safeValue22(fn2, fallback) {
+function safeValue3(fn2, fallback) {
   try {
     return fn2() ?? fallback;
   } catch {
     return fallback;
   }
 }
-function probe22(fn2) {
+function probe3(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue23(probe10) {
-  return probe10?.ok ? probe10.value : void 0;
+function probeValue23(probe13) {
+  return probe13?.ok ? probe13.value : void 0;
 }
 function stableJson2(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -32752,8 +35031,235 @@ function stableJson2(value2) {
     (key) => `${JSON.stringify(key)}:${stableJson2(record[key])}`
   ).join(",")}}`;
 }
+function civ7GameUiTownFocusAvailable(target) {
+  return typeof target.Game?.CityCommands?.canStart === "function" && typeof target.Game.CityCommands.sendRequest === "function" && target.CityCommandTypes?.CHANGE_GROWTH_MODE !== void 0 && typeof target.Game?.CityOperations?.canStart === "function" && typeof target.Game.CityOperations.sendRequest === "function" && target.CityOperationTypes?.CONSIDER_TOWN_PROJECT !== void 0;
+}
+async function requestCiv7GameUiTownFocusChange(input, target = globalThis) {
+  const cityId = toComponentId4(input.cityId);
+  if (cityId == null) {
+    throw new Error("Town focus cityId must be a ComponentID.");
+  }
+  const city = input.city ?? cityId.id;
+  const args2 = {
+    Type: input.growthType,
+    ProjectType: input.projectType,
+    City: city
+  };
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const before2 = cityId.owner === localPlayerId ? gameUiTownFocusCityCommandValidation(cityId, args2, target) : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args2, "city-command");
+  if (!before2.valid) {
+    return townFocusResult2({
+      kind: "town-focus-change",
+      cityId,
+      growthType: input.growthType,
+      projectType: input.projectType,
+      city,
+      operationType: "CHANGE_GROWTH_MODE",
+      before: before2,
+      after: before2,
+      sent: false
+    });
+  }
+  const sendRequest = target.Game?.CityCommands?.sendRequest;
+  const sendResult = typeof sendRequest === "function" ? safeValue4(() => sendRequest(
+    cityId,
+    target.CityCommandTypes?.CHANGE_GROWTH_MODE,
+    args2
+  ), false) : false;
+  const sent = sendResult !== false;
+  const after3 = gameUiTownFocusCityCommandValidation(cityId, args2, target);
+  return townFocusResult2({
+    kind: "town-focus-change",
+    cityId,
+    growthType: input.growthType,
+    projectType: input.projectType,
+    city,
+    operationType: "CHANGE_GROWTH_MODE",
+    before: before2,
+    after: after3,
+    sent
+  });
+}
+async function requestCiv7GameUiTownFocusReviewCloseout(input, target = globalThis) {
+  const cityId = toComponentId4(input.cityId);
+  if (cityId == null) {
+    throw new Error("Town focus cityId must be a ComponentID.");
+  }
+  const args2 = {};
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const before2 = cityId.owner === localPlayerId ? gameUiTownFocusCityOperationValidation(cityId, args2, target) : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args2, "city-operation");
+  if (!before2.valid) {
+    return townFocusResult2({
+      kind: "town-focus-review",
+      cityId,
+      operationType: "CONSIDER_TOWN_PROJECT",
+      before: before2,
+      after: before2,
+      sent: false
+    });
+  }
+  const sendRequest = target.Game?.CityOperations?.sendRequest;
+  const sendResult = typeof sendRequest === "function" ? safeValue4(() => sendRequest(
+    cityId,
+    target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
+    args2
+  ), false) : false;
+  const sent = sendResult !== false;
+  const after3 = gameUiTownFocusCityOperationValidation(cityId, args2, target);
+  return townFocusResult2({
+    kind: "town-focus-review",
+    cityId,
+    operationType: "CONSIDER_TOWN_PROJECT",
+    before: before2,
+    after: after3,
+    sent
+  });
+}
+function gameUiTownFocusCityCommandValidation(cityId, args2, target) {
+  const result = safeValue4(
+    () => target.Game?.CityCommands?.canStart?.(
+      cityId,
+      target.CityCommandTypes?.CHANGE_GROWTH_MODE,
+      args2,
+      false
+    ),
+    null
+  );
+  return townFocusValidation({
+    family: "city-command",
+    operationType: "CHANGE_GROWTH_MODE",
+    enumValue: target.CityCommandTypes?.CHANGE_GROWTH_MODE,
+    cityId,
+    args: args2,
+    valid: successFromCanStart2(result),
+    result
+  });
+}
+function gameUiTownFocusCityOperationValidation(cityId, args2, target) {
+  const result = safeValue4(
+    () => target.Game?.CityOperations?.canStart?.(
+      cityId,
+      target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
+      args2,
+      false
+    ),
+    null
+  );
+  return townFocusValidation({
+    family: "city-operation",
+    operationType: "CONSIDER_TOWN_PROJECT",
+    enumValue: target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
+    cityId,
+    args: args2,
+    valid: successFromCanStart2(result),
+    result
+  });
+}
+function gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args2, family) {
+  return townFocusValidation({
+    family,
+    operationType: family === "city-command" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT",
+    enumValue: family === "city-command" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT",
+    cityId,
+    args: args2,
+    valid: false,
+    result: {
+      ok: false,
+      reason: "city-owner-mismatch",
+      cityOwner: cityId.owner,
+      localPlayerId: localPlayerId ?? null
+    }
+  });
+}
+function townFocusValidation(input) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: input.family,
+    operationType: input.operationType,
+    enumValue: input.enumValue,
+    target: { cityId: input.cityId },
+    args: input.args,
+    valid: input.valid,
+    result: input.result
+  };
+}
+function townFocusResult2(input) {
+  const common = {
+    cityId: input.cityId,
+    operation: {
+      before: input.before,
+      after: input.after,
+      sent: input.sent
+    },
+    beforeValidation: input.before,
+    afterValidation: input.after,
+    sent: input.sent,
+    verified: false,
+    postcondition: townFocusPostcondition(input.sent, input.kind)
+  };
+  if (input.kind === "town-focus-change") {
+    return {
+      ...common,
+      kind: "town-focus-change",
+      growthType: input.growthType,
+      projectType: input.projectType,
+      city: input.city
+    };
+  }
+  return {
+    ...common,
+    kind: "town-focus-review"
+  };
+}
+function townFocusPostcondition(sent, kind) {
+  if (!sent) {
+    return {
+      classification: "not-sent",
+      reason: `The ${kind} request did not validate, so no town focus operation was sent.`
+    };
+  }
+  return {
+    classification: "pending-runtime-proof",
+    reason: `The ${kind} request was sent through the game UI controller, but local package tests do not prove live town focus state changed; read fresh city readiness before another request.`
+  };
+}
+function successFromCanStart2(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function toComponentId4(input) {
+  if (input == null || typeof input !== "object") return null;
+  const record = input;
+  if (Number.isInteger(record.owner) && Number.isInteger(record.id) && Number.isInteger(record.type)) {
+    return {
+      owner: record.owner,
+      id: record.id,
+      type: record.type
+    };
+  }
+  return null;
+}
+function safeValue4(fn2, fallback) {
+  try {
+    return fn2();
+  } catch {
+    return fallback;
+  }
+}
 function civ7GameUiProgressionChoiceAvailable(target) {
   return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.SET_TECH_TREE_NODE !== void 0 && target.PlayerOperationTypes.SET_TECH_TREE_TARGET_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== void 0 && typeof target.ProgressionTreeNodeTypes?.NO_NODE === "number" && typeof target.Game?.Notifications?.activate === "function" && typeof target.Game.Notifications.getIdsForPlayer === "function" && typeof target.Game.Notifications.getType === "function" && typeof target.Game.Notifications.getTypeName === "function" && typeof target.Game.Notifications.find === "function" && typeof target.Players?.get === "function";
+}
+function civ7GameUiProgressionRequestAvailable(target) {
+  return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE !== void 0 && target.PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE !== void 0 && target.PlayerOperationTypes.BUY_ATTRIBUTE_TREE_NODE !== void 0 && target.PlayerOperationTypes.CONSIDER_ASSIGN_ATTRIBUTE !== void 0 && target.PlayerOperationTypes.CHANGE_TRADITION !== void 0 && target.PlayerOperationTypes.CONSIDER_ASSIGN_TRADITIONS !== void 0 && typeof target.Game?.Notifications?.getIdsForPlayer === "function" && typeof target.Game.Notifications.find === "function" && typeof target.Game.Notifications.getType === "function" && typeof target.Game.Notifications.getTypeName === "function" && typeof target.GameContext?.localPlayerID === "number";
 }
 async function requestCiv7GameUiTechnologyChoiceCloseout(input, target = globalThis) {
   return gameUiProgressionChoiceCloseout(
@@ -32769,6 +35275,24 @@ async function requestCiv7GameUiCultureChoiceCloseout(input, target = globalThis
     target
   );
 }
+async function requestCiv7GameUiTechnologyTarget(input, target = globalThis) {
+  return gameUiProgressionTarget("technology", input, target);
+}
+async function requestCiv7GameUiCultureTarget(input, target = globalThis) {
+  return gameUiProgressionTarget("culture", input, target);
+}
+async function requestCiv7GameUiAttributePurchase(input, target = globalThis) {
+  return gameUiProgressionPlayerChoice("attribute-purchase", input, target);
+}
+async function requestCiv7GameUiAttributeReviewCloseout(input, target = globalThis) {
+  return gameUiProgressionPlayerChoice("attribute-review", input, target);
+}
+async function requestCiv7GameUiTraditionChange(input, target = globalThis) {
+  return gameUiProgressionPlayerChoice("tradition-change", input, target);
+}
+async function requestCiv7GameUiTraditionReviewCloseout(input, target = globalThis) {
+  return gameUiProgressionPlayerChoice("tradition-review", input, target);
+}
 function gameUiProgressionChoiceCloseout(kind, input, target) {
   if (!Number.isInteger(input.node)) {
     throw new Error("Progression choice node must be an integer.");
@@ -32776,14 +35300,14 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
   const policy = progressionPolicy(kind, target);
   const localPlayerId = target.GameContext?.localPlayerID;
   const playerId = typeof localPlayerId === "number" ? localPlayerId : input.playerId;
-  const selectedNotification = toComponentId3(input.notificationId) ?? currentProgressionNotification(kind, playerId, target);
+  const selectedNotification = toComponentId5(input.notificationId) ?? currentProgressionNotification(kind, playerId, target);
   const beforeProgression = readProgressionState(kind, playerId, target);
-  const activationResult = probe3(
+  const activationResult = probe4(
     () => selectedNotification == null ? null : target.Game?.Notifications?.activate?.(selectedNotification)
   );
   const chooseArgs = { ProgressionTreeNodeType: input.node };
   const clearArgs = { ProgressionTreeNodeType: target.ProgressionTreeNodeTypes?.NO_NODE ?? -1 };
-  const canChoose = probe3(
+  const canChoose = probe4(
     () => target.Game?.PlayerOperations?.canStart?.(
       playerId,
       policy.chooseOperation,
@@ -32791,7 +35315,7 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
       false
     )
   );
-  const chooseResult = canChoose.ok && successFromCanStart2(canChoose.value) ? probe3(
+  const chooseResult = canChoose.ok && successFromCanStart3(canChoose.value) ? probe4(
     () => target.Game?.PlayerOperations?.sendRequest?.(
       playerId,
       policy.chooseOperation,
@@ -32799,7 +35323,7 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
     )
   ) : skippedProbe(`${policy.chooseLabel} did not validate`);
   const chooseSent = chooseResult.ok === true && chooseResult.value !== false;
-  const canClearTarget = chooseSent ? probe3(
+  const canClearTarget = chooseSent ? probe4(
     () => target.Game?.PlayerOperations?.canStart?.(
       playerId,
       policy.clearOperation,
@@ -32807,7 +35331,7 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
       false
     )
   ) : skippedProbe(`${policy.clearLabel} skipped because ${policy.chooseLabel} did not send`);
-  const clearTargetResult = chooseSent && canClearTarget.ok && successFromCanStart2(canClearTarget.value) ? probe3(
+  const clearTargetResult = chooseSent && canClearTarget.ok && successFromCanStart3(canClearTarget.value) ? probe4(
     () => target.Game?.PlayerOperations?.sendRequest?.(
       playerId,
       policy.clearOperation,
@@ -32846,6 +35370,204 @@ function gameUiProgressionChoiceCloseout(kind, input, target) {
     sent
   };
 }
+function gameUiProgressionTarget(kind, input, target) {
+  if (!Number.isInteger(input.node)) {
+    throw new Error("Progression target node must be an integer.");
+  }
+  const request2 = progressionRuntimeRequest({
+    playerId: input.playerId,
+    operationType: kind === "technology" ? "SET_TECH_TREE_TARGET_NODE" : "SET_CULTURE_TREE_TARGET_NODE",
+    operationValue: kind === "technology" ? target.PlayerOperationTypes?.SET_TECH_TREE_TARGET_NODE : target.PlayerOperationTypes?.SET_CULTURE_TREE_TARGET_NODE,
+    args: { ProgressionTreeNodeType: input.node },
+    target
+  });
+  return {
+    kind,
+    playerId: input.playerId,
+    node: input.node,
+    operation: request2.operation,
+    beforeValidation: request2.before,
+    afterValidation: request2.after,
+    sent: request2.sent,
+    verified: false,
+    postcondition: progressionRuntimePostcondition(request2.sent, `${kind} target`)
+  };
+}
+function gameUiProgressionPlayerChoice(kind, input, target) {
+  const policy = progressionPlayerChoicePolicy(kind, input, target);
+  const request2 = progressionRuntimeRequest({
+    playerId: input.playerId,
+    operationType: policy.operationType,
+    operationValue: policy.operationValue,
+    args: policy.args,
+    target
+  });
+  const common = {
+    playerId: input.playerId,
+    operation: request2.operation,
+    beforeValidation: request2.before,
+    afterValidation: request2.after,
+    sent: request2.sent,
+    verified: false,
+    postcondition: progressionRuntimePostcondition(request2.sent, kind)
+  };
+  if (kind === "attribute-purchase") {
+    return {
+      ...common,
+      kind,
+      node: policy.node
+    };
+  }
+  if (kind === "tradition-change") {
+    return {
+      ...common,
+      kind,
+      traditionType: policy.traditionType,
+      action: policy.action
+    };
+  }
+  return {
+    ...common,
+    kind
+  };
+}
+function progressionPlayerChoicePolicy(kind, input, target) {
+  if (kind === "attribute-purchase") {
+    if (typeof input.node !== "number" || !Number.isInteger(input.node)) {
+      throw new Error("Progression attribute node must be an integer.");
+    }
+    const node = input.node;
+    return {
+      operationType: "BUY_ATTRIBUTE_TREE_NODE",
+      operationValue: target.PlayerOperationTypes?.BUY_ATTRIBUTE_TREE_NODE,
+      args: { ProgressionTreeNodeType: node },
+      node
+    };
+  }
+  if (kind === "attribute-review") {
+    return {
+      operationType: "CONSIDER_ASSIGN_ATTRIBUTE",
+      operationValue: target.PlayerOperationTypes?.CONSIDER_ASSIGN_ATTRIBUTE,
+      args: {}
+    };
+  }
+  if (kind === "tradition-change") {
+    if (typeof input.traditionType !== "number" || !Number.isInteger(input.traditionType)) {
+      throw new Error("Progression traditionType must be an integer.");
+    }
+    if (typeof input.action !== "number" || !Number.isInteger(input.action)) {
+      throw new Error("Progression tradition action must be an integer.");
+    }
+    const traditionType = input.traditionType;
+    const action = input.action;
+    return {
+      operationType: "CHANGE_TRADITION",
+      operationValue: target.PlayerOperationTypes?.CHANGE_TRADITION,
+      args: {
+        TraditionType: traditionType,
+        Action: action
+      },
+      traditionType,
+      action
+    };
+  }
+  return {
+    operationType: "CONSIDER_ASSIGN_TRADITIONS",
+    operationValue: target.PlayerOperationTypes?.CONSIDER_ASSIGN_TRADITIONS,
+    args: {}
+  };
+}
+function progressionRuntimeRequest(input) {
+  const localPlayerId = input.target.GameContext?.localPlayerID;
+  const before2 = localPlayerId === input.playerId ? gameUiProgressionValidation(input) : gameUiProgressionLocalPlayerMismatch(input, localPlayerId);
+  if (!before2.valid) {
+    return {
+      before: before2,
+      after: before2,
+      operation: {
+        before: before2,
+        after: before2,
+        sent: false,
+        verified: false
+      },
+      sent: false
+    };
+  }
+  const sendRequest = input.target.Game?.PlayerOperations?.sendRequest;
+  const sendResult = typeof sendRequest === "function" ? probe4(
+    () => sendRequest(
+      input.playerId,
+      input.operationValue,
+      input.args
+    )
+  ) : { ok: false, error: "PlayerOperations.sendRequest is unavailable" };
+  const sent = sendResult.ok === true && sendResult.value !== false;
+  const after3 = gameUiProgressionValidation(input);
+  return {
+    before: before2,
+    after: after3,
+    operation: {
+      before: before2,
+      after: after3,
+      sent,
+      verified: false
+    },
+    sent
+  };
+}
+function gameUiProgressionValidation(input) {
+  const result = probe4(
+    () => input.target.Game?.PlayerOperations?.canStart?.(
+      input.playerId,
+      input.operationValue,
+      input.args,
+      false
+    )
+  );
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: input.operationType,
+    enumValue: input.operationValue,
+    target: { playerId: input.playerId },
+    args: input.args,
+    valid: result.ok === true && successFromCanStart3(result.value),
+    result
+  };
+}
+function gameUiProgressionLocalPlayerMismatch(input, localPlayerId) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: input.operationType,
+    enumValue: input.operationValue,
+    target: { playerId: input.playerId },
+    args: input.args,
+    valid: false,
+    result: {
+      ok: false,
+      reason: "local-player-mismatch",
+      inputPlayerId: input.playerId,
+      localPlayerId: localPlayerId ?? null
+    }
+  };
+}
+function progressionRuntimePostcondition(sent, label) {
+  if (!sent) {
+    return {
+      classification: "not-sent",
+      reason: `The ${label} request did not validate, so no progression operation was sent.`
+    };
+  }
+  return {
+    classification: "pending-runtime-proof",
+    reason: `The ${label} request was sent through the game UI controller, but local package tests do not prove live progression state changed; read fresh attention/progression evidence before another request.`
+  };
+}
 function progressionPolicy(kind, target) {
   if (kind === "technology") {
     return {
@@ -32866,16 +35588,16 @@ function progressionPolicy(kind, target) {
 }
 function currentProgressionNotification(kind, playerId, target) {
   const token = progressionPolicy(kind, target).token;
-  const ids3 = safeValue3(
+  const ids3 = safeValue5(
     () => target.Game?.Notifications?.getIdsForPlayer?.(playerId),
     []
   );
   if (!Array.isArray(ids3)) return null;
   for (const rawId of ids3) {
-    const id = toComponentId3(rawId);
+    const id = toComponentId5(rawId);
     if (id == null) continue;
-    const type = safeValue3(() => target.Game?.Notifications?.getType?.(id), null);
-    const typeName = safeValue3(
+    const type = safeValue5(() => target.Game?.Notifications?.getType?.(id), null);
+    const typeName = safeValue5(
       () => target.Game?.Notifications?.getTypeName?.(type),
       null
     );
@@ -32885,14 +35607,14 @@ function currentProgressionNotification(kind, playerId, target) {
 }
 function readProgressionState(kind, playerId, target) {
   return kind === "technology" ? {
-    currentResearching: probe3(
+    currentResearching: probe4(
       () => playerRecord(playerId, target)?.Techs?.getResearching?.() ?? null
     ),
-    targetNode: probe3(
+    targetNode: probe4(
       () => playerRecord(playerId, target)?.Techs?.getTargetNode?.() ?? null
     )
   } : {
-    currentResearching: probe3(() => {
+    currentResearching: probe4(() => {
       const culture = playerRecord(playerId, target)?.Culture;
       const activeTree = culture?.getActiveTree?.();
       if (activeTree == null) return null;
@@ -32904,19 +35626,19 @@ function readProgressionState(kind, playerId, target) {
       const nodes = tree?.nodes;
       return Array.isArray(nodes) ? nodes[activeNodeIndex]?.nodeType ?? null : null;
     }),
-    targetNode: probe3(
+    targetNode: probe4(
       () => playerRecord(playerId, target)?.Culture?.getTargetNode?.() ?? null
     ),
-    availableNodeTypes: probe3(
+    availableNodeTypes: probe4(
       () => playerRecord(playerId, target)?.Culture?.getAllAvailableNodeTypes?.() ?? []
     )
   };
 }
 function playerRecord(playerId, target) {
-  const player = safeValue3(() => target.Players?.get?.(playerId), null);
+  const player = safeValue5(() => target.Players?.get?.(playerId), null);
   return player != null && typeof player === "object" ? player : null;
 }
-function successFromCanStart2(result) {
+function successFromCanStart3(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -32927,7 +35649,7 @@ function successFromCanStart2(result) {
   }
   return Boolean(result);
 }
-function toComponentId3(value2) {
+function toComponentId5(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   if (typeof record.owner !== "number" || typeof record.id !== "number") {
@@ -32938,14 +35660,14 @@ function toComponentId3(value2) {
 function skippedProbe(reason) {
   return { ok: false, error: reason };
 }
-function safeValue3(fn2, fallback) {
+function safeValue5(fn2, fallback) {
   try {
     return fn2() ?? fallback;
   } catch {
     return fallback;
   }
 }
-function probe3(fn2) {
+function probe4(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
@@ -32985,7 +35707,7 @@ async function requestCiv7GameUiAssignWorkerPlacement(input, target = globalThis
       sendResult: void 0
     });
   }
-  const sendResult = probe4(
+  const sendResult = probe5(
     () => target.Game?.PlayerOperations?.sendRequest?.(
       input.playerId,
       target.PlayerOperationTypes?.ASSIGN_WORKER,
@@ -33036,7 +35758,7 @@ function gameUiPlayerOperationLocalPlayerMismatch(playerId, localPlayerId, args2
   };
 }
 async function requestCiv7GameUiExpandCityPlacement(input, target = globalThis) {
-  const cityId = toComponentId4(input.cityId);
+  const cityId = toComponentId6(input.cityId);
   if (cityId == null) {
     throw new Error("Population placement cityId must be a ComponentID.");
   }
@@ -33067,7 +35789,7 @@ async function requestCiv7GameUiExpandCityPlacement(input, target = globalThis) 
       sendResult: void 0
     });
   }
-  const sendResult = probe4(
+  const sendResult = probe5(
     () => target.Game?.CityCommands?.sendRequest?.(
       cityId,
       target.CityCommandTypes?.EXPAND,
@@ -33160,7 +35882,7 @@ function gameUiPopulationPostcondition(input) {
   };
 }
 function gameUiPlayerOperationValidation(playerId, operationType, enumValue, args2, target) {
-  const result = safeValue4(
+  const result = safeValue6(
     () => target.Game?.PlayerOperations?.canStart?.(
       playerId,
       enumValue,
@@ -33178,12 +35900,12 @@ function gameUiPlayerOperationValidation(playerId, operationType, enumValue, arg
     enumValue,
     target: { playerId },
     args: args2,
-    valid: successFromCanStart3(result),
+    valid: successFromCanStart4(result),
     result
   };
 }
 function gameUiCityCommandValidation(cityId, operationType, enumValue, args2, target) {
-  const result = safeValue4(
+  const result = safeValue6(
     () => target.Game?.CityCommands?.canStart?.(
       cityId,
       enumValue,
@@ -33201,14 +35923,14 @@ function gameUiCityCommandValidation(cityId, operationType, enumValue, args2, ta
     enumValue,
     target: { cityId },
     args: args2,
-    valid: successFromCanStart3(result),
+    valid: successFromCanStart4(result),
     result
   };
 }
 function gameUiPopulationSnapshot(cityId, target) {
-  const city = safeValue4(() => target.Cities?.get?.(cityId), null);
+  const city = safeValue6(() => target.Cities?.get?.(cityId), null);
   const placementInfo = cityPlacementInfo(city);
-  const expansion = probe4(
+  const expansion = probe5(
     () => target.Game?.CityCommands?.canStart?.(
       cityId,
       target.CityCommandTypes?.EXPAND,
@@ -33218,16 +35940,16 @@ function gameUiPopulationSnapshot(cityId, target) {
   );
   return {
     cityId,
-    city: probe4(() => citySummary(cityId, city)),
-    isReadyToPlacePopulation: probe4(() => cityReadyToPlacePopulation(city)),
-    cityWorkerCap: probe4(() => cityWorkerCap(city)),
-    workablePlotIndexes: probe4(
+    city: probe5(() => citySummary(cityId, city)),
+    isReadyToPlacePopulation: probe5(() => cityReadyToPlacePopulation(city)),
+    cityWorkerCap: probe5(() => cityWorkerCap(city)),
+    workablePlotIndexes: probe5(
       () => placementInfo.filter((info) => !info.isBlocked).map((info) => info.plotIndex)
     ),
-    blockedPlotIndexes: probe4(
+    blockedPlotIndexes: probe5(
       () => placementInfo.filter((info) => info.isBlocked).map((info) => info.plotIndex)
     ),
-    expansionPlotIndexes: probe4(
+    expansionPlotIndexes: probe5(
       () => expansion.ok && expansion.value != null && typeof expansion.value === "object" && Array.isArray(expansion.value.Plots) ? expansion.value.Plots : []
     )
   };
@@ -33235,9 +35957,9 @@ function gameUiPopulationSnapshot(cityId, target) {
 function readyPopulationCityId(target) {
   const localPlayerId = target.GameContext?.localPlayerID;
   if (typeof localPlayerId !== "number") return null;
-  const player = safeValue4(() => target.Players?.get?.(localPlayerId), null);
+  const player = safeValue6(() => target.Players?.get?.(localPlayerId), null);
   if (player == null || typeof player !== "object") return null;
-  const cityIds = safeValue4(() => {
+  const cityIds = safeValue6(() => {
     const cities = player.Cities;
     if (cities == null || typeof cities !== "object") return [];
     const getCityIds = cities.getCityIds;
@@ -33245,9 +35967,9 @@ function readyPopulationCityId(target) {
   }, []);
   if (!Array.isArray(cityIds)) return null;
   for (const rawCityId of cityIds) {
-    const cityId = toComponentId4(rawCityId);
+    const cityId = toComponentId6(rawCityId);
     if (cityId == null) continue;
-    const city = safeValue4(() => target.Cities?.get?.(cityId), null);
+    const city = safeValue6(() => target.Cities?.get?.(cityId), null);
     if (cityReadyToPlacePopulation(city) === true) return cityId;
   }
   return null;
@@ -33257,7 +35979,7 @@ function citySummary(cityId, city) {
   const record = city;
   return {
     id: cityId,
-    observedCityId: toComponentId4(record.id ?? record.ID ?? record.CityId),
+    observedCityId: toComponentId6(record.id ?? record.ID ?? record.CityId),
     population: record.population ?? record.Population ?? null,
     isTown: record.isTown ?? null,
     location: record.location ?? record.Location ?? null
@@ -33319,7 +36041,7 @@ function populationReadyCleared(before2, after3) {
 function populationSnapshotChanged(before2, after3) {
   return stableJson22(probeValue33(before2.city)) !== stableJson22(probeValue33(after3.city)) || stableJson22(probeValue33(before2.isReadyToPlacePopulation)) !== stableJson22(probeValue33(after3.isReadyToPlacePopulation)) || stableJson22(probeValue33(before2.cityWorkerCap)) !== stableJson22(probeValue33(after3.cityWorkerCap)) || stableJson22(probeValue33(before2.workablePlotIndexes)) !== stableJson22(probeValue33(after3.workablePlotIndexes)) || stableJson22(probeValue33(before2.blockedPlotIndexes)) !== stableJson22(probeValue33(after3.blockedPlotIndexes)) || stableJson22(probeValue33(before2.expansionPlotIndexes)) !== stableJson22(probeValue33(after3.expansionPlotIndexes));
 }
-function successFromCanStart3(result) {
+function successFromCanStart4(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -33330,7 +36052,7 @@ function successFromCanStart3(result) {
   }
   return Boolean(result);
 }
-function toComponentId4(value2) {
+function toComponentId6(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   const owner = numericField(record, "owner", "Owner");
@@ -33344,22 +36066,22 @@ function numericField(record, lower, upper) {
   if (typeof record[upper] === "number") return record[upper];
   return null;
 }
-function safeValue4(fn2, fallback) {
+function safeValue6(fn2, fallback) {
   try {
     return fn2() ?? fallback;
   } catch {
     return fallback;
   }
 }
-function probe4(fn2) {
+function probe5(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
     return { ok: false, error: String(err) };
   }
 }
-function probeValue33(probe10) {
-  return probe10?.ok ? probe10.value : void 0;
+function probeValue33(probe13) {
+  return probe13?.ok ? probe13.value : void 0;
 }
 function stableJson22(value2) {
   if (value2 == null || typeof value2 !== "object") return JSON.stringify(value2);
@@ -33398,11 +36120,11 @@ async function requestCiv7GameUiNarrativeChoice(input, target = globalThis) {
       payload: void 0
     });
   }
-  const notificationId = currentNarrativeNotification(playerId, target);
-  const activationResult = probe5(
-    () => notificationId == null ? null : target.Game?.Notifications?.activate?.(notificationId)
+  const notificationId2 = currentNarrativeNotification(playerId, target);
+  const activationResult = probe6(
+    () => notificationId2 == null ? null : target.Game?.Notifications?.activate?.(notificationId2)
   );
-  const sendResult = probe5(
+  const sendResult = probe6(
     () => target.Game?.PlayerOperations?.sendRequest?.(
       playerId,
       target.PlayerOperationTypes?.CHOOSE_NARRATIVE_STORY_DIRECTION,
@@ -33473,7 +36195,7 @@ function narrativeChoiceResult2(input) {
   };
 }
 function gameUiNarrativeValidation(playerId, args2, target) {
-  const result = probe5(
+  const result = probe6(
     () => target.Game?.PlayerOperations?.canStart?.(
       playerId,
       target.PlayerOperationTypes?.CHOOSE_NARRATIVE_STORY_DIRECTION,
@@ -33490,7 +36212,7 @@ function gameUiNarrativeValidation(playerId, args2, target) {
     enumValue: target.PlayerOperationTypes?.CHOOSE_NARRATIVE_STORY_DIRECTION,
     target: { playerId },
     args: args2,
-    valid: result.ok && successFromCanStart4(result.value),
+    valid: result.ok && successFromCanStart5(result.value),
     result
   };
 }
@@ -33567,16 +36289,16 @@ function findNarrativeChoiceNotification(view) {
   });
 }
 function currentNarrativeNotification(playerId, target) {
-  const ids3 = safeValue5(
+  const ids3 = safeValue7(
     () => target.Game?.Notifications?.getIdsForPlayer?.(playerId),
     []
   );
   if (!Array.isArray(ids3)) return null;
   for (const rawId of ids3) {
-    const id = toComponentId5(rawId);
+    const id = toComponentId7(rawId);
     if (id == null) continue;
-    const type = safeValue5(() => target.Game?.Notifications?.getType?.(id), null);
-    const typeName = safeValue5(
+    const type = safeValue7(() => target.Game?.Notifications?.getType?.(id), null);
+    const typeName = safeValue7(
       () => target.Game?.Notifications?.getTypeName?.(type),
       null
     );
@@ -33604,8 +36326,8 @@ function readNarrativeUiState(targetStoryId, target) {
     panels,
     matchingPanelCount: matchingPanels.length,
     matchingPanels,
-    popupShowing: probe5(() => target.NarrativePopupManager?.isShowing?.() ?? null),
-    currentNarrativeData: probe5(
+    popupShowing: probe6(() => target.NarrativePopupManager?.isShowing?.() ?? null),
+    currentNarrativeData: probe6(
       () => target.NarrativePopupManager?.currentNarrativeData ?? null
     )
   };
@@ -33613,7 +36335,7 @@ function readNarrativeUiState(targetStoryId, target) {
 function summarizePanel(panel, targetStoryId) {
   const record = panelRecord(panel);
   const component = panelRecord(record?._component);
-  const panelTarget = toComponentId5(component?.targetStoryId);
+  const panelTarget = toComponentId7(component?.targetStoryId);
   return {
     panelType: typeof record?.tagName === "string" ? record.tagName : null,
     componentType: typeof component?.constructor?.name === "string" ? component.constructor.name : null,
@@ -33624,10 +36346,10 @@ function summarizePanel(panel, targetStoryId) {
   };
 }
 function closeVisibleNarrativePanels(targetStoryId, target) {
-  return probe5(() => {
+  return probe6(() => {
     const panels = narrativePanels(target).filter((panel) => {
       const component = panelRecord(panelRecord(panel)?._component);
-      return componentIdEqual2(toComponentId5(component?.targetStoryId), targetStoryId);
+      return componentIdEqual2(toComponentId7(component?.targetStoryId), targetStoryId);
     });
     const results = panels.map((panel) => {
       const record = panelRecord(panel);
@@ -33649,7 +36371,7 @@ function closeVisibleNarrativePanels(targetStoryId, target) {
   });
 }
 function closeNarrativePopup(target) {
-  return probe5(() => {
+  return probe6(() => {
     const closePopup = target.NarrativePopupManager?.closePopup;
     if (typeof closePopup !== "function") return { available: false };
     closePopup();
@@ -33665,7 +36387,7 @@ function narrativePanels(target) {
     "screen-narrative-event",
     "screen-narrative-trial"
   ];
-  return safeValue5(
+  return safeValue7(
     () => selectors.flatMap(
       (selector) => Array.from(query.call(target.document, selector))
     ),
@@ -33675,7 +36397,7 @@ function narrativePanels(target) {
 function choiceKeys(panel) {
   const query = panel?.querySelectorAll;
   if (typeof query !== "function") return [];
-  return safeValue5(
+  return safeValue7(
     () => Array.from(
       query.call(
         panel,
@@ -33690,7 +36412,7 @@ function choiceKeys(panel) {
     []
   );
 }
-function successFromCanStart4(result) {
+function successFromCanStart5(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -33718,7 +36440,7 @@ function numericField2(value2, field) {
   const candidate2 = value2[field];
   return typeof candidate2 === "number" ? candidate2 : void 0;
 }
-function toComponentId5(value2) {
+function toComponentId7(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   if (typeof record.owner !== "number" || typeof record.id !== "number") {
@@ -33735,14 +36457,14 @@ function panelRecord(value2) {
 function skippedProbe2(reason) {
   return { ok: false, error: reason };
 }
-function safeValue5(fn2, fallback) {
+function safeValue7(fn2, fallback) {
   try {
     return fn2() ?? fallback;
   } catch {
     return fallback;
   }
 }
-function probe5(fn2) {
+function probe6(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
@@ -33778,13 +36500,13 @@ async function requestCiv7GameUiDiplomacyResponse(input, target = globalThis) {
     });
   }
   const discoveredNotification = currentDiplomacyNotification(input, playerId, target);
-  const notificationId = toComponentId6(input.notificationId) ?? (discoveredNotification.ok ? discoveredNotification.value : null);
+  const notificationId2 = toComponentId8(input.notificationId) ?? (discoveredNotification.ok ? discoveredNotification.value : null);
   const activationResult = activateDiplomacyNotification(
-    notificationId,
+    notificationId2,
     input.actionId,
     target
   );
-  const sendResult = probe6(
+  const sendResult = probe7(
     () => target.Game?.PlayerOperations?.sendRequest?.(
       playerId,
       target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION,
@@ -33814,7 +36536,7 @@ async function requestCiv7GameUiDiplomacyResponse(input, target = globalThis) {
       actionId: input.actionId,
       responseType: input.responseType,
       args: args2,
-      notificationId,
+      notificationId: notificationId2,
       discoveredNotification,
       activated: activationResult.ok === true && activationResult.value?.activated === true,
       activationResult,
@@ -33861,7 +36583,7 @@ function diplomacyResponseResult2(input) {
   };
 }
 function gameUiDiplomacyValidation(playerId, args2, target) {
-  const result = probe6(
+  const result = probe7(
     () => target.Game?.PlayerOperations?.canStart?.(
       playerId,
       target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION,
@@ -33878,7 +36600,7 @@ function gameUiDiplomacyValidation(playerId, args2, target) {
     enumValue: target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION,
     target: { playerId },
     args: args2,
-    valid: result.ok && successFromCanStart5(result.value),
+    valid: result.ok && successFromCanStart6(result.value),
     result
   };
 }
@@ -33947,7 +36669,7 @@ function diplomacyPostconditionReason(classification) {
   }
 }
 function currentDiplomacyNotification(input, playerId, target) {
-  return probe6(() => {
+  return probe7(() => {
     const blockerType = target.Game?.Notifications?.getEndTurnBlockingType?.(
       playerId
     );
@@ -33955,22 +36677,22 @@ function currentDiplomacyNotification(input, playerId, target) {
       playerId,
       blockerType
     );
-    const notificationId = toComponentId6(id);
-    if (notificationId == null) return null;
-    const notification = target.Game?.Notifications?.find?.(notificationId);
-    const type = target.Game?.Notifications?.getType?.(notificationId) ?? recordValue(notification, "Type");
+    const notificationId2 = toComponentId8(id);
+    if (notificationId2 == null) return null;
+    const notification = target.Game?.Notifications?.find?.(notificationId2);
+    const type = target.Game?.Notifications?.getType?.(notificationId2) ?? recordValue(notification, "Type");
     const typeName = target.Game?.Notifications?.getTypeName?.(type);
     const notificationTarget = recordValue(notification, "Target");
     const actionMatches = recordValue(notificationTarget, "id") === input.actionId;
-    return typeName === "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED" && actionMatches ? notificationId : null;
+    return typeName === "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED" && actionMatches ? notificationId2 : null;
   });
 }
-function activateDiplomacyNotification(notificationId, actionId, target) {
-  if (notificationId == null) {
+function activateDiplomacyNotification(notificationId2, actionId, target) {
+  if (notificationId2 == null) {
     return skippedProbe3("diplomacy notificationId not found");
   }
-  return probe6(() => {
-    const notification = target.Game?.Notifications?.find?.(notificationId);
+  return probe7(() => {
+    const notification = target.Game?.Notifications?.find?.(notificationId2);
     if (notification == null) return { found: false };
     const notificationTarget = recordValue(notification, "Target");
     if (recordValue(notificationTarget, "id") == null) {
@@ -33996,20 +36718,20 @@ function activateDiplomacyNotification(notificationId, actionId, target) {
       activated: true,
       currentProjectReactionDataActionID: manager.currentProjectReactionData?.actionID ?? null,
       currentProjectReactionRequestActionID: manager.currentProjectReactionRequest?.actionID ?? null,
-      notificationActivation: target.Game?.Notifications?.activate?.(notificationId)
+      notificationActivation: target.Game?.Notifications?.activate?.(notificationId2)
     };
   });
 }
 function closeDiplomacyUi(target) {
   return {
     requested: true,
-    acknowledgeStarted: probe6(
+    acknowledgeStarted: probe7(
       () => target.LeaderModelManager?.beginAcknowledgePlayerSequence?.() ?? null
     ),
-    closeCurrentDiplomacyProject: probe6(
+    closeCurrentDiplomacyProject: probe7(
       () => target.DiplomacyManager?.closeCurrentDiplomacyProject?.(false) ?? null
     ),
-    hide: probe6(() => target.DiplomacyManager?.hide?.(false) ?? null)
+    hide: probe7(() => target.DiplomacyManager?.hide?.(false) ?? null)
   };
 }
 function readDiplomacyState(actionId, target) {
@@ -34017,12 +36739,12 @@ function readDiplomacyState(actionId, target) {
     currentProjectReactionDataActionID: target.DiplomacyManager?.currentProjectReactionData?.actionID ?? null,
     currentProjectReactionRequestActionID: target.DiplomacyManager?.currentProjectReactionRequest?.actionID ?? null,
     selectedActionID: target.DiplomacyManager?.selectedActionID ?? null,
-    isShowing: probe6(() => target.DiplomacyManager?.isShowing?.() ?? null),
-    interfaceMode: probe6(() => target.InterfaceMode?.getCurrent?.() ?? null),
-    responseData: probe6(
+    isShowing: probe7(() => target.DiplomacyManager?.isShowing?.() ?? null),
+    interfaceMode: probe7(() => target.InterfaceMode?.getCurrent?.() ?? null),
+    responseData: probe7(
       () => target.Game?.Diplomacy?.getResponseDataForUI?.(actionId) ?? null
     ),
-    eventData: probe6(
+    eventData: probe7(
       () => target.Game?.Diplomacy?.getDiplomaticEventData?.(actionId) ?? null
     )
   };
@@ -34034,7 +36756,7 @@ function findDiplomacyResponseNotification(view, actionId) {
     return recordValue(notification.target, "id") === actionId;
   });
 }
-function successFromCanStart5(result) {
+function successFromCanStart6(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -34057,7 +36779,7 @@ function stableJson4(value2) {
     );
   });
 }
-function toComponentId6(value2) {
+function toComponentId8(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   if (typeof record.owner !== "number" || typeof record.id !== "number") {
@@ -34074,7 +36796,7 @@ function recordValue(value2, key) {
 function skippedProbe3(reason) {
   return { ok: false, error: reason };
 }
-function probe6(fn2) {
+function probe7(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
@@ -34084,12 +36806,375 @@ function probe6(fn2) {
 function probeValue52(input) {
   return input.ok ? input.value : void 0;
 }
+function civ7GameUiFirstMeetResponseAvailable(target) {
+  return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET !== void 0 && typeof target.GameContext?.localPlayerID === "number" && typeof target.Game?.Notifications?.activate === "function" && typeof target.Game.Notifications.getIdsForPlayer === "function" && typeof target.Game.Notifications.getType === "function" && typeof target.Game.Notifications.getTypeName === "function" && typeof target.Game.Notifications.find === "function" && typeof target.Game.Notifications.getBlocksTurnAdvancement === "function";
+}
+async function requestCiv7GameUiFirstMeetResponse(input, target = globalThis) {
+  const args2 = {
+    Player1: input.playerId,
+    Player2: input.metPlayerId,
+    Type: input.responseType
+  };
+  const before2 = await getCiv7GameUiPlayNotificationView({}, target);
+  const beforeValidation = input.playerId === target.GameContext?.localPlayerID ? gameUiFirstMeetValidation(input.playerId, args2, target) : gameUiFirstMeetValidationBlocked(
+    input.playerId,
+    args2,
+    "GameContext.localPlayerID does not match the requested first-meet player."
+  );
+  if (!beforeValidation.valid) {
+    return firstMeetResponseResult2({
+      input,
+      before: before2,
+      beforeValidation,
+      after: before2,
+      afterValidation: beforeValidation,
+      sent: false
+    });
+  }
+  const notificationId2 = currentFirstMeetNotification(input.metPlayerId, before2);
+  if (notificationId2 != null) {
+    probe8(() => target.Game?.Notifications?.activate?.(notificationId2));
+  }
+  const sendResult = probe8(
+    () => target.Game?.PlayerOperations?.sendRequest?.(
+      input.playerId,
+      target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET,
+      args2
+    )
+  );
+  const sent = sendResult.ok && sendResult.value !== false;
+  const after3 = await getCiv7GameUiPlayNotificationView({}, target);
+  const afterValidation = gameUiFirstMeetValidation(input.playerId, args2, target);
+  return firstMeetResponseResult2({
+    input,
+    before: before2,
+    beforeValidation,
+    after: after3,
+    afterValidation,
+    sent
+  });
+}
+function firstMeetResponseResult2(input) {
+  const postcondition = gameUiFirstMeetPostcondition(
+    input.sent,
+    input.before,
+    input.after,
+    input.input.metPlayerId
+  );
+  return {
+    playerId: input.input.playerId,
+    metPlayerId: input.input.metPlayerId,
+    responseType: input.input.responseType,
+    before: input.before,
+    operation: {
+      before: input.beforeValidation,
+      ...input.sent ? {
+        command: {
+          host: "game-ui",
+          port: 0,
+          state: { id: "game-ui", name: "Game UI" },
+          output: ["game-ui-first-meet-response-requested"]
+        }
+      } : {},
+      after: input.afterValidation,
+      sent: input.sent,
+      verified: firstMeetResponseVerified(postcondition)
+    },
+    after: input.after,
+    beforeValidation: input.beforeValidation,
+    afterValidation: input.afterValidation,
+    sent: input.sent,
+    verified: firstMeetResponseVerified(postcondition),
+    postcondition
+  };
+}
+function gameUiFirstMeetValidation(playerId, args2, target) {
+  const result = probe8(
+    () => target.Game?.PlayerOperations?.canStart?.(
+      playerId,
+      target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET,
+      args2,
+      false
+    )
+  );
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
+    enumValue: target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_FIRST_MEET,
+    target: { playerId },
+    args: args2,
+    valid: result.ok && successFromCanStart7(result.value),
+    result
+  };
+}
+function gameUiFirstMeetValidationBlocked(playerId, args2, reason) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
+    enumValue: "RESPOND_DIPLOMATIC_FIRST_MEET",
+    target: { playerId },
+    args: args2,
+    valid: false,
+    result: {
+      ok: false,
+      reason,
+      playerId
+    }
+  };
+}
+function gameUiFirstMeetPostcondition(sent, before2, after3, metPlayerId) {
+  const classification = classifyGameUiFirstMeetPostcondition(
+    sent,
+    before2,
+    after3,
+    metPlayerId
+  );
+  return {
+    classification,
+    reason: firstMeetResponsePostconditionReason(classification)
+  };
+}
+function classifyGameUiFirstMeetPostcondition(sent, before2, after3, metPlayerId) {
+  if (!sent) return "not-sent";
+  if (probeValue6(after3.canEndTurn) === true) return "turn-unblocked";
+  const beforeBlocker = findFirstMeetNotification(before2, metPlayerId);
+  if (!beforeBlocker) return "first-meet-blocker-unmatched";
+  const afterBlocker = findFirstMeetNotification(after3, metPlayerId);
+  if (!afterBlocker) return "first-meet-cleared";
+  if (!componentIdEqual4(notificationId(beforeBlocker), notificationId(afterBlocker))) {
+    return "first-meet-blocker-transitioned";
+  }
+  return "first-meet-sticky-blocker";
+}
+function firstMeetResponsePostconditionReason(classification) {
+  switch (classification) {
+    case "not-sent":
+      return "The first-meet response was not sent, so no postcondition can be verified.";
+    case "turn-unblocked":
+      return "The first-meet response left the turn unblocked.";
+    case "first-meet-cleared":
+      return "The matching first-meet notification is no longer end-turn-blocking.";
+    case "first-meet-blocker-transitioned":
+      return "A matching first-meet blocker changed identity after the response but still blocks turn flow.";
+    case "first-meet-sticky-blocker":
+      return "The first-meet operation returned, but the same first-meet notification still blocks turn flow.";
+    case "first-meet-blocker-unmatched":
+      return "No matching end-turn-blocking first-meet notification was captured before the send.";
+  }
+}
+function currentFirstMeetNotification(metPlayerId, view) {
+  return notificationId(findFirstMeetNotification(view, metPlayerId));
+}
+function findFirstMeetNotification(view, metPlayerId) {
+  return view.notifications.find((notification) => {
+    const typeName = String(notification.typeName ?? "").toUpperCase();
+    if (notification.isEndTurnBlocking !== true || !typeName.includes("PLAYER_MET")) {
+      return false;
+    }
+    const target = notification.target;
+    return recordNumber(target, "owner") === metPlayerId || recordNumber(target, "id") === metPlayerId;
+  });
+}
+function firstMeetResponseVerified(postcondition) {
+  return postcondition.classification === "turn-unblocked" || postcondition.classification === "first-meet-cleared";
+}
+function notificationId(notification) {
+  return notification?.id ?? null;
+}
+function componentIdEqual4(left3, right3) {
+  return left3?.owner === right3?.owner && left3?.id === right3?.id && (left3?.type ?? null) === (right3?.type ?? null);
+}
+function recordNumber(value2, key) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const candidate2 = value2[key];
+  return typeof candidate2 === "number" ? candidate2 : null;
+}
+function successFromCanStart7(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function probe8(fn2) {
+  try {
+    return { ok: true, value: fn2() };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+function probeValue6(input) {
+  return input.ok ? input.value : void 0;
+}
+var CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION = -1326475004;
+function civ7GameUiGovernmentAvailable(target) {
+  return typeof target.Game?.PlayerOperations?.canStart === "function" && typeof target.Game.PlayerOperations.sendRequest === "function" && target.PlayerOperationTypes?.CHANGE_GOVERNMENT !== void 0 && target.PlayerOperationTypes.CHOOSE_GOLDEN_AGE !== void 0 && typeof target.GameContext?.localPlayerID === "number";
+}
+async function requestCiv7GameUiGovernmentChoice(input, target = globalThis) {
+  const action = input.action ?? CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION;
+  const args2 = {
+    GovernmentType: input.governmentType,
+    Action: action
+  };
+  return gameUiGovernmentChoice({
+    kind: "government",
+    playerId: input.playerId,
+    operationType: "CHANGE_GOVERNMENT",
+    enumValue: target.PlayerOperationTypes?.CHANGE_GOVERNMENT,
+    args: args2,
+    governmentType: input.governmentType,
+    action
+  }, target);
+}
+async function requestCiv7GameUiCelebrationChoice(input, target = globalThis) {
+  const args2 = { GoldenAgeType: input.goldenAgeType };
+  return gameUiGovernmentChoice({
+    kind: "celebration",
+    playerId: input.playerId,
+    operationType: "CHOOSE_GOLDEN_AGE",
+    enumValue: target.PlayerOperationTypes?.CHOOSE_GOLDEN_AGE,
+    args: args2,
+    goldenAgeType: input.goldenAgeType
+  }, target);
+}
+function gameUiGovernmentChoice(input, target) {
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const before2 = input.playerId === localPlayerId ? gameUiGovernmentValidation(input, target) : governmentValidation({
+    operationType: input.operationType,
+    enumValue: input.enumValue,
+    playerId: input.playerId,
+    args: input.args,
+    valid: false,
+    result: {
+      ok: false,
+      reason: "player-id-mismatch",
+      inputPlayerId: input.playerId,
+      localPlayerId: localPlayerId ?? null
+    }
+  });
+  if (!before2.valid) {
+    return governmentResult({ ...input, before: before2, after: before2, sent: false });
+  }
+  const sendResult = safeValue8(
+    () => target.Game?.PlayerOperations?.sendRequest?.(
+      input.playerId,
+      input.enumValue,
+      input.args
+    ),
+    false
+  );
+  const sent = sendResult !== false;
+  const after3 = gameUiGovernmentValidation(input, target);
+  return governmentResult({ ...input, before: before2, after: after3, sent });
+}
+function gameUiGovernmentValidation(input, target) {
+  const result = safeValue8(
+    () => target.Game?.PlayerOperations?.canStart?.(
+      input.playerId,
+      input.enumValue,
+      input.args,
+      false
+    ),
+    null
+  );
+  return governmentValidation({
+    operationType: input.operationType,
+    enumValue: input.enumValue,
+    playerId: input.playerId,
+    args: input.args,
+    valid: successFromCanStart8(result),
+    result
+  });
+}
+function governmentValidation(input) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "player-operation",
+    operationType: input.operationType,
+    enumValue: input.enumValue,
+    target: { playerId: input.playerId },
+    args: input.args,
+    valid: input.valid,
+    result: input.result
+  };
+}
+function governmentResult(input) {
+  const common = {
+    playerId: input.playerId,
+    operation: {
+      before: input.before,
+      after: input.after,
+      sent: input.sent,
+      verified: false
+    },
+    beforeValidation: input.before,
+    afterValidation: input.after,
+    sent: input.sent,
+    verified: false,
+    postcondition: governmentPostcondition(input.sent, input.kind)
+  };
+  if (input.kind === "government") {
+    return {
+      ...common,
+      kind: "government",
+      governmentType: input.governmentType,
+      action: input.action
+    };
+  }
+  return {
+    ...common,
+    kind: "celebration",
+    goldenAgeType: input.goldenAgeType
+  };
+}
+function governmentPostcondition(sent, kind) {
+  if (!sent) {
+    return {
+      classification: "not-sent",
+      reason: `The ${kind} choice request did not validate, so no government-domain choice was sent.`
+    };
+  }
+  return {
+    classification: "pending-runtime-proof",
+    reason: `The ${kind} choice request was sent through the game UI controller, but local package tests do not prove live government-domain state changed; read fresh attention before another request.`
+  };
+}
+function successFromCanStart8(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function safeValue8(fn2, fallback) {
+  try {
+    return fn2();
+  } catch {
+    return fallback;
+  }
+}
 function civ7GameUiUnitTargetActionAvailable(target) {
   return typeof target.Game?.UnitOperations?.canStart === "function" && typeof target.Game.UnitOperations.sendRequest === "function" && typeof target.Game?.UnitCommands?.canStart === "function" && typeof target.Game.UnitCommands.sendRequest === "function" && target.UnitOperationTypes != null && target.UnitCommandTypes != null && typeof target.Units?.get === "function" && typeof target.MapUnits?.getUnits === "function" && (typeof target.GameplayMap?.getIndexFromLocation === "function" || typeof target.GameplayMap?.getIndexFromXY === "function");
 }
 async function requestCiv7GameUiUnitTargetAction(input, target = globalThis) {
-  const beforeUnit = probe7(() => summarizeUnit(input.unitId, target));
-  const beforeTargetUnits = probe7(() => targetUnitsAt(input.x, input.y, target));
+  const beforeUnit = probe9(() => summarizeUnit(input.unitId, target));
+  const beforeTargetUnits = probe9(() => targetUnitsAt(input.x, input.y, target));
   const targetIndex = targetIndexFor(input.x, input.y, target);
   const ownerMatchesLocalPlayer = input.unitId.owner === target.GameContext?.localPlayerID;
   const candidates = ownerMatchesLocalPlayer ? unitTargetCandidates(input, targetIndex, target) : [];
@@ -34121,10 +37206,10 @@ async function requestCiv7GameUiUnitTargetAction(input, target = globalThis) {
       }
     });
   }
-  const sendResult = probe7(() => sendCandidate(input.unitId, selected, target));
+  const sendResult = probe9(() => sendCandidate(input.unitId, selected, target));
   const sent = sendResult.ok && sendResult.value !== false;
-  const afterUnit = probe7(() => summarizeUnit(input.unitId, target));
-  const afterTargetUnits = probe7(() => targetUnitsAt(input.x, input.y, target));
+  const afterUnit = probe9(() => summarizeUnit(input.unitId, target));
+  const afterTargetUnits = probe9(() => targetUnitsAt(input.x, input.y, target));
   const verification = unitTargetVerification(
     input,
     selected,
@@ -34191,10 +37276,10 @@ function candidate(family, operationType, args2, unitId, targetIndex, target) {
   const router = family === "unit-command" ? target.Game?.UnitCommands : target.Game?.UnitOperations;
   const enums = family === "unit-command" ? target.UnitCommandTypes : target.UnitOperationTypes;
   const enumValue = enumValueFor(enums, operationType);
-  const result = probe7(
+  const result = probe9(
     () => router?.canStart?.(unitId, enumValue, args2, false) ?? false
   );
-  const valid = result.ok && successFromCanStart6(result.value);
+  const valid = result.ok && successFromCanStart9(result.value);
   const targetInReturnedPlots = targetInReturnedPlotsFor(result, targetIndex);
   return {
     family,
@@ -34270,7 +37355,7 @@ function unitTargetReason(classification) {
   }
 }
 function targetIndexFor(x, y, target) {
-  return probe7(
+  return probe9(
     () => typeof target.GameplayMap?.getIndexFromLocation === "function" ? target.GameplayMap.getIndexFromLocation({ x, y }) : target.GameplayMap?.getIndexFromXY?.(x, y) ?? -1
   );
 }
@@ -34279,7 +37364,7 @@ function summarizeUnit(unitId, target) {
   if (unit == null || typeof unit !== "object") return null;
   const record = unit;
   return {
-    id: toComponentId7(record.id) ?? unitId,
+    id: toComponentId9(record.id) ?? unitId,
     owner: record.owner ?? unitId.owner,
     type: record.type ?? unitId.type ?? null,
     location: record.location ?? null,
@@ -34295,7 +37380,7 @@ function summarizeUnit(unitId, target) {
 }
 function targetUnitsAt(x, y, target) {
   const units = target.MapUnits?.getUnits?.(x, y) ?? [];
-  return Array.isArray(units) ? units.map((id) => toComponentId7(id) ?? id) : units;
+  return Array.isArray(units) ? units.map((id) => toComponentId9(id) ?? id) : units;
 }
 function targetInReturnedPlotsFor(result, targetIndex) {
   if (!result.ok || !targetIndex.ok) return null;
@@ -34325,7 +37410,7 @@ function enumValueFor(enums, operationType) {
   }
   return operationType;
 }
-function successFromCanStart6(result) {
+function successFromCanStart9(result) {
   if (result === true) return true;
   if (result === false || result == null) return false;
   if (typeof result === "object") {
@@ -34350,7 +37435,7 @@ function locationFromUnitProbe(input) {
 function sameLocation(left3, right3) {
   return left3.x === right3.x && left3.y === right3.y;
 }
-function toComponentId7(value2) {
+function toComponentId9(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   if (typeof record.owner !== "number" || typeof record.id !== "number") {
@@ -34370,12 +37455,270 @@ function stableJson5(value2) {
     );
   });
 }
-function probe7(fn2) {
+function probe9(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
     return { ok: false, error: String(err) };
   }
+}
+function civ7GameUiUnitCommandAvailable(target) {
+  return typeof target.Game?.UnitCommands?.canStart === "function" && typeof target.Game.UnitCommands.sendRequest === "function" && target.UnitCommandTypes != null && (target.UnitCommandTypes.UNITCOMMAND_UPGRADE !== void 0 || target.UnitCommandTypes.UPGRADE !== void 0) && (target.UnitCommandTypes.UNITCOMMAND_RESETTLE !== void 0 || target.UnitCommandTypes.RESETTLE !== void 0) && typeof target.GameContext?.localPlayerID === "number" && typeof target.Units?.get === "function" && typeof target.UI?.Player?.getFirstReadyUnit === "function" && typeof target.UI.Player.getHeadSelectedUnit === "function" && typeof target.Game?.Notifications?.getEndTurnBlockingType === "function";
+}
+async function requestCiv7GameUiUnitCommand(input, target = globalThis) {
+  const args2 = argsRecord2(input.args);
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const beforeSnapshot = readUnitPostconditionSnapshot(input.unitId, target);
+  const before2 = input.unitId.owner === localPlayerId ? gameUiUnitCommandValidation(input.unitId, input.operationType, args2, target) : gameUiUnitCommandValidationBlocked(
+    input.unitId,
+    input.operationType,
+    args2,
+    "The requested unit is not owned by GameContext.localPlayerID; game UI controller did not send."
+  );
+  if (!before2.valid) {
+    const postcondition2 = gameUiUnitCommandPostcondition(
+      input.operationType,
+      false,
+      before2,
+      before2,
+      beforeSnapshot,
+      beforeSnapshot
+    );
+    return {
+      before: before2,
+      after: before2,
+      sent: false,
+      verified: false,
+      postcondition: postcondition2
+    };
+  }
+  const commandType = enumValueFor2(target.UnitCommandTypes, input.operationType);
+  const sendResult = probe10(
+    () => target.Game?.UnitCommands?.sendRequest?.(input.unitId, commandType, args2)
+  );
+  const sent = sendResult.ok && sendResult.value !== false;
+  const afterSnapshot = readUnitPostconditionSnapshot(input.unitId, target);
+  const after3 = gameUiUnitCommandValidation(
+    input.unitId,
+    input.operationType,
+    args2,
+    target
+  );
+  const postcondition = gameUiUnitCommandPostcondition(
+    input.operationType,
+    sent,
+    before2,
+    after3,
+    beforeSnapshot,
+    afterSnapshot
+  );
+  return {
+    before: before2,
+    ...sent ? {
+      command: {
+        host: "game-ui",
+        port: 0,
+        state: { id: "game-ui", name: "Game UI" },
+        output: ["game-ui-unit-command-requested"]
+      }
+    } : {},
+    after: after3,
+    sent,
+    verified: sent && postcondition.classification !== "no-state-change",
+    postcondition
+  };
+}
+function gameUiUnitCommandValidation(unitId, operationType, args2, target) {
+  const enumValue = enumValueFor2(target.UnitCommandTypes, operationType);
+  const result = probe10(
+    () => target.Game?.UnitCommands?.canStart?.(unitId, enumValue, args2, false)
+  );
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "unit-command",
+    operationType,
+    enumValue,
+    target: { unitId },
+    args: args2,
+    valid: result.ok && successFromCanStart10(result.value),
+    result
+  };
+}
+function gameUiUnitCommandValidationBlocked(unitId, operationType, args2, reason) {
+  return {
+    host: "game-ui",
+    port: 0,
+    state: { id: "game-ui", name: "Game UI" },
+    family: "unit-command",
+    operationType,
+    enumValue: operationType,
+    target: { unitId },
+    args: args2,
+    valid: false,
+    result: {
+      ok: false,
+      reason,
+      unitId
+    }
+  };
+}
+function gameUiUnitCommandPostcondition(operationType, sent, before2, after3, beforeSnapshot, afterSnapshot) {
+  const classification = classifyGameUiUnitCommandPostcondition(
+    sent,
+    before2,
+    after3,
+    beforeSnapshot,
+    afterSnapshot
+  );
+  return {
+    family: "unit-command",
+    operationType,
+    classification,
+    before: beforeSnapshot,
+    after: afterSnapshot,
+    reason: unitCommandPostconditionReason(classification)
+  };
+}
+function classifyGameUiUnitCommandPostcondition(sent, before2, after3, beforeSnapshot, afterSnapshot) {
+  if (!sent) return "not-sent";
+  if (probeValueChanged(beforeSnapshot.firstReadyUnitId, afterSnapshot.firstReadyUnitId)) {
+    return "queue-advanced";
+  }
+  if (probeValueChanged(beforeSnapshot.selectedUnitId, afterSnapshot.selectedUnitId)) {
+    return "selected-unit-changed";
+  }
+  if (probeFieldChanged(beforeSnapshot.unit, afterSnapshot.unit, "activity")) {
+    return "activity-changed";
+  }
+  if (probeValueChanged(beforeSnapshot.unit, afterSnapshot.unit)) {
+    return "unit-state-changed";
+  }
+  if (probeValueChanged(beforeSnapshot.blocker, afterSnapshot.blocker)) {
+    return "blocker-changed";
+  }
+  if (before2.valid !== after3.valid || stableJson6(before2.result) !== stableJson6(after3.result)) {
+    return "validation-changed";
+  }
+  return "no-state-change";
+}
+function unitCommandPostconditionReason(classification) {
+  switch (classification) {
+    case "not-sent":
+      return "The operation was not sent, so no unit-side postcondition can be verified.";
+    case "queue-advanced":
+      return "The first ready unit changed after the request, which shows the unit queue advanced.";
+    case "selected-unit-changed":
+      return "The selected unit changed after the request, which shows the game consumed the unit action.";
+    case "activity-changed":
+      return "The unit activity changed after the request.";
+    case "unit-state-changed":
+      return "The unit summary changed after the request.";
+    case "blocker-changed":
+      return "The end-turn blocker changed after the request.";
+    case "validation-changed":
+      return "The operation validation result changed after the request.";
+    case "no-state-change":
+      return "The request was sent, but no observed unit, queue, blocker, or validation state changed.";
+  }
+}
+function readUnitPostconditionSnapshot(unitId, target) {
+  const localPlayerId = target.GameContext?.localPlayerID;
+  return {
+    unit: probe10(() => summarizeUnit2(target.Units?.get?.(unitId))),
+    selectedUnitId: probe10(
+      () => componentIdFromUnknown2(target.UI?.Player?.getHeadSelectedUnit?.())
+    ),
+    firstReadyUnitId: probe10(
+      () => componentIdFromUnknown2(target.UI?.Player?.getFirstReadyUnit?.())
+    ),
+    blocker: probe10(
+      () => typeof localPlayerId === "number" ? target.Game?.Notifications?.getEndTurnBlockingType?.(localPlayerId) ?? null : null
+    )
+  };
+}
+function summarizeUnit2(unit) {
+  if (unit == null || typeof unit !== "object") return null;
+  const record = unit;
+  return {
+    id: componentIdFromUnknown2(record.id ?? record.ID ?? record.UnitId ?? record.unitId),
+    location: record.location ?? record.Location ?? null,
+    movement: record.Movement ?? record.movement ?? record.movementMovesRemaining ?? null,
+    activity: record.Activity ?? record.activity ?? record.currentActivity ?? null,
+    damage: record.Damage ?? record.damage ?? null,
+    attacks: record.Attacks ?? record.attacks ?? record.attackCharges ?? null
+  };
+}
+function componentIdFromUnknown2(value2) {
+  if (value2 == null || typeof value2 !== "object") return null;
+  const record = value2;
+  const owner = numberField(record, "owner", "Owner");
+  const id = numberField(record, "id", "ID");
+  if (owner == null || id == null) return null;
+  const type = numberField(record, "type", "Type");
+  return type == null ? { owner, id } : { owner, id, type };
+}
+function numberField(record, lowerKey, upperKey) {
+  const lower = record[lowerKey];
+  if (typeof lower === "number") return lower;
+  const upper = record[upperKey];
+  return typeof upper === "number" ? upper : null;
+}
+function enumValueFor2(enums, operationType) {
+  if (enums == null) return operationType;
+  if (Object.prototype.hasOwnProperty.call(enums, operationType)) {
+    return enums[operationType];
+  }
+  const normalized = operationType.replace(/^UNITCOMMAND_/, "");
+  if (Object.prototype.hasOwnProperty.call(enums, normalized)) {
+    return enums[normalized];
+  }
+  return operationType;
+}
+function argsRecord2(args2) {
+  return args2 == null ? {} : { ...args2 };
+}
+function successFromCanStart10(result) {
+  if (result === true) return true;
+  if (result === false || result == null) return false;
+  if (typeof result === "object") {
+    const record = result;
+    if (record.Success !== void 0) return record.Success === true;
+    if (record.success !== void 0) return record.success === true;
+    if (record.canStart !== void 0) return record.canStart === true;
+  }
+  return Boolean(result);
+}
+function probe10(read) {
+  try {
+    return { ok: true, value: read() };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err)
+    };
+  }
+}
+function probeValueChanged(left3, right3) {
+  if (!left3?.ok || !right3?.ok) return false;
+  return stableJson6(left3.value) !== stableJson6(right3.value);
+}
+function probeFieldChanged(left3, right3, field) {
+  if (!left3?.ok || !right3?.ok) return false;
+  if (left3.value == null || right3.value == null) return false;
+  if (typeof left3.value !== "object" || typeof right3.value !== "object") {
+    return false;
+  }
+  return stableJson6(left3.value[field]) !== stableJson6(right3.value[field]);
+}
+function stableJson6(value2) {
+  if (value2 === null || typeof value2 !== "object") return JSON.stringify(value2);
+  if (Array.isArray(value2)) return `[${value2.map(stableJson6).join(",")}]`;
+  const record = value2;
+  return `{${Object.keys(record).sort().map(
+    (key) => `${JSON.stringify(key)}:${stableJson6(record[key])}`
+  ).join(",")}}`;
 }
 function civ7GameUiStrategyFrontAvailable(target) {
   return typeof target.GameContext?.localPlayerID === "number" && typeof target.Players?.getAliveIds === "function" && typeof target.Players?.get === "function" && typeof target.Players?.Units?.get === "function" && typeof target.Players?.Cities?.get === "function" && typeof target.Units?.get === "function" && typeof target.Cities?.get === "function";
@@ -34502,14 +37845,14 @@ function targetCandidateFor(owner, input, target) {
   if (nearbyUnits.length > 8) reasons.push("high nearby unit density");
   return {
     owner,
-    leaderName: probe8(() => readValue(player, ["leaderName", "name"], ["getLeaderName", "getName"])),
-    civilizationName: probe8(
+    leaderName: probe11(() => readValue(player, ["leaderName", "name"], ["getLeaderName", "getName"])),
+    civilizationName: probe11(
       () => readValue(player, ["civilizationName", "civilizationType"], [
         "getCivilizationName",
         "getCivilizationType"
       ])
     ),
-    isHuman: probe8(() => readValue(player, ["isHuman"], ["isHuman"])),
+    isHuman: probe11(() => readValue(player, ["isHuman"], ["isHuman"])),
     cityCount: cities.length,
     unitCount: units.length,
     cities: cityTargets.slice(0, 12).map((entry) => ({
@@ -34551,7 +37894,7 @@ function candidateUnit(id, target) {
   const type = record.type ?? record.getType?.();
   const typeName = unitTypeName(type, target);
   return {
-    id: toComponentId8(record.id ?? id) ?? id,
+    id: toComponentId10(record.id ?? id) ?? id,
     owner: Number(record.owner ?? record.player ?? record.getOwner?.()),
     type,
     typeName,
@@ -34567,8 +37910,8 @@ function candidateCity(id, target) {
   const location = toLocation(record.location ?? record.getLocation?.());
   if (location == null) return null;
   return {
-    id: toComponentId8(id) ?? id,
-    observedCityId: toComponentId8(record.id),
+    id: toComponentId10(id) ?? id,
+    observedCityId: toComponentId10(record.id),
     owner: Number(record.owner ?? record.player ?? record.getOwner?.()),
     name: typeof record.getName === "function" ? record.getName() : record.name ?? null,
     location,
@@ -34697,8 +38040,8 @@ function collectOrigins(requested, playerId, target) {
     target.UI?.Player?.getFirstReadyUnit,
     target.UI?.Player?.getHeadSelectedUnit
   ]) {
-    const id = probe8(() => getter?.()).ok ? getter?.() : null;
-    const unit = toComponentId8(id) == null ? null : target.Units?.get?.(toComponentId8(id));
+    const id = probe11(() => getter?.()).ok ? getter?.() : null;
+    const unit = toComponentId10(id) == null ? null : target.Units?.get?.(toComponentId10(id));
     const location = unitLocation(unit);
     if (location != null) origins.push(location);
   }
@@ -34719,14 +38062,14 @@ function alivePlayerIds(target) {
 }
 function ownerUnitIds(owner, target) {
   try {
-    return [...target.Players?.Units?.get?.(owner)?.getUnitIds?.() ?? []].map(toComponentId8).filter((id) => id != null);
+    return [...target.Players?.Units?.get?.(owner)?.getUnitIds?.() ?? []].map(toComponentId10).filter((id) => id != null);
   } catch {
     return [];
   }
 }
 function ownerCityIds(owner, target) {
   try {
-    return [...target.Players?.Cities?.get?.(owner)?.getCityIds?.() ?? []].map(toComponentId8).filter((id) => id != null);
+    return [...target.Players?.Cities?.get?.(owner)?.getCityIds?.() ?? []].map(toComponentId10).filter((id) => id != null);
   } catch {
     return [];
   }
@@ -34806,7 +38149,7 @@ function lineSamples(from, to) {
   return out;
 }
 function plotWater(location, target) {
-  return probe8(() => target.GameplayMap?.isWater?.(location.x, location.y) ?? null);
+  return probe11(() => target.GameplayMap?.isWater?.(location.x, location.y) ?? null);
 }
 function booleanProbeValue2(input) {
   return input?.ok === true && typeof input.value === "boolean" ? input.value : null;
@@ -34838,7 +38181,7 @@ function roleForUnit(typeName) {
   return "unknown";
 }
 function unitStrength(unit, typeName, target) {
-  const definition = unit.type == null ? null : probe8(() => target.GameInfo?.Units?.lookup?.(unit.type)).ok ? target.GameInfo?.Units?.lookup?.(unit.type) : null;
+  const definition = unit.type == null ? null : probe11(() => target.GameInfo?.Units?.lookup?.(unit.type)).ok ? target.GameInfo?.Units?.lookup?.(unit.type) : null;
   const values3 = [
     Number(definition?.Combat),
     Number(definition?.RangedCombat),
@@ -34853,7 +38196,7 @@ function unitStrength(unit, typeName, target) {
 }
 function unitTypeName(type, target) {
   if (type == null) return null;
-  const definition = probe8(() => target.GameInfo?.Units?.lookup?.(type));
+  const definition = probe11(() => target.GameInfo?.Units?.lookup?.(type));
   return definition.ok && definition.value != null && typeof definition.value === "object" ? String(definition.value.UnitType ?? type) : String(type);
 }
 function nearestByDistance(values3) {
@@ -34882,7 +38225,7 @@ function toLocation(value2) {
 function isLocation(value2) {
   return value2 != null;
 }
-function toComponentId8(value2) {
+function toComponentId10(value2) {
   if (value2 == null || typeof value2 !== "object") return null;
   const record = value2;
   const owner = Number(record.owner ?? record.Owner ?? record.player ?? record.Player);
@@ -34913,7 +38256,7 @@ function boundedInteger(value2, min3, max5) {
 function round1(value2) {
   return Math.round(value2 * 10) / 10;
 }
-function probe8(fn2) {
+function probe11(fn2) {
   try {
     return { ok: true, value: fn2() };
   } catch (err) {
@@ -34954,11 +38297,23 @@ function createCiv7GameUiDirectControlFacade(target) {
     requestCiv7NotificationDismissal: async (input) => await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7NarrativeChoice: async (input) => await requestCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) => await requestCiv7GameUiDiplomacyResponse(input, target),
+    requestCiv7FirstMeetResponse: async (input) => await requestCiv7GameUiFirstMeetResponse(input, target),
+    requestCiv7GovernmentChoice: async (input) => await requestCiv7GameUiGovernmentChoice(input, target),
+    requestCiv7CelebrationChoice: async (input) => await requestCiv7GameUiCelebrationChoice(input, target),
     requestCiv7TechnologyChoiceCloseout: async (input) => await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) => await requestCiv7GameUiCultureChoiceCloseout(input, target),
+    requestCiv7TechnologyTarget: async (input) => await requestCiv7GameUiTechnologyTarget(input, target),
+    requestCiv7CultureTarget: async (input) => await requestCiv7GameUiCultureTarget(input, target),
+    requestCiv7AttributePurchase: async (input) => await requestCiv7GameUiAttributePurchase(input, target),
+    requestCiv7AttributeReviewCloseout: async (input) => await requestCiv7GameUiAttributeReviewCloseout(input, target),
+    requestCiv7TraditionChange: async (input) => await requestCiv7GameUiTraditionChange(input, target),
+    requestCiv7TraditionReviewCloseout: async (input) => await requestCiv7GameUiTraditionReviewCloseout(input, target),
+    requestCiv7TownFocusChange: async (input) => await requestCiv7GameUiTownFocusChange(input, target),
+    requestCiv7TownFocusReviewCloseout: async (input) => await requestCiv7GameUiTownFocusReviewCloseout(input, target),
     requestCiv7AssignWorkerPlacement: async (input) => await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) => await requestCiv7GameUiExpandCityPlacement(input, target),
     requestCiv7UnitTargetAction: async (input) => await requestCiv7GameUiUnitTargetAction(input, target),
+    requestCiv7UnitCommand: async (input) => await requestCiv7GameUiUnitCommand(input, target),
     requestCiv7TurnComplete: async () => await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
     getCiv7PlayNotificationView: async (options) => await getCiv7GameUiPlayNotificationView({
@@ -34973,10 +38328,10 @@ function createCiv7GameUiDirectControlFacade(target) {
 }
 function gameUiPlayableStatus(target) {
   const snapshot = gameUiSnapshot(target);
-  const inGame = probeValue6(snapshot.ui.inGame) === true;
-  const inShell = probeValue6(snapshot.ui.inShell) === true;
-  const inLoading = probeValue6(snapshot.ui.inLoading) === true;
-  const canBegin = probeValue6(snapshot.ui.canBeginGame) === true;
+  const inGame = probeValue7(snapshot.ui.inGame) === true;
+  const inShell = probeValue7(snapshot.ui.inShell) === true;
+  const inLoading = probeValue7(snapshot.ui.inLoading) === true;
+  const canBegin = probeValue7(snapshot.ui.canBeginGame) === true;
   const readiness = inGame ? "app-ui-game" : canBegin ? "begin-ready" : inLoading ? "loading" : inShell ? "shell" : "unavailable";
   return {
     host: "game-ui",
@@ -35004,6 +38359,12 @@ function gameUiSupportedMutationProcedures(target) {
   if (civ7GameUiPopulationPlacementAvailable(target)) {
     supported2.push("city.population.place.request");
   }
+  if (civ7GameUiTownFocusAvailable(target)) {
+    supported2.push(
+      "city.townFocus.change.request",
+      "city.townFocus.review.request"
+    );
+  }
   if (gameUiTurnCompletionAvailable(target)) {
     supported2.push("turn.complete.request");
   }
@@ -35013,14 +38374,39 @@ function gameUiSupportedMutationProcedures(target) {
       "progression.culture.choice.request"
     );
   }
+  if (civ7GameUiProgressionRequestAvailable(target)) {
+    supported2.push(
+      "progression.technology.target.request",
+      "progression.culture.target.request",
+      "progression.attribute.purchase.request",
+      "progression.attribute.review.request",
+      "progression.tradition.change.request",
+      "progression.tradition.review.request"
+    );
+  }
   if (civ7GameUiNarrativeChoiceAvailable(target)) {
     supported2.push("narrative.choice.request");
   }
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
     supported2.push("diplomacy.response.request");
   }
+  if (civ7GameUiFirstMeetResponseAvailable(target)) {
+    supported2.push("diplomacy.firstMeet.response.request");
+  }
+  if (civ7GameUiGovernmentAvailable(target)) {
+    supported2.push(
+      "government.choice.request",
+      "government.celebration.choice.request"
+    );
+  }
   if (civ7GameUiUnitTargetActionAvailable(target)) {
     supported2.push("unit.target.action.request");
+  }
+  if (civ7GameUiUnitCommandAvailable(target)) {
+    supported2.push(
+      "unit.upgrade.request",
+      "unit.resettle.request"
+    );
   }
   return supported2;
 }
@@ -35052,13 +38438,13 @@ function gameUiSnapshot(target) {
   return {
     network: {
       isInSession: ok2(Boolean(target.Network?.isInSession)),
-      numPlayers: probe9(() => target.Network?.getNumPlayers?.() ?? 0),
-      hostPlayerId: probe9(() => target.Network?.getHostPlayerId?.() ?? -1),
-      isConnectedToNetwork: probe9(
+      numPlayers: probe12(() => target.Network?.getNumPlayers?.() ?? 0),
+      hostPlayerId: probe12(() => target.Network?.getHostPlayerId?.() ?? -1),
+      isConnectedToNetwork: probe12(
         () => target.Network?.isConnectedToNetwork?.() ?? false
       ),
-      isAuthenticated: probe9(() => target.Network?.isAuthenticated?.() ?? false),
-      isLoggedIn: probe9(() => target.Network?.isLoggedIn?.() ?? false)
+      isAuthenticated: probe12(() => target.Network?.isAuthenticated?.() ?? false),
+      isLoggedIn: probe12(() => target.Network?.isLoggedIn?.() ?? false)
     },
     autoplay: {
       isActive: target.Autoplay?.isActive ?? false,
@@ -35072,18 +38458,18 @@ function gameUiSnapshot(target) {
       turn: target.Game?.turn ?? -1,
       age: target.Game?.age ?? -1,
       maxTurns: target.Game?.maxTurns ?? 0,
-      turnDate: probe9(() => target.Game?.getTurnDate?.() ?? ""),
-      hash: probe9(() => target.Game?.getHash?.() ?? 0)
+      turnDate: probe12(() => target.Game?.getTurnDate?.() ?? ""),
+      hash: probe12(() => target.Game?.getHash?.() ?? 0)
     },
     ui: {
-      inGame: probe9(() => target.UI?.isInGame?.() ?? false),
-      inShell: probe9(() => target.UI?.isInShell?.() ?? false),
-      inLoading: probe9(() => target.UI?.isInLoading?.() ?? false),
-      loadingState: probe9(() => target.UI?.getGameLoadingState?.() ?? -1),
+      inGame: probe12(() => target.UI?.isInGame?.() ?? false),
+      inShell: probe12(() => target.UI?.isInShell?.() ?? false),
+      inLoading: probe12(() => target.UI?.isInLoading?.() ?? false),
+      loadingState: probe12(() => target.UI?.getGameLoadingState?.() ?? -1),
       loadingStateName: loadingStateName(target),
       canBeginGame: canBeginGame(target),
       canNotifyUIReady: typeof target.UI?.notifyUIReady,
-      skipStartButton: probe9(
+      skipStartButton: probe12(
         () => target.Configuration?.getGame?.().skipStartButton ?? false
       ),
       automationActive: ok2(false)
@@ -35091,27 +38477,27 @@ function gameUiSnapshot(target) {
     gameContext: {
       localPlayerID: target.GameContext?.localPlayerID ?? -1,
       localObserverID: target.GameContext?.localObserverID ?? -1,
-      hasRequestedPause: probe9(
+      hasRequestedPause: probe12(
         () => target.GameContext?.hasRequestedPause?.() ?? false
       )
     },
     players: {
       maxPlayers: target.Players?.maxPlayers ?? 0,
-      aliveIds: probe9(() => target.Players?.getAliveIds?.() ?? []),
-      aliveHumanIds: probe9(() => target.Players?.getAliveHumanIds?.() ?? []),
-      numAliveHumans: probe9(() => target.Players?.getNumAliveHumans?.() ?? 0)
+      aliveIds: probe12(() => target.Players?.getAliveIds?.() ?? []),
+      aliveHumanIds: probe12(() => target.Players?.getAliveHumanIds?.() ?? []),
+      numAliveHumans: probe12(() => target.Players?.getNumAliveHumans?.() ?? 0)
     },
     map: {
-      width: probe9(() => target.GameplayMap?.getGridWidth?.() ?? 0),
-      height: probe9(() => target.GameplayMap?.getGridHeight?.() ?? 0),
-      plotCount: probe9(() => target.GameplayMap?.getPlotCount?.() ?? 0),
-      mapSize: probe9(() => target.GameplayMap?.getMapSize?.() ?? 0),
-      randomSeed: probe9(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
+      width: probe12(() => target.GameplayMap?.getGridWidth?.() ?? 0),
+      height: probe12(() => target.GameplayMap?.getGridHeight?.() ?? 0),
+      plotCount: probe12(() => target.GameplayMap?.getPlotCount?.() ?? 0),
+      mapSize: probe12(() => target.GameplayMap?.getMapSize?.() ?? 0),
+      randomSeed: probe12(() => target.GameplayMap?.getRandomSeed?.() ?? 0)
     }
   };
 }
 function gameUiControllerMutationProof(target) {
-  if (probeValue6(probe9(() => target.UI?.isInGame?.() ?? false)) !== true) {
+  if (probeValue7(probe12(() => target.UI?.isInGame?.() ?? false)) !== true) {
     return null;
   }
   const localPlayerId = target.GameContext?.localPlayerID;
@@ -35133,18 +38519,18 @@ function gameUiControllerMutationProof(target) {
   };
 }
 function isSingleLocalHuman(target, localPlayerId) {
-  const aliveHumanIds = probe9(() => target.Players?.getAliveHumanIds?.());
+  const aliveHumanIds = probe12(() => target.Players?.getAliveHumanIds?.());
   if (aliveHumanIds.ok && Array.isArray(aliveHumanIds.value)) {
     return aliveHumanIds.value.length === 1 && aliveHumanIds.value[0] === localPlayerId;
   }
-  const aliveHumanCount = probe9(() => target.Players?.getNumAliveHumans?.());
+  const aliveHumanCount = probe12(() => target.Players?.getNumAliveHumans?.());
   return aliveHumanCount.ok && aliveHumanCount.value === 1;
 }
 function isControllerPlayerId(playerId) {
   return typeof playerId === "number" && Number.isInteger(playerId) && playerId >= 0 && playerId <= 255;
 }
 function canBeginGame(target) {
-  return probe9(() => {
+  return probe12(() => {
     const loadingState = target.UI?.getGameLoadingState?.();
     if (loadingState == null) return false;
     const states = target.UIGameLoadingState ?? {};
@@ -35158,7 +38544,7 @@ function loadingStateName(target) {
     ([, value2]) => value2 === loadingState
   )?.[0] ?? null;
 }
-function probe9(fn2) {
+function probe12(fn2) {
   try {
     return ok2(fn2());
   } catch (err) {
@@ -35168,8 +38554,8 @@ function probe9(fn2) {
 function ok2(value2) {
   return { ok: true, value: value2 };
 }
-function probeValue6(probe10) {
-  return probe10.ok ? probe10.value : void 0;
+function probeValue7(probe13) {
+  return probe13.ok ? probe13.value : void 0;
 }
 
 // src/ui/civ7-intelligence-bridge.ts

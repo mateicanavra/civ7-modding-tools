@@ -7,7 +7,7 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-export const Civ7NotificationDismissInputSchema = Type.Object(
+const Civ7NotificationDismissInputSchema = Type.Object(
   {
     notificationId: Civ7ControlOrpcComponentIdSchema,
   },
@@ -17,7 +17,7 @@ export type Civ7NotificationDismissInput = Static<
   typeof Civ7NotificationDismissInputSchema
 >;
 
-export const Civ7NotificationDismissInputStandardSchema = toStandardSchema(
+const Civ7NotificationDismissInputStandardSchema = toStandardSchema(
   Civ7NotificationDismissInputSchema,
 );
 
@@ -92,7 +92,7 @@ export const Civ7NotificationDismissalNextStepSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const Civ7NotificationDismissalResultSchema = Type.Object(
+const Civ7NotificationDismissalResultSchema = Type.Object(
   {
     notificationId: Civ7ControlOrpcComponentIdSchema,
     sent: Type.Boolean(),
@@ -107,7 +107,7 @@ export type Civ7NotificationDismissalResult = Static<
   typeof Civ7NotificationDismissalResultSchema
 >;
 
-export const Civ7NotificationDismissalResultStandardSchema = toStandardSchema(
+const Civ7NotificationDismissalResultStandardSchema = toStandardSchema(
   Civ7NotificationDismissalResultSchema,
 );
 

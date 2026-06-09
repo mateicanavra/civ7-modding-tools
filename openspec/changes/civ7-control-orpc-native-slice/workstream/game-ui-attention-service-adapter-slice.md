@@ -43,10 +43,12 @@ runtime proof.
 - `attention.current` reads notification, turn-completion, and
   first-ready-unit evidence in game UI context. Selected-unit ids are only
   hints and do not become ready-unit blockers.
-- `attention.current` keeps ready-city source reads `skipped-unsupported` in
-  game UI context until an official ready-city source exists. Selected-city ids
-  and notification target ids are hints only and do not become ready-city
-  blockers.
+- This slice kept ready-city source reads `skipped-unsupported` in game UI
+  context until an official ready-city source existed. The follow-up
+  `game-ui-ready-city-attention-source-slice.md` supersedes that limitation for
+  official blocker/population-ready evidence only; selected-city ids and
+  unrelated notification target ids remain hints only and do not become
+  ready-city blockers.
 - `attention.current` does not recommend `end-turn` without ready actor source
   coverage.
 - Notification reads use the existing `maxNotifications + 1` coverage pattern:
@@ -59,7 +61,8 @@ runtime proof.
 
 ## Non-Goals
 
-- no game-resident ready-city source support;
+- no game-resident ready-city source support in this first adapter slice
+  (superseded later by official blocker/population-ready evidence only);
 - no direct-control game-UI attention export or semantic runtime port;
 - no new mutation runtime implementation;
 - no custom dispatcher, router, middleware, transport, or procedure-core
