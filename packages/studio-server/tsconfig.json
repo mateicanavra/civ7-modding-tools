@@ -4,6 +4,14 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "types": ["node"],
+    // `effect-orpc` (and our tsup build) ship/consume ESM bundled by a bundler, and
+    // effect-orpc publishes raw `.ts` source via `exports` with extensionless
+    // relative imports that `nodenext` rejects. The package is built with tsup
+    // (bundler semantics) and consumed by the app under Vite (also a bundler), so
+    // typecheck with bundler resolution to match. Our own relative imports keep the
+    // explicit `.js` extension (valid under bundler too) for nodenext-clean output.
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "verbatimModuleSyntax": true
   },
   "include": ["src/**/*.ts"]
