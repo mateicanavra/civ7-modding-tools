@@ -1,10 +1,15 @@
 # City Ready-View Source Slice
 
-Status: implemented local source slice.
+Status: burned down after serving as local source proof.
 Date: 2026-06-04.
 
-Historical note: this is transitional proof of native in-process oRPC
+Historical note: this was transitional proof of native in-process oRPC
 mechanics, not a template for future facade-only read wrappers.
+
+The control-oRPC `city.ready.view` leaf has since been removed. Current
+ready-city service behavior is owned by `attention.current`, which consumes the
+direct-control ready-city runtime port from typed context. The direct-control
+ready-city atom and facade method remain available as low-level runtime ports.
 
 ## Scope
 

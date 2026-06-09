@@ -55,6 +55,27 @@
   workstream authority.
 - [ ] 4.11 Replace transitional facade-only read wrappers with native
   service-owned procedure implementations or explicitly burn them down.
+  - [x] 4.11.1 Burn down the transitional `unit.ready.view` control-oRPC
+    facade leaf after `attention.current` became the service-owned ready-unit
+    attention composer; keep the direct-control ready-unit runtime port as an
+    internal context dependency.
+  - [x] 4.11.2 Burn down the transitional `city.ready.view` control-oRPC
+    facade leaf after `attention.current` became the service-owned ready-city
+    attention composer; keep the direct-control ready-city runtime port as an
+    internal context dependency.
+  - [x] 4.11.3 Burn down the transitional `notifications.view` control-oRPC
+    facade leaf after `attention.current` became the service-owned
+    notification, decision, and blocker composer; keep the direct-control
+    notification runtime port as an internal context dependency.
+  - [x] 4.11.4 Replace the transitional `runtime.playable.status`
+    control-oRPC facade leaf with the service-owned `readiness.current`
+    procedure; keep direct-control playable status as an internal runtime port
+    and omit raw host/port/state/Tuner/error details from normal output.
+  - [x] 4.11.5 Burn down the remaining transitional summary read facade
+    leaves: `map.summary.read`, `player.summary.read`, `unit.summary.read`,
+    and `city.summary.read`. Keep direct-control summary atoms as low-level
+    runtime/read capability owners until a real service-owned `world` view is
+    designed and implemented.
 
 This phase is closed as transitional proof only. It must not be extended by
 adding more read-only facade shells.
@@ -114,6 +135,10 @@ adding more read-only facade shells.
     procedure leaf that owns the semantic assign-worker versus expand-city
     caller shape over direct-control player-operation/city-command runtime
     ports; do not add a generic operation catalog.
+  - [x] 5.5.7 Seed `readiness.current` as a native service-owned procedure
+    that projects direct-control playable status into safe readiness,
+    capability, source-summary, and next-step output without exposing raw
+    runtime details.
 
 ## 6. Native Policy Layering
 
@@ -160,8 +185,11 @@ adding more read-only facade shells.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
-    `runtime.playable.status`, `notifications.view`, and `unit.ready.view`
-    facade failures.
+    historical `runtime.playable.status`, `notifications.view`, and
+    `unit.ready.view` facade failures before those wrappers were burned down.
+  - [x] 6.4.6 Use native effect-orpc tagged error constructors for
+    `readiness.current` direct-control runtime-port failures while shared
+    safe-error middleware remains pending.
   - [ ] 6.4.2 Promote shared safe-error middleware only after the native
     oRPC/effect-orpc error path is proven without custom wrapper plumbing.
   - [ ] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error

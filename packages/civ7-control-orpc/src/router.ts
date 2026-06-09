@@ -5,10 +5,8 @@ import type { Civ7ControlOrpcContext } from "./context";
 import { civ7ControlOrpcImplementer } from "./procedure";
 import { attentionRouter } from "./modules/attention/router";
 import { cityRouter } from "./modules/city/router";
-import { mapRouter } from "./modules/map/router";
 import { notificationsRouter } from "./modules/notifications/router";
-import { playerRouter } from "./modules/player/router";
-import { runtimeRouter } from "./modules/runtime/router";
+import { readinessRouter } from "./modules/readiness/router";
 import { unitRouter } from "./modules/unit/router";
 
 export const Civ7ControlOrpcRouter: Router<
@@ -17,9 +15,7 @@ export const Civ7ControlOrpcRouter: Router<
 > = civ7ControlOrpcImplementer.router({
   attention: attentionRouter,
   city: cityRouter,
-  map: mapRouter,
   notifications: notificationsRouter,
-  player: playerRouter,
-  runtime: runtimeRouter,
+  readiness: readinessRouter,
   unit: unitRouter,
 });

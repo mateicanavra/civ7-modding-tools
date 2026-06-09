@@ -1,10 +1,16 @@
 # Runtime Playable-Status Source Slice
 
-Status: implemented local source slice.
+Status: replaced after serving as local source proof.
 Date: 2026-06-04.
 
-Historical note: this is transitional proof of native in-process oRPC
+Historical note: this was transitional proof of native in-process oRPC
 mechanics, not a template for future facade-only read wrappers.
+
+The control-oRPC `runtime.playable.status` leaf has since been removed.
+Current readiness service behavior is owned by `readiness.current`, which
+projects the direct-control playable-status runtime port into semantic
+readiness, capability, source-summary, and next-step output without exposing
+raw host, port, state, Tuner snapshot, or runtime error details.
 
 ## Scope
 

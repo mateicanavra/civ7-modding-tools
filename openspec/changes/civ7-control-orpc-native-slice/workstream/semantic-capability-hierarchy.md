@@ -170,17 +170,19 @@ Service ownership:
 
 | Current module family | Target semantic family |
 |---|---|
-| `runtime.playable.status` | `readiness` |
+| `runtime.playable.status` | replaced by `readiness.current`; direct-control playable status remains the runtime port |
+| `readiness.current` | `readiness` |
 | `runtime.tuner.health`, `runtime.app.ui.snapshot`, `runtime.gameinfo.rows` | `debug`, with readiness summaries consumed by `readiness` |
 | `runtime.turn.completion.status` | `attention` and `readiness` |
-| `notifications.view` | `attention` |
+| `notifications.view` | burned down; `attention.current` consumes the direct-control notification port |
 | `notifications.dismiss.request` | notification domain mutation; semantic target still needs rebaseline |
-| `unit.ready.view`, `city.ready.view` | `attention` |
-| `unit.summary.read`, `city.summary.read`, `player.summary.read` | `world` |
+| `unit.ready.view` | burned down; `attention.current` consumes the direct-control ready-unit port |
+| `city.ready.view` | burned down; `attention.current` consumes the direct-control ready-city port |
+| `unit.summary.read`, `city.summary.read`, `player.summary.read` | burned down as public oRPC wrappers; future service-owned `world` view |
 | `unit.move.preview` | `world` read plus future unit validation evidence |
 | `unit.target.action.request` | `unit` |
 | `city.production.choice.request` | `decisions` |
-| `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `world` |
+| `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `map.summary.read` wrapper burned down; future service-owned `world` view for map/grid/visibility |
 | `strategy.*` planning reads | `strategy` |
 | narrative, diplomacy, culture, technology, population closeouts | `decisions` |
 | setup, restart, autoplay, reveal-map, turn-send behavior | domain-owned mutation or `debug`, depending on approval/risk class |

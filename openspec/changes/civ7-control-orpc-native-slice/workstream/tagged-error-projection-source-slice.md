@@ -5,17 +5,20 @@ Date: 2026-06-04.
 
 ## Scope
 
-This slice makes the repeated direct-control facade failure boundary use native
-effect-orpc tagged error constructors in the read procedure handlers.
+This slice made the repeated direct-control facade failure boundary use native
+effect-orpc tagged error constructors in the read procedure handlers. The
+historical `runtime.playable.status`, `notifications.view`, and
+`unit.ready.view` wrappers named below have since been burned down or replaced
+after service-owned readiness and attention composers took over their behavior.
 
 The write set is:
 
-- existing `runtime.playable.status`, `notifications.view`, and
+- historical `runtime.playable.status`, `notifications.view`, and
   `unit.ready.view` procedure leaves to catch facade promise failures with
   `Effect.tryPromise`;
 - handler-local calls to the procedure `errors` map constructors for
-  `DIRECT_CONTROL_UNAVAILABLE`, `NOTIFICATION_VIEW_UNAVAILABLE`, and
-  `READY_UNIT_VIEW_UNAVAILABLE`;
+  historical `DIRECT_CONTROL_UNAVAILABLE`,
+  `NOTIFICATION_VIEW_UNAVAILABLE`, and `READY_UNIT_VIEW_UNAVAILABLE`;
 - OpenSpec task/spec/workstream records that keep shared middleware promotion
   pending until it is proven through native oRPC/effect-orpc behavior without
   custom wrapper plumbing.

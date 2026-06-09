@@ -66,10 +66,25 @@ outcome. The workstream is rebaselined around this order:
      atom code.
 
 3. Freeze facade-only wrapper expansion and move to service-owned procedures.
-   - Existing read-only leaves over `runtime.playable.status`,
-     `notifications.view`, `unit.ready.view`, `unit.summary.read`,
-     `map.summary.read`, `player.summary.read`, `city.summary.read`, and
-     `city.ready.view` are transitional proof of in-process router mechanics.
+   - The historical read-only leaves over `unit.summary.read`,
+     `map.summary.read`, `player.summary.read`, and `city.summary.read` have
+     been burned down; the direct-control summary atoms remain low-level
+     read capability owners until a real service-owned `world` view moves
+     behavior into control-oRPC.
+   - The historical `runtime.playable.status` facade leaf has been replaced by
+     `readiness.current`, which projects the direct-control playable-status
+     runtime port into a semantic readiness result without raw host, port,
+     state, Tuner snapshot, or runtime error details.
+   - The historical `notifications.view` facade leaf has been burned down;
+     current notification, decision, and blocker service behavior is composed
+     by `attention.current` through the direct-control notification runtime
+     port.
+   - The historical `unit.ready.view` facade leaf has been burned down; current
+     ready-unit service behavior is composed by `attention.current` through the
+     direct-control ready-unit runtime port.
+   - The historical `city.ready.view` facade leaf has been burned down; current
+     ready-city service behavior is composed by `attention.current` through the
+     direct-control ready-city runtime port.
    - No further facade-only leaves should be added.
    - The next implementation work should move real service behavior and
      composition into native oRPC procedure modules while direct-control keeps
@@ -147,33 +162,32 @@ packages/civ7-control-orpc
     error-projection.ts
     telemetry.ts
   src/modules/
+    readiness/
+      contract.ts
+      router.ts
+      procedures/
+        current.ts
     runtime/
       contract.ts
       router.ts
       procedures/
-        playable-status.ts
         app-ui-snapshot.ts
         tuner-health.ts
     notifications/
       contract.ts
       router.ts
       procedures/
-        view.ts
         dismiss-request.ts
     unit/
       contract.ts
       router.ts
       procedures/
-        ready-view.ts
-        move-preview.ts
-        summary-read.ts
         target-action-request.ts
     city/
       contract.ts
       router.ts
       procedures/
-        ready-view.ts
-        summary-read.ts
+        population-place-request.ts
         production-choice-request.ts
     strategy/
       contract.ts

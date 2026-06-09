@@ -505,15 +505,6 @@ function fakeContext(options: FakeContextOptions): {
       timeoutMs: 1_000,
     },
     directControl: {
-      getCiv7CitySummary: async () => {
-        throw new Error("not used");
-      },
-      getCiv7MapSummary: async () => {
-        throw new Error("not used");
-      },
-      getCiv7PlayerSummary: async () => {
-        throw new Error("not used");
-      },
       getCiv7PlayableStatus: async (endpointDefaults) => {
         calls.playableStatus.push(endpointDefaults);
         return options.playableStatus;
@@ -545,9 +536,6 @@ function fakeContext(options: FakeContextOptions): {
       getCiv7TurnCompletionStatus: async (endpointDefaults) => {
         calls.turnCompletion.push(endpointDefaults);
         return options.turnCompletion ?? turnCompletionStatusResult();
-      },
-      getCiv7UnitSummary: async () => {
-        throw new Error("not used");
       },
     },
   };

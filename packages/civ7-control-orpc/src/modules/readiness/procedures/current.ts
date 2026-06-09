@@ -1,0 +1,147 @@
+import type { Civ7RuntimeProbe } from "@civ7/direct-control";
+import { Effect } from "effect";
+
+import type { Civ7ControlOrpcPlayableStatusResult } from "../../../dependencies/direct-control";
+import { civ7ControlOrpcImplementer } from "../../../procedure";
+import type { Civ7ReadinessCurrentResult } from "../contract";
+
+export const readinessCurrentProcedure =
+  civ7ControlOrpcImplementer.readiness.current.effect(function* ({
+    context,
+    errors,
+  }) {
+    return yield* Effect.tryPromise({
+      try: async () =>
+        readinessCurrentResult(
+          await context.directControl.getCiv7PlayableStatus(
+            context.endpointDefaults,
+          ),
+        ),
+      catch: () =>
+        errors.READINESS_CURRENT_UNAVAILABLE({
+          data: {
+            procedureKey: "readiness.current",
+            source: "direct-control-facade",
+          },
+        }),
+    });
+  });
+
+function readinessCurrentResult(
+  status: Civ7ControlOrpcPlayableStatusResult,
+): Civ7ReadinessCurrentResult {
+  return {
+    playable: status.playable,
+    readiness: status.readiness,
+    capability: readinessCapability(status),
+    sources: {
+      gameUi: {
+        inGame: probeValue(status.appUi.snapshot.ui.inGame),
+        inShell: probeValue(status.appUi.snapshot.ui.inShell),
+        inLoading: probeValue(status.appUi.snapshot.ui.inLoading),
+        canBeginGame: probeValue(status.appUi.snapshot.ui.canBeginGame),
+      },
+      runtimeControl: {
+        ready: status.tuner?.ready ?? null,
+      },
+    },
+    errorCount: status.errors.length,
+    nextSteps: readinessNextSteps(status),
+  };
+}
+
+function readinessCapability(
+  status: Civ7ControlOrpcPlayableStatusResult,
+): Civ7ReadinessCurrentResult["capability"] {
+  if (status.playable) {
+    return {
+      canObserve: true,
+      canMutate: true,
+      reason: "Runtime control is ready for in-game reads and approved actions.",
+    };
+  }
+
+  switch (status.readiness) {
+    case "app-ui-game":
+      return {
+        canObserve: false,
+        canMutate: false,
+        reason: "The game is open, but runtime control is not ready.",
+      };
+    case "begin-ready":
+      return {
+        canObserve: false,
+        canMutate: false,
+        reason: "The game can begin before support reads or actions.",
+      };
+    case "loading":
+      return {
+        canObserve: false,
+        canMutate: false,
+        reason: "The game is loading.",
+      };
+    case "shell":
+      return {
+        canObserve: false,
+        canMutate: false,
+        reason: "Civ7 is outside an active game.",
+      };
+    case "unavailable":
+    case "tuner-ready":
+      return {
+        canObserve: false,
+        canMutate: false,
+        reason: "Civ7 runtime readiness is unavailable.",
+      };
+  }
+}
+
+function readinessNextSteps(
+  status: Civ7ControlOrpcPlayableStatusResult,
+): Civ7ReadinessCurrentResult["nextSteps"] {
+  if (status.playable) {
+    return [{
+      kind: "read-attention",
+      source: "readiness.current",
+      label: "Read current attention before choosing support actions.",
+    }];
+  }
+
+  switch (status.readiness) {
+    case "app-ui-game":
+      return [{
+        kind: "restore-tuner",
+        source: "readiness.current",
+        label: "Restore runtime control readiness before support reads or actions.",
+      }];
+    case "begin-ready":
+      return [{
+        kind: "begin-game",
+        source: "readiness.current",
+        label: "Begin the game before reading in-game attention.",
+      }];
+    case "loading":
+      return [{
+        kind: "wait-loading",
+        source: "readiness.current",
+        label: "Wait for loading to complete before reading attention.",
+      }];
+    case "shell":
+      return [{
+        kind: "enter-game",
+        source: "readiness.current",
+        label: "Enter an active game before support reads or actions.",
+      }];
+    case "unavailable":
+    case "tuner-ready":
+      return [{
+        kind: "inspect-runtime",
+        source: "readiness.current",
+        label: "Inspect Civ7 runtime readiness before continuing.",
+      }];
+  }
+}
+
+function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | null {
+  return probe.ok ? probe.value : null;
+}
