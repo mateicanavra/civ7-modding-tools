@@ -1,6 +1,6 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
-import { MAP_PROJECTION_EFFECT_TAGS, STANDARD_ENGINE_EFFECT_TAGS } from "../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 import { mapRiversArtifacts } from "../artifacts.js";
 
@@ -38,7 +38,6 @@ const PlotRiversStepContract = defineStep({
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
-    STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled,
   ],
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],

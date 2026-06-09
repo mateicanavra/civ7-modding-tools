@@ -37,9 +37,9 @@ export const FIELD_DEPENDENCY_TAGS = {
   },
 } as const;
 
-export const STANDARD_ENGINE_EFFECT_TAGS = {
-  engine: {
-    riversModeled: "effect:engine.riversModeled",
+export const MAP_PROJECTION_EFFECT_TAGS = {
+  map: {
+    riversPlotted: "effect:map.riversPlotted",
   },
 } as const;
 

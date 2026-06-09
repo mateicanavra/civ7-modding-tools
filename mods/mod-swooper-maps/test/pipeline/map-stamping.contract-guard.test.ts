@@ -136,7 +136,13 @@ describe("map stamping contract guardrails", () => {
       path.join(stagesRoot, "map-rivers/steps/plotRivers.ts"),
       "utf8"
     );
+    const plotRiversContractText = readFileSync(
+      path.join(stagesRoot, "map-rivers/steps/plotRivers.contract.ts"),
+      "utf8"
+    );
     expect(plotRiversText).toContain("materializeNavigableRiverMask");
+    expect(plotRiversContractText).toContain("MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted");
+    expect(plotRiversContractText).not.toContain("riversModeled");
   });
 
   it("labels standard recipe tile layers as Civ row-major odd-q", () => {

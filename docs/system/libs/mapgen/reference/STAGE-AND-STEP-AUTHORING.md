@@ -28,7 +28,7 @@ Representative example (dependency tags + artifact requirements; excerpt; see fu
 
 ```ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
-import { STANDARD_ENGINE_EFFECT_TAGS, MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 import { mapRiversArtifacts } from "../artifacts.js";
 
@@ -39,7 +39,6 @@ export default defineStep({
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
-    STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled,
   ],
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],
