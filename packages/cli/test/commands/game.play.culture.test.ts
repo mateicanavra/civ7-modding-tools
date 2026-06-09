@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayChooseCulture from '../../src/commands/game/play/choose-culture';
 import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-target';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play culture commands', () => {
@@ -60,6 +61,7 @@ describe('game play culture commands', () => {
           details?: unknown;
         };
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.result.enabledOptionCount).toBe(2);
       expect(payload.result.disabledOptionCount).toBe(1);
       expect(payload.result.details).toBeUndefined();

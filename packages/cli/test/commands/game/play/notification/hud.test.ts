@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayNotifications from '../../../../../src/commands/game/play/notifications';
+import { expectNormalPlayPayloadToOmitDebugInternals } from '../normal-output-boundary';
 import { type FakeTunerServer, startFakeTunerServer } from '../../../fixtures/tuner-socket-server';
 
 type NotificationHudMode =
@@ -214,45 +215,48 @@ async function runNotificationHud(mode: NotificationHudMode = 'default') {
     log.mockRestore();
   }
 
-  return {
-    payload: JSON.parse(writes.join('')) as {
-      ok: true;
-      view: {
-        notifications: Array<{
-          target: { owner: number; id: number; type: number };
-          details?: {
-            kind: string;
-            actionId?: number;
-            classification?: string;
-            responseOptionCount?: number;
-            enabledResponseOptionCount?: number;
-            playerCulture?: unknown;
-            targetStoryId?: { ok: boolean; value?: { owner: number; id: number; type: number } | null };
-            storyLinks?: { ok: boolean; value?: unknown[] };
-            availableNodeTypes?: { ok: boolean; value?: number[] };
-            goldenAgeDuration?: { ok: boolean; value?: number };
-            choices?: { ok: boolean; value?: string[] };
-            startingGovernments?: { ok: boolean; value?: Array<{ GovernmentType: number }> };
-            action?: number;
-            options?: Array<{ title?: string; responseType?: number; enabled?: boolean; disabled?: boolean; cli: string | null }>;
-            enabledOptions?: Array<Record<string, unknown>>;
-            disabledOptions?: Array<Record<string, unknown>>;
-            enabledCloseoutCandidates?: Array<{ unitId: { owner: number; id: number; type: number }; operationType: string; cli: string | null }>;
-            staleReadyPointerSuspected?: boolean;
-          };
-        }>;
-        hud: {
-          nextDecision: {
-            category: string;
-            operationFamily?: string;
-            operationType?: string;
-            cli?: string | null;
-            notes: string[];
-            details?: unknown;
-          };
+  const payload = JSON.parse(writes.join('')) as {
+    ok: true;
+    view: {
+      notifications: Array<{
+        target: { owner: number; id: number; type: number };
+        details?: {
+          kind: string;
+          actionId?: number;
+          classification?: string;
+          responseOptionCount?: number;
+          enabledResponseOptionCount?: number;
+          playerCulture?: unknown;
+          targetStoryId?: { ok: boolean; value?: { owner: number; id: number; type: number } | null };
+          storyLinks?: { ok: boolean; value?: unknown[] };
+          availableNodeTypes?: { ok: boolean; value?: number[] };
+          goldenAgeDuration?: { ok: boolean; value?: number };
+          choices?: { ok: boolean; value?: string[] };
+          startingGovernments?: { ok: boolean; value?: Array<{ GovernmentType: number }> };
+          action?: number;
+          options?: Array<{ title?: string; responseType?: number; enabled?: boolean; disabled?: boolean; cli: string | null }>;
+          enabledOptions?: Array<Record<string, unknown>>;
+          disabledOptions?: Array<Record<string, unknown>>;
+          enabledCloseoutCandidates?: Array<{ unitId: { owner: number; id: number; type: number }; operationType: string; cli: string | null }>;
+          staleReadyPointerSuspected?: boolean;
+        };
+      }>;
+      hud: {
+        nextDecision: {
+          category: string;
+          operationFamily?: string;
+          operationType?: string;
+          cli?: string | null;
+          notes: string[];
+          details?: unknown;
         };
       };
-    },
+    };
+  };
+  expectNormalPlayPayloadToOmitDebugInternals(payload);
+
+  return {
+    payload,
     server,
   };
 }

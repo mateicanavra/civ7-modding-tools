@@ -51,7 +51,29 @@ transport/session/probe/correlation command internals while preserving the
 existing compact player-agent priority summary. Follow-up compact
 `game play ready-city` proof now asserts that another normal play projection
 omits those same raw internals while preserving the player-agent city decision
-summary. Follow-up focused `game health --json` and `game inspect --json`
+summary. Follow-up compact `game play unit-move-preview` proof and
+full/read-only `game play ready-unit --json` proof now exercise the same shared
+normal-output boundary over movement and ready-unit projections. Follow-up
+passive `game watch --jsonl` proof now exercises the boundary over watch
+observation output, and progression-read proof now covers traditions and
+progress-dashboard JSON surfaces. Tactical-read proof now covers civilian route
+triage, target candidates, front summary, battlefield scan, formation snapshot,
+and destination analysis through the focused tactical helper.
+Settlement-recommendation proof now covers its read-only settlement lens output.
+Promotion-readiness proof now covers its full/read-only ready-unit-derived
+promotion view output.
+Rehydrate proof now covers its full/read-only restart-continuity materialization
+output.
+Notification-HUD proof now covers materialized notification decision output
+across the focused HUD fixture modes.
+Notification-queue proof now covers read-only notification scheduling output
+across the focused queue fixture modes.
+Technology-option proof now covers read-only technology chooser option output.
+Culture-option proof now covers read-only culture chooser option output.
+Celebration-option proof now covers read-only celebration chooser option output.
+Government-option proof now covers read-only government chooser option output.
+Follow-up focused `game health --json` and
+`game inspect --json`
 proof now asserts that debug-owned commands emit raw readiness and runtime
 inspection fields including host/port/state, state discovery, selected state,
 own/prototype/enumerable keys, and method owner/length/signature diagnostics.

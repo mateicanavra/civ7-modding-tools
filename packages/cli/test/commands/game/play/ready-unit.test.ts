@@ -1,10 +1,15 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import GamePlayReadyUnit from '../../../../src/commands/game/play/ready-unit';
 import { type FakeTunerServer, startFakeTunerServer } from '../../fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './normal-output-boundary';
 
 describe('game play ready-unit command', () => {
   test('reads ready-unit tactical view without sending operations', async () => {
     const server = await startReadyUnitTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayReadyUnit.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlayReadyUnit.run([
@@ -15,9 +20,12 @@ describe('game play ready-unit command', () => {
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join(''));
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });

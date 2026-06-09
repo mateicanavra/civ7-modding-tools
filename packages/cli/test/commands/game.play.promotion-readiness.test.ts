@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayPromotionReadiness from '../../src/commands/game/play/promotion-readiness';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play promotion readiness command', () => {
@@ -23,6 +24,7 @@ describe('game play promotion readiness command', () => {
         ok: true;
         view: { promotionReadiness: { ok: true; value: { canPurchase: boolean } } };
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.view.promotionReadiness.value.canPurchase).toBe(false);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);

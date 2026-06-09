@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import GameWatch from '../../src/commands/game/watch';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 
 describe('game watch command', () => {
   test('watches live play as JSONL without sending operations', async () => {
@@ -42,6 +43,7 @@ describe('game watch command', () => {
         readyCity: unknown;
       }>;
       expect(observations).toHaveLength(2);
+      for (const observation of observations) expectNormalPlayPayloadToOmitDebugInternals(observation);
       expect(observations[0].schema).toBe('civ7-watcher-observation.v1');
       expect(observations[0].mode).toBe('human-turn-watch');
       expect(observations[0].wrapper).toBe('getCiv7PlayNotificationView+getCiv7ReadyUnitView+getCiv7ReadyCityView');
@@ -83,6 +85,7 @@ describe('game watch command', () => {
 
       const lines = (await readFile(artifact, 'utf8')).trim().split('\n');
       expect(lines).toHaveLength(2);
+      for (const line of lines) expectNormalPlayPayloadToOmitDebugInternals(JSON.parse(line));
       expect(JSON.parse(lines[0])).toMatchObject({
         schema: 'civ7-watcher-observation.v1',
         ok: true,

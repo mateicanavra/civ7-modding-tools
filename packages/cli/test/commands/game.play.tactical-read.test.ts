@@ -6,6 +6,7 @@ import GamePlayFormationSnapshot from '../../src/commands/game/play/formation-sn
 import GamePlayFrontSummary from '../../src/commands/game/play/front-summary';
 import GamePlayTargetCandidates from '../../src/commands/game/play/target-candidates';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 
 describe('game play tactical read commands', () => {
   test('reads civilian route triage without sending operations', async () => {
@@ -235,7 +236,9 @@ async function runJsonCommand(command: CommandClass, server: FakeTunerServer, ar
   try {
     const { port } = server.address();
     await command.run(['--host', '127.0.0.1', '--port', String(port), ...args, '--json']);
-    return JSON.parse(writes.join('')) as { ok: boolean; [key: string]: unknown };
+    const payload = JSON.parse(writes.join('')) as { ok: boolean; [key: string]: unknown };
+    expectNormalPlayPayloadToOmitDebugInternals(payload);
+    return payload;
   } finally {
     log.mockRestore();
   }

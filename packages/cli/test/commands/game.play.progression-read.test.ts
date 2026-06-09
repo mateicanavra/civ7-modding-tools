@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import GamePlayProgressDashboard from '../../src/commands/game/play/progress-dashboard';
 import GamePlayTraditions from '../../src/commands/game/play/traditions';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 
 describe('game play progression reads', () => {
   test('reads live tradition slots and action hints', async () => {
@@ -36,6 +37,7 @@ describe('game play progression reads', () => {
           recommendedCli: string[];
         };
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.view.slots.active).toBe(1);
       expect(payload.view.slots.available).toBe(1);
       expect(payload.view.actions.activate).toBe(-1326475004);
@@ -78,6 +80,7 @@ describe('game play progression reads', () => {
         omitted: Array<{ path: string }>;
         traditions?: unknown;
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.command).toBe('game play traditions');
       expect(payload.traditions).toBeUndefined();
       expect(payload.active[0]).toMatchObject({
@@ -135,6 +138,7 @@ describe('game play progression reads', () => {
         omitted: Array<{ path: string }>;
         view?: unknown;
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.contractVersion).toBe('play-agent-v0');
       expect(payload.command).toBe('game play progress-dashboard');
       expect(payload.summary).toContain('AGE_ANTIQUITY progress');

@@ -117,10 +117,17 @@
         assigned and passing. The planning contract is now recorded in
         `workstream/debug-service-projection-contract.md`, but it does not
         assign source/proof owners or accept the row. Focused compact
-        `game play priorities`, compact `game play ready-city`, and compact
-        `game play unit-move-preview` coverage, now sharing the
-        `game/play/normal-output-boundary.ts` test helper, prove three normal
-        play projections omit raw
+        `game play priorities`, compact `game play ready-city`, compact
+        `game play unit-move-preview`, and full/read-only
+        `game play ready-unit --json` coverage plus passive
+        `game watch --jsonl` coverage and progression-read
+        `game play traditions` / `game play progress-dashboard` coverage plus
+        tactical-read, settlement-recommendation, and promotion-readiness
+        coverage plus rehydrate continuity, notification-HUD, and
+        notification-queue coverage plus technology-, culture-, celebration-,
+        and government-option coverage, now sharing the
+        `game/play/normal-output-boundary.ts` test helper, prove sixteen normal
+        player-agent projection families omit raw
         transport/session/probe/correlation command internals, but broader
         debug-command boundary, AI-ingestion, telemetry, and
         procedure-diagnostic separation proof remains pending before row
@@ -1203,25 +1210,31 @@ runtime/direct-control claims.
         wrapper/source owner while keeping the public facade export surface in
         `index.ts`.
   - [x] 4.11.2 Extract visibility summary read wrapper/source owner while
-        keeping the public facade export surface in `index.ts` and leaving
-        reveal mutation, GameInfo rows, setup map rows, and player/unit/city
-        summaries pending.
+        keeping the public facade export surface in `index.ts`; later 4.11
+        rows now own reveal mutation, GameInfo rows, setup map rows, and
+        player/unit/city summaries, while downstream AI ingestion, semantic
+        CLI, telemetry, hotseat runtime proof, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance remain pending.
   - [x] 4.11.3 Extract GameInfo rows read wrapper/source owner while keeping
-        the public facade export surface in `index.ts` and leaving reveal
-        mutation, setup map rows, player/unit/city summaries, AI ingestion, and
-        static profile shaping pending.
+        the public facade export surface in `index.ts`; later 4.11 rows now
+        own reveal mutation, setup map rows, and player/unit/city summaries,
+        while AI ingestion, static profile shaping, semantic CLI, telemetry,
+        hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance remain pending.
   - [x] 4.11.4 Extract player, unit, and city summary read wrapper/source
         owner with focused package proof while keeping public facade exports in
-        `index.ts` and leaving reveal mutation, setup map rows, AI ingestion,
-        static profile shaping, semantic CLI, telemetry, hotseat runtime proof,
-        and Effect/oRPC procedure-core work pending.
+        `index.ts`; later 4.11 rows now own reveal mutation and setup map rows,
+        while AI ingestion, static profile shaping, semantic CLI, telemetry,
+        hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance remain pending.
   - [x] 4.11.5 Extract reveal-map mutation wrapper owner while keeping public
         facade exports in `index.ts`, preserving approval-first and
         disposable-session guards, player-id validation, visibility before/after
         reads, `Visibility.revealAllPlots` command text, classification shape,
-        and leaving setup map rows to 4.11.6 plus AI ingestion, static profile
-        shaping, semantic CLI, telemetry, hotseat runtime proof, and
-        Effect/oRPC procedure-core work pending.
+        and leaving setup map rows to the completed 4.11.6 row while AI
+        ingestion, static profile shaping, semantic CLI, telemetry, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance remain pending.
   - [x] 4.11.6 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts`, preserving setup map script
         validation, `limit` default/bounds, setup-domain/config-db row
@@ -1232,10 +1245,10 @@ runtime/direct-control claims.
         work pending.
   - [x] 4.11.7 Extract map validation helper owner while preserving map
         location `x`/`y` bounds, map-grid `bounds.width`/`bounds.height` hard
-        caps, and existing command-failed messages, and leaving map read source
-        strings, public procedure schemas, telemetry, hotseat runtime proof, AI
-        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
-        and Task 2.9.4 matrix-row acceptance pending.
+        caps, and existing command-failed messages, while keeping runtime
+        behavior changes, public procedure schemas, telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
   - [x] 4.11.8 Prune map-read facade dependency injection by letting the map
         read owner import existing non-facade executor/parser/validation/source
         helpers directly, while keeping public facade exports stable,
@@ -1298,42 +1311,48 @@ runtime/direct-control claims.
         the public facade export surface in `index.ts`, classifying it as
         debug/internal service output with normal CLI projection omitted or
         debug-only and debug service projection as raw diagnostic projection,
-        and leaving App UI snapshot, Tuner health, playable status, bounded root
-        inspection, capability catalog, telemetry, hotseat runtime proof, AI
-        ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
-        pending.
+        while later 4.12 rows now own App UI snapshot, Tuner health, playable
+        status, bounded root inspection, capability catalog, catalog schemas,
+        and runtime inspection constants. Telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance remain pending.
   - [x] 4.12.2 Extract App UI snapshot wrapper/source owner while keeping the
         public facade export surface in `index.ts`, leaving lifecycle/setup
         orchestration in the facade while reusing the same internal snapshot
-        builder/parser helpers, and leaving Tuner health, playable status,
-        bounded root inspection, capability catalog, telemetry, hotseat runtime
-        proof, AI ingestion, CLI semantic projection, and Effect/oRPC
-        procedure-core work pending.
+        builder/parser helpers. Later 4.12 rows now own Tuner health, playable
+        status, bounded root inspection, capability catalog, catalog schemas,
+        and runtime inspection constants, while telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance remain pending.
   - [x] 4.12.3 Extract Tuner health wrapper/source/parser owner while keeping
         public facade call-through and session lifecycle/reconnect execution in
         `index.ts`, preserving the internal wait/setup helper reuse through
-        injected session-command execution, and leaving playable status, bounded
-        root inspection, capability catalog, telemetry, hotseat runtime proof,
-        AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core
-        work pending.
+        injected session-command execution. Later 4.12 rows now own playable
+        status, bounded root inspection, capability catalog, catalog schemas,
+        and runtime inspection constants, while telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance remain pending.
   - [x] 4.12.4 Extract proof/log helper owner while keeping the public facade
         export surface in `index.ts`, preserving `snapshotFile` /
         `waitForFreshLogMarkers` behavior and the default scripting-log path,
-        and leaving capability catalog, operation/proof telemetry, hotseat
-        runtime proof, AI ingestion, CLI semantic projection, and Effect/oRPC
-        procedure-core work pending.
+        while later 4.12 rows now own capability catalog and catalog schemas.
+        Operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance remain pending.
   - [x] 4.12.5 Extract capability catalog source owner while keeping public
         facade exports in `index.ts`, injecting runtime root inspection from the
         facade, preserving static/runtime/official-resource catalog behavior,
-        and leaving TypeBox schema ownership, operation/proof telemetry,
-        hotseat runtime proof, AI ingestion, CLI semantic projection, and
-        Effect/oRPC procedure-core work pending.
+        while 4.12.8 now owns the TypeBox catalog schema. Operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        remain pending.
   - [x] 4.12.6 Extract playable-status composition owner while keeping public
         facade exports in `index.ts`, preserving App UI/Tuner health
         composition, shell/playable/readiness classification, and unready error
-        capture, and leaving bounded root inspection, TypeBox schema ownership,
-        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
-        semantic projection, and Effect/oRPC procedure-core work pending.
+        capture, while later 4.12 rows now own bounded root inspection and
+        catalog schema ownership. Operation/proof telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance remain pending.
   - [x] 4.12.7 Extract bounded root inspection owner while keeping public
         facade exports in `index.ts`, preserving root identifier validation,
         bounds, state default, JSON parse label, command serialization, and

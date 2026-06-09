@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayChooseTech from '../../src/commands/game/play/choose-tech';
 import GamePlaySetTechTarget from '../../src/commands/game/play/set-tech-target';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play technology commands', () => {
@@ -60,6 +61,7 @@ describe('game play technology commands', () => {
           details?: unknown;
         };
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.result.enabledOptionCount).toBe(2);
       expect(payload.result.disabledOptionCount).toBe(1);
       expect(payload.result.details).toBeUndefined();

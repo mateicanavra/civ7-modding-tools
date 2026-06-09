@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
+import { expectNormalPlayPayloadToOmitDebugInternals } from './game/play/normal-output-boundary';
 import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play rehydrate command', () => {
@@ -28,6 +29,7 @@ describe('game play rehydrate command', () => {
           continuity: { status: string; warnings: string[] };
         };
       };
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
       expect(payload.snapshot.readyUnit).not.toBeNull();
       expect(payload.snapshot.continuity.status).toBe('mismatch');
       expect(payload.snapshot.continuity.warnings[0]).toMatch(/turn mismatch/);

@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayNotificationQueue from '../../../../../src/commands/game/play/notification-queue';
+import { expectNormalPlayPayloadToOmitDebugInternals } from '../normal-output-boundary';
 import { type FakeTunerServer, startFakeTunerServer } from '../../../fixtures/tuner-socket-server';
 
 type QueueMode =
@@ -112,21 +113,24 @@ async function runNotificationQueue(mode: QueueMode) {
     log.mockRestore();
   }
 
+  const payload = JSON.parse(writes.join('')) as {
+    ok: true;
+    view: {
+      queueLength: number;
+      schedule: Array<{
+        category: string;
+        command: string | null;
+        disposition: string;
+        isEndTurnBlocking: boolean;
+        safeToBatch: boolean;
+        typeName: string | null;
+      }>;
+    };
+  };
+  expectNormalPlayPayloadToOmitDebugInternals(payload);
+
   return {
-    payload: JSON.parse(writes.join('')) as {
-      ok: true;
-      view: {
-        queueLength: number;
-        schedule: Array<{
-          category: string;
-          command: string | null;
-          disposition: string;
-          isEndTurnBlocking: boolean;
-          safeToBatch: boolean;
-          typeName: string | null;
-        }>;
-      };
-    },
+    payload,
     server,
   };
 }
