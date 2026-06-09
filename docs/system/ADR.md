@@ -132,3 +132,43 @@ We accept that full step ids change because stage ids are embedded in the full i
 - Knobs become easier to scope correctly (steering inputs rather than post-hoc correction).
 - Studio stage/step naming becomes more meaningful by adding explicit `stageLabel`/`stepLabel` to recipe uiMeta.
 - Any tooling that relied on the old stage ids (`morphology-pre/mid/post`) must be updated as part of the cutover (configs, docs, guardrails).
+
+## ADR-007: Civ7 intelligence uses two authority sides with a game-scoped controller
+
+**Status:** Accepted
+**Date:** 2026-06-03
+**Context:** The Civ7 intelligence-layer investigation found several tempting but
+unsafe ways to describe live AI influence: raw `game exec` as an agent API,
+companion UI scripts as a third control plane, Tuner-loaded mod claims, and a
+generic "bridge" architecture. Later live probes materially changed the
+implementation target: App UI game context exposed the same major gameplay roots
+checked in Tuner, plus App UI-only lifecycle/UI/storage roots. Direct-control
+already owns runtime transport, state selection, approval, validation, and
+wrapper promotion. Generated static profiles already own the native AI policy
+lane.
+**Decision:** Civ7 intelligence uses a two-sided authority architecture:
+live external play through `@civ7/direct-control`, and native policy shaping
+through generated static AI profiles. A game-scoped App UI controller loaded
+through native `scope="game"` `UIScripts` is the baseline implementation
+candidate for replacing raw per-wrapper direct-control JavaScript with a stable
+in-game API. It remains subordinate to direct-control authority: direct-control
+owns socket transport, state discovery, approval, no-replay behavior, and proof
+promotion.
+**Consequences:**
+- Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
+  transport, not the agent-facing product API.
+- oRPC/Effect is the shared control substrate for the external direct-control
+  API, the game-scoped controller mod API, and future internal AI intelligence
+  services. The App UI `globalThis.Civ7IntelligenceBridge.invoke(...)` surface is
+  a serialized transport adapter into an in-process callable router, not an ad
+  hoc product API.
+- `UIScripts` proof is App UI game-context proof unless shell or Tuner
+  availability is separately demonstrated. Shell requires its own entrypoint;
+  Tuner is not a modinfo deployment target in the baseline.
+- The controller can reduce repeated raw-wrapper verification, but it does not
+  remove lifecycle, approval, action legality, hotseat, age-transition, or
+  semantic outcome proof.
+- Controller-owned independent gameplay sends remain eliminated unless
+  direct-control has
+  created an exact approved action record and rereads the resulting
+  postcondition.

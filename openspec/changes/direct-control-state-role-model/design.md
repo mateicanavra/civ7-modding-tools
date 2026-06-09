@@ -1,14 +1,17 @@
 ## Design
 
 The package models Civ7 direct control as one transport with multiple scripting
-state roles. Role is part of the command contract, not an implementation detail.
+state roles plus an optional project-owned game controller. Role is part of the
+command contract, not an implementation detail. The 2026-06-03 App UI/Tuner
+parity proof supersedes the older assumption that Tuner must own all post-Begin
+gameplay reads.
 
 ### State Roles
 
 | Role | State name | Contract |
 |---|---|---|
-| `app-ui` | `App UI` | Lifecycle, client/session, network/loading, Begin Game, App UI status, turn-complete requests, autoplay where proven. |
-| `tuner` | `Tuner` | Post-Begin gameplay/map reads, GameInfo/Database reads, visibility, unit/city/player operation validators and requests, autoplay where proven. |
+| `app-ui` | `App UI` | Lifecycle, client/session, network/loading, Begin Game, App UI status, turn-complete requests, autoplay where proven, and game-scoped controller calls after the game action group loads. |
+| `tuner` | `Tuner` | Health canary, parity/comparison surface, diagnostics, and explicitly selected research calls. It is not the default owner for controller-proven gameplay reads. |
 
 `LSQ:` state presence is listener evidence only. Tuner gameplay readiness
 requires a read-only canary after Begin Game.
@@ -21,18 +24,21 @@ requires a read-only canary after Begin Game.
   `WaitingToStart`.
 - game-started: App UI reports `GameStarted` and in-game.
 - tuner-ready: Tuner read-only gameplay canary passes.
+- controller-ready: project-owned game-scoped `Civ7IntelligenceBridge` responds
+  in App UI game context with a compatible protocol version and capability list.
 
 ### Reconnect And Replay
 
 The package may reconnect and retry read-only state discovery, health probes,
-snapshots, and catalog probes. State-changing commands run at most once per
-caller request unless the caller explicitly issues a new request.
+snapshots, catalog probes, and controller readiness probes. State-changing
+commands run at most once per caller request unless the caller explicitly issues
+a new request.
 
 ### Error Taxonomy
 
 Role-aware wrappers should preserve existing connection errors and distinguish:
 
-- unavailable state role;
+- unavailable state role or controller;
 - state role present but not ready;
 - command failure;
 - invalid/bounded input;

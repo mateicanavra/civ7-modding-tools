@@ -3,6 +3,12 @@
 Mutating wrappers are explicit package functions. Every function names the state
 role, validation sequence, postcondition, retry behavior, and risk category.
 
+2026-06-03 controller realignment: operation validation and exact approved
+helper execution should move behind the project-owned game-scoped App UI
+controller where lifecycle, parity, approval-token, idempotency, and
+postcondition proof pass. Direct-control still owns approval, no-replay, and
+proof promotion.
+
 ## Public Wrappers
 
 - Existing lifecycle wrappers remain public:
@@ -38,6 +44,10 @@ visibility debugging, turn complete/unready, and generic operation validators.
 Generic request wrappers exist but classify high-risk operation types and
 require the caller to pass the exact operation family, target id, operation
 type, and arguments.
+
+After the controller bridge is proven, generic request execution should call the
+controller only through `actions.executeApproved` with direct-control approval
+metadata. Independent controller sends remain out of contract.
 
 Autoplay start may be unbounded because `Autoplay.setActive(true)` is a native
 supported mode. Bounded smoke runs remain available by passing `turns`, and

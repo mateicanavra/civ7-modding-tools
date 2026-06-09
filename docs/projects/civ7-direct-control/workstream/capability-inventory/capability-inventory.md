@@ -2,22 +2,31 @@
 
 Date: 2026-05-31
 
+2026-06-03 realignment note: later live App UI/Tuner parity probes materially
+changed the baseline. App UI game context now has live evidence for the same
+major gameplay roots checked in Tuner, plus App UI-only lifecycle/UI/storage
+roots. Treat the Tuner-first statements below as historical inventory evidence.
+The active implementation target for proven reads and validators is the
+game-scoped App UI controller in
+`docs/projects/civ7-intelligence-layer/workstream/direct-control-game-controller-bridge/`.
+
 ## Executive Summary
 
-App UI and Tuner are not parity surfaces. They overlap on some gameplay reads,
-but they should be modeled as separate domains:
+App UI and Tuner are still separate runtime states, but the earlier non-parity
+model no longer means Tuner owns gameplay reads by default. They should now be
+modeled as separate domains with a game-scoped App UI controller baseline:
 
 - `App UI` owns lifecycle and client control: `Network.restartGame()`,
   `UI.notifyUIReady()`, loading status, session/network status, camera/UI
-  helpers, automation helpers, and App UI-facing map/player reads.
-- `Tuner` is command-ready only after Begin Game, and then becomes the stronger
-  gameplay/map surface: `GameplayMap`, `Players`, `Units`, `Cities`,
-  `MapUnits`, `MapCities`, `MapAreas`, `MapRegions`, `MapConstructibles`,
-  `Database`, `GameInfo`, `TerrainBuilder`, `ResourceBuilder`,
-  `FertilityBuilder`, operation routers, and operation constants.
-- Restart/begin stays App UI-owned. Tuner should be used for post-Begin
-  gameplay readiness, live map reads, map-generation diagnostics, and carefully
-  bounded gameplay command research.
+  helpers, automation helpers, App UI-facing map/player reads, and the live
+  game-scoped controller surface for proven reads and validators.
+- `Tuner` is command-ready only after Begin Game and remains useful as a health
+  canary, parity/comparison surface, and research surface. It is no longer the
+  required owner for gameplay/map reads once the controller is deployed and
+  parity-proven.
+- Restart/begin stays App UI-owned. Post-Begin game reads and operation
+  validation should migrate to the game-scoped controller where parity proof
+  passes.
 - We can generate a useful TypeScript-adjacent catalog, but not perfect
   function signatures from runtime alone. The right artifact is a
   provenance-aware hybrid catalog that records runtime availability, official
@@ -50,14 +59,14 @@ No broad gameplay mutations were run for this inventory.
 | Restart | `Network.restartGame()` confirmed | absent | App UI |
 | Begin Game | `UI.notifyUIReady()` confirmed | absent | App UI |
 | Loading/shell status | `UI.isInGame`, `isInLoading`, `getGameLoadingState` | absent | App UI |
-| Tuner readiness | can see state, not enough by itself | read-only canary confirmed post-Begin | Tuner |
+| Tuner readiness | can see state, not enough by itself | read-only canary confirmed post-Begin | Tuner canary/parity |
 | Network/session | rich `Network` surface | absent | App UI |
 | Autoplay | fields and mutators | fields and mutators | App UI first, Tuner plausible |
-| Map reads | present | stronger gameplay surface | Tuner preferred post-Begin |
+| Map reads | parity-proven for checked roots/values; controller target | previously stronger gameplay surface | Game-scoped controller after parity |
 | Map generation builders | mostly absent except some WorldBuilder evidence | `TerrainBuilder`, `ResourceBuilder`, `FertilityBuilder`, `AreaBuilder` | Tuner research/raw |
 | Visibility/reveal | `Visibility` present; reads/writes plausible | `Visibility` present; reads/writes plausible | read wrappers now, reveal research later |
-| Units/cities | present | richer gameplay command/read surface | Tuner |
-| Game operations | present in source/runtime roots | `Game.*Operations` and `Game.*Commands` confirmed | Tuner research first |
+| Units/cities | parity-proven for checked roots/values; controller target | previously richer gameplay command/read surface | Game-scoped controller after parity |
+| Game operations | `Game.*Operations` and `Game.*Commands` confirmed; controller target | `Game.*Operations` and `Game.*Commands` confirmed | Controller validation after parity |
 | Camera/UI overlays | `Camera`, `WorldUI`, `UI.Debug` evidence | absent | App UI research later |
 | GameInfo/Database | present; dynamic | present; dynamic | Tuner preferred for post-Begin catalogs |
 | Online/account/multiplayer | present | absent | Avoid by default |

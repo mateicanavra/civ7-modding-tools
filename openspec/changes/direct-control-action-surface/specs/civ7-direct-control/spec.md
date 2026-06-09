@@ -34,7 +34,10 @@ validators and SHALL use validator-first behavior for operation requests.
 #### Scenario: Caller validates a unit operation
 - **WHEN** a caller validates a unit operation or command
 - **THEN** the package runs the corresponding `Game.UnitOperations.canStart` or
-  `Game.UnitCommands.canStart` command in the Tuner role
+  `Game.UnitCommands.canStart` command through the game-scoped App UI controller
+  when controller validation parity is proven
+- **AND** it may use Tuner only for canary, parity, diagnostic, or explicitly
+  selected research calls
 - **AND** it returns the serialized validation result without mutating gameplay
 
 #### Scenario: Caller requests an operation
@@ -44,6 +47,9 @@ validators and SHALL use validator-first behavior for operation requests.
   a source-backed exception
 - **AND** it sends the request only when validation reports success
 - **AND** it returns validation, request output, and postcondition evidence
+- **AND** controller helper execution is allowed only after direct-control
+  creates an approval record and passes an idempotency key to an allowlisted
+  controller method
 
 #### Scenario: Operation validation fails
 - **WHEN** `canStart` does not report success

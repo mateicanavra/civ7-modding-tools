@@ -40,6 +40,8 @@ Tuner gameplay canaries directly.
 
 - [x] Workstream artifacts under `docs/projects/civ7-direct-control/workstream/`
   with agent reports, evidence, reviews, and handoff state.
+- [x] Play-agent artifacts consolidated under
+  `docs/projects/civ7-direct-control/workstream/play-agent/`.
 - [x] OpenSpec change `civ7-direct-control-surface` with proposal, design,
   tasks, spec deltas, review disposition, verification notes, and closure state.
 - [x] Canonical code boundary for Civ7 direct control, called by CLI and Studio.
@@ -59,3 +61,4 @@ for commands the repo must support.
 - OpenSpec change: `openspec/changes/civ7-direct-control-surface/`
 - Discovery brief: `workstream/discovery/investigation-brief.md`
 - Team plan: `workstream/discovery/team-plan.md`
+- Play-agent workstream: `workstream/play-agent/README.md`
