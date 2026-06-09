@@ -876,6 +876,43 @@ All future agent waves must be framed before delegation:
   Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control technology/culture closeout wrapper slice: completed as a
+  narrow progression closeout wrapper relocation. It moves the public wrapper
+  orchestration for `requestCiv7TechnologyChoiceCloseout` and
+  `requestCiv7CultureChoiceCloseout` into
+  `src/play/progression/{technology,culture}.ts` while keeping the public
+  facade export/call-through in `index.ts`. Executable dependencies remain
+  injected from the facade. This preserves approval-first checks, player/node
+  validation, App UI execution, payload parse labels, command serialization,
+  optional notification activation, SET_*_TREE_NODE and
+  SET_*_TREE_TARGET_NODE send behavior, focused package/CLI proof, and pending
+  runtime/live-game proof. Telemetry, AI ingestion, semantic CLI projection,
+  Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+  pending. This is local package/source relocation proof only, not
+  runtime/live-game proof.
+- Direct-control session acquire/release helper slice: completed as a narrow
+  session resource-helper relocation. It moves the repeated facade-local
+  `new Civ7DirectControlSession(options)` plus `finally` close pattern into
+  `src/session/session.ts` as `withCiv7DirectControlSession`, then injects that
+  helper into Tuner health and setup/restart dependencies from `index.ts`. This
+  preserves session construction, close-on-completion/error behavior,
+  Tuner-ready wait dependency shape, setup/restart lifecycle composition, and
+  existing package proof. Effect/Bun resource/schedule/layer composition,
+  telemetry/correlation contracts, procedure schemas, semantic CLI projection,
+  AI ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local package/source
+  relocation proof only, not runtime/live-game proof.
+- Direct-control session execute helper-reuse slice: completed as a narrow
+  session execute cleanup. It routes `queryCiv7TunerStates` and
+  `executeCiv7Command` through `withCiv7DirectControlSession` while preserving
+  package-level execute wrapper behavior, App UI/Tuner state forcing wrappers,
+  command result shape, and close-on-completion/error behavior. Reconnect still
+  closes caller-owned sessions, and lifecycle behavior is unchanged.
+  Effect/Bun resource/schedule/layer composition, telemetry/correlation
+  contracts, procedure schemas, semantic CLI projection, AI ingestion, hotseat
+  runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local package/source relocation proof only,
+  not runtime/live-game proof.
 - Direct-control facade postcondition-helper cleanup slice: completed as a
   narrow stale-helper prune after the specialized operation postcondition and
   unit-target owners moved. It removes only dead private comparison helpers from
@@ -1221,6 +1258,38 @@ All future agent waves must be framed before delegation:
   semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
   work, or Task 2.9.4 matrix-row acceptance. This is local package/source
   relocation proof only, not runtime/live-game proof.
+- Direct-control action approval back-import cleanup slice: completed as a
+  narrow type-only ownership cleanup. Internal modules that need
+  `Civ7ActionApproval` now import it from `src/action-approval.ts` or the
+  operation type owner instead of from the public facade. Public facade
+  re-exports and all approval-first runtime behavior remain unchanged.
+  Unrelated command/session type back-imports, procedure schemas,
+  operation/proof telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local type/source relocation proof only,
+  not runtime/live-game proof.
+- Direct-control command/session/runtime type back-import cleanup slice:
+  completed as a narrow type-only ownership cleanup. Internal modules now
+  import command results, direct-control options, state selections, sessions,
+  runtime probes, snapshot/health results, and operation families from their
+  owner modules instead of the public facade. Public facade re-exports remain
+  stable for package consumers and no runtime behavior changes. Procedure
+  schemas, operation/proof telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance remain pending. This is local type/source relocation
+  proof only, not runtime/live-game proof.
+- Direct-control stale facade filesystem import cleanup slice: completed as a
+  narrow import/source ownership cleanup. The current stack had new
+  saved-configuration disk listing/parsing in the facade, so the conflict was
+  resolved by moving `.civ7cfg` list/read/summary parsing and the default save
+  directory into `src/setup/prepare.ts` while keeping facade re-exports and the
+  existing App UI saved-configuration load wrapper stable. The public facade no
+  longer imports `node:fs/promises`, `node:os`, or `node:path` for saved-config
+  listing. Public facade exports remain stable and no runtime behavior changes.
+  Procedure schemas, operation/proof telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance remain pending. This is local source hygiene
+  proof only, not runtime/live-game proof.
 - Direct-control generic validation primitive slice: completed as a narrow
   primitive/helper ownership relocation. It moves only bounded integer, simple
   identifier, and player-id validation helpers into `src/validation.ts` while

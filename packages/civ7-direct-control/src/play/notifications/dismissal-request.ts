@@ -1,9 +1,7 @@
 import { notificationDismissalSource } from "./dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./verification.js";
 
-import type {
-  Civ7ActionApproval,
-} from "../../index.js";
+import type { Civ7ActionApproval } from "../../action-approval.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type {

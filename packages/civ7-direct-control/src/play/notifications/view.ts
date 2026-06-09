@@ -1,8 +1,6 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 
-import type {
-  Civ7OperationFamily,
-} from "../../index.js";
+import type { Civ7OperationFamily } from "../operations/types.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type {

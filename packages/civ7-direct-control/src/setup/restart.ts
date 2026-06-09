@@ -7,14 +7,12 @@ import {
 } from "../runtime/app-ui-snapshot.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
+import type { Civ7DirectControlSession } from "../session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
-import type {
-  Civ7DirectControlSession,
-} from "../index.js";
 
 export type Civ7RestartAndBeginResult = Readonly<{
   restart: Civ7CommandResult;

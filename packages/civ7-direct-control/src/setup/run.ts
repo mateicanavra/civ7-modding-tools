@@ -13,11 +13,11 @@ import type {
   Civ7SinglePlayerStartResult,
 } from "./start.js";
 
+import type { Civ7ActionApproval } from "../action-approval.js";
 import type {
-  Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../index.js";
+} from "../session/types.js";
 
 export type Civ7SinglePlayerRunInput = Civ7SinglePlayerSetupInput & Readonly<{
   fromRunningGame?: "reject" | "exit-to-shell";

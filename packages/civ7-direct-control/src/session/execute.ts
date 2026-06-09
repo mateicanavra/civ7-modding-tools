@@ -1,4 +1,4 @@
-import { Civ7DirectControlSession } from "./session.js";
+import { withCiv7DirectControlSession } from "./session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -7,24 +7,14 @@ import type {
 } from "./types.js";
 
 export async function queryCiv7TunerStates(options: Civ7DirectControlOptions = {}): Promise<ReadonlyArray<Civ7TunerState>> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await session.queryStates();
-  } finally {
-    await session.close();
-  }
+  return await withCiv7DirectControlSession(options, async (session) => await session.queryStates());
 }
 
 export async function executeCiv7Command(options: Civ7DirectControlOptions & {
   command: string;
   state?: Civ7TunerStateSelection;
 }): Promise<Civ7CommandResult> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await session.executeCommand(options);
-  } finally {
-    await session.close();
-  }
+  return await withCiv7DirectControlSession(options, async (session) => await session.executeCommand(options));
 }
 
 export async function executeCiv7AppUiCommand(options: Civ7DirectControlOptions & {

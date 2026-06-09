@@ -1,5 +1,10 @@
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7CommandResult, Civ7TunerState } from "../../session/types.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7ActionApproval } from "../operations/types.js";
 
 export type Civ7TechnologyChoiceCloseoutInput = Readonly<{
   playerId: number;
@@ -19,6 +24,17 @@ export type Civ7TechnologyChoiceCloseoutResult = Readonly<{
 
 type TechnologyChoiceCloseoutCommandDependencies = Readonly<{
   jsLiteral: (value: unknown) => string;
+}>;
+
+type TechnologyChoiceCloseoutRequestDependencies = TechnologyChoiceCloseoutCommandDependencies & Readonly<{
+  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
+  executeAppUiCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
+  invalidNodeError: () => never;
+  parseTechnologyChoiceCloseout: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => { sent?: boolean; chooseResult?: { ok?: boolean }; clearTargetResult?: { ok?: boolean } };
+  validatePlayerId: (playerId: number) => void;
 }>;
 
 function probeHelperSource(): string {
@@ -135,4 +151,29 @@ export function technologyChoiceCloseoutSource(): string {
         ],
       };
     };`;
+}
+
+export async function requestCiv7TechnologyChoiceCloseout(
+  input: Civ7TechnologyChoiceCloseoutInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+  dependencies: TechnologyChoiceCloseoutRequestDependencies,
+): Promise<Civ7TechnologyChoiceCloseoutResult> {
+  dependencies.assertApproved(approval, "choosing Civ7 technology node through App UI closeout");
+  dependencies.validatePlayerId(input.playerId);
+  if (!Number.isInteger(input.node)) dependencies.invalidNodeError();
+  const command = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildTechnologyChoiceCloseoutCommand(input, dependencies),
+  });
+  const payload = dependencies.parseTechnologyChoiceCloseout(command, "Civ7 technology choice closeout");
+  const sent = payload.sent === true;
+  return {
+    host: command.host,
+    port: command.port,
+    state: command.state,
+    command,
+    payload,
+    sent,
+  };
 }

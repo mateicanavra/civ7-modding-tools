@@ -1,6 +1,3 @@
-import { readdir, readFile, stat } from "node:fs/promises";
-import { homedir } from "node:os";
-import { basename, extname, join, resolve } from "node:path";
 import {
   assertCiv7ComponentId,
   Civ7ComponentIdSchema,
@@ -25,7 +22,10 @@ import {
 import { jsLiteral } from "./runtime/command-serialization.js";
 import { sleep } from "./timing.js";
 import { boundedInteger, validateIdentifier, validatePlayerId } from "./validation.js";
-import { Civ7DirectControlSession } from "./session/session.js";
+import {
+  Civ7DirectControlSession,
+  withCiv7DirectControlSession,
+} from "./session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
@@ -121,11 +121,13 @@ import {
 } from "./setup/reads.js";
 import {
   assertPreparedSetupMatches,
+  listCiv7SavedGameConfigurations as listCiv7SavedGameConfigurationsFromModule,
   normalizeSavedGameConfigurationRef,
   normalizeSinglePlayerSetupInput as normalizeSinglePlayerSetupInputFromModule,
   prepareCiv7SinglePlayerSetup as prepareCiv7SinglePlayerSetupFromModule,
-  type Civ7PlayerSetupOptions,
   type Civ7PreparedSetupResult,
+  type Civ7SavedGameConfigurationListInput,
+  type Civ7SavedGameConfigurationListResult,
   type Civ7SavedGameConfigurationLoadResult,
   type Civ7SavedGameConfigurationRef,
   type Civ7SetupOptionValue,
@@ -307,12 +309,12 @@ import {
   type Civ7TraditionsViewResult,
 } from "./play/progression/reads.js";
 import {
-  buildCultureChoiceCloseoutCommand,
+  requestCiv7CultureChoiceCloseout as requestCiv7CultureChoiceCloseoutFromModule,
   type Civ7CultureChoiceCloseoutInput,
   type Civ7CultureChoiceCloseoutResult,
 } from "./play/progression/culture.js";
 import {
-  buildTechnologyChoiceCloseoutCommand,
+  requestCiv7TechnologyChoiceCloseout as requestCiv7TechnologyChoiceCloseoutFromModule,
   type Civ7TechnologyChoiceCloseoutInput,
   type Civ7TechnologyChoiceCloseoutResult,
 } from "./play/progression/technology.js";
@@ -480,8 +482,12 @@ export type {
 export type {
   Civ7PlayerSetupOptions,
   Civ7PreparedSetupResult,
+  Civ7SavedGameConfiguration,
+  Civ7SavedGameConfigurationListInput,
+  Civ7SavedGameConfigurationListResult,
   Civ7SavedGameConfigurationLoadResult,
   Civ7SavedGameConfigurationRef,
+  Civ7SavedGameConfigurationSummary,
   Civ7SetupOptionValue,
   Civ7SinglePlayerSetupInput,
 } from "./setup/prepare.js";
@@ -494,6 +500,7 @@ export type {
   Civ7SinglePlayerRunResult,
 } from "./setup/run.js";
 export type { Civ7RestartAndBeginResult } from "./setup/restart.js";
+export { DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR } from "./setup/prepare.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -694,14 +701,6 @@ export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 256;
-export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
-  homedir(),
-  "Library",
-  "Application Support",
-  "Civilization VII",
-  "Saves",
-  "Single",
-);
 
 export type Civ7ResourcePlacementFeasibilityCellInput = Readonly<Civ7MapLocation & {
   resourceTypes: ReadonlyArray<number>;
@@ -815,36 +814,6 @@ export type Civ7ResourceBuilderDiagnosticsResult = Readonly<{
   cells: ReadonlyArray<Civ7ResourceBuilderDiagnosticsCell>;
 }>;
 
-export type Civ7SavedGameConfigurationSummary = Readonly<{
-  gameSpeed?: string;
-  mapSize?: string;
-  mapName?: string;
-  leader?: string;
-  civilization?: string;
-  difficulty?: string;
-  mapSeed?: number;
-  gameSeed?: number;
-}>;
-
-export type Civ7SavedGameConfiguration = Civ7SavedGameConfigurationRef & Readonly<{
-  sizeBytes: number;
-  modifiedAt: string;
-  source: "local-disk";
-  summary: Civ7SavedGameConfigurationSummary;
-  setupOptions: Readonly<Record<string, Civ7SetupOptionValue>>;
-  playerOptions: ReadonlyArray<Civ7PlayerSetupOptions>;
-}>;
-
-export type Civ7SavedGameConfigurationListInput = Readonly<{
-  directory?: string;
-  maxFiles?: number;
-}>;
-
-export type Civ7SavedGameConfigurationListResult = Readonly<{
-  directory: string;
-  configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
 export async function inspectCiv7RuntimeApi(options: Civ7DirectControlOptions & {
   state?: Civ7TunerStateSelection;
   roots?: ReadonlyArray<string>;
@@ -877,14 +846,7 @@ export async function checkCiv7TunerHealth(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TunerHealthResult> {
   return await checkCiv7TunerHealthFromModule(options, {
-    withSession: async (sessionOptions, run) => {
-      const session = new Civ7DirectControlSession(sessionOptions);
-      try {
-        return await run(session);
-      } finally {
-        await session.close();
-      }
-    },
+    withSession: withCiv7DirectControlSession,
     executeSessionCommandWithReconnect,
   });
 }
@@ -918,17 +880,7 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
       await waitForCiv7TunerReadyWithSession(session, waitOptions, {
         executeSessionCommandWithReconnect,
       }),
-    withSession: async <T>(
-      sessionOptions: Civ7DirectControlOptions,
-      run: (session: Civ7DirectControlSession) => Promise<T>,
-    ): Promise<T> => {
-      const session = new Civ7DirectControlSession(sessionOptions);
-      try {
-        return await run(session);
-      } finally {
-        await session.close();
-      }
-    },
+    withSession: withCiv7DirectControlSession,
   });
 }
 
@@ -937,18 +889,8 @@ export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & 
   pollIntervalMs?: number;
 } = {}): Promise<Civ7TunerHealthResult & { ready: true }> {
   return await waitForCiv7TunerReadyFromModule(options, {
+    withSession: withCiv7DirectControlSession,
     executeSessionCommandWithReconnect,
-    withSession: async <T>(
-      sessionOptions: Civ7DirectControlOptions,
-      run: (session: Civ7DirectControlSession) => Promise<T>,
-    ): Promise<T> => {
-      const session = new Civ7DirectControlSession(sessionOptions);
-      try {
-        return await run(session);
-      } finally {
-        await session.close();
-      }
-    },
   });
 }
 
@@ -1371,17 +1313,7 @@ function setupStartDependencies() {
       await waitForCiv7TunerReadyWithSession(session, waitOptions, {
         executeSessionCommandWithReconnect,
       }),
-    withSession: async <T>(
-      sessionOptions: Civ7DirectControlOptions,
-      run: (session: Civ7DirectControlSession) => Promise<T>,
-    ): Promise<T> => {
-      const session = new Civ7DirectControlSession(sessionOptions);
-      try {
-        return await run(session);
-      } finally {
-        await session.close();
-      }
-    },
+    withSession: withCiv7DirectControlSession,
   } as const;
 }
 
@@ -1406,21 +1338,7 @@ function setupRunDependencies() {
 export async function listCiv7SavedGameConfigurations(
   input: Civ7SavedGameConfigurationListInput = {},
 ): Promise<Civ7SavedGameConfigurationListResult> {
-  const directory = resolve(input.directory ?? DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR);
-  const entries = await readdir(directory, { withFileTypes: true }).catch((err: unknown) => {
-    if (isNodeNotFound(err)) return [];
-    throw err;
-  });
-  const maxFiles = boundedInteger(input.maxFiles ?? 200, 1, 2_000, "maxFiles");
-  const configurations: Civ7SavedGameConfiguration[] = [];
-  for (const entry of entries) {
-    if (!entry.isFile() || extname(entry.name).toLowerCase() !== ".civ7cfg") continue;
-    const filePath = join(directory, entry.name);
-    configurations.push(await readCiv7SavedGameConfiguration(filePath));
-    if (configurations.length >= maxFiles) break;
-  }
-  configurations.sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt) || a.displayName.localeCompare(b.displayName));
-  return { directory, configurations };
+  return await listCiv7SavedGameConfigurationsFromModule(input, { boundedInteger });
 }
 
 export async function loadCiv7SavedGameConfiguration(
@@ -1770,27 +1688,21 @@ export async function requestCiv7TechnologyChoiceCloseout(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7TechnologyChoiceCloseoutResult> {
-  assertApproved(approval, "choosing Civ7 technology node through App UI closeout");
-  validatePlayerId(input.playerId);
-  if (!Number.isInteger(input.node)) throw new Civ7DirectControlError("command-failed", "node must be an integer");
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildTechnologyChoiceCloseoutCommand(input, { jsLiteral }),
+  return await requestCiv7TechnologyChoiceCloseoutFromModule(input, options, approval, {
+    assertApproved,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    invalidNodeError: () => {
+      throw new Civ7DirectControlError("command-failed", "node must be an integer");
+    },
+    jsLiteral,
+    parseTechnologyChoiceCloseout: (result, label) =>
+      jsonPayloadFromCommandResult<{
+        sent?: boolean;
+        chooseResult?: { ok?: boolean };
+        clearTargetResult?: { ok?: boolean };
+      }>(result, label),
+    validatePlayerId,
   });
-  const payload = jsonPayloadFromCommandResult<{
-    sent?: boolean;
-    chooseResult?: { ok?: boolean };
-    clearTargetResult?: { ok?: boolean };
-  }>(command, "Civ7 technology choice closeout");
-  const sent = payload.sent === true;
-  return {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    command,
-    payload,
-    sent,
-  };
 }
 
 export async function requestCiv7CultureChoiceCloseout(
@@ -1798,27 +1710,21 @@ export async function requestCiv7CultureChoiceCloseout(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7CultureChoiceCloseoutResult> {
-  assertApproved(approval, "choosing Civ7 culture node through App UI closeout");
-  validatePlayerId(input.playerId);
-  if (!Number.isInteger(input.node)) throw new Civ7DirectControlError("command-failed", "node must be an integer");
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildCultureChoiceCloseoutCommand(input, { jsLiteral }),
+  return await requestCiv7CultureChoiceCloseoutFromModule(input, options, approval, {
+    assertApproved,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    invalidNodeError: () => {
+      throw new Civ7DirectControlError("command-failed", "node must be an integer");
+    },
+    jsLiteral,
+    parseCultureChoiceCloseout: (result, label) =>
+      jsonPayloadFromCommandResult<{
+        sent?: boolean;
+        chooseResult?: { ok?: boolean };
+        clearTargetResult?: { ok?: boolean };
+      }>(result, label),
+    validatePlayerId,
   });
-  const payload = jsonPayloadFromCommandResult<{
-    sent?: boolean;
-    chooseResult?: { ok?: boolean };
-    clearTargetResult?: { ok?: boolean };
-  }>(command, "Civ7 culture choice closeout");
-  const sent = payload.sent === true;
-  return {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    command,
-    payload,
-    sent,
-  };
 }
 
 export async function requestCiv7DiplomacyResponse(
@@ -2025,15 +1931,6 @@ export async function generateCiv7CapabilityCatalog(
     inspectRoot: inspectCiv7Root,
     tunerRoots: DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
   });
-}
-
-function isNodeNotFound(err: unknown): boolean {
-  return (
-    err !== null &&
-    typeof err === "object" &&
-    "code" in err &&
-    (err as { code?: unknown }).code === "ENOENT"
-  );
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {
@@ -2439,111 +2336,6 @@ function probeNumberOr(probe: Civ7RuntimeProbe<unknown>, fallback: number): numb
   return Number.isFinite(value) ? value : fallback;
 }
 
-async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGameConfiguration> {
-  const [info, bytes] = await Promise.all([stat(path), readFile(path)]);
-  if (bytes.subarray(0, 4).toString("ascii") !== "CIV7") {
-    throw new Civ7DirectControlError("command-failed", `Saved configuration is not a Civ7 file: ${path}`);
-  }
-  const fileName = basename(path);
-  const displayName = basename(fileName, extname(fileName));
-  const strings = extractAsciiStrings(bytes);
-  const summary = summarizeCiv7CfgStrings(strings);
-  const setupOptions: Record<string, Civ7SetupOptionValue> = {};
-  if (summary.difficulty) setupOptions.Difficulty = summary.difficulty;
-  if (summary.gameSpeed) setupOptions.GameSpeeds = summary.gameSpeed;
-
-  const playerSetupOptions: Record<string, Civ7SetupOptionValue> = {};
-  if (summary.leader) playerSetupOptions.PlayerLeader = summary.leader;
-  if (summary.civilization) playerSetupOptions.PlayerCivilization = summary.civilization;
-  if (summary.difficulty) playerSetupOptions.PlayerDifficulty = summary.difficulty;
-
-  return {
-    id: displayName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || fileName,
-    displayName,
-    fileName,
-    path,
-    sizeBytes: info.size,
-    modifiedAt: info.mtime.toISOString(),
-    source: "local-disk",
-    summary,
-    setupOptions,
-    playerOptions: Object.keys(playerSetupOptions).length > 0
-      ? [{ playerId: 0, options: playerSetupOptions }]
-      : [],
-  };
-}
-
-function extractAsciiStrings(bytes: Buffer): string[] {
-  const strings: string[] = [];
-  let start = -1;
-  for (let index = 0; index <= bytes.length; index += 1) {
-    const byte = index < bytes.length ? bytes[index]! : 0;
-    const printable = byte >= 32 && byte <= 126;
-    if (printable) {
-      if (start < 0) start = index;
-      continue;
-    }
-    if (start >= 0 && index - start >= 3) {
-      strings.push(bytes.subarray(start, index).toString("ascii"));
-    }
-    start = -1;
-  }
-  return strings;
-}
-
-function firstToken(strings: ReadonlyArray<string>, test: (value: string) => boolean): string | undefined {
-  return strings.find(test);
-}
-
-function firstNumericSeed(strings: ReadonlyArray<string>, afterIndex = 0): number | undefined {
-  for (const value of strings.slice(afterIndex)) {
-    if (!/^\d{6,10}$/.test(value)) continue;
-    const parsed = Number(value);
-    if (Number.isSafeInteger(parsed) && parsed >= 0) return parsed;
-  }
-  return undefined;
-}
-
-function summarizeCiv7CfgStrings(strings: ReadonlyArray<string>): Civ7SavedGameConfigurationSummary {
-  const mapSeedIndex = strings.findIndex((value) => /^\d{6,10}$/.test(value));
-  const mapSeed = mapSeedIndex >= 0 ? firstNumericSeed(strings, mapSeedIndex) : undefined;
-  const gameSeed = mapSeedIndex >= 0 ? firstNumericSeed(strings, mapSeedIndex + 1) : undefined;
-  const civilization = firstToken(strings, (value) =>
-    /^CIVILIZATION_[A-Z0-9_]+$/.test(value) &&
-    !value.startsWith("CIVILIZATION_LEVEL_") &&
-    value !== "CIVILIZATION_INDEPENDENT" &&
-    value !== "CIVILIZATION_NONE"
-  );
-  const leader = firstToken(strings, (value) =>
-    /^LEADER_[A-Z0-9_]+$/.test(value) &&
-    value !== "LEADER_DEFAULT" &&
-    !value.startsWith("LEADER_MINOR_CIV_") &&
-    value !== "LEADER_INDEPENDENT"
-  );
-  const summary: {
-    gameSpeed?: string;
-    mapSize?: string;
-    mapName?: string;
-    leader?: string;
-    civilization?: string;
-    difficulty?: string;
-    mapSeed?: number;
-    gameSeed?: number;
-  } = {};
-  const gameSpeed = firstToken(strings, (value) => /^GAMESPEED_[A-Z0-9_]+$/.test(value));
-  const mapSize = firstToken(strings, (value) => /^MAPSIZE_[A-Z0-9_]+$/.test(value));
-  const mapName = firstToken(strings, (value) => /^LOC_MAP_[A-Z0-9_]+_NAME$/.test(value));
-  const difficulty = firstToken(strings, (value) => /^DIFFICULTY_[A-Z0-9_]+$/.test(value));
-  if (gameSpeed !== undefined) summary.gameSpeed = gameSpeed;
-  if (mapSize !== undefined) summary.mapSize = mapSize;
-  if (mapName !== undefined) summary.mapName = mapName;
-  if (leader !== undefined) summary.leader = leader;
-  if (civilization !== undefined) summary.civilization = civilization;
-  if (difficulty !== undefined) summary.difficulty = difficulty;
-  if (mapSeed !== undefined) summary.mapSeed = mapSeed;
-  if (gameSeed !== undefined) summary.gameSeed = gameSeed;
-  return summary;
-}
 async function waitForCiv7SetupRevisionAfter(
   before: Civ7SetupSnapshotResult,
   options: Civ7DirectControlOptions,

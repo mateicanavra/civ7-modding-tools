@@ -283,7 +283,16 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
-  - [x] 4.6.18 Prune stale facade-local postcondition comparison helpers after
+  - [x] 4.6.18 Extract technology and culture choice closeout wrapper owners
+        while keeping public facade call-through in `index.ts`, preserving
+        approval-first checks, player/node validation, App UI execution,
+        payload parse labels, command serialization, optional notification
+        activation, SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE send behavior,
+        focused technology/culture package and CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.6.19 Prune stale facade-local postcondition comparison helpers after
         unit/population/production/narrative/diplomacy/unit-target owners
         moved, preserving remaining facade serializer/probe-value/probe-helper
         injection, package/CLI proof, and leaving shared serializer/type ownership,
@@ -560,6 +569,27 @@ runtime/direct-control claims.
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.37 Prune internal `Civ7ActionApproval` type back-imports from the
+        public facade by importing from the action-approval owner (or operation
+        type owner where already appropriate), while preserving public facade
+        re-exports and leaving unrelated command/session type back-imports,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.38 Prune remaining internal command/session/runtime type
+        back-imports from the public facade by importing command results,
+        direct-control options, state selections, sessions, runtime probes,
+        snapshot/health results, and operation families from their owner
+        modules, while preserving public facade re-exports and leaving
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.39 Prune stale facade filesystem import by moving saved-config
+        disk listing/parsing and the default save directory into setup
+        preparation ownership, while preserving public facade exports and
+        leaving procedure schemas, operation/proof telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
       implementation. The support branch cites the
       `civ7-orpc-control-architecture` skill from
@@ -704,6 +734,22 @@ runtime/direct-control claims.
         telemetry/correlation contracts, procedure schemas, semantic CLI, AI
         ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.19 Extract shared session acquire/release helper into the session
+        owner while preserving `new Civ7DirectControlSession(options)` plus
+        `finally` close behavior for Tuner health and setup/restart dependency
+        injection, and leaving lifecycle behavior changes, Effect/Bun
+        resource/schedule/layer composition, telemetry/correlation contracts,
+        procedure schemas, semantic CLI, AI ingestion, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.10.20 Reuse the shared session acquire/release helper from the
+        package-level execute owner while preserving `queryCiv7TunerStates`,
+        `executeCiv7Command`, App UI/Tuner state forcing wrappers, command
+        result shape, and close-on-completion/error behavior, and leaving
+        Effect/Bun resource/schedule/layer composition, telemetry/correlation
+        contracts, procedure schemas, semantic CLI, AI ingestion, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

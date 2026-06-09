@@ -176,6 +176,18 @@ export class Civ7DirectControlSession {
   }
 }
 
+export async function withCiv7DirectControlSession<T>(
+  options: Civ7DirectControlOptions,
+  run: (session: Civ7DirectControlSession) => Promise<T>,
+): Promise<T> {
+  const session = new Civ7DirectControlSession(options);
+  try {
+    return await run(session);
+  } finally {
+    await session.close();
+  }
+}
+
 function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }

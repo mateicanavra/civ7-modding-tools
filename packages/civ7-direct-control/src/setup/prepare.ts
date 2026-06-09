@@ -1,4 +1,6 @@
-import { basename, extname } from "node:path";
+import { readdir, readFile, stat } from "node:fs/promises";
+import { homedir } from "node:os";
+import { basename, extname, join, resolve } from "node:path";
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { assessCiv7SignedIntSeed } from "../policy/setup.js";
 import {
@@ -13,14 +15,23 @@ import {
   type SetupReadDependencies,
 } from "./reads.js";
 
+import type { Civ7ActionApproval } from "../action-approval.js";
 import type {
-  Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../index.js";
-import type { Civ7TunerState } from "../session/types.js";
+  Civ7TunerState,
+} from "../session/types.js";
 
 export type Civ7SetupOptionValue = string | number | boolean;
+
+export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
+  homedir(),
+  "Library",
+  "Application Support",
+  "Civilization VII",
+  "Saves",
+  "Single",
+);
 
 export type Civ7PlayerSetupOptions = Readonly<{
   playerId: number;
@@ -43,6 +54,36 @@ export type Civ7SavedGameConfigurationLoadResult = Readonly<{
   after: Civ7SetupSnapshotResult;
   command: Civ7CommandResult;
   loaded: boolean;
+}>;
+
+export type Civ7SavedGameConfigurationSummary = Readonly<{
+  gameSpeed?: string;
+  mapSize?: string;
+  mapName?: string;
+  leader?: string;
+  civilization?: string;
+  difficulty?: string;
+  mapSeed?: number;
+  gameSeed?: number;
+}>;
+
+export type Civ7SavedGameConfiguration = Civ7SavedGameConfigurationRef & Readonly<{
+  sizeBytes: number;
+  modifiedAt: string;
+  source: "local-disk";
+  summary: Civ7SavedGameConfigurationSummary;
+  setupOptions: Readonly<Record<string, Civ7SetupOptionValue>>;
+  playerOptions: ReadonlyArray<Civ7PlayerSetupOptions>;
+}>;
+
+export type Civ7SavedGameConfigurationListInput = Readonly<{
+  directory?: string;
+  maxFiles?: number;
+}>;
+
+export type Civ7SavedGameConfigurationListResult = Readonly<{
+  directory: string;
+  configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
 }>;
 
 export type Civ7SinglePlayerSetupInput = Readonly<{
@@ -153,6 +194,27 @@ export async function prepareCiv7SinglePlayerSetup(
     applied: payload.applied,
     verified: true,
   };
+}
+
+export async function listCiv7SavedGameConfigurations(
+  input: Civ7SavedGameConfigurationListInput = {},
+  dependencies: Pick<SetupPrepareDependencies, "boundedInteger">,
+): Promise<Civ7SavedGameConfigurationListResult> {
+  const directory = resolve(input.directory ?? DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR);
+  const entries = await readdir(directory, { withFileTypes: true }).catch((err: unknown) => {
+    if (isNodeNotFound(err)) return [];
+    throw err;
+  });
+  const maxFiles = dependencies.boundedInteger(input.maxFiles ?? 200, 1, 2_000, "maxFiles");
+  const configurations: Civ7SavedGameConfiguration[] = [];
+  for (const entry of entries) {
+    if (!entry.isFile() || extname(entry.name).toLowerCase() !== ".civ7cfg") continue;
+    const filePath = join(directory, entry.name);
+    configurations.push(await readCiv7SavedGameConfiguration(filePath));
+    if (configurations.length >= maxFiles) break;
+  }
+  configurations.sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt) || a.displayName.localeCompare(b.displayName));
+  return { directory, configurations };
 }
 
 export function buildPrepareSinglePlayerSetupCommand(
@@ -290,6 +352,121 @@ function validateSavedConfigFileName(value: string): string {
     throw new Civ7DirectControlError("setup-parameter-invalid", "saved configuration fileName must be a Civ7Cfg file name");
   }
   return value;
+}
+
+async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGameConfiguration> {
+  const [info, bytes] = await Promise.all([stat(path), readFile(path)]);
+  if (bytes.subarray(0, 4).toString("ascii") !== "CIV7") {
+    throw new Civ7DirectControlError("command-failed", `Saved configuration is not a Civ7 file: ${path}`);
+  }
+  const fileName = basename(path);
+  const displayName = basename(fileName, extname(fileName));
+  const strings = extractAsciiStrings(bytes);
+  const summary = summarizeCiv7CfgStrings(strings);
+  const setupOptions: Record<string, Civ7SetupOptionValue> = {};
+  if (summary.difficulty) setupOptions.Difficulty = summary.difficulty;
+  if (summary.gameSpeed) setupOptions.GameSpeeds = summary.gameSpeed;
+
+  const playerSetupOptions: Record<string, Civ7SetupOptionValue> = {};
+  if (summary.leader) playerSetupOptions.PlayerLeader = summary.leader;
+  if (summary.civilization) playerSetupOptions.PlayerCivilization = summary.civilization;
+  if (summary.difficulty) playerSetupOptions.PlayerDifficulty = summary.difficulty;
+
+  return {
+    id: displayName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || fileName,
+    displayName,
+    fileName,
+    path,
+    sizeBytes: info.size,
+    modifiedAt: info.mtime.toISOString(),
+    source: "local-disk",
+    summary,
+    setupOptions,
+    playerOptions: Object.keys(playerSetupOptions).length > 0
+      ? [{ playerId: 0, options: playerSetupOptions }]
+      : [],
+  };
+}
+
+function extractAsciiStrings(bytes: Buffer): string[] {
+  const strings: string[] = [];
+  let start = -1;
+  for (let index = 0; index <= bytes.length; index += 1) {
+    const byte = index < bytes.length ? bytes[index]! : 0;
+    const printable = byte >= 32 && byte <= 126;
+    if (printable) {
+      if (start < 0) start = index;
+      continue;
+    }
+    if (start >= 0 && index - start >= 3) {
+      strings.push(bytes.subarray(start, index).toString("ascii"));
+    }
+    start = -1;
+  }
+  return strings;
+}
+
+function firstToken(strings: ReadonlyArray<string>, test: (value: string) => boolean): string | undefined {
+  return strings.find(test);
+}
+
+function firstNumericSeed(strings: ReadonlyArray<string>, afterIndex = 0): number | undefined {
+  for (const value of strings.slice(afterIndex)) {
+    if (!/^\d{6,10}$/.test(value)) continue;
+    const parsed = Number(value);
+    if (Number.isSafeInteger(parsed) && parsed >= 0) return parsed;
+  }
+  return undefined;
+}
+
+function summarizeCiv7CfgStrings(strings: ReadonlyArray<string>): Civ7SavedGameConfigurationSummary {
+  const mapSeedIndex = strings.findIndex((value) => /^\d{6,10}$/.test(value));
+  const mapSeed = mapSeedIndex >= 0 ? firstNumericSeed(strings, mapSeedIndex) : undefined;
+  const gameSeed = mapSeedIndex >= 0 ? firstNumericSeed(strings, mapSeedIndex + 1) : undefined;
+  const civilization = firstToken(strings, (value) =>
+    /^CIVILIZATION_[A-Z0-9_]+$/.test(value) &&
+    !value.startsWith("CIVILIZATION_LEVEL_") &&
+    value !== "CIVILIZATION_INDEPENDENT" &&
+    value !== "CIVILIZATION_NONE"
+  );
+  const leader = firstToken(strings, (value) =>
+    /^LEADER_[A-Z0-9_]+$/.test(value) &&
+    value !== "LEADER_DEFAULT" &&
+    !value.startsWith("LEADER_MINOR_CIV_") &&
+    value !== "LEADER_INDEPENDENT"
+  );
+  const summary: {
+    gameSpeed?: string;
+    mapSize?: string;
+    mapName?: string;
+    leader?: string;
+    civilization?: string;
+    difficulty?: string;
+    mapSeed?: number;
+    gameSeed?: number;
+  } = {};
+  const gameSpeed = firstToken(strings, (value) => /^GAMESPEED_[A-Z0-9_]+$/.test(value));
+  const mapSize = firstToken(strings, (value) => /^MAPSIZE_[A-Z0-9_]+$/.test(value));
+  const mapName = firstToken(strings, (value) => /^LOC_MAP_[A-Z0-9_]+_NAME$/.test(value));
+  const difficulty = firstToken(strings, (value) => /^DIFFICULTY_[A-Z0-9_]+$/.test(value));
+  if (gameSpeed !== undefined) summary.gameSpeed = gameSpeed;
+  if (mapSize !== undefined) summary.mapSize = mapSize;
+  if (mapName !== undefined) summary.mapName = mapName;
+  if (leader !== undefined) summary.leader = leader;
+  if (civilization !== undefined) summary.civilization = civilization;
+  if (difficulty !== undefined) summary.difficulty = difficulty;
+  if (mapSeed !== undefined) summary.mapSeed = mapSeed;
+  if (gameSeed !== undefined) summary.gameSeed = gameSeed;
+  return summary;
+}
+
+function isNodeNotFound(err: unknown): boolean {
+  return (
+    err !== null &&
+    typeof err === "object" &&
+    "code" in err &&
+    (err as { code?: unknown }).code === "ENOENT"
+  );
 }
 
 function validateSetupSeed(value: unknown, label: string): number {
