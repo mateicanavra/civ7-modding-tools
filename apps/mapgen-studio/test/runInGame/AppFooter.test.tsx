@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppFooter } from "../../src/ui/components/AppFooter";
+import { TooltipProvider } from "../../src/components/ui/tooltip";
 import type { RecipeSettings, WorldSettings } from "../../src/ui/types";
 import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
 
@@ -19,8 +20,9 @@ const worldSettings: WorldSettings = {
 
 function renderFooter(status: RunInGameOperationStatus, relation: "current" | "stale" | "unknown" = "unknown") {
   return renderToStaticMarkup(
-    <AppFooter
-      status="ready"
+    <TooltipProvider>
+      <AppFooter
+        status="ready"
       lastRunSettings={recipeSettings}
       lastGlobalSettings={worldSettings}
       currentSettings={recipeSettings}
@@ -39,7 +41,8 @@ function renderFooter(status: RunInGameOperationStatus, relation: "current" | "s
       liveRuntime={{ status: "ok", readiness: "shell" }}
       autoRunEnabled={false}
       onAutoRunEnabledChange={vi.fn()}
-    />
+      />
+    </TooltipProvider>
   );
 }
 
