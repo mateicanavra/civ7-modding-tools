@@ -94,16 +94,27 @@ These are the standing constraints. Violating one is a defect, not a tradeoff.
 6. **Fully autonomous to a built (unsubmitted) stack.** No per-gate approval.
    The one genuine taste fork — design *direction* — is confirmed once at
    `design:init` per that command's own protocol; everything else proceeds.
-7. **Consume CIV through the typed oRPC client — never hand-roll fetch.** (User
-   directive 2026-06-09.) The studio talks to CIV via the control-oRPC client +
-   contract behind one typed `LiveControlPort` — oRPC-native TanStack Query on the
-   client; the studio-server *proxies/uses* control-oRPC, it does **not**
-   re-implement CIV API calls. Adding any new manual `/api`/socket fetch-and-parse
-   against CIV is forbidden. Until `@civ7/control-orpc` is consumable, the port is
-   satisfied by a **thin temporary transport that still speaks the typed
-   contract**; the existing hand-rolled `/api/civ7/*` middleware is *wrapped behind
-   the port, then deleted* when the client lands. No FireTuner reads. See
-   [`architecture/12-control-seam.md`](architecture/12-control-seam.md).
+7. **Everything talks oRPC — never hand-roll `fetch`.** (User directive
+   2026-06-09, reaffirmed.) Two layers, one rule:
+   - **The studio's own API:** the studio exposes its **own oRPC contract +
+     server** (`@civ7/studio-server`, effect-orpc; contracts already scaffolded at
+     `packages/studio-server/src/contract/*`) and the React client consumes it
+     through the **oRPC client + oRPC-native TanStack Query**. **No manual `fetch`
+     of `/api/*` on either end.** The studio-server is **NOT deferred** — its
+     endpoints use `@civ7/direct-control` (already on `main`), so it has no
+     dependency on the control-oRPC merge.
+   - **CIV / live-control:** the live-state subset routes through the control-oRPC
+     client + contract behind the same typed boundary (the seam,
+     [`architecture/12-control-seam.md`](architecture/12-control-seam.md)); until
+     `@civ7/control-orpc` is consumable it is served by the studio-server's own
+     direct-control-backed procedures. No FireTuner reads; never re-implement CIV
+     calls as new manual fetch.
+
+   The existing hand-rolled `/api/*` middleware is **lifted verbatim into
+   effect-orpc procedures** (behavior parity preserved), not extended. The
+   Bun-server topology + production `/api` parity fix is a later **supervised**
+   step (heaviest/most parity-critical); the immediate win is: client + server
+   both speak oRPC, zero manual fetch.
 
 ## 5. Skills & mechanisms (reference, load on demand)
 
