@@ -2088,6 +2088,45 @@ All future agent waves must be framed before delegation:
   runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
   AI ingestion, semantic CLI projection, hotseat runtime proof,
   schema/procedure-core work, or Effect/oRPC implementation.
+- Setup-preparation call-through reconciliation: during live-control restack,
+  the direct re-export cleanup was rejected because App UI saved-configuration
+  loading still lives in the public facade. `index.ts` keeps the
+  `prepareCiv7SinglePlayerSetup` bridge and injects the saved-config-aware
+  setup-read dependencies into the owner call. This preserves public package
+  import names, approval-first setup mutation, saved-config preload, setup
+  snapshot readback, map-row proof, setup option validation, prepare command
+  source, and no-replay package proof. Future cleanup can remove the bridge only
+  after saved-config App UI loading is owned below the facade. This is local
+  package/source reconciliation proof only: it does not claim runtime/live-game
+  proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, schema/procedure-core work, or
+  Effect/oRPC implementation.
+- Prepared-start call-through cleanup: `index.ts` now re-exports
+  `startPreparedCiv7SinglePlayerGame` directly from `src/setup/start.ts` after
+  owner-local dependency defaults are in place. This removes the trivial async
+  prepared-start facade wrapper while preserving public package import names,
+  approval-first start behavior, pre-start setup readback, host-game command
+  source, begin polling, one-attempt begin send, Tuner/map verification, seed
+  mismatch classification, and no-replay package proof. Setup-run lifecycle
+  composition remains separate. This is local package/source relocation cleanup
+  proof only: it does not claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
+- Setup-run call-through reconciliation: during live-control restack, the
+  direct re-export cleanup was rejected because setup-run must preserve the
+  saved-config-aware prepare bridge until App UI saved-configuration loading is
+  owned below the facade. `index.ts` keeps a narrow
+  `runCiv7SinglePlayerFromSetup` bridge that injects the facade
+  `prepareCiv7SinglePlayerSetup`, setup-read owner, prepared-start owner, and
+  setup-phase wait owner into `src/setup/run.ts`. This preserves public package
+  import names, approval-first setup/run behavior, active-game exit-to-shell
+  guard, exit-to-main-menu command routing, shell wait, prepare/start chaining,
+  saved-config preload through run, verified result shape, and no-replay package
+  proof. This is local package/source reconciliation proof only: it does not
+  claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
+  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Prepared-start facade dependency cleanup: `src/setup/start.ts` now imports
   existing non-facade setup-read defaults, session/reconnect execution,
   Tuner-ready wait, map-summary read, command-result parser, setup
@@ -2582,3 +2621,158 @@ All future agent waves must be framed before delegation:
   Task 2.9.4, or unblock telemetry, AI ingestion, CLI semantic projection,
   hotseat runtime proof, schema migration, debug hierarchy implementation, or
   Effect/oRPC procedure-core work.
+- Unit move-preview command-source helper normalization:
+  `src/play/ready/move-preview.ts` now imports the shared command-source
+  serializer and runtime probe helper owners instead of carrying atom-local
+  copies. The generated command text remains equivalent, and the wrapper still
+  owns destination validation, `maxPlots`/`maxPathPlots` bounds, conservative
+  relationship policy, and read-only/no-send behavior. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, normalize every remaining atom-local source helper,
+  or unblock telemetry, AI ingestion, CLI semantic projection, hotseat runtime
+  proof, schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
+- Ready read command-source helper normalization:
+  `src/play/ready/unit.ts` and `src/play/ready/city.ts` now import the shared
+  command-source serializer and runtime probe helper owners instead of carrying
+  atom-local copies. Ready-city keeps its domain-specific runtime object reader
+  local. The generated command text remains equivalent, and ready-unit/ready-city
+  wrappers still own their existing bounds, no component-id pre-validation,
+  parse labels, and read-only/no-send behavior. This is local package/source
+  relocation cleanup only and does not claim runtime/live-game proof, accept
+  Task 2.9.4, normalize every remaining atom-local source helper, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof, schema
+  migration, debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Tactical read command-source helper normalization:
+  `src/play/tactical/settlement.ts`, `src/play/tactical/target-candidates.ts`,
+  `src/play/tactical/battlefield.ts`, and `src/play/tactical/destination.ts`
+  now import the shared command-source serializer and runtime probe helper owners
+  where those helpers are needed instead of carrying atom-local copies. Tactical
+  runtime object readers remain local to their current source owners. The
+  generated command text remains equivalent, and settlement/target/battlefield/
+  destination wrappers still own their existing validation, bounds, conservative
+  relationship-label policy, parse labels, and read-only/no-send behavior. This
+  is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, normalize every remaining
+  atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Progression read command-source helper normalization:
+  `src/play/progression/reads.ts`, `src/play/progression/traditions.ts`, and
+  `src/play/progression/progress-dashboard.ts` now import the shared
+  command-source serializer and runtime probe helper owners where those helpers
+  are needed instead of carrying atom-local copies. Technology/culture closeout
+  mutation sources remain outside this read-only helper slice. The generated
+  command text remains equivalent, and traditions/progress-dashboard wrappers
+  still own their existing player validation, parse labels, hidden-info policy,
+  and read-only/no-send behavior. This is local package/source relocation cleanup
+  only and does not claim runtime/live-game proof, accept Task 2.9.4, normalize
+  every remaining atom-local source helper, or unblock telemetry, AI ingestion,
+  CLI semantic projection, hotseat runtime proof, schema migration, debug
+  hierarchy implementation, or Effect/oRPC procedure-core work.
+- Notification view command-source helper normalization:
+  `src/play/notifications/view.ts` now imports the shared command-source
+  serializer and runtime probe helper owners instead of carrying atom-local
+  copies. Notification dismissal/verification stays outside this read-only
+  HUD/materialization helper slice. The generated command text remains
+  equivalent, and the notification view wrapper still owns default
+  `maxNotifications`, parse label, decision-hint materialization, and
+  read-only/no-send behavior. This is local package/source relocation cleanup
+  only and does not claim runtime/live-game proof, accept Task 2.9.4, normalize
+  every remaining atom-local source helper, or unblock telemetry, AI ingestion,
+  CLI semantic projection, hotseat runtime proof, schema migration, debug
+  hierarchy implementation, or Effect/oRPC procedure-core work.
+- Notification dismissal command-source helper normalization:
+  `src/play/notifications/dismissal.ts` now imports the shared runtime probe
+  helper owner instead of carrying an atom-local copy. The request wrapper still
+  owns the shared command-source serializer dependency, and verification polling
+  remains in the notification verification owner. The generated command text
+  remains equivalent, and dismissal wrappers still preserve approval-first
+  request behavior, read/send split, parse label, no-repeat-after-unverified
+  semantics, and dismissal verification classification. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, normalize every remaining atom-local source helper,
+  or unblock telemetry, AI ingestion, CLI semantic projection, hotseat runtime
+  proof, schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
+- Progression closeout command-source helper normalization:
+  `src/play/progression/{technology,culture}.ts` now import the shared runtime
+  probe helper owner instead of carrying atom-local copies in their embedded
+  closeout sources. The generated command text remains equivalent, and the
+  closeout wrappers still preserve approval-first request behavior, player/node
+  validation, read/send split, parse labels, and semantic notification plus
+  operation send result shape. This is local package/source relocation cleanup
+  only and does not claim runtime/live-game proof, accept Task 2.9.4, normalize
+  every remaining atom-local source helper, or unblock telemetry, AI ingestion,
+  CLI semantic projection, hotseat runtime proof, schema migration, debug
+  hierarchy implementation, or Effect/oRPC procedure-core work.
+- Turn-completion command-source helper normalization:
+  `src/play/turn-completion.ts` now imports the shared runtime probe helper
+  owner instead of carrying an atom-local copy in the generated status command.
+  The generated command text remains equivalent, and the turn-completion owner
+  still preserves approval-first complete/unready sends, guard-first status
+  read, stale notification fallback classification, and action result shapes.
+  This is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, normalize every remaining
+  atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Operation router command-source helper normalization:
+  `src/play/operations/router.ts` now imports the shared runtime probe helper
+  owner instead of carrying an atom-local copy in the embedded generic operation
+  router source. The generated router source remains equivalent, and the generic
+  operation owner still preserves validator-first routing, approval-first
+  requests, unit/population/production postcondition snapshot shapes, and
+  no-repeat boundaries. This is local package/source relocation cleanup only and
+  does not claim runtime/live-game proof, accept Task 2.9.4, normalize every
+  remaining atom-local source helper, or unblock telemetry, AI ingestion, CLI
+  semantic projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Production-choice command-source helper normalization:
+  `src/play/operations/production-choice.ts` now imports the shared runtime
+  probe helper owner instead of carrying an atom-local copy in the embedded
+  production-choice source. The generated command text remains equivalent, and
+  the production-choice owner still preserves approval-first BUILD request
+  behavior, production argument validation, bounded post-send polling, and
+  production postcondition classification shape. This is local package/source
+  relocation cleanup only and does not claim runtime/live-game proof, accept
+  Task 2.9.4, normalize every remaining atom-local source helper, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+  schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
+- Diplomacy/narrative command-source helper normalization:
+  `src/play/operations/diplomacy-request.ts` and
+  `src/play/operations/narrative-request.ts` now import the shared runtime probe
+  helper owner instead of carrying atom-local copies in their embedded
+  closeout/request sources. The generated command text remains equivalent, and
+  the request owners still preserve approval-first request behavior,
+  validation/no-send paths, UI closeout calls, diplomacy/narrative
+  postcondition classification, and no-repeat-after-unverified boundaries. This
+  is local package/source relocation cleanup only and does not claim
+  runtime/live-game proof, accept Task 2.9.4, normalize every remaining
+  atom-local source helper, or unblock telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Unit-target action command-source helper normalization:
+  `src/play/operations/unit-target-action.ts` now imports the shared runtime
+  serializer and probe helper owners instead of carrying atom-local copies in
+  the embedded unit-target action source. The generated command text remains
+  equivalent, and the unit-target owner still preserves the read-vs-send split,
+  approval-first request behavior, bounded post-send polling,
+  no-repeat-after-unverified wording, and unit-target postcondition
+  classification. This is local package/source relocation cleanup only and does
+  not claim runtime/live-game proof, accept Task 2.9.4, normalize every
+  remaining atom-local source helper, or unblock telemetry, AI ingestion, CLI
+  semantic projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- App UI snapshot/Tuner health command-source helper normalization:
+  `src/runtime/app-ui-snapshot.ts` and `src/runtime/tuner-health.ts` now import
+  the shared runtime probe helper owner instead of carrying inline copies in the
+  generated runtime-status command sources. The generated command semantics
+  remain equivalent, and the runtime owners still preserve App UI snapshot parse
+  shape, Tuner health/readiness parse shape, wait/session composition, and
+  debug/internal projection boundaries. This is local package/source relocation
+  cleanup only and does not claim runtime/live-game proof, accept Task 2.9.4,
+  normalize every remaining atom-local source helper, or unblock telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
+  debug hierarchy implementation, or Effect/oRPC procedure-core work.

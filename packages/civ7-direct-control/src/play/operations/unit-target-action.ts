@@ -1,5 +1,6 @@
-import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { assertApproved } from "../../action-approval.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
 
@@ -459,24 +460,6 @@ function unitTargetActionSource(): string {
       }
       return out;
     };`;
-}
-
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
-}
-
-function jsLiteral(value: unknown): string {
-  const json = JSON.stringify(value);
-  if (json === undefined) {
-    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
-  }
-  return json;
 }
 
 function locationFromUnitProbeValue(probe: Civ7RuntimeProbe<unknown> | undefined): Civ7MapLocation | null {

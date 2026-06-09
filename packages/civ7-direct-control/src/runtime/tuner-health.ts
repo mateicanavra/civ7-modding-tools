@@ -8,7 +8,7 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
-import type { Civ7RuntimeProbe } from "./probe.js";
+import { probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
 
 export type Civ7TunerHealthSnapshot = Readonly<{
   evalOk: number;
@@ -85,13 +85,7 @@ const defaultTunerHealthDependencies: TunerHealthDependencies = {
 export function buildTunerHealthCommand(): string {
   return `(() => {
     const g = globalThis;
-    const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };
+    ${probeHelperSource()}
     const width = probe(() => g.GameplayMap.getGridWidth());
     const height = probe(() => g.GameplayMap.getGridHeight());
     const aliveIds = probe(() => g.Players.getAliveIds());

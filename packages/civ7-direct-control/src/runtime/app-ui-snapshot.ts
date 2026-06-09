@@ -5,7 +5,7 @@ import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
 } from "../session/types.js";
-import type { Civ7RuntimeProbe } from "./probe.js";
+import { probeHelperSource, type Civ7RuntimeProbe } from "./probe.js";
 
 export type Civ7AppUiSnapshot = Readonly<{
   network: Readonly<{
@@ -93,13 +93,7 @@ const defaultAppUiSnapshotDependencies: AppUiSnapshotDependencies = {
 export function buildAppUiSnapshotCommand(): string {
   return `(() => {
     const g = globalThis;
-    const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };
+    ${probeHelperSource()}
     const probeValueOr = (fallback, fn) => {
       const result = probe(fn);
       return result.ok ? result.value : fallback;

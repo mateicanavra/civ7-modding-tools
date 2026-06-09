@@ -12,6 +12,7 @@ import { assertApproved } from "../../action-approval.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type {
@@ -312,15 +313,5 @@ export function diplomacyResponseCloseoutSource(): string {
           "If postcondition remains no-state-change, inspect notification expiry/target state before retrying another response."
         ],
       };
-    };`;
-}
-
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
     };`;
 }

@@ -1,6 +1,7 @@
 import { assertApproved } from "../../action-approval.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { validatePlayerId } from "../../validation.js";
@@ -42,16 +43,6 @@ type CultureChoiceCloseoutRequestDependencies = CultureChoiceCloseoutCommandDepe
   ) => { sent?: boolean; chooseResult?: { ok?: boolean }; clearTargetResult?: { ok?: boolean } };
   validatePlayerId: (playerId: number) => void;
 }>;
-
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
-}
 
 export function buildCultureChoiceCloseoutCommand(
   input: Civ7CultureChoiceCloseoutInput,

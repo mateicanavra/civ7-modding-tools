@@ -1,4 +1,5 @@
-import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import { boundedInteger, validatePlayerId } from "../../validation.js";
@@ -72,22 +73,6 @@ function buildBattlefieldScanCommand(input: Civ7BattlefieldScanInput & { radius:
     return JSON.stringify(readBattlefieldScan(${jsLiteral(input)}));
   })()`;
 }
-
-function jsLiteral(value: unknown): string {
-  const json = JSON.stringify(value);
-  if (json === undefined) {
-    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
-  }
-  return json;
-}
-
-const probeHelperSource = (): string => `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
 
 const runtimeObjectReaderSource = (): string => `const callMaybe = (value, key) => {
       const candidate = value == null ? undefined : value[key];

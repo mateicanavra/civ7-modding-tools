@@ -92,6 +92,7 @@ import {
   defaultSetupReadDependencies,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
+  waitForCiv7SetupPhase,
   type Civ7PlayerSetupParameterSnapshot,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsInput,
@@ -437,6 +438,7 @@ export type {
   Civ7PreparedStartInput,
   Civ7SinglePlayerStartResult,
 } from "./setup/start.js";
+export { startPreparedCiv7SinglePlayerGame } from "./setup/start.js";
 export type {
   Civ7SinglePlayerRunInput,
   Civ7SinglePlayerRunResult,
@@ -1024,6 +1026,14 @@ function setupReadDependencies() {
   } as const;
 }
 
+export async function prepareCiv7SinglePlayerSetup(
+  input: Civ7SinglePlayerSetupInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+): Promise<Civ7PreparedSetupResult> {
+  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval, setupReadDependencies());
+}
+
 export async function listCiv7SavedGameConfigurations(
   input: Civ7SavedGameConfigurationListInput = {},
 ): Promise<Civ7SavedGameConfigurationListResult> {
@@ -1059,28 +1069,22 @@ export async function loadCiv7SavedGameConfiguration(
   };
 }
 
-export async function prepareCiv7SinglePlayerSetup(
-  input: Civ7SinglePlayerSetupInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7PreparedSetupResult> {
-  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval);
-}
-
-export async function startPreparedCiv7SinglePlayerGame(
-  input: Civ7PreparedStartInput,
-  options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
-): Promise<Civ7SinglePlayerStartResult> {
-  return await startPreparedCiv7SinglePlayerGameFromModule(input, options, approval);
-}
-
 export async function runCiv7SinglePlayerFromSetup(
   input: Civ7SinglePlayerRunInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
-  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
+  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval, {
+    assertApproved,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+    getSetupSnapshot: getCiv7SetupSnapshot,
+    prepareSetup: prepareCiv7SinglePlayerSetup,
+    startPreparedGame: startPreparedCiv7SinglePlayerGameFromModule,
+    validateIdentifier,
+    waitForSetupPhase: waitForCiv7SetupPhase,
+  });
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {

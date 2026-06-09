@@ -1,12 +1,4 @@
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
-}
+import { probeHelperSource } from "../../runtime/probe";
 
 export function traditionsViewSource(): string {
   return `${probeHelperSource()}

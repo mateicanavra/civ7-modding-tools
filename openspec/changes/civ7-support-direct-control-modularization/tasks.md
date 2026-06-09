@@ -1374,6 +1374,121 @@ runtime/direct-control claims.
         generated-output-as-evidence policy, and leaving telemetry, AI
         ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.22 Normalize the unit move-preview command-source helper wiring by
+        reusing the shared command-source serializer and runtime probe helper
+        owners, preserving generated command text, destination validation,
+        `maxPlots`/`maxPathPlots` bounds, conservative relationship policy,
+        read-only/no-send behavior, and leaving broader atom-local source
+        helper normalization, telemetry, AI ingestion, CLI semantic projection,
+        hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.12.23 Normalize the ready-unit and ready-city command-source helper
+        wiring by reusing the shared command-source serializer and runtime probe
+        helper owners, preserving ready-unit radius/maxOperations bounds,
+        ready-city maxOperations bounds, no component-id pre-validation, parse
+        labels, read-only/no-send behavior, and leaving ready-city domain source
+        internals, broader atom-local source helper normalization, telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.24 Normalize the tactical read command-source helper wiring by
+        reusing the shared command-source serializer and runtime probe helper
+        owners from settlement recommendations, target candidates, battlefield
+        scan, and destination analysis, preserving generated command text,
+        tactical bounds/validation, conservative relationship-label policy,
+        read-only/no-send behavior, and leaving tactical runtime object readers,
+        broader atom-local source helper normalization, telemetry, AI ingestion,
+        CLI semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.25 Normalize the progression read command-source helper wiring by
+        reusing the shared command-source serializer and runtime probe helper
+        owners from traditions view and progress dashboard reads, preserving
+        generated command text, player validation, parse labels,
+        hidden-info/read-only/no-send behavior, and leaving technology/culture
+        closeout mutation sources, broader atom-local source helper
+        normalization, telemetry, AI ingestion, CLI semantic projection, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.12.26 Normalize the notification view command-source helper wiring by
+        reusing the shared command-source serializer and runtime probe helper
+        owners from the read-only notification HUD/materialization owner,
+        preserving generated command text, default `maxNotifications` behavior,
+        parse label, decision-hint materialization, read-only/no-send behavior,
+        and leaving notification dismissal/verification, scenario expansion,
+        broader atom-local source helper normalization, telemetry, AI ingestion,
+        CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.27 Normalize the notification dismissal command-source helper
+        wiring by reusing the shared runtime probe helper owner from the
+        notification dismissal embedded source, preserving generated command
+        text, approval-first request wrapper behavior, dismissal verification
+        polling/classification semantics, read/send split, parse label,
+        no-repeat-after-unverified behavior, and leaving broader atom-local
+        source helper normalization, telemetry, AI ingestion, CLI semantic
+        projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.28 Normalize the progression closeout command-source helper wiring
+        by reusing the shared runtime probe helper owner from the technology and
+        culture closeout embedded sources, preserving generated command text,
+        approval-first request wrapper behavior, player/node validation, read/send
+        split, parse labels, semantic notification and operation send shape, and
+        leaving broader atom-local source helper normalization, telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.29 Normalize the turn-completion status command-source helper
+        wiring by reusing the shared runtime probe helper owner from
+        `src/play/turn-completion.ts`, preserving generated command text,
+        approval-first send/unready behavior, guard-first status read, stale
+        notification fallback classification, turn-completion action result
+        shapes, and leaving broader atom-local source helper normalization,
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.12.30 Normalize the generic operation router command-source helper
+        wiring by reusing the shared runtime probe helper owner from
+        `src/play/operations/router.ts`, preserving generated router source,
+        validator-first operation routing, approval-first request behavior,
+        unit/population/production postcondition snapshot shape, no-repeat
+        boundaries, and leaving broader atom-local source helper normalization,
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.12.31 Normalize the production-choice command-source helper wiring by
+        reusing the shared runtime probe helper owner from
+        `src/play/operations/production-choice.ts`, preserving generated
+        command text, approval-first BUILD request behavior, production
+        argument validation, bounded post-send polling, production postcondition
+        classification shape, and leaving broader atom-local source helper
+        normalization, telemetry, AI ingestion, CLI semantic projection, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.12.32 Normalize the diplomacy response and narrative choice
+        command-source helper wiring by reusing the shared runtime probe helper
+        owner from `src/play/operations/diplomacy-request.ts` and
+        `src/play/operations/narrative-request.ts`, preserving generated
+        closeout/request command text, approval-first request behavior,
+        validation/no-send paths, UI closeout calls, postcondition
+        classification, no-repeat-after-unverified boundaries, and leaving
+        broader atom-local source helper normalization, telemetry, AI ingestion,
+        CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.33 Normalize the unit-target action command-source helper wiring by
+        reusing the shared runtime serializer and probe helper owners from
+        `src/play/operations/unit-target-action.ts`, preserving generated
+        command text, read-vs-send split, approval-first request behavior,
+        bounded post-send polling, no-repeat-after-unverified wording, unit
+        target postcondition classification, and leaving broader atom-local
+        source helper normalization, telemetry, AI ingestion, CLI semantic
+        projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.34 Normalize the App UI snapshot and Tuner health command-source
+        helper wiring by reusing the shared runtime probe helper owner from
+        `src/runtime/app-ui-snapshot.ts` and `src/runtime/tuner-health.ts`,
+        preserving generated read-only runtime-status command semantics, App UI
+        snapshot parse shape, Tuner readiness parse shape, wait/session
+        composition, debug/internal projection boundaries, and leaving broader
+        atom-local source helper normalization, telemetry, AI ingestion, CLI
+        semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
@@ -1580,6 +1695,39 @@ runtime/direct-control claims.
         leaving runtime/live-game proof, hotseat runtime proof, AI ingestion,
         semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.17 Reconcile the setup preparation facade call-through during
+        restack by keeping the public `prepareCiv7SinglePlayerSetup` bridge in
+        `index.ts`, because App UI saved-configuration loading remains
+        facade-owned. This preserves approval-first setup mutation, saved-config
+        preload, setup snapshot readback, map-row proof, setup option
+        validation, prepare command source, and no-replay package proof. A
+        future cleanup can prune this wrapper only after saved-config App UI
+        loading moves below the facade; runtime/live-game proof, hotseat runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+        pending.
+  - [x] 4.14.18 Prune the prepared-start facade call-through wrapper by
+        re-exporting `startPreparedCiv7SinglePlayerGame` directly from
+        `src/setup/start.ts`, preserving public package imports,
+        approval-first start behavior, pre-start setup readback, host-game
+        command source, begin polling, one-attempt begin send, Tuner/map
+        verification, seed mismatch classification, no-replay package proof,
+        and leaving setup-run lifecycle composition, runtime/live-game proof,
+        hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.14.19 Reconcile the setup-run facade call-through during restack by
+        keeping `runCiv7SinglePlayerFromSetup` in `index.ts` as the narrow
+        composition bridge that injects the saved-config-aware prepare wrapper,
+        setup-read owner, setup-start owner, and setup-phase wait owner. This
+        preserves approval-first setup/run behavior, active-game exit-to-shell
+        guard, exit-to-main-menu command routing, shell wait, prepare/start
+        chaining, saved-config preload through run, verified result shape, and
+        no-replay package proof. A future cleanup can prune this wrapper only
+        after saved-config App UI loading moves below the facade; runtime/live
+        proof, hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance remain pending.
 
 ## 5. CLI Semantic Surface Lane
 

@@ -1,5 +1,5 @@
 import { battlefieldScanSource } from "./battlefield.js";
-import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
 import { validateMapLocation } from "../map/validation.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
@@ -87,14 +87,6 @@ function buildDestinationAnalysisCommand(input: Civ7DestinationAnalysisInput & {
     ${destinationAnalysisSource()}
     return JSON.stringify(readDestinationAnalysis(${jsLiteral(input)}));
   })()`;
-}
-
-function jsLiteral(value: unknown): string {
-  const json = JSON.stringify(value);
-  if (json === undefined) {
-    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
-  }
-  return json;
 }
 
 export function destinationAnalysisSource(): string {
