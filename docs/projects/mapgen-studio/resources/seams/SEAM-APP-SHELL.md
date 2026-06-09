@@ -10,7 +10,7 @@ Mission scope: identify “app shell” (layout/composition) responsibilities cu
 - `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
 - `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
-- `apps/mapgen-studio/src/civ7-data/civ7-tables.gen.ts` (skim; data source for worker adapter)
+- `packages/civ7-map-policy/src/civ7-tables.gen.ts` (skim; data source for worker adapter via `@civ7/map-policy`)
 
 ## 2) Shell responsibilities today (as implemented in `App.tsx`)
 
