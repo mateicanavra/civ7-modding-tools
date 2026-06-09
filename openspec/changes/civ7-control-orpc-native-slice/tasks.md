@@ -73,9 +73,10 @@
     and omit raw host/port/state/Tuner/error details from normal output.
   - [x] 4.11.5 Burn down the remaining transitional summary read facade
     leaves: `map.summary.read`, `player.summary.read`, `unit.summary.read`,
-    and `city.summary.read`. Keep direct-control summary atoms as low-level
-    runtime/read capability owners until a real service-owned `world` view is
-    designed and implemented.
+    and `city.summary.read`. Do not rebuild `world.current` by calling those
+    direct-control summary functions as if they were bare runtime resources;
+    first separate tuner/Civ bridge resource mechanics from semantic summary
+    service behavior.
 
 This phase is closed as transitional proof only. It must not be extended by
 adding more read-only facade shells.
@@ -111,6 +112,12 @@ adding more read-only facade shells.
   - [x] 5.4.2 Record turn-completion status as an `attention.current`
     runtime read port and semantic projection owner, not a standalone
     facade-only procedure leaf.
+  - [x] 5.4.3 Rebaseline the world/read boundary: direct-control summary
+    functions are transitional service-shaped read debt, not accepted
+    low-level runtime resources for `world.current`; a world service slice must
+    either decompose lower-level Tuner/probe resources first or move semantic
+    summary behavior into the control-oRPC service owner. See
+    `workstream/world-runtime-resource-boundary.md`.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
