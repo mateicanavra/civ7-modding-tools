@@ -1,10 +1,13 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
 /**
- * Projects a discrete river network classification from discharge.
+ * Projects a routed river-network classification from discharge and the
+ * Hydrology drainage graph.
  *
- * This op is projection-only: it converts a continuous discharge proxy into stable minor/major river classes.
- * It must be deterministic and monotonic with respect to its percentile thresholds.
+ * This op is Hydrology truth shaping: it converts continuous discharge plus
+ * routed receivers into stable minor/major river classes. Major rivers are not
+ * isolated threshold-crossing tiles; they must remain coherent trunks routed
+ * upstream from major endpoints.
  *
  * Practical guidance:
  * - If you want more rivers overall: lower `minorPercentile` and/or `majorPercentile`.
@@ -20,6 +23,10 @@ const ProjectRiverNetworkInputSchema = Type.Object(
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     /** Discharge proxy per tile. */
     discharge: TypedArraySchemas.f32({ description: "Discharge proxy per tile." }),
+    /** Hydrology-conditioned receiver index per tile (or -1 for typed terminals). */
+    flowDir: TypedArraySchemas.i32({
+      description: "Hydrology-conditioned receiver index per tile (or -1 for typed terminals).",
+    }),
   },
   {
     additionalProperties: false,

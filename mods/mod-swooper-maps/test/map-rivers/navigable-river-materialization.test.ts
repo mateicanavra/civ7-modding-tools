@@ -51,9 +51,53 @@ describe("select navigable river terrain", () => {
     expect(result.selectedChainCount).toBe(1);
     expect(result.plannedMinorRiverTileCount).toBe(0);
     expect(result.plannedMajorRiverTileCount).toBe(8);
-    expect(result.candidateEndpointCount).toBe(1);
+    expect(result.candidateEndpointCount).toBe(2);
     for (let x = 0; x < 5; x++) expect(result.riverMask[x]).toBe(0);
     for (let x = 0; x < 3; x++) expect(result.riverMask[width + x]).toBe(1);
+  });
+
+  it("backfills lower-ranked endpoints when the preferred endpoint tier cannot fill the target budget", () => {
+    const width = 2;
+    const height = 3;
+    const size = width * height;
+    const riverClass = new Uint8Array(size).fill(RIVER_CLASS_MAJOR);
+    const discharge = new Float32Array([
+      90, 100,
+      70, 80,
+      50, 60,
+    ]);
+    const flowDir = new Int32Array([
+      1, -1,
+      3, -1,
+      5, -1,
+    ]);
+    const projectableLandMask = new Uint8Array(size).fill(1);
+
+    const result = runOpValidated(
+      selectNavigableRiverTerrain,
+      {
+        width,
+        height,
+        riverClass,
+        discharge,
+        flowDir,
+        projectableLandMask,
+      },
+      {
+        strategy: "default",
+        config: { endpointDischargePercentileMin: 1, targetMajorTileFraction: 0.7 },
+      }
+    );
+
+    expect(result.candidateEndpointCount).toBe(3);
+    expect(result.targetTileCount).toBe(4);
+    expect(result.selectedChainCount).toBe(2);
+    expect(result.selectedTileCount).toBe(4);
+    expect(Array.from(result.riverMask)).toEqual([
+      1, 1,
+      1, 1,
+      0, 0,
+    ]);
   });
 
   it("does not promote minor rivers into navigable river terrain", () => {

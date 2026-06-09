@@ -123,7 +123,8 @@ Hydrology river classes have distinct projection meanings:
 - `riverClass=1` is minor-river intent. It remains a physics/display/planning
   surface and must not be promoted into `TERRAIN_NAVIGABLE_RIVER`.
 - `riverClass>=2` is major-river intent and is the only hydrology class eligible
-  for MapGen-owned navigable terrain projection.
+  for MapGen-owned navigable terrain projection. Major truth is routed trunk
+  truth, not a set of isolated discharge-threshold outlet tiles.
 
 Civ7 river proof has two distinct surfaces:
 

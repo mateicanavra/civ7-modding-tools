@@ -128,9 +128,9 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
       endpointDischarges,
       config.endpointDischargePercentileMin
     );
-    const candidateEndpoints = allEndpoints
-      .filter((index) => (input.discharge[index] ?? 0) >= selectedEndpointDischargeFloor)
-      .sort((a, b) => (input.discharge[b] ?? 0) - (input.discharge[a] ?? 0));
+    const candidateEndpoints = allEndpoints.sort(
+      (a, b) => (input.discharge[b] ?? 0) - (input.discharge[a] ?? 0)
+    );
 
     let selectedTileCount = 0;
     let selectedChainCount = 0;

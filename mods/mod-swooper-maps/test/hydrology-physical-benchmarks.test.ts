@@ -196,6 +196,7 @@ describe("hydrology physical river benchmarks", () => {
         height,
         landMask,
         discharge: accumulated.discharge,
+        flowDir,
       },
       {
         minorPercentile: 0,
@@ -205,9 +206,11 @@ describe("hydrology physical river benchmarks", () => {
       }
     );
 
-    expect(projected.riverClass[confluence]).toBe(1);
+    expect(projected.riverClass[confluence]).toBe(2);
     expect(projected.riverClass[outletLand]).toBe(2);
     expect(projected.riverClass[oceanOutlet]).toBe(0);
+    expect(projected.riverClass[2]).toBe(0);
+    expect(projected.riverClass[6]).toBe(0);
   });
 
   it("expresses low-gradient coastal plains as broad minor channels plus a major trunk", () => {
@@ -238,6 +241,7 @@ describe("hydrology physical river benchmarks", () => {
         height,
         landMask,
         discharge: accumulated.discharge,
+        flowDir,
       },
       {
         minorPercentile: 0,
@@ -247,9 +251,12 @@ describe("hydrology physical river benchmarks", () => {
       }
     );
 
-    expect(projected.riverClass[8]).toBe(1);
+    expect(projected.riverClass[8]).toBe(2);
     expect(projected.riverClass[15]).toBe(2);
     expect(projected.riverClass[16]).toBe(2);
+    expect(projected.riverClass[2]).toBe(2);
+    expect(projected.riverClass[7]).toBe(0);
+    expect(projected.riverClass[14]).toBe(1);
     expect(accumulated.outletMask[16]).toBe(1);
     expect(accumulated.discharge[16]).toBe(120);
   });
@@ -353,6 +360,7 @@ describe("hydrology physical river benchmarks", () => {
         height,
         landMask: new Uint8Array(size).fill(1),
         discharge: accumulated.discharge,
+        flowDir,
       },
       {
         minorPercentile: 0,
@@ -364,11 +372,11 @@ describe("hydrology physical river benchmarks", () => {
 
     expect(accumulated.discharge[1]).toBe(80);
     expect(accumulated.discharge[5]).toBe(112);
-    expect(projected.riverClass[1]).toBe(1);
+    expect(projected.riverClass[1]).toBe(2);
     expect(projected.riverClass[5]).toBe(2);
-    expect(projected.riverClass[0]).toBe(1);
+    expect(projected.riverClass[0]).toBe(2);
     expect(accumulated.runoff[0]).toBeGreaterThan(accumulated.runoff[2]);
-    expect(projected.riverClass[2]).toBe(1);
+    expect(projected.riverClass[2]).toBe(2);
   });
 
   it("keeps arid interior plateaus below river thresholds even when routing is valid", () => {
@@ -390,6 +398,7 @@ describe("hydrology physical river benchmarks", () => {
         height,
         landMask: new Uint8Array(size).fill(1),
         discharge: accumulated.discharge,
+        flowDir,
       },
       {
         minorPercentile: 0,

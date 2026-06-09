@@ -84,6 +84,7 @@ export default createStep(RiversStepContract, {
         height,
         landMask: topography.landMask,
         discharge: discharge.discharge,
+        flowDir: routing.flowDir,
       },
       config.projectRiverNetwork
     );

@@ -241,8 +241,8 @@ function expectNavigableRiverDiagnostics(stats: WorldBalanceStats): void {
   ).toBeGreaterThan(0);
   expect(
     stats.projectedNavigableRiverTiles,
-    `${stats.label} selected navigable river budget`
-  ).toBeLessThanOrEqual(stats.projectedNavigableRiverTargetTiles);
+    `${stats.label} selected navigable river tiles must stay within eligible major-river truth`
+  ).toBeLessThanOrEqual(stats.projectedNavigableRiverEligibleTiles);
   expect(
     stats.projectedNavigableRiverChains,
     `${stats.label} selected navigable river chains`
@@ -365,6 +365,32 @@ describe("world balance stats", () => {
     expect(presentIn("FEATURE_TAIGA"), "taiga seed presence").toBe(seeds.length);
     expect(presentIn("FEATURE_SAVANNA_WOODLAND"), "savanna seed presence").toBeGreaterThanOrEqual(6);
     expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(6);
+  });
+
+  it("keeps representative Earthlike seeds on a filled navigable-river trunk budget", {
+    timeout: 30_000,
+  }, () => {
+    const seeds = [1018, 24681357, 1, 42];
+
+    for (const seed of seeds) {
+      const stats = collectWorldBalanceStats({
+        label: `swooper-earthlike:river-trunks:${seed}`,
+        config: recipeConfig(swooperEarthlikeConfigRaw),
+        seed,
+        width: 84,
+        height: 54,
+      });
+
+      expectNavigableRiverDiagnostics(stats);
+      expect(
+        stats.projectedNavigableRiverTiles,
+        `${stats.label} navigable projection should fill the target budget on strong-signal Earthlike seeds`
+      ).toBeGreaterThanOrEqual(stats.projectedNavigableRiverTargetTiles);
+      expect(
+        stats.projectedNavigableRiverTiles,
+        `${stats.label} navigable projection should contain multi-tile trunks, not only singleton outlet selections`
+      ).toBeGreaterThan(stats.projectedNavigableRiverChains);
+    }
   });
 
   it("keeps a floodplain-producing Earthlike acceptance seed available", { timeout: 15_000 }, () => {

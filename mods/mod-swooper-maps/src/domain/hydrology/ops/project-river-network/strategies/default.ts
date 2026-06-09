@@ -14,6 +14,23 @@ function percentileThreshold(values: number[], p: number): number {
   return values[i] ?? Infinity;
 }
 
+function strongestUpstreamMinor(
+  upstream: readonly number[],
+  discharge: Float32Array,
+  minorMask: Uint8Array
+): number {
+  let best = -1;
+  let bestDischarge = -Infinity;
+  for (const index of upstream) {
+    if (minorMask[index] !== 1) continue;
+    const value = discharge[index] ?? 0;
+    if (value <= bestDischarge) continue;
+    bestDischarge = value;
+    best = index;
+  }
+  return best;
+}
+
 export const defaultStrategy = createStrategy(ProjectRiverNetworkContract, "default", {
   run: (input, config) => {
     const width = input.width | 0;
@@ -26,8 +43,12 @@ export const defaultStrategy = createStrategy(ProjectRiverNetworkContract, "defa
     if (!(input.discharge instanceof Float32Array) || input.discharge.length !== size) {
       throw new Error("[Hydrology] Invalid discharge for hydrology/project-river-network.");
     }
+    if (!(input.flowDir instanceof Int32Array) || input.flowDir.length !== size) {
+      throw new Error("[Hydrology] Invalid flowDir for hydrology/project-river-network.");
+    }
 
     const riverClass = new Uint8Array(size);
+    const minorMask = new Uint8Array(size);
 
     const landDischarge: number[] = [];
     for (let i = 0; i < size; i++) {
@@ -49,16 +70,51 @@ export const defaultStrategy = createStrategy(ProjectRiverNetworkContract, "defa
     const minorThreshold = Math.max(0, config.minMinorDischarge, rawMinor);
     const majorThreshold = Math.max(minorThreshold, config.minMajorDischarge, rawMajor);
 
+    const upstream: number[][] = Array.from({ length: size }, () => []);
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] !== 1) continue;
+      const receiver = input.flowDir[i] ?? -1;
+      if (receiver >= 0 && receiver < size && input.landMask[receiver] === 1) {
+        upstream[receiver]!.push(i);
+      }
       const d = input.discharge[i] ?? 0;
       if (d <= 0) continue;
-      riverClass[i] =
-        d >= majorThreshold
-          ? RIVER_CLASS_MAJOR
-          : d >= minorThreshold
-            ? RIVER_CLASS_MINOR
-            : RIVER_CLASS_NONE;
+      if (d >= minorThreshold) {
+        riverClass[i] = RIVER_CLASS_MINOR;
+        minorMask[i] = 1;
+      }
+    }
+
+    const majorEndpoints: number[] = [];
+    for (let i = 0; i < size; i++) {
+      if (minorMask[i] !== 1) continue;
+      const d = input.discharge[i] ?? 0;
+      if (d < majorThreshold) continue;
+      const receiver = input.flowDir[i] ?? -1;
+      if (receiver >= 0 && receiver < size && minorMask[receiver] === 1) continue;
+      majorEndpoints.push(i);
+    }
+    majorEndpoints.sort((a, b) => (input.discharge[b] ?? 0) - (input.discharge[a] ?? 0));
+
+    for (const endpoint of majorEndpoints) {
+      let current = endpoint;
+      const seen = new Set<number>();
+      while (
+        current >= 0 &&
+        current < size &&
+        minorMask[current] === 1 &&
+        !seen.has(current)
+      ) {
+        seen.add(current);
+        riverClass[current] = RIVER_CLASS_MAJOR;
+        current = strongestUpstreamMinor(upstream[current]!, input.discharge, minorMask);
+      }
+    }
+
+    for (let i = 0; i < size; i++) {
+      if (riverClass[i] === 0) {
+        riverClass[i] = RIVER_CLASS_NONE;
+      }
     }
 
     return { riverClass, minorThreshold, majorThreshold } as const;
