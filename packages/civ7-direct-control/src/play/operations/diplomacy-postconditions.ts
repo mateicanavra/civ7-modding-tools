@@ -1,6 +1,8 @@
+import { sameComponentId } from "./component-id.js";
+import { probeValue } from "./probe-values.js";
+import { isRecord, stableJson } from "./stable-json.js";
 import type { Civ7DiplomacyResponseInput } from "./diplomacy-request.js";
 import type { Civ7OperationValidationResult } from "./types.js";
-import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import type {
@@ -109,35 +111,6 @@ function findDiplomacyResponseNotification(
 function notificationActionId(notification: Civ7PlayNotificationSummary): number | undefined {
   if (!isRecord(notification.target)) return undefined;
   return typeof notification.target.id === "number" ? notification.target.id : undefined;
-}
-
-function sameComponentId(left: Civ7ComponentId | null | undefined, right: Civ7ComponentId | null | undefined): boolean {
-  if (left == null || right == null) return left == null && right == null;
-  return left.owner === right.owner && left.id === right.id && left.type === right.type;
-}
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
-  if (Array.isArray(value)) {
-    for (const item of value) flattenKeys(item, keys);
-  } else if (isRecord(value)) {
-    for (const [key, child] of Object.entries(value)) {
-      keys[key] = true;
-      flattenKeys(child, keys);
-    }
-  }
-  return keys;
 }
 
 async function sleep(ms: number): Promise<void> {

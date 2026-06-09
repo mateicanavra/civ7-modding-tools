@@ -1721,6 +1721,16 @@ All future agent waves must be framed before delegation:
   runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
   acceptance remain pending. This is local source hygiene proof only, not
   runtime/live-game proof.
+- Direct-control autoplay/turn status result type re-export import cleanup
+  slice: completed as a narrow type-only source ownership cleanup after the
+  autoplay status and turn-completion status result types were already exposed
+  through direct `export type ... from` declarations. The public facade no
+  longer imports those types only to re-export them, and public facade exports
+  remain stable. Autoplay and turn-completion behavior, runtime proof,
+  operation/proof telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local source hygiene proof only, not
+  runtime/live-game proof.
 - Direct-control generic validation primitive slice: completed as a narrow
   primitive/helper ownership relocation. It moves only bounded integer, simple
   identifier, and player-id validation helpers into `src/validation.ts` while
@@ -2776,3 +2786,36 @@ All future agent waves must be framed before delegation:
   normalize every remaining atom-local source helper, or unblock telemetry, AI
   ingestion, CLI semantic projection, hotseat runtime proof, schema migration,
   debug hierarchy implementation, or Effect/oRPC procedure-core work.
+- Operation stable JSON comparison helper extraction:
+  `src/play/operations/stable-json.ts` now owns the shared stable JSON
+  comparison helper used by unit, population, production, diplomacy, narrative,
+  and unit-target postcondition logic. The helper preserves the existing
+  array-aware key flattening behavior, validation-drift comparison, probe
+  comparison, and unit-target post-send comparison semantics. This is local
+  package/source relocation cleanup only and does not claim runtime/live-game
+  proof, accept Task 2.9.4, change classifier ordering, alter
+  no-repeat-after-unverified behavior, or unblock telemetry, AI ingestion, CLI
+  semantic projection, hotseat runtime proof, schema migration, debug hierarchy
+  implementation, or Effect/oRPC procedure-core work.
+- Operation probe value/comparison helper extraction:
+  `src/play/operations/probe-values.ts` now owns the shared runtime probe value
+  extraction and probe comparison helpers used by unit, population, production,
+  diplomacy, and narrative postcondition classifiers. The helper preserves the
+  existing probe value extraction, probe comparison, validation-drift behavior,
+  and classifier ordering. This is local package/source relocation cleanup only
+  and does not claim runtime/live-game proof, accept Task 2.9.4, change
+  postcondition semantics, alter no-repeat-after-unverified behavior, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+  schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.
+- Operation component-id comparison helper extraction:
+  `src/play/operations/component-id.ts` now owns the shared component-id
+  comparison helper used by diplomacy and narrative postcondition classifiers.
+  The helper preserves the existing diplomacy blocking notification comparison,
+  narrative blocker identity comparison, classifier ordering, and
+  no-repeat-after-unverified behavior. This is local package/source relocation
+  cleanup only and does not claim runtime/live-game proof, accept Task 2.9.4,
+  change postcondition semantics, infer relationship labels, or unblock
+  telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+  schema migration, debug hierarchy implementation, or Effect/oRPC
+  procedure-core work.

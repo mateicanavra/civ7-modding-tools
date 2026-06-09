@@ -551,6 +551,28 @@ runtime/direct-control claims.
         package/CLI proof, and leaving runtime/live-game proof, telemetry, AI
         ingestion, semantic CLI projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.32 Extract the shared operation stable JSON comparison helper into
+        `src/play/operations/stable-json.ts`, preserving the existing
+        array-aware key flattening, validation-drift comparison, probe
+        comparison, unit-target post-send comparison, postcondition
+        classification semantics, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.33 Extract the shared operation runtime probe value/comparison
+        helper into `src/play/operations/probe-values.ts`, preserving the
+        existing postcondition probe value extraction, probe comparison,
+        validation-drift comparison, classifier ordering, unit/population/
+        production/diplomacy/narrative postcondition semantics, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.6.34 Extract the shared operation component-id comparison helper into
+        `src/play/operations/component-id.ts`, preserving diplomacy blocking
+        notification comparison, narrative blocker identity comparison,
+        postcondition classifier ordering, no-repeat-after-unverified
+        semantics, and leaving runtime/live-game proof, telemetry, AI
+        ingestion, semantic CLI projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
@@ -946,6 +968,12 @@ runtime/direct-control claims.
         behavior, runtime proof, telemetry, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.8.53 Prune stale facade type re-export imports for autoplay status
+        and turn-completion status results now exported through direct
+        `export type ... from` declarations, while preserving public facade
+        exports and leaving autoplay/turn-completion behavior, runtime proof,
+        telemetry, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
       implementation. The support branch cites the
       `civ7-orpc-control-architecture` skill from

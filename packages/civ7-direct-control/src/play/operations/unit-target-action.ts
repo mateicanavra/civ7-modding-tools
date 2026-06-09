@@ -10,6 +10,7 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { stableJson } from "./stable-json.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type { Civ7MapLocation } from "../map/types.js";
@@ -473,26 +474,6 @@ function locationFromUnitProbeValue(probe: Civ7RuntimeProbe<unknown> | undefined
 
 function sameMapLocation(left: Civ7MapLocation, right: Civ7MapLocation): boolean {
   return left.x === right.x && left.y === right.y;
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
-  if (Array.isArray(value)) {
-    for (const item of value) flattenKeys(item, keys);
-  } else if (isRecord(value)) {
-    for (const [key, child] of Object.entries(value)) {
-      keys[key] = true;
-      flattenKeys(child, keys);
-    }
-  }
-  return keys;
 }
 
 function appendNote(notes: ReadonlyArray<string>, note: string): ReadonlyArray<string> {

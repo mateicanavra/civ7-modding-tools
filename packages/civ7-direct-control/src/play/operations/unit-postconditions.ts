@@ -3,6 +3,8 @@ import type {
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./types.js";
+import { probeValueChanged } from "./probe-values.js";
+import { isRecord, stableJson } from "./stable-json.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 
@@ -91,35 +93,8 @@ function unitOperationPostconditionReason(classification: Civ7UnitOperationPostc
   }
 }
 
-function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
-  if (!left || !right) return false;
-  if (left.ok !== right.ok) return true;
-  if (!left.ok || !right.ok) return stableJson(left) !== stableJson(right);
-  return stableJson(left.value) !== stableJson(right.value);
-}
-
 function probeFieldChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined, field: string): boolean {
   if (!left?.ok || !right?.ok) return false;
   if (!isRecord(left.value) || !isRecord(right.value)) return false;
   return stableJson(left.value[field]) !== stableJson(right.value[field]);
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
-  if (Array.isArray(value)) {
-    for (const item of value) flattenKeys(item, keys);
-  } else if (isRecord(value)) {
-    for (const [key, child] of Object.entries(value)) {
-      keys[key] = true;
-      flattenKeys(child, keys);
-    }
-  }
-  return keys;
 }
