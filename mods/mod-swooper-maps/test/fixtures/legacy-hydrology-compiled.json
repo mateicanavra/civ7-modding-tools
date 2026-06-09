@@ -222,6 +222,12 @@
           },
           "strategy": "default"
         },
+        "drainageRouting": {
+          "config": {
+            "allowExternalEdgeOutlets": false
+          },
+          "strategy": "default"
+        },
         "projectRiverNetwork": {
           "config": {
             "majorPercentile": 0.91,
@@ -454,6 +460,12 @@
             "infiltrationFraction": 0.15,
             "minRunoff": 0,
             "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "drainageRouting": {
+          "config": {
+            "allowExternalEdgeOutlets": false
           },
           "strategy": "default"
         },
@@ -692,6 +704,12 @@
           },
           "strategy": "default"
         },
+        "drainageRouting": {
+          "config": {
+            "allowExternalEdgeOutlets": false
+          },
+          "strategy": "default"
+        },
         "projectRiverNetwork": {
           "config": {
             "majorPercentile": 0.98,
@@ -924,6 +942,12 @@
             "infiltrationFraction": 0.18,
             "minRunoff": 0,
             "runoffScale": 1
+          },
+          "strategy": "default"
+        },
+        "drainageRouting": {
+          "config": {
+            "allowExternalEdgeOutlets": false
           },
           "strategy": "default"
         },

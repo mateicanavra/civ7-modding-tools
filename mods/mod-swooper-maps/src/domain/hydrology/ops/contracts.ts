@@ -11,6 +11,7 @@ import ComputeOceanThermalStateContract from "./compute-ocean-thermal-state/cont
 import ApplyAlbedoFeedbackContract from "./apply-albedo-feedback/contract.js";
 import ComputeLandWaterBudgetContract from "./compute-land-water-budget/contract.js";
 import ComputeClimateDiagnosticsContract from "./compute-climate-diagnostics/contract.js";
+import ComputeDrainageRoutingContract from "./compute-drainage-routing/contract.js";
 import AccumulateDischargeContract from "./accumulate-discharge/contract.js";
 import ProjectRiverNetworkContract from "./project-river-network/contract.js";
 import PlanLakesContract from "./plan-lakes/contract.js";
@@ -29,6 +30,7 @@ export const contracts = {
   applyAlbedoFeedback: ApplyAlbedoFeedbackContract,
   computeLandWaterBudget: ComputeLandWaterBudgetContract,
   computeClimateDiagnostics: ComputeClimateDiagnosticsContract,
+  computeDrainageRouting: ComputeDrainageRoutingContract,
   accumulateDischarge: AccumulateDischargeContract,
   projectRiverNetwork: ProjectRiverNetworkContract,
   planLakes: PlanLakesContract,

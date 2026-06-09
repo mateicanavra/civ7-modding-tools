@@ -5,11 +5,11 @@ import PlanLakesContract from "../contract.js";
 /**
  * Default lake planning strategy.
  *
- * Hydrology routing produces many local terminal sinks, but a sink is not
- * automatically a lake. This strategy admits deterministic terminal basins
- * only when accumulated drainage and the map-level lake budget agree, then
- * optional upstream expansion follows receivers so denser lakeiness still grows
- * from drainage structure instead of projection frequency heuristics.
+ * Hydrology routing publishes drainage/depression candidates, but a candidate
+ * is not automatically a lake. This strategy admits deterministic basins only
+ * when accumulated drainage and the map-level lake budget agree, then optional
+ * upstream expansion follows receivers so denser lakeiness still grows from
+ * drainage structure instead of projection frequency heuristics.
  */
 export const defaultStrategy = createStrategy(PlanLakesContract, "default", {
   run: (input, config) => {
@@ -39,7 +39,9 @@ export const defaultStrategy = createStrategy(PlanLakesContract, "default", {
 
     let sinkLakeCount = 0;
     if (maxSinkLakes > 0 && sinkCandidates.length > 0) {
-      const dischargeValues = sinkCandidates.map((candidate) => candidate.discharge).sort((a, b) => a - b);
+      const dischargeValues = sinkCandidates
+        .map((candidate) => candidate.discharge)
+        .sort((a, b) => a - b);
       const percentile = Number.isFinite(config.sinkDischargePercentileMin)
         ? Math.max(0, Math.min(1, config.sinkDischargePercentileMin))
         : 1;
@@ -62,7 +64,7 @@ export const defaultStrategy = createStrategy(PlanLakesContract, "default", {
       }
     }
 
-    let frontier = lakeMask;
+    let frontier = new Uint8Array(lakeMask);
     const maxUpstreamSteps = Math.max(0, config.maxUpstreamSteps | 0);
     for (let step = 0; step < maxUpstreamSteps; step++) {
       const nextFrontier = new Uint8Array(size);

@@ -112,7 +112,7 @@ const HYDROLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "moistureTransport",
     "precipitation",
   ],
-  "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+  "hydrology-hydrography": ["knobs", "drainageRouting", "runoff", "riverNetwork", "lakes"],
   "hydrology-climate-refine": [
     "knobs",
     "precipitationRefinement",

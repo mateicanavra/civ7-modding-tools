@@ -1,5 +1,3 @@
-import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
-
 import { isMajorRiverClass, isMinorRiverClass } from "../../../domain/hydrology/river-class.js";
 
 export type NavigableRiverMaterializationResult = Readonly<{
@@ -137,21 +135,6 @@ export function materializeNavigableRiverMask(params: {
     }
   }
 
-  if (selectedTileCount < targetTileCount) {
-    const fallback = selectConnectedCorridors({
-      width,
-      height,
-      eligible,
-      discharge: params.discharge,
-      selectedMask: riverMask,
-      minLength,
-      maxLength,
-      remainingTileBudget: targetTileCount - selectedTileCount,
-    });
-    selectedTileCount += fallback.selectedTileCount;
-    selectedChainCount += fallback.selectedChainCount;
-  }
-
   return {
     riverMask,
     plannedMinorRiverMask,
@@ -166,79 +149,6 @@ export function materializeNavigableRiverMask(params: {
     minLength,
     maxLength,
   };
-}
-
-function selectConnectedCorridors(params: {
-  width: number;
-  height: number;
-  eligible: Uint8Array;
-  discharge: Float32Array;
-  selectedMask: Uint8Array;
-  minLength: number;
-  maxLength: number;
-  remainingTileBudget: number;
-}): Readonly<{ selectedTileCount: number; selectedChainCount: number }> {
-  const size = params.width * params.height;
-  const visited = new Uint8Array(size);
-  const seeds: number[] = [];
-  for (let i = 0; i < size; i++) {
-    if (params.eligible[i] === 1 && params.selectedMask[i] !== 1) seeds.push(i);
-  }
-  seeds.sort((a, b) => (params.discharge[b] ?? 0) - (params.discharge[a] ?? 0));
-
-  let selectedTileCount = 0;
-  let selectedChainCount = 0;
-  for (const seed of seeds) {
-    if (selectedTileCount >= params.remainingTileBudget) break;
-    if (visited[seed] === 1 || params.selectedMask[seed] === 1) continue;
-
-    const component = collectConnectedEligibleComponent(seed, params);
-    for (const index of component) visited[index] = 1;
-    if (component.length < params.minLength) continue;
-
-    component.sort((a, b) => (params.discharge[b] ?? 0) - (params.discharge[a] ?? 0));
-    const take = Math.min(
-      component.length,
-      params.maxLength,
-      params.remainingTileBudget - selectedTileCount
-    );
-    if (take < params.minLength && selectedTileCount + take < params.remainingTileBudget) continue;
-    for (let i = 0; i < take; i++) {
-      params.selectedMask[component[i]!] = 1;
-      selectedTileCount += 1;
-    }
-    selectedChainCount += 1;
-  }
-
-  return { selectedTileCount, selectedChainCount };
-}
-
-function collectConnectedEligibleComponent(
-  seed: number,
-  params: {
-    width: number;
-    height: number;
-    eligible: Uint8Array;
-    selectedMask: Uint8Array;
-  }
-): number[] {
-  const queue = [seed];
-  const queued = new Set<number>([seed]);
-  const component: number[] = [];
-  for (let head = 0; head < queue.length; head++) {
-    const current = queue[head]!;
-    if (params.eligible[current] !== 1 || params.selectedMask[current] === 1) continue;
-    component.push(current);
-    const x = current % params.width;
-    const y = Math.floor(current / params.width);
-    for (const neighbor of getHexNeighborIndicesOddQ(x, y, params.width, params.height)) {
-      if (queued.has(neighbor)) continue;
-      if (params.eligible[neighbor] !== 1 || params.selectedMask[neighbor] === 1) continue;
-      queued.add(neighbor);
-      queue.push(neighbor);
-    }
-  }
-  return component;
 }
 
 function highestDischargeUnselectedUpstream(

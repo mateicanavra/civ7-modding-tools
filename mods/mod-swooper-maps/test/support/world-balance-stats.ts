@@ -17,6 +17,7 @@ import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/arti
 import { hydrologyClimateRefineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts.js";
+import { mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
 import { getEngineFeatureLegality } from "../../src/domain/ecology/feature-engine-legality.js";
@@ -116,6 +117,21 @@ export type WorldBalanceStats = Readonly<{
   finalLakeWaterDriftCount: number;
   finalLakeClassificationDriftCount: number;
   lakeProjectionMismatchCount: number;
+  hydrologySinkCandidateTiles: number;
+  hydrologyOutletTiles: number;
+  hydrologyTerminalOceanTiles: number;
+  hydrologyTerminalClosedBasinTiles: number;
+  hydrologyMinorRiverTiles: number;
+  hydrologyMajorRiverTiles: number;
+  projectedNavigableRiverTiles: number;
+  projectedNavigableRiverTargetTiles: number;
+  projectedNavigableRiverEligibleTiles: number;
+  projectedNavigableRiverChains: number;
+  projectedPlannedMajorRiverTiles: number;
+  terrainNavigableRiverTiles: number;
+  riverProjectionMismatchCount: number;
+  riverSelectedRejectedCount: number;
+  riverExtraEngineCount: number;
   wetlandTiles: number;
   wetlandShareOfPreLakeLand: number;
   reefFamilyTiles: number;
@@ -639,8 +655,35 @@ export function collectWorldBalanceStats(args: Readonly<{
   const lakePlan = context.artifacts.get(hydrologyHydrographyArtifacts.lakePlan.id) as
     | { lakeMask?: Uint8Array }
     | undefined;
+  const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
+    | {
+        riverClass?: Uint8Array;
+        sinkMask?: Uint8Array;
+        outletMask?: Uint8Array;
+        terminalType?: Uint8Array;
+      }
+    | undefined;
   const engineLakeProjection = context.artifacts.get(mapHydrologyArtifacts.engineProjectionLakes.id) as
     | { lakeMask?: Uint8Array; sinkMismatchCount?: number }
+    | undefined;
+  const projectedNavigableRivers = context.artifacts.get(
+    mapRiversArtifacts.projectedNavigableRivers.id
+  ) as
+    | {
+        selectedTileCount?: number;
+        targetTileCount?: number;
+        eligibleTileCount?: number;
+        selectedChainCount?: number;
+        plannedMajorRiverTileCount?: number;
+      }
+    | undefined;
+  const engineRiverProjection = context.artifacts.get(mapRiversArtifacts.engineProjectionRivers.id) as
+    | {
+        terrainNavigableRiverTileCount?: number;
+        riverMismatchCount?: number;
+        selectedRiverRejectedCount?: number;
+        extraEngineRiverCount?: number;
+      }
     | undefined;
   const placementSurface = context.artifacts.get(placementArtifacts.placementSurfacePreparation.id) as
     | { finalLakeWaterDriftCount?: number; finalLakeClassificationDriftCount?: number }
@@ -726,8 +769,21 @@ export function collectWorldBalanceStats(args: Readonly<{
     throw new Error("Missing morphology coastline metrics.");
   }
   if (!(lakePlan?.lakeMask instanceof Uint8Array)) throw new Error("Missing hydrology.lakePlan.");
+  if (
+    !(hydrography?.riverClass instanceof Uint8Array) ||
+    !(hydrography.sinkMask instanceof Uint8Array) ||
+    !(hydrography.outletMask instanceof Uint8Array)
+  ) {
+    throw new Error("Missing hydrology.hydrography routing fields.");
+  }
   if (!(engineLakeProjection?.lakeMask instanceof Uint8Array)) {
     throw new Error("Missing map-hydrology engine lake projection.");
+  }
+  if (!projectedNavigableRivers) {
+    throw new Error("Missing map-rivers projected navigable rivers.");
+  }
+  if (!engineRiverProjection) {
+    throw new Error("Missing map-rivers engine river projection.");
   }
   if (!Array.isArray(resourcePlan?.intents) || !Array.isArray(resourcePlan?.perType)) {
     throw new Error("Missing placement.resourcePlan.");
@@ -1033,6 +1089,22 @@ export function collectWorldBalanceStats(args: Readonly<{
   const lakeTiles = countMask(lakePlan.lakeMask);
   const engineLakeTiles = countMask(engineLakeProjection.lakeMask);
   const lakeComponents = computeMaskComponents(engineLakeProjection.lakeMask, width, height);
+  const hydrologySinkCandidateTiles = countMask(hydrography.sinkMask);
+  const hydrologyOutletTiles = countMask(hydrography.outletMask);
+  let hydrologyTerminalOceanTiles = 0;
+  let hydrologyTerminalClosedBasinTiles = 0;
+  if (hydrography.terminalType instanceof Uint8Array) {
+    for (const terminal of hydrography.terminalType) {
+      if (terminal === 1) hydrologyTerminalOceanTiles += 1;
+      if (terminal === 2) hydrologyTerminalClosedBasinTiles += 1;
+    }
+  }
+  let hydrologyMinorRiverTiles = 0;
+  let hydrologyMajorRiverTiles = 0;
+  for (const riverClass of hydrography.riverClass) {
+    if (riverClass === 1) hydrologyMinorRiverTiles += 1;
+    if (riverClass >= 2) hydrologyMajorRiverTiles += 1;
+  }
   let wetlandTiles = 0;
   let reefFamilyTiles = 0;
   let vegetationFamilyTiles = 0;
@@ -1174,6 +1246,21 @@ export function collectWorldBalanceStats(args: Readonly<{
     finalLakeWaterDriftCount: placementSurface?.finalLakeWaterDriftCount ?? 0,
     finalLakeClassificationDriftCount: placementSurface?.finalLakeClassificationDriftCount ?? 0,
     lakeProjectionMismatchCount: engineLakeProjection.sinkMismatchCount ?? 0,
+    hydrologySinkCandidateTiles,
+    hydrologyOutletTiles,
+    hydrologyTerminalOceanTiles,
+    hydrologyTerminalClosedBasinTiles,
+    hydrologyMinorRiverTiles,
+    hydrologyMajorRiverTiles,
+    projectedNavigableRiverTiles: projectedNavigableRivers.selectedTileCount ?? 0,
+    projectedNavigableRiverTargetTiles: projectedNavigableRivers.targetTileCount ?? 0,
+    projectedNavigableRiverEligibleTiles: projectedNavigableRivers.eligibleTileCount ?? 0,
+    projectedNavigableRiverChains: projectedNavigableRivers.selectedChainCount ?? 0,
+    projectedPlannedMajorRiverTiles: projectedNavigableRivers.plannedMajorRiverTileCount ?? 0,
+    terrainNavigableRiverTiles: engineRiverProjection.terrainNavigableRiverTileCount ?? 0,
+    riverProjectionMismatchCount: engineRiverProjection.riverMismatchCount ?? 0,
+    riverSelectedRejectedCount: engineRiverProjection.selectedRiverRejectedCount ?? 0,
+    riverExtraEngineCount: engineRiverProjection.extraEngineRiverCount ?? 0,
     wetlandTiles,
     wetlandShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : wetlandTiles / preLakeLandTiles,
     reefFamilyTiles,

@@ -18,6 +18,7 @@ Hydrology produces climate + water-cycle truth products for downstream consumpti
 
 - baseline climate field (rainfall/humidity),
 - winds + moisture transport state,
+- depression-conditioned drainage routing over Morphology topography,
 - discharge/hydrography truth snapshots,
 - refined indices (aridity/freeze/etc) and optional cryosphere products,
   and related diagnostics.
@@ -52,7 +53,7 @@ Hydrology provides (truth artifacts):
 
 - `artifact:climateField` (baseline rainfall/humidity)
 - `artifact:hydrology.climateSeasonality` (amplitude surface)
-- `artifact:hydrology.hydrography` (discharge + river class snapshot)
+- `artifact:hydrology.hydrography` (canonical drainage routing + discharge + river class snapshot)
 - `artifact:hydrology.climateIndices` (advisory indices for downstream consumption)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
 - `artifact:hydrology.climateDiagnostics` (diagnostic projections; not internal truth)
@@ -76,6 +77,7 @@ Hydrology domain ops are bound by step contracts. In the standard recipe, Hydrol
 - `computeEvaporationSources`
 - `transportMoisture`
 - `computePrecipitation` (baseline + refine strategies)
+- `computeDrainageRouting`
 - `accumulateDischarge`
 - `projectRiverNetwork`
 - `planLakes`
@@ -106,6 +108,11 @@ The `map-rivers` stage consumes Hydrology hydrography after `map-elevation` has
 built engine elevation, then publishes projected navigable river terrain and
 river readback evidence. This matches Civ7's terrain lifecycle: static water
 before elevation, rivers after elevation.
+
+Hydrology routing is the canonical water-movement graph. It is derived from
+Morphology topography with a depression-conditioned routing surface and typed
+terminals; it does not consume `artifact:morphology.routing`, which remains a
+Morphology terrain-shaping proxy for existing Morphology consumers.
 
 Hydrology river classes have distinct projection meanings:
 

@@ -14,9 +14,10 @@ const AccumulateDischargeInputSchema = Type.Object(
     height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
     /** Land mask per tile (1=land, 0=water). */
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    /** Steepest-descent receiver index per tile (or -1 for sinks/edges). */
+    /** Hydrology-conditioned receiver index per tile. */
     flowDir: TypedArraySchemas.i32({
-      description: "Steepest-descent receiver index per tile (or -1 for sinks/edges).",
+      description:
+        "Hydrology-conditioned receiver index per tile (or -1 for typed terminal basins).",
     }),
     /** Rainfall (0..200) per tile. */
     rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),

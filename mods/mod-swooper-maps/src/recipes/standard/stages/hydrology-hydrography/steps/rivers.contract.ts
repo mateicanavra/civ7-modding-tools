@@ -33,6 +33,7 @@ const RiversStepContract = defineStep({
     provides: [hydrologyHydrographyArtifacts.hydrography],
   },
   ops: {
+    drainageRouting: hydrology.ops.computeDrainageRouting,
     accumulateDischarge: hydrology.ops.accumulateDischarge,
     projectRiverNetwork: hydrology.ops.projectRiverNetwork,
   },

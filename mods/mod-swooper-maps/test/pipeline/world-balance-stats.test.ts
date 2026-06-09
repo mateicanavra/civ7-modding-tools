@@ -219,6 +219,42 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
   }
 }
 
+function expectNavigableRiverDiagnostics(stats: WorldBalanceStats): void {
+  expect(stats.hydrologyMajorRiverTiles, `${stats.label} major river intent`).toBeGreaterThan(0);
+  expect(stats.hydrologyMinorRiverTiles, `${stats.label} minor river intent`).toBeGreaterThan(0);
+  expect(stats.hydrologyOutletTiles, `${stats.label} drainage outlets`).toBeGreaterThan(0);
+  expect(stats.hydrologyTerminalOceanTiles, `${stats.label} ocean terminals`).toBeGreaterThan(0);
+  expect(stats.projectedPlannedMajorRiverTiles, `${stats.label} projected major count`).toBe(
+    stats.hydrologyMajorRiverTiles
+  );
+  expect(
+    stats.projectedNavigableRiverEligibleTiles,
+    `${stats.label} eligible navigable river tiles`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverTargetTiles,
+    `${stats.label} navigable river target`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverTiles,
+    `${stats.label} selected navigable river tiles`
+  ).toBeGreaterThan(0);
+  expect(
+    stats.projectedNavigableRiverTiles,
+    `${stats.label} selected navigable river budget`
+  ).toBeLessThanOrEqual(stats.projectedNavigableRiverTargetTiles);
+  expect(
+    stats.projectedNavigableRiverChains,
+    `${stats.label} selected navigable river chains`
+  ).toBeGreaterThan(0);
+  expect(stats.terrainNavigableRiverTiles, `${stats.label} terrain river readback`).toBe(
+    stats.projectedNavigableRiverTiles
+  );
+  expect(stats.riverProjectionMismatchCount, `${stats.label} river projection mismatch`).toBe(0);
+  expect(stats.riverSelectedRejectedCount, `${stats.label} rejected selected rivers`).toBe(0);
+  expect(stats.riverExtraEngineCount, `${stats.label} extra engine rivers`).toBe(0);
+}
+
 describe("world balance stats", () => {
   it("keeps shipped map identities within product-visible geography budgets", { timeout: 30_000 }, () => {
     for (const caseData of CASES) {
@@ -307,6 +343,7 @@ describe("world balance stats", () => {
 
     for (const stats of rolls) {
       expectResourceDiagnostics(stats);
+      expectNavigableRiverDiagnostics(stats);
       expect(stats.invalidFeatureSurfaceCount, `${stats.label} invalid feature surface`).toBe(0);
       expect(stats.finalLakeWaterDriftCount, `${stats.label} final lake water drift`).toBe(0);
       expect(stats.finalLakeClassificationDriftCount, `${stats.label} final lake classification drift`).toBe(0);

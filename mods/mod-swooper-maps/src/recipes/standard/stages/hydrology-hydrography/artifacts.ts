@@ -20,13 +20,15 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
     riverClass: TypedArraySchemas.u8({
       description: "River class per tile (0=none, 1=minor, >=2=major/projectable).",
     }),
-    /** Steepest-descent receiver index per tile, used by downstream Hydrology lake planning. */
+    /** Hydrology-conditioned receiver index per tile, used by downstream Hydrology lake planning. */
     flowDir: TypedArraySchemas.i32({
-      description: "Steepest-descent receiver index per tile (or -1 for sinks/edges).",
+      description:
+        "Hydrology-conditioned receiver index per tile (or -1 for typed terminal basins).",
     }),
-    /** Routing sinks: candidate endorheic basins / internal drainage endpoints. */
+    /** Raw drainage minima: lake/depression candidates, not automatic discharge terminals. */
     sinkMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): land tiles that are routing sinks (candidate endorheic basins).",
+      description:
+        "Mask (1/0): raw local drainage minima used as lake/depression candidates.",
     }),
     /** Routing outlets: land tiles that drain to ocean/edges (land→water/out-of-bounds). */
     outletMask: TypedArraySchemas.u8({
@@ -36,7 +38,25 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
     /** Optional basin identifier per tile (or -1 when unassigned). */
     basinId: Type.Optional(
       TypedArraySchemas.i32({
-        description: "Optional basin identifier per tile (or -1 when unassigned).",
+        description: "Optional Hydrology drainage basin identifier per tile (or -1 when unassigned).",
+      })
+    ),
+    routingElevation: Type.Optional(
+      TypedArraySchemas.f32({
+        description:
+          "Hydrologically conditioned routing surface; does not mutate Morphology elevation.",
+      })
+    ),
+    depressionDepth: Type.Optional(
+      TypedArraySchemas.f32({
+        description:
+          "Positive where drainage conditioning fills a raw topographic depression to a spill surface.",
+      })
+    ),
+    terminalType: Type.Optional(
+      TypedArraySchemas.u8({
+        description:
+          "Terminal classification per land tile: 0=none, 1=ocean/water outlet, 2=closed basin.",
       })
     ),
   },

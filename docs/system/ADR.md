@@ -112,7 +112,7 @@ Each decision follows this structure:
 
 ## ADR-006: Standard Recipe splits Morphology truth into coasts/routing/erosion/features stages
 
-**Status:** Accepted
+**Status:** Accepted (superseded in part by ADR-008 for canonical drainage routing)
 **Date:** 2026-02-03
 **Context:** The Standard recipe previously grouped multiple distinct Morphology responsibilities under `morphology-mid` (coast shaping + routing + geomorphology), which reduced legibility in the pipeline, Studio navigation, and configuration surfaces. It also made it harder to name contracts according to what the stage actually guarantees, and complicated future work (notably: splitting routing into finer-grained stages without conflating “same-kind” operations).
 **Decision:** The Standard recipe’s Morphology truth is authored as four stages:
@@ -127,6 +127,12 @@ We keep domain-level identities stable:
 - Viz `dataTypeKey` remains stable.
 
 We accept that full step ids change because stage ids are embedded in the full id.
+
+Canonical water-movement routing is no longer owned by this decision. See
+ADR-008 for the Hydrology-owned drainage routing boundary; Morphology routing
+remains a geomorphic terrain-shaping proxy unless a later decision removes or
+renames that artifact.
+
 **Consequences:**
 - Stage boundaries become explicit and align with author mental models (“what exists before what”).
 - Knobs become easier to scope correctly (steering inputs rather than post-hoc correction).
@@ -208,3 +214,34 @@ promotion.
 - Tuning changes are weight/range edits inside declared bounds, recorded against the expectation ledger — not new code paths.
 - Expressiveness is testable: the sparsity/exclusion expectation (E3.4) gates that max-sparsity and exclusion settings actually produce their declared extremes.
 - Default changes are behavior changes: they must be verified against the expectation gates before shipping (the ledger amends only by recorded evidence).
+
+## ADR-008: Hydrology owns canonical drainage routing
+
+**Status:** Accepted
+**Date:** 2026-06-09
+**Context:** The river recovery investigation found two routing concepts using
+the same language. Morphology publishes `artifact:morphology.routing` from a raw
+terrain proxy used by erosion and mountain/rough-land planning. Hydrology was
+also computing local steepest-descent receivers for discharge, lakes, and river
+classification, which fragmented rivers in local terrain sinks and let
+downstream projection compensate with non-physical corridors. Older docs
+assigned “flow routing truth” to Morphology, while later domain-refactor
+materials assigned canonical routing/hydrography to Hydrology.
+**Decision:** Hydrology owns canonical drainage routing for water movement:
+depression-conditioned receivers, drainage basin ids, contributing area,
+terminal classification, discharge, river class, and lake intent. Morphology
+owns terrain and earth-matter precursors: topography, land/water mask,
+bathymetry, substrate, coastline metrics, landform basins/depressions, and any
+geomorphic routing proxy needed by terrain-shaping consumers. `map-*` stages
+consume Hydrology truth for projection and must not synthesize fallback river
+corridors to hide broken upstream drainage.
+**Consequences:**
+- Hydrology computes drainage routing over Morphology topography before
+  discharge accumulation and river/lake planning.
+- Morphology's current routing artifact remains available to existing
+  Morphology consumers, but it is not canonical river/lake truth.
+- Future cleanup should either rename/narrow `artifact:morphology.routing` to
+  make the proxy role explicit, or replace Morphology consumers with more
+  precise terrain-shaping inputs.
+- Verification must keep generated hydrology truth, map projection/readback,
+  Studio display, and rendered in-game Civ visibility as separate proof classes.

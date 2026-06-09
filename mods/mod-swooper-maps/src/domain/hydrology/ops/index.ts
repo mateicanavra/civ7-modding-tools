@@ -14,6 +14,7 @@ import computeCryosphereState from "./compute-cryosphere-state/index.js";
 import applyAlbedoFeedback from "./apply-albedo-feedback/index.js";
 import computeLandWaterBudget from "./compute-land-water-budget/index.js";
 import computeClimateDiagnostics from "./compute-climate-diagnostics/index.js";
+import computeDrainageRouting from "./compute-drainage-routing/index.js";
 import accumulateDischarge from "./accumulate-discharge/index.js";
 import projectRiverNetwork from "./project-river-network/index.js";
 import planLakes from "./plan-lakes/index.js";
@@ -32,6 +33,7 @@ const implementations = {
   applyAlbedoFeedback,
   computeLandWaterBudget,
   computeClimateDiagnostics,
+  computeDrainageRouting,
   accumulateDischarge,
   projectRiverNetwork,
   planLakes,
@@ -53,6 +55,7 @@ export {
   applyAlbedoFeedback,
   computeLandWaterBudget,
   computeClimateDiagnostics,
+  computeDrainageRouting,
   accumulateDischarge,
   projectRiverNetwork,
   planLakes,

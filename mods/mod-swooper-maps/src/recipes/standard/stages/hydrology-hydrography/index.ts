@@ -38,6 +38,7 @@ export default createStage({
   steps: [rivers, lakes],
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     rivers: {
+      drainageRouting: { strategy: "default", config: config.drainageRouting ?? {} },
       accumulateDischarge: { strategy: "default", config: config.runoff ?? {} },
       projectRiverNetwork: { strategy: "default", config: config.riverNetwork ?? {} },
     },

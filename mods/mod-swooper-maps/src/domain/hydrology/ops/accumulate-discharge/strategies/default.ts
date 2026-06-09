@@ -104,10 +104,7 @@ export const defaultStrategy = createStrategy(AccumulateDischargeContract, "defa
     }
 
     if (processed < landCount) {
-      // Deterministic fallback for any residual cycles: do not route further.
-      for (let i = 0; i < size; i++) {
-        if (input.landMask[i] === 1 && indegree[i] > 0) receiver[i] = -1;
-      }
+      throw new Error("[Hydrology] Discharge accumulation requires acyclic flowDir.");
     }
 
     return { runoff, discharge, sinkMask, outletMask } as const;
