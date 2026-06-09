@@ -2499,19 +2499,49 @@ export function StudioShell(props: StudioShellProps) {
     </>
   );
 
+  // Polite, visually-hidden mirror of the volatile run/live status so assistive
+  // tech is told when generation is running, the live Civ7 runtime changes, or a
+  // Run-in-Game / save-deploy operation moves — without stealing focus. The
+  // visible chrome (footer status panel) carries the same information.
+  const liveStatusAnnouncement = [
+    status === "running" ? "Generating map" : status === "error" ? "Generation error" : "Ready",
+    liveRuntime.status === "ok"
+      ? `Live Civ7 ${liveRuntime.turn !== undefined || liveRuntime.seed !== undefined ? `turn ${liveRuntime.turn ?? "?"} seed ${liveRuntime.seed ?? "?"}` : liveRuntime.readiness ?? "ready"}`
+      : liveRuntime.status === "error"
+        ? "Live Civ7 unavailable"
+        : null,
+    runInGameOperation ? `Run in Game ${runInGameOperation.phase}` : null,
+    saveDeployOperation && saveDeployOperation.status === "running" ? `Save/deploy ${saveDeployOperation.phase}` : null,
+  ]
+    .filter(Boolean)
+    .join(". ");
+
   return (
     <div ref={containerRef} className="relative w-full min-h-screen bg-background">
-      <CanvasStage
-        apiRef={deckApiRef}
-        onApiReady={handleDeckApiReady}
-        layers={viz.deck.layers}
-        effectiveLayer={viz.effectiveLayer}
-        viewportSize={viewportSize}
-        activeBounds={viz.activeBounds}
-        lightMode={isLightMode}
-        backgroundGridEnabled={backgroundGridEnabled}
-        hasManifest={Boolean(viz.manifest)}
-      />
+      {/* Skip link: first focusable element, visually hidden until focused. */}
+      <a
+        href="#map-preview"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:border focus:border-border focus:bg-popover focus:px-3 focus:py-2 focus:text-data focus:font-medium focus:text-foreground focus:shadow-md focus:outline-none focus:ring-1 focus:ring-ring"
+      >
+        Skip to map preview
+      </a>
+      {/* Polite live region (visually hidden mirror of the run/live status). */}
+      <div aria-live="polite" className="sr-only">
+        {liveStatusAnnouncement}
+      </div>
+      <main id="map-preview" aria-label="Map preview" tabIndex={-1} className="contents">
+        <CanvasStage
+          apiRef={deckApiRef}
+          onApiReady={handleDeckApiReady}
+          layers={viz.deck.layers}
+          effectiveLayer={viz.effectiveLayer}
+          viewportSize={viewportSize}
+          activeBounds={viz.activeBounds}
+          lightMode={isLightMode}
+          backgroundGridEnabled={backgroundGridEnabled}
+          hasManifest={Boolean(viz.manifest)}
+        />
+      </main>
       {presetDialogs}
       <input
         ref={importInputRef}

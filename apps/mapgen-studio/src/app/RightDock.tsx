@@ -16,8 +16,8 @@ export type RightDockProps = {
  */
 export function RightDock({ top, children }: RightDockProps) {
   return (
-    <div className="absolute right-4 z-10" style={{ top }}>
+    <aside aria-label="Explore and inspect" className="absolute right-4 z-10" style={{ top }}>
       {children}
-    </div>
+    </aside>
   );
 }

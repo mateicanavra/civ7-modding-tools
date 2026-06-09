@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronDown, Globe, SlidersHorizontal } from 'lucide-react';
 import { AppBrand } from './AppBrand';
 import { ViewControls } from './ViewControls';
-import { Select } from './ui';
+import { OptionSelect } from './OptionSelect';
 import {
   getLocalPlayerSetup,
   updateStudioSetupGameOption,
@@ -120,7 +120,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
           <div className="flex items-center gap-1.5">
             <Globe className={`w-4 h-4 ${textMuted}`} />
-            <span className={`text-[10px] font-semibold uppercase tracking-wider ${textSecondary}`}>
+            <span className={`text-label font-semibold uppercase tracking-wider ${textSecondary}`}>
               World
             </span>
           </div>
@@ -128,55 +128,52 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
           <div className="flex items-center gap-2">
-            <span className={`text-[10px] font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+            <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
               Size
             </span>
-            <Select
+            <OptionSelect
               value={globalSettings.mapSize}
-              onChange={(e) =>
-              updateSetting(
-                'mapSize',
-                e.target.value as WorldSettings['mapSize']
-              )
+              onValueChange={(value) =>
+                updateSetting('mapSize', value as WorldSettings['mapSize'])
               }
               options={MAP_SIZE_OPTIONS.map((opt) => ({
                 value: opt.value,
                 label: opt.label
               }))}
-              lightMode={isLightMode}
+              ariaLabel="World size"
               className="w-24" />
           </div>
 
           <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
           <div className="flex items-center gap-2">
-            <span className={`text-[10px] font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+            <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
               Players
             </span>
-            <Select
+            <OptionSelect
               value={globalSettings.playerCount.toString()}
-              onChange={(e) =>
-              updateSetting('playerCount', parseInt(e.target.value, 10))
+              onValueChange={(value) =>
+                updateSetting('playerCount', parseInt(value, 10))
               }
               options={PLAYER_COUNT_OPTIONS.map((count) => ({
                 value: count.toString(),
                 label: count.toString()
               }))}
-              lightMode={isLightMode}
+              ariaLabel="Players"
               className="w-14" />
           </div>
 
           <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
           <div className="flex items-center gap-2">
-            <span className={`text-[10px] font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+            <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
               Config
             </span>
-            <Select
+            <OptionSelect
               value={setupConfig.savedConfig?.id ?? ""}
-              onChange={(e) => onSavedConfigChange(e.target.value)}
+              onValueChange={(value) => onSavedConfigChange(value)}
               options={setupOptions.savedConfigOptions}
-              lightMode={isLightMode}
+              ariaLabel="Saved config"
               className="w-44 max-w-[34vw]" />
           </div>
 
@@ -186,6 +183,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             type="button"
             className={setupButtonClassName}
             aria-expanded={setupOpen}
+            aria-controls="app-header-setup-panel"
             onClick={() => setSetupOpen((open) => !open)}>
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Setup</span>
@@ -195,81 +193,79 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {setupOpen ? (
           <div
+            id="app-header-setup-panel"
             className={`flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
 
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+              <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
                 Resources
               </span>
-              <Select
+              <OptionSelect
                 value={globalSettings.resources}
-                onChange={(e) =>
-                updateSetting(
-                  'resources',
-                  e.target.value as WorldSettings['resources']
-                )
+                onValueChange={(value) =>
+                  updateSetting('resources', value as WorldSettings['resources'])
                 }
                 options={RESOURCE_MODE_OPTIONS.map((opt) => ({
                   value: opt.value,
                   label: opt.label
                 }))}
-                lightMode={isLightMode}
+                ariaLabel="Resources"
                 className="w-24" />
             </div>
 
             <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+              <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
                 Leader
               </span>
-              <Select
+              <OptionSelect
                 value={String(localPlayerSetup.options.PlayerLeader ?? "")}
-                onChange={(e) => updateLeader(e.target.value)}
+                onValueChange={(value) => updateLeader(value)}
                 options={setupOptions.leaderOptions}
-                lightMode={isLightMode}
+                ariaLabel="Leader"
                 className="w-32" />
             </div>
 
             <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+              <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
                 Civ
               </span>
-              <Select
+              <OptionSelect
                 value={String(localPlayerSetup.options.PlayerCivilization ?? "")}
-                onChange={(e) => updateCivilization(e.target.value)}
+                onValueChange={(value) => updateCivilization(value)}
                 options={setupOptions.civilizationOptions}
-                lightMode={isLightMode}
+                ariaLabel="Civilization"
                 className="w-32" />
             </div>
 
             <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+              <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
                 Difficulty
               </span>
-              <Select
+              <OptionSelect
                 value={String(setupConfig.gameOptions.Difficulty ?? localPlayerSetup.options.PlayerDifficulty ?? "")}
-                onChange={(e) => updateDifficulty(e.target.value)}
+                onValueChange={(value) => updateDifficulty(value)}
                 options={setupOptions.difficultyOptions}
-                lightMode={isLightMode}
+                ariaLabel="Difficulty"
                 className="w-28" />
             </div>
 
             <div className={`w-px h-5 shrink-0 ${dividerColor}`} />
 
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
+              <span className={`text-label font-medium uppercase tracking-wider shrink-0 ${textMuted}`}>
                 Speed
               </span>
-              <Select
+              <OptionSelect
                 value={String(setupConfig.gameOptions.GameSpeeds ?? "")}
-                onChange={(e) => updateGameSpeed(e.target.value)}
+                onValueChange={(value) => updateGameSpeed(value)}
                 options={setupOptions.gameSpeedOptions}
-                lightMode={isLightMode}
+                ariaLabel="Game speed"
                 className="w-28" />
             </div>
           </div>

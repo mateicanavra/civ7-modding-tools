@@ -4,20 +4,6 @@
 // Shared UI primitives following shadcn/ui patterns.
 // ============================================================================
 
-// Dialogs
-export {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-  type AlertDialogProps } from
-'./AlertDialog';
-
 // Form controls
 export { Button, buttonVariants, type ButtonProps } from './Button';
 export { Input, type InputProps } from './Input';
