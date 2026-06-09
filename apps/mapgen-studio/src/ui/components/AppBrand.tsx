@@ -1,25 +1,21 @@
 import React, { useState } from 'react';
 import { ExternalLink, Github, User } from 'lucide-react';
+
+/**
+ * AppBrand — the identity pill in the header, with a hover info card.
+ *
+ * Reskinned onto the design tokens: the pill and its hover card float over the
+ * deck.gl map, so they ride the `popover` tier with `backdrop-blur`; the theme
+ * follows the single `.dark` class rather than the legacy `isLightMode` hex
+ * ternaries. The `isLightMode` prop is retained for call-site compatibility
+ * during the shell migration but no longer drives styling.
+ */
 interface AppBrandProps {
-  isLightMode: boolean;
+  isLightMode?: boolean;
 }
-export const AppBrand: React.FC<AppBrandProps> = ({ isLightMode }) => {
+
+export const AppBrand: React.FC<AppBrandProps> = () => {
   const [isHovered, setIsHovered] = useState(false);
-  // ============================================================================
-  // Styles
-  // ============================================================================
-  const containerClass = isLightMode ?
-  'bg-white/90 border-gray-200' :
-  'bg-[#16161d]/90 border-[#26262e]';
-  const textClass = isLightMode ? 'text-[#1f2933]' : 'text-[#e2e2e9]';
-  const mutedClass = isLightMode ? 'text-[#6b7280]' : 'text-[#6a6a7c]';
-  const linkClass = isLightMode ?
-  'text-[#4b5563] hover:text-[#1f2933]' :
-  'text-[#7a7a8c] hover:text-[#e2e2e9]';
-  const dividerClass = isLightMode ? 'border-gray-200' : 'border-[#26262e]';
-  // ============================================================================
-  // Render
-  // ============================================================================
   return (
     <div
       className="relative h-10"
@@ -27,67 +23,52 @@ export const AppBrand: React.FC<AppBrandProps> = ({ isLightMode }) => {
       onMouseLeave={() => setIsHovered(false)}>
 
       {/* Main Pill */}
-      <div
-        className={`
-          h-full inline-flex items-center gap-2 px-3 rounded-lg border
-          backdrop-blur-sm cursor-default
-          ${containerClass}
-        `}>
-
-        <span
-          className={`font-semibold text-[13px] tracking-tight ${textClass}`}>
-
+      <div className="h-full inline-flex items-center gap-2 px-3 rounded-lg border border-border bg-popover/90 backdrop-blur-sm cursor-default">
+        <span className="font-semibold text-[13px] tracking-tight text-foreground">
           MapGen Studio
         </span>
-        <span className={`text-[10px] font-mono ${mutedClass}`}>v0.1</span>
+        <span className="text-label font-mono text-muted-foreground">v0.1</span>
       </div>
 
       {/* Hover Dropdown */}
       {isHovered &&
-      <div
-        className={`
-            absolute top-full left-0 mt-2
-            min-w-[200px] p-3 rounded-lg border
-            backdrop-blur-sm shadow-lg z-50
-            ${containerClass}
-          `}>
-
+      <div className="absolute top-full left-0 mt-2 min-w-[200px] p-3 rounded-lg border border-border bg-popover/95 backdrop-blur-sm shadow-lg z-50">
           {/* Description */}
-          <p className={`text-[11px] leading-relaxed ${mutedClass} mb-3`}>
+          <p className="text-data leading-relaxed text-muted-foreground mb-3">
             Procedural map generation toolkit for game developers.
           </p>
 
-          <div className={`border-t ${dividerClass} mb-3`} />
+          <div className="border-t border-border-subtle mb-3" />
 
           {/* Links */}
           <div className="flex flex-col gap-2">
             <a
             href="#"
-            className={`flex items-center gap-2 text-[11px] font-medium transition-colors ${linkClass}`}>
+            className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground">
 
               <User className="w-3.5 h-3.5" />
               <span>Author Name</span>
             </a>
             <a
             href="#"
-            className={`flex items-center gap-2 text-[11px] font-medium transition-colors ${linkClass}`}>
+            className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground">
 
               <Github className="w-3.5 h-3.5" />
               <span>View on GitHub</span>
             </a>
             <a
             href="#"
-            className={`flex items-center gap-2 text-[11px] font-medium transition-colors ${linkClass}`}>
+            className="flex items-center gap-2 text-data font-medium text-muted-foreground transition-colors hover:text-foreground">
 
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Documentation</span>
             </a>
           </div>
 
-          <div className={`border-t ${dividerClass} my-3`} />
+          <div className="border-t border-border-subtle my-3" />
 
           {/* Footer */}
-          <p className={`text-[10px] ${mutedClass}`}>© 2024 • MIT License</p>
+          <p className="text-label text-muted-foreground">© 2024 • MIT License</p>
         </div>
       }
     </div>);

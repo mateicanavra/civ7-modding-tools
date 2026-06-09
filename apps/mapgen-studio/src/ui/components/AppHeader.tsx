@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronDown, GitBranch, Globe, Map, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, Globe, SlidersHorizontal } from 'lucide-react';
+import { AppBrand } from './AppBrand';
 import { ViewControls } from './ViewControls';
 import { Select } from './ui';
 import {
@@ -17,8 +18,6 @@ import {
 import type { ThemePreference, WorldSettings } from '../types';
 export const HEADER_HEIGHT = LAYOUT.HEADER_HEIGHT;
 export interface AppHeaderProps {
-  activeStudioView: "map" | "dag";
-  onActiveStudioViewChange: (view: "map" | "dag") => void;
   isLightMode: boolean;
   themePreference: ThemePreference;
   onThemeCycle: () => void;
@@ -36,12 +35,9 @@ export interface AppHeaderProps {
   };
   onSetupConfigChange: (config: Civ7StudioSetupConfig) => void;
   onSavedConfigChange: (configId: string) => void;
-  statsAccessory?: React.ReactNode;
   onHeaderHeightChange?: (height: number) => void;
 }
 export const AppHeader: React.FC<AppHeaderProps> = ({
-  activeStudioView,
-  onActiveStudioViewChange,
   isLightMode,
   themePreference,
   onThemeCycle,
@@ -53,30 +49,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   setupOptions,
   onSetupConfigChange,
   onSavedConfigChange,
-  statsAccessory,
   onHeaderHeightChange
 }) => {
   const headerRef = React.useRef<HTMLElement | null>(null);
   const [setupOpen, setSetupOpen] = React.useState(false);
-  const panelBg = isLightMode ? 'bg-white/70' : 'bg-[#141418]/62';
-  const panelBorder = isLightMode ? 'border-white/80' : 'border-white/10';
-  const textSecondary = isLightMode ? 'text-[#6b7280]' : 'text-[#8a8a96]';
-  const textMuted = isLightMode ? 'text-[#9ca3af]' : 'text-[#5a5a66]';
-  const dividerColor = isLightMode ? 'bg-gray-200' : 'bg-[#2a2a32]';
-  const tabClassName = (active: boolean) => `flex h-7 items-center gap-1.5 rounded px-2.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 ${
-    active
-      ? isLightMode
-        ? 'bg-gray-200 text-[#1f2937] focus-visible:ring-gray-300'
-        : 'bg-[#222228] text-[#e8e8ed] focus-visible:ring-[#3a3a44]'
-      : isLightMode
-        ? 'text-[#6b7280] hover:bg-gray-100 hover:text-[#1f2937] focus-visible:ring-gray-300'
-        : 'text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed] focus-visible:ring-[#3a3a44]'
-  }`;
-  const setupButtonClassName = `flex h-7 shrink-0 items-center gap-1.5 rounded border px-2.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 ${
-    isLightMode
-      ? 'border-gray-200 bg-white text-[#374151] hover:bg-gray-50 focus-visible:ring-gray-300'
-      : 'border-[#2a2a32] bg-[#0f0f12] text-[#d4d4dc] hover:bg-[#1b1b20] focus-visible:ring-[#3a3a44]'
-  }`;
+  // Token-driven chrome; theme follows the single `.dark` class. The header
+  // docks float over the deck.gl map, so they ride the `popover` tier.
+  const panelBg = 'bg-popover/95';
+  const panelBorder = 'border-border';
+  const textSecondary = 'text-muted-foreground';
+  const textMuted = 'text-muted-foreground/70';
+  const dividerColor = 'bg-border';
+  const setupButtonClassName =
+    'flex h-7 shrink-0 items-center gap-1.5 rounded border border-input bg-input-background px-2.5 text-data font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
   const updateSetting = <K extends keyof WorldSettings,>(
   key: K,
   value: WorldSettings[K]) =>
@@ -118,15 +103,20 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   return (
     <header
       ref={headerRef}
-      className="pointer-events-none absolute left-3 right-3 top-2 z-20 h-10"
+      className="absolute top-4 left-4 right-4 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3"
       style={{
         minHeight: HEADER_HEIGHT
       }}>
 
+      {/* Left: App Brand */}
+      <div className="shrink-0">
+        <AppBrand isLightMode={isLightMode} />
+      </div>
+
       {/* Center: World Settings */}
-      <div className="pointer-events-auto absolute left-1/2 top-0 flex w-[min(760px,calc(100vw-300px))] min-w-0 -translate-x-1/2 flex-col items-center gap-2 overflow-visible">
+      <div className="min-w-0 flex flex-col items-center gap-2 overflow-visible">
         <div
-          className={`flex min-h-10 w-full max-w-full flex-nowrap items-center justify-center gap-x-3 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
+          className={`flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
 
           <div className="flex items-center gap-1.5">
             <Globe className={`w-4 h-4 ${textMuted}`} />
@@ -202,8 +192,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${setupOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
-
-        {statsAccessory ? statsAccessory : null}
 
         {setupOpen ? (
           <div
@@ -289,30 +277,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       </div>
 
       {/* Right: View Controls */}
-      <div className="pointer-events-auto absolute right-0 top-0 flex shrink-0 flex-col items-end gap-1.5">
-        <div
-          className={`h-10 inline-flex items-center gap-1 px-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
-          role="tablist"
-          aria-label="Studio view">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeStudioView === "map"}
-            className={tabClassName(activeStudioView === "map")}
-            onClick={() => onActiveStudioViewChange("map")}>
-            <Map className="h-3.5 w-3.5" />
-            <span>Map</span>
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeStudioView === "dag"}
-            className={tabClassName(activeStudioView === "dag")}
-            onClick={() => onActiveStudioViewChange("dag")}>
-            <GitBranch className="h-3.5 w-3.5" />
-            <span>DAG</span>
-          </button>
-        </div>
+      <div className="shrink-0">
         <ViewControls
           themePreference={themePreference}
           onThemeCycle={onThemeCycle}

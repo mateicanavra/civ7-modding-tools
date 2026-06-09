@@ -16,14 +16,9 @@ import {
   CircleDot,
   Activity,
   Bug,
-  Flame,
-  Droplets } from
+  Flame } from
 'lucide-react';
-import type {
-  RiverLakeFloodplainInspectorSummary,
-  RiverLakeInspectorClaimStatus,
-  RiverLakeInspectorLayerRef,
-} from '../../features/viz/riverLakeInspector';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui';
 import type {
   StageOption,
   StepOption,
@@ -109,10 +104,6 @@ export interface ExplorePanelProps {
   onShowDebugLayersChange: (show: boolean) => void;
   /** Callback when fit view is requested */
   onFitView: () => void;
-  /** River/lake/floodplain proof navigator */
-  riverLakeInspectorSummary?: RiverLakeFloodplainInspectorSummary | null;
-  /** Callback when a proof layer should be selected */
-  onRiverLakeInspectorLayerSelect?: (layerRef: RiverLakeInspectorLayerRef) => void;
   /** Whether the stage section is expanded (optional controlled mode) */
   stageExpanded?: boolean;
   /** Callback when stageExpanded changes (optional controlled mode) */
@@ -160,14 +151,11 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   eraMax,
   onEraModeChange,
   onEraValueChange,
-  lightMode,
   showEdges,
   onShowEdgesChange,
   showDebugLayers,
   onShowDebugLayersChange,
   onFitView,
-  riverLakeInspectorSummary = null,
-  onRiverLakeInspectorLayerSelect,
   stageExpanded: stageExpandedProp,
   onStageExpandedChange,
   stepExpanded: stepExpandedProp,
@@ -234,40 +222,35 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   // ==========================================================================
   // Styles
   // ==========================================================================
-  const panelBg = lightMode ? 'bg-white/95' : 'bg-[#141418]/95';
-  const panelBorder = lightMode ? 'border-gray-200' : 'border-[#2a2a32]';
-  const textPrimary = lightMode ? 'text-[#1f2937]' : 'text-[#e8e8ed]';
-  const textSecondary = lightMode ? 'text-[#6b7280]' : 'text-[#8a8a96]';
-  const textMuted = lightMode ? 'text-[#9ca3af]' : 'text-[#5a5a66]';
-  const borderSubtle = lightMode ? 'border-gray-100' : 'border-[#222228]';
-  const hoverBg = lightMode ? 'hover:bg-gray-50' : 'hover:bg-[#1a1a1f]';
-  const chipBg = lightMode ? 'bg-gray-100 text-gray-600' : 'bg-[#222228] text-[#8a8a96]';
+  // Token-driven chrome; theme follows the single `.dark` class. The dock
+  // floats over the deck.gl map, so it rides the `popover` tier. Active list
+  // items use the steel contour (a thin rule + `bg-muted`), not a saturated
+  // slab.
+  const panelBg = 'bg-popover/95';
+  const panelBorder = 'border-border';
+  const textPrimary = 'text-foreground';
+  const textSecondary = 'text-muted-foreground';
+  const textMuted = 'text-muted-foreground/70';
+  const borderSubtle = 'border-border-subtle';
+  const hoverBg = 'hover:bg-accent';
   const listMaxHeight = "max-h-[200px]";
   // Stage list styles
-  const stageItemBase = `w-full text-left px-3 py-2 text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-2`;
-  const stageItemActive = lightMode ?
-  'bg-gray-100 text-[#1f2937]' :
-  'bg-[#1a1a1f] text-[#e8e8ed]';
-  const stageItemInactive = lightMode ?
-  'text-[#6b7280] hover:bg-gray-50 hover:text-[#1f2937]' :
-  'text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed]';
+  const stageItemBase = `w-full text-left px-3 py-2 text-data font-medium transition-colors cursor-pointer flex items-center gap-2`;
+  const stageItemActive = 'bg-accent text-foreground';
+  const stageItemInactive = 'text-muted-foreground hover:bg-accent hover:text-foreground';
   // Step/DataType list styles
-  const stepItemBase = `w-full text-left px-3 py-1.5 text-[11px] font-mono transition-colors cursor-pointer flex items-center gap-2 border-l-2`;
-  const stepItemActive = lightMode ?
-  'border-gray-800 bg-gray-50 text-[#1f2937]' :
-  'border-[#e8e8ed] bg-[#1a1a1f] text-[#e8e8ed]';
-  const stepItemInactive = lightMode ?
-  'border-transparent text-[#6b7280] hover:bg-gray-50 hover:text-[#1f2937]' :
-  'border-transparent text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed]';
-  const iconBtn = `h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 ${lightMode ? 'text-[#6b7280] hover:text-[#1f2937] hover:bg-gray-100' : 'text-[#8a8a96] hover:text-[#e8e8ed] hover:bg-[#1a1a1f]'}`;
-  const iconBtnActive = `h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 ${lightMode ? 'text-[#1f2937] bg-gray-200' : 'text-[#e8e8ed] bg-[#222228]'}`;
+  const stepItemBase = `w-full text-left px-3 py-1.5 text-data font-mono transition-colors cursor-pointer flex items-center gap-2 border-l-2`;
+  const stepItemActive = 'border-primary bg-accent text-foreground';
+  const stepItemInactive = 'border-transparent text-muted-foreground hover:bg-accent hover:text-foreground';
+  const iconBtn = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent';
+  const iconBtnActive = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted';
   const stageBadge = (isActive: boolean) => `
-    w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-semibold shrink-0
-    ${isActive ? lightMode ? 'bg-gray-300 text-gray-700' : 'bg-[#3a3a44] text-[#e8e8ed]' : lightMode ? 'bg-gray-100 text-gray-400' : 'bg-[#222228] text-[#5a5a66]'}
+    w-5 h-5 flex items-center justify-center rounded-full text-label font-semibold shrink-0
+    ${isActive ? 'bg-muted text-foreground' : 'bg-muted/50 text-muted-foreground'}
   `;
   const stepBadge = (isActive: boolean) => `
     w-4 h-4 flex items-center justify-center rounded text-[9px] font-mono shrink-0
-    ${isActive ? lightMode ? 'bg-gray-200 text-gray-800' : 'bg-[#3a3a44] text-[#e8e8ed]' : lightMode ? 'bg-gray-100 text-gray-400' : 'bg-[#222228] text-[#5a5a66]'}
+    ${isActive ? 'bg-muted text-foreground' : 'bg-muted/50 text-muted-foreground'}
   `;
   // Render mode icons map
   const getRenderModeIcon = (value: string) => {
@@ -329,67 +312,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       const current = prev[key] ?? true;
       return { ...prev, [key]: !current };
     });
-  };
-
-  const inspectorRows = riverLakeInspectorSummary?.rows ?? [];
-  const statusChipClass = (status: RiverLakeInspectorClaimStatus) => {
-    if (status === "pass") {
-      return lightMode ? "bg-emerald-50 text-emerald-700" : "bg-emerald-950/60 text-emerald-300";
-    }
-    if (status === "available") {
-      return lightMode ? "bg-sky-50 text-sky-700" : "bg-sky-950/60 text-sky-300";
-    }
-    if (status === "fail") {
-      return lightMode ? "bg-red-50 text-red-700" : "bg-red-950/60 text-red-300";
-    }
-    if (status === "out-of-scope") {
-      return lightMode ? "bg-gray-100 text-gray-500" : "bg-[#222228] text-[#7a7a86]";
-    }
-    return lightMode ? "bg-amber-50 text-amber-700" : "bg-amber-950/60 text-amber-300";
-  };
-  const statusLabel = (status: RiverLakeInspectorClaimStatus) => {
-    switch (status) {
-      case "pass":
-        return "ready";
-      case "available":
-        return "inspect";
-      case "fail":
-        return "fail";
-      case "out-of-scope":
-        return "skip";
-      case "unresolved":
-      default:
-        return "open";
-    }
-  };
-  const formatCountLabel = (key: string) => {
-    switch (key) {
-      case "layers":
-        return "layers";
-      case "default":
-        return "shown";
-      case "debug":
-        return "debug";
-      default:
-        return key;
-    }
-  };
-  const formatLayerButtonLabel = (ref: RiverLakeInspectorLayerRef) => {
-    if (ref.dataTypeKey.includes("projectedRiverMask")) return "projected";
-    if (ref.dataTypeKey.includes("plannedMinorRiverMask")) return "minor";
-    if (ref.dataTypeKey.includes("plannedMajorRiverMask")) return "major";
-    if (ref.dataTypeKey.includes("engineRiverMask")) return "terrain";
-    if (ref.dataTypeKey.includes("Metadata")) return "metadata";
-    if (ref.dataTypeKey.includes("engineMinorRiverMask")) return "minor meta";
-    if (ref.dataTypeKey.includes("riverMismatchMask")) return "mismatch";
-    if (ref.dataTypeKey.includes("lakePlan")) return "lake plan";
-    if (ref.dataTypeKey.includes("plannedLakeMask")) return "planned";
-    if (ref.dataTypeKey.includes("engineLakeMask")) return "engine";
-    if (ref.dataTypeKey.includes("rejectedLakeMask")) return "rejected";
-    if (ref.dataTypeKey.includes("featureType")) return "features";
-    if (ref.dataTypeKey.includes("rejectionMask")) return "rejects";
-    const parts = ref.dataTypeKey.split(".");
-    return parts[parts.length - 1] ?? ref.dataTypeKey;
   };
   // ==========================================================================
   // Render
@@ -489,63 +411,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         </div>
       ) : null}
 
-      {/* WATER PROOF SECTION */}
-      {inspectorRows.length > 0 ? (
-        <>
-          <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-            <div className="w-full flex items-center justify-between px-3 py-2">
-              <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-                <Droplets className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
-                <span className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
-                  Water Proof
-                </span>
-              </div>
-              <span className={`text-[10px] ${textMuted}`}>{inspectorRows.length}</span>
-            </div>
-          </div>
-          <div className={`flex-shrink-0 border-b ${borderSubtle} max-h-[260px] overflow-y-auto custom-scrollbar`}>
-            {inspectorRows.map((row) => (
-              <div key={row.rowKey} className={`px-3 py-2 border-b last:border-b-0 ${borderSubtle}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className={`text-[9px] uppercase tracking-wider ${textMuted}`}>{row.laneLabel}</div>
-                    <div className={`text-[11px] font-medium ${textPrimary} truncate`} title={row.displayStatus}>
-                      {row.label}
-                    </div>
-                  </div>
-                  <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${statusChipClass(row.claimStatus)}`}>
-                    {statusLabel(row.claimStatus)}
-                  </span>
-                </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1">
-                  {Object.entries(row.counts).map(([key, value]) => (
-                    <span key={key} className={`rounded px-1.5 py-0.5 text-[9px] ${chipBg}`}>
-                      {formatCountLabel(key)} {value}
-                    </span>
-                  ))}
-                  {row.layerRefs.slice(0, 4).map((ref) => (
-                    <button
-                      type="button"
-                      key={ref.layerKey}
-                      onClick={() => onRiverLakeInspectorLayerSelect?.(ref)}
-                      title={`${ref.label} · ${ref.presentation.categoryLabel} · ${row.proofClass}`}
-                      className={`inline-flex max-w-[112px] items-center gap-1 truncate rounded px-1.5 py-0.5 text-[9px] transition-colors ${lightMode ? "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50" : "bg-[#111116] border border-[#2a2a32] text-[#c4c4cc] hover:bg-[#1a1a1f]"}`}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: ref.presentation.palette.activeColor }}
-                      />
-                      <span className="truncate">{formatLayerButtonLabel(ref)}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      ) : null}
-
       {/* 3. LAYERS SECTION */}
       <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
         <button
@@ -580,8 +445,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                   <button
                     type="button"
                     onClick={() => toggleGroupExpanded(group.key)}
-                    className={`w-full px-3 pt-2 pb-1 flex items-center justify-between text-[10px] uppercase tracking-wider ${textMuted} ${hoverBg}`}
-                    title={expanded ? "Collapse group" : "Expand group"}
+                    className={`w-full px-3 pt-2 pb-1 flex items-center justify-between text-label uppercase tracking-wider ${textMuted} ${hoverBg}`}
+                    aria-label={expanded ? "Collapse group" : "Expand group"}
                   >
                     <span className="truncate">{group.label}</span>
                     <div className="flex items-center gap-2">
@@ -620,31 +485,45 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         <div className="flex items-center justify-between gap-2">
           {/* Left: Fit & Edges */}
           <div className="flex items-center gap-1">
-            <button onClick={onFitView} title="Fit to view" className={iconBtn}>
-              <Maximize className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => onShowEdgesChange(!showEdges)}
-              title={showEdges ? 'Hide edges' : 'Show edges'}
-              className={showEdges ? iconBtnActive : iconBtn}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button onClick={onFitView} aria-label="Fit to view" className={iconBtn}>
+                  <Maximize className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Fit to view</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => onShowEdgesChange(!showEdges)}
+                  aria-label={showEdges ? 'Hide edges' : 'Show edges'}
+                  className={showEdges ? iconBtnActive : iconBtn}>
 
-              <GitBranch className="w-3.5 h-3.5" />
-            </button>
+                  <GitBranch className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>{showEdges ? 'Hide edges' : 'Show edges'}</TooltipContent>
+            </Tooltip>
           </div>
 
           {/* Right: Render */}
           <div className="flex flex-col items-end gap-1">
-            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Render</span>
+            <span className={`text-label uppercase tracking-wider ${textMuted}`}>Render</span>
             <div className="flex items-center gap-1">
               {renderModeOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => onSelectedRenderModeChange(option.value)}
-                  title={option.label}
-                  className={selectedRenderMode === option.value ? iconBtnActive : iconBtn}
-                >
-                  {getRenderModeIcon(option.value)}
-                </button>
+                <Tooltip key={option.value}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => onSelectedRenderModeChange(option.value)}
+                      aria-label={option.label}
+                      className={selectedRenderMode === option.value ? iconBtnActive : iconBtn}
+                    >
+                      {getRenderModeIcon(option.value)}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{option.label}</TooltipContent>
+                </Tooltip>
               ))}
             </div>
           </div>
@@ -653,50 +532,59 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         <div className="flex items-center justify-between gap-2">
           {/* Left: Space */}
           <div className="flex flex-col gap-1">
-            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Space</span>
+            <span className={`text-label uppercase tracking-wider ${textMuted}`}>Space</span>
             <div className="flex items-center gap-1">
               {spaceOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => onSelectedSpaceChange(option.value)}
-                  title={option.label}
-                  className={selectedSpace === option.value ? iconBtnActive : iconBtn}
-                >
-                  {getSpaceIcon(option.value)}
-                </button>
+                <Tooltip key={option.value}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => onSelectedSpaceChange(option.value)}
+                      aria-label={option.label}
+                      className={selectedSpace === option.value ? iconBtnActive : iconBtn}
+                    >
+                      {getSpaceIcon(option.value)}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{option.label}</TooltipContent>
+                </Tooltip>
               ))}
             </div>
           </div>
 
           {/* Right: Debug toggle */}
-          <button
-            onClick={() => onShowDebugLayersChange(!showDebugLayers)}
-            title={showDebugLayers ? "Hide debug layers" : "Show debug layers"}
-            className={showDebugLayers ? iconBtnActive : iconBtn}>
-            <Bug className="w-3.5 h-3.5" />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onShowDebugLayersChange(!showDebugLayers)}
+                aria-label={showDebugLayers ? "Hide debug layers" : "Show debug layers"}
+                className={showDebugLayers ? iconBtnActive : iconBtn}>
+                <Bug className="w-3.5 h-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{showDebugLayers ? "Hide debug layers" : "Show debug layers"}</TooltipContent>
+          </Tooltip>
         </div>
 
         {eraEnabled ? (
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Era</span>
-              <button
-                type="button"
-                onClick={() => onEraModeChange(eraMode === "auto" ? "fixed" : "auto")}
-                title={eraMode === "auto" ? "Auto (follow selected layer)" : "Manual era"}
-                className={`px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition-colors ${
-                  eraMode === "auto"
-                    ? lightMode
-                      ? "bg-gray-200 text-[#1f2937]"
-                      : "bg-[#222228] text-[#e8e8ed]"
-                    : lightMode
-                      ? "bg-white border border-gray-200 text-[#6b7280]"
-                      : "bg-[#111116] border border-[#2a2a32] text-[#8a8a96]"
-                }`}
-              >
-                Auto
-              </button>
+              <span className={`text-label uppercase tracking-wider ${textMuted}`}>Era</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => onEraModeChange(eraMode === "auto" ? "fixed" : "auto")}
+                    className={`px-2 h-6 rounded text-label font-semibold uppercase tracking-wider transition-colors ${
+                      eraMode === "auto"
+                        ? "bg-muted text-foreground"
+                        : "bg-input-background border border-input text-muted-foreground"
+                    }`}
+                  >
+                    Auto
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{eraMode === "auto" ? "Auto (follow selected layer)" : "Manual era"}</TooltipContent>
+              </Tooltip>
             </div>
             <input
               type="range"
@@ -706,9 +594,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
               value={eraValue}
               disabled={eraMode === "auto"}
               onChange={(e) => onEraValueChange(Number(e.target.value))}
-              className="w-full accent-[#64748b]"
+              className="w-full accent-primary"
             />
-            <div className="flex items-center justify-between text-[10px]">
+            <div className="flex items-center justify-between text-label">
               <span className={textMuted}>{`Era ${eraValue}`}</span>
               <span className={textMuted}>{`${eraMin}-${eraMax}`}</span>
             </div>
@@ -717,35 +605,35 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
 
         {variantOptions.length > 1 ? (
           <label className="flex flex-col gap-1">
-            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Variant</span>
+            <span className={`text-label uppercase tracking-wider ${textMuted}`}>Variant</span>
             <select
               value={selectedVariant}
               onChange={(e) => onSelectedVariantChange(e.target.value)}
-              className={`h-8 rounded px-2 text-[11px] ${lightMode ? 'bg-white border border-gray-200 text-[#1f2937]' : 'bg-[#111116] border border-[#2a2a32] text-[#e8e8ed]'}`}>
+              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground">
               {variantOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-            <span className={`text-[10px] ${textMuted}`}>
-              Semantic slices like <span className={lightMode ? "text-gray-600" : "text-[#8a8a96]"}>era:2</span>, not styling.
+            <span className={`text-label ${textMuted}`}>
+              Semantic slices like <span className="text-muted-foreground">era:2</span>, not styling.
             </span>
           </label>
         ) : null}
 
         {overlayOptions.length ? (
           <label className="flex flex-col gap-1">
-            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Overlay</span>
+            <span className={`text-label uppercase tracking-wider ${textMuted}`}>Overlay</span>
             <select
               value={selectedOverlay}
               onChange={(e) => onSelectedOverlayChange(e.target.value)}
-              className={`h-8 rounded px-2 text-[11px] ${lightMode ? 'bg-white border border-gray-200 text-[#1f2937]' : 'bg-[#111116] border border-[#2a2a32] text-[#e8e8ed]'}`}>
+              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground">
               {overlayOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
             {selectedOverlay ? (
               <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between text-[10px]">
+                <div className="flex items-center justify-between text-label">
                   <span className={textMuted}>Opacity</span>
                   <span className={textMuted}>{Math.round(overlayOpacity * 100)}%</span>
                 </div>
@@ -756,7 +644,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                   step={0.05}
                   value={overlayOpacity}
                   onChange={(e) => onOverlayOpacityChange(Number(e.target.value))}
-                  className="w-full accent-[#64748b]"
+                  className="w-full accent-primary"
                 />
               </div>
             ) : null}

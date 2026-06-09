@@ -21,18 +21,20 @@ import {
   type MapConfigSaveDeployStatus,
 } from '../../features/mapConfigSave/status';
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
   Button,
-  Select,
-  Switch } from
-'./ui';
+  Switch,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose } from
+'../../components/ui';
+import { Select } from './ui';
 import type {
   PipelineConfig,
   Theme,
@@ -200,17 +202,20 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   // ==========================================================================
   // Styles
   // ==========================================================================
-  const panelBg = lightMode ? 'bg-white/95' : 'bg-[#141418]/95';
-  const panelBorder = lightMode ? 'border-gray-200' : 'border-[#2a2a32]';
-  const sectionBg = lightMode ? 'bg-gray-50/80' : 'bg-[#0f0f12]/80';
-  const textPrimary = lightMode ? 'text-[#1f2937]' : 'text-[#e8e8ed]';
-  const textSecondary = lightMode ? 'text-[#6b7280]' : 'text-[#8a8a96]';
-  const textMuted = lightMode ? 'text-[#9ca3af]' : 'text-[#5a5a66]';
-  const borderColor = lightMode ? 'border-gray-200' : 'border-[#2a2a32]';
-  const borderSubtle = lightMode ? 'border-gray-100' : 'border-[#222228]';
-  const hoverBg = lightMode ? 'hover:bg-gray-50' : 'hover:bg-[#1a1a1f]';
-  const iconBtn = `h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 ${lightMode ? 'text-[#6b7280] hover:text-[#1f2937] hover:bg-gray-100' : 'text-[#8a8a96] hover:text-[#e8e8ed] hover:bg-[#1a1a1f]'}`;
-  const iconBtnActive = `h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 ${lightMode ? 'text-[#1f2937] bg-gray-200' : 'text-[#e8e8ed] bg-[#222228]'}`;
+  // Token-driven chrome; theme follows the single `.dark` class. The dock
+  // floats over the deck.gl map, so it rides the `popover` tier; the sunken
+  // section sits on `surface-sunken`.
+  const panelBg = 'bg-popover/95';
+  const panelBorder = 'border-border';
+  const sectionBg = 'bg-surface-sunken/80';
+  const textPrimary = 'text-foreground';
+  const textSecondary = 'text-muted-foreground';
+  const textMuted = 'text-muted-foreground/70';
+  const borderColor = 'border-border';
+  const borderSubtle = 'border-border-subtle';
+  const hoverBg = 'hover:bg-accent';
+  const iconBtn = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent';
+  const iconBtnActive = 'h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted';
   // ==========================================================================
   // Render
   // ==========================================================================
@@ -233,7 +238,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               </span>
             </div>
             {isDirty &&
-            <span className="text-[9px] font-medium uppercase tracking-wider text-orange-500">
+            <span className="text-[9px] font-medium uppercase tracking-wider text-primary">
                 Modified
               </span>
             }
@@ -311,34 +316,39 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 onClick={(e) => e.stopPropagation()}>
 
                 <span
-                  className={`text-[9px] font-medium uppercase tracking-wider ${overridesDisabled ? 'text-orange-500' : textMuted}`}>
+                  className={`text-[9px] font-medium uppercase tracking-wider ${overridesDisabled ? 'text-primary' : textMuted}`}>
 
                   On
                 </span>
-                <Switch
-                  checked={!overridesDisabled}
-                  onCheckedChange={(checked) => setOverridesDisabled(!checked)}
-                  lightMode={lightMode}
-                  aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
-                  title={overridesDisabled ? 'Enable Overrides' : 'Disable Overrides'} />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Switch
+                      checked={!overridesDisabled}
+                      onCheckedChange={(checked) => setOverridesDisabled(!checked)}
+                      aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"} />
+                  </TooltipTrigger>
+                  <TooltipContent>{overridesDisabled ? 'Enable Overrides' : 'Disable Overrides'}</TooltipContent>
+                </Tooltip>
 
               </div>
 
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAllSteps(!showAllSteps);
-                }}
-                aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
-                aria-pressed={showAllSteps}
-                title={
-                showAllSteps ? 'Focus Current Step' : 'Show All Steps'
-                }
-                className={!showAllSteps ? iconBtnActive : iconBtn}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAllSteps(!showAllSteps);
+                    }}
+                    aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
+                    aria-pressed={showAllSteps}
+                    className={!showAllSteps ? iconBtnActive : iconBtn}>
 
-                <Focus className="w-3.5 h-3.5" aria-hidden="true" />
-              </button>
+                    <Focus className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{showAllSteps ? 'Focus Current Step' : 'Show All Steps'}</TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -352,26 +362,34 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
               <div className="flex-1" />
 
-              <button
-              type="button"
-              onClick={() => setShowResetModal(true)}
-              aria-label="Reset Config to Defaults"
-              title="Reset to Defaults"
-              className={iconBtn}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                  type="button"
+                  onClick={() => setShowResetModal(true)}
+                  aria-label="Reset Config to Defaults"
+                  className={iconBtn}>
 
-                <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
-              </button>
+                    <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Reset to Defaults</TooltipContent>
+              </Tooltip>
 
-              <button
-              type="button"
-              onClick={() => setShowJson(!showJson)}
-              aria-label={showJson ? "Show Form View" : "Show JSON View"}
-              aria-pressed={showJson}
-              title={showJson ? 'Show Form View' : 'Show JSON View'}
-              className={showJson ? iconBtnActive : iconBtn}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                  type="button"
+                  onClick={() => setShowJson(!showJson)}
+                  aria-label={showJson ? "Show Form View" : "Show JSON View"}
+                  aria-pressed={showJson}
+                  className={showJson ? iconBtnActive : iconBtn}>
 
-                <Braces className="w-3.5 h-3.5" aria-hidden="true" />
-              </button>
+                    <Braces className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{showJson ? 'Show Form View' : 'Show JSON View'}</TooltipContent>
+              </Tooltip>
             </div>
 
             {/* Config Form / JSON */}
@@ -379,11 +397,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             className={`px-3 pb-3 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
 
               {showJson ?
-            <div
-              className={`border rounded p-2.5 max-h-[240px] overflow-auto ${lightMode ? 'bg-gray-50 border-gray-100' : 'bg-[#0f0f12] border-[#222228]'}`}>
+            <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
 
                   <pre
-                className={`text-[10px] font-mono leading-relaxed ${textMuted} whitespace-pre-wrap break-all`}>
+                className={`text-label font-mono leading-relaxed ${textMuted} whitespace-pre-wrap break-all`}>
 
                     {JSON.stringify(filteredConfig, null, 2)}
                   </pre>
@@ -412,29 +429,33 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             <Button
               onClick={onRun}
               disabled={runActionDisabled}
-              className={`flex-1 ${isDirty ? 'ring-2 ring-orange-400/50 border-orange-400' : ''} ${isRunning || isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
+              className={`flex-1 ${isDirty ? 'ring-1 ring-ring border-primary' : ''} ${isRunning || isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
 
               <Play className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{isRunning ? 'Running…' : 'Run'}</span>
             </Button>
 
             <div className="relative">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  if (saveActionDisabled) return;
-                  setShowSaveMenu(!showSaveMenu);
-                }}
-                disabled={saveActionDisabled}
-                aria-label="Save & Deploy Config"
-                aria-haspopup="menu"
-                aria-expanded={showSaveMenu}
-                title={saveTitle}
-                className={`h-8 w-8 ${isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      if (saveActionDisabled) return;
+                      setShowSaveMenu(!showSaveMenu);
+                    }}
+                    disabled={saveActionDisabled}
+                    aria-label="Save & Deploy Config"
+                    aria-haspopup="menu"
+                    aria-expanded={showSaveMenu}
+                    className={`h-8 w-8 ${isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
 
-                <Save className="w-4 h-4" aria-hidden="true" />
-              </Button>
+                    <Save className="w-4 h-4" aria-hidden="true" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{saveTitle}</TooltipContent>
+              </Tooltip>
 
               {showSaveMenu &&
               <>
@@ -494,7 +515,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       onDeletePreset();
                       setShowSaveMenu(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-[11px] text-red-600 ${hoverBg} rounded-b-lg border-t ${borderSubtle}`}>
+                    className={`w-full text-left px-3 py-2 text-data text-destructive ${hoverBg} rounded-b-lg border-t ${borderSubtle}`}>
 
                         Delete Scratch
                       </button>
@@ -513,31 +534,33 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
       </div>
 
       {/* Reset Confirmation Dialog */}
-      <AlertDialog
-        open={showResetModal}
-        onOpenChange={setShowResetModal}
-        lightMode={lightMode}>
-
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle icon={<Eraser className="w-4 h-4" />}>
+      <Dialog open={showResetModal} onOpenChange={setShowResetModal}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eraser className="w-4 h-4" />
               Reset Config
-            </AlertDialogTitle>
-            <AlertDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               This will reset all config overrides to their default values.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={onConfigReset}
-              className="bg-red-500 hover:bg-red-600 border-red-600">
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onConfigReset();
+                setShowResetModal(false);
+              }}>
 
               Reset
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>);
 
 };
