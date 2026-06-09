@@ -100,6 +100,34 @@ export class Civ7StrategyFrontSummaryUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7StrategyTacticalReadUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("strategy.battlefieldScan"),
+      Type.Literal("strategy.targetCandidates"),
+      Type.Literal("strategy.destinationAnalysis"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7StrategyTacticalReadUnavailableErrorData = Static<
+  typeof Civ7StrategyTacticalReadUnavailableErrorDataSchema
+>;
+
+export class Civ7StrategyTacticalReadUnavailableError extends ORPCTaggedError(
+  "Civ7StrategyTacticalReadUnavailableError",
+  {
+    code: "STRATEGY_TACTICAL_READ_UNAVAILABLE",
+    message: "Strategy tactical read failed.",
+    schema: toStandardSchema(
+      Civ7StrategyTacticalReadUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
 export const Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema =
   Type.Object(
     {
@@ -434,6 +462,54 @@ export class Civ7ProgressionChoiceUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7ProgressionDashboardUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("progression.dashboard.current"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionDashboardUnavailableErrorData = Static<
+  typeof Civ7ProgressionDashboardUnavailableErrorDataSchema
+>;
+
+export class Civ7ProgressionDashboardUnavailableError extends ORPCTaggedError(
+  "Civ7ProgressionDashboardUnavailableError",
+  {
+    code: "PROGRESSION_DASHBOARD_UNAVAILABLE",
+    message: "Direct-control progression dashboard read failed.",
+    schema: toStandardSchema(
+      Civ7ProgressionDashboardUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
+export const Civ7ProgressionTraditionsUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("progression.traditions.current"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionTraditionsUnavailableErrorData = Static<
+  typeof Civ7ProgressionTraditionsUnavailableErrorDataSchema
+>;
+
+export class Civ7ProgressionTraditionsUnavailableError extends ORPCTaggedError(
+  "Civ7ProgressionTraditionsUnavailableError",
+  {
+    code: "PROGRESSION_TRADITIONS_UNAVAILABLE",
+    message: "Direct-control progression traditions read failed.",
+    schema: toStandardSchema(
+      Civ7ProgressionTraditionsUnavailableErrorDataSchema,
+    ),
+    status: 503,
+  },
+) {}
+
 export const Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema =
   Type.Object(
     {
@@ -696,6 +772,8 @@ export const civ7ControlOrpcErrorMap = {
   NOTIFICATION_QUEUE_UNAVAILABLE: Civ7NotificationQueueUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
   PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
+  PROGRESSION_DASHBOARD_UNAVAILABLE: Civ7ProgressionDashboardUnavailableError,
+  PROGRESSION_TRADITIONS_UNAVAILABLE: Civ7ProgressionTraditionsUnavailableError,
   PROGRESSION_PLAYER_CHOICE_UNAVAILABLE: Civ7ProgressionPlayerChoiceUnavailableError,
   PROGRESSION_TARGET_UNAVAILABLE: Civ7ProgressionTargetUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
@@ -705,6 +783,7 @@ export const civ7ControlOrpcErrorMap = {
   STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE:
     Civ7StrategyFormationSnapshotUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
+  STRATEGY_TACTICAL_READ_UNAVAILABLE: Civ7StrategyTacticalReadUnavailableError,
   TOWN_FOCUS_UNAVAILABLE: Civ7TownFocusUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
   UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,

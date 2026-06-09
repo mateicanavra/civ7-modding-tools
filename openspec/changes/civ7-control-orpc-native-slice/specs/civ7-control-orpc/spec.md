@@ -1649,6 +1649,97 @@ boundaries.
 - **AND** not-sent, sticky-blocker, state-changed-blocker-still-live, and other
   unverified paths remain no-repeat guarded
 
+#### Scenario: Progression dashboard service is implemented
+- **WHEN** a caller reads `progression.dashboard.current`
+- **THEN** it is offered under the semantic `progression` router
+- **AND** it consumes the direct-control progress dashboard runtime port as
+  low-level App UI evidence
+- **AND** the service procedure owns the summary-first progression projection,
+  compact legacy path calculations, warning policy, omitted-detail policy, and
+  semantic next-step descriptors
+- **AND** caller-facing input accepts only progression dashboard selection
+  fields such as optional player id, while endpoint, session, state, raw
+  command, rawCommand, transport, and approval/reason fields remain outside
+  procedure input
+- **AND** normal service output omits raw host, port, state, session, command,
+  rawCommand, direct-control runtime envelopes, and CLI command strings
+- **AND** local procedure tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI progress dashboard uses native progression service
+- **WHEN** `civ7 game play progress-dashboard` reads current progress
+- **THEN** the CLI calls the in-process
+  `progression.dashboard.current` server-side client
+- **AND** normal JSON uses the service-owned semantic progression dashboard
+  projection rather than a CLI-owned runtime projection
+- **AND** any CLI command-string presentation is mapped at the CLI edge from
+  semantic next-step descriptors, not embedded in the service contract
+- **AND** the CLI does not expose raw host, port, state, session, command,
+  rawCommand, direct-control runtime envelopes, approval/reason mechanics, or
+  transport details as normal progress-dashboard output
+
+#### Scenario: Progression traditions service is implemented
+- **WHEN** a caller reads `progression.traditions.current`
+- **THEN** it is offered under the semantic `progression` router
+- **AND** it consumes the direct-control traditions runtime port as low-level
+  App UI/Culture evidence
+- **AND** the service procedure owns tradition option projection, semantic
+  action descriptors, validation-success projection, omitted-detail policy,
+  and next-step descriptors
+- **AND** caller-facing input accepts only traditions read selection fields
+  such as optional player id, while endpoint, session, state, raw command,
+  rawCommand, transport, and approval/reason fields remain outside procedure
+  input
+- **AND** normal service output omits raw host, port, state, session, command,
+  rawCommand, direct-control `recommendedCli`, `actionHints[].cli`, runtime
+  envelopes, and CLI command strings
+- **AND** local procedure tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI traditions view uses native progression service
+- **WHEN** `civ7 game play traditions` reads current traditions
+- **THEN** the CLI calls the in-process
+  `progression.traditions.current` server-side client
+- **AND** normal JSON uses the service-owned semantic traditions projection
+  rather than a CLI-owned runtime projection
+- **AND** any CLI command-string presentation is mapped at the CLI edge from
+  semantic action descriptors, not embedded in the service contract
+- **AND** the CLI does not expose raw host, port, state, session, command,
+  rawCommand, direct-control runtime envelopes, approval/reason mechanics, or
+  transport details as normal traditions output
+
+#### Scenario: Strategy tactical read services are implemented
+- **WHEN** a caller reads battlefield scan, target candidates, or destination
+  analysis
+- **THEN** the reads are offered under the semantic `strategy` router as
+  `strategy.battlefieldScan`, `strategy.targetCandidates`, and
+  `strategy.destinationAnalysis`
+- **AND** they consume direct-control tactical runtime/read ports as low-level
+  App UI evidence rather than exposing direct-control result envelopes
+- **AND** the service procedures own bounded planning summaries, semantic
+  next-step descriptors, omitted-detail policy, and relationship-safe wording
+- **AND** caller-facing input accepts only tactical read selection fields such
+  as player id, origins, destination, radii, and bounds, while endpoint,
+  session, state, raw command, rawCommand, transport, and approval/reason
+  fields remain outside procedure input
+- **AND** normal service output omits raw host, port, state, session, command,
+  rawCommand, raw city/unit/plot samples, and direct-control runtime envelopes
+- **AND** normal output uses `relationship-unproven`/official-proof-neutral
+  wording and does not infer official diplomatic labels from owner mismatch,
+  proximity, contact, ranking, or action legality
+- **AND** local procedure tests do not claim live Civ7 runtime proof
+
+#### Scenario: CLI tactical reads use native strategy services
+- **WHEN** `civ7 game play battlefield-scan`,
+  `civ7 game play target-candidates`, or
+  `civ7 game play destination-analysis` reads tactical planning evidence
+- **THEN** the CLI calls the in-process `strategy.battlefieldScan`,
+  `strategy.targetCandidates`, or `strategy.destinationAnalysis` server-side
+  client
+- **AND** normal JSON uses the service-owned semantic strategy projection
+  rather than a CLI-owned direct-control runtime projection
+- **AND** the CLI does not expose raw host, port, state, session, command,
+  rawCommand, direct-control runtime envelopes, approval/reason mechanics, raw
+  city/unit/plot samples, or transport details as normal tactical-read output
+
 #### Scenario: Local procedure test passes
 - **WHEN** a local fake-context procedure test passes
 - **THEN** it may prove contract/middleware/projection behavior

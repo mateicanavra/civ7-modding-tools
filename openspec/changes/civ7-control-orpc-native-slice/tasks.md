@@ -133,6 +133,14 @@ adding more read-only facade shells.
     relationship-unproven policy; CLI command strings stay caller-local; no
     strategy catalog, action authority, runtime proof, or parent Task 5.x/6.x
     acceptance.
+  - [x] 5.4.4.1 Record `strategy.battlefieldScan`,
+    `strategy.targetCandidates`, and `strategy.destinationAnalysis` as
+    service-owned tactical read projections over direct-control battlefield,
+    target-candidate, and destination-analysis runtime/read ports. The service
+    owns bounded planning summaries, semantic next-step descriptors, raw
+    sample omission, and relationship-unproven policy; CLI command strings stay
+    caller-local; no strategy catalog, controller bridge, action authority,
+    runtime proof, or parent Task 5.x/6.x acceptance.
   - [x] 5.4.5 Record `narrative.choice.request` as a service-owned
     narrative boundary over direct-control narrative runtime, validator, and
     proof ports. The service owns the caller-facing semantic choice shape,
@@ -239,6 +247,22 @@ adding more read-only facade shells.
     postcondition projection, raw-output exclusion, and no-repeat guard; no
     generic player-operation catalog, approval/reason mechanic, runtime proof,
     controller bridge, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.23 Record `progression.dashboard.current` as a service-owned
+    progression dashboard boundary over the direct-control runtime progress
+    read port. The service owns the summary-first progress projection,
+    compact legacy path calculations, warnings, omitted-detail policy, and
+    semantic next-step descriptors; direct-control remains the low-level App
+    UI evidence source. Keep CLI command strings caller-local, keep contract
+    schemas private, and avoid runtime proof, controller bridge, transport,
+    broad progression catalogs, or parent Task 5.x/6.x acceptance.
+  - [x] 5.4.24 Record `progression.traditions.current` as a service-owned
+    traditions decision-read boundary over the direct-control traditions
+    runtime port. The service owns semantic tradition action descriptors,
+    validation-success projection, omitted CLI/runtime evidence policy, and
+    next-step descriptors; direct-control remains the low-level App UI/Culture
+    evidence source. Keep CLI command strings caller-local, keep contract
+    schemas private, and avoid runtime proof, controller bridge, transport,
+    broad progression catalogs, or parent Task 5.x/6.x acceptance.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
@@ -407,6 +431,22 @@ adding more read-only facade shells.
     pending-runtime-proof/no-repeat guarded, and keep runtime proof,
     controller bridge, transport expansion, approval/reason mechanics, broad
     operation catalog support, and parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.22 Seed `progression.dashboard.current` as a native service-owned
+    progression read that composes the direct-control progress dashboard
+    runtime port into caller-neutral semantic output. Keep input/output schemas
+    contract-local, omit raw host/port/state/session/command evidence, keep
+    service next steps as descriptors rather than CLI command strings, leave
+    game-UI/controller support unsupported, and keep runtime proof, transport
+    expansion, broad read-wrapper revival, approval/reason mechanics, and
+    parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.23 Seed `progression.traditions.current` as a native service-owned
+    progression read that composes the direct-control traditions runtime port
+    into caller-neutral semantic action descriptors. Keep input/output schemas
+    contract-local, omit raw host/port/state/session/command evidence, omit
+    direct-control CLI recommendation fields and `actionHints[].cli`, leave
+    game-UI/controller support unsupported, and keep runtime proof, transport
+    expansion, broad read-wrapper revival, approval/reason mechanics, and
+    parent Task 5.x/6.x/7.x acceptance pending.
 
 ## 6. Native Policy Layering
 
@@ -743,6 +783,34 @@ adding more read-only facade shells.
     raw `VIEWED_ADVISOR_WARNING` operation details, legacy `verified`, and
     approval/reason mechanics from normal send JSON, and avoid controller
     bridge, transport, broad operation catalogs, or runtime-proof claims.
+  - [x] 7.1.9.13 Route `civ7 game play progress-dashboard` through the
+    in-process `progression.dashboard.current` server-side client under the
+    `progression` router. Move the summary-first progress projection out of
+    the CLI into the native service, keep CLI command strings mapped only in
+    CLI presentation, omit raw host/port/state/session/Tuner payloads and
+    direct-control runtime envelopes from normal JSON, and avoid controller
+    bridge, transport, broad read-wrapper revival, approval/reason mechanics,
+    or runtime-proof claims.
+  - [x] 7.1.9.14 Route `civ7 game play traditions` through the in-process
+    `progression.traditions.current` server-side client under the
+    `progression` router. Move the traditions option projection out of the CLI
+    into the native service, keep CLI command strings mapped only in CLI
+    presentation, omit direct-control `recommendedCli` / `actionHints[].cli`,
+    raw host/port/state/session/Tuner payloads, and runtime envelopes from
+    normal JSON, and avoid controller bridge, transport, broad read-wrapper
+    revival, approval/reason mechanics, or runtime-proof claims.
+  - [x] 7.1.9.15 Route `civ7 game play battlefield-scan`,
+    `civ7 game play target-candidates`, and
+    `civ7 game play destination-analysis` through the in-process
+    `strategy.battlefieldScan`, `strategy.targetCandidates`, and
+    `strategy.destinationAnalysis` server-side clients under the `strategy`
+    router. Move bounded battlefield, target, and destination planning
+    projection out of the CLI, keep endpoint flags as context construction,
+    emit relationship-safe semantic planning output, omit raw
+    host/port/state/session/Tuner payloads, raw city/unit/plot samples, and
+    direct-control envelopes from normal JSON, and avoid controller bridge,
+    transport, action-send, approval/reason mechanics, or runtime-proof
+    claims.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
   - [x] 7.2.1 Mount the shared `Civ7ControlOrpcRouter` behind Studio's Vite
@@ -1539,6 +1607,41 @@ adding more read-only facade shells.
   does not claim deployed Civ7 runtime proof, play-thread action, controller
   bridge, transport expansion, broad operation catalog support, approval/reason
   mechanics, raw player-operation output, or parent Task 5.x/6.x/7.x
+  acceptance.
+- [x] 8.60.22 Run focused progression dashboard procedure tests, focused CLI
+  progression-read tests, control-oRPC package test/check/build, CLI
+  play/check gates, strict OpenSpec validates, private procedure-schema export
+  scan, active approval/caller-permission scan, service-output CLI-string
+  scan, raw runtime output scan, and diff hygiene for the
+  `progression.dashboard.current` service-composition expansion and `game play
+  progress-dashboard` in-process oRPC caller migration. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, controller bridge, transport expansion, broad
+  read-wrapper revival, approval/reason mechanics, raw runtime output, or
+  parent Task 5.x/6.x/7.x acceptance.
+- [x] 8.60.23 Run focused progression traditions procedure tests, focused CLI
+  progression-read tests, control-oRPC package test/check/build, CLI
+  play/check gates, strict OpenSpec validates, private procedure-schema export
+  scan, active approval/caller-permission scan, service-output CLI-string
+  scan, raw runtime output scan, and diff hygiene for the
+  `progression.traditions.current` service-composition expansion and `game
+  play traditions` in-process oRPC caller migration. This is local package/CLI
+  proof only and does not claim deployed Civ7 runtime proof, play-thread
+  action, controller bridge, transport expansion, broad read-wrapper revival,
+  approval/reason mechanics, raw runtime output, or parent Task 5.x/6.x/7.x
+  acceptance.
+- [x] 8.60.24 Run focused strategy tactical-read procedure tests, focused CLI
+  tactical-read tests, control-oRPC package test/check/build, CLI play/check
+  gates, strict OpenSpec validates, private procedure-schema export scan,
+  active approval/caller-permission scan, service-output CLI-string scan, raw
+  runtime output scan, and diff hygiene for the `strategy.battlefieldScan`,
+  `strategy.targetCandidates`, and `strategy.destinationAnalysis` service
+  projections and `game play battlefield-scan` / `target-candidates` /
+  `destination-analysis` in-process oRPC caller migration. This is local
+  package/CLI proof only and does not claim deployed Civ7 runtime proof,
+  play-thread action, controller bridge, transport expansion, broad strategy
+  catalog support, relationship labels beyond official evidence,
+  approval/reason mechanics, raw runtime output, or parent Task 5.x/6.x/7.x
   acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the

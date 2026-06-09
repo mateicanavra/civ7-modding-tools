@@ -377,6 +377,12 @@ function createCiv7GameUiDirectControlFacade(
       await getCiv7GameUiPlayNotificationView({
         maxNotifications: options?.maxNotifications,
       }, target),
+    getCiv7ProgressDashboard: async () => {
+      throw new Error("game-ui progress dashboard is not supported");
+    },
+    getCiv7TraditionsView: async () => {
+      throw new Error("game-ui traditions view is not supported");
+    },
     getCiv7BattlefieldScan: async (input) =>
       await getCiv7GameUiBattlefieldScan(input, target),
     getCiv7DestinationAnalysis: async (input) =>

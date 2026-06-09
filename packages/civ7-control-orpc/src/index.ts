@@ -176,16 +176,22 @@ export {
   Civ7PopulationPlacementUnavailableErrorDataSchema,
   Civ7ProgressionChoiceUnavailableError,
   Civ7ProgressionChoiceUnavailableErrorDataSchema,
+  Civ7ProgressionDashboardUnavailableError,
+  Civ7ProgressionDashboardUnavailableErrorDataSchema,
   Civ7ProgressionPlayerChoiceUnavailableError,
   Civ7ProgressionPlayerChoiceUnavailableErrorDataSchema,
   Civ7ProgressionTargetUnavailableError,
   Civ7ProgressionTargetUnavailableErrorDataSchema,
+  Civ7ProgressionTraditionsUnavailableError,
+  Civ7ProgressionTraditionsUnavailableErrorDataSchema,
   Civ7ProductionChoiceUnavailableError,
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7ReadinessCurrentUnavailableError,
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
   Civ7StrategyCivilianRouteTriageUnavailableError,
   Civ7StrategyCivilianRouteTriageUnavailableErrorDataSchema,
+  Civ7StrategyTacticalReadUnavailableError,
+  Civ7StrategyTacticalReadUnavailableErrorDataSchema,
   Civ7StrategyFormationSnapshotUnavailableError,
   Civ7StrategyFormationSnapshotUnavailableErrorDataSchema,
   Civ7StrategyFrontSummaryUnavailableError,
@@ -220,11 +226,14 @@ export {
   type Civ7NotificationQueueUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
   type Civ7ProgressionChoiceUnavailableErrorData,
+  type Civ7ProgressionDashboardUnavailableErrorData,
   type Civ7ProgressionPlayerChoiceUnavailableErrorData,
   type Civ7ProgressionTargetUnavailableErrorData,
+  type Civ7ProgressionTraditionsUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7StrategyCivilianRouteTriageUnavailableErrorData,
+  type Civ7StrategyTacticalReadUnavailableErrorData,
   type Civ7StrategyFormationSnapshotUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
   type Civ7TownFocusUnavailableErrorData,
@@ -364,13 +373,19 @@ export type {
   Civ7ProgressionCultureChoiceResult,
   Civ7ProgressionCultureTargetContract as Civ7ProgressionCultureTargetContractType,
   Civ7ProgressionCultureTargetResult,
+  Civ7ProgressionDashboardInput,
+  Civ7ProgressionDashboardResult,
   Civ7ProgressionTechnologyChoiceContract as Civ7ProgressionTechnologyChoiceContractType,
   Civ7ProgressionTechnologyChoiceResult,
   Civ7ProgressionTechnologyTargetContract as Civ7ProgressionTechnologyTargetContractType,
   Civ7ProgressionTechnologyTargetResult,
   Civ7ProgressionTargetInput,
+  Civ7ProgressionTraditionsInput,
+  Civ7ProgressionTraditionsResult,
 } from "./modules/progression/contract";
 export { progressionRouter } from "./modules/progression/router";
+export { progressionDashboardCurrentProcedure } from "./modules/progression/procedures/dashboard-current";
+export { progressionTraditionsCurrentProcedure } from "./modules/progression/procedures/traditions-current";
 export {
   progressionCultureChoiceRequestProcedure,
   progressionTechnologyChoiceRequestProcedure,
@@ -417,27 +432,44 @@ export type {
 export { readinessRouter } from "./modules/readiness/router";
 export { readinessCurrentProcedure } from "./modules/readiness/procedures/current";
 export {
+  Civ7StrategyBattlefieldScanContract,
   Civ7StrategyCivilianRouteTriageContract,
   Civ7StrategyContract,
+  Civ7StrategyDestinationAnalysisContract,
   Civ7StrategyFormationSnapshotContract,
   Civ7StrategyFrontSummaryContract,
+  Civ7StrategyTargetCandidatesContract,
 } from "./modules/strategy/contract";
 export type {
+  Civ7StrategyBattlefieldScanContract as Civ7StrategyBattlefieldScanContractType,
+  Civ7StrategyBattlefieldScanInput,
+  Civ7StrategyBattlefieldScanResult,
   Civ7StrategyCivilianRouteTriageContract as Civ7StrategyCivilianRouteTriageContractType,
   Civ7StrategyCivilianRouteTriageInput,
   Civ7StrategyCivilianRouteTriageResult,
   Civ7StrategyContract as Civ7StrategyContractType,
+  Civ7StrategyDestinationAnalysisContract as Civ7StrategyDestinationAnalysisContractType,
+  Civ7StrategyDestinationAnalysisInput,
+  Civ7StrategyDestinationAnalysisResult,
   Civ7StrategyFormationSnapshotContract as Civ7StrategyFormationSnapshotContractType,
   Civ7StrategyFormationSnapshotInput,
   Civ7StrategyFormationSnapshotResult,
   Civ7StrategyFrontSummaryContract as Civ7StrategyFrontSummaryContractType,
   Civ7StrategyFrontSummaryInput,
   Civ7StrategyFrontSummaryResult,
+  Civ7StrategyTargetCandidatesContract as Civ7StrategyTargetCandidatesContractType,
+  Civ7StrategyTargetCandidatesInput,
+  Civ7StrategyTargetCandidatesResult,
 } from "./modules/strategy/contract";
 export { strategyRouter } from "./modules/strategy/router";
 export { strategyCivilianRouteTriageProcedure } from "./modules/strategy/procedures/civilian-route-triage";
 export { strategyFormationSnapshotProcedure } from "./modules/strategy/procedures/formation-snapshot";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
+export {
+  strategyBattlefieldScanProcedure,
+  strategyDestinationAnalysisProcedure,
+  strategyTargetCandidatesProcedure,
+} from "./modules/strategy/procedures/tactical-reads";
 export {
   Civ7TurnCompletionContract,
   Civ7TurnContract,
