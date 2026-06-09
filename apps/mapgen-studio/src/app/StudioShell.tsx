@@ -2399,7 +2399,15 @@ export function StudioShell(props: StudioShellProps) {
       <div aria-live="polite" className="sr-only">
         {liveStatusAnnouncement}
       </div>
-      <main id="map-preview" aria-label="Map preview" tabIndex={-1} className="contents">
+      {/*
+        Skip-link target. Previously `display:contents`, which removes the
+        element from the box tree — the browser can't focus or scroll to it, so
+        the skip link landed nowhere. It is now a real, laid-out box that fills
+        the stage (`absolute inset-0`, identical to the CanvasStage fill it
+        wraps), keeping it in the a11y tree and focusable via `tabIndex={-1}`
+        without changing the visual layout.
+      */}
+      <main id="map-preview" aria-label="Map preview" tabIndex={-1} className="absolute inset-0">
         <CanvasStage
           apiRef={deckApiRef}
           onApiReady={handleDeckApiReady}

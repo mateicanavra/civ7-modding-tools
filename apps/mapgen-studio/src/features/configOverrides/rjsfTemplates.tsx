@@ -70,13 +70,19 @@ export function BrowserConfigFieldTemplate(
 
   const showLabel = displayLabel && label;
 
+  // Errors are associated with the field's input via `id="${id}__error"` + a
+  // `role="alert"` live region, and the widget mirrors that id through
+  // `aria-describedby` + `aria-invalid` (see `rjsfWidgets.tsx`), so assistive tech
+  // announces validation against the control rather than as orphaned text.
+  const errorId = `${id}__error`;
+
   if (!showLabel) {
     return (
       <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
         <div className={textClass}>{children}</div>
         {description && !suppressDescription ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
         {renderGsComments({ schema: props.schema, className: labelClass })}
-        {errors ? <div className="text-data text-destructive">{errors}</div> : null}
+        {errors ? <div id={errorId} role="alert" className="text-data text-destructive">{errors}</div> : null}
         {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
       </div>
     );
@@ -93,7 +99,7 @@ export function BrowserConfigFieldTemplate(
       </FieldRow>
       {description && !suppressDescription ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
       {renderGsComments({ schema: props.schema, className: labelClass })}
-      {errors ? <div className="text-data text-destructive">{errors}</div> : null}
+      {errors ? <div id={errorId} role="alert" className="text-data text-destructive">{errors}</div> : null}
       {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
     </div>
   );

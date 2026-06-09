@@ -32,6 +32,19 @@ function normalizeEmptyValue(
   return next === "" ? emptyValue : next;
 }
 
+// Validation a11y: when RJSF reports `rawErrors` for a field, mark the control
+// invalid and point it at the FieldTemplate's `id="${id}__error"` live region
+// (see `rjsfTemplates.tsx`) so assistive tech announces the error against the
+// input. Presentation only — no value plumbing changes.
+function errorA11yProps(
+  id: string,
+  rawErrors: ReadonlyArray<string> | undefined
+): { "aria-invalid"?: true; "aria-describedby"?: string } {
+  return rawErrors && rawErrors.length > 0
+    ? { "aria-invalid": true, "aria-describedby": `${id}__error` }
+    : {};
+}
+
 export function TextWidget(props: ConfigWidgetProps) {
   const {
     id,
@@ -46,6 +59,7 @@ export function TextWidget(props: ConfigWidgetProps) {
     options,
     placeholder,
     type,
+    rawErrors,
   } = props;
   return (
     <Input
@@ -59,6 +73,7 @@ export function TextWidget(props: ConfigWidgetProps) {
       disabled={disabled || readonly}
       value={(value as string | undefined) ?? ""}
       placeholder={placeholder}
+      {...errorA11yProps(id, rawErrors)}
       onChange={(event) => {
         onChange(normalizeEmptyValue(event.target.value, options.emptyValue));
       }}
@@ -67,7 +82,7 @@ export function TextWidget(props: ConfigWidgetProps) {
 }
 
 export function TextareaWidget(props: ConfigWidgetProps) {
-  const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder } =
+  const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder, rawErrors } =
     props;
   return (
     <Textarea
@@ -80,6 +95,7 @@ export function TextareaWidget(props: ConfigWidgetProps) {
       disabled={disabled || readonly}
       value={(value as string | undefined) ?? ""}
       placeholder={placeholder}
+      {...errorA11yProps(id, rawErrors)}
       onChange={(event) => {
         onChange(normalizeEmptyValue(event.target.value, options.emptyValue));
       }}
@@ -88,7 +104,7 @@ export function TextareaWidget(props: ConfigWidgetProps) {
 }
 
 export function NumberWidget(props: ConfigWidgetProps) {
-  const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder } =
+  const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder, rawErrors } =
     props;
   return (
     <Input
@@ -103,6 +119,7 @@ export function NumberWidget(props: ConfigWidgetProps) {
       disabled={disabled || readonly}
       value={(value as number | string | undefined) ?? ""}
       placeholder={placeholder}
+      {...errorA11yProps(id, rawErrors)}
       onChange={(event) => {
         const next = event.target.value;
         if (next === "") {
@@ -117,7 +134,7 @@ export function NumberWidget(props: ConfigWidgetProps) {
 }
 
 export function SelectWidget(props: ConfigWidgetProps) {
-  const { id, name, value, disabled, readonly, onChange, options, placeholder } = props;
+  const { id, name, value, disabled, readonly, onChange, options, placeholder, rawErrors } = props;
   const enumOptions = (options.enumOptions ?? []) as Array<{ value: unknown; label: string }>;
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
   const selectedKey = value === undefined || value === null ? "" : String(value);
@@ -133,7 +150,7 @@ export function SelectWidget(props: ConfigWidgetProps) {
         onChange(map.has(key) ? map.get(key) : key);
       }}
     >
-      <SelectTrigger id={id} aria-label={placeholder ?? name}>
+      <SelectTrigger id={id} aria-label={placeholder ?? name} {...errorA11yProps(id, rawErrors)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
@@ -148,7 +165,7 @@ export function SelectWidget(props: ConfigWidgetProps) {
 }
 
 export function CheckboxWidget(props: ConfigWidgetProps) {
-  const { id, name, value, disabled, readonly, autofocus, onChange } = props;
+  const { id, name, value, disabled, readonly, autofocus, onChange, rawErrors } = props;
   return (
     <Checkbox
       id={id}
@@ -156,13 +173,14 @@ export function CheckboxWidget(props: ConfigWidgetProps) {
       checked={Boolean(value)}
       autoFocus={autofocus}
       disabled={disabled || readonly}
+      {...errorA11yProps(id, rawErrors)}
       onCheckedChange={(checked) => onChange(checked === true)}
     />
   );
 }
 
 export function SwitchWidget(props: ConfigWidgetProps) {
-  const { id, name, value, disabled, readonly, autofocus, onChange } = props;
+  const { id, name, value, disabled, readonly, autofocus, onChange, rawErrors } = props;
   return (
     <Switch
       id={id}
@@ -170,6 +188,7 @@ export function SwitchWidget(props: ConfigWidgetProps) {
       checked={Boolean(value)}
       autoFocus={autofocus}
       disabled={disabled || readonly}
+      {...errorA11yProps(id, rawErrors)}
       onCheckedChange={(checked) => onChange(checked)}
     />
   );
