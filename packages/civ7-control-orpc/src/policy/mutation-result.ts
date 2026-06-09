@@ -39,6 +39,17 @@ export type Civ7MutationNextStep<
   label: string;
 }>;
 
+export type Civ7MutationProjection<
+  Classification extends string,
+  Outcome extends string,
+  Source extends string,
+  InspectKind extends string,
+> = Readonly<{
+  postcondition: Civ7MutationPostconditionSummary<Classification, Outcome>;
+  status: Exclude<Civ7MutationRequestStatus, "sent-guarded">;
+  nextSteps: Array<Civ7MutationNextStep<Source, InspectKind>>;
+}>;
+
 export function civ7MutationRequestStatus(
   input: Readonly<{
     sent: boolean;
@@ -138,4 +149,61 @@ export function civ7MutationNextSteps<
     label: input.refreshLabel
       ?? "Refresh current attention before choosing the next player action.",
   }];
+}
+
+export function civ7CloseoutMutationProjection<
+  Classification extends string,
+  Outcome extends string,
+  MissingClassification extends string,
+  MissingOutcome extends string,
+  Source extends string,
+  InspectKind extends string,
+>(
+  input: Readonly<{
+    sent: boolean;
+    postcondition:
+      | Civ7MutationProofPostcondition<Classification, Outcome>
+      | null
+      | undefined;
+    missing: Readonly<{
+      classification: MissingClassification;
+      reason: string;
+      outcome: MissingOutcome;
+    }>;
+    source: Source;
+    inspectKind: InspectKind;
+    inspectLabel: string;
+    doNotRepeatLabel: string;
+    refreshLabel?: string;
+  }>,
+): Civ7MutationProjection<
+  Classification | MissingClassification,
+  Outcome | MissingOutcome,
+  Source,
+  InspectKind
+> {
+  const postcondition = civ7MutationPostconditionSummary({
+    postcondition: input.postcondition,
+    missing: input.missing,
+  });
+  const status = civ7MutationRequestStatusWithoutGuarded({
+    sent: input.sent,
+    postcondition,
+  });
+
+  return {
+    postcondition,
+    status,
+    nextSteps: civ7MutationNextSteps({
+      status,
+      postcondition,
+      source: input.source,
+      inspectKind: input.inspectKind,
+      inspectLabel: input.inspectLabel,
+      doNotRepeatLabel: input.doNotRepeatLabel,
+      ...(input.refreshLabel === undefined
+        ? {}
+        : { refreshLabel: input.refreshLabel }),
+    }),
+  };
 }

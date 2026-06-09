@@ -9,7 +9,8 @@ export type Civ7ControlOrpcProcedureMeta = Readonly<{
     | "decisions"
     | "map"
     | "player"
-    | "strategy";
+    | "strategy"
+    | "turn";
   procedureKey?: string;
   proofBoundary?: "local-package-test" | "pending-runtime-proof" | "runtime-proof";
   risk?: "read-only" | "runtime-support" | "mutation";

@@ -166,6 +166,50 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7ProgressionChoiceUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("decisions.progression.choice.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7ProgressionChoiceUnavailableErrorData = Static<
+  typeof Civ7ProgressionChoiceUnavailableErrorDataSchema
+>;
+
+export class Civ7ProgressionChoiceUnavailableError extends ORPCTaggedError(
+  "Civ7ProgressionChoiceUnavailableError",
+  {
+    code: "PROGRESSION_CHOICE_UNAVAILABLE",
+    message: "Direct-control progression choice request failed.",
+    schema: toStandardSchema(Civ7ProgressionChoiceUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
+export const Civ7TurnCompletionUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("turn.complete.request"),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7TurnCompletionUnavailableErrorData = Static<
+  typeof Civ7TurnCompletionUnavailableErrorDataSchema
+>;
+
+export class Civ7TurnCompletionUnavailableError extends ORPCTaggedError(
+  "Civ7TurnCompletionUnavailableError",
+  {
+    code: "TURN_COMPLETION_UNAVAILABLE",
+    message: "Direct-control turn completion request failed.",
+    schema: toStandardSchema(Civ7TurnCompletionUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -312,9 +356,11 @@ export const civ7ControlOrpcErrorMap = {
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
   NOTIFICATION_DISMISSAL_UNAVAILABLE: Civ7NotificationDismissalUnavailableError,
   POPULATION_PLACEMENT_UNAVAILABLE: Civ7PopulationPlacementUnavailableError,
+  PROGRESSION_CHOICE_UNAVAILABLE: Civ7ProgressionChoiceUnavailableError,
   PRODUCTION_CHOICE_UNAVAILABLE: Civ7ProductionChoiceUnavailableError,
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
+  TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
 } satisfies EffectErrorMap;
 

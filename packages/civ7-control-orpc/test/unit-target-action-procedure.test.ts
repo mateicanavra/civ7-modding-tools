@@ -1,10 +1,12 @@
 import { call } from "@orpc/server";
+import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
   Civ7MutationApprovalRequiredError,
+  Civ7UnitTargetActionInputSchema,
   Civ7UnitTargetActionUnavailableError,
   createCiv7ControlOrpcServerClient,
   type Civ7ControlOrpcContext,
@@ -15,6 +17,43 @@ const unitId = { owner: 0, id: 42, type: 1 };
 const target = { x: 22, y: 31 };
 
 describe("unit.target.action.request control-oRPC procedure", () => {
+  test("owns the caller-facing unit target action contract without raw fields", () => {
+    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
+      unitId,
+      ...target,
+    })).toBe(true);
+    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
+      unitId,
+      ...target,
+      rawCommand: "Game.UnitOperations.sendRequest(...)",
+    })).toBe(false);
+    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
+      unitId,
+      ...target,
+      approvalReason: "test approved unit target action",
+    })).toBe(false);
+    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
+      unitId,
+      ...target,
+      session: { state: "App UI" },
+    })).toBe(false);
+    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
+      unitId,
+      x: 22.5,
+      y: 31,
+    })).toBe(false);
+    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
+      unitId,
+      x: -1,
+      y: 31,
+    })).toBe(false);
+    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
+      unitId,
+      x: 22,
+      y: 1_000_001,
+    })).toBe(false);
+  });
+
   test("calls the unit target action mutation through native Effect/oRPC with context approval", async () => {
     const fake = fakeContext(unitTargetActionResult("target-reached"));
 

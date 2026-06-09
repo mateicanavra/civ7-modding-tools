@@ -727,6 +727,19 @@ export type {
   Civ7TechnologyChoiceCloseoutResult,
 } from "./play/progression/technology.js";
 export { requestCiv7TechnologyChoiceCloseout } from "./play/progression/technology.js";
+export {
+  cultureChoicePostcondition,
+  findCultureChoiceNotification,
+  findTechnologyChoiceNotification,
+  technologyChoicePostcondition,
+} from "./play/progression/choice-postconditions.js";
+export type {
+  Civ7CultureChoicePostconditionClassification,
+  Civ7ProgressionChoiceNotification,
+  Civ7ProgressionChoiceNotificationView,
+  Civ7ProgressionChoicePostcondition,
+  Civ7TechnologyChoicePostconditionClassification,
+} from "./play/progression/choice-postconditions.js";
 export type {
   Civ7CultureChoiceCloseoutInput,
   Civ7CultureChoiceCloseoutResult,
@@ -786,6 +799,14 @@ export {
   sendCiv7TurnComplete,
   sendCiv7TurnUnready,
 } from "./play/turn-completion.js";
+export {
+  turnCompletionPostconditionConfirmed,
+  turnCompletionProofOutcome,
+  turnCompletionProofPostcondition,
+} from "./proof/turn-completion-proof-policy";
+export type {
+  Civ7TurnCompletionPostconditionClassification,
+} from "./proof/turn-completion-proof-policy";
 export {
   callCiv7TurnCompletionStatusProcedure,
   Civ7TurnCompletionStatusProcedureDescriptor,

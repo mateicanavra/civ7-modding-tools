@@ -1,8 +1,6 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  createCiv7ControlOrpcServerClient,
-  liveCiv7ControlOrpcDirectControlFacade,
-} from '@civ7/control-orpc';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import type { Civ7DirectControlOptions } from '@civ7/direct-control';
 
 export default class GameStatus extends Command {

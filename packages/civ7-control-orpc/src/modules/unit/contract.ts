@@ -1,15 +1,26 @@
-import {
-  Civ7ComponentIdSchema,
-  Civ7MapLocationSchema,
-  Civ7UnitTargetActionInputSchema,
-} from "@civ7/direct-control";
 import type { ContractProcedure } from "@orpc/contract";
 import { Type, type Static } from "typebox";
 
 import { civ7ControlOrpcContractBase } from "../../contract-base";
 import type { Civ7ControlOrpcErrorMap } from "../../errors";
 import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
+import {
+  Civ7ControlOrpcComponentIdSchema,
+  Civ7ControlOrpcMapLocationSchema,
+} from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
+
+export const Civ7UnitTargetActionInputSchema = Type.Object(
+  {
+    unitId: Civ7ControlOrpcComponentIdSchema,
+    x: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+    y: Type.Integer({ minimum: 0, maximum: 1_000_000 }),
+  },
+  { additionalProperties: false },
+);
+export type Civ7UnitTargetActionInput = Static<
+  typeof Civ7UnitTargetActionInputSchema
+>;
 
 export const Civ7UnitTargetActionInputStandardSchema = toStandardSchema(
   Civ7UnitTargetActionInputSchema,
@@ -81,8 +92,8 @@ export const Civ7UnitTargetActionPostconditionSummarySchema = Type.Object(
     confirmed: Type.Boolean(),
     noRepeatAfterUnverified: Type.Boolean(),
     destinationReached: Type.Union([Type.Boolean(), Type.Null()]),
-    requestedLocation: Civ7MapLocationSchema,
-    landedLocation: Type.Union([Civ7MapLocationSchema, Type.Null()]),
+    requestedLocation: Civ7ControlOrpcMapLocationSchema,
+    landedLocation: Type.Union([Civ7ControlOrpcMapLocationSchema, Type.Null()]),
     source: Type.Union([
       Type.Literal("immediate"),
       Type.Literal("bounded-poll"),
@@ -107,8 +118,8 @@ export const Civ7UnitTargetActionNextStepSchema = Type.Object(
 
 export const Civ7UnitTargetActionResultSchema = Type.Object(
   {
-    unitId: Civ7ComponentIdSchema,
-    target: Civ7MapLocationSchema,
+    unitId: Civ7ControlOrpcComponentIdSchema,
+    target: Civ7ControlOrpcMapLocationSchema,
     sent: Type.Boolean(),
     status: Civ7UnitTargetActionRequestStatusSchema,
     validation: Civ7UnitTargetActionValidationSummarySchema,

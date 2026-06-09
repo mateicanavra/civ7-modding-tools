@@ -6,9 +6,7 @@ import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-app
 import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
-  civ7MutationNextSteps,
-  civ7MutationPostconditionSummary,
-  civ7MutationRequestStatusWithoutGuarded,
+  civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
@@ -55,10 +53,18 @@ function diplomacyResponseResult(
   input: Civ7DecisionsDiplomacyResponseInput,
   result: Civ7ControlOrpcDiplomacyResponseResult,
 ): Civ7DecisionsDiplomacyResponseResult {
-  const postcondition = diplomacyResponsePostconditionSummary(result);
-  const status = civ7MutationRequestStatusWithoutGuarded({
+  const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
-    postcondition,
+    postcondition: diplomacyResponseProofPostcondition(result, undefined),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The diplomacy response result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent",
+    },
+    source: "decisions.diplomacy.response.request",
+    inspectKind: "inspect-diplomacy-response",
+    inspectLabel: "Inspect current attention and diplomacy response state before attempting another diplomacy request.",
+    doNotRepeatLabel: "Do not repeat this diplomacy response request until fresh attention and diplomacy evidence is read.",
   });
 
   return {
@@ -67,33 +73,12 @@ function diplomacyResponseResult(
     responseType: input.responseType,
     ...(input.notificationId === undefined ? {} : { notificationId: input.notificationId }),
     sent: result.sent,
-    status,
+    status: projection.status,
     validation: {
       beforeValid: result.beforeValidation.valid,
       afterValid: result.afterValidation.valid,
     },
-    postcondition,
-    nextSteps: civ7MutationNextSteps({
-      status,
-      postcondition,
-      source: "decisions.diplomacy.response.request",
-      inspectKind: "inspect-diplomacy-response",
-      inspectLabel: "Inspect current attention and diplomacy response state before attempting another diplomacy request.",
-      doNotRepeatLabel: "Do not repeat this diplomacy response request until fresh attention and diplomacy evidence is read.",
-    }),
+    postcondition: projection.postcondition as Civ7DecisionsDiplomacyResponseResult["postcondition"],
+    nextSteps: projection.nextSteps,
   };
-}
-
-function diplomacyResponsePostconditionSummary(
-  result: Civ7ControlOrpcDiplomacyResponseResult,
-): Civ7DecisionsDiplomacyResponseResult["postcondition"] {
-  const postcondition = diplomacyResponseProofPostcondition(result, undefined);
-  return civ7MutationPostconditionSummary({
-    postcondition,
-    missing: {
-      classification: "missing-postcondition",
-      reason: "The diplomacy response result did not include explicit postcondition evidence.",
-      outcome: result.sent ? "unknown" : "not-sent",
-    },
-  }) as Civ7DecisionsDiplomacyResponseResult["postcondition"];
 }

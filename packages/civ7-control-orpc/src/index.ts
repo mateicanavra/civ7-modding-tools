@@ -1,19 +1,43 @@
 export { createCiv7ControlOrpcServerClient } from "./client";
+export {
+  Civ7ControllerBridgeAttentionCurrentRequestSchema,
+  Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeErrorSchema,
+  Civ7ControllerBridgeFailureResponseSchema,
+  Civ7ControllerBridgeReadinessCurrentRequestSchema,
+  Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeRequestSchema,
+  Civ7ControllerBridgeResponseSchema,
+  Civ7ControllerBridgeSuccessResponseSchema,
+  createCiv7ControllerBridgeIngress,
+  invokeCiv7ControllerBridgeRequest,
+} from "./bridge/controller-ingress";
+export type {
+  Civ7ControllerBridgeAttentionCurrentRequest,
+  Civ7ControllerBridgeAttentionCurrentSuccessResponse,
+  Civ7ControllerBridgeContextFactory,
+  Civ7ControllerBridgeError,
+  Civ7ControllerBridgeFailureResponse,
+  Civ7ControllerBridgeIngress,
+  Civ7ControllerBridgeReadinessCurrentRequest,
+  Civ7ControllerBridgeReadinessCurrentSuccessResponse,
+  Civ7ControllerBridgeRequest,
+  Civ7ControllerBridgeResponse,
+  Civ7ControllerBridgeSuccessResponse,
+} from "./bridge/controller-ingress";
+export {
+  CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY,
+  createCiv7IntelligenceBridge,
+  installCiv7IntelligenceBridge,
+} from "./bridge/intelligence-bridge";
+export type {
+  Civ7IntelligenceBridge,
+  Civ7IntelligenceBridgeGlobalTarget,
+  Civ7IntelligenceBridgeInstallOptions,
+} from "./bridge/intelligence-bridge";
 export { civ7ControlOrpcContractBase } from "./contract-base";
 export { Civ7ControlOrpcContract } from "./contract";
 export type { Civ7ControlOrpcContext } from "./context";
-export {
-  liveCiv7ControlOrpcDirectControlFacade,
-  type Civ7ControlOrpcNotificationDismissalResult,
-  type Civ7ControlOrpcPlayNotificationViewResult,
-  type Civ7ControlOrpcPlayableStatusResult,
-  type Civ7ControlOrpcProductionChoiceResult,
-  type Civ7ControlOrpcReadyCityViewResult,
-  type Civ7ControlOrpcReadyUnitViewResult,
-  type Civ7ControlOrpcTurnCompletionStatusResult,
-  type Civ7ControlOrpcUnitTargetActionResult,
-  type Civ7ControlOrpcDirectControlFacade,
-} from "./dependencies/direct-control";
 export {
   Civ7AttentionCurrentUnavailableError,
   Civ7AttentionCurrentUnavailableErrorDataSchema,
@@ -33,12 +57,16 @@ export {
   Civ7NotificationDismissalUnavailableErrorDataSchema,
   Civ7PopulationPlacementUnavailableError,
   Civ7PopulationPlacementUnavailableErrorDataSchema,
+  Civ7ProgressionChoiceUnavailableError,
+  Civ7ProgressionChoiceUnavailableErrorDataSchema,
   Civ7ProductionChoiceUnavailableError,
   Civ7ProductionChoiceUnavailableErrorDataSchema,
   Civ7ReadinessCurrentUnavailableError,
   Civ7ReadinessCurrentUnavailableErrorDataSchema,
   Civ7StrategyFrontSummaryUnavailableError,
   Civ7StrategyFrontSummaryUnavailableErrorDataSchema,
+  Civ7TurnCompletionUnavailableError,
+  Civ7TurnCompletionUnavailableErrorDataSchema,
   Civ7UnitTargetActionUnavailableError,
   Civ7UnitTargetActionUnavailableErrorDataSchema,
   civ7ControlOrpcErrorMap,
@@ -53,9 +81,11 @@ export {
   type Civ7NarrativeChoiceUnavailableErrorData,
   type Civ7NotificationDismissalUnavailableErrorData,
   type Civ7PopulationPlacementUnavailableErrorData,
+  type Civ7ProgressionChoiceUnavailableErrorData,
   type Civ7ProductionChoiceUnavailableErrorData,
   type Civ7ReadinessCurrentUnavailableErrorData,
   type Civ7StrategyFrontSummaryUnavailableErrorData,
+  type Civ7TurnCompletionUnavailableErrorData,
   type Civ7UnitTargetActionUnavailableErrorData,
 } from "./errors";
 export {
@@ -65,6 +95,14 @@ export {
   type Civ7ControlOrpcCorrelationContext,
   type Civ7ControlOrpcCorrelationId,
 } from "./model/correlation";
+export {
+  Civ7ControlOrpcComponentIdSchema,
+  Civ7ControlOrpcMapLocationSchema,
+} from "./model/primitives";
+export type {
+  Civ7ControlOrpcComponentId,
+  Civ7ControlOrpcMapLocation,
+} from "./model/primitives";
 export type { Civ7ControlOrpcProcedureMeta } from "./metadata";
 export {
   civ7ControlOrpcEffectRuntime,
@@ -104,8 +142,10 @@ export {
   Civ7CityPopulationPlacementSummarySchema,
   Civ7CityPopulationPlacementValidationSummarySchema,
   Civ7CityProductionChoiceContract,
+  Civ7CityProductionChoiceInputSchema,
   Civ7CityProductionChoiceInputStandardSchema,
   Civ7CityProductionChoiceNextStepSchema,
+  Civ7CityProductionChoicePostconditionClassificationSchema,
   Civ7CityProductionChoicePostconditionSummarySchema,
   Civ7CityProductionChoiceProofOutcomeSchema,
   Civ7CityProductionChoiceRequestStatusSchema,
@@ -119,6 +159,7 @@ export type {
   Civ7CityPopulationPlacementInput,
   Civ7CityPopulationPlacementResult,
   Civ7CityProductionChoiceContract as Civ7CityProductionChoiceContractType,
+  Civ7CityProductionChoiceInput,
   Civ7CityProductionChoiceResult,
 } from "./modules/city/contract";
 export { cityRouter } from "./modules/city/router";
@@ -148,6 +189,18 @@ export {
   Civ7DecisionsNarrativeChoiceResultSchema,
   Civ7DecisionsNarrativeChoiceResultStandardSchema,
   Civ7DecisionsNarrativeChoiceValidationSummarySchema,
+  Civ7DecisionsProgressionChoiceContract,
+  Civ7DecisionsProgressionChoiceEvidenceSummarySchema,
+  Civ7DecisionsProgressionChoiceInputSchema,
+  Civ7DecisionsProgressionChoiceInputStandardSchema,
+  Civ7DecisionsProgressionChoiceKindSchema,
+  Civ7DecisionsProgressionChoiceNextStepSchema,
+  Civ7DecisionsProgressionChoicePostconditionClassificationSchema,
+  Civ7DecisionsProgressionChoicePostconditionSummarySchema,
+  Civ7DecisionsProgressionChoiceProofOutcomeSchema,
+  Civ7DecisionsProgressionChoiceRequestStatusSchema,
+  Civ7DecisionsProgressionChoiceResultSchema,
+  Civ7DecisionsProgressionChoiceResultStandardSchema,
 } from "./modules/decisions/contract";
 export type {
   Civ7DecisionsContract as Civ7DecisionsContractType,
@@ -157,15 +210,22 @@ export type {
   Civ7DecisionsNarrativeChoiceContract as Civ7DecisionsNarrativeChoiceContractType,
   Civ7DecisionsNarrativeChoiceInput,
   Civ7DecisionsNarrativeChoiceResult,
+  Civ7DecisionsProgressionChoiceContract as Civ7DecisionsProgressionChoiceContractType,
+  Civ7DecisionsProgressionChoiceInput,
+  Civ7DecisionsProgressionChoiceKind,
+  Civ7DecisionsProgressionChoiceResult,
 } from "./modules/decisions/contract";
 export { decisionsRouter } from "./modules/decisions/router";
 export { decisionsDiplomacyResponseRequestProcedure } from "./modules/decisions/procedures/diplomacy-response-request";
 export { decisionsNarrativeChoiceRequestProcedure } from "./modules/decisions/procedures/narrative-choice-request";
+export { decisionsProgressionChoiceRequestProcedure } from "./modules/decisions/procedures/progression-choice-request";
 export {
   Civ7NotificationsContract,
+  Civ7NotificationDismissInputSchema,
   Civ7NotificationDismissalContract,
   Civ7NotificationDismissInputStandardSchema,
   Civ7NotificationDismissalNextStepSchema,
+  Civ7NotificationDismissalPostconditionClassificationSchema,
   Civ7NotificationDismissalPostconditionSummarySchema,
   Civ7NotificationDismissalProofOutcomeSchema,
   Civ7NotificationDismissalRequestStatusSchema,
@@ -175,6 +235,7 @@ export {
 } from "./modules/notifications/contract";
 export type {
   Civ7NotificationDismissalContract as Civ7NotificationDismissalContractType,
+  Civ7NotificationDismissInput,
   Civ7NotificationDismissalResult,
   Civ7NotificationsContract as Civ7NotificationsContractType,
 } from "./modules/notifications/contract";
@@ -224,9 +285,32 @@ export type {
 export { strategyRouter } from "./modules/strategy/router";
 export { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
 export {
+  Civ7TurnCompletionContract,
+  Civ7TurnCompletionInputSchema,
+  Civ7TurnCompletionInputStandardSchema,
+  Civ7TurnCompletionNextStepSchema,
+  Civ7TurnCompletionPostconditionClassificationSchema,
+  Civ7TurnCompletionPostconditionSummarySchema,
+  Civ7TurnCompletionProbeSummarySchema,
+  Civ7TurnCompletionProofOutcomeSchema,
+  Civ7TurnCompletionRequestStatusSchema,
+  Civ7TurnCompletionResultSchema,
+  Civ7TurnCompletionResultStandardSchema,
+  Civ7TurnContract,
+} from "./modules/turn/contract";
+export type {
+  Civ7TurnCompletionContract as Civ7TurnCompletionContractType,
+  Civ7TurnCompletionInput,
+  Civ7TurnCompletionResult,
+  Civ7TurnContract as Civ7TurnContractType,
+} from "./modules/turn/contract";
+export { turnRouter } from "./modules/turn/router";
+export { turnCompleteRequestProcedure } from "./modules/turn/procedures/complete-request";
+export {
   Civ7UnitContract,
   Civ7UnitTargetActionContract,
   Civ7UnitTargetActionFamilySchema,
+  Civ7UnitTargetActionInputSchema,
   Civ7UnitTargetActionInputStandardSchema,
   Civ7UnitTargetActionNextStepSchema,
   Civ7UnitTargetActionPostconditionSummarySchema,
@@ -241,6 +325,7 @@ export {
 export type {
   Civ7UnitContract as Civ7UnitContractType,
   Civ7UnitTargetActionContract as Civ7UnitTargetActionContractType,
+  Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResult,
 } from "./modules/unit/contract";
 export { unitRouter } from "./modules/unit/router";

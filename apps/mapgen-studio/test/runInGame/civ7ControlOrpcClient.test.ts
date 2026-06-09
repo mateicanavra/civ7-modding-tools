@@ -1,10 +1,8 @@
 import { createServer, type Server } from "node:http";
 import { afterEach, describe, expect, test } from "vitest";
 
-import type {
-  Civ7ControlOrpcContext,
-  Civ7ControlOrpcPlayableStatusResult,
-} from "@civ7/control-orpc";
+import type { Civ7PlayableStatusResult } from "@civ7/direct-control";
+import type { Civ7ControlOrpcContext } from "@civ7/control-orpc";
 import {
   createStudioCiv7ControlOrpcClient,
   STUDIO_CIV7_CONTROL_ORPC_PATH,
@@ -107,7 +105,7 @@ async function closeServer(server: Server): Promise<void> {
   });
 }
 
-function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
+function playableStatusResult(): Civ7PlayableStatusResult {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -137,7 +135,7 @@ function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
       },
     },
     errors: ["raw runtime detail stays out of readiness.current"],
-  } as Civ7ControlOrpcPlayableStatusResult;
+  } as Civ7PlayableStatusResult;
 }
 
 function probe<T>(value: T): { ok: true; value: T } {

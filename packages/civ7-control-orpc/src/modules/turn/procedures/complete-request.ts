@@ -1,0 +1,124 @@
+import {
+  turnCompletionProofPostcondition,
+  type Civ7RuntimeProbe,
+} from "@civ7/direct-control";
+import { Effect } from "effect";
+
+import type { Civ7ControlOrpcTurnCompletionActionResult } from "../../../dependencies/direct-control";
+import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7MutationNextSteps,
+  civ7MutationRequestStatus,
+} from "../../../policy/mutation-result";
+import { civ7ControlOrpcImplementer } from "../../../procedure";
+import type { Civ7TurnCompletionResult } from "../contract";
+
+const turnCompleteRequestWithApproval =
+  civ7ControlOrpcImplementer.turn.complete.request.use(
+    civ7MutationApprovalMiddleware,
+  );
+const turnCompleteRequestReady =
+  turnCompleteRequestWithApproval.use(civ7MutationReadinessMiddleware);
+
+export const turnCompleteRequestProcedure =
+  turnCompleteRequestReady.effect(function* ({
+    context,
+    errors,
+  }) {
+    return yield* Effect.tryPromise({
+      try: async () => {
+        const result = await context.directControl.requestCiv7TurnComplete(
+          context.endpointDefaults,
+          context.approval,
+        );
+        return turnCompletionResult(result);
+      },
+      catch: () =>
+        errors.TURN_COMPLETION_UNAVAILABLE({
+          data: {
+            procedureKey: "turn.complete.request",
+            source: "direct-control-facade",
+            ...civ7ControlOrpcErrorCorrelationData(context),
+          },
+        }),
+    });
+  });
+
+function turnCompletionResult(
+  result: Civ7ControlOrpcTurnCompletionActionResult,
+): Civ7TurnCompletionResult {
+  const postcondition = turnCompletionPostconditionSummary(result);
+  const status = turnCompletionRequestStatus(postcondition);
+
+  return {
+    sent: true,
+    status,
+    before: turnCompletionProbeSummary(result.before),
+    after: turnCompletionProbeSummary(result.after),
+    postcondition,
+    nextSteps: civ7MutationNextSteps({
+      status,
+      postcondition,
+      source: "turn.complete.request",
+      inspectKind: "inspect-turn-completion",
+      inspectLabel: "Inspect current turn completion state before attempting another turn completion request.",
+      doNotRepeatLabel: "Do not repeat turn completion until fresh turn and attention evidence is read.",
+    }),
+  };
+}
+
+function turnCompletionRequestStatus(
+  postcondition: Civ7TurnCompletionResult["postcondition"],
+): Civ7TurnCompletionResult["status"] {
+  const status = civ7MutationRequestStatus({
+    sent: true,
+    postcondition,
+  });
+  if (status === "not-sent") {
+    throw new Error("turn.complete.request unexpectedly produced not-sent status");
+  }
+  return status;
+}
+
+function turnCompletionPostconditionSummary(
+  result: Civ7ControlOrpcTurnCompletionActionResult,
+): Civ7TurnCompletionResult["postcondition"] {
+  const postcondition = turnCompletionProofPostcondition(result, undefined);
+  const confirmed = postcondition.confidence === "confirmed";
+
+  return {
+    classification: postcondition.classification as
+      Civ7TurnCompletionResult["postcondition"]["classification"],
+    reason: postcondition.reason,
+    outcome: postcondition.outcome as
+      Civ7TurnCompletionResult["postcondition"]["outcome"],
+    confidence: postcondition.confidence,
+    confirmed,
+    noRepeatAfterUnverified: postcondition.noRepeatAfterUnverified,
+  };
+}
+
+function turnCompletionProbeSummary(
+  status: Civ7ControlOrpcTurnCompletionActionResult["before"],
+): Civ7TurnCompletionResult["before"] {
+  return {
+    turn: probeValue(status.turn),
+    turnDate: probeValue(status.turnDate),
+    hasSentTurnComplete: probeValue(status.hasSentTurnComplete),
+    canEndTurn: probeValue(status.canEndTurn),
+    blocker: blockerValue(status.blocker),
+    firstReadyUnitId: probeValue(status.firstReadyUnitId),
+  };
+}
+
+function blockerValue(probe: Civ7RuntimeProbe<unknown>): number | string | null {
+  const value = probeValue(probe);
+  if (typeof value === "number" || typeof value === "string") return value;
+  return null;
+}
+
+function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | null {
+  return probe.ok ? probe.value : null;
+}

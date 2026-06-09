@@ -7,6 +7,16 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "runtime": [
+        "./dist/runtime.d.ts"
+      ],
+      "*": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],
@@ -15,11 +25,17 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "import": "./dist/runtime.js",
+      "require": "./dist/runtime.cjs"
     }
   },
   "scripts": {
     "build": "tsup --config tsup.config.ts && rimraf tsconfig.tsbuildinfo && tsc -p tsconfig.json --emitDeclarationOnly --noEmit false",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit && bun ../../scripts/lint/lint-control-orpc-contract-ownership.mjs",
+    "lint:contract-ownership": "bun ../../scripts/lint/lint-control-orpc-contract-ownership.mjs",
     "test": "vitest run --config vitest.config.ts",
     "clean": "rimraf dist"
   },

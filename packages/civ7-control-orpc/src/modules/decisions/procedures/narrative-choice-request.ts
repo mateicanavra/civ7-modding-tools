@@ -6,9 +6,7 @@ import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-app
 import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import {
-  civ7MutationNextSteps,
-  civ7MutationPostconditionSummary,
-  civ7MutationRequestStatusWithoutGuarded,
+  civ7CloseoutMutationProjection,
 } from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
@@ -55,10 +53,18 @@ function narrativeChoiceResult(
   input: Civ7DecisionsNarrativeChoiceInput,
   result: Civ7ControlOrpcNarrativeChoiceResult,
 ): Civ7DecisionsNarrativeChoiceResult {
-  const postcondition = narrativeChoicePostconditionSummary(result);
-  const status = civ7MutationRequestStatusWithoutGuarded({
+  const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
-    postcondition,
+    postcondition: narrativeChoiceProofPostcondition(result, undefined),
+    missing: {
+      classification: "missing-postcondition",
+      reason: "The narrative choice result did not include explicit postcondition evidence.",
+      outcome: result.sent ? "unknown" : "not-sent",
+    },
+    source: "decisions.narrative.choice.request",
+    inspectKind: "inspect-narrative-choice",
+    inspectLabel: "Inspect current attention and narrative choice state before attempting another narrative request.",
+    doNotRepeatLabel: "Do not repeat this narrative choice request until fresh attention and narrative evidence is read.",
   });
 
   return {
@@ -67,33 +73,12 @@ function narrativeChoiceResult(
     target: input.target,
     action: input.action,
     sent: result.sent,
-    status,
+    status: projection.status,
     validation: {
       beforeValid: result.beforeValidation.valid,
       afterValid: result.afterValidation.valid,
     },
-    postcondition,
-    nextSteps: civ7MutationNextSteps({
-      status,
-      postcondition,
-      source: "decisions.narrative.choice.request",
-      inspectKind: "inspect-narrative-choice",
-      inspectLabel: "Inspect current attention and narrative choice state before attempting another narrative request.",
-      doNotRepeatLabel: "Do not repeat this narrative choice request until fresh attention and narrative evidence is read.",
-    }),
+    postcondition: projection.postcondition as Civ7DecisionsNarrativeChoiceResult["postcondition"],
+    nextSteps: projection.nextSteps,
   };
-}
-
-function narrativeChoicePostconditionSummary(
-  result: Civ7ControlOrpcNarrativeChoiceResult,
-): Civ7DecisionsNarrativeChoiceResult["postcondition"] {
-  const postcondition = narrativeChoiceProofPostcondition(result, undefined);
-  return civ7MutationPostconditionSummary({
-    postcondition,
-    missing: {
-      classification: "missing-postcondition",
-      reason: "The narrative choice result did not include explicit postcondition evidence.",
-      outcome: result.sent ? "unknown" : "not-sent",
-    },
-  }) as Civ7DecisionsNarrativeChoiceResult["postcondition"];
 }
