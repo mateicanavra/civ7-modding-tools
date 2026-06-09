@@ -30,6 +30,11 @@ type NarrativeChoiceInput = {
   action: number;
 };
 
+type NarrativeChoiceMode =
+  | "blocker-cleared"
+  | "stale"
+  | "panel-cleared-notification-changed";
+
 type NarrativeChoiceRequest = {
   input: NarrativeChoiceInput;
   playerOperation: {
@@ -122,6 +127,70 @@ describe("narrative choice requests", () => {
     }
   });
 
+  test("does not verify narrative choices when the same blocker remains live after send", async () => {
+    const server = await startNarrativeChoiceTunerServer({ mode: "stale" });
+    try {
+      const { port } = server.address();
+      const target = { owner: 0, id: 421, type: 24 };
+      const request = await requestCiv7NarrativeChoice(
+        { playerId: 0, targetType: "CLOSE", target, action: 1 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test narrative stale blocker" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(false);
+      expect(request.postcondition).toMatchObject({
+        classification: "no-state-change",
+      });
+      expect(request.postcondition.reason).toContain("same narrative blocker remained live");
+      expect(request.payload).toMatchObject({
+        ui: {
+          after: {
+            matchingPanelCount: 1,
+          },
+        },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("classifies narrative panel closeout when panel clears but blocker identity changes", async () => {
+    const server = await startNarrativeChoiceTunerServer({ mode: "panel-cleared-notification-changed" });
+    try {
+      const { port } = server.address();
+      const target = { owner: 0, id: 421, type: 24 };
+      const request = await requestCiv7NarrativeChoice(
+        { playerId: 0, targetType: "CLOSE", target, action: 1 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test narrative panel closeout" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        classification: "narrative-panel-cleared",
+        reason: "The visible narrative panel for the selected story target was closed after the choice.",
+      });
+      expect(request.after.notifications).toEqual([
+        expect.objectContaining({
+          id: { owner: 0, id: 902, type: 20 },
+          typeName: "NOTIFICATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
+        }),
+      ]);
+      expect(request.payload).toMatchObject({
+        ui: {
+          after: {
+            matchingPanelCount: 0,
+          },
+        },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
   test("does not send narrative choices when the player-operation validator rejects them", async () => {
     const server = await startNarrativeChoiceTunerServer({ valid: false });
     try {
@@ -158,13 +227,14 @@ describe("narrative choice requests", () => {
 });
 
 async function startNarrativeChoiceTunerServer(
-  options: { valid?: boolean } = {}
+  options: { valid?: boolean; mode?: NarrativeChoiceMode } = {}
 ): Promise<FakeTunerServer> {
   const received: string[] = [];
   const operationCalls: OperationCall[] = [];
   const narrativeChoiceRequests: NarrativeChoiceRequest[] = [];
   let narrativeChoiceSent = false;
   const valid = options.valid ?? true;
+  const mode = options.mode ?? "blocker-cleared";
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on("data", (chunk) => {
@@ -187,7 +257,7 @@ async function startNarrativeChoiceTunerServer(
         if (frame.message.includes("readPlayNotifications")) {
           socket.write(
             encodeResponse(frame.listenerId, [
-              JSON.stringify(playNotificationView({ cleared: narrativeChoiceSent })),
+              JSON.stringify(playNotificationView({ sent: narrativeChoiceSent, mode })),
             ])
           );
         } else if (operationCall) {
@@ -200,7 +270,7 @@ async function startNarrativeChoiceTunerServer(
           narrativeChoiceSent = true;
           socket.write(
             encodeResponse(frame.listenerId, [
-              JSON.stringify(narrativeChoicePayload(narrativeChoiceRequest)),
+              JSON.stringify(narrativeChoicePayload(narrativeChoiceRequest, mode)),
             ])
           );
         } else {
@@ -338,7 +408,23 @@ function operationValidation(call: OperationCall, valid: boolean) {
   };
 }
 
-function narrativeChoicePayload(request: NarrativeChoiceRequest) {
+function narrativeChoicePayload(request: NarrativeChoiceRequest, mode: NarrativeChoiceMode) {
+  const after =
+    mode === "stale"
+      ? {
+          panelCount: 1,
+          matchingPanelCount: 1,
+          matchingPanels: [
+            { targetStoryId: request.input.target, choiceKeys: [request.input.targetType] },
+          ],
+          popupShowing: { ok: true, value: true },
+        }
+      : {
+          panelCount: 0,
+          matchingPanelCount: 0,
+          matchingPanels: [],
+          popupShowing: { ok: true, value: false },
+        };
   return {
     localPlayerId: 0,
     playerId: request.playerOperation.playerId,
@@ -355,15 +441,10 @@ function narrativeChoicePayload(request: NarrativeChoiceRequest) {
         ],
         popupShowing: { ok: true, value: true },
       },
-      after: {
-        panelCount: 0,
-        matchingPanelCount: 0,
-        matchingPanels: [],
-        popupShowing: { ok: true, value: false },
-      },
+      after,
       panelClose: {
         ok: true,
-        value: { attempted: 1, results: [{ panelType: "SMALL-NARRATIVE-EVENT", closed: true }] },
+        value: { attempted: 1, results: [{ panelType: "SMALL-NARRATIVE-EVENT", closed: mode !== "stale" }] },
       },
       popupClose: { ok: true, value: { available: true } },
     },
@@ -373,8 +454,8 @@ function narrativeChoicePayload(request: NarrativeChoiceRequest) {
   };
 }
 
-function playNotificationView(input: { cleared: boolean }) {
-  const notification = input.cleared ? undefined : narrativeNotification();
+function playNotificationView(input: { sent: boolean; mode: NarrativeChoiceMode }) {
+  const notification = narrativeNotification(input.sent ? input.mode : "stale");
   const decisionQueue = notification ? [notification] : [];
   return {
     localPlayerId: 0,
@@ -382,7 +463,7 @@ function playNotificationView(input: { cleared: boolean }) {
     turnDate: { ok: true, value: "3750 BCE" },
     hasSentTurnComplete: { ok: true, value: false },
     canEndTurn: { ok: true, value: false },
-    blocker: { ok: true, value: input.cleared ? 0 : 901 },
+    blocker: { ok: true, value: notification?.id.id ?? 0 },
     blockingNotificationId: { ok: true, value: notification?.id ?? null },
     selectedUnitId: { ok: true, value: null },
     selectedCityId: { ok: true, value: null },
@@ -397,9 +478,13 @@ function playNotificationView(input: { cleared: boolean }) {
   };
 }
 
-function narrativeNotification() {
+function narrativeNotification(mode: NarrativeChoiceMode) {
+  if (mode === "blocker-cleared") return undefined;
+  const id = mode === "panel-cleared-notification-changed"
+    ? { owner: 0, id: 902, type: 20 }
+    : { owner: 0, id: 901, type: 20 };
   return {
-    id: { owner: 0, id: 901, type: 20 },
+    id,
     type: 2345,
     typeName: "NOTIFICATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
     summary: "Choose narrative direction",

@@ -17,14 +17,26 @@ import {
   assessCiv7SignedIntSeed,
 } from "./policy/setup.js";
 import {
+  diplomacyResponsePostcondition,
+  waitForCiv7DiplomacyResponseAfter,
+} from "./play/operations/diplomacy-postconditions.js";
+import {
   encodeCiv7TunerRequest,
   parseCiv7TunerFrame,
   type Civ7TunerFrame,
 } from "./session/framing.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
+import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
 import { playNotificationViewSource } from "./play/notifications/view.js";
+import {
+  narrativeChoicePostcondition,
+  waitForCiv7NarrativeChoiceAfter,
+} from "./play/operations/narrative-postconditions.js";
+import { populationPlacementPostcondition } from "./play/operations/population-postconditions.js";
 import { productionChoiceRequestSource } from "./play/operations/production-choice.js";
+import { productionPostconditionFor } from "./play/operations/production-postconditions.js";
 import { operationRouterSource } from "./play/operations/router.js";
+import { unitOperationPostcondition } from "./play/operations/unit-postconditions.js";
 import { cultureChoiceCloseoutSource } from "./play/progression/culture.js";
 import { progressDashboardSource } from "./play/progression/progress-dashboard.js";
 import { technologyChoiceCloseoutSource } from "./play/progression/technology.js";
@@ -3452,7 +3464,7 @@ export async function requestCiv7NotificationDismissal(
   });
   const initial = jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
   if (initial.verified || !initial.sent || initial.before.exists === false) return initial;
-  return await waitForCiv7NotificationDismissal(input, options, initial);
+  return await waitForCiv7NotificationDismissal(input, options, initial, getCiv7NotificationDismissal);
 }
 
 export async function sendCiv7TurnComplete(
@@ -3723,7 +3735,13 @@ export async function requestCiv7DiplomacyResponse(
     command: buildDiplomacyResponseCloseoutCommand({ ...input, playerId }),
   });
   const payload = jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(command, "Civ7 diplomacy response closeout");
-  const after = await waitForCiv7DiplomacyResponseAfter(input, options, before, beforeValidation);
+  const after = await waitForCiv7DiplomacyResponseAfter(
+    input,
+    options,
+    before,
+    beforeValidation,
+    getCiv7PlayNotificationView,
+  );
   const afterValidation = await canStartCiv7PlayerOperation(operationInput, options);
   const postcondition = diplomacyResponsePostcondition(input, payload.sent === true, before, after, beforeValidation, afterValidation);
   return {
@@ -3779,7 +3797,13 @@ export async function requestCiv7NarrativeChoice(
     command: buildNarrativeChoiceRequestCommand(input),
   });
   const payload = jsonPayloadFromCommandResult<Civ7NarrativeChoiceCommandPayload>(command, "Civ7 narrative choice request");
-  const after = await waitForCiv7NarrativeChoiceAfter(input, options, before, beforeValidation);
+  const after = await waitForCiv7NarrativeChoiceAfter(
+    input,
+    options,
+    before,
+    beforeValidation,
+    getCiv7PlayNotificationView,
+  );
   const afterValidation = await canStartCiv7PlayerOperation(operationInput, options);
   const postcondition = narrativeChoicePostcondition(input, payload.sent === true, before, after, beforeValidation, afterValidation, payload);
   return {
@@ -7042,68 +7066,6 @@ function isTurnCompletionFallbackNotification(
   return false;
 }
 
-const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS = 2_000;
-const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_POLL_MS = 250;
-
-async function waitForCiv7NotificationDismissal(
-  input: Civ7NotificationDismissInput,
-  options: Civ7DirectControlOptions,
-  initial: Civ7NotificationDismissalResult,
-): Promise<Civ7NotificationDismissalResult> {
-  const timeoutMs = Math.min(
-    Math.max(options.timeoutMs ?? DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS, 1_000),
-    DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS,
-  );
-  const verificationAttempts = [...(initial.verificationAttempts ?? [])];
-  const startedAt = Date.now();
-  let after = initial.after ?? initial.before;
-  while (Date.now() - startedAt <= timeoutMs) {
-    await sleep(DEFAULT_CIV7_NOTIFICATION_DISMISSAL_POLL_MS);
-    const current = await getCiv7NotificationDismissal(input, options);
-    after = current.before;
-    verificationAttempts.push(after);
-    if (notificationDismissalVerified(initial.before, after)) {
-      return {
-        ...initial,
-        after,
-        verificationAttempts,
-        verified: true,
-        notes: appendNote(
-          initial.notes,
-          "Dismissal verification yielded between App UI reads so frame-driven notification/display queues could advance before the final identity check.",
-        ),
-      };
-    }
-  }
-  return {
-    ...initial,
-    after,
-    verificationAttempts,
-    verified: false,
-    notes: appendNote(
-      initial.notes,
-      "Dismissal verification yielded between App UI reads, but the target notification was still present/front/queued by the final identity check.",
-    ),
-  };
-}
-
-function notificationDismissalVerified(
-  before: Civ7NotificationDismissalSummary,
-  after: Civ7NotificationDismissalSummary | null,
-): boolean {
-  if (after == null) return false;
-  if (after.exists === false) return true;
-  if (probeValue(after.isEngineQueueFront) === true) return false;
-  if (after.dismissed === true) return true;
-  if (probeValue(before.engineQueueContains) === true && probeValue(after.engineQueueContains) === false) return true;
-  if (probeValue(before.notificationTrainContains) === true && probeValue(after.notificationTrainContains) === false) return true;
-  const wasEngineFront = probeValue(before.isEngineQueueFront) === true;
-  if (wasEngineFront && probeValue(after.isEngineQueueFront) === false) return true;
-  const wasTrainFront = probeValue(before.isNotificationTrainFront) === true;
-  if (wasTrainFront && probeValue(after.isNotificationTrainFront) === false) return true;
-  return false;
-}
-
 function notificationDetailsProveStaleCommandUnits(details: unknown): boolean {
   if (!isRecord(details)) return false;
   const enabledCloseoutCandidates = details.enabledCloseoutCandidates;
@@ -7325,208 +7287,6 @@ async function requestCiv7Operation(
   };
 }
 
-function unitOperationPostcondition(
-  family: Civ7OperationFamily,
-  input: Civ7OperationInput,
-  sent: boolean,
-  before: Civ7OperationValidationResult,
-  after: Civ7OperationValidationResult,
-  beforeSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
-  afterSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
-): Civ7UnitOperationPostcondition | undefined {
-  if (family !== "unit-operation" && family !== "unit-command") return undefined;
-  const classification = classifyUnitOperationPostcondition(sent, before, after, beforeSnapshot, afterSnapshot);
-  return {
-    family,
-    operationType: input.operationType,
-    classification,
-    before: beforeSnapshot,
-    after: afterSnapshot,
-    reason: unitOperationPostconditionReason(classification),
-  };
-}
-
-function classifyUnitOperationPostcondition(
-  sent: boolean,
-  before: Civ7OperationValidationResult,
-  after: Civ7OperationValidationResult,
-  beforeSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
-  afterSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
-): Civ7UnitOperationPostconditionClassification {
-  if (!sent) return "not-sent";
-  if (probeValueChanged(beforeSnapshot?.firstReadyUnitId, afterSnapshot?.firstReadyUnitId)) return "queue-advanced";
-  if (probeValueChanged(beforeSnapshot?.selectedUnitId, afterSnapshot?.selectedUnitId)) return "selected-unit-changed";
-  if (probeFieldChanged(beforeSnapshot?.unit, afterSnapshot?.unit, "activity")) return "activity-changed";
-  if (probeValueChanged(beforeSnapshot?.unit, afterSnapshot?.unit)) return "unit-state-changed";
-  if (probeValueChanged(beforeSnapshot?.blocker, afterSnapshot?.blocker)) return "blocker-changed";
-  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) return "validation-changed";
-  return "no-state-change";
-}
-
-function unitOperationPostconditionReason(classification: Civ7UnitOperationPostconditionClassification): string {
-  switch (classification) {
-    case "not-sent":
-      return "The operation was not sent, so no unit-side postcondition can be verified.";
-    case "queue-advanced":
-      return "The first ready unit changed after the request, which shows the unit queue advanced.";
-    case "selected-unit-changed":
-      return "The selected unit changed after the request, which shows the game consumed the unit action.";
-    case "activity-changed":
-      return "The unit activity changed after the request.";
-    case "unit-state-changed":
-      return "The unit summary changed after the request.";
-    case "blocker-changed":
-      return "The end-turn blocker changed after the request.";
-    case "validation-changed":
-      return "The operation validation result changed after the request.";
-    case "no-state-change":
-      return "The request was sent, but no observed unit, queue, blocker, or validation state changed.";
-  }
-}
-
-function populationPlacementPostcondition(
-  family: Civ7OperationFamily,
-  input: Civ7OperationInput,
-  sent: boolean,
-  before: Civ7OperationValidationResult,
-  after: Civ7OperationValidationResult,
-  beforeSnapshot: Civ7PopulationPlacementPostconditionSnapshot | undefined,
-  afterSnapshot: Civ7PopulationPlacementPostconditionSnapshot | undefined,
-): Civ7PopulationPlacementPostcondition | undefined {
-  if (!populationPlacementPostconditionEligible(family, input)) return undefined;
-  const readyCleared = probeReadyCleared(beforeSnapshot?.isReadyToPlacePopulation, afterSnapshot?.isReadyToPlacePopulation);
-  const placementStateChanged =
-    probeValueChanged(beforeSnapshot?.city, afterSnapshot?.city)
-    || probeValueChanged(beforeSnapshot?.isReadyToPlacePopulation, afterSnapshot?.isReadyToPlacePopulation)
-    || probeValueChanged(beforeSnapshot?.cityWorkerCap, afterSnapshot?.cityWorkerCap)
-    || probeValueChanged(beforeSnapshot?.workablePlotIndexes, afterSnapshot?.workablePlotIndexes)
-    || probeValueChanged(beforeSnapshot?.blockedPlotIndexes, afterSnapshot?.blockedPlotIndexes)
-    || probeValueChanged(beforeSnapshot?.expansionPlotIndexes, afterSnapshot?.expansionPlotIndexes);
-  const classification = classifyPopulationPlacementPostcondition(sent, before, after, readyCleared, placementStateChanged);
-  return {
-    family: family as "player-operation" | "city-command",
-    operationType: input.operationType,
-    classification,
-    before: beforeSnapshot,
-    after: afterSnapshot,
-    readyCleared,
-    placementStateChanged,
-    reason: populationPlacementPostconditionReason(classification),
-  };
-}
-
-function populationPlacementPostconditionEligible(family: Civ7OperationFamily, input: Civ7OperationInput): boolean {
-  return (family === "player-operation" && input.operationType === "ASSIGN_WORKER")
-    || (family === "city-command" && input.operationType === "EXPAND");
-}
-
-function probeReadyCleared(before: Civ7RuntimeProbe<unknown> | undefined, after: Civ7RuntimeProbe<unknown> | undefined): boolean {
-  return before?.ok === true && before.value === true && after?.ok === true && after.value === false;
-}
-
-function classifyPopulationPlacementPostcondition(
-  sent: boolean,
-  before: Civ7OperationValidationResult,
-  after: Civ7OperationValidationResult,
-  readyCleared: boolean,
-  placementStateChanged: boolean,
-): Civ7PopulationPlacementPostconditionClassification {
-  if (!sent) return "not-sent";
-  if (readyCleared) return "population-ready-cleared";
-  if (placementStateChanged) return "placement-state-changed";
-  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) return "validation-changed";
-  return "no-state-change";
-}
-
-function populationPlacementPostconditionReason(classification: Civ7PopulationPlacementPostconditionClassification): string {
-  switch (classification) {
-    case "not-sent":
-      return "The operation was not sent, so no population-placement postcondition can be verified.";
-    case "population-ready-cleared":
-      return "Growth.isReadyToPlacePopulation cleared after the placement request.";
-    case "placement-state-changed":
-      return "The city population placement snapshot changed after the request, but readiness did not clearly clear.";
-    case "validation-changed":
-      return "The operation validation result changed after the placement request.";
-    case "no-state-change":
-      return "The request was sent, but no observed population-placement, city, or validation state changed.";
-  }
-}
-
-function productionPostconditionFor(
-  family: Civ7OperationFamily,
-  input: Civ7OperationInput,
-  sent: boolean,
-  before: Civ7OperationValidationResult,
-  after: Civ7OperationValidationResult,
-  beforeSnapshot: Civ7ProductionPostconditionSnapshot | undefined,
-  afterSnapshot: Civ7ProductionPostconditionSnapshot | undefined,
-): Civ7ProductionPostcondition | undefined {
-  if (family !== "city-operation" || input.operationType !== "BUILD") return undefined;
-  const productionStateChanged = productionSnapshotChanged(beforeSnapshot, afterSnapshot);
-  const blockerStillLive = productionBlockerStillLive(afterSnapshot);
-  const classification = classifyProductionPostcondition(sent, before, after, productionStateChanged, blockerStillLive);
-  return {
-    family: "city-operation",
-    operationType: "BUILD",
-    classification,
-    before: beforeSnapshot,
-    after: afterSnapshot,
-    productionStateChanged,
-    blockerStillLive,
-    reason: productionPostconditionReason(classification),
-  };
-}
-
-function productionSnapshotChanged(
-  before: Civ7ProductionPostconditionSnapshot | undefined,
-  after: Civ7ProductionPostconditionSnapshot | undefined,
-): boolean {
-  if (!before || !after) return false;
-  return probeValueChanged(before.city, after.city)
-    || probeValueChanged(before.buildQueue, after.buildQueue)
-    || probeValueChanged(before.selectedCityId, after.selectedCityId);
-}
-
-function productionBlockerStillLive(snapshot: Civ7ProductionPostconditionSnapshot | undefined): boolean {
-  const value = snapshot ? probeValue(snapshot.blockingProductionNotification) : undefined;
-  if (!value || typeof value !== "object") return false;
-  const record = value as Record<string, unknown>;
-  return record.matchesCity !== false;
-}
-
-function classifyProductionPostcondition(
-  sent: boolean,
-  before: Civ7OperationValidationResult,
-  after: Civ7OperationValidationResult,
-  productionStateChanged: boolean,
-  blockerStillLive: boolean,
-): Civ7ProductionPostconditionClassification {
-  if (!sent) return "not-sent";
-  if (productionStateChanged && blockerStillLive) return "production-state-changed-blocker-still-live";
-  if (!blockerStillLive) return "production-choice-cleared";
-  if (productionStateChanged) return "production-state-changed";
-  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) return "validation-changed";
-  return "no-state-change";
-}
-
-function productionPostconditionReason(classification: Civ7ProductionPostconditionClassification): string {
-  switch (classification) {
-    case "not-sent":
-      return "The production request was not sent, so no production postcondition can be verified.";
-    case "production-choice-cleared":
-      return "The sent BUILD request no longer has a matching end-turn-blocking production-choice notification for the city.";
-    case "production-state-changed":
-      return "The sent BUILD request changed observed city production state.";
-    case "production-state-changed-blocker-still-live":
-      return "The sent BUILD request changed observed production state, but the matching production-choice notification still blocks turn flow; use notification/chooser closeout diagnostics rather than repeating BUILD blindly.";
-    case "validation-changed":
-      return "The sent BUILD request changed the subsequent BUILD validation result.";
-    case "no-state-change":
-      return "The sent BUILD request returned, but observed city production state and the production-choice blocker did not change.";
-  }
-}
-
 function validateProductionChoiceArgs(args: Readonly<Record<string, number>>): void {
   const itemKeys = ["UnitType", "ConstructibleType", "ProjectType"] as const;
   const selected = itemKeys.filter((key) => Number.isInteger(args[key]));
@@ -7551,25 +7311,6 @@ function validateProductionChoiceArgs(args: Readonly<Record<string, number>>): v
       { details: { args } },
     );
   }
-}
-
-async function waitForCiv7NarrativeChoiceAfter(
-  input: Civ7NarrativeChoiceInput,
-  options: Civ7DirectControlOptions,
-  before: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-): Promise<Civ7PlayNotificationViewResult> {
-  const waitTimeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
-  const pollIntervalMs = 250;
-  const startedAt = Date.now();
-  let last = await getCiv7PlayNotificationView(options);
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    const candidate = narrativeChoicePostcondition(input, true, before, last, beforeValidation, beforeValidation, undefined);
-    if (candidate.classification !== "no-state-change") return last;
-    await sleep(pollIntervalMs);
-    last = await getCiv7PlayNotificationView(options);
-  }
-  return last;
 }
 
 async function readCiv7ProductionChoicePayload(
@@ -7618,181 +7359,6 @@ async function waitForCiv7ProductionChoiceAfter(
     lastSnapshot = payload.afterProductionPostcondition;
   }
   return { validation: lastValidation, snapshot: lastSnapshot };
-}
-
-function narrativeChoicePostcondition(
-  input: Civ7NarrativeChoiceInput,
-  sent: boolean,
-  before: Civ7PlayNotificationViewResult,
-  after: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-  afterValidation: Civ7OperationValidationResult,
-  payload: Civ7NarrativeChoiceCommandPayload | undefined,
-): Civ7NarrativeChoicePostcondition {
-  const classification = classifyNarrativeChoicePostcondition(input, sent, before, after, beforeValidation, afterValidation, payload);
-  return {
-    classification,
-    reason: narrativeChoicePostconditionReason(classification),
-  };
-}
-
-function classifyNarrativeChoicePostcondition(
-  input: Civ7NarrativeChoiceInput,
-  sent: boolean,
-  before: Civ7PlayNotificationViewResult,
-  after: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-  afterValidation: Civ7OperationValidationResult,
-  payload: Civ7NarrativeChoiceCommandPayload | undefined,
-): Civ7NarrativeChoicePostconditionClassification {
-  if (!sent) return "not-sent";
-  if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
-  const beforeMatch = findNarrativeChoiceNotification(before);
-  const afterMatch = findNarrativeChoiceNotification(after);
-  if (sameNarrativeChoiceNotification(beforeMatch, afterMatch)) return "no-state-change";
-  if (beforeMatch && !afterMatch) return "narrative-blocker-cleared";
-  if (payload && narrativePanelCleared(payload)) return "narrative-panel-cleared";
-  if (beforeValidation.valid !== afterValidation.valid || stableJson(beforeValidation.result) !== stableJson(afterValidation.result)) {
-    return "validation-changed";
-  }
-  return "no-state-change";
-}
-
-function narrativeChoicePostconditionReason(classification: Civ7NarrativeChoicePostconditionClassification): string {
-  switch (classification) {
-    case "not-sent":
-      return "The narrative choice did not validate, so no operation was sent.";
-    case "turn-unblocked":
-      return "The narrative choice and UI handling left the turn unblocked.";
-    case "narrative-blocker-cleared":
-      return "The narrative/discovery choice notification is no longer present as a blocking decision.";
-    case "narrative-panel-cleared":
-      return "The visible narrative panel for the selected story target was closed after the choice.";
-    case "validation-changed":
-      return "The narrative choice validator changed after the send, but notification/turn state did not clearly clear.";
-    case "no-state-change":
-      return "The narrative choice was sent, but the same narrative blocker remained live without a turn-unblock or blocker transition.";
-  }
-}
-
-function findNarrativeChoiceNotification(view: Civ7PlayNotificationViewResult): Civ7PlayNotificationSummary | undefined {
-  return view.notifications.find((notification) => {
-    const typeName = String(notification.typeName ?? "").toUpperCase();
-    return notification.isEndTurnBlocking === true
-      && typeName.includes("CHOOSE")
-      && (typeName.includes("NARRATIVE_STORY_DIRECTION")
-        || typeName.includes("DISCOVERY_STORY_DIRECTION")
-        || typeName.includes("AUTO_NARRATIVE_STORY_DIRECTION"));
-  });
-}
-
-function narrativePanelCleared(payload: Civ7NarrativeChoiceCommandPayload): boolean {
-  const beforeCount = numericField(payload.ui.before, "matchingPanelCount");
-  const afterCount = numericField(payload.ui.after, "matchingPanelCount");
-  return beforeCount !== undefined && beforeCount > 0 && afterCount === 0;
-}
-
-function sameNarrativeChoiceNotification(
-  before: Civ7PlayNotificationSummary | undefined,
-  after: Civ7PlayNotificationSummary | undefined,
-): boolean {
-  if (!before || !after) return false;
-  return sameComponentId(before.id, after.id);
-}
-
-function numericField(value: unknown, field: string): number | undefined {
-  if (!isRecord(value)) return undefined;
-  const candidate = value[field];
-  return typeof candidate === "number" ? candidate : undefined;
-}
-
-async function waitForCiv7DiplomacyResponseAfter(
-  input: Civ7DiplomacyResponseInput,
-  options: Civ7DirectControlOptions,
-  before: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-): Promise<Civ7PlayNotificationViewResult> {
-  const waitTimeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
-  const pollIntervalMs = 250;
-  const startedAt = Date.now();
-  let last = await getCiv7PlayNotificationView(options);
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    const candidate = diplomacyResponsePostcondition(input, true, before, last, beforeValidation, beforeValidation);
-    if (candidate.classification !== "no-state-change") return last;
-    await sleep(pollIntervalMs);
-    last = await getCiv7PlayNotificationView(options);
-  }
-  return last;
-}
-
-function diplomacyResponsePostcondition(
-  input: Civ7DiplomacyResponseInput,
-  sent: boolean,
-  before: Civ7PlayNotificationViewResult,
-  after: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-  afterValidation: Civ7OperationValidationResult,
-): Civ7DiplomacyResponsePostcondition {
-  const classification = classifyDiplomacyResponsePostcondition(input, sent, before, after, beforeValidation, afterValidation);
-  return {
-    classification,
-    reason: diplomacyResponsePostconditionReason(classification),
-  };
-}
-
-function classifyDiplomacyResponsePostcondition(
-  input: Civ7DiplomacyResponseInput,
-  sent: boolean,
-  before: Civ7PlayNotificationViewResult,
-  after: Civ7PlayNotificationViewResult,
-  beforeValidation: Civ7OperationValidationResult,
-  afterValidation: Civ7OperationValidationResult,
-): Civ7DiplomacyResponsePostconditionClassification {
-  if (!sent) return "not-sent";
-  if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
-  const beforeMatch = findDiplomacyResponseNotification(before, input);
-  const afterMatch = findDiplomacyResponseNotification(after, input);
-  if (beforeMatch && !afterMatch) return "diplomacy-blocker-cleared";
-  const beforeBlocking = probeValue(before.blockingNotificationId);
-  const afterBlocking = probeValue(after.blockingNotificationId);
-  if (!sameComponentId(beforeBlocking, afterBlocking)) return "blocking-notification-changed";
-  if (beforeValidation.valid !== afterValidation.valid || stableJson(beforeValidation.result) !== stableJson(afterValidation.result)) {
-    return "validation-changed";
-  }
-  return "no-state-change";
-}
-
-function diplomacyResponsePostconditionReason(classification: Civ7DiplomacyResponsePostconditionClassification): string {
-  switch (classification) {
-    case "not-sent":
-      return "The diplomacy response did not validate, so no operation was sent.";
-    case "turn-unblocked":
-      return "The response and UI closeout left the turn unblocked.";
-    case "diplomacy-blocker-cleared":
-      return "The matching diplomatic-response notification is no longer present as a blocking decision.";
-    case "blocking-notification-changed":
-      return "The end-turn blocking notification changed after the response closeout.";
-    case "validation-changed":
-      return "The response validator changed after the send, but the notification/turn state did not clearly clear.";
-    case "no-state-change":
-      return "The response was sent, but notification, turn-blocking, and validator state did not change; use stale-blocker diagnostics instead of repeating blindly.";
-  }
-}
-
-function findDiplomacyResponseNotification(
-  view: Civ7PlayNotificationViewResult,
-  input: Civ7DiplomacyResponseInput,
-): Civ7PlayNotificationSummary | undefined {
-  return view.notifications.find((notification) => {
-    const typeName = String(notification.typeName ?? "").toUpperCase();
-    if (typeName !== "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED") return false;
-    return notificationActionId(notification) === input.actionId;
-  });
-}
-
-function notificationActionId(notification: Civ7PlayNotificationSummary): number | undefined {
-  if (!isRecord(notification.target)) return undefined;
-  return typeof notification.target.id === "number" ? notification.target.id : undefined;
 }
 
 function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {

@@ -115,9 +115,11 @@ runtime/direct-control claims.
 - [ ] 4.3 Extract notification view/materialization atom.
   - [x] 4.3.1 Extract notification view/materialization embedded source owner
         while keeping the public wrapper in the facade.
-- [ ] 4.4 Extract notification dismissal/verification atom.
+- [x] 4.4 Extract notification dismissal/verification atom.
   - [x] 4.4.1 Extract notification dismissal embedded source owner while
         keeping wrapper-level polling and verification helpers in the facade.
+  - [x] 4.4.2 Extract notification dismissal verification helper owner while
+        keeping the public wrapper in the facade.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.
@@ -134,6 +136,17 @@ runtime/direct-control claims.
   - [x] 4.6.3 Extract production-choice embedded source owner while keeping
         the public wrapper/build command and production postcondition helpers
         in the facade.
+  - [x] 4.6.4 Extract unit-operation postcondition helper owner while keeping
+        population, production, and wrapper-level request composition in the
+        facade.
+  - [x] 4.6.5 Extract population-placement postcondition helper owner while
+        keeping production and wrapper-level request composition in the facade.
+  - [x] 4.6.6 Extract production postcondition helper owner while keeping
+        wrapper-level request composition in the facade.
+  - [x] 4.6.7 Extract narrative choice verification helper owner while keeping
+        the embedded source and public wrapper in the facade.
+  - [x] 4.6.8 Extract diplomacy response verification helper owner while
+        keeping the embedded source and public wrapper in the facade.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

@@ -312,6 +312,65 @@ All future agent waves must be framed before delegation:
   choice source into `src/play/operations/production-choice.ts`. The public
   wrapper/build command plus production postcondition helpers stay in `index.ts`;
   this is source relocation proof only, not runtime proof.
+- Direct-control unit-operation postcondition helper slice: completed as the
+  first synchronous postcondition-helper relocation. It moves only
+  `unitOperationPostcondition`, `classifyUnitOperationPostcondition`, and
+  `unitOperationPostconditionReason` into
+  `src/play/operations/unit-postconditions.ts`. Population/production
+  postconditions plus wrapper-level request composition stay in `index.ts`;
+  this is source relocation proof only, not runtime proof.
+- Direct-control population-placement postcondition helper slice: completed as
+  the next synchronous postcondition-helper relocation. It first adds
+  `test/population-placement.test.ts` as package-owned ASSIGN_WORKER and EXPAND
+  request/postcondition proof, then moves only
+  `populationPlacementPostcondition`,
+  `populationPlacementPostconditionEligible`, `probeReadyCleared`,
+  `classifyPopulationPlacementPostcondition`, and
+  `populationPlacementPostconditionReason` into
+  `src/play/operations/population-postconditions.ts`. Production
+  postconditions plus wrapper-level request composition stay in `index.ts`;
+  this is local package/source relocation proof only, not runtime proof.
+- Direct-control production postcondition helper slice: completed as the next
+  synchronous postcondition-helper relocation. It first expands
+  `test/production-choice.test.ts` to cover both
+  `production-choice-cleared` and
+  `production-state-changed-blocker-still-live`, then moves only
+  `productionPostconditionFor`, `productionSnapshotChanged`,
+  `productionBlockerStillLive`, `classifyProductionPostcondition`, and
+  `productionPostconditionReason` into
+  `src/play/operations/production-postconditions.ts`. The embedded
+  production-choice source owner and wrapper-level request composition stay in
+  place; this is local package/source relocation proof only, not runtime
+  proof.
+- Direct-control notification dismissal verification slice: completed as the
+  next notification helper relocation. It moves wrapper-level polling and
+  identity verification for dismissal settling into
+  `src/play/notifications/verification.ts` while keeping the embedded App UI
+  dismissal source owner and the public read/send wrappers in place.
+  `test/notification-dismissal.test.ts` remains the package-owned proof for
+  verified dismissal, stale engine-front rejection, and none-blocker panel
+  close paths. This is local package/source relocation proof only, not runtime
+  proof.
+- Direct-control narrative choice verification helper slice: completed as the
+  next specialized closeout-helper relocation. It first expands
+  `test/narrative-choice.test.ts` to cover same-blocker `no-state-change` and
+  `narrative-panel-cleared` classification alongside the existing
+  blocker-cleared and validator-rejection package proof, then moves the
+  wrapper-level wait/postcondition helper group into
+  `src/play/operations/narrative-postconditions.ts`. The embedded
+  `sendNarrativeChoice` source owner and the public wrapper stay in `index.ts`;
+  this is local package/source relocation proof only, not runtime proof.
+- Direct-control diplomacy response verification helper slice: completed as the
+  matching diplomacy closeout-helper relocation. It expands
+  `test/diplomacy-response.test.ts` to cover `turn-unblocked`,
+  `no-state-change`, `diplomacy-blocker-cleared`,
+  `blocking-notification-changed`, `validation-changed`, and the reachable
+  post-closeout `not-sent` path where `payload.sent === false` after successful
+  wrapper pre-validation, then moves the wrapper-level wait/postcondition
+  helper group into `src/play/operations/diplomacy-postconditions.ts`. The
+  embedded `sendDiplomacyResponseCloseout` source owner and the public wrapper
+  stay in `index.ts`; this is local package/source relocation proof only, not
+  runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
