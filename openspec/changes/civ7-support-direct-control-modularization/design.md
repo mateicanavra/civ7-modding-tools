@@ -38,10 +38,18 @@ not the primary product path for external player agents. The intelligence layer
 is broader than live CLI play: it must support live hotseat control,
 strategy/playbook/cookbook generation from human play patterns, and possible
 static native-AI profile shaping. Live play remains routed through
-`@civ7/direct-control`; static native-AI shaping belongs to generated profiles.
-The in-game App UI companion direction is subordinate to direct-control, using a
-small versioned JSON-envelope endpoint/RPC rather than becoming a third control
-plane. Raw `game exec` remains a diagnostic/probe substrate.
+`@civ7/direct-control`; static native-AI shaping belongs to generated SQL/XML
+profiles. The in-game App UI companion direction is subordinate to
+direct-control: its future shape is a small versioned JSON-envelope RPC such as
+`globalThis.Civ7IntelligenceBridge.invoke(...)`, not a third control plane and
+not the external oRPC boundary. oRPC belongs outside the game at the external
+direct-control boundary. Raw `game exec` remains a diagnostic/probe substrate.
+
+A fuller in-game controller can reduce repeated transport verification only by
+moving proof into lifecycle certification, method allowlists, approval tokens,
+local-player and hotseat identity checks, and semantic outcome checks. It does
+not eliminate proof, and it does not make App UI mutation, runtime reflection,
+raw SQL, or raw command execution product action authority.
 
 Effect and Bun are target implementation primitives for new or rewritten
 control logic. Source lanes should plan resource acquisition/release, socket
@@ -220,6 +228,10 @@ Responsibilities:
 - identify where Effect `Scope`, resource acquisition/release, streams,
   schedules, layers, errors, and concurrency primitives should replace ad hoc
   control plumbing;
+- treat current setup/restart dependency injection for waits, session use, and
+  readiness polling as a modularization boundary, not the final composition
+  model; a later accepted Effect/Bun slice should decide whether those injected
+  waits become scoped resources, schedules, layers, or typed errors;
 - identify where Bun-native APIs should replace Node APIs in new/refactored
   code;
 - define test patterns for Effect-based logic without converting the oclif CLI
@@ -273,6 +285,11 @@ operation/proof telemetry, and Effect/oRPC procedure cores. Rows with
 all required fields have real source owners, proof owners, schemas/tests, and
 stop conditions recorded.
 
+Row acceptance is not a status-only edit. A future owner must attach the intake
+packet required by the matrix: owner assignment, exact write set, contract
+artifact, proof plan, projection plan, stop-condition coverage, downstream
+unblock, and explicit non-proof claims.
+
 Compatibility matrix execution gate:
 
 - Matrix rows are not accepted until each row has all required fields:
@@ -302,6 +319,21 @@ Compatibility matrix execution gate:
   typed schemas, context, approval policy, correlation, errors, telemetry hooks,
   and resource/concurrency primitives where appropriate. They must not start as
   transport-first raw command tunneling.
+- Procedure-core schema work must explicitly evaluate TypeBox versus Effect
+  Schema before adding or rewriting direct-control contracts. That disposition
+  must consider encode/decode affordances, typed errors, oRPC compatibility,
+  test ergonomics, existing TypeBox coverage, runtime validation behavior,
+  duplication cost, migration blast radius, and whether one schema technology
+  can safely own internal service contracts plus AI/CLI semantic projections.
+  Report-only schema evaluation `019e8efd-a057-7263-83a9-828e49a07b70`
+  records the planning default as bounded hybrid: keep current TypeBox public
+  contracts in place until a consumer-backed schema slice proves replacement
+  value, and consider Effect Schema for new/refactored Effect-native
+  procedure-core, telemetry, and AI-ingestion contracts where decode/encode,
+  transformations, typed parse errors, Effect integration, or
+  machine-ingestion ergonomics materially help. Zod must not become a third
+  durable schema authority by drift; if oRPC needs Zod as an adapter layer, the
+  adapter boundary must be documented explicitly.
 - The hotseat/autoplay foundation is the dependency base for the AI-intelligence
   model. Product control assumes one Civ7 client, human and agent civs as
   hotseat human slots, mutation only when `GameContext.localPlayerID` is an
@@ -357,7 +389,10 @@ tests, logs/database artifacts, official resources, live runtime proof, and
 in-game observations each prove different claims. A later full in-game
 controller can reduce repeated transport verification only by moving proof to
 lifecycle certification, method allowlists, local-player identity, approval
-tokens, and semantic outcome checks; it does not remove proof.
+tokens, and semantic outcome checks; it does not remove proof. If that
+controller exposes an App UI companion bridge, the bridge remains a subordinate
+JSON-envelope endpoint such as `globalThis.Civ7IntelligenceBridge.invoke(...)`;
+oRPC remains outside the game at the external direct-control boundary.
 
 ### Lane H: Review / Gate Lane
 

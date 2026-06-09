@@ -7,6 +7,7 @@ import type {
   Civ7RootInspectionInput,
   Civ7RootInspectionResult,
 } from "../runtime/root-inspection.js";
+import { DEFAULT_CIV7_GAMEINFO_TABLES } from "../play/map/constants.js";
 
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
   id: Type.String(),
@@ -94,15 +95,16 @@ type CapabilityCatalogDependencies = Readonly<{
 }>;
 
 export function createStaticCiv7CapabilityCatalog(options: {
-  gameinfoTables: ReadonlyArray<string>;
-}): Civ7CapabilityCatalog {
+  gameinfoTables?: ReadonlyArray<string>;
+} = {}): Civ7CapabilityCatalog {
+  const gameinfoTables = options.gameinfoTables ?? DEFAULT_CIV7_GAMEINFO_TABLES;
   return {
     generatedAt: new Date().toISOString(),
     source: "static",
     version: "direct-control-v1",
     entries: [
       ...STATIC_CIV7_CAPABILITY_ENTRIES,
-      ...options.gameinfoTables.map((table): Civ7CapabilityCatalogEntry => ({
+      ...gameinfoTables.map((table): Civ7CapabilityCatalogEntry => ({
         id: `gameinfo.${table}`,
         name: table,
         role: "tuner",

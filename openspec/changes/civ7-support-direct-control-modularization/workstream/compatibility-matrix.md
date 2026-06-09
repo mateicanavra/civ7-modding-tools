@@ -16,6 +16,84 @@ Proof classes remain separate: target-thread evidence, peer reports, repo docs,
 local tests, logs/database artifacts, official resources, live runtime proof,
 and in-game observations are not interchangeable.
 
+## Acceptance Backlog
+
+These blockers must be cleared before Task 2.9.4 can mark any row accepted.
+Rows may move independently, but a dependent implementation lane can start only
+from the row or rows it consumes after their `acceptanceStatus` is `accepted`.
+
+| Row | Missing owner/proof assignments | Required proof before acceptance | Dependent lanes that stay blocked |
+| --- | --- | --- | --- |
+| Hotseat handoff state | Hotseat runtime source owner, hotseat runtime proof owner, runtime gate runner, human-restoration proof owner | Disposable hotseat activation, two-slot `GameContext.localPlayerID` rotation, agent-slot approved operation, turn-complete and human UI restoration evidence | CLI hotseat status, mutation procedure cores, live agent-turn execution, action telemetry |
+| Semantic CLI player-agent view | CLI semantic envelope owner, proof owner, envelope schema/test owner, debug-separation reviewer | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries |
+| Strategy/intelligence ingestion | AI-ingestion contract owner, schema owner, proof owner, source/freshness label owner | Machine-contract fixtures proving source labels, freshness/evidence labels, action/proof vocabulary, and no dependency on CLI strings/raw probes | AI corpus artifacts, strategy/playbook records, static profile recipes, model-training telemetry feeds |
+| Debug/internal service output | Debug/service hierarchy owner, proof owner, command/flag boundary owner | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics |
+| Operation/proof telemetry | Telemetry contract owner, schema owner, proof owner, runtime-proof boundary owner | Contract fixtures proving approval, validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries |
+| Effect/oRPC procedure cores | Procedure-core owner, schema owner, proof owner, TypeBox/Effect Schema disposition owner, adapter-boundary owner | Procedure-core contract tests over stable direct-control atoms, typed errors, approval gates, correlation/telemetry hooks, schema encode/decode checks, and explicit non-tunnel transport boundary | Tasks 6.1-6.9, oRPC package behavior, Effect resource/schedule/stream implementation, transport adapters |
+
+Global acceptance stop conditions:
+
+- Stop if a row says it supports both target consumers without separating
+  normal CLI projection, debug/internal output, AI ingestion, telemetry, and
+  procedure-core consumers.
+- Stop if target-thread evidence, peer reports, repo docs, local tests,
+  official resources, logs/database artifacts, live runtime proof, or in-game
+  observations collapse into one proof claim.
+- Stop if Autoplay becomes the primary external-agent executor instead of
+  support/debug/native-AI measurement infrastructure.
+- Stop if direct-control mutation can target non-agent human turns.
+- Stop if AI consumers depend on CLI presentation strings, raw JavaScript
+  commands, raw SQL, runtime reflection, App UI mutation surfaces, or vague
+  `verified: true`.
+- Stop if Effect/oRPC work starts as a raw command tunnel or transport adapter
+  before accepted procedure cores over stable direct-control atoms.
+- Stop if a future App UI companion bridge, such as
+  `globalThis.Civ7IntelligenceBridge.invoke(...)`, becomes the external
+  direct-control boundary or product action authority instead of a subordinate
+  JSON-envelope endpoint under direct-control proof.
+
+## Row Acceptance Intake
+
+A future row owner must update the target row and include an intake packet in
+the same planning layer before changing `acceptanceStatus` to `accepted`.
+
+Required intake fields:
+
+- `ownerAssignment`: named source owner, proof owner, schema/test owner, and
+  reviewer/gate owner for the row.
+- `writeSet`: exact package, CLI, docs, telemetry, schema, or runtime files the
+  row may touch; no broad `common`, `utils`, `types`, or transport buckets.
+- `contractArtifact`: schema, envelope, procedure contract, telemetry record,
+  runtime gate checklist, or explicit "not applicable" reason.
+- `proofPlan`: focused local tests, runtime gates, official-resource checks,
+  peer-report evidence, and proof class labels for each claim.
+- `projectionPlan`: normal CLI projection, debug/internal service projection,
+  AI-ingestion contract, telemetry projection, and procedure-core projection
+  explicitly separated or explicitly out of scope.
+- `stopConditionCoverage`: row-local tests or review checks that exercise the
+  row's stop conditions, including normal/debug/AI/telemetry/procedure
+  separation.
+- `downstreamUnblock`: exact 5.x, 6.x, telemetry, AI-ingestion,
+  runtime-status, debug/service, or hotseat lane that the accepted row unblocks;
+  no blanket "support both" unblock.
+- `nonProofClaims`: claims intentionally not made, such as live runtime proof,
+  AI-ingestion implementation, App UI bridge implementation, transport
+  adapters, or product-path support.
+
+Intake rejection conditions:
+
+- Reject if the row owner cannot name concrete source and proof owners.
+- Reject if the row's proof plan relies only on target-thread evidence, peer
+  reports, or local fake-runtime tests for a live runtime claim.
+- Reject if the row collapses normal CLI output, debug/internal service output,
+  AI ingestion, telemetry, and procedure cores into one raw JSON shape.
+- Reject if the row lets AI consumers train on CLI presentation strings,
+  runtime reflection, raw SQL, raw command strings, or vague `verified: true`.
+- Reject if the row promotes Autoplay/Automation from support/debug
+  infrastructure to the primary external-agent executor.
+- Reject if the row moves oRPC or transport adapters ahead of accepted typed
+  procedure cores over stable direct-control atoms.
+
 ## Rows
 
 ### Hotseat Handoff State
@@ -39,7 +117,8 @@ and in-game observations are not interchangeable.
 - `debugServiceProjection`: proof telemetry, correlation/audit detail, and raw
   handoff diagnostics only under debug/internal service output
 - `proofLabel`: `pending-hotseat-runtime-proof`
-- `acceptanceStatus`: pending source owner, proof owner, runtime gate, and tests
+- `acceptanceStatus`: `pending-hotseat-runtime-proof`; source owner, proof
+  owner, runtime gate, and tests not assigned
 - `blockingDependents`: CLI hotseat semantic projection, mutation-facing
   procedure cores, AI-controlled live-turn execution, telemetry action audit
 - `stopCondition`: stop if Autoplay becomes the primary external-agent product
@@ -69,8 +148,8 @@ and in-game observations are not interchangeable.
 - `debugServiceProjection`: intentionally omitted from normal output; raw
   internals only through debug-owned commands or flags
 - `proofLabel`: `pending-cli-semantic-envelope`
-- `acceptanceStatus`: pending source owner, proof owner, envelope schema, and
-  normal/debug separation tests
+- `acceptanceStatus`: `pending-cli-semantic-envelope`; source owner, proof
+  owner, envelope schema, and normal/debug separation tests not assigned
 - `blockingDependents`: tasks 5.1-5.7, AI-facing semantic envelope consumers,
   normal CLI runtime-status projection
 - `stopCondition`: stop if normal CLI dumps raw session, transport, closeout,
@@ -99,8 +178,8 @@ and in-game observations are not interchangeable.
 - `debugServiceProjection`: correlation/audit detail and source/freshness labels
   through service/debug or ingestion-specific contracts
 - `proofLabel`: `pending-ai-ingestion-contract`
-- `acceptanceStatus`: pending source owner, proof owner, ingestion schema,
-  freshness/source labels, and tests
+- `acceptanceStatus`: `pending-ai-ingestion-contract`; source owner, proof
+  owner, ingestion schema, freshness/source labels, and tests not assigned
 - `blockingDependents`: AI corpus artifacts, strategy-data records, static
   profile recipes, telemetry-driven model training, procedure schemas used by
   AI consumers
@@ -134,8 +213,8 @@ and in-game observations are not interchangeable.
   state, raw probes, route selection, closeout traces, correlation, and
   diagnostics
 - `proofLabel`: `planning-evidence-only`
-- `acceptanceStatus`: pending debug owner, proof owner, command/flag boundary,
-  and tests
+- `acceptanceStatus`: `pending-debug-service-boundary`; debug owner, proof
+  owner, command/flag boundary, and tests not assigned
 - `blockingDependents`: debug service hierarchy, runtime-status projection,
   internal diagnostics in procedure cores
 - `stopCondition`: stop if debug/internal output becomes normal CLI output,
@@ -167,8 +246,8 @@ and in-game observations are not interchangeable.
   `validation_pre`, `send_receipt`, `validation_post`, `outcome_delta`, blocker
   deltas, runtime observation links, and stale/unknown classification
 - `proofLabel`: `pending-telemetry-contract`
-- `acceptanceStatus`: pending telemetry schema, source owner, proof owner, and
-  local/runtime proof boundary tests
+- `acceptanceStatus`: `pending-telemetry-contract`; telemetry schema, source
+  owner, proof owner, and local/runtime proof boundary tests not assigned
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
   middleware, action audit vocabulary, semantic CLI proof summaries
 - `stopCondition`: stop if telemetry trains or acts on vague `verified: true`,
@@ -196,11 +275,19 @@ and in-game observations are not interchangeable.
 - `debugServiceProjection`: correlation/audit detail, typed errors, approval
   gates, telemetry hooks, resource/schedule/stream diagnostics where appropriate
 - `proofLabel`: `pending-procedure-core-schema`
-- `acceptanceStatus`: pending schema owner, proof owner, procedure contract,
-  middleware boundary, and tests
+- `acceptanceStatus`: `pending-procedure-core-schema`; schema owner, proof
+  owner, procedure contract, middleware boundary, and tests not assigned
 - `blockingDependents`: tasks 6.1-6.9, transport adapters, procedure middleware,
   Effect/Bun resource/concurrency implementation, oRPC package behavior
 - `stopCondition`: stop if transport adapters or `packages/civ7-control-orpc`
   behavior appears before testable procedure cores over stable direct-control
-  atoms, if raw command tunneling is used as the architecture, or if the App UI
-  bridge becomes the external direct-control substrate
+  atoms, if raw command tunneling is used as the architecture, or if an App UI
+  bridge such as `globalThis.Civ7IntelligenceBridge.invoke(...)` becomes the
+  external direct-control substrate instead of a subordinate JSON-envelope
+  endpoint; stop if procedure-core schema work starts before a TypeBox versus
+  Effect Schema disposition records encode/decode, typed-error, oRPC
+  compatibility, test ergonomics, existing TypeBox coverage, runtime
+  validation, duplication cost, migration blast radius, and shared
+  internal-service/AI/CLI semantic projection ownership criteria; stop if Zod
+  appears as an accidental third durable schema authority instead of a
+  documented oRPC adapter boundary

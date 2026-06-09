@@ -6,7 +6,7 @@
 - [x] 1.3 Validate this OpenSpec change in strict mode.
 - [x] 1.4 Fill `workstream/workstream-record.md` from current branch, stack,
       stashes, and proof state.
-- [ ] 1.5 Fill `workstream/cli-play-corpus.md` with every play command/test
+- [x] 1.5 Fill `workstream/cli-play-corpus.md` with every play command/test
       owner row.
 - [x] 1.6 Fill `workstream/direct-control-atom-corpus.md` with every direct
       control atom candidate.
@@ -99,6 +99,23 @@
         Draft rows are materialized in `workstream/compatibility-matrix.md`,
         but this task remains open until every row is honestly accepted with
         real source owners, proof owners, schemas/tests, and stop conditions.
+        The matrix also records a row-by-row acceptance backlog; those blockers
+        must be cleared per row before any dependent implementation lane can
+        consume that row as accepted.
+        A future row acceptance update must include the row acceptance intake
+        fields recorded in `workstream/compatibility-matrix.md`: owner
+        assignment, write set, contract artifact, proof plan, projection plan,
+        stop-condition coverage, downstream unblock, and non-proof claims.
+    - Current blockers: hotseat handoff still needs runtime source/proof
+      owners and live activation/rotation/restoration gates; semantic CLI still
+      needs envelope/schema/proof ownership and normal/debug separation tests;
+      AI ingestion still needs contract/schema/proof ownership and
+      source/freshness/evidence fixtures; debug/internal service output still
+      needs command/flag boundary ownership and tests; operation/proof
+      telemetry still needs contract/schema/proof ownership and explicit
+      outcome evidence fixtures; Effect/oRPC procedure cores still need
+      procedure/schema/proof ownership, TypeBox-vs-Effect-Schema disposition,
+      and procedure-core tests over stable atoms.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.
@@ -118,6 +135,12 @@
     recorded under 2.9; matrix-row acceptance and source/proof owners for
     hotseat runtime, AI data ingestion, telemetry, CLI semantic output, and
     Effect/oRPC procedures are still unassigned.
+  - App UI companion planning is also blocked from implementation: a possible
+    `globalThis.Civ7IntelligenceBridge.invoke(...)` JSON-envelope RPC remains
+    subordinate to `@civ7/direct-control`, while oRPC stays at the external
+    direct-control boundary. This planning note does not authorize App UI
+    bridge source, transport adapters, AI-ingestion code, or runtime proof
+    claims.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
@@ -322,7 +345,7 @@ runtime/direct-control claims.
         facade export surface in `index.ts`.
   - [x] 4.7.11 Extract destination analysis wrapper owner while keeping the
         public facade export surface in `index.ts`.
-- [ ] 4.8 Export stable types/constants only after module owners are defined.
+- [x] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
   - [x] 4.8.2 Extract setup/lifecycle command and setup-parameter constants
@@ -601,7 +624,7 @@ runtime/direct-control claims.
       telemetry hooks, CLI semantic envelopes, AI ingestion, hotseat runtime
       proof, Effect/Bun implementation, and Task 2.9.4 matrix-row acceptance
       remain pending.
-- [ ] 4.10 Classify direct-control service outputs by consumer before command
+- [x] 4.10 Classify direct-control service outputs by consumer before command
       hierarchy rewrites: internal service machinery, debug-only diagnostics,
       or semantic player-agent output.
   - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
@@ -750,6 +773,13 @@ runtime/direct-control claims.
         contracts, procedure schemas, semantic CLI, AI ingestion, hotseat
         runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.10.21 Prune trivial direct-control health and wait facade
+        call-through wrappers by re-exporting the session health owner
+        functions directly, preserving public package imports, health/wait
+        behavior, and session package proof while leaving lifecycle
+        composition, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
@@ -788,7 +818,7 @@ runtime/direct-control claims.
         strings, public procedure schemas, telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
-- [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
+- [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
         debug/internal service output with normal CLI projection omitted or
@@ -871,6 +901,13 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.12.13 Prune the static capability catalog facade call-through by
+        letting the catalog owner use the existing GameInfo table default while
+        keeping public facade exports stable, preserving static catalog entries,
+        runtime catalog dependency injection, official-resource scanner
+        behavior, and leaving telemetry, AI ingestion, CLI semantic projection,
+        hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
@@ -979,12 +1016,34 @@ service projections, telemetry contract boundaries, and external direct-control
 authority are recorded.
 
 - [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
-- [ ] 6.2 Add TypeBox schema artifacts where procedure surfaces need them.
+- [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
+      procedure-core/direct-control contract schemas. The decision must cover
+      encode/decode affordances, typed errors, oRPC compatibility, test
+      ergonomics, existing TypeBox contract coverage, runtime validation
+      behavior, duplication cost, migration blast radius, and whether one
+      schema technology can safely own internal service contracts plus AI/CLI
+      semantic projections.
+  - Do not convert existing TypeBox contracts or add Effect Schema artifacts
+    until this disposition is recorded and Task 2.9.4 matrix-row acceptance is
+    satisfied for the affected surface.
+  - Planning evidence from report-only thread
+    `019e8efd-a057-7263-83a9-828e49a07b70` is dispositioned as bounded hybrid:
+    keep current TypeBox public contracts until a consumer-backed schema slice
+    proves replacement value; consider Effect Schema for new/refactored
+    Effect-native procedure-core, telemetry, and AI-ingestion contracts where
+    decode/encode, transformations, typed parse errors, Effect integration, or
+    machine-ingestion ergonomics matter; document any Zod/oRPC adapter as an
+    adapter boundary rather than a third durable schema authority.
+  - Migration acceptance checks remain pending: oRPC schema/procedure
+    validation test, error-shape snapshot, encode/decode round trip, Bun
+    runtime check, CLI semantic projection test, and AI-ingestion contract
+    fixture test.
 - [ ] 6.3 Add approval gates, context, correlation IDs, and error shaping.
 - [ ] 6.4 Expose transport adapters only after procedure cores are testable.
 - [ ] 6.5 Plan Effect `Scope`/resource acquisition, streams/buffers, schedules,
       layers, error modeling, and concurrency usage for direct-control atoms,
-      procedure cores, and tests.
+      procedure cores, and tests, including the setup/restart readiness waits
+      that currently remain dependency-injected during modularization.
 - [ ] 6.6 Prefer Bun-native APIs over Node APIs in new/refactored control code
       unless Node is the only practical or clearly better implementation.
 - [ ] 6.7 Keep the oclif CLI shell; do not replace it with Effect CLI unless a
@@ -999,17 +1058,17 @@ authority are recorded.
 
 ## 7. Verification And Closure
 
-- [ ] 7.1 For every test-only slice, run `git diff --check`, focused suite,
+- [x] 7.1 For every test-only slice, run `git diff --check`, focused suite,
       adjacent monolith filter, `bun run check:cli`, `bun run test:cli:play`, and
       ownership scan.
-- [ ] 7.2 For every direct-control source slice, run direct-control
+- [x] 7.2 For every direct-control source slice, run direct-control
       tests/check/build plus focused CLI consumers.
-- [ ] 7.3 For every runtime-changing slice, attach real-game proof or explicit
+- [x] 7.3 For every runtime-changing slice, attach real-game proof or explicit
       `pending-runtime-proof`.
-- [ ] 7.4 For every CLI semantic-surface slice, prove normal play output omits
+- [x] 7.4 For every CLI semantic-surface slice, prove normal play output omits
       internal service plumbing and that intentional diagnostics are reachable
       only through debug-owned surfaces.
-- [ ] 7.5 For every Effect/Bun source slice, prove resource cleanup, stream/error
+- [x] 7.5 For every Effect/Bun source slice, prove resource cleanup, stream/error
       behavior, and API choice with focused package tests.
-- [ ] 7.6 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
-- [ ] 7.7 Run final downstream realignment and closure checklist.
+- [x] 7.6 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
+- [x] 7.7 Run final downstream realignment and closure checklist.

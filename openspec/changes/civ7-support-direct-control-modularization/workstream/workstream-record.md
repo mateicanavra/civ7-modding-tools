@@ -85,9 +85,9 @@ titles, and parent reports to close the loop.
 | `019e8b69-465d-7a71-8ef1-1f75f96799c2`                                                | Extract direct-control seams                | framed `/goal` source candidate | completed, idle; disk worktree `fd1b` dirty at old parent                            | yes                                         | Accepted as a narrow source candidate only. DRA integrated tuner frame encode/parse ownership on current disk after ComponentID/error moved first and reran package gates. | Contributed `src/session/framing.ts` boundary for `Civ7TunerFrame`, `encodeCiv7TunerRequest`, and `parseCiv7TunerFrame`; broader session/config/reconnect and restart/setup loops stay pending.                                             |
 | `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`                                                | Identify read-only atoms                    | framed `/goal` report-only     | completed report read; later empty active turn observed; disk worktree `1044` clean  | yes                                         | Accepted as read-only planning evidence. No code candidate was integrated from this lane. Later refined finding supersedes its earlier ready-unit suggestion.             | Recommends `settlementRecommendationsSource` as the safest first read-only embedded-source relocation, followed by traditions, move-preview, progress dashboard, ready-unit, tactical reads, ready-city, and notification view last.                                    |
 | `019e8be1-db1e-7c80-ad37-471a48cd520f`                                                | Identify first postcondition-helper slice   | framed `/goal` report-only     | completed, reported up                                                               | yes                                         | Accepted as sequencing guidance only; no mutation authority.                                                                                                               | Recommends the first postcondition-helper move be the synchronous unit-operation classifier group (`unitOperationPostcondition`, `classifyUnitOperationPostcondition`, `unitOperationPostconditionReason`) into `src/play/operations/unit-postconditions.ts`; narrative/diplomacy waiters stay later because they pull in notification matching, polling, and App UI reader dependencies. |
-| `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`                                                | AI-intelligence target thread               | target-thread compatibility evidence | directly readable in this planning repair                                        | yes                                         | Accepted as planning evidence only; closes the earlier direct target-thread access gap without authorizing implementation or runtime proof claims.                         | Frames intelligence as broader than live CLI play: live hotseat player-agent control, strategy/playbook/cookbook generation from human play patterns, and possible static native-AI profile shaping. Requires stable direct-control atoms, semantic state products, action/proof telemetry, and structured machine-ingestion contracts instead of raw `game exec` strings or normal CLI presentation text. |
+| `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`                                                | AI-intelligence target thread               | target-thread compatibility evidence | directly readable in this planning repair                                        | yes                                         | Accepted as planning evidence only; closes the earlier direct target-thread access gap without authorizing implementation or runtime proof claims.                         | Frames intelligence as broader than live CLI play: live hotseat player-agent control, strategy/playbook/cookbook generation from human play patterns, and possible static native-AI profile shaping through generated SQL/XML profiles. Requires stable direct-control atoms, semantic state products, action/proof telemetry, and structured machine-ingestion contracts instead of raw `game exec` strings or normal CLI presentation text. |
 | `019e86b7-b08b-72f3-8341-6c78a1285c93`                                                | Hotseat/autoplay foundation target thread   | target-thread compatibility evidence | directly readable in this planning repair                                        | yes                                         | Accepted as planning evidence only; hotseat activation/local-player rotation and operation proof remain live runtime gates.                                                | Confirms hotseat/local-player handoff as the leading one-client player-agent base when activation proof passes, keeps local multiplayer as setup/staging evidence under the one-client constraint, and keeps native Autoplay as support/debug infrastructure rather than the primary external-agent executor. |
-| `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b`                                                | AI-intelligence model implications          | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; now cross-checked against direct target-thread evidence.                                                                              | Confirms two authority sides: live external play through `@civ7/direct-control` and static native-AI profile shaping through generated profiles. Requires turn/player context, decision HUD, tactical lenses, action records, proof telemetry, corpus records, enriched evidence from `GameInfo`, debug DB copies, scoring/logs, Mods.sqlite/profile context, and bounded AI/log CSVs where available. |
+| `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b`                                                | AI-intelligence model implications          | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; now cross-checked against direct target-thread evidence.                                                                              | Confirms two authority sides: live external play through `@civ7/direct-control` and static native-AI profile shaping through generated SQL/XML profiles. Requires turn/player context, decision HUD, tactical lenses, action records, proof telemetry, corpus records, enriched evidence from `GameInfo`, debug DB copies, scoring/logs, Mods.sqlite/profile context, and bounded AI/log CSVs where available. |
 | `019e8cbf-0138-75d1-9edc-0bda7d413dff`                                                | Hotseat/autoplay base requirements          | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; hotseat runtime claims remain unproved until live gates pass.                                                                        | Confirms one-client hotseat as preferred player-agent base if activation proof passes; direct-control may act only when `GameContext.localPlayerID` is agent-owned. Native `Autoplay` is support infrastructure for smoke tests, native-AI measurement, observer/wait loops, and disposable benchmarks, not the primary external-agent executor. |
 | `019e8cbf-5805-7393-82e8-c83353aeac40`                                                | AI/hotseat synthesis review                 | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; no intelligence-layer, transport, or runtime-proof implementation authorized.                                                        | Recommends making `@civ7/direct-control` the stable live-control substrate for hotseat player-agent turns and AI intelligence ingestion; adds matrix fields `playerScope`, `consumerClass`, `evidenceClass`, `procedureCandidate`, `normalCliProjection`, and `debugServiceProjection`, plus action audit vocabulary and proof-label requirements. |
 | `019e8d01-441f-79d1-afd7-fe40a3c179e6`                                                | Compatibility matrix gap audit              | report-only peer review        | completed; read directly in hard-gate repair                                         | yes                                         | Accepted as P1 planning repair input; matrix was not hard enough without row-level acceptance fields, proof labels, blocking dependents, and stop conditions.              | Requires explicit matrix row fields: foundation/model thread ids, dependency direction, owners, projections, proof label, acceptance status, blocking dependents, and stop condition. |
@@ -138,6 +138,12 @@ layers, and concurrency around Effect affordances where they fit. Bun-native
 APIs should be preferred over Node APIs in new/refactored control code except
 where Node is the only practical or clearly superior implementation. This does
 not replace the existing oclif CLI shell with Effect CLI.
+
+The current setup/restart readiness waits and session helpers may continue as
+explicit dependency injection while modularization stabilizes atoms. A later
+accepted Effect/Bun lane should decide whether those waits become scoped
+resources, schedules, layers, or typed errors; source cleanup slices should not
+hide that decision by prematurely absorbing lifecycle wait composition.
 
 ## Hotseat And AI-Intelligence Compatibility Rule
 
@@ -195,6 +201,14 @@ pending rows, not accepted rows: source owners, proof owners, schemas/tests,
 and several runtime or contract proof boundaries remain unassigned. Task 2.9.4
 therefore remains open, and dependent implementation stays blocked.
 
+Matrix acceptance backlog: `workstream/compatibility-matrix.md` now also
+records the row-by-row owner/proof assignments and proof evidence missing
+before acceptance. The backlog is intentionally not an implementation plan
+closure: hotseat runtime proof, semantic CLI envelopes, AI-ingestion contracts,
+debug/internal service boundaries, operation/proof telemetry contracts, and
+Effect/oRPC procedure cores remain pending until their rows have accepted
+owners, schemas/tests, proof boundaries, and stop-condition coverage.
+
 The action/proof vocabulary for future machine-ingestion and procedure-core
 surfaces is: strategy intent, candidate action, operation family, target, args,
 approval, validation result, send result, post-read, `requestId` or correlation
@@ -202,6 +216,14 @@ id, evidence policy, approval reason, `validation_pre`, `send_receipt`,
 `validation_post`, `outcome_delta`, and stale/unknown classification. The
 largest design risk is training or acting on vague `verified: true` flags
 instead of explicit outcome evidence.
+
+App UI bridge boundary: target-thread synthesis records a possible subordinate
+in-game JSON-envelope RPC such as `globalThis.Civ7IntelligenceBridge.invoke(...)`
+only as a future companion endpoint under direct-control authority. It is not a
+third control plane, not the oRPC boundary, not product action authority, and
+not a substitute for lifecycle certification, method allowlists, approval
+tokens, local-player/hotseat identity checks, semantic outcome checks, or live
+runtime proof.
 
 Recommended future intelligence artifacts are `StrategyPlan`,
 `ActionCandidate`, `ProfileRecipe`, `LoadedRowProof`, `RunMetric`, and
@@ -500,6 +522,15 @@ All future agent waves must be framed before delegation:
   procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
   is local package/schema relocation proof only, not runtime proof, AI/hotseat
   product-path support, or procedure-core schema readiness.
+- Direct-control static capability catalog facade cleanup slice: completed as a
+  narrow catalog/facade hygiene pass. It lets `src/catalog/capabilities.ts` use
+  the existing GameInfo table default for static catalog entries and re-exports
+  `createStaticCiv7CapabilityCatalog` directly from `index.ts`. Runtime catalog
+  generation still injects root inspection and root catalogs from the facade,
+  and official-resource scanning remains unchanged. Telemetry, AI ingestion,
+  CLI semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
+  package/source cleanup proof only, not runtime/live-game proof.
 - Direct-control runtime inspection constants slice: completed as a narrow
   constants ownership relocation. It moves only the default App UI/Tuner API
   root catalogs and bounded root `maxKeys`/`maxMethods` defaults into
@@ -913,6 +944,15 @@ All future agent waves must be framed before delegation:
   runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
   acceptance remain pending. This is local package/source relocation proof only,
   not runtime/live-game proof.
+- Direct-control health facade call-through cleanup slice: completed as a
+  narrow public facade hygiene pass. It removes the trivial
+  `checkCiv7DirectControlHealth` and `waitForCiv7DirectControl` wrapper
+  functions from `index.ts` and re-exports the `src/session/health.ts` owner
+  functions directly. Public package imports remain stable, health/wait
+  behavior remains owned and proved by the session package tests, and no
+  lifecycle, runtime, telemetry, semantic CLI, AI ingestion, or Effect/oRPC
+  behavior changed. This is local package/source cleanup proof only, not
+  runtime/live-game proof.
 - Direct-control facade postcondition-helper cleanup slice: completed as a
   narrow stale-helper prune after the specialized operation postcondition and
   unit-target owners moved. It removes only dead private comparison helpers from
@@ -1651,9 +1691,13 @@ All future agent waves must be framed before delegation:
   boundary-clean parallel net-new test candidate, DRA-owned monolith/package
   integration, local priority fixture ownership, relationship-label guards, and
   no runtime claim.
-- Next implementation lane: direct-control atom planning/tests. Source edits
-  remain blocked until atom rows name owners, consumers, proof class, and package
-  test coverage.
+- Next implementation lane: Task 2.9.4 compatibility matrix-row acceptance
+  before any dependent CLI semantic, telemetry, AI-ingestion, runtime-status,
+  schema/type, debug/internal service, Effect/Bun, or oRPC procedure-core work.
+  Direct-control atom extraction and package proof are verified for the current
+  modularization phase; future source edits must either stay independent of
+  those downstream gates or start from accepted matrix rows with source owners,
+  proof owners, schemas/tests, and stop conditions recorded.
 - oRPC/Effect lane: planning-only in this support branch. The OpenSpec now
   explicitly cites `civ7-orpc-control-architecture` from
   `codex/civ7-orpc-control-architecture-skill` as the oRPC
@@ -1661,3 +1705,86 @@ All future agent waves must be framed before delegation:
   `packages/civ7-control-orpc` source, procedure-core schemas, CLI semantic
   surface work, telemetry hooks, and Effect/Bun implementation planning remain
   pending before changing hierarchy/source shape.
+- TypeBox versus Effect Schema report disposition: report-only thread
+  `019e8efd-a057-7263-83a9-828e49a07b70` is accepted as planning evidence only.
+  The workstream adopts a bounded-hybrid planning default: keep current TypeBox
+  public contracts in place until a consumer-backed schema slice proves
+  replacement value; consider Effect Schema for new/refactored Effect-native
+  procedure-core, telemetry, and AI-ingestion contracts where decode/encode,
+  transformations, typed parse errors, Effect integration, or
+  machine-ingestion ergonomics materially help. Zod must not become a third
+  durable schema authority by drift; if oRPC needs it as an adapter layer, that
+  boundary must be explicit. Schema migration remains blocked on Task 2.9.4
+  matrix-row acceptance plus oRPC schema/procedure validation, error-shape
+  snapshot, encode/decode round trip, Bun runtime check, CLI semantic
+  projection test, and AI-ingestion contract fixture test. This does not
+  migrate schemas, add Effect Schema artifacts, import root-branch oRPC
+  experiment source, unblock 5.x/6.x work, or claim procedure-core readiness.
+- Direct-control source verification checkpoint: current stack top
+  `83aebdb45` on `codex/disposition-schema-evaluation-report` passed
+  `bun run --cwd packages/civ7-direct-control check`,
+  `bun run --cwd packages/civ7-direct-control test`,
+  `bun run --cwd packages/civ7-direct-control build`,
+  `bun run openspec -- validate civ7-support-direct-control-modularization --strict`,
+  `bun run resources:status`, `git diff --check`, `bun run check:cli`, and
+  `bun run test:cli:play`. Ownership/no-cycle scans found no executable
+  back-imports from `packages/civ7-direct-control/src` to `index.ts`, and
+  `packages/civ7-direct-control/src/index.ts` no longer owns embedded command
+  source builders or postcondition helper definitions. This closes only the
+  direct-control source-slice verification and OpenSpec validation checklist
+  items. Test-only slice closure, runtime proof labeling, CLI semantic/debug
+  output proof, Effect/Bun source proof, final downstream realignment, Task
+  2.9.4 matrix-row acceptance, telemetry, AI ingestion, schema migration, and
+  Effect/oRPC procedure-core work remain pending.
+- Runtime proof disposition checkpoint: gameplay remains parked, so this
+  workstream attaches the explicit `pending-runtime-proof` label instead of
+  claiming live-game evidence. All source relocation and mutation-facing package
+  tests in this modularization stack remain local package/source proof only.
+  Runtime/live-game proof, hotseat activation/rotation/action/restoration
+  proof, AI-on-hotseat product-path proof, and any support-owned real-game
+  verification remain pending until a separately framed runtime proof lane runs
+  against fresh in-game Tuner/HUD state. This closes only checklist item 7.3's
+  proof-labeling requirement; it does not close runtime proof itself, Task 2.9.4
+  matrix-row acceptance, telemetry, AI ingestion, CLI semantic projection,
+  schema migration, Effect/Bun implementation, or Effect/oRPC procedure-core
+  work.
+- CLI test-only verification checkpoint: current stack top
+  `ce980a41b` on `codex/record-runtime-proof-disposition` preserves the
+  section 3 CLI play test ownership closure. Fresh focused verification passed
+  `bun run --cwd packages/cli test -- game/play/notification/dismiss.test.ts game/play/notification/hud.test.ts game/play/priorities.test.ts`.
+  The previous source verification checkpoint passed `git diff --check`,
+  `bun run check:cli`, and canonical `bun run test:cli:play`; the adjacent
+  monolith proof is now represented by the absence of
+  `packages/cli/test/commands/game.play.test.ts` plus the CLI corpus rows that
+  record the original focused/adjacent filters for exact dismissal,
+  notification HUD, and priorities. Ownership scans show
+  `GamePlayDismissNotification`, `GamePlayNotifications`, and
+  `GamePlayPriorities` owned by their extracted test files, with priority
+  relationship wording limited to negative assertions and
+  `relationship-unproven` fixture policy. This closes only checklist item 7.1's
+  test-only verification requirement; it does not close CLI semantic-surface
+  implementation/proof, Task 2.9.4 matrix-row acceptance, telemetry, AI
+  ingestion, schema migration, Effect/Bun implementation, or Effect/oRPC
+  procedure-core work.
+- Blocked-lane proof disposition checkpoint: checklist items 7.4 and 7.5 are
+  satisfied for this modularization phase by absence/disposition, not by
+  implementation. Rows 5.1-5.7 remain blocked on Task 2.9.4 and no CLI semantic
+  surface slice was implemented in this closure pass, so there is no new normal
+  CLI/debug-surface proof to attach beyond the test-only ownership and broad
+  `test:cli:play` gates already recorded. Rows 6.1-6.9 remain blocked on Task
+  2.9.4 and no Effect/Bun source slice was implemented, so there is no resource,
+  stream/error, or API-choice source proof to attach. This closes only the
+  checklist obligations for completed work in this OpenSpec phase. It does not
+  start or close CLI semantic envelopes, debug hierarchy changes, telemetry, AI
+  ingestion, schema migration, Effect/Bun implementation, Effect/oRPC
+  procedure-core work, or Task 2.9.4 matrix-row acceptance.
+- Downstream realignment and closure checklist checkpoint: section 7 is complete
+  for the current modularization closure pass. The support stack has current
+  local verification records for test-only CLI ownership, direct-control source
+  slices, OpenSpec strict validation, explicit `pending-runtime-proof`, and
+  blocked downstream lanes. The stale next-lane pointer now points at Task 2.9.4
+  compatibility matrix-row acceptance rather than more atom extraction. This
+  does not close the OpenSpec change as a whole: Task 2.9 parent/2.9.4,
+  2.10 guardrails, CLI semantic lane 5.x, Effect/Bun/oRPC lane 6.x, runtime
+  proof, hotseat runtime proof, telemetry, AI ingestion, schema migration, and
+  procedure-core work remain pending by design.
