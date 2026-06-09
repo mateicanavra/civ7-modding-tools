@@ -2,6 +2,30 @@
 
 > Controlling scope for the systematic workstream. This is the closure test:
 > work is done when this objective is met and its falsifier has not fired.
+>
+> **Controlling frame:** [`FRAME.md`](FRAME.md) (normative operating model +
+> guardrails). On any conflict, FRAME → this goal → architecture → audits.
+> **Status: ACTIVE (un-paused 2026-06-08).** All "PAUSED / wait-for-merge"
+> sections below are **superseded** by FRAME §4 (Operating Model) and §7
+> (revised phase order). They are retained only as history.
+
+## Active goal (controlling, create-goal fallback record)
+
+Active goal:
+Rebuild `apps/mapgen-studio` into a top-1%, data-driven React 19 app —
+design-system-first, decomposed architecture, real client-state vs server-data
+boundaries (oRPC-native TanStack Query + Zustand), full canonical shadcn +
+Tailwind v4, end-to-end types, intentional comments/organization — WITHOUT
+changing map-gen, Deck.gl, recipe, or live-game behavior (parity is hard core).
+Deliver as a Graphite stack of OpenSpec-backed slices, each a domino;
+**never submit the stack**. Do NOT wait for the live-control stack to merge:
+work off `main`, inspect the TOP of the live-control `codex/*` stack, and design
+the exact studio↔control-oRPC integration seam to bind later (no FireTuner reads,
+no re-implementing live reads). Build the design system FIRST (via `design:*`),
+then consume it everywhere. Fully autonomous; confirm design *direction* once at
+`design:init`. Falsifier: if decomposition/server migration can't preserve
+parity, or "simpler" degrades the authoring workflow, or the designed seam is
+incompatible with what lands on `main` — stop and tell the user.
 
 ## Active goal
 
@@ -158,8 +182,19 @@ system — until resumed.
 **Unchanged on resume (no re-audit needed):** the design-system, component-
 architecture, and TS-rigor audits and the client-pattern research remain valid.
 
-## Status ledger (paused)
+## Status ledger (ACTIVE — supersedes the paused ledger above)
+
+Phase order per [`FRAME.md`](FRAME.md) §7 (design-system-first):
 
 - [x] Frame, isolate, research, audit, target architecture, slice plan
-- [x] A1 — `@civ7/studio-server` contracts (PROVISIONAL — re-derive on resume)
-- [⏸] Everything downstream — blocked until control-oRPC lands on `main`
+- [x] Re-frame + un-pause + normative FRAME.md + goal reset (2026-06-08)
+- [ ] **P1 Design system** (`design:*` chain) — FIRST DOMINO, in progress next
+- [ ] P2 Client data layer (oRPC-native TanStack Query + Zustand, behind seam)
+- [ ] P3 Component decomposition (un-god App.tsx onto the design system)
+- [ ] P4 Primitives→shadcn + new components + rjsf re-skin + craft
+- [ ] P5 Server (effect-oRPC on Bun, aligned to control-oRPC stack-top seam)
+- [ ] P6 Rigor + dead code + comments
+- [ ] P7 Verify + review wave → hand over **built, UNSUBMITTED** Graphite stack
+- [~] A1 `@civ7/studio-server` contracts (PROVISIONAL — re-derive vs stack-top in P5)
+
+Live-control: NOT waiting for merge. Inspect stack-top, design the seam (FRAME §6).
