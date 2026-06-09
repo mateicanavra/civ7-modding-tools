@@ -6,7 +6,7 @@ import type { Civ7ControlOrpcContext } from "@civ7/control-orpc";
 import {
   createStudioCiv7ControlOrpcClient,
   STUDIO_CIV7_CONTROL_ORPC_PATH,
-} from "../../src/features/runInGame/civ7ControlOrpcClient";
+} from "../../src/lib/control/civ7ControlOrpcClient";
 import { createStudioCiv7ControlOrpcMiddleware } from "../../src/server/civ7ControlOrpc";
 
 const openServers: Server[] = [];

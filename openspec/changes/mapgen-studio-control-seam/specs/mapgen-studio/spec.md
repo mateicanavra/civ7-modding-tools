@@ -4,28 +4,27 @@
 
 Mapgen Studio SHALL consume live game state through the control-oRPC seam — the
 `@civ7/control-orpc` contract and the `Civ7IntelligenceBridge` ingress — and SHALL
-NOT read FireTuner and SHALL NOT re-implement live reads. The seam is designed
-toward the tip of the live-control `codex/*` stack and is not yet on `main`; the
-studio SHALL bind the real client later via a thin adapter without rewriting
-consumers.
+NOT read FireTuner and SHALL NOT re-implement live reads. The seam is bound
+through a thin adapter so consumers do not import transport details directly.
 
 #### Scenario: Studio reads live state through the seam
 - **WHEN** the studio needs live world/readiness state
 - **THEN** it issues read procedures (`world.current`, `world.grid.read`,
-  `readiness.current`) through a `LiveControlPort` that resolves to the
-  control-oRPC client / `Civ7IntelligenceBridge` ingress
+  `readiness.current`) through a `LiveControlPort` under `src/lib/control/*`
+  that resolves to the control-oRPC client / `Civ7IntelligenceBridge` ingress
 - **AND** no studio code reads FireTuner or holds a direct-control facade
 
-#### Scenario: Studio designs against stack-top, not main
-- **WHEN** the `@civ7/control-orpc` package is absent from `main` and mid-consolidation
-- **THEN** the studio's seam design is captured from the live-control stack tip and
-  marked "designed-toward stack-top, not yet on main"
-- **AND** the studio's server/data work proceeds off `main` without waiting for the
-  live-control stack to merge
+#### Scenario: Studio binds to the landed control substrate
+- **WHEN** the Studio shell polls live runtime status through its own `/rpc`
+  client
+- **THEN** it composes that status with `liveControlPort.readiness.current()`
+  through the Studio-hosted `/api/civ7/rpc` middleware
+- **AND** the readiness value is merged into the existing live-runtime status model
+  without changing poll staleness/backoff behavior
 
 #### Scenario: Bind-time contract divergence fires the falsifier
-- **WHEN** the package that lands on `main` diverges structurally from the captured
-  control-oRPC contract namespaces, procedure keys, or output shapes
+- **WHEN** the mainline control-oRPC package diverges structurally from the
+  consumed contract namespaces, procedure keys, or output shapes
 - **THEN** the studio stops and re-baselines the seam
 - **AND** the divergence is escalated as the FRAME §3 falsifier rather than worked around
 
@@ -33,21 +32,20 @@ consumers.
 
 The studio SHALL isolate control-oRPC consumption behind a single
 `LiveControlPort` interface in `src/lib/control/*`, with a bound RPCLink
-implementation and a legacy direct-control-backed fallback implementation, so that
-a breaking change in `@civ7/control-orpc` has a blast radius limited to that
-directory.
+implementation, so that a breaking change in `@civ7/control-orpc` has a blast
+radius limited to that directory and the Studio-hosted middleware adapter.
 
 #### Scenario: Consumers depend only on the port
 - **WHEN** UI, TanStack Query options, or Zustand selections need live state
-- **THEN** they import only `LiveControlPort`
+- **THEN** they import only the `src/lib/control/*` port surface
 - **AND** they do not import `@civ7/control-orpc`, `@civ7/direct-control`, RPCLink,
   or FireTuner
 
-#### Scenario: Cutover is an adapter swap
-- **WHEN** `@civ7/control-orpc` becomes reachable over transport
-- **THEN** the bound implementation replaces the legacy implementation behind the
-  same `LiveControlPort`
-- **AND** consumer code and the live-runtime poll's staleness/backoff gating are
+#### Scenario: Transport changes stay behind the port
+- **WHEN** the control-oRPC transport changes
+- **THEN** the update is isolated to `src/lib/control/*` and the server middleware
+  adapter
+- **AND** consumer code and the live-runtime poll's staleness/backoff gating remain
   unchanged
 
 ### Requirement: Studio Read Surface Preserves Parity And The Read-Only Boundary

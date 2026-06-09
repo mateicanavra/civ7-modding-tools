@@ -38,7 +38,6 @@ import {
   runInGameRequiresProcessRestart,
   type RunInGameOperationStatus,
 } from "../features/runInGame/status";
-import { createStudioCiv7ControlOrpcClient } from "../features/runInGame/civ7ControlOrpcClient";
 import {
   getLocalPlayerSetup,
   normalizeStudioSetupConfig,
@@ -136,14 +135,13 @@ import {
 } from "../features/configOverrides/configBuilders";
 import { mergeBuiltInPresets, toRepoBackedPreset } from "../features/presets/repoBacked";
 import type { PresetErrorState } from "../features/presets/dialogState";
+import { liveControlPort } from "../lib/control/liveControlPort";
 
 import { CanvasStage } from "./CanvasStage";
 import { ErrorBanner } from "./ErrorBanner";
 import { LeftDock } from "./LeftDock";
 import { RightDock } from "./RightDock";
 import { useToast } from "./hooks/useToast";
-
-const civ7ControlOrpcClient = createStudioCiv7ControlOrpcClient();
 
 export type StudioShellProps = {
   themePreference: "system" | "light" | "dark";
@@ -580,7 +578,7 @@ export function StudioShell(props: StudioShellProps) {
         try {
           const [liveStatus, readinessResult] = await Promise.all([
             orpcClient.civ7.live.status({}, { signal: statusAbortController.signal }),
-            civ7ControlOrpcClient.readiness.current({}),
+            liveControlPort.readiness.current(),
           ]);
           body = isPlainObject(liveStatus)
             ? {

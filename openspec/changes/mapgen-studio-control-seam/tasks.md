@@ -28,5 +28,17 @@
 - [x] 3.1 Re-baseline `audit/05-server-contracts.md` header: studio-server surface
   only; FireTuner read rows superseded by the control seam.
 - [x] 3.2 Re-baseline `architecture/10-target-architecture.md` §1: live reads bind
-  through the control seam, designed-toward stack-top, not yet on `main`.
+  through the control seam (initially designed toward stack-top; rebaselined in
+  §4 after the package landed).
 - [x] 3.3 Run `bun run openspec -- validate mapgen-studio-control-seam --strict`.
+
+## 4. Post-Landing Bind Rebaseline
+
+- [x] 4.1 Rebaseline this change from "designed-toward stack-top" to the landed
+  mainline `@civ7/control-orpc` package.
+- [x] 4.2 Move the browser control-oRPC client behind
+  `apps/mapgen-studio/src/lib/control/*`.
+- [x] 4.3 Compose Studio `/rpc` live-status with
+  `liveControlPort.readiness.current()` inside the decomposed `StudioShell`.
+- [x] 4.4 Validate the bound seam with targeted Turbo check/build/test and strict
+  OpenSpec validation.
