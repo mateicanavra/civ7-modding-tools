@@ -12,6 +12,23 @@ Effect/oRPC composition is intentionally last. It consumes direct-control atoms
 through typed procedure cores; it does not own raw socket state, raw JavaScript
 command strings, or gameplay mutation logic.
 
+The CLI is a local API/view layer over the internal direct-control service. The
+direct-control package may return rich structured service data for verification,
+operation closeout, transport diagnostics, and procedure composition. The CLI
+play hierarchy should reduce that data to the semantic state a player agent
+needs: what happened, what game state matters, what decision is available, and
+what action is safe or blocked. Transport/session details belong in the
+internal service or in an explicitly debugging-oriented CLI hierarchy, not in
+normal play-command output.
+
+Effect and Bun are target implementation primitives for new or rewritten
+control logic. Source lanes should plan resource acquisition/release, socket
+framing, buffering, streams, concurrency, error shaping, layers, and tests
+around Effect affordances where they fit, and prefer Bun-native APIs over Node
+APIs except where Node is the only practical or clearly superior option. This
+does not replace the existing oclif CLI shell; it changes the implementation
+style inside the package/service logic and relevant tests.
+
 ## Systematic Corpus
 
 ### CLI Command/Test Corpus
@@ -56,6 +73,7 @@ The direct-control corpus includes:
   runtime root inspection surfaces;
 - component ID, schema/type ownership, constants, and public exports;
 - future procedure-core candidates for control-oRPC.
+- CLI semantic envelope consumers and any debug-only raw diagnostic consumers.
 
 Every atom row needs:
 
@@ -65,7 +83,9 @@ Every atom row needs:
 - existing tests;
 - required new tests;
 - runtime-proof requirement;
-- consumers in CLI/Studio/oRPC.
+- consumers in CLI/Studio/oRPC;
+- service fields classified as internal machinery, debug-output material, or
+  player-agent semantic output.
 
 ## Parallel Execution Model
 
@@ -142,9 +162,46 @@ Responsibilities:
 - propose module boundaries and public exports;
 - identify constants/types to export after reviewing user TODO stashes;
 - define runtime proof requirements;
+- classify each atom's service-output fields as internal machinery,
+  debug-output material, or player-agent semantic output before CLI hierarchy
+  rewrites;
 - avoid source edits until focused direct-control tests exist.
 
-### Lane E: Review / Gate Lane
+### Lane E: CLI Semantic Surface Planning
+
+Write set:
+
+- OpenSpec design/task/corpus artifacts first
+- CLI command hierarchy docs/tests only after command boundaries are assigned
+
+Responsibilities:
+
+- define play-command response envelopes from the player-agent perspective;
+- keep transport/session/proof internals out of normal play output;
+- name explicit debug commands or flags for intentional diagnostics;
+- reduce large JSON payloads by projecting direct-control service results into
+  semantic game state, action results, blockers, and next-step affordances.
+
+### Lane F: Effect/Bun Integration Planning
+
+Write set:
+
+- OpenSpec design/task/corpus artifacts first
+- package source/tests only after direct-control atom owners are assigned
+
+Responsibilities:
+
+- identify where Effect `Scope`, resource acquisition/release, streams,
+  schedules, layers, errors, and concurrency primitives should replace ad hoc
+  control plumbing;
+- identify where Bun-native APIs should replace Node APIs in new/refactored
+  code;
+- define test patterns for Effect-based logic without converting the oclif CLI
+  shell to Effect CLI;
+- coordinate with the oRPC authority lane so Effect/oRPC procedure cores compose
+  direct-control atoms rather than becoming a transport-first rewrite.
+
+### Lane G: Review / Gate Lane
 
 Write set:
 
@@ -177,9 +234,14 @@ Responsibilities:
    - operation validation/send/postconditions;
    - read-only tactical/progression/destination surfaces;
    - schemas/types/constants.
-6. Import or explicitly cite the oRPC architecture skill/source authority from
+6. Define CLI semantic player-agent envelopes and debug-only diagnostic
+   boundaries before changing the command hierarchy.
+7. Plan the Effect/Bun implementation model for direct-control atoms,
+   procedure cores, and tests before source rewrites depend on Effect
+   affordances.
+8. Import or explicitly cite the oRPC architecture skill/source authority from
    the relevant stack branches.
-7. Add Effect/oRPC procedure cores over stable atoms.
+9. Add Effect/oRPC procedure cores over stable atoms.
 
 The current support branch does not track
 `.agents/skills/civ7-orpc-control-architecture` or `packages/civ7-control-orpc`.
