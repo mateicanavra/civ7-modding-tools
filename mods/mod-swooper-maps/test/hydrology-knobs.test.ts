@@ -17,6 +17,13 @@ const withFoundation = (config: Record<string, unknown>) => ({
   ...config,
 });
 
+const navigableProfile = (endpointDischargePercentileMin: number, targetMajorTileFraction: number) => ({
+  selectNavigableRiverTerrain: {
+    strategy: "default",
+    config: { endpointDischargePercentileMin, targetMajorTileFraction },
+  },
+});
+
 describe("hydrology knobs compilation", () => {
   it("treats missing knobs the same as explicit empty knobs objects", () => {
     const compiledMissing = standardRecipe.compileConfig(env, withFoundation({}));
@@ -124,9 +131,9 @@ describe("hydrology knobs compilation", () => {
     ).toBeGreaterThan(
       dense["hydrology-hydrography"].rivers.projectRiverNetwork.config.minorPercentile
     );
-    expect(sparse["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
-    expect(normal["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
-    expect(dense["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
+    expect(sparse["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.94, 0.28));
+    expect(normal["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.94, 0.28));
+    expect(dense["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.94, 0.28));
   });
 
   it("decouples Civ-visible navigable river density from physical river network density", () => {
@@ -152,14 +159,12 @@ describe("hydrology knobs compilation", () => {
       sparsePhysicalDenseVisible["hydrology-hydrography"].rivers.projectRiverNetwork.config
         .minorPercentile
     );
-    expect(densePhysicalSparseVisible["map-rivers"]["plot-rivers"]).toEqual({
-      minLength: 7,
-      maxLength: 18,
-    });
-    expect(sparsePhysicalDenseVisible["map-rivers"]["plot-rivers"]).toEqual({
-      minLength: 3,
-      maxLength: 12,
-    });
+    expect(densePhysicalSparseVisible["map-rivers"]["plot-rivers"]).toEqual(
+      navigableProfile(0.97, 0.18)
+    );
+    expect(sparsePhysicalDenseVisible["map-rivers"]["plot-rivers"]).toEqual(
+      navigableProfile(0.9, 0.4)
+    );
   });
 
   it("keeps map-rivers riverDensity as a legacy alias for navigableRiverDensity", () => {
@@ -237,7 +242,6 @@ describe("hydrology knobs compilation", () => {
         "map-hydrology": {},
         "map-rivers": {
           knobs: { navigableRiverDensity: "dense" },
-          riverProjection: { minLength: 5, maxLength: 15 },
         },
         "hydrology-climate-refine": {
           knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },
@@ -280,7 +284,7 @@ describe("hydrology knobs compilation", () => {
     ).toBeCloseTo(0.91, 6);
     // - map-rivers materializes hydrology-owned major rivers without engine generator thresholds,
     //   and exposes a separate navigableRiverDensity knob for Civ-visible trunk density.
-    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 3, maxLength: 12 });
+    expect(compiled["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.9, 0.4));
     expect(
       compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config
         .riverCorridor.lowlandAdjacencyBonus

@@ -55,42 +55,12 @@ export const MapElevationPublicSchema = Type.Object(
   }
 );
 
-export const MapRiversProjectionSchema = Type.Object(
-  {
-    minLength: Type.Optional(
-      Type.Integer({
-        description:
-          "Minimum navigable river trunk length selected from the authored hydrology flow network.",
-        default: 5,
-        minimum: 1,
-        maximum: 40,
-      })
-    ),
-    maxLength: Type.Optional(
-      Type.Integer({
-        description:
-          "Maximum navigable river trunk length selected from the authored hydrology flow network.",
-        default: 15,
-        minimum: 1,
-        maximum: 80,
-      })
-    ),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Mapgen-owned navigable river stamping controls. This stage satisfies Civ7 terrain policy without calling Civ7's river generator.",
-  }
-);
-
 export const MapRiversPublicSchema = Type.Object(
-  {
-    riverProjection: Type.Optional(MapRiversProjectionSchema),
-  },
+  {},
   {
     additionalProperties: false,
     description:
-      "Map river projection controls for materializing Hydrology river truth into Civ7 terrain after elevation is finalized.",
+      "Map river projection controls. Navigable-river materialization is driven by stage knobs and the Hydrology-backed selection profile, not by public selector thresholds.",
   }
 );
 

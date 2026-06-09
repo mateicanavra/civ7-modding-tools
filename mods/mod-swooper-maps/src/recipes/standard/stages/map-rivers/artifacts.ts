@@ -131,13 +131,14 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
       minimum: 0,
       description: "Policy target count for navigable-river terrain tiles.",
     }),
-    minLength: Type.Integer({
-      minimum: 1,
-      description: "Minimum selected navigable-river chain length.",
+    targetMajorTileFraction: Type.Number({
+      minimum: 0,
+      maximum: 1,
+      description: "Requested share of eligible major-river tiles to preserve as navigable terrain.",
     }),
-    maxLength: Type.Integer({
-      minimum: 1,
-      description: "Maximum selected navigable-river chain length.",
+    selectedEndpointDischargeFloor: Type.Number({
+      minimum: 0,
+      description: "Discharge floor imposed on candidate major-river endpoints for this selection run.",
     }),
   },
   {

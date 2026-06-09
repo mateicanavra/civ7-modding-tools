@@ -6,15 +6,8 @@ import {
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { clampInt } from "@swooper/mapgen-core/lib/math";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 import { mapRiversArtifacts } from "../artifacts.js";
-import { materializeNavigableRiverMask } from "../../../projection-policies/navigableRiverMaterialization.js";
-import {
-  NAVIGABLE_RIVER_DENSITY_LENGTH_BOUNDS,
-  type NavigableRiverDensityKnobs,
-  resolveNavigableRiverDensityKnob,
-} from "../riverProjectionKnobs.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -32,24 +25,7 @@ export default createStep(PlotRiversStepContract, {
       riversEngineTerrainSnapshot: {},
     }
   ),
-  normalize: (config, ctx) => {
-    const density = resolveNavigableRiverDensityKnob(ctx.knobs as NavigableRiverDensityKnobs);
-    const normalBounds = NAVIGABLE_RIVER_DENSITY_LENGTH_BOUNDS.normal;
-    const bounds = NAVIGABLE_RIVER_DENSITY_LENGTH_BOUNDS[density];
-    const minLengthDelta = bounds.minLength - normalBounds.minLength;
-    const maxLengthDelta = bounds.maxLength - normalBounds.maxLength;
-
-    const minLength = clampInt(config.minLength + minLengthDelta, 1, 40);
-    let maxLength = clampInt(config.maxLength + maxLengthDelta, 1, 80);
-    if (maxLength < minLength) maxLength = minLength;
-
-    return {
-      ...config,
-      minLength,
-      maxLength,
-    };
-  },
-  run: (context, config, _ops, deps) => {
+  run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
     const { width, height } = context.dimensions;
 
@@ -117,28 +93,26 @@ export default createStep(PlotRiversStepContract, {
 
     const size = width * height;
     const projectableLandMask = new Uint8Array(size);
-    let landTileCount = 0;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
         if (context.adapter.isWater(x, y)) continue;
-        landTileCount += 1;
         if (context.adapter.getTerrainType(x, y) === MOUNTAIN_TERRAIN) continue;
         projectableLandMask[idx] = 1;
       }
     }
 
-    const materialized = materializeNavigableRiverMask({
-      width,
-      height,
-      riverClass: hydrography.riverClass,
-      discharge: hydrography.discharge,
-      flowDir: hydrography.flowDir,
-      projectableLandMask,
-      minLength: config.minLength,
-      maxLength: config.maxLength,
-      targetTileCount: Math.round(landTileCount / (config.minLength + 2 * config.maxLength)),
-    });
+    const materialized = ops.selectNavigableRiverTerrain(
+      {
+        width,
+        height,
+        riverClass: hydrography.riverClass,
+        discharge: hydrography.discharge,
+        flowDir: hydrography.flowDir,
+        projectableLandMask,
+      },
+      config.selectNavigableRiverTerrain
+    );
 
     deps.artifacts.projectedNavigableRivers.publish(context, {
       width,
@@ -153,13 +127,13 @@ export default createStep(PlotRiversStepContract, {
       candidateEndpointCount: materialized.candidateEndpointCount,
       selectedChainCount: materialized.selectedChainCount,
       targetTileCount: materialized.targetTileCount,
-      minLength: materialized.minLength,
-      maxLength: materialized.maxLength,
+      targetMajorTileFraction: materialized.targetMajorTileFraction,
+      selectedEndpointDischargeFloor: materialized.selectedEndpointDischargeFloor,
     });
 
     context.trace.event(() => ({
       type: "map.rivers.materialization",
-      policy: "mapgen.navigableRiverMaterialization.v0",
+      policy: "hydrology.selectNavigableRiverTerrain.v0",
       selectedTileCount: materialized.selectedTileCount,
       targetTileCount: materialized.targetTileCount,
       selectedChainCount: materialized.selectedChainCount,
@@ -167,8 +141,8 @@ export default createStep(PlotRiversStepContract, {
       eligibleTileCount: materialized.eligibleTileCount,
       plannedMinorRiverTileCount: materialized.plannedMinorRiverTileCount,
       plannedMajorRiverTileCount: materialized.plannedMajorRiverTileCount,
-      minLength: materialized.minLength,
-      maxLength: materialized.maxLength,
+      targetMajorTileFraction: materialized.targetMajorTileFraction,
+      selectedEndpointDischargeFloor: materialized.selectedEndpointDischargeFloor,
     }));
 
     logStats("PRE-RIVERS");

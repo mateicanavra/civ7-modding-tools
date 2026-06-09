@@ -425,14 +425,12 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
-  it("rejects out-of-range Projection public numeric controls", () => {
+  it("rejects retired map-rivers projection thresholds from the public config surface", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
         foundation: foundationConfig,
         "map-rivers": {
-          riverProjection: {
-            minLength: 0,
-          },
+          riverProjection: { minLength: 0 },
         },
       } as any)
     );
@@ -441,7 +439,7 @@ describe("standard recipe compile errors (ecology)", () => {
       err.errors.some(
         (item) =>
           item.code === "config.invalid" &&
-          item.path.includes("/config/map-rivers/riverProjection/minLength")
+          item.path.includes("/config/map-rivers/riverProjection")
       )
     ).toBe(true);
   });

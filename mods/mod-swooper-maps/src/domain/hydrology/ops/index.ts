@@ -18,6 +18,7 @@ import computeDrainageRouting from "./compute-drainage-routing/index.js";
 import accumulateDischarge from "./accumulate-discharge/index.js";
 import projectRiverNetwork from "./project-river-network/index.js";
 import planLakes from "./plan-lakes/index.js";
+import selectNavigableRiverTerrain from "./select-navigable-river-terrain/index.js";
 
 const implementations = {
   computeRadiativeForcing,
@@ -37,6 +38,7 @@ const implementations = {
   accumulateDischarge,
   projectRiverNetwork,
   planLakes,
+  selectNavigableRiverTerrain,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
@@ -59,4 +61,5 @@ export {
   accumulateDischarge,
   projectRiverNetwork,
   planLakes,
+  selectNavigableRiverTerrain,
 };

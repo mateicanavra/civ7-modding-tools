@@ -4,10 +4,11 @@ import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
 } from "../../src/domain/hydrology/river-class.js";
-import { materializeNavigableRiverMask } from "../../src/recipes/standard/projection-policies/navigableRiverMaterialization.js";
+import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
+import { runOpValidated } from "../support/compiler-helpers.js";
 
-describe("navigable river materialization", () => {
-  it("selects high-discharge trunk channels and ignores short fragments", () => {
+describe("select navigable river terrain", () => {
+  it("prefers the strongest major-discharge trunk when density only allows one chain", () => {
     const width = 8;
     const height = 3;
     const size = width * height;
@@ -30,24 +31,29 @@ describe("navigable river materialization", () => {
       flowDir[index] = x < 2 ? width + x + 1 : -1;
     }
 
-    const result = materializeNavigableRiverMask({
-      width,
-      height,
-      riverClass,
-      discharge,
-      flowDir,
-      projectableLandMask,
-      minLength: 5,
-      maxLength: 15,
-      targetTileCount: 8,
-    });
+    const result = runOpValidated(
+      selectNavigableRiverTerrain,
+      {
+        width,
+        height,
+        riverClass,
+        discharge,
+        flowDir,
+        projectableLandMask,
+      },
+      {
+        strategy: "default",
+        config: { endpointDischargePercentileMin: 1, targetMajorTileFraction: 0.3 },
+      }
+    );
 
-    expect(result.selectedTileCount).toBe(5);
+    expect(result.selectedTileCount).toBe(3);
     expect(result.selectedChainCount).toBe(1);
     expect(result.plannedMinorRiverTileCount).toBe(0);
     expect(result.plannedMajorRiverTileCount).toBe(8);
-    for (let x = 0; x < 5; x++) expect(result.riverMask[x]).toBe(1);
-    for (let x = 0; x < 3; x++) expect(result.riverMask[width + x]).toBe(0);
+    expect(result.candidateEndpointCount).toBe(1);
+    for (let x = 0; x < 5; x++) expect(result.riverMask[x]).toBe(0);
+    for (let x = 0; x < 3; x++) expect(result.riverMask[width + x]).toBe(1);
   });
 
   it("does not promote minor rivers into navigable river terrain", () => {
@@ -65,17 +71,21 @@ describe("navigable river materialization", () => {
       flowDir[x] = x < width - 1 ? x + 1 : -1;
     }
 
-    const result = materializeNavigableRiverMask({
-      width,
-      height,
-      riverClass,
-      discharge,
-      flowDir,
-      projectableLandMask,
-      minLength: 3,
-      maxLength: 12,
-      targetTileCount: 6,
-    });
+    const result = runOpValidated(
+      selectNavigableRiverTerrain,
+      {
+        width,
+        height,
+        riverClass,
+        discharge,
+        flowDir,
+        projectableLandMask,
+      },
+      {
+        strategy: "default",
+        config: { endpointDischargePercentileMin: 0, targetMajorTileFraction: 1 },
+      }
+    );
 
     expect(result.plannedMinorRiverTileCount).toBe(6);
     expect(result.plannedMajorRiverTileCount).toBe(0);

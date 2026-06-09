@@ -501,11 +501,7 @@
     },
     "map-rivers": {
       "knobs": {
-        "riverDensity": "normal"
-      },
-      "riverProjection": {
-        "minLength": 5,
-        "maxLength": 15
+        "navigableRiverDensity": "normal"
       }
     },
     "ecology-features": {

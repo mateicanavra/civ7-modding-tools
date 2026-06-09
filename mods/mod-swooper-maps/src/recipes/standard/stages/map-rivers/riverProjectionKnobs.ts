@@ -37,12 +37,3 @@ export function resolveNavigableRiverDensityKnob(
   }
   return navigableRiverDensity ?? riverDensity ?? "normal";
 }
-
-export const NAVIGABLE_RIVER_DENSITY_LENGTH_BOUNDS = {
-  sparse: { minLength: 7, maxLength: 18 },
-  normal: { minLength: 5, maxLength: 15 },
-  dense: { minLength: 3, maxLength: 12 },
-} as const satisfies Record<
-  NavigableRiverDensityKnob,
-  Readonly<{ minLength: number; maxLength: number }>
->;

@@ -77,7 +77,7 @@ describe("shipped map config identity", () => {
     expect(earthlike.placement.resources).toEqual({ density: 1, sparsity: 0, rarityFidelity: 1, siteSpacingTiles: 3 });
 
     expect(earthlike.placement).not.toHaveProperty("floodplains");
-    expect(earthlike["map-rivers"].riverProjection).toEqual({ minLength: 5, maxLength: 15 });
+    expect(earthlike["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
     expect(earthlike.foundation.meshResolution).not.toHaveProperty("referenceArea");
     expect(earthlike.foundation.platePartition).not.toHaveProperty("plateScalePower");
   });

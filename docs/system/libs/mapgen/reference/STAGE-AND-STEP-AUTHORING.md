@@ -65,18 +65,27 @@ Representative example (createStep boundary; excerpt; see full file in anchors):
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import PlotRiversStepContract from "./plotRivers.contract.js";
-import { materializeNavigableRiverMask } from "../../../projection-policies/navigableRiverMaterialization.js";
 
 export default createStep(PlotRiversStepContract, {
   normalize: (config, ctx) => {
     // Shape-preserving; may use ctx.knobs deterministically. For rivers, this
-    // is where map-rivers navigableRiverDensity adjusts projection lengths
-    // without changing Hydrology's physical riverDensity thresholds.
+    // is where map-rivers navigableRiverDensity resolves the Hydrology-owned
+    // navigable-river projection policy without mutating Hydrology truth.
     return config;
   },
-  run: (context, config, _ops, deps) => {
+  run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
-    const projected = materializeNavigableRiverMask(hydrography, context.dimensions, config);
+    const projected = ops.selectNavigableRiverTerrain(
+      {
+        width: context.dimensions.width,
+        height: context.dimensions.height,
+        riverClass: hydrography.riverClass,
+        discharge: hydrography.discharge,
+        flowDir: hydrography.flowDir,
+        projectableLandMask: /* finalized projectable terrain mask */,
+      },
+      config.selectNavigableRiverTerrain
+    );
     // ... stamp projected.riverMask as TERRAIN_NAVIGABLE_RIVER ...
     // ... refresh Civ caches and publish projected + engine readback artifacts ...
   },

@@ -140,7 +140,7 @@ describe("map stamping contract guardrails", () => {
       path.join(stagesRoot, "map-rivers/steps/plotRivers.contract.ts"),
       "utf8"
     );
-    expect(plotRiversText).toContain("materializeNavigableRiverMask");
+    expect(plotRiversText).toContain("selectNavigableRiverTerrain");
     expect(plotRiversContractText).toContain("MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted");
     expect(plotRiversContractText).not.toContain("riversModeled");
   });

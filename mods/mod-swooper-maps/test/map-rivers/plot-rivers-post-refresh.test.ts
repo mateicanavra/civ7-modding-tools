@@ -10,6 +10,7 @@ import { NO_RIVER_TYPE } from "@civ7/map-policy";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
+import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -120,7 +121,17 @@ describe("map-rivers/plot-rivers", () => {
 
     expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);
 
-    plotRivers.run(context as any, { minLength: 5, maxLength: 15 }, {} as any, buildTestDeps(plotRivers));
+    plotRivers.run(
+      context as any,
+      {
+        selectNavigableRiverTerrain: {
+          strategy: "default",
+          config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+        },
+      },
+      { selectNavigableRiverTerrain: selectNavigableRiverTerrain.run } as any,
+      buildTestDeps(plotRivers)
+    );
 
     expect(adapter.callOrder).toEqual([
       "validateAndFixTerrain",

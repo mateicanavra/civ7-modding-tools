@@ -34,11 +34,6 @@ const mapCatalogConfigs = [
   ["mountain-rivers-patch.config.json", mountainRiversPatchConfig],
 ] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
 
-const MAP_RIVERS_LEGACY_DENSITY_ALIAS_ALLOWLIST = new Set([
-  "mountain-patch.config.json",
-  "swooper-earthlike.config.json",
-]);
-
 const FOUNDATION_PUBLIC_KEYS = [
   "knobs",
   "meshResolution",
@@ -185,7 +180,7 @@ const PROJECTION_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "map-morphology": ["knobs"],
   "map-hydrology": ["knobs"],
   "map-elevation": ["knobs"],
-  "map-rivers": ["knobs", "riverProjection"],
+  "map-rivers": ["knobs"],
   "map-ecology": ["knobs", "biomeBindings"],
 };
 
@@ -466,7 +461,8 @@ describe("Shipped map configs", () => {
 
     expect(mountainPatchConfig.id).toBe("mountain-patch");
     expect(mountainRiversPatchConfig.id).toBe("mountain-rivers-patch");
-    expect((mountainPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBe("normal");
+    expect((mountainPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBeUndefined();
+    expect((mountainPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
     expect((mountainRiversPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBeUndefined();
     expect((mountainRiversPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
     expect(normalizeComparison(mountainRiversPatchConfig)).toEqual(
@@ -474,7 +470,7 @@ describe("Shipped map configs", () => {
     );
   });
 
-  it("keeps the map-rivers riverDensity alias limited to proof-bound configs", () => {
+  it("keeps shipped map-rivers configs on the current navigableRiverDensity knob surface", () => {
     for (const [fileName, raw] of mapCatalogConfigs) {
       const mapRiversKnobs = (raw.config as any)["map-rivers"]?.knobs ?? {};
       const usesLegacyAlias = Object.prototype.hasOwnProperty.call(mapRiversKnobs, "riverDensity");
@@ -482,17 +478,11 @@ describe("Shipped map configs", () => {
         mapRiversKnobs,
         "navigableRiverDensity"
       );
-
-      if (MAP_RIVERS_LEGACY_DENSITY_ALIAS_ALLOWLIST.has(fileName)) {
-        expect(usesLegacyAlias, `${fileName} is proof-bound to the legacy alias`).toBe(true);
-        expect(usesCurrentKnob, `${fileName} must not mix legacy and current density knobs`).toBe(
-          false
-        );
-      } else {
-        expect(usesLegacyAlias, `${fileName} must use navigableRiverDensity or no density knob`).toBe(
-          false
-        );
-      }
+      expect(usesLegacyAlias, `${fileName} must not use the legacy density alias`).toBe(false);
+      expect(
+        usesCurrentKnob || Object.keys(mapRiversKnobs).length === 0,
+        `${fileName} must use navigableRiverDensity or no density knob`
+      ).toBe(true);
     }
   });
 
@@ -884,7 +874,12 @@ describe("Shipped map configs", () => {
     expect(compiled["map-morphology"]["plot-volcanoes"]).toEqual({});
     expect(compiled["map-hydrology"].lakes.projectionReadback).toBe(true);
     expect(compiled["map-elevation"]["build-elevation"]).toEqual({});
-    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 5, maxLength: 15 });
+    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({
+      selectNavigableRiverTerrain: {
+        strategy: "default",
+        config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+      },
+    });
     expect(compiled["map-ecology"]["plot-biomes"].bindings.tropicalSeasonal).toBe("BIOME_PLAINS");
     expect(compiled["map-ecology"]["plot-biomes"].bindings.marine).toBe("BIOME_MARINE");
     expect(compiled["map-ecology"]["features-apply"].apply).toEqual({
@@ -1145,7 +1140,12 @@ describe("Shipped map configs", () => {
           lakes: { projectionReadback: true },
         },
         "map-rivers": {
-          "plot-rivers": { minLength: 5, maxLength: 15 },
+          "plot-rivers": {
+            selectNavigableRiverTerrain: {
+              strategy: "default",
+              config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+            },
+          },
         },
         "map-elevation": {
           "build-elevation": {},
@@ -1270,7 +1270,12 @@ describe("Shipped map configs", () => {
       {
         "map-hydrology": {
           knobs: { riverDensity: "dense" },
-          "plot-rivers": { minLength: 5 },
+          "plot-rivers": {
+            selectNavigableRiverTerrain: {
+              strategy: "default",
+              config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+            },
+          },
         },
       },
       "/maps/legacy-map-hydrology-rivers"

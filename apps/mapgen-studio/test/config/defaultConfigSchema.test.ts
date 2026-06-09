@@ -447,7 +447,7 @@ describe("Studio default config", () => {
       "map-morphology": ["knobs"],
       "map-hydrology": ["knobs"],
       "map-elevation": ["knobs"],
-      "map-rivers": ["knobs", "riverProjection"],
+      "map-rivers": ["knobs"],
       "map-ecology": ["knobs", "biomeBindings"],
     };
 
@@ -494,7 +494,7 @@ describe("Studio default config", () => {
       "map-morphology": ["knobs"],
       "map-hydrology": ["knobs"],
       "map-elevation": ["knobs"],
-      "map-rivers": ["knobs", "riverProjection"],
+      "map-rivers": ["knobs"],
       "map-ecology": ["knobs", "biomeBindings"],
     };
 

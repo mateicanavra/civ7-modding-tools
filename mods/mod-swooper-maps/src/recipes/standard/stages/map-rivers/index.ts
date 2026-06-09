@@ -1,4 +1,5 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY } from "@mapgen/domain/hydrology/config.js";
 import { MapRiversPublicSchema } from "../map-projection-public-config.js";
 import { plotRivers } from "./steps/index.js";
 import {
@@ -31,10 +32,15 @@ export default createStage({
   id: "map-rivers",
   knobsSchema,
   public: MapRiversPublicSchema,
-  compile: ({ config, knobs }: { config: { riverProjection?: unknown }; knobs: unknown }) => {
-    resolveNavigableRiverDensityKnob(knobs as NavigableRiverDensityKnobs);
+  compile: ({ knobs }: { config: object; knobs: unknown }) => {
+    const density = resolveNavigableRiverDensityKnob(knobs as NavigableRiverDensityKnobs);
     return {
-      "plot-rivers": config.riverProjection,
+      "plot-rivers": {
+        selectNavigableRiverTerrain: {
+          strategy: "default",
+          config: { ...HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY[density] },
+        },
+      },
     };
   },
   steps: [plotRivers],
