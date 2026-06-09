@@ -1,4 +1,8 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { validateMapLocation } from "../map/validation.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { boundedInteger } from "../../validation.js";
 
 import type {
   Civ7CommandResult,
@@ -57,7 +61,7 @@ type UnitMovePreviewDependencies = Readonly<{
 export async function getCiv7UnitMovePreview(
   input: Civ7UnitMovePreviewInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: UnitMovePreviewDependencies,
+  dependencies: UnitMovePreviewDependencies = defaultUnitMovePreviewDependencies,
 ): Promise<Civ7UnitMovePreviewResult> {
   if (input.destination !== undefined) dependencies.validateMapLocation(input.destination);
   const result = await dependencies.executeAppUiCommand({
@@ -231,3 +235,11 @@ export function unitMovePreviewSource(): string {
       };
     };`;
 }
+
+const defaultUnitMovePreviewDependencies: UnitMovePreviewDependencies = {
+  validateMapLocation,
+  boundedInteger,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parseUnitMovePreview: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7UnitMovePreviewResult>(result, label),
+};

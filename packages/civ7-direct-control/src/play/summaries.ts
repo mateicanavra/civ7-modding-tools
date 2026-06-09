@@ -1,3 +1,7 @@
+import { jsLiteral } from "../runtime/command-serialization.js";
+import { probeHelperSource } from "../runtime/probe.js";
+import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import { executeCiv7TunerCommand } from "../session/execute.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -6,6 +10,7 @@ import type {
 import type { Civ7ComponentId } from "../civ7-component-id.js";
 import type { Civ7MapLocation } from "./map/types.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+import { boundedInteger, validatePlayerId } from "../validation.js";
 
 export type Civ7PlayerSummaryInput = Readonly<{
   playerIds?: ReadonlyArray<number>;
@@ -101,7 +106,7 @@ type SummaryReadDependencies = Readonly<{
 export async function getCiv7PlayerSummary(
   input: Civ7PlayerSummaryInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SummaryReadDependencies,
+  dependencies: SummaryReadDependencies = defaultSummaryReadDependencies,
 ): Promise<Civ7PlayerSummaryResult> {
   const result = await dependencies.executeTunerCommand({
     ...options,
@@ -120,7 +125,7 @@ export async function getCiv7PlayerSummary(
 export async function getCiv7UnitSummary(
   input: Civ7UnitSummaryInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SummaryReadDependencies,
+  dependencies: SummaryReadDependencies = defaultSummaryReadDependencies,
 ): Promise<Civ7UnitSummaryResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeTunerCommand({
@@ -140,7 +145,7 @@ export async function getCiv7UnitSummary(
 export async function getCiv7CitySummary(
   input: Civ7CitySummaryInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SummaryReadDependencies,
+  dependencies: SummaryReadDependencies = defaultSummaryReadDependencies,
 ): Promise<Civ7CitySummaryResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeTunerCommand({
@@ -282,3 +287,17 @@ function runtimeObjectReaderSource(): string {
       return undefined;
     };`;
 }
+
+const defaultSummaryReadDependencies: SummaryReadDependencies = {
+  boundedInteger,
+  executeTunerCommand: executeCiv7TunerCommand,
+  jsLiteral,
+  parseCitySummary: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7CitySummaryResult>(result, label),
+  parsePlayerSummary: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7PlayerSummaryResult>(result, label),
+  parseUnitSummary: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7UnitSummaryResult>(result, label),
+  probeHelperSource,
+  validatePlayerId,
+};

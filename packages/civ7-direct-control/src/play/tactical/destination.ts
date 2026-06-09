@@ -1,5 +1,9 @@
 import { battlefieldScanSource } from "./battlefield.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { validateMapLocation } from "../map/validation.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { boundedInteger, validatePlayerId } from "../../validation.js";
 
 import type {
   Civ7CommandResult,
@@ -53,7 +57,7 @@ type DestinationAnalysisDependencies = Readonly<{
 export async function getCiv7DestinationAnalysis(
   input: Civ7DestinationAnalysisInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: DestinationAnalysisDependencies,
+  dependencies: DestinationAnalysisDependencies = defaultDestinationAnalysisDependencies,
 ): Promise<Civ7DestinationAnalysisResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   dependencies.validateMapLocation(input.destination);
@@ -259,3 +263,12 @@ export function destinationAnalysisSource(): string {
       };
     };`;
 }
+
+const defaultDestinationAnalysisDependencies: DestinationAnalysisDependencies = {
+  validatePlayerId,
+  validateMapLocation,
+  boundedInteger,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parseDestinationAnalysis: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7DestinationAnalysisResult>(result, label),
+};

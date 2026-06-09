@@ -1,4 +1,7 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { boundedInteger } from "../../validation.js";
 
 import type {
   Civ7CommandResult,
@@ -90,7 +93,7 @@ type ReadyCityViewDependencies = Readonly<{
 export async function getCiv7ReadyCityView(
   input: Civ7ReadyCityViewInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: ReadyCityViewDependencies,
+  dependencies: ReadyCityViewDependencies = defaultReadyCityViewDependencies,
 ): Promise<Civ7ReadyCityViewResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
@@ -732,3 +735,10 @@ export function readyCityViewSource(): string {
       };
     };`;
 }
+
+const defaultReadyCityViewDependencies: ReadyCityViewDependencies = {
+  boundedInteger,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parseReadyCityView: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7ReadyCityViewResult>(result, label),
+};

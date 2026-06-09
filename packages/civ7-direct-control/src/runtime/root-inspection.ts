@@ -1,9 +1,18 @@
+import { Civ7DirectControlError } from "../direct-control-error.js";
+import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import { executeCiv7Command } from "../session/execute.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../session/types.js";
 import type { Civ7RuntimeApiInspection } from "./inspection.js";
+import { boundedInteger, validateIdentifier } from "../validation.js";
+import { jsLiteral } from "./command-serialization.js";
+import {
+  DEFAULT_CIV7_ROOT_MAX_KEYS,
+  DEFAULT_CIV7_ROOT_MAX_METHODS,
+} from "./inspection-constants.js";
 
 export type Civ7RootInspectionInput = Readonly<{
   state?: Civ7TunerStateSelection;
@@ -41,7 +50,7 @@ type RootInspectionDependencies = Readonly<{
 export async function inspectCiv7Root(
   input: Civ7RootInspectionInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: RootInspectionDependencies,
+  dependencies: RootInspectionDependencies = defaultRootInspectionDependencies,
 ): Promise<Civ7RootInspectionResult> {
   const roots = input.roots.map((root) => dependencies.validateIdentifier(root, "runtime root"));
   if (roots.length === 0) {
@@ -134,3 +143,14 @@ function buildBoundedRootInspectionCommand(
     });
   })()`;
 }
+
+const defaultRootInspectionDependencies: RootInspectionDependencies = {
+  boundedInteger,
+  commandFailedError: (message) => new Civ7DirectControlError("command-failed", message),
+  executeCommand: executeCiv7Command,
+  jsonPayloadFromCommandResult,
+  jsLiteral,
+  rootMaxKeysDefault: DEFAULT_CIV7_ROOT_MAX_KEYS,
+  rootMaxMethodsDefault: DEFAULT_CIV7_ROOT_MAX_METHODS,
+  validateIdentifier,
+};

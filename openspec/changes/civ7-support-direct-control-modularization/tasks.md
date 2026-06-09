@@ -202,6 +202,14 @@ runtime/direct-control claims.
         while keeping the public wrapper in the facade.
   - [x] 4.3.2 Extract notification view wrapper owner while keeping the public
         facade export surface in `index.ts`.
+  - [x] 4.3.3 Prune notification view facade dependency injection by letting
+        the notification view owner import existing non-facade App UI execution
+        and parser owners directly, while keeping public facade exports stable,
+        preserving `maxNotifications` defaulting, parse label, read-only
+        materialization behavior, debug/internal raw projection boundaries, and
+        leaving telemetry, AI ingestion, CLI semantic projection, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.4 Extract notification dismissal/verification atom.
   - [x] 4.4.1 Extract notification dismissal embedded source owner while
         keeping wrapper-level polling and verification helpers in the facade.
@@ -216,6 +224,15 @@ runtime/direct-control claims.
         leaving runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.4.5 Prune notification dismissal facade dependency injection by
+        letting `src/play/notifications/dismissal-request.ts` import existing
+        non-facade App UI execution, parser, serializer, and approval owners
+        directly, while keeping public facade exports stable, preserving
+        guarded read/send dismissal command serialization, approval-first
+        dismissal behavior, final identity-based verification, focused
+        package/CLI notification dismissal proof, and leaving runtime/live-game
+        proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.
@@ -229,6 +246,16 @@ runtime/direct-control claims.
         export surface in `index.ts`.
   - [x] 4.5.6 Extract ready-city wrapper owner while keeping the public facade
         export surface in `index.ts`.
+  - [x] 4.5.7 Prune ready read facade dependency injection by letting
+        `src/play/ready/{unit,move-preview,city}.ts` import existing
+        non-facade App UI execution, parser, bounds, and map-validation owners
+        directly, while keeping public facade exports stable, preserving
+        ready-unit radius/max-operation bounds, unit-move-preview destination
+        validation and movement bounds, ready-city max-operation bounds, no new
+        component-id pre-validation, conservative relationship-label policy,
+        and leaving ready-domain regrouping, telemetry, AI ingestion, CLI
+        semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.6 Extract operation validation/send/postcondition atoms.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in
@@ -322,6 +349,15 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.20 Prune generic operation facade dependency injection by letting
+        `src/play/operations/validate-request.ts` import existing non-facade
+        approval, Tuner execution, command-result parser, and serializer owners
+        directly, while keeping public facade exports stable, preserving
+        approval-first send behavior, validator-first request flow, operation
+        router source routing, unit/population/production postcondition
+        composition, package/CLI proof, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
@@ -345,6 +381,17 @@ runtime/direct-control claims.
         facade export surface in `index.ts`.
   - [x] 4.7.11 Extract destination analysis wrapper owner while keeping the
         public facade export surface in `index.ts`.
+  - [x] 4.7.12 Prune tactical/progression read facade dependency injection by
+        letting `src/play/tactical/{settlement,target-candidates,battlefield,destination}.ts`
+        and `src/play/progression/reads.ts` import existing non-facade App UI
+        execution, parser, validation, bounds, and map-validation owners
+        directly, while keeping public facade exports stable, preserving
+        settlement count bounds, progression player validation,
+        target-candidate/battlefield/destination bounds, destination/origin map
+        validation, conservative relationship-label policy, and leaving
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
@@ -818,6 +865,39 @@ runtime/direct-control claims.
         strings, public procedure schemas, telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.11.8 Prune map-read facade dependency injection by letting the map
+        read owner import existing non-facade executor/parser/validation/source
+        helpers directly, while keeping public facade exports stable,
+        preserving map summary, plot snapshot, and map grid behavior, and
+        leaving public procedure schemas, telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.11.9 Prune summary-read facade dependency injection by letting the
+        summary read owner import existing non-facade executor, parser,
+        validation, serializer, and source-helper owners directly, while
+        keeping public facade exports stable, preserving player/unit/city
+        summary validation and component-id pass-through behavior, and leaving
+        public procedure schemas, telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.11.10 Prune GameInfo read facade dependency injection by letting the
+        GameInfo owner import existing non-facade executor, parser, validation,
+        serializer, constant, and source-helper owners directly, while keeping
+        public facade exports stable, preserving GameInfo table/filter
+        validation, lookup/filter value pass-through, limit/offset bounds,
+        schema/primary-key options, and leaving public procedure schemas,
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.11.11 Prune visibility/reveal facade dependency injection by letting
+        the visibility owner import existing non-facade approval, executor,
+        parser, validation, serializer, constant, probe, and bounds helpers
+        directly, while keeping public facade exports stable, preserving
+        visibility read bounds behavior, reveal approval/disposable-session
+        guard, reveal classification, and leaving public procedure schemas,
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
@@ -908,6 +988,15 @@ runtime/direct-control claims.
         behavior, and leaving telemetry, AI ingestion, CLI semantic projection,
         hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.12.14 Prune bounded root inspection facade dependency injection by
+        letting the runtime root-inspection owner import existing non-facade
+        command execution, parser, validation, serializer, error, and bounds
+        constant owners directly, while keeping public facade exports stable,
+        preserving root identifier validation, root caps, state defaulting,
+        parse label, command serialization, result shape, debug/internal-only
+        classification, and leaving telemetry, AI ingestion, CLI semantic
+        projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
@@ -921,6 +1010,15 @@ runtime/direct-control claims.
         gates, bounded turn/player validation, explicit unbounded start
         semantics, stop-settling/pause behavior, command strings, and result
         shapes, and leaving hotseat runtime proof, AI ingestion, CLI semantic
+        projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.13.3 Prune turn-completion facade dependency injection by letting
+        `src/play/turn-completion.ts` import existing non-facade App UI
+        execution, parser, notification-view, and approval owners directly,
+        while keeping public facade exports stable, preserving approval-first
+        send/unready behavior, guard-first status read, stale notification
+        fallback classification, command strings, parse label, action result
+        shape, and leaving hotseat runtime proof, AI ingestion, CLI semantic
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
 - [x] 4.14 Extract setup/start lifecycle atoms.

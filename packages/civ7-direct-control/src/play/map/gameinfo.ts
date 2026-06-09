@@ -4,6 +4,15 @@ import type {
   Civ7TunerState,
 } from "../../session/types.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7TunerCommand } from "../../session/execute.js";
+import { boundedInteger, validateIdentifier } from "../../validation.js";
+import {
+  DEFAULT_CIV7_GAMEINFO_LIMIT,
+  HARD_CIV7_GAMEINFO_LIMIT,
+} from "./constants.js";
 
 export type Civ7GameInfoRowsInput = Readonly<{
   table: string;
@@ -47,7 +56,7 @@ type GameInfoReadDependencies = Readonly<{
 export async function getCiv7GameInfoRows(
   input: Civ7GameInfoRowsInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: GameInfoReadDependencies,
+  dependencies: GameInfoReadDependencies = defaultGameInfoReadDependencies,
 ): Promise<Civ7GameInfoRowsResult> {
   const table = dependencies.validateIdentifier(input.table, "GameInfo table");
   const filterKey = input.filter ? dependencies.validateIdentifier(input.filter.key, "GameInfo filter key") : undefined;
@@ -124,3 +133,15 @@ function buildGameInfoRowsCommand(input: Civ7GameInfoRowsInput & {
     });
   })()`;
 }
+
+const defaultGameInfoReadDependencies: GameInfoReadDependencies = {
+  boundedInteger,
+  defaultGameInfoLimit: DEFAULT_CIV7_GAMEINFO_LIMIT,
+  executeTunerCommand: executeCiv7TunerCommand,
+  hardGameInfoLimit: HARD_CIV7_GAMEINFO_LIMIT,
+  jsLiteral,
+  parseGameInfoRows: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7GameInfoRowsResult>(result, label),
+  probeHelperSource,
+  validateIdentifier,
+};
