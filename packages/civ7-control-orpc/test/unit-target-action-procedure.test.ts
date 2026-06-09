@@ -5,7 +5,6 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  Civ7MutationApprovalRequiredError,
   Civ7UnitTargetActionInputSchema,
   Civ7UnitTargetActionUnavailableError,
   createCiv7ControlOrpcServerClient,
@@ -30,11 +29,6 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     expect(Value.Check(Civ7UnitTargetActionInputSchema, {
       unitId,
       ...target,
-      approvalReason: "test approved unit target action",
-    })).toBe(false);
-    expect(Value.Check(Civ7UnitTargetActionInputSchema, {
-      unitId,
-      ...target,
       session: { state: "App UI" },
     })).toBe(false);
     expect(Value.Check(Civ7UnitTargetActionInputSchema, {
@@ -54,7 +48,7 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     })).toBe(false);
   });
 
-  test("calls the unit target action mutation through native Effect/oRPC with context approval", async () => {
+  test("calls the unit target action mutation through native Effect/oRPC ", async () => {
     const fake = fakeContext(unitTargetActionResult("target-reached"));
 
     const result = await call(
@@ -112,11 +106,6 @@ describe("unit.target.action.request control-oRPC procedure", () => {
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: {
-        approved: true,
-        reason: "test approved unit target action",
-        disposableSession: true,
-      },
     }]);
   });
 
@@ -131,53 +120,6 @@ describe("unit.target.action.request control-oRPC procedure", () => {
 
     expect(result.status).toBe("sent-confirmed");
     expect(fake.calls).toHaveLength(1);
-  });
-
-  test("requires context approval before the direct-control mutation port runs", async () => {
-    const fake = fakeContext(unitTargetActionResult("target-reached"), {
-      approval: undefined,
-    });
-
-    await expect(
-      call(Civ7ControlOrpcRouter.unit.target.action.request, {
-        unitId,
-        ...target,
-      }, { context: fake.context }),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      status: 403,
-      data: {
-        procedureKey: "unit.target.action.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls).toEqual([]);
-  });
-
-  test("rejects empty approval reasons before the direct-control mutation port runs", async () => {
-    const fake = fakeContext(unitTargetActionResult("target-reached"), {
-      approval: {
-        approved: true,
-        reason: "   ",
-      },
-    });
-
-    await expect(
-      call(Civ7ControlOrpcRouter.unit.target.action.request, {
-        unitId,
-        ...target,
-      }, { context: fake.context }),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      status: 403,
-      data: {
-        procedureKey: "unit.target.action.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls).toEqual([]);
   });
 
   test("keeps confirmed path shortfalls no-repeat guarded", async () => {
@@ -291,9 +233,8 @@ describe("unit.target.action.request control-oRPC procedure", () => {
     });
   });
 
-  test("keeps approval, endpoint, session, state, and raw command fields out of procedure input", async () => {
+  test("keeps endpoint, session, state, and raw command fields out of procedure input", async () => {
     const invalidInputs = [
-      { unitId, ...target, approvalReason: "test approved unit target action" },
       { unitId, ...target, disposableSession: true },
       { unitId, ...target, host: "127.0.0.1" },
       { unitId, ...target, port: 4318 },
@@ -365,18 +306,10 @@ describe("unit.target.action.request control-oRPC procedure", () => {
         proofBoundary: "local-package-test",
         risk: "mutation",
       },
-    });
-    expect(
-      Civ7ControlOrpcContract.unit.target.action.request["~orpc"]
-        .errorMap,
-    ).toHaveProperty("MUTATION_APPROVAL_REQUIRED");
-    expect(
+    });    expect(
       Civ7ControlOrpcContract.unit.target.action.request["~orpc"]
         .errorMap,
     ).toHaveProperty("UNIT_TARGET_ACTION_UNAVAILABLE");
-    expect(Civ7MutationApprovalRequiredError.code).toBe(
-      "MUTATION_APPROVAL_REQUIRED",
-    );
     expect(Civ7UnitTargetActionUnavailableError.code).toBe(
       "UNIT_TARGET_ACTION_UNAVAILABLE",
     );
@@ -386,20 +319,17 @@ describe("unit.target.action.request control-oRPC procedure", () => {
 function fakeContext(
   resultOrError: Civ7ControlOrpcUnitTargetActionResult | Error,
   options: {
-    approval?: Civ7ControlOrpcContext["approval"];
   } = {},
 ): {
   context: Civ7ControlOrpcContext;
   calls: Array<{
     input: unknown;
     options: unknown;
-    approval: unknown;
   }>;
 } {
   const calls: Array<{
     input: unknown;
     options: unknown;
-    approval: unknown;
   }> = [];
 
   return {
@@ -409,13 +339,6 @@ function fakeContext(
         port: 4318,
         timeoutMs: 1_000,
       },
-      approval: options.approval === undefined && !("approval" in options)
-        ? {
-            approved: true,
-            reason: "test approved unit target action",
-            disposableSession: true,
-          }
-        : options.approval,
       directControl: {
         getCiv7PlayableStatus: async () => ({
           playable: true,
@@ -423,10 +346,8 @@ function fakeContext(
         }),
         requestCiv7UnitTargetAction: async (
           input,
-          endpointDefaults,
-          approval,
-        ) => {
-          calls.push({ input, options: endpointDefaults, approval });
+          endpointDefaults,        ) => {
+          calls.push({ input, options: endpointDefaults });
           if (resultOrError instanceof Error) throw resultOrError;
           return resultOrError;
         },

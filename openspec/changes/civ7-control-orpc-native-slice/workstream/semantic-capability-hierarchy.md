@@ -65,7 +65,7 @@ Service ownership:
 - classify blockers, decisions, actions, and next steps for normal
   player-agent output;
 - keep non-blocking observations out of blocker slots;
-- route mutation candidates to approved domain procedures, never to raw
+- route mutation candidates to accepted domain procedures, never to raw
   command text.
 
 ### `world`
@@ -100,7 +100,7 @@ Source evidence:
 Service ownership:
 
 - present read-only recommendation and planning evidence;
-- never reinterpret planning candidates as approved actions;
+- never reinterpret planning candidates as accepted actions;
 - preserve `relationship-unproven` semantics unless official
   relationship/team/war/suzerain evidence proves stronger labels.
 
@@ -124,18 +124,19 @@ Service ownership:
 - own the caller-facing domain procedure shape and semantic output;
 - consume direct-control validators, postcondition classifiers, and proof
   helpers as runtime/proof ports;
-- require approval and no-repeat proof policy before any send;
+- require validator-first and no-repeat proof policy before any send;
 - do not infer repeat safety from legacy `verified` booleans.
 
 ### Domain-Owned Mutations
 
-Represents approved gameplay sends owned by the domain whose state and
+Represents accepted gameplay sends owned by the domain whose state and
 language define the action. Operations are verbs/capabilities, not a semantic
 entry family.
 
 Source evidence:
 
 - unit target action under `unit`;
+- unit upgrade and resettle under `unit`;
 - notification dismissal under the notification/attention mutation domain;
 - setup/restart/begin actions;
 - autoplay actions;
@@ -144,7 +145,7 @@ Source evidence:
 
 Service ownership:
 
-- compose approval, validator-first checks, send receipts, post-read
+- compose validator-first checks, send receipts, post-read
   evidence, postcondition/proof classification, and no-repeat policy through
   native oRPC/effect-orpc procedures and middleware;
 - use direct-control only for runtime authority, command serialization,
@@ -184,6 +185,7 @@ Service ownership:
 | `unit.summary.read`, `city.summary.read`, `player.summary.read` | burned down as public oRPC wrappers; future `world` service must decompose lower-level runtime/probe resources or move semantic summary behavior into control-oRPC |
 | `unit.move.preview` | `world` read plus future unit validation evidence |
 | `unit.target.action.request` | `unit` |
+| `unit.upgrade.request`, `unit.resettle.request` | `unit` |
 | `city.production.choice.request` | `city` |
 | `progression.technology.choice.request`, `progression.culture.choice.request` | `progression` |
 | `narrative.choice.request` | `narrative` |
@@ -191,7 +193,7 @@ Service ownership:
 | `map.summary.read`, `map.grid.read`, `map.plot.snapshot`, `map.visibility.read` | `map.summary.read` wrapper burned down; future `world` service must not treat direct-control summary envelopes as bare runtime ports |
 | `strategy.*` planning reads | `strategy` |
 | narrative, diplomacy, culture, technology, population closeouts | owning Civ domain, not a generic decisions/action root |
-| setup, restart, autoplay, reveal-map, turn-send behavior | domain-owned mutation or `debug`, depending on approval/risk class |
+| setup, restart, autoplay, reveal-map, turn-send behavior | domain-owned mutation or `debug`, depending on risk class |
 
 Existing `packages/civ7-control-orpc/src/modules/**` files may remain while
 the router is transitional. New implementation slices should not add another
@@ -207,8 +209,8 @@ modules or explicitly burns down an old wrapper.
 | `attention` | Current blockers, required decisions, ready actors, and semantic next steps | notifications view, ready unit/city reads, turn completion status, closeout blocker reads | `directControl`, `endpointDefaults`, `stateSelection`, projection policy, `logger` | readiness, projection separation, relationship authority when actor labels appear |
 | `world` | Bounded world/actor state views for reasoning | map reads, visibility, plot/grid reads, player/city/unit summaries | `directControl`, `endpointDefaults`, `stateSelection`, relationship policy | relationship authority, bounded-read policy |
 | `strategy` | Planning/recommendation views without action authority | settlement, target candidates, battlefield, destination, progress/tradition reads | `directControl`, `endpointDefaults`, relationship policy, risk policy | relationship authority, projection separation |
-| domain choice procedures | Choice procedures that close blockers or select player options under their owning Civ domain | production, culture, technology, narrative, diplomacy, population validators/postconditions/proof helpers | `directControl`, approval, risk policy, evidence sink, clock, correlation, logger | approval, validator-first, postcondition/proof, no-repeat |
-| domain-owned mutations | Approved gameplay sends with explicit pre/post proof, placed under the owning domain router rather than an `operations` root | unit target, notification dismissal, setup/autoplay/turn/movement runtime ports and proof owners | `directControl`, approval, risk policy, evidence sink, clock, correlation, logger | approval, validator-first, postcondition/proof, no-repeat, readiness |
+| domain choice procedures | Choice procedures that close blockers or select player options under their owning Civ domain | production, culture, technology, narrative, diplomacy, population validators/postconditions/proof helpers | `directControl`, risk policy, evidence sink, clock, correlation, logger | validator-first, postcondition/proof, no-repeat |
+| domain-owned mutations | Accepted gameplay sends with explicit pre/post proof, placed under the owning domain router rather than an `operations` root | unit target, notification dismissal, setup/autoplay/turn/movement runtime ports and proof owners | `directControl`, risk policy, evidence sink, clock, correlation, logger | validator-first, postcondition/proof, no-repeat, readiness |
 | `debug` | Intentional diagnostics and support-only inspection | Tuner/App UI snapshots, GameInfo rows, capability catalog, root inspection, raw proof/debug projections | `directControl`, endpoint/state debug context, logger, correlation | safe error projection, debug projection separation |
 
 This matrix is preparatory evidence for Task 5.4, not acceptance of Task 5.4.
@@ -225,7 +227,7 @@ Good next slices:
 - continue Task 5.2 only for narrow write-capable proof-policy owners with
   source-owned validators/postconditions; population placement is now seeded
   by `workstream/population-placement-proof-policy-source-slice.md`;
-- create a mutation procedure only after approval, validator-first, and
+- create a mutation procedure only after validator-first, and
   postcondition/no-repeat policies are composed through native oRPC/effect-orpc
   primitives;
 - add a native middleware only when at least two target semantic families share

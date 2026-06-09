@@ -1,7 +1,6 @@
 import { Type, type Static } from "typebox";
 
 import { Civ7DirectControlError } from "../../direct-control-error.js";
-import { assertApproved, type Civ7ActionApproval } from "../../action-approval.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -119,7 +118,6 @@ export type VisibilityReadDependencies = Readonly<{
 
 type VisibilityRevealDependencies = VisibilityReadDependencies &
   Readonly<{
-    assertApproved: (approval: Civ7ActionApproval, action: string) => void;
     getVisibilitySummary: (
       input: Civ7VisibilitySummaryInput,
       options?: Civ7DirectControlOptions,
@@ -159,16 +157,8 @@ export async function getCiv7VisibilitySummary(
 export async function revealCiv7MapForPlayer(
   input: Readonly<{ playerId: number }>,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: VisibilityRevealDependencies = defaultVisibilityRevealDependencies,
 ): Promise<Civ7RevealMapResult> {
-  dependencies.assertApproved(approval, "revealing the Civ7 map");
-  if (!approval.disposableSession) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      "Map reveal requires disposableSession approval",
-    );
-  }
   const playerId = dependencies.validatePlayerId(input.playerId);
   const before = await dependencies.getVisibilitySummary({ playerId }, options);
   const command = await dependencies.executeTunerCommand({
@@ -260,7 +250,6 @@ const defaultVisibilityReadDependencies: VisibilityReadDependencies = {
 
 const defaultVisibilityRevealDependencies: VisibilityRevealDependencies = {
   ...defaultVisibilityReadDependencies,
-  assertApproved,
   getVisibilitySummary: getCiv7VisibilitySummary,
   probeValue,
 };

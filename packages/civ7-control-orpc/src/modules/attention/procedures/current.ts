@@ -5,6 +5,7 @@ import type {
 } from "@civ7/direct-control";
 import { Effect } from "effect";
 
+import type { Civ7ControlOrpcContext } from "../../../context";
 import type {
   Civ7ControlOrpcPlayableStatusResult,
   Civ7ControlOrpcPlayNotificationViewResult,
@@ -31,8 +32,12 @@ export const attentionCurrentProcedure =
         const playableStatus = await context.directControl.getCiv7PlayableStatus(
           endpointDefaults,
         );
+        const canReadAttention = canReadAttentionCurrent(
+          playableStatus,
+          context,
+        );
 
-        if (!playableStatus.playable) {
+        if (!canReadAttention) {
           return buildAttentionCurrentResult({
             input,
             playableStatus,
@@ -40,6 +45,7 @@ export const attentionCurrentProcedure =
             turnCompletion: null,
             readyUnit: null,
             readyCity: null,
+            sourceStatus: skippedSourceStatus(playableStatus),
           });
         }
 
@@ -50,21 +56,19 @@ export const attentionCurrentProcedure =
           }),
           context.directControl.getCiv7TurnCompletionStatus(endpointDefaults),
         ]);
-        const readyUnitInput = readyUnitInputFromSources(
-          notifications,
-          turnCompletion,
-        );
-        const readyCityInput = readyCityInputFromNotifications(notifications);
-        const [readyUnit, readyCity] = await Promise.all([
-          context.directControl.getCiv7ReadyUnitView(
-            readyUnitInput,
-            endpointDefaults,
-          ),
-          context.directControl.getCiv7ReadyCityView(
-            readyCityInput,
-            endpointDefaults,
-          ),
-        ]);
+        const canReadReadyActors = canReadAttention;
+        const [readyUnit, readyCity] = canReadReadyActors
+          ? await Promise.all([
+            context.directControl.getCiv7ReadyUnitView(
+              readyUnitInputFromSources(notifications, turnCompletion),
+              endpointDefaults,
+            ),
+            context.directControl.getCiv7ReadyCityView(
+              readyCityInputFromNotifications(notifications),
+              endpointDefaults,
+            ),
+          ])
+          : [null, null];
 
         return buildAttentionCurrentResult({
           input,
@@ -73,6 +77,13 @@ export const attentionCurrentProcedure =
           turnCompletion,
           readyUnit,
           readyCity,
+          sourceStatus: {
+            playableStatus: "read",
+            notifications: "read",
+            turnCompletion: "read",
+            readyUnit: sourceReadStatus(canReadReadyActors, readyUnit),
+            readyCity: sourceReadStatus(canReadReadyActors, readyCity),
+          },
         });
       },
       catch: () =>
@@ -93,6 +104,7 @@ type AttentionBuildInput = Readonly<{
   turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null;
   readyUnit: Civ7ControlOrpcReadyUnitViewResult | null;
   readyCity: Civ7ControlOrpcReadyCityViewResult | null;
+  sourceStatus: Civ7AttentionCurrentResult["sourceStatus"];
 }>;
 
 function buildAttentionCurrentResult({
@@ -101,6 +113,7 @@ function buildAttentionCurrentResult({
   turnCompletion,
   readyUnit,
   readyCity,
+  sourceStatus,
 }: AttentionBuildInput): Civ7AttentionCurrentResult {
   const blockers = [
     ...notificationBlockers(notifications),
@@ -114,9 +127,13 @@ function buildAttentionCurrentResult({
   ];
   const nextSteps = attentionNextSteps({
     playableStatus,
+    sourceStatus,
     turnCompletion,
+    notificationCoverageComplete: notifications?.limits.truncated !== true,
     blockers,
     readyActors,
+    readyActorsCovered:
+      sourceStatus.readyUnit === "read" && sourceStatus.readyCity === "read",
   });
 
   return {
@@ -130,11 +147,7 @@ function buildAttentionCurrentResult({
       ? probeValue<boolean>(notifications?.canEndTurn)
       : probeValue<boolean>(turnCompletion.canEndTurn),
     sourceStatus: {
-      playableStatus: "read",
-      notifications: notifications == null ? "skipped-not-playable" : "read",
-      turnCompletion: sourceReadStatus(playableStatus),
-      readyUnit: sourceReadStatus(playableStatus),
-      readyCity: sourceReadStatus(playableStatus),
+      ...sourceStatus,
     },
     turnCompletion: turnCompletionSummary(turnCompletion),
     summary: {
@@ -265,7 +278,7 @@ function readyUnitBlockers(
     label: "Ready unit needs orders",
     summary: `${readyUnit.legalOperations.length} legal operations available`,
     componentId: readyUnit.unitId,
-    evidence: ["ready-unit-view"],
+    evidence: readyUnitEvidence(readyUnit),
   }];
 }
 
@@ -282,7 +295,7 @@ function readyCityBlockers(
     label: "Ready city needs a decision",
     summary: `${readyCity?.legalOperations.length ?? 0} legal operations available`,
     componentId: cityId,
-    evidence: ["ready-city-view"],
+    evidence: readyCity == null ? ["ready-city-view"] : readyCityEvidence(readyCity),
   }];
 }
 
@@ -295,7 +308,7 @@ function readyUnitActors(
     componentId: readyUnit.unitId,
     operationCount: readyUnit.legalOperations.length,
     summary: "Ready unit",
-    evidence: ["ready-unit-view"],
+    evidence: readyUnitEvidence(readyUnit),
   }];
 }
 
@@ -308,22 +321,44 @@ function readyCityActors(
     componentId: readyCity.cityId,
     operationCount: readyCity.legalOperations.length,
     summary: "Ready city",
-    evidence: ["ready-city-view"],
+    evidence: readyCityEvidence(readyCity),
   }];
+}
+
+function readyUnitEvidence(
+  readyUnit: Civ7ControlOrpcReadyUnitViewResult,
+): string[] {
+  return readyUnit.host === "game-ui"
+    ? ["game-ui-ready-unit-source"]
+    : ["ready-unit-view"];
+}
+
+function readyCityEvidence(
+  readyCity: Civ7ControlOrpcReadyCityViewResult,
+): string[] {
+  return readyCity.host === "game-ui"
+    ? ["game-ui-ready-city-source"]
+    : ["ready-city-view"];
 }
 
 function attentionNextSteps({
   playableStatus,
+  sourceStatus,
   turnCompletion,
+  notificationCoverageComplete,
   blockers,
   readyActors,
+  readyActorsCovered,
 }: Readonly<{
   playableStatus: Civ7ControlOrpcPlayableStatusResult;
+  sourceStatus: Civ7AttentionCurrentResult["sourceStatus"];
   turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null;
+  notificationCoverageComplete: boolean;
   blockers: Civ7AttentionCurrentResult["blockers"];
   readyActors: Civ7AttentionCurrentResult["readyActors"];
+  readyActorsCovered: boolean;
 }>): Civ7AttentionCurrentResult["nextSteps"] {
-  if (!playableStatus.playable) {
+  if (!playableStatus.playable && sourceStatus.notifications !== "read") {
     return [{
       kind: "restore-readiness",
       source: "readiness",
@@ -353,11 +388,29 @@ function attentionNextSteps({
     return [...blockerSteps, ...actorSteps];
   }
 
-  if (canRecommendEndTurn(turnCompletion)) {
+  if (readyActorsCovered && canRecommendEndTurn(turnCompletion)) {
     return [{
       kind: "end-turn",
       source: "attention",
       label: "No blockers found; end turn is available.",
+    }];
+  }
+
+  if (!notificationCoverageComplete) {
+    return [{
+      kind: "observe",
+      source: "attention",
+      label:
+        "Notification coverage is truncated; inspect more attention evidence before concluding there are no blockers.",
+    }];
+  }
+
+  if (!readyActorsCovered) {
+    return [{
+      kind: "observe",
+      source: "attention",
+      label:
+        "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
     }];
   }
 
@@ -366,6 +419,23 @@ function attentionNextSteps({
     source: "attention",
     label: "No current blockers found.",
   }];
+}
+
+function sourceReadStatus(
+  attempted: boolean,
+  result:
+    | Civ7ControlOrpcReadyUnitViewResult
+    | Civ7ControlOrpcReadyCityViewResult
+    | null,
+): Civ7AttentionCurrentResult["sourceStatus"]["readyUnit"] {
+  if (!attempted || result == null) return "skipped-unsupported";
+  if (result.host !== "game-ui") return "read";
+  if ("unitId" in result) {
+    return result.firstReadyUnitId.ok === true
+      ? "read"
+      : "skipped-unsupported";
+  }
+  return "skipped-unsupported";
 }
 
 function canRecommendEndTurn(
@@ -381,11 +451,28 @@ function canRecommendEndTurn(
   return turnCompletionBlockerStatus(turnCompletion) !== "blocked";
 }
 
-function sourceReadStatus(
+function canReadAttentionCurrent(
   playableStatus: Civ7ControlOrpcPlayableStatusResult,
-): "read" | "skipped-not-playable" {
-  if (!playableStatus.playable) return "skipped-not-playable";
-  return "read";
+  context: Civ7ControlOrpcContext,
+): boolean {
+  return playableStatus.playable
+    || context.controller?.supportedReadProcedures?.includes("attention.current")
+      === true;
+}
+
+function skippedSourceStatus(
+  playableStatus: Civ7ControlOrpcPlayableStatusResult,
+): Civ7AttentionCurrentResult["sourceStatus"] {
+  const skipped = playableStatus.playable
+    ? "skipped-unsupported"
+    : "skipped-not-playable";
+  return {
+    playableStatus: "read",
+    notifications: skipped,
+    turnCompletion: skipped,
+    readyUnit: skipped,
+    readyCity: skipped,
+  };
 }
 
 function probeValue<T>(probe: unknown): T | null {

@@ -35,7 +35,7 @@ The future serialized ingress envelope should be intentionally small:
 type Civ7IntelligenceBridgeRequest = Readonly<{
   procedureKey: string;
   input: unknown;
-  approval?: unknown;
+  controllerProof?: unknown;
   correlationId?: string;
 }>;
 
@@ -58,7 +58,7 @@ native oRPC/effect-orpc primitives. It must not implement a second dispatcher.
 Initial source implementation should allowlist a small set of procedures by
 stable `procedureKey`, starting with read-only capability proof such as
 `readiness.current` or `attention.current`. Mutations require a separate
-approved slice with explicit approval evidence, local-player/hotseat identity,
+accepted slice with explicit mutation evidence, local-player/hotseat identity,
 and postcondition/no-repeat proof handling.
 
 Forbidden ingress keys and payloads:
@@ -75,7 +75,7 @@ Controller runtime assembly owns context construction:
 
 - controller-local access to game globals and lifecycle certification;
 - local-player and hotseat identity evidence;
-- explicit approval tokens for mutation procedures;
+- explicit controller proof for mutation procedures;
 - proof/evidence sinks and bounded logging;
 - correlation IDs passed through existing control-oRPC context;
 - any direct-control runtime/proof port adapters needed by the selected
@@ -92,7 +92,7 @@ Do not implement source until the slice names:
 - contract schemas for ingress request and response;
 - procedure allowlist and risk class for each allowed procedure;
 - context construction owner and test doubles;
-- approval/local-player/hotseat proof owner for any mutation procedure;
+- lifecycle/local-player/hotseat proof owner for any mutation procedure;
 - local package tests and, if runtime behavior is claimed, real-game proof plan.
 
 Stop if an implementation:

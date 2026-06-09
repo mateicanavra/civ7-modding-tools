@@ -14,7 +14,6 @@ import {
   type Civ7ProductionChoiceRequestInput,
   type Civ7ProductionChoiceResult,
 } from "./production-choice.js";
-import type { Civ7ActionApproval } from "./types.js";
 
 export const Civ7ProductionChoiceRequestProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "city.production.choice.request",
@@ -34,8 +33,6 @@ export const Civ7ProductionChoiceRequestProcedureDescriptor = createCiv7Procedur
   inputFields: [
     "cityId",
     "args",
-    "approvalReason",
-    "disposableSession",
   ],
   outputFields: [
     "before",
@@ -69,12 +66,10 @@ export const Civ7ProductionChoiceRequestProcedureDescriptor = createCiv7Procedur
     "direct-control-facade",
     "endpoint-defaults",
     "state-selection",
-    "approval-policy",
     "logger",
     "evidence-sink",
     "live-session-policy",
   ],
-  approvalGate: true,
   validatorFirst: true,
   postconditionRequired: true,
   noRepeatAfterUnverified: true,
@@ -90,7 +85,6 @@ export const Civ7ProductionChoiceRequestProcedureSchemaArtifacts = {
 export type Civ7ProductionChoiceRequestProcedureCallOptions = Readonly<{
   directControl?: Civ7DirectControlOptions;
   procedure?: Civ7ProcedureCoreCallOptions;
-  approvalFactory?: (input: Civ7ProductionChoiceRequestInput) => Civ7ActionApproval;
   request?: typeof requestCiv7ProductionChoice;
 }>;
 
@@ -103,18 +97,12 @@ export function callCiv7ProductionChoiceRequestProcedure(
     Civ7ProductionChoiceRequestProcedureSchemaArtifacts,
     input,
     async (validInput) => {
-      const approval = options.approvalFactory?.(validInput) ?? {
-        approved: true,
-        reason: validInput.approvalReason,
-        disposableSession: validInput.disposableSession,
-      };
       const result = await (options.request ?? requestCiv7ProductionChoice)(
         {
           cityId: validInput.cityId,
           args: validInput.args,
         },
         options.directControl,
-        approval,
       );
       return {
         before: result.before,

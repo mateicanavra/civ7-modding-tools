@@ -32,7 +32,7 @@ target read procedure.
 
 ## Proof
 
-- Focused CLI test proves the approved send path reaches the existing
+- Focused CLI test proves the send path reaches the existing
   direct-control unit target runtime command through the in-process service
   client path, emits semantic `unit.target.action.request` output, and keeps
   raw command/session/state, send results, runtime probes, direct-control

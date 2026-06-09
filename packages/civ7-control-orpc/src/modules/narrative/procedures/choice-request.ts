@@ -1,4 +1,4 @@
-import { narrativeChoiceProofPostcondition } from "@civ7/direct-control";
+import { narrativeChoiceProofPostcondition } from "@civ7/direct-control/proof/narrative-choice-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNarrativeChoiceResult } from "../../../dependencies/direct-control";
@@ -26,7 +26,6 @@ export const narrativeChoiceRequestProcedure =
         const result = await context.directControl.requestCiv7NarrativeChoice(
           input,
           context.endpointDefaults,
-          context.approval!,
         );
         return narrativeChoiceResult(input, result);
       },

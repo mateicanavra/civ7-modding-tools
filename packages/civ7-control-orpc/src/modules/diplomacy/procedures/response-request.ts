@@ -1,4 +1,4 @@
-import { diplomacyResponseProofPostcondition } from "@civ7/direct-control";
+import { diplomacyResponseProofPostcondition } from "@civ7/direct-control/proof/diplomacy-response-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcDiplomacyResponseResult } from "../../../dependencies/direct-control";
@@ -26,7 +26,6 @@ export const diplomacyResponseRequestProcedure =
         const result = await context.directControl.requestCiv7DiplomacyResponse(
           input,
           context.endpointDefaults,
-          context.approval!,
         );
         return diplomacyResponseResult(input, result);
       },

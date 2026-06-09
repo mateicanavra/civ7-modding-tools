@@ -9,9 +9,9 @@ Allowlist the existing service-owned `turn.complete.request` mutation through
 the package-local controller ingress without turning the bridge into a generic
 mutation dispatcher.
 
-This slice reuses the closed controller-runtime approval/proof envelope already
+This slice reuses the closed controller-runtime proof envelope already
 accepted for mutation ingress. The bridge validates the empty turn-completion
-procedure input, requires controller proof metadata before context construction
+procedure input, requires controller lifecycle proof before context construction
 and native router dispatch, and delegates to the existing in-process
 control-oRPC router/client.
 
@@ -28,22 +28,21 @@ The controller ingress now:
 
 - accepts `turn.complete.request` as the second explicit mutation procedure
   key after notification dismissal;
-- requires closed controller-runtime approval metadata with a non-empty reason;
-- requires closed controller proof metadata for game-controller-ready lifecycle,
+- requires closed controller lifecycle proof for game-controller-ready lifecycle,
   `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;
-- rejects missing or invalid approval/proof metadata before context
+- rejects missing or invalid lifecycle proof before context
   construction, native router dispatch, readiness reads, or direct-control
   mutation ports;
-- maps the accepted approval metadata into native oRPC context and lets the
-  existing mutation approval/readiness middleware remain authoritative;
+- maps the readiness context metadata into native oRPC context and lets the
+  existing mutation readiness middleware remain authoritative;
 - delegates to
   `createCiv7ControlOrpcServerClient(context).turn.complete.request({})`;
 - returns the existing semantic turn-completion procedure output;
 - rejects raw host, port, session, state, command, rawCommand, and raw
   direct-control turn-completion internals from the serialized bridge envelope.
 
-The controller proof metadata is a local package boundary for serialized
+The controller lifecycle proof is a local package boundary for serialized
 ingress. It is not live-game proof that a Civ7 UIScript has collected those
 facts in a running game.
 
@@ -77,5 +76,5 @@ These are local package proofs only.
 The actual game-scope adapter still needs a Civ7 UIScript/mod package and a
 runtime-owned context/proof factory before this mutation ingress can be loaded
 in a running game. Further mutation allowlists remain blocked until each
-procedure has an explicit approval/proof/lifecycle boundary and local tests for
+procedure has an explicit proof/lifecycle boundary and local tests for
 pre-dispatch rejection.

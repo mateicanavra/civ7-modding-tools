@@ -1,4 +1,4 @@
-import { populationPlacementProofPostcondition } from "@civ7/direct-control";
+import { populationPlacementProofPostcondition } from "@civ7/direct-control/proof/population-placement-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
@@ -37,7 +37,6 @@ export const cityPopulationPlaceRequestProcedure =
               location: input.location,
             },
             context.endpointDefaults,
-            context.approval!,
           )
           : await context.directControl.requestCiv7ExpandCityPlacement(
             {
@@ -45,7 +44,6 @@ export const cityPopulationPlaceRequestProcedure =
               destination: input.destination,
             },
             context.endpointDefaults,
-            context.approval!,
           );
         return cityPopulationPlacementResult(input, result);
       },

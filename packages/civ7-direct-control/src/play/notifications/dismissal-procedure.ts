@@ -6,7 +6,6 @@ import {
   type Civ7ProcedureCoreCallResult,
   type Civ7ProcedureSchemaArtifactMap,
 } from "../../procedure-core.js";
-import type { Civ7ActionApproval } from "../../action-approval.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 import {
   Civ7NotificationDismissRequestInputSchema,
@@ -34,8 +33,6 @@ export const Civ7NotificationDismissRequestProcedureDescriptor = createCiv7Proce
   },
   inputFields: [
     "notificationId",
-    "approvalReason",
-    "disposableSession",
   ],
   outputFields: [
     "host",
@@ -77,12 +74,10 @@ export const Civ7NotificationDismissRequestProcedureDescriptor = createCiv7Proce
     "direct-control-facade",
     "endpoint-defaults",
     "state-selection",
-    "approval-policy",
     "logger",
     "evidence-sink",
     "live-session-policy",
   ],
-  approvalGate: true,
   validatorFirst: true,
   postconditionRequired: true,
   noRepeatAfterUnverified: true,
@@ -98,7 +93,6 @@ export const Civ7NotificationDismissRequestProcedureSchemaArtifacts = {
 export type Civ7NotificationDismissRequestProcedureCallOptions = Readonly<{
   directControl?: Civ7DirectControlOptions;
   procedure?: Civ7ProcedureCoreCallOptions;
-  approvalFactory?: (input: Civ7NotificationDismissRequestInput) => Civ7ActionApproval;
   request?: typeof requestCiv7NotificationDismissal;
 }>;
 
@@ -111,15 +105,9 @@ export function callCiv7NotificationDismissRequestProcedure(
     Civ7NotificationDismissRequestProcedureSchemaArtifacts,
     input,
     (validInput) => {
-      const approval = options.approvalFactory?.(validInput) ?? {
-        approved: true,
-        reason: validInput.approvalReason,
-        disposableSession: validInput.disposableSession,
-      };
       return (options.request ?? requestCiv7NotificationDismissal)(
         notificationDismissInput(validInput),
         options.directControl,
-        approval,
       );
     },
     options.procedure,

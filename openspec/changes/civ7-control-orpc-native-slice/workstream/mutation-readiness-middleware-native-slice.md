@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Add a shared native control-oRPC mutation precondition: approved mutation
+Add a shared native control-oRPC mutation precondition: accepted mutation
 procedures must verify playable readiness before any direct-control mutation
 runtime port is invoked.
 
@@ -29,7 +29,7 @@ caller-facing guard and typed error projection.
 The middleware:
 
 - uses `civ7ControlOrpcImplementer.middleware(...)`;
-- runs after mutation approval and before direct-control mutation ports;
+- runs after readiness and before direct-control mutation ports;
 - calls `context.directControl.getCiv7PlayableStatus(context.endpointDefaults)`;
 - rejects non-playable readiness with `MUTATION_READINESS_REQUIRED`;
 - maps readiness read failures to `MUTATION_READINESS_UNAVAILABLE` without raw

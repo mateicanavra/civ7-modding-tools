@@ -23,7 +23,7 @@ The Civ7 direct-control boundary SHALL apply map script, map size, map seed,
 and bounded setup options through package-owned App UI setup wrappers.
 
 #### Scenario: Setup is applied from shell
-- **WHEN** a caller provides map script, map size, and seed with approval
+- **WHEN** a caller provides map script, map size, and seed
 - **THEN** the boundary validates visible setup domains
 - **AND** it writes setup through both App UI `Configuration` and
   `GameSetup` parameter APIs where Civ exposes both surfaces
@@ -47,8 +47,8 @@ after verifying expected setup values.
 - **AND** when Tuner proof is requested it verifies `GameplayMap.getRandomSeed`
   against the setup map seed
 
-#### Scenario: Existing game requires explicit exit approval
+#### Scenario: Existing game requires explicit exit request
 - **WHEN** a caller requests Run in Game from an existing running game
-- **THEN** the boundary exits to shell only when the request explicitly approves
+- **THEN** the boundary exits to shell only when the request explicitly selects
   `fromRunningGame: "exit-to-shell"`
 - **AND** it records that transition in the result

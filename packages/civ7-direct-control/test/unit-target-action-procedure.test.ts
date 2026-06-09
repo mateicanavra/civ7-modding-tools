@@ -9,13 +9,12 @@ import {
   callCiv7UnitTargetActionRequestProcedure,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7ActionApproval,
   type Civ7UnitTargetActionInput,
   type Civ7UnitTargetActionResult,
 } from "../src/index";
 
 describe("Civ7 unit-target action request procedure descriptor", () => {
-  test("records approved unit-target mutation gates and resolves schemas", () => {
+  test("records unit-target validator, postcondition, and no-repeat metadata and resolves schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7UnitTargetActionRequestProcedureDescriptor);
     expect(summary).toMatchObject({
       procedureKey: "unit.target.action.request",
@@ -28,7 +27,6 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
       aiIngestionProjection: "blocked-until-ingestion-contract",
       telemetryProjection: "effect-orpc-middleware-hook",
       mutationGates: {
-        approvalGate: true,
         validatorFirst: true,
         postconditionRequired: true,
         noRepeatAfterUnverified: true,
@@ -49,23 +47,19 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
       unitId: { owner: 0, id: 65536, type: 26 },
       x: 23,
       y: 33,
-      approvalReason: "test approved unit-target request",
     })).toBe(true);
-    expect(Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 1.5, y: 0, approvalReason: "x" })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 0, y: 1_000_001, approvalReason: "x" })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 0, y: 0 })).toBe(false);
+    expect(Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 1.5, y: 0 })).toBe(false);
+    expect(Value.Check(resolved.inputSchema, { unitId: { owner: 0, id: 65536 }, x: 0, y: 1_000_001 })).toBe(false);
     expect(Value.Check(resolved.inputSchema, {
       unitId: { owner: 0, id: 65536 },
       x: 0,
       y: 0,
-      approvalReason: "x",
       rawCommand: "Game.UnitOperations.sendRequest(...)",
     })).toBe(false);
     expect(Value.Check(resolved.inputSchema, {
       unitId: { owner: 0, id: 65536 },
       x: 0,
       y: 0,
-      approvalReason: "x",
       state: { role: "tuner" },
     })).toBe(false);
     expect(Value.Check(resolved.outputSchema, unitTargetActionResult())).toBe(true);
@@ -75,20 +69,17 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
     })).toBe(false);
   });
 
-  test("calls the approved unit-target atom through the procedure core", async () => {
+  test("calls the unit-target atom through the procedure core", async () => {
     const calls: Array<{
       input: Civ7UnitTargetActionInput;
       host?: string;
       port?: number;
-      approval: Civ7ActionApproval;
     }> = [];
 
     const result = await callCiv7UnitTargetActionRequestProcedure({
       unitId: { owner: 0, id: 65536, type: 26 },
       x: 23,
       y: 33,
-      approvalReason: "test approved unit-target request",
-      disposableSession: true,
     }, {
       directControl: {
         host: "127.0.0.1",
@@ -97,12 +88,11 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
       procedure: {
         correlationId: "unit-target-action-procedure-test",
       },
-      request: async (input, options, approval) => {
+      request: async (input, options) => {
         calls.push({
           input,
           host: options.host,
           port: options.port,
-          approval,
         });
         return unitTargetActionResult();
       },
@@ -121,11 +111,6 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
       input: { unitId: { owner: 0, id: 65536, type: 26 }, x: 23, y: 33 },
       host: "127.0.0.1",
       port: 4318,
-      approval: {
-        approved: true,
-        reason: "test approved unit-target request",
-        disposableSession: true,
-      },
     }]);
   });
 
@@ -133,14 +118,12 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
     let requested = false;
 
     for (const input of [
-      { unitId: { owner: 0, id: 65536 }, x: 1.5, y: 0, approvalReason: "x" },
-      { unitId: { owner: 0, id: 65536 }, x: 0, y: -1, approvalReason: "x" },
-      { unitId: { owner: 0, id: 65536 }, x: 0, y: 0 },
+      { unitId: { owner: 0, id: 65536 }, x: 1.5, y: 0 },
+      { unitId: { owner: 0, id: 65536 }, x: 0, y: -1 },
       {
         unitId: { owner: 0, id: 65536 },
         x: 0,
         y: 0,
-        approvalReason: "x",
         command: "Game.UnitOperations.sendRequest(...)",
       },
     ]) {
@@ -168,7 +151,6 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
       unitId: { owner: 0, id: 65536, type: 26 },
       x: 23,
       y: 33,
-      approvalReason: "test approved unit-target request",
     }, {
       request: async () => {
         requested = true;

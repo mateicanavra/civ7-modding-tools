@@ -16,9 +16,7 @@ describe('game play end-turn command', () => {
     }
   });
 
-  test('sends end-turn only with explicit approval reason', async () => {
-    await expect(GamePlayEndTurn.run(['--send', '--json'])).rejects.toThrow(/requires --reason/);
-
+  test('sends end-turn only with send enabled', async () => {
     const server = await startEndTurnTunerServer();
     const writes: string[] = [];
     const log = vi.spyOn(GamePlayEndTurn.prototype, 'log').mockImplementation((message?: string) => {
@@ -32,8 +30,6 @@ describe('game play end-turn command', () => {
         '--port',
         String(port),
         '--send',
-        '--reason',
-        'test approved end-turn',
         '--json',
       ]);
 
@@ -83,8 +79,6 @@ describe('game play end-turn command', () => {
         '--port',
         String(port),
         '--send',
-        '--reason',
-        'test approved end-turn',
         '--json',
       ]);
 
@@ -109,8 +103,6 @@ describe('game play end-turn command', () => {
         '--port',
         String(port),
         '--send',
-        '--reason',
-        'test blocked because a unit closeout exists',
         '--json',
       ]);
 
@@ -135,8 +127,6 @@ describe('game play end-turn command', () => {
         '--port',
         String(port),
         '--send',
-        '--reason',
-        'test approved stale expired command-units end-turn',
         '--json',
       ]);
 
@@ -160,8 +150,6 @@ describe('game play end-turn command', () => {
         '--port',
         String(port),
         '--send',
-        '--reason',
-        'test approved reviewed report end-turn',
         '--json',
       ]);
 
@@ -185,8 +173,6 @@ describe('game play end-turn command', () => {
         '--port',
         String(port),
         '--send',
-        '--reason',
-        'test blocked unit-lost report end-turn',
         '--json',
       ]);
 
@@ -414,7 +400,7 @@ function endTurnNotificationView(mode: EndTurnNotificationMode) {
           ? []
           : [{
               kind: 'send-turn-complete',
-              cli: "game play end-turn --send --reason '<stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout>' --json",
+              cli: "game play end-turn --send --json",
               proof: 'No selected/ready unit exists and every scanned unit closeout is disabled.',
             }],
         notes: ['End-turn fallback fixture for COMMAND_UNITS reconciliation.'],

@@ -11,9 +11,9 @@ grammar that keeps current commands compatible while adding aliases and nested
 subcommands around the domain model the play agent already uses.
 
 The consumer is an AI play agent under turn pressure. It needs to discover the
-next decision, preview legal choices, check validators, send approved actions,
-and send the chosen action without remembering raw Civ7 operation-family names,
-manual closeout steps, or component-ID repair tricks.
+next decision, preview legal choices, check validators, send proof-bounded
+actions, and send the chosen action without remembering raw Civ7
+operation-family names, manual closeout steps, or component-ID repair tricks.
 
 For live play, command examples should use `civ7 game ...`. Worktree-local
 `bun packages/cli/bin/run.js` calls are package-development tools, not the
@@ -42,7 +42,7 @@ The stable phase vocabulary is:
 - `show`: compact current state;
 - `targets` or `preview`: read-only choices and projected effects;
 - `check`: validator/preflight without mutation;
-- `send`: approved mutation with reason and postcondition;
+- `send`: explicit mutation with validator, postcondition, and no-repeat proof;
 - `operation`: generic escape hatch for raw Civ7 operation families;
 - `debug`/`raw`: expansion modes, not default play surfaces.
 
@@ -76,7 +76,7 @@ compact play-agent output is introduced.
 | `game play operation` | `game play unit operation`, `city operation`, `player operation` | Keep generic command as the escape hatch. |
 | `game play notifications` | `game play notifications list` | Preserve raw notification read with `--raw`. |
 | `game play notification-queue` | `game play notifications schedule` | Make scheduling a notifications subcommand. |
-| `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep explicit reason and conservative categories. |
+| `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep item-level review context and conservative categories. |
 | `game play ready-city` | `game play city show city:ready` | City-specific grammar should own production/growth/worker decisions. |
 | `game play build-production` | `game play city production send` | Add `preview` and `check` before send. |
 | `game play choose-tech` / `choose-culture` | `game play progress tech send` / `progress culture send` | Tech send already owns the complete chooser workflow; culture still needs the same default-send contract. |
@@ -106,7 +106,7 @@ compact play-agent output is introduced.
    live-smoked.
 2. **Notification namespace.** Move `notifications`, `notification-queue`, and
    dismiss queue behavior under one noun. Risk: medium because bulk dismissal
-   must stay conservative and reason-gated.
+   must stay conservative and item-review gated.
 3. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
    `assign-worker`, `expand-city`, and town focus workflows. Risk: medium; city
    operations have different arg shapes and placement requirements.

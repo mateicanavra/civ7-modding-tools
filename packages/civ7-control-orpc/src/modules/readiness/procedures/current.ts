@@ -1,6 +1,7 @@
 import type { Civ7RuntimeProbe } from "@civ7/direct-control";
 import { Effect } from "effect";
 
+import type { Civ7ControlOrpcContext } from "../../../context";
 import type { Civ7ControlOrpcPlayableStatusResult } from "../../../dependencies/direct-control";
 import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
@@ -17,6 +18,7 @@ export const readinessCurrentProcedure =
           await context.directControl.getCiv7PlayableStatus(
             context.endpointDefaults,
           ),
+          context,
         ),
       catch: () =>
         errors.READINESS_CURRENT_UNAVAILABLE({
@@ -31,11 +33,12 @@ export const readinessCurrentProcedure =
 
 function readinessCurrentResult(
   status: Civ7ControlOrpcPlayableStatusResult,
+  context: Civ7ControlOrpcContext,
 ): Civ7ReadinessCurrentResult {
   return {
     playable: status.playable,
     readiness: status.readiness,
-    capability: readinessCapability(status),
+    capability: readinessCapability(status, context),
     sources: {
       gameUi: {
         inGame: probeValue(status.appUi.snapshot.ui.inGame),
@@ -47,24 +50,54 @@ function readinessCurrentResult(
         ready: status.tuner?.ready ?? null,
       },
     },
+    controller: readinessControllerSummary(context),
     errorCount: status.errors.length,
-    nextSteps: readinessNextSteps(status),
+    nextSteps: readinessNextSteps(status, context),
+  };
+}
+
+function readinessControllerSummary(
+  context: Civ7ControlOrpcContext,
+): Civ7ReadinessCurrentResult["controller"] {
+  const readProcedures = context.controller?.supportedReadProcedures ?? [];
+  const mutationProcedures =
+    context.controller?.supportedMutationProcedures ?? [];
+  return {
+    supportedProcedures: [
+      ...readProcedures.map((procedureKey) => ({
+        procedureKey,
+        risk: "read-only" as const,
+      })),
+      ...mutationProcedures.map((procedureKey) => ({
+        procedureKey,
+        risk: "mutation" as const,
+      })),
+    ],
   };
 }
 
 function readinessCapability(
   status: Civ7ControlOrpcPlayableStatusResult,
+  context: Civ7ControlOrpcContext,
 ): Civ7ReadinessCurrentResult["capability"] {
   if (status.playable) {
     return {
       canObserve: true,
       canMutate: true,
-      reason: "Runtime control is ready for in-game reads and approved actions.",
+      reason: "Runtime control is ready for in-game reads and guarded actions.",
     };
   }
 
   switch (status.readiness) {
     case "app-ui-game":
+      if (supportedReadProcedures(context).length > 0) {
+        return {
+          canObserve: true,
+          canMutate: false,
+          reason:
+            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+        };
+      }
       return {
         canObserve: false,
         canMutate: false,
@@ -100,12 +133,23 @@ function readinessCapability(
 
 function readinessNextSteps(
   status: Civ7ControlOrpcPlayableStatusResult,
+  context: Civ7ControlOrpcContext,
 ): Civ7ReadinessCurrentResult["nextSteps"] {
-  if (status.playable) {
+  if (
+    status.playable
+    || (status.readiness === "app-ui-game" && supportsAttentionCurrent(context))
+  ) {
     return [{
       kind: "read-attention",
       source: "readiness.current",
       label: "Read current attention before choosing support actions.",
+    }];
+  }
+  if (status.readiness === "app-ui-game" && supportsStrategyFront(context)) {
+    return [{
+      kind: "read-strategy-front",
+      source: "readiness.current",
+      label: "Read strategy front summary before choosing tactical support actions.",
     }];
   }
 
@@ -142,6 +186,18 @@ function readinessNextSteps(
         label: "Inspect Civ7 runtime readiness before continuing.",
       }];
   }
+}
+
+function supportsAttentionCurrent(context: Civ7ControlOrpcContext): boolean {
+  return supportedReadProcedures(context).includes("attention.current");
+}
+
+function supportsStrategyFront(context: Civ7ControlOrpcContext): boolean {
+  return supportedReadProcedures(context).includes("strategy.frontSummary");
+}
+
+function supportedReadProcedures(context: Civ7ControlOrpcContext): readonly string[] {
+  return context.controller?.supportedReadProcedures ?? [];
 }
 
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | null {

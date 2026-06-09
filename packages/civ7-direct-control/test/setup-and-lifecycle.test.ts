@@ -99,13 +99,11 @@ describe("Civ7 setup and lifecycle orchestration", () => {
 
       const prepare = await prepareCiv7SinglePlayerSetup(
         expected,
-        { host: HOST, port, timeoutMs: 1_000 },
-        { approved: true, reason: "test setup lifecycle preparation" }
+        { host: HOST, port, timeoutMs: 1_000 }
       );
       const start = await startPreparedCiv7SinglePlayerGame(
         { expected, waitForTuner: true, waitTimeoutMs: 2_000, pollIntervalMs: 10 },
-        { host: HOST, port, timeoutMs: 1_000 },
-        { approved: true, reason: "test setup lifecycle start" }
+        { host: HOST, port, timeoutMs: 1_000 }
       );
 
       expect(prepare).toMatchObject({
@@ -163,8 +161,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
           waitTimeoutMs: 1_000,
           pollIntervalMs: 10,
         },
-        options,
-        { approved: true, reason: "test setup map row refresh", disposableSession: true }
+        options
       );
 
       expect(visibility).toMatchObject({
@@ -201,8 +198,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
           waitTimeoutMs: 2_000,
           pollIntervalMs: 10,
         },
-        { host: HOST, port, timeoutMs: 1_000 },
-        { approved: true, reason: "test run from setup lifecycle" }
+        { host: HOST, port, timeoutMs: 1_000 }
       );
 
       expect(run).toMatchObject({
@@ -227,8 +223,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       await expect(
         prepareCiv7SinglePlayerSetup(
           { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 444 },
-          { host: HOST, port, timeoutMs: 1_000 },
-          { approved: true, reason: "test setup close no replay" }
+          { host: HOST, port, timeoutMs: 1_000 }
         )
       ).rejects.toMatchObject({ code: "socket-closed" });
 
@@ -243,14 +238,12 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
       await prepareCiv7SinglePlayerSetup(
         expected,
-        { host: HOST, port, timeoutMs: 1_000 },
-        { approved: true, reason: "test begin failure preparation" }
+        { host: HOST, port, timeoutMs: 1_000 }
       );
       await expect(
         startPreparedCiv7SinglePlayerGame(
           { expected, waitForTuner: true, waitTimeoutMs: 500, pollIntervalMs: 10 },
-          { host: HOST, port, timeoutMs: 500 },
-          { approved: true, reason: "test begin close no replay" }
+          { host: HOST, port, timeoutMs: 500 }
         )
       ).rejects.toMatchObject({ code: "socket-closed" });
 
@@ -268,15 +261,13 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
       await prepareCiv7SinglePlayerSetup(
         expected,
-        { host: HOST, port, timeoutMs: 1_000 },
-        { approved: true, reason: "test seed mismatch preparation" }
+        { host: HOST, port, timeoutMs: 1_000 }
       );
 
       await expect(
         startPreparedCiv7SinglePlayerGame(
           { expected, waitForTuner: true, waitTimeoutMs: 2_000, pollIntervalMs: 10 },
-          { host: HOST, port, timeoutMs: 1_000 },
-          { approved: true, reason: "test seed mismatch" }
+          { host: HOST, port, timeoutMs: 1_000 }
         )
       ).rejects.toMatchObject({ code: "setup-seed-mismatch" });
       expect(server.operationsFor("map-summary")).toEqual([

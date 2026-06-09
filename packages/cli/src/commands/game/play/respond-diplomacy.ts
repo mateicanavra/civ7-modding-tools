@@ -2,11 +2,9 @@ import { Command, Flags } from '@oclif/core';
 import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  requireSendReason,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
@@ -16,12 +14,12 @@ export default class GamePlayRespondDiplomacy extends Command {
   static id = 'game play respond-diplomacy';
   static summary = 'Validate or send a diplomacy response';
   static description =
-    'Validates diplomacy responses as player operations, or sends them through the native control-oRPC diplomacy procedure when --send and --reason are explicit.';
+    'Validates diplomacy responses as player operations, or sends them through the native control-oRPC diplomacy procedure when --send is explicit.';
 
   static examples = [
     '<%= config.bin %> game play respond-diplomacy --player-id 0 --action-id 56 --response-type -1907089594 --json',
-    '<%= config.bin %> game play respond-diplomacy --player-id 0 --action-id 56 --response-type -1907089594 --send --reason "support Farmers Market diplomacy" --json',
-    '<%= config.bin %> game play respond-diplomacy --action-id 56 --response-type 926305338 --notification-id \'{"owner":0,"id":19,"type":20}\' --send --reason "accept diplomacy response" --json',
+    '<%= config.bin %> game play respond-diplomacy --player-id 0 --action-id 56 --response-type -1907089594 --send --json',
+    '<%= config.bin %> game play respond-diplomacy --action-id 56 --response-type 926305338 --notification-id \'{"owner":0,"id":19,"type":20}\' --send --json',
   ];
 
   static flags = {
@@ -50,9 +48,6 @@ export default class GamePlayRespondDiplomacy extends Command {
       description: 'Send RESPOND_DIPLOMATIC_ACTION after validator success',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -65,13 +60,11 @@ export default class GamePlayRespondDiplomacy extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayRespondDiplomacy);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play respond-diplomacy');
     const options = buildDirectControlOptions(flags);
     if (flags.send) {
       const result = await createCiv7ControlOrpcServerClient({
         directControl: liveCiv7ControlOrpcDirectControlFacade,
         endpointDefaults: options,
-        approval: buildApproval(reason),
       }).diplomacy.response.request({
         playerId: flags['player-id'],
         actionId: flags['action-id'],

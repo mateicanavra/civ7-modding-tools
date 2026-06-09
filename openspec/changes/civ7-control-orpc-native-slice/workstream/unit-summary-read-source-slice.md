@@ -85,5 +85,5 @@ This is still local package proof. It does not prove live Tuner unit state,
 runtime availability, hidden unit facts, transport behavior, operation
 validation, or any send/mutation behavior.
 
-Middleware, correlation, approval, validator-first, postcondition/proof,
+Middleware, correlation, validator-first, postcondition/proof,
 transport edges, and runtime proof remain pending.

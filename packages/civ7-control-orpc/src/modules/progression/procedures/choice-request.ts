@@ -3,7 +3,7 @@ import {
   findCultureChoiceNotification,
   findTechnologyChoiceNotification,
   technologyChoicePostcondition,
-} from "@civ7/direct-control";
+} from "@civ7/direct-control/play/progression/choice-postconditions";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
@@ -36,9 +36,6 @@ type ProgressionChoicePostcondition = Civ7MutationProofPostcondition<
   ProgressionChoiceResult["postcondition"]["classification"],
   ProgressionChoiceResult["postcondition"]["outcome"]
 >;
-type ApprovedCiv7ControlOrpcContext = Civ7ControlOrpcContext & Readonly<{
-  approval: NonNullable<Civ7ControlOrpcContext["approval"]>;
-}>;
 type ProgressionChoicePostRead =
   | Readonly<{
       status: "read";
@@ -68,11 +65,12 @@ export const progressionTechnologyChoiceRequestProcedure =
         const before = await context.directControl.getCiv7PlayNotificationView(
           context.endpointDefaults,
         );
-        const result = await requestProgressionChoice(kind, input, {
-          context: context as ApprovedCiv7ControlOrpcContext,
+        const requestInput = progressionChoiceRuntimeInput(input, before);
+        const result = await requestProgressionChoice(kind, requestInput, {
+          context,
         });
         const after = await readAfterProgressionChoice(context, result);
-        return progressionChoiceResult(kind, source, input, result, before, after);
+        return progressionChoiceResult(kind, source, requestInput, result, before, after);
       },
       catch: () =>
         errors.PROGRESSION_CHOICE_UNAVAILABLE({
@@ -100,11 +98,12 @@ export const progressionCultureChoiceRequestProcedure =
         const before = await context.directControl.getCiv7PlayNotificationView(
           context.endpointDefaults,
         );
-        const result = await requestProgressionChoice(kind, input, {
-          context: context as ApprovedCiv7ControlOrpcContext,
+        const requestInput = progressionChoiceRuntimeInput(input, before);
+        const result = await requestProgressionChoice(kind, requestInput, {
+          context,
         });
         const after = await readAfterProgressionChoice(context, result);
-        return progressionChoiceResult(kind, source, input, result, before, after);
+        return progressionChoiceResult(kind, source, requestInput, result, before, after);
       },
       catch: () =>
         errors.PROGRESSION_CHOICE_UNAVAILABLE({
@@ -121,7 +120,7 @@ async function requestProgressionChoice(
   kind: ProgressionChoiceKind,
   input: Civ7ProgressionChoiceInput,
   dependencies: Readonly<{
-    context: ApprovedCiv7ControlOrpcContext;
+    context: Civ7ControlOrpcContext;
   }>,
 ): Promise<ProgressionChoiceCloseoutResult> {
   const requestInput = {
@@ -136,15 +135,26 @@ async function requestProgressionChoice(
     return dependencies.context.directControl.requestCiv7TechnologyChoiceCloseout(
       requestInput,
       dependencies.context.endpointDefaults,
-      dependencies.context.approval!,
     );
   }
 
   return dependencies.context.directControl.requestCiv7CultureChoiceCloseout(
     requestInput,
     dependencies.context.endpointDefaults,
-    dependencies.context.approval!,
   );
+}
+
+function progressionChoiceRuntimeInput(
+  input: Civ7ProgressionChoiceInput,
+  before: Civ7ControlOrpcPlayNotificationViewResult,
+): Civ7ProgressionChoiceInput {
+  return {
+    playerId: before.localPlayerId,
+    node: input.node,
+    ...(input.notificationId === undefined
+      ? {}
+      : { notificationId: input.notificationId }),
+  };
 }
 
 function progressionChoiceResult(

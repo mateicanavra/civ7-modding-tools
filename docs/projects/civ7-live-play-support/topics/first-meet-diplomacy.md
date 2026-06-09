@@ -45,7 +45,6 @@ game play respond-first-meet \
   --met-player-id <other-player-id> \
   --response neutral \
   --send \
-  --reason "neutral first-meet greeting after reading live first-meet options" \
   --json
 ```
 

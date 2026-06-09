@@ -1,7 +1,7 @@
 import {
   productionChoicePostconditionConfirmed,
   productionChoicePostconditionOutcome,
-} from "@civ7/direct-control";
+} from "@civ7/direct-control/play/operations/production-choice-proof";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcProductionChoiceResult } from "../../../dependencies/direct-control";
@@ -27,7 +27,6 @@ export const cityProductionChoiceRequestProcedure =
         const result = await context.directControl.requestCiv7ProductionChoice(
           input,
           context.endpointDefaults,
-          context.approval!,
         );
         return cityProductionChoiceResult(input, result);
       },

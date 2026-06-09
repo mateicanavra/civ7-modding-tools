@@ -14,19 +14,19 @@
 - P1/P2 accepted findings repaired: yes
 - Rejected/invalidated/waived/deferred findings recorded: yes
 - Remaining review risk: live mutation proof is gated by disposable-session
-  approval and recorded as a P3 waiver
+  boundaries, postcondition/no-repeat evidence, and recorded P3 waiver context
 
 ## Verification
 
 - Repo/package gates run: OpenSpec validation, direct-control check/test/build,
   CLI check/focused tests/build, Studio build, live read-only CLI proof
 - Results: passing as recorded in `implementation-closure.md`
-- Skipped gates and rationale: no live reveal mutation was run because current
-  runtime was not explicitly approved for map visibility mutation proof
+- Skipped gates and rationale: no live reveal mutation was run because map
+  visibility mutation proof remains disposable-session/debug-only.
 - Evidence boundary: direct reads are live-proven; autoplay start/stop is
-  live-proven in a fresh game with explicit approval; reveal and gameplay
-  requests remain mock-socket/validator proven and require explicit approval at
-  runtime
+  live-proven in a fresh game; reveal and gameplay requests remain
+  mock-socket/validator proven and require disposable-session boundaries,
+  postcondition evidence, and no automatic replay at runtime.
 
 ## Downstream Realignment
 

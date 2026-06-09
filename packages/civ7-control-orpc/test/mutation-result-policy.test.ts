@@ -5,6 +5,9 @@ import {
   civ7MutationPostconditionSummary,
   civ7MutationRequestStatusWithoutGuarded,
 } from "../src/policy/mutation-result";
+import {
+  civ7MutationProofBoundaryViolation as civ7MutationMiddlewareProofBoundaryViolation,
+} from "../src/middleware/mutation-proof-boundary";
 
 describe("control-oRPC mutation result policy", () => {
   test("keeps missing postcondition summaries no-repeat guarded", () => {
@@ -147,5 +150,35 @@ describe("control-oRPC mutation result policy", () => {
       source: "progression.technology.choice.request",
       label: "Do not repeat until fresh progression evidence is read.",
     }]);
+  });
+
+  test("guards mutation outputs from repeat-safe unverified proof states", () => {
+    const repeatSafeUnverified = {
+      status: "sent-unverified",
+      postcondition: {
+        confidence: "pending-runtime-proof",
+        noRepeatAfterUnverified: false,
+      },
+      nextSteps: [{ kind: "refresh-attention" }],
+    };
+
+    expect(civ7MutationMiddlewareProofBoundaryViolation(repeatSafeUnverified))
+      .toBe("unverified-repeat-safe");
+    expect(civ7MutationMiddlewareProofBoundaryViolation({
+      status: "sent-unverified",
+      postcondition: {
+        confidence: "unverified",
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [{ kind: "refresh-attention" }],
+    })).toBe("sent-unverified-without-do-not-repeat");
+    expect(civ7MutationMiddlewareProofBoundaryViolation({
+      status: "sent-unverified",
+      postcondition: {
+        confidence: "unverified",
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [{ kind: "do-not-repeat" }],
+    })).toBeNull();
   });
 });

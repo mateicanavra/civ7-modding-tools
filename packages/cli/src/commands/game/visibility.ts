@@ -9,7 +9,7 @@ export default class GameVisibility extends Command {
 
   static examples = [
     '<%= config.bin %> game visibility --player-id 0 --bounds 0,0,32,32 --json',
-    '<%= config.bin %> game visibility --player-id 0 --reveal --disposable --reason "debug mapgen" --json',
+    '<%= config.bin %> game visibility --player-id 0 --reveal --disposable --json',
   ];
 
   static flags = {
@@ -38,9 +38,6 @@ export default class GameVisibility extends Command {
       description: 'Confirm this is a disposable debug session for reveal',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Approval reason for reveal',
-    }),
     'max-plots': Flags.integer({
       description: 'Maximum plots for grid reads',
     }),
@@ -61,15 +58,13 @@ export default class GameVisibility extends Command {
       port: flags.port,
       timeoutMs: flags['timeout-ms'],
     };
+    if (flags.reveal && flags.disposable !== true) {
+      throw new Error('game visibility --reveal requires --disposable');
+    }
     const result = flags.reveal
       ? await revealCiv7MapForPlayer(
           { playerId: flags['player-id'] },
           options,
-          {
-            approved: true,
-            reason: flags.reason ?? 'CLI visibility reveal',
-            disposableSession: flags.disposable,
-          },
         )
       : await getCiv7VisibilitySummary({
           playerId: flags['player-id'],

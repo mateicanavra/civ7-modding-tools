@@ -6,7 +6,7 @@
   runtime evidence for every mutating setup/start wrapper and for reload
   semantics.
 - [source-proven] Existing direct-control tests prove socket framing, state-role
-  routing, restart/begin wrapper construction, read wrappers, approval checks,
+  routing, restart/begin wrapper construction, read wrappers, mutation safety checks,
   and no automatic replay for current operation requests.
 - [unresolved] Current evidence does not prove that Studio can select a newly
   materialized Swooper map row, map size/options, and seed from setup without

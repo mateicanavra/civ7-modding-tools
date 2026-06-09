@@ -1,4 +1,4 @@
-import { unitTargetProofPostcondition } from "@civ7/direct-control";
+import { unitTargetProofPostcondition } from "@civ7/direct-control/proof/unit-target-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcUnitTargetActionResult } from "../../../dependencies/direct-control";
@@ -24,7 +24,6 @@ export const unitTargetActionRequestProcedure =
         const result = await context.directControl.requestCiv7UnitTargetAction(
           input,
           context.endpointDefaults,
-          context.approval!,
         );
         return unitTargetActionResult(result);
       },

@@ -13,11 +13,11 @@
 - [x] 2.1 Inventory current direct-control runtime capabilities by router
   family, risk, schema owner, validator owner, postcondition owner, and proof
   boundary.
-- [x] 2.2 Extract a policy map for approval, validator-first, no-repeat,
+- [x] 2.2 Extract a policy map for validator-first, no-repeat,
   relationship authority, projection, proof labels, telemetry, and command
   serialization.
 - [x] 2.3 Extract a dependency map for direct-control facade, endpoint
-  defaults, state selection, logger, evidence sink, clock, approval, risk
+  defaults, state selection, logger, evidence sink, clock, risk
   policy, and optional controller facade.
 - [x] 2.4 Identify repository/read-port style owners where data-layer access
   exists, without constructing runtime providers in direct-control runtime
@@ -57,12 +57,10 @@
   service-owned procedure implementations or explicitly burn them down.
   - [x] 4.11.1 Burn down the transitional `unit.ready.view` control-oRPC
     facade leaf after `attention.current` became the service-owned ready-unit
-    attention composer; keep the direct-control ready-unit runtime port as an
-    internal context dependency.
+    attention composer over direct-control ready-unit source evidence.
   - [x] 4.11.2 Burn down the transitional `city.ready.view` control-oRPC
     facade leaf after `attention.current` became the service-owned ready-city
-    attention composer; keep the direct-control ready-city runtime port as an
-    internal context dependency.
+    attention composer over direct-control ready-city source evidence.
   - [x] 4.11.3 Burn down the transitional `notifications.view` control-oRPC
     facade leaf after `attention.current` became the service-owned
     notification, decision, and blocker composer; keep the direct-control
@@ -202,21 +200,25 @@ adding more read-only facade shells.
     end-turn next steps require source-owned turn status instead of clean
     notifications alone.
   - [x] 5.5.3 Seed `city.production.choice.request` as the first native
-    write-capable procedure leaf, with oRPC context approval and semantic
+    write-capable procedure leaf, with oRPC readiness and semantic
     production proof projection over the direct-control production-choice
     runtime port.
   - [x] 5.5.4 Seed `notifications.dismiss.request` as the second native
-    write-capable procedure leaf, with oRPC context approval and semantic
+    write-capable procedure leaf, with oRPC readiness and semantic
     notification dismissal proof projection over the direct-control
     notification dismissal runtime port.
   - [x] 5.5.5 Seed `unit.target.action.request` as a single native unit
-    procedure leaf, with oRPC context approval and semantic unit-target proof
+    procedure leaf, with oRPC readiness and semantic unit-target proof
     projection over the direct-control unit-target runtime port; do not add a
     broad operations catalog or an operations entry router.
   - [x] 5.5.6 Seed `city.population.place.request` as a single native city
     procedure leaf that owns the semantic assign-worker versus expand-city
     caller shape over direct-control player-operation/city-command runtime
     ports; do not add a generic operation catalog.
+  - [x] 5.5.6.1 Seed `unit.upgrade.request` and `unit.resettle.request` as
+    semantic native unit procedure leaves over the low-level direct-control
+    unit-command runtime port; do not add `operations` or `unit.command`
+    public roots.
   - [x] 5.5.7 Seed `readiness.current` as a native service-owned procedure
     that projects direct-control playable status into safe readiness,
     capability, source-summary, and next-step output without exposing raw
@@ -232,18 +234,18 @@ adding more read-only facade shells.
     operation sends, strategy catalogs, relationship labels beyond official
     evidence, or runtime/live proof claims.
   - [x] 5.5.10 Seed `narrative.choice.request` as a native
-    service-owned narrative procedure that composes approval, playable
+    service-owned narrative procedure that composes playable
     readiness, direct-control narrative request authority, and source-owned
     narrative proof classification into semantic output without exposing raw
     command/session/payload details or claiming runtime/live proof.
   - [x] 5.5.11 Seed `diplomacy.response.request` as a native
-    service-owned diplomacy procedure that composes approval, playable
+    service-owned diplomacy procedure that composes playable
     readiness, direct-control diplomacy response authority, and source-owned
     diplomacy proof classification into semantic output without exposing raw
     command/session/payload/UI-closeout details or claiming runtime/live proof.
   - [x] 5.5.12 Seed `progression.technology.choice.request` and
     `progression.culture.choice.request` as native service-owned progression
-    procedures that compose approval, playable readiness, before/after
+    procedures that compose playable readiness, before/after
     notification evidence, direct-control technology/culture closeout
     authority, and source-owned progression proof classification into semantic
     output without exposing raw command/session/payload/App UI closeout details
@@ -252,8 +254,13 @@ adding more read-only facade shells.
     as sent-unverified pending runtime proof with no-repeat next steps, instead
     of surfacing a generic unavailable error after mutation authority may have
     been used.
+  - [x] 5.5.13.1 Bind progression choice closeout request identity to the
+    before-notification read's local-player evidence before invoking
+    direct-control technology/culture closeout ports. Keep caller `playerId` as
+    validation/context input, not controller/runtime send authority, and keep
+    progression bridge allowlisting pending.
   - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
-    mutation procedure that composes approval, playable readiness,
+    mutation procedure that composes playable readiness,
     direct-control turn-completion send authority, and source-owned
     turn-completion proof classification into semantic output without exposing
     raw command/session/Tuner details or claiming runtime/live proof.
@@ -263,48 +270,35 @@ adding more read-only facade shells.
 - [ ] 6.1 Promote shared middleware only after modularized behavior shows a
   repeated policy and the implementation uses native oRPC/effect-orpc
   primitives.
-  - [x] 6.1.1 Promote the repeated mutation approval gate into shared native
-    effect-oRPC builder middleware after the production-choice and notification
-    dismissal leaves proved the same context-owned approval policy.
+  - [x] 6.1.1 Retire caller-provided approval as a product concept. Preserve
+    the historical middleware evidence only as proof that repeated mutation
+    policies must use native oRPC middleware when they remain real.
   - [x] 6.1.2 Promote the repeated mutation playable-readiness precondition
     into shared native effect-oRPC middleware over existing direct-control
     playable-status runtime ports. Keep live-game proof, transport
     propagation, validator-first middleware, and postcondition/proof
     middleware pending.
-  - [x] 6.1.3 Promote the repeated approval-plus-readiness mutation procedure
-    chain into a leaf-scoped native effect-oRPC helper reused by existing
-    mutation leaves. Keep validator-first middleware, postcondition/proof
-    middleware, telemetry propagation, live runtime proof, and parent Task 6.x
-    acceptance pending.
-- [ ] 6.2 Add approval middleware before mutation procedures.
-  - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
-    `city.production.choice.request`; keep shared approval middleware pending
-    until another mutation procedure reuses the same policy.
-  - [x] 6.2.2 Repeat leaf-scoped native effect-oRPC approval middleware for
-    `notifications.dismiss.request`; shared approval middleware promotion is
-    now the next native policy-layering candidate, not accepted in this slice.
-  - [x] 6.2.3 Reuse shared native approval middleware across
-    `city.production.choice.request` and `notifications.dismiss.request` while
-    keeping validator-first and postcondition/proof middleware pending.
-  - [x] 6.2.4 Reuse shared native approval middleware for
-    `unit.target.action.request` while keeping validator-first and
-    postcondition/proof middleware pending.
-  - [x] 6.2.5 Reuse shared native approval middleware for
-    `city.population.place.request` while keeping validator-first and
-    postcondition/proof middleware pending.
-  - [x] 6.2.6 Reuse shared native approval middleware for
-    `narrative.choice.request` while keeping validator-first and
-    postcondition/proof middleware pending.
-  - [x] 6.2.7 Reuse shared native approval middleware for
-    `diplomacy.response.request` while keeping validator-first and
-    postcondition/proof middleware pending.
-  - [x] 6.2.8 Reuse shared native approval middleware for
-    `progression.technology.choice.request` and
-    `progression.culture.choice.request` while keeping validator-first and
-    postcondition/proof middleware pending.
-  - [x] 6.2.9 Reuse shared native approval middleware for
-    `turn.complete.request` while keeping validator-first and
-    postcondition/proof middleware pending.
+  - [x] 6.1.3 Promote the repeated readiness mutation procedure chain into a
+    leaf-scoped native effect-oRPC helper reused by existing mutation leaves.
+    Keep validator-first middleware, postcondition/proof middleware, telemetry
+    propagation, live runtime proof, and parent Task 6.x acceptance pending.
+- [x] 6.2 Remove caller-provided approval from mutation procedures.
+  - [x] 6.2.1 Remove approval parameters from direct-control runtime
+    ports, telemetry records, control-oRPC context, controller envelopes, CLI
+    flags, Studio/script callers, tests, and package exports while preserving
+    validator-first, readiness, postcondition/no-repeat, local-player/hotseat,
+    and no-raw-output boundaries.
+  - [x] 6.2.2 Remove the shared mutation approval middleware and typed error
+    branch from `packages/civ7-control-orpc`; mutation procedure composition
+    continues through native readiness middleware and source-owned
+    validation/proof projection until further real middleware repetition exists.
+  - [x] 6.2.3 Keep mutation requests semantic and closed against endpoint,
+    session, state, raw command, and caller-supplied controller proof fields
+    after approval removal.
+  - [x] 6.2.4 Retire stale active approval/reason guidance from older
+    controller ingress records, Studio Run-in-Game planning docs, and
+    capability-inventory docs. Historical/superseded review evidence may remain
+    only when it clearly says the old caller-approval mechanic is retired.
 - [ ] 6.3 Add validator-first and postcondition/proof middleware before
   mutation sends.
   - [x] 6.3.1 Compose `city.production.choice.request` through the
@@ -312,7 +306,7 @@ adding more read-only facade shells.
     source-owned postcondition/no-repeat proof semantics into normal output;
     keep shared validator/postcondition middleware pending.
   - [x] 6.3.2 Compose `notifications.dismiss.request` through the
-    direct-control approval/validation/postcondition dismissal port and project
+    direct-control validation/postcondition dismissal port and project
     source-owned notification proof/no-repeat semantics into normal output;
     keep shared validator/postcondition middleware pending.
   - [x] 6.3.3 Compose `unit.target.action.request` through the direct-control
@@ -323,6 +317,10 @@ adding more read-only facade shells.
     direct-control validator-first player-operation/city-command runtime ports
     and project source-owned population-placement proof/no-repeat semantics
     into normal output; keep shared validator/postcondition middleware pending.
+  - [x] 6.3.4.1 Compose `unit.upgrade.request` and `unit.resettle.request`
+    through the direct-control validator-first unit-command runtime port and
+    project source-owned unit postcondition/no-repeat semantics into normal
+    output; keep broader unit command catalogs pending.
   - [x] 6.3.5 Compose `narrative.choice.request` through the
     direct-control narrative request runtime port and project source-owned
     narrative proof/no-repeat semantics into normal output; keep shared
@@ -353,6 +351,12 @@ adding more read-only facade shells.
     turn-completion runtime authority and source-owned turn-completion
     proof/no-repeat semantics; keep live runtime proof and shared
     validator/postcondition middleware pending.
+  - [x] 6.3.12 Promote a shared native oRPC/effect-oRPC mutation proof
+    boundary middleware that inspects procedure outputs after handlers run,
+    rejects missing postcondition/no-repeat envelopes, and refuses
+    unverified or pending-runtime-proof outputs that would appear repeat-safe.
+    Keep validator-first middleware, telemetry sinks, runtime proof, and
+    parent Task 6.x acceptance pending.
 - [ ] 6.4 Add safe error projection and correlation through oRPC/effect-orpc
   context/error primitives, not direct-control-local framework wiring.
   - [x] 6.4.1 Use native effect-orpc tagged error constructors for
@@ -403,32 +407,38 @@ adding more read-only facade shells.
     direct-control playable-status internals out of normal status output.
   - [x] 7.1.2 Route `civ7 game play end-turn --send` through the in-process
     `turn.complete.request` server-side client. Keep endpoint flags and
-    approval reason as context construction, emit the semantic
+    endpoint defaults as context construction, emit the semantic
     turn-completion projection for send and expected guard-blocked `not-sent`
     output, preserve the existing direct-control status read for check-only
     mode, and keep live runtime proof pending.
   - [x] 7.1.3 Route `civ7 game play dismiss-notification --send` through the
     in-process `notifications.dismiss.request` server-side client. Keep
-    endpoint flags and approval reason as context construction, emit the
+    endpoint flags and endpoint defaults as context construction, emit the
     semantic notification dismissal projection for send output, preserve the
     existing direct-control notification dismissal read for inspect-only mode,
     and keep live runtime proof pending.
   - [x] 7.1.4 Route `civ7 game play unit-target --send` through the
     in-process `unit.target.action.request` server-side client under the
-    `unit` router. Keep endpoint flags and approval reason as context
+    `unit` router. Keep endpoint flags as context
     construction, emit the semantic unit target action projection for send
     output, preserve the existing direct-control unit target planning read for
     read-only mode, and keep live runtime proof pending.
   - [x] 7.1.5 Route `civ7 game play build-production --send` through the
     in-process `city.production.choice.request` server-side client under the
-    `city` router. Keep endpoint flags and approval reason as context
+    `city` router. Keep endpoint flags as context
     construction, emit the semantic city production choice projection for send
     output, preserve the existing direct-control operation validation path for
-    read-only mode, leave `game play build-unit` outside this slice, and keep
-    live runtime proof pending.
+    read-only mode, scoped that earlier slice to `game play build-production`,
+    and keep live runtime proof pending.
+  - [x] 7.1.5.1 Fold the older `civ7 game play build-unit --send` intent into
+    `civ7 game play build-production --unit-type --send`, the current
+    production CLI owner. Keep endpoint flags as context construction, emit
+    the semantic city production choice projection for `UnitType` sends,
+    preserve the existing direct-control operation validation path for
+    read-only mode, and keep live runtime proof pending.
   - [x] 7.1.6 Route `civ7 game play respond-diplomacy --send` through the
     in-process `diplomacy.response.request` server-side client under
-    the `diplomacy` router. Keep endpoint flags and approval reason as context
+    the `diplomacy` router. Keep endpoint flags as context
     construction, emit the semantic diplomacy response projection for send
     output with direct-control acted/local-player evidence rather than treating
     `--player-id` as send authority, preserve the existing direct-control
@@ -437,11 +447,36 @@ adding more read-only facade shells.
     proof pending.
   - [x] 7.1.7 Route `civ7 game play choose-narrative --send` through the
     in-process `narrative.choice.request` server-side client under
-    the `narrative` router. Keep endpoint flags and approval reason as context
+    the `narrative` router. Keep endpoint flags as context
     construction, emit the semantic narrative choice projection for send output
     with direct-control acted/local-player evidence rather than treating
     `--player-id` as send authority, preserve the existing direct-control
     `--options` and player-operation validation paths for read-only mode, and
+    keep live runtime proof pending.
+  - [x] 7.1.8 Route `civ7 game play assign-worker --send` and
+    `civ7 game play expand-city --send` through the in-process
+    `city.population.place.request` server-side client under the `city` router.
+    Keep endpoint flags as context construction, emit the semantic city
+    population placement projection for send output, preserve the existing
+    direct-control validation paths for read-only mode, bound assign-worker send
+    mode to the source-owned one-worker placement atom, and keep live runtime
+    proof pending.
+  - [x] 7.1.9 Route `civ7 game play upgrade-unit --send` and
+    `civ7 game play resettle-unit --send` through the in-process
+    `unit.upgrade.request` and `unit.resettle.request` server-side clients
+    under the `unit` router. Keep endpoint flags as context construction, emit
+    semantic unit request projections, preserve the existing direct-control
+    unit-command validation paths for read-only mode, and keep live runtime
+    proof pending.
+  - [x] 7.1.9 Route `civ7 game play choose-tech --send` and
+    `civ7 game play choose-culture --send` through the in-process
+    `progression.technology.choice.request` and
+    `progression.culture.choice.request` server-side clients under the
+    `progression` router. Keep endpoint flags as context construction, emit
+    semantic progression choice projection for send output with live
+    notification local-player evidence rather than treating `--player-id` as
+    send authority, preserve existing direct-control option reads and dry-run
+    validation paths, retire caller-visible `--closeout` workflow guidance, and
     keep live runtime proof pending.
 - [x] 7.2 Add Studio `RPCHandler`/`RPCLink` only after the shared router shape
   is stable.
@@ -455,7 +490,7 @@ adding more read-only facade shells.
     `Civ7IntelligenceBridge.invoke(...)` is serialized ingress only, the
     game-scoped UIScript loads an in-process oRPC/Effect router, procedure
     calls are allowlisted, context construction stays in the controller
-    runtime adapter, mutation calls require explicit approval/local-player
+    runtime adapter, mutation calls require local-player/hotseat lifecycle
     proof, and source implementation remains pending.
   - [x] 7.3.2 Seed a package-local read-only controller ingress core for
     `readiness.current`: validate a closed serialized envelope, allowlist the
@@ -477,26 +512,251 @@ adding more read-only facade shells.
     UIScript/modinfo packaging, and full `7.3` implementation pending.
   - [x] 7.3.5 Allowlist the first controller-ingress mutation,
     `notifications.dismiss.request`, only behind a closed serialized
-    controller approval/proof envelope. Require controller-runtime approval
-    metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; keep
+    controller-context proof envelope. Require
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; keep
     additional mutation allowlists, UIScript/modinfo packaging, runtime proof,
     and full `7.3` implementation pending.
   - [x] 7.3.6 Allowlist `turn.complete.request` through the same closed
-    controller approval/proof envelope. Require controller-runtime approval
-    metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; keep
+    controller-context proof envelope. Require
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; keep
     further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
     full `7.3` implementation pending.
   - [x] 7.3.7 Allowlist `unit.target.action.request` through the same closed
-    controller approval/proof envelope. Require controller-runtime approval
-    metadata, game-controller-ready lifecycle evidence,
-    `GameContext.localPlayerID` evidence, and single-local-player/hotseat
-    evidence before context construction and native router dispatch; keep
+    controller-context proof envelope. Require
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; keep
     further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
     full `7.3` implementation pending.
+  - [x] 7.3.8 Allowlist `city.production.choice.request` through the same
+    closed controller-context proof envelope. Require
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; keep
+    further mutation allowlists, UIScript/modinfo packaging, runtime proof, and
+    full `7.3` implementation pending.
+  - [x] 7.3.9 Allowlist `city.population.place.request` through the same
+    closed controller-context proof envelope. Require
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; validate
+    the existing semantic assign-worker/expand-city input shape, keep raw
+    player-operation/city-command internals out of bridge
+    output, and keep further mutation allowlists, UIScript/modinfo packaging,
+    runtime proof, and full `7.3` implementation pending.
+  - [x] 7.3.10 Allowlist `narrative.choice.request` through the same closed
+    controller-context proof envelope. Require
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; validate
+    the existing semantic narrative choice input shape, keep raw
+    player-operation/App UI closeout/panel/popup internals
+    out of bridge output, and keep further mutation allowlists,
+    UIScript/modinfo packaging, runtime proof, and full `7.3` implementation
+    pending.
+  - [x] 7.3.11 Allowlist `diplomacy.response.request` through the same closed
+    controller-context proof envelope. Require
+    game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+    single-local-player/hotseat evidence in controller context before native
+    router dispatch; validate
+    the existing semantic diplomacy response input shape, keep raw
+    player-operation/App UI closeout/notification/direct-control runtime
+    internals out of bridge output, and keep further
+    mutation allowlists, UIScript/modinfo packaging, runtime proof, and full
+    `7.3` implementation pending.
+  - [x] 7.3.12 Allowlist `progression.technology.choice.request` and
+    `progression.culture.choice.request` through the same closed controller
+    controller-context proof envelope. Require game-controller-ready lifecycle,
+    `GameContext.localPlayerID`, and single-local-player/hotseat evidence in
+    controller context before native router dispatch; validate the existing semantic
+    player/node/notification input shape, keep raw player-operation/App UI
+    closeout/direct-control runtime internals out of bridge
+    output, and keep further mutation allowlists, UIScript/modinfo packaging,
+    runtime proof, and full `7.3` implementation pending.
+  - [x] 7.3.13 Seed the repo-owned game-scoped controller bootstrap package:
+    add a `mods/*` package with generated `scope="game"` `<UIScripts>`
+    `.modinfo`, bundle a single UI entry that installs the existing
+    `Civ7IntelligenceBridge` through the narrow `@civ7/control-orpc/game-ui`
+    entrypoint, and provide a local game-UI readiness context for
+    `readiness.current` that does not report mutation capability while mutation
+    ports remain unsupported. Split direct-control proof/postcondition helper
+    imports onto proof-only package subpaths so the generated UI bundle does not
+    import Node/socket direct-control runtime code. Keep mutation runtime ports,
+    lifecycle/hotseat certification, Civ7 deployment, live runtime proof, and
+    full `7.3` implementation pending.
+  - [x] 7.3.14 Move controller mutation proof authority out of the serialized
+    caller envelope and into controller context. Require mutation request
+    envelopes to carry semantic input only; reject caller-supplied `controllerProof` as an extra field. Require
+    context-owned game-controller-ready lifecycle, `GameContext.localPlayerID`,
+    and single-local-player/hotseat proof before native router dispatch. Let
+    the game-UI adapter derive that proof from ambient `UI`, `GameContext`, and
+    `Players` globals while mutation runtime ports remain unsupported. Keep
+    Civ7 deployment, live runtime proof, mutation runtime support, and full
+    `7.3` implementation pending.
+  - [x] 7.3.15 Add the first game-resident mutation runtime port for
+    `notifications.dismiss.request`: expose a game UI notification-dismissal
+    access path that executes against ambient `Game.Notifications`,
+    `NotificationModel`, `GameContext`, and notification queue evidence without
+    tuner socket/session command serialization; wire
+    `@civ7/control-orpc/game-ui` to use it when controller proof and
+    notification dismissal APIs are available through an explicit
+    context-supported procedure list; keep broad `readiness.current`
+    observe/mutate capability conservative while only
+    `notifications.dismiss.request` is admitted; keep normal bridge output
+    semantic and raw route/session/state/command details omitted;
+    keep other mutation runtime ports, deployed Civ7 proof, play-thread action,
+    and full `7.3` implementation pending.
+  - [x] 7.3.16 Expose narrow game-controller supported procedure facts through
+    `readiness.current`: derive read/mutation support from typed oRPC context,
+    report `notifications.dismiss.request` as the only game-UI supported
+    mutation when its runtime port is actually available, and keep broad
+    `canObserve`, `canMutate`, and `read-attention` readiness conservative
+    until the corresponding read/attention and mutation ports exist. Keep live
+    runtime proof, other game-UI ports, a separate controller catalog, and full
+    `7.3` implementation pending.
+  - [x] 7.3.17 Add the first service-owned game UI attention read adapter for
+    `attention.current`: keep game UI attention semantics in the control-oRPC
+    service/controller adapter while reading ambient `Game.Notifications`,
+    turn, end-turn blocker, and first-ready-unit facts without tuner
+    socket/session command serialization; wire
+    `@civ7/control-orpc/game-ui` to list `attention.current` as a supported
+    read only when controller proof plus notification and first-ready-unit APIs
+    are available; remove the direct-control game-UI attention export rather
+    than preserving a runtime-shaped semantic port; treat first-ready-unit as
+    the only game-UI ready-unit source evidence, keep selected-unit ids as
+    hints only, keep ready-city source reads `skipped-unsupported` until an
+    official ready-city source exists, prevent `end-turn` recommendations
+    without full ready actor coverage, and mark truncated notification coverage
+    so partial reads do not imply no blockers. Keep other game-UI read/mutation
+    ports, deployed Civ7 proof, play-thread action, and full `7.3`
+    implementation pending.
+  - [x] 7.3.18 Add a game-resident turn-completion runtime port for
+    `turn.complete.request`: expose ambient `GameContext.sendTurnComplete`,
+    `hasSentTurnComplete`, `canEndTurn`, turn, blocker, and first-ready-unit
+    evidence through the existing service-owned turn procedure; require an
+    actual send function before reporting `sent: true`; preserve semantic
+    not-sent/no-repeat output for blocked and already-sent paths; keep raw
+    game-UI function names, command/session/state details, deployed Civ7
+    proof, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.19 Add a game-resident production-choice runtime dependency for
+    `city.production.choice.request`: expose ambient
+    `Game.CityOperations.canStart/sendRequest`, `CityOperationTypes.BUILD`,
+    city, notification-blocker, and selected-city evidence through the
+    existing service-owned city production procedure; advertise the mutation
+    only when those exact game UI APIs and controller proof exist; preserve
+    semantic validator-blocked not-sent and no-repeat proof output; keep raw
+    game-UI function names, command/session/state details, deployed Civ7
+    proof, play-thread action, other city mutation ports, and full `7.3`
+    acceptance pending.
+  - [x] 7.3.20 Add a game-resident population-placement runtime dependency for
+    `city.population.place.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest` for `ASSIGN_WORKER`,
+    `Game.CityCommands.canStart/sendRequest` for `EXPAND`, player/city
+    readiness, worker placement, and expansion evidence through the existing
+    service-owned city population procedure; advertise the mutation only when
+    those exact game UI APIs and controller proof exist; preserve semantic
+    validator-blocked not-sent, local-player bounded assign-worker sends, and
+    no-repeat proof output for missing/failed population state evidence; keep
+    raw game-UI function names, command/session/state details, deployed Civ7
+    proof, play-thread action, other mutation ports, and full `7.3` acceptance
+    pending.
+  - [x] 7.3.21 Add game-resident progression-choice runtime dependencies for
+    `progression.technology.choice.request` and
+    `progression.culture.choice.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest`,
+    technology/culture progression operation enums, `ProgressionTreeNodeTypes.NO_NODE`,
+    notification activation/read APIs, and player progression state through
+    the existing service-owned progression procedures; advertise the mutations
+    only when those exact game UI APIs and controller proof exist; derive send
+    player from controller/local-player notification evidence, preserve
+    validator-blocked not-sent and no-repeat proof output, and skip
+    clear-target sends when the choose send does not validate; keep raw
+    game-UI function names, command/session/state details, deployed Civ7 proof,
+    play-thread action, narrative/diplomacy/unit runtime ports, and full `7.3`
+    acceptance pending.
+  - [x] 7.3.22 Add a game-resident narrative-choice runtime dependency for
+    `narrative.choice.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest`,
+    `PlayerOperationTypes.CHOOSE_NARRATIVE_STORY_DIRECTION`, notification
+    activation/read APIs, optional narrative panel/popup evidence, and
+    controller-owned local-player proof through the existing service-owned
+    narrative procedure; advertise the mutation only when those exact game UI
+    APIs and controller proof exist; derive send player from
+    `GameContext.localPlayerID` rather than caller `playerId`; preserve
+    validator-blocked not-sent and no-repeat proof output for sticky blockers,
+    validation-only changes, failed/missing panel evidence, and missing
+    postcondition paths; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    diplomacy/unit runtime ports, and full `7.3` acceptance pending.
+  - [x] 7.3.23 Add a game-resident diplomacy-response runtime dependency for
+    `diplomacy.response.request`: expose ambient
+    `Game.PlayerOperations.canStart/sendRequest`,
+    `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, diplomacy notification
+    activation/blocking/read APIs, optional `DiplomacyManager`/leader UI
+    closeout evidence, and controller-owned local-player proof through the
+    existing service-owned diplomacy procedure; advertise the mutation only
+    when those exact game UI APIs and controller proof exist; derive send
+    player from `GameContext.localPlayerID` rather than caller `playerId`;
+    preserve validator-blocked not-sent and no-repeat proof output for sticky
+    blockers, validation-only changes, failed/missing blocker evidence, and
+    missing postcondition paths; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    unit runtime ports, and full `7.3` acceptance pending.
+  - [x] 7.3.24 Add a game-resident unit-target runtime dependency for
+    `unit.target.action.request`: expose ambient
+    `Game.UnitOperations.canStart/sendRequest`,
+    `Game.UnitCommands.canStart/sendRequest`, `Units.get`,
+    `MapUnits.getUnits`, `GameplayMap` target-index APIs,
+    `UnitOperationTypes`, `UnitCommandTypes`, `UnitOperationMoveModifiers`,
+    and controller-owned local-player proof through the existing
+    service-owned unit procedure; advertise the mutation only when those exact
+    game UI APIs and controller proof exist; use fixed official right-click
+    candidate ordering rather than a generic operation dispatcher; reject
+    sends unless the requested unit owner matches `GameContext.localPlayerID`;
+    preserve validator-blocked not-sent and path-shortfall no-repeat-guarded
+    proof output; keep raw game-UI function names, command/session/state
+    details, broad unit-operation catalogs, relationship labels, deployed Civ7
+    proof, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.25 Add game-resident tactical read dependencies for
+    `strategy.frontSummary`: expose ambient `Players`, `Players.Units`,
+    `Players.Cities`, `Units`, `Cities`, `GameInfo.Units`, `GameplayMap`, and
+    controller-owned local-player evidence as internal target-candidate and
+    battlefield-scan read ports behind the existing service-owned strategy
+    procedure; allowlist only `strategy.frontSummary` through bridge ingress,
+    not raw `targetCandidates` or `battlefieldScan` leaves; fail closed when
+    required ambient owner/unit/city APIs are missing; preserve
+    relationship-unproven normal output and raw host/port/state/session/command
+    omission; keep target-action send authority, generic strategy catalogs,
+    hostile/enemy/opponent/threat/war/ally/suzerain labels, deployed Civ7
+    proof, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.26 Repair `readiness.current` supported-read projection after
+    `strategy.frontSummary`: let any context-listed game-UI read procedure set
+    observe capability without implying mutation capability, keep
+    `attention.current` as the preferred read next step when available, and
+    recommend `read-strategy-front` when strategy is the only supported read.
+    Keep deployed Civ7 proof, transport expansion, broad read catalogs, mutation
+    capability, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.27 Complete the package-root public export surface for all
+    allowlisted controller bridge request and success response schemas/types:
+    export the existing strategy, city, narrative, diplomacy, unit, and
+    progression bridge envelopes from `@civ7/control-orpc` so controller
+    consumers can import the same closed envelopes the serialized ingress can
+    invoke. Keep dispatch behavior, transport expansion, raw direct-control
+    result aliases, deployed Civ7 proof, play-thread action, and full `7.3`
+    acceptance unchanged.
+  - [x] 7.3.28 Require controller-context supported procedure facts before
+    serialized bridge dispatch: keep `readiness.current` always available,
+    require `supportedReadProcedures` for other reads, require both mutation
+    proof and `supportedMutationProcedures` for mutations, and fail with a
+    bounded bridge error before native router dispatch when the current
+    controller context does not support an otherwise globally allowlisted
+    procedure. Keep the global allowlist, semantic envelopes, no raw
+    command/session output, deployed Civ7 proof, play-thread action, and full
+    `7.3` acceptance unchanged.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -549,6 +809,162 @@ adding more read-only facade shells.
 - [x] 8.35 Run focused controller-ingress and unit-target action procedure
   tests, control-oRPC package test/check/build, strict OpenSpec validates, and
   diff hygiene for the controller unit-target action ingress allowlist slice.
+- [x] 8.36 Run focused controller-ingress and city-production-choice procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates, and
+  diff hygiene for the controller city production choice ingress allowlist
+  slice.
+- [x] 8.37 Run focused controller-ingress and population-placement procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates, and
+  diff hygiene for the controller city population placement ingress allowlist
+  slice. These are local package proofs only and do not claim Civ7
+  UIScript/modinfo packaging, live runtime proof, play-thread action, or full
+  `7.3` acceptance.
+- [x] 8.38 Run focused controller-ingress and narrative-choice procedure tests,
+  control-oRPC package test/check/build, strict OpenSpec validates, and diff
+  hygiene for the controller narrative choice ingress allowlist slice. These
+  are local package proofs only and do not claim Civ7 UIScript/modinfo
+  packaging, live runtime proof, play-thread action, or full `7.3` acceptance.
+- [x] 8.39 Run focused controller-ingress and diplomacy-response procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates, and
+  diff hygiene for the controller diplomacy response ingress allowlist slice.
+  These are local package proofs only and do not claim Civ7 UIScript/modinfo
+  packaging, live runtime proof, play-thread action, or full `7.3` acceptance.
+- [x] 8.40 Run focused control-oRPC progression choice procedure tests,
+  control-oRPC package test/check/build, strict OpenSpec validates, and diff
+  hygiene for the progression local-player evidence repair. These are local
+  package proofs only and do not allowlist progression through the controller
+  bridge, claim live runtime proof, or accept parent Task 7.3.
+- [x] 8.41 Run focused controller-ingress and progression-choice procedure
+  tests, control-oRPC package test/check/build, strict OpenSpec validates, and
+  diff hygiene for the controller progression choice ingress allowlist slice.
+  These are local package proofs only and do not claim Civ7 UIScript/modinfo
+  packaging, live runtime proof, play-thread action, or full `7.3` acceptance.
+- [x] 8.42 Run focused game-UI bootstrap/control-oRPC tests, controller mod
+  package tests/check/build, control-oRPC package test/check/build, strict
+  OpenSpec validates, and diff hygiene for the game-scoped controller bootstrap
+  package seed. Include a bundle scan proving the generated UI script omits
+  Node built-in imports, direct-control package-root/socket runtime code, raw
+  command/session strings, and RPC transport symbols. These are local
+  source/bundle proofs only and do not claim deployed Civ7 runtime proof,
+  mutation runtime support, play-thread action, or full `7.3` acceptance.
+- [x] 8.43 Run focused controller-ingress and game-ui controller tests,
+  control-oRPC package check/build/test, strict OpenSpec validates, and diff
+  hygiene for the context-owned controller proof slice. These are local package
+  proofs only and do not claim deployed Civ7 runtime proof, mutation runtime
+  support, play-thread action, or full `7.3` acceptance.
+- [x] 8.44 Run direct-control check/build for the game-safe notification
+  dismissal subpath, focused game-ui/controller/notification procedure tests,
+  control-oRPC package check/build/test, controller mod package check/build/test
+  with bundle scan, strict OpenSpec validates, and diff hygiene for the first
+  game-resident notification dismissal runtime port. These are local package
+  and bundle proofs only and do not claim deployed Civ7 runtime proof, other
+  mutation runtime support, play-thread action, or full `7.3` acceptance.
+- [x] 8.45 Run focused readiness/current, game-ui controller, and controller
+  ingress tests plus control-oRPC check/build/test, strict OpenSpec validates,
+  and diff hygiene for the controller-supported procedure readiness projection.
+  These are local package proofs only and do not claim deployed Civ7 runtime
+  proof, additional game-UI runtime ports, play-thread action, a separate
+  controller capability catalog, or full `7.3` acceptance.
+- [x] 8.46 Run direct-control check/build/test to prove the misplaced game-UI
+  attention subpath is removed, focused attention/current, readiness/current,
+  controller-ingress, and game-ui controller procedure tests, control-oRPC
+  package check/build/test, controller mod package check/build/test with bundle
+  scan, strict OpenSpec validates, and diff hygiene for the service-owned game
+  UI attention read adapter. These are local package and bundle proofs only and
+  do not claim deployed Civ7 runtime proof, full attention source coverage,
+  play-thread action, other game-UI source adapters, or full `7.3` acceptance.
+- [x] 8.47 Run focused game-ui controller and turn-completion procedure tests,
+  control-oRPC package check/build/test, controller mod package check/build/test
+  with bundle scan, generated direct-control/control-oRPC artifact
+  approval-token absence scan, strict OpenSpec validates, and diff hygiene for
+  the game-resident turn-completion runtime port. These are local package and
+  bundle proofs only and do not claim deployed Civ7 runtime proof, play-thread
+  action, other game-UI mutation ports, or full `7.3` acceptance.
+- [x] 8.48 Run active-doc approval/reason scans, strict OpenSpec validates, and
+  diff hygiene for the approval-removal guidance cleanup. This is a docs/spec
+  authority cleanup only and does not claim source behavior changes, deployed
+  Civ7 runtime proof, play-thread action, or full parent Task 6.x/7.3
+  acceptance.
+- [x] 8.49 Run focused game-ui controller and city-production-choice procedure
+  tests plus control-oRPC check/build/test, controller mod package check/build/test
+  with bundle scan, strict OpenSpec validates, and diff hygiene for the
+  game-resident production-choice runtime dependency. These are local package
+  and bundle proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, other city mutation ports, or full `7.3` acceptance.
+- [x] 8.50 Run focused game-ui controller, city-population-placement procedure,
+  and controller-ingress tests plus control-oRPC check/build/test, controller
+  mod package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident population-placement runtime dependency.
+  These are local package and bundle proofs only and do not claim deployed Civ7
+  runtime proof, play-thread action, other mutation ports, or full `7.3`
+  acceptance.
+- [x] 8.51 Run focused game-ui controller, progression-choice procedure, and
+  controller-ingress tests plus control-oRPC check/build/test, controller mod
+  package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident progression-choice runtime dependencies.
+  These are local package and bundle proofs only and do not claim deployed Civ7
+  runtime proof, play-thread action, narrative/diplomacy/unit runtime ports, or
+  full `7.3` acceptance.
+- [x] 8.52 Run focused game-ui controller, narrative-choice procedure, and
+  controller-ingress tests plus control-oRPC check/build/test, controller mod
+  package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident narrative-choice runtime dependency.
+  These are local package and bundle proofs only and do not claim deployed Civ7
+  runtime proof, play-thread action, diplomacy/unit runtime ports, or full
+  `7.3` acceptance.
+- [x] 8.53 Run focused game-ui controller, diplomacy-response procedure, and
+  controller-ingress tests plus control-oRPC check/build/test, controller mod
+  package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident diplomacy-response runtime dependency.
+  These are local package and bundle proofs only and do not claim deployed Civ7
+  runtime proof, play-thread action, unit runtime ports, or full `7.3`
+  acceptance.
+- [x] 8.54 Run focused game-ui controller, unit-target-action procedure, and
+  controller-ingress tests plus control-oRPC check/build/test, controller mod
+  package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident unit-target runtime dependency. These are
+  local package and bundle proofs only and do not claim deployed Civ7 runtime
+  proof, play-thread action, broad unit-operation catalog support, or full
+  `7.3` acceptance.
+- [x] 8.55 Run focused game-ui controller, strategy-front-summary procedure,
+  and controller-ingress tests plus control-oRPC check/build/test, controller
+  mod package check/build/test with bundle scan, strict OpenSpec validates, and
+  diff hygiene for the game-resident strategy front read dependencies. These
+  are local package and bundle proofs only and do not claim deployed Civ7
+  runtime proof, play-thread action, target-action send authority, relationship
+  labels beyond official evidence, generic strategy catalogs, or full `7.3`
+  acceptance.
+- [x] 8.56 Run focused readiness/current, game-ui controller, and controller
+  ingress tests plus control-oRPC test/check/build, controller mod
+  test/check/build with bundle scan, strict OpenSpec validates, and diff hygiene
+  for the supported-read readiness projection repair. These are local package
+  and bundle proofs only and do not claim deployed Civ7 runtime proof,
+  transport expansion, mutation capability, play-thread action, or full `7.3`
+  acceptance.
+- [x] 8.57 Run focused controller-ingress public export proof plus
+  control-oRPC test/check/build, strict OpenSpec validates, and diff hygiene
+  for the controller bridge package-root public surface repair. These are local
+  package/source proofs only and do not change bridge dispatch behavior, claim
+  deployed Civ7 runtime proof, add transport scope, expose raw direct-control
+  result aliases, or accept full `7.3`.
+- [x] 8.58 Run focused controller-ingress support-gate proof plus
+  control-oRPC test/check/build, controller mod package test/check/build with
+  bundle scan, strict OpenSpec validates, and diff hygiene for the
+  controller-context supported-procedure dispatch gate. These are local package
+  and bundle proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, or full `7.3` acceptance.
+- [x] 8.59 Run focused CLI population placement tests, `check:cli`,
+  `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for the
+  CLI assign-worker and expand-city send migration slice. These are local CLI
+  and package proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, a population read service, or parent
+  Task 5.x/6.x/7.x acceptance.
+- [x] 8.60 Run focused CLI progression choice tests, `check:cli`,
+  `test:cli:play`, focused control-oRPC progression procedure tests, relevant
+  OpenSpec strict validates, and diff hygiene for the CLI technology/culture
+  send migration slice. These are local CLI and package proofs only and do not
+  claim deployed Civ7 runtime proof, play-thread action, transport expansion,
+  a progression read service, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,
   strict OpenSpec validates, public root-export scan, and diff hygiene for the
   raw runtime result root-export burn-down slice.
@@ -608,6 +1024,13 @@ adding more read-only facade shells.
 - [x] 8.28 Run focused CLI production tests, `check:cli`, `test:cli:play`,
   relevant OpenSpec strict validates, and diff hygiene for the CLI
   build-production send migration slice.
+- [x] 8.28.1 Run focused CLI production tests, `check:cli`, `test:cli:play`,
+  relevant OpenSpec strict validates, and diff hygiene for the folded
+  build-unit intent under the current build-production command.
+- [x] 8.28.2 Run focused unit request procedure tests, focused CLI operation
+  wrapper tests, `check:cli`, `test:cli:play`, relevant OpenSpec strict
+  validates, and diff hygiene for the CLI unit upgrade/resettle send migration
+  slice.
 - [x] 8.29 Run focused CLI diplomacy response tests, `check:cli`,
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI diplomacy response send migration slice.

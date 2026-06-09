@@ -14,7 +14,6 @@ import {
   type Civ7UnitTargetActionRequestInput,
   type Civ7UnitTargetActionResult,
 } from "./unit-target-action.js";
-import type { Civ7ActionApproval } from "./types.js";
 
 export const Civ7UnitTargetActionRequestProcedureDescriptor = createCiv7ProcedureCoreDescriptor({
   procedureKey: "unit.target.action.request",
@@ -35,8 +34,6 @@ export const Civ7UnitTargetActionRequestProcedureDescriptor = createCiv7Procedur
     "unitId",
     "x",
     "y",
-    "approvalReason",
-    "disposableSession",
   ],
   outputFields: [
     "host",
@@ -80,12 +77,10 @@ export const Civ7UnitTargetActionRequestProcedureDescriptor = createCiv7Procedur
     "direct-control-facade",
     "endpoint-defaults",
     "state-selection",
-    "approval-policy",
     "logger",
     "evidence-sink",
     "live-session-policy",
   ],
-  approvalGate: true,
   validatorFirst: true,
   postconditionRequired: true,
   noRepeatAfterUnverified: true,
@@ -101,7 +96,6 @@ export const Civ7UnitTargetActionRequestProcedureSchemaArtifacts = {
 export type Civ7UnitTargetActionRequestProcedureCallOptions = Readonly<{
   directControl?: Civ7DirectControlOptions;
   procedure?: Civ7ProcedureCoreCallOptions;
-  approvalFactory?: (input: Civ7UnitTargetActionRequestInput) => Civ7ActionApproval;
   request?: typeof requestCiv7UnitTargetAction;
 }>;
 
@@ -114,11 +108,6 @@ export function callCiv7UnitTargetActionRequestProcedure(
     Civ7UnitTargetActionRequestProcedureSchemaArtifacts,
     input,
     (validInput) => {
-      const approval = options.approvalFactory?.(validInput) ?? {
-        approved: true,
-        reason: validInput.approvalReason,
-        disposableSession: validInput.disposableSession,
-      };
       return (options.request ?? requestCiv7UnitTargetAction)(
         {
           unitId: validInput.unitId,
@@ -126,7 +115,6 @@ export function callCiv7UnitTargetActionRequestProcedure(
           y: validInput.y,
         },
         options.directControl,
-        approval,
       );
     },
     options.procedure,

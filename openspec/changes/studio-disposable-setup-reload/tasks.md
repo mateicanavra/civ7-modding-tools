@@ -2,7 +2,7 @@
 
 - [x] 1.1 Add setup-row visibility result/input types.
 - [x] 1.2 Implement `ensureCiv7SetupMapRowVisible` with read-only fast path
-  and approved shell/App UI reload path.
+  and explicit shell/App UI reload path.
 - [x] 1.3 Reuse package-owned App UI command constants instead of caller raw
   command strings.
 - [x] 1.4 Guard App UI snapshots when `Autoplay` is unavailable in shell.

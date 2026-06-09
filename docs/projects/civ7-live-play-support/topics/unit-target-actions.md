@@ -100,7 +100,7 @@ civ7 game play unit-target \
   --json
 ```
 
-With `--send --reason`, it sends the selected candidate and returns before/after
+With `--send`, it sends the selected candidate and returns before/after
 unit and target-plot probes with a verification flag and a `verification`
 object. If the immediate response reports `no-state-change`, the command now
 performs a short bounded follow-up poll before returning. If

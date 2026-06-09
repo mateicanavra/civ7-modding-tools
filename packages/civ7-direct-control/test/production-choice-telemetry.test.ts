@@ -32,7 +32,6 @@ describe("production-choice telemetry adapter", () => {
       risk: "mutation",
     });
     expect(record.operationFamily).toBe("city-operation");
-    expect(record.approval.status).toBe("approved");
     expect(record.validation_pre?.value).toMatchObject({
       valid: true,
       operationType: "BUILD",
@@ -243,12 +242,6 @@ function productionTelemetryInput(
       args: { ConstructibleType: 713967338, X: 22, Y: 31 },
     },
     result: productionChoiceResult(),
-    approval: {
-      required: true,
-      status: "approved",
-      reason: "test production telemetry adapter",
-      source: "production-choice-telemetry.test.ts",
-    },
     source: "production-choice-telemetry.test.ts",
     ...overrides,
   };

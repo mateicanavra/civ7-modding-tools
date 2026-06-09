@@ -5,22 +5,20 @@ import {
   getCiv7UnitTargetAction,
 } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  requireSendReason,
 } from '../../../utils/game-play-shared';
 
 export default class GamePlayUnitTarget extends Command {
   static id = 'game play unit-target';
   static summary = 'Resolve a unit plot target through the official right-click action order';
   static description =
-    'Plans a unit target action through direct-control, or sends it through the native control-oRPC unit procedure when --send and --reason are explicit.';
+    'Plans a unit target action through direct-control, or sends it through the native control-oRPC unit procedure when --send is explicit.';
 
   static examples = [
     '<%= config.bin %> game play unit-target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --json',
-    '<%= config.bin %> game play unit-target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --send --reason "focus fire validated ranged target" --json',
+    '<%= config.bin %> game play unit-target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --send --json',
   ];
 
   static flags = {
@@ -46,9 +44,6 @@ export default class GamePlayUnitTarget extends Command {
       description: 'Send the selected target action after resolving it',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -61,7 +56,6 @@ export default class GamePlayUnitTarget extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayUnitTarget);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play unit-target');
     const input = {
       unitId: parseComponentId(flags['unit-id'], 'unit-id'),
       x: flags.x,
@@ -72,7 +66,6 @@ export default class GamePlayUnitTarget extends Command {
       ? await createCiv7ControlOrpcServerClient({
           directControl: liveCiv7ControlOrpcDirectControlFacade,
           endpointDefaults: options,
-          approval: buildApproval(reason),
         }).unit.target.action.request(input)
       : await getCiv7UnitTargetAction(input, options);
 

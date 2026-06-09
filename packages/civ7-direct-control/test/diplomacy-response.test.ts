@@ -61,8 +61,7 @@ describe("diplomacy response requests", () => {
       const { port } = server.address();
       const request = await requestCiv7DiplomacyResponse(
         { playerId: 2, actionId, responseType, notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test diplomacy response closeout" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -177,8 +176,7 @@ describe("diplomacy response requests", () => {
       const { port } = server.address();
       const request = await requestCiv7DiplomacyResponse(
         { playerId: 0, actionId, responseType, notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test diplomacy stale blocker" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -213,8 +211,7 @@ describe("diplomacy response requests", () => {
       const { port } = server.address();
       const request = await requestCiv7DiplomacyResponse(
         { playerId: 0, actionId, responseType, notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test diplomacy blocker cleared" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -245,8 +242,7 @@ describe("diplomacy response requests", () => {
       const { port } = server.address();
       const request = await requestCiv7DiplomacyResponse(
         { playerId: 0, actionId, responseType, notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test diplomacy blocker identity change" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -282,8 +278,7 @@ describe("diplomacy response requests", () => {
       const { port } = server.address();
       const request = await requestCiv7DiplomacyResponse(
         { playerId: 0, actionId, responseType, notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test diplomacy validation drift" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -323,8 +318,7 @@ describe("diplomacy response requests", () => {
       const { port } = server.address();
       const request = await requestCiv7DiplomacyResponse(
         { playerId: 0, actionId, responseType, notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test diplomacy closeout send failure" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(false);

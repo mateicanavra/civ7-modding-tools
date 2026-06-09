@@ -1,6 +1,6 @@
 import {
   notificationDismissalProofPostcondition,
-} from "@civ7/direct-control";
+} from "@civ7/direct-control/proof/notification-dismissal-proof-policy";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../dependencies/direct-control";
@@ -26,7 +26,6 @@ export const notificationsDismissRequestProcedure =
           await context.directControl.requestCiv7NotificationDismissal(
             input,
             context.endpointDefaults,
-            context.approval!,
           );
         return notificationDismissalResult(result);
       },

@@ -40,8 +40,9 @@ Read wrappers:
 
 ## Public Action Surface
 
-Mutating wrappers require explicit approval objects or CLI reason flags. The
-package does not automatically replay mutations after transport failure.
+Mutating wrappers run validator-first where available and return
+postcondition/no-repeat evidence. The package does not automatically replay
+mutations after transport failure.
 
 - Restart/begin: `restartCiv7Game()`, `beginCiv7Game()`,
   `restartCiv7GameAndBegin({ waitForTuner: true })`.
@@ -100,7 +101,8 @@ Studio Vite endpoints added:
 An LLM agent can now read enough state to observe a game and make bounded
 decisions: playable status, map facts, visibility, actors, `GameInfo`, and
 operation validators. It can act only through validator-backed request wrappers
-or explicitly approved debug/lifecycle wrappers.
+or bounded debug/lifecycle wrappers with explicit postcondition/no-repeat
+evidence.
 
 Known limits:
 
@@ -127,10 +129,10 @@ Non-mutating live proof on 2026-05-31 against `127.0.0.1:4318`:
   revealed state `1`, visible `false`.
 
 Autoplay start may intentionally omit `turns`; user runtime evidence confirmed
-plain `Autoplay.setActive(true)` is valid. The wrapper keeps explicit approval
-and status proof, but does not force a turn cap. Start now clears prior pause
-by default and sets inferred `returnAsPlayer`/`observeAsPlayer` when App UI can
-identify a concrete player.
+plain `Autoplay.setActive(true)` is valid. The wrapper keeps status proof and
+does not force a turn cap. Start now clears prior pause by default and sets
+inferred `returnAsPlayer`/`observeAsPlayer` when App UI can identify a
+concrete player.
 
 Stop must not clear pause. Runtime proof showed `Autoplay.isActive === false`
 can appear while the game is still resolving queued autoplay turns. The durable
@@ -140,10 +142,10 @@ stable turn number before reporting `verified: true`.
 
 Live autoplay proof on 2026-05-31 against the user's fresh running game:
 
-- Start command: `civ7 game autoplay --action start --reason "..."`
+- Start command: `civ7 game autoplay --action start`
   returned `verified: true`, `turns: -1`, `isPaused: false`, and inferred
   `observeAsPlayer: 0`, `returnAsPlayer: 0`.
-- Stop command: `civ7 game autoplay --action stop --reason "..."`
+- Stop command: `civ7 game autoplay --action stop`
   returned `verified: true`; the command output still showed active
   immediately, the wrapper waited through one in-flight autoplay turn, and the
   settled `after` snapshot reported `isActive: false`, `isPaused: true`,

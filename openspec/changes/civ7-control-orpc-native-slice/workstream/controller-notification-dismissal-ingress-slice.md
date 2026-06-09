@@ -11,8 +11,8 @@ without turning the bridge into a generic mutation dispatcher.
 This slice admits only the existing service-owned
 `notifications.dismiss.request` procedure. The serialized bridge envelope stays
 closed, procedure input reuses the existing notification dismissal input schema,
-approval is controller-runtime metadata, and mutation dispatch requires
-controller proof metadata before context construction and native router
+controller runtime metadata is context-owned, and mutation dispatch requires
+controller lifecycle proof before context construction and native router
 dispatch.
 
 ## Write Set
@@ -27,21 +27,22 @@ dispatch.
 The controller ingress now:
 
 - accepts `notifications.dismiss.request` as the only mutation procedure key;
-- requires closed controller-runtime approval metadata with a non-empty reason;
-- requires closed controller proof metadata for game-controller-ready lifecycle,
+- requires closed controller lifecycle, local-player, and hotseat proof
+  metadata without accepting caller-provided mutation metadata fields;
+- requires closed controller lifecycle proof for game-controller-ready lifecycle,
   `GameContext.localPlayerID` local-player evidence, and
   single-local-player/hotseat status;
-- rejects missing or invalid approval/proof metadata before context
+- rejects missing or invalid lifecycle proof before context
   construction, native router dispatch, readiness reads, or direct-control
   mutation ports;
-- maps the accepted approval metadata into native oRPC context and lets the
-  existing mutation approval/readiness middleware remain authoritative;
+- maps the readiness context metadata into native oRPC context and lets the
+  existing mutation readiness middleware remain authoritative;
 - delegates to `createCiv7ControlOrpcServerClient(context).notifications.dismiss.request(...)`;
 - returns the existing semantic notification dismissal procedure output;
 - rejects raw host, port, session, state, command, rawCommand, and raw
   direct-control dismissal internals from the serialized bridge envelope.
 
-The controller proof metadata is a local package boundary for serialized
+The controller lifecycle proof is a local package boundary for serialized
 ingress. It is not live-game proof that a Civ7 UIScript has collected those
 facts in a running game.
 
@@ -75,5 +76,5 @@ These are local package proofs only.
 The actual game-scope adapter still needs a Civ7 UIScript/mod package and a
 runtime-owned context/proof factory before this mutation ingress can be loaded
 in a running game. Additional mutation allowlists remain blocked until each
-procedure has an explicit approval/proof/lifecycle boundary and local tests for
+procedure has an explicit proof/lifecycle boundary and local tests for
 pre-dispatch rejection.

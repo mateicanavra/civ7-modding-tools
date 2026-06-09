@@ -86,5 +86,5 @@ This is still local package proof. It does not prove live Tuner city state,
 runtime availability, hidden city facts, transport behavior, production
 choice behavior, or any send/mutation behavior.
 
-Middleware, correlation, approval, validator-first, postcondition/proof,
+Middleware, correlation, validator-first, postcondition/proof,
 transport edges, and runtime proof remain pending.

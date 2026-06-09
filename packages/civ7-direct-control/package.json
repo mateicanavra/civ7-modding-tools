@@ -15,6 +15,51 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./play/operations/production-choice-proof": {
+      "types": "./dist/play/operations/production-choice-proof.d.ts",
+      "import": "./dist/play/operations/production-choice-proof.js",
+      "require": "./dist/play/operations/production-choice-proof.cjs"
+    },
+    "./play/progression/choice-postconditions": {
+      "types": "./dist/play/progression/choice-postconditions.d.ts",
+      "import": "./dist/play/progression/choice-postconditions.js",
+      "require": "./dist/play/progression/choice-postconditions.cjs"
+    },
+    "./play/notifications/game-ui-dismissal": {
+      "types": "./dist/play/notifications/game-ui-dismissal.d.ts",
+      "import": "./dist/play/notifications/game-ui-dismissal.js",
+      "require": "./dist/play/notifications/game-ui-dismissal.cjs"
+    },
+    "./proof/diplomacy-response-proof-policy": {
+      "types": "./dist/proof/diplomacy-response-proof-policy.d.ts",
+      "import": "./dist/proof/diplomacy-response-proof-policy.js",
+      "require": "./dist/proof/diplomacy-response-proof-policy.cjs"
+    },
+    "./proof/narrative-choice-proof-policy": {
+      "types": "./dist/proof/narrative-choice-proof-policy.d.ts",
+      "import": "./dist/proof/narrative-choice-proof-policy.js",
+      "require": "./dist/proof/narrative-choice-proof-policy.cjs"
+    },
+    "./proof/notification-dismissal-proof-policy": {
+      "types": "./dist/proof/notification-dismissal-proof-policy.d.ts",
+      "import": "./dist/proof/notification-dismissal-proof-policy.js",
+      "require": "./dist/proof/notification-dismissal-proof-policy.cjs"
+    },
+    "./proof/population-placement-proof-policy": {
+      "types": "./dist/proof/population-placement-proof-policy.d.ts",
+      "import": "./dist/proof/population-placement-proof-policy.js",
+      "require": "./dist/proof/population-placement-proof-policy.cjs"
+    },
+    "./proof/turn-completion-proof-policy": {
+      "types": "./dist/proof/turn-completion-proof-policy.d.ts",
+      "import": "./dist/proof/turn-completion-proof-policy.js",
+      "require": "./dist/proof/turn-completion-proof-policy.cjs"
+    },
+    "./proof/unit-target-proof-policy": {
+      "types": "./dist/proof/unit-target-proof-policy.d.ts",
+      "import": "./dist/proof/unit-target-proof-policy.js",
+      "require": "./dist/proof/unit-target-proof-policy.cjs"
     }
   },
   "scripts": {

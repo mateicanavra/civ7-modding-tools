@@ -37,8 +37,7 @@ describe("technology choice closeout requests", () => {
       const node = -1255676052;
       const request = await requestCiv7TechnologyChoiceCloseout(
         { playerId: 0, node, notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test technology App UI closeout" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);

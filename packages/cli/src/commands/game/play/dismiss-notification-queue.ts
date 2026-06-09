@@ -7,9 +7,7 @@ import {
   requestCiv7NotificationDismissal,
 } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
-  requireSendReason,
 } from '../../../utils/game-play-shared';
 
 type DismissalCandidate = Readonly<{
@@ -40,8 +38,8 @@ export default class GamePlayDismissNotificationQueue extends Command {
 
   static examples = [
     '<%= config.bin %> game play dismiss-notification-queue --json',
-    '<%= config.bin %> game play dismiss-notification-queue --send --reason "reviewed low-risk reports" --json',
-    '<%= config.bin %> game play dismiss-notification-queue --send --reason "reviewed reports" --max-dismissals 3',
+    '<%= config.bin %> game play dismiss-notification-queue --send --json',
+    '<%= config.bin %> game play dismiss-notification-queue --send --max-dismissals 3',
   ];
 
   static flags = {
@@ -67,9 +65,6 @@ export default class GamePlayDismissNotificationQueue extends Command {
       description: 'Dismiss all eligible informational closeout candidates, up to --max-dismissals',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send; applied with item summaries in the result',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -81,9 +76,7 @@ export default class GamePlayDismissNotificationQueue extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayDismissNotificationQueue);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play dismiss-notification-queue');
-    const options = buildDirectControlOptions(flags);
+    const { flags } = await this.parse(GamePlayDismissNotificationQueue);    const options = buildDirectControlOptions(flags);
     const hud = await getCiv7PlayNotificationView({
       ...options,
       maxNotifications: flags.max,
@@ -98,7 +91,6 @@ export default class GamePlayDismissNotificationQueue extends Command {
         results.push(await requestCiv7NotificationDismissal(
           { notificationId: candidate.notificationId },
           options,
-          buildApproval(`${reason}; ${candidate.reason}`),
         ));
       }
     }
@@ -123,7 +115,7 @@ export default class GamePlayDismissNotificationQueue extends Command {
       notes: [
         flags.send
           ? 'Bulk dismissal sent only for eligible informational closeout candidates selected from a fresh HUD queue read.'
-          : 'Dry run only. Add --send and --reason to dismiss eligible informational closeout candidates.',
+          : 'Dry run only. Add --send to dismiss eligible informational closeout candidates.',
         'Operation-bearing, unit-command, production, diplomacy, narrative, progression, population, and unclassified notifications are excluded.',
         'A completed App UI call is not counted as aggregate verified unless each item proves dismissal from post-send notification identity/queue/front evidence.',
         'Re-read the queue after this command before making further decisions.',

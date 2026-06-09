@@ -66,8 +66,7 @@ describe("narrative choice requests", () => {
       const target = { owner: 0, id: 421, type: 24 };
       const request = await requestCiv7NarrativeChoice(
         { playerId: 2, targetType: "CLOSE", target, action: 1 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test narrative choice send" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -138,8 +137,7 @@ describe("narrative choice requests", () => {
       const target = { owner: 0, id: 421, type: 24 };
       const request = await requestCiv7NarrativeChoice(
         { playerId: 0, targetType: "CLOSE", target, action: 1 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test narrative stale blocker" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -167,8 +165,7 @@ describe("narrative choice requests", () => {
       const target = { owner: 0, id: 421, type: 24 };
       const request = await requestCiv7NarrativeChoice(
         { playerId: 0, targetType: "CLOSE", target, action: 1 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test narrative panel closeout" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -202,8 +199,7 @@ describe("narrative choice requests", () => {
       const target = { owner: 0, id: 421, type: 24 };
       const request = await requestCiv7NarrativeChoice(
         { playerId: 0, targetType: "8088B", target, action: 1 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test invalid narrative choice" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(false);
@@ -236,8 +232,7 @@ describe("narrative choice requests", () => {
       const target = { owner: 0, id: 421, type: 24 };
       const request = await requestCiv7NarrativeChoice(
         { playerId: 0, targetType: "CLOSE", target, action: 1 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test narrative validation drift" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -266,8 +261,7 @@ describe("narrative choice requests", () => {
       const target = { owner: 0, id: 421, type: 24 };
       const request = await requestCiv7NarrativeChoice(
         { playerId: 0, targetType: "CLOSE", target, action: 1 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test narrative turn unblock" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);
@@ -290,8 +284,7 @@ describe("narrative choice requests", () => {
       const target = { owner: 0, id: 421, type: 24 };
       const request = await requestCiv7NarrativeChoice(
         { playerId: 0, targetType: "CLOSE", target, action: 1 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test narrative send failure" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(false);

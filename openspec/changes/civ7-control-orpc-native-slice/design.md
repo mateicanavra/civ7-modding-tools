@@ -9,7 +9,7 @@ proof.
 
 `@civ7/direct-control` remains runtime authority for Civ7 access: tuner socket
 framing, state selection, reconnect behavior, App UI/Tuner command source,
-validators, approval types, postcondition classifiers, no-repeat guards,
+validators, postcondition classifiers, no-repeat guards,
 relationship evidence policy, and runtime proof labels.
 
 `packages/civ7-control-orpc` will be the typed service/procedure composition
@@ -31,7 +31,7 @@ policy facts, and proof vocabulary that the oRPC package consumes.
 
 Older branch evidence at `d3d49b48f:packages/civ7-direct-control/src/orpc/**`
 shows a real Effect/oRPC direction: contract tree, Effect service tag, router
-graph, server-side client proof, approval blocking, and relationship evidence
+graph, server-side client proof, mutation blocking, and relationship evidence
 policy. It should be mined for procedure families and test intent, not merged
 wholesale because current OpenSpec has stricter context-owned input,
 projection, schema-tech, no-raw-tunnel, and mutation proof requirements.
@@ -59,7 +59,7 @@ outcome. The workstream is rebaselined around this order:
 2. Define oRPC contracts and context dependencies.
    - `packages/civ7-control-orpc` owns contracts and procedure context types.
    - Context carries ready dependencies and policy evidence: direct-control
-     facade, endpoint defaults, state selection strategy, approval, logger,
+     facade, endpoint defaults, state selection strategy, logger,
      evidence sink, clock, correlation provider, risk policy, and optional
      controller facade.
    - Context construction belongs to caller/runtime adapters, not direct-control
@@ -79,14 +79,14 @@ outcome. The workstream is rebaselined around this order:
      state, Tuner snapshot, or runtime error details.
    - The historical `notifications.view` facade leaf has been burned down;
      current notification, decision, and blocker service behavior is composed
-     by `attention.current` through the direct-control notification runtime
-     port.
+     by `attention.current` through service-owned projection over
+     direct-control notification source evidence.
    - The historical `unit.ready.view` facade leaf has been burned down; current
-     ready-unit service behavior is composed by `attention.current` through the
-     direct-control ready-unit runtime port.
+     ready-unit service behavior is composed by `attention.current` through
+     service-owned projection over direct-control ready-unit source evidence.
    - The historical `city.ready.view` facade leaf has been burned down; current
-     ready-city service behavior is composed by `attention.current` through the
-     direct-control ready-city runtime port.
+     ready-city service behavior is composed by `attention.current` through
+     service-owned projection over direct-control ready-city source evidence.
    - No further facade-only leaves should be added.
    - The next implementation work should move real service behavior and
      composition into native oRPC procedure modules while direct-control keeps
@@ -119,7 +119,7 @@ outcome. The workstream is rebaselined around this order:
      wrapping it.
 
 6. Promote shared middleware only after repetition is real.
-   - Middleware candidates include endpoint defaults, readiness, approval,
+   - Middleware candidates include endpoint defaults, readiness,
      validator-first, postcondition/proof recording, relationship authority,
      safe error projection, correlation, and telemetry hooks.
    - A candidate becomes middleware only when at least two procedure modules
@@ -128,7 +128,7 @@ outcome. The workstream is rebaselined around this order:
      `beforeHandler`/event/correlation pipeline.
 
 7. Add mutation procedures after middleware proof.
-   - Mutation procedures must preserve approval-first, validator-first,
+   - Mutation procedures must preserve validator-first,
      separated send receipt, post-read, postcondition classification,
      no-repeat-after-unverified, and honest pending-runtime-proof semantics.
    - Legacy `verified` booleans are source evidence, not proof authority.
@@ -161,7 +161,6 @@ packages/civ7-control-orpc
     correlation.ts
     projection.ts
   src/policy/
-    approval.ts
     relationship-authority.ts
     risk.ts
     proof-boundary.ts
@@ -174,7 +173,6 @@ packages/civ7-control-orpc
   src/middleware/
     endpoint-defaults.ts
     readiness.ts
-    approval.ts
     validator-first.ts
     postcondition.ts
     relationship-authority.ts
@@ -273,7 +271,6 @@ Unacceptable direct-control prework:
 |---|---|---|
 | endpoint defaults | direct-control runtime context policy | multiple procedures need host/port/timeout normalization without input fields |
 | readiness | direct-control health/status atoms | procedures share App UI/Tuner state preconditions |
-| approval | direct-control approval policy | two mutation procedures need the same approval check |
 | validator-first | direct-control operation validators | send-capable procedures share pre-send validation semantics |
 | postcondition/proof | direct-control postcondition classifiers and telemetry | mutations share before/after evidence and no-repeat behavior |
 | relationship authority | current tactical `relationshipLabelPolicy` schemas plus the OpenSpec neutral-relationship invariant | read procedures need neutral label enforcement/projection |
@@ -289,6 +286,5 @@ ordering, typed errors, projection, and in-process client behavior. They cannot
 prove Civ7 runtime behavior.
 
 Runtime/control changes still need real-game proof or an explicit
-pending-runtime-proof label. Mutation-facing work still needs explicit
-approval, validator-first behavior, no-repeat-after-unverified semantics, and
+pending-runtime-proof label. Mutation-facing work still needs validator-first behavior, no-repeat-after-unverified semantics, and
 confirmed postcondition evidence before any repeat-safe claim.

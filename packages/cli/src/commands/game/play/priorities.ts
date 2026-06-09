@@ -284,7 +284,7 @@ function buildCompactView(view: PriorityView): {
             family: kind,
             command,
             readOnly: !command.includes('--send'),
-            approvalRequired: command.includes('--send'),
+            sendsMutation: command.includes('--send'),
           }]
         : [],
     ),
@@ -431,7 +431,7 @@ function buildPriorities(input: {
       summary: 'no HUD, ready-unit, ready-city, or battlefield priority surfaced',
       reason: 'Fresh clean reads can use the guarded end-turn command; it rechecks blockers before sending.',
       blocking: false,
-      command: "game play end-turn --send --reason 'clean read: no HUD, ready-unit, ready-city, or battlefield priority surfaced' --json",
+      command: "game play end-turn --send --json",
     });
   }
 
@@ -519,7 +519,7 @@ function commandFromDecision(nextDecision: Record<string, unknown>): string | un
   if (nextDecision.category === 'informational-notification' && nextDecision.operationFamily === 'app-ui-action') {
     const notificationId = nextDecision.notificationId;
     if (notificationId && typeof notificationId === 'object') {
-      return `game play dismiss-notification --target '${JSON.stringify(notificationId)}' --send --reason '<reviewed: ${reasonSlug(nextDecision)}>'`;
+      return `game play dismiss-notification --target '${JSON.stringify(notificationId)}' --send`;
     }
   }
   return undefined;

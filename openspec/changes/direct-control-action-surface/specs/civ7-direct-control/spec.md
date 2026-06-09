@@ -7,7 +7,7 @@ wrapper functions with state role, validation, failure, and proof contracts.
 
 #### Scenario: Autoplay is configured and started
 - **WHEN** a caller configures or starts autoplay
-- **THEN** the package sets approved autoplay fields through a proven state role
+- **THEN** the package sets autoplay fields through a proven state role
 - **AND** it returns before/after autoplay status
 - **AND** it allows native unbounded start when no turn count is supplied
 - **AND** it restores a concrete return player when one can be inferred
@@ -37,7 +37,7 @@ validators and SHALL use validator-first behavior for operation requests.
   `Game.UnitCommands.canStart` command in the Tuner role
 - **AND** it returns the serialized validation result without mutating gameplay
 
-#### Scenario: Caller requests an approved operation
+#### Scenario: Caller requests an operation
 - **WHEN** a caller requests a unit, city, or player operation through the
   package
 - **THEN** the package runs `canStart` first unless the wrapper contract defines

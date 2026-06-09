@@ -10,13 +10,36 @@ import {
   Civ7AttentionCurrentResultSchema,
 } from "../modules/attention/contract";
 import {
+  Civ7CityPopulationPlacementInputSchema,
+  Civ7CityPopulationPlacementResultSchema,
+  Civ7CityProductionChoiceInputSchema,
+  Civ7CityProductionChoiceResultSchema,
+} from "../modules/city/contract";
+import {
+  Civ7DiplomacyResponseInputSchema,
+  Civ7DiplomacyResponseResultSchema,
+} from "../modules/diplomacy/contract";
+import {
   Civ7NotificationDismissInputSchema,
   Civ7NotificationDismissalResultSchema,
 } from "../modules/notifications/contract";
 import {
+  Civ7ProgressionChoiceInputSchema,
+  Civ7ProgressionCultureChoiceResultSchema,
+  Civ7ProgressionTechnologyChoiceResultSchema,
+} from "../modules/progression/contract";
+import {
+  Civ7NarrativeChoiceInputSchema,
+  Civ7NarrativeChoiceResultSchema,
+} from "../modules/narrative/contract";
+import {
   Civ7ReadinessCurrentInputSchema,
   Civ7ReadinessCurrentResultSchema,
 } from "../modules/readiness/contract";
+import {
+  Civ7StrategyFrontSummaryInputSchema,
+  Civ7StrategyFrontSummaryResultSchema,
+} from "../modules/strategy/contract";
 import {
   Civ7TurnCompletionInputSchema,
   Civ7TurnCompletionResultSchema,
@@ -25,19 +48,6 @@ import {
   Civ7UnitTargetActionInputSchema,
   Civ7UnitTargetActionResultSchema,
 } from "../modules/unit/contract";
-
-export const Civ7ControllerBridgeApprovalSchema = Type.Object(
-  {
-    source: Type.Literal("controller-runtime"),
-    approved: Type.Literal(true),
-    reason: Type.String({ minLength: 1 }),
-    disposableSession: Type.Optional(Type.Boolean()),
-  },
-  { additionalProperties: false },
-);
-export type Civ7ControllerBridgeApproval = Static<
-  typeof Civ7ControllerBridgeApprovalSchema
->;
 
 export const Civ7ControllerBridgeMutationProofSchema = Type.Object(
   {
@@ -93,12 +103,23 @@ export type Civ7ControllerBridgeAttentionCurrentRequest = Static<
   typeof Civ7ControllerBridgeAttentionCurrentRequestSchema
 >;
 
+export const Civ7ControllerBridgeStrategyFrontSummaryRequestSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("strategy.frontSummary"),
+      input: Civ7StrategyFrontSummaryInputSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeStrategyFrontSummaryRequest = Static<
+  typeof Civ7ControllerBridgeStrategyFrontSummaryRequestSchema
+>;
+
 export const Civ7ControllerBridgeNotificationDismissRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("notifications.dismiss.request"),
     input: Civ7NotificationDismissInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -111,8 +132,6 @@ export const Civ7ControllerBridgeTurnCompleteRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("turn.complete.request"),
     input: Civ7TurnCompletionInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -121,12 +140,59 @@ export type Civ7ControllerBridgeTurnCompleteRequest = Static<
   typeof Civ7ControllerBridgeTurnCompleteRequestSchema
 >;
 
+export const Civ7ControllerBridgeCityProductionChoiceRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("city.production.choice.request"),
+    input: Civ7CityProductionChoiceInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeCityProductionChoiceRequest = Static<
+  typeof Civ7ControllerBridgeCityProductionChoiceRequestSchema
+>;
+
+export const Civ7ControllerBridgeCityPopulationPlacementRequestSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("city.population.place.request"),
+      input: Civ7CityPopulationPlacementInputSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeCityPopulationPlacementRequest = Static<
+  typeof Civ7ControllerBridgeCityPopulationPlacementRequestSchema
+>;
+
+export const Civ7ControllerBridgeNarrativeChoiceRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("narrative.choice.request"),
+    input: Civ7NarrativeChoiceInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeNarrativeChoiceRequest = Static<
+  typeof Civ7ControllerBridgeNarrativeChoiceRequestSchema
+>;
+
+export const Civ7ControllerBridgeDiplomacyResponseRequestSchema = Type.Object(
+  {
+    procedureKey: Type.Literal("diplomacy.response.request"),
+    input: Civ7DiplomacyResponseInputSchema,
+    correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+  },
+  { additionalProperties: false },
+);
+export type Civ7ControllerBridgeDiplomacyResponseRequest = Static<
+  typeof Civ7ControllerBridgeDiplomacyResponseRequestSchema
+>;
+
 export const Civ7ControllerBridgeUnitTargetActionRequestSchema = Type.Object(
   {
     procedureKey: Type.Literal("unit.target.action.request"),
     input: Civ7UnitTargetActionInputSchema,
-    approval: Civ7ControllerBridgeApprovalSchema,
-    controllerProof: Civ7ControllerBridgeMutationProofSchema,
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
   },
   { additionalProperties: false },
@@ -135,19 +201,59 @@ export type Civ7ControllerBridgeUnitTargetActionRequest = Static<
   typeof Civ7ControllerBridgeUnitTargetActionRequestSchema
 >;
 
+export const Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("progression.technology.choice.request"),
+      input: Civ7ProgressionChoiceInputSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeProgressionTechnologyChoiceRequest = Static<
+  typeof Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema
+>;
+
+export const Civ7ControllerBridgeProgressionCultureChoiceRequestSchema =
+  Type.Object(
+    {
+      procedureKey: Type.Literal("progression.culture.choice.request"),
+      input: Civ7ProgressionChoiceInputSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeProgressionCultureChoiceRequest = Static<
+  typeof Civ7ControllerBridgeProgressionCultureChoiceRequestSchema
+>;
+
 export const Civ7ControllerBridgeRequestSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentRequestSchema,
   Civ7ControllerBridgeAttentionCurrentRequestSchema,
+  Civ7ControllerBridgeStrategyFrontSummaryRequestSchema,
   Civ7ControllerBridgeNotificationDismissRequestSchema,
   Civ7ControllerBridgeTurnCompleteRequestSchema,
+  Civ7ControllerBridgeCityProductionChoiceRequestSchema,
+  Civ7ControllerBridgeCityPopulationPlacementRequestSchema,
+  Civ7ControllerBridgeNarrativeChoiceRequestSchema,
+  Civ7ControllerBridgeDiplomacyResponseRequestSchema,
   Civ7ControllerBridgeUnitTargetActionRequestSchema,
+  Civ7ControllerBridgeProgressionTechnologyChoiceRequestSchema,
+  Civ7ControllerBridgeProgressionCultureChoiceRequestSchema,
 ]);
 export type Civ7ControllerBridgeRequest =
   | Civ7ControllerBridgeReadinessCurrentRequest
   | Civ7ControllerBridgeAttentionCurrentRequest
+  | Civ7ControllerBridgeStrategyFrontSummaryRequest
   | Civ7ControllerBridgeNotificationDismissRequest
   | Civ7ControllerBridgeTurnCompleteRequest
-  | Civ7ControllerBridgeUnitTargetActionRequest;
+  | Civ7ControllerBridgeCityProductionChoiceRequest
+  | Civ7ControllerBridgeCityPopulationPlacementRequest
+  | Civ7ControllerBridgeNarrativeChoiceRequest
+  | Civ7ControllerBridgeDiplomacyResponseRequest
+  | Civ7ControllerBridgeUnitTargetActionRequest
+  | Civ7ControllerBridgeProgressionTechnologyChoiceRequest
+  | Civ7ControllerBridgeProgressionCultureChoiceRequest;
 
 export const Civ7ControllerBridgeErrorSchema = Type.Object(
   {
@@ -156,6 +262,7 @@ export const Civ7ControllerBridgeErrorSchema = Type.Object(
     reason: Type.Union([
       Type.Literal("invalid-envelope"),
       Type.Literal("procedure-not-allowed"),
+      Type.Literal("procedure-not-supported"),
       Type.Literal("procedure-failed"),
     ]),
   },
@@ -193,6 +300,20 @@ export type Civ7ControllerBridgeAttentionCurrentSuccessResponse = Static<
   typeof Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("strategy.frontSummary"),
+      output: Civ7StrategyFrontSummaryResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeStrategyFrontSummarySuccessResponse = Static<
+  typeof Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeNotificationDismissSuccessResponseSchema =
   Type.Object(
     {
@@ -221,6 +342,62 @@ export type Civ7ControllerBridgeTurnCompleteSuccessResponse = Static<
   typeof Civ7ControllerBridgeTurnCompleteSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("city.production.choice.request"),
+      output: Civ7CityProductionChoiceResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeCityProductionChoiceSuccessResponse = Static<
+  typeof Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("city.population.place.request"),
+      output: Civ7CityPopulationPlacementResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeCityPopulationPlacementSuccessResponse = Static<
+  typeof Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("narrative.choice.request"),
+      output: Civ7NarrativeChoiceResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeNarrativeChoiceSuccessResponse = Static<
+  typeof Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema
+>;
+
+export const Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("diplomacy.response.request"),
+      output: Civ7DiplomacyResponseResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeDiplomacyResponseSuccessResponse = Static<
+  typeof Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema
+>;
+
 export const Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema =
   Type.Object(
     {
@@ -235,19 +412,63 @@ export type Civ7ControllerBridgeUnitTargetActionSuccessResponse = Static<
   typeof Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema
 >;
 
+export const Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("progression.technology.choice.request"),
+      output: Civ7ProgressionTechnologyChoiceResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse =
+  Static<
+    typeof Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema
+  >;
+
+export const Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema =
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      procedureKey: Type.Literal("progression.culture.choice.request"),
+      output: Civ7ProgressionCultureChoiceResultSchema,
+      correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
+    },
+    { additionalProperties: false },
+  );
+export type Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse =
+  Static<
+    typeof Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema
+  >;
+
 export const Civ7ControllerBridgeSuccessResponseSchema = Type.Union([
   Civ7ControllerBridgeReadinessCurrentSuccessResponseSchema,
   Civ7ControllerBridgeAttentionCurrentSuccessResponseSchema,
+  Civ7ControllerBridgeStrategyFrontSummarySuccessResponseSchema,
   Civ7ControllerBridgeNotificationDismissSuccessResponseSchema,
   Civ7ControllerBridgeTurnCompleteSuccessResponseSchema,
+  Civ7ControllerBridgeCityProductionChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeCityPopulationPlacementSuccessResponseSchema,
+  Civ7ControllerBridgeNarrativeChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeDiplomacyResponseSuccessResponseSchema,
   Civ7ControllerBridgeUnitTargetActionSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponseSchema,
+  Civ7ControllerBridgeProgressionCultureChoiceSuccessResponseSchema,
 ]);
 export type Civ7ControllerBridgeSuccessResponse =
   | Civ7ControllerBridgeReadinessCurrentSuccessResponse
   | Civ7ControllerBridgeAttentionCurrentSuccessResponse
+  | Civ7ControllerBridgeStrategyFrontSummarySuccessResponse
   | Civ7ControllerBridgeNotificationDismissSuccessResponse
   | Civ7ControllerBridgeTurnCompleteSuccessResponse
-  | Civ7ControllerBridgeUnitTargetActionSuccessResponse;
+  | Civ7ControllerBridgeCityProductionChoiceSuccessResponse
+  | Civ7ControllerBridgeCityPopulationPlacementSuccessResponse
+  | Civ7ControllerBridgeNarrativeChoiceSuccessResponse
+  | Civ7ControllerBridgeDiplomacyResponseSuccessResponse
+  | Civ7ControllerBridgeUnitTargetActionSuccessResponse
+  | Civ7ControllerBridgeProgressionTechnologyChoiceSuccessResponse
+  | Civ7ControllerBridgeProgressionCultureChoiceSuccessResponse;
 
 export const Civ7ControllerBridgeFailureResponseSchema = Type.Object(
   {
@@ -269,9 +490,13 @@ export type Civ7ControllerBridgeResponse = Static<
   typeof Civ7ControllerBridgeResponseSchema
 >;
 
+export type Civ7ControllerBridgeContext = Civ7ControlOrpcContext & Readonly<{
+  controllerProof?: unknown;
+}>;
+
 export type Civ7ControllerBridgeContextFactory = (
   request: Civ7ControllerBridgeRequest,
-) => Civ7ControlOrpcContext | Promise<Civ7ControlOrpcContext>;
+) => Civ7ControllerBridgeContext | Promise<Civ7ControllerBridgeContext>;
 
 export type Civ7ControllerBridgeIngress = Readonly<{
   invoke(request: unknown): Promise<Civ7ControllerBridgeResponse>;
@@ -311,12 +536,27 @@ export async function invokeCiv7ControllerBridgeRequest(
 
   try {
     const context = await options.createContext(request);
-    const approval = isControllerBridgeMutationRequest(request)
-      ? request.approval
-      : context.approval;
+    const controllerProof = isControllerBridgeMutationRequest(request)
+      ? controllerProofFromContext(context)
+      : undefined;
+    if (isControllerBridgeMutationRequest(request) && controllerProof == null) {
+      return bridgeFailure({
+        code: "BRIDGE_CONTROLLER_PROOF_REQUIRED",
+        message:
+          "Civ7 controller bridge mutation proof is required before dispatch.",
+        reason: "invalid-envelope",
+      }, request);
+    }
+    if (!controllerSupportsRequest(context, request)) {
+      return bridgeFailure({
+        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
+        message:
+          "Civ7 controller bridge procedure is not supported by this controller context.",
+        reason: "procedure-not-supported",
+      }, request);
+    }
     const client = createCiv7ControlOrpcServerClient({
       ...context,
-      approval,
       correlation: request.correlationId == null
         ? context.correlation
         : {
@@ -329,6 +569,18 @@ export async function invokeCiv7ControllerBridgeRequest(
       return {
         ok: true,
         procedureKey: "readiness.current",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "strategy.frontSummary") {
+      const output = await client.strategy.frontSummary(request.input);
+      return {
+        ok: true,
+        procedureKey: "strategy.frontSummary",
         output,
         ...(request.correlationId == null
           ? {}
@@ -360,11 +612,87 @@ export async function invokeCiv7ControllerBridgeRequest(
       };
     }
 
+    if (request.procedureKey === "city.production.choice.request") {
+      const output = await client.city.production.choice.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "city.production.choice.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "city.population.place.request") {
+      const output = await client.city.population.place.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "city.population.place.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "narrative.choice.request") {
+      const output = await client.narrative.choice.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "narrative.choice.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "diplomacy.response.request") {
+      const output = await client.diplomacy.response.request(request.input);
+      return {
+        ok: true,
+        procedureKey: "diplomacy.response.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
     if (request.procedureKey === "unit.target.action.request") {
       const output = await client.unit.target.action.request(request.input);
       return {
         ok: true,
         procedureKey: "unit.target.action.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "progression.technology.choice.request") {
+      const output = await client.progression.technology.choice.request(
+        request.input,
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.technology.choice.request",
+        output,
+        ...(request.correlationId == null
+          ? {}
+          : { correlationId: request.correlationId }),
+      };
+    }
+
+    if (request.procedureKey === "progression.culture.choice.request") {
+      const output = await client.progression.culture.choice.request(
+        request.input,
+      );
+      return {
+        ok: true,
+        procedureKey: "progression.culture.choice.request",
         output,
         ...(request.correlationId == null
           ? {}
@@ -386,6 +714,15 @@ export async function invokeCiv7ControllerBridgeRequest(
   }
 }
 
+function controllerProofFromContext(
+  context: Civ7ControllerBridgeContext,
+): Civ7ControllerBridgeMutationProof | null {
+  if (!Value.Check(Civ7ControllerBridgeMutationProofSchema, context.controllerProof)) {
+    return null;
+  }
+  return context.controllerProof;
+}
+
 function isUnsupportedProcedureRequest(
   request: unknown,
 ): request is Readonly<{ procedureKey: string }> {
@@ -394,9 +731,16 @@ function isUnsupportedProcedureRequest(
   return typeof request.procedureKey === "string"
     && request.procedureKey !== "readiness.current"
     && request.procedureKey !== "attention.current"
+    && request.procedureKey !== "strategy.frontSummary"
     && request.procedureKey !== "notifications.dismiss.request"
     && request.procedureKey !== "turn.complete.request"
-    && request.procedureKey !== "unit.target.action.request";
+    && request.procedureKey !== "city.production.choice.request"
+    && request.procedureKey !== "city.population.place.request"
+    && request.procedureKey !== "narrative.choice.request"
+    && request.procedureKey !== "diplomacy.response.request"
+    && request.procedureKey !== "unit.target.action.request"
+    && request.procedureKey !== "progression.technology.choice.request"
+    && request.procedureKey !== "progression.culture.choice.request";
 }
 
 function isControllerBridgeMutationRequest(
@@ -404,10 +748,37 @@ function isControllerBridgeMutationRequest(
 ): request is
   | Civ7ControllerBridgeNotificationDismissRequest
   | Civ7ControllerBridgeTurnCompleteRequest
-  | Civ7ControllerBridgeUnitTargetActionRequest {
+  | Civ7ControllerBridgeCityProductionChoiceRequest
+  | Civ7ControllerBridgeCityPopulationPlacementRequest
+  | Civ7ControllerBridgeNarrativeChoiceRequest
+  | Civ7ControllerBridgeDiplomacyResponseRequest
+  | Civ7ControllerBridgeUnitTargetActionRequest
+  | Civ7ControllerBridgeProgressionTechnologyChoiceRequest
+  | Civ7ControllerBridgeProgressionCultureChoiceRequest {
   return request.procedureKey === "notifications.dismiss.request"
     || request.procedureKey === "turn.complete.request"
-    || request.procedureKey === "unit.target.action.request";
+    || request.procedureKey === "city.production.choice.request"
+    || request.procedureKey === "city.population.place.request"
+    || request.procedureKey === "narrative.choice.request"
+    || request.procedureKey === "diplomacy.response.request"
+    || request.procedureKey === "unit.target.action.request"
+    || request.procedureKey === "progression.technology.choice.request"
+    || request.procedureKey === "progression.culture.choice.request";
+}
+
+function controllerSupportsRequest(
+  context: Civ7ControllerBridgeContext,
+  request: Civ7ControllerBridgeRequest,
+): boolean {
+  if (request.procedureKey === "readiness.current") return true;
+  if (isControllerBridgeMutationRequest(request)) {
+    return context.controller?.supportedMutationProcedures?.includes(
+      request.procedureKey,
+    ) === true;
+  }
+  return context.controller?.supportedReadProcedures?.includes(
+    request.procedureKey,
+  ) === true;
 }
 
 function safeBridgeProcedureError(err: unknown): Civ7ControllerBridgeError {

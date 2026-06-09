@@ -21,7 +21,8 @@ The useful control pattern is:
    selected entity ids, and likely operation families.
 3. Prefer the official operation path over raw notification dismissal.
 4. Validate with `canStart` before any mutating request.
-5. Require explicit approval reason for any mutation.
+5. Require fresh evidence, source-owned postcondition proof, and no-repeat
+   handling for any mutation.
 6. Send turn complete only after the App UI gate is clean: either
    `canEndTurn` is true, or `hasSentTurnComplete` is false, blocker value is
    `0`, first ready unit is `null`, and the notification HUD has no unresolved
@@ -208,8 +209,9 @@ The first CLI shortcut family lives under `civ7 game play`:
 - `game play ready-unit`
 - `game play unit-target`
 
-Every mutating shortcut requires `--send --reason`. Without `--send`, the
-shortcut validates or reads only.
+Every mutating shortcut requires `--send`. Without `--send`, the shortcut
+validates or reads only. After any send, re-read before further action and do
+not repeat uncertain results.
 
 `game play notifications` is read-only. It is the materialized view for live
 play: blocker state, selected unit/city, first ready unit, active notification

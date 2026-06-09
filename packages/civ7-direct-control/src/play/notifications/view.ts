@@ -515,7 +515,7 @@ export function playNotificationViewSource(): string {
             ? "game play respond-diplomacy --action-id " + actionId
               + " --response-type " + responseType
               + (notificationId ? " --notification-id '" + JSON.stringify(notificationId) + "'" : "")
-              + " --send --reason '<why this response was selected>'"
+              + " --send"
             : null,
         };
       });
@@ -575,7 +575,7 @@ export function playNotificationViewSource(): string {
             ? "game play respond-diplomacy --action-id " + actionId
               + " --response-type " + responseType
               + (notificationId ? " --notification-id '" + JSON.stringify(notificationId) + "'" : "")
-              + " --send --reason '<why this response was selected>'"
+              + " --send"
             : null,
         };
       });
@@ -680,14 +680,14 @@ export function playNotificationViewSource(): string {
             cli: chooseEnabled
               ? "game play choose-tech --player-id " + String(localPlayerId)
                 + " --node " + String(numericNodeType)
-                + " --send --reason '<why this technology was selected>'"
+                + " --send"
               : null,
             validateCli: "game play choose-tech --player-id " + String(localPlayerId)
               + " --node " + String(numericNodeType) + " --json",
             targetCli: targetEnabled
               ? "game play set-tech-target --player-id " + String(localPlayerId)
                 + " --node " + String(numericNodeType)
-                + " --send --reason '<why this technology target was selected>'"
+                + " --send"
               : null,
           });
         }
@@ -791,14 +791,14 @@ export function playNotificationViewSource(): string {
           cli: chooseEnabled
             ? "game play choose-culture --player-id " + String(localPlayerId)
               + " --node " + String(numericNodeType)
-              + " --send --closeout --reason '<why this culture node was selected>'"
+              + " --send --closeout"
             : null,
           validateCli: "game play choose-culture --player-id " + String(localPlayerId)
             + " --node " + String(numericNodeType) + " --json",
           targetCli: targetEnabled
             ? "game play set-culture-target --player-id " + String(localPlayerId)
               + " --node " + String(numericNodeType)
-              + " --send --reason '<why this culture target was selected>'"
+              + " --send"
             : null,
         });
       }
@@ -870,7 +870,7 @@ export function playNotificationViewSource(): string {
           cli: enabled && args
             ? "game play choose-celebration --player-id " + String(localPlayerId)
               + " --golden-age-type " + String(args.GoldenAgeType)
-              + " --send --reason '<why this celebration was selected>'"
+              + " --send"
             : null,
           validateCli: args
             ? "game play choose-celebration --player-id " + String(localPlayerId)
@@ -964,7 +964,7 @@ export function playNotificationViewSource(): string {
             ? "game play choose-government --player-id " + String(localPlayerId)
               + " --government-type " + String(governmentIndex)
               + " --action " + String(activate)
-              + " --send --reason '<why this government was selected>'"
+              + " --send"
             : null,
           validateCli: governmentIndex != null
             ? "game play choose-government --player-id " + String(localPlayerId)
@@ -1099,7 +1099,7 @@ export function playNotificationViewSource(): string {
               + " --target-type " + String(link.ToNarrativeStoryType)
               + " --target '" + targetJson + "'"
               + " --action " + String(activate)
-              + " --send --reason '<why this narrative option was selected>'"
+              + " --send"
             : null,
           validateCli: targetJson
             ? "game play choose-narrative --player-id " + String(localPlayerId)
@@ -1142,7 +1142,7 @@ export function playNotificationViewSource(): string {
               + " --target-type CLOSE"
               + " --target '" + targetJson + "'"
               + " --action " + String(activate)
-              + " --send --reason '<why this narrative closeout was selected>'"
+              + " --send"
             : null,
           validateCli: "game play choose-narrative --player-id " + String(localPlayerId)
             + " --target-type CLOSE"
@@ -1187,7 +1187,7 @@ export function playNotificationViewSource(): string {
                 + " --target-type " + String(visibleOption.targetType)
                 + " --target '" + targetJson + "'"
                 + " --action " + String(activate)
-                + " --send --reason '<why this visible narrative option was selected>'"
+                + " --send"
               : null,
             validateCli: "game play choose-narrative --player-id " + String(localPlayerId)
               + " --target-type " + String(visibleOption.targetType)
@@ -1205,7 +1205,7 @@ export function playNotificationViewSource(): string {
         ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --json"
         : null;
       const unprovenDismissalCli = !hasEnabledOptions && !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
-        ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --send --reason '<reviewed: narrative notification has no pending story>'"
+        ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --send"
         : null;
       const classification = hasEnabledOptions
         ? "narrative-choice-options"
@@ -1276,7 +1276,7 @@ export function playNotificationViewSource(): string {
           cli: enabled
             ? "game play operation --family unit --type SKIP_TURN --unit-id '"
               + JSON.stringify(normalizedUnitId)
-              + "' --send --reason '<why this unit has no better operation this turn>'"
+              + "' --send"
             : null,
         };
       }).filter(Boolean);
@@ -1300,7 +1300,7 @@ export function playNotificationViewSource(): string {
                 }
               : {
                   kind: "send-turn-complete",
-                  cli: "game play end-turn --send --reason '<stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout>' --json",
+                  cli: "game play end-turn --send --json",
                   proof: "Official COMMAND_UNITS activation selects the next ready unit; selectedUnitId and firstReadyUnitId are null, blocker enum is clean, and no validator-backed SKIP_TURN closeout remains.",
                 },
           ]
@@ -1359,7 +1359,7 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live tech chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
-            action("choose tech", "game play choose-tech --player-id <id> --node <node> --send --reason '<why this node was selected>'", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
+            action("choose tech", "game play choose-tech --player-id <id> --node <node> --send", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
             action("validate tech choice", "game play choose-tech --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
             action("set tech target", "game play set-tech-target --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
@@ -1376,7 +1376,7 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live culture chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
-            action("choose culture and close chooser", "game play choose-culture --player-id <id> --node <node> --send --closeout --reason '<why this node was selected>'", "sequence", "SET_CULTURE_TREE_NODE then SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start culture and close the chooser surface"),
+            action("choose culture and close chooser", "game play choose-culture --player-id <id> --node <node> --send --closeout", "sequence", "SET_CULTURE_TREE_NODE then SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start culture and close the chooser surface"),
             action("read culture options", "game play choose-culture --options --json", undefined, undefined, "enabled culture nodes with validation and ready send templates", "before choosing a culture node"),
             action("validate culture choice", "game play choose-culture --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
             action("set culture target", "game play set-culture-target --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
@@ -1395,7 +1395,7 @@ export function playNotificationViewSource(): string {
           [requiredInput("GovernmentType", "live government picker option", "Use the government index from choose-government --options, not the visible row position.")],
           [
             action("read government options", "game play choose-government --options --json", undefined, undefined, "enabled starting governments with validation and ready send templates", "before choosing a government"),
-            action("choose government", "game play choose-government --player-id <id> --government-type <government-type> --action <action> --send --reason '<why this government was selected>'", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
+            action("choose government", "game play choose-government --player-id <id> --government-type <government-type> --action <action> --send", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
           ],
           ["Read options from the live government picker before sending; the option surface includes celebration effects for context."],
         );
@@ -1411,7 +1411,7 @@ export function playNotificationViewSource(): string {
           [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.")],
           [
             action("read celebration options", "game play choose-celebration --options --json", undefined, undefined, "enabled celebration choices with validation and ready send templates", "before choosing a celebration"),
-            action("choose celebration", "game play choose-celebration --player-id <id> --golden-age-type <golden-age-type> --send --reason '<why this celebration was selected>'", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
+            action("choose celebration", "game play choose-celebration --player-id <id> --golden-age-type <golden-age-type> --send", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
           ],
           ["Read options from the live celebration chooser before sending; this blocker is not dismissible and should not use notification dismissal."],
         );
@@ -1468,7 +1468,7 @@ export function playNotificationViewSource(): string {
             requiredInput("ProjectType", "live town focus option", "Paired project enum for the selected focus."),
           ],
           [
-            action("set town focus and close review", "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'", "sequence", "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT", "{ Type, ProjectType, City } then {}", "when the selected focus should be applied and the blocker closed as one caller workflow"),
+            action("set town focus and close review", "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout", "sequence", "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT", "{ Type, ProjectType, City } then {}", "when the selected focus should be applied and the blocker closed as one caller workflow"),
             action("set town focus", "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>", "city-command", "CHANGE_GROWTH_MODE", "{ Type, ProjectType, City }", "when only validation or a single focus operation is wanted"),
             action("close reviewed town project", "game play consider-town-project --city-id '<city-id>'", "city-operation", "CONSIDER_TOWN_PROJECT", "{}", "after the focus has already been set and the UI still needs closeout"),
           ],
@@ -1529,7 +1529,7 @@ export function playNotificationViewSource(): string {
             requiredInput("Type", "chosen diplomatic response", "Use one enabled response option returned in notification details; do not infer enum values from stale notes."),
           ],
           [
-            action("choose diplomacy response and close blocker", "game play respond-diplomacy --action-id <action-id> --response-type <response-type> --notification-id '<notification-id>' --send --reason '<why this response was selected>'", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after choosing one enabled response option from notification details"),
+            action("choose diplomacy response and close blocker", "game play respond-diplomacy --action-id <action-id> --response-type <response-type> --notification-id '<notification-id>' --send", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after choosing one enabled response option from notification details"),
             action("validate diplomacy response", "game play respond-diplomacy --action-id <action-id> --response-type <response-type>", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "for dry-run validation only"),
           ],
           ["Use the enabled option list from the live notification details; send mode follows the official local-player response panel path and verifies notification/turn closeout."],
@@ -1545,7 +1545,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action response id.")],
           [
-            action("dismiss reviewed diplomatic completion", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this diplomatic completion was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports a completed low-severity diplomatic action"),
+            action("dismiss reviewed diplomatic completion", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports a completed low-severity diplomatic action"),
           ],
           ["The official notification train does not register a specialized handler for NOTIFICATION_DIPLOMATIC_ACTION_LOW; it falls through to the default notification handler, so closeout is App UI dismissal after review."],
         );
@@ -1561,7 +1561,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic response id.")],
           [
-            action("dismiss reviewed diplomatic action report", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this diplomatic report was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the event data/location and confirming getResponseDataForUI exposes no enabled response option"),
+            action("dismiss reviewed diplomatic action report", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the event data/location and confirming getResponseDataForUI exposes no enabled response option"),
           ],
           ["NOTIFICATION_DIPLOMATIC_ACTION can point at a real diplomatic event id, but empty/no-enabled getResponseDataForUI options make it a reviewed report closeout rather than RESPOND_DIPLOMATIC_ACTION."],
         );
@@ -1581,7 +1581,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action response id.")],
           [
-            action("dismiss reviewed diplomatic relationship notice", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this relationship/agenda report was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the relationship/agenda context and confirming the notification target is not a valid diplomatic action id"),
+            action("dismiss reviewed diplomatic relationship notice", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the relationship/agenda context and confirming the notification target is not a valid diplomatic action id"),
           ],
           ["Agenda and relationship reports can arrive as NOTIFICATION_DIPLOMATIC_ACTION with an invalid target. Review the report for strategy, then use App UI dismissal; do not send RESPOND_DIPLOMATIC_ACTION without a valid action id."],
         );
@@ -1605,7 +1605,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
-            action("dismiss reviewed notification", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the reported attack/disaster location and confirming no specialized decision surface is required"),
+            action("dismiss reviewed notification", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the reported attack/disaster location and confirming no specialized decision surface is required"),
           ],
           ["Unit combat and natural-disaster report notifications use the default notification handler; activation looks at the reported plot when present, while closeout is App UI dismissal after the report is reviewed."],
         );
@@ -1620,7 +1620,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
-            action("dismiss reviewed notification", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports completed/failed wonder information"),
+            action("dismiss reviewed notification", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports completed/failed wonder information"),
           ],
           ["Wonder completed/failed uses the default notification handler; the live target may be invalid, so activation only looks at a plot when one exists."],
         );
@@ -1635,7 +1635,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
           [
-            action("dismiss reviewed legacy completion report", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this legacy completion report was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the completed legacy/triumph report for score context"),
+            action("dismiss reviewed legacy completion report", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the completed legacy/triumph report for score context"),
             action("read current legacy progress", "game play progress-dashboard --compact --json", "read-only", "progress-dashboard", "legacy path scores and age progress", "when the report should be compared with local-player progress before dismissal"),
           ],
           ["Runtime NOTIFICATION_LEGACY_COMPLETED reports completed legacy/triumph context. No specialized operation surface is proven; review the score context, then close through App UI dismissal when canUserDismiss is true."],
@@ -1651,7 +1651,7 @@ export function playNotificationViewSource(): string {
           "official-ui",
           [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action id.")],
           [
-            action("dismiss reviewed grievance notice", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this grievance notice was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification reports grievance/influence information and exposes no response operation"),
+            action("dismiss reviewed grievance notice", "game play dismiss-notification --target '<notification-id>' --send", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification reports grievance/influence information and exposes no response operation"),
           ],
           ["Grievance-against-you reports can block the UI queue but are not RESPOND_DIPLOMATIC_ACTION choices; review the summary for strategic context, then use App UI dismissal if canUserDismiss is true."],
         );
@@ -1690,7 +1690,7 @@ export function playNotificationViewSource(): string {
           ],
           [
             action("read tradition options", "game play traditions --compact --json", "read-only", "Players.Culture tradition slot/candidate packet", "active and available traditions with action templates", "before choosing a tradition activation or deactivation"),
-            action("change tradition and close review", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action> --send --closeout --reason '<why this tradition change was selected>'", "sequence", "CHANGE_TRADITION then CONSIDER_ASSIGN_TRADITIONS", "{ TraditionType, Action } then {}", "when a specific tradition slot change should be applied and the blocker closed as one caller workflow"),
+            action("change tradition and close review", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action> --send --closeout", "sequence", "CHANGE_TRADITION then CONSIDER_ASSIGN_TRADITIONS", "{ TraditionType, Action } then {}", "when a specific tradition slot change should be applied and the blocker closed as one caller workflow"),
             action("change tradition", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action>", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when only validation or a single tradition operation is wanted"),
             action("close tradition review", "game play consider-traditions --player-id <id>", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),
           ],
@@ -1707,7 +1707,7 @@ export function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live attribute tree node", "Use the buyable attribute node id from the runtime tree.")],
           [
-            action("buy attribute and close review", "game play buy-attribute --player-id <id> --node <node> --send --closeout --reason '<why this attribute was selected>'", "sequence", "BUY_ATTRIBUTE_TREE_NODE then CONSIDER_ASSIGN_ATTRIBUTE", "{ ProgressionTreeNodeType } then {}", "when a buyable node should be purchased and the blocker closed as one caller workflow"),
+            action("buy attribute and close review", "game play buy-attribute --player-id <id> --node <node> --send --closeout", "sequence", "BUY_ATTRIBUTE_TREE_NODE then CONSIDER_ASSIGN_ATTRIBUTE", "{ ProgressionTreeNodeType } then {}", "when a buyable node should be purchased and the blocker closed as one caller workflow"),
             action("buy attribute node", "game play buy-attribute --player-id <id> --node <node>", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when only validation or a single attribute operation is wanted"),
             action("close attribute review", "game play consider-attributes --player-id <id>", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "after no attribute purchase is needed or after buying"),
           ],

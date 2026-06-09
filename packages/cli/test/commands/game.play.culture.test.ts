@@ -70,7 +70,8 @@ describe('game play culture commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       const ekklesia = payload.result.surfaces[0].enabledOptions.find((option) => option.nodeType === -869902342);
       expect(ekklesia?.name).toBe('Ekklesia');
-      expect(ekklesia?.chooseCli).toContain('game play choose-culture --player-id 0 --node -869902342 --send --closeout');
+      expect(ekklesia?.chooseCli).toContain('game play choose-culture --player-id 0 --node -869902342 --send');
+      expect(ekklesia?.chooseCli).not.toContain('--closeout');
       expect(ekklesia?.turns).toBe(4);
       expect(ekklesia?.cost).toBe(105);
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
@@ -97,8 +98,6 @@ describe('game play culture commands', () => {
         '--node',
         '-1677668973',
         '--send',
-        '--reason',
-        'test culture target closeout',
         '--json',
       ]);
 
@@ -130,23 +129,43 @@ describe('game play culture commands', () => {
           '-1677668973',
           '--send',
           '--closeout',
-          '--reason',
-          'test culture target closeout',
           '--json',
         ]);
       } finally {
         log.mockRestore();
       }
 
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
-      expect(payload.result.mode).toBe('send');
-      expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.verified).toBe(true);
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: ProgressionChoiceSendResult;
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.playerId).toBe(0);
+      expect(payload.result.node).toBe(-1677668973);
+      expect(payload.result.evidence).toMatchObject({
+        beforeBlockerPresent: true,
+        afterReadStatus: 'read',
+        afterBlockerPresent: false,
+      });
+      expect(payload.result.postcondition.classification).toBe('culture-choice-cleared');
+      expect(payload.result.postcondition).toMatchObject({
+        outcome: 'cleared',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'refresh-attention',
+        source: 'progression.culture.choice.request',
+      });
+      expectSemanticProgressionChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendCultureChoiceCloseout'))).toBe(true);
       expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('ProgressionTreeNodeTypes.NO_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
     } finally {
       await server.close();
     }
@@ -176,26 +195,28 @@ describe('game play culture commands', () => {
         '--closeout',
         '--timeout-ms',
         '1000',
-        '--reason',
-        'test sticky culture target selection',
         '--json',
       ]);
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          mode: string;
-          stepCount: number;
-          verified: boolean;
-          postcondition: { classification: string; verified: boolean; reason: string };
-        };
+        result: ProgressionChoiceSendResult;
       };
-      expect(payload.result.mode).toBe('send');
-      expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.postcondition.verified).toBe(false);
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.status).toBe('sent-unverified');
       expect(payload.result.postcondition.classification).toBe('culture-choice-sticky-blocker');
       expect(payload.result.postcondition.reason).toContain('same culture choice notification still blocks');
+      expect(payload.result.postcondition).toMatchObject({
+        outcome: 'no-state-change',
+        confidence: 'unverified',
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'progression.culture.choice.request',
+      });
+      expectSemanticProgressionChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendCultureChoiceCloseout'))).toBe(true);
       expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
@@ -230,27 +251,29 @@ describe('game play culture commands', () => {
         '--closeout',
         '--timeout-ms',
         '1000',
-        '--reason',
-        'test culture state changed but blocker persisted',
         '--json',
       ]);
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          mode: string;
-          stepCount: number;
-          verified: boolean;
-          postcondition: { classification: string; verified: boolean; reason: string };
-        };
+        result: ProgressionChoiceSendResult;
       };
-      expect(payload.result.mode).toBe('send');
-      expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.postcondition.verified).toBe(false);
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.status).toBe('sent-unverified');
       expect(payload.result.postcondition.classification).toBe('culture-state-changed-blocker-still-live');
       expect(payload.result.postcondition.reason).toContain('state changed');
       expect(payload.result.postcondition.reason).toContain('still blocks');
+      expect(payload.result.postcondition).toMatchObject({
+        outcome: 'still-blocked',
+        confidence: 'unverified',
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      });
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'do-not-repeat',
+        source: 'progression.culture.choice.request',
+      });
+      expectSemanticProgressionChoiceOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes('sendCultureChoiceCloseout'))).toBe(true);
       expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
@@ -263,6 +286,45 @@ describe('game play culture commands', () => {
 });
 
 type CultureTunerServer = FakeTunerServer;
+
+type ProgressionChoiceSendResult = {
+  playerId: number;
+  node: number;
+  sent: boolean;
+  status: string;
+  evidence: {
+    beforeBlockerPresent: boolean;
+    afterReadStatus: string;
+    afterBlockerPresent: boolean | null;
+    canEndTurnAfter: boolean | null;
+  };
+  postcondition: {
+    classification: string;
+    reason: string;
+    outcome: string;
+    confidence: string;
+    confirmed: boolean;
+    noRepeatAfterUnverified: boolean;
+  };
+  nextSteps: Array<{ kind: string; source: string; label: string }>;
+};
+
+function expectSemanticProgressionChoiceOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"payload"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
+  expect(serialized).not.toContain('"appUiCloseout"');
+  expect(serialized).not.toContain('Game.PlayerOperations');
+  expect(serialized).not.toContain('sendCultureChoiceCloseout');
+}
 
 type CommandClass = {
   run(args: string[]): Promise<unknown>;
@@ -285,6 +347,12 @@ async function startCultureTunerServer(options: {
   let cultureChoiceSent = false;
   return startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
       if (message.includes('readPlayNotifications')) {
         const playMode = options.playNotificationMode === 'culture-choice'
           && cultureChoiceSent
@@ -310,6 +378,84 @@ async function startCultureTunerServer(options: {
       return undefined;
     },
   });
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 19,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '3550 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 19 },
+    turnDate: { ok: true, value: '3550 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
+  };
 }
 
 function operationValidation(message: string) {
@@ -438,11 +584,11 @@ function playNotificationView(mode: 'culture-choice' | 'ready-unit', cultureStat
     chooseValidation: { ok: true, value: { Success: row.enabled } },
     targetValidation: { ok: true, value: { Success: row.enabled } },
     cli: row.enabled
-      ? `game play choose-culture --player-id 0 --node ${row.nodeType} --send --closeout --reason '<why this culture node was selected>'`
+      ? `game play choose-culture --player-id 0 --node ${row.nodeType} --send --closeout`
       : null,
     validateCli: `game play choose-culture --player-id 0 --node ${row.nodeType} --json`,
     targetCli: row.enabled
-      ? `game play set-culture-target --player-id 0 --node ${row.nodeType} --send --reason '<why this culture target was selected>'`
+      ? `game play set-culture-target --player-id 0 --node ${row.nodeType} --send`
       : null,
   }));
   const details = {

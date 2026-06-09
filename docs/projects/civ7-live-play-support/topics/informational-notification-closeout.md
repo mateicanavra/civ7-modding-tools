@@ -176,8 +176,8 @@ Official handler evidence:
   `Expired:true`, `CanUserDismiss:false`, and
   `Game.Notifications.getEndTurnBlockingType(localPlayer) == NONE`, the desktop
   panel close-control route may still call `Game.Notifications.dismiss`. The CLI
-  may attempt that route once with an explicit reason, but it is not successful
-  unless the same identity-based postcondition clears.
+  may attempt that route once after a fresh reviewed read, but it is not
+  successful unless the same identity-based postcondition clears.
 
 ## Norm
 
@@ -192,7 +192,6 @@ close-control path is the route under test:
 civ7 game play dismiss-notification \
   --target '{"owner":0,"id":337,"type":20}' \
   --send \
-  --reason "reviewed unit-attacked notice after resolving unit readiness" \
   --json
 ```
 

@@ -18,7 +18,6 @@ import {
   type SetupReadDependencies,
 } from "./reads.js";
 
-import type { Civ7ActionApproval } from "../action-approval.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -132,10 +131,8 @@ type SetupPrepareDependencies = SetupReadDependencies & Readonly<{
 export async function prepareCiv7SinglePlayerSetup(
   input: Civ7SinglePlayerSetupInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: SetupPrepareDependencies = defaultSetupPrepareDependencies,
 ): Promise<Civ7PreparedSetupResult> {
-  dependencies.assertApproved(approval, "preparing a Civ7 single-player setup");
   const normalized = normalizeSinglePlayerSetupInput(input, dependencies);
   const savedConfigLoad = normalized.savedConfig
     ? await dependencies.loadSavedGameConfiguration(normalized.savedConfig, options, {

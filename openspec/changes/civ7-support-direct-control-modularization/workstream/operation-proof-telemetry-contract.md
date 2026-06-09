@@ -6,7 +6,7 @@ AI-ingestion contract, normal CLI semantic envelope, debug/internal service
 contract, runtime proof, or Effect/oRPC procedure-core contract.
 
 The telemetry target exists because mutation-facing direct-control work needs a
-stable audit vocabulary across approval, validation, send, post-read, and
+stable audit vocabulary across validation, send, post-read, and
 postcondition evidence. Future AI-intelligence and procedure-core consumers
 need explicit outcome evidence; they must not train, act, or close product
 claims from a vague `verified: true` flag.
@@ -34,11 +34,11 @@ or direct equivalents:
 | `correlationId` | Links validation, send, post-read, and outcome evidence without exposing it in normal CLI by default. |
 | `playerScope` | Records local-player, player, agent-slot, observer, or unknown scope. |
 | `strategyIntent` | Optional source-labeled intent from a strategy or player-agent layer. |
-| `candidateAction` | Stable action candidate identity before approval or send. |
+| `candidateAction` | Stable action candidate identity before validation or send. |
 | `operationFamily` | Direct-control operation family such as unit operation, production, narrative, diplomacy, notification dismissal, turn completion, setup, or autoplay support. |
 | `target` | Source-labeled target identity, component id, notification id, location, city, unit, or none. |
 | `args` | Bounded, schema-owned operation arguments with sensitive/debug-only internals omitted. |
-| `approval` | Approval requirement, approval reason, approver/source, and refusal reason when not approved. |
+| `riskPolicy` | Validator, postcondition, no-repeat, readiness, lifecycle, and local-player proof requirements. |
 | `validation_pre` | Validator result before send, including no-send blockers and input/evidence policy. |
 | `send_receipt` | Send attempt/result, request family, sent/not-sent status, and transport-independent receipt facts. |
 | `post_read` | Readback source used for postcondition evaluation, with source/freshness/evidence labels. |
@@ -53,7 +53,7 @@ or direct equivalents:
 
 Normal CLI may summarize telemetry as player-agent state-machine status:
 
-- approval required/refused;
+- validator/proof safety requirements and refusals;
 - not sent because validation failed;
 - sent with explicit postcondition classification;
 - stale or unknown with reread/no-repeat guidance;
@@ -93,7 +93,7 @@ TypeScript structural constructor, postcondition sanitization, and normal
 summary boundary. Its focused proof owner is
 `packages/civ7-direct-control/test/operation-telemetry.test.ts`.
 
-The owner seed keeps approval, validation, send receipt, post-read,
+The owner seed keeps validation, send receipt, post-read,
 postcondition, outcome delta, blocker delta, evidence policy, and runtime
 observation links as separate fields. It deliberately strips legacy `verified`
 booleans from the postcondition contract and exposes a normal summary that does
@@ -112,7 +112,7 @@ owner exists.
 `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` is the first
 operation-atom adapter owner seed. Its focused proof owner is
 `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`. It adapts
-one unit-target action result shape into separated telemetry approval,
+one unit-target action result shape into separated telemetry validation,
 `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
 postcondition, and `outcome_delta` slots while treating the legacy top-level
 `verified` boolean as source evidence only.
@@ -120,7 +120,7 @@ postcondition, and `outcome_delta` slots while treating the legacy top-level
 `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` is the
 second operation-atom adapter owner seed. Its focused proof owner is
 `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`. It
-adapts one production-choice result shape into separated telemetry approval,
+adapts one production-choice result shape into separated telemetry validation,
 `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
 postcondition, `outcome_delta`, `blocker_delta`, and evidence-policy slots
 while using `productionPostcondition` as the proof/classification owner. It
@@ -132,7 +132,7 @@ runtime proof paths no-repeat guarded.
 `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts` is the
 third operation-atom adapter owner seed. Its focused proof owner is
 `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`. It
-adapts one diplomacy-response result shape into separated telemetry approval,
+adapts one diplomacy-response result shape into separated telemetry validation,
 `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
 postcondition, `outcome_delta`, `blocker_delta`, and evidence-policy slots
 while using the source-owned diplomacy response postcondition as the
@@ -144,7 +144,7 @@ paths no-repeat guarded.
 `packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts` is the
 fourth operation-atom adapter owner seed. Its focused proof owner is
 `packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`. It
-adapts one narrative-choice result shape into separated telemetry approval,
+adapts one narrative-choice result shape into separated telemetry validation,
 `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
 postcondition, `outcome_delta`, `blocker_delta`, and evidence-policy slots
 while using the source-owned narrative choice postcondition as the
@@ -157,7 +157,7 @@ paths no-repeat guarded.
 is the fifth operation-atom adapter owner seed. Its focused proof owner is
 `packages/civ7-direct-control/test/notification-dismissal-telemetry.test.ts`.
 It adapts one notification-dismissal App UI action result shape into separated
-telemetry approval, `validation_pre`, `send_receipt`, `post_read`,
+telemetry `validation_pre`, `send_receipt`, `post_read`,
 `validation_post`, postcondition, `outcome_delta`, `blocker_delta`, and
 evidence-policy slots while using
 `packages/civ7-direct-control/src/play/notifications/postconditions.ts` as the
@@ -178,11 +178,11 @@ Telemetry row, and the owner seed reduces the source/proof ownership gap, but
 it does not accept the row. Acceptance still needs:
 
 - a schema/test owner and concrete schema choice;
-- broader record-construction tests for approval, validation, send receipt,
+- broader record-construction tests for validation, send receipt,
   post-read, postcondition, outcome delta, blocker delta, stale, and unknown
   cases;
 - broader operation-atom adapters that produce records from existing
-  direct-control approval, validation, send, post-read, and postcondition owners
+  direct-control validation, send, post-read, and postcondition owners
   beyond the seeded unit-target, production-choice, diplomacy-response,
   narrative-choice, and notification-dismissal result adapters;
 - final projection implementation tests at the normal CLI, debug/internal
@@ -197,7 +197,7 @@ it does not accept the row. Acceptance still needs:
 
 Stop and reframe if future telemetry work:
 
-- collapses approval, validation, send, post-read, postcondition, and outcome
+- collapses validation, send, post-read, postcondition, and outcome
   evidence into a single `verified` boolean;
 - lets AI ingestion consume CLI presentation strings or debug raw output;
 - treats local tests, target threads, peer reports, docs, logs, or resources as

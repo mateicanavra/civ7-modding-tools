@@ -132,7 +132,6 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       'game play ready-city',
       'game play build-production',
-      'game play build-unit',
       'game play set-town-focus',
       'game play assign-worker',
       'game play expand-city',

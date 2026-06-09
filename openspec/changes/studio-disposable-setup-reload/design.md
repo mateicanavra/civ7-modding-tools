@@ -10,9 +10,9 @@ proof shape.
 `ensureCiv7SetupMapRowVisible` first performs a bounded App UI setup-row read.
 If the requested row is visible, it returns without mutation. If the row is
 missing and the caller explicitly asks for `reloadIfMissing: "exit-to-shell"`,
-it requires approval, exits the current game to shell/main-menu, runs
-`UI.reloadUI()`, then polls setup rows until the requested file appears or the
-wait budget expires.
+it treats that as an explicit reload request, exits the current game to
+shell/main-menu, runs `UI.reloadUI()`, then polls setup rows until the requested
+file appears or the wait budget expires.
 
 ## Studio Behavior
 

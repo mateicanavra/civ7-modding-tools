@@ -38,7 +38,7 @@ or direct equivalents:
 | Record family | Purpose | Required labels |
 |---|---|---|
 | `StrategyPlan` | Captures source-labeled strategic intent, priorities, assumptions, and candidate lines of play. | source, freshness, player scope, evidence class, model/thread provenance. |
-| `ActionCandidate` | Represents a candidate direct-control action before approval/send. | operation family, target, args, approval requirement, validator evidence, stale/unknown risk. |
+| `ActionCandidate` | Represents a candidate direct-control action before send. | operation family, target, args, mutation requirement, validator evidence, stale/unknown risk. |
 | `ActionOutcome` | Represents post-read/postcondition and outcome evidence after an action attempt. | validation_pre, send_receipt, validation_post, outcome_delta, blocker_delta, evidence policy. |
 | `LoadedRowProof` | Captures source-labeled GameInfo/resource/log/debug DB rows used as evidence. | data source, load time, freshness, schema/version, row key, proof class. |
 | `RunMetric` | Captures measured-run or benchmark signals without replacing action diaries. | run id, player scope, metric source, collection window, evidence class. |
@@ -74,7 +74,7 @@ AI ingestion must not depend on:
 - runtime reflection or debug probes as product action authority;
 - companion/App UI mutation surfaces as ingestion authority;
 - unlabeled saves, logs, or debug database rows;
-- vague `verified: true` flags without approval, validation, send, post-read,
+- vague `verified: true` flags without validation, send, post-read,
   outcome, blocker, and stale/unknown evidence.
 
 ## Projection Boundaries

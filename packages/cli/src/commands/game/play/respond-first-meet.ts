@@ -1,9 +1,7 @@
 import { Command, Flags } from '@oclif/core';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -30,7 +28,7 @@ export default class GamePlayRespondFirstMeet extends Command {
 
   static examples = [
     '<%= config.bin %> game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral --json',
-    '<%= config.bin %> game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral --send --reason "neutral first-meet greeting" --json',
+    '<%= config.bin %> game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral --send --json',
   ];
 
   static flags = {
@@ -61,9 +59,6 @@ export default class GamePlayRespondFirstMeet extends Command {
       description: 'Send RESPOND_DIPLOMATIC_FIRST_MEET after validator success',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -75,9 +70,7 @@ export default class GamePlayRespondFirstMeet extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayRespondFirstMeet);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play respond-first-meet');
-    const options = buildDirectControlOptions(flags);
+    const { flags } = await this.parse(GamePlayRespondFirstMeet);    const options = buildDirectControlOptions(flags);
     const responseType = flags['response-type'] ?? await resolveFirstMeetResponseType(flags.response as FirstMeetResponse | undefined, options);
     const input = {
       operationType: RESPOND_DIPLOMATIC_FIRST_MEET,
@@ -90,7 +83,7 @@ export default class GamePlayRespondFirstMeet extends Command {
     };
     const before = flags.send ? await getCiv7PlayNotificationView(options) : null;
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+      ? await sendPlayOperation('player-operation', input, options)
       : await validatePlayOperation('player-operation', input, options);
 
     if (flags.send && before) {

@@ -76,9 +76,9 @@ Verification run:
 
 Middleware candidates remain pending until at least two modules need the same
 policy and the implementation uses oRPC/effect-orpc middleware primitives.
-This slice does not implement approval, validator-first, postcondition,
+This slice does not implement validator-first, postcondition,
 telemetry, relationship-authority, readiness, or correlation middleware.
 
-Mutation procedures remain blocked until approval-first, validator-first,
+Mutation procedures remain blocked until validator-first,
 postcondition/no-repeat, and pending-runtime-proof semantics are implemented
 and proved through the native router.

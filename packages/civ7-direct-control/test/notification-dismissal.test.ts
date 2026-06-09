@@ -31,7 +31,6 @@ describe("notification dismissal", () => {
     await expect(requestCiv7NotificationDismissal(
       { notificationId: { owner: 0, type: 20 } } as never,
       { host: "127.0.0.1", port: 1 },
-      { approved: true, reason: "test malformed notification id" },
     )).rejects.toMatchObject({
       code: "command-failed",
     });
@@ -49,7 +48,6 @@ describe("notification dismissal", () => {
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test reviewed notification dismissal" },
       );
 
       expect(plan).toMatchObject({
@@ -94,7 +92,6 @@ describe("notification dismissal", () => {
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test stale engine-front notification dismissal" },
       );
 
       expect(request.sent).toBe(true);
@@ -122,7 +119,6 @@ describe("notification dismissal", () => {
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test dismissed flag with stale engine-front notification" },
       );
 
       expect(request.sent).toBe(true);
@@ -149,7 +145,6 @@ describe("notification dismissal", () => {
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test panel close control for none blocker enum" },
       );
 
       expect(request.sent).toBe(true);
@@ -190,7 +185,6 @@ describe("notification dismissal", () => {
       const request = await requestCiv7NotificationDismissal(
         { notificationId },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test expired stale front panel close control" },
       );
 
       expect(plan).toMatchObject({

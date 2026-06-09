@@ -252,7 +252,7 @@ function celebrationChoiceView() {
     enabled: true,
     disabled: false,
     validation: { ok: true, value: { Success: true } },
-    cli: `game play choose-celebration --player-id 0 --golden-age-type ${row.goldenAgeType} --send --reason '<why this celebration was selected>'`,
+    cli: `game play choose-celebration --player-id 0 --golden-age-type ${row.goldenAgeType} --send`,
     validateCli: `game play choose-celebration --player-id 0 --golden-age-type ${row.goldenAgeType} --json`,
   }));
   const details = {
@@ -305,7 +305,7 @@ function governmentChoiceView() {
     enabled: true,
     disabled: false,
     validation: { ok: true, value: { Success: true } },
-    cli: `game play choose-government --player-id 0 --government-type ${row.governmentType} --action ${action} --send --reason '<why this government was selected>'`,
+    cli: `game play choose-government --player-id 0 --government-type ${row.governmentType} --action ${action} --send`,
     validateCli: `game play choose-government --player-id 0 --government-type ${row.governmentType} --action ${action} --json`,
   }));
   const details = {

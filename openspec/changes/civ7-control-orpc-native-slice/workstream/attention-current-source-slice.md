@@ -51,7 +51,7 @@ ready actor reads, validators, command serialization, and runtime evidence.
 - no CLI, Studio, HTTP/RPCLink, OpenAPI, global bridge, or in-game UIScript
   adapter work;
 - no play-thread wake and no runtime/live-game proof claim;
-- no mutation procedure, approval middleware, validator-first middleware, or
+- no mutation procedure, readiness middleware, validator-first middleware, or
   postcondition/no-repeat middleware acceptance;
 - no broad Task 5.4 or 5.5 acceptance beyond the recorded subitems;
 - no direct-control-local procedure core, custom middleware pipeline,

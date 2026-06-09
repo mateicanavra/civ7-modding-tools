@@ -5,7 +5,7 @@ Date: 2026-06-04.
 
 ## Purpose
 
-Seed a native `packages/civ7-control-orpc` city procedure for approved
+Seed a native `packages/civ7-control-orpc` city procedure for accepted
 population placement without exposing a generic operation tunnel or copying
 direct-control procedure-core wiring. `city.population.place.request` owns the
 caller-facing oRPC service contract for assigning population to a workable plot
@@ -35,8 +35,8 @@ and proof/no-repeat owner.
 - accepts a semantic placement mode instead of generic operation vocabulary:
   `assign-worker` with `playerId` and `location`, or `expand-city` with
   `cityId` and bounded map `destination`;
-- takes explicit mutation approval from typed oRPC context through the shared
-  native effect-oRPC approval middleware, not normal procedure input;
+- takes explicit readiness from typed oRPC context through the shared
+  native effect-oRPC readiness middleware, not normal procedure input;
 - maps `assign-worker` to the control-oRPC runtime facade's semantic
   `requestCiv7AssignWorkerPlacement` port; the live facade adapter maps that
   to direct-control's low-level player-operation runtime authority internally;
@@ -85,7 +85,7 @@ and proof/no-repeat owner.
 - `git diff --check`
 
 Focused proof covers in-process procedure calls, server-side router client
-calls, shared approval middleware refusal before mutation, endpoint/session/raw
+calls, shared readiness middleware refusal before mutation, endpoint/session/raw
 operation input rejection, safe tagged error projection, confirmed
 `population-ready-cleared` repeat-safe postconditions, confirmed
 `placement-state-changed` guarded postconditions, unverified validation-only

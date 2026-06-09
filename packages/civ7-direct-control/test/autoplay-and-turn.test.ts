@@ -38,31 +38,12 @@ describe("Civ7 autoplay and turn completion", () => {
     })).toBe(false);
   });
 
-  test("requires approval before mutating autoplay or turn-completion state", async () => {
-    await expect(configureCiv7Autoplay({ turns: 1 }, undefined as never)).rejects.toMatchObject({
-      code: "command-failed",
-    });
-    await expect(startCiv7Autoplay({ turns: 1 }, undefined as never)).rejects.toMatchObject({
-      code: "command-failed",
-    });
-    await expect(stopCiv7Autoplay({}, undefined as never)).rejects.toMatchObject({
-      code: "command-failed",
-    });
-    await expect(sendCiv7TurnComplete({}, undefined as never)).rejects.toMatchObject({
-      code: "command-failed",
-    });
-    await expect(sendCiv7TurnUnready({}, undefined as never)).rejects.toMatchObject({
-      code: "command-failed",
-    });
-  });
-
   test("returns guard-blocked turn completion requests without sending", async () => {
     const calls: string[] = [];
     const blockedStatus = turnCompletionStatusResult({
       canEndTurn: { ok: true, value: false },
     });
     const dependencies = {
-      assertApproved: () => {},
       executeAppUiCommand: async (options: { command: string }) => {
         calls.push(options.command);
         return commandResult();
@@ -78,10 +59,7 @@ describe("Civ7 autoplay and turn completion", () => {
       parseTurnCompletionStatus: () => blockedStatus,
     };
 
-    const request = await requestCiv7TurnComplete({}, {
-      approved: true,
-      reason: "test blocked turn completion request",
-    }, dependencies as never);
+    const request = await requestCiv7TurnComplete({}, dependencies as never);
 
     expect(request).toMatchObject({
       sent: false,
@@ -93,10 +71,7 @@ describe("Civ7 autoplay and turn completion", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0]).toContain("GameContext.hasSentTurnComplete");
     expect(calls).not.toContain("GameContext.sendTurnComplete()");
-    await expect(sendCiv7TurnComplete({}, {
-      approved: true,
-      reason: "test blocked legacy turn completion send",
-    }, dependencies as never)).rejects.toMatchObject({
+    await expect(sendCiv7TurnComplete({}, dependencies as never)).rejects.toMatchObject({
       code: "command-failed",
     });
   });
@@ -111,7 +86,6 @@ describe("Civ7 autoplay and turn completion", () => {
       }),
     ];
     const dependencies = {
-      assertApproved: () => {},
       executeAppUiCommand: async (options: { command: string }) => {
         calls.push(options.command);
         return commandResult();
@@ -120,10 +94,7 @@ describe("Civ7 autoplay and turn completion", () => {
       parseTurnCompletionStatus: () => statuses.shift() ?? turnCompletionStatusResult(),
     };
 
-    const request = await requestCiv7TurnComplete({}, {
-      approved: true,
-      reason: "test sent turn completion request",
-    }, dependencies as never);
+    const request = await requestCiv7TurnComplete({}, dependencies as never);
 
     expect(request).toMatchObject({
       sent: true,
@@ -148,12 +119,8 @@ describe("Civ7 autoplay and turn completion", () => {
 
       const configure = await configureCiv7Autoplay(
         { ...endpoint, turns: 4, observeAsPlayer: 2, returnAsPlayer: 0, pause: true },
-        { approved: true, reason: "test bounded autoplay configuration" }
       );
-      const start = await startCiv7Autoplay(endpoint, {
-        approved: true,
-        reason: "test explicit unbounded autoplay start",
-      });
+      const start = await startCiv7Autoplay(endpoint);
 
       expect(configure).toMatchObject({
         state: { id: "65535", name: "App UI" },
@@ -226,8 +193,7 @@ describe("Civ7 autoplay and turn completion", () => {
           timeoutMs: 1_000,
           pollIntervalMs: 5,
           stabilityWindowMs: 5,
-        },
-        { approved: true, reason: "test autoplay stop settling" }
+        }
       );
 
       expect(result).toMatchObject({
@@ -272,14 +238,8 @@ describe("Civ7 autoplay and turn completion", () => {
       const endpoint = { host: "127.0.0.1", port, timeoutMs: 1_000 };
 
       const status = await getCiv7TurnCompletionStatus(endpoint);
-      const complete = await sendCiv7TurnComplete(endpoint, {
-        approved: true,
-        reason: "test turn completion",
-      });
-      const unready = await sendCiv7TurnUnready(endpoint, {
-        approved: true,
-        reason: "test turn unready",
-      });
+      const complete = await sendCiv7TurnComplete(endpoint);
+      const unready = await sendCiv7TurnUnready(endpoint);
 
       expect(status).toMatchObject({
         host: "127.0.0.1",

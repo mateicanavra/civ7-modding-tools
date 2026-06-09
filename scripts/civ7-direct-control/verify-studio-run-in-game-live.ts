@@ -260,11 +260,6 @@ async function main(): Promise<number> {
         pollIntervalMs: args.pollIntervalMs,
       },
       options,
-      {
-        approved: true,
-        reason: `Studio Run in Game live proof ${proofId}`,
-        disposableSession: true,
-      },
     );
     stages.push({
       name: "setup-start",

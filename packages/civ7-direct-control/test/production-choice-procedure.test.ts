@@ -9,13 +9,12 @@ import {
   callCiv7ProductionChoiceRequestProcedure,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
-  type Civ7ActionApproval,
   type Civ7ProductionChoiceInput,
   type Civ7ProductionChoiceResult,
 } from "../src/index";
 
 describe("Civ7 production choice request procedure descriptor", () => {
-  test("records approved production-choice mutation gates and resolves schemas", () => {
+  test("records production-choice validator, postcondition, and no-repeat metadata and resolves schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7ProductionChoiceRequestProcedureDescriptor);
     expect(summary).toMatchObject({
       procedureKey: "city.production.choice.request",
@@ -28,7 +27,6 @@ describe("Civ7 production choice request procedure descriptor", () => {
       aiIngestionProjection: "blocked-until-ingestion-contract",
       telemetryProjection: "effect-orpc-middleware-hook",
       mutationGates: {
-        approvalGate: true,
         validatorFirst: true,
         postconditionRequired: true,
         noRepeatAfterUnverified: true,
@@ -49,37 +47,27 @@ describe("Civ7 production choice request procedure descriptor", () => {
     expect(Value.Check(resolved.inputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { ConstructibleType: 713967338, X: 22, Y: 31 },
-      approvalReason: "test approved production choice",
     })).toBe(true);
     expect(Value.Check(resolved.inputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { UnitType: 102, ConstructibleType: 713967338 },
-      approvalReason: "x",
     })).toBe(false);
     expect(Value.Check(resolved.inputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { UnitType: 102, X: 22, Y: 31 },
-      approvalReason: "x",
     })).toBe(false);
     expect(Value.Check(resolved.inputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { ConstructibleType: 713967338, X: 22 },
-      approvalReason: "x",
     })).toBe(false);
     expect(Value.Check(resolved.inputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { ConstructibleType: 713967338 },
-    })).toBe(false);
-    expect(Value.Check(resolved.inputSchema, {
-      cityId: { owner: 0, id: 65536, type: 1 },
-      args: { ConstructibleType: 713967338 },
-      approvalReason: "x",
       rawCommand: "Game.CityOperations.sendRequest(...)",
     })).toBe(false);
     expect(Value.Check(resolved.inputSchema, {
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { ConstructibleType: 713967338 },
-      approvalReason: "x",
       state: { role: "app-ui" },
     })).toBe(false);
     expect(Value.Check(resolved.outputSchema, productionChoiceResult())).toBe(true);
@@ -98,19 +86,16 @@ describe("Civ7 production choice request procedure descriptor", () => {
     })).toBe(false);
   });
 
-  test("calls the approved production-choice atom through the procedure core", async () => {
+  test("calls the production-choice atom through the procedure core", async () => {
     const calls: Array<{
       input: Civ7ProductionChoiceInput;
       host?: string;
       port?: number;
-      approval: Civ7ActionApproval;
     }> = [];
 
     const result = await callCiv7ProductionChoiceRequestProcedure({
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { ConstructibleType: 713967338, X: 22, Y: 31 },
-      approvalReason: "test approved production choice",
-      disposableSession: true,
     }, {
       directControl: {
         host: "127.0.0.1",
@@ -119,12 +104,11 @@ describe("Civ7 production choice request procedure descriptor", () => {
       procedure: {
         correlationId: "production-choice-procedure-test",
       },
-      request: async (input, options, approval) => {
+      request: async (input, options) => {
         calls.push({
           input,
           host: options.host,
           port: options.port,
-          approval,
         });
         return {
           ...productionChoiceResult(),
@@ -155,11 +139,6 @@ describe("Civ7 production choice request procedure descriptor", () => {
       },
       host: "127.0.0.1",
       port: 4318,
-      approval: {
-        approved: true,
-        reason: "test approved production choice",
-        disposableSession: true,
-      },
     }]);
   });
 
@@ -167,14 +146,12 @@ describe("Civ7 production choice request procedure descriptor", () => {
     let requested = false;
 
     for (const input of [
-      { cityId: { owner: 0, id: 65536, type: 1 }, args: { UnitType: 102, ConstructibleType: 713967338 }, approvalReason: "x" },
-      { cityId: { owner: 0, id: 65536, type: 1 }, args: { ProjectType: 22, X: 22, Y: 31 }, approvalReason: "x" },
-      { cityId: { owner: 0, id: 65536, type: 1 }, args: { ConstructibleType: 713967338, X: 22 }, approvalReason: "x" },
-      { cityId: { owner: 0, id: 65536, type: 1 }, args: { ConstructibleType: 713967338 } },
+      { cityId: { owner: 0, id: 65536, type: 1 }, args: { UnitType: 102, ConstructibleType: 713967338 } },
+      { cityId: { owner: 0, id: 65536, type: 1 }, args: { ProjectType: 22, X: 22, Y: 31 } },
+      { cityId: { owner: 0, id: 65536, type: 1 }, args: { ConstructibleType: 713967338, X: 22 } },
       {
         cityId: { owner: 0, id: 65536, type: 1 },
         args: { ConstructibleType: 713967338 },
-        approvalReason: "x",
         command: "Game.CityOperations.sendRequest(...)",
       },
     ]) {
@@ -201,7 +178,6 @@ describe("Civ7 production choice request procedure descriptor", () => {
     await expect(callCiv7ProductionChoiceRequestProcedure({
       cityId: { owner: 0, id: 65536, type: 1 },
       args: { ConstructibleType: 713967338 },
-      approvalReason: "test approved production choice",
     }, {
       request: async () => {
         requested = true;

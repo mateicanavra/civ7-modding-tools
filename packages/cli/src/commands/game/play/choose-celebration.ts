@@ -1,10 +1,8 @@
 import { Command, Flags } from '@oclif/core';
 import { getCiv7PlayNotificationView } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -20,7 +18,7 @@ export default class GamePlayChooseCelebration extends Command {
   static examples = [
     '<%= config.bin %> game play choose-celebration --options --json',
     '<%= config.bin %> game play choose-celebration --player-id 0 --golden-age-type -340825966 --json',
-    '<%= config.bin %> game play choose-celebration --player-id 0 --golden-age-type -340825966 --send --reason "choose live validated culture celebration" --json',
+    '<%= config.bin %> game play choose-celebration --player-id 0 --golden-age-type -340825966 --send --json',
   ];
 
   static flags = {
@@ -43,9 +41,6 @@ export default class GamePlayChooseCelebration extends Command {
     send: Flags.boolean({
       description: 'Send CHOOSE_GOLDEN_AGE after validator success',
       default: false,
-    }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
     }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
@@ -87,9 +82,7 @@ export default class GamePlayChooseCelebration extends Command {
     }
     if (typeof flags['golden-age-type'] !== 'number') {
       throw new Error('game play choose-celebration requires --golden-age-type unless --options is used');
-    }
-    const reason = requireSendReason(flags.send, flags.reason, 'game play choose-celebration');
-    const input = {
+    }    const input = {
       operationType: CHOOSE_GOLDEN_AGE,
       playerId: flags['player-id'],
       args: {
@@ -97,7 +90,7 @@ export default class GamePlayChooseCelebration extends Command {
       },
     };
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+      ? await sendPlayOperation('player-operation', input, options)
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

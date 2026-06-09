@@ -1,34 +1,27 @@
 import { Command, Flags } from '@oclif/core';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
+import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import {
-  findTechnologyChoiceNotification,
   getCiv7PlayNotificationView,
-  requestCiv7TechnologyChoiceCloseout,
-  technologyChoicePostcondition,
 } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
-  executePlayOperationSequence,
-  requireSendReason,
-  sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
 const SET_TECH_TREE_NODE = 'SET_TECH_TREE_NODE';
-const SET_TECH_TREE_TARGET_NODE = 'SET_TECH_TREE_TARGET_NODE';
-const PROGRESSION_TREE_NO_NODE = -1;
 
 export default class GamePlayChooseTech extends Command {
   static id = 'game play choose-tech';
   static summary = 'Validate or choose a technology node';
   static description =
-    'Wraps player-operation SET_TECH_TREE_NODE with the official ProgressionTreeNodeType argument.';
+    'Validates technology choices as player operations, or sends them through the native control-oRPC progression procedure when --send is explicit.';
 
   static examples = [
     '<%= config.bin %> game play choose-tech --options --json',
     '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --json',
-    '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --reason "choose Masonry after advisor warning" --json',
+    '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --json',
   ];
 
   static flags = {
@@ -56,9 +49,6 @@ export default class GamePlayChooseTech extends Command {
       description: 'Compatibility no-op; send mode already clears the chooser target as one caller-level workflow',
       default: false,
       hidden: true,
-    }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
     }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
@@ -102,7 +92,6 @@ export default class GamePlayChooseTech extends Command {
     if (typeof flags.node !== 'number') {
       throw new Error('game play choose-tech requires --node unless --options is used');
     }
-    const reason = requireSendReason(flags.send, flags.reason, 'game play choose-tech');
     const input = {
       operationType: SET_TECH_TREE_NODE,
       playerId: flags['player-id'],
@@ -110,53 +99,14 @@ export default class GamePlayChooseTech extends Command {
         ProgressionTreeNodeType: flags.node,
       },
     };
-    if (flags.send || flags.closeout) {
-      const before = flags.send ? await getCiv7PlayNotificationView(options) : null;
-      const result = flags.send
-        ? await technologyChoiceAppUiCloseoutResult({
+    const result = flags.send
+      ? await createCiv7ControlOrpcServerClient({
+          directControl: liveCiv7ControlOrpcDirectControlFacade,
+          endpointDefaults: options,
+        }).progression.technology.choice.request({
           playerId: flags['player-id'],
           node: flags.node,
-          notificationId: before ? findTechnologyChoiceNotification(before)?.id : undefined,
-        }, options, reason)
-        : await executePlayOperationSequence([
-          {
-            label: 'choose technology node',
-            family: 'player-operation',
-            input,
-          },
-          {
-            label: 'clear technology chooser target',
-            family: 'player-operation',
-            input: {
-              operationType: SET_TECH_TREE_TARGET_NODE,
-              playerId: flags['player-id'],
-              args: {
-                ProgressionTreeNodeType: PROGRESSION_TREE_NO_NODE,
-              },
-            },
-          },
-        ], options, { send: flags.send, reason });
-
-      if (flags.send && before) {
-        const after = await waitForTechnologyChoicePostcondition(before, options);
-        const postcondition = technologyChoicePostcondition(before, after);
-        const operationSent = closeoutOperationSent(result);
-        emitPlayResult(this.log.bind(this), flags.json, {
-          ...result,
-          verified: operationSent && postcondition.verified,
-          before,
-          after,
-          postcondition,
-        });
-        return;
-      }
-
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-
-    const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+        })
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
@@ -233,78 +183,4 @@ function probeValue(value: unknown): unknown {
     return probe.ok === true ? probe.value ?? null : null;
   }
   return value ?? null;
-}
-
-async function technologyChoiceAppUiCloseoutResult(
-  input: { playerId: number; node: number; notificationId?: unknown },
-  options: ReturnType<typeof buildDirectControlOptions>,
-  reason: string,
-) {
-  const result = await requestCiv7TechnologyChoiceCloseout({
-    playerId: input.playerId,
-    node: input.node,
-    notificationId: isComponentId(input.notificationId) ? input.notificationId : undefined,
-  }, options, buildApproval(reason));
-  const payload = isRecord(result.payload) ? result.payload : {};
-  return {
-    mode: 'send',
-    stepCount: 2,
-    operationSent: result.sent,
-    steps: [
-      {
-        label: 'choose technology node',
-        family: 'player-operation',
-        operationType: SET_TECH_TREE_NODE,
-        result: {
-          canStart: payload.canChoose ?? null,
-          send: payload.chooseResult ?? null,
-        },
-      },
-      {
-        label: 'clear technology chooser target',
-        family: 'player-operation',
-        operationType: SET_TECH_TREE_TARGET_NODE,
-        result: {
-          canStart: payload.canClearTarget ?? null,
-          send: payload.clearTargetResult ?? null,
-        },
-      },
-    ],
-    appUiCloseout: result,
-    notes: [
-      'Executed in App UI as the technology chooser owner: optional notification activation, technology node choice, then target-node closeout.',
-      'Postcondition verification still comes from the caller-level notification re-read.',
-    ],
-  };
-}
-
-async function waitForTechnologyChoicePostcondition(
-  before: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
-  options: ReturnType<typeof buildDirectControlOptions>,
-): Promise<Awaited<ReturnType<typeof getCiv7PlayNotificationView>>> {
-  const startedAt = Date.now();
-  const timeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
-  let last = await getCiv7PlayNotificationView(options);
-  while (Date.now() - startedAt <= timeoutMs) {
-    const postcondition = technologyChoicePostcondition(before, last);
-    if (postcondition.classification !== 'technology-choice-sticky-blocker') return last;
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    last = await getCiv7PlayNotificationView(options);
-  }
-  return last;
-}
-
-function isComponentId(value: unknown): value is { owner: number; id: number; type?: number } {
-  return isRecord(value)
-    && typeof value.owner === 'number'
-    && typeof value.id === 'number'
-    && (value.type === undefined || typeof value.type === 'number');
-}
-
-function closeoutOperationSent(value: unknown): boolean {
-  return isRecord(value) && value.operationSent === true;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

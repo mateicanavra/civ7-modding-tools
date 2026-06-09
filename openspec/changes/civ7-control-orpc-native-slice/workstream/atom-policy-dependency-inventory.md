@@ -43,9 +43,9 @@ The initial mutation descriptor set was narrow:
 
 | Procedure key | Atom owner | Gates recorded on descriptor |
 |---|---|---|
-| `unit.target.action.request` | `src/play/operations/unit-target-action.ts` | `approvalGate`, `validatorFirst`, `postconditionRequired`, `noRepeatAfterUnverified` |
-| `city.production.choice.request` | `src/play/operations/production-choice.ts` | `approvalGate`, `validatorFirst`, `postconditionRequired`, `noRepeatAfterUnverified` |
-| `notifications.dismiss.request` | `src/play/notifications/dismissal-request.ts` | `approvalGate`, `validatorFirst`, `postconditionRequired`, `noRepeatAfterUnverified` |
+| `unit.target.action.request` | `src/play/operations/unit-target-action.ts` | `retiredSendGate`, `validatorFirst`, `postconditionRequired`, `noRepeatAfterUnverified` |
+| `city.production.choice.request` | `src/play/operations/production-choice.ts` | `retiredSendGate`, `validatorFirst`, `postconditionRequired`, `noRepeatAfterUnverified` |
+| `notifications.dismiss.request` | `src/play/notifications/dismissal-request.ts` | `retiredSendGate`, `validatorFirst`, `postconditionRequired`, `noRepeatAfterUnverified` |
 
 These gates are metadata and proof requirements, not middleware
 implementation. They are candidates for native oRPC middleware only after the
@@ -80,7 +80,7 @@ future package proves repeated use through oRPC/effect-orpc primitives.
   `src/play/map/types.ts`.
 - Raw `Visibility.revealAllPlots` mutation behavior exists in the source, but
   it is not a native procedure atom here and must not be promoted without
-  approval and live-mutation proof gates.
+  live-mutation proof gates.
 
 ### Notifications And Decision Queue
 
@@ -88,7 +88,7 @@ future package proves repeated use through oRPC/effect-orpc primitives.
   inputs, and semantic next-step candidates. It is a normal player-agent read
   surface, not raw transport output.
 - `notifications.dismiss.request` is mutation-capable and uses
-  `requestCiv7NotificationDismissal` with approval, verification attempts, and
+  `requestCiv7NotificationDismissal` with verification attempts, and
   explicit notification dismissal postconditions.
 - Notification postcondition ownership is in
   `src/play/notifications/postconditions.ts`; telemetry adaptation is in
@@ -134,7 +134,7 @@ future package proves repeated use through oRPC/effect-orpc primitives.
 
 | Policy | Current source owner | Native oRPC placement |
 |---|---|---|
-| Approval | `src/action-approval.ts` plus mutation atom inputs carrying `approvalReason` and optional disposable-session intent | oRPC mutation middleware or procedure guard; must not invent approval |
+| Validator/postcondition/no-repeat safety | validator, postcondition, no-repeat, readiness, lifecycle, and local-player proof owners | oRPC middleware or procedure guards only when the boundary is real |
 | Validator-first | `src/play/operations/validate-request.ts`, unit-target/production/notification request owners | oRPC middleware/procedure guard before send when an atom has validator support |
 | Postcondition classification | `src/play/operations/*-postconditions.ts`, `src/play/notifications/postconditions.ts`, `src/play/progression/choice-postconditions.ts` | Direct-control classifier remains owner; oRPC middleware consumes classification |
 | No-repeat-after-unverified | `src/proof/operation-telemetry.ts` plus specialized proof-policy helpers and telemetry adapters; production choice now starts in `src/play/operations/production-choice-proof.ts`, notification dismissal in `src/proof/notification-dismissal-proof-policy.ts`, unit target action in `src/proof/unit-target-proof-policy.ts`, narrative choice in `src/proof/narrative-choice-proof-policy.ts`, diplomacy response in `src/proof/diplomacy-response-proof-policy.ts`, population placement in `src/play/operations/population-placement-proof.ts` plus `src/proof/population-placement-proof-policy.ts`, and turn completion in `src/proof/turn-completion-proof-policy.ts` | oRPC mutation proof middleware consumes, never weakens, and never infers repeat safety from `verified` |
@@ -154,7 +154,7 @@ instead of constructing them inside procedure modules:
 | `directControl` facade | Stable access to runtime ports without raw command/session leakage | Transitional read leaves currently call atom functions through context; future procedures should not add facade-only shells |
 | `endpointDefaults` | Host/port/timeout defaults for direct-control session calls | All current descriptors record `endpoint-defaults`; source receives `Civ7DirectControlOptions` |
 | `stateSelection` | App UI/Tuner state routing | All current descriptors record `state-selection`; `executeCiv7AppUiCommand` and `executeCiv7TunerCommand` own state selection |
-| `approval` / `riskPolicy` | Mutation authority and live-session policy | Mutation descriptors record `approval-policy` and `live-session-policy`; atoms require `Civ7ActionApproval` |
+| `riskPolicy` | Mutation authority and live-session policy | Mutation descriptors record `mutation-policy` and `live-session-policy`; atoms require validator-first and proof safety |
 | `logger` | Procedure/runtime diagnostics | Current descriptors reserve `logger`; implementation is future context dependency |
 | `evidenceSink` | Proof/debug/telemetry attachment | Current descriptors reserve `evidence-sink`; operation telemetry owns record vocabulary |
 | `clock` | Deterministic observed-at/correlation timing | Procedure-core schema supports `clock`, but current descriptors do not require it yet |
@@ -189,7 +189,7 @@ The following are candidates only; implementation belongs in
 |---|---|---|
 | `withEndpointDefaults` | Two or more procedures need host/port/timeout defaults | Context-owned endpoint fields rejected from normal input |
 | `requireReadiness` | Procedures share App UI/Tuner readiness preconditions | Playable-status/Tuner/App UI read proof plus no runtime-proof inflation |
-| `requireApproval` | Two mutation procedures share approval gate | Approval object construction and refusal tests; no approval invention |
+| `requireReadiness` | Multiple mutation procedures share playable-readiness preconditions | Native oRPC readiness middleware and refusal tests |
 | `validatorFirst` | Send-capable procedures share pre-send validation | Validator-blocked paths prove not-sent/no-repeat guarded |
 | `withPostcondition` | Mutations share before/after proof classification | Missing/unverified/pending/stale/blocker-live paths stay no-repeat guarded |
 | `relationshipAuthority` | Read outputs expose relationship/candidate labels | Neutral policy tests for target/battlefield/player/city surfaces |

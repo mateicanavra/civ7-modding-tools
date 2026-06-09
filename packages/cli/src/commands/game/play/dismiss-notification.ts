@@ -5,22 +5,20 @@ import {
   getCiv7NotificationDismissal,
 } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  requireSendReason,
 } from '../../../utils/game-play-shared';
 
 export default class GamePlayDismissNotification extends Command {
   static id = 'game play dismiss-notification';
   static summary = 'Inspect or dismiss a reviewed notification';
   static description =
-    'Reads a notification through App UI state and optionally dismisses it through the native control-oRPC notification procedure when --send and --reason are explicit.';
+    'Reads a notification through App UI state and optionally dismisses it through the native control-oRPC notification procedure when --send is explicit.';
 
   static examples = [
     '<%= config.bin %> game play dismiss-notification --target \'{"owner":0,"id":113,"type":20}\' --json',
-    '<%= config.bin %> game play dismiss-notification --target \'{"owner":0,"id":113,"type":20}\' --send --reason "reviewed wonder completed notice" --json',
+    '<%= config.bin %> game play dismiss-notification --target \'{"owner":0,"id":113,"type":20}\' --send --json',
   ];
 
   static flags = {
@@ -38,9 +36,6 @@ export default class GamePlayDismissNotification extends Command {
       description: 'Dismiss the notification when canUserDismiss is true',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -53,14 +48,12 @@ export default class GamePlayDismissNotification extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayDismissNotification);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play dismiss-notification');
     const input = { notificationId: parseComponentId(flags.target, 'target') };
     const options = buildDirectControlOptions(flags);
     const result = flags.send
       ? await createCiv7ControlOrpcServerClient({
           directControl: liveCiv7ControlOrpcDirectControlFacade,
           endpointDefaults: options,
-          approval: buildApproval(reason),
         }).notifications.dismiss.request(input)
       : await getCiv7NotificationDismissal(input, options);
 

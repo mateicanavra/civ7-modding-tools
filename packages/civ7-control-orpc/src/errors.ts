@@ -122,6 +122,31 @@ export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
+export const Civ7UnitRequestUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.Union([
+      Type.Literal("unit.upgrade.request"),
+      Type.Literal("unit.resettle.request"),
+    ]),
+    source: Type.Literal("direct-control-facade"),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7UnitRequestUnavailableErrorData = Static<
+  typeof Civ7UnitRequestUnavailableErrorDataSchema
+>;
+
+export class Civ7UnitRequestUnavailableError extends ORPCTaggedError(
+  "Civ7UnitRequestUnavailableError",
+  {
+    code: "UNIT_REQUEST_UNAVAILABLE",
+    message: "Direct-control unit request failed.",
+    schema: toStandardSchema(Civ7UnitRequestUnavailableErrorDataSchema),
+    status: 503,
+  },
+) {}
+
 export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Literal("narrative.choice.request"),
@@ -213,29 +238,6 @@ export class Civ7TurnCompletionUnavailableError extends ORPCTaggedError(
   },
 ) {}
 
-export const Civ7MutationApprovalRequiredErrorDataSchema = Type.Object(
-  {
-    procedureKey: Type.String(),
-    source: Type.Literal("context.approval"),
-    risk: Type.Literal("mutation"),
-    ...Civ7ControlOrpcErrorCorrelationProperties,
-  },
-  { additionalProperties: false },
-);
-export type Civ7MutationApprovalRequiredErrorData = Static<
-  typeof Civ7MutationApprovalRequiredErrorDataSchema
->;
-
-export class Civ7MutationApprovalRequiredError extends ORPCTaggedError(
-  "Civ7MutationApprovalRequiredError",
-  {
-    code: "MUTATION_APPROVAL_REQUIRED",
-    message: "Explicit mutation approval is required.",
-    schema: toStandardSchema(Civ7MutationApprovalRequiredErrorDataSchema),
-    status: 403,
-  },
-) {}
-
 export const Civ7MutationReadinessRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -281,6 +283,36 @@ export class Civ7MutationReadinessUnavailableError extends ORPCTaggedError(
     message: "Playable Civ7 readiness could not be verified before mutation.",
     schema: toStandardSchema(Civ7MutationReadinessUnavailableErrorDataSchema),
     status: 503,
+  },
+) {}
+
+export const Civ7MutationProofBoundaryInvalidErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String(),
+    source: Type.Literal("mutation-proof-boundary"),
+    risk: Type.Literal("mutation"),
+    reason: Type.Union([
+      Type.Literal("missing-postcondition"),
+      Type.Literal("missing-no-repeat-boundary"),
+      Type.Literal("unverified-repeat-safe"),
+      Type.Literal("sent-unverified-without-do-not-repeat"),
+      Type.Literal("sent-guarded-without-do-not-repeat"),
+    ]),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false },
+);
+export type Civ7MutationProofBoundaryInvalidErrorData = Static<
+  typeof Civ7MutationProofBoundaryInvalidErrorDataSchema
+>;
+
+export class Civ7MutationProofBoundaryInvalidError extends ORPCTaggedError(
+  "Civ7MutationProofBoundaryInvalidError",
+  {
+    code: "MUTATION_PROOF_BOUNDARY_INVALID",
+    message: "Mutation output violated the proof/no-repeat boundary.",
+    schema: toStandardSchema(Civ7MutationProofBoundaryInvalidErrorDataSchema),
+    status: 500,
   },
 ) {}
 
@@ -353,7 +385,7 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
-  MUTATION_APPROVAL_REQUIRED: Civ7MutationApprovalRequiredError,
+  MUTATION_PROOF_BOUNDARY_INVALID: Civ7MutationProofBoundaryInvalidError,
   MUTATION_READINESS_REQUIRED: Civ7MutationReadinessRequiredError,
   MUTATION_READINESS_UNAVAILABLE: Civ7MutationReadinessUnavailableError,
   NARRATIVE_CHOICE_UNAVAILABLE: Civ7NarrativeChoiceUnavailableError,
@@ -364,6 +396,7 @@ export const civ7ControlOrpcErrorMap = {
   READINESS_CURRENT_UNAVAILABLE: Civ7ReadinessCurrentUnavailableError,
   STRATEGY_FRONT_SUMMARY_UNAVAILABLE: Civ7StrategyFrontSummaryUnavailableError,
   TURN_COMPLETION_UNAVAILABLE: Civ7TurnCompletionUnavailableError,
+  UNIT_REQUEST_UNAVAILABLE: Civ7UnitRequestUnavailableError,
   UNIT_TARGET_ACTION_UNAVAILABLE: Civ7UnitTargetActionUnavailableError,
 } satisfies EffectErrorMap;
 

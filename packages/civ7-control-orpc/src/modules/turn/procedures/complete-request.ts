@@ -1,7 +1,7 @@
 import {
   turnCompletionProofPostcondition,
-  type Civ7RuntimeProbe,
-} from "@civ7/direct-control";
+} from "@civ7/direct-control/proof/turn-completion-proof-policy";
+import type { Civ7RuntimeProbe } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../../../dependencies/direct-control";
@@ -25,7 +25,6 @@ export const turnCompleteRequestProcedure =
       try: async () => {
         const result = await context.directControl.requestCiv7TurnComplete(
           context.endpointDefaults,
-          context.approval!,
         );
         return turnCompletionResult(result);
       },

@@ -9,7 +9,7 @@ Scope: `packages/civ7-control-orpc/**`
   tuner socket framing, state discovery, command serialization, or caller-local
   direct-control scripts here.
 - Context receives ready dependencies such as the direct-control facade,
-  endpoint defaults, approval, logger, evidence sink, clock, and caller policy;
+  endpoint defaults, logger, evidence sink, clock, and caller policy;
   provider construction belongs to caller/runtime adapters.
 - Add transports only at explicit edge-adapter slices. This package's core
   router should remain callable in process.

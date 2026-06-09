@@ -112,7 +112,6 @@ civ7 game play choose-culture \
   --node -1677668973 \
   --send \
   --closeout \
-  --reason "choose live culture node and set matching target" \
   --json
 ```
 
@@ -130,7 +129,6 @@ civ7 game play set-culture-target \
   --player-id 0 \
   --node -1677668973 \
   --send \
-  --reason "set culture target from live tree node hash" \
   --json
 ```
 

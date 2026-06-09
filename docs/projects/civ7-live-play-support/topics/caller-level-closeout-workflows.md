@@ -37,24 +37,24 @@ Use these when the selected action should be handled as one native workflow:
   reads the current live active/unlocked/recent tradition packet, slot counts,
   activate/deactivate enum values, and per-tradition action hints before any
   mutation.
-- `game play change-tradition --player-id <id> --tradition-type <type> --action <action> --send --closeout --reason '<why>'`
+- `game play change-tradition --player-id <id> --tradition-type <type> --action <action> --send --closeout`
   sends `CHANGE_TRADITION` then `CONSIDER_ASSIGN_TRADITIONS`.
-- `game play buy-attribute --player-id <id> --node <node> --send --closeout --reason '<why>'`
+- `game play buy-attribute --player-id <id> --node <node> --send --closeout`
   sends `BUY_ATTRIBUTE_TREE_NODE` then `CONSIDER_ASSIGN_ATTRIBUTE`.
-- `game play choose-tech --player-id <id> --node <node> --send --reason '<why>'`
+- `game play choose-tech --player-id <id> --node <node> --send`
   runs the App UI tech chooser owner route: activate the current
   `NOTIFICATION_CHOOSE_TECH` when present, send `SET_TECH_TREE_NODE`, clear
   with `SET_TECH_TREE_TARGET_NODE`, then re-read the live technology-choice
   notification postcondition.
-- `game play choose-culture --player-id <id> --node <node> --send --closeout --reason '<why>'`
+- `game play choose-culture --player-id <id> --node <node> --send --closeout`
   runs the App UI culture chooser owner route: activate the current
   `NOTIFICATION_CHOOSE_CULTURE_NODE` when present, send
   `SET_CULTURE_TREE_NODE`, clear with `SET_CULTURE_TREE_TARGET_NODE`, then
   re-read the live culture-choice notification postcondition.
-- `game play choose-government --player-id <id> --government-type <government-type> --action <activate> --send --reason '<why>'`
+- `game play choose-government --player-id <id> --government-type <government-type> --action <activate> --send`
   sends `CHANGE_GOVERNMENT` with the exact government/action pair returned by
   `choose-government --options`.
-- `game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why>'`
+- `game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout`
   sends `CHANGE_GROWTH_MODE` then `CONSIDER_TOWN_PROJECT`.
 
 The standalone closeout commands still matter when no primary change is needed
@@ -75,8 +75,8 @@ workflow is known:
 - Search official App UI modules, notification handlers, FireTuner/dev-tool
   resources, GameInfo/runtime APIs, and relevant community mods before adding
   repo-owned orchestration.
-- Keep `--send` and `--reason` mandatory for mutation; the reason covers the
-  selected workflow, not just the first runtime step.
+- Keep `--send` mandatory for mutation. The command result and postcondition
+  cover the selected workflow, not just the first runtime step.
 - Validate and send native primitives in the same order the official UI uses
   for that player decision.
 - Verification is command-internal proof of the repo-owned composition. It

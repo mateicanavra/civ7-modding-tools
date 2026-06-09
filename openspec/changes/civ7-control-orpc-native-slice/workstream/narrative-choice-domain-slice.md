@@ -42,10 +42,10 @@ live-game/runtime proof claim.
   `Civ7ControlOrpcRouter.narrative.choice.request`;
 - does not preserve a `Civ7ControlOrpcRouter.decisions` route or
   `Civ7Decisions*` public type surface;
-- reuses shared native mutation approval and playable-readiness middleware
+- reuses shared native readiness and playable-readiness middleware
   before direct-control runtime authority is invoked;
 - calls the direct-control narrative choice runtime port with endpoint
-  defaults and approval supplied through oRPC context;
+  defaults and runtime policy supplied through oRPC context;
 - consumes source-owned direct-control narrative proof helpers for
   postcondition and no-repeat classification;
 - projects normal output as semantic choice status, validation summary,
@@ -77,7 +77,7 @@ postconditions may summarize as sent-confirmed.
 
 Focused package proof covers:
 
-- approval is required before readiness and narrative request execution;
+- readiness is required and narrative request execution;
 - playable readiness middleware runs before direct-control request authority;
 - confirmed source-owned narrative postconditions project as sent-confirmed;
 - source-owned acted-player evidence is projected instead of caller validation

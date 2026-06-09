@@ -20,8 +20,8 @@ without frequent human supervision.
 
 The practical target is a small set of safe wrappers: richer read snapshots,
 explicit `canStart` validators, dry-run action planning, bounded autoplay, and
-manual-approval command execution. Avoid broad "AI player" or "cheat console"
-work until action schemas and state transitions are proven.
+supervised validator-first command execution. Avoid broad "AI player" or "cheat
+console" work until action schemas and state transitions are proven.
 
 ## Evidence Sources
 
@@ -91,7 +91,7 @@ developer/test automation commands.
 | Unit movement/combat | Yes. | `Game.UnitOperations.canStart/sendRequest` with `UNITOPERATION_MOVE_TO`, attack operations, skip/sleep/found city; `Game.UnitCommands.canStart/sendRequest`. | Plausible from official UI; not proven through direct-control. |
 | City production/purchase | Yes. | `Game.CityOperations.canStart/sendRequest(..., CityOperationTypes.BUILD, args)`, `Game.CityCommands.PURCHASE`, build queue mutation args. | Plausible from official UI; not proven through direct-control. |
 | Research/culture/government/policies | Yes for nontrivial play. | `Game.PlayerOperations.canStart/sendRequest` with tree and policy operation types. | Plausible only; schemas fragmented across UI resources. |
-| Diplomacy | Yes, but high-risk. | `Game.PlayerOperations.sendRequest` for war, alliance, diplomacy actions. | Plausible; should require explicit approval. |
+| Diplomacy | Yes, but high-risk. | `Game.PlayerOperations.sendRequest` for war, alliance, diplomacy actions. | Plausible; requires explicit product policy, validator evidence, and postcondition proof before productization. |
 | End turn | Yes. | Likely App UI/engine/UI action path or unresolved game operation. | Not identified as a stable direct API in this lane. |
 | Save/load/exit | Useful for sandboxing. | `Network.saveGame`, `Network.loadGame`, `engine.call("exitToMainMenu")`, `engine.call("exitToDesktop")`. | Plausible/high-risk; not gameplay wrappers. |
 | WorldBuilder/tuner edits | No for fair play; useful for developer tools. | `WorldBuilder.MapPlots.*`, `MapConstructibles.*`, `Game.PlayerOperations` create/destroy element. | Plausible but explicitly developer/cheat surface. |
@@ -167,9 +167,9 @@ safely.
 | 0. Developer status assistant | Ready now | Check listener/states, restart/begin, summarize App UI snapshot, inspect selected roots. | Implemented and tested in `@civ7/direct-control`. |
 | 1. Map/studio automation assistant | Ready/near-term | Restart mapgen loops, wait for Tuner readiness, collect map/player/map-summary canaries, run bounded raw reads. | Existing package plus prior reports already support this lane. |
 | 2. Supervised gameplay advisor | Feasible with read wrappers | Read map, units, cities, queues, notifications, then propose actions for a human or a dry-run plan. | Needs richer read-only snapshots and legal-action queries, but avoids mutation risk. |
-| 3. Supervised command executor | Feasible after wrappers | Execute one approved action at a time after `canStart` validation and post-action observation. | Requires action schemas and guardrails; direct-control transport can carry the commands. |
+| 3. Supervised command executor | Feasible after wrappers | Execute one validated action at a time after `canStart` validation and post-action observation. | Requires action schemas and guardrails; direct-control transport can carry the commands. |
 | 4. Bounded autoplay/test runner | Feasible after explicit wrapper | Start/stop AI autoplay for N turns, observe as player/observer, stop and report result. | Official automation uses `Autoplay.*`; direct-control has not wrapped or proved it. |
-| 5. Autonomous playable agent | Not currently feasible | Play whole turns without approval. | Missing complete state model, end-turn path, action schemas, event feedback, strategy memory, failure recovery, and safety boundaries. |
+| 5. Autonomous playable agent | Not currently feasible | Play whole turns without supervision and proven safety policy. | Missing complete state model, end-turn path, action schemas, event feedback, strategy memory, failure recovery, and safety boundaries. |
 | 6. Fair competitive AI replacement | Out of scope | Replace in-game AI or play multiplayer-like sessions. | Would require game-rule modeling and broad mutation rights well beyond this workstream. |
 
 The useful near-term product is tier 2-3, not tier 5.
@@ -244,16 +244,17 @@ tests. It can tolerate developer-only commands and generated-map state.
 
 Playable AI control is a different product. It should respect local-player
 visibility, avoid WorldBuilder/tuner edit surfaces, use game-core
-`canStart/sendRequest` APIs instead of UI cheats, and require explicit approval
-for high-impact choices such as war, diplomacy, save/load/delete, account/network
-actions, and irreversible game state changes.
+`canStart/sendRequest` APIs instead of UI cheats, and require explicit product
+policy, validator evidence, postcondition proof, and user-facing confirmation
+where appropriate for high-impact choices such as war, diplomacy,
+save/load/delete, account/network actions, and irreversible game state changes.
 
 ## Avoid / Research Later
 
 Avoid for now:
 
 - FireTuner clone UI, broad command browser, or general cheat console.
-- Autonomous whole-turn play without human approval.
+- Autonomous whole-turn play without supervision and proven safety policy.
 - Default wrappers for `WorldBuilder.*`, `MapConstructibles.*`,
   `CREATE_ELEMENT`, `DESTROY_ELEMENT`, `Network.saveGame/loadGame/deleteGame`,
   multiplayer/account actions, QR/linking, chat/kick/invite, or desktop/menu

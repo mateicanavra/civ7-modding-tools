@@ -7,7 +7,7 @@
 - [x] 1.4 Implement turn-complete/unready wrappers with GameContext before/after
   proof where direct evidence supports them.
 - [x] 1.5 Implement unit/city/player operation and command validators.
-- [x] 1.6 Implement approved request wrappers with validator-first behavior and
+- [x] 1.6 Implement request wrappers with validator-first behavior and
   no automatic replay.
 - [x] 1.7 Add mock socket tests for command builders, validation parsing,
   failures, and no-replay behavior.
@@ -19,10 +19,10 @@
 
 ## 3. Live Proof
 
-- [x] 3.1 Gate live autoplay proof behind explicit approval and stop proof;
+- [x] 3.1 Gate live autoplay proof behind explicit bounded-start and stop proof;
   native unbounded start is allowed when no turn count is supplied.
 - [x] 3.2 Gate live reveal/explore proof behind developer/disposable-session
-  approval; no live mutation run without that approval.
+  proof; no live mutation run without that proof.
 - [x] 3.3 Validate operation wrappers with mock socket proof; live validator
   proof remains evidence-limited by current observer session.
 - [x] 3.4 Record proof limits in workstream verification notes.

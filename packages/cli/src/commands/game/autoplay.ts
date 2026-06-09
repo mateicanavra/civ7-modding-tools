@@ -10,13 +10,13 @@ export default class GameAutoplay extends Command {
   static id = 'game autoplay';
   static summary = 'Inspect or control Civ7 autoplay';
   static description =
-    'Reads and changes native Civ7 Autoplay state through @civ7/direct-control with explicit approval for mutations.';
+    'Reads and changes native Civ7 Autoplay state through @civ7/direct-control.';
 
   static examples = [
     '<%= config.bin %> game autoplay --json',
-    '<%= config.bin %> game autoplay --action start --reason "unbounded smoke test" --json',
-    '<%= config.bin %> game autoplay --action start --turns 1 --reason "bounded smoke test" --json',
-    '<%= config.bin %> game autoplay --action stop --reason "stop smoke test"',
+    '<%= config.bin %> game autoplay --action start --json',
+    '<%= config.bin %> game autoplay --action start --turns 1 --json',
+    '<%= config.bin %> game autoplay --action stop',
   ];
 
   static flags = {
@@ -43,9 +43,6 @@ export default class GameAutoplay extends Command {
     pause: Flags.boolean({
       description: 'Set autoplay pause state during configure/start',
       allowNo: true,
-    }),
-    reason: Flags.string({
-      description: 'Approval reason for start/stop',
     }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
@@ -80,18 +77,13 @@ export default class GameAutoplay extends Command {
       pollIntervalMs: flags['poll-interval-ms'],
       stabilityWindowMs: flags['stability-window-ms'],
     };
-    const approval = {
-      approved: true as const,
-      reason: flags.reason ?? `CLI autoplay ${flags.action}`,
-      disposableSession: true,
-    };
     const result =
       flags.action === 'configure'
-        ? await configureCiv7Autoplay(options, approval)
+        ? await configureCiv7Autoplay(options)
         : flags.action === 'start'
-          ? await startCiv7Autoplay(options, approval)
+          ? await startCiv7Autoplay(options)
           : flags.action === 'stop'
-            ? await stopCiv7Autoplay(options, approval)
+            ? await stopCiv7Autoplay(options)
             : await getCiv7AutoplayStatus(options);
 
     if (flags.json) {

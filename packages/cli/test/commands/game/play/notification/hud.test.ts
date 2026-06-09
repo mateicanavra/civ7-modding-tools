@@ -348,26 +348,26 @@ function staleDiplomacyHudView() {
         title: 'Accept',
         enabled: true,
         disabled: false,
-        cli: "game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+        cli: "game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send",
       },
       {
         responseType: -1200641623,
         title: 'Reject',
         enabled: true,
         disabled: false,
-        cli: "game play respond-diplomacy --action-id 8 --response-type -1200641623 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+        cli: "game play respond-diplomacy --action-id 8 --response-type -1200641623 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send",
       },
     ],
     enabledOptions: [
       {
         responseType: 926305338,
         title: 'Accept',
-        cli: "game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+        cli: "game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send",
       },
       {
         responseType: -1200641623,
         title: 'Reject',
-        cli: "game play respond-diplomacy --action-id 8 --response-type -1200641623 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+        cli: "game play respond-diplomacy --action-id 8 --response-type -1200641623 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send",
       },
     ],
     disabledOptions: [
@@ -405,13 +405,13 @@ function techChoiceHudView() {
       {
         nodeType: -1255676052,
         name: 'Masonry',
-        cli: "game play choose-tech --player-id 0 --node -1255676052 --send --reason '<why this technology was selected>'",
+        cli: "game play choose-tech --player-id 0 --node -1255676052 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
       {
         nodeType: -1558948215,
         name: 'Sailing',
-        cli: "game play choose-tech --player-id 0 --node -1558948215 --send --reason '<why this technology was selected>'",
+        cli: "game play choose-tech --player-id 0 --node -1558948215 --send",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -451,13 +451,13 @@ function cultureChoiceHudView() {
       {
         nodeType: -869902342,
         name: 'Ekklesia',
-        cli: "game play choose-culture --player-id 0 --node -869902342 --send --closeout --reason '<why this culture node was selected>'",
+        cli: "game play choose-culture --player-id 0 --node -869902342 --send --closeout",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
       {
         nodeType: -1404789184,
         name: 'Discipline',
-        cli: "game play choose-culture --player-id 0 --node -1404789184 --send --closeout --reason '<why this culture node was selected>'",
+        cli: "game play choose-culture --player-id 0 --node -1404789184 --send --closeout",
         chooseValidation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -498,13 +498,13 @@ function celebrationChoiceHudView() {
       {
         goldenAgeType: -340825966,
         name: 'Cultural Celebration',
-        cli: "game play choose-celebration --player-id 0 --golden-age-type -340825966 --send --reason '<why this celebration was selected>'",
+        cli: "game play choose-celebration --player-id 0 --golden-age-type -340825966 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         goldenAgeType: 1923496232,
         name: 'Wonder Production Celebration',
-        cli: "game play choose-celebration --player-id 0 --golden-age-type 1923496232 --send --reason '<why this celebration was selected>'",
+        cli: "game play choose-celebration --player-id 0 --golden-age-type 1923496232 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -543,19 +543,19 @@ function governmentChoiceHudView() {
       {
         governmentType: 0,
         name: 'Classical Republic',
-        cli: "game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send --reason '<why this government was selected>'",
+        cli: "game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         governmentType: 1,
         name: 'Despotism',
-        cli: "game play choose-government --player-id 0 --government-type 1 --action -1326475004 --send --reason '<why this government was selected>'",
+        cli: "game play choose-government --player-id 0 --government-type 1 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
       {
         governmentType: 2,
         name: 'Oligarchy',
-        cli: "game play choose-government --player-id 0 --government-type 2 --action -1326475004 --send --reason '<why this government was selected>'",
+        cli: "game play choose-government --player-id 0 --government-type 2 --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -593,7 +593,7 @@ function narrativeChoiceHudView() {
     enabledOptions: [
       {
         targetType: 'CLOSE',
-        cli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send --reason '<why this narrative closeout was selected>'",
+        cli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send",
         validation: { ok: true as const, value: { Success: true } },
       },
     ],
@@ -631,7 +631,7 @@ function staleUnitCommandHudView() {
       {
         unitId: { owner: 0, id: 196609, type: 26 },
         operationType: 'SKIP_TURN',
-        cli: "game play operation --family unit --type SKIP_TURN --unit-id '{\"owner\":0,\"id\":196609,\"type\":26}' --send --reason '<why this unit has no better operation this turn>'",
+        cli: "game play operation --family unit --type SKIP_TURN --unit-id '{\"owner\":0,\"id\":196609,\"type\":26}' --send",
       },
     ],
   };

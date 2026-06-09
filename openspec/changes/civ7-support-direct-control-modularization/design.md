@@ -50,7 +50,7 @@ direct-control bridge, and future AI services. Raw `game exec` remains a
 diagnostic/probe substrate.
 
 A fuller in-game controller can reduce repeated transport verification only by
-moving proof into lifecycle certification, method allowlists, approval tokens,
+moving proof into lifecycle certification, method allowlists, controller proof,
 local-player and hotseat identity checks, and semantic outcome checks. It does
 not eliminate proof, and it does not make App UI mutation, runtime reflection,
 raw SQL, or raw command execution product action authority.
@@ -269,12 +269,12 @@ Compatibility matrix seed:
 
 | Surface | Primary consumer | Required content | Forbidden collapse |
 | --- | --- | --- | --- |
-| Hotseat handoff state | live player-agent controller | current local player, agent-owned slot, turn handoff readiness, approval token state, can-act evidence, and blocker summary | do not treat autoplay debug control as the product path; do not act for non-agent human turns |
+| Hotseat handoff state | live player-agent controller | current local player, agent-owned slot, turn handoff readiness, controller proof state, can-act evidence, and blocker summary | do not treat autoplay debug control as the product path; do not act for non-agent human turns |
 | Semantic CLI player-agent view | local player-agent API | game state, blockers, decisions, action results, safe/unsafe next steps, and postcondition classifications | do not dump raw session, closeout, command, or proof JSON as normal play output |
 | Strategy/intelligence ingestion | AI-intelligence database/model layer | stable machine-readable turn state, observations, decisions, action outcomes, playbook/cookbook signals, and proof/telemetry references | do not depend on presentation strings or one-off CLI formatting |
 | Debug/internal service output | direct-control service/debug hierarchy | transport/session state, raw probes, route selection, closeout traces, correlation, and diagnostics | do not expose as normal player-agent or strategy-ingestion output |
-| Operation/proof telemetry | support proof and future procedure middleware | evidence class, approval, validation, send, postcondition, blocker deltas, and runtime observation links | do not claim live/runtime proof from local tests or target-thread evidence alone |
-| Effect/oRPC procedure cores | shared oRPC/Effect procedure/router substrate over stable direct-control atoms for the in-game controller router, external direct-control bridge, and future AI services | typed atoms, schemas, context, middleware, approval gates, errors, correlation IDs, and telemetry hooks | do not implement transport-first raw command tunneling |
+| Operation/proof telemetry | support proof and future procedure middleware | evidence class, validation, send, postcondition, blocker deltas, and runtime observation links | do not claim live/runtime proof from local tests or target-thread evidence alone |
+| Effect/oRPC procedure cores | shared oRPC/Effect procedure/router substrate over stable direct-control atoms for the in-game controller router, external direct-control bridge, and future AI services | typed atoms, schemas, context, middleware, validator gates, errors, correlation IDs, and telemetry hooks | do not implement transport-first raw command tunneling |
 
 Future atom and envelope rows classify `playerScope`, `consumerClass`,
 `evidenceClass`, `procedureCandidate`, `normalCliProjection`, and
@@ -320,7 +320,7 @@ Compatibility matrix execution gate:
   correlation ids, route selection, closeout traces, and proof details only when
   explicitly classified as debug/internal service projection.
 - Effect/Bun and Effect/oRPC must compose over stable direct-control atoms,
-  typed schemas, context, approval policy, correlation, errors, telemetry hooks,
+  typed schemas, context, mutation policy, correlation, errors, telemetry hooks,
   and resource/concurrency primitives where appropriate. They must not start as
   transport-first raw command tunneling, and direct-control-local prework must
   stop at policy/dependency/proof separation rather than rebuilding oRPC
@@ -396,12 +396,12 @@ Proof classes must stay separate: target-thread evidence, repo docs, local
 tests, logs/database artifacts, official resources, live runtime proof, and
 in-game observations each prove different claims. A later full in-game
 controller can reduce repeated transport verification only by moving proof to
-lifecycle certification, method allowlists, local-player identity, approval
+lifecycle certification, method allowlists, local-player identity
 tokens, and semantic outcome checks; it does not remove proof. If that
 controller exposes an App UI companion bridge, `Civ7IntelligenceBridge.invoke`
 is only the serialized ingress adapter across the existing tuner/App UI command
 boundary into the in-process oRPC/Effect router. The router/runtime substrate,
-procedure definitions, schemas, policy context, approval checks, proof sinks,
+procedure definitions, schemas, policy context, validator checks, proof sinks,
 and future controller internals belong to the shared oRPC/Effect model.
 
 ### Lane H: Review / Gate Lane

@@ -3,11 +3,9 @@ import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { getCiv7PlayNotificationView } from '@civ7/direct-control';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  requireSendReason,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
@@ -17,12 +15,12 @@ export default class GamePlayChooseNarrative extends Command {
   static id = 'game play choose-narrative';
   static summary = 'Validate or choose a narrative story direction';
   static description =
-    'Validates narrative story direction choices as player operations, or sends them through the native control-oRPC narrative procedure when --send and --reason are explicit.';
+    'Validates narrative story direction choices as player operations, or sends them through the native control-oRPC narrative procedure when --send is explicit.';
 
   static examples = [
     '<%= config.bin %> game play choose-narrative --options --json',
     '<%= config.bin %> game play choose-narrative --player-id 0 --target-type TOT_30001B --target \'{"owner":0,"id":45,"type":35}\' --action -1326475004 --json',
-    '<%= config.bin %> game play choose-narrative --player-id 0 --target-type TOT_30001B --target \'{"owner":0,"id":45,"type":35}\' --action -1326475004 --send --reason "choose first valid story branch" --json',
+    '<%= config.bin %> game play choose-narrative --player-id 0 --target-type TOT_30001B --target \'{"owner":0,"id":45,"type":35}\' --action -1326475004 --send --json',
   ];
 
   static flags = {
@@ -51,9 +49,6 @@ export default class GamePlayChooseNarrative extends Command {
     send: Flags.boolean({
       description: 'Send CHOOSE_NARRATIVE_STORY_DIRECTION after validator success',
       default: false,
-    }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
     }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
@@ -102,7 +97,6 @@ export default class GamePlayChooseNarrative extends Command {
     if (typeof flags.action !== 'number') {
       throw new Error('game play choose-narrative requires --action unless --options is used');
     }
-    const reason = requireSendReason(flags.send, flags.reason, 'game play choose-narrative');
     const target = parseComponentId(flags.target, 'target');
     const input = {
       operationType: CHOOSE_NARRATIVE_STORY_DIRECTION,
@@ -117,7 +111,6 @@ export default class GamePlayChooseNarrative extends Command {
       ? await createCiv7ControlOrpcServerClient({
           directControl: liveCiv7ControlOrpcDirectControlFacade,
           endpointDefaults: options,
-          approval: buildApproval(reason),
         }).narrative.choice.request({
           playerId: flags['player-id'],
           targetType: flags['target-type'],

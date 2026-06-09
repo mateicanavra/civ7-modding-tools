@@ -9,6 +9,9 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
+      "game-ui": [
+        "./dist/game-ui.d.ts"
+      ],
       "runtime": [
         "./dist/runtime.d.ts"
       ],
@@ -30,6 +33,11 @@
       "types": "./dist/runtime.d.ts",
       "import": "./dist/runtime.js",
       "require": "./dist/runtime.cjs"
+    },
+    "./game-ui": {
+      "types": "./dist/game-ui.d.ts",
+      "import": "./dist/game-ui.js",
+      "require": "./dist/game-ui.cjs"
     }
   },
   "scripts": {

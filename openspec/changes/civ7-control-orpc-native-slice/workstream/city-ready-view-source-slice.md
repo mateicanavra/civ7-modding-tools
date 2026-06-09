@@ -8,8 +8,9 @@ mechanics, not a template for future facade-only read wrappers.
 
 The control-oRPC `city.ready.view` leaf has since been removed. Current
 ready-city service behavior is owned by `attention.current`, which consumes the
-direct-control ready-city runtime port from typed context. The direct-control
-ready-city atom and facade method remain available as low-level runtime ports.
+direct-control ready-city source evidence from typed context. The
+direct-control ready-city atom and facade method remain historical source
+evidence owners, not templates for new semantic runtime ports.
 
 ## Scope
 
@@ -86,5 +87,5 @@ This is still local package proof. It does not prove live App UI ready-city
 state, production choice behavior, city expansion behavior, runtime
 availability, transport behavior, or any send/mutation behavior.
 
-Middleware, correlation, approval, validator-first, postcondition/proof,
+Middleware, correlation, validator-first, postcondition/proof,
 transport edges, and runtime proof remain pending.

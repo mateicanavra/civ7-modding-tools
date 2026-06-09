@@ -34,7 +34,6 @@ describe("narrative-choice telemetry adapter", () => {
       risk: "mutation",
     });
     expect(record.operationFamily).toBe("player-operation");
-    expect(record.approval.status).toBe("approved");
     expect(record.validation_pre?.value).toMatchObject({
       valid: true,
       operationType: "CHOOSE_NARRATIVE_STORY_DIRECTION",
@@ -235,12 +234,6 @@ function narrativeTelemetryInput(
       action: 1,
     },
     result: narrativeChoiceResult(),
-    approval: {
-      required: true,
-      status: "approved",
-      reason: "test narrative telemetry adapter",
-      source: "narrative-choice-telemetry.test.ts",
-    },
     source: "narrative-choice-telemetry.test.ts",
     ...overrides,
   };

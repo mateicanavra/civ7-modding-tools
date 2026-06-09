@@ -12,7 +12,7 @@
   Tuner-listed-but-not-ready, and stale-listener states.
 - [x] 2.3 Capture begin/start errors and preserve direct-control error codes.
 - [ ] 2.4 Add fake-socket tests for shell `Game` undefined, loading,
-  begin-ready, running-game without exit approval, stale listener, row-refresh
+  begin-ready, running-game without explicit exit-to-shell recovery, stale listener, row-refresh
   failure, connection loss, and no mutation replay.
   - Covered now: shell `Game` undefined, Tuner-listed-but-not-ready, running
     game with explicit exit-to-shell, row refresh happy path, setup mutation

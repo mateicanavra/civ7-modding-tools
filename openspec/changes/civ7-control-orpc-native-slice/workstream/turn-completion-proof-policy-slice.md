@@ -11,7 +11,7 @@ accepted in `packages/civ7-control-orpc`.
 
 This is service-enabling prework. The existing direct-control runtime send still
 owns the App UI `GameContext.sendTurnComplete()` authority, before/after turn
-completion reads, fallback preflight, approval assertion, and command
+completion reads, fallback preflight assertion, and command
 serialization. The new proof helper gives future native procedures a stable
 postcondition/no-repeat port instead of inferring repeat safety from legacy
 `verified`.
@@ -71,6 +71,6 @@ any future live turn-completion mutation closure claim.
 `game play end-turn` still calls direct-control directly and emits raw
 direct-control action results when `--send` is used. A future native
 `turn.complete.request` procedure must own the caller-facing semantic contract
-and projection, consume this proof policy, keep approval/readiness in native
+and projection, consume this proof policy, keep readiness in native
 middleware/context, and exclude raw command/session/tuner fields from normal
 input and output.

@@ -548,19 +548,14 @@ export default defineConfig(({ command }) => ({
               });
               return;
             }
-            const approval = {
-              approved: true as const,
-              reason: `Studio autoplay ${body.action}`,
-              disposableSession: true,
-            };
             const options = {
               timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
               waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
               pollIntervalMs: 1_000,
             };
             const result = body.action === "start"
-              ? await startCiv7Autoplay(options, approval)
-              : await stopCiv7Autoplay(options, approval);
+              ? await startCiv7Autoplay(options)
+              : await stopCiv7Autoplay(options);
             writeJson(res, 200, {
               ok: result.verified,
               action: body.action,
@@ -863,7 +858,6 @@ export default defineConfig(({ command }) => ({
                     pollIntervalMs: 1_000,
                   },
                   { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
-                  { approved: true, reason: "Studio Run in Game setup row reload", disposableSession: true },
                 );
                 if (rowVisibility.refreshed) {
                   phase = "reload-needed";
@@ -904,7 +898,6 @@ export default defineConfig(({ command }) => ({
                     waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
                   },
                   { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
-                  { approved: true, reason: "Studio Run in Game", disposableSession: true },
                 ).catch(async (err: unknown) => {
                   const mapgenFailure = await waitForCiv7MapgenLogFailure({
                     readFreshLogText: () => readFreshLogText(scriptingLogPath, scriptingSnapshot),

@@ -39,9 +39,8 @@ civ7 game play upgrade-unit \
   --json
 ```
 
-Both commands validate by default. Add `--send --reason '<why this exact live
-unit should take this command now>'` only after the ready-unit/acquire-tile
-evidence still matches.
+Both commands validate by default. Add `--send` only after the
+ready-unit/acquire-tile evidence still matches.
 
 The generic fallback remains:
 

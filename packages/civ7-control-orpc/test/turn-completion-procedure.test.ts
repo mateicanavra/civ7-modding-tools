@@ -5,7 +5,6 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  Civ7MutationApprovalRequiredError,
   Civ7TurnCompletionInputSchema,
   Civ7TurnCompletionUnavailableError,
   createCiv7ControlOrpcServerClient,
@@ -25,14 +24,13 @@ describe("turn.complete.request control-oRPC procedure", () => {
         { session: { state: "App UI" } },
         { command: "GameContext.sendTurnComplete()" },
         { rawCommand: "GameContext.sendTurnComplete()" },
-        { approvalReason: "test approved turn completion" },
       ]
     ) {
       expect(Value.Check(Civ7TurnCompletionInputSchema, input)).toBe(false);
     }
   });
 
-  test("calls the turn completion mutation through native Effect/oRPC with context approval", async () => {
+  test("calls the turn completion mutation through native Effect/oRPC with readiness guards", async () => {
     const fake = fakeContext(turnCompletionActionResult({
       after: turnCompletionStatus({ turn: 13, hasSentTurnComplete: false }),
     }));
@@ -49,10 +47,6 @@ describe("turn.complete.request control-oRPC procedure", () => {
         host: "127.0.0.1",
         port: 4318,
         timeoutMs: 1_000,
-      },
-      approval: {
-        approved: true,
-        reason: "test approved turn completion",
       },
     }]);
     expect(result).toEqual({
@@ -216,28 +210,6 @@ describe("turn.complete.request control-oRPC procedure", () => {
     expectPublicResultOmitsRawRuntimeDetails(result);
   });
 
-  test("requires context approval before readiness and mutation ports run", async () => {
-    const fake = fakeContext(turnCompletionActionResult({}), {
-      approval: undefined,
-    });
-
-    await expect(
-      call(Civ7ControlOrpcRouter.turn.complete.request, {}, {
-        context: fake.context,
-      }),
-    ).rejects.toMatchObject({
-      code: "MUTATION_APPROVAL_REQUIRED",
-      status: 403,
-      data: {
-        procedureKey: "turn.complete.request",
-        source: "context.approval",
-        risk: "mutation",
-      },
-    });
-    expect(fake.calls.readiness).toEqual([]);
-    expect(fake.calls.turnCompletion).toEqual([]);
-  });
-
   test("rejects raw caller fields before readiness and mutation ports run", async () => {
     const fake = fakeContext(turnCompletionActionResult({}));
 
@@ -303,7 +275,6 @@ describe("turn.complete.request control-oRPC procedure", () => {
       proofBoundary: "local-package-test",
     });
     expect(Civ7TurnCompletionUnavailableError).toBeTypeOf("function");
-    expect(Civ7MutationApprovalRequiredError).toBeTypeOf("function");
   });
 });
 
@@ -322,9 +293,6 @@ function expectPublicResultOmitsRawRuntimeDetails(
 
 function fakeContext(
   resultOrError: Civ7ControlOrpcTurnCompletionRequestResult | Error,
-  options: Readonly<{
-    approval?: Civ7ControlOrpcContext["approval"];
-  }> = {},
 ): {
   context: Civ7ControlOrpcContext;
   calls: {
@@ -345,10 +313,6 @@ function fakeContext(
       port: 4318,
       timeoutMs: 1_000,
     },
-    approval: "approval" in options ? options.approval : {
-      approved: true,
-      reason: "test approved turn completion",
-    },
     directControl: {
       getCiv7PlayableStatus: async (endpointDefaults) => {
         calls.readiness.push(endpointDefaults);
@@ -356,10 +320,9 @@ function fakeContext(
           ReturnType<Civ7ControlOrpcContext["directControl"]["getCiv7PlayableStatus"]>
         >;
       },
-      requestCiv7TurnComplete: async (endpointDefaults, approval) => {
+      requestCiv7TurnComplete: async (endpointDefaults) => {
         calls.turnCompletion.push({
           options: endpointDefaults,
-          approval,
         });
         if (resultOrError instanceof Error) throw resultOrError;
         return resultOrError;

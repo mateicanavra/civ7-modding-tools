@@ -7,7 +7,9 @@
 - [source-proven] MapGen Studio currently owns browser-run visualization state, authored `pipelineConfig`, save/deploy/restart calls, and UI rendering in `apps/mapgen-studio/src/App.tsx`.
 - [source-proven] Existing Studio dev-server endpoints are `GET /api/civ7/status`, `GET /api/civ7/map-summary`, `GET /api/civ7/gameinfo`, and `POST /api/map-configs`.
 - [source-proven] Existing direct-control reads include playable/status, App UI snapshot, Tuner health, map summary, plot snapshot, bounded map grid, player summary, unit summary, city summary, visibility summary, targeted `GameInfo` rows, autoplay status, and turn-completion status.
-- [source-proven] Existing direct-control mutating wrappers require explicit approval for actions such as autoplay start/stop/configure and disposable reveal.
+- [source-proven] Existing direct-control mutating wrappers rely on bounded
+  inputs, validator/status checks where available, postcondition evidence, and
+  no automatic replay after uncertain mutation results.
 - [source-proven] The phase ledger has no fresh live proof entries yet.
 - [live-proven] No live sync claim in this report is live-proven by this phase.
 - [inferred] The useful Studio surface is a runtime observation layer keyed by Civ turn/hash and Studio run identity, not a second authoring model.
@@ -25,7 +27,7 @@
 | [source-proven] Units | `getCiv7UnitSummary` reads bounded unit ids, owner, name/type, location, health/damage, movement, and activity | [inferred] Render unit markers and turn-to-turn movement deltas, capped by player/filter. |
 | [source-proven] Cities | `getCiv7CitySummary` reads bounded city ids, owner, name, location, population, growth, and production | [inferred] Render city markers and settlement growth deltas. |
 | [source-proven] Static/runtime catalog | `getCiv7GameInfoRows` reads targeted `GameInfo` tables with validated table/filter identifiers and hard limits | [inferred] Resolve labels for resource/terrain/biome/feature/unit ids and verify map row presence without exposing arbitrary SQL. |
-| [source-proven] Autoplay | `getCiv7AutoplayStatus` reads native autoplay state; approved wrappers can configure/start/stop autoplay | [inferred] Live sync should observe autoplay progression and expose manual controls only through explicit direct-control actions outside the read loop. |
+| [source-proven] Autoplay | `getCiv7AutoplayStatus` reads native autoplay state; bounded wrappers can configure/start/stop autoplay | [inferred] Live sync should observe autoplay progression and expose manual controls only through explicit direct-control actions outside the read loop. |
 | [source-proven] Turn completion | `getCiv7TurnCompletionStatus` reads local player turn readiness | [inferred] This is useful for diagnosing stalled autoplay/turn progression, but it should not drive autonomous gameplay UI in this workstream. |
 
 ## Endpoint Contracts
@@ -100,7 +102,7 @@
 
 ## Tests And Proof
 
-- [source-proven] Existing direct-control tests cover bounded map/plot reads, grid caps, visibility, reveal approval, and `GameInfo` validation.
+- [source-proven] Existing direct-control tests cover bounded map/plot reads, grid caps, visibility, reveal safeguards, and `GameInfo` validation.
 - [inferred] Add direct-control tests only when new wrapper contracts are introduced; pure Studio aggregate endpoints can mock existing direct-control functions.
 - [inferred] Add Studio endpoint tests for successful aggregate reads, direct-control failures, invalid query parameters, max cap normalization, and no side-effect calls to save/deploy/restart.
 - [inferred] Add store reducer/hook tests proving live snapshots are keyed by turn/hash, stale requests are ignored, and suggestions do not mutate `pipelineConfig`.

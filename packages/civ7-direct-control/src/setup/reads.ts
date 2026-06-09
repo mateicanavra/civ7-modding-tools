@@ -1,5 +1,4 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
-import { assertApproved, type Civ7ActionApproval } from "../action-approval.js";
 import { jsonPayloadFromCommandResult } from "../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
 import { jsLiteral } from "../runtime/command-serialization.js";
@@ -110,7 +109,6 @@ export type Civ7SetupMapRowVisibilityResult = Readonly<{
 }>;
 
 export type SetupReadDependencies = Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,
@@ -153,7 +151,6 @@ export async function getCiv7SetupMapRows(
 export async function ensureCiv7SetupMapRowVisible(
   input: Civ7SetupMapRowVisibilityInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval | undefined,
   dependencies: SetupReadDependencies = defaultSetupReadDependencies,
 ): Promise<Civ7SetupMapRowVisibilityResult> {
   validateMapScript(input.file);
@@ -169,10 +166,6 @@ export async function ensureCiv7SetupMapRowVisible(
     };
   }
 
-  if (!approval) {
-    throw new Civ7DirectControlError("command-failed", "Explicit approval is required before refreshing Civ7 setup map rows");
-  }
-  dependencies.assertApproved(approval, "refreshing Civ7 setup map rows");
   const waitTimeoutMs = input.waitTimeoutMs ?? options.timeoutMs ?? 30_000;
   const pollIntervalMs = input.pollIntervalMs ?? 1_000;
   const shellBefore = await getCiv7SetupSnapshot(options, dependencies).catch(() => undefined);
@@ -489,7 +482,6 @@ function sleep(ms: number): Promise<void> {
 }
 
 export const defaultSetupReadDependencies: SetupReadDependencies = {
-  assertApproved,
   boundedInteger,
   executeAppUiCommand: executeCiv7AppUiCommand,
   exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,

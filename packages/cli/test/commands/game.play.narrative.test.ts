@@ -55,8 +55,6 @@ describe('game play narrative commands', () => {
         '--action',
         '-1326475004',
         '--send',
-        '--reason',
-        'choose production reward branch',
         '--json',
       ]);
 
@@ -119,8 +117,6 @@ describe('game play narrative commands', () => {
         '--timeout-ms',
         '1000',
         '--send',
-        '--reason',
-        'choose happiness reward branch',
         '--json',
       ]);
 
@@ -178,8 +174,6 @@ describe('game play narrative commands', () => {
         '--timeout-ms',
         '1000',
         '--send',
-        '--reason',
-        'choose happiness reward branch',
         '--json',
       ]);
 
@@ -291,7 +285,7 @@ describe('game play narrative commands', () => {
         'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --json',
       );
       expect(payload.result.surfaces[0].unprovenDismissalCli).toBe(
-        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --send --reason \'<reviewed: narrative notification has no pending story>\'',
+        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --send',
       );
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -595,7 +589,7 @@ function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send --reason '<why this narrative closeout was selected>'",
+      cli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send",
       validateCli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --json",
     },
   ];
@@ -618,7 +612,7 @@ function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001B --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send --reason '<why this visible narrative option was selected>'",
+      cli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001B --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send",
       validateCli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001B --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --json",
     },
     {
@@ -636,7 +630,7 @@ function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001C --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send --reason '<why this visible narrative option was selected>'",
+      cli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001C --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send",
       validateCli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001C --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --json",
     },
   ];
@@ -695,7 +689,7 @@ function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {
       },
     ],
     dismissalDiagnosticCli: hasMaterializedOptions ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --json",
-    unprovenDismissalCli: hasMaterializedOptions ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --send --reason '<reviewed: narrative notification has no pending story>'",
+    unprovenDismissalCli: hasMaterializedOptions ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --send",
     notes: [
       'Static fixture mirrors the CLI/HUD contract emitted by the official story-model narrative choice materializer.',
     ],

@@ -10,7 +10,6 @@ import {
   requestCiv7UnitCommand,
   requestCiv7UnitOperation,
   assertCiv7ComponentId,
-  type Civ7ActionApproval,
   type Civ7ComponentId,
   type Civ7DirectControlOptions,
   type Civ7OperationFamily,
@@ -42,21 +41,6 @@ export function buildDirectControlOptions(flags: DirectControlFlagOptions): Civ7
     host: flags.host,
     port: flags.port,
     timeoutMs: flags['timeout-ms'],
-  };
-}
-
-export function requireSendReason(send: boolean, reason: string | undefined, commandName: string): string {
-  if (send && !reason) {
-    throw new Error(`${commandName} requires --reason when --send is set`);
-  }
-  return reason ?? '';
-}
-
-export function buildApproval(reason: string): Civ7ActionApproval {
-  return {
-    approved: true,
-    reason,
-    disposableSession: true,
   };
 }
 
@@ -128,25 +112,23 @@ export async function sendPlayOperation(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions,
-  approval: Civ7ActionApproval,
 ) {
-  if (family === 'unit-operation') return await requestCiv7UnitOperation(assertUnitInput(input), options, approval);
-  if (family === 'unit-command') return await requestCiv7UnitCommand(assertUnitInput(input), options, approval);
-  if (family === 'city-operation') return await requestCiv7CityOperation(assertCityInput(input), options, approval);
-  if (family === 'city-command') return await requestCiv7CityCommand(assertCityInput(input), options, approval);
-  return await requestCiv7PlayerOperation(assertPlayerInput(input), options, approval);
+  if (family === 'unit-operation') return await requestCiv7UnitOperation(assertUnitInput(input), options);
+  if (family === 'unit-command') return await requestCiv7UnitCommand(assertUnitInput(input), options);
+  if (family === 'city-operation') return await requestCiv7CityOperation(assertCityInput(input), options);
+  if (family === 'city-command') return await requestCiv7CityCommand(assertCityInput(input), options);
+  return await requestCiv7PlayerOperation(assertPlayerInput(input), options);
 }
 
 export async function executePlayOperationSequence(
   steps: ReadonlyArray<PlayOperationStep>,
   options: Civ7DirectControlOptions,
-  config: { send: boolean; reason: string },
+  config: { send: boolean; reason?: string },
 ) {
-  const approval = config.send ? buildApproval(config.reason) : null;
   const results = [];
   for (const step of steps) {
-    const result = approval
-      ? await sendPlayOperation(step.family, step.input, options, approval)
+    const result = config.send
+      ? await sendPlayOperation(step.family, step.input, options)
       : await validatePlayOperation(step.family, step.input, options);
     results.push({
       label: step.label,

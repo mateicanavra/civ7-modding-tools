@@ -8,12 +8,10 @@ import {
   notificationDismissalPostcondition,
 } from "./postconditions.js";
 import { waitForCiv7NotificationDismissal } from "./verification.js";
-import { assertApproved } from "../../action-approval.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 
-import type { Civ7ActionApproval } from "../../action-approval.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type { Civ7NotificationDismissalPostcondition } from "./postconditions.js";
@@ -33,8 +31,6 @@ export const Civ7NotificationDismissInputSchema = Type.Object({
 
 export const Civ7NotificationDismissRequestInputSchema = Type.Object({
   notificationId: Civ7ComponentIdSchema,
-  approvalReason: Type.String({ minLength: 1 }),
-  disposableSession: Type.Optional(Type.Boolean()),
 }, { additionalProperties: false });
 export type Civ7NotificationDismissRequestInput = Readonly<Static<typeof Civ7NotificationDismissRequestInputSchema>>;
 
@@ -144,12 +140,9 @@ export async function getCiv7NotificationDismissal(
 export async function requestCiv7NotificationDismissal(
   input: Civ7NotificationDismissInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: NotificationDismissalRequestDependencies & Readonly<{
-    assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   }> = defaultNotificationDismissalRequestDependencies,
 ): Promise<Civ7NotificationDismissalResult> {
-  dependencies.assertApproved(approval, "dismissing Civ7 notification");
   assertCiv7ComponentId(input.notificationId, "notificationId");
   const result = await dependencies.executeAppUiCommand({
     ...options,
@@ -168,9 +161,7 @@ export async function requestCiv7NotificationDismissal(
 }
 
 const defaultNotificationDismissalRequestDependencies: NotificationDismissalRequestDependencies & Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
 }> = {
-  assertApproved,
   executeAppUiCommand: executeCiv7AppUiCommand,
   jsLiteral,
   parseNotificationDismissal: (result, label) =>

@@ -37,8 +37,7 @@ describe("culture choice closeout requests", () => {
       const node = -1404789184;
       const request = await requestCiv7CultureChoiceCloseout(
         { playerId: 0, node, notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test culture App UI closeout" }
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(request.sent).toBe(true);

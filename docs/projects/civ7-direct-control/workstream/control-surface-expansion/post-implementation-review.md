@@ -3,15 +3,22 @@
 Date: 2026-05-31
 Reviewer frame: complicated implementation review for `codex/civ7-direct-control-surface`.
 
+Note: approval-specific repair demands in this review are historical. The later
+approval-removal rebaseline retired caller-provided approval objects and CLI
+reason flags as product concepts. Current mutation safety is validator-first
+behavior where available, source-owned postcondition/proof/no-repeat evidence,
+disposable-session boundaries for debug cheats, and no automatic replay after
+uncertain mutation results.
+
 ## Findings
 
-### P1: `configureCiv7Autoplay()` mutates App UI Autoplay without approval
+### P1 Historical/Superseded: `configureCiv7Autoplay()` mutates App UI Autoplay without approval
 
 - Evidence: `packages/civ7-direct-control/src/index.ts:1456` defines `configureCiv7Autoplay(options)` with no `Civ7ActionApproval` parameter, then executes `buildConfigureAutoplayCommand(options)` at `packages/civ7-direct-control/src/index.ts:1464`.
 - Evidence: `buildConfigureAutoplayCommand()` emits setters from `autoplaySetterSource()` at `packages/civ7-direct-control/src/index.ts:2512`.
 - Evidence: the CLI constructs an approval object at `packages/cli/src/commands/game/autoplay.ts:70`, but the `configure` branch does not pass it at `packages/cli/src/commands/game/autoplay.ts:76`.
-- Why it matters: this violates the action-surface contract that mutating wrappers are explicit, approved, and auditable. Configure can change turns, observe player, return player, and pause state.
-- Repair: change `configureCiv7Autoplay(options, approval)` to call `assertApproved()`, update CLI to require/pass approval for `configure`, and add tests proving configure rejects missing approval and sends exactly once when approved.
+- Why it mattered then: this violated the earlier action-surface contract that mutating wrappers were explicit, approved, and auditable. Configure can change turns, observe player, return player, and pause state.
+- Superseded repair: do not restore approval. Preserve current validator/proof/no-repeat safety and no automatic replay semantics.
 
 ### P1: bounded map/visibility reads can still iterate enormous grids inside Civ
 
@@ -27,7 +34,7 @@ Reviewer frame: complicated implementation review for `codex/civ7-direct-control
 - Evidence: `buildStartAutoplayCommand()` calls `Autoplay.setActive(true)` regardless of whether a bounded turn count was set at `packages/civ7-direct-control/src/index.ts:2519`.
 - Evidence: the CLI `--turns` flag is optional for `game autoplay --action start` at `packages/cli/src/commands/game/autoplay.ts:33`.
 - Why it matters: the workstream requires bounded, auditable mutation semantics. Starting Autoplay with prior or default turn state can run longer than intended.
-- Repair: require a bounded `turns` value for `startCiv7Autoplay()` unless the approval contract has a separate explicit unbounded mode, and add a regression test for missing turns.
+- Repair: record the user decision that unbounded start is valid, preserve status proof/no-repeat semantics, and do not reintroduce an approval contract as the escape hatch.
 
 ### P2: turn-complete guard defaults to sendable when the native guard is absent
 

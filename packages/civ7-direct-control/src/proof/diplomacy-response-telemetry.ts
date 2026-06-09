@@ -3,7 +3,6 @@ import {
   type Civ7OperationProofBoundary,
   type Civ7OperationProofClass,
   type Civ7OperationProofTelemetryRecord,
-  type Civ7OperationTelemetryApproval,
   type Civ7OperationTelemetryEvidence,
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
@@ -19,7 +18,6 @@ import type {
 export type Civ7DiplomacyResponseTelemetryAdapterInput = Readonly<{
   input: Civ7DiplomacyResponseInput;
   result: Civ7DiplomacyResponseResult;
-  approval: Civ7OperationTelemetryApproval;
   source: string;
   correlationId?: string;
   playerScope?: Civ7OperationTelemetryPlayerScope;
@@ -73,7 +71,6 @@ export function createCiv7DiplomacyResponseTelemetryRecord(
       },
       "fixture"
     ),
-    approval: input.approval,
     validation_pre: evidence(
       {
         valid: input.result.beforeValidation.valid === true,

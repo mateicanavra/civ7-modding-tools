@@ -27,7 +27,7 @@ operation, so the bulk surface must classify before it acts.
 - it excludes gameplay operations, unit commands, progression, city,
   diplomacy, population, narrative, and unclassified notifications;
 - it dry-runs by default;
-- with `--send --reason`, it dismisses the eligible candidates up to
+- with `--send`, it dismisses the eligible candidates up to
   `--max-dismissals` using the existing direct-control App UI dismissal wrapper.
 
 ## Command
@@ -37,7 +37,6 @@ civ7 game play notification-queue --json
 civ7 game play dismiss-notification-queue --json
 civ7 game play dismiss-notification-queue \
   --send \
-  --reason "reviewed informational queue reports" \
   --json
 ```
 
@@ -87,8 +86,8 @@ The desired loop is:
 2. Resolve the first end-turn blocker or consciously defer it.
 3. Review informational notifications for tactical implications at the level
    the queue summary/location requires.
-4. Run `game play dismiss-notification-queue --send --reason <reason>` to bulk
-   clear eligible informational closeouts.
+4. Run `game play dismiss-notification-queue --send` to bulk clear eligible
+   informational closeouts.
 5. Re-read the queue after any send, dismissal, human input, or slow read.
 
 ## Why Bulk Dismissal Is Classified
@@ -111,8 +110,8 @@ A broader bulk closeout class would need stronger preconditions:
 - every target notification is still present in a fresh queue read;
 - every item is classified as informational closeout or another proven
   closeout class;
-- every item has a per-notification reason or a reviewed batch reason plus
-  item-level summaries;
+- every item has item-level review context and summaries sufficient to explain
+  why it is safe to close;
 - no item is an end-turn blocker with an unhandled operation family;
 - post-dismissal queue state is checked.
 

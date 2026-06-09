@@ -7,7 +7,7 @@ Date: 2026-06-05.
 
 Add the first Studio browser/server edge over the shared
 `packages/civ7-control-orpc` router using native oRPC HTTP primitives after the
-router has service-owned readiness, attention, mutation, approval, readiness,
+router has service-owned readiness, attention, mutation,  readiness,
 safe-error, and correlation policy proof.
 
 This advances the edge-adapter lane without adding OpenAPI, external REST,

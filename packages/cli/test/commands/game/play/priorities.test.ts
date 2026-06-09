@@ -101,14 +101,12 @@ describe('game play priorities command', () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('clean-read');
-      expect(top.command).toContain('game play end-turn --send');
-      expect(top.command).toContain("--reason 'clean read: no HUD, ready-unit, ready-city, or battlefield priority surfaced'");
-      expect(payload.next).toBe(top.command);
+      expect(top.command).toContain('game play end-turn --send');      expect(payload.next).toBe(top.command);
       expect(top.reason).toContain('rechecks blockers before sending');
       expect(payload.semanticEnvelope.blockers).toEqual([]);
       expect(payload.semanticEnvelope.actions[0]).toMatchObject({
         command: top.command,
-        approvalRequired: true,
+        sendsMutation: true,
       });
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendTurnComplete'))).toBe(false);
@@ -304,9 +302,7 @@ describe('game play priorities command', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:informational-notification');
       expect(top.command).toContain('game play dismiss-notification');
-      expect(top.command).toContain("--target '{\"owner\":0,\"id\":89,\"type\":20}'");
-      expect(top.command).toContain('<reviewed: notification-volcano-active>');
-      expect(payload.next).toBe(top.command);
+      expect(top.command).toContain("--target '{\"owner\":0,\"id\":89,\"type\":20}'");      expect(payload.next).toBe(top.command);
       expect(top.reason).toContain('live ComponentID');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -320,9 +316,7 @@ describe('game play priorities command', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:informational-notification');
       expect(top.command).toContain('game play dismiss-notification');
-      expect(top.command).toContain("--target '{\"owner\":0,\"id\":34,\"type\":20}'");
-      expect(top.command).toContain('<reviewed: notification-unit-lost>');
-      expect(payload.next).toBe(top.command);
+      expect(top.command).toContain("--target '{\"owner\":0,\"id\":34,\"type\":20}'");      expect(payload.next).toBe(top.command);
       expect(top.command).not.toMatch(/enemy|hostile|opponent/i);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -336,9 +330,7 @@ describe('game play priorities command', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:informational-notification');
       expect(top.command).toContain('game play dismiss-notification');
-      expect(top.command).toContain("--target '{\"owner\":0,\"id\":118,\"type\":20}'");
-      expect(top.command).toContain('<reviewed: notification-diplomatic-action>');
-      expect(payload.next).toBe(top.command);
+      expect(top.command).toContain("--target '{\"owner\":0,\"id\":118,\"type\":20}'");      expect(payload.next).toBe(top.command);
       expect(top.reason).toContain('live ComponentID');
       expect(top.command).not.toContain('respond-diplomacy');
       expect(payload.next).not.toContain('respond-diplomacy');
@@ -660,7 +652,7 @@ function commandUnitsDecision(mode: 'stale-unit-command' | 'stale-unit-command-d
             {
               unitId,
               operationType: 'SKIP_TURN',
-              cli: `game play operation --family unit --type SKIP_TURN --unit-id '${JSON.stringify(unitId)}' --send --reason '<why this unit has no better operation this turn>'`,
+              cli: `game play operation --family unit --type SKIP_TURN --unit-id '${JSON.stringify(unitId)}' --send`,
             },
           ]
         : [],
@@ -674,7 +666,7 @@ function commandUnitsDecision(mode: 'stale-unit-command' | 'stale-unit-command-d
                 }
               : {
                   kind: 'send-turn-complete',
-                  cli: "game play end-turn --send --reason '<stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout>' --json",
+                  cli: "game play end-turn --send --json",
                 },
           ],
     },

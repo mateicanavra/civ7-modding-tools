@@ -4,11 +4,9 @@ import {
   waitForCiv7DiplomacyResponseAfter,
 } from "./diplomacy-postconditions.js";
 import type {
-  Civ7ActionApproval,
   Civ7OperationValidationResult,
 } from "./types.js";
 
-import { assertApproved } from "../../action-approval.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
@@ -75,7 +73,6 @@ export type Civ7DiplomacyResponseResult = Readonly<{
 }>;
 
 type DiplomacyResponseRequestDependencies = Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   validatePlayerId: (playerId: number) => void;
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,
@@ -97,10 +94,8 @@ type DiplomacyResponseRequestDependencies = Readonly<{
 export async function requestCiv7DiplomacyResponse(
   input: Civ7DiplomacyResponseInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: DiplomacyResponseRequestDependencies = defaultDiplomacyResponseRequestDependencies,
 ): Promise<Civ7DiplomacyResponseResult> {
-  dependencies.assertApproved(approval, "responding to diplomatic action");
   dependencies.validatePlayerId(input.playerId);
   if (!Number.isInteger(input.actionId)) dependencies.invalidActionIdError();
   if (!Number.isInteger(input.responseType)) dependencies.invalidResponseTypeError();
@@ -165,7 +160,6 @@ export async function requestCiv7DiplomacyResponse(
 }
 
 const defaultDiplomacyResponseRequestDependencies: DiplomacyResponseRequestDependencies = {
-  assertApproved,
   validatePlayerId,
   executeAppUiCommand: executeCiv7AppUiCommand,
   getPlayNotificationView: getCiv7PlayNotificationView,

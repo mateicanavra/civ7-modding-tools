@@ -34,7 +34,7 @@ The shared middleware:
 - wraps the shared contract implementer before module procedures add leaf
   middleware;
 - preserves existing `ORPCError` instances, including typed effect-oRPC tagged
-  errors and mutation approval errors;
+  errors and readiness errors;
 - projects unknown downstream failures into a bounded `INTERNAL_SERVER_ERROR`
   with no raw command/session/tuner/cause details in public JSON;
 - remains package-internal and does not add a caller-facing middleware API.
@@ -60,7 +60,7 @@ typed projection and service procedure composition.
 
 Focused proof covers:
 
-- shared middleware preserving existing approval tagged errors before the
+- shared middleware preserving existing readiness and runtime-port tagged errors before the
   direct-control mutation port runs;
 - shared middleware catching an unexpected procedure-local middleware failure and
   returning a bounded `INTERNAL_SERVER_ERROR` without raw implementation,
@@ -81,7 +81,7 @@ Verification run:
 ## Residual Risk
 
 This is local package proof only. It does not prove Civ7 runtime behavior,
-runtime availability, mutation safety, or correlation behavior.
+runtime availability,  or correlation behavior.
 
 Raw direct-control runtime-port failure classification remains intentionally
 handler-local until a lower-level Effect service/port boundary can expose those

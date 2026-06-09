@@ -46,7 +46,7 @@ describe("Civ7 operation proof telemetry owner", () => {
     }
   });
 
-  test("keeps approval, validation, send, post-read, and outcome evidence separate", () => {
+  test("keeps validation, send, post-read, and outcome evidence separate", () => {
     const record = createCiv7OperationProofTelemetryRecord(baseTelemetryInput({
       validation_pre: {
         evidenceClass: "local-package-test",
@@ -73,8 +73,6 @@ describe("Civ7 operation proof telemetry owner", () => {
         value: { blocker: "unchanged" },
       },
     }));
-
-    expect(record.approval.status).toBe("approved");
     expect(record.validation_pre?.value).toMatchObject({ valid: false });
     expect(record.send_receipt).toMatchObject({ status: "not-attempted" });
     expect(record.outcome_delta?.value).toEqual({ outcome: "not-sent" });
@@ -390,12 +388,6 @@ function baseTelemetryInput(
       source: "unit-operation.test.ts",
       freshness: "fixture",
       value: { x: 48, y: 32 },
-    },
-    approval: {
-      required: true,
-      status: "approved",
-      reason: "test approved action",
-      source: "operation-telemetry.test.ts",
     },
     validation_pre: {
       evidenceClass: "local-package-test",

@@ -235,8 +235,8 @@ Recovery actions must be explicit and phase-aware:
   failure says `reloadRequired` and `reloadBoundary` permits an explicit
   `exit-to-shell` action. Label it as leaving the current Civ session.
 - `Restart game and begin`: mutating/destructive. Do not include in the minimal
-  surface unless the operation contract can prove user approval, request id,
-  and recovery boundary. If added later, it needs a confirmation dialog.
+  surface unless the operation contract can prove a fresh user action, request
+  id, and recovery boundary. If added later, it needs a confirmation dialog.
 
 Do not auto-run recovery after a Vite reload or fetch abort. The UI may restore
 the last known operation and offer `Retry status check`; it must not replay

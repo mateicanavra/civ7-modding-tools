@@ -1,4 +1,3 @@
-import { assertApproved, type Civ7ActionApproval } from "../action-approval.js";
 import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
@@ -57,7 +56,6 @@ export type Civ7AutoplayActionResult = Readonly<{
 }>;
 
 type AutoplayDependencies = Readonly<{
-  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   defaultMaxTurns: number;
   defaultPollIntervalMs: number;
@@ -90,10 +88,8 @@ export async function getCiv7AutoplayStatus(
 
 export async function configureCiv7Autoplay(
   options: Civ7AutoplayOptions,
-  approval: Civ7ActionApproval,
   dependencies: AutoplayDependencies = defaultAutoplayDependencies,
 ): Promise<Civ7AutoplayActionResult> {
-  dependencies.assertApproved(approval, "configuring Civ7 autoplay");
   const maxTurns = options.maxTurns ?? dependencies.defaultMaxTurns;
   if (options.turns !== undefined) {
     dependencies.boundedInteger(options.turns, 1, maxTurns, "turns");
@@ -125,10 +121,8 @@ export async function configureCiv7Autoplay(
 
 export async function startCiv7Autoplay(
   options: Civ7AutoplayOptions,
-  approval: Civ7ActionApproval,
   dependencies: AutoplayDependencies = defaultAutoplayDependencies,
 ): Promise<Civ7AutoplayActionResult> {
-  dependencies.assertApproved(approval, "starting Civ7 autoplay");
   const maxTurns = options.maxTurns ?? dependencies.defaultMaxTurns;
   if (options.turns !== undefined) {
     dependencies.boundedInteger(options.turns, 1, maxTurns, "turns");
@@ -160,10 +154,8 @@ export async function startCiv7Autoplay(
 
 export async function stopCiv7Autoplay(
   options: Civ7AutoplayOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: AutoplayDependencies = defaultAutoplayDependencies,
 ): Promise<Civ7AutoplayActionResult> {
-  dependencies.assertApproved(approval, "stopping Civ7 autoplay");
   const before = await getCiv7AutoplayStatus(options, dependencies);
   const commandOptions = materializeAutoplayPlayerOptions(options, before);
   const command = await dependencies.executeAppUiCommand({
@@ -368,7 +360,6 @@ async function waitForCiv7AutoplayStop(
 }
 
 const defaultAutoplayDependencies: AutoplayDependencies = {
-  assertApproved,
   boundedInteger,
   defaultMaxTurns: DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
   defaultPollIntervalMs: DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,

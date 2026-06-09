@@ -91,7 +91,7 @@ export default class GamePlayNotificationQueue extends Command {
       schedule,
       notes: [
         'Read-only notification queue scheduler; it does not dismiss notifications or send player/unit/city operations.',
-        'Informational dismissal candidates still require review of summary/location and an explicit per-notification reason before any send.',
+        'Informational dismissal candidates still require summary/location review and item-level context before any validator-backed send.',
         'Operation steps are templates. Re-read live inputs and use the specialized validator-backed command before sending.',
       ],
     };
@@ -173,7 +173,7 @@ function isBatchSafeDismissalCandidate(item: Civ7PlayDecisionQueueItem): boolean
 
 function commandFor(item: Civ7PlayDecisionQueueItem, disposition: QueueDisposition): string | null {
   if (disposition === 'reviewed-dismissal-candidate' && item.notificationId) {
-    return `game play dismiss-notification --target '${JSON.stringify(item.notificationId)}' --send --reason '<reviewed: ${reasonSlug(item)}>'`;
+    return `game play dismiss-notification --target '${JSON.stringify(item.notificationId)}' --send`;
   }
   const recommendedDetailCommand = recommendedCliFromDecisionDetails((item as { details?: unknown }).details);
   if (recommendedDetailCommand) return recommendedDetailCommand;

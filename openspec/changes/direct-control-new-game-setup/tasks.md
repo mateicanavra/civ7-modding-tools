@@ -2,9 +2,9 @@
 
 - [x] 1.1 Add setup result/input/error types and map-row proof types.
 - [x] 1.2 Implement App UI setup snapshot and bounded map row lookup wrappers.
-- [x] 1.3 Implement approved setup preparation with domain validation,
+- [x] 1.3 Implement setup preparation with domain validation,
   revision/readback proof, and no retry after command send.
-- [x] 1.4 Implement approved start/orchestration wrapper with expected setup
+- [x] 1.4 Implement start/orchestration wrapper with expected setup
   validation, Begin/GameStarted wait, optional Tuner wait, and post-start
   seed/dimensions proof.
 - [x] 1.5 Add setup wrappers to the static capability catalog.

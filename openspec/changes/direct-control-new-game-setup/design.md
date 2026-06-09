@@ -10,14 +10,14 @@ Begin/GameStarted for gameplay-read postconditions.
 - `getCiv7SetupMapRows(input, options)`: bounded App UI config database read
   for frontend map script rows, distinct from Tuner `GameInfo.Maps` map-size
   rows.
-- `prepareCiv7SinglePlayerSetup(input, options, approval)`: validate active
+- `prepareCiv7SinglePlayerSetup(input, options)`: validate active
   setup domains, write bounded setup parameters through both `Configuration`
   and `GameSetup` parameter APIs where Civ exposes both surfaces, and read back
   exact values.
-- `startPreparedCiv7SinglePlayerGame(input, options, approval)`: verify expected
+- `startPreparedCiv7SinglePlayerGame(input, options)`: verify expected
   setup, start through one package-owned primitive, wait for Begin/GameStarted,
   and optionally wait for Tuner readiness.
-- `runCiv7SinglePlayerFromSetup(input, options, approval)`: compose shell guard,
+- `runCiv7SinglePlayerFromSetup(input, options)`: compose shell guard,
   setup, start, and post-start proof for Studio-facing callers.
 
 ## Setup Input Contract
@@ -37,7 +37,7 @@ Minimum input:
 
 `prepareCiv7SinglePlayerSetup` requires shell by default. The orchestration
 wrapper may accept `fromRunningGame: "exit-to-shell"` only with explicit
-approval and records the destructive phase transition in the result.
+caller request and records the destructive phase transition in the result.
 
 ## Map Row Proof
 

@@ -1,11 +1,9 @@
 import { Command, Flags } from '@oclif/core';
 import {
-  buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   executePlayOperationSequence,
   parseComponentId,
-  requireSendReason,
   sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
@@ -21,8 +19,8 @@ export default class GamePlaySetTownFocus extends Command {
 
   static examples = [
     '<%= config.bin %> game play set-town-focus --city-id \'{"owner":0,"id":131073,"type":1}\' --growth-type -284569333 --project-type -548685232 --json',
-    '<%= config.bin %> game play set-town-focus --city-id \'{"owner":0,"id":131073,"type":1}\' --growth-type -284569333 --project-type -548685232 --send --reason "set coastal town to Fishing Town focus" --json',
-    '<%= config.bin %> game play set-town-focus --city-id \'{"owner":0,"id":131073,"type":1}\' --growth-type -284569333 --project-type -548685232 --send --closeout --reason "set and close reviewed town focus" --json',
+    '<%= config.bin %> game play set-town-focus --city-id \'{"owner":0,"id":131073,"type":1}\' --growth-type -284569333 --project-type -548685232 --send --json',
+    '<%= config.bin %> game play set-town-focus --city-id \'{"owner":0,"id":131073,"type":1}\' --growth-type -284569333 --project-type -548685232 --send --closeout --json',
   ];
 
   static flags = {
@@ -55,9 +53,6 @@ export default class GamePlaySetTownFocus extends Command {
       description: 'Also run CONSIDER_TOWN_PROJECT as part of the same caller-level workflow',
       default: false,
     }),
-    reason: Flags.string({
-      description: 'Required approval reason for --send',
-    }),
     'timeout-ms': Flags.integer({
       description: 'Socket timeout',
       default: 45_000,
@@ -69,9 +64,7 @@ export default class GamePlaySetTownFocus extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlaySetTownFocus);
-    const reason = requireSendReason(flags.send, flags.reason, 'game play set-town-focus');
-    const cityId = parseComponentId(flags['city-id'], 'city-id');
+    const { flags } = await this.parse(GamePlaySetTownFocus);    const cityId = parseComponentId(flags['city-id'], 'city-id');
     const input = {
       operationType: CHANGE_GROWTH_MODE,
       cityId,
@@ -98,14 +91,14 @@ export default class GamePlaySetTownFocus extends Command {
             args: {},
           },
         },
-      ], options, { send: flags.send, reason });
+      ], options, { send: flags.send });
 
       emitPlayResult(this.log.bind(this), flags.json, result);
       return;
     }
 
     const result = flags.send
-      ? await sendPlayOperation('city-command', input, options, buildApproval(reason))
+      ? await sendPlayOperation('city-command', input, options)
       : await validatePlayOperation('city-command', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);

@@ -27,7 +27,6 @@ import {
 } from "./reads.js";
 import type { Civ7MapSummaryResult } from "../play/map/types.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
-import type { Civ7ActionApproval } from "../action-approval.js";
 import {
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_UI_LOADING_STATES,
@@ -95,10 +94,8 @@ type SetupStartDependencies = SetupReadDependencies & Readonly<{
 export async function startPreparedCiv7SinglePlayerGame(
   input: Civ7PreparedStartInput,
   options: Civ7DirectControlOptions = {},
-  approval: Civ7ActionApproval,
   dependencies: SetupStartDependencies = defaultSetupStartDependencies,
 ): Promise<Civ7SinglePlayerStartResult> {
-  dependencies.assertApproved(approval, "starting a prepared Civ7 single-player game");
   const expected = normalizeSinglePlayerSetupInput(input.expected, dependencies);
   const before = await dependencies.parseSetupSnapshot(
     await dependencies.executeAppUiCommand({

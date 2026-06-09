@@ -4,6 +4,13 @@ Date: 2026-05-31
 Lane: Mutating action-surface
 Status: contract-ready; no live mutation performed in this lane
 
+Supersession note: the later approval-removal rebaseline retired
+caller-provided approval objects, CLI reason flags, and explicit-force approval
+modes as product concepts. Current mutation safety is validator-first behavior
+where available, source-owned postcondition/proof/no-repeat evidence,
+disposable-session boundaries for debug cheats, and no automatic replay after
+uncertain mutation results.
+
 ## Scope And Evidence
 
 This report turns the prior `wrap-carefully` candidates into first-class
@@ -62,7 +69,7 @@ Dominant feedback loops:
   synthesize more JS, which increases unvalidated mutation, which increases
   session-corruption risk.
 - Balancing safety loop: state role selection, validator-first wrappers,
-  explicit approval, postcondition proof, and no replay reduce blast radius
+  postcondition proof, no-repeat boundaries, and no replay reduce blast radius
   while still enabling useful supervised control.
 
 ## Universal Mutation Rules
@@ -75,14 +82,14 @@ These rules apply to every mutating wrapper.
 2. Read wrappers may reconnect and retry. Mutating wrappers must not
    automatically replay after timeout, disconnect, response parse failure, or
    unknown postcondition.
-3. A mutating wrapper accepts an `approval` object or validation token and
-   returns the exact operation it will issue before execution in dry-run mode.
-4. `force` is not a normal bypass. If present at all, it must require
-   `approval.mode = "explicit-force"`, carry a reason, mark the result
-   `high-risk`, and still run pre/post snapshots.
+3. A mutating wrapper validates input through the strongest available domain
+   validator and returns the exact operation it will issue before execution in
+   dry-run mode where supported.
+4. `force` is not a normal bypass. If a force/debug path is ever accepted, it
+   must be a separate explicit debug contract with disposable-session
+   boundaries, high-risk result labeling, and pre/post snapshots.
 5. A `canStart` failure is a successful wrapper result, not a transport error.
-   The request wrapper must not call `sendRequest` when validation fails unless
-   the explicit-force path is used.
+   The request wrapper must not call `sendRequest` when validation fails.
 6. Postcondition proof is mandatory: each request wrapper returns before/after
    snapshots or an unresolved postcondition with no retry.
 7. Multiplayer/account/network/save/load/delete/exit surfaces are rejected from
@@ -118,7 +125,7 @@ Contract: `restartCiv7Game()`, `beginCiv7Game()`,
 
 Contracts: `getAutoplayStatus()`,
 `configureAutoplay({ turns, observeAsPlayer, returnAsPlayer })`,
-`startAutoplay(approval)`, `stopAutoplay(approval)`.
+`startAutoplay()`, `stopAutoplay()`.
 
 - State role: App UI first; Tuner allowed only after fresh wrapper proof shows
   identical behavior in the target game phase.
@@ -143,8 +150,8 @@ Contracts: `getAutoplayStatus()`,
 ### Reveal And Explore Map
 
 Contracts: `getVisibilitySummary(playerId)`,
-`revealAllPlots({ playerId }, approval)`,
-`requestUnitExplore({ unitId }, approval)` after validator proof.
+`revealAllPlots({ playerId })`,
+`requestUnitExplore({ unitId })` after validator proof.
 
 - State role: Tuner for visibility reads; App UI or Tuner for
   `Visibility.revealAllPlots` only after fresh proof identifies the live owner;
@@ -154,7 +161,7 @@ Contracts: `getVisibilitySummary(playerId)`,
   `GameplayMap.getRevealedState(...)` and `getRevealedStates(...)` to filter
   hidden information; `recorded-live-proof` owner probes observed `Visibility`
   as mutating and `Players.LiveOpsStats.numPlotsRevealed` as a progress read.
-- Validation sequence for reveal: require disposable-session approval, reject
+- Validation sequence for reveal: require disposable-session boundaries, reject
   multiplayer/account sessions, capture before visibility counts, confirm
   target player is valid, then call the proven reveal method once.
 - Validation sequence for explore: call `canStartUnitOperation` or
@@ -166,13 +173,13 @@ Contracts: `getVisibilitySummary(playerId)`,
 - Failure behavior: reveal failure is high-risk unresolved; do not retry.
   Explore failure returns validator/request result and after snapshot.
 - Risk: reveal is high cheating/debug risk; explore is medium gameplay risk
-  when validator-backed and human-approved.
+  when validator-backed and postcondition-proven.
 
 ### End Turn And Turn Complete
 
 Contracts: `getTurnCompletionStatus()`,
-`requestTurnComplete({ policy }, approval)`,
-`requestTurnUnready(approval)` where supported.
+`requestTurnComplete({ policy })`,
+`requestTurnUnready()` where supported.
 
 - State role: App UI.
 - Evidence: `official-resource` `panel-action.js` checks
@@ -194,12 +201,12 @@ Contracts: `getTurnCompletionStatus()`,
 - Risk: medium for normal single-player turn completion; high for force-end
   behavior, multiplayer, or modal-choice bypass.
 - Status: `unresolved` until fresh live proof exercises the read-only status and
-  one approved disposable turn-complete path.
+  one disposable-session turn-complete path.
 
-### Unit Validators And Approved Requests
+### Unit Validators And Requests
 
 Contracts: `canStartUnitOperation(input)`, `canStartUnitCommand(input)`,
-`requestUnitOperation(input, approval)`, `requestUnitCommand(input, approval)`.
+`requestUnitOperation(input)`, `requestUnitCommand(input)`.
 
 - State role: Tuner.
 - Evidence: `official-resource` `unit-actions.js` iterates visible
@@ -210,8 +217,8 @@ Contracts: `canStartUnitOperation(input)`, `canStartUnitCommand(input)`,
   move-to. `recorded-live-proof` Tuner probes observed `Game.UnitOperations`,
   `Game.UnitCommands`, and enum globals.
 - Validation sequence: resolve unit id; confirm unit exists; confirm owner is
-  the local player unless approval marks debug control; normalize operation or
-  command against observed enum/catalog; build args from a reviewed schema;
+  the local player unless a separate debug contract owns control; normalize
+  operation or command against observed enum/catalog; build args from a reviewed schema;
   call `canStart(..., false)`; optionally call exclusion/target query with the
   official boolean flag only as a read.
 - Postcondition proof: unit snapshot before/after: location, activity/status,
@@ -223,10 +230,10 @@ Contracts: `canStartUnitOperation(input)`, `canStartUnitCommand(input)`,
   explore; high for attacks, delete, upgrade, create, damage, or direct unit
   mutation.
 
-### City Validators And Approved Requests
+### City Validators And Requests
 
 Contracts: `canStartCityOperation(input)`, `canStartCityCommand(input)`,
-`requestCityOperation(input, approval)`, `requestCityCommand(input, approval)`.
+`requestCityOperation(input)`, `requestCityCommand(input)`.
 
 - State role: Tuner.
 - Evidence: `official-resource` build queue and production chooser resources
@@ -236,20 +243,21 @@ Contracts: `canStartCityOperation(input)`, `canStartCityCommand(input)`,
   operation and command routers.
 - Validation sequence: resolve city id; confirm ownership/local player; inspect
   city/build queue before state; normalize operation/command and args from a
-  reviewed schema; run `canStart`; require approval for request.
+  reviewed schema; run `canStart`; request only when validation succeeds and
+  postcondition proof is defined.
 - Postcondition proof: city/build queue before/after, production item,
   purchase/gold/resource deltas where available, city name or growth mode when
   relevant.
 - Failure behavior: no send on failed validator; no generic build/purchase
   wrapper without schema and postcondition.
 - Risk: low for validators; medium for production queue reorder/cancel in a
-  disposable or approved session; high for purchases, city naming, growth mode,
+  disposable or proof-bounded session; high for purchases, city naming, growth mode,
   WMD/ranged attack, expansion, or any irreversible city state.
 
-### Player Validators And Approved Requests
+### Player Validators And Requests
 
 Contracts: `canStartPlayerOperation(input)`,
-`requestPlayerOperation(input, approval)`.
+`requestPlayerOperation(input)`.
 
 - State role: Tuner for validator/request, with App UI local-player context
   only when required.
@@ -260,7 +268,8 @@ Contracts: `canStartPlayerOperation(input)`,
   Tuner probes observed player operations and operation enum examples.
 - Validation sequence: resolve local player; reject account/network/multiplayer
   and diplomacy/war by default; normalize operation against enum/catalog and
-  allowlist; run `canStart`; require approval for request.
+  allowlist; run `canStart`; request only when validation succeeds and
+  postcondition proof is defined.
 - Postcondition proof: player summary before/after, specific progression node,
   resource assignment, government/policy state, or diplomacy state as relevant.
 - Failure behavior: no generic `PlayerOperations.sendRequest` product wrapper.
@@ -280,8 +289,8 @@ Allowed as first implementation targets after their proof recipes pass:
 | Unit skip/sleep/fortify/wake | medium | Common unit action family; validator-first and postcondition-friendly. |
 | Unit automate explore | medium | Satisfies explore-map need without direct reveal cheat; requires local-player unit and validator proof. |
 | Unit move to validated reachable plot | medium | Official UI validates movement and can provide target plots; requires visible/local-player filters. |
-| City build queue reorder/cancel | medium/high | Official build queue validates and sends; only allowed in approved/disposable sessions first. |
-| Player tech/culture target selection | medium/high | Official UI uses player operation validators; allowed only after schema proof and approval. |
+| City build queue reorder/cancel | medium/high | Official build queue validates and sends; only allowed in disposable/proof-bounded sessions first. |
+| Player tech/culture target selection | medium/high | Official UI uses player operation validators; allowed only after schema and postcondition proof. |
 | Reveal all plots | high debug | Allowed only as explicit disposable-session debug wrapper, not gameplay assistance. |
 | Turn complete | medium/high | Allowed only when blocker check proves no required choice; no force-end wrapper. |
 
@@ -330,7 +339,7 @@ Autoplay proof:
 Reveal proof:
 
 - Before: `getVisibilitySummary(playerId)` and a bounded hidden/visible count.
-- Execute only with disposable debug approval.
+- Execute only inside disposable debug boundaries.
 - After: visible/revealed count changes or already-revealed classification.
 - Reject proof if reveal affects an unexpected player or persists across
   restart in a non-disposable way.
@@ -347,7 +356,7 @@ Unit operation proof:
 
 - Before: unit summary for one local unit, legal target/operation read.
 - Execute: skip/sleep/fortify or automate explore first; movement second only
-  to a validator-approved reachable plot.
+  to a validator-proven reachable plot.
 - After: activity/status/location changed as expected; no hidden-info target.
 
 City operation proof:

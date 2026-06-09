@@ -1,6 +1,5 @@
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7TunerState } from "../../session/types.js";
-export type { Civ7ActionApproval } from "../../action-approval.js";
 
 export type Civ7OperationFamily =
   | "unit-operation"

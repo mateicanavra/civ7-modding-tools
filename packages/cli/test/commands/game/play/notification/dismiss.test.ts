@@ -9,20 +9,11 @@ type DismissNotificationMode =
   | 'engine-front-dismissed';
 
 describe('game play dismiss-notification command', () => {
-  test('dismisses reviewed notifications only with explicit approval reason', async () => {
-    await expect(GamePlayDismissNotification.run([
-      '--target',
-      '{"owner":0,"id":113,"type":20}',
-      '--send',
-      '--json',
-    ])).rejects.toThrow(/requires --reason/);
-
+  test('dismisses reviewed notifications only with send enabled', async () => {
     const { payload, server } = await runDismissNotification('verified', [
       '--target',
       '{"owner":0,"id":113,"type":20}',
       '--send',
-      '--reason',
-      'reviewed wonder completed notice',
     ]);
     try {
       expect(payload.result.sent).toBe(true);
@@ -58,8 +49,6 @@ describe('game play dismiss-notification command', () => {
       '--target',
       '{"owner":0,"id":113,"type":20}',
       '--send',
-      '--reason',
-      'reviewed culture tree reveal',
     ]);
     try {
       expect(payload.result.sent).toBe(true);
@@ -91,8 +80,6 @@ describe('game play dismiss-notification command', () => {
       '--target',
       '{"owner":0,"id":113,"type":20}',
       '--send',
-      '--reason',
-      'reviewed unit lost report',
     ]);
     try {
       expect(payload.result.sent).toBe(true);
@@ -124,8 +111,6 @@ describe('game play dismiss-notification command', () => {
       '--target',
       '{"owner":0,"id":113,"type":20}',
       '--send',
-      '--reason',
-      'reviewed dismissed flag with stale engine-front report',
     ]);
     try {
       expect(payload.result.sent).toBe(true);

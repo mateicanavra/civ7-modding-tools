@@ -29,7 +29,7 @@ The controller ingress core:
 - validates a closed TypeBox envelope for `readiness.current`;
 - rejects unsupported procedure keys before context construction;
 - rejects host, port, session, state, command, rawCommand, and mutation
-  approval fields in the read-only envelope;
+  runtime-control fields in the read-only envelope;
 - passes correlation IDs into existing control-oRPC context;
 - calls `createCiv7ControlOrpcServerClient(context).readiness.current({})`;
 - returns semantic readiness output on success;
@@ -38,14 +38,14 @@ The controller ingress core:
 
 The controller runtime adapter remains responsible for constructing
 `Civ7ControlOrpcContext`. This package-local core does not read game globals,
-own local-player identity, mint approval tokens, or install a global bridge.
+own local-player identity, mint controller proof, or install a global bridge.
 
 ## Non-Goals
 
 - no ambient `globalThis.Civ7IntelligenceBridge` installation;
 - no modinfo, UIScript bundle, or Civ runtime packaging;
 - no mutation procedure allowlist;
-- no local-player/hotseat identity proof or approval-token implementation;
+- no local-player/hotseat identity proof or controller-proof implementation;
 - no raw command/session/tuner payload ingress;
 - no HTTP/RPCLink/OpenAPI transport;
 - no custom router, procedure runner, middleware, or error bus;
@@ -68,5 +68,5 @@ These are local package/OpenSpec proofs only.
 The actual Civ7 UIScript loading path is still unimplemented. A later
 game-scope adapter must choose the mod/package owner and build shape before it
 passes ambient `globalThis` to the package-local bridge binding. Mutation
-ingress also remains blocked on controller-owned approval, local-player/hotseat
+ingress also remains blocked on controller-owned local-player/hotseat
 identity, lifecycle certification, and proof/evidence sinks.

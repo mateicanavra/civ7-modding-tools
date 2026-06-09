@@ -86,7 +86,7 @@ disruptive.
 ## Verification Gates
 
 - Direct-control fake-socket tests for shell with `Game` undefined, loading,
-  begin-ready, running-game without exit approval, row-refresh failure,
+  begin-ready, running-game without explicit exit-to-shell recovery, row-refresh failure,
   connection loss during refresh/start/log proof, Tuner-listed-but-not-ready,
   and no mutation replay.
 - Studio middleware/UI tests for malformed/raw payload rejection, durable and

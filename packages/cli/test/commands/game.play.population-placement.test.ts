@@ -49,28 +49,36 @@ describe('game play population placement commands', () => {
         '--location',
         '2543',
         '--send',
-        '--reason',
-        'test population worker placement',
         '--json',
       ]);
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          verified: boolean;
-          populationPostcondition: {
-            classification: string;
-            readyCleared: boolean;
-            placementStateChanged: boolean;
-            reason: string;
-          };
-        };
+        result: PopulationPlacementSendResult;
       };
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.populationPostcondition.classification).toBe('population-ready-cleared');
-      expect(payload.result.populationPostcondition.readyCleared).toBe(true);
-      expect(payload.result.populationPostcondition.placementStateChanged).toBe(true);
-      expect(payload.result.populationPostcondition.reason).toMatch(/Growth\.isReadyToPlacePopulation cleared/);
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.placement).toEqual({
+        mode: 'assign-worker',
+        playerId: 0,
+        location: 2543,
+      });
+      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'population-ready-cleared',
+        outcome: 'cleared',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+        readyCleared: true,
+        placementStateChanged: true,
+      });
+      expect(payload.result.postcondition.reason).toMatch(/Growth\.isReadyToPlacePopulation cleared/);
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'refresh-attention',
+        source: 'city.population.place.request',
+      });
+      expectSemanticPopulationPlacementOmitsRawRuntimeDetails(payload.result);
     } finally {
       log.mockRestore();
       await server.close();
@@ -125,38 +133,107 @@ describe('game play population placement commands', () => {
         '--y',
         '19',
         '--send',
-        '--reason',
-        'test population expansion placement',
         '--json',
       ]);
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: {
-          verified: boolean;
-          populationPostcondition: {
-            classification: string;
-            readyCleared: boolean;
-            placementStateChanged: boolean;
-            reason: string;
-          };
-        };
+        result: PopulationPlacementSendResult;
       };
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.populationPostcondition.classification).toBe('population-ready-cleared');
-      expect(payload.result.populationPostcondition.readyCleared).toBe(true);
-      expect(payload.result.populationPostcondition.placementStateChanged).toBe(true);
-      expect(payload.result.populationPostcondition.reason).toMatch(/Growth\.isReadyToPlacePopulation cleared/);
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.status).toBe('sent-confirmed');
+      expect(payload.result.placement).toEqual({
+        mode: 'expand-city',
+        cityId: { owner: 0, id: 196610, type: 1 },
+        destination: { x: 16, y: 19 },
+      });
+      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
+      expect(payload.result.postcondition).toMatchObject({
+        classification: 'population-ready-cleared',
+        outcome: 'cleared',
+        confidence: 'confirmed',
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+        readyCleared: true,
+        placementStateChanged: true,
+      });
+      expect(payload.result.postcondition.reason).toMatch(/Growth\.isReadyToPlacePopulation cleared/);
+      expect(payload.result.nextSteps[0]).toMatchObject({
+        kind: 'refresh-attention',
+        source: 'city.population.place.request',
+      });
+      expectSemanticPopulationPlacementOmitsRawRuntimeDetails(payload.result);
     } finally {
       log.mockRestore();
       await server.close();
     }
   });
+
+  test('rejects non-default worker amount for the semantic assign-worker send atom', async () => {
+    await expect(GamePlayAssignWorker.run([
+      '--player-id',
+      '0',
+      '--location',
+      '2543',
+      '--amount',
+      '2',
+      '--send',
+      '--json',
+    ])).rejects.toThrow(/one-worker placement atom/);
+  });
 });
+
+type PopulationPlacementSendResult = {
+  placement:
+    | { mode: 'assign-worker'; playerId: number; location: number }
+    | {
+      mode: 'expand-city';
+      cityId: { owner: number; id: number; type: number };
+      destination: { x: number; y: number };
+    };
+  sent: boolean;
+  status: string;
+  validation: { beforeValid: boolean; afterValid: boolean };
+  postcondition: {
+    classification: string;
+    reason: string;
+    outcome: string;
+    confidence: string;
+    confirmed: boolean;
+    noRepeatAfterUnverified: boolean;
+    readyCleared: boolean | null;
+    placementStateChanged: boolean | null;
+  };
+  nextSteps: Array<{ kind: string; source: string; label: string }>;
+};
+
+function expectSemanticPopulationPlacementOmitsRawRuntimeDetails(result: unknown) {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"session"');
+  expect(serialized).not.toContain('"rawCommand"');
+  expect(serialized).not.toContain('"command"');
+  expect(serialized).not.toContain('"payload"');
+  expect(serialized).not.toContain('"sendResult"');
+  expect(serialized).not.toContain('"verified"');
+  expect(serialized).not.toContain('"beforePopulationPostcondition"');
+  expect(serialized).not.toContain('"afterPopulationPostcondition"');
+  expect(serialized).not.toContain('"populationPostcondition"');
+  expect(serialized).not.toContain('Game.PlayerOperations');
+  expect(serialized).not.toContain('Game.CityCommands');
+}
 
 async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
+      if (message.includes('Network.isInSession')) {
+        return [JSON.stringify(appUiSnapshot())];
+      }
+      if (message.includes('evalOk') && message.includes('GameplayMap.getGridWidth')) {
+        return [JSON.stringify(tunerHealthSnapshot())];
+      }
       if (message.includes('return JSON.stringify(validateOperation')) {
         return [JSON.stringify(operationValidation(message))];
       }
@@ -170,6 +247,84 @@ async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
       return undefined;
     },
   });
+}
+
+function appUiSnapshot() {
+  return {
+    network: {
+      isInSession: { ok: true, value: true },
+      numPlayers: { ok: true, value: 1 },
+      hostPlayerId: { ok: true, value: 0 },
+      isConnectedToNetwork: { ok: true, value: true },
+      isAuthenticated: { ok: true, value: false },
+      isLoggedIn: { ok: true, value: true },
+    },
+    autoplay: {
+      isActive: false,
+      turns: -1,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 1,
+      age: 0,
+      maxTurns: 0,
+      turnDate: { ok: true, value: '4000 BCE' },
+      hash: { ok: true, value: 0 },
+    },
+    ui: {
+      inGame: { ok: true, value: true },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: 'WaitingForUIReady',
+      canBeginGame: { ok: true, value: true },
+      canNotifyUIReady: 'function',
+      skipStartButton: { ok: true, value: false },
+      automationActive: { ok: true, value: false },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: 0,
+      hasRequestedPause: { ok: true, value: false },
+    },
+    players: {
+      maxPlayers: 64,
+      aliveIds: { ok: true, value: [0] },
+      aliveHumanIds: { ok: true, value: [0] },
+      numAliveHumans: { ok: true, value: 1 },
+    },
+    map: {
+      width: { ok: true, value: 84 },
+      height: { ok: true, value: 54 },
+      plotCount: { ok: true, value: 4536 },
+      mapSize: { ok: true, value: 0 },
+      randomSeed: { ok: true, value: 1 },
+    },
+  };
+}
+
+function tunerHealthSnapshot() {
+  return {
+    evalOk: 2,
+    ready: true,
+    globals: {
+      Game: 'object',
+      Autoplay: 'object',
+      GameplayMap: 'object',
+      Players: 'object',
+      Network: 'undefined',
+    },
+    turn: { ok: true, value: 1 },
+    turnDate: { ok: true, value: '4000 BCE' },
+    width: { ok: true, value: 84 },
+    height: { ok: true, value: 54 },
+    aliveIds: { ok: true, value: [0] },
+    aliveHumanIds: { ok: true, value: [0] },
+    autoplayActive: { ok: true, value: false },
+  };
 }
 
 function operationValidation(message: string) {
