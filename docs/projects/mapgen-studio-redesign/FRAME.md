@@ -94,6 +94,16 @@ These are the standing constraints. Violating one is a defect, not a tradeoff.
 6. **Fully autonomous to a built (unsubmitted) stack.** No per-gate approval.
    The one genuine taste fork — design *direction* — is confirmed once at
    `design:init` per that command's own protocol; everything else proceeds.
+7. **Consume CIV through the typed oRPC client — never hand-roll fetch.** (User
+   directive 2026-06-09.) The studio talks to CIV via the control-oRPC client +
+   contract behind one typed `LiveControlPort` — oRPC-native TanStack Query on the
+   client; the studio-server *proxies/uses* control-oRPC, it does **not**
+   re-implement CIV API calls. Adding any new manual `/api`/socket fetch-and-parse
+   against CIV is forbidden. Until `@civ7/control-orpc` is consumable, the port is
+   satisfied by a **thin temporary transport that still speaks the typed
+   contract**; the existing hand-rolled `/api/civ7/*` middleware is *wrapped behind
+   the port, then deleted* when the client lands. No FireTuner reads. See
+   [`architecture/12-control-seam.md`](architecture/12-control-seam.md).
 
 ## 5. Skills & mechanisms (reference, load on demand)
 
