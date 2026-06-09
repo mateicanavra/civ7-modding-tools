@@ -184,6 +184,15 @@
     through the existing tuner/App UI boundary into that router. This planning
     note does not authorize controller source, transport adapters,
     AI-ingestion code, or runtime proof claims.
+  - [x] 2.10.1 Audit the current direct-control/CLI support slice for
+        implementation leakage after the facade/source modularization stack.
+        Current evidence keeps `packages/civ7-direct-control` and
+        `packages/cli` on local direct-control atoms and CLI command surfaces:
+        no source migration to intelligence-layer code, telemetry persistence,
+        Effect/oRPC procedure cores, transport adapters, or App UI companion
+        bridge implementation is included in this OpenSpec slice. This closes
+        only the guard audit; Task 2.10 remains open until source/proof owners
+        are assigned and any affected compatibility rows are accepted.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
