@@ -12,6 +12,7 @@ export {
   isMinorRiverClass,
   isValidRiverClass,
 } from "./river-class.js";
+export * from "./river-network-metrics.js";
 
 const domain = defineDomain({ id: "hydrology", ops } as const);
 

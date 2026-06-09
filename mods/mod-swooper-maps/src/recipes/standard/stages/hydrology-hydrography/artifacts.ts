@@ -90,6 +90,34 @@ export const HydrologyLakePlanArtifactSchema = Type.Object(
   }
 );
 
+export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
+  {
+    upstreamArea: TypedArraySchemas.i32({
+      description: "Contributing land-tile count draining through each land tile.",
+    }),
+    streamOrderProxy: TypedArraySchemas.u8({
+      description: "Strahler-like hierarchy proxy over Hydrology river truth (0 on non-river tiles).",
+    }),
+    mouthType: TypedArraySchemas.u8({
+      description:
+        "Drainage mouth classification per land tile: 0=unresolved, 1=ocean, 2=accepted lake, 3=closed basin, 4=spill-path routed.",
+    }),
+    slopeClass: TypedArraySchemas.u8({
+      description:
+        "Slope class per land tile: 0=none/water, 1=flat, 2=low, 3=moderate, 4=steep, 5=mountain-blocked closed basin.",
+    }),
+    flowPermanenceProxy: TypedArraySchemas.u8({
+      description:
+        "Flow permanence proxy per land tile: 0=dry/no-signal, 1=ephemeral, 2=intermittent, 3=perennial.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Hydrology-owned river-network diagnostic metrics derived from routing/discharge/lake truth before map projection.",
+  }
+);
+
 export const hydrologyHydrographyArtifacts = {
   hydrography: defineArtifact({
     name: "hydrography",
@@ -100,5 +128,10 @@ export const hydrologyHydrographyArtifacts = {
     name: "lakePlan",
     id: "artifact:hydrology.lakePlan",
     schema: HydrologyLakePlanArtifactSchema,
+  }),
+  riverNetworkMetrics: defineArtifact({
+    name: "riverNetworkMetrics",
+    id: "artifact:hydrology.riverNetworkMetrics",
+    schema: HydrologyRiverNetworkMetricsArtifactSchema,
   }),
 } as const;

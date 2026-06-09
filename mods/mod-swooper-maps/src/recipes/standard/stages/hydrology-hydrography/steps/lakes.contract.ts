@@ -27,10 +27,14 @@ const LakesStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyArtifacts.topography, hydrologyHydrographyArtifacts.hydrography],
-    provides: [hydrologyHydrographyArtifacts.lakePlan],
+    provides: [
+      hydrologyHydrographyArtifacts.lakePlan,
+      hydrologyHydrographyArtifacts.riverNetworkMetrics,
+    ],
   },
   ops: {
     planLakes: hydrology.ops.planLakes,
+    computeRiverNetworkMetrics: hydrology.ops.computeRiverNetworkMetrics,
   },
   schema: LakesStepConfigSchema,
 });

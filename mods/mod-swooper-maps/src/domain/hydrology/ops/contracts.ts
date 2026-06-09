@@ -14,6 +14,7 @@ import ComputeClimateDiagnosticsContract from "./compute-climate-diagnostics/con
 import ComputeDrainageRoutingContract from "./compute-drainage-routing/contract.js";
 import AccumulateDischargeContract from "./accumulate-discharge/contract.js";
 import ProjectRiverNetworkContract from "./project-river-network/contract.js";
+import ComputeRiverNetworkMetricsContract from "./compute-river-network-metrics/contract.js";
 import PlanLakesContract from "./plan-lakes/contract.js";
 import SelectNavigableRiverTerrainContract from "./select-navigable-river-terrain/contract.js";
 
@@ -34,6 +35,7 @@ export const contracts = {
   computeDrainageRouting: ComputeDrainageRoutingContract,
   accumulateDischarge: AccumulateDischargeContract,
   projectRiverNetwork: ProjectRiverNetworkContract,
+  computeRiverNetworkMetrics: ComputeRiverNetworkMetricsContract,
   planLakes: PlanLakesContract,
   selectNavigableRiverTerrain: SelectNavigableRiverTerrainContract,
 } as const;

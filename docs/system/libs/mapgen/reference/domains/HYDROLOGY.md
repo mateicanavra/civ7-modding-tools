@@ -54,6 +54,8 @@ Hydrology provides (truth artifacts):
 - `artifact:climateField` (baseline rainfall/humidity)
 - `artifact:hydrology.climateSeasonality` (amplitude surface)
 - `artifact:hydrology.hydrography` (canonical drainage routing + discharge + river class snapshot)
+- `artifact:hydrology.riverNetworkMetrics` (upstream area, hierarchy, mouth,
+  slope, and permanence diagnostics derived from Hydrology truth)
 - `artifact:hydrology.climateIndices` (advisory indices for downstream consumption)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
 - `artifact:hydrology.climateDiagnostics` (diagnostic projections; not internal truth)
@@ -81,6 +83,7 @@ Hydrology domain ops are bound by step contracts. In the standard recipe, Hydrol
 - `accumulateDischarge`
 - `projectRiverNetwork`
 - `planLakes`
+- `computeRiverNetworkMetrics`
 - `computeLandWaterBudget`
 - `computeClimateDiagnostics`
 - `computeCryosphereState`, `applyAlbedoFeedback`

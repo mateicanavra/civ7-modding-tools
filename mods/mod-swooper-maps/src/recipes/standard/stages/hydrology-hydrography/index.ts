@@ -44,6 +44,7 @@ export default createStage({
     },
     lakes: {
       planLakes: { strategy: "default", config: config.lakes ?? {} },
+      computeRiverNetworkMetrics: { strategy: "default", config: {} },
     },
   }),
 } as const);
