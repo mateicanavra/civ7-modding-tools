@@ -1,0 +1,20 @@
+## 1. Lake And Floodplain Proof
+
+- [ ] 1.1 Emit exact log lake counters and block lake closure on missing exact
+  counters.
+- [ ] 1.2 Preserve a floodplain active seed regression with nonzero live feature
+  evidence.
+- [ ] 1.3 Keep inactive floodplain/no-signal rows labeled as controls, not
+  product passes.
+
+## 2. Product Matrix
+
+- [ ] 2.1 Define fixture, fast seed, Earthlike, holdout, contrast,
+  floodplain-active, and arid/no-signal rows.
+- [ ] 2.2 Require proof labels and reviewer disposition for each row.
+- [ ] 2.3 Update closure ledgers so no row can close from a narrower proof class.
+
+## 3. Validation
+
+- [ ] 3.1 Run lake/floodplain/live-parity/product acceptance tests.
+- [ ] 3.2 Validate this OpenSpec change and `bun run openspec:validate`.

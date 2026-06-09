@@ -1,0 +1,21 @@
+## ADDED Requirements
+
+### Requirement: Studio Exposes River Lake Diagnostic Inspector
+
+MapGen Studio SHALL provide a River/Lake Inspector that separates physical
+hydrology, navigable projection, engine terrain readback, Civ metadata readback,
+lakes, floodplains, and mismatches.
+
+#### Scenario: User inspects a normal run
+- **WHEN** a run emits river/lake artifacts
+- **THEN** Studio shows planned minor, planned major, projected navigable, and
+  engine terrain river counts without requiring debug mode
+- **AND** metadata and mismatch layers are available behind an explicit debug
+  control
+- **AND** zero visible rivers yields a specific status and tuning target
+
+#### Scenario: Legacy river-density config is imported
+- **WHEN** Studio imports a config with `map-rivers.knobs.riverDensity`
+- **THEN** it migrates to `navigableRiverDensity` when no conflicting value is
+  present
+- **AND** it reports a precise conflict when both keys differ
