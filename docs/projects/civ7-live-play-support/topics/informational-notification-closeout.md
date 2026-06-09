@@ -213,7 +213,7 @@ notification-train manager closeout when available, records the visible panel
 close-control route when that route is available for the item, then rereads the
 notification state. Treat `verified:true` as proof that the notification
 disappeared, was marked dismissed, left the engine queue or notification train,
-or moved off a front position it occupied before send. `isEndTurnBlocking:
+or moved off its prior front position. `isEndTurnBlocking:
 false` by itself is not dismissal proof.
 
 For attack and disaster report families, dismissal is not a claim that the

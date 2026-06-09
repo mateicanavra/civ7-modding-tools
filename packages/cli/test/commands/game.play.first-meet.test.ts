@@ -353,7 +353,6 @@ function firstMeetNotificationView(mode: 'first-meet' | 'ready-unit') {
         },
       ],
       recommendedResponse: 'neutral',
-      recommendedCli: 'game play respond-first-meet --met-player-id 2 --response neutral --send',
     },
   };
   const notification = {

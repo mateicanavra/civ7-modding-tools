@@ -356,8 +356,8 @@ export function readyUnitViewSource(): string {
         promotionReadiness: probe(() => unitId ? promotionReadiness(unitId) : null),
         nearby: probe(() => nearbyPlots(unitValue, input.radius)),
         notes: [
-          "Read-only ready-unit view. Use operation validation before any send.",
-          "For plot-target moves or attacks, use game play unit-target so the official right-click action order decides the operation.",
+          "Read-only ready-unit view. Use operation validation before mutation.",
+          "For plot-target moves or attacks, use the unit-target action path so the official right-click action order decides the operation.",
           "For commanders, a legal PROMOTE/open action is not proof that a spendable promotion exists; inspect commander points before choosing promotion args."
         ],
       };

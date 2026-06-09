@@ -99,7 +99,7 @@ near `(13,14)`, and the independent city front at `(13,17)`.
 That combination means the recommendation is useful for planning, but weak as a
 movement order. The next useful step is either to inspect/resolve escort units
 or run `destination-analysis` for a specific near-term endpoint, then re-read
-`ready-unit` before any send.
+`ready-unit` before mutation.
 
 On turn 121 / 1200 BCE, the live priority read showed a ready Settler
 `{"owner":0,"id":1441800,"type":26}` at `(18,16)`, with nearby other-owner

@@ -11,8 +11,8 @@ type ReadyCityActionDescriptor = {
   kind: string;
   label: string;
   parameters: Record<string, unknown>;
-  readOnly: false;
-  sendsMutation: true;
+  readOnly: boolean;
+  sendsMutation: boolean;
 };
 
 export default class GamePlayReadyCity extends Command {
@@ -137,10 +137,10 @@ function buildCompactView(view: ReadyCityView): {
       'Expansion candidate plot yields are map yield facts plus constructible context, not a post-send yield guarantee.',
     ],
     omitted: [
-      { path: 'view.productionCandidates[].result', reason: 'compact rows expose valid/action/template fields; use --json without --compact for raw BUILD validation payloads' },
-      { path: 'view.townFocusOptions', reason: 'use --json without --compact for all town focus options' },
-      { path: 'view.populationPlacement.allPlacementInfo', reason: 'use --json without --compact for raw placement info' },
-      { path: 'view.legalOperations[].result', reason: 'use --json without --compact for raw validation payloads' },
+      { path: 'view.productionCandidates[].result', reason: 'compact rows expose valid/action/template fields; raw BUILD validation payloads are omitted' },
+      { path: 'view.townFocusOptions', reason: 'compact output keeps town-focus counts and selected actions, not the full option catalog' },
+      { path: 'view.populationPlacement.allPlacementInfo', reason: 'compact output keeps placement candidates and yield deltas, not raw placement internals' },
+      { path: 'view.legalOperations[].result', reason: 'compact output keeps validity and semantic actions, not raw validation payloads' },
     ],
   };
 }
@@ -213,6 +213,21 @@ function compactExpansionCandidates(values: ReadonlyArray<Record<string, unknown
 }
 
 function productionAction(candidate: Record<string, unknown>): ReadyCityActionDescriptor {
+  if (candidate.valid !== true) {
+    return {
+      kind: 'validate-production',
+      label: 'Review this production candidate validation before treating it as actionable.',
+      parameters: {
+        candidateKind: candidate.kind,
+        type: candidate.type,
+        typeName: candidate.typeName,
+        valid: candidate.valid ?? null,
+      },
+      readOnly: true,
+      sendsMutation: false,
+    };
+  }
+
   return {
     kind: 'choose-production',
     label: 'Choose this production candidate after reviewing placement and validation evidence.',
@@ -268,7 +283,9 @@ function probeArray(probe: Probe<unknown> | null | undefined): Array<Record<stri
 
 function actionField(value: Record<string, unknown> | undefined): ReadyCityActionDescriptor | null {
   const action = value?.nextAction;
-  return action && typeof action === 'object' ? action as ReadyCityActionDescriptor : null;
+  if (!action || typeof action !== 'object') return null;
+  const descriptor = action as ReadyCityActionDescriptor;
+  return descriptor.sendsMutation === true ? descriptor : null;
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {

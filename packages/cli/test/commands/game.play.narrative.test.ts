@@ -219,8 +219,8 @@ describe('game play narrative commands', () => {
             enabledOptions: Array<{
               targetType: string;
               name: string;
-              nextAction: { kind: string; parameters: { targetType: string; action: number }; sendsMutation: boolean };
-              validationAction: { kind: string; parameters: { targetType: string; action: number }; readOnly: boolean };
+              nextAction: { kind: string; label: string; parameters: { targetType: string; action: number }; sendsMutation: boolean };
+              validationAction: { kind: string; label: string; parameters: { targetType: string; action: number }; readOnly: boolean };
             }>;
             options?: unknown;
             disabledOptions?: unknown;
@@ -239,15 +239,18 @@ describe('game play narrative commands', () => {
       expect(payload.result.surfaces[0].enabledOptions[0].targetType).toBe('CLOSE');
       expect(payload.result.surfaces[0].enabledOptions[0].nextAction).toMatchObject({
         kind: 'choose-narrative',
+        label: 'Choose narrative option.',
         parameters: { targetType: 'CLOSE', action: -1326475004 },
         sendsMutation: true,
       });
       expect(payload.result.surfaces[0].enabledOptions[0].validationAction).toMatchObject({
         kind: 'validate-narrative-choice',
+        label: 'Validate narrative choice.',
         parameters: { targetType: 'CLOSE', action: -1326475004 },
         readOnly: true,
       });
       expect(JSON.stringify(payload)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toMatch(/before sending|after reviewing validation evidence|use full notification JSON|notifications --json/i);
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].storyLinks');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -343,7 +346,7 @@ describe('game play narrative commands', () => {
             enabledOptions: Array<{
               targetType: string;
               target: { owner: number; id: number; type: number };
-              nextAction: { kind: string; parameters: { target: { owner: number; id: number; type: number } }; sendsMutation: boolean };
+              nextAction: { kind: string; label: string; parameters: { target: { owner: number; id: number; type: number } }; sendsMutation: boolean };
             }>;
             dismissalDiagnosticAction: unknown;
           }>;
@@ -359,6 +362,7 @@ describe('game play narrative commands', () => {
       ]);
       expect(payload.result.surfaces[0].enabledOptions[0].nextAction).toMatchObject({
         kind: 'choose-narrative',
+        label: 'Choose narrative option.',
         parameters: { target: { owner: 0, id: 25, type: 35 } },
         sendsMutation: true,
       });
@@ -599,7 +603,7 @@ function playNotificationView(mode: PlayNotificationMode = 'narrative-choice') {
       'Do not synthesize TargetType/Target/Action from stale notification ids.',
       'If options are empty, inspect dismissal diagnostics instead of sending a narrative operation.',
     ],
-    notes: ['Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately.'],
+    notes: ['Read live narrative options; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately.'],
   };
   const notificationId = { owner: 0, id: 5, type: 20 };
   const targetStoryId = { owner: 0, id: 45, type: 35 };

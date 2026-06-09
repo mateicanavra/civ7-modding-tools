@@ -117,8 +117,8 @@ function notificationQueueResult(
       .filter((item): item is QueueNextStep => item != null),
     notes: [
       "Read-only notification queue scheduler; it does not dismiss notifications or send player/unit/city operations.",
-      "Informational dismissal candidates require summary and context review plus the specialized validator-backed dismissal request before any send.",
-      "Operation steps are templates. Re-read live inputs and use the specialized validator-backed command before sending.",
+      "Informational dismissal candidates require summary and context review plus item-scoped validator-backed dismissal.",
+      "Operation steps are templates. Re-read live inputs and validate against the current surface before mutating.",
     ],
   };
 }
@@ -204,7 +204,7 @@ function notificationQueueDismissResult(input: Readonly<{
         {
           kind: "inspect-notification",
           source: "notifications.queue.dismiss.request",
-          label: "Inspect candidate notifications before sending dismissals.",
+          label: "Inspect selected notification evidence before any repeat attempt.",
         },
       ],
     notes: [
@@ -378,7 +378,7 @@ function guardrailsFor(
     guardrails.push("Use the reported location as tactical context, not as proof of a valid operation target.");
   }
   if (disposition === "operate-with-live-inputs") {
-    guardrails.push("Validate with the specialized command before sending; this schedule does not prove the args.");
+    guardrails.push("Validate against the current domain surface; this schedule does not prove the args.");
   }
   if (disposition === "inspect-handler") {
     guardrails.push("Do not dismiss unclassified notifications in bulk.");
@@ -419,7 +419,7 @@ function nextStepFor(
     return {
       kind: operationFamily === "city-command" ? "inspect-ready-city" : "validate-operation",
       source: "notifications.queue.current",
-      label: "Read the specialized current surface and validator evidence before any send.",
+      label: "Read current domain evidence and validation before mutating.",
       parameters: baseParameters,
     };
   }

@@ -34,8 +34,8 @@ surface is populated from `GameInfo.ProgressionTrees`,
 `Game.ProgressionTrees`, and official `PlayerOperations.canStart` checks; the
 culture surface is populated from the official
 `Players.Culture.getAllAvailableNodeTypes()` chooser list plus the same
-validator checks. Enabled technology options include ready-to-send `--send`
-templates; disabled options are evidence, not safe sends.
+validator checks. Enabled technology options identify valid choice candidates;
+disabled options are evidence, not mutation candidates.
 
 For chooser notifications, the complete workflow mirrors the official chooser
 screens: send the chosen `SET_*_TREE_NODE`, then clear the temporary chooser

@@ -1,12 +1,14 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  createCiv7ControlOrpcServerClient,
-  type Civ7ProgressionDashboardResult,
-} from '@civ7/control-orpc';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
+type ProgressDashboardServiceResult = Awaited<
+  ReturnType<
+    ReturnType<typeof createCiv7ControlOrpcServerClient>['progression']['dashboard']['current']
+  >
+>;
 
 export default class GamePlayProgressDashboard extends Command {
   static id = 'game play progress-dashboard';
@@ -66,24 +68,24 @@ export default class GamePlayProgressDashboard extends Command {
   }
 }
 
-function buildCompactView(view: Civ7ProgressionDashboardResult): {
+function buildCompactView(view: ProgressDashboardServiceResult): {
   ok: true;
   contractVersion: 'play-agent-v0';
   surface: 'progress-dashboard';
   summary: string;
   turn: Probe;
   turnDate: Probe;
-  age: Civ7ProgressionDashboardResult['age'];
-  player: Civ7ProgressionDashboardResult['player'];
-  legacyPaths: Civ7ProgressionDashboardResult['legacyPaths'];
-  victories: Civ7ProgressionDashboardResult['victories'];
-  triumphs: Civ7ProgressionDashboardResult['triumphs'];
-  nextAction: Civ7ProgressionDashboardResult['nextSteps'][number] | null;
-  nextSteps: Civ7ProgressionDashboardResult['nextSteps'];
+  age: ProgressDashboardServiceResult['age'];
+  player: ProgressDashboardServiceResult['player'];
+  legacyPaths: ProgressDashboardServiceResult['legacyPaths'];
+  victories: ProgressDashboardServiceResult['victories'];
+  triumphs: ProgressDashboardServiceResult['triumphs'];
+  nextAction: ProgressDashboardServiceResult['nextSteps'][number] | null;
+  nextSteps: ProgressDashboardServiceResult['nextSteps'];
   warnings: string[];
   omitted: Array<{ path: string; reason: string }>;
-  hiddenInfoPolicy: Civ7ProgressionDashboardResult['hiddenInfoPolicy'];
-  proof: Civ7ProgressionDashboardResult['proof'];
+  hiddenInfoPolicy: ProgressDashboardServiceResult['hiddenInfoPolicy'];
+  proof: ProgressDashboardServiceResult['proof'];
 } {
   return {
     ok: true,

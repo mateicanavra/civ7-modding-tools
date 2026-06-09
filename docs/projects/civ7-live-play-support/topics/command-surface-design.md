@@ -78,8 +78,8 @@ compact play-agent output is introduced.
 | `game play notification-queue` | `game play notifications schedule` | Make scheduling a notifications subcommand. |
 | `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep item-level review context and conservative categories. |
 | `game play ready-city` | `game play city show city:ready` | City-specific grammar should own production/growth/worker decisions. |
-| `game play build-production` | `game play city production send` | Add `preview` and `check` before send. |
-| `game play choose-tech` / `choose-culture` | `game play progress tech send` / `progress culture send` | Tech send already owns the complete chooser workflow; culture still needs the same default-send contract. |
+| `game play build-production` | `game play city production send` | Add `preview` and `check` before mutation. |
+| `game play choose-tech` / `choose-culture` | `game play progress tech send` / `progress culture send` | Technology already owns the complete chooser workflow; culture still needs the same default mutation contract. |
 | `game play civilian-route-triage` | `game play trade preview` or `game play unit preview route` by unit class | Route intent depends on whether the selected unit is a Merchant, Settler, or military unit. |
 
 ## Alias And Deprecation Policy
@@ -120,7 +120,7 @@ compact play-agent output is introduced.
 ## Design Checks
 
 - Can the play agent find the next command from the noun it is thinking about?
-- Does every mutation have a preview/check/send path?
+- Does every mutation have a preview/check/mutation path?
 - Is the default output enough to choose a next step without scanning large
   JSON?
 - Is raw evidence still reachable when a decision is surprising or risky?

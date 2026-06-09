@@ -177,7 +177,7 @@ function progressionDashboardNextSteps(
     steps.push({
       kind: "inspect-progression-choice",
       source: "progression.dashboard.current",
-      label: "Inspect available technology, culture, attribute, or tradition choices before sending a progression mutation.",
+      label: "Inspect available technology, culture, attribute, or tradition choices before mutating progression.",
     });
   }
 

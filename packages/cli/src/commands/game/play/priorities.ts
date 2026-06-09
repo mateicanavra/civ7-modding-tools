@@ -1,20 +1,34 @@
 import { Command, Flags } from '@oclif/core';
-import {
-  createCiv7ControlOrpcServerClient,
-  type Civ7AttentionPrioritiesResult,
-} from '@civ7/control-orpc';
+import { createCiv7ControlOrpcServerClient } from '@civ7/control-orpc';
 import { liveCiv7ControlOrpcDirectControlFacade } from '@civ7/control-orpc/runtime';
 import { createSemanticCliEnvelope, type SemanticCliEnvelope } from '../../../game-play/semantic-envelope';
 import { buildDirectControlOptions } from '../../../utils/game-play-shared';
 
-type PriorityItem = Civ7AttentionPrioritiesResult['priorities'][number] & {
+type PrioritiesServiceResult = Awaited<
+  ReturnType<
+    ReturnType<typeof createCiv7ControlOrpcServerClient>['attention']['priorities']
+  >
+>;
+type PriorityNextStep = {
+  kind: string;
+  label: string;
+  parameters: Record<string, unknown>;
+};
+type PriorityBaseItem = {
+  priority: number;
+  kind: string;
+  summary: string;
+  reason: string;
+  blocking: boolean;
+  nextStep?: PriorityNextStep | null;
+};
+type PriorityItem = PriorityBaseItem & {
   nextAction?: PriorityActionDescriptor;
 };
-type PriorityView = Omit<Civ7AttentionPrioritiesResult, 'priorities'> & {
+type PriorityView = Omit<PrioritiesServiceResult, 'priorities'> & {
   priorities: PriorityItem[];
   cliNotes: string[];
 };
-type PriorityNextStep = NonNullable<Civ7AttentionPrioritiesResult['priorities'][number]['nextStep']>;
 type PriorityActionDescriptor = {
   kind: PriorityNextStep['kind'];
   label: string;
@@ -110,16 +124,15 @@ export default class GamePlayPriorities extends Command {
   }
 }
 
-function buildCliPriorityView(result: Civ7AttentionPrioritiesResult): PriorityView {
+function buildCliPriorityView(result: PrioritiesServiceResult): PriorityView {
   return {
     ...result,
-    priorities: result.priorities.map((item) => ({
+    priorities: result.priorities.map((item: PriorityBaseItem) => ({
       ...item,
       nextAction: actionForPriority(item),
     })),
     cliNotes: [
       'Read-only priority dashboard; it does not send operations or choose strategy.',
-      'Action guidance is semantic; command help owns exact flag combinations.',
       'Battlefield scan distances are planning heuristics and may include debug-visible entities unless paired with visibility reads.',
     ],
   };
@@ -225,25 +238,26 @@ function buildCompactView(view: PriorityView): {
     nextAction,
     warnings,
     omitted: [
-      { path: 'view.notes', reason: 'use --json without --compact for full service notes' },
-      { path: 'view.readyUnit', reason: 'use full JSON for ready-unit detail' },
-      { path: 'view.readyCity', reason: 'use full JSON for ready-city detail' },
-      { path: 'view.battlefield.pointsOfInterest', reason: 'use --json without --compact or a tactical lens command for battlefield point detail' },
-      { path: 'priorities[].evidenceLabels', reason: 'use --json without --compact for bounded service evidence labels' },
+      { path: 'view.notes', reason: 'compact output keeps priority notes out of the main action surface' },
+      { path: 'view.readyUnit', reason: 'compact output keeps ready-unit detail summarized by priority rows' },
+      { path: 'view.readyCity', reason: 'compact output keeps ready-city detail summarized by priority rows' },
+      { path: 'view.battlefield.pointsOfInterest', reason: 'compact output keeps battlefield detail summarized by priority rows' },
+      { path: 'priorities[].evidenceLabels', reason: 'compact output omits bounded service evidence labels' },
     ],
     hiddenInfoPolicy: view.battlefield?.hiddenInfoPolicy ?? 'not-expanded',
   };
 }
 
-function actionForPriority(item: Civ7AttentionPrioritiesResult['priorities'][number]): PriorityActionDescriptor | undefined {
+function actionForPriority(item: PriorityBaseItem): PriorityActionDescriptor | undefined {
   const step = item.nextStep;
   if (step == null) return undefined;
+  const sendsMutation = ['send-turn-complete', 'end-turn'].includes(step.kind);
   return {
     kind: step.kind,
     label: step.label,
     parameters: step.parameters,
-    readOnly: !['send-turn-complete', 'end-turn', 'validate-unit-command'].includes(step.kind),
-    sendsMutation: ['send-turn-complete', 'end-turn', 'validate-unit-command'].includes(step.kind),
+    readOnly: !sendsMutation,
+    sendsMutation,
   };
 }
 

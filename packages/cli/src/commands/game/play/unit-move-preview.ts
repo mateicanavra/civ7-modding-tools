@@ -169,11 +169,11 @@ function buildCompactView(view: UnitMovePreviewView): {
     nextAction: movementValidationDescriptor(view.unitId, requestedDestination),
     warnings,
     omitted: [
-      { path: 'view.reachableMovement', reason: `compact includes up to ${candidateLimit} candidate rows; use --json without --compact for the full reachable movement plot list` },
-      { path: 'view.reachableZonesOfControl', reason: `compact includes up to ${candidateLimit} candidate rows; use --json without --compact for the full zone-of-control plot list` },
-      { path: 'view.reachableTargets', reason: `compact includes up to ${candidateLimit} candidate rows; use --json without --compact for the full reachable target plot list` },
-      { path: 'view.requestedPath.plots', reason: 'use --json without --compact for path plot samples' },
-      { path: 'view.queuedPath.plots', reason: 'use --json without --compact for queued path plot samples' },
+      { path: 'view.reachableMovement', reason: `compact includes up to ${candidateLimit} reachable movement candidate rows` },
+      { path: 'view.reachableZonesOfControl', reason: `compact includes up to ${candidateLimit} zone-of-control candidate rows` },
+      { path: 'view.reachableTargets', reason: `compact includes up to ${candidateLimit} reachable target candidate rows` },
+      { path: 'view.requestedPath.plots', reason: 'compact output summarizes requested path evidence without plot samples' },
+      { path: 'view.queuedPath.plots', reason: 'compact output summarizes queued path evidence without plot samples' },
     ],
     hiddenInfoPolicy: 'runtime-preview; visibility and route safety are not proven by compact movement output',
     relationshipProof: view.relationshipPolicy.relationshipProof,
@@ -262,7 +262,7 @@ function movementValidationDescriptor(
   if (!unitId || !destination) return null;
   return {
     kind: 'validate-unit-action',
-    label: `validate unit action at (${destination.x},${destination.y}) before sending`,
+    label: `Validate unit action at (${destination.x},${destination.y}).`,
     unitId,
     destination,
     sendReady: false,

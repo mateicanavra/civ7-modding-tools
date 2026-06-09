@@ -21,9 +21,9 @@ Use this sequence:
 2. If the blocker is `NOTIFICATION_PLAYER_MET`, use the notification HUD's
    `details.kind == "first-meet-diplomacy"` payload when present. It should
    expose `player1`, `player2`, the other leader/civilization labels, candidate
-   greeting `args`, validator results, and a `recommendedCli`.
+   greeting `args`, validator results, and a neutral response descriptor.
    `game play notification-queue` and compact `game play priorities` promote
-   that `recommendedCli` as their top-level command when it is present.
+   that response descriptor as their next semantic action when it is present.
 3. Prefer the neutral greeting when Influence cost or payoff is not proven.
    Static official data gives neutral `Amount="0"` and `InfCost="0"`; friendly
    and unfriendly cost Influence and intentionally move relationship state.
@@ -71,8 +71,7 @@ Live turn 80 proof for Napoleon:
 {
   "player1": 0,
   "player2": 1,
-  "recommendedResponse": "neutral",
-  "recommendedCli": "game play respond-first-meet --met-player-id 1 --response neutral --send"
+  "recommendedResponse": "neutral"
 }
 ```
 

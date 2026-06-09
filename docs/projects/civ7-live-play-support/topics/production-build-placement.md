@@ -16,9 +16,9 @@ City production uses one operation family, but not one argument shape:
 Use `game play build-production` for ordinary production choices. Keep
 `game play build-unit` as a stable unit-specific shortcut, but prefer the
 broader command when building new guidance because it keeps the item-kind
-decision explicit. In send mode, read `productionPostcondition` before treating
-the choice as closed; a successful `BUILD` send is not by itself proof that the
-production-choice notification stopped blocking turn flow.
+decision explicit. After a mutation request, read `productionPostcondition`
+before treating the choice as closed; a successful `BUILD` request is not by
+itself proof that the production-choice notification stopped blocking turn flow.
 
 For the read-only choice surface, prefer:
 

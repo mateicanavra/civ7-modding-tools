@@ -78,12 +78,11 @@ export default class GamePlayChooseGovernment extends Command {
         enabledOptionCount: surfaces.reduce((count, surface) => count + surface.enabledOptions.length, 0),
         disabledOptionCount: surfaces.reduce((count, surface) => count + surface.disabledOptionCount, 0),
         omitted: [
-          { path: 'details[].options', reason: 'use full notification JSON for raw option and validation evidence' },
-          { path: 'details[].disabledOptions', reason: 'disabled governments are counted here; use notifications --json when disabled-option evidence matters' },
+          { path: 'details[].options', reason: 'enabled rows carry semantic government fields and validation descriptors' },
+          { path: 'details[].disabledOptions', reason: 'disabled governments are counted but kept out of mutation action recommendations' },
         ],
         notes: [
-          'Options come from the live notification HUD materializer, which mirrors the official government picker and validates CHANGE_GOVERNMENT through PlayerOperations.',
-          'Action guidance is semantic; command help owns exact flag combinations.',
+          'Rows come from live HUD choices with official government validation evidence.',
         ],
       });
       return;
@@ -179,8 +178,8 @@ function governmentOptionAction(
   return {
     kind,
     label: readOnly
-      ? 'Validate this government choice before sending.'
-      : 'Choose this government after reviewing validation evidence.',
+      ? 'Validate government choice.'
+      : 'Choose government.',
     parameters: {
       governmentType: option.governmentType,
       governmentTypeName: option.governmentTypeName,

@@ -56,8 +56,8 @@ describe("getCiv7ReadyCityView", () => {
         ],
       });
       expect(view.notes.some((note) => note.includes("does not choose production"))).toBe(true);
-      expect(view.populationPlacement.ok && view.populationPlacement.value?.cliHints).toContain(
-        "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+      expect(view.populationPlacement.ok && view.populationPlacement.value?.notes).toContain(
+        "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches.",
       );
       expect(server.received.some((message) => message.includes("readReadyCityView"))).toBe(true);
       expect(server.received.some((message) => message.includes('source: "Players.Cities.getCityIds"'))).toBe(true);
@@ -73,6 +73,28 @@ describe("getCiv7ReadyCityView", () => {
       expect(Value.Check(Civ7ReadyCityViewResultSchema, {
         ...view,
         command: "readReadyCityView()",
+      })).toBe(false);
+      expect(Value.Check(Civ7ReadyCityViewResultSchema, {
+        ...view,
+        productionCandidates: {
+          ...view.productionCandidates,
+          value: [{
+            ...(view.productionCandidates.ok ? view.productionCandidates.value[0] : {}),
+            cli: "game play build-production --send",
+          }],
+        },
+      })).toBe(false);
+      expect(Value.Check(Civ7ReadyCityViewResultSchema, {
+        ...view,
+        populationPlacement: {
+          ...view.populationPlacement,
+          value: view.populationPlacement.ok
+            ? {
+                ...view.populationPlacement.value,
+                cliHints: ["game play expand-city --send"],
+              }
+            : null,
+        },
       })).toBe(false);
     } finally {
       await server.close();
@@ -160,7 +182,6 @@ function readyCityView() {
           valid: true,
           result: { Success: true, Plots: [1457] },
           placementPlots: [{ index: 1457, x: 22, y: 31 }],
-          cli: "game play build-production --city-id '<city-id>' --constructible-type 713967338 --x <x> --y <y>",
         },
       ],
     },
@@ -173,7 +194,6 @@ function readyCityView() {
           args: { Type: -284569333, ProjectType: -548685232, City: 131073 },
           valid: true,
           result: { Success: true },
-          cli: "game play set-town-focus --city-id '<city-id>' --growth-type -284569333 --project-type -548685232",
         },
       ],
     },
@@ -189,9 +209,8 @@ function readyCityView() {
         workablePlots: { ok: true, value: [{ index: 1457, x: 22, y: 31 }] },
         expansionCandidates: { ok: true, value: [{ index: 1458, x: 23, y: 31 }] },
         expansionResult: { ok: true, value: { Success: true, Plots: [1458] } },
-        cliHints: [
-          "game play assign-worker --location <plot-index> --send",
-          "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+        notes: [
+          "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches.",
         ],
       },
     },

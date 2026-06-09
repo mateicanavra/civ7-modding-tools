@@ -879,12 +879,13 @@ adding more read-only facade shells.
     remains retired and no approval-reason mechanic is introduced.
   - [x] 7.1.9.23 Simplify `civ7 game play priorities --compact` and
     `progress-dashboard --compact` action guidance so compact JSON emits
-    semantic `nextAction` descriptors instead of command strings. Keep command
-    help responsible for exact flag combinations, and keep service behavior,
-    parser flags, runtime reads, controller bridge, deployed Civ7 proof,
-    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
-    caller-provided approval remains retired and no approval-reason mechanic is
-    introduced.
+    semantic `nextAction` descriptors instead of command strings, with
+    unit-command validation guidance marked read-only/non-sending. Keep
+    command help responsible for exact flag combinations, and keep service
+    behavior, parser flags, runtime reads, controller bridge, deployed Civ7
+    proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
+    unchanged; caller-provided approval remains retired and no approval-reason
+    mechanic is introduced.
   - [x] 7.1.9.24 Simplify `civ7 game play traditions --compact` action guidance
     so compact JSON emits semantic row `nextAction` and `recommendedActions`
     descriptors instead of `change-tradition` command strings, with
@@ -896,12 +897,14 @@ adding more read-only facade shells.
     approval remains retired and no approval-reason mechanic is introduced.
   - [x] 7.1.9.25 Simplify `civ7 game play ready-city --compact` action guidance
     so compact JSON emits semantic row `nextAction` descriptors and top-level
-    `nextAction` instead of direct-control `cli`/`cliHints` command strings.
-    Keep command help responsible for exact flag combinations, and keep
-    direct-control ready-city source behavior, parser flags, runtime reads,
-    controller bridge, deployed Civ7 proof, relationship authority, and parent
-    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
-    retired and no approval-reason mechanic is introduced.
+    send-ready `nextAction` instead of direct-control `cli`/`cliHints` command
+    strings, with validation-failed production rows limited to read-only
+    validation guidance. Keep command help responsible for exact flag
+    combinations, and keep direct-control ready-city source behavior, parser
+    flags, runtime reads, controller bridge, deployed Civ7 proof, relationship
+    authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
   - [x] 7.1.9.26 Simplify `civ7 game play choose-tech --options` and
     `choose-culture --options` action guidance so option JSON emits semantic
     `nextAction`, `targetAction`, and `validationAction` descriptors instead of
@@ -930,7 +933,8 @@ adding more read-only facade shells.
     mechanic is introduced.
   - [x] 7.1.9.29 Simplify `civ7 game play rehydrate` common action guidance so
     restart snapshots emit semantic `commonActions` descriptors instead of
-    `cli` command recipes. Keep command help responsible for exact flag
+    `cli` command recipes, with generic HUD-decision routing marked
+    read-only/non-sending. Keep command help responsible for exact flag
     combinations, and keep direct-control notification/ready-unit reads,
     continuity checks, parser flags, runtime behavior, controller bridge,
     deployed Civ7 proof, relationship authority, and parent Task 5.x/6.x/7.x
@@ -949,6 +953,151 @@ adding more read-only facade shells.
     operation types, required inputs, common actions, option data, validation
     evidence, and notes. Keep direct-control notification materialization,
     parser flags, runtime behavior, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
+  - [x] 7.1.9.32 Simplify direct-control notification option notes so
+    diplomacy, technology, and culture chooser details no longer tell callers
+    to use option `cli` / `validateCli` fields. Keep option data, validation
+    evidence, legacy compatibility fields, parser flags, runtime behavior,
+    controller bridge, deployed Civ7 proof, relationship authority, and parent
+    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
+    retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.33 Remove the first-meet notification `recommendedCli` command
+    recipe from direct-control notification details while preserving semantic
+    `recommendedResponse` guidance. Remove the now-unused CLI helper that read
+    `recommendedCli` from decision details. Keep option data, validation
+    evidence, parser flags, runtime behavior, controller bridge, deployed Civ7
+    proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
+    unchanged; caller-provided approval remains retired and no approval-reason
+    mechanic is introduced.
+  - [x] 7.1.9.34 Remove the aggregate direct-control traditions
+    `recommendedCli` field now that `progression.traditions.current` owns the
+    semantic action projection. Keep tradition action parameters, validation
+    evidence, parser flags, runtime behavior, controller bridge, deployed Civ7
+    proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
+    unchanged; caller-provided approval remains retired and no approval-reason
+    mechanic is introduced.
+  - [x] 7.1.9.35 Simplify direct-control notification `commonActions` so
+    decision action directions emit and schema-admit semantic operation/read
+    descriptors instead of literal `game play ...` command recipes. Keep the
+    legacy `decision.cli` summary field, per-option compatibility fields,
+    notification details,
+    parser flags, runtime behavior, control-oRPC contracts/routers, controller
+    bridge, deployed Civ7 proof, relationship authority, and parent
+    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
+    retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.36 Remove the top-level direct-control notification
+    `decision.cli` command summary so notification decisions expose semantic
+    category, operation family/type, required inputs, common actions, notes,
+    and confidence rather than a caller command recipe. Keep detail-level
+    option compatibility fields, direct-control notification materialization,
+    parser flags, runtime behavior, control-oRPC contracts/routers, controller
+    bridge, deployed Civ7 proof, relationship authority, and parent
+    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
+    retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.37 Remove direct-control ready-city `cli` and `cliHints` command
+    recipe fields from production candidates, town-focus options, and
+    population placement. Keep args, validation results, placement plots,
+    production/town/population facts, parser flags, CLI compact semantic
+    projection, control-oRPC contracts/routers, controller bridge, deployed
+    Civ7 proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
+    unchanged; caller-provided approval remains retired and no approval-reason
+    mechanic is introduced.
+  - [x] 7.1.9.38 Remove the remaining direct-control notification detail
+    command recipe fields (`cli`, `validateCli`, `targetCli`,
+    `dismissalDiagnosticCli`, `unprovenDismissalCli`) from diplomacy,
+    progression, government, narrative, and unit-command detail rows. Keep
+    option data, validation probes, enabled/disabled classification,
+    postcondition/no-repeat policy, parser flags, CLI semantic projections,
+    control-oRPC contracts/routers, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
+  - [x] 7.1.9.39 Remove direct-control traditions `actionHints[].cli` command
+    recipes so tradition action hints expose action kind, operation type,
+    parameters, and validation evidence only. Keep traditions read behavior,
+    semantic control-oRPC progression projection, CLI compact projection,
+    parser flags, runtime sends, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
+  - [x] 7.1.9.40 Remove the reconstructed `cli` command recipe field from
+    `civ7 game watch` JSON/JSONL observer records so passive watch output
+    carries semantic read evidence, stale-risk metadata, and included
+    ready-unit/ready-city summaries without echoing flag combinations. Keep
+    watch parser flags, read-only runtime behavior, artifact append behavior,
+    control-oRPC contracts/routers, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
+  - [x] 7.1.9.41 Remove repeated compact-output meta notes that explain command
+    help owns exact flag combinations. Keep the actual semantic action
+    descriptors, domain/proof notes, parser flags, runtime behavior,
+    control-oRPC contracts/routers, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
+  - [x] 7.1.9.42 Simplify compact omission reasons for ready-city,
+    unit-move-preview, and priorities so omitted metadata describes the
+    semantic evidence boundary instead of telling callers which JSON/compact
+    flags to use. Keep omitted paths, action descriptors, parser flags,
+    runtime behavior, service contracts/routers, controller bridge, deployed
+    Civ7 proof, relationship authority, and parent Task 5.x/6.x/7.x acceptance
+    unchanged; caller-provided approval remains retired and no approval-reason
+    mechanic is introduced.
+  - [x] 7.1.9.43 Simplify choice-option action labels and omitted reasons for
+    technology, culture, government, celebration, and narrative option JSON so
+    rows expose minimal semantic chooser/validation descriptors instead of
+    procedural send instructions or alternate command-surface directions. Keep
+    option sources, parser flags, runtime behavior, service contracts/routers,
+    controller bridge, deployed Civ7 proof, relationship authority, and parent
+    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
+    retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.44 Simplify `notifications.queue.current` service guidance so
+    queue notes, guardrails, and next-step labels describe semantic current
+    domain evidence, item-scoped dismissal, and validation boundaries instead
+    of referring to specialized commands or "before sending" command-surface
+    wording. Keep procedure contracts, parser flags, runtime reads/mutations,
+    controller bridge, deployed Civ7 proof, relationship authority, and parent
+    Task 5.x/6.x/7.x acceptance unchanged; caller-provided approval remains
+    retired and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.45 Simplify remaining service and CLI mutation guidance wording
+    so action labels, notes, priority reasons, and omitted reasons describe
+    semantic validation/mutation boundaries instead of "before sending" or
+    "send-ready" phrasing. Preserve validator-first compact traditions
+    semantics: disabled or validation-failed traditions stay read-only and
+    outside `recommendedActions`. Keep procedure contracts, parser flags,
+    runtime reads/mutations, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
+  - [x] 7.1.9.46 Simplify remaining strategy, ready-city, and ready-unit
+    action labels/notes so public planning output says validation or action
+    path semantics without "target send", "unit send", "considering a send",
+    or embedded `game play unit-target` command syntax. Keep runtime reads,
+    mutation behavior, parser flags, service contracts/routers, controller
+    bridge, deployed Civ7 proof, relationship authority, and parent Task
+    5.x/6.x/7.x acceptance unchanged; caller-provided approval remains retired
+    and no approval-reason mechanic is introduced.
+  - [x] 7.1.9.47 Prune `@civ7/control-orpc` package-root exports of
+    module-level contracts, routers, procedure implementations, per-procedure
+    input/result DTO aliases, and `Civ7WorldPlotField`. Keep the aggregate
+    `Civ7ControlOrpcContract`, aggregate router, server-side client, context,
+    tagged errors, primitives, and bridge ingress envelope as the public
+    surface. CLI callers derive local helper/view types from the client method
+    they call or from small local structural rows instead of importing
+    procedure DTO aliases. Keep procedure contracts, normal outputs, parser
+    flags, runtime behavior, controller bridge, deployed Civ7 proof,
+    relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
+    caller-provided approval remains retired and no approval-reason mechanic is
+    introduced.
+  - [x] 7.1.9.48 Simplify remaining direct-control and live-play action
+    guidance so notes and support docs describe live evidence, validation, and
+    mutation boundaries instead of repeating send-mode phrasing, command
+    recipes, or retired recipe field names such as `recommendedCli`,
+    `chooseCli`, and `sendCloseoutCli`. Keep procedure contracts, parser
+    flags, runtime behavior, controller bridge, deployed Civ7 proof,
     relationship authority, and parent Task 5.x/6.x/7.x acceptance unchanged;
     caller-provided approval remains retired and no approval-reason mechanic is
     introduced.
@@ -1348,6 +1497,14 @@ adding more read-only facade shells.
     direct-control runtime envelopes, actor catalogs, or relationship labels.
     Keep deployed Civ7 proof, play-thread action, transport expansion, public
     package-root procedure schema exports, broad world/actor catalogs, and
+    full `7.3` acceptance pending.
+  - [x] 7.3.37 Remove legacy CLI recipe fields from the game-UI attention
+    controller dependency data that feeds `attention.current`: keep categories,
+    notification ids, blocker flags, required inputs, common actions, and notes
+    semantic, and keep bridge/service output free of `cli` fields and
+    `game play ...` command strings. Keep direct-control notification
+    materialization, parser flags, deployed Civ7 proof, play-thread action,
+    transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
@@ -1887,13 +2044,13 @@ adding more read-only facade shells.
 - [x] 8.60.36 Run focused CLI priorities, progress-dashboard, and semantic
   envelope tests, `check:cli`, strict OpenSpec validates, compact command-recipe
   output scan, active approval/caller-permission scan, relationship-label
-  safety scan, and diff hygiene for the compact priority/progression action
-  guidance simplification. This is local CLI/OpenSpec proof only; it does not
-  change service behavior or contracts, runtime read behavior, parser flags,
-  deployed Civ7 runtime behavior, play-thread state, transport/controller
-  scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
-  caller-provided approval remains retired and no approval-reason mechanic is
-  introduced.
+  safety scan, focused stale unit-command validation/non-send proof, and diff
+  hygiene for the compact priority/progression action guidance simplification.
+  This is local CLI/OpenSpec proof only; it does not change service behavior or
+  contracts, runtime read behavior, parser flags, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
 - [x] 8.60.37 Run focused CLI progression-read tests, `check:cli`, strict
   OpenSpec validates, compact traditions command-recipe output scan, active
   approval/caller-permission scan, relationship-label safety scan, and diff
@@ -1907,13 +2064,14 @@ adding more read-only facade shells.
   introduced.
 - [x] 8.60.38 Run focused CLI ready-city tests, `check:cli`, strict OpenSpec
   validates, compact ready-city command-recipe output scan, active
-  approval/caller-permission scan, relationship-label safety scan, and diff
-  hygiene for the compact ready-city action guidance simplification. This is
-  local CLI/OpenSpec proof only; it does not change direct-control ready-city
-  source behavior, runtime read behavior, parser flags, deployed Civ7 runtime
-  behavior, play-thread state, transport/controller scope, relationship
-  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
-  remains retired and no approval-reason mechanic is introduced.
+  approval/caller-permission scan, relationship-label safety scan, validation-
+  failed production action falsifier, and diff hygiene for the compact
+  ready-city action guidance simplification. This is local CLI/OpenSpec proof
+  only; it does not change direct-control ready-city source behavior, runtime
+  read behavior, parser flags, deployed Civ7 runtime behavior, play-thread
+  state, transport/controller scope, relationship authority, or parent Task
+  5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
 - [x] 8.60.39 Run focused CLI technology/culture option tests, `check:cli`,
   strict OpenSpec validates, technology/culture options command-recipe output
   scan, active approval/caller-permission scan, relationship-label safety scan,
@@ -1945,13 +2103,14 @@ adding more read-only facade shells.
   remains retired and no approval-reason mechanic is introduced.
 - [x] 8.60.42 Run focused CLI rehydrate tests, `check:cli`, strict OpenSpec
   validates, rehydrate common-action command-recipe output scan, active
-  approval/caller-permission scan, relationship-label safety scan, and diff
-  hygiene for the rehydrate common action guidance simplification. This is local
-  CLI/OpenSpec proof only; it does not change service behavior or contracts,
-  runtime read behavior, parser flags, deployed Civ7 runtime behavior,
-  play-thread state, transport/controller scope, relationship authority, or
-  parent Task 5.x/6.x/7.x acceptance; caller-provided approval remains retired
-  and no approval-reason mechanic is introduced.
+  approval/caller-permission scan, relationship-label safety scan, focused
+  HUD-decision route/non-send proof, and diff hygiene for the rehydrate common
+  action guidance simplification. This is local CLI/OpenSpec proof only; it
+  does not change service behavior or contracts, runtime read behavior, parser
+  flags, deployed Civ7 runtime behavior, play-thread state,
+  transport/controller scope, relationship authority, or parent Task
+  5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
 - [x] 8.60.43 Run focused CLI notification HUD tests, `check:cli`, strict
   OpenSpec validates, notifications text command-recipe output scan, active
   approval/caller-permission scan, relationship-label safety scan, and diff
@@ -1970,6 +2129,190 @@ adding more read-only facade shells.
   contracts, direct-control notification materialization, runtime read
   behavior, parser flags, deployed Civ7 runtime behavior, play-thread state,
   transport/controller scope, relationship authority, or parent Task 5.x/6.x/7.x
+  acceptance; caller-provided approval remains retired and no approval-reason
+  mechanic is introduced.
+- [x] 8.60.46 Run focused direct-control notification view tests,
+  direct-control check/build, strict OpenSpec validates, notification note
+  command-field wording scan, active approval/caller-permission scan,
+  relationship-label safety scan, and diff hygiene for the notification option
+  note simplification. This is local source/OpenSpec proof only; it does not
+  change option data, validation evidence, legacy compatibility fields, parser
+  flags, deployed Civ7 runtime behavior, play-thread state,
+  transport/controller scope, relationship authority, or parent Task
+  5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
+- [x] 8.60.47 Run focused direct-control notification view tests,
+  direct-control check/build, `check:cli`, strict OpenSpec validates,
+  first-meet notification-details `recommendedCli` absence scan over changed
+  source/test/dist, active approval/caller-permission scan, relationship-label
+  safety scan, and diff hygiene for the first-meet recommendation field
+  removal. This is local source/CLI/OpenSpec proof only; it does not change
+  option data, validation evidence, parser flags, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.48 Run focused direct-control progression read/procedure tests,
+  direct-control check/build, focused CLI progression-read tests, strict
+  OpenSpec validates, direct-control traditions `recommendedCli` source/test
+  scan, active approval/caller-permission scan, relationship-label safety scan,
+  and diff hygiene for the aggregate traditions recommendation field removal.
+  This is local source/CLI/OpenSpec proof only; it does not change action
+  parameters, validation evidence, parser flags, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.49 Run focused direct-control play-notification-view tests,
+  direct-control check/build, strict OpenSpec validates, notification
+  common-action schema/command-recipe scan, active approval/caller-permission
+  scan, relationship-label safety scan, and diff hygiene for the direct-control
+  notification action-direction simplification. This is local source/OpenSpec
+  proof only; it does not change the legacy `decision.cli` summary field,
+  per-option compatibility fields, parser flags, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.50 Run focused direct-control play-notification-view tests,
+  adjacent CLI notification HUD/priorities tests, control-oRPC notification
+  queue tests, direct-control check/build, CLI check, strict OpenSpec
+  validates, top-level notification decision `cli` source/test scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the direct-control notification decision command-summary
+  removal. This is local source/CLI/oRPC/OpenSpec proof only; it does not
+  change detail-level option compatibility fields, parser flags, deployed Civ7
+  runtime behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.51 Run focused direct-control ready-city read/procedure tests,
+  focused CLI ready-city tests, direct-control check/build, CLI check, strict
+  OpenSpec validates, ready-city `cli`/`cliHints` source/test scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the ready-city command-recipe field removal. This is local
+  source/CLI/OpenSpec proof only; it does not change parser flags, deployed
+  Civ7 runtime behavior, play-thread state, transport/controller scope,
+  relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.52 Run focused direct-control play-notification-view tests,
+  adjacent CLI notification HUD/queue/priorities tests, adjacent control-oRPC
+  notification queue/attention priority tests, direct-control check/build, CLI
+  check, strict OpenSpec validates, notification detail command-recipe source
+  scan, active approval/caller-permission scan, relationship-label safety scan,
+  and diff hygiene for the remaining notification detail command-field removal.
+  This is local source/CLI/oRPC/OpenSpec proof only; it does not change option
+  data, validation probes, parser flags, deployed Civ7 runtime behavior,
+  play-thread state, transport/controller scope, relationship authority, or
+  parent Task 5.x/6.x/7.x acceptance; caller-provided approval remains retired
+  and no approval-reason mechanic is introduced.
+- [x] 8.60.53 Run focused direct-control progression read/procedure tests,
+  focused control-oRPC progression traditions tests, focused CLI progression
+  read tests, direct-control check/build, CLI check, strict OpenSpec validates,
+  traditions `actionHints[].cli` source/test scan, active approval/caller-
+  permission scan, relationship-label safety scan, and diff hygiene for the
+  direct-control traditions action-hint command-field removal. This is local
+  source/CLI/oRPC/OpenSpec proof only; it does not change traditions read
+  behavior, semantic service projection, parser flags, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.54 Run focused CLI watch tests, CLI check, strict OpenSpec
+  validates, watch observer `cli`/command-recipe scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the `game watch` observer command-field removal. This is local
+  CLI/OpenSpec proof only; it does not change watch parser flags, read-only
+  direct-control runtime behavior, artifact append behavior, deployed Civ7
+  runtime behavior, play-thread state, transport/controller scope,
+  relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.55 Run focused compact-output CLI tests, CLI check, strict OpenSpec
+  validates, compact meta-note absence scan, active approval/caller-permission
+  scan, relationship-label safety scan, and diff hygiene for the compact
+  action meta-note cleanup. This is local CLI/OpenSpec proof only; it does not
+  change parser flags, direct-control/runtime behavior, service contracts,
+  deployed Civ7 runtime behavior, play-thread state, transport/controller
+  scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.56 Run focused CLI ready-city, unit-move-preview, and priorities
+  compact tests, CLI check, strict OpenSpec validates, compact omission
+  interface-instruction absence scan, active approval/caller-permission scan,
+  relationship-label safety scan, and diff hygiene for the compact omission
+  reason cleanup. This is local CLI/OpenSpec proof only; it does not change
+  parser flags, direct-control/runtime behavior, service contracts, deployed
+  Civ7 runtime behavior, play-thread state, transport/controller scope,
+  relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.57 Run focused CLI technology, culture, celebration/government, and
+  narrative option tests, CLI check, strict OpenSpec validates, option guidance
+  interface-instruction absence scan, active approval/caller-permission scan,
+  relationship-label safety scan, and diff hygiene for the choice-option
+  guidance simplification. This is local CLI/OpenSpec proof only; it does not
+  change parser flags, direct-control/runtime behavior, service contracts,
+  deployed Civ7 runtime behavior, play-thread state, transport/controller
+  scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.58 Run focused control-oRPC notification queue procedure test, CLI
+  notification queue adapter test, control-oRPC package check/build, CLI
+  check, strict OpenSpec validates, service guidance phrase scan, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the notification queue service guidance cleanup. This is local
+  package/CLI/OpenSpec proof only; it does not change parser flags,
+  direct-control/runtime behavior, procedure contracts, deployed Civ7 runtime
+  behavior, play-thread state, transport/controller scope, relationship
+  authority, or parent Task 5.x/6.x/7.x acceptance; caller-provided approval
+  remains retired and no approval-reason mechanic is introduced.
+- [x] 8.60.59 Run focused control-oRPC attention/progression tests, focused
+  CLI priorities/unit-move/front-summary/rehydrate/progression-read/choice
+  tests, control-oRPC package check/build, CLI check, strict OpenSpec
+  validates, remaining guidance phrase scan, active approval/caller-permission
+  scan, relationship-label safety scan, and diff hygiene for the remaining
+  service/CLI mutation guidance cleanup. Include the compact traditions
+  disabled-row falsifier proving validation-failed traditions are read-only and
+  omitted from send-oriented `recommendedActions`. This is local package/CLI/
+  OpenSpec proof only; it does not change parser flags, direct-control/runtime
+  behavior, procedure contracts, deployed Civ7 runtime behavior, play-thread
+  state, transport/controller scope, relationship authority, or parent Task
+  5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
+- [x] 8.60.60 Run focused strategy/ready-city/ready-unit/direct-control tests,
+  direct-control and control-oRPC package checks/builds, CLI check, strict
+  OpenSpec validates, remaining public-output phrase scan, active approval/
+  caller-permission scan, relationship-label safety scan, and diff hygiene for
+  the strategy/ready action-label cleanup. This is local package/CLI/OpenSpec
+  proof only; it does not change parser flags, direct-control runtime behavior,
+  procedure contracts, deployed Civ7 runtime behavior, play-thread state,
+  transport/controller scope, relationship authority, or parent Task 5.x/6.x/
+  7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
+- [x] 8.60.61 Run focused CLI read/compact tests, control-oRPC check/build,
+  CLI check, strict OpenSpec validate, root export scan, CLI import scan, and
+  diff hygiene for the control-oRPC package-root procedure surface pruning.
+  This is local API/declaration hygiene proof only; it does not change
+  procedure contracts, normal outputs, parser flags, runtime behavior,
+  deployed Civ7 runtime behavior, play-thread state, transport/controller
+  scope, relationship authority, or parent Task 5.x/6.x/7.x acceptance;
+  caller-provided approval remains retired and no approval-reason mechanic is
+  introduced.
+- [x] 8.60.62 Run focused direct-control/CLI tests, direct-control
+  check/build, strict OpenSpec validates, current-file public-guidance phrase
+  scans over changed active source/docs/tests, active approval/caller-
+  permission scan, relationship-label safety scan, and diff hygiene for the
+  direct-control/live-play action guidance cleanup. This is local
+  source/docs/OpenSpec proof only; it does not change procedure contracts,
+  parser flags, runtime behavior, deployed Civ7 runtime behavior, play-thread
+  state, transport/controller scope, relationship authority, or parent Task
+  5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
+- [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package
+  check/build, strict OpenSpec validates, game-UI attention `cli`/command
+  recipe scans, active approval/caller-permission scan, relationship-label
+  safety scan, and diff hygiene for the game-UI attention controller dependency
+  cleanup. This is local package proof only; it does not change direct-control
+  notification materialization, deployed Civ7 runtime behavior, play-thread
+  state, transport/controller scope, relationship authority, public
+  package-root procedure schema exports, or parent Task 5.x/6.x/7.x
   acceptance; caller-provided approval remains retired and no approval-reason
   mechanic is introduced.
 - [x] 8.12 Run control-oRPC package check/build, the Studio RPCLink edge test,

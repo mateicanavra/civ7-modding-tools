@@ -40,7 +40,6 @@ export const Civ7TraditionActionSchema = Type.Object({
     Action: Type.Union([Type.Number(), Type.Null()]),
   }, { additionalProperties: false }),
   validation: Civ7RuntimeProbeSchema(Type.Unknown()),
-  cli: Type.String(),
 }, { additionalProperties: false });
 
 export type Civ7TraditionAction = Readonly<{
@@ -52,7 +51,6 @@ export type Civ7TraditionAction = Readonly<{
     Action: number | null;
   }>;
   validation: Civ7RuntimeProbe<unknown>;
-  cli: string;
 }>;
 
 export const Civ7TraditionSummarySchema = Type.Object({
@@ -118,7 +116,6 @@ export const Civ7TraditionsViewResultSchema = Type.Object({
   available: Type.Array(Civ7TraditionSummarySchema),
   recentUnlocks: Type.Array(Civ7TraditionSummarySchema),
   traditions: Type.Array(Civ7TraditionSummarySchema),
-  recommendedCli: Type.Array(Type.String()),
   hiddenInfoPolicy: Type.Literal("player-culture-runtime"),
   notes: Type.Array(Type.String()),
 }, { additionalProperties: false });
@@ -152,7 +149,6 @@ export type Civ7TraditionsViewResult = Readonly<{
   available: ReadonlyArray<Civ7TraditionSummary>;
   recentUnlocks: ReadonlyArray<Civ7TraditionSummary>;
   traditions: ReadonlyArray<Civ7TraditionSummary>;
-  recommendedCli: ReadonlyArray<string>;
   hiddenInfoPolicy: "player-culture-runtime";
   notes: ReadonlyArray<string>;
 }>;

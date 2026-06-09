@@ -56,7 +56,7 @@ describe('game play ready-city command', () => {
           baseYieldSummary: { YIELD_PRODUCTION: number };
           valid: boolean;
           placementPlots: Array<{ x: number; y: number }>;
-          nextAction: { kind: string; parameters: Record<string, unknown>; sendsMutation: boolean };
+          nextAction: { kind: string; parameters: Record<string, unknown>; readOnly: boolean; sendsMutation: boolean };
         }>;
         populationPlacement: {
           yieldTypeOrder: string[];
@@ -96,6 +96,7 @@ describe('game play ready-city command', () => {
       expect(payload.productionCandidates[0].placementPlots[0]).toMatchObject({ x: 22, y: 31 });
       expect(payload.productionCandidates[0].nextAction).toMatchObject({
         kind: 'choose-production',
+        readOnly: false,
         sendsMutation: true,
       });
       expect(payload.populationPlacement.yieldTypeOrder).toContain('YIELD_DIPLOMACY');
@@ -142,17 +143,94 @@ describe('game play ready-city command', () => {
       await server.close();
     }
   });
+
+  test('keeps invalid compact production candidates out of send-oriented next actions', async () => {
+    const server = await startReadyCityTunerServer(invalidProductionOnlyReadyCityView());
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayReadyCity.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayReadyCity.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--compact',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        productionCandidates: Array<{
+          valid: boolean;
+          nextAction: { kind: string; label: string; readOnly: boolean; sendsMutation: boolean };
+        }>;
+        populationPlacement: {
+          workablePlots: Array<unknown>;
+          expansionCandidates: Array<unknown>;
+        } | null;
+        nextAction: unknown;
+      };
+
+      expect(payload.productionCandidates[0]).toMatchObject({
+        valid: false,
+        nextAction: {
+          kind: 'validate-production',
+          label: 'Review this production candidate validation before treating it as actionable.',
+          readOnly: true,
+          sendsMutation: false,
+        },
+      });
+      expect(payload.populationPlacement?.workablePlots).toEqual([]);
+      expect(payload.populationPlacement?.expansionCandidates).toEqual([]);
+      expect(payload.nextAction).toBeNull();
+      expect(JSON.stringify(payload)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toMatch(/considering a send|before any send|send-ready/i);
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
 });
 
-async function startReadyCityTunerServer(): Promise<FakeTunerServer> {
+async function startReadyCityTunerServer(view = readyCityView()): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes('readReadyCityView')) {
-        return [JSON.stringify(readyCityView())];
+        return [JSON.stringify(view)];
       }
       return undefined;
     },
   });
+}
+
+function invalidProductionOnlyReadyCityView() {
+  const view = readyCityView();
+  return {
+    ...view,
+    productionCandidates: {
+      ok: true,
+      value: view.productionCandidates.value.map((candidate) => ({
+        ...candidate,
+        valid: false,
+        result: { Success: false, Reason: 'blocked by validator' },
+        placementPlots: [],
+      })),
+    },
+    populationPlacement: {
+      ok: true,
+      value: {
+        ...view.populationPlacement.value,
+        workablePlotIndexes: { ok: true, value: [] },
+        workablePlots: { ok: true, value: [] },
+        expansionCandidates: { ok: true, value: [] },
+        expansionResult: { ok: true, value: { Success: false, Plots: [] } },
+      },
+    },
+  };
 }
 
 function readyCityView() {
@@ -209,7 +287,6 @@ function readyCityView() {
           valid: true,
           result: { Success: true, Plots: [1457] },
           placementPlots: [{ index: 1457, x: 22, y: 31 }],
-          cli: "game play build-production --city-id '<city-id>' --constructible-type 713967338 --x <x> --y <y>",
         },
       ],
     },
@@ -222,7 +299,6 @@ function readyCityView() {
           args: { Type: -284569333, ProjectType: -548685232, City: 131073 },
           valid: true,
           result: { Success: true },
-          cli: "game play set-town-focus --city-id '<city-id>' --growth-type -284569333 --project-type -548685232",
         },
       ],
     },
@@ -282,7 +358,6 @@ function readyCityView() {
               },
               maintenance: null,
               placementInfo: { PlotIndex: 1457, IsBlocked: false },
-              cli: 'game play assign-worker --location 1457 --send',
             },
           ],
         },
@@ -313,7 +388,6 @@ function readyCityView() {
                   YIELD_DIPLOMACY: 0,
                 },
               },
-              cli: "game play expand-city --city-id '<city-id>' --x 23 --y 31",
             },
           ],
         },
@@ -321,9 +395,8 @@ function readyCityView() {
           ok: true,
           value: { Success: true, Plots: [1458], ConstructibleTypes: [713967338] },
         },
-        cliHints: [
-          'game play assign-worker --location <plot-index> --send',
-          "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+        notes: [
+          "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches.",
         ],
       },
     },

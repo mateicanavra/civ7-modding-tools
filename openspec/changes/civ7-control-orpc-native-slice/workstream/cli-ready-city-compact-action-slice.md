@@ -21,9 +21,12 @@ responsible for exact flag combinations.
 
 ## Boundary
 
-- `ready-city --compact` now emits `surface: "ready-city"`, row-level
+- `ready-city --compact` emits `surface: "ready-city"`, row-level
   `nextAction` descriptors, and top-level `nextAction` for the first compact
-  action candidate.
+  send-ready action candidate.
+- Production rows with failed or missing validation evidence emit read-only
+  validation guidance instead of send-oriented `choose-production` guidance,
+  and they are not eligible for the top-level `nextAction`.
 - Compact output no longer emits direct-control `cli` strings, `cliHints`, or
   `game play ...` command recipes.
 - This slice does not change direct-control ready-city source behavior,
@@ -37,6 +40,8 @@ responsible for exact flag combinations.
 
 - `bun run --cwd packages/cli test -- game/play/ready-city.test.ts`
 - `bun run check:cli`
+- Focused validation-failed production fixture proving disabled candidates do
+  not appear as send-oriented row or top-level `nextAction` guidance.
 - Strict OpenSpec validates for `civ7-control-orpc-native-slice` and
   `civ7-support-direct-control-modularization`.
 - Compact ready-city command-recipe output scan over changed CLI source/test.

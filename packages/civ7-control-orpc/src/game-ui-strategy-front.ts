@@ -124,7 +124,7 @@ export async function getCiv7GameUiTargetCandidates(
     notes: [
       "Read-only game UI target-candidate runtime port for strategy.frontSummary.",
       "Other-owner candidates stay relationship-unproven until official relationship evidence proves more.",
-      "Use unit action validation before any movement or target send.",
+      "Use unit action validation before moving or targeting.",
     ],
   };
 }
@@ -196,7 +196,7 @@ export async function getCiv7GameUiBattlefieldScan(
     notes: [
       "Read-only game UI battlefield runtime port for strategy.frontSummary.",
       "Owner mismatch is contact evidence, not relationship proof.",
-      "Use unit action validation before any movement or target send.",
+      "Use unit action validation before moving or targeting.",
     ],
   };
 }

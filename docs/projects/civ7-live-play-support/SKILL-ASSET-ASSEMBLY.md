@@ -182,7 +182,7 @@ Norms:
 - Use `game play rehydrate --expected-turn <turn> --json` to materialize the
   live turn/date, blocker HUD, ready-unit view, and continuity warnings.
 - If `snapshot.continuity.status == "mismatch"`, re-plan from the live snapshot
-  before any send.
+  before mutation.
 - SQLite/catalog data can enrich the snapshot later, but live direct-control
   remains authority for current blockers, ready entities, validators, and
   postconditions.
@@ -273,8 +273,8 @@ Norms:
   `Growth.isReadyToPlacePopulation`.
 - `ready-city` exposes `populationPlacement.workablePlots` for the assignment
   branch and `populationPlacement.expansionCandidates` for the expansion branch;
-  use those mapped coordinates and command hints before sending a population
-  placement shortcut.
+  use those mapped coordinates and validator evidence before requesting
+  population placement.
 - Settlement recommendations are a separate read-only planning surface:
   `game play settlement-recommendations` wraps the official settlement lens API
   and should inform where to move Settlers, not replace live movement/founding

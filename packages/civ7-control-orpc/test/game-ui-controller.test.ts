@@ -3228,8 +3228,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     expect(response.ok && response.output.nextSteps.map((step) => step.kind))
       .not.toContain("end-turn");
-    expect(JSON.stringify(response)).not.toContain("Civ7 game UI controller dependency");
-    expect(JSON.stringify(response)).not.toContain("Game.Notifications.dismiss");
+    const serialized = JSON.stringify(response);
+    expect(serialized).not.toContain("Civ7 game UI controller dependency");
+    expect(serialized).not.toContain("Game.Notifications.dismiss");
+    expect(serialized).not.toContain("\"cli\"");
+    expect(serialized).not.toContain("game play ");
   });
 
   test("does not treat selected unit evidence as a ready unit", async () => {

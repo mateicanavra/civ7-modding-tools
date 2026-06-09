@@ -103,7 +103,7 @@ function turnCompletionPostconditionReason(
     case "turn-advanced":
       return "The turn advanced after the turn completion send.";
     case "turn-complete-sent":
-      return "GameContext reports that turn completion was sent; wait for a fresh turn/read before sending again.";
+      return "GameContext reports that turn completion was sent; wait for fresh turn evidence before another mutation.";
     case "already-complete":
       return "GameContext reported turn completion before and after the send; do not repeat without fresh turn evidence.";
     case "no-state-change":

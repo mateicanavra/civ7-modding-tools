@@ -29,6 +29,9 @@ syntax. Command help remains responsible for exact flag combinations.
 - `priorities --compact` now emits priority `nextAction` descriptors and stores
   semantic descriptors in the semantic envelope `actions` and `nextSteps`
   slots.
+- `validate-unit-command` remains validation guidance in compact output:
+  `readOnly: true` and `sendsMutation: false`. Only actual end-turn send
+  descriptors are marked as mutation-sending here.
 - `progress-dashboard --compact` now emits a semantic `nextAction` descriptor
   from the service `nextSteps` array.
 - The compact outputs no longer expose `game play ...` command recipes as
@@ -47,6 +50,8 @@ syntax. Command help remains responsible for exact flag combinations.
 - `bun run openspec -- validate civ7-control-orpc-native-slice --strict`
 - `bun run openspec -- validate civ7-support-direct-control-modularization --strict`
 - Compact command-recipe output scan over changed CLI source/test.
+- Focused stale unit-command priority proof that validation guidance is not
+  emitted as mutation-sending action guidance.
 - Active approval/caller-permission scan over changed files; no active hits.
 - Relationship-label safety scan over changed source/test.
 - `git diff --check`

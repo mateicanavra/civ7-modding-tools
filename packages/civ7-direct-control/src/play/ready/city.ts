@@ -45,7 +45,6 @@ export const Civ7ReadyCityProductionCandidateSchema = Type.Object({
   valid: Type.Boolean(),
   result: Type.Unknown(),
   placementPlots: Type.Optional(Type.Array(Type.Unknown())),
-  cli: Type.String(),
 }, { additionalProperties: false });
 export type Civ7ReadyCityProductionCandidate = Static<typeof Civ7ReadyCityProductionCandidateSchema>;
 
@@ -55,7 +54,6 @@ export const Civ7ReadyCityTownFocusOptionSchema = Type.Object({
   args: Type.Unknown(),
   valid: Type.Boolean(),
   result: Type.Unknown(),
-  cli: Type.String(),
 }, { additionalProperties: false });
 export type Civ7ReadyCityTownFocusOption = Static<typeof Civ7ReadyCityTownFocusOptionSchema>;
 
@@ -69,7 +67,7 @@ export const Civ7ReadyCityPopulationPlacementSchema = Type.Object({
   workablePlots: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
   expansionCandidates: Civ7RuntimeProbeSchema(Type.Array(Type.Unknown())),
   expansionResult: Civ7RuntimeProbeSchema(Type.Unknown()),
-  cliHints: Type.Array(Type.String()),
+  notes: Type.Array(Type.String()),
 }, { additionalProperties: false });
 export type Civ7ReadyCityPopulationPlacement = Static<typeof Civ7ReadyCityPopulationPlacementSchema>;
 
@@ -487,11 +485,6 @@ export function readyCityViewSource(): string {
         valid: successFromCanStart(result),
         result: safeResult(result),
         ...(Array.isArray(result?.Plots) ? { placementPlots: result.Plots.map(plotFromIndex) } : {}),
-        cli: kind === "unit"
-          ? "game play build-production --city-id '<city-id>' --unit-type " + args.UnitType
-          : kind === "constructible"
-            ? "game play build-production --city-id '<city-id>' --constructible-type " + args.ConstructibleType + (Array.isArray(result?.Plots) && result.Plots.length > 0 ? " --x <x> --y <y>" : "")
-            : "game play build-production --city-id '<city-id>' --project-type " + args.ProjectType,
       };
     };
     const isActionableProductionResult = (result) => {
@@ -559,7 +552,6 @@ export function readyCityViewSource(): string {
       args,
       valid: successFromCanStart(result),
       result: safeResult(result),
-      cli: "game play set-town-focus --city-id '<city-id>' --growth-type " + args.Type + " --project-type " + args.ProjectType,
     });
     const readTownFocusOptions = (cityId) => {
       const out = [];
@@ -597,7 +589,6 @@ export function readyCityViewSource(): string {
           yieldDelta: yieldDelta(info?.CurrentYields, info?.NextYields),
           maintenance: info?.Maintenance ?? null,
           placementInfo: safeResult(info),
-          cli: "game play assign-worker --location " + plotIndex + " --send",
         };
       };
       const expansionValue = expansionResult.ok && expansionResult.value && typeof expansionResult.value === "object"
@@ -611,9 +602,6 @@ export function readyCityViewSource(): string {
           ...plot,
           ...constructibleSummary(expansionConstructibleTypes[index]),
           plotFacts: plotFacts(plot, cityId),
-          cli: plot.x == null || plot.y == null
-            ? "game play expand-city --city-id '<city-id>' --x <x> --y <y>"
-            : "game play expand-city --city-id '<city-id>' --x " + plot.x + " --y " + plot.y,
         };
       });
       return {
@@ -626,9 +614,7 @@ export function readyCityViewSource(): string {
         workablePlots: probe(() => placementValue.filter((info) => !info?.IsBlocked).map(summarizeWorkerPlot)),
         expansionCandidates: probe(() => expansionCandidatesValue),
         expansionResult,
-        cliHints: [
-          "game play assign-worker --location <plot-index> --send",
-          "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+        notes: [
           "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches.",
         ],
       };
@@ -727,7 +713,7 @@ export function readyCityViewSource(): string {
         populationPlacement: probe(() => cityId ? readPopulationPlacement(cityId) : null),
         notes: [
           "Read-only ready-city view. Use operation validation before any production, growth, or expansion send.",
-          "This view intentionally does not choose production. Use live production chooser data, then game play build-production with exactly one item kind.",
+          "This view intentionally does not choose production. Use live production chooser data, then choose exactly one production item kind through the semantic production request.",
           "For NEW_POPULATION, acquire-tile mode decides worker assignment versus expansion purchase; do not infer that branch from static city data.",
           "No-argument legal city operations are only closeout candidates; BUILD and CHANGE_GROWTH_MODE still need live item or focus args."
         ],

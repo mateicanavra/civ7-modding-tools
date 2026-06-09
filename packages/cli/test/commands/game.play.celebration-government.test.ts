@@ -114,8 +114,8 @@ describe('game play celebration and government commands', () => {
             enabledOptions: Array<{
               goldenAgeType: number;
               name: string;
-              nextAction: { kind: string; parameters: { goldenAgeType: number }; sendsMutation: boolean };
-              validationAction: { kind: string; parameters: { goldenAgeType: number }; readOnly: boolean };
+              nextAction: { kind: string; label: string; parameters: { goldenAgeType: number }; sendsMutation: boolean };
+              validationAction: { kind: string; label: string; parameters: { goldenAgeType: number }; readOnly: boolean };
               duration: number;
             }>;
             options?: unknown;
@@ -137,15 +137,18 @@ describe('game play celebration and government commands', () => {
       expect(culture?.duration).toBe(10);
       expect(culture?.nextAction).toMatchObject({
         kind: 'choose-celebration',
+        label: 'Choose celebration.',
         parameters: { goldenAgeType: -340825966 },
         sendsMutation: true,
       });
       expect(culture?.validationAction).toMatchObject({
         kind: 'validate-celebration-choice',
+        label: 'Validate celebration choice.',
         parameters: { goldenAgeType: -340825966 },
         readOnly: true,
       });
       expect(JSON.stringify(payload)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toMatch(/before sending|after reviewing validation evidence|use full notification JSON|notifications --json/i);
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -267,8 +270,8 @@ describe('game play celebration and government commands', () => {
             enabledOptions: Array<{
               governmentType: number;
               name: string;
-              nextAction: { kind: string; parameters: { governmentType: number; action: number }; sendsMutation: boolean };
-              validationAction: { kind: string; parameters: { governmentType: number; action: number }; readOnly: boolean };
+              nextAction: { kind: string; label: string; parameters: { governmentType: number; action: number }; sendsMutation: boolean };
+              validationAction: { kind: string; label: string; parameters: { governmentType: number; action: number }; readOnly: boolean };
               celebrationOptions: Array<{ name: string }>;
             }>;
             options?: unknown;
@@ -289,6 +292,7 @@ describe('game play celebration and government commands', () => {
       expect(republic?.name).toBe('Classical Republic');
       expect(republic?.nextAction).toMatchObject({
         kind: 'choose-government',
+        label: 'Choose government.',
         parameters: {
           governmentType: 0,
           action: -1326475004,
@@ -297,6 +301,7 @@ describe('game play celebration and government commands', () => {
       });
       expect(republic?.validationAction).toMatchObject({
         kind: 'validate-government-choice',
+        label: 'Validate government choice.',
         parameters: {
           governmentType: 0,
           action: -1326475004,
@@ -305,6 +310,7 @@ describe('game play celebration and government commands', () => {
       });
       expect(republic?.celebrationOptions[0].name).toBe('Cultural Celebration');
       expect(JSON.stringify(payload)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toMatch(/before sending|after reviewing validation evidence|use full notification JSON|notifications --json/i);
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);

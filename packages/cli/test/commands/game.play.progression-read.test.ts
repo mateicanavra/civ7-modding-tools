@@ -255,7 +255,6 @@ function traditionsView() {
         operationType: 'CHANGE_TRADITION',
         args: { TraditionType: 90243567, Action: activate },
         validation: { ok: true, value: { Success: true } },
-        cli: `game play change-tradition --player-id 0 --tradition-type 90243567 --action ${activate}`,
       },
     ],
   };
@@ -278,7 +277,6 @@ function traditionsView() {
         operationType: 'CHANGE_TRADITION',
         args: { TraditionType: 111222333, Action: activate },
         validation: { ok: true, value: { Success: false } },
-        cli: `game play change-tradition --player-id 0 --tradition-type 111222333 --action ${activate}`,
       },
     ],
   };
@@ -301,7 +299,6 @@ function traditionsView() {
         operationType: 'CHANGE_TRADITION',
         args: { TraditionType: -331546976, Action: deactivate },
         validation: { ok: true, value: { Success: true } },
-        cli: `game play change-tradition --player-id 0 --tradition-type -331546976 --action ${deactivate}`,
       },
     ],
   };
@@ -328,7 +325,6 @@ function traditionsView() {
     available: [available, disabledAvailable],
     recentUnlocks: [available],
     traditions: [active, available, disabledAvailable],
-    recommendedCli: [available.actionHints[0].cli],
     hiddenInfoPolicy: 'player-culture-runtime',
     notes: ['Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.'],
   };

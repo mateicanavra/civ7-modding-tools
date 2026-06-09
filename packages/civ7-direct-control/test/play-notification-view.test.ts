@@ -54,7 +54,12 @@ describe("getCiv7PlayNotificationView", () => {
                 expect.objectContaining({ name: "City" }),
               ]),
               commonActions: expect.arrayContaining([
-                expect.objectContaining({ cli: expect.stringContaining("game play set-town-focus") }),
+                expect.objectContaining({
+                  label: "Set town focus",
+                  operationFamily: "city-command",
+                  operationType: "CHANGE_GROWTH_MODE",
+                  argsShape: "{ Type, ProjectType, City }",
+                }),
               ]),
             },
           },
@@ -71,21 +76,51 @@ describe("getCiv7PlayNotificationView", () => {
         ...view,
         rawCommand: "readPlayNotifications()",
       })).toBe(false);
+      expect(Value.Check(Civ7PlayNotificationViewResultSchema, {
+        ...view,
+        notifications: [{
+          ...view.notifications[0],
+          decision: {
+            ...view.notifications[0]?.decision,
+            cli: "game play ready-city --json",
+          },
+        }],
+      })).toBe(false);
+      expect(Value.Check(Civ7PlayNotificationViewResultSchema, {
+        ...view,
+        hud: {
+          ...view.hud,
+          nextDecision: {
+            ...view.hud.nextDecision,
+            cli: "game play ready-city --json",
+          },
+        },
+      })).toBe(false);
       expect(view.decisions.some((decision) => decision.category === "town-focus")).toBe(true);
       expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(true);
       const notificationRead = server.received.find((message) => message.includes("readPlayNotifications")) ?? "";
       expect(notificationRead).toContain("CHOOSE_AUTO_NARRATIVE_STORY_DIRECTION");
       expect(notificationRead).toContain("getFirstPendingDiscoveryLastMetID");
-      expect(notificationRead).toContain("game play change-tradition --tradition-type <tradition-type> --action <action> --send");
-      expect(notificationRead).toContain("game play buy-attribute --node <node> --send");
-      expect(notificationRead).toContain("game play consider-traditions --send");
-      expect(notificationRead).toContain("game play consider-attributes --send");
-      expect(notificationRead).toContain("game play expand-city --city-id '<city-id>' --x <x> --y <y> --send");
-      expect(notificationRead).toContain("game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send");
-      expect(notificationRead).toContain("game play consider-town-project --city-id '<city-id>' --send");
-      expect(notificationRead).toContain("game play build-production --city-id '<city-id>' --unit-type <unit-type> --send");
-      expect(notificationRead).toContain("game play build-production --city-id '<city-id>' --project-type <project-type> --send");
-      expect(notificationRead).toContain("game play advisor-warning --target '<notification-id>' --send");
+      expect(notificationRead).toContain('action("change tradition", "player-operation", "CHANGE_TRADITION"');
+      expect(notificationRead).toContain('action("buy attribute node", "player-operation", "BUY_ATTRIBUTE_TREE_NODE"');
+      expect(notificationRead).toContain('action("close tradition review", "player-operation", "CONSIDER_ASSIGN_TRADITIONS"');
+      expect(notificationRead).toContain('action("close attribute review", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE"');
+      expect(notificationRead).toContain('action("expand city", "city-command", "EXPAND"');
+      expect(notificationRead).toContain('action("set town focus", "city-command", "CHANGE_GROWTH_MODE"');
+      expect(notificationRead).toContain('action("close town project review", "city-operation", "CONSIDER_TOWN_PROJECT"');
+      expect(notificationRead).toContain('action("build unit production", "city-operation", "BUILD"');
+      expect(notificationRead).toContain('action("build city project", "city-operation", "BUILD"');
+      expect(notificationRead).toContain('action("mark advisor warning viewed", "player-operation", "VIEWED_ADVISOR_WARNING"');
+      expect(notificationRead).not.toContain("game play change-tradition --tradition-type <tradition-type> --action <action> --send");
+      expect(notificationRead).not.toContain("game play buy-attribute --node <node> --send");
+      expect(notificationRead).not.toContain("game play consider-traditions --send");
+      expect(notificationRead).not.toContain("game play consider-attributes --send");
+      expect(notificationRead).not.toContain("game play expand-city --city-id '<city-id>' --x <x> --y <y> --send");
+      expect(notificationRead).not.toContain("game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send");
+      expect(notificationRead).not.toContain("game play consider-town-project --city-id '<city-id>' --send");
+      expect(notificationRead).not.toContain("game play build-production --city-id '<city-id>' --unit-type <unit-type> --send");
+      expect(notificationRead).not.toContain("game play build-production --city-id '<city-id>' --project-type <project-type> --send");
+      expect(notificationRead).not.toContain("game play advisor-warning --target '<notification-id>' --send");
       expect(notificationRead).not.toContain("game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action> --send");
       expect(notificationRead).not.toContain("game play buy-attribute --player-id <id> --node <node> --send");
       expect(notificationRead).not.toContain("game play advisor-warning --player-id <id> --target '<notification-id>'");
@@ -93,6 +128,10 @@ describe("getCiv7PlayNotificationView", () => {
       expect(notificationRead).not.toContain("close reviewed town project");
       expect(notificationRead).not.toContain("validate tech choice");
       expect(notificationRead).not.toContain("validate culture choice");
+      expect(notificationRead).not.toContain("Use a returned enabled option's cli");
+      expect(notificationRead).not.toContain("Use an enabled option's cli");
+      expect(notificationRead).not.toContain("use validateCli");
+      expect(notificationRead).not.toContain("recommendedCli");
       expect(notificationRead).not.toContain("validate diplomacy response");
       expect(notificationRead).not.toContain("validate narrative choice");
       expect(notificationRead).not.toContain("validate city expansion");
@@ -102,6 +141,18 @@ describe("getCiv7PlayNotificationView", () => {
       expect(notificationRead).not.toContain("validate attribute purchase");
       expect(notificationRead).not.toContain("when only validation");
       expect(notificationRead).not.toContain("with validation and ready send templates");
+      expect(notificationRead).not.toContain("validateCli");
+      expect(notificationRead).not.toContain("targetCli");
+      expect(notificationRead).not.toContain("dismissalDiagnosticCli");
+      expect(notificationRead).not.toContain("unprovenDismissalCli");
+      expect(notificationRead).not.toContain("game play respond-diplomacy --action-id");
+      expect(notificationRead).not.toContain("game play choose-tech --node");
+      expect(notificationRead).not.toContain("game play choose-culture --node");
+      expect(notificationRead).not.toContain("game play choose-celebration --golden-age-type");
+      expect(notificationRead).not.toContain("game play choose-government --government-type");
+      expect(notificationRead).not.toContain("game play choose-narrative --target-type");
+      expect(notificationRead).not.toContain("game play operation --family unit --type SKIP_TURN");
+      expect(notificationRead).not.toContain("game watch --count 3");
     } finally {
       await server.close();
     }
@@ -167,7 +218,9 @@ function playNotificationView() {
       commonActions: [
         {
           label: "Set town focus",
-          cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send",
+          operationFamily: "city-command",
+          operationType: "CHANGE_GROWTH_MODE",
+          argsShape: "{ Type, ProjectType, City }",
           when: "when the selected focus should be applied",
         },
       ],

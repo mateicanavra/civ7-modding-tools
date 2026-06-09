@@ -148,7 +148,9 @@ function playNotificationViewResult(maxNotifications = 25) {
   const commonActions = [
     {
       label: "Set town focus",
-      cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
+      operationFamily: "city-command",
+      operationType: "CHANGE_GROWTH_MODE",
+      argsShape: "{ Type, ProjectType, City }",
       when: "after choosing a live town focus option",
     },
   ];

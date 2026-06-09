@@ -285,7 +285,7 @@ function strategyNextSteps({
     nextSteps.push({
       kind: "validate-unit-action",
       source: "strategy.frontSummary",
-      label: "Use unit action validation before any movement or target send.",
+      label: "Use unit action validation before moving or targeting.",
     });
   }
 

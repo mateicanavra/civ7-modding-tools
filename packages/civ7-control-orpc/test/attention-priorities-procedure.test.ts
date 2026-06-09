@@ -154,7 +154,7 @@ describe("attention.priorities control-oRPC procedure", () => {
         kind: "clean-read",
         summary: "no HUD, ready-unit, ready-city, or battlefield priority surfaced",
         reason:
-          "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before sending.",
+          "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before mutation.",
         blocking: false,
         nextStep: {
           kind: "end-turn",
@@ -165,6 +165,7 @@ describe("attention.priorities control-oRPC procedure", () => {
         evidenceLabels: ["clean-attention-read"],
       },
     ]);
+    expect(JSON.stringify(result)).not.toMatch(/before sending|before any send|send-ready/i);
     expect(fake.calls.battlefield).toEqual([]);
   });
 

@@ -269,8 +269,8 @@ function formationNextSteps({
     kind: "validate-unit-action",
     source: "strategy.formationSnapshot",
     label: posture === "screen-civilian" || posture === "stabilize-front"
-      ? "Validate a screen or contact action before any unit send."
-      : "Validate a concrete unit action before any unit send.",
+      ? "Validate a screen or contact unit action."
+      : "Validate a concrete unit action.",
     parameters: {},
   });
   return uniqueNextSteps(nextSteps);

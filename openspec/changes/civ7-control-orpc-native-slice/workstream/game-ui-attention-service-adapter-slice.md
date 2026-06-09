@@ -56,8 +56,8 @@ runtime proof.
   incomplete attention evidence rather than an unqualified no-blocker
   conclusion.
 - Normal bridge/service output remains semantic and omits host, port, state,
-  command, rawCommand, session, tuner payloads, and direct-control socket
-  details.
+  command, rawCommand, session, tuner payloads, direct-control socket details,
+  legacy `cli` fields, and `game play ...` command strings.
 
 ## Non-Goals
 
@@ -79,6 +79,8 @@ runtime proof.
 - `bun run --cwd packages/civ7-control-orpc check`
 - `bun run --cwd packages/civ7-control-orpc build`
 - `bun run --cwd packages/civ7-control-orpc test`
+- Focused game-UI attention serialization proof that bridge output omits
+  legacy `cli` fields and `game play ...` command strings.
 - `bun run --cwd mods/mod-civ7-intelligence-bridge check`
 - `bun run --cwd mods/mod-civ7-intelligence-bridge build`
 - `bun run --cwd mods/mod-civ7-intelligence-bridge test`

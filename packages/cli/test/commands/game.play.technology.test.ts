@@ -58,9 +58,9 @@ describe('game play technology commands', () => {
             enabledOptions: Array<{
               nodeType: number;
               name: string;
-              nextAction: { kind: string; parameters: { node: number }; sendsMutation: boolean };
-              targetAction: { kind: string; parameters: { node: number }; sendsMutation: boolean };
-              validationAction: { kind: string; parameters: { node: number }; readOnly: boolean };
+              nextAction: { kind: string; label: string; parameters: { node: number }; sendsMutation: boolean };
+              targetAction: { kind: string; label: string; parameters: { node: number }; sendsMutation: boolean };
+              validationAction: { kind: string; label: string; parameters: { node: number }; readOnly: boolean };
               turns: number | null;
               cost: number | null;
             }>;
@@ -82,22 +82,26 @@ describe('game play technology commands', () => {
       expect(masonry?.name).toBe('Masonry');
       expect(masonry?.nextAction).toMatchObject({
         kind: 'choose-technology',
+        label: 'Choose technology.',
         parameters: { node: -1255676052 },
         sendsMutation: true,
       });
       expect(masonry?.targetAction).toMatchObject({
         kind: 'target-technology',
+        label: 'Set technology target.',
         parameters: { node: -1255676052 },
         sendsMutation: true,
       });
       expect(masonry?.validationAction).toMatchObject({
         kind: 'validate-technology-choice',
+        label: 'Validate technology choice.',
         parameters: { node: -1255676052 },
         readOnly: true,
       });
       expect(masonry?.turns).toBe(2);
       expect(masonry?.cost).toBe(137);
       expect(JSON.stringify(payload)).not.toContain('game play ');
+      expect(JSON.stringify(payload)).not.toMatch(/before sending|after reviewing validation evidence|use full notification JSON|notifications --json/i);
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -657,7 +661,7 @@ function playNotificationView(mode: 'tech-choice' | 'ready-unit', technologyStat
       },
     ],
     confidence: 'live-proof',
-    notes: ['Read options from the live tech tree before sending; do not infer node ids from examples.'],
+    notes: ['Read live tech tree options; do not infer node ids from examples.'],
   };
   const notificationId = { owner: 0, id: 52, type: 20 };
   const optionRows = [

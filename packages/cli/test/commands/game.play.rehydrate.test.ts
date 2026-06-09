@@ -60,13 +60,67 @@ describe('game play rehydrate command', () => {
       await server.close();
     }
   });
+
+  test('keeps HUD decision common action as read-only routing guidance', async () => {
+    const server = await startRehydrateTunerServer(playNotificationViewWithDecision());
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayRehydrate.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayRehydrate.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        snapshot: {
+          commonActions: Array<{
+            kind: string;
+            label: string;
+            parameters: Record<string, unknown>;
+            readOnly: boolean;
+            sendsMutation: boolean;
+            when: string;
+          }>;
+        };
+      };
+
+      expect(payload.snapshot.commonActions).toContainEqual(expect.objectContaining({
+        kind: 'handle-hud-decision',
+        label: 'inspect and route the next HUD decision',
+        parameters: {
+          category: 'technology-choice',
+          operationFamily: 'player-operation',
+          operationType: 'CHOOSE_TECHNOLOGY',
+          target: { owner: 0, id: 11, type: 20 },
+        },
+        readOnly: true,
+        sendsMutation: false,
+        when: 'before choosing the specialized validated action for this HUD decision',
+      }));
+      expect(JSON.stringify(payload.snapshot.commonActions)).not.toContain('game play ');
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
 });
 
-async function startRehydrateTunerServer(): Promise<FakeTunerServer> {
+async function startRehydrateTunerServer(
+  notifications = playNotificationView(),
+): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes('readPlayNotifications')) {
-        return [JSON.stringify(playNotificationView())];
+        return [JSON.stringify(notifications)];
       }
       if (message.includes('readReadyUnitView')) {
         return [JSON.stringify(readyUnitView())];
@@ -74,6 +128,21 @@ async function startRehydrateTunerServer(): Promise<FakeTunerServer> {
       return undefined;
     },
   });
+}
+
+function playNotificationViewWithDecision() {
+  return {
+    ...playNotificationView(),
+    hud: {
+      nextDecision: {
+        category: 'technology-choice',
+        operationFamily: 'player-operation',
+        operationType: 'CHOOSE_TECHNOLOGY',
+        target: { owner: 0, id: 11, type: 20 },
+      },
+      decisionQueue: [],
+    },
+  };
 }
 
 function playNotificationView() {
@@ -138,6 +207,6 @@ function readyUnitView() {
       },
     },
     nearby: { ok: true, value: [] },
-    notes: ['Read-only ready-unit view. Use operation validation before any send.'],
+    notes: ['Read-only ready-unit view. Use operation validation before mutation.'],
   };
 }

@@ -117,10 +117,11 @@ describe('game play unit-move-preview command', () => {
       expect(payload.paths.queued?.plotCount).toBeGreaterThan(0);
       expect(payload.nextAction).toMatchObject({
         kind: 'validate-unit-action',
-        label: 'validate unit action at (25,35) before sending',
+        label: 'Validate unit action at (25,35).',
         destination: { x: 25, y: 35 },
         sendReady: false,
       });
+      expect(JSON.stringify(payload)).not.toMatch(/before sending|before any send|send-ready/i);
       expect(JSON.stringify(payload)).not.toContain('game play ');
       expect(payload.relationshipProof).toBe('none');
       expect(payload.warnings.join(' ')).toContain('does not classify other-owner relationships');

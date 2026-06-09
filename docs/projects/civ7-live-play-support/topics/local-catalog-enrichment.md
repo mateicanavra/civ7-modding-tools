@@ -59,7 +59,7 @@ catalog every time.
    categories, costs, or text are missing.
 3. Keep source labels on enriched fields, such as `source: "local-catalog"` or
    `source: "runtime-gameinfo"`.
-4. Re-run the live validator before any send. A catalog row proves an option
+4. Re-run the live validator before mutation. A catalog row proves an option
    exists; it does not prove this player can choose it now.
 5. Invalidate live-layer HUD data after every send, visible human input, turn
    advance, or long-latency read. Static catalog enrichment can stay cached.

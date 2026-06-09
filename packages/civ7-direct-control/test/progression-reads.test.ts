@@ -44,6 +44,20 @@ describe("progression read surfaces", () => {
     })).toBe(false);
     expect(Value.Check(Civ7TraditionsViewResultSchema, {
       ...result,
+      active: [
+        {
+          ...result.active[0],
+          actionHints: [
+            {
+              ...result.active[0].actionHints[0],
+              cli: "game play change-tradition --send",
+            },
+          ],
+        },
+      ],
+    })).toBe(false);
+    expect(Value.Check(Civ7TraditionsViewResultSchema, {
+      ...result,
       hiddenInfoPolicy: "raw-debug-output",
     })).toBe(false);
     expect(Value.Check(Civ7TraditionsViewResultSchema, {
@@ -133,12 +147,12 @@ describe("progression read surfaces", () => {
         ],
         hiddenInfoPolicy: "player-culture-runtime",
       });
-      expect(view.recommendedCli).toEqual([
-        "game play change-tradition --player-id 0 --tradition-type 202 --action 1",
-        "game play change-tradition --player-id 0 --tradition-type 202 --action 1",
-      ]);
+      expect("recommendedCli" in view).toBe(false);
+      expect(JSON.stringify(view.active)).not.toContain("game play change-tradition");
+      expect(JSON.stringify(view.available)).not.toContain("game play change-tradition");
       expect(view.notes.join("\n")).toContain("Read-only traditions view");
       expect(view.notes.join("\n")).toContain("does not send CHANGE_TRADITION");
+      expect(view.notes.join("\n")).not.toContain("game play change-tradition");
       expect(server.received).toEqual(["LSQ:", expect.stringContaining("CMD:65535:(() =>")]);
       expect(server.received[1]).toContain("readTraditionsView");
       expect(server.received[1]).toContain("GameInfo.Traditions.lookup");
@@ -342,14 +356,10 @@ function traditionsView() {
         validation: { ok: true, value: { Success: true } },
       }),
     ],
-    recommendedCli: [
-      "game play change-tradition --player-id 0 --tradition-type 202 --action 1",
-      "game play change-tradition --player-id 0 --tradition-type 202 --action 1",
-    ],
     hiddenInfoPolicy: "player-culture-runtime",
     notes: [
       "Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.",
-      "Use the exact TraditionType and Action values from actionHints, then validate with game play change-tradition before sending.",
+      "Use the exact TraditionType and Action values from actionHints, then validate the selected change.",
       "Full slots may require deactivating an existing tradition before activating a new one; re-read this view after each mutation.",
     ],
   };
@@ -392,7 +402,6 @@ function traditionSummary(input: {
         operationType: "CHANGE_TRADITION",
         args: { TraditionType: input.id, Action: input.action },
         validation: input.validation,
-        cli: `game play change-tradition --player-id 0 --tradition-type ${input.id} --action ${input.action}`,
       },
     ],
   };

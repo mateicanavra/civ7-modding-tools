@@ -182,7 +182,7 @@ function civilianRouteTriageResult({
     notes: [
       "Read-only civilian route triage. It does not move, found, buy, or reserve routes.",
       "Settlement recommendations are site hints, not movement orders.",
-      "Use validator-backed unit procedures before any concrete movement or target send.",
+      "Use validator-backed unit procedures before moving or targeting.",
       "Relationship labels stay relationship-unproven unless official diplomatic evidence proves more.",
     ],
     nextSteps,
@@ -278,7 +278,7 @@ function triageNextSteps({
   }, {
     kind: "validate-unit-action",
     source: "strategy.civilianRouteTriage",
-    label: "Use unit action validation before any movement or target send.",
+    label: "Use unit action validation before moving or targeting.",
     parameters: { destination: destination ?? undefined },
   });
   return nextSteps;

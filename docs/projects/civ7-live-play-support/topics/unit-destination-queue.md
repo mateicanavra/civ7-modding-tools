@@ -29,7 +29,7 @@ queued-destination read surface:
   detail.
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/unit-actions/unit-actions.js:1005`
   target-plot unit action callbacks also set `X`/`Y` and send the selected unit
-  operation; `UNITOPERATION_MOVE_TO` gets move modifiers before send.
+  operation; `UNITOPERATION_MOVE_TO` gets move modifiers before mutation.
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/interface-modes/support-unit-map-decoration.chunk.js:216`
   renders desired hover paths with `Units.getPathTo(unitID, destination)`.
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/interface-modes/support-unit-map-decoration.chunk.js:239`

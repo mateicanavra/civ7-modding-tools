@@ -190,7 +190,6 @@ function readyCityViewResult() {
           args: { ConstructibleType: 713967338 },
           valid: true,
           result: { Success: true },
-          cli: "game play build-production --city-id '<city-id>' --constructible-type 713967338",
         },
       ],
     },
@@ -203,7 +202,6 @@ function readyCityViewResult() {
           args: { Type: -284569333 },
           valid: true,
           result: { Success: true },
-          cli: "game play set-town-focus --city-id '<city-id>' --growth-type -284569333",
         },
       ],
     },
@@ -219,9 +217,8 @@ function readyCityViewResult() {
         workablePlots: { ok: true, value: [{ index: 1457, x: 22, y: 31 }] },
         expansionCandidates: { ok: true, value: [{ index: 1458, x: 23, y: 31 }] },
         expansionResult: { ok: true, value: { Success: true, Plots: [1458] } },
-        cliHints: [
-          "game play assign-worker --location <plot-index> --send",
-          "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+        notes: [
+          "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches.",
         ],
       },
     },

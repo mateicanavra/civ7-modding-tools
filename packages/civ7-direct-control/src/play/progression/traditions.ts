@@ -36,7 +36,6 @@ export function traditionsViewSource(): string {
           operationType: "CHANGE_TRADITION",
           args,
           validation,
-          cli: "game play change-tradition --player-id " + playerId + " --tradition-type " + traditionId + " --action " + action,
         };
       };
       const summarize = (id) => {
@@ -71,12 +70,6 @@ export function traditionsViewSource(): string {
       const crisisSlots = probe(() => culture.numCrisisTraditionSlots ?? 0);
       const governmentType = probe(() => culture.getGovernmentType());
       const governmentDefinition = governmentType.ok ? probe(() => GameInfo.Governments.lookup(governmentType.value)).value ?? null : null;
-      const validationSuccess = (tradition) => tradition.actionHints[0]?.validation?.ok === true
-        && tradition.actionHints[0]?.validation?.value?.Success === true;
-      const recommendedCli = [
-        ...available.filter(validationSuccess).map((tradition) => tradition.actionHints[0]?.cli).filter(Boolean),
-        ...recentUnlocks.filter((tradition) => !tradition.active && validationSuccess(tradition)).map((tradition) => tradition.actionHints[0]?.cli).filter(Boolean),
-      ].slice(0, 8);
       return {
         playerId,
         turn: probe(() => Game.turn),
@@ -100,11 +93,10 @@ export function traditionsViewSource(): string {
         available,
         recentUnlocks,
         traditions,
-        recommendedCli,
         hiddenInfoPolicy: "player-culture-runtime",
         notes: [
           "Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.",
-          "Use the exact TraditionType and Action values from actionHints, then validate with game play change-tradition before sending.",
+          "Use the exact TraditionType and Action values from actionHints, then validate the selected change.",
           "Full slots may require deactivating an existing tradition before activating a new one; re-read this view after each mutation.",
         ],
       };

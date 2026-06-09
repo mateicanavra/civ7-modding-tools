@@ -111,12 +111,13 @@ describe('game play priorities command', () => {
       expect(top.kind).toBe('clean-read');
       expect(top.nextAction).toMatchObject({ kind: 'end-turn', sendsMutation: true });
       expect(payload.nextAction).toEqual(top.nextAction);
-      expect(top.reason).toContain('rechecks blockers before sending');
+      expect(top.reason).toContain('rechecks blockers before mutation');
       expect(payload.semanticEnvelope.blockers).toEqual([]);
       expect(payload.semanticEnvelope.actions[0]).toMatchObject({
         kind: top.nextAction?.kind,
         sendsMutation: true,
       });
+      expect(JSON.stringify(payload)).not.toMatch(/before sending|before any send|send-ready/i);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendTurnComplete'))).toBe(false);
     } finally {
@@ -137,17 +138,26 @@ describe('game play priorities command', () => {
     }
   });
 
-  test('surfaces unit-command reconciliation command in compact priorities', async () => {
+  test('surfaces unit-command reconciliation validation in compact priorities', async () => {
     const { payload, server } = await runPriorities('stale-unit-command');
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:unit-command');
-      expect(top.nextAction).toMatchObject({ kind: 'validate-unit-command', sendsMutation: true });
+      expect(top.nextAction).toMatchObject({
+        kind: 'validate-unit-command',
+        readOnly: true,
+        sendsMutation: false,
+      });
       expect(top.nextAction?.parameters).toMatchObject({
         operationType: 'SKIP_TURN',
         unitId: { owner: 0, id: 196609, type: 26 },
       });
       expect(payload.nextAction).toEqual(top.nextAction);
+      expect(payload.semanticEnvelope.actions[0]).toMatchObject({
+        kind: 'validate-unit-command',
+        readOnly: true,
+        sendsMutation: false,
+      });
       expect(top.reason).toContain('enabled unit command candidate');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -501,7 +511,7 @@ function decisionForMode(mode: Exclude<PriorityHudMode, 'ready-unit' | 'runtime-
         summary: 'You have met Ashoka, World Renouncer of Mauryan Empire.',
         details: {
           kind: 'first-meet-diplomacy',
-          recommendedCli: 'game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral',
+          recommendedResponse: 'neutral',
         },
       });
     case 'tech-choice':
@@ -814,7 +824,7 @@ function readyUnitView() {
     ],
     promotionReadiness: { ok: true, value: { canPromote: false } },
     nearby: { ok: true, value: [] },
-    notes: ['Read-only ready-unit view. Use operation validation before any send.'],
+    notes: ['Read-only ready-unit view. Use operation validation before mutation.'],
   };
 }
 

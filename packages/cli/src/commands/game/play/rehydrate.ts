@@ -176,7 +176,7 @@ function buildSnapshot(input: Readonly<{
     notes: [
       'This snapshot is live runtime evidence, not a local SQLite/catalog read.',
       'After a restart or reconnect, prefer this snapshot over pre-restart turn, unit, and blocker assumptions.',
-      'Use SQLite/resource catalogs for names and definitions; use live validators before any send.',
+      'Use SQLite/resource catalogs for names and definitions; use live validators before mutation.',
     ],
   };
 }
@@ -255,16 +255,16 @@ function buildCommonActions(
     const decision = notifications.hud.nextDecision as Record<string, unknown>;
     actions.push({
       kind: 'handle-hud-decision',
-      label: 'handle next HUD decision',
+      label: 'inspect and route the next HUD decision',
       parameters: {
         category: decision.category,
         operationFamily: decision.operationFamily,
         operationType: decision.operationType,
         target: decision.target,
       },
-      readOnly: false,
-      sendsMutation: true,
-      when: 'after collecting the required inputs named by the HUD decision',
+      readOnly: true,
+      sendsMutation: false,
+      when: 'before choosing the specialized validated action for this HUD decision',
     });
   }
   return actions;
