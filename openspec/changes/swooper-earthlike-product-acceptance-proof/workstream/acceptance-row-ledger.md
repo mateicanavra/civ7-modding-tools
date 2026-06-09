@@ -56,6 +56,23 @@ state and reviewer disposition are captured.
 
 ## Rows
 
+New final-surface parity packets publish explicit `proofClaims`. Product rows
+must consume those labels rather than treating top-level `proof.status` as a
+river/lake/floodplain product verdict. Legacy saved proof artifacts listed above
+predate `proofClaims`; their row mapping is:
+
+- Rivers terrain row: `terrain-readback=pass`, `metadata-readback=fail`,
+  `civ-rendered=unresolved`, `studio-visible=unresolved`,
+  `product-acceptance=unresolved`.
+- Rivers metadata row: `metadata-readback=fail` until a real metadata writer is
+  discovered and proven, or the product row explicitly scopes metadata out.
+- Floodplain row: `floodplain-active=technical pass` for the active feature-grid
+  proof, with `civ-rendered=unresolved`, `studio-visible=unresolved`, and
+  `product-acceptance=unresolved` until visible-state evidence and reviewer
+  disposition are captured.
+- Lake rows must require `lake-final=pass`; `missing-exact-log` maps to
+  `lake-final=unresolved`, not product acceptance.
+
 | Row | Disposition | Proof Class | Evidence | Remaining Action |
 | --- | --- | --- | --- | --- |
 | Rivers: selected major/navigable river trunks are visible in Civ terrain readback | technical pass | terrain-row materialization | `riverMetadataParity.status=terrain-match-metadata-divergent`; planned minor river tiles `212`; planned major river tiles `149`; projected navigable terrain tiles `6`; live `TERRAIN_NAVIGABLE_RIVER` tiles `6`; projected-vs-live terrain mismatch count `0`. | Keep this as the technical acceptance basis for visible major/navigable rivers. Do not require Civ `GameplayMap.isRiver` metadata to pass the terrain visibility row. Full product/visual review remains open until Studio visible-state evidence and reviewer disposition are captured. |

@@ -134,6 +134,32 @@ export type LakeReadbackParityReport = Readonly<{
   mismatchedFields: ReadonlyArray<keyof LakeReadbackCounters>;
 }>;
 
+export type RiverLakeProofClaimStatus = "pass" | "fail" | "unresolved" | "out-of-scope";
+
+export type RiverLakeProofLabel =
+  | "exact-authorship"
+  | "hydrology-truth"
+  | "projection-plan"
+  | "terrain-readback"
+  | "metadata-readback"
+  | "studio-visible"
+  | "civ-rendered"
+  | "lake-final"
+  | "floodplain-active"
+  | "product-acceptance";
+
+export type RiverLakeProofClaim = Readonly<{
+  label: RiverLakeProofLabel;
+  status: RiverLakeProofClaimStatus;
+  reason: string;
+  evidenceLinks: ReadonlyArray<string>;
+}>;
+
+export type RiverLakeProofClaimLedger = Readonly<{
+  version: 1;
+  claims: Readonly<Record<RiverLakeProofLabel, RiverLakeProofClaim>>;
+}>;
+
 export type ParityResidualClassification = Readonly<{
   key: "rivers" | "floodplains" | "starts" | "wonders";
   status:
@@ -353,6 +379,7 @@ export type FinalSurfaceParityProof = Readonly<{
   resourcePlacementRejectionContexts?: ReadonlyArray<ResourcePlacementRejectionContext>;
   riverMetadataParity?: RiverMetadataParityReport;
   lakeReadbackParity?: LakeReadbackParityReport;
+  proofClaims: RiverLakeProofClaimLedger;
   residuals: ReadonlyArray<ParityResidualClassification>;
   unresolvedLinks: ReadonlyArray<string>;
 }>;
@@ -961,8 +988,9 @@ export function buildFinalSurfaceParityProof(args: {
     exact === undefined ? [] : buildResourcePlacementRejectionContexts(exact, args.local);
   const riverMetadataParity = buildRiverMetadataParityReport(args.local, args.live);
   const lakeReadbackParity = buildLakeReadbackParityReport(exact, args.local);
+  const exactAuthorshipValidation = validateExactAuthorshipProofPacket(exact);
 
-  unresolvedLinks.push(...validateExactAuthorshipProofPacket(exact).unresolvedLinks);
+  unresolvedLinks.push(...exactAuthorshipValidation.unresolvedLinks);
   addSurfaceShapeLinks(unresolvedLinks, args.local, "local", exact?.runtime?.width, exact?.runtime?.height);
   addSurfaceShapeLinks(unresolvedLinks, args.live, "live", exact?.runtime?.width, exact?.runtime?.height);
   addFullGridEvidenceLinks(unresolvedLinks, args.live);
@@ -1074,6 +1102,11 @@ export function buildFinalSurfaceParityProof(args: {
   for (const residual of residuals) {
     if (residual.status === "unresolved") unresolvedLinks.push(`residual.${residual.key}`);
   }
+  const proofClaims = buildRiverLakeProofClaimLedger({
+    exactAuthorshipUnresolvedLinks: exactAuthorshipValidation.unresolvedLinks,
+    riverMetadataParity,
+    lakeReadbackParity,
+  });
 
   return {
     status: unresolvedLinks.length === 0 ? "complete" : "unresolved",
@@ -1107,6 +1140,7 @@ export function buildFinalSurfaceParityProof(args: {
       : { resourcePlacementRejectionContexts }),
     ...(riverMetadataParity === undefined ? {} : { riverMetadataParity }),
     ...(lakeReadbackParity === undefined ? {} : { lakeReadbackParity }),
+    proofClaims,
     residuals,
     unresolvedLinks: [...new Set(unresolvedLinks)].sort((a, b) => a.localeCompare(b)),
   };
@@ -1178,6 +1212,209 @@ export function validateExactAuthorshipProofPacket(value: unknown): {
     proof: exact,
     unresolvedLinks: [...new Set(unresolvedLinks)].sort((a, b) => a.localeCompare(b)),
   };
+}
+
+function proofClaim(
+  label: RiverLakeProofLabel,
+  status: RiverLakeProofClaimStatus,
+  reason: string,
+  evidenceLinks: ReadonlyArray<string> = []
+): RiverLakeProofClaim {
+  return { label, status, reason, evidenceLinks };
+}
+
+function buildRiverLakeProofClaimLedger(args: {
+  exactAuthorshipUnresolvedLinks: ReadonlyArray<string>;
+  riverMetadataParity?: RiverMetadataParityReport;
+  lakeReadbackParity?: LakeReadbackParityReport;
+}): RiverLakeProofClaimLedger {
+  const { exactAuthorshipUnresolvedLinks, riverMetadataParity, lakeReadbackParity } = args;
+  const exactAuthorship =
+    exactAuthorshipUnresolvedLinks.length === 0
+      ? proofClaim(
+          "exact-authorship",
+          "pass",
+          "Exact-authorship packet has no unresolved identity, materialization, log, or runtime links.",
+          ["exact-authorship-proof"]
+        )
+      : proofClaim(
+          "exact-authorship",
+          "unresolved",
+          "Exact-authorship packet is missing required identity, materialization, log, or runtime links.",
+          exactAuthorshipUnresolvedLinks
+        );
+  const claims: Record<RiverLakeProofLabel, RiverLakeProofClaim> = {
+    "exact-authorship": exactAuthorship,
+    "hydrology-truth": proofClaim(
+      "hydrology-truth",
+      "unresolved",
+      "Physical hydrology network metrics are not part of this parity packet yet.",
+      ["hydrology-river-network-metrics"]
+    ),
+    "projection-plan": proofClaim(
+      "projection-plan",
+      "unresolved",
+      "Navigable projection coherence and density metrics are not part of this parity packet yet.",
+      ["map-rivers-navigable-coherence"]
+    ),
+    "terrain-readback": terrainReadbackClaim(riverMetadataParity),
+    "metadata-readback": metadataReadbackClaim(riverMetadataParity),
+    "studio-visible": proofClaim(
+      "studio-visible",
+      "unresolved",
+      "Studio river/lake/floodplain inspector visibility is not proven by final-surface parity readback.",
+      ["studio-river-lake-inspector-dx"]
+    ),
+    "civ-rendered": proofClaim(
+      "civ-rendered",
+      "unresolved",
+      "No same-run Civ screenshot/viewport proof is attached to this parity packet.",
+      ["river-runtime-visible-proof"]
+    ),
+    "lake-final": lakeFinalClaim(lakeReadbackParity),
+    "floodplain-active": proofClaim(
+      "floodplain-active",
+      "unresolved",
+      "Active live floodplain-family feature proof is not derived from this parity packet.",
+      ["lake-floodplain-product-proof-gates"]
+    ),
+    "product-acceptance": proofClaim(
+      "product-acceptance",
+      "unresolved",
+      "Product acceptance requires all proof labels plus reviewer disposition; parity packets do not close product acceptance.",
+      ["swooper-earthlike-product-acceptance-proof"]
+    ),
+  };
+  return { version: 1, claims };
+}
+
+function terrainReadbackClaim(
+  parity: RiverMetadataParityReport | undefined
+): RiverLakeProofClaim {
+  if (parity === undefined) {
+    return proofClaim(
+      "terrain-readback",
+      "unresolved",
+      "No river terrain readback comparison is present.",
+      ["river-metadata.readback"]
+    );
+  }
+  if (parity.status === "match" || parity.status === "terrain-match-metadata-divergent") {
+    return proofClaim(
+      "terrain-readback",
+      "pass",
+      "Projected navigable terrain matches live TERRAIN_NAVIGABLE_RIVER readback.",
+      ["riverMetadataParity"]
+    );
+  }
+  if (parity.status === "readback-missing") {
+    return proofClaim(
+      "terrain-readback",
+      "unresolved",
+      "River terrain readback is missing or incomplete.",
+      ["river-metadata.readback"]
+    );
+  }
+  return proofClaim(
+    "terrain-readback",
+    "fail",
+    "Projected navigable terrain does not match live terrain readback.",
+    [`river-metadata.${parity.status}`]
+  );
+}
+
+function metadataReadbackClaim(
+  parity: RiverMetadataParityReport | undefined
+): RiverLakeProofClaim {
+  if (parity === undefined) {
+    return proofClaim(
+      "metadata-readback",
+      "unresolved",
+      "No Civ river metadata readback comparison is present.",
+      ["river-metadata.readback"]
+    );
+  }
+  if (parity.status === "match") {
+    return proofClaim(
+      "metadata-readback",
+      "pass",
+      "Civ river metadata agrees with the local river metadata claim.",
+      ["riverMetadataParity"]
+    );
+  }
+  if (parity.status === "terrain-match-metadata-divergent") {
+    return proofClaim(
+      "metadata-readback",
+      "fail",
+      "Live terrain contains navigable-river terrain while Civ river metadata remains divergent.",
+      ["river-metadata.terrain-match-metadata-divergent"]
+    );
+  }
+  if (parity.status === "readback-missing") {
+    return proofClaim(
+      "metadata-readback",
+      "unresolved",
+      "Civ river metadata readback is missing or incomplete.",
+      ["river-metadata.readback"]
+    );
+  }
+  return proofClaim(
+    "metadata-readback",
+    "fail",
+    "Civ river metadata comparison failed.",
+    [`river-metadata.${parity.status}`]
+  );
+}
+
+function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLakeProofClaim {
+  if (parity === undefined) {
+    return proofClaim(
+      "lake-final",
+      "unresolved",
+      "No local/exact lake final-readback counters are present.",
+      ["lake-readback.local-readback"]
+    );
+  }
+  if (parity.status === "missing-exact-log") {
+    return proofClaim(
+      "lake-final",
+      "unresolved",
+      "Local lake counters exist, but the exact runtime log lacks lake counters.",
+      ["lake-readback.exact-log"]
+    );
+  }
+  if (parity.status === "missing-local-readback") {
+    return proofClaim(
+      "lake-final",
+      "unresolved",
+      "Exact lake counters exist, but local lake final-readback counters are missing.",
+      ["lake-readback.local-readback"]
+    );
+  }
+  if (parity.status === "mismatch") {
+    return proofClaim(
+      "lake-final",
+      "fail",
+      "Exact and local lake final-readback counters diverge.",
+      parity.mismatchedFields.map((field) => `lake-readback.${field}`)
+    );
+  }
+  const finalWaterDrift = parity.local?.finalLakeWaterDriftCount;
+  const finalClassificationDrift = parity.local?.finalLakeClassificationDriftCount;
+  if (finalWaterDrift === 0 && finalClassificationDrift === 0) {
+    return proofClaim(
+      "lake-final",
+      "pass",
+      "Exact and local lake final-readback counters match with zero final water/classification drift.",
+      ["lakeReadbackParity"]
+    );
+  }
+  return proofClaim(
+    "lake-final",
+    "fail",
+    "Lake counters match, but final lake drift is nonzero or incomplete.",
+    ["lake-readback.final-drift"]
+  );
 }
 
 export function configFromExactAuthorshipProof(exact: ExactAuthorshipProofLike | undefined): unknown {

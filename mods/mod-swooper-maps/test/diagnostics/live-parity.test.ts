@@ -335,6 +335,15 @@ describe("final-surface parity proof", () => {
       minorRiverUnsupportedReason: "minor metadata writer unproven",
     });
     expect(proof.unresolvedLinks).toEqual([]);
+    expect(proof.proofClaims.claims["exact-authorship"].status).toBe("pass");
+    expect(proof.proofClaims.claims["terrain-readback"].status).toBe("pass");
+    expect(proof.proofClaims.claims["metadata-readback"].status).toBe("pass");
+    expect(proof.proofClaims.claims["civ-rendered"]).toMatchObject({
+      status: "unresolved",
+    });
+    expect(proof.proofClaims.claims["product-acceptance"]).toMatchObject({
+      status: "unresolved",
+    });
   });
 
   test("marks a fully bound matching grid complete", () => {
@@ -387,6 +396,10 @@ describe("final-surface parity proof", () => {
       },
       mismatchedFields: [],
     });
+    expect(proof.proofClaims.claims["lake-final"]).toMatchObject({
+      status: "unresolved",
+      evidenceLinks: ["lake-readback.exact-log"],
+    });
     expect(proof.unresolvedLinks).toEqual([]);
   });
 
@@ -429,6 +442,10 @@ describe("final-surface parity proof", () => {
         finalLakeClassificationDriftCount: 0,
       },
       mismatchedFields: ["finalLakeWaterDriftCount"],
+    });
+    expect(proof.proofClaims.claims["lake-final"]).toMatchObject({
+      status: "fail",
+      evidenceLinks: ["lake-readback.finalLakeWaterDriftCount"],
     });
     expect(proof.unresolvedLinks).toContain("lake-readback.mismatch");
   });
@@ -495,6 +512,19 @@ describe("final-surface parity proof", () => {
       minorRiverStampingSupported: false,
       minorRiverUnsupportedReason: "minor metadata readback-only",
     });
+    expect(proof.proofClaims.claims["terrain-readback"]).toMatchObject({
+      status: "pass",
+    });
+    expect(proof.proofClaims.claims["metadata-readback"]).toMatchObject({
+      status: "fail",
+      evidenceLinks: ["river-metadata.terrain-match-metadata-divergent"],
+    });
+    expect(proof.proofClaims.claims["civ-rendered"]).toMatchObject({
+      status: "unresolved",
+    });
+    expect(proof.proofClaims.claims["product-acceptance"]).toMatchObject({
+      status: "unresolved",
+    });
     expect(proof.unresolvedLinks).not.toContain("river-metadata.mismatch");
     expect(proof.residuals.find((residual) => residual.key === "rivers")).toMatchObject({
       status: "covered-by-terrain-grid",
@@ -538,6 +568,8 @@ describe("final-surface parity proof", () => {
       projectedVsLiveTerrainMismatchCount: 0,
       minorRiverStampingSupported: false,
     });
+    expect(proof.proofClaims.claims["terrain-readback"].status).toBe("fail");
+    expect(proof.proofClaims.claims["metadata-readback"].status).toBe("fail");
     expect(proof.unresolvedLinks).toContain("river-metadata.dimensions");
     expect(proof.unresolvedLinks).toContain("river-metadata.minor-unsupported-reason");
     expect(proof.unresolvedLinks).not.toContain("river-metadata.mismatch");
@@ -847,6 +879,9 @@ describe("final-surface parity proof", () => {
 
     expect(validation.unresolvedLinks).toContain("exact-authorship-proof.source-snapshot.pipeline-config");
     expect(proof.status).toBe("unresolved");
+    expect(proof.proofClaims.claims["exact-authorship"]).toMatchObject({
+      status: "unresolved",
+    });
     expect(proof.unresolvedLinks).toContain("exact-authorship-proof.source-snapshot.pipeline-config");
   });
 
