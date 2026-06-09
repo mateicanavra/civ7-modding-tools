@@ -61,6 +61,14 @@ workstream and parallel lanes.
   while transport/session verification, closeout internals, correlation
   machinery, and raw service diagnostics stay inside `@civ7/direct-control` or
   an explicit debugging command hierarchy.
+- Add a dedicated hotseat/autoplay and AI-intelligence compatibility planning
+  lane before command hierarchy rewrites, telemetry surfaces, or Effect/oRPC
+  procedure cores. Future direct-control atoms, CLI semantic envelopes, debug
+  service outputs, operation/proof telemetry, and procedure-core schemas must
+  support both live player-agent hotseat control and the higher-level strategy
+  data ingestion layer represented by the AI-intelligence thread
+  `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` on top of the hotseat/autoplay thread
+  `019e86b7-b08b-72f3-8341-6c78a1285c93`.
 
 ## Existing Completed Slices
 
@@ -90,6 +98,9 @@ lane, not proof that the full change is complete:
 - Parallel agents must use disjoint write sets. Worktrees are allowed, but
   Graphite stack mutation must stay simple and local to the current support
   stack.
+- Peer reports from the AI-intelligence, hotseat/autoplay, and synthesis
+  planning waves must be read and dispositioned before those surfaces are
+  treated as planned or before implementation begins from their assumptions.
 
 ## Enables Parallel Work
 

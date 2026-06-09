@@ -56,6 +56,68 @@
     used separate fresh `/goal` worktree threads with disjoint one-file write
     sets. The DRA passively inspected disk candidates and retained
     broad-suite/docs/commit ownership.
+- [x] 2.8 Read and disposition the report-only hotseat/autoplay,
+      AI-intelligence, and synthesis peer waves before treating the
+      compatibility planning lane as closed.
+  - Direct local reads of the target AI-intelligence thread
+    `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` and hotseat/autoplay foundation
+    thread `019e86b7-b08b-72f3-8341-6c78a1285c93` are now dispositioned as
+    planning evidence. They replace the earlier direct-read access gap but do
+    not close runtime proof, AI ingestion, telemetry, CLI semantic envelope, or
+    procedure-core implementation work.
+  - Accepted from direct local reads of the completed peer report:
+    `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b` for AI-intelligence model
+    implications from thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`.
+  - Accepted from direct local reads of the completed peer report:
+    `019e8cbf-0138-75d1-9edc-0bda7d413dff` for hotseat/autoplay base
+    requirements from thread `019e86b7-b08b-72f3-8341-6c78a1285c93`.
+  - Accepted from direct local reads of the completed peer report:
+    `019e8cbf-5805-7393-82e8-c83353aeac40` for synthesis mapping both target
+    threads onto this support OpenSpec.
+- [ ] 2.9 Define and accept the hotseat/autoplay and AI-intelligence
+      compatibility matrix:
+      semantic game state, decisions, blockers, action results, next-step
+      affordances, debug/internal service outputs, operation/proof telemetry,
+      and future procedure-core schema needs.
+  - [x] 2.9.1 Record the matrix schema and execution gate in `design.md`.
+        Hotseat handoff state, semantic CLI player-agent view,
+        strategy/intelligence machine ingestion, debug/internal service output,
+        operation/proof telemetry, and Effect/oRPC procedure cores must stay
+        separate while composing over the same direct-control atom substrate.
+  - [x] 2.9.2 Record proof labels and stop conditions for the AI-on-hotseat
+        compatibility gate.
+  - [x] 2.9.3 Read and disposition report-only peer reviews
+        `019e8d01-441f-79d1-afd7-fe40a3c179e6`,
+        `019e8d01-4382-7da3-bb81-2f322ed739e2`, and
+        `019e8d01-3fc8-74d2-9658-451d3b0e38f8`.
+  - [ ] 2.9.4 Accept the matrix rows. Acceptance requires every row to include
+        `foundationThread`, `modelThread`, `dependencyDirection`, `surface`,
+        `primaryConsumer`, `sourceOwner`, `proofOwner`, `playerScope`,
+        `consumerClass`, `evidenceClass`, `procedureCandidate`,
+        `normalCliProjection`, `debugServiceProjection`, `proofLabel`,
+        `acceptanceStatus`, `blockingDependents`, and `stopCondition`.
+        Draft rows are materialized in `workstream/compatibility-matrix.md`,
+        but this task remains open until every row is honestly accepted with
+        real source owners, proof owners, schemas/tests, and stop conditions.
+  - Compatibility proof classes must remain separate: target-thread evidence,
+    repo docs, local tests, logs/database artifacts, official resources, live
+    runtime proof, and in-game observations.
+  - Future atom/semantic rows should add or classify `playerScope`,
+    `consumerClass`, `evidenceClass`, `procedureCandidate`, and
+    `normalCliProjection` / `debugServiceProjection` before command hierarchy,
+    telemetry, AI-ingestion, runtime-status, or procedure-core work depends on
+    them.
+  - Matrix schema/gate definition does not close matrix-row acceptance,
+    hotseat runtime proof, AI data-ingestion design, telemetry source work, CLI
+    semantic-surface implementation, or Effect/oRPC procedure-core
+    implementation.
+- [ ] 2.10 Keep intelligence-layer code, transport-first oRPC, and live-game
+      proof claims out of the compatibility planning branch until source/proof
+      owners are assigned.
+  - The report-disposition blocker is closed by 2.8 and gate mechanics are
+    recorded under 2.9; matrix-row acceptance and source/proof owners for
+    hotseat runtime, AI data ingestion, telemetry, CLI semantic output, and
+    Effect/oRPC procedures are still unassigned.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
@@ -206,8 +268,48 @@ runtime/direct-control claims.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
         `index.ts`.
+  - [x] 4.11.2 Extract visibility summary read wrapper/source owner while
+        keeping the public facade export surface in `index.ts` and leaving
+        reveal mutation, GameInfo rows, setup map rows, and player/unit/city
+        summaries pending.
+  - [x] 4.11.3 Extract GameInfo rows read wrapper/source owner while keeping
+        the public facade export surface in `index.ts` and leaving reveal
+        mutation, setup map rows, player/unit/city summaries, AI ingestion, and
+        static profile shaping pending.
+  - [x] 4.11.4 Extract player, unit, and city summary read wrapper/source
+        owner with focused package proof while keeping public facade exports in
+        `index.ts` and leaving reveal mutation, setup map rows, AI ingestion,
+        static profile shaping, semantic CLI, telemetry, hotseat runtime proof,
+        and Effect/oRPC procedure-core work pending.
+- [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
+  - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
+        the public facade export surface in `index.ts`, classifying it as
+        debug/internal service output with normal CLI projection omitted or
+        debug-only and debug service projection as raw diagnostic projection,
+        and leaving App UI snapshot, Tuner health, playable status, bounded root
+        inspection, capability catalog, telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
+        pending.
+  - [x] 4.12.2 Extract App UI snapshot wrapper/source owner while keeping the
+        public facade export surface in `index.ts`, leaving lifecycle/setup
+        orchestration in the facade while reusing the same internal snapshot
+        builder/parser helpers, and leaving Tuner health, playable status,
+        bounded root inspection, capability catalog, telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, and Effect/oRPC
+        procedure-core work pending.
+  - [x] 4.12.3 Extract Tuner health wrapper/source/parser owner while keeping
+        public facade call-through and session lifecycle/reconnect execution in
+        `index.ts`, preserving the internal wait/setup helper reuse through
+        injected session-command execution, and leaving playable status, bounded
+        root inspection, capability catalog, telemetry, hotseat runtime proof,
+        AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core
+        work pending.
 
 ## 5. CLI Semantic Surface Lane
+
+Rows 5.1-5.7 are blocked on Task 2.9.4 matrix-row acceptance and must not start
+until their source owner, proof owner, proof label, normal CLI projection,
+debug/internal service projection, and AI-ingestion boundary are recorded.
 
 - [ ] 5.1 Define normal play-command response envelopes from the perspective of
       a player agent.
@@ -218,8 +320,24 @@ runtime/direct-control claims.
       blockers, and next steps.
 - [ ] 5.4 Reduce large CLI JSON outputs by projecting direct-control service
       results into semantic game state, action results, and decision affordances.
+- [ ] 5.5 Ensure the semantic envelope model has a machine-ingestion contract for
+      the AI-intelligence strategy-data layer that is distinct from normal CLI
+      presentation strings and from debug-only raw diagnostics.
+- [ ] 5.6 Preserve hotseat handoff semantics in normal play views: current local
+      player, agent-owned slot, human-turn exclusion, action eligibility,
+      blocker state, and approval-token status.
+- [ ] 5.7 Define action audit vocabulary for semantic and machine-ingestion
+      outputs: strategy intent, candidate action, operation family, target,
+      args, approval, validation result, send result, post-read, correlation id,
+      evidence policy, approval reason, `validation_pre`, `send_receipt`,
+      `validation_post`, `outcome_delta`, and stale/unknown classification.
 
 ## 6. Effect/Bun And Effect/oRPC Composition Lane
+
+Rows 6.1-6.9 are blocked on Task 2.9.4 matrix-row acceptance and must not start
+until their procedure candidates, schema owners, proof owners, debug/internal
+service projections, telemetry contract boundaries, and external direct-control
+authority are recorded.
 
 - [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
 - [ ] 6.2 Add TypeBox schema artifacts where procedure surfaces need them.
@@ -232,6 +350,13 @@ runtime/direct-control claims.
       unless Node is the only practical or clearly better implementation.
 - [ ] 6.7 Keep the oclif CLI shell; do not replace it with Effect CLI unless a
       later accepted command-hierarchy spec explicitly authorizes that change.
+- [ ] 6.8 Ensure procedure-core schemas compose stable direct-control atoms for
+      both live hotseat/autoplay control and AI-intelligence data ingestion
+      before exposing transport adapters.
+- [ ] 6.9 Keep the in-game App UI companion endpoint subordinate to
+      `@civ7/direct-control` with a small versioned JSON-envelope/RPC shape;
+      keep oRPC at the external direct-control boundary and raw `game exec` as
+      diagnostic/probe substrate only.
 
 ## 7. Verification And Closure
 

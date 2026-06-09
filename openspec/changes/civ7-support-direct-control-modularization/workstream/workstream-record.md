@@ -85,6 +85,14 @@ titles, and parent reports to close the loop.
 | `019e8b69-465d-7a71-8ef1-1f75f96799c2`                                                | Extract direct-control seams                | framed `/goal` source candidate | completed, idle; disk worktree `fd1b` dirty at old parent                            | yes                                         | Accepted as a narrow source candidate only. DRA integrated tuner frame encode/parse ownership on current disk after ComponentID/error moved first and reran package gates. | Contributed `src/session/framing.ts` boundary for `Civ7TunerFrame`, `encodeCiv7TunerRequest`, and `parseCiv7TunerFrame`; broader session/config/reconnect and restart/setup loops stay pending.                                             |
 | `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`                                                | Identify read-only atoms                    | framed `/goal` report-only     | completed report read; later empty active turn observed; disk worktree `1044` clean  | yes                                         | Accepted as read-only planning evidence. No code candidate was integrated from this lane. Later refined finding supersedes its earlier ready-unit suggestion.             | Recommends `settlementRecommendationsSource` as the safest first read-only embedded-source relocation, followed by traditions, move-preview, progress dashboard, ready-unit, tactical reads, ready-city, and notification view last.                                    |
 | `019e8be1-db1e-7c80-ad37-471a48cd520f`                                                | Identify first postcondition-helper slice   | framed `/goal` report-only     | completed, reported up                                                               | yes                                         | Accepted as sequencing guidance only; no mutation authority.                                                                                                               | Recommends the first postcondition-helper move be the synchronous unit-operation classifier group (`unitOperationPostcondition`, `classifyUnitOperationPostcondition`, `unitOperationPostconditionReason`) into `src/play/operations/unit-postconditions.ts`; narrative/diplomacy waiters stay later because they pull in notification matching, polling, and App UI reader dependencies. |
+| `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`                                                | AI-intelligence target thread               | target-thread compatibility evidence | directly readable in this planning repair                                        | yes                                         | Accepted as planning evidence only; closes the earlier direct target-thread access gap without authorizing implementation or runtime proof claims.                         | Frames intelligence as broader than live CLI play: live hotseat player-agent control, strategy/playbook/cookbook generation from human play patterns, and possible static native-AI profile shaping. Requires stable direct-control atoms, semantic state products, action/proof telemetry, and structured machine-ingestion contracts instead of raw `game exec` strings or normal CLI presentation text. |
+| `019e86b7-b08b-72f3-8341-6c78a1285c93`                                                | Hotseat/autoplay foundation target thread   | target-thread compatibility evidence | directly readable in this planning repair                                        | yes                                         | Accepted as planning evidence only; hotseat activation/local-player rotation and operation proof remain live runtime gates.                                                | Confirms hotseat/local-player handoff as the leading one-client player-agent base when activation proof passes, keeps local multiplayer as setup/staging evidence under the one-client constraint, and keeps native Autoplay as support/debug infrastructure rather than the primary external-agent executor. |
+| `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b`                                                | AI-intelligence model implications          | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; now cross-checked against direct target-thread evidence.                                                                              | Confirms two authority sides: live external play through `@civ7/direct-control` and static native-AI profile shaping through generated profiles. Requires turn/player context, decision HUD, tactical lenses, action records, proof telemetry, corpus records, enriched evidence from `GameInfo`, debug DB copies, scoring/logs, Mods.sqlite/profile context, and bounded AI/log CSVs where available. |
+| `019e8cbf-0138-75d1-9edc-0bda7d413dff`                                                | Hotseat/autoplay base requirements          | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; hotseat runtime claims remain unproved until live gates pass.                                                                        | Confirms one-client hotseat as preferred player-agent base if activation proof passes; direct-control may act only when `GameContext.localPlayerID` is agent-owned. Native `Autoplay` is support infrastructure for smoke tests, native-AI measurement, observer/wait loops, and disposable benchmarks, not the primary external-agent executor. |
+| `019e8cbf-5805-7393-82e8-c83353aeac40`                                                | AI/hotseat synthesis review                 | report-only compatibility wave | completed; read directly in this planning slice                                      | yes                                         | Accepted as planning evidence only; no intelligence-layer, transport, or runtime-proof implementation authorized.                                                        | Recommends making `@civ7/direct-control` the stable live-control substrate for hotseat player-agent turns and AI intelligence ingestion; adds matrix fields `playerScope`, `consumerClass`, `evidenceClass`, `procedureCandidate`, `normalCliProjection`, and `debugServiceProjection`, plus action audit vocabulary and proof-label requirements. |
+| `019e8d01-441f-79d1-afd7-fe40a3c179e6`                                                | Compatibility matrix gap audit              | report-only peer review        | completed; read directly in hard-gate repair                                         | yes                                         | Accepted as P1 planning repair input; matrix was not hard enough without row-level acceptance fields, proof labels, blocking dependents, and stop conditions.              | Requires explicit matrix row fields: foundation/model thread ids, dependency direction, owners, projections, proof label, acceptance status, blocking dependents, and stop condition. |
+| `019e8d01-4382-7da3-bb81-2f322ed739e2`                                                | Hotseat foundation constraint review        | report-only peer review        | completed; read directly in hard-gate repair                                         | yes                                         | Accepted as P1 planning repair input; hotseat remains the lower one-client foundation and not an implemented runtime claim.                                                | Preserves one-client hotseat, agent-slot local-player mutation gating, human-turn refusal, human-visible waiting/restoration, Autoplay as support/debug only, and approval/proof boundaries. |
+| `019e8d01-3fc8-74d2-9658-451d3b0e38f8`                                                | AI-consumer compatibility review            | report-only peer review        | completed; read directly in hard-gate repair                                         | yes                                         | Accepted as P1/P2 planning repair input; AI-intelligence is aligned above hotseat but implementation owners/schemas/tests remain open.                                     | Requires semantic CLI envelopes, separate debug/internal outputs, explicit telemetry evidence, prospective source-labeled corpus/model ingestion, direct-control-only live action authority, and procedure cores over stable atoms rather than raw command tunnels. |
 
 ## Parallelization Rule
 
@@ -130,6 +138,81 @@ layers, and concurrency around Effect affordances where they fit. Bun-native
 APIs should be preferred over Node APIs in new/refactored control code except
 where Node is the only practical or clearly superior implementation. This does
 not replace the existing oclif CLI shell with Effect CLI.
+
+## Hotseat And AI-Intelligence Compatibility Rule
+
+The direct-control atom lane must now plan for two first-class downstream
+consumers: live player-agent hotseat/autoplay control and the AI-intelligence
+strategy-data layer. The hotseat/autoplay thread
+`019e86b7-b08b-72f3-8341-6c78a1285c93` is the control foundation; the
+AI-intelligence model thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` is the
+higher-level data consumer.
+
+Future CLI semantic envelopes, debug/internal service outputs, operation/proof
+telemetry, and Effect/oRPC procedure cores must support both without collapsing
+their surfaces together. Normal CLI play output remains player-agent semantic
+state and action affordances. Machine-ingestion contracts should be structured
+and stable, not presentation strings. Raw transport, session, closeout, and
+proof machinery remains internal service or explicit debug-owned output.
+
+This branch records the direction and peer-report disposition only. The peer
+report threads above are now read directly in this planning slice, with the
+earlier supervisor packet retained only as corroborating control input. That
+closes only the report-disposition blocker. It does not close hotseat runtime
+proof, AI data-ingestion design, CLI semantic-surface implementation, telemetry
+source work, or Effect/oRPC procedure-core work.
+
+Compatibility matrix execution gate: Lane G is a live hard gate, not merely
+planning evidence. Task 2.9 remains open until matrix rows are accepted with the
+required fields: `foundationThread`, `modelThread`, `dependencyDirection`,
+`surface`, `primaryConsumer`, `sourceOwner`, `proofOwner`, `playerScope`,
+`consumerClass`, `evidenceClass`, `procedureCandidate`, `normalCliProjection`,
+`debugServiceProjection`, `proofLabel`, `acceptanceStatus`,
+`blockingDependents`, and `stopCondition`. Before acceptance, dependent command
+hierarchy, semantic envelope, telemetry, schema/type ownership, runtime-status
+projection, debug/internal service output, AI data artifact, Effect/Bun, and
+oRPC procedure-core implementation remain blocked. Normal CLI play output
+remains semantic player-agent state/action affordances; AI ingestion consumes
+stable machine-readable state/action/proof records; raw transport/session/proof
+details remain debug/internal service projection unless an explicit debug-owned
+surface says otherwise.
+
+Gate-state row: Lane G / AI-on-hotseat compatibility matrix is `acceptanceStatus:
+pending-row-acceptance`; `proofLabel: planning-evidence-only`;
+`blockingDependents: 5.1-5.7, 6.1-6.9, semantic telemetry, AI ingestion,
+runtime-status projection, debug/internal service output, schema/type ownership
+used by procedure cores`; `stopCondition: stop if any blocked dependent starts
+before accepted matrix rows, if rows collapse normal CLI/debug/AI/telemetry/
+procedure consumers, if evidence classes collapse, if Autoplay becomes the
+primary external-agent executor, or if direct-control can act on non-agent human
+turns`.
+
+Matrix row materialization: `workstream/compatibility-matrix.md` now records
+the live gate rows for hotseat handoff state, semantic CLI player-agent view,
+strategy/intelligence ingestion, debug/internal service output,
+operation/proof telemetry, and Effect/oRPC procedure cores. These rows are
+pending rows, not accepted rows: source owners, proof owners, schemas/tests,
+and several runtime or contract proof boundaries remain unassigned. Task 2.9.4
+therefore remains open, and dependent implementation stays blocked.
+
+The action/proof vocabulary for future machine-ingestion and procedure-core
+surfaces is: strategy intent, candidate action, operation family, target, args,
+approval, validation result, send result, post-read, `requestId` or correlation
+id, evidence policy, approval reason, `validation_pre`, `send_receipt`,
+`validation_post`, `outcome_delta`, and stale/unknown classification. The
+largest design risk is training or acting on vague `verified: true` flags
+instead of explicit outcome evidence.
+
+Recommended future intelligence artifacts are `StrategyPlan`,
+`ActionCandidate`, `ProfileRecipe`, `LoadedRowProof`, `RunMetric`, and
+`PromotionDecision`. These are planning names only until an AI-intelligence lane
+assigns owners, schemas, sources, and tests.
+
+Hotseat product claims require live runtime gates before they are treated as
+proved: menu/setup hotseat snapshot, disposable hotseat activation, two-slot
+local-player rotation, curtain/interface restoration, one approved agent-slot
+operation, turn-complete/human-restoration, fallback non-local operation probes
+only if hotseat fails, and bounded autoplay measurement proof.
 
 ## Agent Framing Protocol
 
@@ -307,6 +390,61 @@ All future agent waves must be framed before delegation:
   `index.ts`. Visibility summary, reveal mutation, GameInfo rows, setup map
   rows, and player/unit/city summaries stay out of this slice. This is local
   read-only package/source relocation proof only, not runtime proof.
+- Direct-control visibility summary source/wrapper slice: completed as the
+  next map/visibility/GameInfo read relocation. It moves only
+  `getCiv7VisibilitySummary` orchestration plus its bounded visibility-grid
+  command/source helper into `src/play/map/visibility.ts` while keeping public
+  facade exports in `index.ts`. Reveal mutation, GameInfo rows, setup map rows,
+  and player/unit/city summaries stay out of this slice. This is local
+  read-only package/source relocation proof only, not runtime proof.
+- Direct-control GameInfo rows source/wrapper slice: completed as the next
+  map/visibility/GameInfo read relocation. It moves only `getCiv7GameInfoRows`
+  orchestration plus its bounded GameInfo table row command/source helper into
+  `src/play/map/gameinfo.ts` while keeping public facade exports in `index.ts`.
+  Reveal mutation, setup map rows, player/unit/city summaries, AI ingestion,
+  and static profile shaping stay out of this slice. This is local read-only
+  package/source relocation proof only, not runtime proof.
+- Direct-control player/unit/city summary source/wrapper slice: completed as a
+  proof-gap repair and read-only source relocation. It moves only
+  `getCiv7PlayerSummary`, `getCiv7UnitSummary`, and `getCiv7CitySummary`
+  orchestration plus their command/source helpers into `src/play/summaries.ts`
+  while keeping public facade exports in `index.ts`. `test/summary-reads.test.ts`
+  owns focused package proof for command routing/source shape, validation and
+  bounds, read-only/no-send behavior, and unchanged component-id pass-through.
+  Reveal mutation, setup map rows, AI ingestion, static profile shaping,
+  semantic CLI, telemetry, hotseat runtime proof, and Effect/oRPC procedure-core
+  work stay out of this slice. This is local read-only package/source
+  relocation proof only, not runtime proof.
+- Direct-control runtime API inspection source/wrapper slice: completed as a
+  narrow debug/internal service relocation. It moves only
+  `inspectCiv7RuntimeApi`, the private default-root selector, and the generated
+  runtime API inspection command into `src/runtime/inspection.ts` while keeping
+  public facade exports in `index.ts`. App UI snapshot, Tuner health, playable
+  status, bounded root inspection, capability catalog, telemetry, hotseat
+  runtime proof, AI ingestion, CLI semantic projection, and Effect/oRPC
+  procedure-core work stay out of this slice. This is local read-only
+  package/source relocation proof only, not runtime proof.
+- Direct-control App UI snapshot source/wrapper slice: completed as a narrow
+  read-only runtime-status support relocation. It moves only
+  `getCiv7AppUiSnapshot`, the generated App UI snapshot command, and
+  `appUiSnapshotFromCommandResult` into `src/runtime/app-ui-snapshot.ts` while
+  keeping public facade exports in `index.ts`. Restart/setup lifecycle loops
+  still reuse the internal snapshot builder/parser helpers from the module;
+  lifecycle orchestration remains in the facade. Tuner health, playable status,
+  bounded root inspection, capability catalog, telemetry, hotseat runtime proof,
+  AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
+  stay out of this slice. This is local read-only package/source relocation
+  proof only, not runtime proof.
+- Direct-control Tuner health source/wrapper slice: completed as a narrow
+  runtime-status support relocation. It moves only `checkCiv7TunerHealth`, the
+  generated Tuner health command, `tunerHealthFromCommandResult`, and the
+  internal `checkCiv7TunerHealthWithSession` helper into
+  `src/runtime/tuner-health.ts` while keeping public facade call-through,
+  session creation/close, reconnect execution, and readiness wait orchestration
+  in `index.ts`. Playable status, bounded root inspection, capability catalog,
+  telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection, and
+  Effect/oRPC procedure-core work stay pending. This is local package/source
+  relocation proof only, not runtime proof.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

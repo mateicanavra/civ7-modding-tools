@@ -7,6 +7,8 @@ import { describe, expect, test } from "vitest";
 import {
   checkCiv7TunerHealth,
   createStaticCiv7CapabilityCatalog,
+  DEFAULT_CIV7_APP_UI_API_ROOTS,
+  DEFAULT_CIV7_TUNER_API_ROOTS,
   executeCiv7AppUiCommand,
   executeCiv7TunerCommand,
   generateCiv7CapabilityCatalog,
@@ -69,6 +71,22 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
             inGame: { ok: true, value: true },
             inShell: { ok: true, value: false },
             loadingStateName: "GameStarted",
+            canNotifyUIReady: "function",
+            skipStartButton: { ok: true, value: false },
+            automationActive: { ok: true, value: false },
+          },
+          gameContext: {
+            localPlayerID: 0,
+            localObserverID: 0,
+            hasRequestedPause: { ok: true, value: false },
+          },
+          players: {
+            aliveHumanIds: { ok: true, value: [0] },
+            numAliveHumans: { ok: true, value: 1 },
+          },
+          autoplay: {
+            isActive: false,
+            isPausedOrPending: false,
           },
           map: {
             width: { ok: true, value: 84 },
@@ -89,6 +107,10 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
           },
         },
       });
+      const healthCommand = server.received.find((message) => message.includes("evalOk: 1 + 1"));
+      expect(healthCommand).toContain("CMD:1:");
+      expect(healthCommand).toContain("g.GameplayMap.getGridWidth()");
+      expect(healthCommand).toContain("g.Players.getAliveIds()");
       expect(playable).toMatchObject({
         playable: true,
         readiness: "tuner-ready",
@@ -160,6 +182,35 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
         offset: 0,
         total: { ok: true, value: 1 },
       });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("keeps runtime API default roots scoped to the selected state", async () => {
+    const server = await startFocusedTunerServer();
+    try {
+      const { port } = server.address();
+      const options = { host: "127.0.0.1", port, timeoutMs: 1_000 };
+      await inspectCiv7RuntimeApi(options);
+      await inspectCiv7RuntimeApi({ ...options, state: { role: "tuner" } });
+
+      const appUiCommand = server.received.find((message) => message.startsWith("CMD:65535:"));
+      const tunerCommand = server.received.find((message) => message.startsWith("CMD:1:"));
+      expect(appUiCommand).toBeDefined();
+      expect(tunerCommand).toBeDefined();
+      for (const root of DEFAULT_CIV7_APP_UI_API_ROOTS) {
+        expect(appUiCommand).toContain(JSON.stringify(root));
+      }
+      for (const root of DEFAULT_CIV7_TUNER_API_ROOTS) {
+        expect(tunerCommand).toContain(JSON.stringify(root));
+      }
+      for (const root of DEFAULT_CIV7_TUNER_API_ROOTS.filter((root) => !DEFAULT_CIV7_APP_UI_API_ROOTS.includes(root))) {
+        expect(appUiCommand).not.toContain(JSON.stringify(root));
+      }
+      for (const root of DEFAULT_CIV7_APP_UI_API_ROOTS.filter((root) => !DEFAULT_CIV7_TUNER_API_ROOTS.includes(root))) {
+        expect(tunerCommand).not.toContain(JSON.stringify(root));
+      }
     } finally {
       await server.close();
     }
