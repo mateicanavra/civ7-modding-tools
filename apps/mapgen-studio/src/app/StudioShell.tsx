@@ -8,7 +8,6 @@ import { AppHeader } from "../ui/components/AppHeader";
 import { AppFooter } from "../ui/components/AppFooter";
 import { ExplorePanel } from "../ui/components/ExplorePanel";
 import { RecipePanel } from "../ui/components/RecipePanel";
-import { createTheme } from "../ui/hooks";
 import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "../ui/utils/config";
 import { formatStageName } from "../ui/utils/formatting";
 import { LAYOUT } from "../ui/constants/layout";
@@ -148,6 +147,12 @@ const civ7ControlOrpcClient = createStudioCiv7ControlOrpcClient();
 
 export type StudioShellProps = {
   themePreference: "system" | "light" | "dark";
+  /**
+   * Live light/dark boolean from the theme-preference hook. The chrome is themed
+   * entirely by the single `.dark` class (no theme object, no `lightMode` prop),
+   * so this is forwarded ONLY to the deck.gl canvas, whose background-grid color
+   * is drawn into a `<canvas>` as literal RGBA and cannot read a CSS class.
+   */
   isLightMode: boolean;
   cyclePreference(): void;
 };
@@ -169,7 +174,6 @@ export type StudioShellProps = {
 export function StudioShell(props: StudioShellProps) {
   const toast = useToast();
   const { themePreference, isLightMode, cyclePreference } = props;
-  const theme = useMemo(() => createTheme(isLightMode), [isLightMode]);
 
   // Authoring state is owned by `authoringStore` (Zustand persist, architecture/10 §3).
   // The store seeds itself from the reference persistence (`loadStudioAuthoringState`)
@@ -2189,7 +2193,6 @@ export function StudioShell(props: StudioShellProps) {
 
   const header = (
     <AppHeader
-      isLightMode={isLightMode}
       themePreference={themePreference}
       onThemeCycle={cyclePreference}
       showGrid={showGrid}
@@ -2220,8 +2223,6 @@ export function StudioShell(props: StudioShellProps) {
       }
       recipeOptions={recipeOptions}
       presetOptions={displayedPresetOptions}
-      theme={theme}
-      lightMode={isLightMode}
       selectedStep={selectedStageId}
       settings={recipeSettings}
       onSettingsChange={(next) => {
@@ -2284,7 +2285,6 @@ export function StudioShell(props: StudioShellProps) {
       eraMax={eraRange?.max ?? 1}
       onEraModeChange={handleEraModeChange}
       onEraValueChange={handleEraValueChange}
-      lightMode={isLightMode}
       showEdges={showEdges}
       onShowEdgesChange={setShowEdges}
       showDebugLayers={viz.showDebugLayers}
@@ -2326,7 +2326,6 @@ export function StudioShell(props: StudioShellProps) {
       runInGameStatus={runInGameOperation}
       runInGameCurrentRelation={runInGameCurrentRelation}
       isDirty={isDirty}
-      lightMode={isLightMode}
       liveRuntime={liveRuntime}
       liveGameStudioRelation={liveGameStudioRelation}
       onSyncFromLiveGame={syncStudioFromLiveGame}
@@ -2341,7 +2340,6 @@ export function StudioShell(props: StudioShellProps) {
     <>
       <PresetSaveDialog
         open={saveDialogState.open}
-        lightMode={isLightMode}
         initialLabel={saveDialogState.label}
         initialDescription={saveDialogState.description}
         onCancel={closeSaveDialog}
@@ -2349,7 +2347,6 @@ export function StudioShell(props: StudioShellProps) {
       />
       <PresetErrorDialog
         open={Boolean(presetError)}
-        lightMode={isLightMode}
         title={presetError?.title ?? "Preset error"}
         message={presetError?.message ?? "Preset operation failed."}
         details={presetError?.details}
@@ -2359,7 +2356,6 @@ export function StudioShell(props: StudioShellProps) {
       />
       <PresetConfirmDialog
         open={Boolean(pendingImport)}
-        lightMode={isLightMode}
         title="Import preset?"
         message={
           pendingImport

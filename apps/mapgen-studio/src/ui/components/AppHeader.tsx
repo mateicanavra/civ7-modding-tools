@@ -18,7 +18,6 @@ import {
 import type { ThemePreference, WorldSettings } from '../types';
 export const HEADER_HEIGHT = LAYOUT.HEADER_HEIGHT;
 export interface AppHeaderProps {
-  isLightMode: boolean;
   themePreference: ThemePreference;
   onThemeCycle: () => void;
   showGrid: boolean;
@@ -38,7 +37,6 @@ export interface AppHeaderProps {
   onHeaderHeightChange?: (height: number) => void;
 }
 export const AppHeader: React.FC<AppHeaderProps> = ({
-  isLightMode,
   themePreference,
   onThemeCycle,
   showGrid,
@@ -110,7 +108,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
       {/* Left: App Brand */}
       <div className="shrink-0">
-        <AppBrand isLightMode={isLightMode} />
+        <AppBrand />
       </div>
 
       {/* Center: World Settings */}
@@ -277,7 +275,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <ViewControls
           themePreference={themePreference}
           onThemeCycle={onThemeCycle}
-          isLightMode={isLightMode}
           showGrid={showGrid}
           onShowGridChange={onShowGridChange} />
 

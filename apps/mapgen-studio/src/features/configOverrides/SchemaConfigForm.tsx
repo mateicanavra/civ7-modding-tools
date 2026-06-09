@@ -8,7 +8,6 @@ import {
   tryGetSchemaAtPath,
 } from "./schemaPresentation";
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
-import type { Theme } from "../../ui/types";
 import { getAtPath, setAtPath } from "./pathUtils";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -35,12 +34,10 @@ export type SchemaConfigFormProps<TConfig> = Readonly<{
   onChange(next: TConfig): void;
   disabled: boolean;
   focusPath?: readonly string[] | null;
-  lightMode?: boolean;
-  theme: Theme;
 }>;
 
 export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>) {
-  const { schema, value, onChange, disabled, focusPath, lightMode, theme } = props;
+  const { schema, value, onChange, disabled, focusPath } = props;
 
   const buildUiSchema = useMemo(() => {
     const hasEnum = (node: RJSFSchema): boolean =>
@@ -99,13 +96,13 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
       const root = toRjsfSchema(normalized);
       return {
         schema: root,
-        formContext: { transparentPaths: collectTransparentPaths(root), lightMode, theme },
+        formContext: { transparentPaths: collectTransparentPaths(root) },
       };
     } catch (error) {
       console.error("[mapgen-studio] failed to resolve config schema", error);
       return null;
     }
-  }, [schema, lightMode, theme]);
+  }, [schema]);
 
   const focusView = useMemo<FocusView<TConfig> | null>(() => {
     if (!resolved || !focusPath || focusPath.length === 0) return null;
@@ -128,7 +125,7 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
       return {
         resolved: {
           schema: wrappedSchema,
-          formContext: { transparentPaths: collectTransparentPaths(wrappedSchema), lightMode, theme },
+          formContext: { transparentPaths: collectTransparentPaths(wrappedSchema) },
         },
         formValue: wrappedValue,
         mergeBack: (nextFormValue: unknown) => {
@@ -142,7 +139,7 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
     return {
       resolved: {
         schema: focusSchema as RJSFSchema,
-        formContext: { transparentPaths: collectTransparentPaths(focusSchema as RJSFSchema), lightMode, theme },
+        formContext: { transparentPaths: collectTransparentPaths(focusSchema as RJSFSchema) },
       },
       formValue: baseFormValue,
       mergeBack: (nextFormValue: unknown) => {
@@ -150,11 +147,11 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
         return setAtPath(value, focusPath, nextValue) as TConfig;
       },
     };
-  }, [resolved, focusPath, value, lightMode, theme]);
+  }, [resolved, focusPath, value]);
 
   if (!resolved) {
     return (
-      <div className="text-[11px] text-[#a1a1aa]">
+      <div className="text-data text-muted-foreground">
         Config schema unavailable. Run the pipeline build to regenerate studio artifacts.
       </div>
     );

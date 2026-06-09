@@ -16,8 +16,6 @@ export { ExplorePanel, type ExplorePanelProps } from './ExplorePanel';
 // Form components
 export { ViewControls, type ViewControlsProps } from './ViewControls';
 
-// UI primitives (shadcn/ui style)
-export * from './ui';
-
-// Form fields
+// Form fields (only `FieldRow` remains — the old lightMode/hex field set was
+// dead and removed; UI primitives now live in `src/components/ui` (shadcn)).
 export * from './fields';

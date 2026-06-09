@@ -16,8 +16,8 @@ import {
  * hand-rolled AlertDialog to the token-driven shadcn Dialog. Open/confirm/cancel
  * semantics are preserved: `onOpenChange` keeps the same open-state contract,
  * Cancel/Close use a DialogClose, and the confirm action invokes the caller's
- * callback. The `lightMode` prop is retained for call-site compatibility but no
- * longer drives styling (the Dialog is token-driven via the `.dark` class).
+ * callback. The dialogs are token-driven via the single `.dark` class — there is
+ * no `lightMode` prop (the legacy one was unused and has been removed).
  */
 
 export type PresetErrorDialogProps = Readonly<{
@@ -25,7 +25,6 @@ export type PresetErrorDialogProps = Readonly<{
   title: string;
   message: string;
   details?: ReadonlyArray<string>;
-  lightMode?: boolean;
   onOpenChange: (open: boolean) => void;
 }>;
 
@@ -55,7 +54,6 @@ export function PresetErrorDialog(props: PresetErrorDialogProps) {
 
 export type PresetSaveDialogProps = Readonly<{
   open: boolean;
-  lightMode?: boolean;
   initialLabel?: string;
   initialDescription?: string;
   onCancel: () => void;
@@ -122,7 +120,6 @@ export function PresetSaveDialog(props: PresetSaveDialogProps) {
 
 export type PresetConfirmDialogProps = Readonly<{
   open: boolean;
-  lightMode?: boolean;
   title: string;
   message: string;
   confirmLabel: string;
