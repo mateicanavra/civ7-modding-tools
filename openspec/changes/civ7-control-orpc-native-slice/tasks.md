@@ -146,6 +146,11 @@ adding more read-only facade shells.
     that projects direct-control playable status into safe readiness,
     capability, source-summary, and next-step output without exposing raw
     runtime details.
+  - [x] 5.5.8 Extract repeated mutation result status and next-step semantics
+    into a package-local control-oRPC service policy while keeping
+    direct-control proof classifiers, validator summaries, and
+    postcondition/no-repeat authority procedure-local; shared
+    validator/postcondition middleware remains pending.
 
 ## 6. Native Policy Layering
 
@@ -155,6 +160,11 @@ adding more read-only facade shells.
   - [x] 6.1.1 Promote the repeated mutation approval gate into shared native
     effect-oRPC builder middleware after the production-choice and notification
     dismissal leaves proved the same context-owned approval policy.
+  - [x] 6.1.2 Promote the repeated mutation playable-readiness precondition
+    into shared native effect-oRPC middleware over existing direct-control
+    playable-status runtime ports. Keep live-game proof, transport
+    propagation, validator-first middleware, and postcondition/proof
+    middleware pending.
 - [ ] 6.2 Add approval middleware before mutation procedures.
   - [x] 6.2.1 Add leaf-scoped native effect-oRPC approval middleware for
     `city.production.choice.request`; keep shared approval middleware pending
@@ -197,10 +207,15 @@ adding more read-only facade shells.
   - [x] 6.4.6 Use native effect-orpc tagged error constructors for
     `readiness.current` direct-control runtime-port failures while shared
     safe-error middleware remains pending.
-  - [ ] 6.4.2 Promote shared safe-error middleware only after the native
-    oRPC/effect-orpc error path is proven without custom wrapper plumbing.
-  - [ ] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error
-    primitives.
+  - [x] 6.4.2 Promote shared safe-error middleware for final public projection
+    of downstream oRPC/procedure failures, while keeping raw direct-control
+    runtime-port classification inside Effect handlers where effect-oRPC can
+    still see the source failure.
+  - [x] 6.4.3 Add correlation through accepted oRPC/effect-orpc context/error
+    primitives: validate optional service correlation in native context
+    middleware and attach only validated IDs to typed error data. Keep
+    transport/header propagation, runtime telemetry propagation, and custom
+    correlation buses out of scope.
   - [x] 6.4.4 Use native effect-orpc tagged error constructors for
     `unit.target.action.request` direct-control runtime-port failures while
     shared safe-error middleware remains pending.

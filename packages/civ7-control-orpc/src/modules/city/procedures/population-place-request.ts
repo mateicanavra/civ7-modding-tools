@@ -3,6 +3,12 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcContext } from "../../../context";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7MutationNextSteps,
+  civ7MutationRequestStatus,
+} from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type {
   Civ7CityPopulationPlacementInput,
@@ -19,9 +25,11 @@ const cityPopulationPlaceRequestWithApproval =
   civ7ControlOrpcImplementer.city.population.place.request.use(
     civ7MutationApprovalMiddleware,
   );
+const cityPopulationPlaceRequestReady =
+  cityPopulationPlaceRequestWithApproval.use(civ7MutationReadinessMiddleware);
 
 export const cityPopulationPlaceRequestProcedure =
-  cityPopulationPlaceRequestWithApproval.effect(function* ({
+  cityPopulationPlaceRequestReady.effect(function* ({
     context,
     errors,
     input,
@@ -60,6 +68,7 @@ export const cityPopulationPlaceRequestProcedure =
           data: {
             procedureKey: "city.population.place.request",
             source: "direct-control-facade",
+            ...civ7ControlOrpcErrorCorrelationData(context),
           },
         }),
     });
@@ -70,7 +79,10 @@ function cityPopulationPlacementResult(
   result: Civ7ControlOrpcPopulationPlacementRuntimeResult,
 ): Civ7CityPopulationPlacementResult {
   const postcondition = cityPopulationPlacementPostconditionSummary(result);
-  const status = cityPopulationPlacementStatus(result, postcondition);
+  const status = civ7MutationRequestStatus({
+    sent: result.sent,
+    postcondition,
+  });
 
   return {
     placement: cityPopulationPlacementSummary(input),
@@ -81,7 +93,14 @@ function cityPopulationPlacementResult(
       afterValid: result.after.valid,
     },
     postcondition,
-    nextSteps: cityPopulationPlacementNextSteps(status, postcondition),
+    nextSteps: civ7MutationNextSteps({
+      status,
+      postcondition,
+      source: "city.population.place.request",
+      inspectKind: "inspect-population-placement",
+      inspectLabel: "Inspect ready-city population placement evidence before attempting another placement request.",
+      doNotRepeatLabel: "Do not repeat this population placement request until fresh city readiness evidence is read.",
+    }),
   };
 }
 
@@ -141,39 +160,4 @@ function cityPopulationPlacementPostconditionSummary(
     readyCleared: sourcePostcondition?.readyCleared ?? null,
     placementStateChanged: sourcePostcondition?.placementStateChanged ?? null,
   };
-}
-
-function cityPopulationPlacementStatus(
-  result: Civ7ControlOrpcPopulationPlacementRuntimeResult,
-  postcondition: Civ7CityPopulationPlacementResult["postcondition"],
-): Civ7CityPopulationPlacementResult["status"] {
-  if (!result.sent) return "not-sent";
-  if (postcondition.confidence !== "confirmed") return "sent-unverified";
-  if (postcondition.noRepeatAfterUnverified) return "sent-guarded";
-  return "sent-confirmed";
-}
-
-function cityPopulationPlacementNextSteps(
-  status: Civ7CityPopulationPlacementResult["status"],
-  postcondition: Civ7CityPopulationPlacementResult["postcondition"],
-): Civ7CityPopulationPlacementResult["nextSteps"] {
-  if (status === "not-sent") {
-    return [{
-      kind: "inspect-population-placement",
-      source: "city.population.place.request",
-      label: "Inspect ready-city population placement evidence before attempting another placement request.",
-    }];
-  }
-  if (postcondition.noRepeatAfterUnverified) {
-    return [{
-      kind: "do-not-repeat",
-      source: "city.population.place.request",
-      label: "Do not repeat this population placement request until fresh city readiness evidence is read.",
-    }];
-  }
-  return [{
-    kind: "refresh-attention",
-    source: "city.population.place.request",
-    label: "Refresh current attention before choosing the next player action.",
-  }];
 }

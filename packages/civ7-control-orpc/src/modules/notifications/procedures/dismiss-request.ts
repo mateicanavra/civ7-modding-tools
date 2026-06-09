@@ -5,6 +5,12 @@ import { Effect } from "effect";
 
 import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../dependencies/direct-control";
 import { civ7MutationApprovalMiddleware } from "../../../middleware/mutation-approval";
+import { civ7MutationReadinessMiddleware } from "../../../middleware/mutation-readiness";
+import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
+import {
+  civ7MutationNextSteps,
+  civ7MutationRequestStatusWithoutGuarded,
+} from "../../../policy/mutation-result";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7NotificationDismissalResult } from "../contract";
 
@@ -12,9 +18,11 @@ const notificationsDismissRequestWithApproval =
   civ7ControlOrpcImplementer.notifications.dismiss.request.use(
     civ7MutationApprovalMiddleware,
   );
+const notificationsDismissRequestReady =
+  notificationsDismissRequestWithApproval.use(civ7MutationReadinessMiddleware);
 
 export const notificationsDismissRequestProcedure =
-  notificationsDismissRequestWithApproval.effect(function* ({
+  notificationsDismissRequestReady.effect(function* ({
     context,
     errors,
     input,
@@ -34,6 +42,7 @@ export const notificationsDismissRequestProcedure =
           data: {
             procedureKey: "notifications.dismiss.request",
             source: "direct-control-facade",
+            ...civ7ControlOrpcErrorCorrelationData(context),
           },
         }),
     });
@@ -43,7 +52,10 @@ function notificationDismissalResult(
   result: Civ7ControlOrpcNotificationDismissalResult,
 ): Civ7NotificationDismissalResult {
   const postcondition = notificationDismissalPostconditionSummary(result);
-  const status = notificationDismissalStatus(result, postcondition);
+  const status = civ7MutationRequestStatusWithoutGuarded({
+    sent: result.sent,
+    postcondition,
+  });
 
   return {
     notificationId: result.notificationId,
@@ -55,7 +67,14 @@ function notificationDismissalResult(
       afterExists: result.after?.exists ?? null,
     },
     postcondition,
-    nextSteps: notificationDismissalNextSteps(status, postcondition),
+    nextSteps: civ7MutationNextSteps({
+      status,
+      postcondition,
+      source: "notifications.dismiss.request",
+      inspectKind: "inspect-notification",
+      inspectLabel: "Inspect notification state before attempting another dismissal request.",
+      doNotRepeatLabel: "Do not repeat this dismissal request until fresh attention and notification evidence is read.",
+    }),
   };
 }
 
@@ -87,37 +106,4 @@ function notificationDismissalPostconditionSummary(
       && !postcondition.noRepeatAfterUnverified,
     noRepeatAfterUnverified: postcondition.noRepeatAfterUnverified,
   };
-}
-
-function notificationDismissalStatus(
-  result: Civ7ControlOrpcNotificationDismissalResult,
-  postcondition: Civ7NotificationDismissalResult["postcondition"],
-): Civ7NotificationDismissalResult["status"] {
-  if (!result.sent) return "not-sent";
-  return postcondition.confirmed ? "sent-confirmed" : "sent-unverified";
-}
-
-function notificationDismissalNextSteps(
-  status: Civ7NotificationDismissalResult["status"],
-  postcondition: Civ7NotificationDismissalResult["postcondition"],
-): Civ7NotificationDismissalResult["nextSteps"] {
-  if (status === "not-sent") {
-    return [{
-      kind: "inspect-notification",
-      source: "notifications.dismiss.request",
-      label: "Inspect notification state before attempting another dismissal request.",
-    }];
-  }
-  if (postcondition.noRepeatAfterUnverified) {
-    return [{
-      kind: "do-not-repeat",
-      source: "notifications.dismiss.request",
-      label: "Do not repeat this dismissal request until fresh attention and notification evidence is read.",
-    }];
-  }
-  return [{
-    kind: "refresh-attention",
-    source: "notifications.dismiss.request",
-    label: "Refresh current attention before choosing the next player action.",
-  }];
 }

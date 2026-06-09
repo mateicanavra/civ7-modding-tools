@@ -2,6 +2,7 @@ import type { Civ7RuntimeProbe } from "@civ7/direct-control";
 import { Effect } from "effect";
 
 import type { Civ7ControlOrpcPlayableStatusResult } from "../../../dependencies/direct-control";
+import { civ7ControlOrpcErrorCorrelationData } from "../../../model/correlation";
 import { civ7ControlOrpcImplementer } from "../../../procedure";
 import type { Civ7ReadinessCurrentResult } from "../contract";
 
@@ -22,6 +23,7 @@ export const readinessCurrentProcedure =
           data: {
             procedureKey: "readiness.current",
             source: "direct-control-facade",
+            ...civ7ControlOrpcErrorCorrelationData(context),
           },
         }),
     });
