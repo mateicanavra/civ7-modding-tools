@@ -13,6 +13,9 @@ Future state:
   deltas separately.
 - The authoring surface exposes semantic knobs that decouple real decisions
   instead of leaking internal selectors or legacy coupled thresholds.
+- Representative earthlike benchmark thresholds are sourced from authoritative
+  external Earth data, not reverse-engineered from current local generator
+  output.
 
 In scope:
 
@@ -76,6 +79,10 @@ The execution slices must predeclare at least these expectations before tuning:
   outflow behavior.
 - End-user visibility is judged in rendered Civ and Studio surfaces, not only in
   internal artifacts or terrain identities.
+- Representative earthlike thresholds come from Earth evidence first, then local
+  seed matrices are compared against them. Candidate benchmark authorities
+  include HydroRIVERS / HydroATLAS, variable-drainage-density global
+  hydrography, endorheic-basin datasets, and global lake inventories.
 
 ## Proof Classes
 
@@ -102,7 +109,8 @@ explicitly.
    - Keep the fix in Hydrology, with Morphology as precursor owner only.
 
 2. `hydrology-river-network-metrics`
-   - Predeclare physical benchmark expectations and stable seed matrix.
+   - Predeclare physical benchmark expectations and stable seed matrix from
+     external Earth evidence before local tuning.
    - Publish generated-map diagnostics strong enough to judge trunk coherence and
      basin/lake behavior before projection.
 

@@ -33,5 +33,9 @@
 
 - [x] 4.1 Run `bun run openspec -- validate river-lake-recovery-redesign --strict`.
 - [x] 4.2 Run `bun run openspec:validate`.
-- [ ] 4.3 Create the follow-on execution goal only after the redesign/workstream
+- [x] 4.3 Create the follow-on execution goal only after the redesign/workstream
   artifacts are coherent and validated.
+  - Active tooling still cannot replace the existing thread goal, so the
+    superseding execution objective is recorded durably in
+    `workstream/active-goal.md` and refreshed to require external Earth
+    benchmark authority instead of current-behavior thresholds.

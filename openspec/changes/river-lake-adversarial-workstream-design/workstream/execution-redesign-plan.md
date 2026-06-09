@@ -66,6 +66,24 @@ The physical model for this workstream is:
   no visible navigable rivers. That outcome must be typed, not silently treated
   as either a pass or a failure.
 
+Representative earthlike thresholds are not allowed to come from current
+generator behavior. They must be derived from external Earth evidence first and
+then used to judge local seed matrices. Current benchmark authority for this
+train starts from:
+
+- HydroRIVERS / HydroATLAS channel inclusion floors (`>=10 km^2` upstream area
+  or `>=0.1 m^3/s` average discharge) and routed-network coverage.
+- Lin et al. 2021 variable-drainage-density global hydrography, which makes
+  explicit that Earth drainage density varies strongly with climate and
+  physiography rather than following one universal threshold.
+- Recent global non-perennial stream work, which treats headwater and
+  intermittent channels as the majority of total network length, so minor rivers
+  must not be modeled as a rare edge case.
+- Global endorheic-basin datasets, which place internally drained basins at
+  about one-fifth of global land area, so closed-basin/lake termini are normal
+  rather than failure by default.
+- Global lake inventories, which constrain plausible lake abundance and area.
+
 ## Locked Ownership Boundary
 
 | Concern | Owner | Forbidden owners |
@@ -143,6 +161,8 @@ The remaining train must keep these labels separate:
 
 - Purpose: publish seed-matrix physical metrics and benchmarks before tuning.
 - Owner: Hydrology truth diagnostics.
+- Benchmark rule: adopt representative earthlike thresholds only from external
+  Earth hydrology evidence, never from current Swooper output.
 - Required expectations:
   - acyclic routes,
   - typed terminals,
