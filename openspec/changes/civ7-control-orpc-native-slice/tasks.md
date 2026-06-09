@@ -1506,6 +1506,16 @@ adding more read-only facade shells.
     materialization, parser flags, deployed Civ7 proof, play-thread action,
     transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
+  - [x] 7.3.38 Require controller mutation proof in native mutation readiness
+    before a context-listed controller mutation can bypass non-playable Tuner
+    readiness. Move the controller lifecycle/local-player/hotseat proof shape
+    into a shared context model reused by the bridge and the native
+    readiness middleware; keep proof context-owned rather than procedure input
+    or serialized caller authority; reject allowlist-only controller mutation
+    calls with bounded `MUTATION_READINESS_REQUIRED` output before any
+    mutation port runs. Keep new bridge allowlists, transport expansion,
+    deployed Civ7 proof, play-thread action, public package-root procedure
+    schema exports, and full `7.3` acceptance pending.
 - [ ] 7.4 Keep OpenAPI/external REST deferred until there is a documented
   external consumer.
 
@@ -2303,6 +2313,17 @@ adding more read-only facade shells.
   source/docs/OpenSpec proof only; it does not change procedure contracts,
   parser flags, runtime behavior, deployed Civ7 runtime behavior, play-thread
   state, transport/controller scope, relationship authority, or parent Task
+  5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
+  approval-reason mechanic is introduced.
+- [x] 8.60.63 Run focused city-production-choice procedure tests,
+  controller-bridge ingress tests, control-oRPC package check/build/test,
+  strict OpenSpec validates, root-export scans for new controller-proof or
+  per-procedure schema exports, active
+  approval/caller-permission scan, relationship-label safety scan, and diff
+  hygiene for the controller mutation readiness proof slice. This is local
+  package/OpenSpec proof only; it does not change procedure contracts, normal
+  outputs, parser flags, deployed Civ7 runtime behavior, play-thread state,
+  transport/controller allowlists, relationship authority, or parent Task
   5.x/6.x/7.x acceptance; caller-provided approval remains retired and no
   approval-reason mechanic is introduced.
 - [x] 8.60.45 Run focused game-UI controller tests, control-oRPC package

@@ -5,6 +5,11 @@ import { Value } from "typebox/value";
 import { createCiv7ControlOrpcServerClient } from "../client";
 import { Civ7ControlOrpcContract } from "../contract";
 import type { Civ7ControlOrpcContext } from "../context";
+import {
+  Civ7ControllerMutationProofSchema,
+  isCiv7ControllerMutationProof,
+  type Civ7ControllerMutationProof,
+} from "../model/controller-proof";
 import { Civ7ControlOrpcCorrelationIdSchema } from "../model/correlation";
 import {
   typeboxInputSchemaFromContractProcedure,
@@ -198,35 +203,9 @@ const Civ7ProgressionTraditionReviewResultSchema =
     Civ7ControlOrpcContract.progression.tradition.review.request,
   );
 
-export const Civ7ControllerBridgeMutationProofSchema = Type.Object(
-  {
-    lifecycle: Type.Object(
-      {
-        source: Type.Literal("controller-runtime"),
-        status: Type.Literal("game-controller-ready"),
-      },
-      { additionalProperties: false },
-    ),
-    localPlayer: Type.Object(
-      {
-        source: Type.Literal("GameContext.localPlayerID"),
-        playerId: Type.Integer({ minimum: 0, maximum: 255 }),
-      },
-      { additionalProperties: false },
-    ),
-    hotseat: Type.Object(
-      {
-        source: Type.Literal("controller-runtime"),
-        status: Type.Literal("single-local-player"),
-      },
-      { additionalProperties: false },
-    ),
-  },
-  { additionalProperties: false },
-);
-export type Civ7ControllerBridgeMutationProof = Static<
-  typeof Civ7ControllerBridgeMutationProofSchema
->;
+export const Civ7ControllerBridgeMutationProofSchema =
+  Civ7ControllerMutationProofSchema;
+export type Civ7ControllerBridgeMutationProof = Civ7ControllerMutationProof;
 
 export const Civ7ControllerBridgeReadinessCurrentRequestSchema = Type.Object(
   {
@@ -1569,7 +1548,7 @@ export async function invokeCiv7ControllerBridgeRequest(
 function controllerProofFromContext(
   context: Civ7ControllerBridgeContext,
 ): Civ7ControllerBridgeMutationProof | null {
-  if (!Value.Check(Civ7ControllerBridgeMutationProofSchema, context.controllerProof)) {
+  if (!isCiv7ControllerMutationProof(context.controllerProof)) {
     return null;
   }
   return context.controllerProof;

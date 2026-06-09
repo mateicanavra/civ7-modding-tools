@@ -1,3 +1,5 @@
+import type { Civ7ControlOrpcContext } from "../context";
+import { isCiv7ControllerMutationProof } from "../model/controller-proof";
 import { civ7ControlOrpcErrorCorrelationData } from "../model/correlation";
 import { civ7ControlOrpcImplementer } from "../procedure";
 
@@ -23,7 +25,7 @@ export const civ7MutationReadinessMiddleware =
 
     if (
       !status.playable
-      && !context.controller?.supportedMutationProcedures?.includes(procedureKey)
+      && !civ7ControllerMutationReadinessBypass(context, procedureKey)
     ) {
       throw errors.MUTATION_READINESS_REQUIRED({
         data: {
@@ -39,3 +41,12 @@ export const civ7MutationReadinessMiddleware =
 
     return next();
   });
+
+function civ7ControllerMutationReadinessBypass(
+  context: Civ7ControlOrpcContext,
+  procedureKey: string,
+): boolean {
+  return context.controller?.supportedMutationProcedures?.includes(procedureKey)
+      === true
+    && isCiv7ControllerMutationProof(context.controllerProof);
+}

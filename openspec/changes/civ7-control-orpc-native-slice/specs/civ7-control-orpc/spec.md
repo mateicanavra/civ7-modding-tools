@@ -1191,6 +1191,20 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** this gate does not add new procedure allowlist entries, transport
   scope, raw command/session output, or deployed Civ7 runtime proof claims
 
+#### Scenario: Native mutation readiness requires controller proof for controller-supported mutations
+- **WHEN** a mutating procedure runs through the native in-process router
+- **AND** direct-control playable status is false
+- **AND** controller context lists the procedure in `supportedMutationProcedures`
+- **THEN** native mutation readiness MUST still require context-owned
+  game-controller-ready lifecycle, `GameContext.localPlayerID`, and
+  single-local-player/hotseat proof before the mutation handler runs
+- **AND** an allowlist without valid controller proof fails through bounded
+  `MUTATION_READINESS_REQUIRED` output before any direct-control or game-UI
+  mutation port executes
+- **AND** the controller proof remains context metadata, not procedure input,
+  serialized caller authority, raw command/session output, or deployed Civ7
+  runtime proof
+
 #### Scenario: Game UI controller supports notification dismissal
 - **WHEN** the game-scoped controller context exposes notification dismissal
   game UI APIs
@@ -1204,8 +1218,9 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** broad `readiness.current` mutation capability remains conservative
   until game UI mutation surfaces are actually implemented
 - **AND** native mutation readiness admits only the explicitly context-listed
-  `notifications.dismiss.request` game-UI mutation while other mutation ports
-  remain bounded as unsupported
+  `notifications.dismiss.request` game-UI mutation when context-owned
+  controller proof is present, while other mutation ports remain bounded as
+  unsupported
 - **AND** `readiness.current` exposes the same context-listed controller
   support as bounded procedure capability facts; read support may set
   `canObserve`, but mutation support MUST NOT set `canMutate` unless the

@@ -134,6 +134,58 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     expect(fake.calls).toEqual([]);
   });
 
+  test("does not let a controller mutation allowlist bypass readiness without proof", async () => {
+    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
+      playableStatus: {
+        playable: false,
+        readiness: "app-ui-game",
+      },
+      controller: {
+        supportedMutationProcedures: ["city.production.choice.request"],
+      },
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.city.production.choice.request, {
+        cityId,
+        args,
+      }, { context: fake.context }),
+    ).rejects.toMatchObject({
+      code: "MUTATION_READINESS_REQUIRED",
+      status: 409,
+      data: {
+        procedureKey: "city.production.choice.request",
+        source: "readiness.current",
+        risk: "mutation",
+        playable: false,
+        readiness: "app-ui-game",
+      },
+    });
+    expect(fake.calls).toEqual([]);
+  });
+
+  test("allows controller-supported mutations with controller-runtime proof", async () => {
+    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
+      playableStatus: {
+        playable: false,
+        readiness: "app-ui-game",
+      },
+      controller: {
+        supportedMutationProcedures: ["city.production.choice.request"],
+      },
+      controllerProof: controllerMutationProof(),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.city.production.choice.request,
+      { cityId, args },
+      { context: fake.context },
+    );
+
+    expect(result.status).toBe("sent-confirmed");
+    expect(fake.calls).toHaveLength(1);
+  });
+
   test("maps readiness read failures before mutation without raw details", async () => {
     const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
       playableStatusError: new Error(
@@ -373,6 +425,8 @@ function fakeContext(
       readiness: string;
     }>;
     playableStatusError?: Error;
+    controller?: Civ7ControlOrpcContext["controller"];
+    controllerProof?: Civ7ControlOrpcContext["controllerProof"];
   } = {},
 ): {
   context: Civ7ControlOrpcContext;
@@ -412,8 +466,29 @@ function fakeContext(
       correlation: options.correlationId == null
         ? undefined
         : { correlationId: options.correlationId },
+      controller: options.controller,
+      controllerProof: options.controllerProof,
     },
     calls,
+  };
+}
+
+function controllerMutationProof(): NonNullable<
+  Civ7ControlOrpcContext["controllerProof"]
+> {
+  return {
+    lifecycle: {
+      source: "controller-runtime",
+      status: "game-controller-ready",
+    },
+    localPlayer: {
+      source: "GameContext.localPlayerID",
+      playerId: 0,
+    },
+    hotseat: {
+      source: "controller-runtime",
+      status: "single-local-player",
+    },
   };
 }
 
