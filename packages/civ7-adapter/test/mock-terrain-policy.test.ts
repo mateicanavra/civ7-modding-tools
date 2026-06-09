@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { NO_RIVER_TYPE, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
 import { createMockAdapter } from "../src/mock-adapter.js";
 
 const TERRAIN_MOUNTAIN = 0;
@@ -137,5 +138,36 @@ describe("mock adapter terrain policy", () => {
     expect(projection.engineLakeMask[2 + 1 * 5]).toBe(1);
     expect(projection.engineLakeMask[1 + 1 * 5]).toBe(0);
     expect(projection.nonLakeTileCount).toBe(0);
+  });
+
+  it("reads navigable river projection parity without claiming minor river stamping", () => {
+    const adapter = createMockAdapter({ width: 5, height: 2, defaultTerrainType: TERRAIN_FLAT });
+    const navigableRiverTerrain = adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
+    const planned = new Uint8Array(10);
+    planned[1] = 1;
+    planned[2] = 1;
+    planned[3] = 1;
+
+    adapter.setTerrainType(1, 0, navigableRiverTerrain);
+    adapter.setTerrainType(2, 0, navigableRiverTerrain);
+    adapter.setTerrainType(4, 0, navigableRiverTerrain);
+    (adapter as unknown as { riverTypes: Int8Array }).riverTypes[3] = RIVER_TYPE_NAVIGABLE;
+
+    const projection = adapter.readRiverProjection(5, 2, planned);
+
+    expect(adapter.getRiverType(0, 0)).toBe(NO_RIVER_TYPE);
+    expect(adapter.isRiver(0, 0)).toBe(false);
+    expect(projection.stampedNavigableRiverTileCount).toBe(2);
+    expect(projection.rejectedNavigableRiverTileCount).toBe(1);
+    expect(projection.extraNavigableRiverTileCount).toBe(1);
+    expect(projection.navigableRiverMismatchTileCount).toBe(2);
+    expect(projection.engineRiverType[0]).toBe(NO_RIVER_TYPE);
+    expect(projection.engineRiverType[1]).toBe(RIVER_TYPE_NAVIGABLE);
+    expect(projection.engineNavigableRiverMask[1]).toBe(1);
+    expect(projection.engineNavigableRiverMask[3]).toBe(1);
+    expect(projection.terrainNavigableRiverMask[3]).toBe(0);
+    expect(projection.rejectedNavigableRiverMask[3]).toBe(1);
+    expect(projection.engineMinorRiverTileCount).toBe(0);
+    expect(projection.minorRiverStampingSupported).toBe(false);
   });
 });

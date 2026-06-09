@@ -132,7 +132,11 @@ export function extractExactAuthorshipProof(payload: unknown): ExactAuthorshipPr
   const nested = status && isRecord(status.exactAuthorshipProof) ? status.exactAuthorshipProof : undefined;
   const result = isRecord(payload.result) ? payload.result : undefined;
   const resultProof = result && isRecord(result.exactAuthorshipProof) ? result.exactAuthorshipProof : undefined;
-  const proof = direct ?? nested ?? resultProof;
+  const parityProof = isRecord(payload.proof) ? payload.proof : undefined;
+  const parityProofPacket = parityProof && isRecord(parityProof.exactAuthorshipPacket)
+    ? parityProof.exactAuthorshipPacket
+    : undefined;
+  const proof = direct ?? nested ?? resultProof ?? parityProofPacket;
   if (!proof) throw new Error("Missing exactAuthorshipProof in status/proof payload");
   return proof as ExactAuthorshipProofLike;
 }
@@ -207,7 +211,7 @@ async function main(): Promise<number> {
   });
 
   const grid = await getCiv7FullMapGrid({
-    fields: ["terrain", "biome", "feature", "resource"],
+    fields: ["terrain", "biome", "feature", "resource", "hydrology"],
     includeHidden: true,
     maxPlotsPerRead: args.maxPlotsPerRead,
   }, {

@@ -12,6 +12,28 @@ const MapRiversEngineProjectionArtifactSchema = Type.Object(
       description:
         "Engine navigable-river terrain mask after map-rivers projection (1=navigable river terrain).",
     }),
+    engineRiverType: TypedArraySchemas.i32({
+      description:
+        "Civ7 river type metadata readback per tile using the runtime's no-river sentinel.",
+    }),
+    engineIsRiverMask: TypedArraySchemas.u8({
+      description: "Civ7 river metadata readback (1=any river type).",
+    }),
+    engineNavigableRiverMask: TypedArraySchemas.u8({
+      description:
+        "Civ7 navigable-river readback from river metadata/API; raw terrain row readback is terrainNavigableRiverMask.",
+    }),
+    engineMinorRiverMask: TypedArraySchemas.u8({
+      description:
+        "Civ7 minor-river metadata readback. This is readback-only until a stable minor-river authoring API exists.",
+    }),
+    terrainNavigableRiverMask: TypedArraySchemas.u8({
+      description: "Raw TERRAIN_NAVIGABLE_RIVER terrain readback per tile.",
+    }),
+    rejectedNavigableRiverMask: TypedArraySchemas.u8({
+      description:
+        "MapGen-selected navigable-river tiles absent from raw TERRAIN_NAVIGABLE_RIVER terrain readback.",
+    }),
     sinkMismatchCount: Type.Integer({
       minimum: 0,
       description:
@@ -20,17 +42,42 @@ const MapRiversEngineProjectionArtifactSchema = Type.Object(
     riverMismatchCount: Type.Integer({
       minimum: 0,
       description:
-        "Count of tiles where projected navigable-river terrain and engine readback diverged.",
+        "Count of tiles where projected navigable-river terrain and raw engine terrain readback diverged.",
     }),
     selectedRiverRejectedCount: Type.Integer({
       minimum: 0,
       description:
-        "Count of MapGen-selected navigable-river terrain tiles that were not navigable rivers after engine validation.",
+        "Count of MapGen-selected navigable-river terrain tiles absent from raw engine terrain readback after validation.",
     }),
     extraEngineRiverCount: Type.Integer({
       minimum: 0,
       description:
-        "Count of navigable-river terrain tiles present in engine readback that were not selected by MapGen's river projection policy.",
+        "Count of raw engine navigable-river terrain tiles that were not selected by MapGen's river projection policy.",
+    }),
+    engineRiverTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of tiles with any Civ7 river metadata after projection.",
+    }),
+    engineNavigableRiverTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of tiles with Civ7 navigable-river readback after projection.",
+    }),
+    engineMinorRiverTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of tiles with Civ7 minor-river metadata after projection.",
+    }),
+    terrainNavigableRiverTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of tiles whose terrain row is TERRAIN_NAVIGABLE_RIVER.",
+    }),
+    minorRiverStampingSupported: Type.Boolean({
+      description:
+        "Whether this adapter/runtime can author Civ7 minor-river metadata directly from MapGen intent.",
+    }),
+    minorRiverUnsupportedReason: Type.String({
+      minLength: 1,
+      description:
+        "Human-readable boundary note when minor river stamping is not available on the adapter/runtime.",
     }),
   },
   {
@@ -48,6 +95,14 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
       description:
         "MapGen-authored navigable-river terrain mask selected by the projection policy (1=navigable river terrain).",
     }),
+    plannedMinorRiverMask: TypedArraySchemas.u8({
+      description:
+        "Hydrology-authored minor-river intent mask (riverClass=1). This is not promoted to navigable terrain.",
+    }),
+    plannedMajorRiverMask: TypedArraySchemas.u8({
+      description:
+        "Hydrology-authored major-river intent mask (RIVER_CLASS_MAJOR and higher), the only class eligible for navigable terrain projection.",
+    }),
     selectedTileCount: Type.Integer({
       minimum: 0,
       description: "Count of MapGen-selected navigable-river terrain tiles.",
@@ -55,6 +110,14 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
     eligibleTileCount: Type.Integer({
       minimum: 0,
       description: "Count of projectable Hydrology river tiles considered by the policy.",
+    }),
+    plannedMinorRiverTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of Hydrology minor-river intent tiles.",
+    }),
+    plannedMajorRiverTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of Hydrology major-river intent tiles.",
     }),
     candidateEndpointCount: Type.Integer({
       minimum: 0,

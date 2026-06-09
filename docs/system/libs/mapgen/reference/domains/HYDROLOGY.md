@@ -24,7 +24,8 @@ Hydrology produces climate + water-cycle truth products for downstream consumpti
 
 Hydrology also feeds engine-facing projection steps, which are explicitly
 **projection-only**: `map-hydrology` stamps accepted lake water before engine
-elevation, and `map-rivers` models rivers after elevation.
+elevation, and `map-rivers` materializes selected navigable river terrain after
+elevation.
 
 ## Stages (standard recipe)
 
@@ -87,9 +88,9 @@ Hydrology domain ops are bound by step contracts. In the standard recipe, Hydrol
 Author-facing control is primarily via stage knobs (compiled at stage compile time). In the standard recipe:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
-- `hydrology-hydrography` knobs: `riverDensity` (projection thresholds for hydrography), `lakeiness` (sink-derived lake intent expansion)
+- `hydrology-hydrography` knobs: `riverDensity` (physical river-network projection thresholds), `lakeiness` (sink-derived lake intent expansion)
 - `hydrology-climate-refine` knobs: `dryness`, `temperature`, `cryosphere`
-- `map-rivers` knobs: `riverDensity` (engine river projection only)
+- `map-rivers` knobs: `navigableRiverDensity` (Civ-visible navigable river trunk projection only; `riverDensity` is accepted as a legacy alias)
 
 Some steps also expose flat step config surfaces for explicit overrides (e.g., seasonality posture).
 
@@ -102,9 +103,47 @@ The `map-hydrology` stage:
 - and must not be treated as Hydrology truth.
 
 The `map-rivers` stage consumes Hydrology hydrography after `map-elevation` has
-built engine elevation, then publishes `effect:engine.riversModeled` and river
-readback evidence. This matches Civ7's terrain lifecycle: static water before
-elevation, rivers after elevation.
+built engine elevation, then publishes projected navigable river terrain and
+river readback evidence. This matches Civ7's terrain lifecycle: static water
+before elevation, rivers after elevation.
+
+Hydrology river classes have distinct projection meanings:
+
+- `riverClass=1` is minor-river intent. It remains a physics/display/planning
+  surface and must not be promoted into `TERRAIN_NAVIGABLE_RIVER`.
+- `riverClass>=2` is major-river intent and is the only hydrology class eligible
+  for MapGen-owned navigable terrain projection.
+
+Civ7 river proof has two distinct surfaces:
+
+- `TERRAIN_NAVIGABLE_RIVER` is a terrain row and can exist without Civ river
+  metadata.
+- `GameplayMap.getRiverType`, `GameplayMap.isRiver`, and
+  `GameplayMap.isNavigableRiver` are river metadata/readback surfaces.
+
+Live runtime evidence on 2026-06-09 reported `RiverTypes.NO_RIVER=-1`,
+`RIVER_MINOR=0`, and `RIVER_NAVIGABLE=1`; those metadata values are cataloged in
+the generated `@civ7/map-policy` table as `CIV7_BROWSER_TABLES_V0.riverTypes`,
+re-exported by `CIV7_RIVER_TYPES_V0`, and generated into `@civ7/types`. A
+same-run Studio/Civ proof
+(`studio-run-in-game-mq6c38rf-n2p`) matched projected navigable terrain to live
+`TERRAIN_NAVIGABLE_RIVER` exactly (`6/6`, zero terrain mismatches), while
+`GameplayMap` still reported `NO_RIVER` metadata for those tiles. Therefore
+terrain-row visibility is the supported proof of MapGen-owned major-river
+stamping; minor or navigable river metadata is a separate readback/writer
+surface. `TerrainBuilder.modelRivers` remains the official high-level engine
+generator. Official resources were refreshed through `bun run refresh:data`
+against the installed Steam app on 2026-06-09 and stayed clean at snapshot
+`fbc38ef`; spot checks of the installed app matched that snapshot for
+`continents.js`, `archipelago.js`, tooltip helpers, `terrain.xml`, and
+`unit-movement.xml`. Both the installed app and refreshed resources show map
+scripts calling `modelRivers(...)`, `defineNamedRivers()`, and
+`storeWaterData()`, with no public `setRiverValidationValues` callsite. The native
+`TerrainBuilder.setRiverValidationValues` hook was probed in the disposable
+`studio-run-in-game-mq6c38rf-n2p` session; it returned `undefined` and left all
+river metadata counts unchanged (`river=0`, `navigableRiver=0`, `minorRiver=0`).
+Treat that hook as rejected for production minor-river authoring until a
+different writer surface is discovered and proven.
 
 ## Ground truth anchors
 

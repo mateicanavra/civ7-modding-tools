@@ -264,6 +264,47 @@ export interface LakeProjectionResult {
   nonLakeTileCount: number;
 }
 
+/**
+ * Adapter readback for deterministic river projection.
+ *
+ * MapGen can deterministically choose navigable-river terrain today. Civ7's
+ * minor rivers are engine river metadata rather than terrain rows, and the
+ * public script surface observed so far exposes readback but no stable
+ * tile-authoring API for that metadata. This result keeps those proof classes
+ * separate: navigable terrain parity is testable now, while minor-river
+ * materialization remains an explicit unsupported boundary until an adapter
+ * capability is discovered.
+ */
+export interface RiverProjectionResult {
+  width: number;
+  height: number;
+  plannedNavigableRiverMask: Uint8Array;
+  /** MapGen-planned tiles accepted as raw TERRAIN_NAVIGABLE_RIVER terrain. */
+  stampedNavigableRiverMask: Uint8Array;
+  /** MapGen-planned tiles absent from raw TERRAIN_NAVIGABLE_RIVER terrain readback. */
+  rejectedNavigableRiverMask: Uint8Array;
+  engineTerrain: Int32Array;
+  engineRiverType: Int32Array;
+  engineIsRiverMask: Uint8Array;
+  /** Civ river metadata/API navigable readback; terrain readback is terrainNavigableRiverMask. */
+  engineNavigableRiverMask: Uint8Array;
+  engineMinorRiverMask: Uint8Array;
+  terrainNavigableRiverMask: Uint8Array;
+  /** Projected navigable mask vs raw TERRAIN_NAVIGABLE_RIVER terrain mismatch. */
+  navigableRiverMismatchMask: Uint8Array;
+  plannedNavigableRiverTileCount: number;
+  stampedNavigableRiverTileCount: number;
+  rejectedNavigableRiverTileCount: number;
+  extraNavigableRiverTileCount: number;
+  navigableRiverMismatchTileCount: number;
+  engineRiverTileCount: number;
+  engineNavigableRiverTileCount: number;
+  engineMinorRiverTileCount: number;
+  terrainNavigableRiverTileCount: number;
+  minorRiverStampingSupported: boolean;
+  minorRiverUnsupportedReason: string;
+}
+
 // ============================================================================
 // Voronoi Utilities (foundation dependency)
 // ============================================================================
@@ -379,6 +420,15 @@ export interface EngineAdapter {
 
   /** Check if tile is near rivers */
   isAdjacentToRivers(x: number, y: number, radius?: number): boolean;
+
+  /** Get Civ7 river type metadata for a tile, using the runtime's no-river sentinel when absent. */
+  getRiverType(x: number, y: number): number;
+
+  /** Check whether Civ7 classifies the tile as any river type. */
+  isRiver(x: number, y: number): boolean;
+
+  /** Check whether Civ7 classifies the tile as a navigable river. */
+  isNavigableRiver(x: number, y: number): boolean;
 
   /** Get tile elevation */
   getElevation(x: number, y: number): number;
@@ -571,6 +621,17 @@ export interface EngineAdapter {
 
   /** Store water data */
   storeWaterData(): void;
+
+  /**
+   * Read back river terrain/metadata parity for a deterministic navigable
+   * river projection. This is readback only; minor river stamping is not
+   * represented until the adapter exposes a stable write capability.
+   */
+  readRiverProjection(
+    width: number,
+    height: number,
+    plannedNavigableRiverMask: Uint8Array
+  ): RiverProjectionResult;
 
   /** Generate lakes (wraps Civ7 base-standard elevation terrain generator) */
   generateLakes(width: number, height: number, tilesPerLake: number): void;

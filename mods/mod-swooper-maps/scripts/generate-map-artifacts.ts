@@ -276,7 +276,7 @@ async function main(): Promise<void> {
 
   for (const entry of await readdir(generatedEntriesDir, { withFileTypes: true }).catch(() => [])) {
     if (entry.isFile() && entry.name.endsWith(".ts")) {
-      await rm(resolve(generatedEntriesDir, entry.name));
+      await rm(resolve(generatedEntriesDir, entry.name), { force: true });
     }
   }
 

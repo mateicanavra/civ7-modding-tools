@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
 
+import { RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
 import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
@@ -208,13 +209,13 @@ describe("ecology op contract surfaces", () => {
     expect(result.isolatedWaterPointMask.length).toBe(size);
   });
 
-  it("computeFeatureSubstrate uses projected navigable river truth", () => {
+  it("computeFeatureSubstrate separates minor river adjacency from projected navigable terrain", () => {
     const width = 3;
     const height = 3;
     const size = width * height;
     const riverClass = new Uint8Array(size);
     const navigableRiverMask = new Uint8Array(size);
-    riverClass[1] = 2;
+    riverClass[1] = RIVER_CLASS_MINOR;
     navigableRiverMask[4] = 1;
 
     const selection = normalizeOpSelectionOrThrow(ecology.ops.computeFeatureSubstrate, {

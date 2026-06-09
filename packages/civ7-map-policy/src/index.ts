@@ -14,6 +14,13 @@ export {
   RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
   isResourceAdjacentToLandRuntimeOptional,
 } from "./resource-constants.js";
+export {
+  CIV7_RIVER_TYPES_V0,
+  NO_RIVER_TYPE,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
+} from "./river-constants.js";
+export { CIV7_RIVER_TYPE_METADATA_SOURCE } from "./river-type-metadata.source.js";
 export { NATURAL_WONDER_CATALOG } from "./catalogs/natural-wonders.js";
 export { DISCOVERY_CATALOG } from "./catalogs/discoveries.js";
 export {

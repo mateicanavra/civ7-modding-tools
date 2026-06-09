@@ -18,6 +18,11 @@ import type {
   HydrologyDrynessKnob,
   HydrologyTemperatureKnob,
 } from "@mapgen/domain/hydrology/config.js";
+import {
+  RIVER_CLASS_NONE,
+  isMajorRiverClass,
+  isMinorRiverClass,
+} from "../../../../../domain/hydrology/index.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -325,20 +330,23 @@ export default createStep(ClimateRefineStepContract, {
         const x0 = Math.max(0, x - EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
         const x1 = Math.min(width - 1, x + EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
 
-        let maxClass = 0;
+        let maxClass = RIVER_CLASS_NONE;
         for (let yy = y0; yy <= y1; yy++) {
           const yyOffset = yy * width;
           for (let xx = x0; xx <= x1; xx++) {
-            const cls = hydrography.riverClass[yyOffset + xx] ?? 0;
+            const cls = hydrography.riverClass[yyOffset + xx] ?? RIVER_CLASS_NONE;
             if (cls > maxClass) maxClass = cls;
-            if (maxClass >= 2) break;
+            if (isMajorRiverClass(maxClass)) break;
           }
-          if (maxClass >= 2) break;
+          if (isMajorRiverClass(maxClass)) break;
         }
 
         const idx = yOffset + x;
-        if (maxClass >= 2) riparianBonusByTile[idx] = EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS;
-        else if (maxClass >= 1) riparianBonusByTile[idx] = EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS;
+        if (isMajorRiverClass(maxClass)) {
+          riparianBonusByTile[idx] = EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS;
+        } else if (isMinorRiverClass(maxClass)) {
+          riparianBonusByTile[idx] = EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS;
+        }
       }
     }
 

@@ -114,15 +114,6 @@ export const HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY = {
   }>
 >;
 
-export const HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS = {
-  sparse: { minLength: 7, maxLength: 18 },
-  normal: { minLength: 5, maxLength: 15 },
-  dense: { minLength: 3, maxLength: 12 },
-} as const satisfies Record<
-  HydrologyRiverDensityKnob,
-  Readonly<{ minLength: number; maxLength: number }>
->;
-
 export const HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE = {
   sparse: 0.88,
   normal: 0.82,
@@ -135,10 +126,34 @@ export const HYDROLOGY_RIVER_DENSITY_MAJOR_PERCENTILE = {
   dense: 0.9,
 } as const satisfies Record<HydrologyRiverDensityKnob, number>;
 
-export const HYDROLOGY_RIVERS_DEFAULT_MIN_LENGTH = 5 as const;
-export const HYDROLOGY_RIVERS_DEFAULT_MAX_LENGTH = 15 as const;
 export const HYDROLOGY_PROJECT_RIVER_NETWORK_MINOR_PERCENTILE_DEFAULT = 0.85 as const;
 export const HYDROLOGY_PROJECT_RIVER_NETWORK_MAJOR_PERCENTILE_DEFAULT = 0.95 as const;
+
+/**
+ * Civ-visible navigable rivers should follow the physically strongest major
+ * trunks, not an exposed arbitrary tile-length window. The density knob changes
+ * how much of the major-channel signal survives into the navigable subset.
+ */
+export const HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY = {
+  sparse: {
+    endpointDischargePercentileMin: 0.97,
+    targetMajorTileFraction: 0.18,
+  },
+  normal: {
+    endpointDischargePercentileMin: 0.94,
+    targetMajorTileFraction: 0.28,
+  },
+  dense: {
+    endpointDischargePercentileMin: 0.9,
+    targetMajorTileFraction: 0.4,
+  },
+} as const satisfies Record<
+  HydrologyRiverDensityKnob,
+  Readonly<{
+    endpointDischargePercentileMin: number;
+    targetMajorTileFraction: number;
+  }>
+>;
 
 export const HYDROLOGY_REFINE_RIVER_CORRIDOR_LOWLAND_ADJACENCY_BONUS_BASE = 14 as const;
 export const HYDROLOGY_REFINE_RIVER_CORRIDOR_HIGHLAND_ADJACENCY_BONUS_BASE = 10 as const;

@@ -8,6 +8,7 @@ import {
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -60,6 +61,11 @@ class RiverCacheRefreshAdapter extends MockAdapter {
 
 describe("map-rivers/plot-rivers", () => {
   it("stamps MapGen-projected navigable rivers and refreshes downstream caches", () => {
+    expect(mapRiversArtifacts.projectedNavigableRivers.id).toBe(
+      "artifact:map.rivers.projectedNavigableRivers"
+    );
+    expect(mapRiversArtifacts.engineProjectionRivers.id).toBe("artifact:map.rivers.engineProjectionRivers");
+
     const width = 5;
     const height = 4;
     const seed = 9876;
@@ -92,8 +98,14 @@ describe("map-rivers/plot-rivers", () => {
     for (let x = 0; x < width; x++) {
       const index = x;
       discharge[index] = x + 1;
-      riverClass[index] = 1;
+      riverClass[index] = RIVER_CLASS_MAJOR;
       flowDir[index] = x < width - 1 ? x + 1 : -1;
+    }
+    for (let x = 0; x < width; x++) {
+      const index = width + x;
+      discharge[index] = 100 + x;
+      riverClass[index] = RIVER_CLASS_MINOR;
+      flowDir[index] = x < width - 1 ? width + x + 1 : -1;
     }
 
     context.artifacts.set("artifact:hydrology.hydrography", {
@@ -117,14 +129,41 @@ describe("map-rivers/plot-rivers", () => {
     ]);
     expect(adapter.getTerrainType(0, 0)).toBe(NAVIGABLE_RIVER_TERRAIN);
     expect(adapter.getTerrainType(4, 0)).toBe(NAVIGABLE_RIVER_TERRAIN);
+    expect(adapter.getTerrainType(0, 1)).toBe(FLAT_TERRAIN);
 
     const projected = context.artifacts.get(mapRiversArtifacts.projectedNavigableRivers.id) as
-      | { riverMask?: Uint8Array }
+      | {
+          riverMask?: Uint8Array;
+          plannedMinorRiverMask?: Uint8Array;
+          plannedMajorRiverMask?: Uint8Array;
+          plannedMinorRiverTileCount?: number;
+          plannedMajorRiverTileCount?: number;
+        }
       | undefined;
     const readback = context.artifacts.get(mapRiversArtifacts.engineProjectionRivers.id) as
-      | { riverMask?: Uint8Array }
+      | {
+          riverMask?: Uint8Array;
+          engineRiverType?: Int32Array;
+          engineNavigableRiverMask?: Uint8Array;
+          engineMinorRiverTileCount?: number;
+          terrainNavigableRiverTileCount?: number;
+          minorRiverStampingSupported?: boolean;
+          minorRiverUnsupportedReason?: string;
+        }
       | undefined;
     expect(projected?.riverMask?.[0]).toBe(1);
+    expect(projected?.riverMask?.[width]).toBe(0);
+    expect(projected?.plannedMajorRiverMask?.[0]).toBe(1);
+    expect(projected?.plannedMinorRiverMask?.[width]).toBe(1);
+    expect(projected?.plannedMajorRiverTileCount).toBe(5);
+    expect(projected?.plannedMinorRiverTileCount).toBe(5);
     expect(readback?.riverMask?.[0]).toBe(1);
+    expect(readback?.riverMask?.[width]).toBe(0);
+    expect(readback?.engineNavigableRiverMask?.[0]).toBe(1);
+    expect(readback?.engineRiverType?.[0]).toBeGreaterThan(0);
+    expect(readback?.terrainNavigableRiverTileCount).toBe(5);
+    expect(readback?.engineMinorRiverTileCount).toBe(0);
+    expect(readback?.minorRiverStampingSupported).toBe(false);
+    expect(readback?.minorRiverUnsupportedReason).toContain("minor river");
   });
 });

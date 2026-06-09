@@ -3,6 +3,7 @@ import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
 import { Value } from "typebox/value";
 
+import { NO_RIVER_TYPE } from "../../civ7-map-policy/src/index.js";
 import {
   Civ7MapGridInputSchema,
   Civ7MapGridResultSchema,
@@ -177,7 +178,7 @@ describe("map and visibility reads", () => {
         timeoutMs: 1_000,
       });
       const plot = await getCiv7PlotSnapshot(
-        { x: 3, y: 4, playerId: 0, fields: ["terrain", "resource", "visibility"] },
+        { x: 3, y: 4, playerId: 0, fields: ["terrain", "resource", "hydrology", "visibility"] },
         { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
@@ -190,6 +191,11 @@ describe("map and visibility reads", () => {
         facts: {
           terrain: { ok: true, value: 4 },
           resource: { ok: true, value: -1 },
+          riverType: { ok: true, value: NO_RIVER_TYPE },
+          river: { ok: true, value: false },
+          navigableRiver: { ok: true, value: false },
+          water: { ok: true, value: false },
+          lake: { ok: true, value: false },
         },
       });
     } finally {
@@ -486,6 +492,11 @@ function plotSnapshotPayload() {
     facts: {
       terrain: { ok: true, value: 4 },
       resource: { ok: true, value: -1 },
+      riverType: { ok: true, value: NO_RIVER_TYPE },
+      river: { ok: true, value: false },
+      navigableRiver: { ok: true, value: false },
+      water: { ok: true, value: false },
+      lake: { ok: true, value: false },
       revealedState: { ok: true, value: 1 },
       visible: { ok: true, value: true },
     },

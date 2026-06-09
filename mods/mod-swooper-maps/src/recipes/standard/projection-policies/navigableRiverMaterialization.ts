@@ -1,9 +1,15 @@
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 
+import { isMajorRiverClass, isMinorRiverClass } from "../../../domain/hydrology/river-class.js";
+
 export type NavigableRiverMaterializationResult = Readonly<{
   riverMask: Uint8Array;
+  plannedMinorRiverMask: Uint8Array;
+  plannedMajorRiverMask: Uint8Array;
   selectedTileCount: number;
   eligibleTileCount: number;
+  plannedMinorRiverTileCount: number;
+  plannedMajorRiverTileCount: number;
   candidateEndpointCount: number;
   selectedChainCount: number;
   targetTileCount: number;
@@ -41,11 +47,26 @@ export function materializeNavigableRiverMask(params: {
     Math.min(projectableLandCount, projectableLandCount > 0 ? Math.max(minLength, rawTargetTileCount) : 0)
   );
 
+  const plannedMinorRiverMask = new Uint8Array(size);
+  const plannedMajorRiverMask = new Uint8Array(size);
+  let plannedMinorRiverTileCount = 0;
+  let plannedMajorRiverTileCount = 0;
+  for (let i = 0; i < size; i++) {
+    const riverClass = params.riverClass[i] ?? 0;
+    if (isMinorRiverClass(riverClass)) {
+      plannedMinorRiverMask[i] = 1;
+      plannedMinorRiverTileCount += 1;
+    } else if (isMajorRiverClass(riverClass)) {
+      plannedMajorRiverMask[i] = 1;
+      plannedMajorRiverTileCount += 1;
+    }
+  }
+
   const eligible = new Uint8Array(size);
   let eligibleTileCount = 0;
   for (let i = 0; i < size; i++) {
     if (params.projectableLandMask[i] !== 1) continue;
-    if ((params.riverClass[i] ?? 0) <= 0) continue;
+    if (!isMajorRiverClass(params.riverClass[i])) continue;
     eligible[i] = 1;
     eligibleTileCount += 1;
   }
@@ -53,8 +74,12 @@ export function materializeNavigableRiverMask(params: {
   if (targetTileCount === 0 || eligibleTileCount === 0) {
     return {
       riverMask: new Uint8Array(size),
+      plannedMinorRiverMask,
+      plannedMajorRiverMask,
       selectedTileCount: 0,
       eligibleTileCount,
+      plannedMinorRiverTileCount,
+      plannedMajorRiverTileCount,
       candidateEndpointCount: 0,
       selectedChainCount: 0,
       targetTileCount,
@@ -129,8 +154,12 @@ export function materializeNavigableRiverMask(params: {
 
   return {
     riverMask,
+    plannedMinorRiverMask,
+    plannedMajorRiverMask,
     selectedTileCount,
     eligibleTileCount,
+    plannedMinorRiverTileCount,
+    plannedMajorRiverTileCount,
     candidateEndpointCount: endpoints.length,
     selectedChainCount,
     targetTileCount,

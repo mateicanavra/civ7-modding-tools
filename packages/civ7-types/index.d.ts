@@ -1,3 +1,5 @@
+/// <reference path="./generated/river-types.gen.d.ts" />
+
 /**
  * @civ7/types - TypeScript definitions for Civilization VII modding runtime
  *

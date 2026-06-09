@@ -68,7 +68,7 @@ export const realismEarthlikeConfig = {
   "hydrology-climate-refine": {
     knobs: { dryness: "dry", temperature: "temperate", cryosphere: "on" },
   },
-  "map-rivers": { knobs: { riverDensity: "normal" } },
+  "map-rivers": { knobs: { navigableRiverDensity: "normal" } },
 };
 ```
 

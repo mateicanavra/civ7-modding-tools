@@ -1,4 +1,9 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import {
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_MINOR,
+  RIVER_CLASS_NONE,
+} from "../../../river-class.js";
 import ProjectRiverNetworkContract from "../contract.js";
 import { clamp01 } from "../rules/index.js";
 
@@ -48,7 +53,12 @@ export const defaultStrategy = createStrategy(ProjectRiverNetworkContract, "defa
       if (input.landMask[i] !== 1) continue;
       const d = input.discharge[i] ?? 0;
       if (d <= 0) continue;
-      riverClass[i] = d >= majorThreshold ? 2 : d >= minorThreshold ? 1 : 0;
+      riverClass[i] =
+        d >= majorThreshold
+          ? RIVER_CLASS_MAJOR
+          : d >= minorThreshold
+            ? RIVER_CLASS_MINOR
+            : RIVER_CLASS_NONE;
     }
 
     return { riverClass, minorThreshold, majorThreshold } as const;

@@ -1,5 +1,74 @@
 # Parity Verification And Runtime Proof
 
+## 2026-06-09 River Metadata Readback Probe
+
+- Branch/worktree:
+  `codex/mapgen-physical-rivers` in
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`.
+- Proof class: direct-control/CLI live readback capability only; not
+  same-run Studio/Civ parity and not minor-river authoring proof.
+- Build prerequisite:
+  `bun run --cwd packages/civ7-direct-control build` so the CLI package export
+  sees the source update.
+- Health command:
+  `bun packages/cli/bin/run.js game health --json`.
+- Health result:
+  tuner ready at `127.0.0.1:4318` with `App UI` and `Tuner` scripting states.
+- Probe command:
+  `bun packages/cli/bin/run.js game map --plot 0,0 --fields terrain,hydrology --json`.
+- Probe result:
+  plot `(0,0)` returned `terrain=3`, `riverType=-1`, `river=false`,
+  `navigableRiver=false`, `water=true`, and `lake=false`.
+- Interpretation:
+  direct-control `hydrology` facts now expose Civ river metadata booleans needed
+  for later parity comparison between projected navigable terrain, raw
+  `TERRAIN_NAVIGABLE_RIVER`, and engine river metadata.
+
+## 2026-06-09 River Parity Verifier Readiness
+
+- Branch/worktree:
+  `codex/mapgen-physical-rivers` in
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`.
+- Proof class: verifier/local test readiness only; not same-run Studio/Civ
+  parity completion and not minor-river authoring proof.
+- Source change:
+  `verify-final-surface-parity` now requests direct-control `hydrology` fields
+  in its full-grid live readback, and `live-parity.ts` reports river metadata as
+  a separate proof class.
+- River surfaces:
+  local planned minor mask, local planned major mask, local projected navigable
+  terrain, live raw `TERRAIN_NAVIGABLE_RIVER`, live `getRiverType`, live
+  `isRiver`, live `isNavigableRiver`, and live minor-river metadata counts.
+- Focused verification:
+  `bun run --cwd mods/mod-swooper-maps test -- test/diagnostics/live-parity.test.ts`
+  and the consolidated river-focused suite passed on 2026-06-09.
+- Read-path smoke:
+  `bun scripts/civ7-direct-control/verify-final-surface-parity.ts --proof-file /tmp/civ7-recovery-proof/final-surface-parity/studio-run-in-game-mq20rbzr-1fhc.json --timeout-ms 120000 --max-plots-per-read 512 --output /tmp/civ7-recovery-proof/final-surface-parity/river-metadata-smoke-2026-06-09.json`
+  completed and exited `2`, which is expected because the archived proof seed
+  differs from the current live session. The output still proves the read path:
+  `riverMetadataParity.missingLiveReadback=0`, planned minor `326`, planned
+  major `228`, projected navigable terrain `14`, live raw navigable-river
+  terrain `68`, and live Civ metadata counts `river=0`, `navigableRiver=0`,
+  `minorRiver=0`.
+- Same-run river proof:
+  `studio-run-in-game-mq6c38rf-n2p` completed through Studio Run in Game on
+  2026-06-09 with exact authorship, then
+  `bun scripts/civ7-direct-control/verify-final-surface-parity.ts --studio-url http://127.0.0.1:5175 --request-id studio-run-in-game-mq6c38rf-n2p --timeout-ms 120000 --max-plots-per-read 512 --output /tmp/civ7-river-parity/studio-run-in-game-mq6c38rf-n2p-final-surface.json`
+  exited `2` because non-river surface classes still drift. The proof hash was
+  `72a521da3e6bc410a44da551f7fc20304a4eec7ea3114b4b55d91d468f283293`. The
+  river proof class was terrain-exact: planned minor `212`, planned major
+  `149`, projected navigable terrain `6`, live `TERRAIN_NAVIGABLE_RIVER`
+  terrain `6`, projected-vs-live terrain mismatches `0`, and live Civ metadata
+  counts `river=0`, `navigableRiver=0`, `minorRiver=0`. The verifier records
+  this as `terrain-match-metadata-divergent`, not failed terrain stamping.
+- Minor-river writer probe:
+  `bun scripts/civ7-direct-control/probe-river-writer.ts --confirm-disposable-session --read-full-grid --timeout-ms 120000 --max-plots-per-read 512 --output /tmp/civ7-river-writer/mutation-mq6c38rf.json`
+  ran against the same disposable session. `TerrainBuilder.setRiverValidationValues()`
+  returned `undefined`, but full-grid river metadata counts were unchanged:
+  `terrainNavigableRiver=6`, `river=0`, `navigableRiver=0`, `minorRiver=0`,
+  `noRiver=4536`. This rejects that discovered hook as a stable authoring
+  surface for minor-river metadata.
+
 ## 2026-06-06 Final-Surface Parity Command Path
 
 - Branch/worktree:
@@ -15,6 +84,10 @@
   `getCiv7FullMapGrid()` chunks full-grid `GameplayMap` reads through the
   package-owned `getCiv7MapGrid()` wrapper and records bounds, chunk count,
   omitted plots, hidden-info policy, map dimensions, turn, and game hash.
+- River metadata readback:
+  the command now requests `hydrology` plot facts and the proof model emits
+  `riverMetadataParity` separately from hard final-surface terrain/biome/feature/
+  resource equality.
 - Exact-authorship binding:
   the command rejects incomplete exact-authorship packets before live proof,
   including hash-only source snapshots without the visible Studio source body

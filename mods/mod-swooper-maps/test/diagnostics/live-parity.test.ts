@@ -1,7 +1,13 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  NO_RIVER_TYPE,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
+} from "@civ7/map-policy";
+import {
   buildFinalSurfaceParityProof,
+  createFinalSurfaceParityMapInfo,
   hashParityValue,
   validateExactAuthorshipProofPacket,
   type ExactAuthorshipProofLike,
@@ -17,6 +23,14 @@ const fileIdentity = {
   mtimeMs: 1,
   mtimeIso: "2026-06-06T00:00:00.000Z",
 } as const;
+
+test("local final-surface replay uses Civ runtime latitude orientation", () => {
+  const { latitudeBounds, mapInfo } = createFinalSurfaceParityMapInfo(84, 54);
+
+  expect(mapInfo.MinLatitude).toBe(-90);
+  expect(mapInfo.MaxLatitude).toBe(90);
+  expect(latitudeBounds).toEqual({ topLatitude: 90, bottomLatitude: -90 });
+});
 
 function exactProof(overrides: Partial<ExactAuthorshipProofLike> = {}): ExactAuthorshipProofLike {
   return {
@@ -83,6 +97,12 @@ function snapshot(args: {
   gameHash?: number;
   omitted?: number;
   localTerrain?: ReadonlyArray<number | null>;
+  riverMetadata?: FinalSurfaceSnapshot["riverMetadata"];
+  lakeReadback?: {
+    acceptedLakeTileCount: number;
+    finalLakeWaterDriftCount: number;
+    finalLakeClassificationDriftCount: number;
+  };
   resourceCoordinateProof?: boolean;
   resourceRejectionContext?: boolean;
   naturalWonderPlan?: "matching" | "diverged";
@@ -194,6 +214,13 @@ function snapshot(args: {
           },
         }
       : {}),
+    ...(args.lakeReadback
+      ? {
+          terrainProjection: {
+            placementSurfacePreparation: args.lakeReadback,
+          },
+        }
+      : {}),
   };
   return {
     source: args.source,
@@ -208,6 +235,7 @@ function snapshot(args: {
       feature: { width, height, values: args.feature ?? [5, 6] },
       resource: { width, height, values: [7, 8] },
     },
+    ...(args.riverMetadata === undefined ? {} : { riverMetadata: args.riverMetadata }),
     evidence: args.source === "live-civ7"
       ? {
           runtime: { turn: 1, gameHash: args.gameHash ?? 99, width, height, seed: 1234, plotCount: 2 },
@@ -225,7 +253,90 @@ function snapshot(args: {
   };
 }
 
+function riverMetadata(args: {
+  projected?: ReadonlyArray<number | null>;
+  terrain?: ReadonlyArray<number | null>;
+  riverType?: ReadonlyArray<number | null>;
+  river?: ReadonlyArray<number | null>;
+  navigable?: ReadonlyArray<number | null>;
+  minor?: ReadonlyArray<number | null>;
+  minorRiverStampingSupported?: boolean;
+  minorRiverUnsupportedReason?: string;
+}): FinalSurfaceSnapshot["riverMetadata"] {
+  const width = 2;
+  const height = 1;
+  const grid = (values: ReadonlyArray<number | null> | undefined) =>
+    values === undefined ? undefined : { width, height, values };
+  return {
+    width,
+    height,
+    ...(grid(args.projected) === undefined ? {} : { projectedNavigableTerrain: grid(args.projected) }),
+    ...(grid(args.terrain) === undefined ? {} : { terrainNavigableRiver: grid(args.terrain) }),
+    ...(grid(args.riverType) === undefined ? {} : { riverType: grid(args.riverType) }),
+    ...(grid(args.river) === undefined ? {} : { river: grid(args.river) }),
+    ...(grid(args.navigable) === undefined ? {} : { navigableRiver: grid(args.navigable) }),
+    ...(grid(args.minor) === undefined ? {} : { minorRiver: grid(args.minor) }),
+    ...(args.minorRiverStampingSupported === undefined
+      ? {}
+      : { minorRiverStampingSupported: args.minorRiverStampingSupported }),
+    ...(args.minorRiverUnsupportedReason === undefined
+      ? {}
+      : { minorRiverUnsupportedReason: args.minorRiverUnsupportedReason }),
+  };
+}
+
 describe("final-surface parity proof", () => {
+  test("reports river metadata parity with planned minor and major masks separated", () => {
+    const localRiverMetadata: FinalSurfaceSnapshot["riverMetadata"] = {
+      width: 2,
+      height: 1,
+      plannedMinorRiver: { width: 2, height: 1, values: [1, 0] },
+      plannedMajorRiver: { width: 2, height: 1, values: [0, 1] },
+      projectedNavigableTerrain: { width: 2, height: 1, values: [0, 1] },
+      minorRiverStampingSupported: false,
+      minorRiverUnsupportedReason: "minor metadata writer unproven",
+    };
+    const liveRiverMetadata: FinalSurfaceSnapshot["riverMetadata"] = {
+      width: 2,
+      height: 1,
+      terrainNavigableRiver: { width: 2, height: 1, values: [0, 1] },
+      riverType: {
+        width: 2,
+        height: 1,
+        values: [RIVER_TYPE_MINOR, RIVER_TYPE_NAVIGABLE],
+      },
+      river: { width: 2, height: 1, values: [1, 1] },
+      navigableRiver: { width: 2, height: 1, values: [0, 1] },
+      minorRiver: { width: 2, height: 1, values: [1, 0] },
+    };
+
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof(),
+      local: snapshot({
+        source: "local-mapgen",
+        resourceCoordinateProof: true,
+        riverMetadata: localRiverMetadata,
+      }),
+      live: snapshot({ source: "live-civ7", riverMetadata: liveRiverMetadata }),
+      now: () => new Date("2026-06-06T00:00:00.000Z"),
+    });
+
+    expect(proof.status).toBe("complete");
+    expect(proof.riverMetadataParity).toMatchObject({
+      status: "match",
+      plannedMinorRiverTileCount: 1,
+      plannedMajorRiverTileCount: 1,
+      projectedNavigableTerrainTileCount: 1,
+      liveTerrainNavigableRiverTileCount: 1,
+      liveRiverTileCount: 2,
+      liveNavigableRiverTileCount: 1,
+      liveMinorRiverTileCount: 1,
+      minorRiverStampingSupported: false,
+      minorRiverUnsupportedReason: "minor metadata writer unproven",
+    });
+    expect(proof.unresolvedLinks).toEqual([]);
+  });
+
   test("marks a fully bound matching grid complete", () => {
     const proof = buildFinalSurfaceParityProof({
       exactAuthorship: exactProof(),
@@ -251,6 +362,77 @@ describe("final-surface parity proof", () => {
     expect(proof.diffs.every((diff) => diff.status === "match")).toBe(true);
   });
 
+  test("reports local final lake readback even when exact authorship lacks lake counters", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof(),
+      local: snapshot({
+        source: "local-mapgen",
+        resourceCoordinateProof: true,
+        lakeReadback: {
+          acceptedLakeTileCount: 63,
+          finalLakeWaterDriftCount: 0,
+          finalLakeClassificationDriftCount: 0,
+        },
+      }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.status).toBe("complete");
+    expect(proof.lakeReadbackParity).toEqual({
+      status: "missing-exact-log",
+      local: {
+        acceptedLakeTileCount: 63,
+        finalLakeWaterDriftCount: 0,
+        finalLakeClassificationDriftCount: 0,
+      },
+      mismatchedFields: [],
+    });
+    expect(proof.unresolvedLinks).toEqual([]);
+  });
+
+  test("blocks parity when exact and local lake readback counters diverge", () => {
+    const baseExact = exactProof();
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof({
+        log: {
+          ...baseExact.log,
+          placementSurfacePreparation: {
+            acceptedLakeTileCount: 63,
+            finalLakeWaterDriftCount: 1,
+            finalLakeClassificationDriftCount: 0,
+          },
+        },
+      }),
+      local: snapshot({
+        source: "local-mapgen",
+        resourceCoordinateProof: true,
+        lakeReadback: {
+          acceptedLakeTileCount: 63,
+          finalLakeWaterDriftCount: 0,
+          finalLakeClassificationDriftCount: 0,
+        },
+      }),
+      live: snapshot({ source: "live-civ7" }),
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.lakeReadbackParity).toEqual({
+      status: "mismatch",
+      local: {
+        acceptedLakeTileCount: 63,
+        finalLakeWaterDriftCount: 0,
+        finalLakeClassificationDriftCount: 0,
+      },
+      exact: {
+        acceptedLakeTileCount: 63,
+        finalLakeWaterDriftCount: 1,
+        finalLakeClassificationDriftCount: 0,
+      },
+      mismatchedFields: ["finalLakeWaterDriftCount"],
+    });
+    expect(proof.unresolvedLinks).toContain("lake-readback.mismatch");
+  });
+
   test("keeps parity unresolved when local resource coordinate proof lacks matching exact log evidence", () => {
     const proof = buildFinalSurfaceParityProof({
       exactAuthorship: exactProof({
@@ -272,6 +454,93 @@ describe("final-surface parity proof", () => {
       mismatchedLinks: ["resource-placement-coordinate-proof.log"],
     });
     expect(proof.unresolvedLinks).toContain("resource-placement-coordinate-proof.log");
+  });
+
+  test("reports river terrain and metadata parity as a separate proof class", () => {
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof(),
+      local: snapshot({
+        source: "local-mapgen",
+        resourceCoordinateProof: true,
+        riverMetadata: riverMetadata({
+          projected: [1, 0],
+          minorRiverStampingSupported: false,
+          minorRiverUnsupportedReason: "minor metadata readback-only",
+        }),
+      }),
+      live: snapshot({
+        source: "live-civ7",
+        riverMetadata: riverMetadata({
+          terrain: [1, 0],
+          riverType: [NO_RIVER_TYPE, NO_RIVER_TYPE],
+          river: [0, 0],
+          navigable: [0, 0],
+          minor: [0, 0],
+        }),
+      }),
+    });
+
+    expect(proof.status).toBe("complete");
+    expect(proof.riverMetadataParity).toMatchObject({
+      status: "terrain-match-metadata-divergent",
+      compared: 2,
+      projectedNavigableTerrainTileCount: 1,
+      liveTerrainNavigableRiverTileCount: 1,
+      liveRiverTileCount: 0,
+      liveNavigableRiverTileCount: 0,
+      liveMinorRiverTileCount: 0,
+      projectedVsLiveTerrainMismatchCount: 0,
+      projectedVsLiveMetadataMismatchCount: 1,
+      liveTerrainVsMetadataMismatchCount: 1,
+      minorRiverStampingSupported: false,
+      minorRiverUnsupportedReason: "minor metadata readback-only",
+    });
+    expect(proof.unresolvedLinks).not.toContain("river-metadata.mismatch");
+    expect(proof.residuals.find((residual) => residual.key === "rivers")).toMatchObject({
+      status: "covered-by-terrain-grid",
+    });
+  });
+
+  test("blocks river metadata parity when local and live grids have different dimensions", () => {
+    const liveRiverMetadata: FinalSurfaceSnapshot["riverMetadata"] = {
+      width: 3,
+      height: 1,
+      terrainNavigableRiver: { width: 3, height: 1, values: [1, 0, 1] },
+      riverType: {
+        width: 3,
+        height: 1,
+        values: [NO_RIVER_TYPE, NO_RIVER_TYPE, NO_RIVER_TYPE],
+      },
+      river: { width: 3, height: 1, values: [0, 0, 0] },
+      navigableRiver: { width: 3, height: 1, values: [0, 0, 0] },
+      minorRiver: { width: 3, height: 1, values: [0, 0, 0] },
+    };
+
+    const proof = buildFinalSurfaceParityProof({
+      exactAuthorship: exactProof(),
+      local: snapshot({
+        source: "local-mapgen",
+        resourceCoordinateProof: true,
+        riverMetadata: riverMetadata({
+          projected: [1, 0],
+          minorRiverStampingSupported: false,
+        }),
+      }),
+      live: snapshot({ source: "live-civ7", riverMetadata: liveRiverMetadata }),
+    });
+
+    expect(proof.status).toBe("unresolved");
+    expect(proof.riverMetadataParity).toMatchObject({
+      status: "dimension-mismatch",
+      compared: 0,
+      projectedNavigableTerrainTileCount: 1,
+      liveTerrainNavigableRiverTileCount: 2,
+      projectedVsLiveTerrainMismatchCount: 0,
+      minorRiverStampingSupported: false,
+    });
+    expect(proof.unresolvedLinks).toContain("river-metadata.dimensions");
+    expect(proof.unresolvedLinks).toContain("river-metadata.minor-unsupported-reason");
+    expect(proof.unresolvedLinks).not.toContain("river-metadata.mismatch");
   });
 
   test("keeps parity unresolved when resource coordinate proof hash differs", () => {

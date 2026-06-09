@@ -490,6 +490,24 @@
         }
       }
     },
+    "map-morphology": {
+      "knobs": {}
+    },
+    "map-hydrology": {
+      "knobs": {}
+    },
+    "map-elevation": {
+      "knobs": {}
+    },
+    "map-rivers": {
+      "knobs": {
+        "riverDensity": "normal"
+      },
+      "riverProjection": {
+        "minLength": 5,
+        "maxLength": 15
+      }
+    },
     "ecology-features": {
       "knobs": {},
       "substrateScoring": {
@@ -668,24 +686,6 @@
         }
       }
     },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-hydrology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
-    },
-    "map-rivers": {
-      "knobs": {
-        "riverDensity": "normal"
-      },
-      "riverProjection": {
-        "minLength": 5,
-        "maxLength": 15
-      }
-    },
     "map-ecology": {
       "knobs": {},
       "biomeBindings": {
@@ -701,6 +701,7 @@
       }
     },
     "placement": {
+      "knobs": {},
       "naturalWonders": {
         "minSpacingTiles": 6
       },
@@ -731,8 +732,7 @@
         "climateExtremePenaltyWeight": 1.5,
         "largeLandmassWeight": 1,
         "roughnessPenaltyWeight": 0.6
-      },
-      "knobs": {}
+      }
     }
   }
 }

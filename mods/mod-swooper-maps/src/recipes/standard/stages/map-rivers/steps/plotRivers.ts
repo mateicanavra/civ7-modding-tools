@@ -8,10 +8,13 @@ import {
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampInt } from "@swooper/mapgen-core/lib/math";
 import PlotRiversStepContract from "./plotRivers.contract.js";
-import { HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS } from "@mapgen/domain/hydrology/config.js";
-import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
 import { mapRiversArtifacts } from "../artifacts.js";
 import { materializeNavigableRiverMask } from "../../../projection-policies/navigableRiverMaterialization.js";
+import {
+  NAVIGABLE_RIVER_DENSITY_LENGTH_BOUNDS,
+  type NavigableRiverDensityKnobs,
+  resolveNavigableRiverDensityKnob,
+} from "../riverProjectionKnobs.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -30,11 +33,9 @@ export default createStep(PlotRiversStepContract, {
     }
   ),
   normalize: (config, ctx) => {
-    const { riverDensity = "normal" as HydrologyRiverDensityKnob } = ctx.knobs as {
-      riverDensity?: HydrologyRiverDensityKnob;
-    };
-    const normalBounds = HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS.normal;
-    const bounds = HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS[riverDensity];
+    const density = resolveNavigableRiverDensityKnob(ctx.knobs as NavigableRiverDensityKnobs);
+    const normalBounds = NAVIGABLE_RIVER_DENSITY_LENGTH_BOUNDS.normal;
+    const bounds = NAVIGABLE_RIVER_DENSITY_LENGTH_BOUNDS[density];
     const minLengthDelta = bounds.minLength - normalBounds.minLength;
     const maxLengthDelta = bounds.maxLength - normalBounds.maxLength;
 
@@ -143,8 +144,12 @@ export default createStep(PlotRiversStepContract, {
       width,
       height,
       riverMask: materialized.riverMask,
+      plannedMinorRiverMask: materialized.plannedMinorRiverMask,
+      plannedMajorRiverMask: materialized.plannedMajorRiverMask,
       selectedTileCount: materialized.selectedTileCount,
       eligibleTileCount: materialized.eligibleTileCount,
+      plannedMinorRiverTileCount: materialized.plannedMinorRiverTileCount,
+      plannedMajorRiverTileCount: materialized.plannedMajorRiverTileCount,
       candidateEndpointCount: materialized.candidateEndpointCount,
       selectedChainCount: materialized.selectedChainCount,
       targetTileCount: materialized.targetTileCount,
@@ -160,6 +165,8 @@ export default createStep(PlotRiversStepContract, {
       selectedChainCount: materialized.selectedChainCount,
       candidateEndpointCount: materialized.candidateEndpointCount,
       eligibleTileCount: materialized.eligibleTileCount,
+      plannedMinorRiverTileCount: materialized.plannedMinorRiverTileCount,
+      plannedMajorRiverTileCount: materialized.plannedMajorRiverTileCount,
       minLength: materialized.minLength,
       maxLength: materialized.maxLength,
     }));
@@ -183,24 +190,15 @@ export default createStep(PlotRiversStepContract, {
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
     if (engine) {
+      const riverReadback = context.adapter.readRiverProjection(
+        width,
+        height,
+        materialized.riverMask
+      );
       const lakeMask = new Uint8Array(size);
-      const riverMask = new Uint8Array(size);
-      const riverMismatchMask = new Uint8Array(size);
-      let riverMismatchCount = 0;
-      let selectedRiverRejectedCount = 0;
-      let extraEngineRiverCount = 0;
       for (let i = 0; i < size; i++) {
-        const terrain = engine.terrain[i] ?? 0;
-        const isRiver = terrain === NAVIGABLE_RIVER_TERRAIN;
         const isWater = (engine.landMask[i] ?? 1) === 0;
-        if (isRiver) riverMask[i] = 1;
         if (isWater) lakeMask[i] = 1;
-        if ((materialized.riverMask[i] ?? 0) !== (isRiver ? 1 : 0)) {
-          riverMismatchMask[i] = 1;
-          riverMismatchCount += 1;
-          if ((materialized.riverMask[i] ?? 0) === 1) selectedRiverRejectedCount += 1;
-          else extraEngineRiverCount += 1;
-        }
       }
 
       const sinkMismatchCount = lakeMask.reduce((acc, _v, idx) => {
@@ -212,11 +210,23 @@ export default createStep(PlotRiversStepContract, {
         width,
         height,
         lakeMask,
-        riverMask,
+        riverMask: riverReadback.terrainNavigableRiverMask,
+        engineRiverType: riverReadback.engineRiverType,
+        engineIsRiverMask: riverReadback.engineIsRiverMask,
+        engineNavigableRiverMask: riverReadback.engineNavigableRiverMask,
+        engineMinorRiverMask: riverReadback.engineMinorRiverMask,
+        terrainNavigableRiverMask: riverReadback.terrainNavigableRiverMask,
+        rejectedNavigableRiverMask: riverReadback.rejectedNavigableRiverMask,
         sinkMismatchCount,
-        riverMismatchCount,
-        selectedRiverRejectedCount,
-        extraEngineRiverCount,
+        riverMismatchCount: riverReadback.navigableRiverMismatchTileCount,
+        selectedRiverRejectedCount: riverReadback.rejectedNavigableRiverTileCount,
+        extraEngineRiverCount: riverReadback.extraNavigableRiverTileCount,
+        engineRiverTileCount: riverReadback.engineRiverTileCount,
+        engineNavigableRiverTileCount: riverReadback.engineNavigableRiverTileCount,
+        engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
+        terrainNavigableRiverTileCount: riverReadback.terrainNavigableRiverTileCount,
+        minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
+        minorRiverUnsupportedReason: riverReadback.minorRiverUnsupportedReason,
       });
 
       deps.artifacts.riversEngineTerrainSnapshot.publish(context, {
@@ -230,10 +240,16 @@ export default createStep(PlotRiversStepContract, {
 
       context.trace.event(() => ({
         type: "map.rivers.parity",
-        riverMismatchCount,
-        selectedRiverRejectedCount,
-        extraEngineRiverCount,
-        riverMismatchShare: Number((riverMismatchCount / Math.max(1, width * height)).toFixed(4)),
+        riverMismatchCount: riverReadback.navigableRiverMismatchTileCount,
+        selectedRiverRejectedCount: riverReadback.rejectedNavigableRiverTileCount,
+        extraEngineRiverCount: riverReadback.extraNavigableRiverTileCount,
+        engineRiverTileCount: riverReadback.engineRiverTileCount,
+        engineNavigableRiverTileCount: riverReadback.engineNavigableRiverTileCount,
+        engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
+        minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
+        riverMismatchShare: Number(
+          (riverReadback.navigableRiverMismatchTileCount / Math.max(1, width * height)).toFixed(4)
+        ),
       }));
 
       context.viz?.dumpGrid(context.trace, {
@@ -250,15 +266,55 @@ export default createStep(PlotRiversStepContract, {
         }),
       });
       context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.rivers.plannedMinorRiverMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: materialized.plannedMinorRiverMask,
+        meta: defineVizMeta("map.rivers.plannedMinorRiverMask", {
+          label: "Minor River Mask (Hydrology Intent)",
+          group: GROUP_MAP_RIVERS,
+          palette: "categorical",
+          role: "physics",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.rivers.plannedMajorRiverMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: materialized.plannedMajorRiverMask,
+        meta: defineVizMeta("map.rivers.plannedMajorRiverMask", {
+          label: "Major River Mask (Hydrology Intent)",
+          group: GROUP_MAP_RIVERS,
+          palette: "categorical",
+          role: "physics",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.rivers.engineRiverMask",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: riverMask,
+        values: riverReadback.terrainNavigableRiverMask,
         meta: defineVizMeta("map.rivers.engineRiverMask", {
-          label: "Navigable River Mask (Engine)",
+          label: "Navigable River Terrain (Engine)",
           group: GROUP_MAP_RIVERS,
           palette: "categorical",
+          role: "engine",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.rivers.engineNavigableRiverMetadataMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: riverReadback.engineNavigableRiverMask,
+        meta: defineVizMeta("map.rivers.engineNavigableRiverMetadataMask", {
+          label: "Navigable River Metadata (Engine)",
+          group: GROUP_MAP_RIVERS,
+          palette: "categorical",
+          visibility: "debug",
           role: "engine",
         }),
       });
@@ -267,12 +323,26 @@ export default createStep(PlotRiversStepContract, {
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: riverMismatchMask,
+        values: riverReadback.navigableRiverMismatchMask,
         meta: defineVizMeta("map.rivers.riverMismatchMask", {
           label: "River Mismatch Mask",
           group: GROUP_MAP_RIVERS,
           palette: "categorical",
           visibility: "debug",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.rivers.engineMinorRiverMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: riverReadback.engineMinorRiverMask,
+        meta: defineVizMeta("map.rivers.engineMinorRiverMask", {
+          label: "Minor River Mask (Engine Readback)",
+          group: GROUP_MAP_RIVERS,
+          palette: "categorical",
+          visibility: "debug",
+          role: "engine",
         }),
       });
 

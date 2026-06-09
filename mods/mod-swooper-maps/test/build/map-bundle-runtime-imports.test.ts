@@ -4,10 +4,25 @@ import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "..", "..");
 const mapOutputDir = join(repoRoot, "mod", "maps");
+const modInfoPath = join(repoRoot, "mod", "swooper-maps.modinfo");
 const bareWorkspaceImportPattern =
   /\b(?:import|export)\s+(?:[^"']*?\s+from\s+)?["'](@(?:swooper|civ7|mateicanavra)\/[^"']+)["']/g;
 
+function listedModMapFiles(): string[] {
+  const modInfo = readFileSync(modInfoPath, "utf8");
+  return Array.from(modInfo.matchAll(/<Item>maps\/([^<]+\.js)<\/Item>/g), (match) => match[1]!)
+    .sort();
+}
+
 describe("built map runtime imports", () => {
+  test("builds every map script registered in the Civ7 mod manifest", () => {
+    const mapFiles = readdirSync(mapOutputDir)
+      .filter((entry) => entry.endsWith(".js"))
+      .sort();
+
+    expect(mapFiles).toEqual(expect.arrayContaining(listedModMapFiles()));
+  });
+
   /**
    * Civ7's MapGeneration loader can resolve engine virtual imports such as
    * `/base-standard/...`, but it cannot resolve monorepo package specifiers. These guards

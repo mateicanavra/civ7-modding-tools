@@ -93,7 +93,9 @@ Stage-level posture:
 - Projection `map-*` stages expose semantic projection/materialization controls
   and compile empty runtime steps, readback, and fixed defaults internally.
   `map-hydrology` stamps static lake water before `map-elevation` builds engine
-  elevation; `map-rivers` models rivers after elevation is finalized.
+  elevation; `map-rivers` projects the Civ-visible navigable river terrain
+  subset from Hydrology river truth after elevation is finalized and records
+  engine readback separately.
 - Mountain/foothill strategy config belongs to
   `morphology-features.mountains`. The `map-morphology.plot-mountains` step is
   projection-only and rejects truth-planning knobs/config.

@@ -73,7 +73,17 @@ describe("standard pipeline viz emissions", () => {
       "morphology.mountains.mountainMask",
       "hydrology.climate.rainfall",
       "hydrology.hydrography.discharge",
+      "map.hydrology.lakes.plannedLakeMask",
+      "map.hydrology.lakes.engineLakeMask",
+      "map.hydrology.lakes.rejectedLakeMask",
       "map.rivers.riverClass",
+      "map.rivers.projectedRiverMask",
+      "map.rivers.plannedMinorRiverMask",
+      "map.rivers.plannedMajorRiverMask",
+      "map.rivers.engineRiverMask",
+      "map.rivers.engineNavigableRiverMetadataMask",
+      "map.rivers.riverMismatchMask",
+      "map.rivers.engineMinorRiverMask",
       "ecology.pedology.soilType",
       "ecology.pedology.fertility",
       "ecology.biome.biomeIndex",
@@ -230,6 +240,15 @@ describe("standard pipeline viz emissions", () => {
     const albedoMetas = metasByKey.get("hydrology.cryosphere.albedo") as any[] | undefined;
     expect(albedoMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
+    const plannedLakeMetas = metasByKey.get("map.hydrology.lakes.plannedLakeMask") as any[] | undefined;
+    expect(plannedLakeMetas?.some((m) => m?.role === "physics" && m?.visibility === "default")).toBe(true);
+
+    const engineLakeMetas = metasByKey.get("map.hydrology.lakes.engineLakeMask") as any[] | undefined;
+    expect(engineLakeMetas?.some((m) => m?.role === "engine" && m?.visibility === "default")).toBe(true);
+
+    const rejectedLakeMetas = metasByKey.get("map.hydrology.lakes.rejectedLakeMask") as any[] | undefined;
+    expect(rejectedLakeMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
     const permafrostMetas = metasByKey.get("ecology.biome.permafrost01") as any[] | undefined;
     expect(permafrostMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
@@ -308,5 +327,26 @@ describe("standard pipeline viz emissions", () => {
 
     const waterClassMetas = metasByKey.get("map.morphology.coasts.waterClass") as any[] | undefined;
     expect(waterClassMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);
+
+    const projectedRiverMetas = metasByKey.get("map.rivers.projectedRiverMask") as any[] | undefined;
+    expect(projectedRiverMetas?.some((m) => m?.visibility === "default" && m?.role === "engine")).toBe(true);
+
+    const minorRiverIntentMetas = metasByKey.get("map.rivers.plannedMinorRiverMask") as any[] | undefined;
+    expect(minorRiverIntentMetas?.some((m) => m?.visibility === "default" && m?.role === "physics")).toBe(true);
+
+    const majorRiverIntentMetas = metasByKey.get("map.rivers.plannedMajorRiverMask") as any[] | undefined;
+    expect(majorRiverIntentMetas?.some((m) => m?.visibility === "default" && m?.role === "physics")).toBe(true);
+
+    const engineRiverMetas = metasByKey.get("map.rivers.engineRiverMask") as any[] | undefined;
+    expect(engineRiverMetas?.some((m) => m?.visibility === "default" && m?.role === "engine")).toBe(true);
+
+    const engineNavigableMetadataMetas = metasByKey.get("map.rivers.engineNavigableRiverMetadataMask") as any[] | undefined;
+    expect(engineNavigableMetadataMetas?.some((m) => m?.visibility === "debug" && m?.role === "engine")).toBe(true);
+
+    const riverMismatchMetas = metasByKey.get("map.rivers.riverMismatchMask") as any[] | undefined;
+    expect(riverMismatchMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const engineMinorRiverMetas = metasByKey.get("map.rivers.engineMinorRiverMask") as any[] | undefined;
+    expect(engineMinorRiverMetas?.some((m) => m?.visibility === "debug" && m?.role === "engine")).toBe(true);
   });
 });

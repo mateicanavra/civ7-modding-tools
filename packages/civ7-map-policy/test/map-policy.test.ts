@@ -5,8 +5,13 @@ import { join } from "node:path";
 import {
   CIV7_BROWSER_TABLES_V0,
   CIV7_COAST_CLASSIFICATION_POLICY_V0,
+  CIV7_RIVER_TYPE_METADATA_SOURCE,
+  CIV7_RIVER_TYPES_V0,
   NATURAL_WONDER_CATALOG,
+  NO_RIVER_TYPE,
   RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
+  RIVER_TYPE_MINOR,
+  RIVER_TYPE_NAVIGABLE,
   WATER_CLASS_COAST,
   WATER_CLASS_OCEAN,
   applyCiv7CoastClassificationPolicy,
@@ -15,6 +20,7 @@ import {
   resolveNaturalWonderMaterializationDirection,
   resolveNaturalWonderPlacementDirection,
 } from "../src/index.js";
+import { CIV7_BROWSER_TABLES_V0 as STUDIO_CIV7_BROWSER_TABLES_V0 } from "../../../apps/mapgen-studio/src/civ7-data/civ7-tables.gen.js";
 
 function listSourceFiles(dir: string): string[] {
   const entries = readdirSync(dir);
@@ -61,6 +67,46 @@ describe("@civ7/map-policy", () => {
     expect(CIV7_BROWSER_TABLES_V0.source).toContain("Base/modules/base-standard/maps/map-globals.js");
     expect(CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_BERMUDA_TRIANGLE).toBe(0);
     expect(CIV7_BROWSER_TABLES_V0.resourceTypes.RESOURCE_PITCH).toBe(54);
+    expect(CIV7_BROWSER_TABLES_V0.riverTypes.values.RIVER_MINOR).toBe(0);
+  });
+
+  it("owns live-observed Civ7 river type metadata values", () => {
+    expect(CIV7_BROWSER_TABLES_V0.riverTypes).toEqual(CIV7_RIVER_TYPE_METADATA_SOURCE);
+    expect(CIV7_RIVER_TYPES_V0).toBe(CIV7_BROWSER_TABLES_V0.riverTypes);
+    expect(CIV7_RIVER_TYPES_V0.values).toEqual({
+      NO_RIVER: -1,
+      RIVER_MINOR: 0,
+      RIVER_NAVIGABLE: 1,
+    });
+    expect(NO_RIVER_TYPE).toBe(-1);
+    expect(RIVER_TYPE_MINOR).toBe(0);
+    expect(RIVER_TYPE_NAVIGABLE).toBe(1);
+    expect(CIV7_RIVER_TYPES_V0.source).toContain("live-direct-control:2026-06-09:RiverTypes");
+    expect(CIV7_RIVER_TYPES_V0.source).toContain("Base/modules/base-standard/data/unit-movement.xml");
+    expect(CIV7_RIVER_TYPES_V0.source).toContain(
+      "Base/modules/base-standard/ui-next/tooltips/plot-tooltip/helpers.js"
+    );
+  });
+
+  it("keeps generated map-policy and Studio river metadata catalogs in sync", () => {
+    expect(CIV7_BROWSER_TABLES_V0.riverTypes).toEqual(CIV7_RIVER_TYPE_METADATA_SOURCE);
+    expect(STUDIO_CIV7_BROWSER_TABLES_V0.riverTypes).toEqual(
+      CIV7_RIVER_TYPE_METADATA_SOURCE
+    );
+  });
+
+  it("keeps ambient Civ7 runtime RiverTypes declarations generated from the same source", () => {
+    const dts = readFileSync(
+      join(import.meta.dir, "../../civ7-types/generated/river-types.gen.d.ts"),
+      "utf8"
+    );
+
+    for (const source of CIV7_RIVER_TYPE_METADATA_SOURCE.source) {
+      expect(dts).toContain(source);
+    }
+    for (const [key, value] of Object.entries(CIV7_RIVER_TYPE_METADATA_SOURCE.values)) {
+      expect(dts).toContain(`readonly ${key}: ${value};`);
+    }
   });
 
   it("classifies coast buffers with the policy-owned odd-q projection", () => {

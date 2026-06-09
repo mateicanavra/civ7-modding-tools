@@ -69,8 +69,11 @@
 - Coverage ledger: `parity-corpus-ledger.md`.
 - Open uncertainty:
   - exact hidden behavior of `TerrainBuilder.buildElevation()`,
-    `TerrainBuilder.modelRivers()`, `TerrainBuilder.validateAndFixTerrain()`,
-    `AreaBuilder.recalculateAreas()`, and `ResourceBuilder.canHaveResource()`;
+    `TerrainBuilder.modelRivers()`, `TerrainBuilder.setRiverValidationValues`,
+    `TerrainBuilder.validateAndFixTerrain()`, `AreaBuilder.recalculateAreas()`,
+    and `ResourceBuilder.canHaveResource()`;
+  - whether `TerrainBuilder.setRiverValidationValues` can author or validate
+    explicit river metadata, or only configures the engine generator/validator;
   - whether those behaviors can be faithfully ported from official JS resources
     or should be eliminated as generators by making pipeline truth final.
 

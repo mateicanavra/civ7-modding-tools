@@ -29,6 +29,28 @@ function expectCompileError(fn: () => void): RecipeCompileError {
   throw new Error("Expected RecipeCompileError");
 }
 
+describe("standard recipe compile errors (map-rivers)", () => {
+  it("rejects conflicting map-rivers legacy and current density knobs", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "map-rivers": {
+          knobs: { riverDensity: "dense", navigableRiverDensity: "sparse" },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "stage.compile.failed" &&
+          item.path === "/config/map-rivers" &&
+          item.message.includes("legacy alias")
+      )
+    ).toBe(true);
+  });
+});
+
 describe("standard recipe compile errors (ecology)", () => {
   it("flags unknown stage public keys", () => {
     const err = expectCompileError(() =>

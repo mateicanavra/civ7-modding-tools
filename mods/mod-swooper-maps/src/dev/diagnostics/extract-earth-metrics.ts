@@ -1,4 +1,5 @@
 import { biomeSymbolFromIndex } from "../../domain/ecology/types.js";
+import { isAnyRiverClass } from "../../domain/hydrology/index.js";
 
 export type EarthMetricsInput = {
   width: number;
@@ -50,7 +51,7 @@ export function computeEarthMetrics(input: EarthMetricsInput): EarthMetrics {
   for (let i = 0; i < size; i++) {
     if ((input.landMask[i] ?? 0) === 1) landTiles += 1;
     if ((input.lakeMask?.[i] ?? 0) === 1) lakeTiles += 1;
-    if ((input.riverClass?.[i] ?? 0) > 0) riverTiles += 1;
+    if (isAnyRiverClass(input.riverClass?.[i])) riverTiles += 1;
     if (input.biomeIndex && (input.landMask[i] ?? 0) === 1) {
       const symbol = biomeSymbolFromIndex(input.biomeIndex[i] ?? 0);
       biomeCounts.set(symbol, (biomeCounts.get(symbol) ?? 0) + 1);

@@ -4,5 +4,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["*.d.ts"]
+  "include": ["*.d.ts", "generated/**/*.d.ts"]
 }

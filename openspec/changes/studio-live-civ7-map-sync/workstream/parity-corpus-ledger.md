@@ -7,7 +7,7 @@
 | 3 | elevation/land mask | materialization target | `map-elevation/buildElevation.ts`, `engine-heightfield.ts` | runtime projection evidence | adapter elevation and land/water after `TerrainBuilder.buildElevation()` | elevation-water | post-build drift recorded as nonfatal evidence | exact engine elevation model may be hidden | pre/post elevation snapshots plus live readback and drift attribution |
 | 4 | coasts/shelves | materialization target | `map-morphology/plotCoasts.ts`, official `expandCoasts` | local truth plus runtime projection | coast/ocean terrain classification | terrain-water | local sets coasts directly and intentionally avoids engine expansion | live validation may still coerce ocean/coast near poles/lakes/rivers | classify mismatches against shelf/coast/lake masks and engine validation calls |
 | 5 | lakes | materialization target | hydrology lakes plus map-hydrology projection | local truth plus runtime projection | static lake water tiles | hydrology | expected land includes accepted lakes | engine water storage/area recalculation may alter adjacency state | lake mask vs live terrain and area water readback |
-| 6 | rivers | action surface | `map-rivers/plotRivers.ts`, `Civ7Adapter.modelRivers`, `MockAdapter.modelRivers` | runtime generator currently | navigable river terrain and river metadata | hydrology | live and mock differ categorically | hidden `TerrainBuilder.modelRivers()` can generate final terrain not predicted locally | compare hydrology river class, mock river mask, live terrain, and live river metadata |
+| 6 | rivers | materialization target plus metadata readback | `map-rivers/plotRivers.ts`, `Civ7Adapter.readRiverProjection`, `MockAdapter.readRiverProjection` | local projection plus runtime readback | planned minor river intent, planned major river intent, projected navigable river terrain, raw `TERRAIN_NAVIGABLE_RIVER`, Civ river metadata | hydrology | adapter now separates planned minor/major intent, projected terrain, terrain-row readback, any-river metadata, navigable metadata, and minor metadata | direct terrain stamping can create `TERRAIN_NAVIGABLE_RIVER` without `GameplayMap.isRiver`; `TerrainBuilder.setRiverValidationValues` exists but was rejected by disposable proof because metadata readback was unchanged | compare hydrology river class, planned minor/major masks, projected navigable mask, live terrain row, live `getRiverType`, live `isRiver`, live `isNavigableRiver`, and minor unsupported status |
 | 7 | areas/continents | action surface | `plotContinents`, `recalculateAreas`, `storeWaterData` | runtime projection | area ids, continent assignment, water data | topology | projected in pipeline | engine recalculation hidden details may affect legality/starts | live area/continent readback where available and downstream mismatch attribution |
 | 8 | biomes | materialization target | `map-ecology/plotBiomes.ts`, placement final snapshot | local truth projected to runtime | biome id per tile | ecology | measured 0/4536 mismatch for Standard seed 2147483647 | needs repeat over fresh bounded run | full-grid biome readback across stable seeds |
 | 9 | features | materialization target | `features-apply`, `canHaveFeature`, official terrain data validity | mixed local/runtime | feature id per tile | ecology | live rejects some planned features; mock accepts by default unless injected | exact `TerrainBuilder.canHaveFeature` legality may include hidden terrain/river/adjacency state | per-feature attempted/applied/rejected telemetry plus live readback |
@@ -21,7 +21,7 @@
 - Total rows: 13
 - Modeled rows: 13
 - Blocked or not applicable: 0 known
-- Proxy rows: rows 3, 6, 7, 9, and 10 currently proxy hidden engine logic in
+- Proxy rows: rows 3, 7, 9, and 10 currently proxy hidden engine logic in
   local Studio/mock execution.
 - Missing rows: none at the corpus level; several rows need stronger readback
   coverage before implementation closure.
@@ -51,3 +51,11 @@
   are observed as live/local legality, placement, or footprint deltas and
   routed to `earthlike-live-feature-resource-legality-repair` for
   source-authority classification before repair.
+- 2026-06-09 river readback update: `earthlike-visible-river-acceptance`
+  classified rivers as separate proof classes. Civ runtime reports
+  `RiverTypes.NO_RIVER=-1`, `RIVER_MINOR=0`, and `RIVER_NAVIGABLE=1`; a sampled
+  live map had `TERRAIN_NAVIGABLE_RIVER` tiles with zero `GameplayMap.isRiver` /
+  `isNavigableRiver` tiles. Studio parity must therefore compare projected
+  navigable terrain, raw terrain row, and Civ river metadata independently.
+  The direct-control `hydrology` field now includes `riverType`, `river`, and
+  `navigableRiver` runtime facts for that comparison.

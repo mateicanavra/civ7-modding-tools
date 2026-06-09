@@ -8,6 +8,8 @@ import {
   type CanonicalMapConfigEnvelope,
 } from "../../src/maps/configs/canonical";
 
+import mountainPatchConfig from "../../src/maps/configs/mountain-patch.config.json";
+import mountainRiversPatchConfig from "../../src/maps/configs/mountain-rivers-patch.config.json";
 import shatteredRingConfig from "../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
@@ -25,6 +27,17 @@ const shippedMapConfigs = [
   ["swooper-desert-mountains.config.json", swooperDesertMountainsConfig],
   ["swooper-earthlike.config.json", swooperEarthlikeConfig],
 ] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
+
+const mapCatalogConfigs = [
+  ...shippedMapConfigs,
+  ["mountain-patch.config.json", mountainPatchConfig],
+  ["mountain-rivers-patch.config.json", mountainRiversPatchConfig],
+] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
+
+const MAP_RIVERS_LEGACY_DENSITY_ALIAS_ALLOWLIST = new Set([
+  "mountain-patch.config.json",
+  "swooper-earthlike.config.json",
+]);
 
 const FOUNDATION_PUBLIC_KEYS = [
   "knobs",
@@ -436,6 +449,50 @@ describe("Shipped map configs", () => {
         stages: STANDARD_STAGES,
       });
       expect(validated.id).toBe(fileName.replace(/\.config\.json$/, ""));
+    }
+  });
+
+  it("keeps mountain-rivers-patch as a visible-river projection comparison config", () => {
+    const normalizeComparison = (raw: CanonicalMapConfigEnvelope) => {
+      const copy = JSON.parse(JSON.stringify(raw)) as Record<string, any>;
+      delete copy.id;
+      delete copy.name;
+      delete copy.description;
+      delete copy.sortIndex;
+      delete copy.config?.["map-rivers"]?.knobs?.riverDensity;
+      delete copy.config?.["map-rivers"]?.knobs?.navigableRiverDensity;
+      return stable(copy);
+    };
+
+    expect(mountainPatchConfig.id).toBe("mountain-patch");
+    expect(mountainRiversPatchConfig.id).toBe("mountain-rivers-patch");
+    expect((mountainPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBe("normal");
+    expect((mountainRiversPatchConfig.config as any)["map-rivers"].knobs.riverDensity).toBeUndefined();
+    expect((mountainRiversPatchConfig.config as any)["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
+    expect(normalizeComparison(mountainRiversPatchConfig)).toEqual(
+      normalizeComparison(mountainPatchConfig)
+    );
+  });
+
+  it("keeps the map-rivers riverDensity alias limited to proof-bound configs", () => {
+    for (const [fileName, raw] of mapCatalogConfigs) {
+      const mapRiversKnobs = (raw.config as any)["map-rivers"]?.knobs ?? {};
+      const usesLegacyAlias = Object.prototype.hasOwnProperty.call(mapRiversKnobs, "riverDensity");
+      const usesCurrentKnob = Object.prototype.hasOwnProperty.call(
+        mapRiversKnobs,
+        "navigableRiverDensity"
+      );
+
+      if (MAP_RIVERS_LEGACY_DENSITY_ALIAS_ALLOWLIST.has(fileName)) {
+        expect(usesLegacyAlias, `${fileName} is proof-bound to the legacy alias`).toBe(true);
+        expect(usesCurrentKnob, `${fileName} must not mix legacy and current density knobs`).toBe(
+          false
+        );
+      } else {
+        expect(usesLegacyAlias, `${fileName} must use navigableRiverDensity or no density knob`).toBe(
+          false
+        );
+      }
     }
   });
 

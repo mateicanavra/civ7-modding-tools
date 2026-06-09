@@ -105,6 +105,27 @@ function scenarioResourceHabitatFidelityMin(label: string): number {
   return scenario?.resourceHabitatFidelityMin ?? 0.9;
 }
 
+const FLOODPLAIN_FEATURE_KEYS = [
+  "FEATURE_DESERT_FLOODPLAIN_MINOR",
+  "FEATURE_DESERT_FLOODPLAIN_NAVIGABLE",
+  "FEATURE_GRASSLAND_FLOODPLAIN_MINOR",
+  "FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE",
+  "FEATURE_PLAINS_FLOODPLAIN_MINOR",
+  "FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE",
+  "FEATURE_TROPICAL_FLOODPLAIN_MINOR",
+  "FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE",
+  "FEATURE_TUNDRA_FLOODPLAIN_MINOR",
+  "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
+] as const;
+
+function floodplainAttemptCount(stats: WorldBalanceStats): number {
+  let total = 0;
+  for (const feature of FLOODPLAIN_FEATURE_KEYS) {
+    total += stats.featureAttemptCounts[feature] ?? 0;
+  }
+  return total;
+}
+
 function expectResourceDiagnostics(stats: WorldBalanceStats): void {
   expect(stats.resourcePlannedCount, `${stats.label} resource plans`).toBeGreaterThan(0);
   // Plan-authority cutover (S3): demand rows are corpus-typed; ranges hold or
@@ -307,5 +328,21 @@ describe("world balance stats", () => {
     expect(presentIn("FEATURE_TAIGA"), "taiga seed presence").toBe(seeds.length);
     expect(presentIn("FEATURE_SAVANNA_WOODLAND"), "savanna seed presence").toBeGreaterThanOrEqual(6);
     expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(6);
+  });
+
+  it("keeps a floodplain-producing Earthlike acceptance seed available", { timeout: 15_000 }, () => {
+    const stats = collectWorldBalanceStats({
+      label: "swooper-earthlike:floodplain-acceptance",
+      config: recipeConfig(swooperEarthlikeConfigRaw),
+      seed: 1018,
+      width: 84,
+      height: 54,
+    });
+
+    expect(floodplainAttemptCount(stats), "floodplain-family attempts").toBeGreaterThanOrEqual(8);
+    for (const feature of FLOODPLAIN_FEATURE_KEYS) {
+      expect(stats.featureRejectCounts[feature] ?? 0, `${feature} soft rejections`).toBe(0);
+    }
+    expect(stats.invalidFeatureSurfaceCount, "invalid feature surface").toBe(0);
   });
 });

@@ -1,15 +1,21 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
-import { HydrologyRiverDensityKnobSchema } from "@mapgen/domain/hydrology/config.js";
 import { MapRiversPublicSchema } from "../map-projection-public-config.js";
 import { plotRivers } from "./steps/index.js";
+import {
+  NavigableRiverDensityKnobSchema,
+  type NavigableRiverDensityKnobs,
+  resolveNavigableRiverDensityKnob,
+} from "./riverProjectionKnobs.js";
 
 const knobsSchema = Type.Object(
   {
-    riverDensity: Type.Optional(HydrologyRiverDensityKnobSchema),
+    navigableRiverDensity: Type.Optional(NavigableRiverDensityKnobSchema),
+    riverDensity: Type.Optional(NavigableRiverDensityKnobSchema),
   },
   {
+    additionalProperties: false,
     description:
-      "Map-rivers knobs. These tune MapGen-owned navigable river projection after elevation is finalized.",
+      "Map-rivers knobs. Use navigableRiverDensity for MapGen-owned Civ-visible river projection after elevation is finalized. riverDensity is accepted as a legacy alias.",
   }
 );
 
@@ -25,8 +31,11 @@ export default createStage({
   id: "map-rivers",
   knobsSchema,
   public: MapRiversPublicSchema,
-  compile: ({ config }: { config: { riverProjection?: unknown } }) => ({
-    "plot-rivers": config.riverProjection,
-  }),
+  compile: ({ config, knobs }: { config: { riverProjection?: unknown }; knobs: unknown }) => {
+    resolveNavigableRiverDensityKnob(knobs as NavigableRiverDensityKnobs);
+    return {
+      "plot-rivers": config.riverProjection,
+    };
+  },
   steps: [plotRivers],
 } as const);

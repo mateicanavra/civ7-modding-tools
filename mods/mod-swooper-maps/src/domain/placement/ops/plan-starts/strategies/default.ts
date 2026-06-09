@@ -6,6 +6,11 @@ import {
   hexDistanceOddQPeriodicX,
 } from "@swooper/mapgen-core/lib/grid";
 
+import {
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_NONE,
+  isAnyRiverClass,
+} from "../../../../hydrology/index.js";
 import PlanStartsContract from "../contract.js";
 import {
   climateComfortAt,
@@ -197,12 +202,14 @@ function freshwaterScore(args: {
   riverClass?: Uint8Array;
   lakeMask?: Uint8Array;
 }): number {
-  const riverHere = clamp01((args.riverClass?.[args.plotIndex] ?? 0) / 2);
+  const riverHere = clamp01(
+    (args.riverClass?.[args.plotIndex] ?? RIVER_CLASS_NONE) / RIVER_CLASS_MAJOR
+  );
   let adjacentWater = 0;
   const y = (args.plotIndex / args.width) | 0;
   const x = args.plotIndex - y * args.width;
   for (const neighbor of getHexNeighborIndicesOddQ(x, y, args.width, args.height)) {
-    if ((args.riverClass?.[neighbor] ?? 0) > 0) adjacentWater = Math.max(adjacentWater, 0.8);
+    if (isAnyRiverClass(args.riverClass?.[neighbor])) adjacentWater = Math.max(adjacentWater, 0.8);
     if ((args.lakeMask?.[neighbor] ?? 0) === 1) adjacentWater = Math.max(adjacentWater, 0.7);
   }
   return clamp01(Math.max(riverHere, adjacentWater));
