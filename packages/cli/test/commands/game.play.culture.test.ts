@@ -1,8 +1,7 @@
-import { once } from 'node:events';
-import { type AddressInfo, createServer, type Socket } from 'node:net';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayChooseCulture from '../../src/commands/game/play/choose-culture';
 import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-target';
+import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play culture commands', () => {
   test('wraps culture choice as SET_CULTURE_TREE_NODE', async () => {
@@ -261,11 +260,7 @@ describe('game play culture commands', () => {
   });
 });
 
-type CultureTunerServer = {
-  received: string[];
-  address(): AddressInfo;
-  close(): Promise<void>;
-};
+type CultureTunerServer = FakeTunerServer;
 
 type CommandClass = {
   run(args: string[]): Promise<unknown>;
@@ -285,62 +280,34 @@ async function startCultureTunerServer(options: {
   playNotificationMode?: 'culture-choice';
   cultureChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
 } = {}): Promise<CultureTunerServer> {
-  const received: string[] = [];
-  const sockets = new Set<Socket>();
   let cultureChoiceSent = false;
-  const server = createServer((socket) => {
-    sockets.add(socket);
-    socket.on('close', () => sockets.delete(socket));
-    let buffer = Buffer.alloc(0);
-    socket.on('data', (chunk) => {
-      buffer = Buffer.concat([buffer, chunk]);
-      for (;;) {
-        const frame = parseRequest(buffer);
-        if (!frame) return;
-        buffer = buffer.subarray(frame.bytesRead);
-        received.push(frame.message);
-        if (frame.message === 'LSQ:') {
-          socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
-        } else if (frame.message.includes('readPlayNotifications')) {
-          const playMode = options.playNotificationMode === 'culture-choice'
-            && cultureChoiceSent
-            && (options.cultureChoiceMode ?? 'cleared') === 'cleared'
-            ? 'ready-unit'
-            : options.playNotificationMode ?? 'ready-unit';
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(
-            playMode,
-            cultureChoiceSent && options.cultureChoiceMode === 'state-changed',
-          ))]));
-        } else if (frame.message.includes('sendCultureChoiceCloseout')) {
-          cultureChoiceSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
-        } else if (frame.message.includes('return JSON.stringify(validateOperation')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(frame.message))]));
-        } else if (frame.message.includes('return JSON.stringify(sendOperation')) {
-          cultureChoiceSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({ sent: true })]));
-        } else {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(null)]));
-        }
+  return startFakeTunerServer({
+    handle({ message }) {
+      if (message.includes('readPlayNotifications')) {
+        const playMode = options.playNotificationMode === 'culture-choice'
+          && cultureChoiceSent
+          && (options.cultureChoiceMode ?? 'cleared') === 'cleared'
+          ? 'ready-unit'
+          : options.playNotificationMode ?? 'ready-unit';
+        return [JSON.stringify(playNotificationView(
+          playMode,
+          cultureChoiceSent && options.cultureChoiceMode === 'state-changed',
+        ))];
       }
-    });
+      if (message.includes('sendCultureChoiceCloseout')) {
+        cultureChoiceSent = true;
+        return [JSON.stringify(cultureChoiceCloseout())];
+      }
+      if (message.includes('return JSON.stringify(validateOperation')) {
+        return [JSON.stringify(operationValidation(message))];
+      }
+      if (message.includes('return JSON.stringify(sendOperation')) {
+        cultureChoiceSent = true;
+        return [JSON.stringify({ sent: true })];
+      }
+      return undefined;
+    },
   });
-  server.listen(0, '127.0.0.1');
-  await once(server, 'listening');
-  const address = server.address.bind(server);
-  const close = server.close.bind(server);
-  return {
-    received,
-    address(): AddressInfo {
-      return address() as AddressInfo;
-    },
-    async close() {
-      for (const socket of sockets) socket.destroy();
-      await new Promise<void>((resolve, reject) => {
-        close((error) => error ? reject(error) : resolve());
-      });
-    },
-  };
 }
 
 function operationValidation(message: string) {
@@ -548,25 +515,4 @@ function playNotificationView(mode: 'culture-choice' | 'ready-unit', cultureStat
     },
     limits: { maxNotifications: 25, truncated: false },
   };
-}
-
-function parseRequest(buffer: Buffer): { listenerId: number; message: string; bytesRead: number } | null {
-  if (buffer.length < 8) return null;
-  const messageLength = buffer.readUInt32LE(0);
-  const bytesRead = 8 + messageLength;
-  if (buffer.length < bytesRead) return null;
-  return {
-    listenerId: buffer.readUInt32LE(4),
-    message: buffer.subarray(8, bytesRead).toString('utf8').replace(/\0$/, ''),
-    bytesRead,
-  };
-}
-
-function encodeResponse(listenerId: number, values: string[]) {
-  const messageBytes = Buffer.from(`${values.join('\0')}\0`, 'utf8');
-  const frame = Buffer.alloc(8 + messageBytes.length);
-  frame.writeUInt32LE(messageBytes.length, 0);
-  frame.writeUInt32LE(listenerId, 4);
-  messageBytes.copy(frame, 8);
-  return frame;
 }

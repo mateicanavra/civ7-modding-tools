@@ -1,8 +1,7 @@
-import { once } from 'node:events';
-import { type AddressInfo, createServer, type Socket } from 'node:net';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayChooseTech from '../../src/commands/game/play/choose-tech';
 import GamePlaySetTechTarget from '../../src/commands/game/play/set-tech-target';
+import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play technology commands', () => {
   test('wraps technology choice as SET_TECH_TREE_NODE', async () => {
@@ -266,11 +265,7 @@ describe('game play technology commands', () => {
   });
 });
 
-type TechnologyTunerServer = {
-  received: string[];
-  address(): AddressInfo;
-  close(): Promise<void>;
-};
+type TechnologyTunerServer = FakeTunerServer;
 
 type CommandClass = {
   run(args: string[]): Promise<unknown>;
@@ -290,59 +285,30 @@ async function startTechnologyTunerServer(options: {
   playNotificationMode?: 'tech-choice';
   technologyChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
 } = {}): Promise<TechnologyTunerServer> {
-  const received: string[] = [];
-  const sockets = new Set<Socket>();
   let technologyChoiceSent = false;
-  const server = createServer((socket) => {
-    sockets.add(socket);
-    socket.on('close', () => sockets.delete(socket));
-    let buffer = Buffer.alloc(0);
-    socket.on('data', (chunk) => {
-      buffer = Buffer.concat([buffer, chunk]);
-      for (;;) {
-        const frame = parseRequest(buffer);
-        if (!frame) return;
-        buffer = buffer.subarray(frame.bytesRead);
-        received.push(frame.message);
-        if (frame.message === 'LSQ:') {
-          socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
-        } else if (frame.message.includes('readPlayNotifications')) {
-          const playMode = options.playNotificationMode === 'tech-choice'
-            && technologyChoiceSent
-            && (options.technologyChoiceMode ?? 'cleared') === 'cleared'
-            ? 'ready-unit'
-            : options.playNotificationMode ?? 'ready-unit';
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(
-            playMode,
-            technologyChoiceSent && options.technologyChoiceMode === 'state-changed',
-          ))]));
-        } else if (frame.message.includes('sendTechnologyChoiceCloseout')) {
-          technologyChoiceSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(technologyChoiceCloseout())]));
-        } else if (frame.message.includes('return JSON.stringify(validateOperation')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(frame.message))]));
-        } else {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(null)]));
-        }
+  return startFakeTunerServer({
+    handle({ message }) {
+      if (message.includes('readPlayNotifications')) {
+        const playMode = options.playNotificationMode === 'tech-choice'
+          && technologyChoiceSent
+          && (options.technologyChoiceMode ?? 'cleared') === 'cleared'
+          ? 'ready-unit'
+          : options.playNotificationMode ?? 'ready-unit';
+        return [JSON.stringify(playNotificationView(
+          playMode,
+          technologyChoiceSent && options.technologyChoiceMode === 'state-changed',
+        ))];
       }
-    });
+      if (message.includes('sendTechnologyChoiceCloseout')) {
+        technologyChoiceSent = true;
+        return [JSON.stringify(technologyChoiceCloseout())];
+      }
+      if (message.includes('return JSON.stringify(validateOperation')) {
+        return [JSON.stringify(operationValidation(message))];
+      }
+      return undefined;
+    },
   });
-  server.listen(0, '127.0.0.1');
-  await once(server, 'listening');
-  const address = server.address.bind(server);
-  const close = server.close.bind(server);
-  return {
-    received,
-    address(): AddressInfo {
-      return address() as AddressInfo;
-    },
-    async close() {
-      for (const socket of sockets) socket.destroy();
-      await new Promise<void>((resolve, reject) => {
-        close((error) => error ? reject(error) : resolve());
-      });
-    },
-  };
 }
 
 function operationValidation(message: string) {
@@ -549,25 +515,4 @@ function playNotificationView(mode: 'tech-choice' | 'ready-unit', technologyStat
     },
     limits: { maxNotifications: 25, truncated: false },
   };
-}
-
-function parseRequest(buffer: Buffer): { listenerId: number; message: string; bytesRead: number } | null {
-  if (buffer.length < 8) return null;
-  const messageLength = buffer.readUInt32LE(0);
-  const bytesRead = 8 + messageLength;
-  if (buffer.length < bytesRead) return null;
-  return {
-    listenerId: buffer.readUInt32LE(4),
-    message: buffer.subarray(8, bytesRead).toString('utf8').replace(/\0$/, ''),
-    bytesRead,
-  };
-}
-
-function encodeResponse(listenerId: number, values: string[]) {
-  const messageBytes = Buffer.from(`${values.join('\0')}\0`, 'utf8');
-  const frame = Buffer.alloc(8 + messageBytes.length);
-  frame.writeUInt32LE(messageBytes.length, 0);
-  frame.writeUInt32LE(listenerId, 4);
-  messageBytes.copy(frame, 8);
-  return frame;
 }

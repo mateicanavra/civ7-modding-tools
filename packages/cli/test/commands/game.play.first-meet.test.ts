@@ -1,7 +1,6 @@
-import { once } from 'node:events';
-import { type AddressInfo, createServer, type Socket } from 'node:net';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayRespondFirstMeet from '../../src/commands/game/play/respond-first-meet';
+import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play first-meet diplomacy command', () => {
   test('wraps first-meet diplomacy as RESPOND_DIPLOMATIC_FIRST_MEET', async () => {
@@ -126,11 +125,7 @@ describe('game play first-meet diplomacy command', () => {
   });
 });
 
-type FirstMeetTunerServer = {
-  received: string[];
-  address(): AddressInfo;
-  close(): Promise<void>;
-};
+type FirstMeetTunerServer = FakeTunerServer;
 
 type CommandClass = {
   run(args: string[]): Promise<unknown>;
@@ -147,68 +142,40 @@ async function runCommand(command: CommandClass, args: string[]) {
 }
 
 async function startFirstMeetTunerServer(options: { firstMeetMode?: 'cleared' | 'sticky' } = {}): Promise<FirstMeetTunerServer> {
-  const received: string[] = [];
-  const sockets = new Set<Socket>();
   let firstMeetSent = false;
-  const server = createServer((socket) => {
-    sockets.add(socket);
-    socket.on('close', () => sockets.delete(socket));
-    let buffer = Buffer.alloc(0);
-    socket.on('data', (chunk) => {
-      buffer = Buffer.concat([buffer, chunk]);
-      for (;;) {
-        const frame = parseRequest(buffer);
-        if (!frame) return;
-        buffer = buffer.subarray(frame.bytesRead);
-        received.push(frame.message);
-        if (frame.message === 'LSQ:') {
-          socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
-        } else if (frame.message.includes('readPlayNotifications')) {
-          const mode = firstMeetSent && (options.firstMeetMode ?? 'cleared') === 'cleared' ? 'ready-unit' : 'first-meet';
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(firstMeetNotificationView(mode))]));
-        } else if (frame.message.includes('DiplomacyPlayerFirstMeets')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({
-            key: 'PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL',
-            value: 673478009,
-          })]));
-        } else if (frame.message.includes('return JSON.stringify(validateOperation')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({
-            host: '127.0.0.1',
-            port: 0,
-            state: { id: '1', name: 'Tuner', role: 'tuner' },
-            family: 'player-operation',
-            operationType: 'RESPOND_DIPLOMATIC_FIRST_MEET',
-            enumValue: 'RESPOND_DIPLOMATIC_FIRST_MEET',
-            target: { playerId: 0 },
-            args: { Player1: 0, Player2: 2, Type: 673478009 },
-            valid: true,
-            result: { Success: true },
-          })]));
-        } else if (frame.message.includes('return JSON.stringify(sendOperation')) {
-          firstMeetSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({ sent: true })]));
-        } else {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(null)]));
-        }
+  return startFakeTunerServer({
+    handle({ message }) {
+      if (message.includes('readPlayNotifications')) {
+        const mode = firstMeetSent && (options.firstMeetMode ?? 'cleared') === 'cleared' ? 'ready-unit' : 'first-meet';
+        return [JSON.stringify(firstMeetNotificationView(mode))];
       }
-    });
+      if (message.includes('DiplomacyPlayerFirstMeets')) {
+        return [JSON.stringify({
+          key: 'PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL',
+          value: 673478009,
+        })];
+      }
+      if (message.includes('return JSON.stringify(validateOperation')) {
+        return [JSON.stringify({
+          host: '127.0.0.1',
+          port: 0,
+          state: { id: '1', name: 'Tuner', role: 'tuner' },
+          family: 'player-operation',
+          operationType: 'RESPOND_DIPLOMATIC_FIRST_MEET',
+          enumValue: 'RESPOND_DIPLOMATIC_FIRST_MEET',
+          target: { playerId: 0 },
+          args: { Player1: 0, Player2: 2, Type: 673478009 },
+          valid: true,
+          result: { Success: true },
+        })];
+      }
+      if (message.includes('return JSON.stringify(sendOperation')) {
+        firstMeetSent = true;
+        return [JSON.stringify({ sent: true })];
+      }
+      return undefined;
+    },
   });
-  server.listen(0, '127.0.0.1');
-  await once(server, 'listening');
-  const address = server.address.bind(server);
-  const close = server.close.bind(server);
-  return {
-    received,
-    address(): AddressInfo {
-      return address() as AddressInfo;
-    },
-    async close() {
-      for (const socket of sockets) socket.destroy();
-      await new Promise<void>((resolve, reject) => {
-        close((error) => error ? reject(error) : resolve());
-      });
-    },
-  };
 }
 
 function firstMeetNotificationView(mode: 'first-meet' | 'ready-unit') {
@@ -328,32 +295,4 @@ function firstMeetNotificationView(mode: 'first-meet' | 'ready-unit') {
     },
     limits: { maxNotifications: 25, truncated: false },
   };
-}
-
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
-  if (buffer.length < 8) return null;
-  const messageLength = buffer.readUInt32LE(0);
-  const listenerId = buffer.readUInt32LE(4);
-  const end = 8 + messageLength;
-  if (buffer.length < end) return null;
-  return {
-    listenerId,
-    message: buffer.subarray(8, end).toString('utf8').replace(/\0$/, ''),
-    bytesRead: end,
-  };
-}
-
-function encodeResponse(listenerId: number, lines: string[]): Buffer {
-  const payload = Buffer.from(`${lines.join('\0')}\0`, 'utf8');
-  const out = Buffer.alloc(8 + payload.length);
-  out.writeUInt32LE(payload.length, 0);
-  out.writeUInt32LE(listenerId, 4);
-  payload.copy(out, 8);
-  return out;
 }

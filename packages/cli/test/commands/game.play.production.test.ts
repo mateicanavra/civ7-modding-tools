@@ -1,8 +1,7 @@
-import { once } from 'node:events';
-import { type AddressInfo, createServer, type Socket } from 'node:net';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayBuildProduction from '../../src/commands/game/play/build-production';
 import GamePlayBuildUnit from '../../src/commands/game/play/build-unit';
+import { type FakeTunerServer, startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play production commands', () => {
   test('wraps city unit production as BUILD with UnitType', async () => {
@@ -151,69 +150,36 @@ describe('game play production commands', () => {
   });
 });
 
-type ProductionTunerServer = {
-  received: string[];
-  address(): AddressInfo;
-  close(): Promise<void>;
-};
+type ProductionTunerServer = FakeTunerServer;
 
 async function startProductionTunerServer(options: {
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
 } = {}): Promise<ProductionTunerServer> {
-  const received: string[] = [];
-  const sockets = new Set<Socket>();
   let productionChoiceSent = false;
-  const server = createServer((socket) => {
-    sockets.add(socket);
-    socket.on('close', () => sockets.delete(socket));
-    let buffer = Buffer.alloc(0);
-    socket.on('data', (chunk) => {
-      buffer = Buffer.concat([buffer, chunk]);
-      for (;;) {
-        const frame = parseRequest(buffer);
-        if (!frame) return;
-        buffer = buffer.subarray(frame.bytesRead);
-        received.push(frame.message);
-        if (frame.message === 'LSQ:') {
-          socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
-        } else if (frame.message.includes('readProductionChoice')) {
-          const send = frame.message.includes('"send":true');
-          if (send) productionChoiceSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(productionChoicePayload(
-            send,
-            options.productionPostconditionMode ?? 'cleared',
-            productionChoiceSent && !send,
-          ))]));
-        } else if (frame.message.includes('return JSON.stringify(sendOperation')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({
-            sent: true,
-            beforeProductionPostcondition: productionPostconditionSnapshot('before', options.productionPostconditionMode ?? 'cleared'),
-            afterProductionPostcondition: productionPostconditionSnapshot('after', options.productionPostconditionMode ?? 'cleared'),
-          })]));
-        } else if (frame.message.includes('return JSON.stringify(validateOperation')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(frame.message))]));
-        } else {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(null)]));
-        }
+  return startFakeTunerServer({
+    handle({ message }) {
+      if (message.includes('readProductionChoice')) {
+        const send = message.includes('"send":true');
+        if (send) productionChoiceSent = true;
+        return [JSON.stringify(productionChoicePayload(
+          send,
+          options.productionPostconditionMode ?? 'cleared',
+          productionChoiceSent && !send,
+        ))];
       }
-    });
+      if (message.includes('return JSON.stringify(sendOperation')) {
+        return [JSON.stringify({
+          sent: true,
+          beforeProductionPostcondition: productionPostconditionSnapshot('before', options.productionPostconditionMode ?? 'cleared'),
+          afterProductionPostcondition: productionPostconditionSnapshot('after', options.productionPostconditionMode ?? 'cleared'),
+        })];
+      }
+      if (message.includes('return JSON.stringify(validateOperation')) {
+        return [JSON.stringify(operationValidation(message))];
+      }
+      return undefined;
+    },
   });
-  server.listen(0, '127.0.0.1');
-  await once(server, 'listening');
-  const address = server.address.bind(server);
-  const close = server.close.bind(server);
-  return {
-    received,
-    address(): AddressInfo {
-      return address() as AddressInfo;
-    },
-    async close() {
-      for (const socket of sockets) socket.destroy();
-      await new Promise<void>((resolve, reject) => {
-        close((error) => error ? reject(error) : resolve());
-      });
-    },
-  };
 }
 
 function operationValidation(message: string) {
@@ -308,25 +274,4 @@ function productionChoicePayload(
     },
     notes: ['This mirrors the official production chooser path.'],
   };
-}
-
-function parseRequest(buffer: Buffer): { listenerId: number; message: string; bytesRead: number } | null {
-  if (buffer.length < 8) return null;
-  const messageLength = buffer.readUInt32LE(0);
-  const bytesRead = 8 + messageLength;
-  if (buffer.length < bytesRead) return null;
-  return {
-    listenerId: buffer.readUInt32LE(4),
-    message: buffer.subarray(8, bytesRead).toString('utf8').replace(/\0$/, ''),
-    bytesRead,
-  };
-}
-
-function encodeResponse(listenerId: number, values: string[]) {
-  const messageBytes = Buffer.from(`${values.join('\0')}\0`, 'utf8');
-  const frame = Buffer.alloc(8 + messageBytes.length);
-  frame.writeUInt32LE(messageBytes.length, 0);
-  frame.writeUInt32LE(listenerId, 4);
-  messageBytes.copy(frame, 8);
-  return frame;
 }
