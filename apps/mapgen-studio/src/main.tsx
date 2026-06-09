@@ -9,17 +9,25 @@ import "./index.css";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { App } from "./App";
+import { createQueryClient } from "./lib/query";
+
+// One QueryClient for the app lifetime. Created at the module root (not inside a
+// component) so the cache survives re-renders and the dev-only StrictMode skip
+// below cannot duplicate it. Server state reaches components through oRPC-native
+// query utils (`src/lib/orpc.ts`) bound to this client.
+const queryClient = createQueryClient();
+
+const app = (
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+);
 
 // deck.gl/luma currently has a known issue under React StrictMode in dev
 // (double-mount can break device/canvas initialization and crash on resize).
 // Keep StrictMode enabled for prod builds, but disable it during local dev for stability.
-const app = import.meta.env.DEV ? (
-  <App />
-) : (
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+const tree = import.meta.env.DEV ? app : <StrictMode>{app}</StrictMode>;
 
-createRoot(document.getElementById("root")!).render(app);
+createRoot(document.getElementById("root")!).render(tree);

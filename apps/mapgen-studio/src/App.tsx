@@ -70,7 +70,6 @@ import {
 } from "./features/mapConfigSave/status";
 import {
   buildLiveRuntimeErrorState,
-  buildLiveRuntimeSnapshotQuery,
   buildLiveRuntimeSnapshotRequest,
   buildLiveRuntimeSnapshotState,
   buildLiveRuntimeStatusState,
@@ -116,6 +115,9 @@ import {
   type BuiltInPreset,
 } from "./recipes/catalog";
 import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
+
+import { orpcClient } from "./lib/orpc";
+import { useViewStore } from "./stores/viewStore";
 import { isAbortLikeError } from "./shared/async";
 import { clampNumber } from "./shared/number";
 import {
@@ -202,18 +204,35 @@ function AppContent(props: AppContentProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [viewportSize, setViewportSize] = useState({ width: 800, height: 600 });
 
-  const [showGrid, setShowGrid] = useState(true);
-  const [showEdges, setShowEdges] = useState(true);
-  const [overlaySelectionId, setOverlaySelectionId] = useState("");
-  const [overlayOpacity, setOverlayOpacity] = useState(0.45);
-  const [overlayVariantKeyPreference, setOverlayVariantKeyPreference] = useState<string | null>(null);
-  const [eraMode, setEraMode] = useState<"auto" | "fixed">("auto");
-  const [manualEra, setManualEra] = useState(1);
-  const [recipeSectionCollapsed, setRecipeSectionCollapsed] = useState(false);
-  const [configSectionCollapsed, setConfigSectionCollapsed] = useState(false);
-  const [exploreStageExpanded, setExploreStageExpanded] = useState(true);
-  const [exploreStepExpanded, setExploreStepExpanded] = useState(true);
-  const [exploreLayersExpanded, setExploreLayersExpanded] = useState(true);
+  // View-only state is owned by `viewStore` (Zustand, architecture/10 §3). These
+  // are presentation toggles/selections with no server coupling and no persistence
+  // contract; the store is the single owner so this component no longer holds a
+  // `useState` mirror. Field + setter names match the store API, so downstream
+  // usage in this file is unchanged.
+  const showGrid = useViewStore((s) => s.showGrid);
+  const setShowGrid = useViewStore((s) => s.setShowGrid);
+  const showEdges = useViewStore((s) => s.showEdges);
+  const setShowEdges = useViewStore((s) => s.setShowEdges);
+  const overlaySelectionId = useViewStore((s) => s.overlaySelectionId);
+  const setOverlaySelectionId = useViewStore((s) => s.setOverlaySelectionId);
+  const overlayOpacity = useViewStore((s) => s.overlayOpacity);
+  const setOverlayOpacity = useViewStore((s) => s.setOverlayOpacity);
+  const overlayVariantKeyPreference = useViewStore((s) => s.overlayVariantKeyPreference);
+  const setOverlayVariantKeyPreference = useViewStore((s) => s.setOverlayVariantKeyPreference);
+  const eraMode = useViewStore((s) => s.eraMode);
+  const setEraMode = useViewStore((s) => s.setEraMode);
+  const manualEra = useViewStore((s) => s.manualEra);
+  const setManualEra = useViewStore((s) => s.setManualEra);
+  const recipeSectionCollapsed = useViewStore((s) => s.recipeSectionCollapsed);
+  const setRecipeSectionCollapsed = useViewStore((s) => s.setRecipeSectionCollapsed);
+  const configSectionCollapsed = useViewStore((s) => s.configSectionCollapsed);
+  const setConfigSectionCollapsed = useViewStore((s) => s.setConfigSectionCollapsed);
+  const exploreStageExpanded = useViewStore((s) => s.exploreStageExpanded);
+  const setExploreStageExpanded = useViewStore((s) => s.setExploreStageExpanded);
+  const exploreStepExpanded = useViewStore((s) => s.exploreStepExpanded);
+  const setExploreStepExpanded = useViewStore((s) => s.setExploreStepExpanded);
+  const exploreLayersExpanded = useViewStore((s) => s.exploreLayersExpanded);
+  const setExploreLayersExpanded = useViewStore((s) => s.setExploreLayersExpanded);
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const autoRunTimerRef = useRef<number | null>(null);
   const autoRunPendingRef = useRef(false);
@@ -496,10 +515,34 @@ function AppContent(props: AppContentProps) {
       activeLiveSnapshotRequestKeyRef.current = request.key;
 
       try {
-        const res = await fetch(`/api/civ7/live/snapshot?${buildLiveRuntimeSnapshotQuery(request)}`, {
-          signal: snapshotAbortController.signal,
-        });
-        const body = (await res.json().catch(() => null)) as unknown;
+        // EVERYTHING talks oRPC: the snapshot read now goes through the typed
+        // client instead of a manual `fetch`. Parity is preserved exactly — the
+        // live/snapshot procedure returns the 200 body on success and throws an
+        // `ORPCError` (status 400) on a bad request, which maps to the SAME
+        // `{ ok:false, error }` shape the legacy `res.ok ? body : {...}` branch
+        // produced. The request-key staleness gate (`shouldCommitLiveRuntimeSnapshot`)
+        // and the abort plumbing below are untouched.
+        let body: unknown;
+        try {
+          body = await orpcClient.civ7.live.snapshot(
+            {
+              x: request.bounds.x,
+              y: request.bounds.y,
+              width: request.bounds.width,
+              height: request.bounds.height,
+              fields: request.fields.join(","),
+              maxPlots: request.maxPlots,
+              ...(request.playerId === undefined ? {} : { playerId: request.playerId }),
+            },
+            { signal: snapshotAbortController.signal },
+          );
+        } catch (snapshotErr) {
+          if (cancelled || isAbortLikeError(snapshotErr)) throw snapshotErr;
+          body = {
+            ok: false,
+            error: snapshotErr instanceof Error ? snapshotErr.message : "Live snapshot unavailable",
+          };
+        }
         if (cancelled) return;
         if (!shouldCommitLiveRuntimeSnapshot({
           activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
@@ -510,7 +553,10 @@ function AppContent(props: AppContentProps) {
         }
         const snapshotState = buildLiveRuntimeSnapshotState({
           request,
-          body: res.ok ? body : { ok: false, error: isPlainObject(body) ? body.error : `HTTP ${res.status}` },
+          // `body` is already the procedure output (success) or the `{ ok:false,
+          // error }` envelope built from the thrown `ORPCError` above — the legacy
+          // `res.ok ? … : …` discrimination now lives in the try/catch.
+          body,
           observedAtFallback: new Date().toISOString(),
         });
         liveSnapshotFailureCountRef.current = snapshotState.status === "ok" ? 0 : liveSnapshotFailureCountRef.current + 1;
@@ -552,22 +598,35 @@ function AppContent(props: AppContentProps) {
       statusAbortController?.abort();
       statusAbortController = new AbortController();
       try {
-        const [res, readinessResult] = await Promise.all([
-          fetch("/api/civ7/live/status", { signal: statusAbortController.signal }),
-          civ7ControlOrpcClient.readiness.current({}),
-        ]);
-        const body = (await res.json().catch(() => null)) as unknown;
+        // EVERYTHING talks oRPC: the live-status read now goes through the typed
+        // client. Parity preserved exactly — live/status returns 200 (with per-field
+        // embedded `{ error }` via allSettled) on partial failure and only throws an
+        // `ORPCError` (status 500) on an outer defect. That throw maps to the SAME
+        // outer-catch path the legacy `!res.ok` branch hit (rethrown as an `Error`
+        // carrying the message), so the adaptive-backoff failure accounting below is
+        // unchanged.
+        let body: unknown;
+        try {
+          const [liveStatus, readinessResult] = await Promise.all([
+            orpcClient.civ7.live.status({}, { signal: statusAbortController.signal }),
+            civ7ControlOrpcClient.readiness.current({}),
+          ]);
+          body = isPlainObject(liveStatus)
+            ? {
+                ...liveStatus,
+                status: {
+                  ...(isPlainObject(liveStatus.status) ? liveStatus.status : {}),
+                  readiness: readinessResult.readiness,
+                },
+              }
+            : liveStatus;
+        } catch (statusErr) {
+          if (cancelled || isAbortLikeError(statusErr)) throw statusErr;
+          throw new Error(statusErr instanceof Error ? statusErr.message : "Live status unavailable");
+        }
         if (cancelled) return;
-        if (!res.ok || !body) throw new Error(isPlainObject(body) && typeof body.error === "string" ? body.error : `HTTP ${res.status}`);
-        const bodyWithOrpcReadiness = isPlainObject(body)
-          ? {
-              ...body,
-              status: {
-                ...(isPlainObject(body.status) ? body.status : {}),
-                readiness: readinessResult.readiness,
-              },
-            }
-          : body;
+        if (!body) throw new Error("Live status unavailable");
+        const bodyWithOrpcReadiness = body;
 
         const statusState = buildLiveRuntimeStatusState({
           body: bodyWithOrpcReadiness,
@@ -719,8 +778,12 @@ function AppContent(props: AppContentProps) {
     return () => ro.disconnect();
   }, []);
 
-  const [selectedStageId, setSelectedStageId] = useState("");
-  const [selectedStepId, setSelectedStepId] = useState("");
+  // Selected stage/step are part of the view surface — owned by `viewStore`
+  // (single owner; no App-local mirror), per architecture/10 §3.
+  const selectedStageId = useViewStore((s) => s.selectedStageId);
+  const setSelectedStageId = useViewStore((s) => s.setSelectedStageId);
+  const selectedStepId = useViewStore((s) => s.selectedStepId);
+  const setSelectedStepId = useViewStore((s) => s.setSelectedStepId);
 
   const recipeOptions = useMemo(
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
