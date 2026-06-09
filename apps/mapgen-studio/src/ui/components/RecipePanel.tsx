@@ -32,7 +32,12 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose } from
+  DialogClose,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator } from
 '../../components/ui';
 import { OptionSelect } from './OptionSelect';
 import type {
@@ -429,100 +434,58 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               <span>{isRunning ? 'Running…' : 'Run'}</span>
             </Button>
 
-            <div className="relative">
+            {/*
+              Save & Deploy menu — Radix `DropdownMenu` (role=menu/menuitem,
+              Escape, arrow-key roving focus, focus trap + restore for free). The
+              prior hand-rolled overlay is gone; the action set + values are
+              preserved exactly (Save & Deploy → onSaveToCurrent, As… →
+              onSaveAsNew, Export… → onExportPreset, Import… → onImportPreset,
+              Delete Scratch → onDeletePreset gated by `canDeletePreset`). Radix
+              closes on select, so the explicit `setShowSaveMenu(false)` per item
+              is no longer needed; the controlled open state stays so the
+              `saveActionDisabled` effect can still force-close it.
+            */}
+            <DropdownMenu open={showSaveMenu} onOpenChange={setShowSaveMenu}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => {
-                      if (saveActionDisabled) return;
-                      setShowSaveMenu(!showSaveMenu);
-                    }}
-                    disabled={saveActionDisabled}
-                    aria-label="Save & Deploy Config"
-                    aria-haspopup="menu"
-                    aria-expanded={showSaveMenu}
-                    className={`h-8 w-8 ${isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      disabled={saveActionDisabled}
+                      aria-label="Save & Deploy Config"
+                      className={`h-8 w-8 ${isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
 
-                    <Save className="w-4 h-4" aria-hidden="true" />
-                  </Button>
+                      <Save className="w-4 h-4" aria-hidden="true" />
+                    </Button>
+                  </DropdownMenuTrigger>
                 </TooltipTrigger>
                 <TooltipContent>{saveTitle}</TooltipContent>
               </Tooltip>
 
-              {showSaveMenu &&
-              <>
-                  <button
-                  type="button"
-                  className="fixed inset-0 z-40"
-                  aria-label="Close Save Config Menu"
-                  onClick={() => setShowSaveMenu(false)} />
+              <DropdownMenuContent align="end" side="top" className="w-36">
+                <DropdownMenuItem onSelect={() => onSaveToCurrent()}>
+                  Save & Deploy
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onSaveAsNew()}>
+                  Save & Deploy As…
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onExportPreset()}>
+                  Export…
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onImportPreset()}>
+                  Import…
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={!canDeletePreset}
+                  onSelect={() => onDeletePreset()}
+                  className="text-destructive focus:text-destructive">
 
-                  <div
-                  className={`absolute bottom-full right-0 mb-1 w-36 rounded-lg border shadow-lg z-50 ${panelBg} ${panelBorder}`}>
-
-                    <button
-                    type="button"
-                    onClick={() => {
-                      onSaveToCurrent();
-                      setShowSaveMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-data ${textPrimary} ${hoverBg} rounded-t-lg`}>
-
-                      Save & Deploy
-                    </button>
-                    <button
-                    type="button"
-                    onClick={() => {
-                      onSaveAsNew();
-                      setShowSaveMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-data ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
-
-                      Save & Deploy As…
-                    </button>
-                    <button
-                    type="button"
-                    onClick={() => {
-                      onExportPreset();
-                      setShowSaveMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-data ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
-
-                      Export…
-                    </button>
-                    <button
-                    type="button"
-                    onClick={() => {
-                      onImportPreset();
-                      setShowSaveMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-data ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
-
-                      Import…
-                    </button>
-                    {canDeletePreset &&
-                    <button
-                    type="button"
-                    onClick={() => {
-                      onDeletePreset();
-                      setShowSaveMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-data text-destructive ${hoverBg} rounded-b-lg border-t ${borderSubtle}`}>
-
-                        Delete Scratch
-                      </button>
-                    }
-                    {!canDeletePreset &&
-                    <div className={`w-full text-left px-3 py-2 text-data ${textMuted} rounded-b-lg border-t ${borderSubtle}`}>
-                        Delete Scratch
-                      </div>
-                    }
-                  </div>
-                </>
-              }
-            </div>
+                  Delete Scratch
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
