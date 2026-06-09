@@ -664,6 +664,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                   step={0.05}
                   value={overlayOpacity}
                   onChange={(e) => onOverlayOpacityChange(Number(e.target.value))}
+                  aria-label="Overlay opacity"
                   className="w-full accent-primary"
                 />
               </div>
