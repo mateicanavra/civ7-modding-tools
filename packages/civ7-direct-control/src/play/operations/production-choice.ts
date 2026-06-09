@@ -13,6 +13,7 @@ import {
   productionPostconditionFor,
   type Civ7ProductionPostconditionSnapshot,
 } from "./production-postconditions.js";
+import { productionChoiceRequestVerified } from "./production-choice-proof.js";
 import {
   canStartCiv7CityOperation,
   type Civ7OperationRequestResult,
@@ -231,9 +232,7 @@ export async function requestCiv7ProductionChoice(
     payload.beforeProductionPostcondition,
     afterBundle.snapshot,
   );
-  const verified = productionPostcondition?.classification !== "not-sent"
-    && productionPostcondition?.classification !== "no-state-change"
-    && productionPostcondition?.classification !== "production-state-changed-blocker-still-live";
+  const verified = productionChoiceRequestVerified(productionPostcondition?.classification);
   return {
     before,
     command,

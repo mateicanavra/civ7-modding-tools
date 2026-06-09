@@ -8,9 +8,8 @@ import {
   type Civ7OperationTelemetryEvidencePolicy,
   type Civ7OperationTelemetryObservationLink,
   type Civ7OperationTelemetryPlayerScope,
-  type Civ7OperationTelemetryPostcondition,
-  type Civ7OperationTelemetryPostconditionOutcome,
 } from "./operation-telemetry";
+import { unitTargetProofPostcondition } from "./unit-target-proof-policy";
 
 import type {
   Civ7UnitTargetActionInput,
@@ -135,7 +134,7 @@ export function createCiv7UnitTargetActionTelemetryRecord(
           "read-after-send"
         )
       : undefined,
-    postcondition: unitTargetPostcondition(input.result, input.proofBoundary),
+    postcondition: unitTargetProofPostcondition(input.result, input.proofBoundary),
     outcome_delta: input.result.sent
       ? evidence(
           {
@@ -165,62 +164,4 @@ function unitTargetEvidencePolicy(
     pendingProofClasses: input.pendingProofClasses ?? ["pending-runtime-proof"],
     nonProofClaims: input.nonProofClaims ?? ["runtime/live-game proof"],
   };
-}
-
-function unitTargetPostcondition(
-  result: Civ7UnitTargetActionResult,
-  proofBoundary: Civ7OperationProofBoundary | undefined,
-): Civ7OperationTelemetryPostcondition | undefined {
-  if (!result.sent) return undefined;
-  if (proofBoundary === "pending-runtime-proof") {
-    return {
-      classification: result.verification?.classification ?? "pending-runtime-proof",
-      reason: result.verification?.reason ?? "Runtime postcondition proof is pending.",
-      outcome: "unknown",
-      noRepeatAfterUnverified: true,
-      confidence: "pending-runtime-proof",
-    };
-  }
-  if (!result.verification) {
-    return {
-      classification: "missing-postcondition",
-      reason: "The sent unit target action did not include explicit postcondition evidence.",
-      outcome: "unknown",
-      noRepeatAfterUnverified: true,
-      confidence: "unverified",
-    };
-  }
-  if (result.verification.status !== "verified") {
-    return {
-      classification: result.verification.classification,
-      reason: result.verification.reason,
-      outcome: unitTargetOutcome(result.verification.classification),
-      noRepeatAfterUnverified: true,
-      confidence: "unverified",
-    };
-  }
-  return {
-    classification: result.verification.classification,
-    reason: result.verification.reason,
-    outcome: unitTargetOutcome(result.verification.classification),
-    noRepeatAfterUnverified: result.verification.classification === "path-shortfall",
-    confidence: "confirmed",
-  };
-}
-
-function unitTargetOutcome(
-  classification: NonNullable<Civ7UnitTargetActionResult["verification"]>["classification"],
-): Civ7OperationTelemetryPostconditionOutcome {
-  switch (classification) {
-    case "not-sent":
-      return "not-sent";
-    case "no-state-change":
-      return "no-state-change";
-    case "target-reached":
-      return "cleared";
-    case "path-shortfall":
-    case "unit-state-changed":
-    case "target-state-changed":
-      return "state-changed";
-  }
 }

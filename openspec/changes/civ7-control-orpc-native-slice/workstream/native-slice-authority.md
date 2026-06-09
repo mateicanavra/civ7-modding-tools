@@ -182,13 +182,14 @@ test/server-side-client.test.ts
 test/in-process-router.test.ts
 ```
 
-The next source slice should not start another read-only module. It should
-modularize write-capable behavior and proof/policy owners, define the semantic
-hierarchy expected by Sieve/future consumers, or layer a repeated policy through
-native oRPC/effect-orpc primitives. Mutation modules should wait until
-approval, validator-first, and postcondition/no-repeat boundaries are explicit
-and can be composed through native oRPC/effect-orpc rather than custom wrapper
-plumbing.
+The semantic hierarchy seed is now recorded in
+`workstream/semantic-capability-hierarchy.md`. The next source slice should not
+start another read-only module. It should implement a semantic family with
+service-owned composition, modularize write-capable behavior and proof/policy
+owners, or layer a repeated policy through native oRPC/effect-orpc primitives.
+Mutation modules should wait until approval, validator-first, and
+postcondition/no-repeat boundaries are explicit and can be composed through
+native oRPC/effect-orpc rather than custom wrapper plumbing.
 
 ## Older Artifact Classification
 

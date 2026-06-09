@@ -66,8 +66,22 @@ adding more read-only facade shells.
 - [ ] 5.2 Modularize real direct-control behavior first, including
   write-capable operation flows, validators, postcondition classifiers,
   no-repeat/proof owners, and projection boundaries.
+  - [x] 5.2.1 Extract production-choice request/proof classification policy
+    into a direct-control-owned helper while preserving legacy request
+    `verified` behavior and stricter no-repeat proof semantics.
+  - [x] 5.2.2 Extract notification-dismissal proof/no-repeat policy into a
+    proof helper while keeping runtime postcondition classification in
+    direct-control notification postconditions.
+  - [x] 5.2.3 Extract unit-target action proof/no-repeat policy into a proof
+    helper while preserving path-shortfall repeat guarding.
+  - [x] 5.2.4 Extract narrative and diplomacy closeout proof/no-repeat
+    policies into proof helpers while preserving current closeout semantics.
+  - [x] 5.2.5 Extract population-placement proof/no-repeat policy into
+    focused helpers while preserving legacy request `verified` behavior.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
+  - [x] 5.3.1 Define the target semantic capability families and transitional
+    burn-down map for current direct-control-shaped procedure modules.
 - [ ] 5.4 Identify service-owned behavior, runtime ports, policy owners,
   repositories/read ports, and middleware candidates from the modularized code.
 - [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers

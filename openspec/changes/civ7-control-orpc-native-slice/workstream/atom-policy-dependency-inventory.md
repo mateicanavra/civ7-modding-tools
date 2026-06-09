@@ -121,7 +121,7 @@ future package proves repeated use through oRPC/effect-orpc primitives.
 | Approval | `src/action-approval.ts` plus mutation atom inputs carrying `approvalReason` and optional disposable-session intent | oRPC mutation middleware or procedure guard; must not invent approval |
 | Validator-first | `src/play/operations/validate-request.ts`, unit-target/production/notification request owners | oRPC middleware/procedure guard before send when an atom has validator support |
 | Postcondition classification | `src/play/operations/*-postconditions.ts`, `src/play/notifications/postconditions.ts` | Direct-control classifier remains owner; oRPC middleware consumes classification |
-| No-repeat-after-unverified | `src/proof/operation-telemetry.ts` plus specialized telemetry adapters | oRPC mutation proof middleware consumes, never weakens, and never infers repeat safety from `verified` |
+| No-repeat-after-unverified | `src/proof/operation-telemetry.ts` plus specialized proof-policy helpers and telemetry adapters; production choice now starts in `src/play/operations/production-choice-proof.ts`, notification dismissal in `src/proof/notification-dismissal-proof-policy.ts`, unit target action in `src/proof/unit-target-proof-policy.ts`, narrative choice in `src/proof/narrative-choice-proof-policy.ts`, diplomacy response in `src/proof/diplomacy-response-proof-policy.ts`, and population placement in `src/play/operations/population-placement-proof.ts` plus `src/proof/population-placement-proof-policy.ts` | oRPC mutation proof middleware consumes, never weakens, and never infers repeat safety from `verified` |
 | Relationship authority | current tactical `relationshipLabelPolicy` schemas plus the OpenSpec neutral-relationship invariant | Read projection policy or middleware guard; no hostile/enemy/opponent labels from proximity/owner mismatch |
 | Command serialization | `src/runtime/command-serialization.ts` and atom-local `build*Command` functions | Direct-control-only implementation detail; never procedure input/output |
 | Semantic/debug projection | `workstream/semantic-cli-envelope-contract.md`, `debug-service-projection-contract.md`, descriptor `projection` fields | Output projection per consumer class; normal CLI stays semantic |
@@ -198,10 +198,23 @@ context-composer, event bus, or router registry.
 - Direct-control descriptor work grows new framework mechanics instead of
   recording atom metadata and policy facts.
 
+## Semantic Hierarchy Seed
+
+`workstream/semantic-capability-hierarchy.md` defines the target
+Sieve/player-agent capability families: `readiness`, `attention`, `world`,
+`strategy`, `decisions`, `operations`, and `debug`. Current direct-control
+descriptor families remain source evidence and transitional package shape, not
+the long-term service hierarchy.
+
+Future implementation slices should use that hierarchy to decide where
+service-owned behavior belongs before adding another package module or
+procedure leaf.
+
 ## Next Native Source Slice
 
 Do not add another facade-only read wrapper. The next source slice should
-either retire one transitional shell by moving service behavior into a native
-oRPC procedure module, or promote a repeated policy through actual
+either implement a semantic family such as `attention` with service-owned
+composition, retire one transitional shell by moving service behavior into a
+native oRPC procedure module, or promote a repeated policy through actual
 oRPC/effect-orpc primitives with reviewable ownership evidence that no custom
 wiring or duplicated service shell was added.
