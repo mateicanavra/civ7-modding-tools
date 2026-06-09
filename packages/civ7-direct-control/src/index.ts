@@ -230,7 +230,6 @@ import {
 } from "./play/operations/narrative-request.js";
 import {
   requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule,
-  type Civ7ProductionChoiceCommandPayload,
   type Civ7ProductionChoiceInput,
   type Civ7ProductionChoiceResult,
 } from "./play/operations/production-choice.js";
@@ -281,11 +280,7 @@ import {
   getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
   getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
   type Civ7ProgressDashboardInput,
-  type Civ7ProgressDashboardLegacyPath,
   type Civ7ProgressDashboardResult,
-  type Civ7TraditionAction,
-  type Civ7TraditionActionKind,
-  type Civ7TraditionSummary,
   type Civ7TraditionsViewInput,
   type Civ7TraditionsViewResult,
 } from "./play/progression/reads.js";

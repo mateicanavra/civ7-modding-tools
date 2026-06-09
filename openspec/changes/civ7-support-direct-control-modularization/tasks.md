@@ -106,6 +106,48 @@
         fields recorded in `workstream/compatibility-matrix.md`: owner
         assignment, write set, contract artifact, proof plan, projection plan,
         stop-condition coverage, downstream unblock, and non-proof claims.
+        The debug/internal service output row now has a draft acceptance intake
+        with concrete current package/CLI owners and missing proof called out,
+        but its `acceptanceStatus` remains `pending-debug-service-boundary`
+        until normal/debug/AI separation tests and a debug projection contract
+        are assigned and passing.
+        The semantic CLI player-agent view row now has a draft acceptance
+        intake with current `game play` command/test owners from
+        `workstream/cli-play-corpus.md` and missing envelope/schema/proof
+        called out, but its `acceptanceStatus` remains
+        `pending-cli-semantic-envelope` until a semantic envelope owner,
+        contract, and normal/debug/AI separation tests are assigned and
+        passing.
+        The operation/proof telemetry row now has a draft acceptance intake
+        with current operation, approval, postcondition, notification
+        verification, setup/turn lifecycle, and focused CLI proof owners
+        identified, but its `acceptanceStatus` remains
+        `pending-telemetry-contract` until a telemetry contract owner, schema,
+        record-construction tests, projection separation tests, and proof-label
+        guards are assigned and passing.
+        The strategy/intelligence ingestion row now has a draft acceptance
+        intake using current target-thread/peer-report planning evidence and
+        direct-control read/proof atom owners as candidate input evidence, but
+        its `acceptanceStatus` remains `pending-ai-ingestion-contract` until an
+        ingestion contract owner, schema/test owner, source/freshness/evidence
+        fixtures, and normal/debug/telemetry/procedure separation tests are
+        assigned and passing.
+        The hotseat handoff row now has a draft acceptance intake using the
+        hotseat/autoplay target-thread and peer-report planning evidence plus
+        current runtime/session/setup/autoplay/turn-completion atom owners as
+        candidate support evidence, but its `acceptanceStatus` remains
+        `pending-hotseat-runtime-proof` until hotseat runtime source/proof
+        owners, live activation/rotation/action/restoration gates, and
+        human-turn refusal proof are assigned and passing.
+        The Effect/oRPC procedure cores row now has a draft acceptance intake
+        using the oRPC authority citation, controller-bridge substrate repair,
+        TypeBox versus Effect Schema report disposition, current TypeBox public
+        contracts, and current direct-control atom owners as planning evidence,
+        but its `acceptanceStatus` remains `pending-procedure-core-schema`
+        until procedure-core source/schema/proof owners, context/middleware,
+        error, and correlation owners, schema/procedure validation tests,
+        encode/decode and typed-error tests, projection-separation tests, and
+        no-raw-command-tunnel tests are assigned and passing.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
@@ -742,6 +784,66 @@ runtime/direct-control claims.
         operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
         semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.8.43 Prune stale facade type re-export imports for map read helper
+        types now exported through direct `export type ... from` declarations,
+        while preserving public facade exports and leaving schema ownership,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.44 Prune stale facade type re-export import for the production
+        postcondition snapshot now exported through direct
+        `export type ... from` declarations, while preserving public facade
+        exports and leaving operation/proof telemetry, hotseat runtime proof,
+        AI ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.45 Prune stale facade type re-export imports for runtime diagnostic
+        helper types now exported through direct `export type ... from`
+        declarations, while preserving public facade exports and leaving
+        runtime-status projection, telemetry, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.8.46 Prune stale facade type re-export imports for session endpoint
+        and state-role types now exported through direct
+        `export type ... from` declarations, while preserving public facade
+        exports and leaving session behavior, runtime proof, telemetry, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.47 Prune stale facade type re-export imports for notification-view
+        decision helper types now exported through direct
+        `export type ... from` declarations, while preserving public facade
+        exports and leaving notification behavior, runtime proof, telemetry, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.48 Prune stale facade type re-export import for the notification
+        dismissal summary type now exported through a direct
+        `export type ... from` declaration, while preserving public facade
+        exports and leaving notification behavior, runtime proof, telemetry, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.49 Prune stale facade type re-export imports for progression-read
+        helper types now exported through direct `export type ... from`
+        declarations, while preserving public facade exports and leaving
+        progression behavior, runtime proof, telemetry, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.50 Prune stale facade type re-export import for the production
+        choice command payload now exported through a direct
+        `export type ... from` declaration, while preserving public facade
+        exports and leaving production behavior, runtime proof, telemetry, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.51 Prune stale facade type re-export imports for setup-read helper
+        types now exported through direct `export type ... from` declarations,
+        while preserving public facade exports and leaving setup behavior,
+        runtime proof, telemetry, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.52 Prune stale facade type re-export import for autoplay poll
+        options now exported through a direct `export type ... from`
+        declaration, while preserving public facade exports and leaving autoplay
+        behavior, runtime proof, telemetry, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
       implementation. The support branch cites the
       `civ7-orpc-control-architecture` skill from
@@ -909,6 +1011,15 @@ runtime/direct-control claims.
         composition, telemetry/correlation contracts, procedure schemas,
         semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.22 Align command-result parser and command-source serializer
+        dependency records after facade dependency pruning. The atom corpus now
+        records that shared parser/serializer consumers import the existing
+        owner modules directly instead of receiving those helpers from
+        `index.ts`, while preserving the local package/source proof boundary
+        and leaving atom-local source serializers, procedure schemas,
+        telemetry/correlation contracts, semantic CLI, AI ingestion, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

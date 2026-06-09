@@ -1559,6 +1559,95 @@ All future agent waves must be framed before delegation:
   telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
   Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
   pending. This is local source hygiene proof only, not runtime/live-game proof.
+- Direct-control map type re-export import cleanup slice: completed as a
+  narrow type-only source ownership cleanup after map read helper types were
+  already exposed through direct `export type ... from` declarations. The public
+  facade no longer imports those types only to re-export them, and public facade
+  exports remain stable. Schema ownership, operation/proof telemetry, AI
+  ingestion, semantic CLI projection, hotseat runtime proof, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending. This
+  is local source hygiene proof only, not runtime/live-game proof.
+- Direct-control production postcondition type re-export import cleanup slice:
+  completed as a narrow type-only source ownership cleanup after the production
+  postcondition snapshot type was already exposed through direct
+  `export type ... from` declarations. The public facade no longer imports that
+  type only to re-export it, and public facade exports remain stable.
+  Operation/proof telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local source hygiene proof only, not
+  runtime/live-game proof.
+- Direct-control runtime diagnostic type re-export import cleanup slice:
+  completed as a narrow type-only source ownership cleanup after runtime
+  diagnostic helper types were already exposed through direct
+  `export type ... from` declarations. The public facade no longer imports
+  those types only to re-export them, and public facade exports remain stable.
+  Runtime-status projection, operation/proof telemetry, AI ingestion, semantic
+  CLI projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local source hygiene
+  proof only, not runtime/live-game proof.
+- Direct-control session type re-export import cleanup slice: completed as a
+  narrow type-only source ownership cleanup after session endpoint and
+  state-role types were already exposed through direct `export type ... from`
+  declarations. The public facade no longer imports those types only to
+  re-export them, and public facade exports remain stable. Session behavior,
+  runtime proof, operation/proof telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance remain pending. This is local source hygiene proof
+  only, not runtime/live-game proof.
+- Direct-control notification-view decision helper type re-export import cleanup
+  slice: completed as a narrow type-only source ownership cleanup after
+  notification-view decision helper types were already exposed through direct
+  `export type ... from` declarations. The public facade no longer imports
+  those types only to re-export them, and public facade exports remain stable.
+  Notification behavior, runtime proof, operation/proof telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  source hygiene proof only, not runtime/live-game proof.
+- Direct-control notification-dismissal summary type re-export import cleanup
+  slice: completed as a narrow type-only source ownership cleanup after the
+  dismissal summary type was already exposed through a direct
+  `export type ... from` declaration. The public facade no longer imports that
+  type only to re-export it, and public facade exports remain stable.
+  Notification behavior, runtime proof, operation/proof telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  source hygiene proof only, not runtime/live-game proof.
+- Direct-control progression-read helper type re-export import cleanup slice:
+  completed as a narrow type-only source ownership cleanup after progression
+  helper types were already exposed through direct `export type ... from`
+  declarations. The public facade no longer imports those types only to
+  re-export them, and public facade exports remain stable. Progression behavior,
+  runtime proof, operation/proof telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance remain pending. This is local source hygiene proof
+  only, not runtime/live-game proof.
+- Direct-control production-choice payload type re-export import cleanup slice:
+  completed as a narrow type-only source ownership cleanup after the production
+  choice command payload type was already exposed through a direct
+  `export type ... from` declaration. The public facade no longer imports that
+  type only to re-export it, and public facade exports remain stable.
+  Production behavior, runtime proof, operation/proof telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  source hygiene proof only, not runtime/live-game proof.
+- Direct-control setup-read helper type re-export import cleanup slice:
+  completed as a narrow type-only source ownership cleanup after setup-read
+  helper types were already exposed through direct `export type ... from`
+  declarations. The public facade no longer imports those types only to
+  re-export them, and public facade exports remain stable. Setup behavior,
+  runtime proof, operation/proof telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance remain pending. This is local source hygiene proof
+  only, not runtime/live-game proof.
+- Direct-control autoplay poll option type re-export import cleanup slice:
+  completed as a narrow type-only source ownership cleanup after the autoplay
+  poll options type was already exposed through a direct `export type ... from`
+  declaration. The public facade no longer imports that type only to re-export
+  it, and public facade exports remain stable. Autoplay behavior, runtime proof,
+  operation/proof telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local source hygiene proof only, not
+  runtime/live-game proof.
 - Direct-control generic validation primitive slice: completed as a narrow
   primitive/helper ownership relocation. It moves only bounded integer, simple
   identifier, and player-id validation helpers into `src/validation.ts` while
@@ -2155,3 +2244,84 @@ All future agent waves must be framed before delegation:
   2.10 guardrails, CLI semantic lane 5.x, Effect/Bun/oRPC lane 6.x, runtime
   proof, hotseat runtime proof, telemetry, AI ingestion, schema migration, and
   procedure-core work remain pending by design.
+- Command parser/serializer dependency-record alignment: the atom corpus now
+  matches the current dependency-pruning stack by recording that shared
+  command-result parser and command-source serializer consumers import the
+  existing owner modules directly instead of receiving those helpers from
+  `index.ts`. Atom-local source serializers remain local where not yet
+  normalized. This is a docs/OpenSpec record alignment only; it does not change
+  source behavior, claim runtime/live-game proof, accept Task 2.9.4, or unblock
+  CLI semantic, telemetry, AI ingestion, schema migration, Effect/Bun, or
+  Effect/oRPC procedure-core work.
+- Debug/internal service compatibility-row intake: `workstream/compatibility-matrix.md`
+  now records a draft acceptance intake for the debug/internal service output
+  row. The intake names current debug CLI/package source owners, current local
+  proof owners, missing projection contract work, and missing normal/debug/AI
+  separation tests. The row remains `pending-debug-service-boundary`; this
+  update does not accept Task 2.9.4, start debug hierarchy implementation,
+  claim runtime/live-game proof, or unblock normal CLI semantic envelopes,
+  telemetry, AI ingestion, schema migration, Effect/Bun, or Effect/oRPC
+  procedure-core work.
+- Semantic CLI compatibility-row intake: `workstream/compatibility-matrix.md`
+  now records a draft acceptance intake for the semantic CLI player-agent view
+  row. The intake uses `workstream/cli-play-corpus.md` as current
+  command/test-owner evidence, then records the missing semantic envelope
+  owner, contract artifact, schema/test owner, and normal/debug/AI separation
+  proof needed before acceptance. The row remains
+  `pending-cli-semantic-envelope`; this update does not implement CLI semantic
+  output, accept Task 2.9.4, claim runtime/live-game proof, or unblock AI
+  ingestion, telemetry, schema migration, debug hierarchy implementation,
+  Effect/Bun, or Effect/oRPC procedure-core work.
+- Operation/proof telemetry compatibility-row intake:
+  `workstream/compatibility-matrix.md` now records a draft acceptance intake
+  for the operation/proof telemetry row. The intake names current operation,
+  approval, postcondition, notification verification, setup/turn lifecycle, and
+  focused CLI proof owners as evidence sources, then records the missing
+  telemetry contract owner, schema/test owner, record-construction fixtures,
+  projection separation tests, and proof-label guards needed before
+  acceptance. The row remains `pending-telemetry-contract`; this update does
+  not implement telemetry schemas or persistence, accept Task 2.9.4, claim
+  runtime/live-game proof, or unblock AI ingestion, semantic CLI output,
+  debug hierarchy implementation, schema migration, Effect/Bun, or Effect/oRPC
+  procedure-core work.
+- Strategy/intelligence ingestion compatibility-row intake:
+  `workstream/compatibility-matrix.md` now records a draft acceptance intake
+  for the strategy/intelligence ingestion row. The intake uses the
+  target-thread and peer-report dispositions plus current direct-control
+  read/proof atom owners as planning evidence, then records the missing
+  ingestion contract owner, schema/test owner, source/freshness/evidence
+  fixtures, and projection separation proof needed before acceptance. The row
+  remains `pending-ai-ingestion-contract`; this update does not implement AI
+  ingestion, generate corpus/model/profile artifacts, accept Task 2.9.4, claim
+  runtime/live-game proof, or unblock telemetry persistence, semantic CLI
+  output, debug hierarchy implementation, schema migration, Effect/Bun, or
+  Effect/oRPC procedure-core work.
+- Hotseat handoff compatibility-row intake:
+  `workstream/compatibility-matrix.md` now records a draft acceptance intake
+  for the hotseat handoff state row. The intake uses hotseat/autoplay
+  target-thread and peer-report dispositions plus current runtime, session,
+  setup, autoplay, and turn-completion atom owners as planning/support
+  evidence, then records the missing hotseat runtime source owner, live proof
+  owner, runtime gate runner, human-restoration proof owner, and activation /
+  local-player rotation / approved agent-slot action / human-turn refusal gates
+  needed before acceptance. The row remains `pending-hotseat-runtime-proof`;
+  this update does not claim hotseat activation, runtime/live-game proof,
+  AI-on-hotseat product-path proof, accept Task 2.9.4, or unblock semantic CLI
+  implementation, telemetry, AI ingestion, debug hierarchy implementation,
+  schema migration, Effect/Bun, or Effect/oRPC procedure-core work.
+- Effect/oRPC procedure-core compatibility-row intake:
+  `workstream/compatibility-matrix.md` now records a draft acceptance intake
+  for the Effect/oRPC procedure cores row. The intake uses the oRPC authority
+  citation, controller-bridge substrate repair, TypeBox versus Effect Schema
+  report disposition, current TypeBox public contracts, and current
+  direct-control atom owners as planning evidence, then records the missing
+  procedure-core source owner, schema/proof owner, context/middleware, error,
+  and correlation owner, procedure contract artifact, schema/procedure tests,
+  encode/decode and typed-error tests, projection-separation tests, and
+  no-raw-command-tunnel guards needed before acceptance. The row remains
+  `pending-procedure-core-schema`; this update does not implement Effect/oRPC,
+  migrate schemas, add procedure source, add transport adapters, implement the
+  in-game controller router, claim runtime/live-game proof, accept Task 2.9.4,
+  or unblock semantic CLI implementation, debug hierarchy implementation,
+  telemetry, AI ingestion, hotseat runtime proof, schema migration, or
+  product-path support.
