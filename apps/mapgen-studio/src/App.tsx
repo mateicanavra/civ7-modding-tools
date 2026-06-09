@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   stripSchemaMetadataRoot,
   type StudioPresetExportFileV1,
-  type TSchema,
 } from "@swooper/mapgen-core/authoring";
 
 import { AppHeader } from "./ui/components/AppHeader";
@@ -37,7 +35,6 @@ import {
   buildRunInGameFingerprint,
   buildRunInGameSourceSnapshot,
   parseRunInGameClientSnapshot,
-  parseRunInGameSourceSnapshot,
   relationForRunInGameOperation,
   type RunInGameClientSnapshot,
   type RunInGameCurrentRelation,
@@ -47,21 +44,17 @@ import {
   formatRunInGameDiagnostics,
   isRunInGameTerminalPhase,
   runInGameRequiresProcessRestart,
-  type RunInGameFailureDetails,
   type RunInGameOperationStatus,
 } from "./features/runInGame/status";
 import { createStudioCiv7ControlOrpcClient } from "./features/runInGame/civ7ControlOrpcClient";
 import {
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   getLocalPlayerSetup,
-  labelForCiv7SetupValue,
   normalizeStudioSetupConfig,
   optionRowsFromParameter,
   studioSetupConfigFromLiveSnapshot,
   updateStudioSetupSavedConfig,
-  studioSetupConfigsEqual,
   type Civ7SavedSetupConfigFile,
-  type Civ7SetupParameterSnapshotLike,
   type Civ7SetupSnapshotLike,
   type Civ7StudioSetupConfig,
 } from "./features/civ7Setup/setupConfig";
@@ -110,7 +103,7 @@ import { resolveImportedPreset } from "./features/presets/importFlow";
 import { buildPresetExportFile, downloadPresetFile, parsePresetExportFile } from "./features/presets/importExport";
 import { parsePresetKey, type PresetKey } from "./features/presets/types";
 import { usePresets } from "./features/presets/usePresets";
-import { migratePipelineConfig, migratePipelineConfigUnknown } from "./features/configMigrations/pipelineConfig";
+import { migratePipelineConfig } from "./features/configMigrations/pipelineConfig";
 import {
   loadStudioAuthoringState,
   saveStudioAuthoringState,
@@ -121,554 +114,50 @@ import {
   getRecipeArtifacts,
   STUDIO_RECIPE_OPTIONS,
   type BuiltInPreset,
-  type StudioRecipeUiMeta,
 } from "./recipes/catalog";
 import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
+import { isAbortLikeError } from "./shared/async";
+import { clampNumber } from "./shared/number";
+import {
+  toConfigId,
+  saveRepoBackedConfig,
+  fetchMapConfigSaveDeployStatus,
+  MAP_CONFIG_SAVE_LAST_REQUEST_KEY,
+} from "./features/mapConfigSave/api";
+import { runCurrentConfigInGame, fetchRunInGameStatus } from "./features/runInGame/api";
+import {
+  RUN_IN_GAME_LAST_REQUEST_KEY,
+  RUN_IN_GAME_LAST_SNAPSHOT_KEY,
+  RUN_IN_GAME_LAST_SOURCE_KEY,
+  readStoredRunInGameSourceSnapshot,
+} from "./features/runInGame/sourceSnapshotStorage";
+import { liveSourceMatchesStudio, type LastRunSnapshot } from "./features/runInGame/liveSource";
+import {
+  fetchCiv7SetupConfig,
+  fetchCiv7SavedSetupConfigs,
+  fetchCiv7SetupCatalog,
+  requestCiv7Autoplay,
+  type Civ7SetupCatalog,
+} from "./features/civ7Setup/api";
+import {
+  findSetupParameterLike,
+  ensureSelectOption,
+  mergeSelectOptions,
+  setupCatalogOptions,
+} from "./features/civ7Setup/setupOptions";
+import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "./features/civ7Setup/livePreset";
+import {
+  isPlainObject,
+  buildDefaultConfig,
+  applyPresetConfig,
+  formatPresetErrors,
+  type AppliedPresetSnapshot,
+} from "./features/configOverrides/configBuilders";
+import { mergeBuiltInPresets, toRepoBackedPreset } from "./features/presets/repoBacked";
+import type { PresetErrorState } from "./features/presets/dialogState";
 
 const civ7ControlOrpcClient = createStudioCiv7ControlOrpcClient();
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function toConfigId(label: string): string {
-  const id = label
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return id || `map-config-${Date.now()}`;
-}
-
-async function saveRepoBackedConfig(args: {
-  requestId: string;
-  id: string;
-  name: string;
-  description?: string;
-  sourcePath?: string;
-  sortIndex: number;
-  latitudeBounds?: Readonly<{
-    topLatitude: number;
-    bottomLatitude: number;
-  }>;
-  config: unknown;
-  onStatus?: (status: MapConfigSaveDeployStatus) => void;
-}): Promise<
-  | { ok: true; path?: string; deploy?: { command?: string } }
-  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string }
-> {
-  const envelope = {
-    $schema: "../../../dist/recipes/standard-map-config.schema.json",
-    id: args.id,
-    name: args.name,
-    description: args.description?.trim() || args.name,
-    recipe: "standard",
-    sortIndex: args.sortIndex,
-    ...(args.latitudeBounds ? { latitudeBounds: args.latitudeBounds } : {}),
-    config: args.config,
-  };
-  try {
-    const res = await fetch("/api/map-configs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId: args.requestId, id: args.id, sourcePath: args.sourcePath, envelope }),
-    });
-    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, path: body?.path };
-    }
-    let status = body as MapConfigSaveDeployStatus;
-    args.onStatus?.(status);
-    while (status.status === "running") {
-      await delay(500);
-      const next = await fetchMapConfigSaveDeployStatus(status.requestId);
-      if (!("requestId" in next)) {
-        return { ok: false, error: next.error, saved: status.saved, deployed: status.deployed, path: status.path };
-      }
-      status = next;
-      args.onStatus?.(status);
-    }
-    if (!status.ok || status.status === "failed") {
-      return {
-        ok: false,
-        error: status.error ?? "Save/deploy failed",
-        saved: status.saved,
-        deployed: status.deployed,
-        path: status.path,
-      };
-    }
-    return { ok: true, path: status.path, deploy: status.deploy };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Repo config save failed" };
-  }
-}
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
-function isAbortLikeError(err: unknown): boolean {
-  return Boolean(err && typeof err === "object" && (err as { name?: unknown }).name === "AbortError");
-}
-
-async function fetchMapConfigSaveDeployStatus(requestId: string): Promise<MapConfigSaveDeployStatus | { ok: false; error: string; statusCode?: number }> {
-  try {
-    const res = await fetch(`/api/map-configs/status?requestId=${encodeURIComponent(requestId)}`);
-    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
-    }
-    return body as MapConfigSaveDeployStatus;
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Save/Deploy status unavailable" };
-  }
-}
-
-async function runCurrentConfigInGame(args: {
-  recipeId: string;
-  seed: string;
-  mapSize: string;
-  playerCount: number;
-  resources: string;
-  setupConfig: Civ7StudioSetupConfig;
-  materializationMode: "durable" | "disposable";
-  restartCivProcess?: boolean;
-  selectedConfig?: {
-    id?: string;
-    label?: string;
-    description?: string;
-    sourcePath?: string;
-    sortIndex?: number;
-    latitudeBounds?: Readonly<{
-      topLatitude: number;
-      bottomLatitude: number;
-    }>;
-  };
-  config: unknown;
-  sourceSnapshot?: unknown;
-}): Promise<
-  | RunInGameOperationStatus
-  | { ok: false; error: string; details?: RunInGameFailureDetails; statusCode?: number }
-> {
-  try {
-    const res = await fetch("/api/civ7/run-in-game", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        recipeId: args.recipeId,
-        seed: args.seed,
-        mapSize: args.mapSize,
-        playerCount: args.playerCount,
-        resources: args.resources,
-        setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-        materialization: { mode: args.materializationMode },
-        ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
-        selectedConfig: args.selectedConfig,
-        config: args.config,
-        sourceSnapshot: args.sourceSnapshot,
-      }),
-    });
-    const body = (await res.json().catch(() => null)) as
-      | (Partial<RunInGameOperationStatus> & { error?: string; details?: RunInGameFailureDetails })
-      | null;
-    if (!res.ok || !body?.requestId) {
-      return {
-        ok: false,
-        error: body?.error ?? `HTTP ${res.status}`,
-        details: body?.details,
-        statusCode: res.status,
-      };
-    }
-    return body as RunInGameOperationStatus;
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Run in Game failed" };
-  }
-}
-
-async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperationStatus | { ok: false; error: string; statusCode?: number }> {
-  try {
-    const res = await fetch(`/api/civ7/run-in-game/status?requestId=${encodeURIComponent(requestId)}`);
-    const body = (await res.json().catch(() => null)) as (Partial<RunInGameOperationStatus> & { error?: string }) | null;
-    if (!res.ok || !body?.requestId) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
-    }
-    return body as RunInGameOperationStatus;
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Run in Game status unavailable" };
-  }
-}
-
-async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {}): Promise<
-  | { ok: true; observedAt: string; setup: Civ7SetupSnapshotLike }
-  | { ok: false; error: string; observedAt?: string; statusCode?: number }
-> {
-  try {
-    const res = await fetch("/api/civ7/setup-config", options.signal ? { signal: options.signal } : undefined);
-    const body = (await res.json().catch(() => null)) as {
-      ok?: boolean;
-      observedAt?: string;
-      setup?: Civ7SetupSnapshotLike;
-      error?: string;
-    } | null;
-    if (!res.ok || !body?.ok || !body.setup) {
-      return {
-        ok: false,
-        error: body?.error ?? `HTTP ${res.status}`,
-        observedAt: body?.observedAt,
-        statusCode: res.status,
-      };
-    }
-    return {
-      ok: true,
-      observedAt: body.observedAt ?? new Date().toISOString(),
-      setup: body.setup,
-    };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Civ7 setup config unavailable" };
-  }
-}
-
-type Civ7SetupCatalogOption = Readonly<{
-  value: string;
-  label: string;
-  source?: string;
-  sourcePath?: string;
-}>;
-
-type Civ7SetupCatalog = Readonly<{
-  observedAt: string;
-  leaders: ReadonlyArray<Civ7SetupCatalogOption>;
-  civilizations: ReadonlyArray<Civ7SetupCatalogOption>;
-  difficulties: ReadonlyArray<Civ7SetupCatalogOption>;
-  gameSpeeds: ReadonlyArray<Civ7SetupCatalogOption>;
-}>;
-
-async function fetchCiv7SavedSetupConfigs(): Promise<
-  | { ok: true; observedAt: string; directory: string; configurations: ReadonlyArray<Civ7SavedSetupConfigFile> }
-  | { ok: false; error: string; observedAt?: string; statusCode?: number }
-> {
-  try {
-    const res = await fetch("/api/civ7/saved-configs");
-    const body = (await res.json().catch(() => null)) as {
-      ok?: boolean;
-      observedAt?: string;
-      directory?: string;
-      configurations?: ReadonlyArray<Civ7SavedSetupConfigFile>;
-      error?: string;
-    } | null;
-    if (!res.ok || !body?.ok || !Array.isArray(body.configurations)) {
-      return {
-        ok: false,
-        error: body?.error ?? `HTTP ${res.status}`,
-        observedAt: body?.observedAt,
-        statusCode: res.status,
-      };
-    }
-    return {
-      ok: true,
-      observedAt: body.observedAt ?? new Date().toISOString(),
-      directory: body.directory ?? "",
-      configurations: body.configurations,
-    };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Civ7 saved configurations unavailable" };
-  }
-}
-
-async function fetchCiv7SetupCatalog(): Promise<
-  | { ok: true; catalog: Civ7SetupCatalog }
-  | { ok: false; error: string; observedAt?: string; statusCode?: number }
-> {
-  try {
-    const res = await fetch("/api/civ7/setup-catalog");
-    const body = (await res.json().catch(() => null)) as {
-      ok?: boolean;
-      catalog?: Civ7SetupCatalog;
-      error?: string;
-      observedAt?: string;
-    } | null;
-    if (!res.ok || !body?.ok || !body.catalog) {
-      return {
-        ok: false,
-        error: body?.error ?? `HTTP ${res.status}`,
-        observedAt: body?.observedAt,
-        statusCode: res.status,
-      };
-    }
-    return { ok: true, catalog: body.catalog };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Civ7 setup catalog unavailable" };
-  }
-}
-
-async function requestCiv7Autoplay(action: "start" | "stop"): Promise<{
-  ok: boolean;
-  action?: "start" | "stop";
-  autoplay?: { isActive?: boolean; isPaused?: boolean; isPausedOrPending?: boolean };
-  game?: { turn?: { ok?: boolean; value?: number } };
-  error?: string;
-}> {
-  try {
-    const res = await fetch("/api/civ7/autoplay", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action }),
-    });
-    const body = (await res.json().catch(() => null)) as {
-      ok?: boolean;
-      action?: "start" | "stop";
-      autoplay?: { isActive?: boolean; isPaused?: boolean; isPausedOrPending?: boolean };
-      game?: { turn?: { ok?: boolean; value?: number } };
-      error?: string;
-    } | null;
-    if (!res.ok || !body?.ok) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}` };
-    }
-    return { ok: true, action: body.action, autoplay: body.autoplay, game: body.game };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Civ7 autoplay request failed" };
-  }
-}
-
-const RUN_IN_GAME_LAST_REQUEST_KEY = "mapgen-studio.runInGame.lastRequestId.v1";
-const RUN_IN_GAME_LAST_SNAPSHOT_KEY = "mapgen-studio.runInGame.lastSnapshot.v1";
-const RUN_IN_GAME_LAST_SOURCE_KEY = "mapgen-studio.runInGame.lastSource.v1";
-const MAP_CONFIG_SAVE_LAST_REQUEST_KEY = "mapgen-studio.mapConfigSave.lastRequestId.v1";
-const LIVE_GAME_PRESET_ID = "live-game";
-const LIVE_GAME_PRESET_KEY = `live:${LIVE_GAME_PRESET_ID}` as const;
-
-function isNumericPathSegment(segment: string): boolean {
-  return /^[0-9]+$/.test(segment);
-}
-
-const FORBIDDEN_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
-
-function mergeDeterministic(base: unknown, overrides: unknown): unknown {
-  if (overrides === undefined) return base;
-  if (!isPlainObject(base) || !isPlainObject(overrides)) return overrides;
-
-  const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
-  for (const key of Object.keys(overrides)) {
-    if (FORBIDDEN_MERGE_KEYS.has(key)) continue;
-    out[key] = mergeDeterministic((base as Record<string, unknown>)[key], overrides[key]);
-  }
-  return out;
-}
-
-function setAtPath(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
-  let current: unknown = root;
-  for (let i = 0; i < path.length; i += 1) {
-    const key = path[i];
-    const isLast = i === path.length - 1;
-    const nextKey = path[i + 1];
-    const wantsArray = typeof nextKey === "string" && isNumericPathSegment(nextKey);
-
-    if (Array.isArray(current) && isNumericPathSegment(key)) {
-      const idx = Number(key);
-      if (isLast) {
-        if (current[idx] === undefined) current[idx] = value;
-        return;
-      }
-      const next = current[idx];
-      if (!isPlainObject(next) && !Array.isArray(next)) {
-        current[idx] = wantsArray ? [] : {};
-      }
-      current = current[idx];
-      continue;
-    }
-
-    if (!isPlainObject(current) && !Array.isArray(current)) {
-      return;
-    }
-    const record = current as Record<string, unknown>;
-    if (isLast) {
-      if (record[key] === undefined) record[key] = value;
-      return;
-    }
-    const existing = record[key];
-    if (!isPlainObject(existing) && !Array.isArray(existing)) {
-      record[key] = wantsArray ? [] : {};
-    }
-    current = record[key];
-  }
-}
-
-function buildConfigSkeleton(uiMeta: StudioRecipeUiMeta): PipelineConfig {
-  const skeleton: PipelineConfig = {};
-  for (const stage of uiMeta.stages) {
-    const stageConfig: Record<string, unknown> = { knobs: {} };
-    for (const step of stage.steps) {
-      setAtPath(stageConfig, step.configFocusPathWithinStage, {});
-    }
-    skeleton[stage.stageId] = stageConfig;
-  }
-  return skeleton;
-}
-
-
-function buildDefaultConfig(
-  schema: TSchema,
-  uiMeta: StudioRecipeUiMeta,
-  defaultConfig: unknown
-): PipelineConfig {
-  const skeleton = buildConfigSkeleton(uiMeta);
-  const merged = mergeDeterministic(skeleton, stripSchemaMetadataRoot(defaultConfig));
-  const { value, errors } = normalizeStrict<PipelineConfig>(schema, merged, "/defaultConfig");
-  if (errors.length > 0) {
-    console.error("[mapgen-studio] invalid recipe config schema defaults", errors);
-    return skeleton;
-  }
-  return value;
-}
-
-type PresetApplyResult = Readonly<{
-  value: PipelineConfig | null;
-  errors: ReadonlyArray<{ path: string; message: string }>;
-}>;
-
-type AppliedPresetSnapshot = Readonly<{
-  key: PresetKey;
-  config: unknown;
-}>;
-
-function mergeBuiltInPresets(
-  base: ReadonlyArray<BuiltInPreset>,
-  overrides: Readonly<Record<string, BuiltInPreset>>
-): ReadonlyArray<BuiltInPreset> {
-  const overrideIds = new Set(Object.keys(overrides));
-  if (overrideIds.size === 0) return base;
-  const merged = base.map((preset) => {
-    const override = overrides[preset.id];
-    if (!override) return preset;
-    overrideIds.delete(preset.id);
-    return override;
-  });
-  for (const id of overrideIds) {
-    const override = overrides[id];
-    if (override) merged.push(override);
-  }
-  return merged;
-}
-
-function toRepoBackedPreset(args: {
-  id: string;
-  label: string;
-  description?: string;
-  sourcePath?: string;
-  sortIndex?: number;
-  latitudeBounds?: Readonly<{
-    topLatitude: number;
-    bottomLatitude: number;
-  }>;
-  config: unknown;
-}): BuiltInPreset {
-  return {
-    id: args.id,
-    label: args.label,
-    description: args.description,
-    sourcePath: args.sourcePath,
-    sortIndex: args.sortIndex,
-    latitudeBounds: args.latitudeBounds,
-    config: args.config,
-  };
-}
-
-function readStoredRunInGameSourceSnapshot(): RunInGameSourceSnapshot | null {
-  try {
-    if (typeof localStorage === "undefined") return null;
-    return parseRunInGameSourceSnapshot(localStorage.getItem(RUN_IN_GAME_LAST_SOURCE_KEY));
-  } catch {
-    return null;
-  }
-}
-
-function applyPresetConfig(args: {
-  schema: TSchema;
-  uiMeta: StudioRecipeUiMeta;
-  presetConfig: unknown;
-  label: string;
-}): PresetApplyResult {
-  const { schema, uiMeta, presetConfig, label } = args;
-  const skeleton = buildConfigSkeleton(uiMeta);
-  const migratedPresetConfig = migratePipelineConfigUnknown(stripSchemaMetadataRoot(presetConfig));
-  const merged = mergeDeterministic(skeleton, migratedPresetConfig);
-  const { value, errors } = normalizeStrict<PipelineConfig>(schema, merged, `/preset/${label}`);
-  if (errors.length > 0) return { value: null, errors };
-  return { value, errors: [] };
-}
-
-function formatPresetErrors(errors: ReadonlyArray<{ path: string; message: string }>): ReadonlyArray<string> {
-  return errors.map((e) => `${e.path}: ${e.message}`);
-}
-
-function clampNumber(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
-function findSetupParameterLike(
-  parameters: ReadonlyArray<Civ7SetupParameterSnapshotLike> | undefined,
-  id: string,
-): Civ7SetupParameterSnapshotLike | undefined {
-  return parameters?.find((parameter) => parameter.id === id && parameter.exists !== false);
-}
-
-function ensureSelectOption(
-  options: ReadonlyArray<{ value: string; label: string }>,
-  value: unknown,
-): ReadonlyArray<{ value: string; label: string }> {
-  if (typeof value !== "string" || value.length === 0 || options.some((option) => option.value === value)) return options;
-  return [{ value, label: labelForCiv7SetupValue(value) }, ...options];
-}
-
-function mergeSelectOptions(
-  ...groups: ReadonlyArray<ReadonlyArray<{ value: string; label: string }>>
-): ReadonlyArray<{ value: string; label: string }> {
-  const seen = new Set<string>();
-  const out: Array<{ value: string; label: string }> = [];
-  for (const group of groups) {
-    for (const option of group) {
-      if (!option.value && seen.has(option.value)) continue;
-      if (option.value && seen.has(option.value)) continue;
-      seen.add(option.value);
-      out.push(option);
-    }
-  }
-  return out;
-}
-
-function setupCatalogOptions(options: ReadonlyArray<Civ7SetupCatalogOption> | undefined): ReadonlyArray<{ value: string; label: string }> {
-  return (options ?? []).map((option) => ({ value: option.value, label: option.label }));
-}
-
-type LastRunSnapshot = {
-  worldSettings: WorldSettings;
-  recipeSettings: RecipeSettings;
-  pipelineConfig: PipelineConfig;
-};
-
-function liveSourceMatchesStudio(args: {
-  source: RunInGameSourceSnapshot;
-  recipeSettings: RecipeSettings;
-  worldSettings: WorldSettings;
-  pipelineConfig: PipelineConfig;
-  setupConfig: Civ7StudioSetupConfig;
-}): boolean {
-  return (
-    args.source.recipeSettings.recipe === args.recipeSettings.recipe &&
-    args.source.recipeSettings.seed === args.recipeSettings.seed &&
-    args.source.worldSettings.mapSize === args.worldSettings.mapSize &&
-    args.source.worldSettings.playerCount === args.worldSettings.playerCount &&
-    args.source.worldSettings.resources === args.worldSettings.resources &&
-    studioSetupConfigsEqual(args.source.setupConfig, args.setupConfig) &&
-    configsEqual(args.source.pipelineConfig, args.pipelineConfig)
-  );
-}
-
-type PresetErrorState = Readonly<{
-  title: string;
-  message: string;
-  details?: ReadonlyArray<string>;
-}>;
 
 type AppContentProps = {
   themePreference: "system" | "light" | "dark";
