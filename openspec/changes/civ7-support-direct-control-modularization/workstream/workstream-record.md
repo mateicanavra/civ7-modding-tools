@@ -511,6 +511,81 @@ All future agent waves must be framed before delegation:
   acceptance stay pending. This is local package/constants relocation proof
   only, not runtime proof, runtime reflection authority, AI/hotseat product-path
   support, or procedure-core readiness.
+- Direct-control setup/lifecycle constants slice: completed as a narrow public
+  constants ownership relocation. It moves only setup/lifecycle command strings,
+  UI loading-state values, and setup parameter IDs into
+  `src/setup/constants.ts` while keeping public facade re-exports in `index.ts`.
+  This preserves restart/begin/exit/reload command strings, loading-state
+  numeric values, and setup parameter IDs. Broader public constants/types,
+  procedure schemas, operation/proof telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance stay pending. This is local package/constants
+  relocation proof only, not runtime proof, AI/hotseat product-path support, or
+  procedure-core readiness.
+- Direct-control session constants slice: completed as a narrow public
+  constants ownership relocation. It moves only default tuner host, port,
+  timeout, default state name, and App UI/Tuner state-name constants into
+  `src/session/constants.ts` while keeping public facade re-exports in
+  `index.ts`. This preserves session config defaults, state selection names, and
+  public API values. Broader session/config/socket source extraction, public
+  constants/types, procedure schemas, operation/proof telemetry, AI ingestion,
+  hotseat runtime proof, CLI semantic projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
+  package/constants relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
+- Direct-control map/GameInfo constants slice: completed as a narrow public
+  constants ownership relocation. It moves only GameInfo table defaults, map
+  grid bounds, and GameInfo row bounds into `src/play/map/constants.ts` while
+  keeping public facade re-exports in `index.ts`. This preserves map/grid and
+  GameInfo wrapper default and hard-limit behavior plus the capability catalog's
+  injected GameInfo table list. Broader public constants/types, procedure
+  schemas, operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance stay pending. This is local package/constants relocation
+  proof only, not runtime proof, AI/hotseat product-path support, or
+  procedure-core readiness.
+- Direct-control capability catalog constants slice: completed as a narrow
+  public constants ownership relocation. It moves only capability catalog App
+  UI/Tuner root defaults into `src/catalog/capabilities.ts` while keeping public
+  facade re-exports in `index.ts`. This preserves static/runtime catalog root
+  defaults and keeps runtime root inspection injected from the facade. Broader
+  public constants/types, procedure schemas, operation/proof telemetry, AI
+  ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
+  is local package/constants relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control autoplay constants slice: completed as a narrow public
+  constants ownership relocation. It moves only autoplay default max-turn,
+  wait, poll, and stop-stability constants into `src/play/autoplay.ts` while
+  keeping public facade re-exports in `index.ts`. This preserves autoplay
+  wrapper defaults and keeps App UI execution, validation, approval, sleeping,
+  and serializer dependencies injected from the facade. Broader public
+  constants/types, procedure schemas, operation/proof telemetry, AI ingestion,
+  hotseat runtime proof, CLI semantic projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
+  package/constants relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
+- Direct-control unit-target constants slice: completed as a narrow public
+  constants ownership relocation. It moves only unit-target post-send
+  verification wait/poll defaults into `src/play/operations/unit-target-action.ts`
+  while keeping public facade re-exports in `index.ts`. This preserves bounded
+  unit-target verification timing and keeps command execution, parsing, and
+  approval dependencies injected from the facade. Broader public constants/types,
+  procedure schemas, operation/proof telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance stay pending. This is local package/constants
+  relocation proof only, not runtime proof, AI/hotseat product-path support, or
+  procedure-core readiness.
+- Direct-control scripting-log constant slice: completed as a narrow public
+  constants ownership relocation. It moves only `DEFAULT_CIV7_SCRIPTING_LOG`
+  into `src/proof/log-markers.ts` while keeping public facade re-exports in
+  `index.ts`. This preserves the proof/log helper default log path and does not
+  change marker matching, file snapshotting, timeout behavior, or log proof
+  semantics. Broader public constants/types, operation/proof telemetry, AI
+  ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
+  is local package/constants relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,
@@ -576,6 +651,17 @@ All future agent waves must be framed before delegation:
   Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control facade postcondition-helper cleanup slice: completed as a
+  narrow stale-helper prune after the specialized operation postcondition and
+  unit-target owners moved. It removes only dead private comparison helpers from
+  `index.ts` (`probeValueChanged`, `probeFieldChanged`,
+  `locationFromUnitProbeValue`, `sameMapLocation`, `sameComponentId`,
+  `stableJson`, `isRecord`, and `flattenKeys`) while preserving remaining
+  facade `jsLiteral`, `probeValue`, and `probeHelperSource` injection helpers. Shared
+  serializer/type ownership, runtime/live-game proof, telemetry, AI ingestion,
+  semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance remain pending. This is local package/source cleanup
+  proof only, not runtime/live-game proof.
 - Direct-control production-choice source slice: completed as the next
   operation action source relocation. It moves only the embedded production
   choice source into `src/play/operations/production-choice.ts`. The public

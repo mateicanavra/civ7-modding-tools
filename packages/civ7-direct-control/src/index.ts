@@ -15,6 +15,15 @@ import {
   type Civ7TunerFrame,
 } from "./session/framing.js";
 import {
+  CIV7_TUNER_APP_UI_STATE_NAME,
+  CIV7_TUNER_STATE_NAME,
+  DEFAULT_CIV7_TUNER_HOST,
+  DEFAULT_CIV7_TUNER_PORT,
+  DEFAULT_CIV7_TUNER_STATE_NAME,
+  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+} from "./session/constants.js";
+import {
+  DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
   waitForFreshLogMarkers,
   type FileSnapshot,
@@ -24,6 +33,8 @@ import {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
   createStaticCiv7CapabilityCatalog as createStaticCiv7CapabilityCatalogFromModule,
+  DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
+  DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
   generateCiv7CapabilityCatalog as generateCiv7CapabilityCatalogFromModule,
   loadCiv7OfficialResourceCapabilities,
   type Civ7CapabilityCatalog,
@@ -64,7 +75,21 @@ import {
   restartCiv7GameAndBegin as restartCiv7GameAndBeginFromModule,
 } from "./setup/restart.js";
 import {
+  CIV7_BEGIN_GAME_COMMAND,
+  CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+  CIV7_RELOAD_UI_COMMAND,
+  CIV7_RESTART_COMMAND,
+  CIV7_UI_LOADING_STATES,
+  DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
+  DEFAULT_CIV7_SETUP_PARAMETER_IDS,
+} from "./setup/constants.js";
+import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
+  DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
+  DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
+  DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS,
+  DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
+  DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
   startCiv7Autoplay as startCiv7AutoplayFromModule,
   stopCiv7Autoplay as stopCiv7AutoplayFromModule,
@@ -96,6 +121,8 @@ import {
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
+  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
+  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
   getCiv7UnitTargetAction as getCiv7UnitTargetActionFromModule,
   requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
 } from "./play/operations/unit-target-action.js";
@@ -113,6 +140,13 @@ import {
   requestCiv7UnitCommand as requestCiv7UnitCommandFromModule,
   requestCiv7UnitOperation as requestCiv7UnitOperationFromModule,
 } from "./play/operations/validate-request.js";
+import {
+  DEFAULT_CIV7_GAMEINFO_LIMIT,
+  DEFAULT_CIV7_GAMEINFO_TABLES,
+  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+  HARD_CIV7_GAMEINFO_LIMIT,
+  HARD_CIV7_MAP_GRID_MAX_PLOTS,
+} from "./play/map/constants.js";
 import {
   getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
   getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
@@ -141,6 +175,15 @@ export {
 } from "./session/framing.js";
 export type { Civ7TunerFrame } from "./session/framing.js";
 export {
+  CIV7_TUNER_APP_UI_STATE_NAME,
+  CIV7_TUNER_STATE_NAME,
+  DEFAULT_CIV7_TUNER_HOST,
+  DEFAULT_CIV7_TUNER_PORT,
+  DEFAULT_CIV7_TUNER_STATE_NAME,
+  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+} from "./session/constants.js";
+export {
+  DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
@@ -152,6 +195,8 @@ export { loadCiv7OfficialResourceCapabilities } from "./catalog/capabilities.js"
 export {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
+  DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
+  DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
 } from "./catalog/capabilities.js";
 export type {
   Civ7CapabilityCatalog,
@@ -163,120 +208,35 @@ export {
   DEFAULT_CIV7_ROOT_MAX_METHODS,
   DEFAULT_CIV7_TUNER_API_ROOTS,
 } from "./runtime/inspection-constants.js";
+export {
+  CIV7_BEGIN_GAME_COMMAND,
+  CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+  CIV7_RELOAD_UI_COMMAND,
+  CIV7_RESTART_COMMAND,
+  CIV7_UI_LOADING_STATES,
+  DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
+  DEFAULT_CIV7_SETUP_PARAMETER_IDS,
+} from "./setup/constants.js";
+export {
+  DEFAULT_CIV7_GAMEINFO_LIMIT,
+  DEFAULT_CIV7_GAMEINFO_TABLES,
+  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+  HARD_CIV7_GAMEINFO_LIMIT,
+  HARD_CIV7_MAP_GRID_MAX_PLOTS,
+} from "./play/map/constants.js";
+export {
+  DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
+  DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
+  DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS,
+  DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
+  DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
+} from "./play/autoplay.js";
+export {
+  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
+  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
+} from "./play/operations/unit-target-action.js";
 
-export const DEFAULT_CIV7_TUNER_HOST = "127.0.0.1";
-export const DEFAULT_CIV7_TUNER_PORT = 4318;
-export const DEFAULT_CIV7_TUNER_TIMEOUT_MS = 10_000;
-export const DEFAULT_CIV7_TUNER_STATE_NAME = "App UI";
-export const CIV7_TUNER_APP_UI_STATE_NAME = "App UI";
-export const CIV7_TUNER_STATE_NAME = "Tuner";
-export const CIV7_RESTART_COMMAND = "Network.restartGame()";
-export const CIV7_BEGIN_GAME_COMMAND = "UI.notifyUIReady()";
-export const CIV7_EXIT_TO_MAIN_MENU_COMMAND = 'engine.call("exitToMainMenu")';
-export const CIV7_RELOAD_UI_COMMAND = "UI.reloadUI()";
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
-export const CIV7_UI_LOADING_STATES = {
-  NotStarted: 0,
-  WaitingForGameplayData: 1,
-  WaitingForLoadingCurtain: 2,
-  WaitingForConfiguration: 3,
-  WaitingForGameCore: 4,
-  WaitingForVisualization: 5,
-  WaitingForUIReady: 6,
-  WaitingToStart: 7,
-  GameStarted: 8,
-  WaitingForGameUnloadScreenReady: 9,
-} as const;
-export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
-  "Network",
-  "Configuration",
-  "GameSetup",
-  "Autoplay",
-  "Game",
-  "UI",
-  "GameContext",
-  "PlayerIds",
-  "Players",
-  "GameplayMap",
-  "GameInfo",
-  "Database",
-] as const;
-export const DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS = [
-  "Autoplay",
-  "Game",
-  "GameplayMap",
-  "Players",
-  "Units",
-  "Cities",
-  "MapUnits",
-  "MapCities",
-  "Visibility",
-  "ResourceBuilder",
-  "GameInfo",
-  "Database",
-  "UnitOperationTypes",
-  "UnitCommandTypes",
-  "CityOperationTypes",
-  "CityCommandTypes",
-  "PlayerOperationTypes",
-] as const;
-export const DEFAULT_CIV7_GAMEINFO_TABLES = [
-  "Resources",
-  "Terrains",
-  "Biomes",
-  "Features",
-  "Units",
-  "UnitOperations",
-  "UnitCommands",
-  "Cities",
-  "CityOperations",
-  "CityCommands",
-  "PlayerOperations",
-  "Maps",
-  "MapSizes",
-] as const;
-export const DEFAULT_CIV7_SETUP_PARAMETER_IDS = [
-  "Ruleset",
-  "Age",
-  "Difficulty",
-  "DifficultyIndependentsCombat",
-  "DifficultyCombat",
-  "DifficultyArmyXP",
-  "DifficultyUnitProduction",
-  "DifficultyBuildingProduction",
-  "DifficultyFreeStuff",
-  "DifficultyGold",
-  "DifficultyScience",
-  "DifficultyCulture",
-  "DifficultyHappiness",
-  "DifficultyTechCost",
-  "DifficultyCivicCost",
-  "DifficultyOceanDamage",
-  "AgeLength",
-  "AgeCountdownTimer",
-  "AgeTransitionSetting",
-  "IndependentHostility",
-  "NoCivUnlocks",
-  "Map",
-  "MapSize",
-  "MapRandomSeed",
-  "GameRandomSeed",
-  "GameSpeeds",
-  "StartPosition",
-  "TurnLimit",
-  "MaxTurns",
-  "DisasterIntensity",
-  "Crises",
-  "EnableScoreVictory",
-  "LegacyPaths",
-] as const;
-export const DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS = [
-  "PlayerCivilization",
-  "PlayerLeader",
-  "PlayerDifficulty",
-] as const;
-export const DEFAULT_CIV7_MAP_GRID_MAX_PLOTS = 512;
-export const HARD_CIV7_MAP_GRID_MAX_PLOTS = 10_000;
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
@@ -285,23 +245,6 @@ export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 256;
-export const DEFAULT_CIV7_GAMEINFO_LIMIT = 100;
-export const HARD_CIV7_GAMEINFO_LIMIT = 1_000;
-export const DEFAULT_CIV7_AUTOPLAY_MAX_TURNS = 50;
-export const DEFAULT_CIV7_AUTOPLAY_WAIT_MS = 5_000;
-export const DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS = 30_000;
-export const DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS = 250;
-export const DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS = 10_000;
-export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
-export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;
-export const DEFAULT_CIV7_SCRIPTING_LOG = join(
-  homedir(),
-  "Library",
-  "Application Support",
-  "Civilization VII",
-  "Logs",
-  "Scripting.log",
-);
 export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
   homedir(),
   "Library",
@@ -4366,59 +4309,8 @@ function assertApproved(approval: Civ7ActionApproval, action: string): void {
   }
 }
 
-function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
-  if (!left || !right) return false;
-  if (left.ok !== right.ok) return true;
-  if (!left.ok || !right.ok) return stableJson(left) !== stableJson(right);
-  return stableJson(left.value) !== stableJson(right.value);
-}
-
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
   return probe.ok ? probe.value : undefined;
-}
-
-function probeFieldChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined, field: string): boolean {
-  if (!left?.ok || !right?.ok) return false;
-  if (!isRecord(left.value) || !isRecord(right.value)) return false;
-  return stableJson(left.value[field]) !== stableJson(right.value[field]);
-}
-
-function locationFromUnitProbeValue(probe: Civ7RuntimeProbe<unknown> | undefined): Civ7MapLocation | null {
-  if (!probe?.ok || !isRecord(probe.value)) return null;
-  const location = probe.value.location;
-  if (!isRecord(location)) return null;
-  const x = location.x;
-  const y = location.y;
-  return typeof x === "number" && typeof y === "number" ? { x, y } : null;
-}
-
-function sameMapLocation(left: Civ7MapLocation, right: Civ7MapLocation): boolean {
-  return left.x === right.x && left.y === right.y;
-}
-
-function sameComponentId(left: Civ7ComponentId | null | undefined, right: Civ7ComponentId | null | undefined): boolean {
-  if (left == null || right == null) return left == null && right == null;
-  return left.owner === right.owner && left.id === right.id && left.type === right.type;
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
-  if (Array.isArray(value)) {
-    for (const item of value) flattenKeys(item, keys);
-  } else if (isRecord(value)) {
-    for (const [key, child] of Object.entries(value)) {
-      keys[key] = true;
-      flattenKeys(child, keys);
-    }
-  }
-  return keys;
 }
 
 function jsLiteral(value: unknown): string {

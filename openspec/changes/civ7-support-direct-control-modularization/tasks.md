@@ -283,6 +283,13 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.18 Prune stale facade-local postcondition comparison helpers after
+        unit/population/production/narrative/diplomacy/unit-target owners
+        moved, preserving remaining facade serializer/probe-value/probe-helper
+        injection, package/CLI proof, and leaving shared serializer/type ownership,
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
@@ -309,6 +316,52 @@ runtime/direct-control claims.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
+  - [x] 4.8.2 Extract setup/lifecycle command and setup-parameter constants
+        owner while keeping public facade re-exports in `index.ts`, preserving
+        command strings, UI loading-state values, setup parameter IDs, and
+        leaving broader public constants/types, procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.3 Extract session endpoint/state constants owner while keeping
+        public facade re-exports in `index.ts`, preserving default host, port,
+        timeout, App UI/Tuner state names, session config behavior, and leaving
+        broader session/config/socket extraction, public constants/types,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.4 Extract map/GameInfo constants owner while keeping public facade
+        re-exports in `index.ts`, preserving GameInfo table defaults, map grid
+        bounds, GameInfo row bounds, map/GameInfo wrapper behavior, and leaving
+        broader public constants/types, procedure schemas, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.5 Extract capability catalog root constants owner while keeping
+        public facade re-exports in `index.ts`, preserving App UI/Tuner
+        capability root defaults, static/runtime catalog behavior, and leaving
+        broader public constants/types, procedure schemas, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
+  - [x] 4.8.6 Extract autoplay default constants owner while keeping public
+        facade re-exports in `index.ts`, preserving autoplay wrapper defaults
+        and leaving broader public constants/types, procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
+  - [x] 4.8.7 Extract unit-target verification timing constants owner while
+        keeping public facade re-exports in `index.ts`, preserving bounded
+        post-send polling defaults and leaving broader public constants/types,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.8 Extract default scripting-log path constant owner while keeping
+        public facade re-exports in `index.ts`, preserving proof/log helper path
+        construction and leaving broader public constants/types, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
@@ -375,9 +428,10 @@ runtime/direct-control claims.
         work pending.
   - [x] 4.12.4 Extract proof/log helper owner while keeping the public facade
         export surface in `index.ts`, preserving `snapshotFile` /
-        `waitForFreshLogMarkers` behavior, and leaving capability catalog,
-        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
-        semantic projection, and Effect/oRPC procedure-core work pending.
+        `waitForFreshLogMarkers` behavior and the default scripting-log path,
+        and leaving capability catalog, operation/proof telemetry, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, and Effect/oRPC
+        procedure-core work pending.
   - [x] 4.12.5 Extract capability catalog source owner while keeping public
         facade exports in `index.ts`, injecting runtime root inspection from the
         facade, preserving static/runtime/official-resource catalog behavior,

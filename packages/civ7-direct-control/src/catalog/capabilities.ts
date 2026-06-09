@@ -42,6 +42,40 @@ export const Civ7CapabilityCatalogSchema = Type.Object({
 
 export type Civ7CapabilityCatalog = Static<typeof Civ7CapabilityCatalogSchema>;
 
+export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
+  "Network",
+  "Configuration",
+  "GameSetup",
+  "Autoplay",
+  "Game",
+  "UI",
+  "GameContext",
+  "PlayerIds",
+  "Players",
+  "GameplayMap",
+  "GameInfo",
+  "Database",
+] as const;
+export const DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS = [
+  "Autoplay",
+  "Game",
+  "GameplayMap",
+  "Players",
+  "Units",
+  "Cities",
+  "MapUnits",
+  "MapCities",
+  "Visibility",
+  "ResourceBuilder",
+  "GameInfo",
+  "Database",
+  "UnitOperationTypes",
+  "UnitCommandTypes",
+  "CityOperationTypes",
+  "CityCommandTypes",
+  "PlayerOperationTypes",
+] as const;
+
 type CapabilityCatalogDependencies = Readonly<{
   appUiRoots: ReadonlyArray<string>;
   gameinfoTables: ReadonlyArray<string>;
